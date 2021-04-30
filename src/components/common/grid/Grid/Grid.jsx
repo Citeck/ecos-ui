@@ -798,7 +798,7 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  onFilter = (predicates, colIndex) => {
+  onFilter = predicates => {
     trigger.call(this, 'onFilter', predicates);
   };
 
