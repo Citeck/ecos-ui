@@ -106,7 +106,7 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   }
 
-  static async getUserList(searchText, extraFields = []) {
+  static async getUserList(searchText, extraFields = [], page = 0) {
     const val = searchText.trim();
 
     const queryVal = [
@@ -170,7 +170,7 @@ export class OrgStructApi extends RecordService {
         language: 'predicate',
         page: {
           maxItems: 20,
-          skipCount: 0
+          skipCount: page * 20
         }
       },
       {

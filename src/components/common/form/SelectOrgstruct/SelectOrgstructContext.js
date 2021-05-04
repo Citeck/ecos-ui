@@ -47,7 +47,7 @@ export const SelectOrgstructProvider = props => {
     [TabTypes.SELECTED]: []
   });
   const [pagination, setPagination] = useState({
-    page: 0,
+    page: 1,
     count: 20,
     maxCount: 0
   });
@@ -134,7 +134,7 @@ export const SelectOrgstructProvider = props => {
   // fetch "all" group list (all users)
   useEffect(() => {
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
-      OrgStructApi.getUserList(searchText, userSearchExtraFields).then(({ items, totalCount }) => {
+      OrgStructApi.getUserList(searchText, userSearchExtraFields, pagination.page - 1).then(({ items, totalCount }) => {
         setTabItems({
           ...tabItems,
           [TabTypes.USERS]: items.map(item => setSelectedItem(item))

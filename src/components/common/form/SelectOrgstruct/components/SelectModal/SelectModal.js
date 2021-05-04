@@ -45,8 +45,6 @@ const SelectModal = () => {
           // className={cssClasses}
           total={pagination.maxCount}
           onChange={data => {
-            console.warn({ data });
-
             onChangePage(data.page);
           }}
           // sizes={PAGINATION_SIZES}
