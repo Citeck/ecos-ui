@@ -7,10 +7,22 @@ import Body from './Body';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './SelectModal.scss';
+import Pagination from '../../../../Pagination/Pagination';
+import { TabTypes } from '../../constants';
 
 const SelectModal = () => {
   const context = useContext(SelectOrgstructContext);
-  const { isSelectModalOpen, toggleSelectModal, onCancelSelect, onSelect, modalTitle, hideTabSwitcher } = context;
+  const {
+    isSelectModalOpen,
+    toggleSelectModal,
+    onCancelSelect,
+    onSelect,
+    modalTitle,
+    hideTabSwitcher,
+    currentTab,
+    pagination,
+    onChangePage
+  } = context;
 
   return (
     <EcosModal
@@ -25,6 +37,25 @@ const SelectModal = () => {
       </div>
 
       <Body />
+
+      {currentTab === TabTypes.USERS && (
+        <Pagination
+          page={pagination.page}
+          maxItems={pagination.count}
+          // className={cssClasses}
+          total={pagination.maxCount}
+          onChange={data => {
+            console.warn({ data });
+
+            onChangePage(data.page);
+          }}
+          // sizes={PAGINATION_SIZES}
+          // hasPageSize={hasPageSize}
+          // loading={loading}
+          // onChange={this.changePage}
+          // {...pagination}
+        />
+      )}
 
       <div className="select-orgstruct-select-modal__buttons">
         <Btn onClick={onCancelSelect} className={'fitnesse-select-orgstruct-select-modal__buttons-cancel'}>
