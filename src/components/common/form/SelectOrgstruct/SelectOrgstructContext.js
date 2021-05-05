@@ -142,7 +142,7 @@ export const SelectOrgstructProvider = props => {
 
         checkIsAllUsersGroupExists();
         setIsAllUsersGroupFetched(true);
-        setPagination({ ...pagination, page: 1, maxCount: totalCount });
+        setPagination({ ...pagination, maxCount: totalCount });
       });
     }
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
@@ -437,6 +437,7 @@ export const SelectOrgstructProvider = props => {
 
         onChangePage: page => {
           setPagination({ ...pagination, page });
+          setIsAllUsersGroupFetched(false);
         }
       }}
     >

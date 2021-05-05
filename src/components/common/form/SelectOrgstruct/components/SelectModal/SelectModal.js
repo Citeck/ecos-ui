@@ -42,16 +42,8 @@ const SelectModal = () => {
         <Pagination
           page={pagination.page}
           maxItems={pagination.count}
-          // className={cssClasses}
           total={pagination.maxCount}
-          onChange={data => {
-            onChangePage(data.page);
-          }}
-          // sizes={PAGINATION_SIZES}
-          // hasPageSize={hasPageSize}
-          // loading={loading}
-          // onChange={this.changePage}
-          // {...pagination}
+          onChange={data => onChangePage(data.page)}
         />
       )}
 
