@@ -23,7 +23,6 @@
   "page.error-loading.log": "Журнал ошибки",
 
   "record.permission-denied.message": "У вас недостаточно прав для просмотра данного документа. Обратитесь к администратору.",
-
   "record.not-found.message": "Документ удален или еще не создан.",
 
   "bpmn-card.go-back-to-list-button.text": "Назад к списку",
@@ -98,11 +97,13 @@
   "button.leave-site.cancel-label": "Отмена",
   "button.leave-site.confirm-label": "OK",
   "button.login": "Войти",
-  "close-button.label": "Закрыть",
+  "button.close.label": "Закрыть",
+
   "columns-setup.ascending": "По возрастанию",
   "columns-setup.descending": "По убыванию",
   "columns-setup.order": "Порядок и отображение колонок",
   "columns-setup.sort": "Сортировка в колонке",
+
   "comments-widget.add": "Добавить комментарий",
   "comments-widget.comment-form1": "комментарий",
   "comments-widget.comment-form2": "комментария",
@@ -320,11 +321,13 @@
   "type-permissions.load-data-error": "Ошибка загрузки данных",
   "type-permissions.save-permissions-error.title": "Ошибка",
   "type-permissions.save-permissions-error.message": "Не удалось сохранить права доступа",
+
   "doc-status-widget.no-status": "Нет статуса",
   "doc-status-widget.saga.error1": "Ошибка получения статуса документа",
   "doc-status-widget.saga.error2": "Ошибка получения доступных статусов",
   "doc-status-widget.saga.error3": "Ошибка изменения статуса",
   "doc-status-widget.title": "Статус",
+
   "dochist.assoc.added": "Добавлено",
   "dochist.assoc.contains": "Документ",
   "dochist.assoc.removed": "Удалено",
@@ -356,6 +359,7 @@
   "dochist.workflow.end": "Процесс завершен",
   "dochist.workflow.end.cancelled": "Процесс отменен",
   "dochist.workflow.start": "Процесс запущен",
+
   "dropdown-filter.all-fields": "По всем полям",
   "dropdown-filter.icon-button.label": "Фильтровать",
   "dropdown-filter.item.placeholder": "Фильтровать",
@@ -370,6 +374,7 @@
   "ecos-forms.datepicker.time-label": "Время",
   "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",
   "ecos-forms.datepicker.month-next-label": "Следующий месяц",
+
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.import-button": "Импорт",
   "ecos-table-form.create-modal.title": "Создать",
@@ -389,6 +394,7 @@
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",
   "ecos-ui.select.placeholder": "Выбрать",
+
   "ecos.forms.Drop files to attach, or": "Перетащите файлы для прикрепления, или",
   "ecos.forms.File Name": "Имя файла",
   "ecos.forms.Size": "Размер",
@@ -417,6 +423,7 @@
   "eform.header.VIEW.title": "Просмотр",
   "eform.btn.tooltip.constructor": "Перейти в конструктор",
   "eform.form-is-not-ready": "Форма не готова к отправке",
+
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
@@ -683,6 +690,7 @@
   "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки",
   "journal.cell.no-label": "(Нет наименования)",
   "journal.error.fail-get-settings-template": "Шаблон настроек не получен",
+  "journal.generated-field.editor.not-exist": "Редактора не существует",
 
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
   "journals-selector.create-button.label": "Добавить связь",
@@ -913,6 +921,7 @@
   "size.kilobytes": "КБ",
   "size.megabytes": "МБ",
   "slide_menu_click_to_open.label": "Нажмите для раскрытия меню",
+
   "tasks-widget.assign.assign": "Назначить",
   "tasks-widget.assign.me": "Я выполню это",
   "tasks-widget.assign.reassign": "Переназначить",
@@ -1019,6 +1028,10 @@
   "timesheets.error.get-subordinates": "Ошибка при получении подчиненных",
   "timesheets.error.no-subordinates": "Подчиненные отсутствуют",
 
+  "dropzone.modal.dropzone_placeholder": "Перетяните сюда файл или выберите вручную",
+  "dropzone.modal.dropzone_button_select": "Выбрать файл",
+  "dropzone.modal.dropzone_button_cancel": "Отмена",
+
   "versions-journal-widget.add": "Добавить новую версию",
   "versions-journal-widget.add-version": "Добавить версию",
   "versions-journal-widget.current-version": "Актуальная версия",
@@ -1032,9 +1045,6 @@
   "versions-journal-widget.modal.comment_title": "Комментарий",
   "versions-journal-widget.modal.download": "Скачать",
   "versions-journal-widget.modal.no-document-data": "Данные документа отсутствуют",
-  "dropzone.modal.dropzone_placeholder": "Перетяните сюда файл или выберите вручную",
-  "dropzone.modal.dropzone_button_select": "Выбрать файл",
-  "dropzone.modal.dropzone_button_cancel": "Отмена",
   "versions-journal-widget.modal.error-file-size": "Файл VAL имеет размер VAL байт, передать этот файл невозможно.",
   "versions-journal-widget.modal.error-file-upload": "Файл не загружен. Обратитесь к администратору.",
   "versions-journal-widget.modal.error-file-aborted": "Загрузка файла отменена.",
@@ -1050,8 +1060,7 @@
   "versions-journal-widget.set-current-version": "Сделать актуальной версию",
   "versions-journal-widget.title": "Журнал версий",
   "versions-journal-widget.version": "Версия",
-  "view-table.labels.actions": "Действия",
-  "widget.document.title.preview": "Предпросмотр документа",
+
   "web-page-widget.title": "Веб-страница",
   "web-page-widget.empty": "Содержимого нет. Укажите в настройках адрес веб-страницы.",
   "web-page-widget.settings.caption": "Настройки виджета",
@@ -1078,6 +1087,7 @@
   "barcode-widget.btn.generate-new": "Сгенерировать новый",
   "barcode-widget.dashlet.title": "Штрих-код документа",
   "barcode-widget.settings.title": "Настройки виджета",
+  "barcode-widget.settings.display-condition.element": "Условие отображения \"{{title}}\"",
   "barcode-widget.settings.code-type.label": "Тип кода",
   "barcode-widget.settings.print-settings.label": "Настройки печати",
   "barcode-widget.settings.scale.label": "Масштаб",
@@ -1284,7 +1294,6 @@
   "menu-settings.editor-group-priority.title": "Приоритет групп",
   "menu-settings.error-boundary.title": "Ошибка",
   "menu-settings.error-boundary.msg": "Попробуйте закрыть и открыть настройки повторно. Если ошибка повторится, обратитесь к администратору",
-
   "menu-settings.error.no-id-config": "Идентификатор пользовательского меню отсутствует",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
@@ -1346,8 +1355,6 @@
   "legacy-cmmn-editor.button.save.label": "Сохранить",
   "legacy-cmmn-editor.button.cancel.label": "Отменить",
   "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Скопировать ID временного кейса",
-
-  "generated-field.editor.not-exist": "Редактора не существует",
 
   "go-to.home-page": "Перейти на домашнюю страницу",
   "notification.journal-will-be-opened-soon": "Журнал будет скоро открыт",

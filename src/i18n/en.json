@@ -23,7 +23,6 @@
   "page.error-loading.log": "Error log",
 
   "record.permission-denied.message": "You do not have sufficient rights to view this document. Contact your administrator.",
-
   "record.not-found.message": "The document was deleted or not yet created.",
 
   "bpmn-card.go-back-to-list-button.text": "Back to list",
@@ -98,11 +97,13 @@
   "button.leave-site.cancel-label": "Cancel",
   "button.leave-site.confirm-label": "OK",
   "button.login": "Login",
-  "close-button.label": "Close",
+  "button.close.label": "Close",
+
   "columns-setup.ascending": "Ascending",
   "columns-setup.descending": "Descending",
   "columns-setup.order": "Column order and display",
   "columns-setup.sort": "Sort by column",
+
   "comments-widget.add": "Add a comment",
   "comments-widget.comment-form1": "comment",
   "comments-widget.comment-form2": "comments",
@@ -156,8 +157,7 @@
   "widget-settings.display-condition": "Display condition",
   "widget-settings.dc-no-attributes": "Attributes type are not configured",
   "widget-settings.dc-no-rules": "Condition group is not set",
-  "widget-settings.display-condition.element-title": "Display conditions",
-  "widget-settings.display-condition.element-btn.open-settings": "Set \"{{title}}\"",
+  "widget-settings.display-condition.element-title": "Element display condition \"{{title}}\"",
 
   "dashboard-settings.config.default": "Default",
   "dashboard-settings.config.custom": "Custom",
@@ -264,7 +264,7 @@
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",
   "doc-associations-widget.basis-document": "Basis document",
-  "doc-associations-widget.closing-document": "Сlosing document",
+  "doc-associations-widget.closing-document": "Closing document",
   "doc-associations-widget.confirm-remove-modal.text": "Are you sure you want to remove the document association:",
   "doc-associations-widget.confirm-remove-modal.title": "Removing document association",
   "doc-associations-widget.not-added": "Not added",
@@ -321,11 +321,13 @@
   "type-permissions.load-data-error": "Failure to load data",
   "type-permissions.save-permissions-error.title": "Error",
   "type-permissions.save-permissions-error.message": "Failure to save permissions",
+
   "doc-status-widget.no-status": "No status",
   "doc-status-widget.saga.error1": "Error. Failure to fetch document status",
   "doc-status-widget.saga.error2": "Error. Failure to fetch document status list",
   "doc-status-widget.saga.error3": "Error. Failure to change document status",
   "doc-status-widget.title": "Status",
+
   "dochist.assoc.added": "Added",
   "dochist.assoc.contains": "Document",
   "dochist.assoc.removed": "Removed",
@@ -357,6 +359,7 @@
   "dochist.workflow.end": "Workflow ended",
   "dochist.workflow.end.cancelled": "Workflow cancelled",
   "dochist.workflow.start": "Workflow started",
+
   "dropdown-filter.all-fields": "All fields",
   "dropdown-filter.icon-button.label": "Filter",
   "dropdown-filter.item.placeholder": "Filter",
@@ -371,6 +374,7 @@
   "ecos-forms.datepicker.time-label": "Time",
   "ecos-forms.datepicker.month-prev-label": "Previous Month",
   "ecos-forms.datepicker.month-next-label": "Next Month",
+
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.import-button": "Import",
   "ecos-table-form.create-modal.title": "Create",
@@ -390,6 +394,7 @@
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos-ui.select.placeholder": "Select",
+
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
   "ecos.forms.File Name": "File Name",
   "ecos.forms.Size": "Size",
@@ -418,6 +423,7 @@
   "eform.header.VIEW.title": "View",
   "eform.btn.tooltip.constructor": "Go to form builder",
   "eform.form-is-not-ready": "Form is not ready",
+
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.info.no-data": "No data",
@@ -567,7 +573,7 @@
   "grouping.show": "View the principle of grouping",
   "grouping.what": "What to group",
 
-  "header.menu-create.btn.label": "Create",
+  "header.menu.create.btn.label": "Create",
   "header.menu.msg.empty-list": "No available items",
   "header.menu.msg.loading": "Loading...",
   "header.search.people": "People",
@@ -684,6 +690,7 @@
   "journal.not-exists.warning": "The specified Journal does not exist, check the settings",
   "journal.cell.no-label": "(Missing Label)",
   "journal.error.fail-get-settings-template": "Settings template not received",
+  "journal.generated-field.editor.not-exist": "Editor doesn't exist",
 
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
@@ -914,6 +921,7 @@
   "size.kilobytes": "KB",
   "size.megabytes": "MB",
   "slide_menu_click_to_open.label": "Click to open the menu",
+
   "tasks-widget.assign.assign": "Assign",
   "tasks-widget.assign.me": "I will perform this",
   "tasks-widget.assign.reassign": "Reassign",
@@ -1020,6 +1028,10 @@
   "timesheets.error.get-subordinates": "There's error while getting subordinates",
   "timesheets.error.no-subordinates": "There aren't subordinates",
 
+  "dropzone.modal.dropzone_placeholder": "Drag the file here or select manually",
+  "dropzone.modal.dropzone_button_select": "Select file",
+  "dropzone.modal.dropzone_button_cancel": "Cancel",
+
   "versions-journal-widget.add": "Add new version",
   "versions-journal-widget.add-version": "Add version",
   "versions-journal-widget.current-version": "Current version",
@@ -1033,9 +1045,6 @@
   "versions-journal-widget.modal.comment_title": "Comment",
   "versions-journal-widget.modal.download": "Download",
   "versions-journal-widget.modal.no-document-data": "No document data",
-  "dropzone.modal.dropzone_placeholder": "Drag the file here or select manually",
-  "dropzone.modal.dropzone_button_select": "Select file",
-  "dropzone.modal.dropzone_button_cancel": "Cancel",
   "versions-journal-widget.modal.error-file-size": "Can't upload file VAL, because it size is VAL bytes.",
   "versions-journal-widget.modal.error-file-upload": "Can't upload file. Contact administrator",
   "versions-journal-widget.modal.error-file-aborted": "Uploading file is canceled",
@@ -1051,8 +1060,7 @@
   "versions-journal-widget.set-current-version": "Set current version",
   "versions-journal-widget.title": "Versions journal",
   "versions-journal-widget.version": "Version",
-  "view-table.labels.actions": "Actions",
-  "widget.document.title.preview": "Document preview",
+
   "web-page-widget.title": "Web Page",
   "web-page-widget.empty": "No content. Specify the address of the web page in the settings.",
   "web-page-widget.settings.caption": "Setting widget",
@@ -1286,7 +1294,6 @@
   "menu-settings.editor-group-priority.title": "Group priority",
   "menu-settings.error-boundary.title": "Error",
   "menu-settings.error-boundary.msg": "Try reopen the settings. If the error reappears, contact your administrator",
-
   "menu-settings.error.no-id-config": "User menu ID is absent",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
@@ -1349,8 +1356,6 @@
   "legacy-cmmn-editor.button.cancel.label": "Cancel",
   "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Copy temporary case ID",
 
-  "generated-field.editor.not-exist": "Editor doesn't exist",
-
   "go-to.home-page": "Go to home page",
   "notification.journal-will-be-opened-soon": "Journal will be opened soon",
   "task": "Task",
@@ -1364,7 +1369,7 @@
 
   "ecos-form.import-button.confirm.default-title": "Removing previously added entries",
   "ecos-form.import-button.confirm.default-description": "Before loading lines from the template file, the current lines will be deleted. Do you want to continue the action?",
-  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.description": "Failure to upload file",
   "ecos-form.import-button.failed-uploading.title": "Error",
   "ecos-form.import-button.error.no-response-handler": "You must set \"Response handler\" setting"
 }

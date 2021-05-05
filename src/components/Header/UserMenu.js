@@ -17,7 +17,6 @@ const mapStateToProps = state => ({
 });
 
 const Labels = {
-  BTN_LABEL: 'header.menu.create.btn.label',
   EMPTY: 'header.menu.msg.empty-list',
   LOADING: 'header.menu.msg.loading'
 };
