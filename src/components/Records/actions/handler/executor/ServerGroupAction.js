@@ -114,6 +114,6 @@ export default class ServerGroupAction extends ActionsExecutor {
   }
 
   isActionConfigCheckingRequired(action) {
-    return false;
+    return !Boolean(get(action, 'generatedAction'));
   }
 }
