@@ -27,7 +27,7 @@ describe('Language Localisation', () => {
       const ru = RU[key].includes('{{');
       const en = EN[key].includes('{{');
 
-      if ((ru && !en) || (!ru && en)) {
+      if (ru !== en) {
         incorrect.push(key);
       }
     }
