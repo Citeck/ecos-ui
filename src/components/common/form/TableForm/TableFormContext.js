@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
@@ -81,32 +82,39 @@ export const TableFormContextProvider = props => {
 
       Promise.all(
         initValue.map(r => {
-          return Records.get(r)
-            .load(atts)
-            .then(result => {
-              const fetchedAtts = {};
-              let currentAttIndex = 0;
-              for (let attSchema in result) {
-                if (!result.hasOwnProperty(attSchema)) {
+          const record = Records.get(r);
+          let promise;
+
+          if (isEmpty(get(record.toJson(), 'attributes'))) {
+            promise = record.load(atts);
+          } else {
+            promise = record.toJsonAsync(true).then(result => get(result, 'attributes', {}));
+          }
+
+          return promise.then(result => {
+            const fetchedAtts = {};
+            let currentAttIndex = 0;
+            for (let attSchema in result) {
+              if (!result.hasOwnProperty(attSchema)) {
+                continue;
+              }
+
+              if (noNeedParseIndices.includes(currentAttIndex)) {
+                fetchedAtts[attSchema] = result[attSchema];
+              } else {
+                const attData = parseAttribute(attSchema);
+                if (!attData) {
+                  currentAttIndex++;
                   continue;
                 }
 
-                if (noNeedParseIndices.includes(currentAttIndex)) {
-                  fetchedAtts[attSchema] = result[attSchema];
-                } else {
-                  const attData = parseAttribute(attSchema);
-                  if (!attData) {
-                    currentAttIndex++;
-                    continue;
-                  }
-
-                  fetchedAtts[attData.name] = result[attSchema];
-                }
-                currentAttIndex++;
+                fetchedAtts[attData.name] = result[attSchema];
               }
+              currentAttIndex++;
+            }
 
-              return { ...fetchedAtts, id: r };
-            });
+            return { ...fetchedAtts, id: r };
+          });
         })
       ).then(result => {
         setGridRows(result);
@@ -148,10 +156,9 @@ export const TableFormContextProvider = props => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
 
-    record.toJsonAsync().then(res => {
+    record.toJsonAsync(true).then(res => {
       const attributes = cloneDeep(res.attributes);
       const restAttrs = Object.keys(attributes);
-
       const unresolvedCols = columns.filter(item => {
         if (item.attribute in res.attributes) {
           const index = restAttrs.findIndex(value => value === item.attribute);
@@ -249,31 +256,33 @@ export const TableFormContextProvider = props => {
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
-          const newRow = { ...record.toJson()['attributes'], id: editRecordId };
+          record.toJsonAsync(true).then(res => {
+            const newRow = { ...res['attributes'], id: editRecordId };
 
-          if (isAlias) {
-            // replace base record row by newRow in values list
-            const baseRecord = record.getBaseRecord();
-            const baseRecordId = baseRecord.id;
-            const baseRecordIndex = gridRows.findIndex(item => item.id === baseRecordId);
-            if (baseRecordIndex !== -1) {
-              newGridRows = [...newGridRows.slice(0, baseRecordIndex), newRow, ...newGridRows.slice(baseRecordIndex + 1)];
+            if (isAlias) {
+              // replace base record row by newRow in values list
+              const baseRecord = record.getBaseRecord();
+              const baseRecordId = baseRecord.id;
+              const baseRecordIndex = gridRows.findIndex(item => item.id === baseRecordId);
+              if (baseRecordIndex !== -1) {
+                newGridRows = [...newGridRows.slice(0, baseRecordIndex), newRow, ...newGridRows.slice(baseRecordIndex + 1)];
+              }
+
+              Records.forget(baseRecordId); // reset cache for base record
             }
 
-            Records.forget(baseRecordId); // reset cache for base record
-          }
+            // add or update record alias
+            const editRecordIndex = newGridRows.findIndex(item => item.id === record.id);
+            if (editRecordIndex !== -1) {
+              newGridRows = [...newGridRows.slice(0, editRecordIndex), newRow, ...newGridRows.slice(editRecordIndex + 1)];
+            } else {
+              newGridRows.push(newRow);
+            }
 
-          // add or update record alias
-          const editRecordIndex = newGridRows.findIndex(item => item.id === record.id);
-          if (editRecordIndex !== -1) {
-            newGridRows = [...newGridRows.slice(0, editRecordIndex), newRow, ...newGridRows.slice(editRecordIndex + 1)];
-          } else {
-            newGridRows.push(newRow);
-          }
-
-          setGridRows(newGridRows);
-          onChangeHandler(newGridRows);
-          setIsModalFormOpen(false);
+            setGridRows(newGridRows);
+            onChangeHandler(newGridRows);
+            setIsModalFormOpen(false);
+          });
         },
 
         deleteSelectedItem: id => {
