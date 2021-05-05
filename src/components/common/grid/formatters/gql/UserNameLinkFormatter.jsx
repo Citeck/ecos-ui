@@ -1,9 +1,15 @@
 import React from 'react';
-import { isEmpty } from 'lodash';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 import { createProfileUrl } from '../../../../../helpers/urls';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
+  static getFilterValue(cell) {
+    return get(cell, 'displayName');
+  }
+
   static getQueryString(attribute) {
     return `.att(n:"${attribute}"){displayName:disp,nodeRef:str,userName:att(n:"cm:userName"){str}}`;
   }
