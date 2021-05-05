@@ -6,7 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -48,7 +48,7 @@ export const SelectOrgstructProvider = props => {
   });
   const [pagination, setPagination] = useState({
     page: 1,
-    count: 20,
+    count: ITEMS_PER_PAGE,
     maxCount: 0
   });
   const prevDefaultValue = usePrevious(defaultValue);
@@ -56,6 +56,7 @@ export const SelectOrgstructProvider = props => {
   const onSubmitSearchForm = () => {
     setIsRootGroupsFetched(false);
     setIsAllUsersGroupFetched(false);
+    setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
   const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
@@ -134,16 +135,18 @@ export const SelectOrgstructProvider = props => {
   // fetch "all" group list (all users)
   useEffect(() => {
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
-      OrgStructApi.getUserList(searchText, userSearchExtraFields, pagination.page - 1).then(({ items, totalCount }) => {
-        setTabItems({
-          ...tabItems,
-          [TabTypes.USERS]: items.map(item => setSelectedItem(item))
-        });
+      OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
+        ({ items, totalCount }) => {
+          setTabItems({
+            ...tabItems,
+            [TabTypes.USERS]: items.map(item => setSelectedItem(item))
+          });
 
-        checkIsAllUsersGroupExists();
-        setIsAllUsersGroupFetched(true);
-        setPagination({ ...pagination, maxCount: totalCount });
-      });
+          checkIsAllUsersGroupExists();
+          setIsAllUsersGroupFetched(true);
+          setPagination({ ...pagination, maxCount: totalCount });
+        }
+      );
     }
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
@@ -435,8 +438,8 @@ export const SelectOrgstructProvider = props => {
           }
         },
 
-        onChangePage: page => {
-          setPagination({ ...pagination, page });
+        onChangePage: ({ page, maxItems }) => {
+          setPagination({ ...pagination, page, count: maxItems });
           setIsAllUsersGroupFetched(false);
         }
       }}

@@ -8,7 +8,7 @@ import { SelectOrgstructContext } from '../../SelectOrgstructContext';
 import { t } from '../../../../../../helpers/util';
 import './SelectModal.scss';
 import Pagination from '../../../../Pagination/Pagination';
-import { TabTypes } from '../../constants';
+import { PAGINATION_SIZES, TabTypes } from '../../constants';
 
 const SelectModal = () => {
   const context = useContext(SelectOrgstructContext);
@@ -43,7 +43,9 @@ const SelectModal = () => {
           page={pagination.page}
           maxItems={pagination.count}
           total={pagination.maxCount}
-          onChange={data => onChangePage(data.page)}
+          hasPageSize
+          sizes={PAGINATION_SIZES}
+          onChange={onChangePage}
         />
       )}
 
