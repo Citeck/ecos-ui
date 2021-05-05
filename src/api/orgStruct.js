@@ -177,12 +177,9 @@ export class OrgStructApi extends RecordService {
         fullName: '.disp',
         userName: 'userName'
       }
-    ).then(result => {
-      console.warn({ result });
-      return {
-        items: converterUserList(result.records),
-        totalCount: result.totalCount
-      };
-    });
+    ).then(result => ({
+      items: converterUserList(result.records),
+      totalCount: result.totalCount
+    }));
   }
 }
