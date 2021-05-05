@@ -315,6 +315,18 @@ describe('Formio Form Renderer tests', () => {
     });
   });
 
+  it('When submitted should showing loader', done => {
+    const formElement = document.createElement('div');
+
+    simpleForm = new Webform(formElement);
+    simpleForm.setForm({});
+    simpleForm.executeSubmit();
+
+    expect(simpleForm.loading).toEqual(true);
+    expect(simpleForm.wrapper.querySelector('.loader-wrapper')).not.toBeNull();
+    done();
+  });
+
   describe('set/get nosubmit', () => {
     it('should set/get nosubmit flag and emit nosubmit event', () => {
       const form = new Webform(null, {});
