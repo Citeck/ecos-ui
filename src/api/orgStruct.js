@@ -168,6 +168,7 @@ export class OrgStructApi extends RecordService {
       {
         query: { t: 'and', val: queryVal },
         language: 'predicate',
+        consistency: 'EVENTUAL',
         page: {
           maxItems: params.maxItems,
           skipCount: params.page * params.maxItems
