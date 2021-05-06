@@ -1,3 +1,9 @@
+import React from 'react';
+
+import { Popper } from '../../../../../common';
+
+import './BaseFormatter.scss';
+
 export default class BaseFormatter {
   static TYPE = '';
 
@@ -18,4 +24,18 @@ export default class BaseFormatter {
   getType() {
     return this.constructor.TYPE || BaseFormatter.TYPE;
   }
+
+  PopperWrapper = React.memo(props => {
+    return (
+      <Popper
+        showAsNeeded
+        text={props.text}
+        icon="icon-question"
+        popupClassName="formatter-popper"
+        contentComponent={props.contentComponent}
+      >
+        {props.children}
+      </Popper>
+    );
+  });
 }

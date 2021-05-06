@@ -5,8 +5,9 @@ import FileIcon from '../../../../../common/FileIcon';
 import { detectFormat } from '../../../../../common/FileIcon/helpers';
 
 import BaseFormatter from '../BaseFormatter';
-import './FileNameFormatter.scss';
 import { URL } from '../../../../../../constants';
+
+import './FileNameFormatter.scss';
 
 export default class FileNameFormatter extends BaseFormatter {
   static TYPE = 'filename';
@@ -26,10 +27,12 @@ export default class FileNameFormatter extends BaseFormatter {
     };
 
     return (
-      <a href={url} {...linkProps} className="ecos-filename-formatter">
-        <FileIcon format={detectFormat(cell)} className="ecos-filename-formatter__icon" />
-        {cell}
-      </a>
+      <this.PopperWrapper text={cell}>
+        <a href={url} {...linkProps} className="ecos-filename-formatter">
+          <FileIcon format={detectFormat(cell)} className="ecos-filename-formatter__icon" />
+          {cell}
+        </a>
+      </this.PopperWrapper>
     );
   }
 }
