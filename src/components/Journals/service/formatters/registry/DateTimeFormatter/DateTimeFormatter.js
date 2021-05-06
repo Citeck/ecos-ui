@@ -17,6 +17,7 @@ export default class DateTimeFormatter extends BaseFormatter {
     }
 
     const value = this.getTimeOrValue(cell, config);
+
     if (!value) {
       return '';
     }
@@ -24,7 +25,11 @@ export default class DateTimeFormatter extends BaseFormatter {
     const title = moment(value).format('LLL');
     const date = relative ? moment(value).fromNow() : moment(value).format(format || FORMAT);
 
-    return <span title={title}>{date}</span>;
+    return (
+      <this.PopperWrapper text={date}>
+        <span title={title}>{date}</span>
+      </this.PopperWrapper>
+    );
   }
 
   getTimeOrValue(value, config) {

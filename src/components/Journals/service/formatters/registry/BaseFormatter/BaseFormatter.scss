@@ -1,0 +1,11 @@
+@import '../../../../../../styles/constants';
+
+.formatter-popper {
+  &:nth-child(n) {
+    padding: 7px 0;
+  }
+
+  &:not(:last-child) {
+    border-bottom: $border-width-standard solid $color-gray-4;
+  }
+}

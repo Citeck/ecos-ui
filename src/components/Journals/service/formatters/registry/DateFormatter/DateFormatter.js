@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import moment from 'moment';
 
 import BaseFormatter from '../BaseFormatter';
@@ -14,6 +14,6 @@ export default class DateFormatter extends BaseFormatter {
     const format = config.format || FORMAT;
     const date = cell ? moment(cell).format(format) : '';
 
-    return <Fragment>{date}</Fragment>;
+    return <this.PopperWrapper text={date}>{date}</this.PopperWrapper>;
   }
 }

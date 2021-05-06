@@ -10,7 +10,7 @@ export default class BooleanFormatter extends BaseFormatter {
   format(props) {
     const text = getBool(props.cell) ? t('boolean.yes') : t('boolean.no');
 
-    return <>{text}</>;
+    return <this.PopperWrapper text={text}>{text}</this.PopperWrapper>;
   }
 
   getAliases() {

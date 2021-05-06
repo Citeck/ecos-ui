@@ -1,4 +1,6 @@
+import React from 'react';
 import _ from 'lodash';
+
 import Records from '../../../../../Records';
 import { t } from '../../../../../../helpers/export/util';
 
@@ -30,13 +32,16 @@ export default class ScriptFormatter extends BaseFormatter {
 
     /* eslint-disable-next-line */
     const result = new Function('Records', '_', 't', 'vars', 'cell', script)(Records, _, t, vars, cell);
+    let content;
 
     switch (typeof result) {
       case 'boolean':
-        return result ? t('boolean.yes') : t('boolean.no');
+        content = result ? t('boolean.yes') : t('boolean.no');
+        break;
       case 'number':
       case 'string':
-        return result;
+        content = result;
+        break;
       default:
         if (_.isPlainObject(result)) {
           if (typeof format !== 'function') {
@@ -44,16 +49,17 @@ export default class ScriptFormatter extends BaseFormatter {
           }
           const newFormatter = _.omit(result, ['cell']);
           const newProps = _.clone(props);
+
           if (result.cell) {
             newProps.cell = result.cell;
           }
 
-          return format(newProps, newFormatter);
+          content = format(newProps, newFormatter);
         }
         break;
     }
 
-    return null;
+    return <this.PopperWrapper text={content}>{content}</this.PopperWrapper>;
   }
 
   getSupportedCellType() {

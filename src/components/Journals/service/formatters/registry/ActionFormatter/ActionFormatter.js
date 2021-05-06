@@ -24,9 +24,11 @@ export default class ActionFormatter extends BaseFormatter {
     };
 
     return (
-      <div className="ecos-formatter-action__text" onClick={handler} title={actionName}>
-        {cell}
-      </div>
+      <this.PopperWrapper text={cell}>
+        <div className="ecos-formatter-action__text" onClick={handler} title={actionName}>
+          {cell}
+        </div>
+      </this.PopperWrapper>
     );
   }
 
