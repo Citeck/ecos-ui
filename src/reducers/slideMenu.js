@@ -1,12 +1,13 @@
 import { handleActions } from 'redux-actions';
+import get from 'lodash/get';
+
 import {
   collapseAllItems,
-  setInitExpandableItems,
+  setExpandableItems,
   setIsReady,
   setScrollTop,
   setSelectedId,
   setSiteDashboardEnable,
-  setSlideMenuExpandableItems,
   setSlideMenuItems,
   toggleExpanded,
   toggleIsOpen
@@ -39,14 +40,9 @@ export default handleActions(
         items: action.payload
       };
     },
-    [setSlideMenuExpandableItems]: (state, action) => {
-      return {
-        ...state,
-        expandableItems: action.payload
-      };
-    },
-    [setInitExpandableItems]: (state, action) => {
-      const expandableItems = SidebarService.getExpandableItems(state.items, state.selectedId, state.isOpen);
+    [setExpandableItems]: (state, action) => {
+      const selectedId = state.selectedId || get(action, 'payload.selectedId');
+      const expandableItems = SidebarService.getExpandableItems(state.items, selectedId, state.isOpen);
 
       return {
         ...state,

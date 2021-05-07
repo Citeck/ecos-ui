@@ -3,8 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'slideMenu/';
 
 export const setSlideMenuItems = createAction(prefix + 'SET_ITEMS');
-export const setSlideMenuExpandableItems = createAction(prefix + 'SET_EXPANDABLE_ITEMS');
-export const setInitExpandableItems = createAction(prefix + 'SET_INIT_EXPANDABLE_ITEMS');
+export const setExpandableItems = createAction(prefix + 'SET_EXPANDABLE_ITEMS');
 export const toggleIsOpen = createAction(prefix + 'TOGGLE_IS_OPEN');
 export const toggleExpanded = createAction(prefix + 'TOGGLE_EXPANDED');
 export const collapseAllItems = createAction(prefix + 'COLLAPSE_ALL_ITEMS');

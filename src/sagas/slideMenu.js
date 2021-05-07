@@ -1,10 +1,11 @@
+import { LOCATION_CHANGE } from 'connected-react-router';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 
 import {
   fetchSlideMenuItems,
   getSiteDashboardEnable,
-  setInitExpandableItems,
+  setExpandableItems,
   setIsReady,
   setSelectedId,
   setSiteDashboardEnable,
@@ -17,7 +18,6 @@ import SidebarConverter from '../dto/sidebar';
 function* fetchSlideMenu({ api, logger }, action) {
   try {
     const version = yield select(state => state.menu.version);
-    const selectedId = SidebarService.getSelected();
     const isOpen = SidebarService.getOpenState();
     const id = get(action, 'payload.id');
 
@@ -33,9 +33,7 @@ function* fetchSlideMenu({ api, logger }, action) {
     menuItems = SidebarConverter.getMenuListWeb(menuItems);
 
     yield put(toggleIsOpen(isOpen));
-    yield put(setSelectedId(selectedId));
     yield put(setSlideMenuItems(menuItems));
-    yield put(setInitExpandableItems());
     yield put(setIsReady(true));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e.message);
@@ -52,27 +50,27 @@ function* fetchSiteDashboardEnable({ api, logger }) {
   }
 }
 
-function fetchToggleMenu({ api, logger }, action) {
+function* sagaToggleMenu({ api, logger }, action) {
   try {
-    SidebarService.setOpenState(action.payload);
+    yield call(SidebarService.setOpenState, action.payload);
   } catch (e) {
     logger.error('[fetchToggleMenu saga] error', e.message);
   }
 }
 
-function fetchSelectedId({ api, logger }, action) {
+function* sagaSetSelectedId({ api, logger }) {
   try {
     SidebarService.setSelected(action.payload);
   } catch (e) {
-    logger.error('[fetchToggleMenu saga] error', e.message);
+    logger.error('[sagaSetSelectedId saga] error', e.message);
   }
 }
 
 function* headerSaga(ea) {
   yield takeLatest(fetchSlideMenuItems().type, fetchSlideMenu, ea);
   yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
-  yield takeLatest(toggleIsOpen().type, fetchToggleMenu, ea);
-  yield takeLatest(setSelectedId().type, fetchSelectedId, ea);
+  yield takeLatest(toggleIsOpen().type, sagaToggleMenu, ea);
+  yield takeLatest([setIsReady().type, LOCATION_CHANGE], sagaSetSelectedId, ea);
 }
 
 export default headerSaga;
