@@ -4,7 +4,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import { isNodeRef } from '../../../../../helpers/util';
 import Records from '../../../../../components/Records';
-import Popper from '../../../Popper';
 import { AssocEditor, AssocOrgstructEditor } from '../../editors';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { createDocumentUrl } from '../../../../../helpers/urls';
@@ -128,9 +127,9 @@ export default class AssocFormatter extends DefaultGqlFormatter {
     const { displayName } = this.state;
 
     return (
-      <Popper showAsNeeded text={displayName} icon="icon-question" contentComponent={this.renderTooltipContent()}>
+      <this.PopperWrapper text={displayName} contentComponent={this.renderTooltipContent()}>
         {this.renderDisp()}
-      </Popper>
+      </this.PopperWrapper>
     );
   }
 }
