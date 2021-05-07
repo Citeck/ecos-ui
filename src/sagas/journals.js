@@ -53,14 +53,14 @@ import {
   setJournalSetting,
   setJournalSettings,
   setLoading,
+  setOriginGridSettings,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
-  setUrl,
-  setOriginGridSettings
+  setUrl
 } from '../actions/journals';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
@@ -101,7 +101,7 @@ function getDefaultJournalSetting(journalConfig) {
     sortBy: getDefaultSortBy(journalConfig).map(sort => ({ ...sort })),
     groupBy: groupBy ? Array.from(groupBy) : [],
     columns: columns.map(col => ({ ...col })),
-    predicate: ParserPredicate.getDefaultPredicates(journalConfig.columns)
+    predicate: ParserPredicate.getDefaultPredicates(columns)
   };
 }
 

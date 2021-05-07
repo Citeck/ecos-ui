@@ -20,7 +20,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
-import { Pages, pagesWithOnlyContent, URL } from '../../constants';
+import { Pages, pagesWithOnlyContent, RELOCATED_URL, URL } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
@@ -163,6 +163,10 @@ class App extends Component {
     return <ReduxModal />;
   }
 
+  renderRedirectOldRoots = () => {
+    return Object.keys(RELOCATED_URL).map(key => <Redirect from={key} to={RELOCATED_URL[key]} />);
+  };
+
   renderCachedRouter = React.memo(props => {
     const { tab } = props;
     const isCurrent = pageTabList.isActiveTab(tab.id);
@@ -273,9 +277,8 @@ class App extends Component {
             {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
-            {/* >> old urls*/}
-            <Redirect from={URL.BPMN_DESIGNER} to={URL.ADMIN_PAGE} />
-            {/* old urls <<*/}
+
+            {this.renderRedirectOldRoots()}
             <Redirect to={URL.DASHBOARD} />
           </CacheSwitch>
         </Suspense>
@@ -338,9 +341,7 @@ class App extends Component {
             {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
-            {/* >> old urls*/}
-            <Redirect from={URL.BPMN_DESIGNER} to={URL.ADMIN_PAGE} />
-            {/* old urls <<*/}
+            {this.renderRedirectOldRoots()}
             <Redirect to={URL.DASHBOARD} />
           </Switch>
         </Suspense>
