@@ -250,15 +250,14 @@ export function treeSetDndIndex(items = [], callback) {
 }
 
 /**
- * Перемещение элемента из одной вветки в другую
- * путь состоит только из индексов пр. 0.1.1.0
+ * If there is exact in array, it'll return exact item, else suitable item or undefined
  * @param items {Array} data array
  * @param key {String} key path field
  * @param value {String} compared value
  * @param props {Object} props: reverse - reverse comparison value with
- * @returns {Array} found item
+ * @return {Object | undefined} found item
  */
-export function treeFindFirstSuitableOrExact(items = [], key, value, props) {
+export function treeFindSuitableItem(items = [], key, value, props) {
   const _items = cloneDeep(items);
   const reverse = get(props, 'reverse', false);
   let exact, suitable;
@@ -280,6 +279,6 @@ export function treeFindFirstSuitableOrExact(items = [], key, value, props) {
   };
 
   _find(_items);
-  console.log({ exact, suitable });
+
   return exact || suitable;
 }

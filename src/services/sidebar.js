@@ -1,11 +1,14 @@
 import get from 'lodash/get';
+import omit from 'lodash/omit';
+import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
+import * as queryString from 'query-string';
 
 import { getJournalPageUrl } from '../helpers/urls';
-import { getSessionData, setSessionData } from '../helpers/ls';
 import { hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
-import { URL } from '../constants';
+import { treeFindFirstItem, treeFindSuitableItem } from '../helpers/arrayOfObjects';
+import { RELOCATED_URL, SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuSettings } from '../constants/menu';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
@@ -36,16 +39,33 @@ export default class SidebarService {
     ULS.setMenuMode({ isSlideMenuOpen });
   }
 
-  static getSelected() {
-    return getSessionData(SidebarService.SELECTED_MENU_ITEM_ID_KEY);
-  }
+  static getSelectedId(items) {
+    let { pathname, search } = window.location;
+    const query = queryString.parse(search);
+    let value, key;
 
-  static setSelected(value) {
-    setSessionData(SidebarService.SELECTED_MENU_ITEM_ID_KEY, value);
+    Object.keys(RELOCATED_URL).forEach(key => {
+      if (pathname === RELOCATED_URL[key]) {
+        pathname = key;
+      }
+    });
+
+    if (pathname === URL.JOURNAL) {
+      value = SourcesId.JOURNAL + '@' + query.journalId;
+      key = 'config.recordRef';
+    } else {
+      value = queryString.stringifyUrl({ url: pathname, query: omit(query, ['activeLayoutId']) });
+      key = 'config.url';
+    }
+
+    const reverse = !value.includes(URL.ADMIN_PAGE);
+    const selected = treeFindSuitableItem(items, key, value, { reverse });
+
+    return get(selected, 'id');
   }
 
   static isExpanded(expandableItems = [], itemId) {
-    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded) : true;
+    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isExpanded) : true;
   }
 
   static isSelectedChild(expandableItems = [], itemId) {
@@ -200,26 +220,37 @@ export default class SidebarService {
     };
   }
 
-  static getExpandableItems(items, selectedId, isSlideMenuOpen) {
+  static initExpandableItems(items, selectedId, isSlideMenuOpen) {
     let flatList = [];
 
     items.forEach(item => {
       if (!!item.items) {
         const selectedChild = hasChildWithId(item.items, selectedId);
-        const isNestedListExpanded = isSlideMenuOpen && (selectedChild || item.params.collapsible ? !item.params.collapsed : true);
+        const isExpanded = isSlideMenuOpen && (selectedChild || (item.params.collapsible ? !item.params.collapsed : true));
 
         flatList.push(
           {
             id: item.id,
-            isNestedListExpanded,
+            isExpanded,
             selectedChild
           },
-          ...SidebarService.getExpandableItems(item.items, selectedId, isSlideMenuOpen)
+          ...SidebarService.initExpandableItems(item.items, selectedId, isSlideMenuOpen)
         );
       }
     });
 
     return flatList;
+  }
+
+  static getExpandableItems(expandableItems, items, id) {
+    const exItems = cloneDeep(expandableItems);
+
+    exItems.forEach(item => {
+      const _item = treeFindFirstItem({ items, key: 'id', value: item.id }) || {};
+      item.selectedChild = hasChildWithId(_item.items, id);
+    });
+
+    return exItems;
   }
 
   static emit(event, callback) {

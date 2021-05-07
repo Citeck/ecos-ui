@@ -42,7 +42,11 @@ export default handleActions(
     },
     [setExpandableItems]: (state, action) => {
       const selectedId = state.selectedId || get(action, 'payload.selectedId');
-      const expandableItems = SidebarService.getExpandableItems(state.items, selectedId, state.isOpen);
+      const force = state.selectedId || get(action, 'payload.force');
+      const expandableItems =
+        force || !state.expandableItems.length
+          ? SidebarService.initExpandableItems(state.items, selectedId, state.isOpen)
+          : SidebarService.getExpandableItems(state.expandableItems, state.items, selectedId);
 
       return {
         ...state,
@@ -52,7 +56,7 @@ export default handleActions(
     [toggleExpanded]: (state, { payload: selectedItem }) => {
       const isObject = !!selectedItem && typeof selectedItem === 'object';
       const idItem = isObject ? selectedItem.id : selectedItem;
-      const initNestedItems = isObject && SidebarService.getExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
+      const initNestedItems = isObject && SidebarService.initExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
 
       return {
         ...state,
@@ -60,7 +64,7 @@ export default handleActions(
           if (item.id === idItem) {
             return {
               ...item,
-              isNestedListExpanded: !item.isNestedListExpanded
+              isExpanded: !item.isExpanded
             };
           }
 
@@ -77,7 +81,7 @@ export default handleActions(
     [collapseAllItems]: (state, action) => {
       return {
         ...state,
-        expandableItems: state.expandableItems.map(item => ({ ...item, isNestedListExpanded: false }))
+        expandableItems: state.expandableItems.map(item => ({ ...item, isExpanded: false }))
       };
     },
     [toggleIsOpen]: (state, action) => {

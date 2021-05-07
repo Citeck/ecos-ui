@@ -54,13 +54,22 @@ function* sagaToggleMenu({ api, logger }, action) {
   try {
     yield call(SidebarService.setOpenState, action.payload);
   } catch (e) {
-    logger.error('[fetchToggleMenu saga] error', e.message);
+    logger.error('[sagaToggleMenu saga] error', e.message);
   }
 }
 
 function* sagaSetSelectedId({ api, logger }) {
   try {
-    SidebarService.setSelected(action.payload);
+    const { isReady, items } = yield select(state => state.slideMenu);
+
+    if (!isReady) {
+      return;
+    }
+
+    const selectedId = SidebarService.getSelectedId(items);
+
+    yield put(setSelectedId(selectedId));
+    yield put(setExpandableItems({ selectedId }));
   } catch (e) {
     logger.error('[sagaSetSelectedId saga] error', e.message);
   }

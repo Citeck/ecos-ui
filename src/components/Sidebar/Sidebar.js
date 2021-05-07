@@ -65,7 +65,7 @@ class Sidebar extends React.Component {
     if (isOpen) {
       this.props.collapseAllItems();
     } else {
-      this.props.setExpandableItems();
+      this.props.setExpandableItems(true);
     }
   };
 
@@ -118,7 +118,7 @@ const mapDispatchToProps = dispatch => ({
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
-  setExpandableItems: () => dispatch(setExpandableItems()),
+  setExpandableItems: force => dispatch(setExpandableItems({ force })),
   collapseAllItems: () => dispatch(collapseAllItems())
 });
 

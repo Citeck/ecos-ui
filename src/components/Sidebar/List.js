@@ -59,7 +59,7 @@ class List extends React.Component {
     const isItemExpanded = SidebarService.isExpanded(expandableItems, item.id);
     const isItemSelected = selectedId === item.id;
     const isChildSelected =
-      !isItemExpanded && level === SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
+      !isItemExpanded && level >= SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
     const isSubListExpanded = isClosedSeparator || ((isOpen || inDropdown) && isItemExpanded);
 
     return (
