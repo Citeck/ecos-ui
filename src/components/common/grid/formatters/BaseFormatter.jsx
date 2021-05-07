@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { BaseEditor } from '../editors';
 
 import './style.scss';
+import Popper from '../../Popper';
 
 export default class BaseFormatter extends Component {
   static propTypes = {
@@ -47,7 +48,21 @@ export default class BaseFormatter extends Component {
     });
   };
 
+  PopperWrapper = React.memo(props => {
+    return (
+      <Popper
+        showAsNeeded
+        text={props.text}
+        icon="icon-question"
+        popupClassName="ecos-formatter-popper"
+        contentComponent={props.contentComponent}
+      >
+        {props.children}
+      </Popper>
+    );
+  });
+
   render() {
-    return <>{this.value(this.props.cell)}</>;
+    return <this.PopperWrapper text={this.value(this.props.cell)} />;
   }
 }

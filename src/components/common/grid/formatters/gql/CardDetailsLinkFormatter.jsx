@@ -7,6 +7,7 @@ export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {
   render() {
     const { row = {}, cell } = this.props;
     const url = createDocumentUrl(row.id);
+    const text = this.value(cell);
     let linkProps = {};
 
     if (isNewVersionPage()) {
@@ -18,9 +19,11 @@ export default class CardDetailsLinkFormatter extends DefaultGqlFormatter {
     }
 
     return (
-      <a href={url} {...linkProps}>
-        {this.value(cell)}
-      </a>
+      <this.PopperWrapper text={text}>
+        <a href={url} {...linkProps}>
+          {text}
+        </a>
+      </this.PopperWrapper>
     );
   }
 }

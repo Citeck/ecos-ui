@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import moment from 'moment';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { DateEditor } from '../../editors';
@@ -31,6 +31,6 @@ export default class DateTimeFormatter extends DefaultGqlFormatter {
       date = moment(cell).format(pattern);
     }
 
-    return <Fragment>{date}</Fragment>;
+    return <this.PopperWrapper text={date} />;
   }
 }

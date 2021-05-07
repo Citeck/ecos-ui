@@ -1,7 +1,8 @@
-import React, { Fragment } from 'react';
-import DefaultGqlFormatter from './DefaultGqlFormatter';
+import React from 'react';
 import Components from 'formiojs/components/Components';
 import _ from 'lodash';
+
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class FormFieldFormatter extends DefaultGqlFormatter {
   constructor(props) {
@@ -40,20 +41,29 @@ export default class FormFieldFormatter extends DefaultGqlFormatter {
     });
   }
 
+  renderList() {
+    const names = this.state.displayNames || [];
+
+    return (
+      <ul>
+        {names.map(name => (
+          <li key={name}>{name}</li>
+        ))}
+      </ul>
+    );
+  }
+
   render() {
-    let names = this.state.displayNames || [];
+    const names = this.state.displayNames || [];
+
     if (names.length === 0) {
-      return <Fragment />;
-    } else if (names.length === 1) {
-      return <Fragment>{names[0]}</Fragment>;
-    } else {
-      return (
-        <ul>
-          {names.map(name => (
-            <li>{name}</li>
-          ))}
-        </ul>
-      );
+      return null;
     }
+
+    if (names.length === 1) {
+      return <this.PopperWrapper text={names[0]} />;
+    }
+
+    return <this.PopperWrapper contentComponent={this.renderList()} />;
   }
 }

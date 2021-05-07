@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import Records from '../../../../../components/Records';
 import { DropdownEditor } from '../../editors';
@@ -62,6 +63,6 @@ export default class SelectFormatter extends DefaultGqlFormatter {
   }
 
   render() {
-    return <Fragment>{this.state.displayValue}</Fragment>;
+    return <this.PopperWrapper text={this.state.displayValue} />;
   }
 }

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import moment from 'moment';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { DateEditor } from '../../editors';
@@ -18,6 +18,6 @@ export default class DateFormatter extends DefaultGqlFormatter {
     const format = params.format || FORMAT;
     const date = value ? moment(value).format(format) : '';
 
-    return <Fragment>{date}</Fragment>;
+    return <this.PopperWrapper text={date} />;
   }
 }

@@ -1,11 +1,12 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class TaskTitleFormatter extends DefaultGqlFormatter {
   render() {
-    let props = this.props;
-    let { cell, row } = props;
+    const { cell, row } = this.props;
+    const text = this.value(row['taskTitle'] || row['cm:title'] || row['cwf:taskTitle'] || cell);
 
-    return <Fragment>{this.value(row['taskTitle'] || row['cm:title'] || row['cwf:taskTitle'] || cell)}</Fragment>;
+    return <this.PopperWrapper text={text} />;
   }
 }

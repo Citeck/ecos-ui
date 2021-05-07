@@ -3,7 +3,6 @@ import _ from 'lodash';
 
 import Records from '../../../../../Records';
 import { t } from '../../../../../../helpers/export/util';
-
 import BaseFormatter from '../BaseFormatter';
 import CellType from '../../CellType';
 

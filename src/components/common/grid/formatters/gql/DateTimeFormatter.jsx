@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 import { DateEditor } from '../../editors';
 
@@ -35,14 +36,17 @@ export default class DateTimeFormatter extends DefaultGqlFormatter {
     const unformattedTimeMatcher = /^[0-2][0-9][0-5][0-9][0-5][0-9]$/i;
     const isUnformattedTime = unformattedTimeMatcher.test(value);
     const { unformattedValueType } = params || {};
+
     if (!isUnformattedTime || !unformattedValueType || unformattedValueType !== 'unformatted-time') {
       return value;
     }
 
     const timeSplitter = /.{1,2}/g;
     const timeArray = value.match(timeSplitter); // [ 'hh', 'mm', 'ss']
-    var time = moment();
+    const time = moment();
+
     time.set({ hour: timeArray[0], minute: timeArray[1], second: timeArray[2] });
-    return time;
+
+    return <this.PopperWrapper text={time} />;
   }
 }

@@ -23,6 +23,7 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
     let cell = props.cell || {};
     let linkProps = {};
     const url = createDocumentUrl(cell.id);
+    const text = this.value(cell);
 
     if (isNewVersionPage()) {
       linkProps = {
@@ -33,9 +34,11 @@ export default class DocumentLinkFormatter extends DefaultGqlFormatter {
     }
 
     return (
-      <a href={url} {...linkProps}>
-        {this.value(cell)}
-      </a>
+      <this.PopperWrapper text={text}>
+        <a href={url} {...linkProps}>
+          {text}
+        </a>
+      </this.PopperWrapper>
     );
   }
 }
