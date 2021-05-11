@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Popper } from '../../../../../common';
+import Popper from '../../../../../common/Popper';
 
 import './BaseFormatter.scss';
 

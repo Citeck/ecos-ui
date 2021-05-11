@@ -1,3 +1,5 @@
+import { mount } from 'enzyme';
+
 import * as util from '../../../../../../helpers/export/util';
 import en from '../../../../../../i18n/en';
 
@@ -18,7 +20,8 @@ describe('ScriptFormatter', () => {
           script: 'return true;'
         }
       });
-      expect(result).toBe('Yes');
+
+      expect(mount(result).text()).toBe('Yes');
     });
     it('should return No if the script result is boolean (false)', () => {
       const result = scriptFormatterInstance.format({
@@ -26,7 +29,8 @@ describe('ScriptFormatter', () => {
           script: 'return false;'
         }
       });
-      expect(result).toBe('No');
+
+      expect(mount(result).text()).toBe('No');
     });
     it('should return number if the script result is number', () => {
       const result = scriptFormatterInstance.format({
@@ -34,7 +38,8 @@ describe('ScriptFormatter', () => {
           script: 'return 1 + 2;'
         }
       });
-      expect(result).toBe(3);
+
+      expect(mount(result).text()).toBe('3');
     });
     it('should return string if the script result is string', () => {
       const result = scriptFormatterInstance.format({
@@ -42,7 +47,8 @@ describe('ScriptFormatter', () => {
           script: 'return "Test";'
         }
       });
-      expect(result).toBe('Test');
+
+      expect(mount(result).text()).toBe('Test');
     });
     it('should invoke other formatter, if the script result is plain object', () => {
       const formatFunc = jest.fn();
@@ -82,14 +88,17 @@ describe('ScriptFormatter', () => {
             script: `return ${item}`
           }
         });
-        expect(result).toBe(null);
+
+        expect(mount(result).text()).toBe('');
       });
+
       const result = scriptFormatterInstance.format({
         config: {
           script: `/* no return operator */`
         }
       });
-      expect(result).toBe(null);
+
+      expect(mount(result).text()).toBe('');
     });
     it('should throw Error if config.script is not specified', () => {
       const format = () => {
