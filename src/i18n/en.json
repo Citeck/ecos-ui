@@ -728,6 +728,8 @@
   "journals.menu.journal-list.title": "Journals",
   "journals.menu.journal-list.empty": "List is empty",
 
+  "journals.formatter.action.execution-error": "Action can't be executed",
+
   "label.password": "Password",
   "label.username": "User Name",
 

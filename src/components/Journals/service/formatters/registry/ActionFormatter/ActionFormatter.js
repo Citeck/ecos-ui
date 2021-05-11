@@ -2,7 +2,8 @@ import React from 'react';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
 import BaseFormatter from '../BaseFormatter';
-import { extractLabel } from '../../../../../../helpers/util';
+import { t, extractLabel } from '../../../../../../helpers/util';
+import { NotificationManager } from 'react-notifications';
 
 export default class ActionFormatter extends BaseFormatter {
   static TYPE = 'action';
@@ -14,15 +15,26 @@ export default class ActionFormatter extends BaseFormatter {
       return '';
     }
 
-    const { type } = config;
-    const info = RecordActions.getActionInfo({ type });
-    const actionName = extractLabel(info.name);
-
-    const handler = () => {
+    const { type, actionId } = config;
+    let handler = () => {
       const ref = row.id || row.recordRef;
       RecordActions.execForRecord(ref, { type });
     };
-
+    let actionName = '';
+    if (!actionId) {
+      const info = RecordActions.getActionInfo({ type });
+      actionName = extractLabel(info.name);
+    } else {
+      handler = async () => {
+        const ref = row.id || row.recordRef;
+        const actions = await RecordActions.getActionsForRecord(ref, [actionId]);
+        if (!actions.length) {
+          NotificationManager.error(t('journals.formatter.action.execution-error'));
+        } else {
+          RecordActions.execForRecord(ref, actions[0]);
+        }
+      };
+    }
     return (
       <div className="ecos-formatter-action__text" onClick={handler} title={actionName}>
         {cell}
