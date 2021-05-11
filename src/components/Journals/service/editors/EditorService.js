@@ -60,7 +60,7 @@ class EditorService {
       const control = editorInstance.getControl(editorConfig, scope, controlProps);
 
       if (!control) {
-        return <div className="text-warning">{t('generated-field.editor.not-exist')}</div>;
+        return <div className="text-warning">{t('journal.generated-field.editor.not-exist')}</div>;
       }
 
       return (
