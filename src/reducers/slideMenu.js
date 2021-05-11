@@ -42,7 +42,7 @@ export default handleActions(
     },
     [setExpandableItems]: (state, action) => {
       const selectedId = state.selectedId || get(action, 'payload.selectedId');
-      const force = state.selectedId || get(action, 'payload.force');
+      const force = get(action, 'payload.force');
       const expandableItems =
         force || !state.expandableItems.length
           ? SidebarService.initExpandableItems(state.items, selectedId, state.isOpen)

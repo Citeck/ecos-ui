@@ -54,12 +54,13 @@ export default class SidebarService {
       value = SourcesId.JOURNAL + '@' + query.journalId;
       key = 'config.recordRef';
     } else {
-      value = queryString.stringifyUrl({ url: pathname, query: omit(query, ['activeLayoutId']) });
+      value = queryString.stringifyUrl({ url: pathname, query: omit(query, ['activeLayoutId']) }, { encode: false });
       key = 'config.url';
     }
 
     const reverse = !value.includes(URL.ADMIN_PAGE);
-    const selected = treeFindSuitableItem(items, key, value, { reverse });
+    const onlyExact = value.includes(URL.DASHBOARD);
+    const selected = treeFindSuitableItem(items, key, value, { reverse, onlyExact });
 
     return get(selected, 'id');
   }
