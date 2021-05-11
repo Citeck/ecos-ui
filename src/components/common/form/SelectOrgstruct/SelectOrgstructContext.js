@@ -6,7 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -47,11 +47,17 @@ export const SelectOrgstructProvider = props => {
     [TabTypes.USERS]: [],
     [TabTypes.SELECTED]: []
   });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    count: ITEMS_PER_PAGE,
+    maxCount: 0
+  });
   const prevDefaultValue = usePrevious(defaultValue);
 
   const onSubmitSearchForm = () => {
     currentTab === TabTypes.LEVELS && setIsRootGroupsFetched(false);
     currentTab === TabTypes.USERS && setIsAllUsersGroupFetched(false);
+    setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
   const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
@@ -133,16 +139,19 @@ export const SelectOrgstructProvider = props => {
   useEffect(() => {
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
       setIsSearching(true);
-      OrgStructApi.getUserList(searchText, userSearchExtraFields).then(items => {
-        setTabItems({
-          ...tabItems,
-          [TabTypes.USERS]: items.map(item => setSelectedItem(item))
-        });
+      OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
+        ({ items, totalCount }) => {
+          setTabItems({
+            ...tabItems,
+            [TabTypes.USERS]: items.map(item => setSelectedItem(item))
+          });
 
-        checkIsAllUsersGroupExists();
-        setIsAllUsersGroupFetched(true);
-        setIsSearching(false);
-      });
+          checkIsAllUsersGroupExists();
+          setIsAllUsersGroupFetched(true);
+          setPagination({ ...pagination, maxCount: totalCount });
+          setIsSearching(false);
+        }
+      );
     }
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
@@ -218,6 +227,7 @@ export const SelectOrgstructProvider = props => {
         hideTabSwitcher,
         targetId,
         isSearching,
+        pagination,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
@@ -436,6 +446,11 @@ export const SelectOrgstructProvider = props => {
                 .concat(tabItems[currentTab].slice(itemIdx + 1))
             });
           }
+        },
+
+        onChangePage: ({ page, maxItems }) => {
+          setPagination({ ...pagination, page, count: maxItems });
+          setIsAllUsersGroupFetched(false);
         }
       }}
     >

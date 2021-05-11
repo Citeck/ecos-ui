@@ -71,7 +71,7 @@ export default class ImportButtonComponent extends BaseReactComponent {
       onSelect: this.handleSelect,
       toggleModal: this.handleToggleModal,
       isDisabled: this.disabled,
-      label: this.labelIsHidden() ? '' : this.component.label,
+      label: this.labelIsHidden() ? '' : this.t(this.component.label),
       multiple: this.component.multipleFiles,
       isShowUploadedFile: this.component.isShowUploadedFile,
       leftIcon: this.component.leftIcon,
@@ -87,8 +87,8 @@ export default class ImportButtonComponent extends BaseReactComponent {
 
   showConfirmModal() {
     DialogManager.confirmDialog({
-      title: t(get(this.component, 'confirm.title') || Labels.DEFAULT_CONFIRM_TITLE),
-      text: t(get(this.component, 'confirm.description') || Labels.DEFAULT_CONFIRM_DESCRIPTION),
+      title: this.translate(get(this.component, 'confirm.title'), Labels.DEFAULT_CONFIRM_TITLE),
+      text: this.translate(get(this.component, 'confirm.description'), Labels.DEFAULT_CONFIRM_DESCRIPTION),
       onYes: this.handleConfirmRemove
     });
   }
@@ -173,5 +173,15 @@ export default class ImportButtonComponent extends BaseReactComponent {
       title: t(Labels.FAILED_UPLOADING_DESCRIPTION),
       text
     });
+  };
+
+  translate = (formKey, uiKey) => {
+    const translation = this.t(formKey);
+
+    if (translation === formKey && uiKey) {
+      return t(uiKey);
+    }
+
+    return translation;
   };
 }
