@@ -1,11 +1,11 @@
 import React from 'react';
 
 import CellType from '../../CellType';
-import { Popper } from '../../../../../common';
+import Popper from '../../../../../common/Popper';
 
 import './BaseFormatter.scss';
 
-export default class BaseFormatter {
+class BaseFormatter {
   static TYPE = '';
 
   /**
@@ -47,3 +47,5 @@ export default class BaseFormatter {
     );
   });
 }
+
+export default BaseFormatter;

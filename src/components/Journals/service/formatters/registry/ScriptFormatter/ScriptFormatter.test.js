@@ -1,3 +1,5 @@
+import { mount } from 'enzyme';
+
 import * as util from '../../../../../../helpers/export/util';
 import en from '../../../../../../i18n/en';
 
@@ -18,7 +20,9 @@ describe('ScriptFormatter', () => {
           fn: 'return true;'
         }
       });
-      expect(result).toBe('Yes');
+      const component = mount(result);
+
+      expect(component.text()).toBe('Yes');
     });
     it('should return No if the script result is boolean (false)', () => {
       const result = scriptFormatterInstance.format({
@@ -26,7 +30,9 @@ describe('ScriptFormatter', () => {
           fn: 'return false;'
         }
       });
-      expect(result).toBe('No');
+      const component = mount(result);
+
+      expect(component.text()).toBe('No');
     });
     it('should return number if the script result is number', () => {
       const result = scriptFormatterInstance.format({
@@ -34,7 +40,9 @@ describe('ScriptFormatter', () => {
           fn: 'return 1 + 2;'
         }
       });
-      expect(result).toBe(3);
+      const component = mount(result);
+
+      expect(component.text()).toBe('3');
     });
     it('should return string if the script result is string', () => {
       const result = scriptFormatterInstance.format({
@@ -42,7 +50,9 @@ describe('ScriptFormatter', () => {
           fn: 'return "Test";'
         }
       });
-      expect(result).toBe('Test');
+      const component = mount(result);
+
+      expect(component.text()).toBe('Test');
     });
     it('should invoke other formatter, if the script result is plain object', () => {
       const formatFunc = jest.fn();
@@ -72,22 +82,28 @@ describe('ScriptFormatter', () => {
       expect(newFormatter.type).toBe('html');
       expect(newFormatter.config.html).toBe('<div>Test</div>');
     });
-    it('should return null in other cases', () => {
+    it('should return empty string in other cases', () => {
       const returnVariants = [null, undefined];
+
       returnVariants.forEach(item => {
         const result = scriptFormatterInstance.format({
           config: {
             fn: `return ${item}`
           }
         });
-        expect(result).toBe(null);
+        const component = mount(result);
+
+        expect(component.text()).toBe('');
       });
+
       const result = scriptFormatterInstance.format({
         config: {
           fn: `/* no return operator */`
         }
       });
-      expect(result).toBe(null);
+      const component = mount(result);
+
+      expect(component.text()).toBe('');
     });
     it('should throw Error if config.script is not specified', () => {
       const format = () => {

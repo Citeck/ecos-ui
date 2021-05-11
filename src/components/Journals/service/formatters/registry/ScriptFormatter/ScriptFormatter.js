@@ -58,7 +58,7 @@ export default class ScriptFormatter extends BaseFormatter {
         break;
     }
 
-    return <this.PopperWrapper text={content}>{content}</this.PopperWrapper>;
+    return <this.PopperWrapper text={content} />;
   }
 
   getSupportedCellType() {
