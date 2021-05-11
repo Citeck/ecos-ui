@@ -1,6 +1,6 @@
 import * as queryString from 'query-string';
 
-import { DataTypes } from '../components/common/form/SelectOrgstruct/constants';
+import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
@@ -106,7 +106,7 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   }
 
-  static async getUserList(searchText, extraFields = []) {
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
     const val = searchText.trim();
 
     const queryVal = [
@@ -168,15 +168,19 @@ export class OrgStructApi extends RecordService {
       {
         query: { t: 'and', val: queryVal },
         language: 'predicate',
+        consistency: 'EVENTUAL',
         page: {
-          maxItems: 20,
-          skipCount: 0
+          maxItems: params.maxItems,
+          skipCount: params.page * params.maxItems
         }
       },
       {
         fullName: '.disp',
         userName: 'userName'
       }
-    ).then(result => converterUserList(result.records));
+    ).then(result => ({
+      items: converterUserList(result.records),
+      totalCount: result.totalCount
+    }));
   }
 }
