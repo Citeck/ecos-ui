@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import moment from 'moment';
 
 import { ActionPropTypes } from '../common/grid/InlineTools/constants';
@@ -14,38 +15,80 @@ import { NODE_TYPES } from '../../constants/docLib';
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
 const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop }) => {
+  const [isAboveDir, setAboveDir] = useState(false);
   const { title, type, modified, actions } = item;
+  let extraProps = {};
+
+  if (typeof onDrop === 'function') {
+    const _debouncedLeave = debounce(() => {
+      if (item.type === NODE_TYPES.DIR) {
+        setAboveDir(false);
+      }
+    }, 100);
+    const _onDrop = e => {
+      if (typeof onDrop !== 'function') {
+        return;
+      }
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      const dataTypes = get(e, 'dataTransfer.types', []);
+
+      if (!dataTypes.includes('Files')) {
+        return;
+      }
+
+      onDrop({ item, files: Array.from(e.dataTransfer.files) });
+    };
+    const _onDragOver = e => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      _debouncedLeave.cancel();
+
+      if (item.type === NODE_TYPES.DIR) {
+        setAboveDir(true);
+      }
+    };
+
+    const _onDragLeave = e => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      _debouncedLeave();
+    };
+    const _onDragEnter = e => {
+      e.stopPropagation();
+
+      if (item.type === NODE_TYPES.DIR) {
+        setAboveDir(true);
+      }
+    };
+
+    useEffect(() => {
+      return () => {
+        _debouncedLeave.cancel();
+      };
+    }, []);
+
+    extraProps = {
+      ...extraProps,
+      onDrop: _onDrop,
+      onDragOver: _onDragOver,
+      onDragEnter: _onDragEnter,
+      onDragLeave: _onDragLeave
+    };
+  }
+
   const _onClick = e => typeof onClick === 'function' && onClick(item, e);
   const _onDoubleClick = e => typeof onDoubleClick === 'function' && onDoubleClick(item, e);
-  const _onDrop = e => {
-    if (typeof onDrop !== 'function') {
-      return;
-    }
-
-    e.stopPropagation();
-    e.preventDefault();
-
-    const dataTypes = get(e, 'dataTransfer.types', []);
-
-    console.warn({ e, dataTypes, files: Array.from(e.dataTransfer.files) });
-
-    if (!dataTypes.includes('Files')) {
-      return;
-    }
-
-    onDrop({ item, files: Array.from(e.dataTransfer.files) });
-  };
-  const _onDragOver = e => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
-  const _onDragEnter = e => {
-    e.stopPropagation();
-  };
 
   let modifiedDisp = '-';
+
   if (modified) {
     const date = moment(modified);
+
     if (date.isValid()) {
       modifiedDisp = date.format(DATE_FORMAT);
     }
@@ -56,15 +99,14 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
   return (
     <div
       className={classNames('ecos-files-viewer__item', {
-        'ecos-files-viewer__item_selected': isSelected,
+        'ecos-files-viewer__item_selected': isSelected || isAboveDir,
         'ecos-files-viewer__item_lastclicked': isLastClicked,
         'ecos-files-viewer__item_mobile': isMobile
+        // 'ecos-files-viewer__item_without-pointer': isAboveDir
       })}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
-      onDrop={_onDrop}
-      onDragOver={_onDragOver}
-      onDragEnter={_onDragEnter}
+      {...extraProps}
     >
       <div className="ecos-files-viewer__item-left">
         <div className="ecos-files-viewer__item-icon-wrapper">
