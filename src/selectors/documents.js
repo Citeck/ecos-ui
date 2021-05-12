@@ -4,9 +4,9 @@ import isEmpty from 'lodash/isEmpty';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
-import { getOutputFormat } from '../helpers/util';
+import { getFirstNonEmpty, getOutputFormat } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { documentFields, Labels, statusesKeys } from '../constants/documents';
+import { documentActions, documentFields, Labels, statusesKeys } from '../constants/documents';
 import { DataFormatTypes } from '../constants';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
@@ -154,6 +154,12 @@ export const selectDynamicType = (state, key, id) => {
   return types.find(type => type.type === id);
 };
 
+export const selectSuitableActions = (state, key, type) => {
+  const availableActions = selectActionsByType(state, key, type);
+  const dynamicActions = selectActionsDynamicType(state, key, type);
+  return getFirstNonEmpty([dynamicActions, availableActions, documentActions], []);
+};
+
 export const selectAvailableType = (state, key, id) => {
   const types = selectAvailableTypes(state, key);
 
@@ -176,6 +182,21 @@ export const selectActionsByTypes = (state, key, types) => {
   const actions = [];
 
   availableTypes.filter(item => types.includes(item.id)).forEach(item => actions.push(...(item.actions || [])));
+
+  return actions;
+};
+
+export const selectActionsDynamicType = (state, key, type) => {
+  const dynamicTypes = getDynamicTypes(selectState(state, key)) || [];
+
+  return get(dynamicTypes.find(item => item.type === type), 'actions', []);
+};
+
+export const selectActionsDynamicTypes = (state, key, types) => {
+  const dynamicTypes = getDynamicTypes(selectState(state, key)) || [];
+  const actions = [];
+
+  dynamicTypes.filter(item => types.includes(item.type)).forEach(item => actions.push(...(item.actions || [])));
 
   return actions;
 };

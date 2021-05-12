@@ -15,22 +15,20 @@ export class DocumentsApi {
         name: 'name',
         parent: 'parent?id'
       }
-    ).then(response => response);
+    );
   };
 
   getTypeInfo = (id, loadData) => {
     const types = Array.isArray(id) ? id : [id];
 
-    return Records.get(types)
-      .load(
-        loadData || {
-          name: 'name',
-          formId: 'form?id',
-          createVariants: 'inhCreateVariants[]?json',
-          actions: 'actions[]?id'
-        }
-      )
-      .then(response => response);
+    return Records.get(types).load(
+      loadData || {
+        name: 'name',
+        formId: 'form?id',
+        createVariants: 'inhCreateVariants[]?json',
+        actions: 'actions[]?id'
+      }
+    );
   };
 
   getDynamicTypes = recordRef => {
@@ -55,7 +53,6 @@ export class DocumentsApi {
   getFormIdByType = type => {
     return Records.get(type)
       .load('form?id')
-      .then(response => response)
       .catch(() => null);
   };
 
@@ -66,7 +63,7 @@ export class DocumentsApi {
       record.att(key, data[key]);
     });
 
-    return record.save().then(response => response);
+    return record.save();
   };
 
   getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {

@@ -9,8 +9,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import { NotificationManager } from 'react-notifications';
 
 import {
-  selectActionsByType,
   selectActionsByTypes,
+  selectActionsDynamicTypes,
   selectAvailableType,
   selectAvailableTypes,
   selectColumnsConfig,
@@ -18,6 +18,7 @@ import {
   selectDynamicType,
   selectDynamicTypes,
   selectIsLoadChecklist,
+  selectSuitableActions,
   selectTypeById,
   selectTypeNames
 } from '../selectors/documents';
@@ -229,11 +230,8 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes }));
 
     if (documents.length) {
-      const typeActions = yield select(state => selectActionsByType(state, payload.key, payload.type));
-      const actions = yield recordActions.getActionsForRecords(
-        documents.map(item => item[documentFields.id]),
-        getFirstNonEmpty([typeActions, documentActions], [])
-      );
+      const suitableActions = yield select(state => selectSuitableActions(state, payload.key, payload.type));
+      const actions = yield recordActions.getActionsForRecords(documents.map(item => item[documentFields.id]), suitableActions);
 
       yield put(setActions({ key: payload.key, actions: actions.forRecord }));
     }
@@ -493,7 +491,11 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
 
     if (documentsIds.length) {
       const typeActions = yield select(state => selectActionsByTypes(state, payload.key, types.map(item => item.type)));
-      const actions = yield recordActions.getActionsForRecords(documentsIds, getFirstNonEmpty([typeActions, documentActions], []));
+      const actionsDynamicTypes = yield select(state => selectActionsDynamicTypes(state, payload.key, payload.type));
+      const actions = yield recordActions.getActionsForRecords(
+        documentsIds,
+        getFirstNonEmpty([actionsDynamicTypes, typeActions, documentActions], [])
+      );
 
       yield put(setActions({ key: payload.key, actions: actions.forRecord }));
     }
