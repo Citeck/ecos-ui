@@ -315,7 +315,7 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
   }
 }
 
-function* uploadFile({ api, file, callback }) {
+export function* uploadFile({ api, file, callback }) {
   try {
     const formData = new FormData();
 

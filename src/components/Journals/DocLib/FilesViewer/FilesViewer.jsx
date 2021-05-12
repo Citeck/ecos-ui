@@ -11,7 +11,7 @@ import { t } from '../../../../helpers/export/util';
 import FileList from './FileList';
 import './FileViewer.scss';
 
-const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path }) => {
+const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path, onDrop }) => {
   const { hasError, isReady, items, selected, lastClicked } = fileViewer;
 
   let content;
@@ -44,6 +44,7 @@ const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLa
             openFolder={openFolder}
             setSelected={setSelected}
             setLastClicked={setLastClicked}
+            onDrop={onDrop}
           />
         </div>
       ) : (

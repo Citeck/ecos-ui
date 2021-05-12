@@ -38,7 +38,8 @@ import {
   startSearch,
   setIsGroupActionsReady,
   setGroupActions,
-  execGroupAction
+  execGroupAction,
+  uploadFiles
 } from '../actions/docLib';
 import {
   selectDocLibSidebar,
@@ -47,7 +48,8 @@ import {
   selectDocLibFolderId,
   selectDocLibFileViewerPagination,
   selectDocLibSearchText,
-  selectDocLibFileViewer
+  selectDocLibFileViewer,
+  selectDocLibCreateVariants
 } from '../selectors/docLib';
 import { JournalUrlParams } from '../constants';
 import { NODE_TYPES, DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
@@ -61,6 +63,7 @@ import DocLibService from '../components/Journals/DocLib/DocLibService';
 import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
 import JournalsConverter from '../dto/journals';
+import { uploadFile } from './documents';
 
 export function* loadDocumentLibrarySettings(journalId, w) {
   const typeRef = yield call(DocLibService.getTypeRef, journalId);
@@ -383,6 +386,47 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaUploadFiles({ api, logger, stateId, w }, action) {
+  try {
+    const item = get(action, 'payload.item');
+
+    yield put(setFileViewerIsReady(w(false)));
+
+    // if (item.type !== NODE_TYPES.DIR) {
+    //   yield put(setFileViewerIsReady(w(false)));
+    // }
+
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
+    const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
+    const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+    const formDefinition = yield DocLibService.getCreateFormDefinition(createVariant);
+    let folderId = yield select(state => selectDocLibFolderId(state, stateId));
+
+    console.warn({ formDefinition });
+
+    if (item.type === NODE_TYPES.DIR) {
+      folderId = item.id;
+    }
+
+    yield action.payload.files.map(function*(file) {
+      const data = yield uploadFile({ api, file });
+      const createChildResult = yield call(DocLibService.createChild, rootId, folderId, get(createVariant, 'destination'), {
+        ...file,
+        ...data
+      });
+
+      yield call(DocLibService.loadNode, createChildResult.id);
+    });
+
+    yield put(loadFilesViewerData(w()));
+    // if (item.type !== NODE_TYPES.DIR) {
+    //   yield put(loadFilesViewerData(w()));
+    // }
+  } catch (e) {
+    logger.error('[docLib sagaUploadFiles saga error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(initDocLib().type, wrapSaga, { ...ea, saga: sagaInitDocumentLibrary });
   yield takeEvery(initSidebar().type, wrapSaga, { ...ea, saga: sagaInitDocumentLibrarySidebar });
@@ -395,6 +439,7 @@ function* saga(ea) {
   yield takeLatest(setFileViewerSelected().type, wrapSaga, { ...ea, saga: sagaInitGroupActions });
   yield takeLatest(execGroupAction().type, wrapSaga, { ...ea, saga: sagaExecGroupAction });
   yield takeLatest(createNode().type, wrapSaga, { ...ea, saga: sagaCreateNode });
+  yield takeEvery(uploadFiles().type, wrapSaga, { ...ea, saga: sagaUploadFiles });
 }
 
 export default saga;

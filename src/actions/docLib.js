@@ -14,6 +14,7 @@ export const setFolderPath = createAction(prefix + 'SET_FOLDER_PATH');
 export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');
 export const startSearch = createAction(prefix + 'START_SEARCH');
 export const createNode = createAction(prefix + 'CREATE_NODE');
+export const uploadFiles = createAction(prefix + 'UPLOAD_FILES');
 
 export const initDocLib = createAction(prefix + 'INIT');
 export const initSidebar = createAction(prefix + 'INIT_SIDEBAR');

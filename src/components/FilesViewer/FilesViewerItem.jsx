@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import moment from 'moment';
 
 import { ActionPropTypes } from '../common/grid/InlineTools/constants';
@@ -12,10 +13,35 @@ import { NODE_TYPES } from '../../constants/docLib';
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
-const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick }) => {
+const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop }) => {
   const { title, type, modified, actions } = item;
   const _onClick = e => typeof onClick === 'function' && onClick(item, e);
   const _onDoubleClick = e => typeof onDoubleClick === 'function' && onDoubleClick(item, e);
+  const _onDrop = e => {
+    if (typeof onDrop !== 'function') {
+      return;
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    const dataTypes = get(e, 'dataTransfer.types', []);
+
+    console.warn({ e, dataTypes, files: Array.from(e.dataTransfer.files) });
+
+    if (!dataTypes.includes('Files')) {
+      return;
+    }
+
+    onDrop({ item, files: Array.from(e.dataTransfer.files) });
+  };
+  const _onDragOver = e => {
+    e.stopPropagation();
+    e.preventDefault();
+  };
+  const _onDragEnter = e => {
+    e.stopPropagation();
+  };
 
   let modifiedDisp = '-';
   if (modified) {
@@ -36,6 +62,9 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
       })}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
+      onDrop={_onDrop}
+      onDragOver={_onDragOver}
+      onDragEnter={_onDragEnter}
     >
       <div className="ecos-files-viewer__item-left">
         <div className="ecos-files-viewer__item-icon-wrapper">
@@ -77,7 +106,8 @@ FilesViewerItem.propTypes = {
   isLastClicked: PropTypes.bool,
   isMobile: PropTypes.bool,
   onClick: PropTypes.func,
-  onDoubleClick: PropTypes.func
+  onDoubleClick: PropTypes.func,
+  onDrop: PropTypes.func
 };
 
 export default FilesViewerItem;
