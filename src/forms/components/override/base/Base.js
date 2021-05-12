@@ -149,6 +149,9 @@ const modifiedOriginalCalculateValue = function(data, flags) {
 };
 
 Base.prototype.calculateValue = function(data, flags) {
+  if (!this.component.calculateValue) {
+    return false;
+  }
   // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
