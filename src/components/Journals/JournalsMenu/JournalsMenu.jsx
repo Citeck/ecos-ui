@@ -83,7 +83,9 @@ class JournalsMenu extends React.Component {
   };
 
   getMenuJournals = journals => {
-    return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
+    return journals
+      .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+      .map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
   };
 
   getMenuJournalSettings = (settings, selectedIndex) => {
