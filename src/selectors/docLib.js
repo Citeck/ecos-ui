@@ -65,6 +65,11 @@ export const selectDocLibFileViewerTotal = createSelector(
   fileViewer => get(fileViewer, 'total', 0)
 );
 
+export const selectDocLibFileCanUploadFiles = createSelector(
+  selectDocLib,
+  docLib => get(docLib, 'canUploadFiles', false)
+);
+
 export const selectDocLibFileViewerLoadingStatus = createSelector(
   selectDocLibFileViewer,
   fileViewer => get(fileViewer, 'isLoading', false)

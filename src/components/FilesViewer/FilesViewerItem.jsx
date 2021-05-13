@@ -35,6 +35,8 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
 
       const dataTypes = get(e, 'dataTransfer.types', []);
 
+      setAboveDir(false);
+
       if (!dataTypes.includes('Files')) {
         return;
       }

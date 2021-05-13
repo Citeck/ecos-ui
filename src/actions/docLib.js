@@ -7,6 +7,7 @@ export const setTypeRef = createAction(prefix + 'SET_TYPE_REF');
 export const setFileTypeRefs = createAction(prefix + 'SET_FILE_TYPE_REFS');
 export const setDirTypeRef = createAction(prefix + 'SET_DIR_TYPE_REF');
 export const setCreateVariants = createAction(prefix + 'SET_CREATE_VARIANTS');
+export const setCanUploadFiles = createAction(prefix + 'SET_CAN_UPLOAD_FILES');
 export const setRootId = createAction(prefix + 'SET_ROOT_ID');
 export const setFolderId = createAction(prefix + 'SET_FOLDER_ID');
 export const setFolderTitle = createAction(prefix + 'SET_FOLDER_TITLE');

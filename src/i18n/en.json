@@ -303,6 +303,7 @@
   "document-library.create-node.fields.content": "Content",
   "document-library.uploading-file.message.success": "File \"{{file}}\" has been successfully uploaded to the folder \"{{folder}}\"",
   "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
+  "document-library.uploading-file.message.abort": "Unable to upload file(s)",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",

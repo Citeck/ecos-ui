@@ -38,6 +38,7 @@ import {
 import {
   addSidebarItems,
   foldSidebarItem,
+  setCanUploadFiles,
   setCreateVariants,
   setDirTypeRef,
   setFileTypeRefs,
@@ -167,6 +168,7 @@ export const defaultState = {
     folderPath: [],
     searchText: '',
     createVariants: [],
+    canUploadFiles: false,
     groupActions: {
       isReady: true,
       forRecords: {},
@@ -570,6 +572,17 @@ export default handleActions(
         documentLibrary: {
           ...state[stateId].documentLibrary,
           createVariants: Array.isArray(action.payload) ? action.payload : []
+        }
+      });
+    },
+    [setCanUploadFiles]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          canUploadFiles: action.payload
         }
       });
     },

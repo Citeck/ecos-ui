@@ -53,7 +53,6 @@ export default class DocLibConverter {
   }
 
   static prepareFileListItems(records = [], actions = {}) {
-    console.warn({ records });
     return records.map(item => DocLibConverter.prepareFileListItem(item, actions));
   }
 }

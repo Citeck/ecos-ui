@@ -3,6 +3,7 @@ import { delay } from 'redux-saga';
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   initDocLib,
@@ -40,7 +41,8 @@ import {
   setGroupActions,
   execGroupAction,
   uploadFiles,
-  setFileViewerLoadingStatus
+  setFileViewerLoadingStatus,
+  setCanUploadFiles
 } from '../actions/docLib';
 import {
   selectDocLibSidebar,
@@ -51,7 +53,8 @@ import {
   selectDocLibSearchText,
   selectDocLibFileViewer,
   selectDocLibCreateVariants,
-  selectDocLibFolderTitle
+  selectDocLibFolderTitle,
+  selectDocLibFileCanUploadFiles
 } from '../selectors/docLib';
 import { JournalUrlParams } from '../constants';
 import { NODE_TYPES, DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
@@ -87,6 +90,14 @@ export function* loadDocumentLibrarySettings(journalId, w) {
 
   const createVariants = yield call(DocLibService.getCreateVariants, dirTypeRef, fileTypeRefs);
   yield put(setCreateVariants(w(createVariants)));
+
+  const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+
+  if (!isEmpty(createVariant)) {
+    const formDefinition = yield DocLibService.getCreateFormDefinition(createVariant);
+
+    yield put(setCanUploadFiles(w(formKeysCheck(formDefinition))));
+  }
 
   const rootId = yield call(DocLibService.getRootId, typeRef);
   yield put(setRootId(w(rootId)));
@@ -396,6 +407,17 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
   }
 }
 
+function formKeysCheck(formDefinition) {
+  return get(formDefinition, 'components', [])
+    .filter(item => item.key)
+    .reduce((res, item) => {
+      res.push(['_disp', '_content'].includes(item.key));
+
+      return res;
+    }, [])
+    .every(i => i === true);
+}
+
 function* sagaUploadFiles({ api, logger, stateId, w }, action) {
   try {
     yield put(setFileViewerLoadingStatus(w(true)));
@@ -404,11 +426,14 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
     const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
-    const formDefinition = yield DocLibService.getCreateFormDefinition(createVariant);
+    const canUpload = yield select(state => selectDocLibFileCanUploadFiles(state, stateId));
     let folderId = yield select(state => selectDocLibFolderId(state, stateId));
     let folderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
 
-    console.warn({ formDefinition });
+    if (!canUpload) {
+      NotificationManager.error(t('document-library.uploading-file.message.abort'));
+      return;
+    }
 
     if (item.type === NODE_TYPES.DIR) {
       folderId = item.id;
@@ -422,18 +447,19 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
           ...file,
           ...data
         });
+        const fileName = yield createChildResult.load('');
 
         yield call(DocLibService.loadNode, createChildResult.id);
 
         NotificationManager.success(
           t('document-library.uploading-file.message.success', {
-            file: data.name,
+            file: fileName || data.name,
             folder: folderTitle
           }),
           t('success')
         );
       } catch (e) {
-        NotificationManager.success(
+        NotificationManager.error(
           t('document-library.uploading-file.message.error', {
             file: file.name
           }),
