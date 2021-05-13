@@ -104,7 +104,6 @@ const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, o
         'ecos-files-viewer__item_selected': isSelected || isAboveDir,
         'ecos-files-viewer__item_lastclicked': isLastClicked,
         'ecos-files-viewer__item_mobile': isMobile
-        // 'ecos-files-viewer__item_without-pointer': isAboveDir
       })}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}

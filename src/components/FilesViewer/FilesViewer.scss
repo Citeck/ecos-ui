@@ -86,12 +86,5 @@
         }
       }
     }
-
-    &_without-pointer {
-      #{$item}-left,
-      #{$item}-right {
-        pointer-events: none;
-      }
-    }
   }
 }
