@@ -301,6 +301,8 @@
   "document-library.create-node.title": "Create new \"{{name}}\"",
   "document-library.create-node.fields.title": "Name",
   "document-library.create-node.fields.content": "Content",
+  "document-library.uploading-file.message.success": "File \"{{file}}\" has been successfully uploaded to the folder \"{{folder}}\"",
+  "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",

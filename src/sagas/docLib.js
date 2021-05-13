@@ -39,7 +39,8 @@ import {
   setIsGroupActionsReady,
   setGroupActions,
   execGroupAction,
-  uploadFiles
+  uploadFiles,
+  setFileViewerLoadingStatus
 } from '../actions/docLib';
 import {
   selectDocLibSidebar,
@@ -49,7 +50,8 @@ import {
   selectDocLibFileViewerPagination,
   selectDocLibSearchText,
   selectDocLibFileViewer,
-  selectDocLibCreateVariants
+  selectDocLibCreateVariants,
+  selectDocLibFolderTitle
 } from '../selectors/docLib';
 import { JournalUrlParams } from '../constants';
 import { NODE_TYPES, DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
@@ -260,6 +262,17 @@ function* sagaLoadFilesViewerData({ api, logger, stateId, w }) {
     yield put(setFileViewerError(w(false)));
     yield put(setFileViewerIsReady(w(false)));
 
+    yield* getFilesViewerData({ api, logger, stateId, w });
+
+    yield put(setFileViewerIsReady(w(true)));
+  } catch (e) {
+    yield put(setFileViewerError(w(true)));
+    logger.error('[docLib sagaLoadFilesViewerData saga error', e.message);
+  }
+}
+
+function* getFilesViewerData({ api, logger, stateId, w }) {
+  try {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
     const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
     const searchText = yield select(state => selectDocLibSearchText(state, stateId));
@@ -275,11 +288,8 @@ function* sagaLoadFilesViewerData({ api, logger, stateId, w }) {
     const actions = JournalsConverter.getJournalActions(resultActions);
 
     yield put(setFileViewerItems(w(DocLibConverter.prepareFileListItems(records, actions.forRecord))));
-
-    yield put(setFileViewerIsReady(w(true)));
   } catch (e) {
-    yield put(setFileViewerError(w(true)));
-    logger.error('[docLib sagaLoadFilesViewerData saga error', e.message);
+    logger.error('[docLib getFilesViewerData error', e.message);
   }
 }
 
@@ -388,42 +398,56 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 
 function* sagaUploadFiles({ api, logger, stateId, w }, action) {
   try {
+    yield put(setFileViewerLoadingStatus(w(true)));
+
     const item = get(action, 'payload.item');
-
-    yield put(setFileViewerIsReady(w(false)));
-
-    // if (item.type !== NODE_TYPES.DIR) {
-    //   yield put(setFileViewerIsReady(w(false)));
-    // }
-
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
     const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
     const formDefinition = yield DocLibService.getCreateFormDefinition(createVariant);
     let folderId = yield select(state => selectDocLibFolderId(state, stateId));
+    let folderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
 
     console.warn({ formDefinition });
 
     if (item.type === NODE_TYPES.DIR) {
       folderId = item.id;
+      folderTitle = yield call(DocLibService.getFolderTitle, folderId);
     }
 
     yield action.payload.files.map(function*(file) {
-      const data = yield uploadFile({ api, file });
-      const createChildResult = yield call(DocLibService.createChild, rootId, folderId, get(createVariant, 'destination'), {
-        ...file,
-        ...data
-      });
+      try {
+        const data = yield uploadFile({ api, file });
+        const createChildResult = yield call(DocLibService.createChild, rootId, folderId, get(createVariant, 'destination'), {
+          ...file,
+          ...data
+        });
 
-      yield call(DocLibService.loadNode, createChildResult.id);
+        yield call(DocLibService.loadNode, createChildResult.id);
+
+        NotificationManager.success(
+          t('document-library.uploading-file.message.success', {
+            file: data.name,
+            folder: folderTitle
+          }),
+          t('success')
+        );
+      } catch (e) {
+        NotificationManager.success(
+          t('document-library.uploading-file.message.error', {
+            file: file.name
+          }),
+          t('error')
+        );
+        logger.error('[docLib uploadFile error', e.message);
+      }
     });
 
-    yield put(loadFilesViewerData(w()));
-    // if (item.type !== NODE_TYPES.DIR) {
-    //   yield put(loadFilesViewerData(w()));
-    // }
+    yield* getFilesViewerData({ api, logger, stateId, w });
   } catch (e) {
     logger.error('[docLib sagaUploadFiles saga error', e.message);
+  } finally {
+    yield put(setFileViewerLoadingStatus(w(false)));
   }
 }
 

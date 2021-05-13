@@ -38,6 +38,7 @@ export const setFileViewerPagination = createAction(prefix + 'SET_FILE_VIEWER_PA
 export const setFileViewerTotal = createAction(prefix + 'SET_FILE_VIEWER_TOTAL');
 export const setFileViewerSelected = createAction(prefix + 'SET_FILE_VIEWER_SELECTED');
 export const setFileViewerLastClicked = createAction(prefix + 'SET_FILE_VIEWER_LAST_CLICKED');
+export const setFileViewerLoadingStatus = createAction(prefix + 'SET_FILE_VIEWER_LOADING_STATUS');
 
 export const setIsGroupActionsReady = createAction(prefix + 'SET_IS_GROUP_ACTIONS_READY');
 export const setGroupActions = createAction(prefix + 'SET_GROUP_ACTIONS');

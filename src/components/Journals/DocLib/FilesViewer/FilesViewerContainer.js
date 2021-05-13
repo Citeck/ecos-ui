@@ -1,7 +1,12 @@
 import { connect } from 'react-redux';
 
 import { wrapArgs } from '../../../../helpers/redux';
-import { selectDocLibFileViewer, selectDocLibFolderPath, selectDocLibGroupActions } from '../../../../selectors/docLib';
+import {
+  selectDocLibFileViewer,
+  selectDocLibFileViewerLoadingStatus,
+  selectDocLibFolderPath,
+  selectDocLibGroupActions
+} from '../../../../selectors/docLib';
 import { openFolder, setFileViewerSelected, setFileViewerLastClicked, uploadFiles } from '../../../../actions/docLib';
 
 import FilesViewer from './FilesViewer';
@@ -10,11 +15,13 @@ const mapStateToProps = (state, { stateId }) => {
   const fileViewer = selectDocLibFileViewer(state, stateId);
   const groupActions = selectDocLibGroupActions(state, stateId);
   const path = selectDocLibFolderPath(state, stateId);
+  const isLoading = selectDocLibFileViewerLoadingStatus(state, stateId);
 
   return {
     fileViewer,
     groupActions,
-    path
+    path,
+    isLoading
   };
 };
 

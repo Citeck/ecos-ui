@@ -45,6 +45,7 @@ import {
   setFileViewerIsReady,
   setFileViewerItems,
   setFileViewerLastClicked,
+  setFileViewerLoadingStatus,
   setFileViewerPagination,
   setFileViewerSelected,
   setFileViewerTotal,
@@ -183,7 +184,8 @@ export const defaultState = {
       lastClicked: null,
       total: 0,
       pagination: DEFAULT_DOCLIB_PAGINATION,
-      hasError: false
+      hasError: false,
+      isLoading: false
     }
   },
 
@@ -864,6 +866,21 @@ export default handleActions(
           fileViewer: {
             ...documentLibrary.fileViewer,
             lastClicked: handledAction.payload
+          }
+        }
+      });
+    },
+    [setFileViewerLoadingStatus]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            isLoading: handledAction.payload
           }
         }
       });

@@ -11,7 +11,7 @@ import { t } from '../../../../helpers/export/util';
 import FileList from './FileList';
 import './FileViewer.scss';
 
-const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path, onDrop }) => {
+const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path, onDrop, isLoading }) => {
   const { hasError, isReady, items, selected, lastClicked } = fileViewer;
 
   let content;
@@ -52,7 +52,12 @@ const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLa
       );
   }
 
-  return <Well style={{ padding: 12 }}>{content}</Well>;
+  return (
+    <Well className="ecos-doclib__fileviewer-well">
+      {isLoading && <Loader blur rounded />}
+      {content}
+    </Well>
+  );
 };
 
 FilesViewer.propTypes = {
