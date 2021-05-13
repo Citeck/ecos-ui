@@ -374,7 +374,7 @@ class DesktopDocuments extends BaseDocuments {
       return false;
     }
 
-    if (this.getformId(type)) {
+    if (this.getFormId(type)) {
       this.props.onUploadFiles({ files, type: type.type, openForm: this.openForm });
     } else {
       this.props.onUploadFiles({ files, type: type.type });

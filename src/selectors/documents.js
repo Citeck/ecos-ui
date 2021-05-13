@@ -180,6 +180,21 @@ export const selectActionsByTypes = (state, key, types) => {
   return actions;
 };
 
+export const selectActionsDynamicType = (state, key, type) => {
+  const dynamicTypes = getDynamicTypes(selectState(state, key)) || [];
+
+  return get(dynamicTypes.find(item => item.type === type), 'actions', []);
+};
+
+export const selectActionsDynamicTypes = (state, key, types) => {
+  const dynamicTypes = getDynamicTypes(selectState(state, key)) || [];
+  const actions = [];
+
+  dynamicTypes.filter(item => types.includes(item.type)).forEach(item => actions.push(...(item.actions || [])));
+
+  return actions;
+};
+
 export const selectGroupedAvailableTypes = createSelector(
   getAvailableTypes,
   getDynamicTypes,
