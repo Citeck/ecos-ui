@@ -4,9 +4,9 @@ import isEmpty from 'lodash/isEmpty';
 import { createSelector } from 'reselect';
 
 import { initialState } from '../reducers/documents';
-import { getFirstNonEmpty, getOutputFormat } from '../helpers/util';
+import { getOutputFormat } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { documentActions, documentFields, Labels, statusesKeys } from '../constants/documents';
+import { documentFields, Labels, statusesKeys } from '../constants/documents';
 import { DataFormatTypes } from '../constants';
 
 const selectState = (state, key) => get(state, ['documents', key], { ...initialState });
@@ -152,12 +152,6 @@ export const selectDynamicType = (state, key, id) => {
   const types = selectDynamicTypes(state, key);
 
   return types.find(type => type.type === id);
-};
-
-export const selectSuitableActions = (state, key, type) => {
-  const availableActions = selectActionsByType(state, key, type);
-  const dynamicActions = selectActionsDynamicType(state, key, type);
-  return getFirstNonEmpty([dynamicActions, availableActions, documentActions], []);
 };
 
 export const selectAvailableType = (state, key, id) => {

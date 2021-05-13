@@ -34,14 +34,13 @@ export default class DocumentsConverter {
     }));
   };
 
-  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [], availableTypes }, locked = false) => {
+  static getDynamicTypes = ({ types = [], countByTypes = [] }, locked = false) => {
     if (!types.length) {
       return types;
     }
 
     return types.map((item, index) => {
       const documents = get(countByTypes, [index], []);
-      const createVariants = get(availableTypes.find(i => i.id === item.type), 'createVariants', {});
       let document = {};
 
       if (documents.length) {
@@ -58,11 +57,11 @@ export default class DocumentsConverter {
         canUpload: !isExistValue(canUpload) || canUpload,
         locked: get(item, 'locked', locked),
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
-        name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
+        name: item.name || t('documents-widget.untitled'),
         countDocuments: documents.length,
         lastDocumentRef: get(document, documentFields.id, ''),
         [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
-        canDropUpload: (!isExistValue(canUpload) || canUpload) && !createVariants.formRef,
+        canDropUpload: (!isExistValue(canUpload) || canUpload) && !get(item, 'createVariants[0]formRef'),
         [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
     });
@@ -88,7 +87,7 @@ export default class DocumentsConverter {
     return target;
   };
 
-  static getDocuments = ({ documents, type, typeName }) => {
+  static getDocuments = ({ documents, type }) => {
     return documents.map(document => {
       const target = { ...document };
 
@@ -97,7 +96,6 @@ export default class DocumentsConverter {
       }
 
       target.type = type;
-      target.typeName = typeName;
 
       return target;
     });
@@ -177,8 +175,8 @@ export default class DocumentsConverter {
   };
 
   static combineTypes = (baseTypes = [], userTypes = []) => {
-    const base = deepClone(baseTypes, []);
-    const user = deepClone(userTypes, []);
+    const base = lodashClone(baseTypes);
+    const user = lodashClone(userTypes);
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
