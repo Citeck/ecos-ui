@@ -10,6 +10,7 @@ import { t } from '../../../../helpers/export/util';
 
 import FileList from './FileList';
 import './FileViewer.scss';
+import Empty from './Empty';
 
 const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path, onDrop, isLoading }) => {
   const { hasError, isReady, items, selected, lastClicked } = fileViewer;
@@ -48,7 +49,8 @@ const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLa
           />
         </div>
       ) : (
-        t('document-library.empty-folder')
+        <Empty onDrop={onDrop} />
+        /*t('document-library.empty-folder')*/
       );
   }
 

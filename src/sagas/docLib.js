@@ -390,9 +390,6 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
     const typeRef = createVariant.destination;
 
     const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission);
-
-    console.warn('by form => ', { submission });
-
     const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
 
     if (createVariant.nodeType === NODE_TYPES.DIR) {
@@ -425,7 +422,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
   try {
     yield put(setFileViewerLoadingStatus(w(true)));
 
-    const item = get(action, 'payload.item');
+    const item = get(action, 'payload.item', {});
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
     const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);

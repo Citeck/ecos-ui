@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import get from 'lodash/get';
-import debounce from 'lodash/debounce';
 import moment from 'moment';
 
 import { ActionPropTypes } from '../common/grid/InlineTools/constants';
@@ -11,75 +9,22 @@ import EcosIcon from '../common/EcosIcon';
 import FileIcon from '../common/FileIcon';
 import { detectFormat } from '../common/FileIcon/helpers';
 import { NODE_TYPES } from '../../constants/docLib';
+import { useDropFile } from '../../hooks/useDropFile';
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 
 const FilesViewerItem = ({ item, isSelected, isLastClicked, isMobile, onClick, onDoubleClick, onDrop }) => {
-  const [isAboveDir, setAboveDir] = useState(false);
   const { title, type, modified, actions } = item;
+  const {
+    flags: { isAboveDir },
+    handlers
+  } = useDropFile({ item, callback: onDrop });
   let extraProps = {};
 
   if (typeof onDrop === 'function') {
-    const _debouncedLeave = debounce(() => {
-      if (item.type === NODE_TYPES.DIR) {
-        setAboveDir(false);
-      }
-    }, 100);
-    const _onDrop = e => {
-      if (typeof onDrop !== 'function') {
-        return;
-      }
-
-      e.stopPropagation();
-      e.preventDefault();
-
-      const dataTypes = get(e, 'dataTransfer.types', []);
-
-      setAboveDir(false);
-
-      if (!dataTypes.includes('Files')) {
-        return;
-      }
-
-      onDrop({ item, files: Array.from(e.dataTransfer.files) });
-    };
-    const _onDragOver = e => {
-      e.stopPropagation();
-      e.preventDefault();
-
-      _debouncedLeave.cancel();
-
-      if (item.type === NODE_TYPES.DIR) {
-        setAboveDir(true);
-      }
-    };
-
-    const _onDragLeave = e => {
-      e.stopPropagation();
-      e.preventDefault();
-
-      _debouncedLeave();
-    };
-    const _onDragEnter = e => {
-      e.stopPropagation();
-
-      if (item.type === NODE_TYPES.DIR) {
-        setAboveDir(true);
-      }
-    };
-
-    useEffect(() => {
-      return () => {
-        _debouncedLeave.cancel();
-      };
-    }, []);
-
     extraProps = {
       ...extraProps,
-      onDrop: _onDrop,
-      onDragOver: _onDragOver,
-      onDragEnter: _onDragEnter,
-      onDragLeave: _onDragLeave
+      ...handlers
     };
   }
 
