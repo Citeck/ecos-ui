@@ -47,8 +47,10 @@ export default class TypePermissionsService {
       throw new Error(t('type-permissions.load-data-error'));
     }
 
-    roles = roles.filter(r => !!r.id);
-    statuses = statuses.filter(s => !!s.id);
+    let typeInfo = await TypePermissionsApi.getTypeInfo(typeRef);
+    roles = [...typeInfo.roles, ...roles].filter(r => !!r.id);
+    statuses = [...typeInfo.statuses, ...statuses].filter(s => !!s.id);
+    attributes = [...typeInfo.attributes, ...attributes].filter(a => !!a.id);
 
     const { id, ...permsConfigRest } = formatPermissionsConfig(typePermissions, roles, statuses, attributes);
 
@@ -88,8 +90,9 @@ export default class TypePermissionsService {
       permsData = Object.assign({}, permsData, customPermsData);
     }
 
-    let roles = (permsData.roles || []).filter(r => !!r.id);
-    let statuses = (permsData.statuses || []).filter(s => !!s.id);
+    let typeInfo = await TypePermissionsApi.getTypeInfo(typeRef);
+    let roles = [...typeInfo.roles, ...(permsData.roles || [])].filter(r => !!r.id);
+    let statuses = [...typeInfo.statuses, ...(permsData.statuses || [])].filter(s => !!s.id);
 
     if (!roles.length) {
       DialogManager.showInfoDialog({

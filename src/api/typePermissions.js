@@ -37,11 +37,13 @@ export class TypePermissionsApi extends CommonApi {
    * @returns {Promise<{}>} Promise object represents type info
    */
   static getTypeInfo = async typeRef => {
-    return Records.get(typeRef).load(
+    let resolvedTypeRef = typeRef.replace('emodel/type@', 'emodel/rtype@');
+    return Records.get(resolvedTypeRef).load(
       {
         typeDispName: '.disp',
-        roles: 'roles[]{name,id}',
-        statuses: 'statuses[]{name,id}'
+        roles: 'model.roles[]{name,id}',
+        statuses: 'model.statuses[]{name,id}',
+        attributes: 'model.attributes[]{name,id}'
       },
       true
     );
