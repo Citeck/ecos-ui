@@ -390,6 +390,9 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
     const typeRef = createVariant.destination;
 
     const createChildResult = yield call(DocLibService.createChild, rootId, currentFolderId, typeRef, submission);
+
+    console.warn('by form => ', { submission });
+
     const newRecord = yield call(DocLibService.loadNode, createChildResult.id);
 
     if (createVariant.nodeType === NODE_TYPES.DIR) {
@@ -442,18 +445,21 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
 
     yield action.payload.files.map(function*(file) {
       try {
-        const data = yield uploadFile({ api, file });
-        const createChildResult = yield call(DocLibService.createChild, rootId, folderId, get(createVariant, 'destination'), {
-          ...file,
-          ...data
-        });
+        const uploadedFile = yield uploadFile({ api, file });
+        const createChildResult = yield call(
+          DocLibService.createChild,
+          rootId,
+          folderId,
+          get(createVariant, 'destination'),
+          DocLibConverter.prepareUploadedFileDataForSaving(file, uploadedFile)
+        );
         const fileName = yield createChildResult.load('');
 
         yield call(DocLibService.loadNode, createChildResult.id);
 
         NotificationManager.success(
           t('document-library.uploading-file.message.success', {
-            file: fileName || data.name,
+            file: fileName || uploadedFile.name,
             folder: folderTitle
           }),
           t('success')

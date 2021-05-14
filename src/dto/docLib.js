@@ -1,7 +1,9 @@
-import recordActions from '../components/Records/actions/recordActions';
+import get from 'lodash/get';
 
+import recordActions from '../components/Records/actions/recordActions';
 import { SourcesId } from '../constants';
 import { DOCLIB_RECORDS_PREFIX } from '../constants/docLib';
+import { prepareReactKey } from '../helpers/util';
 
 export default class DocLibConverter {
   static completeItemId(source = {}) {
@@ -54,5 +56,24 @@ export default class DocLibConverter {
 
   static prepareFileListItems(records = [], actions = {}) {
     return records.map(item => DocLibConverter.prepareFileListItem(item, actions));
+  }
+
+  static prepareUploadedFileDataForSaving(file = {}, uploadedData = {}) {
+    const name = get(uploadedData, 'name', prepareReactKey({ prefix: 'file' }));
+
+    return {
+      submit: true,
+      _disp: name,
+      _content: [
+        {
+          data: { ...get(uploadedData, 'data', {}), ...file },
+          name,
+          originalName: name,
+          size: get(uploadedData, 'size'),
+          storage: 'url',
+          type: file.type
+        }
+      ]
+    };
   }
 }
