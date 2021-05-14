@@ -1,6 +1,7 @@
 import { Attributes } from '../../../../../constants';
 import { SortOrderOptions, TableTypes, DisplayModes } from '../constants';
 
+const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
 const FILTER_PREDICATES_FIELD = 'presetFilterPredicatesJs';
 const VALUE_DISPLAY_NAME_FIELD = 'computed.valueDisplayName';
@@ -257,6 +258,30 @@ export default [
     label: 'Full-width modal',
     tooltip: 'Check to display modal window in full screen width',
     weight: 24
+  },
+  {
+    weight: 24,
+    type: 'panel',
+    title: 'Custom Query Data',
+    collapsible: true,
+    collapsed: true,
+    customClass: 'mb-3',
+    key: ''.concat(CUSTOM_QUERY_DATA_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: CUSTOM_QUERY_DATA_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+      }
+    ]
   },
   {
     weight: 25,
