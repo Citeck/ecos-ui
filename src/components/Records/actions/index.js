@@ -7,6 +7,8 @@ import ViewBusinessProcessAction from './handler/executor/workflow/ViewBusinessP
 import CancelBusinessProcessAction from './handler/executor/workflow/CancelBusinessProcessAction';
 import EditTaskAssignee from './handler/executor/workflow/EditTaskAssignee';
 import SetTaskAssignee from './handler/executor/workflow/SetTaskAssignee';
+import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
+import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
 
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
@@ -34,8 +36,7 @@ import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
 import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAction';
-import TaskOutcomeAction from './handler/executor/workflow/TaskOutcomeAction';
-import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
+import DebugFormAction from './handler/executor/DebugFormAction';
 
 export { default } from './recordActions';
 
@@ -75,6 +76,7 @@ actionsRegistry.register(new ServerGroupAction());
 actionsRegistry.register(new MutateAction());
 actionsRegistry.register(new EditTypePermissionsAction());
 actionsRegistry.register(new EditPasswordAction());
+actionsRegistry.register(new DebugFormAction());
 
 // Executors - Case
 
