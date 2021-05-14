@@ -440,7 +440,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
       folderTitle = yield call(DocLibService.getFolderTitle, folderId);
     }
 
-    yield action.payload.files.map(function*(file) {
+    yield* action.payload.files.map(function*(file) {
       try {
         const uploadedFile = yield uploadFile({ api, file });
         const createChildResult = yield call(
