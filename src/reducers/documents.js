@@ -38,14 +38,28 @@ const emptyTypeSettings = Object.freeze({
   multiple: false,
   columns: []
 });
+
+/**
+ * @description document state
+ *
+ * @member config - widget config includes what types show (set in widget)
+ * @member typeSettings - type config (set in journal of types)
+ * @member availableTypes - all types are available for widget
+ * @member dynamicTypes - set types in widget
+ * @member documents - documents for one type (when view is Desktop)
+ * @member documentsByTypes - documents for set type (when view is Mobile)
+ * @member actions - actions for type
+ */
 export const initialState = {
   stateId: '',
   config: {},
+  typeSettings: { ...emptyTypeSettings },
   availableTypes: [],
   dynamicTypes: [],
   documents: [],
   documentsByTypes: {},
   actions: {},
+
   isLoading: false,
   isLoadingTableData: false,
   isUploadingFile: false,
@@ -54,8 +68,7 @@ export const initialState = {
   isLoadingAvailableTypes: false,
   countFilesError: '',
   uploadError: '',
-  tools: { ...emptyTools },
-  typeSettings: { ...emptyTypeSettings }
+  tools: { ...emptyTools }
 };
 
 Object.freeze(initialState);
