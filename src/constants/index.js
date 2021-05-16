@@ -22,6 +22,10 @@ export const URL = {
   FORM_COMPONENTS: '/v2/debug/formio-develop'
 };
 
+export const RELOCATED_URL = {
+  [URL.BPMN_DESIGNER]: URL.ADMIN_PAGE
+};
+
 export const pagesWithOnlyContent = [
   URL.TIMESHEET_IFRAME,
   URL.TIMESHEET_IFRAME_SUBORDINATES,

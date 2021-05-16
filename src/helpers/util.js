@@ -710,7 +710,7 @@ export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   }
 }
 
-export function hasChildWithId(items, selectedId) {
+export function hasChildWithId(items = [], selectedId) {
   let childIndex = items.findIndex(item => item.id === selectedId);
 
   if (childIndex !== -1) {

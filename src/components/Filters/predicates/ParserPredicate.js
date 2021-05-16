@@ -84,8 +84,9 @@ export default class ParserPredicate {
   static getDefaultPredicates(columns, extra) {
     let val = [];
 
-    for (let i = 0, length = columns.length; i < length; i++) {
-      const column = columns[i];
+    for (let i = 0; i < get(columns, 'length', 0); i++) {
+      const column = columns[i] || {};
+
       if ((column.searchable && column.default) || (extra && extra.includes(column.attribute))) {
         const predicates = getPredicates(column);
         val.push(new Predicate({ att: column.attribute, t: predicates[0].value, val: '' }));

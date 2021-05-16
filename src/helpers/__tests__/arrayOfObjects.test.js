@@ -1,6 +1,14 @@
 import get from 'lodash/get';
 import * as common from '../__mocks__/common';
-import { treeAddItem, treeFindFirstItem, treeGetItemCoords, treeGetPathItem, treeRemoveItem, treeMoveItem } from '../arrayOfObjects';
+import {
+  treeAddItem,
+  treeFindFirstItem,
+  treeFindSuitableItem,
+  treeGetItemCoords,
+  treeGetPathItem,
+  treeMoveItem,
+  treeRemoveItem
+} from '../arrayOfObjects';
 
 describe('Helpers for Array of Objects / Tree', () => {
   const items = common.ITEMS; // don't mutate, else create local
@@ -110,6 +118,29 @@ describe('Helpers for Array of Objects / Tree', () => {
       const coords = treeGetItemCoords({ items: path, key: 'dndIdx', value });
 
       expect(coords).toEqual({ level: 2, parent: 0, index: 1 });
+    });
+  });
+
+  describe('function treeFindSuitableItem', () => {
+    it('exact value', () => {
+      const value = 'exact value';
+      const item = treeFindSuitableItem([{ test: value }], 'test', value);
+
+      expect(item.test).toBe(value);
+    });
+
+    it('suitable value', () => {
+      const value = 'suitable value';
+      const item = treeFindSuitableItem([{ test: 'test suitable value' }], 'test', value);
+
+      expect(item.test.includes(value)).toBeTruthy();
+    });
+
+    it('no suitable value', () => {
+      const value = 'no suitable value';
+      const item = treeFindSuitableItem([{ test: 'test suitable value' }], 'test', value);
+
+      expect(item).toBeUndefined();
     });
   });
 });
