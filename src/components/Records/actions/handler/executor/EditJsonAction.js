@@ -1,10 +1,14 @@
 import get from 'lodash/get';
 
-import ActionsExecutor from '../ActionsExecutor';
+import { AppApi } from '../../../../../api/app';
 import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import Records from '../../../Records';
+import { notifyFailure, notifySuccess } from '../../util/actionUtils';
+import ActionsExecutor from '../ActionsExecutor';
 
-export default class DebugFormAction extends ActionsExecutor {
+const appApi = new AppApi();
+
+export default class EditJsonAction extends ActionsExecutor {
   static ACTION_ID = 'edit-json';
 
   async execForRecord(record, action, context) {
@@ -12,11 +16,24 @@ export default class DebugFormAction extends ActionsExecutor {
       EcosFormUtils.editRecord({
         recordRef: record.id,
         formKey: 'form-json-editor',
-        onSubmit: (rec, form) => {
-          const record = Records.get(record.id);
-          //todo how save ???
-          record.att('.json', get(form, 'data.config'));
-          return record.save().then(resolve);
+        onSubmit: async (rec, form) => {
+          const blob = new Blob([get(form, 'data.config')], { type: 'application/json' });
+          const url = await appApi.getBase64(blob);
+          const record = Records.get(rec.id);
+
+          record.att('_content', [{ url }]);
+
+          return record
+            .save()
+            .then(resolve => {
+              notifySuccess();
+              resolve(true);
+            })
+            .catch(e => {
+              console.error('[EditJsonAction]', e);
+              notifyFailure();
+              resolve(false);
+            });
         }
       });
     });
