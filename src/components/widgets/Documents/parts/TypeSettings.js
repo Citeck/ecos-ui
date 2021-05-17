@@ -7,12 +7,14 @@ import { Btn } from '../../../common/btns';
 import { objectCompare, t } from '../../../../helpers/util';
 import { DynamicTypeInterface, TypeSettingsInterface } from '../propsInterfaces';
 import { Checkbox, Radio } from '../../../common/form';
+import SelectJournal from '../../../common/form/SelectJournal';
 
 const Labels = {
   TITLE: 'documents-widget.type-settings.title',
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
   UPLOAD_LABEL: 'documents-widget.type-settings.allowed-number-files',
+  JOURNAL_SETTINGS_LABEL: 'documents-widget.type-settings.journal',
   SORT_LABEL: 'documents-widget.type-settings.sort-label',
   ONE_FILE: 'documents-widget.type-settings.one-file',
   MULTIPLE_FILES: 'documents-widget.type-settings.multiple-files',
@@ -101,6 +103,18 @@ class TypeSettings extends Component {
     }));
   };
 
+  handleSelectJournal = journalId => {
+    this.setState(state => ({
+      ...state,
+      settings: {
+        ...state.settings,
+        journalId
+      }
+    }));
+
+    console.warn({ journalId });
+  };
+
   renderCountFiles() {
     const { settings, countTabs } = this.state;
 
@@ -126,6 +140,30 @@ class TypeSettings extends Component {
     );
   }
 
+  renderSelectJournal() {
+    const { type } = this.props;
+    const { settings } = this.state;
+
+    if (settings === null || type === null) {
+      return null;
+    }
+
+    return (
+      <section className="ecos-docs__modal-type-settings-group">
+        <div className="ecos-docs__modal-type-settings-label">{t(Labels.JOURNAL_SETTINGS_LABEL)}</div>
+        <div className="ecos-docs__modal-type-settings-tabs">
+          <SelectJournal
+            journalId="ecos-journals"
+            defaultValue={type.journalId}
+            hideCreateButton
+            onChange={this.handleSelectJournal}
+            onCancel={() => this.handleSelectJournal()}
+          />
+        </div>
+      </section>
+    );
+  }
+
   render() {
     const { isOpen, isLoading } = this.props;
     const { settings } = this.state;
@@ -143,6 +181,9 @@ class TypeSettings extends Component {
         </Checkbox>
 
         {this.renderCountFiles()}
+
+        {this.renderSelectJournal()}
+
         <div className="ecos-docs__modal-type-settings-footer">
           <Btn onClick={this.handleCloseModal} className="ecos-docs__modal-settings-footer-item">
             {t(Labels.CANCEL_BUTTON)}

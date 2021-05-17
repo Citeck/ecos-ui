@@ -141,6 +141,9 @@ export default class DocumentsConverter {
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
     target.canUpload = !isExistValue(canUpload) || canUpload;
+    target.journalId = get(source, 'journalId', '');
+
+    console.warn({ source });
 
     return target;
   };
@@ -171,6 +174,9 @@ export default class DocumentsConverter {
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
       target.canUpload = !isExistValue(canUpload) || canUpload;
+      target.journalId = get(item, 'journalId', '');
+
+      console.warn('item => ', { item });
 
       return target;
     });
@@ -179,6 +185,8 @@ export default class DocumentsConverter {
   static combineTypes = (baseTypes = [], userTypes = []) => {
     const base = deepClone(baseTypes, []);
     const user = deepClone(userTypes, []);
+
+    console.warn({ base, user });
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
