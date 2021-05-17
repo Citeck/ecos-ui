@@ -168,8 +168,9 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, generalConfig, setLoading, checkConfig } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, setLoading, checkConfig } = this.props;
     const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
+    const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
