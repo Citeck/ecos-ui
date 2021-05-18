@@ -44,6 +44,7 @@ import {
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
+  setLoadingStatus,
   updateVersion,
   uploadFiles,
   uploadFilesFinally
@@ -290,10 +291,39 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
       })
     );
 
-    yield put(initStore({ ...payload }));
+    if (!isEmpty(payload.selectedType)) {
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: true
+        })
+      );
+      yield* sagaInitWidget({ api, logger }, { payload: { ...payload, type: payload.selectedType } });
+    } else {
+      yield put(initStore({ ...payload }));
+    }
   } catch (e) {
     logger.error('[documents sagaSaveSettings saga error', e.message);
   } finally {
+    if (!isEmpty(payload.selectedType)) {
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: true
+        })
+      );
+      yield* sagaGetDocumentsByType({ api, logger }, { payload: { ...payload, type: payload.selectedType } });
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: false
+        })
+      );
+    }
+
     yield put(saveSettingsFinally(payload.key));
   }
 }

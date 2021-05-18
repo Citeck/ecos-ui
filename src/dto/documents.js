@@ -271,16 +271,10 @@ export default class DocumentsConverter {
         let { name, schema, attribute, dataField } = column;
         const alias = dataField || attribute || name;
 
-        console.warn({ alias });
-
         if (attribute && schema) {
           if (schema.charAt(0) === '.') {
             return `${alias}:${schema.slice(1)}`;
           }
-
-          // if (alias.includes(':')) {
-          //   return `${alias.replace(':', '_')}:att(n:"${schema}"){disp}`;
-          // }
 
           return `${alias}:att(n:"${schema}"){disp}`;
         }

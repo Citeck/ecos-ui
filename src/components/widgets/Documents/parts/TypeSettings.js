@@ -111,8 +111,6 @@ class TypeSettings extends Component {
         journalId
       }
     }));
-
-    console.warn({ journalId });
   };
 
   renderCountFiles() {

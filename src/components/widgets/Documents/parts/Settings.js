@@ -210,8 +210,6 @@ class Settings extends Component {
 
     types.forEach(checkStatus);
 
-    console.warn({ selected });
-
     this.props.onSave({ types: selected, isLoadChecklist });
   };
 
