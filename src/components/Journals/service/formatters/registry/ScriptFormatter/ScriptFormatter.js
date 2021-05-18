@@ -1,4 +1,3 @@
-import React from 'react';
 import _ from 'lodash';
 
 import Records from '../../../../../Records';
@@ -58,7 +57,7 @@ export default class ScriptFormatter extends BaseFormatter {
         break;
     }
 
-    return <this.PopperWrapper text={content} />;
+    return content;
   }
 
   getSupportedCellType() {

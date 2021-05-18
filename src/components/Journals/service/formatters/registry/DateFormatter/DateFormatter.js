@@ -1,4 +1,3 @@
-import React from 'react';
 import moment from 'moment';
 
 import BaseFormatter from '../BaseFormatter';
@@ -10,10 +9,8 @@ export default class DateFormatter extends BaseFormatter {
 
   format(props) {
     const { cell, config = {} } = props;
-
     const format = config.format || FORMAT;
-    const date = cell ? moment(cell).format(format) : '';
 
-    return <this.PopperWrapper text={date}>{date}</this.PopperWrapper>;
+    return cell ? moment(cell).format(format) : '';
   }
 }

@@ -25,14 +25,10 @@ export default class WorkflowPriorityFormatter extends BaseFormatter {
     const { cell } = props;
     const priority = WorkflowPriorityFormatter.getDisplayText(cell);
 
-    return (
-      <this.PopperWrapper text={priority || this.value(cell)}>
-        {priority ? (
-          <span className={`workflow-priority-formatter workflow-priority-formatter_${Codes[cell]}`}>{priority}</span>
-        ) : (
-          <React.Fragment>{this.value(cell)}</React.Fragment>
-        )}
-      </this.PopperWrapper>
+    return priority ? (
+      <span className={`workflow-priority-formatter workflow-priority-formatter_${Codes[cell]}`}>{priority}</span>
+    ) : (
+      <React.Fragment>{this.value(cell)}</React.Fragment>
     );
   }
 }

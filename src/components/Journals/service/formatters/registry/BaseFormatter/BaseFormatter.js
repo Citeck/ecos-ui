@@ -1,7 +1,4 @@
-import React from 'react';
-
 import CellType from '../../CellType';
-import Popper from '../../../../../common/Popper';
 
 import './BaseFormatter.scss';
 
@@ -32,20 +29,6 @@ class BaseFormatter {
   getSupportedCellType() {
     return CellType.SCALAR;
   }
-
-  PopperWrapper = React.memo(props => {
-    return (
-      <Popper
-        showAsNeeded
-        text={props.text}
-        icon="icon-question"
-        popupClassName="formatter-popper"
-        contentComponent={props.contentComponent}
-      >
-        {props.children}
-      </Popper>
-    );
-  });
 }
 
 export default BaseFormatter;

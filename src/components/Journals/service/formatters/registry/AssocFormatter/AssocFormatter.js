@@ -34,11 +34,9 @@ export default class AssocFormatter extends BaseFormatter {
     };
 
     return (
-      <this.PopperWrapper text={cell.disp}>
-        <a href={link} onClick={handler}>
-          {cell.disp}
-        </a>
-      </this.PopperWrapper>
+      <a href={link} onClick={handler}>
+        {cell.disp}
+      </a>
     );
   }
 

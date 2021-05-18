@@ -28,11 +28,9 @@ export default class ColoredFormatter extends BaseFormatter {
     }
 
     return (
-      <this.PopperWrapper text={text}>
-        <span style={style} className={`colored-formatter`}>
-          {text}
-        </span>
-      </this.PopperWrapper>
+      <span style={style} className={`colored-formatter`}>
+        {text}
+      </span>
     );
   }
 

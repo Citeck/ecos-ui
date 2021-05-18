@@ -8,6 +8,7 @@ import { replacePlaceholders } from '../util';
 import formatterRegistry from './registry';
 import isPlainObject from 'lodash/isPlainObject';
 import CellType from './CellType';
+import Popper from '../../../common/Popper';
 
 /**
  * @typedef {Object} FormatterConfig
@@ -28,6 +29,20 @@ import CellType from './CellType';
 class FormatterService {
   static get errorMessage() {
     return `#${t('error').toUpperCase()}`;
+  }
+
+  static PopperWrapper(props) {
+    return (
+      <Popper
+        showAsNeeded
+        icon="icon-question"
+        popupClassName="formatter-popper"
+        text={props.text}
+        contentComponent={props.contentComponent}
+      >
+        {props.children}
+      </Popper>
+    );
   }
 
   /**
@@ -104,7 +119,7 @@ class FormatterService {
     }
     formatProps.cell = cellValue;
     try {
-      return fmtInstance.format(formatProps);
+      return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
     } catch (e) {
       console.error('[FormattersService._formatSingleValueCellImpl] error', e);
       return FormatterService.errorMessage;

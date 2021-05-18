@@ -9,14 +9,11 @@ export default class LinkFormatter extends BaseFormatter {
 
   format(props) {
     const { row = {}, cell } = props;
-    const url = createDocumentUrl(row.id);
 
     return (
-      <this.PopperWrapper text={cell}>
-        <a href={url} target="_blank" rel="noopener noreferrer" {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
-          {cell}
-        </a>
-      </this.PopperWrapper>
+      <a href={createDocumentUrl(row.id)} target="_blank" rel="noopener noreferrer" {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
+        {cell}
+      </a>
     );
   }
 

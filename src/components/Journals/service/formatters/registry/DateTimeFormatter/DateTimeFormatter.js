@@ -25,11 +25,7 @@ export default class DateTimeFormatter extends BaseFormatter {
     const title = moment(value).format('LLL');
     const date = relative ? moment(value).fromNow() : moment(value).format(format || FORMAT);
 
-    return (
-      <this.PopperWrapper text={date}>
-        <span title={title}>{date}</span>
-      </this.PopperWrapper>
-    );
+    return <span title={title}>{date}</span>;
   }
 
   getTimeOrValue(value, config) {
