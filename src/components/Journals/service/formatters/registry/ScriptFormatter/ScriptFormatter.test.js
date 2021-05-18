@@ -1,5 +1,3 @@
-import { mount } from 'enzyme';
-
 import * as util from '../../../../../../helpers/export/util';
 import en from '../../../../../../i18n/en';
 
@@ -20,9 +18,8 @@ describe('ScriptFormatter', () => {
           fn: 'return true;'
         }
       });
-      const component = mount(result);
 
-      expect(component.text()).toBe('Yes');
+      expect(result).toBe('Yes');
     });
     it('should return No if the script result is boolean (false)', () => {
       const result = scriptFormatterInstance.format({
@@ -30,9 +27,8 @@ describe('ScriptFormatter', () => {
           fn: 'return false;'
         }
       });
-      const component = mount(result);
 
-      expect(component.text()).toBe('No');
+      expect(result).toBe('No');
     });
     it('should return number if the script result is number', () => {
       const result = scriptFormatterInstance.format({
@@ -40,9 +36,8 @@ describe('ScriptFormatter', () => {
           fn: 'return 1 + 2;'
         }
       });
-      const component = mount(result);
 
-      expect(component.text()).toBe('3');
+      expect(result).toBe(3);
     });
     it('should return string if the script result is string', () => {
       const result = scriptFormatterInstance.format({
@@ -50,9 +45,8 @@ describe('ScriptFormatter', () => {
           fn: 'return "Test";'
         }
       });
-      const component = mount(result);
 
-      expect(component.text()).toBe('Test');
+      expect(result).toBe('Test');
     });
     it('should invoke other formatter, if the script result is plain object', () => {
       const formatFunc = jest.fn();
@@ -91,9 +85,8 @@ describe('ScriptFormatter', () => {
             fn: `return ${item}`
           }
         });
-        const component = mount(result);
 
-        expect(component.text()).toBe('');
+        expect(result).toBe(undefined);
       });
 
       const result = scriptFormatterInstance.format({
@@ -101,9 +94,8 @@ describe('ScriptFormatter', () => {
           fn: `/* no return operator */`
         }
       });
-      const component = mount(result);
 
-      expect(component.text()).toBe('');
+      expect(result).toBe(undefined);
     });
     it('should throw Error if config.script is not specified', () => {
       const format = () => {
