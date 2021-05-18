@@ -7,6 +7,7 @@ export const setTypeRef = createAction(prefix + 'SET_TYPE_REF');
 export const setFileTypeRefs = createAction(prefix + 'SET_FILE_TYPE_REFS');
 export const setDirTypeRef = createAction(prefix + 'SET_DIR_TYPE_REF');
 export const setCreateVariants = createAction(prefix + 'SET_CREATE_VARIANTS');
+export const setCanUploadFiles = createAction(prefix + 'SET_CAN_UPLOAD_FILES');
 export const setRootId = createAction(prefix + 'SET_ROOT_ID');
 export const setFolderId = createAction(prefix + 'SET_FOLDER_ID');
 export const setFolderTitle = createAction(prefix + 'SET_FOLDER_TITLE');
@@ -14,6 +15,7 @@ export const setFolderPath = createAction(prefix + 'SET_FOLDER_PATH');
 export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');
 export const startSearch = createAction(prefix + 'START_SEARCH');
 export const createNode = createAction(prefix + 'CREATE_NODE');
+export const uploadFiles = createAction(prefix + 'UPLOAD_FILES');
 
 export const initDocLib = createAction(prefix + 'INIT');
 export const initSidebar = createAction(prefix + 'INIT_SIDEBAR');
@@ -37,6 +39,7 @@ export const setFileViewerPagination = createAction(prefix + 'SET_FILE_VIEWER_PA
 export const setFileViewerTotal = createAction(prefix + 'SET_FILE_VIEWER_TOTAL');
 export const setFileViewerSelected = createAction(prefix + 'SET_FILE_VIEWER_SELECTED');
 export const setFileViewerLastClicked = createAction(prefix + 'SET_FILE_VIEWER_LAST_CLICKED');
+export const setFileViewerLoadingStatus = createAction(prefix + 'SET_FILE_VIEWER_LOADING_STATUS');
 
 export const setIsGroupActionsReady = createAction(prefix + 'SET_IS_GROUP_ACTIONS_READY');
 export const setGroupActions = createAction(prefix + 'SET_GROUP_ACTIONS');

@@ -15,6 +15,22 @@
   min-height: 40px;
   max-height: calc(100vh - #{$baseHeight});
 
+  &-well {
+    padding: 12px;
+    position: relative;
+  }
+
+  &-empty {
+    margin: -5px;
+    padding: 5px;
+    border: 2px dashed transparent;
+
+    &_dropzone {
+      border: 2px $color-gray-5 dashed;
+      border-radius: $border-radius-standard;
+    }
+  }
+
   &_height-bc {
     max-height: calc(100vh - #{$baseHeight} - #{$breadCrumbsHeight});
   }

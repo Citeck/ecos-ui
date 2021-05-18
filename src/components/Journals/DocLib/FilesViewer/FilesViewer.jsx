@@ -9,9 +9,11 @@ import Loader from '../../../common/Loader/Loader';
 import { t } from '../../../../helpers/export/util';
 
 import FileList from './FileList';
+import Empty from './Empty';
+
 import './FileViewer.scss';
 
-const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path }) => {
+const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path, onDrop, isLoading }) => {
   const { hasError, isReady, items, selected, lastClicked } = fileViewer;
 
   let content;
@@ -44,14 +46,20 @@ const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLa
             openFolder={openFolder}
             setSelected={setSelected}
             setLastClicked={setLastClicked}
+            onDrop={onDrop}
           />
         </div>
       ) : (
-        t('document-library.empty-folder')
+        <Empty onDrop={onDrop} />
       );
   }
 
-  return <Well style={{ padding: 12 }}>{content}</Well>;
+  return (
+    <Well className="ecos-doclib__fileviewer-well">
+      {isLoading && <Loader blur rounded />}
+      {content}
+    </Well>
+  );
 };
 
 FilesViewer.propTypes = {

@@ -3,6 +3,7 @@ import { delay } from 'redux-saga';
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   initDocLib,
@@ -38,7 +39,10 @@ import {
   startSearch,
   setIsGroupActionsReady,
   setGroupActions,
-  execGroupAction
+  execGroupAction,
+  uploadFiles,
+  setFileViewerLoadingStatus,
+  setCanUploadFiles
 } from '../actions/docLib';
 import {
   selectDocLibSidebar,
@@ -47,7 +51,10 @@ import {
   selectDocLibFolderId,
   selectDocLibFileViewerPagination,
   selectDocLibSearchText,
-  selectDocLibFileViewer
+  selectDocLibFileViewer,
+  selectDocLibCreateVariants,
+  selectDocLibFolderTitle,
+  selectDocLibFileCanUploadFiles
 } from '../selectors/docLib';
 import { JournalUrlParams } from '../constants';
 import { NODE_TYPES, DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
@@ -61,6 +68,7 @@ import DocLibService from '../components/Journals/DocLib/DocLibService';
 import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
 import JournalsConverter from '../dto/journals';
+import { uploadFile } from './documents';
 
 export function* loadDocumentLibrarySettings(journalId, w) {
   const typeRef = yield call(DocLibService.getTypeRef, journalId);
@@ -82,6 +90,14 @@ export function* loadDocumentLibrarySettings(journalId, w) {
 
   const createVariants = yield call(DocLibService.getCreateVariants, dirTypeRef, fileTypeRefs);
   yield put(setCreateVariants(w(createVariants)));
+
+  const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+
+  if (!isEmpty(createVariant)) {
+    const formDefinition = yield DocLibService.getCreateFormDefinition(createVariant);
+
+    yield put(setCanUploadFiles(w(formKeysCheck(formDefinition))));
+  }
 
   const rootId = yield call(DocLibService.getRootId, typeRef);
   yield put(setRootId(w(rootId)));
@@ -257,6 +273,17 @@ function* sagaLoadFilesViewerData({ api, logger, stateId, w }) {
     yield put(setFileViewerError(w(false)));
     yield put(setFileViewerIsReady(w(false)));
 
+    yield* getFilesViewerData({ api, logger, stateId, w });
+
+    yield put(setFileViewerIsReady(w(true)));
+  } catch (e) {
+    yield put(setFileViewerError(w(true)));
+    logger.error('[docLib sagaLoadFilesViewerData saga error', e.message);
+  }
+}
+
+function* getFilesViewerData({ api, logger, stateId, w }) {
+  try {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
     const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
     const searchText = yield select(state => selectDocLibSearchText(state, stateId));
@@ -272,11 +299,8 @@ function* sagaLoadFilesViewerData({ api, logger, stateId, w }) {
     const actions = JournalsConverter.getJournalActions(resultActions);
 
     yield put(setFileViewerItems(w(DocLibConverter.prepareFileListItems(records, actions.forRecord))));
-
-    yield put(setFileViewerIsReady(w(true)));
   } catch (e) {
-    yield put(setFileViewerError(w(true)));
-    logger.error('[docLib sagaLoadFilesViewerData saga error', e.message);
+    logger.error('[docLib getFilesViewerData error', e.message);
   }
 }
 
@@ -383,6 +407,79 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
   }
 }
 
+function formKeysCheck(formDefinition) {
+  return get(formDefinition, 'components', [])
+    .filter(item => item.key)
+    .reduce((res, item) => {
+      res.push(['_disp', '_content'].includes(item.key));
+
+      return res;
+    }, [])
+    .every(i => i === true);
+}
+
+function* sagaUploadFiles({ api, logger, stateId, w }, action) {
+  try {
+    yield put(setFileViewerLoadingStatus(w(true)));
+
+    const item = get(action, 'payload.item', {});
+    const rootId = yield select(state => selectDocLibRootId(state, stateId));
+    const createVariants = yield select(state => selectDocLibCreateVariants(state, stateId));
+    const createVariant = (createVariants || []).find(item => item.nodeType === NODE_TYPES.FILE);
+    const canUpload = yield select(state => selectDocLibFileCanUploadFiles(state, stateId));
+    let folderId = yield select(state => selectDocLibFolderId(state, stateId));
+    let folderTitle = yield select(state => selectDocLibFolderTitle(state, stateId));
+
+    if (!canUpload) {
+      NotificationManager.error(t('document-library.uploading-file.message.abort'));
+      return;
+    }
+
+    if (item.type === NODE_TYPES.DIR) {
+      folderId = item.id;
+      folderTitle = yield call(DocLibService.getFolderTitle, folderId);
+    }
+
+    yield* action.payload.files.map(function*(file) {
+      try {
+        const uploadedFile = yield uploadFile({ api, file });
+        const createChildResult = yield call(
+          DocLibService.createChild,
+          rootId,
+          folderId,
+          get(createVariant, 'destination'),
+          DocLibConverter.prepareUploadedFileDataForSaving(file, uploadedFile)
+        );
+        const fileName = yield createChildResult.load('');
+
+        yield call(DocLibService.loadNode, createChildResult.id);
+
+        NotificationManager.success(
+          t('document-library.uploading-file.message.success', {
+            file: fileName || uploadedFile.name,
+            folder: folderTitle
+          }),
+          t('success')
+        );
+      } catch (e) {
+        NotificationManager.error(
+          t('document-library.uploading-file.message.error', {
+            file: file.name
+          }),
+          t('error')
+        );
+        logger.error('[docLib uploadFile error', e.message);
+      }
+    });
+
+    yield* getFilesViewerData({ api, logger, stateId, w });
+  } catch (e) {
+    logger.error('[docLib sagaUploadFiles saga error', e.message);
+  } finally {
+    yield put(setFileViewerLoadingStatus(w(false)));
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(initDocLib().type, wrapSaga, { ...ea, saga: sagaInitDocumentLibrary });
   yield takeEvery(initSidebar().type, wrapSaga, { ...ea, saga: sagaInitDocumentLibrarySidebar });
@@ -395,6 +492,7 @@ function* saga(ea) {
   yield takeLatest(setFileViewerSelected().type, wrapSaga, { ...ea, saga: sagaInitGroupActions });
   yield takeLatest(execGroupAction().type, wrapSaga, { ...ea, saga: sagaExecGroupAction });
   yield takeLatest(createNode().type, wrapSaga, { ...ea, saga: sagaCreateNode });
+  yield takeEvery(uploadFiles().type, wrapSaga, { ...ea, saga: sagaUploadFiles });
 }
 
 export default saga;

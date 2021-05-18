@@ -5,7 +5,7 @@ import uniq from 'lodash/uniq';
 import FilesViewer from '../../../FilesViewer';
 import { NODE_TYPES } from '../../../../constants/docLib';
 
-const FileList = ({ isMobile, items, selected, lastClicked, openFolder, setSelected, setLastClicked }) => {
+const FileList = ({ isMobile, items, selected, lastClicked, openFolder, setSelected, setLastClicked, onDrop }) => {
   const _onDoubleClick = (item, e) => {
     if (item.type === NODE_TYPES.DIR && typeof openFolder === 'function') {
       openFolder(item.id);
@@ -69,6 +69,7 @@ const FileList = ({ isMobile, items, selected, lastClicked, openFolder, setSelec
       lastClicked={lastClicked}
       onClick={_onClick}
       onDoubleClick={_onDoubleClick}
+      onDrop={onDrop}
     />
   );
 };

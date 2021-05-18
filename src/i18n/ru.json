@@ -301,6 +301,9 @@
   "document-library.create-node.title": "Создать \"{{name}}\"",
   "document-library.create-node.fields.title": "Название",
   "document-library.create-node.fields.content": "Содержимое",
+  "document-library.uploading-file.message.success": "Файл \"{{file}}\" успешно загружен в папку \"{{folder}}\"",
+  "document-library.uploading-file.message.error": "Не удалось загрузить файл \"{{file}}\"",
+  "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
 
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",

@@ -38,6 +38,7 @@ import {
 import {
   addSidebarItems,
   foldSidebarItem,
+  setCanUploadFiles,
   setCreateVariants,
   setDirTypeRef,
   setFileTypeRefs,
@@ -45,6 +46,7 @@ import {
   setFileViewerIsReady,
   setFileViewerItems,
   setFileViewerLastClicked,
+  setFileViewerLoadingStatus,
   setFileViewerPagination,
   setFileViewerSelected,
   setFileViewerTotal,
@@ -166,6 +168,7 @@ export const defaultState = {
     folderPath: [],
     searchText: '',
     createVariants: [],
+    canUploadFiles: false,
     groupActions: {
       isReady: true,
       forRecords: {},
@@ -183,7 +186,8 @@ export const defaultState = {
       lastClicked: null,
       total: 0,
       pagination: DEFAULT_DOCLIB_PAGINATION,
-      hasError: false
+      hasError: false,
+      isLoading: false
     }
   },
 
@@ -571,6 +575,17 @@ export default handleActions(
         }
       });
     },
+    [setCanUploadFiles]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...state[stateId].documentLibrary,
+          canUploadFiles: action.payload
+        }
+      });
+    },
     [setRootId]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -864,6 +879,21 @@ export default handleActions(
           fileViewer: {
             ...documentLibrary.fileViewer,
             lastClicked: handledAction.payload
+          }
+        }
+      });
+    },
+    [setFileViewerLoadingStatus]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const documentLibrary = state[stateId].documentLibrary;
+      const handledAction = handleAction(cloneDeep(action));
+
+      return handleState(state, stateId, {
+        documentLibrary: {
+          ...documentLibrary,
+          fileViewer: {
+            ...documentLibrary.fileViewer,
+            isLoading: handledAction.payload
           }
         }
       });
