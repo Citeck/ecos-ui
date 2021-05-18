@@ -54,6 +54,7 @@ import recordActions, { ActionTypes } from '../components/Records/actions';
 
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
 import { selectIsMobile } from '../selectors/view';
+import journalsService from '../components/Journals/service';
 
 function* sagaInitWidget({ api, logger }, { payload }) {
   try {
@@ -119,7 +120,14 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     yield all(
       combinedTypes.map(function*(item) {
-        const journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+        let journalConfig;
+
+        if (!isEmpty(item.journalId)) {
+          journalConfig = yield journalsService.getJournalConfig(item.journalId);
+        } else {
+          journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+        }
+
         const _columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
         DocumentsConverter.setDefaultFormatters(_columns);
         const columns = yield call(api.documents.getFormattedColumns, { ...journalConfig, columns: _columns });
@@ -172,6 +180,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     const attributes = DocumentsConverter.getColumnsAttributes(
       yield select(state => selectColumnsConfig(state, payload.key, payload.type))
     );
+
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type, attributes);
 
     if (errors.length) {
