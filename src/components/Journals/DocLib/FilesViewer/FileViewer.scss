@@ -1,0 +1,57 @@
+@import '../../../../styles/constants';
+
+.ecos-doclib__fileviewer {
+  $element: &;
+
+  overflow-y: auto;
+  margin-right: -5px;
+  padding-right: 5px;
+
+  $baseHeight: 280px;
+  $breadCrumbsHeight: 72px;
+  $groupActionsHeight: 60px;
+  $baseHeightMobile: $baseHeight - 30px;
+
+  min-height: 40px;
+  max-height: calc(100vh - #{$baseHeight});
+
+  &-well {
+    padding: 12px;
+    position: relative;
+  }
+
+  &-empty {
+    margin: -5px;
+    padding: 5px;
+    border: 2px dashed transparent;
+
+    &_dropzone {
+      border: 2px $color-gray-5 dashed;
+      border-radius: $border-radius-standard;
+    }
+  }
+
+  &_height-bc {
+    max-height: calc(100vh - #{$baseHeight} - #{$breadCrumbsHeight});
+  }
+  &_height-ga {
+    max-height: calc(100vh - #{$baseHeight} - #{$groupActionsHeight});
+  }
+  &_height-bc-ga {
+    max-height: calc(100vh - #{$baseHeight} - #{$breadCrumbsHeight} - #{$groupActionsHeight});
+  }
+
+  &_mobile {
+    max-height: calc(100vh - #{$baseHeightMobile});
+
+    &#{$element}_height-bc {
+      max-height: calc(100vh - #{$baseHeightMobile} - #{$breadCrumbsHeight});
+    }
+    &#{$element}_height-ga {
+      max-height: calc(100vh - #{$baseHeightMobile} - #{$groupActionsHeight});
+    }
+    &#{$element}_height-bc-ga {
+      max-height: calc(100vh - #{$baseHeightMobile} - #{$breadCrumbsHeight} - #{$groupActionsHeight});
+    }
+  }
+}

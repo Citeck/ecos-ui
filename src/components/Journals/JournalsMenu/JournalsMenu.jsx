@@ -1,49 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
-import { CollapsibleList } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import { Well } from '../../common/form';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
-import ListItem from './ListItem';
+import { JOURNAL_VIEW_MODE } from '../constants';
+import FoldersTree from '../DocLib/FoldersTree';
+import { Labels } from './constants';
+import JournalSettings from './JournalSettings';
 
 import './JournalsMenu.scss';
 
-const Labels = {
-  HIDE_MENU: 'journals.action.hide-menu',
-  HIDE_MENU_sm: 'journals.action.hide-menu_sm',
-  EMPTY_LIST: 'journals.menu.journal-list.empty',
-  JOURNALS_TITLE: 'journals.menu.journal-list.title',
-  TEMPLATES_TITLE: 'journals.tpl.defaults'
-};
-
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
-
   return {
     isMobile: state.view.isMobile,
-    pageTabsIsShow: state.pageTabs.isShow,
-    journals: newState.journals,
-    journalSettings: newState.journalSettings,
-    journalSetting: newState.journalSetting,
-    journalConfig: newState.journalConfig
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
-    renameJournalSetting: options => dispatch(renameJournalSetting(w(options))),
-    openSelectedJournalSettings: journalSettingId => dispatch(openSelectedJournalSettings(w(journalSettingId))),
-    openSelectedJournal: journalId => dispatch(openSelectedJournal(w(journalId)))
+    pageTabsIsShow: state.pageTabs.isShow
   };
 };
 
@@ -64,49 +37,6 @@ class JournalsMenu extends React.Component {
     if (typeof onClose === 'function') {
       onClose.call(this);
     }
-  };
-
-  onJournalSelect = journal => {
-    this.props.openSelectedJournal(journal.nodeRef);
-  };
-
-  onJournalSettingsSelect = setting => {
-    this.props.openSelectedJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
-  };
-
-  deleteJournalSettings = item => {
-    this.props.deleteJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
-  };
-
-  renameJournalSetting = options => {
-    this.props.renameJournalSetting(options);
-  };
-
-  getMenuJournals = journals => {
-    return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
-  };
-
-  getMenuJournalSettings = (settings, selectedIndex) => {
-    return settings.map((setting, idx) => (
-      <ListItem
-        onClick={this.onJournalSettingsSelect}
-        onDelete={this.deleteJournalSettings}
-        onApply={this.renameJournalSetting}
-        removable
-        item={setting}
-        selected={idx === selectedIndex}
-        titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
-      />
-    ));
-  };
-
-  getSelectedIndex = (source, value, field) => {
-    for (let i = 0, count = source.length; i < count; i++) {
-      if (source[i][field] === value) {
-        return i;
-      }
-    }
-    return undefined;
   };
 
   getMaxMenuHeight = () => {
@@ -138,24 +68,13 @@ class JournalsMenu extends React.Component {
   };
 
   render() {
-    const {
-      journalSetting,
-      journalSettings,
-      journals,
-      open,
-      journalConfig: {
-        meta: { nodeRef }
-      },
-      pageTabsIsShow,
-      isMobile
-    } = this.props;
+    const { stateId, open, pageTabsIsShow, isMobile, viewMode } = this.props;
 
     if (!open) {
       return null;
     }
 
-    const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
-    const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
+    const isDocLibMode = viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
 
     return (
       <div
@@ -174,41 +93,16 @@ class JournalsMenu extends React.Component {
             invert
             className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest"
           >
-            {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
+            {isMobile ? t(Labels.HIDE_MENU_sm) : isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
           </IcoBtn>
         </div>
 
-        <Well className="ecos-journal-menu__journals">
-          <CollapsibleList
-            needScrollbar={false}
-            className="ecos-journal-menu__collapsible-list"
-            classNameList="ecos-list-group_mode_journal"
-            list={this.getMenuJournals(journals)}
-            selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
-            emptyText={t(Labels.EMPTY_LIST)}
-          >
-            {t(Labels.JOURNALS_TITLE)}
-          </CollapsibleList>
-        </Well>
+        {!isDocLibMode && <JournalSettings stateId={stateId} />}
 
-        <Well className="ecos-journal-menu__presets">
-          <CollapsibleList
-            needScrollbar={false}
-            className="ecos-journal-menu__collapsible-list"
-            classNameList="ecos-list-group_mode_journal"
-            list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
-            selected={menuJournalSettingsSelectedIndex}
-            emptyText={t(Labels.EMPTY_LIST)}
-          >
-            {t(Labels.TEMPLATES_TITLE)}
-          </CollapsibleList>
-        </Well>
+        {isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
       </div>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsMenu);
+export default connect(mapStateToProps)(JournalsMenu);

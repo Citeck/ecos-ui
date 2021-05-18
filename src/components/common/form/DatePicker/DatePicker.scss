@@ -20,7 +20,7 @@
 }
 
 .react-datepicker-popper {
-  z-index: 1001;
+  z-index: 10000;
 }
 
 .ecos-datepicker__calendar {
@@ -150,6 +150,10 @@
 
   .react-datepicker__month {
     margin: 0;
+  }
+
+  .react-datepicker__triangle {
+    left: 50%;
   }
 }
 

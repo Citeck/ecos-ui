@@ -25,15 +25,8 @@ export default class SidebarConverter {
 
         if (ms.ItemTypes.JOURNAL === item.type) {
           set(targetItem, 'params.journalId', get(item, '_remoteData_.journalId'));
-          set(targetItem, 'params.journalsListId', get(item, '_remoteData_.journalsListId'));
         } else if (ms.ItemTypes.LINK_CREATE_CASE === item.type) {
-          const createVariants = get(item, '_remoteData_.createVariants') || [];
-
-          if (createVariants.length === 1) {
-            targetItem = SidebarConverter.getMenuCreateVariantWeb(targetItem, createVariants[0]);
-          } else {
-            targetItem.items = createVariants.map(variant => SidebarConverter.getMenuCreateVariantWeb(targetItem, variant));
-          }
+          targetItem = SidebarConverter.getMenuCreateVariantWeb(targetItem, get(item, 'config.variant'));
         } else {
           targetItem.items = SidebarConverter.getMenuListWeb(item.items || [], lvl + 1);
         }
@@ -46,7 +39,7 @@ export default class SidebarConverter {
     return target;
   }
 
-  static getMenuCreateVariantWeb(source, createVariant) {
+  static getMenuCreateVariantWeb(source, createVariant = {}) {
     return {
       ...source,
       id: uniqueId('createVariant'),

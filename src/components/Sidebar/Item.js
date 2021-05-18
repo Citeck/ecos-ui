@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
-import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
+import { setScrollTop, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { getIconObjectWeb } from '../../helpers/icon';
@@ -53,6 +53,14 @@ class Item extends React.Component {
     return !isEmpty(get(this.props, 'data.items'));
   }
 
+  get hasBadge() {
+    const {
+      styleProps: { noBadge, isSeparator }
+    } = this.props;
+
+    return !noBadge && !isSeparator;
+  }
+
   get collapsible() {
     const collapsible = get(this.props, 'data.params.collapsible');
 
@@ -86,12 +94,6 @@ class Item extends React.Component {
     }
   };
 
-  onClickLink = () => {
-    if (!this.hasSubItems && !this.isHandler) {
-      this.props.setSelectItem(this.dataId);
-    }
-  };
-
   renderContent = React.memo(({ isOpen, data, styleProps: { noIcon } }) => {
     const label = extractLabel(data.label);
     let iconCode;
@@ -108,7 +110,7 @@ class Item extends React.Component {
         {!noIcon && (
           <EcosIcon family="menu-items" data={iconData} className="ecos-sidebar-item__icon" code={iconCode} title={isOpen ? '' : label} />
         )}
-        <div className="ecos-sidebar-item__label" title={label}>
+        <div className={classNames('ecos-sidebar-item__label', { 'ecos-sidebar-item__label_with-badge': this.hasBadge })} title={label}>
           {label}
         </div>
       </>
@@ -137,20 +139,16 @@ class Item extends React.Component {
     }
 
     return (
-      <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
+      <ItemLink data={data} extraParams={extraParams}>
         <this.renderContent {...contentProps} />
       </ItemLink>
     );
   }
 
   renderBadge() {
-    const {
-      isOpen,
-      data,
-      styleProps: { noBadge, isSeparator }
-    } = this.props;
+    const { isOpen, data } = this.props;
 
-    return !noBadge && !isSeparator ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
+    return this.hasBadge ? <RemoteBadge data={data} isOpen={isOpen} /> : null;
   }
 
   renderToggle() {
@@ -216,7 +214,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setSelectItem: id => dispatch(setSelectedId(id)),
   toggleExpanded: item => dispatch(toggleExpanded(item)),
   setScrollTop: value => dispatch(setScrollTop(value)),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))

@@ -115,7 +115,7 @@ class MobileDocuments extends BaseDocuments {
 
     this.setState({ isOpenUploadModal: false });
 
-    if (this.getformId(selectedTypeForLoading)) {
+    if (this.getFormId(selectedTypeForLoading)) {
       this.props.onUploadFiles({
         files,
         type: get(selectedTypeForLoading, 'type'),

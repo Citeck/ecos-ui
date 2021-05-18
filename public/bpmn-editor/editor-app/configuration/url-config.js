@@ -13,8 +13,8 @@
 var FLOWABLE = FLOWABLE || {};
 
 FLOWABLE.URL = {
-    recordServiceQuery: '/share/proxy/alfresco/citeck/ecos/records/query',
-    recordServiceMutate: '/share/proxy/alfresco/citeck/ecos/records/mutate',
+    recordServiceQuery: '/gateway/alfresco/alfresco/s/citeck/ecos/records/query',
+    recordServiceMutate: '/gateway/alfresco/alfresco/s/citeck/ecos/records/mutate',
 
     proxyPostContentType: "?_proxy_content_type=" + encodeURIComponent('application/x-www-form-urlencoded; charset=UTF-8'),
 

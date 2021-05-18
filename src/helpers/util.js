@@ -72,18 +72,6 @@ export const debounce = (func, ms = 0) => {
   };
 };
 
-export const queryByCriteria = criteria => {
-  let query = {};
-
-  (criteria || []).forEach((criterion, idx) => {
-    query['field_' + idx] = criterion.field;
-    query['predicate_' + idx] = criterion.predicate;
-    query['value_' + idx] = criterion.value;
-  });
-
-  return query;
-};
-
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
 export function closest(node = null, selector) {
@@ -122,10 +110,23 @@ export function getPropByStringKey(obj, strKey) {
   return res;
 }
 
-export function getSelectedValue(source, field, value) {
-  return source.filter(option => option[field] === value);
+export function getSelectedValue(source, field, value, selectedField) {
+  const selected = source.filter(option => option[field] === value);
+
+  if (isEmpty(selectedField)) {
+    return selected;
+  }
+
+  return selected.map(item => {
+    return item[selectedField];
+  });
 }
 
+/**
+ * @deprecated use this.props.[handler]
+ * @param name - handler name from props
+ * @param data
+ */
 export function trigger(name, data) {
   const callback = this.props[name];
 
@@ -204,7 +205,9 @@ export function getTextByLocale(data, locale = getCurrentLocale()) {
 
       // get first translation, if for 'en' locale not found
       if (!text) {
-        text = data[Object.keys(data)[0]] || '';
+        const firstNotEmpty = Object.keys(data).find(key => !isEmpty(data[key]));
+
+        text = data[firstNotEmpty] || '';
       }
     }
 
@@ -392,6 +395,8 @@ export function isPDFbyStr(str) {
 }
 
 /**
+ * todo: translate to english
+ *
  * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
  * @param link ссылка на файл для скачивания
  */
@@ -408,6 +413,8 @@ export function fileDownload(link) {
 }
 
 /**
+ * todo: translate to english
+ *
  * Варианты масштабирования объекта на странице
  * @returns {Array}
  */
@@ -429,6 +436,8 @@ export function getScaleModes() {
 }
 
 /**
+ * todo: translate to english
+ *
  * Вычисление масштабирования для строковых режимов
  * @param scale {Number|String} - режим см getScaleModes
  * @param paramsContainer {Object} - ширина и высота объекта масштабирования
@@ -497,6 +506,8 @@ export function isLastItem(array, idx) {
 }
 
 /**
+ * todo: translate to english
+ *
  * Функция склонения слов в зависимости от числительного
  *
  * @param n - числительное
@@ -620,7 +631,9 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 }
 
 export function isNodeRef(str) {
-  return typeof str === 'string' && str.indexOf('workspace://SpacesStore/') === 0;
+  return (
+    typeof str === 'string' && (str.indexOf('workspace://SpacesStore/') === 0 || str.indexOf('alfresco/@workspace://SpacesStore/') === 0)
+  );
 }
 
 /**
@@ -697,7 +710,7 @@ export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   }
 }
 
-export function hasChildWithId(items, selectedId) {
+export function hasChildWithId(items = [], selectedId) {
   let childIndex = items.findIndex(item => item.id === selectedId);
 
   if (childIndex !== -1) {
@@ -727,6 +740,18 @@ export function prepareTooltipId(id = uuidV4()) {
   }
 
   return `${id}`.replace(/[^\d\w-]/g, '');
+}
+
+export function prepareReactKey({ id = uuidV4(), prefix = 'key', postfix = '' } = {}) {
+  const parts = [];
+
+  if (!isNaN(id[0])) {
+    parts.push(prefix || 'id');
+  }
+
+  parts.push(id, postfix);
+
+  return `${parts.join('-')}`.replace(/[^\d\w-]/g, '');
 }
 
 export function arrayFlat({ data = [], depth = Infinity, byField = '', withParent = false }) {
@@ -997,6 +1022,80 @@ export function getNumberSeparators(locale) {
   result.thousand = str.replace(/.*1(.*)2.*/, '$1');
 
   return result;
+}
+
+export function getCodesSumOfString(string = '') {
+  return [...`${string}`].reduce((prev, next) => prev + next.codePointAt(0), 0);
+}
+
+export function getColorByString(string = '') {
+  string = `${string}`;
+
+  let codesSum = getCodesSumOfString(string);
+
+  codesSum += getCodesSumOfString(string.slice(1));
+  codesSum += getCodesSumOfString(string.slice(-1));
+
+  let hexNumber = codesSum.toString(16);
+
+  switch (hexNumber.toString().length) {
+    case 1:
+      hexNumber = new Array(6).fill(hexNumber).join('');
+      break;
+    case 2:
+      hexNumber = new Array(3).fill(hexNumber).join('');
+      break;
+    case 3:
+      hexNumber = new Array(2).fill(hexNumber).join('');
+      break;
+    default:
+  }
+
+  return `#${hexNumber}`;
+}
+
+/**
+ * Copy to clipboard
+ *
+ * @param text
+ * @returns {boolean|*}
+ */
+export function copyToClipboard(text) {
+  if (window.clipboardData && window.clipboardData.setData) {
+    return window.clipboardData.setData('Text', text);
+  }
+
+  if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+    const textarea = document.createElement('textarea');
+
+    textarea.textContent = text;
+    textarea.style.position = 'fixed';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      return document.execCommand('copy');
+    } catch (error) {
+      console.error('Copy to clipboard failed.', error);
+      return false;
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+
+  return false;
+}
+
+export function getModule(srcModule) {
+  return new Promise((resolve, reject) => {
+    window.require(
+      [srcModule],
+      module => resolve(module),
+      error => {
+        console.error(error);
+        reject(error);
+      }
+    );
+  });
 }
 
 /**

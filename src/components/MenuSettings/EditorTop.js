@@ -5,14 +5,9 @@ import { DragDropContext } from 'react-beautiful-dnd';
 import { t } from '../../helpers/util';
 import { Icon } from '../common';
 import { DndUtils, DragItem, Droppable } from '../Drag-n-Drop';
+import { Labels } from './utils';
 
 import './style.scss';
-
-const Labels = {
-  TITLE: 'menu-settings.editor-items.title',
-  TIP_NO_ITEMS: 'menu-settings.editor-items.none',
-  TIP_DRAG_HERE: 'menu-settings.editor-items.drag-item-here'
-};
 
 const Names = {
   MENU_FROM: 'availableItems',
@@ -99,7 +94,7 @@ class EditorLeftMenu extends React.Component {
 
     return (
       <>
-        <div className="ecos-menu-settings__title">{t(Labels.TITLE)}</div>
+        <div className="ecos-menu-settings__title">{t(Labels.TOP_TITLE)}</div>
         <div className="ecos-menu-settings__drag ecos-menu-settings__drag_menu">
           <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndMenu}>
             <Droppable

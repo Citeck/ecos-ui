@@ -3,7 +3,6 @@
 .category {
   background: $color-white;
   border-radius: $border-radius-extra-large;
-  margin-top: 10px;
 }
 
 .label {
@@ -47,6 +46,7 @@
 .labelTextEditable {
   background-color: rgba(0, 102, 255, 0.3);
   text-transform: none;
+  outline: none;
 
   &:before {
     content: '.';

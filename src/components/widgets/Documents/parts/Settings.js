@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { EcosModal, Search } from '../../../common';
 import { Btn } from '../../../common/btns';
@@ -71,6 +72,10 @@ class Settings extends Component {
 
     if (!props.isOpen && state.customizedTypeSettings.size) {
       newState.customizedTypeSettings = new Map();
+    }
+
+    if (props.isOpen && isEmpty(state.types) && !isEmpty(props.types)) {
+      newState.types = props.types;
     }
 
     if (!Object.keys(newState).length) {

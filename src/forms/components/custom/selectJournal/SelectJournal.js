@@ -18,6 +18,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: '',
+        queryData: '',
         presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
@@ -72,7 +73,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     if (!_.isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
-      this.updateReactComponent(component => component.setCustomPredicate(customPredicate));
+      this.updateReactComponent(component => component.setCustomPredicate && component.setCustomPredicate(customPredicate));
     }
 
     return result;
@@ -257,6 +258,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     let resolveProps = (journalId, columns = []) => {
       const component = this.component;
+      const isModalMode = !!(this.element && this.element.closest('.modal'));
+
       let presetFilterPredicates = null;
 
       if (component.presetFilterPredicatesJs) {
@@ -273,7 +276,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         journalId: journalId,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
-        queryData: component.queryData,
+        queryData: this.evaluate(component.queryData, {}, 'value', true),
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
@@ -282,6 +285,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isSelectedValueAsText: component.isSelectedValueAsText,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
         isInlineEditingMode: this._isInlineEditingMode,
+        isModalMode,
         presetFilterPredicates,
         searchField: component.searchField,
         sortBy: {

@@ -1,5 +1,9 @@
 import ActionsExecutor from '../../ActionsExecutor';
-import { URL_PAGECONTEXT } from '../../../../../../constants/alfresco';
+import get from 'lodash/get';
+
+const URL_CONTEXTS = {
+  PAGECONTEXT: '/share/page/'
+};
 
 export default class CaseRedirectAction extends ActionsExecutor {
   static ACTION_ID = 'REDIRECT';
@@ -14,7 +18,13 @@ export default class CaseRedirectAction extends ActionsExecutor {
       throw new Error('Redirect action url is missing!');
     }
 
-    window.open(URL_PAGECONTEXT + url, target);
+    let urlToOpen = url;
+    const urlContext = URL_CONTEXTS[get(action, 'config.context', '')];
+    if (urlContext) {
+      urlToOpen = urlContext + urlToOpen;
+    }
+
+    window.open(urlToOpen, target);
   }
 
   getDefaultActionModel() {

@@ -1,0 +1,22 @@
+.ecos-model-editor {
+  &__page {
+    height: 100%;
+    position: relative;
+
+    & .ecos-loader {
+      z-index: 901;
+    }
+
+    & a.bjs-powered-by {
+      bottom: 10px !important;
+      right: 10px !important;
+    }
+  }
+}
+
+.ecos-model-editor-page {
+  &__xml-viewer {
+    overflow: auto;
+    max-height: 85vh;
+  }
+}

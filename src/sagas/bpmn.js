@@ -1,37 +1,41 @@
 import React from 'react';
 import { delay } from 'redux-saga';
-import { select, put, takeLatest, call } from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import endsWith from 'lodash/endsWith';
 
-import ModelCreationForm from '../components/BPMNDesigner/ModelCreationForm';
+import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { t } from '../helpers/util';
 import ImportModelForm from '../components/BPMNDesigner/ImportModelForm';
 import {
-  initRequest,
-  setCategories,
-  setModels,
-  setIsReady,
-  saveCategoryRequest,
-  setCategoryData,
-  deleteCategoryRequest,
+  updateModels,
   deleteCategory,
-  saveProcessModelRequest,
-  showModelCreationForm,
-  showImportModelForm,
+  deleteCategoryRequest,
   importProcessModelRequest,
+  initRequest,
+  saveCategoryRequest,
   savePagePosition,
+  saveProcessModelRequest,
+  setCategories,
   setCategoryCollapseState,
-  setViewType
+  setCategoryData,
+  setIsReady,
+  setModels,
+  setViewType,
+  showImportModelForm,
+  showModelCreationForm
 } from '../actions/bpmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
-import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/bpmn';
-import { t } from '../helpers/util';
-import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
+import { getPagePositionState, removePagePositionState, savePagePositionState } from '../helpers/bpmn';
+import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records/Records';
 
 function* doInitRequest({ api, logger }) {
   try {
     const categories = yield call(api.bpmn.fetchCategories);
     const models = yield call(api.bpmn.fetchProcessModels);
+
     yield put(setCategories(categories));
     yield put(setModels(models));
 
@@ -99,8 +103,8 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     const allModels = yield select(selectAllModels);
 
     const isCategoryHasChildren =
-      allCategories.findIndex(item => item.parentId === categoryId) !== -1 ||
-      allModels.findIndex(item => item.categoryId === categoryId) !== -1;
+      allCategories.findIndex(item => endsWith(item.parentId, categoryId)) !== -1 ||
+      allModels.findIndex(item => item.categoryId.includes(categoryId)) !== -1;
 
     if (isCategoryHasChildren) {
       yield delay(100);
@@ -160,9 +164,9 @@ function* doImportProcessModelRequest({ api, logger }, action) {
 
 function* doShowModelCreationForm({ api, logger }, action) {
   try {
-    const allCategories = yield select(selectAllCategories);
+    let createVariants = yield Records.get('emodel/rtype@cat-doc-type-ecos-bpm-process').load('createVariants[]?json');
 
-    if (!allCategories.length) {
+    if (!createVariants || !createVariants.length) {
       yield put(
         showModal({
           title: t('bpmn-designer.create-bpm-dialog.failure-title'),
@@ -175,16 +179,25 @@ function* doShowModelCreationForm({ api, logger }, action) {
           ]
         })
       );
-
       return;
     }
 
-    yield put(
-      showModal({
-        title: t('bpmn-designer.create-bpm-dialog.title'),
-        content: <ModelCreationForm categoryId={action.payload} />
-      })
-    );
+    const attributes = {};
+    if (action.payload) {
+      attributes['ecosbpm_category'] = action.payload;
+    }
+
+    const saved = yield new Promise(resolve => {
+      FormManager.createRecordByVariant(createVariants[0], {
+        attributes,
+        onSubmit: () => resolve(true),
+        onFormCancel: () => resolve(false)
+      });
+    });
+    if (saved) {
+      const models = yield call(api.bpmn.fetchProcessModels);
+      yield put(setModels(models));
+    }
   } catch (e) {
     logger.error('[bpmn doShowModelCreationForm saga] error', e.message);
   }
@@ -246,8 +259,18 @@ function* doSavePagePosition({ api, logger }, action) {
   }
 }
 
+function* doUpdateModels({ api, logger }) {
+  try {
+    const models = yield call(api.bpmn.fetchProcessModels);
+    yield put(setModels(models));
+  } catch (e) {
+    logger.error('[bpmn doUpdateModels saga] error', e.message);
+  }
+}
+
 function* saga(ea) {
   yield takeLatest(initRequest().type, doInitRequest, ea);
+  yield takeLatest(updateModels().type, doUpdateModels, ea);
   yield takeLatest(saveCategoryRequest().type, doSaveCategoryRequest, ea);
   yield takeLatest(deleteCategoryRequest().type, doDeleteCategoryRequest, ea);
   yield takeLatest(saveProcessModelRequest().type, doSaveProcessModelRequest, ea);

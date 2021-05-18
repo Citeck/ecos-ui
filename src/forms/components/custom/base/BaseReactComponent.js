@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import get from 'lodash/get';
+import pick from 'lodash/pick';
 
 import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
+import UnreadableLabel from '../../UnreadableLabel';
 
 export default class BaseReactComponent extends BaseComponent {
   static schema(...extend) {
@@ -76,6 +79,10 @@ export default class BaseReactComponent extends BaseComponent {
     this.attachLogic();
   }
 
+  get htmlAttributes() {
+    return pick(get(this, 'info.attr', {}), ['id', 'name', 'type']);
+  }
+
   createViewOnlyValue(container) {
     this.react.container = this.ce('dd');
     container.appendChild(this.react.container);
@@ -116,6 +123,8 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   renderReactComponent() {
+    const component = this.component.unreadable ? UnreadableLabel : this.getComponentToRender();
+
     if (this.react.resolve) {
       const render = props => {
         this.react.isMounted = false;
@@ -137,7 +146,7 @@ export default class BaseReactComponent extends BaseComponent {
               this.react.innerComponent = comp;
               updateLoadingState();
             }}
-            component={this.getComponentToRender()}
+            component={component}
             ref={this.react.resolve}
             props={props}
           />,
@@ -182,6 +191,10 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   setReactValue(component, value) {
+    if (this.component.unreadable) {
+      return;
+    }
+
     if (component.setValue) {
       component.setValue(value);
     } else {

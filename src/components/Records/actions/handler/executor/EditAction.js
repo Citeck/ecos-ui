@@ -1,8 +1,6 @@
 import React from 'react';
 
 import { SourcesId } from '../../../../../constants';
-import { URL_PAGECONTEXT } from '../../../../../constants/alfresco';
-import { goToNodeEditPage } from '../../../../../helpers/urls';
 import TaskAssignmentPanel from '../../../../TaskAssignmentPanel';
 import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import { notifyFailure } from '../../util/actionUtils';
@@ -30,7 +28,6 @@ export default class EditAction extends ActionsExecutor {
           EcosFormUtils.editRecord({
             recordRef: record.id,
             attributes: config.attributes || {},
-            fallback: () => goToNodeEditPage(record.id),
             onSubmit: () => {
               // temp solution
               submitted = true;
@@ -74,10 +71,7 @@ function runEditTask(record, config) {
       EcosFormUtils.editRecord({
         recordRef: taskRecordId,
         attributes: config.attributes || {},
-        fallback: () => {
-          window.open(`${URL_PAGECONTEXT}task-edit?taskId=${taskId}&formMode=edit`, '_blank');
-          resolve(false);
-        },
+        fallback: () => resolve(false),
         contentBefore: contentBefore(),
         onSubmit: () => resolve(true),
         onFormCancel: () => resolve(false)

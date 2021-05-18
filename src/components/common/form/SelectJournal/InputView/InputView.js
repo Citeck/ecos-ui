@@ -107,12 +107,12 @@ class InputView extends Component {
   };
 
   renderSelectedValue(item) {
-    const { isSelectedValueAsText, isInlineEditingMode } = this.props;
+    const { isSelectedValueAsText, isModalMode } = this.props;
     const props = {};
 
     if (!isSelectedValueAsText) {
       props.link = createDocumentUrl(item.id);
-      props.paramsLink = { openNewBrowserTab: !isInlineEditingMode };
+      props.paramsLink = { openNewBrowserTab: isModalMode };
     }
 
     return <AssocLink label={item.disp} asText={isSelectedValueAsText} {...props} className="select-journal__values-list-disp" />;

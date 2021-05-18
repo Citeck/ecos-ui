@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
 import queryString from 'query-string';
+import classNames from 'classnames';
 
 import PageService from '../../services/PageService';
 import Caption from '../../components/common/form/Caption';
 import Well from '../../components/common/form/Well';
+import { AdminMenu } from '../../components/AdminSection';
 import { t } from '../../helpers/util';
 import { URL } from '../../constants';
 
@@ -21,6 +23,7 @@ import './DevTools.scss';
 export default () => {
   const [isReady, setIsReady] = useState(false);
   const [hasAccess, setAccess] = useState(false);
+  const [isOpenMenu, setOpenMenu] = useState(false);
   useEffect(() => {
     (async () => {
       const isAccessible = await api.getIsAccessiblePage();
@@ -47,39 +50,42 @@ export default () => {
 
   return (
     <div className="dev-tools-page">
-      <DevToolsContextProvider activeTab={activeTab} setActiveTab={setActiveTab}>
-        <Container>
-          <Row>
-            <Col>
-              <Caption normal className="dev-tools-page__title">
-                {t('page-tabs.dev-tools')}
-              </Caption>
-            </Col>
-          </Row>
-          {hasAccess ? (
-            <>
-              <Row>
-                <Col>
-                  <Tabs />
-                </Col>
-              </Row>
-              <Row>
-                <Col>
-                  <TabContent />
-                </Col>
-              </Row>
-            </>
-          ) : (
+      <div className={classNames('dev-tools-page__content', { 'dev-tools-page__content_full': !isOpenMenu })}>
+        <DevToolsContextProvider activeTab={activeTab} setActiveTab={setActiveTab}>
+          <Container className="p-0">
             <Row>
               <Col>
-                <Well className="dev-tools-page__access-denied">
-                  {!isReady ? <Loader /> : <ErrorText>{t('dev-tools.error.access-denied')}</ErrorText>}
-                </Well>
+                <Caption normal className="dev-tools-page__title">
+                  {t('page-tabs.dev-tools')}
+                </Caption>
               </Col>
             </Row>
-          )}
-        </Container>
-      </DevToolsContextProvider>
+            {hasAccess ? (
+              <>
+                <Row>
+                  <Col>
+                    <Tabs />
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <TabContent />
+                  </Col>
+                </Row>
+              </>
+            ) : (
+              <Row>
+                <Col>
+                  <Well className="dev-tools-page__access-denied">
+                    {!isReady ? <Loader /> : <ErrorText>{t('dev-tools.error.access-denied')}</ErrorText>}
+                  </Well>
+                </Col>
+              </Row>
+            )}
+          </Container>
+        </DevToolsContextProvider>
+      </div>
+      {hasAccess && <AdminMenu open={isOpenMenu} toggle={setOpenMenu} />}
     </div>
   );
 };

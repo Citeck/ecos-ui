@@ -31,8 +31,12 @@ export function convertAttributeValues(predicate, columns) {
     if (_.isArray(current)) {
       current.forEach(item => convert(item));
     } else if (_.isArray(current.val)) {
-      current.val.forEach(item => convert(item));
-      current.val = current.val.filter(v => isExistValue(v.val));
+      current.val.forEach(item => {
+        if (item.val !== undefined) {
+          convert(item);
+        }
+      });
+      current.val = current.val.filter(v => v.val === undefined || isExistValue(v.val));
     } else if (_.isObject(current)) {
       const col = columns && columns.find(item => item.attribute === current.att);
       const type = _.get(col, 'type');

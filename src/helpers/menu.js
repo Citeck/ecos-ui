@@ -36,17 +36,10 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
     {
       id: 'HEADER_USER_MENU_AVAILABILITY',
       label: 'header.' + availability + '.label',
-      targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false'),
-      control:
-        isAvailable === false
-          ? null
-          : {
-              type: HandleControlTypes.ALF_SHOW_MODAL_MAKE_UNAVAILABLE,
-              payload: {
-                isAvailable,
-                targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
-              }
-            }
+      control: {
+        type: HandleControlTypes.ECOS_EDIT_AVAILABILITY,
+        payload: { isAvailable }
+      }
     },
     {
       id: 'HEADER_USER_MENU_EDIT_PASSWORD',
@@ -56,14 +49,6 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
       }
     }
   );
-
-  // if (isMutable) {
-  //   userMenuItems.push({
-  //     id: 'HEADER_USER_MENU_PASSWORD',
-  //     label: 'header.change-password.label',
-  //     targetUrl: '/share/page/user/' + encodeURIComponent(userName) + '/change-password'
-  //   });
-  // }
 
   const customFeedbackUrl = urls[0] || DEFAULT_FEEDBACK_URL;
   const customReportIssueUrl = urls[1] || DEFAULT_REPORT_ISSUE_URL;
@@ -115,8 +100,6 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
     if (item.config.targetUrl) {
       if (item.config.targetUrlType && item.config.targetUrlType === 'FULL_PATH') {
         newItem.targetUrl = item.config.targetUrl;
-      } else {
-        newItem.targetUrl = '/share/page/' + item.config.targetUrl;
       }
 
       if (item.config.targetUrlLocation && item.config.targetUrlLocation === 'NEW') {
@@ -171,7 +154,7 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
-      targetUrl: URL.BPMN_DESIGNER,
+      targetUrl: URL.ADMIN_PAGE,
       targetUrlType: 'FULL_PATH'
     }
   ];

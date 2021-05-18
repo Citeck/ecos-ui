@@ -1,4 +1,6 @@
 import { createSelector } from 'reselect';
+import endsWith from 'lodash/endsWith';
+
 import { isCategoryHasChildren, compareLastModified, compareOld, compareAZ, compareZA } from '../helpers/bpmn';
 import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA, ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
 
@@ -28,8 +30,8 @@ export const selectCategoriesByParentId = createSelector(
   [selectAllCategories, selectCategoryId, selectSortFilter, selectSearchText, selectModelsBySearchText],
   (allCategories, parentId, currentSortFilter, searchText, searchedModels) => {
     let categories = [...allCategories];
+    let compareFunction;
 
-    let compareFunction = compareLastModified;
     switch (currentSortFilter) {
       case SORT_FILTER_AZ:
         compareFunction = compareAZ;
@@ -42,7 +44,7 @@ export const selectCategoriesByParentId = createSelector(
         break;
       case SORT_FILTER_LAST_MODIFIED:
       default:
-        compareFunction = compareLastModified;
+        compareFunction = (a, b) => compareLastModified(a, b, true);
         break;
     }
 
@@ -55,7 +57,7 @@ export const selectCategoriesByParentId = createSelector(
         return !item.parentId;
       }
 
-      if (item.parentId !== parentId) {
+      if (!endsWith(item.parentId, parentId)) {
         return false;
       }
 
@@ -110,7 +112,7 @@ export const selectIsParentHasNotModels = createSelector(
 export const selectCaseSensitiveCategories = state => {
   return state.bpmn.categories.map(item => {
     let label = item.label;
-    if (item.parentId === ROOT_CATEGORY_NODE_REF) {
+    if (endsWith(item.parentId, ROOT_CATEGORY_NODE_REF)) {
       label = label.toUpperCase();
     }
 

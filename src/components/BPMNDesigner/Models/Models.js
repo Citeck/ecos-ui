@@ -2,14 +2,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
 import moment from 'moment';
-import { URL_PAGECONTEXT, PROXY_URI } from '../../../constants/alfresco';
-import { VIEW_TYPE_LIST, VIEW_TYPE_CARDS, EDITOR_PAGE_CONTEXT } from '../../../constants/bpmn';
+
+import { PROXY_URI } from '../../../constants/alfresco';
+import { savePagePosition, updateModels } from '../../../actions/bpmn';
+import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, ViewTypes } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
 import CreateModelCard from '../CreateModelCard';
 import ModelCard from '../ModelCard';
 import ModelList from '../ModelList';
-import { savePagePosition } from '../../../actions/bpmn';
-import { LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';
+import PageService from '../../../services/PageService';
+import recordActions from '../../../components/Records/actions/recordActions';
+
+import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
@@ -24,7 +28,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(
       savePagePosition({
         callback: () => {
-          window.location.href = e.currentTarget.href;
+          PageService.changeUrlLink(e.currentTarget.href, {
+            openNewTab: true
+          });
         }
       })
     );
@@ -40,24 +46,44 @@ const mapDispatchToProps = dispatch => ({
         }
       })
     );
+  },
+  onEditMetaClick: (e, modelId) => {
+    e.preventDefault();
+    EcosFormUtils.editRecord({
+      recordRef: modelId,
+      onSubmit: () => dispatch(updateModels())
+    });
+  },
+  onDeleteModelClick: (e, modelId) => {
+    e.preventDefault();
+    recordActions
+      .execForRecord(modelId, {
+        type: 'delete'
+      })
+      .then(res => {
+        if (res) {
+          dispatch(updateModels());
+        }
+      });
   }
 });
 
-const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick }) => {
-  const ModelComponent = viewType === VIEW_TYPE_LIST ? ModelList : ModelCard;
+const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEditLinkClick, onDeleteModelClick, onEditMetaClick }) => {
+  const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
 
   const models = [];
   if (items) {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const dt = moment(item.created).calendar();
-      const recordId = item.id.replace('workspace://SpacesStore/', '');
+      const itemNodeRef = item.id.replace('alfresco/@', '');
+      const recordId = itemNodeRef.replace('workspace://SpacesStore/', '');
       const editLink = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
-      const viewLink = `${URL_PAGECONTEXT}card-details?nodeRef=${item.id}`;
+      const viewLink = `/v2/dashboard?recordRef=${item.id}`;
       let image = null;
       if (item.hasThumbnail) {
         // prettier-ignore
-        image = `${PROXY_URI}/citeck/ecos/image/thumbnail?nodeRef=${item.id}&property=ecosbpm:thumbnail&cached=true&modified=${item.modified}`;
+        image = `${PROXY_URI}/citeck/ecos/image/thumbnail?nodeRef=${itemNodeRef}&property=ecosbpm:thumbnail&cached=true&modified=${item.modified}`;
       }
 
       models.push(
@@ -68,6 +94,8 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
           editLink={editLink}
           onViewLinkClick={onViewLinkClick}
           onEditLinkClick={onEditLinkClick}
+          onDeleteModelClick={e => onDeleteModelClick(e, item.id)}
+          onEditMetaClick={e => onEditMetaClick(e, item.id)}
           label={item.label}
           author={item.creator}
           datetime={dt}
@@ -78,7 +106,7 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
   }
 
   let createModelComponent = null;
-  if (viewType === VIEW_TYPE_CARDS && !items.length && !searchText) {
+  if (viewType === ViewTypes.CARDS && !items.length && !searchText) {
     createModelComponent = <CreateModelCard categoryId={categoryId} />;
   }
 

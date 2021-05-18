@@ -4,15 +4,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 
-import {
-  collapseAllItems,
-  fetchLargeLogoSrc,
-  fetchSlideMenuItems,
-  fetchSmallLogoSrc,
-  getSiteDashboardEnable,
-  setInitExpandableItems,
-  toggleIsOpen
-} from '../../actions/slideMenu';
+import { collapseAllItems, fetchSlideMenuItems, getSiteDashboardEnable, setExpandableItems, toggleIsOpen } from '../../actions/slideMenu';
 import { isExistValue } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import Records from '../Records';
@@ -31,24 +23,22 @@ class Sidebar extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchSmallLogoSrc();
-    this.props.fetchLargeLogoSrc();
     this.props.getSiteDashboardEnable();
     this.fetchItems();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
     this.recordMenu = Records.get(`${SourcesId.MENU}@${this.props.idMenu}`);
-    this.updateWatcher = this.recordMenu.watch('subMenu{.json}', () => {
+    this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
       this.fetchItems(true);
     });
-
-    if (this.slideMenuToggle) {
-      this.slideMenuToggle.addEventListener('click', this.toggleSlideMenu);
-    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.fetchItems();
+
+    if (!prevProps.isReady && this.props.isReady && this.slideMenuToggle) {
+      this.slideMenuToggle.addEventListener('click', this.toggleSlideMenu);
+    }
   }
 
   componentWillUnmount() {
@@ -75,7 +65,7 @@ class Sidebar extends React.Component {
     if (isOpen) {
       this.props.collapseAllItems();
     } else {
-      this.props.setInitExpandableItems();
+      this.props.setExpandableItems(true);
     }
   };
 
@@ -126,11 +116,9 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchSlideMenuItems: () => dispatch(fetchSlideMenuItems()),
-  fetchSmallLogoSrc: () => dispatch(fetchSmallLogoSrc()),
-  fetchLargeLogoSrc: () => dispatch(fetchLargeLogoSrc()),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
-  setInitExpandableItems: () => dispatch(setInitExpandableItems()),
+  setExpandableItems: force => dispatch(setExpandableItems({ force })),
   collapseAllItems: () => dispatch(collapseAllItems())
 });
 

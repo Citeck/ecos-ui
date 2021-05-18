@@ -1,71 +1,95 @@
 import React, { Component } from 'react';
-import DatePicker from 'react-datepicker';
+import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+
 import { t } from '../../../../helpers/util';
-import '../Input/Input.scss';
+import Input from '../Input';
+
 import './DatePicker.scss';
 
 class CustomInput extends Component {
   render() {
-    const { getRef, ...otherProps } = this.props;
-
-    return <input ref={el => typeof getRef === 'function' && getRef(el)} {...otherProps} />;
+    return <Input {...this.props} />;
   }
 }
 
-export default class extends Component {
-  render() {
-    const { className, showIcon, dateFormat = 'P', wrapperClasses, ...otherProps } = this.props;
-    const cssClasses = classNames('ecos-input', className);
-    const wrapperCssClasses = classNames(
-      'ecos-datepicker',
-      {
-        'ecos-datepicker_show-icon': showIcon
-      },
-      wrapperClasses
-    );
+export default class DatePicker extends Component {
+  static propTypes = {
+    className: PropTypes.string,
+    dateFormat: PropTypes.string,
+    selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+    showIcon: PropTypes.bool,
+    showTimeInput: PropTypes.bool,
+    wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
+  };
 
-    const calendarIcon = showIcon ? (
-      <span
-        className="icon icon-calendar ecos-datepicker__icon"
-        onClick={() => {
-          this.datePickerInput && this.datePickerInput.click();
-        }}
-      />
-    ) : null;
+  static defaultProps = {
+    className: '',
+    dateFormat: 'P',
+    selected: null
+  };
 
-    let additionalProps = {};
-    let selected = otherProps.selected;
-
-    if (otherProps.showTimeInput) {
-      additionalProps.timeInputLabel = `${t('ecos-forms.datepicker.time-input-label')}:`;
-      additionalProps.dateFormat = 'P HH:mm';
+  get timeProps() {
+    if (this.props.showTimeInput || this.props.showTimeSelect) {
+      return {
+        timeInputLabel: `${t('ecos-forms.datepicker.time-label')}:`,
+        timeCaption: `${t('ecos-forms.datepicker.time-label')}`,
+        dateFormat: 'P hh:mm'
+      };
     }
+
+    return {};
+  }
+
+  get monthProps() {
+    return {
+      previousMonthButtonLabel: t('ecos-forms.datepicker.month-prev-label'),
+      nextMonthButtonLabel: t('ecos-forms.datepicker.month-next-label')
+    };
+  }
+
+  get selected() {
+    let selected = this.props.selected || this.props.value || null;
 
     if (selected && !(selected instanceof Date)) {
       selected = new Date(selected);
     }
 
     if (window.isNaN(selected)) {
-      selected = '';
+      selected = null;
     }
 
+    return selected;
+  }
+
+  setInputFocus = () => {
+    !this.props.disabled && !this.props.readOnly && this.datePickerInput && this.datePickerInput.focus();
+  };
+
+  renderIcon = () => {
+    return this.props.showIcon ? (
+      <span className="icon icon-calendar ecos-datepicker__icon" onClick={() => this.datePickerInput && this.datePickerInput.click()} />
+    ) : null;
+  };
+
+  render() {
+    const { className, showIcon, dateFormat, wrapperClasses, value, ...otherProps } = this.props;
+
     return (
-      <div className={wrapperCssClasses}>
-        <DatePicker
-          customInput={<CustomInput getRef={el => (this.datePickerInput = el)} />}
-          dateFormat={dateFormat}
-          // showMonthDropdown
-          // showYearDropdown
-          // dropdownMode="select"
-          // popperPlacement="top-end"
+      <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
+        <ReactDatePicker
           {...otherProps}
-          selected={selected || null}
-          {...additionalProps}
-          className={cssClasses}
+          {...this.timeProps}
+          {...this.monthProps}
+          customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} />}
+          dateFormat={dateFormat}
+          selected={this.selected}
+          className={classNames('ecos-input_hover', className)}
           calendarClassName="ecos-datepicker__calendar"
+          onSelect={this.setInputFocus}
         />
-        {calendarIcon}
+        {this.renderIcon()}
       </div>
     );
   }

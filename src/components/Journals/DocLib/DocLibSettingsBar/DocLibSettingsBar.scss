@@ -1,0 +1,58 @@
+@import '../../../../styles/constants';
+
+.ecos-doclib__settings-bar {
+  $root: &;
+  display: flex;
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+  height: 40px;
+
+  .ecos-btn.ecos-doclib__add-record {
+    font-size: $font-size-xxl;
+  }
+
+  &-update {
+    min-width: 40px;
+  }
+
+  &-export,
+  &-update {
+    transition: all 0.4s;
+  }
+
+  &_mobile &-search {
+    &.search_expanded {
+      & ~ #{$root}-export,
+      & ~ #{$root}-update {
+        transform: scale(0);
+        width: 0;
+        min-width: 0;
+        margin: 0;
+        opacity: 0;
+      }
+    }
+  }
+}
+
+.ecos-doclib__settings-bar_step {
+  &:not(:last-child) {
+    margin-right: 15px;
+  }
+
+  &-mobile:not(:last-child) {
+    margin-right: 10px;
+  }
+}
+
+.ecos-doclib__settings-bar_right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: auto;
+}
+
+.ecos-doclib__settings-bar_right-btn {
+  position: relative;
+  top: -1px;
+}

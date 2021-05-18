@@ -42,3 +42,10 @@
 .ecos-journal-dashlet-editor__select {
   max-width: 360px;
 }
+
+.ecos-journal-dashlet-editor__body {
+  .select-journal__values-list {
+    max-height: 200px;
+    overflow: auto;
+  }
+}

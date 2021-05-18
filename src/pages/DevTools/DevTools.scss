@@ -1,6 +1,19 @@
 @import '../../styles/constants';
 
 .dev-tools-page {
+  display: flex;
+  padding: 17px 0 25px 25px;
+  height: 100%;
+
+  &__content {
+    transition: width 0.5s;
+    width: calc(100% - 300px);
+
+    &_full {
+      width: 100%;
+    }
+  }
+
   &__access-denied {
     margin-top: 20px;
     padding: 20px;
@@ -12,7 +25,7 @@
   }
 
   &__title {
-    margin: 20px 0 10px;
+    margin-bottom: 10px;
   }
 
   &__tab-content {

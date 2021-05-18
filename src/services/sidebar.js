@@ -1,11 +1,14 @@
 import get from 'lodash/get';
+import omit from 'lodash/omit';
+import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
+import * as queryString from 'query-string';
 
 import { getJournalPageUrl } from '../helpers/urls';
-import { getSessionData, setSessionData } from '../helpers/ls';
 import { hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
-import { URL } from '../constants';
+import { treeFindFirstItem, treeFindSuitableItem } from '../helpers/arrayOfObjects';
+import { RELOCATED_URL, SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuSettings } from '../constants/menu';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
@@ -36,16 +39,34 @@ export default class SidebarService {
     ULS.setMenuMode({ isSlideMenuOpen });
   }
 
-  static getSelected() {
-    return getSessionData(SidebarService.SELECTED_MENU_ITEM_ID_KEY);
-  }
+  static getSelectedId(items) {
+    let { pathname, search } = window.location;
+    const query = queryString.parse(search);
+    let value, key;
 
-  static setSelected(value) {
-    setSessionData(SidebarService.SELECTED_MENU_ITEM_ID_KEY, value);
+    Object.keys(RELOCATED_URL).forEach(key => {
+      if (pathname === RELOCATED_URL[key]) {
+        pathname = key;
+      }
+    });
+
+    if (pathname === URL.JOURNAL) {
+      value = SourcesId.JOURNAL + '@' + query.journalId;
+      key = 'config.recordRef';
+    } else {
+      value = queryString.stringifyUrl({ url: pathname, query: omit(query, ['activeLayoutId']) }, { encode: false });
+      key = 'config.url';
+    }
+
+    const reverse = !value.includes(URL.ADMIN_PAGE);
+    const onlyExact = value.includes(URL.DASHBOARD);
+    const selected = treeFindSuitableItem(items, key, value, { reverse, onlyExact });
+
+    return get(selected, 'id');
   }
 
   static isExpanded(expandableItems = [], itemId) {
-    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isNestedListExpanded) : true;
+    return itemId ? !!(expandableItems && (expandableItems.find(fi => fi.id === itemId) || {}).isExpanded) : true;
   }
 
   static isSelectedChild(expandableItems = [], itemId) {
@@ -102,15 +123,33 @@ export default class SidebarService {
               listId = params.listId || 'main';
             }
 
-            let uiType = params.uiType || '';
-            let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
+            targetUrl = getJournalPageUrl({
+              journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
+              journalId: params.journalRef,
+              journalSettingId: '', // TODO?
+              nodeRef: params.journalRef,
+              filter: params.filterRef
+            });
 
-            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
-            if (!uiType) {
-              isNewUILink = extraParams.isNewUIAvailable;
-            }
+            ignoreTabHandler = false;
+            attributes.rel = 'noopener noreferrer';
+          }
+          break;
+        case ATypes.SITE_LINK:
+          ignoreTabHandler = false;
+          attributes.rel = 'noopener noreferrer';
 
-            if (isNewUILink) {
+          if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
+            const journalLink = item.items.find(item => {
+              return item.action.type === 'JOURNAL_LINK';
+            });
+
+            if (journalLink) {
+              const params = journalLink.action.params;
+              let listId = 'tasks';
+              if (params.siteName) {
+                listId = params.listId || 'main';
+              }
               targetUrl = getJournalPageUrl({
                 journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
                 journalId: params.journalRef,
@@ -118,88 +157,12 @@ export default class SidebarService {
                 nodeRef: params.journalRef,
                 filter: params.filterRef
               });
-
-              ignoreTabHandler = false;
-              attributes.rel = 'noopener noreferrer';
-            } else {
-              targetUrl = PAGE_PREFIX;
-              if (params.siteName) {
-                targetUrl += `/site/${params.siteName}`;
-              }
-              targetUrl += `/journals2/list/${listId}#`;
-
-              if (params.journalRef) {
-                targetUrl += `journal=${params.journalRef}`;
-              }
-
-              if (params.filterRef) {
-                targetUrl += `&filter=${params.filterRef}`;
-              } else {
-                targetUrl += `&filter=`;
-              }
-
-              if (params.settings) {
-                targetUrl += `&settings=${params.settings}`;
-              }
-
-              if (params.skipCount) {
-                targetUrl += `&skipCount=${params.skipCount}`;
-              }
-
-              if (params.maxItems) {
-                targetUrl += `&maxItems=${params.maxItems}`;
-              }
-            }
-          }
-          break;
-        case ATypes.PAGE_LINK:
-          let sectionPostfix = params.section ? params.section : '';
-
-          targetUrl = `${PAGE_PREFIX}/${params.pageId}${sectionPostfix}`;
-          break;
-        case ATypes.SITE_LINK:
-          {
-            let uiType = params.uiType || '';
-            let isNewUILink = uiType === 'react' || (uiType !== 'share' && isNewVersionPage());
-
-            // Cause: https://citeck.atlassian.net/browse/ECOSUI-499
-            if (!uiType) {
-              isNewUILink = extraParams.isNewUIAvailable;
-            }
-
-            if (isNewUILink) {
-              ignoreTabHandler = false;
-              attributes.rel = 'noopener noreferrer';
-
-              if (!extraParams.isSiteDashboardEnable && Array.isArray(item.items) && item.items.length > 0) {
-                const journalLink = item.items.find(item => {
-                  return item.action.type === 'JOURNAL_LINK';
-                });
-
-                if (journalLink) {
-                  const params = journalLink.action.params;
-                  let listId = 'tasks';
-                  if (params.siteName) {
-                    listId = params.listId || 'main';
-                  }
-                  targetUrl = getJournalPageUrl({
-                    journalsListId: params.siteName ? `site-${params.siteName}-${listId}` : `global-${listId}`,
-                    journalId: params.journalRef,
-                    journalSettingId: '', // TODO?
-                    nodeRef: params.journalRef,
-                    filter: params.filterRef
-                  });
-                  break;
-                }
-              }
-
-              attributes[REMOTE_TITLE_ATTR_NAME] = true;
-              targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
               break;
-            } else {
-              targetUrl = `${PAGE_PREFIX}?site=${params.siteName}`;
             }
           }
+
+          attributes[REMOTE_TITLE_ATTR_NAME] = true;
+          targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
           break;
         case ATypes.STATIC_LINK: {
           targetUrl = params.url;
@@ -258,26 +221,37 @@ export default class SidebarService {
     };
   }
 
-  static getExpandableItems(items, selectedId, isSlideMenuOpen) {
+  static initExpandableItems(items, selectedId, isSlideMenuOpen) {
     let flatList = [];
 
     items.forEach(item => {
       if (!!item.items) {
         const selectedChild = hasChildWithId(item.items, selectedId);
-        const isNestedListExpanded = isSlideMenuOpen && (selectedChild || item.params.collapsible ? !item.params.collapsed : true);
+        const isExpanded = isSlideMenuOpen && (selectedChild || (item.params.collapsible ? !item.params.collapsed : true));
 
         flatList.push(
           {
             id: item.id,
-            isNestedListExpanded,
+            isExpanded,
             selectedChild
           },
-          ...SidebarService.getExpandableItems(item.items, selectedId, isSlideMenuOpen)
+          ...SidebarService.initExpandableItems(item.items, selectedId, isSlideMenuOpen)
         );
       }
     });
 
     return flatList;
+  }
+
+  static getExpandableItems(expandableItems, items, id) {
+    const exItems = cloneDeep(expandableItems);
+
+    exItems.forEach(item => {
+      const _item = treeFindFirstItem({ items, key: 'id', value: item.id }) || {};
+      item.selectedChild = hasChildWithId(_item.items, id);
+    });
+
+    return exItems;
   }
 
   static emit(event, callback) {
@@ -295,4 +269,3 @@ export default class SidebarService {
 
 const ATypes = ActionTypes;
 const MITypes = MenuSettings.ItemTypes;
-const PAGE_PREFIX = '/share/page';

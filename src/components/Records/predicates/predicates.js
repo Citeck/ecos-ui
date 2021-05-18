@@ -46,27 +46,6 @@ export const PREDICATE_OR = 'or';
 export const PREDICATE_TODAY = 'today';
 export const PREDICATE_TIME_INTERVAL = 'time-interval';
 
-export const ALFRESCO_EQUAL_PREDICATES_MAP = {
-  [COLUMN_DATA_TYPE_TEXT]: 'string-contains',
-  [COLUMN_DATA_TYPE_CONTENT]: 'string-contains',
-  [COLUMN_DATA_TYPE_MLTEXT]: 'string-contains',
-  [COLUMN_DATA_TYPE_INT]: 'number-equals',
-  [COLUMN_DATA_TYPE_LONG]: 'number-equals',
-  [COLUMN_DATA_TYPE_FLOAT]: 'number-equals',
-  [COLUMN_DATA_TYPE_DOUBLE]: 'number-equals',
-  [COLUMN_DATA_TYPE_DATE]: 'date-equals',
-  [COLUMN_DATA_TYPE_DATETIME]: 'date-greater-or-equal',
-  [COLUMN_DATA_TYPE_BOOLEAN]: 'boolean-true',
-  [COLUMN_DATA_TYPE_QNAME]: 'type-equals',
-  [COLUMN_DATA_TYPE_NODEREF]: 'noderef-contains',
-  [COLUMN_DATA_TYPE_CATEGORY]: 'noderef-contains',
-  [COLUMN_DATA_TYPE_ASSOC]: 'assoc-contains',
-  [COLUMN_DATA_TYPE_OPTIONS]: 'string-contains',
-  [COLUMN_DATA_TYPE_PERSON]: 'assoc-contains',
-  [COLUMN_DATA_TYPE_AUTHORITY_GROUP]: 'assoc-contains',
-  [COLUMN_DATA_TYPE_AUTHORITY]: 'assoc-contains'
-};
-
 export const EQUAL_PREDICATES_MAP = {
   [COLUMN_DATA_TYPE_TEXT]: PREDICATE_CONTAINS,
   [COLUMN_DATA_TYPE_CONTENT]: PREDICATE_NOT_EMPTY,
@@ -171,7 +150,7 @@ const getAllPredicates = function() {
     { value: PREDICATE_LT, label: t('predicate.lt'), needValue: true },
     { value: PREDICATE_AND, label: t('predicate.and'), needValue: true },
     { value: PREDICATE_OR, label: t('predicate.or'), needValue: true },
-    { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: '$TODAY' },
+    { value: PREDICATE_TODAY, label: t('predicate.today'), needValue: false, fixedValue: datePredicateVariables.TODAY },
     { value: PREDICATE_TIME_INTERVAL, label: t('predicate.time-interval'), needValue: true }
   ];
 };
@@ -250,6 +229,10 @@ export function getPredicates(field) {
   }
 }
 
+/**
+ * @deprecated
+ * use {@link src/components/Journals/service/editors}
+ */
 export function getPredicateInput(field, sourceId, metaRecord, predicate = {}) {
   const defaultValue = {
     label: t('react-select.default-value.label'),

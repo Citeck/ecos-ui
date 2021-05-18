@@ -213,7 +213,16 @@ const dialogsById = {
   },
   [CUSTOM_DIALOG_ID]: props => {
     const { isVisible, setVisible } = props;
-    const { title = '', onHide = () => undefined, modalClass, body, buttons = [], handlers = {}, ...modalProps } = props.dialogProps;
+    const {
+      title = '',
+      onHide = () => undefined,
+      modalClass,
+      body,
+      buttons = [],
+      handlers = {},
+      buttonsClassName,
+      ...modalProps
+    } = props.dialogProps;
 
     const hideModal = () => {
       setVisible(false);
@@ -232,9 +241,10 @@ const dialogsById = {
       >
         <div className="ecos-dialog__body">{body}</div>
         {!isEmpty(buttons) && (
-          <div className="ecos-dialog__buttons">
+          <div className={classNames('ecos-dialog__buttons', buttonsClassName)}>
             {buttons.map(b => (
               <Btn
+                {...b}
                 className={b.className}
                 key={b.key || b.label}
                 onClick={() => {

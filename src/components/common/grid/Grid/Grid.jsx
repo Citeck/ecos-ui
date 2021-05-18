@@ -7,14 +7,18 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
+import omit from 'lodash/omit';
+import pick from 'lodash/pick';
 
-import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
+import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
-import { ErrorCell } from '../ErrorCell';
+import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import ErrorCell from '../ErrorCell';
+import ErrorTable from '../ErrorTable';
 
 import './Grid.scss';
 
@@ -75,7 +79,6 @@ class Grid extends Component {
 
   componentDidMount() {
     this.createCloseFilterEvent();
-    this.createColumnResizeEvents();
     this.createKeydownEvents();
     this.createDragEvents();
 
@@ -91,11 +94,21 @@ class Grid extends Component {
     }
 
     this.checkScrollPosition();
+
+    if (this.props.resizableColumns) {
+      this.createColumnResizeEvents();
+    }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { resizableColumns } = this.props;
+
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
+    }
+
+    if (prevProps.resizableColumns !== resizableColumns) {
+      resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
     this.setColumnsSizes();
@@ -127,10 +140,10 @@ class Grid extends Component {
       return;
     }
 
-    const { forwarderRef } = this.props;
+    const { forwardedRef } = this.props;
 
-    if (typeof forwarderRef === 'function') {
-      forwarderRef(ref);
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(ref);
     }
 
     this.#gridRef = ref;
@@ -254,7 +267,7 @@ class Grid extends Component {
     });
   };
 
-  setBootstrapTableProps(props, extra) {
+  getBootstrapTableProps(props, extra) {
     const options = {
       keyField: this._keyField,
       bootstrap4: true,
@@ -270,7 +283,7 @@ class Grid extends Component {
           column = this.setWidth(column);
         }
 
-        if (column.default !== undefined) {
+        if (isExistValue(column.default)) {
           column.hidden = !column.default;
         }
 
@@ -295,7 +308,7 @@ class Grid extends Component {
     if (props.editable) {
       options.cellEdit = this.setEditable(props.editable);
     } else {
-      options.cellEdit = undefined;
+      options.cellEdit = { options: {} };
     }
 
     options.rowEvents = {
@@ -449,8 +462,8 @@ class Grid extends Component {
     const { scrollLeft = 0 } = this._scrollValues;
 
     const style = {
-      height: tr.offsetHeight,
-      top: tr.offsetTop,
+      height: tr.offsetHeight + 2,
+      top: tr.offsetTop - 1,
       left: scrollLeft
     };
 
@@ -474,22 +487,29 @@ class Grid extends Component {
     });
   };
 
-  initFormatter = ({ editable, className }) => {
-    return (cell, row, rowIndex, formatExtraData) => {
-      formatExtraData = formatExtraData || {};
+  initFormatter = ({ editable, className, column }) => {
+    return (cell, row, rowIndex, formatExtraData = {}) => {
+      const { newFormatter = {} } = column;
+      const { error } = row;
       const Formatter = formatExtraData.formatter;
-      const errorAttribute = row.error;
+
+      let content = cell;
+      if (!isEmpty(newFormatter) && newFormatter.type) {
+        content = FormatterService.format({ cell, row, rowIndex, column }, newFormatter);
+      } else if (Formatter) {
+        content = <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} />;
+      }
 
       return (
         <ErrorCell data={cell}>
           <div
             className={classNames('ecos-grid__td', {
               'ecos-grid__td_editable': editable,
-              'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+              'ecos-grid__td_error': error && row[error] === cell,
               [className]: !!className
             })}
           >
-            {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
+            {content}
           </div>
         </ErrorCell>
       );
@@ -507,7 +527,7 @@ class Grid extends Component {
 
   setHeaderFormatter = (column, filterable, sortable) => {
     const { filters, sortBy, onSort, onFilter } = this.props;
-    const isFilterable = filterable && typeof onFilter === 'function';
+    const isFilterable = get(column, 'searchableByText') !== false && filterable && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
@@ -807,7 +827,7 @@ class Grid extends Component {
       trigger.call(this, 'onEdit', {
         id: row[this._keyField],
         attributes: {
-          [column.attribute]: column.formatExtraData.formatter.getId(newValue)
+          [column.attribute]: newValue
         }
       });
     }
@@ -937,29 +957,16 @@ class Grid extends Component {
     this._scrollRef = scroll;
   };
 
-  render() {
+  renderScrollableGrid() {
     const {
       minHeight,
       autoHeight,
       scrollAutoHide,
-      className,
-      rowClassName,
       tableViewClassName,
-      forwardedRef,
-      noTopBorder,
-      columns,
-      rowEvents,
       byContentHeight,
-      noHeader,
-      ...otherProps
+      gridWrapperClassName,
+      hTrackClassName
     } = this.props;
-
-    if (isEmpty(columns)) {
-      return null;
-    }
-
-    const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
-    const toolsVisible = this.toolsVisible();
 
     let { maxHeight } = this.props;
     let scrollStyle = {};
@@ -975,28 +982,86 @@ class Grid extends Component {
       scrollStyle = { ...scrollStyle, height: minHeight || '100%' };
     }
 
-    const Scroll = ({ scrollable, children, refCallback }) =>
-      scrollable ? (
-        <Scrollbars
-          ref={refCallback}
-          onScrollStart={this.onScrollStart}
-          onScrollFrame={this.onScrollFrame}
-          onScrollStop={this.onScrollStop}
-          style={scrollStyle}
-          autoHide={scrollAutoHide}
-          hideTracksWhenNotNeeded
-          renderView={props => <div {...props} className={tableViewClassName} />}
-          renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
-          renderTrackHorizontal={props => (
-            <div {...props} className={classNames('ecos-grid__h-scroll', { 'ecos-grid__h-scroll_higher': minHeight > maxHeight })} />
-          )}
-          {...scrollProps}
-        >
-          {children}
-        </Scrollbars>
-      ) : (
-        <>{children}</>
-      );
+    return (
+      <Scrollbars
+        ref={this.scrollRefCallback}
+        onScrollStart={this.onScrollStart}
+        onScrollFrame={this.onScrollFrame}
+        onScrollStop={this.onScrollStop}
+        style={scrollStyle}
+        autoHide={scrollAutoHide}
+        hideTracksWhenNotNeeded
+        className={gridWrapperClassName}
+        renderView={props => <div {...props} className={tableViewClassName} />}
+        renderTrackVertical={props => <div {...props} className="ecos-grid__v-scroll" />}
+        renderTrackHorizontal={props => (
+          <div
+            {...props}
+            className={classNames('ecos-grid__h-scroll', hTrackClassName, {
+              'ecos-grid__h-scroll_higher': minHeight > maxHeight
+            })}
+          />
+        )}
+        {...scrollProps}
+      >
+        {this.renderGrid()}
+      </Scrollbars>
+    );
+  }
+
+  renderGrid() {
+    const props = omit(this.props, [
+      'minHeight',
+      'autoHeight',
+      'scrollAutoHide',
+      'className',
+      'rowClassName',
+      'tableViewClassName',
+      'forwardedRef',
+      'noTopBorder',
+      'columns',
+      'rowEvents',
+      'byContentHeight',
+      'noHeader',
+      'resizableColumns'
+    ]);
+
+    const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
+      'rowClassName',
+      'resizableColumns',
+      'columns',
+      'rowEvents'
+    ]);
+
+    const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
+
+    return (
+      <>
+        <div ref={this.setGridRef}>
+          <ErrorTable>
+            <BootstrapTable
+              {...bootProps}
+              classes="ecos-grid__table"
+              headerClasses={classNames('ecos-grid__header', {
+                'ecos-grid__header_columns-not-resizable': !resizableColumns
+              })}
+              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            />
+          </ErrorTable>
+        </div>
+        {this.inlineTools()}
+      </>
+    );
+  }
+
+  render() {
+    const { className, noTopBorder, columns, noHeader, scrollable, selected } = this.props;
+
+    if (isEmpty(columns)) {
+      return null;
+    }
+
+    const toolsVisible = this.toolsVisible();
 
     return (
       <div
@@ -1012,18 +1077,10 @@ class Grid extends Component {
         onMouseLeave={this.onMouseLeave}
         onMouseEnter={this.onMouseEnter}
       >
-        {!!toolsVisible && this.tools(bootProps.selected)}
-        <Scroll scrollable={bootProps.scrollable} refCallback={this.scrollRefCallback}>
-          <div ref={this.setGridRef}>
-            <BootstrapTable
-              {...bootProps}
-              classes="ecos-grid__table"
-              headerClasses="ecos-grid__header"
-              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-            />
-          </div>
-          {this.inlineTools()}
-        </Scroll>
+        {!!toolsVisible && this.tools(selected)}
+
+        {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
+
         {this.fixedHeader ? (
           <>
             <div className={ECOS_GRID_HEAD_SHADOW} />
@@ -1039,6 +1096,8 @@ Grid.propTypes = {
   className: PropTypes.string,
   rowClassName: PropTypes.string,
   tableViewClassName: PropTypes.string,
+  gridWrapperClassName: PropTypes.string,
+  hTrackClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
 
@@ -1056,6 +1115,7 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  resizableColumns: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 
@@ -1083,7 +1143,8 @@ Grid.propTypes = {
 
 Grid.defaultProps = {
   scrollable: true,
-  sortable: true
+  sortable: true,
+  resizableColumns: true
 };
 
 export default Grid;

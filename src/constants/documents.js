@@ -82,13 +82,13 @@ export const fieldFormatters = {
   displayName: {
     schema: 'disp',
     formatter: {
-      name: 'ActionFormatter',
-      params: { type: 'content-preview-modal' }
+      type: 'action',
+      config: { type: 'content-preview-modal' }
     }
   }
 };
 
-export const NULL_FORM = 'uiserv/eform@null';
+export const NULL_FORM = 'uiserv/form@null';
 export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
 export const DEFAULT_REF = 'dict@cm:content';
 

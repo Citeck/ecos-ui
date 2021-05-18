@@ -45,6 +45,10 @@
 
 .select-orgstruct__input-view-button_compact {
   flex-shrink: 0;
+
+  &.ecos-btn {
+    height: 22px;
+  }
 }
 
 .select-orgstruct__values-list-actions {

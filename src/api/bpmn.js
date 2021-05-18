@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import { ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
+import Records from '../components/Records';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
@@ -31,16 +32,11 @@ export class BpmnApi extends RecordService {
   };
 
   createCategory = (title, parent = ROOT_CATEGORY_NODE_REF) => {
-    //todo: replace to using Records.js
-    return this.mutate({
-      record: {
-        attributes: {
-          _parent: parent,
-          _type: 'cm:category',
-          'cm:title': title
-        }
-      }
-    });
+    let rec = Records.get('alfresco/@');
+    rec.att('_parent', parent);
+    rec.att('type', 'cm:category');
+    rec.att('cm:title', title);
+    return rec.save();
   };
 
   updateCategory = (id, { title }) => {
@@ -71,7 +67,8 @@ export class BpmnApi extends RecordService {
       query: {
         query: 'TYPE:"ecosbpm:processModel"',
         language: 'fts-alfresco',
-        sortBy: [{ attribute: 'ecosbpm:index', ascending: true }]
+        sortBy: [{ attribute: 'ecosbpm:index', ascending: true }],
+        consistency: 'TRANSACTIONAL'
       },
       attributes: {
         index: 'ecosbpm:index',
@@ -102,7 +99,7 @@ export class BpmnApi extends RecordService {
     const { title, processKey, description, categoryId, author, owner, reviewers, validFrom, validTo } = data;
     // console.log(data);
     const attributes = {
-      _type: 'ecosbpm:processModel',
+      type: 'ecosbpm:processModel',
       'ecosbpm:processId': processKey,
       'cm:title': title,
       'cm:description': description,
@@ -135,7 +132,7 @@ export class BpmnApi extends RecordService {
     const { content, categoryId, author, owner, reviewers, validFrom, validTo } = data;
 
     const attributes = {
-      _type: 'ecosbpm:processModel',
+      type: 'ecosbpm:processModel',
       'cm:content': content,
       'ecosbpm:category': categoryId,
       'ecosbpm:processAuthorAssoc': author,

@@ -1,11 +1,12 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { CreateMenuTypes, MenuTypes } from '../constants/menu';
+import { CreateMenuTypes, MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
-import { extractLabel } from '../helpers/util';
+import { extractLabel, getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
+import MenuConverterExport from './export/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
@@ -87,6 +88,89 @@ export default class MenuConverter {
     return target;
   }
 
+  static getMainMenuCreateItems(source = []) {
+    const ITs = MenuSettings.ItemTypes;
+
+    return (function recursion(items) {
+      return (items || [])
+        .map(item => {
+          const option = {
+            ...item,
+            label: getTextByLocale(item.label)
+          };
+
+          if (item.type === ITs.LINK_CREATE_CASE) {
+            const createVariants = get(item, '_remoteData_.createVariants') || [];
+
+            if (createVariants.length) {
+              return {
+                ...option,
+                type: ITs.SECTION,
+                items: recursion(MenuConverter.prepareCreateVariants(createVariants))
+              };
+            }
+
+            return { ...option, ...MenuConverter.getLinkCreateCase(item) };
+          }
+
+          if (item.type === ITs.ARBITRARY) {
+            return { ...option, ...MenuConverter.getLinkMove(item) };
+          }
+
+          option.items = recursion(item.items);
+          option.disabled = !option.items.length;
+
+          return option;
+        })
+        .filter(item => !item.hidden);
+    })(source);
+  }
+
+  static prepareCreateVariants(createVariants) {
+    return createVariants.map(variant => ({
+      type: MenuSettings.ItemTypes.LINK_CREATE_CASE,
+      label: getTextByLocale(variant.name),
+      config: { variant }
+    }));
+  }
+
+  static getLinkCreateCase(data) {
+    const variant = get(data, 'config.variant') || {};
+
+    return {
+      id: variant.id,
+      control: {
+        type: HandleControlTypes.ECOS_CREATE_VARIANT,
+        payload: {
+          title: getTextByLocale(variant.label),
+          recordRef: variant.sourceId + '@',
+          formId: variant.formRef,
+          canCreate: true,
+          postActionRef: variant.postActionRef,
+          typeRef: variant.typeRef,
+          attributes: {
+            ...variant.attributes
+          }
+        }
+      }
+    };
+  }
+
+  static getLinkMove(data) {
+    const targetUrl = get(data, 'config.url') || {};
+
+    return {
+      targetUrl,
+      control: {
+        type: HandleControlTypes.ALF_NAVIGATE_TO_PAGE,
+        payload: {
+          url: targetUrl,
+          target: targetUrl.includes('http') ? '_blank' : '_self'
+        }
+      }
+    };
+  }
+
   static getCreateCustomItems(source = []) {
     return source.map(params => {
       const item = {
@@ -126,13 +210,13 @@ export default class MenuConverter {
   }
 
   /* menu settings */
-  static getMenuItemsWeb(source) {
+  static getMenuItemsWeb(source, params = {}) {
     const target = [];
 
     (function prepareTree(sItems, tItems, level) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const tItem = MenuSettingsService.getItemParams(sItem, { level });
+        const tItem = MenuSettingsService.getItemParams(sItem, { level, ...params });
 
         tItem.items = [];
         tItem.config = { ...sItem.config };
@@ -155,7 +239,7 @@ export default class MenuConverter {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
         const { dndIdx, locked, draggable, icon, ...newData } = sItem;
-        const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
+        const oldData = treeFindFirstItem({ items: source.originalItems || [], value: sItem.id, key: 'id' }) || {};
         const tItem = { ...oldData, ...newData, items: [] };
 
         tItem.icon = getIconRef(icon);
@@ -199,5 +283,9 @@ export default class MenuConverter {
     })(source, target);
 
     return target;
+  }
+
+  static getAllSectionsFlat(source) {
+    return MenuConverterExport.getAllSectionsFlat(source);
   }
 }

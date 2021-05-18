@@ -36,7 +36,7 @@ export default class DownloadZipAction extends ActionsExecutor {
   };
 
   async execForRecords(records, action, context) {
-    const nodeRef = await this.createZip(records.map(r => r.id));
+    const nodeRef = await this.createZip(records.map(r => r.id.replace('alfresco/@', '')));
 
     if (nodeRef) {
       const result = recordActions.execForRecord(nodeRef, {
