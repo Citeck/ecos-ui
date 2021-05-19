@@ -17,23 +17,29 @@ export default class EditJsonAction extends ActionsExecutor {
         recordRef: record.id,
         formKey: 'form-json-editor',
         onSubmit: async (rec, form) => {
-          const blob = new Blob([get(form, 'data.config')], { type: 'application/json' });
-          const url = await appApi.getBase64(blob);
-          const record = Records.get(rec.id);
+          try {
+            const jsonStr = JSON.stringify(get(form, 'data.config'));
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = await appApi.getBase64(blob);
+            const record = Records.get(rec.id);
 
-          record.att('_content', [{ url }]);
-
-          return record
-            .save()
-            .then(resolve => {
-              notifySuccess();
-              resolve(true);
-            })
-            .catch(e => {
-              console.error('[EditJsonAction]', e);
-              notifyFailure();
-              resolve(false);
-            });
+            record.att('_content', [{ url }]);
+            return record
+              .save()
+              .then(_ => {
+                resolve(true);
+                notifySuccess();
+              })
+              .catch(e => {
+                console.error('[EditJsonAction saving]', e);
+                resolve(false);
+                notifyFailure();
+              });
+          } catch (e) {
+            console.error('[EditJsonAction json parser]', e);
+            resolve(false);
+            notifyFailure();
+          }
         }
       });
     });
