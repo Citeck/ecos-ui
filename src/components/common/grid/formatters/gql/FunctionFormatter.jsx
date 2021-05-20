@@ -1,4 +1,5 @@
 import React from 'react';
+
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class FunctionFormatter extends DefaultGqlFormatter {
@@ -19,7 +20,9 @@ export default class FunctionFormatter extends DefaultGqlFormatter {
         params.fn(elCell, oRecord, oColumn, sData, rowIndex);
       } else if (typeof params.fn === 'string') {
         // eslint-disable-next-line
-        const extractedFn = eval(`(function() { return ${params.fn}; })()`);
+        const extractedFn = eval(`(function() {
+          return ${params.fn};
+        })()`);
         if (typeof extractedFn === 'function') {
           extractedFn(elCell, oRecord, oColumn, sData, rowIndex);
         }
@@ -35,15 +38,13 @@ export default class FunctionFormatter extends DefaultGqlFormatter {
     return elCell.innerHTML;
   }
 
-  render() {
+  renderContent() {
     const { cell, row, params } = this.props;
 
-    return (
-      <div
-        dangerouslySetInnerHTML={{
-          __html: this._format(cell, row, params)
-        }}
-      />
-    );
+    return <div dangerouslySetInnerHTML={{ __html: this._format(cell, row, params) }} />;
+  }
+
+  render() {
+    return <this.PopperWrapper contentComponent={this.renderContent()} />;
   }
 }

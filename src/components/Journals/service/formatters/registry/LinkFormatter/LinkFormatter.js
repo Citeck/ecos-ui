@@ -9,10 +9,9 @@ export default class LinkFormatter extends BaseFormatter {
 
   format(props) {
     const { row = {}, cell } = props;
-    const url = createDocumentUrl(row.id);
 
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer" {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
+      <a href={createDocumentUrl(row.id)} target="_blank" rel="noopener noreferrer" {...{ [REMOTE_TITLE_ATTR_NAME]: true }}>
         {cell}
       </a>
     );

@@ -44,9 +44,11 @@ export default class TaskLinkFormatter extends DefaultGqlFormatter {
     }
 
     return (
-      <a href={url} {...linkProps}>
-        {this.value(cell)}
-      </a>
+      <this.PopperWrapper text={this.value(cell)}>
+        <a href={url} {...linkProps}>
+          {this.value(cell)}
+        </a>
+      </this.PopperWrapper>
     );
   }
 }
