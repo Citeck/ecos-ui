@@ -47,10 +47,12 @@ import {
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
+  setLoadingStatus,
   updateVersion,
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
+import journalsService from '../components/Journals/service';
 
 function* fillTypeInfo(api, types = []) {
   const typeKeys = types.map(record => record.type);
@@ -75,7 +77,14 @@ function* fillTypeInfo(api, types = []) {
 
   yield all(
     filtered.map(function*(item) {
-      const journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+      let journalConfig;
+
+      if (!isEmpty(item.journalId)) {
+        journalConfig = yield journalsService.getJournalConfig(item.journalId);
+      } else {
+        journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+      }
+
       const columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
 
       DocumentsConverter.setDefaultFormatters(columns);
@@ -176,6 +185,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     const attributes = DocumentsConverter.getColumnsAttributes(
       yield select(state => selectColumnsConfig(state, payload.key, payload.type))
     );
+
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type, attributes);
 
     if (errors.length) {
@@ -277,10 +287,39 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
       })
     );
 
-    yield put(initStore({ ...payload }));
+    if (!isEmpty(payload.selectedType)) {
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: true
+        })
+      );
+      yield* sagaInitWidget({ api, logger }, { payload: { ...payload, type: payload.selectedType } });
+    } else {
+      yield put(initStore({ ...payload }));
+    }
   } catch (e) {
     logger.error('[documents sagaSaveSettings saga error', e.message);
   } finally {
+    if (!isEmpty(payload.selectedType)) {
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: true
+        })
+      );
+      yield* sagaGetDocumentsByType({ api, logger }, { payload: { ...payload, type: payload.selectedType } });
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: false
+        })
+      );
+    }
+
     yield put(saveSettingsFinally(payload.key));
   }
 }

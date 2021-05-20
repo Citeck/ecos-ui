@@ -207,7 +207,8 @@ export const selectGroupedAvailableTypes = createSelector(
           multiple: get(dType, 'multiple', false),
           mandatory: get(dType, 'mandatory', false),
           locked: get(dType, 'locked', false),
-          countDocuments: get(dType, 'coundDocuments', 0)
+          countDocuments: get(dType, 'coundDocuments', 0),
+          journalId: get(dType, 'journalId', '')
         };
 
         if (!item.parent) {
@@ -233,7 +234,8 @@ export const selectGroupedAvailableTypes = createSelector(
         const dTypeParams = {
           multiple: get(dType, 'multiple', false),
           mandatory: get(dType, 'mandatory', false),
-          countDocuments: get(dType, 'coundDocuments', 0)
+          countDocuments: get(dType, 'coundDocuments', 0),
+          journalId: get(dType, 'journalId', '')
         };
 
         return {
