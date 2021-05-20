@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 
 import { AppApi } from '../../../../../api/app';
+import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import Records from '../../../Records';
 import { notifyFailure, notifySuccess } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
@@ -18,7 +19,7 @@ export default class EditJsonAction extends ActionsExecutor {
     };
 
     return new Promise(resolve => {
-      window.Citeck.forms.eform(record.id, {
+      EcosFormUtils.eform(record.id, {
         params: {
           formId: get(action, 'config.editorFormId'),
           onSubmit: async (rec, form) => {
