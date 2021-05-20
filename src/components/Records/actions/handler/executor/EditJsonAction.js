@@ -12,33 +12,34 @@ export default class EditJsonAction extends ActionsExecutor {
   static ACTION_ID = 'edit-json';
 
   async execForRecord(record, action, context) {
-    return new Promise(resolve => {
-      EcosFormUtils.editRecord({
-        recordRef: record.id,
-        formKey: 'form-json-editor',
-        onSubmit: async (rec, form) => {
-          try {
-            const jsonStr = JSON.stringify(get(form, 'data.config'));
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = await appApi.getBase64(blob);
-            const record = Records.get(rec.id);
+    const failure = (resolve, msg, e) => {
+      console.error(msg, e);
+      resolve(false);
+      notifyFailure();
+    };
 
-            record.att('_content', [{ url }]);
-            return record
-              .save()
-              .then(_ => {
-                resolve(true);
-                notifySuccess();
-              })
-              .catch(e => {
-                console.error('[EditJsonAction saving]', e);
-                resolve(false);
-                notifyFailure();
-              });
-          } catch (e) {
-            console.error('[EditJsonAction json parser]', e);
-            resolve(false);
-            notifyFailure();
+    return new Promise(resolve => {
+      EcosFormUtils.eform(record.id, {
+        params: {
+          formId: get(action, 'config.editorFormId'),
+          onSubmit: async (rec, form) => {
+            try {
+              const jsonStr = JSON.stringify(get(form, 'data.configuration'));
+              const blob = new Blob([jsonStr], { type: 'application/json' });
+              const url = await appApi.getBase64(blob);
+              const record = Records.get(rec.id);
+
+              record.att('_content', [{ url }]);
+              return record
+                .save()
+                .then(_ => {
+                  resolve(true);
+                  notifySuccess();
+                })
+                .catch(e => failure(resolve, '[EditJsonAction saving]', e));
+            } catch (e) {
+              failure(resolve, '[EditJsonAction saving]', e);
+            }
           }
         }
       });

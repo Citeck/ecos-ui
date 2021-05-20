@@ -233,12 +233,9 @@ export default class EcosFormUtils {
           EcosFormUtils.hasForm(recordRef).then(result => {
             if (result) {
               showForm(recordRef);
-              return;
-            }
-            throw new Error(`hasForm ${result}`);
+            } else throw new Error(`hasForm ${result}`);
           });
-        }
-        throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+        } else throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
       })
       .catch(e => {
         console.error(e);
