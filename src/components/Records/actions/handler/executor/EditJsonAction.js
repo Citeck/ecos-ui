@@ -1,9 +1,8 @@
 import get from 'lodash/get';
 
 import { AppApi } from '../../../../../api/app';
-import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import Records from '../../../Records';
-import { notifyFailure, notifySuccess } from '../../util/actionUtils';
+import { notifyFailure, notifySuccess, showForm } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
 
 const appApi = new AppApi();
@@ -19,27 +18,25 @@ export default class EditJsonAction extends ActionsExecutor {
     };
 
     return new Promise(resolve => {
-      EcosFormUtils.eform(record.id, {
-        params: {
-          formId: get(action, 'config.editorFormId'),
-          onSubmit: async (rec, form) => {
-            try {
-              const jsonStr = JSON.stringify(get(form, 'data.configuration'));
-              const blob = new Blob([jsonStr], { type: 'application/json' });
-              const url = await appApi.getBase64(blob);
-              const record = Records.get(rec.id);
+      showForm(record.id, {
+        formId: get(action, 'config.editorFormId'),
+        onSubmit: async (rec, form) => {
+          try {
+            const jsonStr = JSON.stringify(get(form, 'data.configuration'));
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = await appApi.getBase64(blob);
+            const record = Records.get(rec.id);
 
-              record.att('_content', [{ url }]);
-              return record
-                .save()
-                .then(_ => {
-                  resolve(true);
-                  notifySuccess();
-                })
-                .catch(e => failure(resolve, '[EditJsonAction saving]', e));
-            } catch (e) {
-              failure(resolve, '[EditJsonAction saving]', e);
-            }
+            record.att('_content', [{ url }]);
+            return record
+              .save()
+              .then(_ => {
+                resolve(true);
+                notifySuccess();
+              })
+              .catch(e => failure(resolve, '[EditJsonAction saving]', e));
+          } catch (e) {
+            failure(resolve, '[EditJsonAction saving]', e);
           }
         }
       });
