@@ -9,9 +9,9 @@ export default class DebugFormAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const recordRef = get(action, 'config.recordRef');
-    const options = get(action, 'config.options');
+    const options = get(action, 'config.options') || {};
 
-    if (!recordRef) {
+    if (!recordRef && !options.formMode) {
       options.formMode = FORM_MODE_CREATE;
     }
 
