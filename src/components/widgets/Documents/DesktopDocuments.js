@@ -829,7 +829,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
     getDocuments: (type = '') => dispatch(getDocumentsByType({ ...baseParams, type })),
-    onSaveSettings: (types, config) => dispatch(saveSettings({ ...baseParams, types, config })),
+    onSaveSettings: (types, config, selectedType) => dispatch(saveSettings({ ...baseParams, types, config, selectedType })),
     onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
     execRecordsAction: data => dispatch(execRecordsAction({ ...baseParams, ...data })),

@@ -141,6 +141,7 @@ export default class DocumentsConverter {
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
     target.canUpload = !isExistValue(canUpload) || canUpload;
+    target.journalId = get(source, 'journalId', '');
 
     return target;
   };
@@ -171,6 +172,7 @@ export default class DocumentsConverter {
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
       target.canUpload = !isExistValue(canUpload) || canUpload;
+      target.journalId = get(item, 'journalId', '');
 
       return target;
     });
@@ -266,13 +268,15 @@ export default class DocumentsConverter {
 
     return source
       .map(column => {
-        let { name, schema, attribute } = column;
+        let { name, schema, attribute, dataField } = column;
+        const alias = dataField || attribute || name;
 
         if (attribute && schema) {
           if (schema.charAt(0) === '.') {
-            return `${attribute}:${schema.slice(1)}`;
+            return `${alias}:${schema.slice(1)}`;
           }
-          return `${attribute}:att(n:"${schema}"){disp}`;
+
+          return `${alias}:att(n:"${schema}"){disp}`;
         }
 
         if (!attribute && !name) {
@@ -280,19 +284,19 @@ export default class DocumentsConverter {
         }
 
         if (!attribute) {
-          return `${name}:att(n:"${name}"){disp}`;
+          return `${alias}:att(n:"${name}"){disp}`;
         }
 
         if (attribute.charAt(0) === '.') {
-          return `${name}:${attribute.slice(1)}`;
+          return `${alias}:${attribute.slice(1)}`;
         }
 
         if (name) {
           if (attribute.includes('att(n:')) {
-            return `${name}:${attribute}`;
+            return `${alias}:${attribute}`;
           }
 
-          return `${name}:att(n:"${attribute}"){disp}`;
+          return `${alias}:att(n:"${attribute}"){disp}`;
         }
 
         return attribute || name;
@@ -319,24 +323,30 @@ export default class DocumentsConverter {
     });
   }
 
+  static prepareAttrName(name) {
+    return name.replace(/[-,:]/g, '_');
+  }
+
   static getAttribute(attr = '', name = '') {
+    const alias = DocumentsConverter.prepareAttrName(name);
+
     if (name) {
-      return name;
+      return alias;
     }
 
     if (attr.charAt(0) === '.') {
-      return name;
+      return alias;
     }
 
     if (attr.includes(':')) {
-      return name;
+      return alias;
     }
 
     if (attr.includes('-')) {
       return attr.toLowerCase().replace(/-/g, '_');
     }
 
-    return attr || name;
+    return attr || alias;
   }
 
   static getColumnsForSettings(columns = [], configColumns = []) {
