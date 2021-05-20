@@ -298,7 +298,15 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
     const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
     const actions = JournalsConverter.getJournalActions(resultActions);
 
-    yield put(setFileViewerItems(w(DocLibConverter.prepareFileListItems(records, actions.forRecord))));
+    yield put(
+      setFileViewerItems(
+        w(
+          DocLibConverter.prepareFileListItems(records, actions.forRecord, () =>
+            DocLibService.emitter.emit(DocLibService.actionSuccessCallback)
+          )
+        )
+      )
+    );
   } catch (e) {
     logger.error('[docLib getFilesViewerData error', e.message);
   }

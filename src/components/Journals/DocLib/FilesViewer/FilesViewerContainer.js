@@ -7,7 +7,7 @@ import {
   selectDocLibFolderPath,
   selectDocLibGroupActions
 } from '../../../../selectors/docLib';
-import { openFolder, setFileViewerSelected, setFileViewerLastClicked, uploadFiles } from '../../../../actions/docLib';
+import { openFolder, setFileViewerSelected, setFileViewerLastClicked, uploadFiles, initDocLib } from '../../../../actions/docLib';
 
 import FilesViewer from './FilesViewer';
 
@@ -32,7 +32,8 @@ const mapDispatchToProps = (dispatch, props) => {
     openFolder: id => dispatch(openFolder(w(id))),
     setSelected: id => dispatch(setFileViewerSelected(w(id))),
     setLastClicked: id => dispatch(setFileViewerLastClicked(w(id))),
-    onDrop: data => dispatch(uploadFiles(w(data)))
+    onDrop: data => dispatch(uploadFiles(w(data))),
+    onInitData: id => dispatch(initDocLib(w(id)))
   };
 };
 
