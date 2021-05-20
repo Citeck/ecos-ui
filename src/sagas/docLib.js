@@ -409,7 +409,7 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 
 function formKeysCheck(formDefinition) {
   return get(formDefinition, 'components', [])
-    .filter(item => item.key)
+    .filter(item => item.key !== 'columns')
     .reduce((res, item) => {
       res.push(['_disp', '_content'].includes(item.key));
 
@@ -432,6 +432,16 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
 
     if (!canUpload) {
       NotificationManager.error(t('document-library.uploading-file.message.abort'));
+      return;
+    }
+
+    let { files = [] } = action.payload;
+
+    files = files.filter(file => !isEmpty(file.type));
+
+    if (isEmpty(files)) {
+      NotificationManager.error(t('document-library.uploading-file.message.abort'), t('error'));
+
       return;
     }
 
