@@ -233,22 +233,18 @@ export default class EcosFormUtils {
     const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
 
     Promise.all([isFormsEnabled, isShouldDisplay])
-      .then(function(values) {
+      .then(values => {
         if (values[0] || values[1]) {
-          EcosFormUtils.hasForm(recordRef).then(function(result) {
+          EcosFormUtils.hasForm(recordRef).then(result => {
             if (result) {
               showForm(recordRef);
-            } else {
-              showForm(null);
-            }
+            } else throw new Error(`hasForm ${result}`);
           });
-        } else {
-          showForm(null);
-        }
+        } else throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
       })
-      .catch(function(e) {
+      .catch(e => {
         console.error(e);
-        showForm(null);
+        showForm();
       });
   }
 
