@@ -14,7 +14,7 @@ class CustomInput extends Component {
   }
 }
 
-export default class DatePicker extends Component {
+export default class DatePicker extends React.PureComponent {
   static propTypes = {
     className: PropTypes.string,
     dateFormat: PropTypes.string,

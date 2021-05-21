@@ -10,7 +10,7 @@ import EditorScope from '../../EditorScope';
 import TextEditor from '../TextEditor';
 import editorRegistry from '../';
 
-export default class DateEditorControl extends React.Component {
+export default class DateEditorControl extends React.PureComponent {
   constructor(props) {
     super(props);
     this.portal = this.createDateEditorContainer();
