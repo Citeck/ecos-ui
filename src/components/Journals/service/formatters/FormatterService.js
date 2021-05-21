@@ -1,6 +1,8 @@
+import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 
+import Popper from '../../../common/Popper';
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders } from '../util';
 import formatterRegistry from './registry';
@@ -26,6 +28,20 @@ class FormatterService {
     return `#${t('error').toUpperCase()}`;
   }
 
+  static PopperWrapper(props) {
+    return (
+      <Popper
+        showAsNeeded
+        icon="icon-question"
+        popupClassName="formatter-popper"
+        text={props.text}
+        contentComponent={props.contentComponent}
+      >
+        {props.children}
+      </Popper>
+    );
+  }
+
   /**
    * @param {FormatterServiceProps} props
    * @param {Formatter} newFormatter
@@ -47,12 +63,13 @@ class FormatterService {
       }
 
       const formatter = formatterRegistry.getFormatter(type);
+
       if (!formatter || typeof formatter.format !== 'function') {
         console.error('[FormattersService.format] invalid formatter', formatter);
         return FormatterService.errorMessage;
       }
 
-      return formatter.format({
+      const formatProps = {
         ...props,
         config: {
           ...modifiedConfig,
@@ -60,7 +77,9 @@ class FormatterService {
             format: FormatterService.format
           }
         }
-      });
+      };
+
+      return <FormatterService.PopperWrapper contentComponent={formatter.format(formatProps)} />;
     } catch (e) {
       console.error('[FormattersService.format] error', e);
       return FormatterService.errorMessage;

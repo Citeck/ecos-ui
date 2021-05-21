@@ -1,4 +1,3 @@
-import React from 'react';
 import _ from 'lodash';
 
 import Records from '../../../../../Records';
@@ -58,6 +57,6 @@ export default class ScriptFormatter extends BaseFormatter {
         break;
     }
 
-    return <this.PopperWrapper text={content}>{content}</this.PopperWrapper>;
+    return content;
   }
 }

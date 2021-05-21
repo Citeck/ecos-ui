@@ -1,5 +1,3 @@
-import { mount } from 'enzyme';
-
 import * as util from '../../../../../../helpers/export/util';
 import en from '../../../../../../i18n/en';
 
@@ -21,7 +19,7 @@ describe('ScriptFormatter', () => {
         }
       });
 
-      expect(mount(result).text()).toBe('Yes');
+      expect(result).toBe('Yes');
     });
     it('should return No if the script result is boolean (false)', () => {
       const result = scriptFormatterInstance.format({
@@ -30,7 +28,7 @@ describe('ScriptFormatter', () => {
         }
       });
 
-      expect(mount(result).text()).toBe('No');
+      expect(result).toBe('No');
     });
     it('should return number if the script result is number', () => {
       const result = scriptFormatterInstance.format({
@@ -39,7 +37,7 @@ describe('ScriptFormatter', () => {
         }
       });
 
-      expect(mount(result).text()).toBe('3');
+      expect(result).toBe(3);
     });
     it('should return string if the script result is string', () => {
       const result = scriptFormatterInstance.format({
@@ -48,7 +46,7 @@ describe('ScriptFormatter', () => {
         }
       });
 
-      expect(mount(result).text()).toBe('Test');
+      expect(result).toBe('Test');
     });
     it('should invoke other formatter, if the script result is plain object', () => {
       const formatFunc = jest.fn();
@@ -80,7 +78,7 @@ describe('ScriptFormatter', () => {
       expect(newFormatter.type).toBe('html');
       expect(newFormatter.config.html).toBe('<div>Test</div>');
     });
-    it('should return null in other cases', () => {
+    it('should return undefined in other cases', () => {
       const returnVariants = [null, undefined];
       returnVariants.forEach(item => {
         const result = scriptFormatterInstance.format({
@@ -89,7 +87,7 @@ describe('ScriptFormatter', () => {
           }
         });
 
-        expect(mount(result).text()).toBe('');
+        expect(result).toBeUndefined();
       });
 
       const result = scriptFormatterInstance.format({
@@ -98,7 +96,7 @@ describe('ScriptFormatter', () => {
         }
       });
 
-      expect(mount(result).text()).toBe('');
+      expect(result).toBeUndefined();
     });
     it('should throw Error if config.script is not specified', () => {
       const format = () => {

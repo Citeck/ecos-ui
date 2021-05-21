@@ -27,12 +27,10 @@ export default class FileNameFormatter extends BaseFormatter {
     };
 
     return (
-      <this.PopperWrapper text={cell}>
-        <a href={url} {...linkProps} className="ecos-filename-formatter">
-          <FileIcon format={detectFormat(cell)} className="ecos-filename-formatter__icon" />
-          {cell}
-        </a>
-      </this.PopperWrapper>
+      <a href={url} {...linkProps} className="ecos-filename-formatter">
+        <FileIcon format={detectFormat(cell)} className="ecos-filename-formatter__icon" />
+        {cell}
+      </a>
     );
   }
 }
