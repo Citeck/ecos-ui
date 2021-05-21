@@ -1,5 +1,4 @@
 import React from 'react';
-
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 
