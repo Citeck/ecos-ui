@@ -298,7 +298,15 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
     const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
     const actions = JournalsConverter.getJournalActions(resultActions);
 
-    yield put(setFileViewerItems(w(DocLibConverter.prepareFileListItems(records, actions.forRecord))));
+    yield put(
+      setFileViewerItems(
+        w(
+          DocLibConverter.prepareFileListItems(records, actions.forRecord, () =>
+            DocLibService.emitter.emit(DocLibService.actionSuccessCallback)
+          )
+        )
+      )
+    );
   } catch (e) {
     logger.error('[docLib getFilesViewerData error', e.message);
   }
@@ -409,7 +417,7 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 
 function formKeysCheck(formDefinition) {
   return get(formDefinition, 'components', [])
-    .filter(item => item.key)
+    .filter(item => item.key !== 'columns')
     .reduce((res, item) => {
       res.push(['_disp', '_content'].includes(item.key));
 
@@ -432,6 +440,16 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
 
     if (!canUpload) {
       NotificationManager.error(t('document-library.uploading-file.message.abort'));
+      return;
+    }
+
+    let { files = [] } = action.payload;
+
+    files = files.filter(file => !isEmpty(file.type));
+
+    if (isEmpty(files)) {
+      NotificationManager.error(t('document-library.uploading-file.message.abort'), t('error'));
+
       return;
     }
 
