@@ -21,6 +21,8 @@ export const getDocumentsByTypes = createAction(prefix + 'GET_DOCUMENTS_BY_TYPES
 export const setDocumentsByTypes = createAction(prefix + 'SET_DOCUMENTS_BY_TYPES');
 export const getDocumentsFinally = createAction(prefix + 'GET_DOCUMENTS_FINALLY');
 
+export const setLoadingStatus = createAction(prefix + 'SET_LOADING_STATUS');
+
 export const getTypeSettings = createAction(prefix + 'GET_TYPE_SETTINGS');
 export const setTypeSettings = createAction(prefix + 'SET_TYPE_SETTINGS');
 export const setTypeSettingsFinally = createAction(prefix + 'SET_TYPE_SETTINGS_FINALLY');

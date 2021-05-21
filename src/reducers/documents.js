@@ -19,6 +19,7 @@ import {
   setDynamicTypes,
   setError,
   setInlineTools,
+  setLoadingStatus,
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
@@ -263,6 +264,13 @@ export default handleActions(
         ...state[payload.key],
         documentsByTypes: payload.documentsByTypes,
         isLoading: false
+      }
+    }),
+    [setLoadingStatus]: (state, { payload }) => ({
+      ...state,
+      [payload.key]: {
+        ...state[payload.key],
+        [payload.loadindField || 'isLoading']: payload.status
       }
     })
   },

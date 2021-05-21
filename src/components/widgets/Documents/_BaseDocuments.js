@@ -374,6 +374,7 @@ class BaseDocuments extends BaseWidget {
 
   handleSaveSettings = ({ types, isLoadChecklist = false }) => {
     const { availableTypes, onSave, id, config, onSaveSettings } = this.props;
+    const { selectedType } = this.state;
     const selectedTypes = types.map(item => {
       const type = availableTypes.find(type => type.id === item.id);
 
@@ -390,7 +391,7 @@ class BaseDocuments extends BaseWidget {
     };
 
     onSave(id, { config: newConfig });
-    onSaveSettings(selectedTypes, newConfig);
+    onSaveSettings(selectedTypes, newConfig, selectedType);
     this.setState({ isSentSettingsToSave: true });
   };
 
