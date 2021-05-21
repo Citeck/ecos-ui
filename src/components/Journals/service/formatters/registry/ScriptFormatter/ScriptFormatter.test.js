@@ -18,6 +18,7 @@ describe('ScriptFormatter', () => {
           script: 'return true;'
         }
       });
+
       expect(result).toBe('Yes');
     });
     it('should return No if the script result is boolean (false)', () => {
@@ -26,6 +27,7 @@ describe('ScriptFormatter', () => {
           script: 'return false;'
         }
       });
+
       expect(result).toBe('No');
     });
     it('should return number if the script result is number', () => {
@@ -34,6 +36,7 @@ describe('ScriptFormatter', () => {
           script: 'return 1 + 2;'
         }
       });
+
       expect(result).toBe(3);
     });
     it('should return string if the script result is string', () => {
@@ -42,6 +45,7 @@ describe('ScriptFormatter', () => {
           script: 'return "Test";'
         }
       });
+
       expect(result).toBe('Test');
     });
     it('should invoke other formatter, if the script result is plain object', () => {
@@ -74,7 +78,7 @@ describe('ScriptFormatter', () => {
       expect(newFormatter.type).toBe('html');
       expect(newFormatter.config.html).toBe('<div>Test</div>');
     });
-    it('should return null in other cases', () => {
+    it('should return undefined in other cases', () => {
       const returnVariants = [null, undefined];
       returnVariants.forEach(item => {
         const result = scriptFormatterInstance.format({
@@ -82,14 +86,17 @@ describe('ScriptFormatter', () => {
             script: `return ${item}`
           }
         });
-        expect(result).toBe(null);
+
+        expect(result).toBeUndefined();
       });
+
       const result = scriptFormatterInstance.format({
         config: {
           script: `/* no return operator */`
         }
       });
-      expect(result).toBe(null);
+
+      expect(result).toBeUndefined();
     });
     it('should throw Error if config.script is not specified', () => {
       const format = () => {

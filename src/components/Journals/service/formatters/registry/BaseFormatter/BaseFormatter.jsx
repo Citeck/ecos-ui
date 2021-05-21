@@ -1,3 +1,5 @@
+import './BaseFormatter.scss';
+
 export default class BaseFormatter {
   static TYPE = '';
 

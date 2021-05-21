@@ -27,9 +27,11 @@ class ActionFormatter extends DefaultGqlFormatter {
     const actionName = extractLabel(info.name);
 
     return (
-      <div className="ecos-formatter-action__text" onClick={this.onClick} title={actionName}>
-        {cell}
-      </div>
+      <this.PopperWrapper text={cell}>
+        <div className="ecos-formatter-action__text" onClick={this.onClick} title={actionName}>
+          {cell}
+        </div>
+      </this.PopperWrapper>
     );
   }
 }
