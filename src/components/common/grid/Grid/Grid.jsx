@@ -451,7 +451,7 @@ class Grid extends Component {
     const style = {
       height: tr.offsetHeight,
       top: tr.offsetTop,
-      left: scrollLeft
+      right: -scrollLeft
     };
 
     if (elContainer && !isInViewport(elGrid)) {
