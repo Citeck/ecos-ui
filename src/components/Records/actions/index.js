@@ -37,6 +37,7 @@ import ServerGroupAction from './handler/executor/ServerGroupAction';
 import MutateAction from './handler/executor/MutateAction';
 import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAction';
 import DebugFormAction from './handler/executor/DebugFormAction';
+import EditJsonAction from './handler/executor/EditJsonAction';
 
 export { default } from './recordActions';
 
@@ -77,6 +78,7 @@ actionsRegistry.register(new MutateAction());
 actionsRegistry.register(new EditTypePermissionsAction());
 actionsRegistry.register(new EditPasswordAction());
 actionsRegistry.register(new DebugFormAction());
+actionsRegistry.register(new EditJsonAction());
 
 // Executors - Case
 
