@@ -358,7 +358,15 @@ class RecordActions {
 
     const actionsForRecords = {
       forRecords: {
-        actions: ctxActions.filter(a => a.features.execForRecords === true),
+        actions: ctxActions.filter(a => {
+          const { records } = resolvedActions;
+
+          if (!a.features.execForRecords || isEmpty(records)) {
+            return false;
+          }
+
+          return records.some(mask => (mask & a[ACTION_CONTEXT_KEY].recordMask) !== 0);
+        }),
         records: actionsMaskByRecordRef
       },
       forQuery: {
@@ -399,6 +407,7 @@ class RecordActions {
 
       for (let actionIdx = 0; actionIdx < ctxActions.length; actionIdx++) {
         let possibleAction = possibleActionsForRecord[actionIdx];
+
         if ((possibleAction.mask & recordMask) === 0 || possibleAction.action.features.execForRecord !== true) {
           continue;
         }
@@ -590,6 +599,7 @@ class RecordActions {
     };
 
     const executor = RecordActions._getActionsExecutor(action);
+
     if (!executor) {
       return allNotAllowedResult;
     }

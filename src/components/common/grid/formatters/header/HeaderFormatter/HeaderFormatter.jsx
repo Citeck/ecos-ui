@@ -126,8 +126,23 @@ export default class HeaderFormatter extends Component {
     }
   };
 
+  renderInput() {
+    const { text } = this.state;
+
+    return (
+      <Input
+        autoFocus
+        type="text"
+        className="ecos-th__filter-tooltip-input"
+        onChange={this.onChange}
+        onKeyDown={this.onKeyDown}
+        value={text}
+      />
+    );
+  }
+
   renderFilter = () => {
-    const { text, open } = this.state;
+    const { open } = this.state;
     const filterIcon = document.getElementById(this.id);
 
     return (
@@ -143,14 +158,7 @@ export default class HeaderFormatter extends Component {
         arrowClassName="ecos-th__filter-tooltip-marker"
       >
         <ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>
-          <Input
-            autoFocus
-            type="text"
-            className="ecos-th__filter-tooltip-input"
-            onChange={this.onChange}
-            onKeyDown={this.onKeyDown}
-            value={text}
-          />
+          {this.renderInput()}
           <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />
         </ClickOutside>
       </Tooltip>
