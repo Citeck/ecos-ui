@@ -74,7 +74,6 @@ export default class DateEditorControl extends React.Component {
 
   onKeyDown = e => {
     if (e.key === 'Enter') {
-      e.stopPropagation();
       this.sendData();
     }
   };

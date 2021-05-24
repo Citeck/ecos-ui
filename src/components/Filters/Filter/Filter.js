@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import omit from 'lodash/omit';
 
 import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
@@ -18,6 +19,8 @@ import './Filter.scss';
 const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
 
 export default class Filter extends Component {
+  #controls = new Map();
+
   static propTypes = {
     filter: PropTypes.object,
     needUpdate: PropTypes.bool,
@@ -112,17 +115,26 @@ export default class Filter extends Component {
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow = !WITHOUT_VAL.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
     const editorType = get(column, 'newEditor.type');
+    const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      return EditorService.getEditorControl({
-        recordRef: metaRecord,
-        attribute: column.attribute,
-        editor: column.newEditor,
-        value,
-        scope: EditorScope.FILTER,
-        onUpdate: this.onChangeValue,
-        controlProps: { predicate }
-      });
+      if (this.#controls.has(key)) {
+        return this.#controls.get(key);
+      } else {
+        const control = EditorService.getEditorControl({
+          recordRef: metaRecord,
+          attribute: column.attribute,
+          editor: column.newEditor,
+          value,
+          scope: EditorScope.FILTER,
+          onUpdate: this.onChangeValue,
+          controlProps: { predicate: omit(predicate, 'val') }
+        });
+
+        this.#controls.set(key, control);
+
+        return control;
+      }
     }
 
     return null;
