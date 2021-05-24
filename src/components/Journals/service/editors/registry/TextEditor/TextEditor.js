@@ -25,7 +25,6 @@ export default class TextEditor extends BaseEditor {
 
       const onKeyDown = e => {
         if (e.key === 'Enter') {
-          e.stopPropagation();
           sendDate();
         }
       };
