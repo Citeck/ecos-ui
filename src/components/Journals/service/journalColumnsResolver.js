@@ -131,7 +131,7 @@ class JournalColumnsResolver {
 
   _initEditorRenderer = column => {
     return (editorProps, value, row) => {
-      const key = JSON.stringify({ column, editorProps, value, row });
+      const key = JSON.stringify({ column, editorProps, row });
       const control = EditorService.getEditorControl({
         value,
         recordRef: row.id,
