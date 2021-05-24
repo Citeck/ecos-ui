@@ -5,7 +5,7 @@ import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
-import { MENU_VERSION, LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
+import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
@@ -226,10 +226,10 @@ export class MenuApi extends CommonApi {
     );
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
-    setSectionTitles(updCreateItems, updLeftItems);
-    const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
+    const filterAuthorities = lodashGet(config, 'authorities') || [];
 
-    !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
+    !filterAuthorities.length && filterAuthorities.push(GROUP_EVERYONE);
+    setSectionTitles(updCreateItems, updLeftItems);
 
     const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
 
@@ -279,7 +279,7 @@ export class MenuApi extends CommonApi {
     const groupPriority = await this.getGroupPriority();
     const setAuthorities = (groupPriority || []).map(item => item.id);
     const mergeAuthorities = Array.from(new Set([...setAuthorities, ...serverAuthorities, ...localAuthorities]));
-    const filteredAuthorities = mergeAuthorities.filter(id => id !== LOWEST_PRIORITY && id.includes(AUTHORITY_TYPE_GROUP));
+    const filteredAuthorities = mergeAuthorities.filter(id => id !== GROUP_EVERYONE && id.includes(AUTHORITY_TYPE_GROUP));
 
     return fetchExtraGroupItemInfo(filteredAuthorities.map(id => ({ id })));
   };
@@ -288,7 +288,7 @@ export class MenuApi extends CommonApi {
     const recordId = id.includes(SourcesId.MENU) ? id : `${SourcesId.MENU}@${id}`;
     const rec = Records.get(recordId);
 
-    !authorities.length && authorities.push(LOWEST_PRIORITY);
+    !authorities.length && authorities.push(GROUP_EVERYONE);
 
     rec.att('subMenu?json', subMenu);
     rec.att('authorities[]?str', authorities);

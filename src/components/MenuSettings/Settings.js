@@ -194,10 +194,10 @@ class Settings extends React.Component {
   };
 
   renderButtons() {
-    const { editedId, authorities } = this.props;
+    const { editedId } = this.props;
 
     const isDisabled = () => {
-      return !editedId || !(authorities || []).length;
+      return !editedId;
     };
 
     return (
