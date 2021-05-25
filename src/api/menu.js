@@ -1,7 +1,7 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, isNodeRef, t } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
@@ -260,6 +260,15 @@ export class MenuApi extends CommonApi {
 
   getAuthoritiesInfoByRef = refs => {
     return Records.get(refs).load({ ref: '.str', name: 'cm:userName!cm:authorityName', label: '.disp' });
+  };
+
+  getAuthoritiesInfo = async values => {
+    const names = values.filter(val => !isNodeRef(val));
+    const refs = values.filter(val => isNodeRef(val));
+    const infoNames = await this.getAuthoritiesInfoByName(names);
+    const infoRefs = await this.getAuthoritiesInfoByRef(refs);
+
+    return [...infoNames, ...infoRefs];
   };
 
   getGroupPriority = () => {

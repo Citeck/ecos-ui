@@ -75,7 +75,8 @@ const InputView = () => {
         label={item.label || t(Labels.NO_LABEL_LINK)}
         asText={isSelectedValueAsText}
         {...props}
-        className={classNames('select-orgstruct__values-list-disp', { 'select-orgstruct__values-list-disp_no-label': !item.label })}
+        className="select-orgstruct__values-list-disp"
+        extraData={!item.label && (get(item, 'attributes.shortName') || get(item, 'attributes.name'))}
       />
     );
   };

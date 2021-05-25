@@ -86,7 +86,7 @@ export class OrgStructApi extends RecordService {
         this._loadedAuthorities[nodeRef] = result;
         return result;
       })
-      .catch(() => []);
+      .catch(() => (isNodeRef(nodeRef) ? { nodeRef } : { nodeRef, name: nodeRef }));
   };
 
   fetchAuthorityByName = async (authName = '') => {

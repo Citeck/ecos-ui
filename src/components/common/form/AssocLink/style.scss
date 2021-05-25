@@ -1,9 +1,17 @@
 @import '../../../../styles/constants';
 
+.assoc-container {
+  display: flex;
+}
+
 .assoc-value {
   white-space: nowrap;
-  display: block;
+  display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 5px;
+}
+
+.assoc-extra-data {
+  color: $color-gray-7;
 }

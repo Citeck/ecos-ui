@@ -56,7 +56,7 @@ class Settings extends React.Component {
   }
 
   get authorityRefs() {
-    return this.props.authorities.map(item => item.ref);
+    return this.props.authorities.map(item => item.ref || item.name);
   }
 
   get mainTabs() {
