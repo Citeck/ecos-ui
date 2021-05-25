@@ -27,11 +27,11 @@ export default class NumberFormatter extends DefaultGqlFormatter {
     }
 
     if (typeof value === 'number') {
-      return number.toLocaleString(undefined, { maximumFractionDigits });
+      return number.toLocaleString(get(params, 'locales'), { maximumFractionDigits });
     }
 
     if (typeof value === 'string') {
-      const separators = getNumberSeparators();
+      const separators = getNumberSeparators(get(params, 'locales'));
 
       return new BigNumber(new BigNumber(value).toFixed(maximumFractionDigits)).toFormat({
         decimalSeparator: separators.decimal,
