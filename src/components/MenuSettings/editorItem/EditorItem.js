@@ -11,6 +11,7 @@ import Divider from './Divider';
 import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
 import LinkCreateCase from './LinkCreateCase';
+import LinkStartWorkflow from './LinkStartWorkflow';
 
 import '../style.scss';
 
@@ -38,6 +39,9 @@ export default class EditorItem extends React.Component {
       case MS.ItemTypes.LINK_CREATE_CASE: {
         return <LinkCreateCase {...this.props} />;
       }
+      case MS.ItemTypes.START_WORKFLOW: {
+        return <LinkStartWorkflow {...this.props} />;
+      }
       case MS.ItemTypes.JOURNAL: {
         const { onSave, onClose, journalId } = this.props;
 
@@ -46,6 +50,7 @@ export default class EditorItem extends React.Component {
         );
       }
       default:
+        console.warn('unknown type menu item ', get(this, 'props.type'));
         return null;
     }
   }

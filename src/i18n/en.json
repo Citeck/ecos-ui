@@ -1290,6 +1290,7 @@
   "menu-settings.editor-item.field.allowed-for.placeholder": "everyone",
   "menu-settings.editor-item.field.create-variant.title": "Create method",
   "menu-settings.editor-item.field.data-type.title": "Data type",
+  "menu-settings.editor-item.field.process-def.title": "Process",
   "menu-settings.editor-item.title.add": "Create: {{type}}",
   "menu-settings.editor-item.title.edit": "Edit: {{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Cancel",
@@ -1320,6 +1321,7 @@
   "menu-item.type.header-divider": "Header Divider",
   "menu-item.type.create-in-section": "Create in section options",
   "menu-item.type.edit-record": "Editing a record",
+  "menu-item.type.start-workflow": "Start workflow",
 
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",

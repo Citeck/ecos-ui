@@ -7,7 +7,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { ConfigTypes, MenuSettings as ms, MenuTypes } from '../constants/menu';
+import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes } from '../constants/menu';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter2();
@@ -174,56 +174,21 @@ export default class MenuSettingsService {
   };
 
   static leftMenuCreateOptions = [
-    {
-      key: ms.ItemTypes.SECTION,
-      label: 'menu-item.type.section',
-      when: { maxLevel: 0 }
-    },
-    {
-      key: ms.ItemTypes.HEADER_DIVIDER,
-      label: 'menu-item.type.header-divider',
-      when: { maxLevel: 0, minLevel: 0 }
-    },
-    {
-      key: ms.ItemTypes.JOURNAL,
-      label: 'menu-item.type.journal',
-      when: { minLevel: 0 }
-    },
-    {
-      key: ms.ItemTypes.ARBITRARY,
-      label: 'menu-item.type.arbitrary',
-      when: { minLevel: 0 }
-    },
-    {
-      key: ms.ItemTypes.LINK_CREATE_CASE,
-      label: 'menu-item.type.link-create-case',
-      when: { minLevel: 0 }
-    }
+    { ...CreateOptions.SECTION, when: { maxLevel: 0 } },
+    { ...CreateOptions.HEADER_DIVIDER, when: { maxLevel: 0, minLevel: 0 } },
+    { ...CreateOptions.JOURNAL, when: { minLevel: 0 } },
+    { ...CreateOptions.ARBITRARY, when: { minLevel: 0 } },
+    { ...CreateOptions.LINK_CREATE_CASE, when: { minLevel: 0 } },
+    { ...CreateOptions.START_WORKFLOW, when: { minLevel: 0 } }
   ];
 
   static createMenuCreateOptions = [
-    {
-      key: ms.ItemTypes.SECTION,
-      label: 'menu-item.type.section',
-      when: { maxLevel: 0 }
-    },
-    {
-      key: ms.ItemTypes.CREATE_IN_SECTION,
-      label: 'menu-item.type.create-in-section'
-    },
-    // todo for next revision, see task comment https://citeck.atlassian.net/browse/ECOSUI-959
-    // {
-    //   key: ms.ItemTypes.EDIT_RECORD,
-    //   label: 'menu-item.type.edit-record'
-    // },
-    {
-      key: ms.ItemTypes.ARBITRARY,
-      label: 'menu-item.type.arbitrary'
-    },
-    {
-      key: ms.ItemTypes.LINK_CREATE_CASE,
-      label: 'menu-item.type.link-create-case'
-    }
+    { ...CreateOptions.SECTION, when: { maxLevel: 0 } },
+    CreateOptions.CREATE_IN_SECTION,
+    CreateOptions.ARBITRARY,
+    CreateOptions.LINK_CREATE_CASE,
+    CreateOptions.START_WORKFLOW
+    // CreateOptions.EDIT_RECORD,// todo for next revision, see task comment https://citeck.atlassian.net/browse/ECOSUI-959?focusedCommentId=97045
   ];
 
   static getCreateOptionsByType(configType) {

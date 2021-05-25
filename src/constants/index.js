@@ -166,7 +166,8 @@ export const SystemJournals = {
   JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
-  FORMS: 'ecos-forms'
+  FORMS: 'ecos-forms',
+  PROCESS: 'bpmn-process-def'
 };
 
 window.Citeck = window.Citeck || {};
