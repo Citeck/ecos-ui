@@ -14,7 +14,7 @@ import { Tree } from '../../common';
 import { Btn } from '../../common/btns';
 import { Badge, DropdownOuter } from '../../common/form';
 import DialogManager from '../../common/dialogs/Manager';
-import { Labels } from './../utils';
+import { Labels } from '../utils';
 import EditorItem from '../editorItem/EditorItem';
 
 import '../style.scss';

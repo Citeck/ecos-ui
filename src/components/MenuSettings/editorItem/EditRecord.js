@@ -7,8 +7,8 @@ import { t } from '../../../helpers/util';
 import { SystemJournals } from '../../../constants';
 import { MenuSettings } from '../../../constants/menu';
 import { Input, SelectJournal, Textarea } from '../../common/form';
-import { Labels } from './../utils';
-import { Field } from './../Field';
+import { Labels } from '../utils';
+import { Field } from '../Field';
 import Records from '../../Records';
 import Base from './Base';
 
