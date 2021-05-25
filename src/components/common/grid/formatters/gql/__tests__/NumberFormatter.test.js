@@ -1,4 +1,5 @@
 import React from 'react';
+import set from 'lodash/set';
 import { configure, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { unmountComponentAtNode } from 'react-dom';
@@ -57,6 +58,7 @@ describe('NumberFormatter React Component', () => {
 
   data.forEach(item => {
     it(item.title, () => {
+      set(item, 'input.params.locales', 'en-EN');
       const component = mount(<NumberFormatter {...item.input} />);
 
       expect(component.text()).toBe(item.output);
