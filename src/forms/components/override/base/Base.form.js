@@ -1,8 +1,51 @@
+import set from 'lodash/set';
+import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 import baseEditForm from 'formiojs/components/base/Base.form';
+import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 
 import BaseEditData from './editForm/Base.edit.data';
 import BaseEditDisplay from './editForm/Base.edit.display';
 import BaseEditLogic from './editForm/Base.edit.logic';
+
+const config = {
+  display: {
+    label: { weight: 0 },
+    hideLabel: { weight: 200 },
+    tooltip: { weight: 400 },
+    multiple: { weight: 500 },
+    disabled: { weight: 600 },
+    hidden: { weight: 700 }
+  },
+  api: {
+    key: { weight: 100 }
+  }
+};
+
+[
+  { key: 'display', value: BaseEditDisplay },
+  { key: 'data', value: BaseEditData },
+  { key: 'logic', value: BaseEditLogic },
+  { key: 'api', value: BaseEditApi }
+].forEach(tab => {
+  tab.value.forEach(item => {
+    const tabConfig = config[tab.key];
+
+    if (!tabConfig) {
+      return;
+    }
+
+    const fields = Object.keys(tabConfig);
+
+    if (fields.includes(item.key)) {
+      const component = get(tabConfig, item.key, {});
+
+      set(tabConfig, 'components', tabConfig.components || []);
+      tabConfig.components.push({ ...cloneDeep(item), ...component });
+      item.ignore = true;
+    }
+  });
+});
 
 export const baseEditFormConfig = [
   {
@@ -10,73 +53,24 @@ export const baseEditFormConfig = [
     label: 'Basic',
     weight: 0,
     components: [
-      {
-        weight: 0,
-        type: 'textfield',
-        input: true,
-        key: 'label',
-        label: 'Label',
-        placeholder: 'Field Label',
-        tooltip: 'The label for this field that will appear next to it.',
-        validate: {
-          required: true
-        }
-      },
-      {
-        weight: 100,
-        type: 'textfield',
-        input: true,
-        key: 'key',
-        label: 'Property Name',
-        tooltip: 'The name of this field in the API endpoint.',
-        validate: {
-          pattern: '(\\w|\\w[\\w-.]*\\w)',
-          patternMessage:
-            'The property name must only contain alphanumeric characters, underscores, dots and dashes and should not be ended by dash or dot.'
-        }
-      },
-      {
-        weight: 200,
-        type: 'checkbox',
-        label: 'Hide Label',
-        tooltip: 'Hide the label of this component. This allows you to show the label in the form builder, but not when it is rendered.',
-        key: 'hideLabel',
-        input: true
-      },
+      ...get(config, 'display.components', []),
+      ...get(config, 'api.components', []),
+      // {
+      //   weight: 100,
+      //   type: 'textfield',
+      //   input: true,
+      //   key: 'key',
+      //   label: 'Property Name',
+      //   tooltip: 'The name of this field in the API endpoint.',
+      //   validate: {
+      //     pattern: '(\\w|\\w[\\w-.]*\\w)',
+      //     patternMessage:
+      //       'The property name must only contain alphanumeric characters, underscores, dots and dashes and should not be ended by dash or dot.'
+      //   }
+      // },
+
       // TODO: Display selected value as a text - есть только у SelectOrgstruct, SelectJournal
-      {
-        weight: 400,
-        type: 'textarea',
-        input: true,
-        key: 'tooltip',
-        label: 'Tooltip',
-        placeholder: 'To add a tooltip to this field, enter text here.',
-        tooltip: 'Adds a tooltip to the side of this field.'
-      },
-      {
-        weight: 500,
-        type: 'checkbox',
-        label: 'Multiple Values',
-        tooltip: 'Allows multiple values to be entered for this field.',
-        key: 'multiple',
-        input: true
-      },
-      {
-        weight: 600,
-        type: 'checkbox',
-        label: 'Disabled',
-        tooltip: 'Disable the form input.',
-        key: 'disabled',
-        input: true
-      },
-      {
-        weight: 700,
-        type: 'checkbox',
-        label: 'Hidden',
-        tooltip: 'A hidden field is still a part of the form, but is hidden from view.',
-        key: 'hidden',
-        input: true
-      },
+
       {
         weight: 800,
         type: 'checkbox',
@@ -144,6 +138,10 @@ export const baseEditFormConfig = [
   {
     key: 'logic',
     components: BaseEditLogic
+  },
+  {
+    key: 'api',
+    components: BaseEditApi
   }
 ];
 
