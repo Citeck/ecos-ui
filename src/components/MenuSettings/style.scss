@@ -55,6 +55,13 @@
   }
 
   &__tab-content {
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+    justify-content: flex-start;
+    height: 100%;
+    align-items: stretch;
+
     &:not(&_two-cols) {
       & > :nth-child(n) {
         margin-bottom: 15px;
@@ -66,6 +73,17 @@
       display: grid;
       grid-template-columns: repeat(2, calc(50% - #{$gap} / 2));
       grid-gap: $gap;
+    }
+
+    &-item {
+      display: flex;
+      flex-direction: column;
+      align-content: stretch;
+      justify-content: flex-start;
+
+      &_greedy {
+        flex-grow: 1;
+      }
     }
   }
 
@@ -152,6 +170,10 @@
   &-editor-items {
     $editor: &;
 
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+
     &__header {
       display: flex;
       align-items: center;
@@ -184,8 +206,8 @@
       &-field {
         @extend %block--2;
         @extend %scroll-tree;
-        min-height: 325px;
-        max-height: 325px;
+
+        flex-grow: 1;
         overflow-x: hidden;
       }
     }

@@ -131,7 +131,7 @@ class Settings extends React.Component {
             <span className="ecos-menu-settings__card-value">{editedId}</span>
           </div>
         </div>
-        <div>
+        <div className="ecos-menu-settings__tab-content-item ecos-menu-settings__tab-content-item_greedy">
           <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
           <EditorItems />
         </div>
