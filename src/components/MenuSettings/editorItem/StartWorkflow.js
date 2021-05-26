@@ -10,7 +10,7 @@ import { Labels } from '../utils';
 import { Field } from '../Field';
 import Base from './Base';
 
-export default class LinkStartWorkflow extends Base {
+export default class StartWorkflow extends Base {
   type = MenuSettings.ItemTypes.START_WORKFLOW;
   state = {
     ...super.state,
@@ -36,14 +36,17 @@ export default class LinkStartWorkflow extends Base {
     super.handleApply();
 
     const { onSave } = this.props;
-    const { processDef } = this.state;
+    const { processDef, label } = this.state;
 
     set(this.data, 'config.processDef', processDef);
+    set(this.data, 'label', label);
 
     onSave(this.data);
   }
 
-  setProcess = processDef => this.setState({ processDef });
+  setProcess = (processDef, data) => {
+    this.setState({ processDef, label: get(data, '[0].disp') });
+  };
 
   renderErrorMessage() {
     const { error } = this.state;

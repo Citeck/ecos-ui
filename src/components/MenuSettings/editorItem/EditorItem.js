@@ -11,7 +11,7 @@ import Divider from './Divider';
 import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
 import LinkCreateCase from './LinkCreateCase';
-import LinkStartWorkflow from './LinkStartWorkflow';
+import StartWorkflow from './StartWorkflow';
 
 import '../style.scss';
 
@@ -40,7 +40,7 @@ export default class EditorItem extends React.Component {
         return <LinkCreateCase {...this.props} />;
       }
       case MS.ItemTypes.START_WORKFLOW: {
-        return <LinkStartWorkflow {...this.props} />;
+        return <StartWorkflow {...this.props} />;
       }
       case MS.ItemTypes.JOURNAL: {
         const { onSave, onClose, journalId } = this.props;

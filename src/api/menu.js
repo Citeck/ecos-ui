@@ -313,16 +313,16 @@ export class MenuApi extends CommonApi {
 }
 
 async function fetchExtraItemInfo(data, attributes) {
-  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD } = ms.ItemTypes;
+  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW } = ms.ItemTypes;
 
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
       let attrs = typeof attributes === 'function' ? attributes(item) : attributes;
-      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId');
+      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId') || lodashGet(item, 'config.processDef');
 
-      if (attrs && ref && [JOURNAL, EDIT_RECORD].includes(item.type)) {
+      if (attrs && ref && [JOURNAL, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
         ref = ref.replace('/journal@', '/rjournal@');
         ref = ref.replace('/journal_all@', '/rjournal@');
         target._remoteData_ = await Records.get(ref).load(attrs);
@@ -338,7 +338,6 @@ async function fetchExtraItemInfo(data, attributes) {
           if (attrs === undefined) {
             attrs = {};
           }
-
           lodashSet(attrs, 'label', `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}}`);
         }
 
