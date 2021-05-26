@@ -28,19 +28,17 @@ import MenuConverter from '../dto/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
-    const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
-    //todo: temp solution to get create variants from menu config
+    const createMenuView = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
+    const workflowVars = yield call(api.menu.getCreateWorkflowVariants); //todo: temp solution to get create variants from menu config
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
-    const _sites = MenuConverter.getMainMenuCreateItems(menuConfigItems);
     const customVars = yield call(api.menu.getCustomCreateVariants);
+
+    const _config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
     const _customs = MenuConverter.getCreateCustomItems(customVars);
-    const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
+    const { config, customs } = MenuConverter.mergeCustomsAndConfig(_customs, _config);
 
-    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, sites)));
-
-    const isCascadeMenu = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
-
-    yield put(setCreateCaseWidgetIsCascade(isCascadeMenu === 'cascad'));
+    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, config)));
+    yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);
   }

@@ -86,7 +86,7 @@ function sagaPerformAction({ api, logger }, { payload }) {
 
     switch (payload.type) {
       case MenuSettings.ItemTypes.LINK_CREATE_CASE:
-        createVariant = get(payload, 'params.createVariant');
+        createVariant = get(payload, 'config.variant');
         break;
       case MenuSettings.ItemTypes.START_WORKFLOW:
         const processDef = get(payload, 'config.processDef', '');

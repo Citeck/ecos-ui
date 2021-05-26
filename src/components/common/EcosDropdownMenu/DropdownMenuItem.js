@@ -19,7 +19,7 @@ const mapStateToProps = state => ({
 class DropdownMenuItem extends React.Component {
   static propTypes = {
     key: PropTypes.string,
-    data: PropTypes.PropTypes.shape({
+    data: PropTypes.shape({
       id: PropTypes.string,
       img: PropTypes.string,
       targetUrl: PropTypes.string,

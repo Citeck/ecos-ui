@@ -1,11 +1,11 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
-import { MENU_VERSION, LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
+import { LOWEST_PRIORITY, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
@@ -77,17 +77,6 @@ export class MenuApi extends CommonApi {
         id: 'HEADER_CREATE_WORKFLOW',
         label: 'header.create-workflow.label',
         items: [
-          {
-            id: 'HEADER_CREATE_WORKFLOW_ADHOC',
-            label: 'header.create-workflow-adhoc.label',
-            control: {
-              type: 'ECOS_CREATE_VARIANT',
-              payload: {
-                formTitle: t('header.create-workflow-adhoc.description'),
-                recordRef: 'workflow@def_activiti$perform'
-              }
-            }
-          },
           // TODO: Migration to form required
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
