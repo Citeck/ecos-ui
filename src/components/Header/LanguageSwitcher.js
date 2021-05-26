@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { DropdownMenu as Menu } from '../common';
+import { EcosDropdownMenu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
 import { COOKIE_KEY_LOCALE, COOKIE_KEY_LOCALE_MAX_AGE } from '../../constants/alfresco';
@@ -68,7 +68,7 @@ export default class LanguageSwitcher extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className="ecos-header-lang__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-          <Menu items={selectableLanguages} onClick={this.switchLanguage} />
+          <EcosDropdownMenu items={selectableLanguages} onClick={this.switchLanguage} />
         </DropdownMenu>
       </Dropdown>
     );

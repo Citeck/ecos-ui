@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import Loader from '../Loader/Loader';
 import DropdownMenuCascade from './DropdownMenuCascade';
@@ -61,13 +62,7 @@ export default class DropdownMenu extends React.Component {
     }
 
     if (mode === MenuModes.CASCADE && setCascade.collapseOneItem) {
-      menu = menu.map(item => {
-        if (item.items && item.items.length === 1) {
-          return item.items[0];
-        }
-
-        return item;
-      });
+      menu = menu.map(item => (get(item, 'items.length') === 1 ? item.items[0] : item));
     }
 
     switch (mode) {

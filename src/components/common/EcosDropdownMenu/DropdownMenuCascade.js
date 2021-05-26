@@ -26,11 +26,7 @@ export default class DropdownMenuCascade extends React.Component {
   };
 
   renderMenuItems = items => {
-    return isEmpty(items)
-      ? []
-      : items.map((item, key) => {
-          return <DropdownMenuItem key={key} data={item} />;
-        });
+    return isEmpty(items) ? [] : items.map((item, key) => <DropdownMenuItem key={key} data={item} />);
   };
 
   render() {

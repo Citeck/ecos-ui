@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { DropdownMenu as Menu } from '../common';
+import { EcosDropdownMenu } from '../common';
 import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
@@ -58,11 +58,11 @@ class CreateMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu
-          className={classNames('ecos-header-create__menu', 'ecos-dropdown__menu', 'ecos-dropdown__menu_links', {
+          className={classNames('ecos-header-create__menu ecos-dropdown__menu ecos-dropdown__menu_links', {
             'ecos-dropdown__menu_cascade': isCascade
           })}
         >
-          <Menu
+          <EcosDropdownMenu
             items={items}
             mode={mode}
             setCascade={{ collapseOneItem: true }}
