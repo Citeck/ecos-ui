@@ -72,10 +72,10 @@ class Item extends React.Component {
   }
 
   get isHandler() {
-    return (
-      [ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
-      [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
-    );
+    const Types = MenuSettings.ItemTypes;
+    const type = get(this.props, 'data.action.type', '') || get(this.props, 'data.type', '');
+
+    return [ActionTypes.CREATE_SITE, Types.LINK_CREATE_CASE, Types.START_WORKFLOW].includes(type);
   }
 
   onToggleList = e => {

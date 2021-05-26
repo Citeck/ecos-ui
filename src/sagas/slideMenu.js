@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import {
   fetchSlideMenuItems,
   getSiteDashboardEnable,
+  performAction,
   setExpandableItems,
   setIsReady,
   setSelectedId,
@@ -14,6 +15,10 @@ import {
 } from '../actions/slideMenu';
 import SidebarService from '../services/sidebar';
 import SidebarConverter from '../dto/sidebar';
+import { goToCardDetailsPage } from '../helpers/urls';
+import { SourcesId } from '../constants';
+import { MenuSettings } from '../constants/menu';
+import FormManager from '../components/EcosForm/FormManager';
 
 function* fetchSlideMenu({ api, logger }, action) {
   try {
@@ -75,10 +80,49 @@ function* sagaSetSelectedId({ api, logger }) {
   }
 }
 
+function sagaPerformAction({ api, logger }, { payload }) {
+  try {
+    let createVariant = {};
+
+    switch (payload.type) {
+      case MenuSettings.ItemTypes.LINK_CREATE_CASE:
+        createVariant = get(payload, 'params.createVariant');
+        break;
+      case MenuSettings.ItemTypes.START_WORKFLOW:
+        const processDef = get(payload, 'config.processDef', '');
+        const processDefWithoutPrefix = processDef.replace(`${SourcesId.BPMN_DEF}@`, '');
+        const recordRef = `${SourcesId.A_WORKFLOW}@def_${processDefWithoutPrefix}`;
+
+        createVariant.recordRef = recordRef;
+        break;
+      default:
+        break;
+    }
+
+    FormManager.createRecordByVariant(createVariant, {
+      title: createVariant.formTitle,
+      onSubmit: record => {
+        switch (createVariant.afterSubmit) {
+          case 'reload':
+            window.location.reload();
+            break;
+          case 'none':
+            break;
+          default:
+            goToCardDetailsPage(record.id);
+        }
+      }
+    });
+  } catch (e) {
+    logger.error('[sagaSetSelectedId saga] error', e.message);
+  }
+}
+
 function* headerSaga(ea) {
   yield takeLatest(fetchSlideMenuItems().type, fetchSlideMenu, ea);
   yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
   yield takeLatest(toggleIsOpen().type, sagaToggleMenu, ea);
+  yield takeLatest(performAction().type, sagaPerformAction, ea);
   yield takeLatest([setIsReady().type, LOCATION_CHANGE], sagaSetSelectedId, ea);
 }
 
