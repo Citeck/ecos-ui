@@ -76,6 +76,9 @@ export default class MenuConverter {
               return { ...option, ...MenuConverter.getLinkMove(item) };
             case ITs.SECTION:
               option.disabled = !option.items.length;
+              break;
+            default:
+              break;
           }
 
           option.items = recursion(item.items);
