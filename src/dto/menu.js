@@ -94,6 +94,12 @@ export default class MenuConverter {
     }));
   }
 
+  /**
+   * @deprecated
+   * @description for supporting old menu where user can create lick create case with a few options
+   * @param option from menu config
+   * @returns Object
+   */
   static prepareLinkCreateCase(option) {
     const createVariants = get(option, '_remoteData_.createVariants') || [];
 

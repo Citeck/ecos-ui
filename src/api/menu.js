@@ -71,6 +71,11 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
+  /**
+   * @deprecated
+   * @description Don't expand it. Register process & form in according journals to start workflow
+   * @returns Array
+   */
   getCreateWorkflowVariants = () => {
     return Promise.resolve([
       {

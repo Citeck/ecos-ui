@@ -78,6 +78,10 @@ class DropdownMenuItem extends React.Component {
   }
 
   handlerClick = event => {
+    if (this.url) {
+      return;
+    }
+
     const {
       data,
       data: { control, isLegacy, id },
