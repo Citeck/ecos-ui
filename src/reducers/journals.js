@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import {
   initState,
@@ -456,7 +457,10 @@ export default handleActions(
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, { initConfig: action.payload, config: action.payload });
+      const initConfig = get(state, [stateId, 'initConfig']);
+      const loading = !isEqual(initConfig, action.payload);
+
+      return handleState(state, stateId, { initConfig: action.payload, config: action.payload, loading });
     },
     [setJournalConfig]: (state, action) => {
       const stateId = action.payload.stateId;
