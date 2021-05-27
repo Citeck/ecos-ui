@@ -80,7 +80,7 @@ function* sagaSetSelectedId({ api, logger }) {
   }
 }
 
-function sagaPerformAction({ api, logger }, { payload }) {
+function* sagaPerformAction({ api, logger }, { payload }) {
   try {
     let createVariant = {};
 
@@ -93,6 +93,7 @@ function sagaPerformAction({ api, logger }, { payload }) {
         const processDefWithoutPrefix = processDef.replace(`${SourcesId.BPMN_DEF}@`, '');
         const recordRef = `${SourcesId.A_WORKFLOW}@def_${processDefWithoutPrefix}`;
 
+        createVariant.formTitle = yield call(api.page.getRecordTitle, recordRef);
         createVariant.recordRef = recordRef;
         break;
       default:
