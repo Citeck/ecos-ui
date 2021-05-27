@@ -66,31 +66,18 @@ export default class MenuConverter {
     return (function recursion(items) {
       return (items || [])
         .map(item => {
-          const option = {
-            ...item,
-            label: getTextByLocale(item.label)
-          };
+          const option = { ...item, label: getTextByLocale(item.label) };
 
-          if (item.type === ITs.LINK_CREATE_CASE) {
-            const createVariants = get(item, '_remoteData_.createVariants') || [];
-
-            if (createVariants.length) {
-              return {
-                ...option,
-                type: ITs.SECTION,
-                items: recursion(MenuConverter.prepareCreateVariants(createVariants))
-              };
-            }
-
-            return option;
-          }
-
-          if (item.type === ITs.ARBITRARY) {
-            return { ...option, ...MenuConverter.getLinkMove(item) };
+          switch (item.type) {
+            case ITs.LINK_CREATE_CASE:
+              return MenuConverter.prepareLinkCreateCase(option);
+            case ITs.ARBITRARY:
+              return { ...option, ...MenuConverter.getLinkMove(item) };
+            case ITs.SECTION:
+              option.disabled = !option.items.length;
           }
 
           option.items = recursion(item.items);
-          option.disabled = item.type === ITs.SECTION && !option.items.length;
 
           return option;
         })
@@ -104,6 +91,20 @@ export default class MenuConverter {
       label: getTextByLocale(variant.name),
       config: { variant }
     }));
+  }
+
+  static prepareLinkCreateCase(option) {
+    const createVariants = get(option, '_remoteData_.createVariants') || [];
+
+    if (createVariants.length) {
+      return {
+        ...option,
+        type: MenuSettings.ItemTypes.SECTION,
+        items: MenuConverter.prepareCreateVariants(createVariants)
+      };
+    }
+
+    return option;
   }
 
   static getLinkMove(data) {
