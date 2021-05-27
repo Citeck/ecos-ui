@@ -78,8 +78,7 @@ export const CreateOptions = {
   },
   LINK_CREATE_CASE: {
     key: MenuSettings.ItemTypes.LINK_CREATE_CASE,
-    label: 'menu-item.type.link-create-case',
-    when: { minLevel: 0 }
+    label: 'menu-item.type.link-create-case'
   },
   CREATE_IN_SECTION: {
     key: MenuSettings.ItemTypes.CREATE_IN_SECTION,

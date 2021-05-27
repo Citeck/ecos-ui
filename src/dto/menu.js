@@ -72,6 +72,7 @@ export default class MenuConverter {
             case ITs.LINK_CREATE_CASE:
               return MenuConverter.prepareLinkCreateCase(option);
             case ITs.ARBITRARY:
+              option.disabled = !get(item, 'config.url');
               return { ...option, ...MenuConverter.getLinkMove(item) };
             case ITs.SECTION:
               option.disabled = !option.items.length;
