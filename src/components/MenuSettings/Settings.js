@@ -137,7 +137,8 @@ class Settings extends React.Component {
       >
         <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
           {this.renderMenuInfo()}
-          <div>
+
+          <div className="ecos-menu-settings__tab-content-item ecos-menu-settings__tab-content-item_greedy">
             <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
             <EditorLeftMenu />
           </div>

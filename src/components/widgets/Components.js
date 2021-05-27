@@ -2,8 +2,10 @@ import { lazy } from 'react';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import uuidV4 from 'uuid/v4';
-import { deepClone, t } from '../../helpers/util';
+
+import { t } from '../../helpers/util';
 import { DashboardTypes } from '../../constants/dashboard';
 
 export const ComponentKeys = {
@@ -110,7 +112,7 @@ export default class Components {
     [ComponentKeys.EVENTS_HISTORY]: {
       load: () => lazy(() => import('./EventsHistory')),
       label: 'dashboard-settings.widget.events-history',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE],
       props: {}
     },
     [ComponentKeys.VERSIONS_JOURNAL]: {
@@ -213,11 +215,11 @@ export default class Components {
 
     components.clear();
 
-    return deepClone(arrComponents);
+    return cloneDeep(arrComponents);
   }
 
   static getDefaultWidget = widget => {
-    const defWidget = deepClone(widget);
+    const defWidget = cloneDeep(widget);
     const props = widget.props || {};
     const config = props.config || {};
 
