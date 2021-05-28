@@ -26,6 +26,17 @@ describe('TextField Builder', () => {
     }
   });
 
+  it('The first tab in the builder must be "Basic"', done => {
+    builder = Harness.buildComponent(TextFieldComponent.type);
+    builder.editForm.formReady.then(() => {
+      const firstTab = builder.dialog.querySelector('.nav-item');
+
+      expect(firstTab).not.toBeUndefined();
+      expect(firstTab.textContent).toBe('Basic');
+      done();
+    });
+  });
+
   it('Should create a new textfield component', done => {
     builder = Harness.buildComponent('textfield');
     builder.editForm.formReady.then(() => {

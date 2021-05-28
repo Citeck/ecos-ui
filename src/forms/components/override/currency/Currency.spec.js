@@ -1,7 +1,10 @@
 import Harness from '../../../test/harness';
 import CurrencyComponent from './Currency';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
+
+basicSectionTest(CurrencyComponent);
 
 describe('Currency Component', () => {
   it('Should build a currency component', done => {

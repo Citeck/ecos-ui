@@ -64,7 +64,7 @@ export const runTransform = (config, tabs) => {
     },
     conditional: {
       'simple-conditional': { weight: 900 },
-      customConditionalPanel: { onlyExpand: true, collapsed: false }
+      customConditionalPanel: { onlyExpand: true, collapsed: false, test: true }
     }
   };
   const tabsByKey = tabs || [
@@ -92,7 +92,7 @@ export const prepareComponents = components => {
 
       component.editForm = function(...extend) {
         let originTabs = get(originEditForm(), 'components.0.components', []);
-        const { config, tabsByKey } = runTransform(null, originTabs);
+        const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
         const editFormSectionBasic = {
           key: 'basic',
           label: 'Basic',
@@ -108,6 +108,13 @@ export const prepareComponents = components => {
           key: item.key,
           ignore: true
         }));
+
+        console.warn({
+          config,
+          tabsByKey,
+          originTabs,
+          df: cloneDeep(originTabs)
+        });
 
         originTabs = originTabs.map(item => ({
           ...omit(item, ['components']),
@@ -126,6 +133,8 @@ export const prepareComponents = components => {
         ]);
       };
     });
+
+  // console.warn({ components });
 
   return components;
 };
@@ -148,8 +157,19 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
 
       const fields = Object.keys(omit(tabConfig, ['components']));
 
+      if (item.key === 'customConditionalPanel') {
+        const component = get(tabConfig, item.key, {});
+
+        console.warn({ component });
+
+        Object.keys(component).forEach(key => {
+          item[key] = component[key];
+        });
+      }
+
       if (fields.includes(item.key)) {
         const component = get(tabConfig, item.key, {});
+
         if (!component.onlyExpand) {
           set(tabConfig, 'components', tabConfig.components || []);
           tabConfig.components.push({ ...item, ...component });
@@ -158,12 +178,20 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
           return;
         }
 
+        // console.warn({ item, component });
+
         Object.keys(omit(component, ['onlyExpand'])).forEach(key => {
           item[key] = component[key];
         });
+
+        return;
       }
+
+      // console.warn({ item, tabConfig });
     });
   });
+
+  console.warn({ tabsByKey });
 
   return tabsByKey;
 };

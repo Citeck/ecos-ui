@@ -2,8 +2,11 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import SelectComponent from './Select';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2 } from './fixtures';
+
+basicSectionTest(SelectComponent);
 
 describe('Select Component', () => {
   it('Should build a Select component', done => {

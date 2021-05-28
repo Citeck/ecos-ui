@@ -1,7 +1,10 @@
 import Harness from '../../../test/harness';
 import HTMLComponent from './HTML';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
+
+basicSectionTest(HTMLComponent);
 
 describe('HTML Component', () => {
   it('Should build an html component', done => {
