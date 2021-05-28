@@ -37,26 +37,9 @@ import TableForm from './custom/tableForm';
 import TaskOutcome from './custom/taskOutcome/index';
 import ImportButton from './custom/importButton';
 
-import { baseEditFormConfig } from './override/base/Base.form';
+import { prepareComponents } from '../utils';
 
-const originSetComponents = Components.setComponents;
-
-Object.defineProperty(Components, 'setComponents', {
-  value: function(comps) {
-    Object.keys(comps).forEach(key => {
-      const component = comps[key];
-      const originEditForm = component.editForm;
-
-      component.editForm = function(...extend) {
-        return originEditForm([...extend, ...baseEditFormConfig]);
-      };
-    });
-
-    return originSetComponents.call(this, comps);
-  }
-});
-
-Components.setComponents({
+const components = {
   ...DefaultComponents,
   asyncData: AsyncData,
   base: Base,
@@ -93,6 +76,8 @@ Components.setComponents({
   hidden: Hidden,
   importButton: ImportButton,
   datagrid: DataGrid
-});
+};
+
+Components.setComponents(prepareComponents(components));
 
 export { Components };

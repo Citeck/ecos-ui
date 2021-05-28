@@ -1,9 +1,12 @@
 import Harness from '../../../test/harness';
 import ButtonComponent from './Button';
 import Formio from '../../../Formio';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
 import comp2 from './fixtures/comp2';
+
+basicSectionTest(ButtonComponent);
 
 describe('Button Component', () => {
   it('Should build a button component', done => {

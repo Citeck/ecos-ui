@@ -3,8 +3,11 @@ import cloneDeep from 'lodash/cloneDeep';
 import Harness from '../../../test/harness';
 
 import CheckBoxComponent from './Checkbox';
+import { basicSectionTest } from '../../../test/builder/helpers';
 import comp1 from './fixtures/comp1';
 import comp2 from './fixtures/comp2';
+
+basicSectionTest(CheckBoxComponent);
 
 describe('Checkbox Component', () => {
   it('Should build a checkbox component', done => {

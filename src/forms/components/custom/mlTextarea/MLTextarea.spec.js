@@ -2,9 +2,12 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import MLTextareaComponent from './MLTextarea';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
 import comp2 from './fixtures/comp2';
+
+basicSectionTest(MLTextareaComponent);
 
 describe('MLTextarea Component', () => {
   it('Should build a MLTextarea component', done => {

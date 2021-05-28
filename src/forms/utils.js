@@ -1,9 +1,15 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
-import EditFormUtils from 'formiojs/components/base/editForm/utils';
+import cloneDeep from 'lodash/cloneDeep';
+
+import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';
+import BaseEditData from 'formiojs/components/base/editForm/Base.edit.data';
+import BaseEditLogic from 'formiojs/components/base/editForm/Base.edit.logic';
+import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
+import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
+import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
 
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || field === undefined) {
@@ -39,6 +45,87 @@ export const checkIsEmptyMlField = field => {
   return false;
 };
 
+export const runTransform = (config, tabs) => {
+  const advancedConfig = config || {
+    display: {
+      label: { weight: 0 },
+      hideLabel: { weight: 200 },
+      tooltip: { weight: 400 },
+      multiple: { weight: 500 },
+      disabled: { weight: 600 },
+      hidden: { weight: 700 },
+      isSelectedValueAsText: { weight: 300 }
+    },
+    api: {
+      key: { weight: 100 }
+    },
+    validation: {
+      'validate.required': { weight: 800 }
+    },
+    conditional: {
+      'simple-conditional': { weight: 900 },
+      customConditionalPanel: { onlyExpand: true, collapsed: false }
+    }
+  };
+  const tabsByKey = tabs || [
+    { key: 'display', components: cloneDeep(BaseEditDisplay) },
+    { key: 'data', components: cloneDeep(BaseEditData) },
+    { key: 'logic', components: cloneDeep(BaseEditLogic) },
+    { key: 'api', components: cloneDeep(BaseEditApi) },
+    { key: 'validation', components: cloneDeep(BaseEditValidation) },
+    { key: 'conditional', components: cloneDeep(BaseEditConditional) }
+  ];
+
+  processEditFormConfig(advancedConfig, tabsByKey);
+
+  return { config: advancedConfig, tabsByKey };
+};
+
+export const prepareComponents = components => {
+  Object.keys(components).forEach(key => {
+    const component = components[key];
+    const originEditForm = component.editForm;
+
+    component.editForm = function(...extend) {
+      let originTabs = get(originEditForm(), 'components.0.components', []);
+      const { config, tabsByKey } = runTransform(null, originTabs);
+      const editFormSectionBasic = {
+        key: 'basic',
+        label: 'Basic',
+        weight: 0,
+        components: [
+          ...get(config, 'display.components', []),
+          ...get(config, 'api.components', []),
+          ...get(config, 'validation.components', []),
+          ...get(config, 'conditional.components', [])
+        ]
+      };
+      const removed = tabsByKey.map(item => ({
+        key: item.key,
+        ignore: true
+      }));
+
+      originTabs = originTabs.map(item => ({
+        ...omit(item, ['components']),
+        key: `${item.key}-reworked`
+      }));
+
+      return originEditForm([
+        ...extend,
+        editFormSectionBasic,
+        ...removed,
+        ...originTabs,
+        ...tabsByKey.map(item => ({
+          ...item,
+          key: `${item.key}-reworked`
+        }))
+      ]);
+    };
+  });
+
+  return components;
+};
+
 /**
  * Processes the initial set of tabs, expanding / adding / removing some values
  * Values are stored by reference
@@ -48,22 +135,23 @@ export const checkIsEmptyMlField = field => {
  */
 export const processEditFormConfig = (advancedConfig, tabsByKey) => {
   tabsByKey.forEach(tab => {
-    tab.content.forEach(item => {
+    tab.components.forEach((item, index) => {
       const tabConfig = advancedConfig[tab.key];
 
       if (!tabConfig) {
         return;
       }
 
-      const fields = Object.keys(tabConfig);
+      const fields = Object.keys(omit(tabConfig, ['components']));
 
       if (fields.includes(item.key)) {
         const component = get(tabConfig, item.key, {});
+        console.warn({ tabConfig, component, item });
 
         if (!component.onlyExpand) {
           set(tabConfig, 'components', tabConfig.components || []);
-          tabConfig.components.push({ ...cloneDeep(item), ...component });
-          item.ignore = true;
+          tabConfig.components.push({ ...item, ...component });
+          tab.components.splice(index, 1);
 
           return;
         }
@@ -74,4 +162,6 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
       }
     });
   });
+
+  return tabsByKey;
 };
