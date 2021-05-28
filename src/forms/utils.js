@@ -63,8 +63,7 @@ export const runTransform = (config, tabs) => {
       'validate.required': { weight: 800 }
     },
     conditional: {
-      'simple-conditional': { weight: 900 },
-      customConditionalPanel: { onlyExpand: true, collapsed: false, test: true }
+      'simple-conditional': { weight: 900 }
     }
   };
   const tabsByKey = tabs || [
@@ -109,13 +108,6 @@ export const prepareComponents = components => {
           ignore: true
         }));
 
-        console.warn({
-          config,
-          tabsByKey,
-          originTabs,
-          df: cloneDeep(originTabs)
-        });
-
         originTabs = originTabs.map(item => ({
           ...omit(item, ['components']),
           key: `${item.key}-reworked`
@@ -129,12 +121,19 @@ export const prepareComponents = components => {
           ...tabsByKey.map(item => ({
             ...item,
             key: `${item.key}-reworked`
-          }))
+          })),
+          {
+            key: 'conditional-reworked',
+            components: [
+              {
+                key: 'customConditionalPanel',
+                collapsed: false
+              }
+            ]
+          }
         ]);
       };
     });
-
-  // console.warn({ components });
 
   return components;
 };
@@ -157,16 +156,6 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
 
       const fields = Object.keys(omit(tabConfig, ['components']));
 
-      if (item.key === 'customConditionalPanel') {
-        const component = get(tabConfig, item.key, {});
-
-        console.warn({ component });
-
-        Object.keys(component).forEach(key => {
-          item[key] = component[key];
-        });
-      }
-
       if (fields.includes(item.key)) {
         const component = get(tabConfig, item.key, {});
 
@@ -174,24 +163,15 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
           set(tabConfig, 'components', tabConfig.components || []);
           tabConfig.components.push({ ...item, ...component });
           tab.components.splice(index, 1);
-
-          return;
         }
 
-        // console.warn({ item, component });
-
-        Object.keys(omit(component, ['onlyExpand'])).forEach(key => {
-          item[key] = component[key];
-        });
-
-        return;
+        // TODO: It may be worth adding the ability to change the parameters of a field?
+        // Object.keys(omit(component, ['onlyExpand'])).forEach(key => {
+        //   item[key] = component[key];
+        // });
       }
-
-      // console.warn({ item, tabConfig });
     });
   });
-
-  console.warn({ tabsByKey });
 
   return tabsByKey;
 };

@@ -3,10 +3,7 @@ import _map from 'lodash/map';
 
 import Harness from '../../../test/harness';
 import NestedComponent from './NestedComponent';
-import { basicSectionTest } from '../../../test/builder/helpers';
 import { comp1 } from './fixtures';
-
-basicSectionTest(NestedComponent);
 
 describe('NestedComponent class', () => {
   let component = null;
