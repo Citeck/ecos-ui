@@ -82,46 +82,50 @@ export const runTransform = (config, tabs) => {
 };
 
 export const prepareComponents = components => {
-  Object.keys(components).forEach(key => {
-    const component = components[key];
-    const originEditForm = component.editForm;
+  const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
 
-    component.editForm = function(...extend) {
-      let originTabs = get(originEditForm(), 'components.0.components', []);
-      const { config, tabsByKey } = runTransform(null, originTabs);
-      const editFormSectionBasic = {
-        key: 'basic',
-        label: 'Basic',
-        weight: 0,
-        components: [
-          ...get(config, 'display.components', []),
-          ...get(config, 'api.components', []),
-          ...get(config, 'validation.components', []),
-          ...get(config, 'conditional.components', [])
-        ]
-      };
-      const removed = tabsByKey.map(item => ({
-        key: item.key,
-        ignore: true
-      }));
+  Object.keys(components)
+    .filter(key => !ignoredComponents.includes(key))
+    .forEach(key => {
+      const component = components[key];
+      const originEditForm = component.editForm;
 
-      originTabs = originTabs.map(item => ({
-        ...omit(item, ['components']),
-        key: `${item.key}-reworked`
-      }));
+      component.editForm = function(...extend) {
+        let originTabs = get(originEditForm(), 'components.0.components', []);
+        const { config, tabsByKey } = runTransform(null, originTabs);
+        const editFormSectionBasic = {
+          key: 'basic',
+          label: 'Basic',
+          weight: 0,
+          components: [
+            ...get(config, 'display.components', []),
+            ...get(config, 'api.components', []),
+            ...get(config, 'validation.components', []),
+            ...get(config, 'conditional.components', [])
+          ]
+        };
+        const removed = tabsByKey.map(item => ({
+          key: item.key,
+          ignore: true
+        }));
 
-      return originEditForm([
-        ...extend,
-        editFormSectionBasic,
-        ...removed,
-        ...originTabs,
-        ...tabsByKey.map(item => ({
-          ...item,
+        originTabs = originTabs.map(item => ({
+          ...omit(item, ['components']),
           key: `${item.key}-reworked`
-        }))
-      ]);
-    };
-  });
+        }));
+
+        return originEditForm([
+          ...extend,
+          editFormSectionBasic,
+          ...removed,
+          ...originTabs,
+          ...tabsByKey.map(item => ({
+            ...item,
+            key: `${item.key}-reworked`
+          }))
+        ]);
+      };
+    });
 
   return components;
 };
@@ -146,8 +150,6 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
 
       if (fields.includes(item.key)) {
         const component = get(tabConfig, item.key, {});
-        console.warn({ tabConfig, component, item });
-
         if (!component.onlyExpand) {
           set(tabConfig, 'components', tabConfig.components || []);
           tabConfig.components.push({ ...item, ...component });
