@@ -229,6 +229,10 @@
         transform: scale(1);
         position: relative;
 
+        &:last-child {
+          border: 2px solid transparent;
+        }
+
         &:hover {
           border-right: 2px solid $color-brown-2;
 
@@ -260,10 +264,6 @@
         }
 
         &:not(.ecos-grid_drag):first-child {
-          td {
-            border-top: 0;
-          }
-
           &:hover {
             td {
               border-top: 2px solid $color-brown-2;
@@ -405,16 +405,32 @@
           background: transparent;
         }
       }
-
-      #{$table}-inline-tools {
-        margin-top: 0;
-      }
     }
 
     &_types {
       th:nth-last-child(2) {
         .ecos-th__divider {
           display: none;
+        }
+      }
+    }
+
+    &_documents {
+      .table.ecos-grid__table {
+        .ecos-grid__row {
+          &:last-child {
+            border: 2px solid transparent;
+          }
+
+          td {
+            border-width: 2px;
+          }
+
+          &:hover {
+            td {
+              border-color: transparent;
+            }
+          }
         }
       }
     }
