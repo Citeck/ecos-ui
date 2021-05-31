@@ -1,4 +1,4 @@
-export const LOWEST_PRIORITY = 'GROUP_EVERYONE';
+export const GROUP_EVERYONE = 'GROUP_EVERYONE';
 
 export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';
 

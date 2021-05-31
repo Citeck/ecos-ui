@@ -61,6 +61,19 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   };
 };
 
+const Labels = {
+  SETTING_TITLE: 'journals.action.edit-dashlet',
+  CUSTOM_FIELD: 'journals.action.custom-journal',
+  NAME_FIELD: 'journals.name',
+  SETTING_FIELD: 'journals.settings',
+  SETTING_FIELD_PLACEHOLDER: 'journals.default',
+  CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
+  ONLY_LINKED_FIELD: 'journals.action.only-linked',
+  RESET_BTN: 'journals.action.reset-settings',
+  CANCEL_BTN: 'journals.action.cancel',
+  SAVE_BTN: 'journals.action.save'
+};
+
 class JournalsDashletEditor extends Component {
   static propTypes = {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
@@ -168,13 +181,11 @@ class JournalsDashletEditor extends Component {
   };
 
   save = () => {
-    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, setLoading, checkConfig } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig } = this.props;
     const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
-
-    setLoading(true);
 
     if (recordRef) {
       if (generalConfig.onlyLinked !== undefined && newConfig.onlyLinked === undefined) {
@@ -256,16 +267,16 @@ class JournalsDashletEditor extends Component {
       <div className={classNames('ecos-journal-dashlet-editor', className)}>
         <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
           <Caption middle className="ecos-journal-dashlet-editor__caption">
-            {t('journals.action.edit-dashlet')}
+            {t(Labels.SETTING_TITLE)}
           </Caption>
 
           {isCustomJournalMode ? (
-            <Field label={t('journals.action.custom-journal')} isSmall={isSmall} isRequired>
+            <Field label={t(Labels.CUSTOM_FIELD)} isSmall={isSmall} isRequired>
               <Input value={customJournal} onChange={this.setCustomJournal} type="text" />
             </Field>
           ) : (
             <>
-              <Field label={t('journals.name')} isSmall={isSmall} labelPosition="top">
+              <Field label={t(Labels.NAME_FIELD)} isSmall={isSmall} labelPosition="top">
                 <SelectJournal
                   journalId={'ecos-journals'}
                   defaultValue={this.state.selectedJournals}
@@ -277,10 +288,10 @@ class JournalsDashletEditor extends Component {
                 />
               </Field>
 
-              <Field label={t('journals.settings')} isSmall={isSmall}>
+              <Field label={t(Labels.SETTING_FIELD)} isSmall={isSmall}>
                 <Select
-                  className={'ecos-journal-dashlet-editor__select'}
-                  placeholder={t('journals.default')}
+                  className="ecos-journal-dashlet-editor__select"
+                  placeholder={t(Labels.SETTING_FIELD_PLACEHOLDER)}
                   options={journalSettings}
                   getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
                   getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
@@ -290,22 +301,22 @@ class JournalsDashletEditor extends Component {
               </Field>
             </>
           )}
-          <Field label={t('journals.action.custom-journal')} isSmall={isSmall}>
+          <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
             <Checkbox checked={isCustomJournalMode === undefined ? false : isCustomJournalMode} onChange={this.setCustomJournalMode} />
           </Field>
           {recordRef ? (
-            <Field label={t('journals.action.only-linked')} isSmall={isSmall}>
+            <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
               <Checkbox checked={config.onlyLinked === undefined ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
             </Field>
           ) : null}
         </div>
 
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>
-          <Btn onClick={this.clear}>{t('journals.action.reset-settings')}</Btn>
+          <Btn onClick={this.clear}>{t(Labels.RESET_BTN)}</Btn>
           <div className="ecos-journal-dashlet-editor__actions-diver" />
-          {!isNotExistsJournal && <Btn onClick={this.cancel}>{t('journals.action.cancel')}</Btn>}
+          {!isNotExistsJournal && <Btn onClick={this.cancel}>{t(Labels.CANCEL_BTN)}</Btn>}
           <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.save} disabled={this.isDisabled}>
-            {t('journals.action.save')}
+            {t(Labels.SAVE_BTN)}
           </Btn>
         </div>
       </div>
