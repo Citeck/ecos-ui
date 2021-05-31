@@ -10,7 +10,7 @@ import Tooltip from 'tooltip.js';
 import { getInputMask } from 'formiojs/utils/utils';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
-import { getCurrentLocale, getTextByLocale, t } from '../../../../helpers/util';
+import { getMLValue, getCurrentLocale, getTextByLocale, t } from '../../../../helpers/util';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
 
@@ -600,7 +600,7 @@ Base.prototype.t = function(text, params) {
     return this.__t(text, params);
   }
 
-  return originalT.call(this, text, params);
+  return originalT.call(this, getMLValue(text), params);
 };
 
 Base.prototype.createWidget = function() {
