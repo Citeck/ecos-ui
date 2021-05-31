@@ -3,8 +3,11 @@ import { flattenComponents } from 'formiojs/utils/formUtils';
 import Harness from '../../../test/harness';
 import PanelComponent from './Panel';
 import panelEditForm from './Panel.form';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
+
+basicSectionTest(PanelComponent);
 
 describe('Panel Component', () => {
   it('Should build a panel component', done => {

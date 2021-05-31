@@ -2,8 +2,11 @@ import _ from 'lodash';
 
 import Harness from '../../../test/harness';
 import NumberComponent from './Number';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2, comp3, comp4 } from './fixtures';
+
+basicSectionTest(NumberComponent);
 
 describe('Number Component', () => {
   it('Should build an number component', done => {

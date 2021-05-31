@@ -2,10 +2,13 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import SelectOrgstructComponent from './SelectOrgstruct';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
 
 console.error = jest.fn();
+
+basicSectionTest(SelectOrgstructComponent);
 
 describe('SelectOrgstruct Component', () => {
   it('Should build a SelectOrgstruct component', done => {
