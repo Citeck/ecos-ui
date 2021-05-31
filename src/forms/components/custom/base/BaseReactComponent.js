@@ -30,12 +30,14 @@ export default class BaseReactComponent extends BaseComponent {
     }).then(component => {
       this.react.wrapper = component;
       this.react.resolve = null;
+
       return component;
     });
     this.react.innerPromise = new Promise(innerResolve => {
       this.react.innerResolve = innerResolve;
     }).then(comp => {
       this.react.innerResolve = null;
+
       return comp;
     });
 
@@ -77,10 +79,22 @@ export default class BaseReactComponent extends BaseComponent {
     this.attachRefreshOn();
     // this.autofocus();
     this.attachLogic();
+    this.showElement(this.isShowElement);
+  }
+
+  get isShowElement() {
+    if (this.options.builder) {
+      return true;
+    }
+
+    return !Boolean(this.component.hidden);
   }
 
   get htmlAttributes() {
-    return pick(get(this, 'info.attr', {}), ['id', 'name', 'type']);
+    return {
+      ...pick(get(this, 'info.attr', {}), ['id', 'name', 'type']),
+      disabled: this.disabled
+    };
   }
 
   createViewOnlyValue(container) {
