@@ -13,6 +13,7 @@ export const setScrollTop = createAction(prefix + 'SET_SCROLL_TOP');
 export const setIsReady = createAction(prefix + 'SET_IS_READY');
 export const getSiteDashboardEnable = createAction(prefix + 'GET_SITE_DASHBOARD_ENABLE');
 export const setSiteDashboardEnable = createAction(prefix + 'SET_SITE_DASHBOARD_ENABLE');
+export const performAction = createAction(prefix + 'PERFORM_ACTION');
 
 export function loadMenuItemIconUrl(iconName, onSuccessCallback) {
   return (dispatch, getState, { api }) => {

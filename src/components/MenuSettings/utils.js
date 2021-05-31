@@ -42,6 +42,7 @@ export const Labels = {
   FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder',
   FIELD_CREATE_METHOD: 'menu-settings.editor-item.field.create-variant.title',
   FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title',
+  FIELD_PROCESS: 'menu-settings.editor-item.field.process-def.title',
 
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',

@@ -22,7 +22,7 @@ import {
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
-import { DropdownMenu as Menu, Icon, Loader } from '../../common/index';
+import { EcosDropdownMenu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
@@ -302,7 +302,7 @@ class DocAssociations extends BaseWidget {
             }
           }}
         >
-          <Menu
+          <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
             items={menu}
             mode="cascade"

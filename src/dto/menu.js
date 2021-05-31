@@ -60,65 +60,28 @@ export default class MenuConverter {
   }
 
   /* menu create */
-  static getCreateSiteItems(source = []) {
-    const target = [];
-
-    for (const site of source) {
-      const items = [];
-
-      for (const variant of site.createVariants) {
-        if (!variant.canCreate) {
-          continue;
-        }
-        const id = getId(`${site.siteId}_${variant.type}`);
-        items.push({
-          id,
-          label: variant.title,
-          control: {
-            type: HandleControlTypes.ECOS_CREATE_VARIANT,
-            payload: variant
-          }
-        });
-      }
-
-      const id = getId(site.siteId);
-      target.push({ id, siteId: site.siteId, label: site.siteTitle, items });
-    }
-
-    return target;
-  }
-
   static getMainMenuCreateItems(source = []) {
     const ITs = MenuSettings.ItemTypes;
 
     return (function recursion(items) {
       return (items || [])
         .map(item => {
-          const option = {
-            ...item,
-            label: getTextByLocale(item.label)
-          };
+          const option = { ...item, label: getTextByLocale(item.label) };
 
-          if (item.type === ITs.LINK_CREATE_CASE) {
-            const createVariants = get(item, '_remoteData_.createVariants') || [];
-
-            if (createVariants.length) {
-              return {
-                ...option,
-                type: ITs.SECTION,
-                items: recursion(MenuConverter.prepareCreateVariants(createVariants))
-              };
-            }
-
-            return { ...option, ...MenuConverter.getLinkCreateCase(item) };
-          }
-
-          if (item.type === ITs.ARBITRARY) {
-            return { ...option, ...MenuConverter.getLinkMove(item) };
+          switch (item.type) {
+            case ITs.LINK_CREATE_CASE:
+              return MenuConverter.prepareLinkCreateCase(option);
+            case ITs.ARBITRARY:
+              option.disabled = !get(item, 'config.url');
+              return { ...option, ...MenuConverter.getLinkMove(item) };
+            case ITs.SECTION:
+              option.disabled = !option.items.length;
+              break;
+            default:
+              break;
           }
 
           option.items = recursion(item.items);
-          option.disabled = !option.items.length;
 
           return option;
         })
@@ -134,26 +97,24 @@ export default class MenuConverter {
     }));
   }
 
-  static getLinkCreateCase(data) {
-    const variant = get(data, 'config.variant') || {};
+  /**
+   * @deprecated
+   * @description for supporting old menu where user can create lick create case with a few options
+   * @param option from menu config
+   * @returns Object
+   */
+  static prepareLinkCreateCase(option) {
+    const createVariants = get(option, '_remoteData_.createVariants') || [];
 
-    return {
-      id: variant.id,
-      control: {
-        type: HandleControlTypes.ECOS_CREATE_VARIANT,
-        payload: {
-          title: getTextByLocale(variant.label),
-          recordRef: variant.sourceId + '@',
-          formId: variant.formRef,
-          canCreate: true,
-          postActionRef: variant.postActionRef,
-          typeRef: variant.typeRef,
-          attributes: {
-            ...variant.attributes
-          }
-        }
-      }
-    };
+    if (createVariants.length) {
+      return {
+        ...option,
+        type: MenuSettings.ItemTypes.SECTION,
+        items: MenuConverter.prepareCreateVariants(createVariants)
+      };
+    }
+
+    return option;
   }
 
   static getLinkMove(data) {
@@ -191,12 +152,12 @@ export default class MenuConverter {
     });
   }
 
-  static mergeCustomsAndSites(_customs, _sites) {
-    const sites = cloneDeep(_sites);
+  static mergeCustomsAndConfig(_customs, _config) {
+    const config = cloneDeep(_config);
     const exSiteId = [];
 
     _customs.forEach(item => {
-      sites.forEach(site => {
+      config.forEach(site => {
         if (site.siteId === item.siteId) {
           exSiteId.push(item.siteId);
           site.items = [item, ...site.items];
@@ -206,7 +167,7 @@ export default class MenuConverter {
 
     const customs = _customs.filter(item => !exSiteId.includes(item.siteId));
 
-    return { customs, sites };
+    return { customs, config };
   }
 
   /* menu settings */

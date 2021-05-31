@@ -1,7 +1,7 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName, isNodeRef, t } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, isNodeRef } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { PROXY_URI } from '../constants/alfresco';
@@ -71,23 +71,17 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
+  /**
+   * @deprecated
+   * @description Don't expand it. Register process & form in according journals to start workflow
+   * @returns Array
+   */
   getCreateWorkflowVariants = () => {
     return Promise.resolve([
       {
         id: 'HEADER_CREATE_WORKFLOW',
         label: 'header.create-workflow.label',
         items: [
-          {
-            id: 'HEADER_CREATE_WORKFLOW_ADHOC',
-            label: 'header.create-workflow-adhoc.label',
-            control: {
-              type: 'ECOS_CREATE_VARIANT',
-              payload: {
-                formTitle: t('header.create-workflow-adhoc.description'),
-                recordRef: 'workflow@def_activiti$perform'
-              }
-            }
-          },
           // TODO: Migration to form required
           {
             id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
@@ -322,16 +316,16 @@ export class MenuApi extends CommonApi {
 }
 
 async function fetchExtraItemInfo(data, attributes) {
-  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD } = ms.ItemTypes;
+  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW } = ms.ItemTypes;
 
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
       let attrs = typeof attributes === 'function' ? attributes(item) : attributes;
-      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId');
+      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId') || lodashGet(item, 'config.processDef');
 
-      if (attrs && ref && [JOURNAL, EDIT_RECORD].includes(item.type)) {
+      if (attrs && ref && [JOURNAL, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
         ref = ref.replace('/journal@', '/rjournal@');
         ref = ref.replace('/journal_all@', '/rjournal@');
         target._remoteData_ = await Records.get(ref).load(attrs);
@@ -347,7 +341,6 @@ async function fetchExtraItemInfo(data, attributes) {
           if (attrs === undefined) {
             attrs = {};
           }
-
           lodashSet(attrs, 'label', `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}}`);
         }
 

@@ -54,6 +54,7 @@ export const SourcesId = {
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
   A_META: 'alfresco/meta',
+  A_WORKFLOW: 'alfresco/workflow',
   ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
@@ -63,7 +64,8 @@ export const SourcesId = {
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
   TASK: 'wftask',
-  WORKFLOW: 'workflow'
+  WORKFLOW: 'workflow',
+  BPMN_DEF: 'eproc/bpmn-def'
 };
 
 export const EmodelTypes = {
@@ -166,7 +168,8 @@ export const SystemJournals = {
   JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
-  FORMS: 'ecos-forms'
+  FORMS: 'ecos-forms',
+  PROCESS: 'bpmn-process-def'
 };
 
 window.Citeck = window.Citeck || {};

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { Avatar, DropdownMenu as Menu, Tooltip } from '../common';
+import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
@@ -64,7 +64,7 @@ class UserMenu extends React.Component {
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-            <Menu items={items} emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)} />
+            <EcosDropdownMenu items={items} emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)} />
           </DropdownMenu>
         </Dropdown>
       </>

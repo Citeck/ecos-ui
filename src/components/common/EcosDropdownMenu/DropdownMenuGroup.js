@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
+
 import { t } from '../../../helpers/util';
 import { Separator } from '../';
 import DropdownMenuItem from './DropdownMenuItem';
@@ -19,11 +20,7 @@ export default class DropdownMenuGroup extends React.Component {
   };
 
   renderMenuItems(items) {
-    return isEmpty(items)
-      ? []
-      : items.map((item, key) => {
-          return <DropdownMenuItem key={key} data={item} />;
-        });
+    return isEmpty(items) ? [] : items.map((item, key) => <DropdownMenuItem key={key} data={item} />);
   }
 
   render() {

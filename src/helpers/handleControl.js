@@ -1,31 +1,27 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
-import { NEW_VERSION_PREFIX } from './export/urls';
-import { getCurrentUserName, t } from './util';
-import { goToCardDetailsPage } from './urls';
 import { SourcesId, URL } from '../constants';
-import FormManager from '../components/EcosForm/FormManager';
+import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
 import dialogManager from '../components/common/dialogs/Manager';
 import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
 import RecordActions from '../components/Records/actions/recordActions';
-import ecosFetch from './ecosFetch';
 import { CommonApi } from '../api/common';
 import PageService from '../services/PageService';
+import { NEW_VERSION_PREFIX } from './export/urls';
+import { getCurrentUserName, t } from './util';
+import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
   ALF_DOLOGOUT: 'ALF_DOLOGOUT',
   ALF_NAVIGATE_TO_PAGE: 'ALF_NAVIGATE_TO_PAGE',
-  ALF_CREATE_SITE: 'ALF_CREATE_SITE',
   ALF_EDIT_SITE: 'ALF_EDIT_SITE',
   ALF_LEAVE_SITE: 'ALF_LEAVE_SITE',
   ALF_JOIN_SITE: 'ALF_JOIN_SITE',
   ALF_BECOME_SITE_MANAGER: 'ALF_BECOME_SITE_MANAGER',
   ALF_REQUEST_SITE_MEMBERSHIP: 'ALF_REQUEST_SITE_MEMBERSHIP',
-  ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT',
   ECOS_EDIT_PASSWORD: 'ECOS_EDIT_PASSWORD',
   ECOS_EDIT_AVAILABILITY: 'ECOS_EDIT_AVAILABILITY'
 };
@@ -132,6 +128,14 @@ export const toggleAvailabilityStatus = payload => {
   });
 };
 
+/**
+ * @description dispatch action by type
+ * @deprecated
+ * @todo it have to be rethought and does via redux, after old functionalities are implemented, according parts (ex. slideMenu)
+ * @param type action
+ * @param payload data
+ * @returns {Promise<Response>|void}
+ */
 export default function handleControl(type, payload) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
@@ -312,20 +316,6 @@ export default function handleControl(type, payload) {
           });
       })();
 
-    case HCT.ECOS_CREATE_VARIANT:
-      FormManager.createRecordByVariant(payload, {
-        title: payload.formTitle,
-        onSubmit: record => {
-          if (payload.afterSubmit === 'reload') {
-            window.location.reload();
-          } else if (payload.afterSubmit === 'none') {
-            //none
-          } else {
-            goToCardDetailsPage(record.id);
-          }
-        }
-      });
-      break;
     case HCT.ECOS_EDIT_PASSWORD:
       RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
       break;

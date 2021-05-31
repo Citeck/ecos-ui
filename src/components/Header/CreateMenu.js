@@ -4,16 +4,10 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
+import { performAction } from '../../actions/slideMenu';
 import { t } from '../../helpers/util';
-import { DropdownMenu as Menu } from '../common';
+import { EcosDropdownMenu } from '../common';
 import { IcoBtn } from '../common/btns';
-
-const mapStateToProps = state => ({
-  items: state.header.createCaseWidget.items,
-  isLoading: state.header.createCaseWidget.isLoading,
-  isCascade: state.header.createCaseWidget.isCascade,
-  theme: state.view.theme
-});
 
 const Labels = {
   BTN_LABEL: 'header.menu.create.btn.label',
@@ -35,9 +29,11 @@ class CreateMenu extends React.Component {
   };
 
   toggle = () => {
-    this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen
-    }));
+    this.setState(prevState => ({ dropdownOpen: !prevState.dropdownOpen }));
+  };
+
+  onClickItem = data => {
+    this.props.performAction(data);
   };
 
   render() {
@@ -58,15 +54,16 @@ class CreateMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu
-          className={classNames('ecos-header-create__menu', 'ecos-dropdown__menu', 'ecos-dropdown__menu_links', {
+          className={classNames('ecos-header-create__menu ecos-dropdown__menu ecos-dropdown__menu_links', {
             'ecos-dropdown__menu_cascade': isCascade
           })}
         >
-          <Menu
+          <EcosDropdownMenu
             items={items}
             mode={mode}
             setCascade={{ collapseOneItem: true }}
             emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
+            onClick={this.onClickItem}
           />
         </DropdownMenu>
       </Dropdown>
@@ -74,4 +71,18 @@ class CreateMenu extends React.Component {
   }
 }
 
-export default connect(mapStateToProps)(CreateMenu);
+const mapDispatchToProps = dispatch => ({
+  performAction: data => dispatch(performAction(data))
+});
+
+const mapStateToProps = state => ({
+  items: state.header.createCaseWidget.items,
+  isLoading: state.header.createCaseWidget.isLoading,
+  isCascade: state.header.createCaseWidget.isCascade,
+  theme: state.view.theme
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CreateMenu);
