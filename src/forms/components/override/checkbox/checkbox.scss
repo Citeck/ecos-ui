@@ -5,7 +5,37 @@
   .formio-component-checkbox {
     padding-left: 0;
 
+    input.form-check-input:first-child + span {
+      &.form-check-label__span {
+        &_position {
+          &-bottom {
+            padding-left: 0;
+
+            &:before {
+              position: absolute;
+              top: calc(-100% - 7px);
+              margin: auto;
+              width: 100%;
+            }
+          }
+
+          &-top {
+            padding-left: 0;
+
+            &:before {
+              position: absolute;
+              top: calc(100% + 7px);
+              margin: auto;
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+
     .form-check-label {
+      $label: &;
+
       line-height: 24px;
       font-size: 14px;
       cursor: pointer;

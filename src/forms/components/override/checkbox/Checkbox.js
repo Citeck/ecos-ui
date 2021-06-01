@@ -119,6 +119,54 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return super.isEmpty(value);
   }
 
+  setInputLabelStyle(label) {
+    const span = this.labelSpan;
+
+    span.className = `form-check-label__span form-check-label__span_position-${this.component.labelPosition}`;
+
+    console.warn({ span: this.labelSpan, labelPosition: this.component.labelPosition });
+
+    return super.setInputLabelStyle(label);
+  }
+
+  createLabel(container, input) {
+    const isLabelHidden = this.labelIsHidden();
+    let className = 'control-label form-check-label';
+    if (this.component.input && !this.options.inputsOnly && this.component.validate && this.component.validate.required) {
+      className += ' field-required';
+    }
+
+    this.labelElement = this.ce('label', {
+      class: className
+    });
+    this.addShortcut();
+
+    const labelOnTheTopOrOnTheLeft = this.labelOnTheTopOrLeft();
+    if (!isLabelHidden) {
+      // Create the SPAN around the textNode for better style hooks
+      this.labelSpan = this.ce('span');
+
+      if (this.info.attr.id) {
+        this.labelElement.setAttribute('for', this.info.attr.id);
+      }
+    }
+    // if (!isLabelHidden && labelOnTheTopOrOnTheLeft) {
+    //   this.setInputLabelStyle(this.labelElement);
+    //   this.setInputStyle(input);
+    //   this.labelSpan.appendChild(this.text(this.addShortcutToLabel()));
+    //   this.labelElement.appendChild(this.labelSpan);
+    // }
+    this.addInput(input, this.labelElement);
+    if (!isLabelHidden) {
+      this.setInputLabelStyle(this.labelElement);
+      this.setInputStyle(input);
+      this.labelSpan.appendChild(this.text(this.addShortcutToLabel()));
+      this.labelElement.appendChild(this.labelSpan);
+    }
+    this.createTooltip(this.labelElement);
+    container.appendChild(this.labelElement);
+  }
+
   getValueByString = data => {
     let value;
 
