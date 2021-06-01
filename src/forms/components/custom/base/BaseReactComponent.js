@@ -80,6 +80,10 @@ export default class BaseReactComponent extends BaseComponent {
     // this.autofocus();
     this.attachLogic();
     this.showElement(this.isShowElement);
+
+    if (!this.isShowElement && this.component.clearOnHide) {
+      this.dataValue = this.emptyValue;
+    }
   }
 
   get isShowElement() {
