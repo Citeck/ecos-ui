@@ -31,6 +31,7 @@ class BaseMLField extends Component {
     style: PropTypes.object,
     lang: PropTypes.string,
     placeholder: PropTypes.string,
+    disabled: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -277,10 +278,15 @@ class BaseMLField extends Component {
   }
 
   render() {
-    const { className, style } = this.props;
+    const { className, style, disabled } = this.props;
 
     return (
-      <div style={style} className={classNames('ecos-ml-text', className)}>
+      <div
+        style={style}
+        className={classNames('ecos-ml-text', className, {
+          'ecos-ml-text_disabled': disabled
+        })}
+      >
         {this.renderInputElement()}
         {this.renderLang()}
       </div>

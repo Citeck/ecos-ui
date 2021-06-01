@@ -78,7 +78,7 @@
 }
 
 .ecos-ml-text {
-  &__input {
+  &__input &:not(disabled) {
     &:focus,
     &:hover {
       border-color: $color-blue-light;
