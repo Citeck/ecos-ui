@@ -1,32 +1,151 @@
 @import '../../../constants';
 
+%checkbox-place-icon {
+  font-family: $font-family-citeck;
+  content: $citeck-icon-checkbox;
+  color: $color-gray-6;
+  font-size: 22px;
+  font-weight: normal;
+  position: relative;
+}
+
+%checkbox {
+  &-checked {
+    content: $citeck-icon-checkbox-checked;
+    color: $color-blue-dark;
+  }
+
+  &-focus {
+    color: $color-blue-light;
+  }
+
+  &-disabled {
+    content: $citeck-icon-checkbox-dark;
+    color: $color-gray-4;
+  }
+}
+
 .formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component-checkbox {
     padding-left: 0;
 
-    input.form-check-input:first-child + span {
-      &.form-check-label__span {
-        &_position {
-          &-bottom {
-            padding-left: 0;
+    &_right {
+      display: flex;
+      align-content: stretch;
+      justify-content: flex-end;
+      align-items: center;
 
-            &:before {
-              position: absolute;
-              top: calc(-100% - 7px);
-              margin: auto;
-              width: 100%;
+      .form-check-label {
+        display: flex;
+        align-items: baseline;
+
+        &__span_position {
+          &-right-right {
+            & + i.glyphicon-question-sign {
+              margin-left: 7px;
             }
           }
 
-          &-top {
-            padding-left: 0;
+          &-left-right {
+            order: 2;
 
-            &:before {
-              position: absolute;
-              top: calc(100% + 7px);
-              margin: auto;
-              width: 100%;
+            & + i.glyphicon-question-sign {
+              margin-right: 7px;
+            }
+          }
+        }
+      }
+    }
+
+    input.form-check-input:first-child + span {
+      &.form-check-label {
+        &__span {
+          &:before {
+            top: 2px;
+          }
+
+          &_position {
+            &-bottom {
+              padding-left: 0;
+
+              &:before {
+                position: absolute;
+                top: calc(-100% - 7px);
+                margin: auto;
+                width: 100%;
+              }
+
+              & + i.glyphicon-question-sign {
+                position: absolute;
+                bottom: 5px;
+                margin-left: 5px;
+              }
+            }
+
+            &-top {
+              padding-left: 0;
+              margin-top: -23px;
+              vertical-align: top;
+
+              &:before {
+                position: absolute;
+                top: calc(100% + 7px);
+                margin: auto;
+                width: 100%;
+              }
+
+              & + i.glyphicon-question-sign {
+                position: absolute;
+                top: 4px;
+                margin-left: 5px;
+              }
+            }
+
+            &-left {
+              &-left {
+                padding-left: 0;
+
+                &:before {
+                  content: '';
+                  margin: 0;
+                }
+
+                &:after {
+                  @extend %checkbox-place-icon;
+                  margin-left: 10px;
+                  top: 2px;
+                }
+              }
+
+              &-right {
+                padding-left: 0;
+                right: 0;
+                top: 0;
+
+                &:before {
+                  content: '';
+                  margin: 0;
+                }
+
+                &:after {
+                  @extend %checkbox-place-icon;
+                  margin-left: 10px;
+                  top: 2px;
+                }
+              }
+            }
+
+            &-right {
+              &-left {
+                padding-left: 0;
+              }
+
+              &-right {
+                padding-left: 0;
+                right: 0;
+                top: 0;
+              }
             }
           }
         }
@@ -55,30 +174,42 @@
           position: relative;
 
           &:before {
-            font-family: $font-family-citeck;
-            content: $citeck-icon-checkbox;
-            color: $color-gray-6;
+            @extend %checkbox-place-icon;
             margin-right: 10px;
-            font-size: 22px;
-            font-weight: normal;
-            position: absolute;
             left: 1px;
           }
         }
 
         &:checked {
           + span {
-            &:before {
-              content: $citeck-icon-checkbox-checked;
-              color: $color-blue-dark;
+            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
+              &:before {
+                @extend %checkbox-checked;
+              }
+            }
+
+            &.form-check-label__span_position-left-right,
+            &.form-check-label__span_position-left-left {
+              &:after {
+                @extend %checkbox-checked;
+              }
             }
           }
         }
 
         &:focus {
           + span {
-            &:before {
-              color: $color-blue-light;
+            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
+              &:before {
+                @extend %checkbox-focus;
+              }
+            }
+
+            &.form-check-label__span_position-left-right,
+            &.form-check-label__span_position-left-left {
+              &:after {
+                @extend %checkbox-focus;
+              }
             }
           }
         }
@@ -87,16 +218,33 @@
           + span {
             color: $color-gray-5;
 
-            &:before {
-              content: $citeck-icon-checkbox-dark;
-              color: $color-gray-4;
+            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
+              &:before {
+                @extend %checkbox-disabled;
+              }
+            }
+
+            &.form-check-label__span_position-left-right,
+            &.form-check-label__span_position-left-left {
+              &:after {
+                @extend %checkbox-disabled;
+              }
             }
           }
 
           &:checked {
             + span {
-              &:before {
-                content: $citeck-icon-checkbox-checked;
+              &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
+                &:before {
+                  content: $citeck-icon-checkbox-checked;
+                }
+              }
+
+              &.form-check-label__span_position-left-right,
+              &.form-check-label__span_position-left-left {
+                &:after {
+                  content: $citeck-icon-checkbox-checked;
+                }
               }
             }
           }
