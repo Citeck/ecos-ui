@@ -91,7 +91,7 @@ export default class BaseReactComponent extends BaseComponent {
       return true;
     }
 
-    return !Boolean(this.component.hidden);
+    return !Boolean(this.component.hidden) && this.checkConditions();
   }
 
   get htmlAttributes() {

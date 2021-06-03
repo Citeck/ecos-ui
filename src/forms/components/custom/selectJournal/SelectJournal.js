@@ -276,7 +276,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         journalId: journalId,
         onChange: this.onReactValueChanged,
         viewOnly: this.viewOnly,
-        queryData: this.evaluate(component.queryData, {}, 'value', true),
+        queryData: _.isEmpty(component.queryData) ? {} : this.evaluate(component.queryData, {}, 'value', true),
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
