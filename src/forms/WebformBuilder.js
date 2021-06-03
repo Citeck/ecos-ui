@@ -61,7 +61,10 @@ WebformBuilder.prototype.updateComponent = function(component) {
         'fields.day.required',
         'fields.month.required',
         'fields.year.required'
-      ])
+      ]),
+      {
+        customClass: `webform-builder-dv-${component.type}`
+      }
     );
   }
 
