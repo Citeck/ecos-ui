@@ -17,6 +17,17 @@ export default class SelectComponent extends FormIOSelectComponent {
     );
   }
 
+  // static get builderInfo() {
+  //   return {
+  //     title: 'Select',
+  //     group: 'sdsf',
+  //     icon: 'fa fa-th-list',
+  //     weight: 70,
+  //     documentation: 'http://help.form.io/userguide/#select',
+  //     schema: SelectComponent.schema()
+  //   };
+  // }
+
   get defaultSchema() {
     return SelectComponent.schema();
   }

@@ -78,6 +78,8 @@ const components = {
   datagrid: DataGrid
 };
 
+console.warn({ components });
+
 Components.setComponents(prepareComponents(components));
 
 export { Components };

@@ -10,6 +10,7 @@ import BaseEditLogic from 'formiojs/components/base/editForm/Base.edit.logic';
 import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
 import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
+import Base from 'formiojs/components/base/Base';
 
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || field === undefined) {
@@ -80,6 +81,143 @@ export const runTransform = (config, tabs) => {
   return { config: advancedConfig, tabsByKey };
 };
 
+const _expandEditForm = component => {
+  const originEditForm = component.editForm;
+
+  component.editForm = function(...extend) {
+    let originTabs = get(originEditForm(), 'components.0.components', []);
+    const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
+    const editFormSectionBasic = {
+      key: 'basic',
+      label: 'Basic',
+      weight: 0,
+      components: [
+        ...get(config, 'display.components', []),
+        ...get(config, 'api.components', []),
+        ...get(config, 'validation.components', []),
+        ...get(config, 'conditional.components', [])
+      ]
+    };
+    const removed = tabsByKey.map(item => ({
+      key: item.key,
+      ignore: true
+    }));
+
+    originTabs = originTabs.map(item => ({
+      ...omit(item, ['components']),
+      key: `${item.key}-reworked`
+    }));
+
+    return originEditForm([
+      ...extend,
+      editFormSectionBasic,
+      ...removed,
+      ...originTabs,
+      ...tabsByKey.map(item => ({
+        ...item,
+        key: `${item.key}-reworked`
+      })),
+      {
+        key: 'conditional-reworked',
+        components: [
+          {
+            key: 'customConditionalPanel',
+            collapsed: false
+          }
+        ]
+      }
+    ]);
+  };
+
+  return component;
+};
+
+const _configureGroupMembership = component => {
+  const groups = {
+    basic: ['textfield', 'number', 'textarea', 'checkbox', 'ecosSelect', 'button', 'selectJournal', 'selectOrgstruct', 'datetime', 'day'],
+    advanced: [
+      'mlText',
+      'taskOutcome',
+      'mlTextarea',
+      'selectAction',
+      'tableForm',
+      'email',
+      'url',
+      'phoneNumber',
+      'address',
+      'htmlelement',
+      'file',
+      'importButton'
+    ],
+    layout: ['horizontalLine', 'columns', 'panel', 'tableForm', 'tabs'],
+    data: ['hidden', 'asyncData', 'container', 'datagrid', 'datagridAssoc', 'datamap']
+  };
+  const exclude = [
+    'password',
+    'selectboxes',
+    'time',
+    'select',
+    'radio',
+    'content',
+    'modaledit',
+    'tags',
+    'currency',
+    'resource',
+    'signature',
+    'survey',
+    'location',
+    'recaptcha',
+    'fieldset',
+    'well',
+    'editgrid',
+    'nested',
+    'unknown'
+  ];
+
+  // const originalGetBuilderInfo = Object.getOwnPropertyDescriptor(component.prototype, 'builderInfo');
+
+  const originalBuilderInfo = component.builderInfo;
+
+  Object.defineProperty(component, 'builderInfo', {
+    get: function() {
+      const type = get(this, 'type') || get(originalBuilderInfo, 'schema.key');
+
+      if (isEmpty(originalBuilderInfo) || !type) {
+        return {
+          ...(originalBuilderInfo || {}),
+          group: ''
+        };
+      }
+
+      if (['recaptcha', 'nested', 'custom'].includes(type)) {
+        console.warn({ component, type, self: this });
+      }
+
+      if (exclude.includes(type)) {
+        // originalBuilderInfo.group = null;
+
+        return {};
+      }
+
+      Object.keys(groups).some(key => {
+        if (groups[key].includes(type)) {
+          originalBuilderInfo.group = key;
+
+          return true;
+        }
+
+        return false;
+      });
+
+      return originalBuilderInfo;
+    },
+    mutable: false,
+    configurable: false
+  });
+
+  return component;
+};
+
 export const prepareComponents = components => {
   const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
 
@@ -87,52 +225,9 @@ export const prepareComponents = components => {
     .filter(key => !ignoredComponents.includes(key))
     .forEach(key => {
       const component = components[key];
-      const originEditForm = component.editForm;
 
-      component.editForm = function(...extend) {
-        let originTabs = get(originEditForm(), 'components.0.components', []);
-        const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
-        const editFormSectionBasic = {
-          key: 'basic',
-          label: 'Basic',
-          weight: 0,
-          components: [
-            ...get(config, 'display.components', []),
-            ...get(config, 'api.components', []),
-            ...get(config, 'validation.components', []),
-            ...get(config, 'conditional.components', [])
-          ]
-        };
-        const removed = tabsByKey.map(item => ({
-          key: item.key,
-          ignore: true
-        }));
-
-        originTabs = originTabs.map(item => ({
-          ...omit(item, ['components']),
-          key: `${item.key}-reworked`
-        }));
-
-        return originEditForm([
-          ...extend,
-          editFormSectionBasic,
-          ...removed,
-          ...originTabs,
-          ...tabsByKey.map(item => ({
-            ...item,
-            key: `${item.key}-reworked`
-          })),
-          {
-            key: 'conditional-reworked',
-            components: [
-              {
-                key: 'customConditionalPanel',
-                collapsed: false
-              }
-            ]
-          }
-        ]);
-      };
+      _expandEditForm(component);
+      _configureGroupMembership(component);
     });
 
   return components;
