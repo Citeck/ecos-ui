@@ -137,6 +137,29 @@ const _expandEditForm = component => {
   return component;
 };
 
+export const disabledComponents = Object.freeze([
+  'password',
+  'selectboxes',
+  'time',
+  'select',
+  'radio',
+  'content',
+  'modaledit',
+  'tags',
+  'currency',
+  'resource',
+  'signature',
+  'survey',
+  'location',
+  'recaptcha',
+  'fieldset',
+  'well',
+  'editgrid',
+  'nested',
+  'form',
+  'unknown'
+]);
+
 export const prepareComponentBuilderInfo = builderInfo => {
   const groups = {
     basic: ['textfield', 'number', 'textarea', 'checkbox', 'ecosSelect', 'button', 'selectJournal', 'selectOrgstruct', 'datetime', 'day'],
@@ -157,34 +180,12 @@ export const prepareComponentBuilderInfo = builderInfo => {
     layout: ['horizontalLine', 'columns', 'panel', 'tableForm', 'tabs'],
     data: ['hidden', 'asyncData', 'container', 'datagrid', 'datagridAssoc', 'datamap']
   };
-  const exclude = [
-    'password',
-    'selectboxes',
-    'time',
-    'select',
-    'radio',
-    'content',
-    'modaledit',
-    'tags',
-    'currency',
-    'resource',
-    'signature',
-    'survey',
-    'location',
-    'recaptcha',
-    'fieldset',
-    'well',
-    'editgrid',
-    'nested',
-    'form',
-    'unknown'
-  ];
 
   if (!builderInfo || !builderInfo.key) {
     return;
   }
 
-  if (exclude.includes(builderInfo.key)) {
+  if (disabledComponents.includes(builderInfo.key)) {
     return;
   }
 

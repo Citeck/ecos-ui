@@ -1,7 +1,12 @@
 import Harness from '../harness';
 import EventEmitter from '../../EventEmitter';
+import { disabledComponents } from '../../utils';
 
 export const basicSectionTest = Component => {
+  if (!Component.type || disabledComponents.includes(Component.type)) {
+    return;
+  }
+
   describe(`${Component.name} Builder`, () => {
     let builder = null;
 
