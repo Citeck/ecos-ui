@@ -10,7 +10,6 @@ import BaseEditLogic from 'formiojs/components/base/editForm/Base.edit.logic';
 import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
 import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
-import Base from 'formiojs/components/base/Base';
 
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || field === undefined) {
@@ -82,6 +81,12 @@ export const runTransform = (config, tabs) => {
 };
 
 const _expandEditForm = component => {
+  const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
+
+  if (ignoredComponents.includes(component.type)) {
+    return component;
+  }
+
   const originEditForm = component.editForm;
 
   component.editForm = function(...extend) {
@@ -132,7 +137,7 @@ const _expandEditForm = component => {
   return component;
 };
 
-const _configureGroupMembership = component => {
+export const prepareComponentBuilderInfo = builderInfo => {
   const groups = {
     basic: ['textfield', 'number', 'textarea', 'checkbox', 'ecosSelect', 'button', 'selectJournal', 'selectOrgstruct', 'datetime', 'day'],
     advanced: [
@@ -171,64 +176,37 @@ const _configureGroupMembership = component => {
     'well',
     'editgrid',
     'nested',
+    'form',
     'unknown'
   ];
 
-  // const originalGetBuilderInfo = Object.getOwnPropertyDescriptor(component.prototype, 'builderInfo');
+  if (!builderInfo || !builderInfo.key) {
+    return;
+  }
 
-  const originalBuilderInfo = component.builderInfo;
+  if (exclude.includes(builderInfo.key)) {
+    return;
+  }
 
-  Object.defineProperty(component, 'builderInfo', {
-    get: function() {
-      const type = get(this, 'type') || get(originalBuilderInfo, 'schema.key');
+  Object.keys(groups).some(key => {
+    if (groups[key].includes(builderInfo.key)) {
+      builderInfo.group = key;
 
-      if (isEmpty(originalBuilderInfo) || !type) {
-        return {
-          ...(originalBuilderInfo || {}),
-          group: ''
-        };
-      }
+      return true;
+    }
 
-      if (['recaptcha', 'nested', 'custom'].includes(type)) {
-        console.warn({ component, type, self: this });
-      }
-
-      if (exclude.includes(type)) {
-        // originalBuilderInfo.group = null;
-
-        return {};
-      }
-
-      Object.keys(groups).some(key => {
-        if (groups[key].includes(type)) {
-          originalBuilderInfo.group = key;
-
-          return true;
-        }
-
-        return false;
-      });
-
-      return originalBuilderInfo;
-    },
-    mutable: false,
-    configurable: false
+    return false;
   });
 
-  return component;
+  return builderInfo;
 };
 
 export const prepareComponents = components => {
-  const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
+  Object.keys(components).forEach(key => {
+    const component = components[key];
 
-  Object.keys(components)
-    .filter(key => !ignoredComponents.includes(key))
-    .forEach(key => {
-      const component = components[key];
-
-      _expandEditForm(component);
-      _configureGroupMembership(component);
-    });
+    _expandEditForm(component);
+  });
 
   return components;
 };
