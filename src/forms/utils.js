@@ -80,60 +80,134 @@ export const runTransform = (config, tabs) => {
   return { config: advancedConfig, tabsByKey };
 };
 
-export const prepareComponents = components => {
+const _expandEditForm = component => {
   const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
 
-  Object.keys(components)
-    .filter(key => !ignoredComponents.includes(key))
-    .forEach(key => {
-      const component = components[key];
-      const originEditForm = component.editForm;
+  if (ignoredComponents.includes(component.type)) {
+    return component;
+  }
 
-      component.editForm = function(...extend) {
-        let originTabs = get(originEditForm(), 'components.0.components', []);
-        const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
-        const editFormSectionBasic = {
-          key: 'basic',
-          label: 'Basic',
-          weight: 0,
-          components: [
-            ...get(config, 'display.components', []),
-            ...get(config, 'api.components', []),
-            ...get(config, 'validation.components', []),
-            ...get(config, 'conditional.components', [])
-          ]
-        };
-        const removed = tabsByKey.map(item => ({
-          key: item.key,
-          ignore: true
-        }));
+  const originEditForm = component.editForm;
 
-        originTabs = originTabs.map(item => ({
-          ...omit(item, ['components']),
-          key: `${item.key}-reworked`
-        }));
+  component.editForm = function(...extend) {
+    let originTabs = get(originEditForm(), 'components.0.components', []);
+    const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
+    const editFormSectionBasic = {
+      key: 'basic',
+      label: 'Basic',
+      weight: 0,
+      components: [
+        ...get(config, 'display.components', []),
+        ...get(config, 'api.components', []),
+        ...get(config, 'validation.components', []),
+        ...get(config, 'conditional.components', [])
+      ]
+    };
+    const removed = tabsByKey.map(item => ({
+      key: item.key,
+      ignore: true
+    }));
 
-        return originEditForm([
-          ...extend,
-          editFormSectionBasic,
-          ...removed,
-          ...originTabs,
-          ...tabsByKey.map(item => ({
-            ...item,
-            key: `${item.key}-reworked`
-          })),
+    originTabs = originTabs.map(item => ({
+      ...omit(item, ['components']),
+      key: `${item.key}-reworked`
+    }));
+
+    return originEditForm([
+      ...extend,
+      editFormSectionBasic,
+      ...removed,
+      ...originTabs,
+      ...tabsByKey.map(item => ({
+        ...item,
+        key: `${item.key}-reworked`
+      })),
+      {
+        key: 'conditional-reworked',
+        components: [
           {
-            key: 'conditional-reworked',
-            components: [
-              {
-                key: 'customConditionalPanel',
-                collapsed: false
-              }
-            ]
+            key: 'customConditionalPanel',
+            collapsed: false
           }
-        ]);
-      };
-    });
+        ]
+      }
+    ]);
+  };
+
+  return component;
+};
+
+export const disabledComponents = Object.freeze([
+  'password',
+  'selectboxes',
+  'time',
+  'select',
+  'radio',
+  'content',
+  'modaledit',
+  'tags',
+  'currency',
+  'resource',
+  'signature',
+  'survey',
+  'location',
+  'recaptcha',
+  'fieldset',
+  'well',
+  'editgrid',
+  'nested',
+  'form',
+  'unknown'
+]);
+
+export const prepareComponentBuilderInfo = builderInfo => {
+  const groups = {
+    basic: ['textfield', 'number', 'textarea', 'checkbox', 'ecosSelect', 'button', 'selectJournal', 'selectOrgstruct', 'datetime', 'day'],
+    advanced: [
+      'mlText',
+      'taskOutcome',
+      'mlTextarea',
+      'selectAction',
+      'tableForm',
+      'email',
+      'url',
+      'phoneNumber',
+      'address',
+      'htmlelement',
+      'file',
+      'importButton'
+    ],
+    layout: ['horizontalLine', 'columns', 'panel', 'tableForm', 'tabs'],
+    data: ['hidden', 'asyncData', 'container', 'datagrid', 'datagridAssoc', 'datamap']
+  };
+
+  if (!builderInfo || !builderInfo.key) {
+    return;
+  }
+
+  if (disabledComponents.includes(builderInfo.key)) {
+    return;
+  }
+
+  Object.keys(groups).some(key => {
+    if (groups[key].includes(builderInfo.key)) {
+      builderInfo.group = key;
+
+      return true;
+    }
+
+    return false;
+  });
+
+  return builderInfo;
+};
+
+export const prepareComponents = components => {
+  Object.keys(components).forEach(key => {
+    const component = components[key];
+
+    _expandEditForm(component);
+  });
 
   return components;
 };

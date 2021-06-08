@@ -6,6 +6,8 @@ import EventEmitter from 'formiojs/EventEmitter';
 import BuilderUtils from 'formiojs/utils/builder';
 import { getComponent } from 'formiojs/utils/formUtils';
 
+import { prepareComponentBuilderInfo } from './utils';
+
 WebformBuilder.prototype.updateComponent = function(component) {
   // Update the preview.
   if (this.componentPreview) {
@@ -371,6 +373,12 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
 
   // Called when we edit a component.
   this.emit('editComponent', component);
+};
+
+const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
+
+WebformBuilder.prototype.addBuilderComponentInfo = function(builderInfo) {
+  return originAddBuilderComponentInfo.call(this, prepareComponentBuilderInfo(builderInfo));
 };
 
 export default WebformBuilder;
