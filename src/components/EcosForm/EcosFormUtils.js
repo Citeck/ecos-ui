@@ -348,9 +348,13 @@ export default class EcosFormUtils {
       return recordInstance
         .load({
           formKey: '_formKey[]?str',
-          typeId: '_etype?id'
+          typeId: '_type?id',
+          formRef: '_formRef?id'
         })
-        .then(({ typeId, formKey }) => {
+        .then(({ typeId, formKey, formRef }) => {
+          if (EcosFormUtils.isFormId(formRef)) {
+            return EcosFormUtils.getFormById(formRef, attributes);
+          }
           if (typeId && typeId.indexOf('emodel/type@') === 0) {
             return Records.get(typeId)
               .load('inhFormRef?id')
