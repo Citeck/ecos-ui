@@ -4,8 +4,10 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 
 import { Icon, ResizeBoxes } from '../common';
@@ -53,7 +55,7 @@ class GrouppedTimesheet extends BaseTimesheet {
 
     this.state = {
       typeFilter: '',
-      filteredEventTypes: deepClone(props.eventTypes),
+      filteredEventTypes: cloneDeep(props.eventTypes),
       groupsStatuses: this.initGroupsStatuses(props) || {},
       eventsFilterTabs: [
         {
@@ -82,10 +84,17 @@ class GrouppedTimesheet extends BaseTimesheet {
 
   componentWillReceiveProps(nextProps, nextContext) {
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.filteredEventTypes)) {
-      this.setState({
-        filteredEventTypes: deepClone(nextProps.eventTypes),
-        groupsStatuses: this.initGroupsStatuses(nextProps)
-      });
+      const nextGroupsKeys = Object.keys(this.initGroupsStatuses(nextProps));
+      const currentGroupsKeys = Object.keys(this.state.groupsStatuses);
+      const nextState = {
+        filteredEventTypes: cloneDeep(nextProps.eventTypes)
+      };
+
+      if (!isEqual(currentGroupsKeys, nextGroupsKeys)) {
+        nextState.groupsStatuses = this.initGroupsStatuses(nextProps);
+      }
+
+      this.setState({ ...nextState });
     }
   }
 
@@ -177,7 +186,7 @@ class GrouppedTimesheet extends BaseTimesheet {
   };
 
   handleChangeActiveFilterType = tabIndex => {
-    const eventsFilterTabs = deepClone(this.state.eventsFilterTabs);
+    const eventsFilterTabs = cloneDeep(this.state.eventsFilterTabs);
 
     eventsFilterTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
@@ -195,7 +204,7 @@ class GrouppedTimesheet extends BaseTimesheet {
   };
 
   filterTypes(typeFilter = '') {
-    let filteredEventTypes = deepClone(this.props.eventTypes);
+    let filteredEventTypes = cloneDeep(this.props.eventTypes);
 
     if (typeFilter) {
       filteredEventTypes = this.getFiltered(filteredEventTypes, typeFilter);
