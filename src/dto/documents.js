@@ -267,7 +267,6 @@ export default class DocumentsConverter {
     return source
       .map(column => {
         let { name, schema, attribute, dataField } = column;
-
         const alias = dataField || attribute || name;
 
         if (attribute && schema) {
