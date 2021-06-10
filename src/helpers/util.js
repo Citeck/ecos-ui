@@ -987,7 +987,7 @@ export function getNumberSeparators(locale) {
     decimal: '.',
     thousand: ''
   };
-  const str = parseFloat(1234.56).toLocaleString(locale);
+  const str = parseFloat('1234.56').toLocaleString(locale);
 
   if (!str.match('1')) {
     return result;
