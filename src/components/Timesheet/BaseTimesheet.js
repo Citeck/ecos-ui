@@ -4,9 +4,10 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -43,7 +44,7 @@ class BaseTimesheet extends Component {
 
     this.state = {
       typeFilter: '',
-      filteredEventTypes: deepClone(props.eventTypes),
+      filteredEventTypes: cloneDeep(props.eventTypes),
       isOpen: false,
       draggableNode: null
     };
@@ -62,7 +63,7 @@ class BaseTimesheet extends Component {
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.eventTypes)) {
       this.setState({
         eventTypes: nextProps.eventTypes,
-        filteredEventTypes: deepClone(nextProps.eventTypes)
+        filteredEventTypes: cloneDeep(nextProps.eventTypes)
       });
     }
   }
@@ -87,7 +88,7 @@ class BaseTimesheet extends Component {
 
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
     const { filteredEventTypes, draggableNode } = this.state;
-    const eventTypes = deepClone(filteredEventTypes);
+    const eventTypes = cloneDeep(filteredEventTypes);
     const draggableEvent = eventTypes[oldIndex];
 
     event.stopPropagation();
@@ -130,7 +131,7 @@ class BaseTimesheet extends Component {
 
   filterTypes(typeFilter = '') {
     const { eventTypes } = this.props;
-    let filteredEventTypes = deepClone(eventTypes);
+    let filteredEventTypes = cloneDeep(eventTypes);
 
     if (typeFilter) {
       filteredEventTypes = this.getFiltered(eventTypes, typeFilter);
