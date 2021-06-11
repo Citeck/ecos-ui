@@ -13,8 +13,8 @@ import recordActions, { ActionTypes } from '../components/Records/actions';
 import DocumentsConverter from '../dto/documents';
 import { selectIsMobile } from '../selectors/view';
 import {
+  selectActionsByTypes,
   selectActionsDynamicType,
-  selectActionsDynamicTypes,
   selectAvailableType,
   selectAvailableTypes,
   selectColumnsConfig,
@@ -522,7 +522,7 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
     });
 
     if (documentsIds.length) {
-      const typeActions = yield select(state => selectActionsDynamicTypes(state, payload.key, payload.type));
+      const typeActions = yield select(state => selectActionsByTypes(state, payload.key, types.map(item => item.type)));
       const actions = yield getRecordActionsByType(documentsIds, typeActions);
 
       yield put(setActions({ key: payload.key, actions: actions.forRecord }));
