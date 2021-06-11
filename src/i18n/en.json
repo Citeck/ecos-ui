@@ -410,7 +410,7 @@
   "ecos.forms.invalid_regex": "{{field}} does not match the pattern {{regex}}.",
   "ecos.forms.mask": "{{field}} does not match the mask.",
   "ecos.forms.max": "{{field}} cannot be greater than {{max}}.",
-  "ecos.forms.maxLength": "{{field}} must be shorter than {{length}} characters.",
+  "ecos.forms.maxLength": "{{field}} must contain no more than {{length}} characters.",
   "ecos.forms.min": "{{field}} cannot be less than {{min}}.",
   "ecos.forms.minLength": "{{field}} must be longer than {{length}} characters.",
   "ecos.forms.next": "Next",

@@ -410,7 +410,7 @@
   "ecos.forms.invalid_regex": "{{field}} не соответствует паттерну {{regex}}.",
   "ecos.forms.mask": "{{field}} не совпадает с маской.",
   "ecos.forms.max": "{{field}} не может быть больше чем {{max}}.",
-  "ecos.forms.maxLength": "{{field}} должен быть короче чем {{length}} символов.",
+  "ecos.forms.maxLength": "{{field}} должно содержать не более {{length}} символов.",
   "ecos.forms.min": "{{field}} не может быть меньше чем {{min}}.",
   "ecos.forms.minLength": "{{field}} должен быть длиннее чем {{length}} символов.",
   "ecos.forms.next": "Далее",

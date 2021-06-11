@@ -39,6 +39,8 @@ import ImportButton from './custom/importButton';
 
 import { prepareComponents } from '../utils';
 
+import './Validator';
+
 const components = {
   ...DefaultComponents,
   asyncData: AsyncData,
