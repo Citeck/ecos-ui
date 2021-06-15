@@ -21,9 +21,10 @@ export default class StartWorkflow extends Base {
   componentDidMount() {
     const { item } = this.props;
     const processDef = get(item, 'config.processDef');
+    const label = get(item, 'label');
 
     super.componentDidMount();
-    this.setState({ processDef });
+    this.setState({ processDef, label });
   }
 
   isInvalidForm() {
