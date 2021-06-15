@@ -509,23 +509,43 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
     const documentsIds = [];
     const types = yield select(state => selectDynamicTypes(state, payload.key));
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, types.map(item => item.type));
+    let actionsByRecordsFromTypes = {};
 
     if (errors.length) {
       throw new Error(errors.join(' '));
     }
 
-    types.forEach((item, index) => {
-      const documents = get(records, `[${index}].documents`, []);
+    yield Promise.all(
+      types.map(async (item, index) => {
+        const documents = get(records, `[${index}].documents`, []);
 
-      documentsByTypes[item.type] = documents;
-      documentsIds.push(...documents.map(doc => doc[documentFields.id]));
-    });
+        documentsByTypes[item.type] = documents;
+        documentsIds.push(...documents.map(doc => doc[documentFields.id]));
+
+        if (!isEmpty(item.actions)) {
+          const actions = await recordActions.getActionsForRecords(documentsIds, item.actions);
+
+          actionsByRecordsFromTypes = {
+            ...actionsByRecordsFromTypes,
+            ...get(actions, 'forRecord', {})
+          };
+        }
+      })
+    );
 
     if (documentsIds.length) {
       const typeActions = yield select(state => selectActionsByTypes(state, payload.key, types.map(item => item.type)));
       const actions = yield getRecordActionsByType(documentsIds, typeActions);
 
-      yield put(setActions({ key: payload.key, actions: actions.forRecord }));
+      yield put(
+        setActions({
+          key: payload.key,
+          actions: {
+            ...actions.forRecord,
+            ...actionsByRecordsFromTypes
+          }
+        })
+      );
     }
 
     yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));
