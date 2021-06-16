@@ -116,7 +116,8 @@ class BaseMLField extends Component {
       'className',
       'setWrapperProps',
       'imgClassName',
-      'inputClassName'
+      'inputClassName',
+      'viewOnly'
     ]);
 
     return {
@@ -292,7 +293,7 @@ class BaseMLField extends Component {
         })}
       >
         {viewOnly ? this.renderViewElement() : this.renderInputElement()}
-        {this.renderLang()}
+        {!viewOnly && this.renderLang()}
       </div>
     );
   }
