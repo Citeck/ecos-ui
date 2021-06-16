@@ -11,6 +11,7 @@ import uuidV4 from 'uuidv4';
 import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { prepareTooltipId } from '../../../../helpers/util';
+import { t } from '../../../../helpers/export/util';
 import { allowedLanguages } from '../../../../constants/lang';
 
 import './style.scss';
@@ -32,6 +33,7 @@ class BaseMLField extends Component {
     lang: PropTypes.string,
     placeholder: PropTypes.string,
     disabled: PropTypes.bool,
+    viewOnly: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -237,6 +239,8 @@ class BaseMLField extends Component {
 
   renderInputElement = () => null;
 
+  renderViewElement = () => this.value || t('boolean.no');
+
   renderLang() {
     const { languages, imgClassName } = this.props;
     const { selectedLang, isShowTooltip, isShowButton, isFocus } = this.state;
@@ -278,7 +282,7 @@ class BaseMLField extends Component {
   }
 
   render() {
-    const { className, style, disabled } = this.props;
+    const { className, style, disabled, viewOnly } = this.props;
 
     return (
       <div
@@ -287,7 +291,7 @@ class BaseMLField extends Component {
           'ecos-ml-text_disabled': disabled
         })}
       >
-        {this.renderInputElement()}
+        {viewOnly ? this.renderViewElement() : this.renderInputElement()}
         {this.renderLang()}
       </div>
     );
