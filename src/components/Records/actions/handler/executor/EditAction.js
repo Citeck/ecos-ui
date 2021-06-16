@@ -27,6 +27,7 @@ export default class EditAction extends ActionsExecutor {
           let wasClosed = false;
           EcosFormUtils.editRecord({
             recordRef: record.id,
+            actionRecord: record.id,
             attributes: config.attributes || {},
             onSubmit: () => {
               // temp solution
