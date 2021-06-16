@@ -20,4 +20,15 @@ FormioValidator.validators.required = {
   }
 };
 
+FormioValidator.validators.maxLength = {
+  ...FormioValidator.validators.maxLength,
+  message(component, setting) {
+    return component.t(component.errorMessage('maxLength'), {
+      field: component.errorLabel,
+      length: setting,
+      data: component.data
+    });
+  }
+};
+
 export default FormioValidator;
