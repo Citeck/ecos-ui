@@ -120,6 +120,7 @@ class Dashboard extends Component {
 
       if (isDashboard()) {
         newState.needGetConfig = true;
+        newState.activeLayoutId = '';
       }
     }
 
@@ -141,6 +142,7 @@ class Dashboard extends Component {
 
   static updateTabLink() {
     const link = unescape(decodeURI(`${window.location.pathname}${window.location.search}`));
+
     PageService.changeUrlLink(link, { updateUrl: true });
   }
 

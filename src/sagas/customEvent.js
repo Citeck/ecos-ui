@@ -49,6 +49,7 @@ function* _handleChangeUrl({ api, logger }, { payload: event }) {
       pathname: url,
       search: decodeLink(queryString.stringify(query))
     });
+
     yield put(replace(link));
     return;
   }
