@@ -209,8 +209,8 @@ export default class EcosFormUtils {
           params.contentAfter = config.contentAfter;
         }
 
-        if (config.actionRecord) {
-          params.options = { actionRecord: config.actionRecord };
+        if (config.options) {
+          params.options = config.options;
         }
 
         EcosFormUtils.eform(recordRef, {

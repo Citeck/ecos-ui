@@ -433,6 +433,7 @@ class RecordActions {
       return false;
     }
 
+    const recordInstance = Records.get(record);
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -447,7 +448,7 @@ class RecordActions {
       ...context
     };
 
-    const confirmed = await RecordActions._checkConfirmAction(action, { actionRecord: Records.get(record).id });
+    const confirmed = await RecordActions._checkConfirmAction(action, { actionRecord: recordInstance.id });
 
     if (!confirmed) {
       return false;
@@ -463,16 +464,13 @@ class RecordActions {
       config
     };
 
-    const preResult = await RecordActions._preProcessAction(
-      { records: [Records.get(record)], action: actionToExec, context },
-      'execForRecord'
-    );
+    const preResult = await RecordActions._preProcessAction({ records: [recordInstance], action: actionToExec, context }, 'execForRecord');
 
     if (preResult.configMerged) {
       action.config = preResult.config;
     }
 
-    const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+    const result = handler.execForRecord(recordInstance, actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);
