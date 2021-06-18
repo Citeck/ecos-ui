@@ -209,6 +209,10 @@ export default class EcosFormUtils {
           params.contentAfter = config.contentAfter;
         }
 
+        if (config.options) {
+          params.options = config.options;
+        }
+
         EcosFormUtils.eform(recordRef, {
           params,
           class: 'ecos-modal_width-lg',
