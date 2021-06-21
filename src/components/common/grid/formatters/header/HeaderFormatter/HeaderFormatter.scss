@@ -103,6 +103,12 @@
     border-radius: $border-radius-large;
     text-align: center;
     padding: 9px 10px;
+    max-width: unset;
+
+    & > .ecos-filter {
+      padding: unset;
+      min-width: 200px;
+    }
   }
 
   span.arrow.ecos-th__filter-tooltip-marker {

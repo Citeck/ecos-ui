@@ -12,11 +12,13 @@ import { Label, Select } from '../../common/form';
 import { getPredicates, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
-import ParserPredicate from '../predicates/ParserPredicate';
+import { ParserPredicate } from '../predicates';
 
 import './Filter.scss';
 
-const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
+console.warn({ ParserPredicate });
+
+// const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
 
 export default class Filter extends Component {
   #controls = new Map();
@@ -24,12 +26,14 @@ export default class Filter extends Component {
   static propTypes = {
     filter: PropTypes.object,
     needUpdate: PropTypes.bool,
+    rowConfig: PropTypes.array,
     onChangeValue: PropTypes.func,
     onChangePredicate: PropTypes.func,
     onDelete: PropTypes.func
   };
 
   static defaultProps = {
+    rowConfig: [{ sm: 3 }, { sm: 4 }, { sm: 4 }, { sm: 1 }],
     onChangeValue: _ => _,
     onChangePredicate: _ => _,
     onDelete: _ => _
@@ -66,16 +70,16 @@ export default class Filter extends Component {
     this.handleChangeValue.cancel();
   }
 
-  onChangeValue = value => {
-    this.setState({ value, hasDataEntry: true }, this.handleChangeValue);
+  onChangeValue = (value, withoutValue) => {
+    this.setState({ value, hasDataEntry: true }, () => this.handleChangeValue(withoutValue));
   };
 
   handleChangeValue = debounce(
-    () => {
+    withoutValue => {
       const { value: val } = this.state;
       const { index } = this.props;
 
-      this.props.onChangeValue({ val, index });
+      this.props.onChangeValue({ val, index, withoutValue });
       this.setState({ isInput: false });
     },
     350,
@@ -89,7 +93,7 @@ export default class Filter extends Component {
 
     if (fixedValue !== undefined) {
       this.onChangeValue(fixedValue);
-    } else if (WITHOUT_VAL.includes(predicate) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
+    } else if (ParserPredicate.predicatesWithoutValue.includes(predicate) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
       this.onChangeValue('');
     }
   };
@@ -113,7 +117,7 @@ export default class Filter extends Component {
     } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const isShow = !WITHOUT_VAL.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+    const isShow = !ParserPredicate.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
     const editorType = get(column, 'newEditor.type');
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
@@ -140,53 +144,110 @@ export default class Filter extends Component {
     return null;
   });
 
-  render() {
+  get columns() {
     const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
     const {
-      className,
-      children,
       filter: {
         meta: { column },
         predicate
-      }
+      },
+      columnsConfig
     } = this.props;
     const { value } = this.state;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
 
+    if (!columnsConfig) {
+      return [
+        <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
+          {column.text}
+        </Label>,
+        <Select
+          className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
+          placeholder={t('journals.default')}
+          options={predicates}
+          getOptionLabel={option => option.label}
+          getOptionValue={option => option.value}
+          value={selectedPredicate}
+          onChange={this.onChangePredicate}
+        />,
+        <div className="ecos-filter__value-wrapper">
+          <this.ValueControl {...this.props} value={value} />
+        </div>,
+        <div className="ecos-filter__actions">
+          <IcoBtn
+            icon={'icon-delete'}
+            className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
+            onClick={this.onDeletePredicate}
+          />
+          <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />
+        </div>
+      ];
+    }
+
+    const columns = [];
+
+    if (columnsConfig.label) {
+      columns.push(
+        <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
+          {column.text}
+        </Label>
+      );
+    }
+
+    if (columnsConfig.predicate) {
+      columns.push(
+        <Select
+          className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
+          placeholder={t('journals.default')}
+          options={predicates}
+          getOptionLabel={option => option.label}
+          getOptionValue={option => option.value}
+          value={selectedPredicate}
+          onChange={this.onChangePredicate}
+        />
+      );
+    }
+
+    if (columnsConfig.value) {
+      columns.push(
+        <div className="ecos-filter__value-wrapper">
+          <this.ValueControl {...this.props} value={value} />
+        </div>
+      );
+    }
+
+    if (columnsConfig.actions) {
+      const actions = [];
+
+      if (columnsConfig.actions.delete) {
+        actions.push(
+          <IcoBtn
+            icon={'icon-delete'}
+            className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
+            onClick={this.onDeletePredicate}
+          />
+        );
+      }
+
+      if (columnsConfig.actions.drag) {
+        actions.push(<i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />);
+      }
+
+      columns.push(<div className="ecos-filter__actions">{actions}</div>);
+    }
+
+    return columns;
+  }
+
+  render() {
+    const { className, children, rowConfig } = this.props;
+
     return (
       <div className={classNames('ecos-filter', className)}>
         {children}
 
-        <Columns
-          classNamesColumn={'columns_height_full columns-setup__column_align'}
-          cfgs={[{ sm: 3 }, { sm: 4 }, { sm: 4 }, { sm: 1 }]}
-          cols={[
-            <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
-              {column.text}
-            </Label>,
-            <Select
-              className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
-              placeholder={t('journals.default')}
-              options={predicates}
-              getOptionLabel={option => option.label}
-              getOptionValue={option => option.value}
-              value={selectedPredicate}
-              onChange={this.onChangePredicate}
-            />,
-            <div className="ecos-filter__value-wrapper">
-              <this.ValueControl {...this.props} value={value} />
-            </div>,
-            <div className="ecos-filter__actions">
-              <IcoBtn
-                icon={'icon-delete'}
-                className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
-                onClick={this.onDeletePredicate}
-              />
-              <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />
-            </div>
-          ]}
-        />
+        <Columns classNamesColumn={'columns_height_full columns-setup__column_align'} cfgs={rowConfig} cols={this.columns} />
       </div>
     );
   }

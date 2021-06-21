@@ -10,6 +10,7 @@ import { getId, isExistValue, trigger } from '../../../../../../helpers/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
+import Filter from '../../../../../../components/Filters/Filter/Filter';
 
 import './HeaderFormatter.scss';
 
@@ -20,7 +21,7 @@ export default class HeaderFormatter extends Component {
     this.thRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
-    this.state = { open: false };
+    this.state = { open: false, predicate: {} };
   }
 
   componentDidMount() {
@@ -35,6 +36,7 @@ export default class HeaderFormatter extends Component {
 
   componentWillUnmount() {
     this.fetchValue = false;
+    this.handleSetFilter.cancel();
   }
 
   _setFilterValue = () => {
@@ -126,6 +128,39 @@ export default class HeaderFormatter extends Component {
     }
   };
 
+  handleChangeFilterValue = ({ val }) => {
+    this.setState(
+      state => ({
+        predicate: {
+          ...state.predicate,
+          val
+        }
+      }),
+      this.handleSetFilter
+    );
+  };
+
+  handleSetFilter = debounce(() => {
+    this.props.onFilter([
+      {
+        ...this.props.predicate,
+        ...this.state.predicate
+      }
+    ]);
+  }, 150);
+
+  handleChangeFilterPredicate = ({ predicate }) => {
+    this.setState(
+      state => ({
+        predicate: {
+          ...state.predicate,
+          t: predicate
+        }
+      }),
+      this.handleSetFilter
+    );
+  };
+
   renderInput() {
     const { text } = this.state;
 
@@ -142,7 +177,9 @@ export default class HeaderFormatter extends Component {
   }
 
   renderFilter = () => {
-    const { open } = this.state;
+    const { column, predicate } = this.props;
+    const { open, text } = this.state;
+
     const filterIcon = document.getElementById(this.id);
 
     return (
@@ -157,10 +194,27 @@ export default class HeaderFormatter extends Component {
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
       >
-        <ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>
-          {this.renderInput()}
-          <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />
-        </ClickOutside>
+        {/*<ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>*/}
+        <Filter
+          filter={{
+            meta: {
+              column,
+              condition: {}
+            },
+            predicate: {
+              ...predicate,
+              val: text
+            }
+          }}
+          rowConfig={[{ sm: 5 }, { sm: 5 }, { sm: 2 }]}
+          columnsConfig={{ predicate: true, value: true, actions: { delete: true } }}
+          onChangeValue={this.handleChangeFilterValue}
+          onChangePredicate={this.handleChangeFilterPredicate}
+          onDelete={this.onClear}
+        />
+        {/*{this.renderInput()}*/}
+        {/*<Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />*/}
+        {/*}</ClickOutside>*/}
       </Tooltip>
     );
   };

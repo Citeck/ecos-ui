@@ -531,11 +531,13 @@ class Grid extends Component {
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
-      const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
+      const filterPredicate = (filters || []).filter(filter => filter.att === column.dataField)[0] || {};
+      const filterValue = filterPredicate.val || '';
       const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
 
       return (
         <HeaderFormatter
+          predicate={filterPredicate}
           filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
