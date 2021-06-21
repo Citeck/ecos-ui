@@ -45,7 +45,7 @@ class InputView extends Component {
     this.setState({ inlineToolsOffsets: { height: 0, top: 0, row: {} } });
   };
 
-  onScollingTable = event => {
+  onScrollingTable = event => {
     this.#scrollPosition = event;
 
     if (this.#toolsRef.current) {
@@ -208,10 +208,10 @@ class InputView extends Component {
             autoHeight
             byContentHeight
             scrollable
+            scrollPosition={this.#scrollPosition}
             inlineTools={this.renderInlineTools}
             onChangeTrOptions={this.setInlineToolsOffsets}
-            onScrolling={this.onScollingTable}
-            scrollPosition={this.#scrollPosition}
+            onScrolling={this.onScrollingTable}
           />
         </div>
       );
