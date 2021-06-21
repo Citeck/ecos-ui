@@ -77,6 +77,7 @@ export default class MLTextareaComponent extends BaseReactComponent {
   getInitialReactProps() {
     return {
       ...this.htmlAttributes,
+      viewOnly: this.viewOnly,
       value: this.getInitialValue(),
       placeholder: this.placeholder,
       onChange: this.handleChange
