@@ -75,9 +75,7 @@ export const runTransform = (config, tabs) => {
     { key: 'conditional', components: cloneDeep(BaseEditConditional) }
   ];
 
-  processEditFormConfig(advancedConfig, tabsByKey);
-
-  return { config: advancedConfig, tabsByKey };
+  return { config: advancedConfig, tabsByKey: processEditFormConfig(advancedConfig, tabsByKey) };
 };
 
 const _expandEditForm = component => {
@@ -92,6 +90,7 @@ const _expandEditForm = component => {
   component.editForm = function(...extend) {
     let originTabs = get(originEditForm(), 'components.0.components', []);
     const { config, tabsByKey } = runTransform(null, cloneDeep(originTabs));
+
     const editFormSectionBasic = {
       key: 'basic',
       label: 'Basic',
@@ -220,31 +219,33 @@ export const prepareComponents = components => {
  * @param tabsByKey - where to change, data source
  */
 export const processEditFormConfig = (advancedConfig, tabsByKey) => {
-  tabsByKey.forEach(tab => {
-    tab.components.forEach((item, index) => {
-      const tabConfig = advancedConfig[tab.key];
+  tabsByKey = tabsByKey.map(tab => {
+    tab.components = tab.components
+      .map(item => {
+        const tabConfig = advancedConfig[tab.key];
 
-      if (!tabConfig) {
-        return;
-      }
-
-      const fields = Object.keys(omit(tabConfig, ['components']));
-
-      if (fields.includes(item.key)) {
-        const component = get(tabConfig, item.key, {});
-
-        if (!component.onlyExpand) {
-          set(tabConfig, 'components', tabConfig.components || []);
-          tabConfig.components.push({ ...item, ...component });
-          tab.components.splice(index, 1);
+        if (!tabConfig) {
+          return item;
         }
 
-        // TODO: It may be worth adding the ability to change the parameters of a field?
-        // Object.keys(omit(component, ['onlyExpand'])).forEach(key => {
-        //   item[key] = component[key];
-        // });
-      }
-    });
+        const fields = Object.keys(omit(tabConfig, ['components']));
+
+        if (fields.includes(item.key)) {
+          const component = get(tabConfig, item.key, {});
+
+          if (!component.onlyExpand) {
+            set(tabConfig, 'components', tabConfig.components || []);
+            tabConfig.components.push({ ...item, ...component });
+
+            return null;
+          }
+        }
+
+        return item;
+      })
+      .filter(item => item !== null);
+
+    return tab;
   });
 
   return tabsByKey;
