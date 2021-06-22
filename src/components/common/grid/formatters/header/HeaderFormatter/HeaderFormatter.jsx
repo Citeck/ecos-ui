@@ -10,7 +10,6 @@ import { closest, getId, isExistValue, trigger } from '../../../../../../helpers
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
-import Filter from '../../../../../../components/Filters/Filter/Filter';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 
 import './HeaderFormatter.scss';
@@ -145,7 +144,8 @@ export default class HeaderFormatter extends Component {
     this.props.onFilter([
       {
         ...this.props.predicate,
-        ...this.state.predicate
+        ...this.state.predicate,
+        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
       }
     ]);
   }, 150);
@@ -188,7 +188,6 @@ export default class HeaderFormatter extends Component {
   renderFilter = () => {
     const { column, predicate } = this.props;
     const { open, text } = this.state;
-
     const filterIcon = document.getElementById(this.id);
 
     return (
@@ -219,8 +218,6 @@ export default class HeaderFormatter extends Component {
             onChangePredicate={this.handleChangeFilterPredicate}
             onDelete={this.onClear}
           />
-          {/*{this.renderInput()}*/}
-          {/*<Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />*/}
         </ClickOutside>
       </Tooltip>
     );

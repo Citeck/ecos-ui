@@ -16,10 +16,6 @@ import { ParserPredicate } from '../predicates';
 
 import './Filter.scss';
 
-console.warn({ ParserPredicate });
-
-// const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
-
 export default class Filter extends Component {
   #controls = new Map();
 
