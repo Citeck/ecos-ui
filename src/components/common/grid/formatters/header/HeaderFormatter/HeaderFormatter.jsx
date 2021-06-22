@@ -6,11 +6,12 @@ import replace from 'lodash/replace';
 import get from 'lodash/get';
 import { Tooltip } from 'reactstrap';
 
-import { getId, isExistValue, trigger } from '../../../../../../helpers/util';
+import { closest, getId, isExistValue, trigger } from '../../../../../../helpers/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
 import Filter from '../../../../../../components/Filters/Filter/Filter';
+import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 
 import './HeaderFormatter.scss';
 
@@ -176,6 +177,14 @@ export default class HeaderFormatter extends Component {
     );
   }
 
+  handleClickOutside = e => {
+    if (closest(e.target, 'modal')) {
+      return;
+    }
+
+    this.state.open && this.onToggle(e);
+  };
+
   renderFilter = () => {
     const { column, predicate } = this.props;
     const { open, text } = this.state;
@@ -194,27 +203,25 @@ export default class HeaderFormatter extends Component {
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
       >
-        {/*<ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>*/}
-        <Filter
-          filter={{
-            meta: {
-              column,
-              condition: {}
-            },
-            predicate: {
-              ...predicate,
-              val: text
-            }
-          }}
-          rowConfig={[{ sm: 5 }, { sm: 5 }, { sm: 2 }]}
-          columnsConfig={{ predicate: true, value: true, actions: { delete: true } }}
-          onChangeValue={this.handleChangeFilterValue}
-          onChangePredicate={this.handleChangeFilterPredicate}
-          onDelete={this.onClear}
-        />
-        {/*{this.renderInput()}*/}
-        {/*<Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />*/}
-        {/*}</ClickOutside>*/}
+        <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
+          <InlineFilter
+            filter={{
+              meta: {
+                column,
+                condition: {}
+              },
+              predicate: {
+                ...predicate,
+                val: text
+              }
+            }}
+            onChangeValue={this.handleChangeFilterValue}
+            onChangePredicate={this.handleChangeFilterPredicate}
+            onDelete={this.onClear}
+          />
+          {/*{this.renderInput()}*/}
+          {/*<Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />*/}
+        </ClickOutside>
       </Tooltip>
     );
   };

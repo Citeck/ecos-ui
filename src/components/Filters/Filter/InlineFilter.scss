@@ -1,0 +1,11 @@
+.ecos-inline-filter {
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    grid-gap: 5px;
+  }
+
+  &__value {
+    max-width: 200px;
+  }
+}
