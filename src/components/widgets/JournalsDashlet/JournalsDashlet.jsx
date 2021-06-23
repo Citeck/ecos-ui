@@ -254,19 +254,18 @@ class JournalsDashlet extends BaseWidget {
     this.handleChangeSelectedJournal('');
   };
 
-  renderWarnings() {
+  getMessages() {
     const { editorMode, isExistJournal, isLoading, journalConfig } = this.props;
+    const msgs = [];
 
     if (isLoading || editorMode) {
-      return null;
+      return msgs;
     }
 
-    return (
-      <>
-        {!isExistJournal && <div className="alert alert-warning mb-0">{t(Labels.J_NOT_EXISTED)}</div>}
-        {isExistJournal && isEmpty(get(journalConfig, 'columns')) && <div className="alert alert-warning mb-0">{t(Labels.J_NO_COLS)}</div>}
-      </>
-    );
+    !isExistJournal && msgs.push(Labels.J_NOT_EXISTED);
+    isExistJournal && isEmpty(get(journalConfig, 'columns')) && msgs.push(Labels.J_NO_COLS);
+
+    return msgs;
   }
 
   renderEditor() {
@@ -350,13 +349,13 @@ class JournalsDashlet extends BaseWidget {
       };
     }
 
-    const warnings = this.renderWarnings();
+    const warnings = this.getMessages();
 
     return (
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
-        bodyClassName="ecos-journal-dashlet__body"
+        bodyClassName={classNames('ecos-journal-dashlet__body', { 'ecos-journal-dashlet__body_warnings': !!warnings && !editorMode })}
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
         title={get(journalConfig, 'meta.title') || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
@@ -368,9 +367,13 @@ class JournalsDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
         setRef={this.setDashletRef}
       >
-        {warnings}
+        {warnings.map(msg => (
+          <div className="alert alert-warning mb-0" key={msg}>
+            {t(msg)}
+          </div>
+        ))}
         {this.renderEditor()}
-        {!warnings && this.renderJournal()}
+        {isEmpty(warnings) && this.renderJournal()}
       </Dashlet>
     );
   }

@@ -64,6 +64,10 @@
 
   &__body {
     min-height: 115px;
+
+    &_warnings {
+      min-height: auto;
+    }
   }
 
   &__group-actions {
