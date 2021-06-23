@@ -7,6 +7,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import JSONPretty from 'react-json-pretty';
 
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
@@ -408,6 +409,23 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
+  handleReloadContent = event => {
+    if (event.ctrlKey) {
+      event.stopPropagation();
+      this.setState({ reloadContent: true }, () => this.setState({ reloadContent: false }));
+    }
+  };
+
+  handleShowConfig = event => {
+    if (event.ctrlKey && event.shiftKey) {
+      event.stopPropagation();
+      DialogManager.showCustomDialog({
+        title: 'Configuration',
+        body: <JSONPretty data={this.props.originalConfig} />
+      });
+    }
+  };
+
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
 
@@ -535,6 +553,8 @@ class Dashboard extends Component {
           'ecos-dashboard__header_mobile': isMobile,
           'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
+        onDoubleClick={this.handleReloadContent}
+        onClick={this.handleShowConfig}
       >
         {title}
         {showStatus && (
@@ -599,7 +619,7 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        {this.renderContent()}
+        {!this.state.reloadContent && this.renderContent()}
         {this.renderLoader()}
       </>
     );
