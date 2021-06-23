@@ -192,8 +192,6 @@ export default class Filter extends Component {
   renderValue() {
     const { value } = this.state;
 
-    // return <this.ValueControl {...this.props} className={classNames(this.props.className, this.valueClassNames)} value={value} />
-
     return (
       <div className={this.valueClassNames}>
         <this.ValueControl {...this.props} value={value} />

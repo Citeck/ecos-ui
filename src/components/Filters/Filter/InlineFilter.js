@@ -2,9 +2,10 @@ import React from 'react';
 import classNames from 'classnames';
 
 import Filter from './Filter';
-
-import './InlineFilter.scss';
 import { IcoBtn } from '../../common/btns';
+
+import './Filter.scss';
+import './InlineFilter.scss';
 
 class InlineFilter extends Filter {
   get valueClassNames() {
