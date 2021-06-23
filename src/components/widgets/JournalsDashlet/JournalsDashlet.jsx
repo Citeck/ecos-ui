@@ -3,14 +3,16 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { arrayCompare, t } from '../../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
+import { t } from '../../../helpers/util';
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
+import UserLocalSettingsService from '../../../services/userLocalSettings';
 import {
   execRecordsAction,
   getDashletConfig,
@@ -22,7 +24,7 @@ import {
   setSelectAllRecords,
   setSelectedRecords
 } from '../../../actions/journals';
-
+import { selectDashletConfig } from '../../../selectors/journals';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
@@ -31,10 +33,14 @@ import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
 import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
-import { selectDashletConfig, selectIsNotExistsJournal } from '../../../selectors/journals';
-import UserLocalSettingsService from '../../../services/userLocalSettings';
 
 import './JournalsDashlet.scss';
+
+const Labels = {
+  J_TITLE: 'journal.title',
+  J_NOT_EXISTED: 'journal.not-exists.warning',
+  J_NO_COLS: 'journal.no-config-columns.warning'
+};
 
 const getKey = ({ tabId = '', stateId, id }) =>
   (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
@@ -53,7 +59,7 @@ const mapStateToProps = (state, ownProps) => {
     selectAllRecords: newState.selectAllRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible,
     isLoading: newState.isCheckLoading || newState.loading,
-    isNotExistsJournal: selectIsNotExistsJournal(state, getKey(ownProps))
+    isExistJournal: newState.isExistJournal
   };
 };
 
@@ -144,7 +150,7 @@ class JournalsDashlet extends BaseWidget {
     const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
     const { journalId } = this.state;
 
-    if (!arrayCompare(config, prevConfig) && !!onSave) {
+    if (!isEqual(config, prevConfig) && !!onSave) {
       setDashletConfigByParams(id, config, null, journalId);
       !isActiveLayout && this.setState({ runUpdate: true });
     }
@@ -226,11 +232,9 @@ class JournalsDashlet extends BaseWidget {
 
   goToJournalsPage = () => {
     const {
-      config: { journalsListId = '', journalSettingId = '' },
-      journalConfig: {
-        meta: { nodeRef = '' }
-      }
+      config: { journalsListId = '', journalSettingId = '' }
     } = this.props;
+    const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
 
     goToJournalsPage({ journalsListId, journalId: nodeRef, journalSettingId, nodeRef });
   };
@@ -250,28 +254,37 @@ class JournalsDashlet extends BaseWidget {
     this.handleChangeSelectedJournal('');
   };
 
+  renderWarnings() {
+    const { editorMode, isExistJournal, isLoading, journalConfig } = this.props;
+
+    if (isLoading || editorMode) {
+      return null;
+    }
+
+    return (
+      <>
+        {!isExistJournal && <div className="alert alert-warning mb-0">{t(Labels.J_NOT_EXISTED)}</div>}
+        {isExistJournal && isEmpty(get(journalConfig, 'columns')) && <div className="alert alert-warning mb-0">{t(Labels.J_NO_COLS)}</div>}
+      </>
+    );
+  }
+
   renderEditor() {
-    const { editorMode, id, config, stateId, isNotExistsJournal } = this.props;
+    const { editorMode, id, config, stateId } = this.props;
     const { isCollapsed } = this.state;
 
     if (!editorMode || isCollapsed) {
       return null;
     }
 
-    return (
-      <>
-        {isNotExistsJournal && <div className="alert alert-warning mb-0">{t('journal.not-exists.warning')}</div>}
-
-        <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />
-      </>
-    );
+    return <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />;
   }
 
   renderJournal() {
-    const { editorMode, stateId, isNotExistsJournal } = this.props;
+    const { editorMode, stateId } = this.props;
     const { width, isCollapsed, journalId } = this.state;
 
-    if (editorMode || isCollapsed || isNotExistsJournal) {
+    if (editorMode || isCollapsed) {
       return null;
     }
 
@@ -337,15 +350,17 @@ class JournalsDashlet extends BaseWidget {
       };
     }
 
+    const warnings = this.renderWarnings();
+
     return (
       <Dashlet
         {...this.props}
         className={classNames('ecos-journal-dashlet', className)}
         bodyClassName="ecos-journal-dashlet__body"
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
-        title={get(journalConfig, 'meta.title') || t('journal.title')}
+        title={get(journalConfig, 'meta.title') || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
-        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config)}
+        needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
         actionConfig={actions}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
@@ -353,8 +368,9 @@ class JournalsDashlet extends BaseWidget {
         isCollapsed={isCollapsed}
         setRef={this.setDashletRef}
       >
+        {warnings}
         {this.renderEditor()}
-        {this.renderJournal()}
+        {!warnings && this.renderJournal()}
       </Dashlet>
     );
   }

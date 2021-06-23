@@ -691,6 +691,7 @@
   "journal.task.statistics.task_type.title": "Тип задачи",
   "journal.title": "Журнал",
   "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки",
+  "journal.no-config-columns.warning": "Для указанного журнала нет колонок, проверьте настройки журнала",
   "journal.cell.no-label": "(Нет наименования)",
   "journal.error.fail-get-settings-template": "Шаблон настроек не получен",
   "journal.generated-field.editor.not-exist": "Редактора не существует",
