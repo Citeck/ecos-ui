@@ -111,7 +111,7 @@ export default class Filter extends Component {
   }
 
   get valueClassNames() {
-    return 'ecos-filter__value-wrapper';
+    return 'ecos-filter__value-wrapper ecos-filter_step';
   }
 
   ValueControl = React.memo((props, context) => {
@@ -152,7 +152,7 @@ export default class Filter extends Component {
     return null;
   });
 
-  renderLabel = () => {
+  renderLabel() {
     const {
       filter: {
         meta: { column }
@@ -164,9 +164,9 @@ export default class Filter extends Component {
         {column.text}
       </Label>
     );
-  };
+  }
 
-  renderSelector = () => {
+  renderSelector() {
     const {
       filter: {
         meta: { column },
@@ -187,19 +187,21 @@ export default class Filter extends Component {
         onChange={this.onChangePredicate}
       />
     );
-  };
+  }
 
-  renderValue = () => {
+  renderValue() {
     const { value } = this.state;
+
+    // return <this.ValueControl {...this.props} className={classNames(this.props.className, this.valueClassNames)} value={value} />
 
     return (
       <div className={this.valueClassNames}>
         <this.ValueControl {...this.props} value={value} />
       </div>
     );
-  };
+  }
 
-  renderDeleteAction = () => {
+  renderDeleteAction() {
     const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
 
     return (
@@ -209,18 +211,20 @@ export default class Filter extends Component {
         onClick={this.onDeletePredicate}
       />
     );
-  };
+  }
 
-  renderDragAction = () => <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />;
+  renderDragAction() {
+    return <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />;
+  }
 
-  renderActions = () => {
+  renderActions() {
     return (
       <div className="ecos-filter__actions">
         {this.renderDeleteAction()}
         {this.renderDragAction()}
       </div>
     );
-  };
+  }
 
   render() {
     const { className, children, rowConfig } = this.props;

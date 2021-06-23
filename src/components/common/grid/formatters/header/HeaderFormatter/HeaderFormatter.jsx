@@ -71,6 +71,7 @@ export default class HeaderFormatter extends Component {
 
   onToggle = e => {
     const open = !this.state.open;
+
     this.setState({ open });
     e && e.stopPropagation();
   };
@@ -178,7 +179,7 @@ export default class HeaderFormatter extends Component {
   }
 
   handleClickOutside = e => {
-    if (closest(e.target, 'modal')) {
+    if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container')) {
       return;
     }
 
@@ -217,6 +218,7 @@ export default class HeaderFormatter extends Component {
             onChangeValue={this.handleChangeFilterValue}
             onChangePredicate={this.handleChangeFilterPredicate}
             onDelete={this.onClear}
+            onToggle={this.onToggle}
           />
         </ClickOutside>
       </Tooltip>

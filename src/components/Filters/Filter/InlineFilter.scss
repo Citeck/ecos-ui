@@ -1,11 +1,36 @@
+@import '../../../styles/constants';
+
 .ecos-inline-filter {
   &__body {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    grid-gap: 5px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    .ecos-filter_step {
+      &:empty {
+        margin: 0;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+
+    &-confirm.ecos-btn {
+      color: $color-gray-6;
+
+      i:hover {
+        color: $color-green1;
+        background-color: transparent;
+      }
+    }
   }
 
   &__value {
     max-width: 200px;
+  }
+
+  &__selector {
+    min-width: 120px;
   }
 }

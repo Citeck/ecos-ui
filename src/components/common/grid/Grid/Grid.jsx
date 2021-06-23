@@ -14,7 +14,6 @@ import pick from 'lodash/pick';
 
 import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import ErrorCell from '../ErrorCell';
@@ -287,7 +286,7 @@ class Grid extends Component {
           column.hidden = !column.default;
         }
 
-        const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+        const filterable = props.filterable;
 
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
@@ -527,7 +526,7 @@ class Grid extends Component {
 
   setHeaderFormatter = (column, filterable, sortable) => {
     const { filters, sortBy, onSort, onFilter } = this.props;
-    const isFilterable = get(column, 'searchableByText') !== false && filterable && typeof onFilter === 'function';
+    const isFilterable = /*get(column, 'searchableByText') !== false &&*/ filterable && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
