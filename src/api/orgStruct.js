@@ -8,8 +8,6 @@ import { converterUserList } from '../components/common/form/SelectOrgstruct/hel
 import { getCurrentUserName, isNodeRef } from '../helpers/util';
 import { RecordService } from './recordService';
 
-export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
-
 export class OrgStructApi extends RecordService {
   _loadedAuthorities = {};
   _loadedGroups = {};

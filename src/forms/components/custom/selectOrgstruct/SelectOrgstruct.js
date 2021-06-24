@@ -9,6 +9,7 @@ import {
   AUTHORITY_TYPE_USER,
   DataTypes,
   GroupTypes,
+  ROOT_GROUP_NAME,
   TabTypes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
 import { isNodeRef } from '../../../../helpers/util';
@@ -26,6 +27,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         type: 'selectOrgstruct',
         allowedAuthorityType: [AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP].join(', '),
         allowedGroupType: [GroupTypes.ROLE, GroupTypes.BRANCH].join(', '),
+        rootGroupName: ROOT_GROUP_NAME,
         allowedGroupSubType: '',
         currentUserByDefault: false,
         excludeAuthoritiesByName: '',
@@ -118,6 +120,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     let component = this.component;
     let allowedAuthorityType = this.component.allowedAuthorityType || '';
     let allowedGroupType = this.component.allowedGroupType || '';
+    let rootGroupName = this.component.rootGroupName || ROOT_GROUP_NAME;
     let allowedGroupSubType = this.component.allowedGroupSubType || '';
     let userSearchExtraFieldsStr = this.component.userSearchExtraFields || '';
     const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
@@ -145,6 +148,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           disabled={component.disabled}
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
+          rootGroupName={rootGroupName}
           allowedGroupSubTypes={allowedGroupSubTypes}
           excludeAuthoritiesByName={excludeAuthoritiesByName}
           excludeAuthoritiesByType={excludedAuthoritiesByType}
