@@ -108,3 +108,14 @@ export const selectViewColumns = createSelector(
     return columns.filter(col => col.default);
   }
 );
+
+export const selectDashletConfigJournalId = createSelector(
+  selectNewVersionDashletConfig,
+  props => {
+    if (!props) {
+      return null;
+    }
+
+    return !props.customJournalMode || !props.customJournal ? props.journalId : props.customJournal;
+  }
+);

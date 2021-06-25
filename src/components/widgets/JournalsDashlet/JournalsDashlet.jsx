@@ -24,7 +24,7 @@ import {
   setSelectAllRecords,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectDashletConfig } from '../../../selectors/journals';
+import { selectDashletConfig, selectDashletConfigJournalId } from '../../../selectors/journals';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
@@ -53,6 +53,7 @@ const mapStateToProps = (state, ownProps) => {
     editorMode: newState.editorMode,
     journalConfig: newState.journalConfig,
     config: selectDashletConfig(state, getKey(ownProps)),
+    configJournalId: selectDashletConfigJournalId(state, getKey(ownProps)),
     isMobile: (state.view || {}).isMobile === true,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
@@ -327,7 +328,7 @@ class JournalsDashlet extends BaseWidget {
   }
 
   render() {
-    const { journalConfig, className, dragHandleProps, editorMode, config } = this.props;
+    const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
     const { width, isCollapsed } = this.state;
 
     if (!journalConfig) {
@@ -350,6 +351,7 @@ class JournalsDashlet extends BaseWidget {
     }
 
     const warnings = this.getMessages();
+    const journalName = get(journalConfig, 'meta.title');
 
     return (
       <Dashlet
@@ -357,7 +359,7 @@ class JournalsDashlet extends BaseWidget {
         className={classNames('ecos-journal-dashlet', className)}
         bodyClassName={classNames('ecos-journal-dashlet__body', { 'ecos-journal-dashlet__body_warnings': !!warnings && !editorMode })}
         style={{ minWidth: `${MIN_WIDTH_DASHLET_SMALL}px` }}
-        title={get(journalConfig, 'meta.title') || t(Labels.J_TITLE)}
+        title={journalName || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
         needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
         actionConfig={actions}
@@ -369,7 +371,7 @@ class JournalsDashlet extends BaseWidget {
       >
         {warnings.map(msg => (
           <div className="alert alert-warning mb-0" key={msg}>
-            {t(msg)}
+            {t(msg, { configJournalId, journalName }).trim()}
           </div>
         ))}
         {this.renderEditor()}
