@@ -9,7 +9,7 @@ import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { t } from '../../../helpers/util';
+import { extractLabel, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -351,7 +351,7 @@ class JournalsDashlet extends BaseWidget {
     }
 
     const warnings = this.getMessages();
-    const journalName = get(journalConfig, 'meta.title');
+    const journalName = extractLabel(get(journalConfig, 'meta.title') || get(journalConfig, 'name'));
 
     return (
       <Dashlet
