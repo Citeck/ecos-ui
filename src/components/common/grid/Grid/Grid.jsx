@@ -323,17 +323,18 @@ class Grid extends Component {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
         this.onRowClick(e.currentTarget);
       },
+      onDoubleClick: this.onDoubleClick,
       onDragOver: this.onDragOver,
       onDrop: this.onDrop,
       ...extra.rowEvents
     };
 
     if (props.multiSelectable) {
-      options.selectRow = this.createMultiSelectionCheckboxs(props);
+      options.selectRow = this.createMultiSelectionCheckboxes(props);
     }
 
     if (props.singleSelectable) {
-      options.selectRow = this.createSingleSelectionCheckboxs(props);
+      options.selectRow = this.createSingleSelectionCheckboxes(props);
     }
 
     const CUSTOM_NESTED_DELIMITER = '|';
@@ -533,7 +534,7 @@ class Grid extends Component {
     return column;
   };
 
-  createSingleSelectionCheckboxs(props) {
+  createSingleSelectionCheckboxes(props) {
     this._selected = props.selected || [];
 
     return {
@@ -553,7 +554,7 @@ class Grid extends Component {
     };
   }
 
-  createMultiSelectionCheckboxs(props) {
+  createMultiSelectionCheckboxes(props) {
     this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
     if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this._selected.length) {
@@ -792,6 +793,10 @@ class Grid extends Component {
   onRowClick = tr => {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
     trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
+  };
+
+  onDoubleClick = (...params) => {
+    this.props.onRowDoubleClick && this.props.onRowDoubleClick(params);
   };
 
   onSort = e => {
@@ -1069,6 +1074,8 @@ Grid.propTypes = {
 
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
+  onRowClick: PropTypes.func,
+  onRowDoubleClick: PropTypes.func,
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,

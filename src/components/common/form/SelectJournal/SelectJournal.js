@@ -30,6 +30,15 @@ import FiltersProvider from './Filters/FiltersProvider';
 
 import './SelectJournal.scss';
 
+const Labels = {
+  ERROR_NO_JOURNAL_ID: 'select-journal.error.no-journal-id',
+  MODAL_TITLE_SELECT: 'select-journal.select-modal.title',
+  MODAL_TITLE_EDIT: 'select-journal.edit-modal.title',
+  MODAL_BTN_FILTER: 'select-journal.select-modal.filter-button',
+  MODAL_BTN_CANCEL: 'select-journal.select-modal.cancel-button',
+  MODAL_BTN_OK: 'select-journal.select-modal.ok-button'
+};
+
 const paginationInitState = {
   skipCount: 0,
   maxItems: 10,
@@ -140,7 +149,7 @@ export default class SelectJournal extends Component {
     const { journalId, onError } = this.props;
 
     if (!journalId) {
-      const error = new Error(t('select-journal.error.no-journal-id'));
+      const error = new Error(t(Labels.ERROR_NO_JOURNAL_ID));
       typeof onError === 'function' && onError(error);
       this.setState({ error });
     } else {
@@ -561,6 +570,22 @@ export default class SelectJournal extends Component {
     });
   };
 
+  onRowDoubleClick = ([, data]) => {
+    const { multiple } = this.props;
+    const val = data.id;
+    const _selected = this.state.gridData.selected;
+    const filtered = _selected.filter(v => v !== val);
+    let selected;
+
+    if (filtered.length !== _selected.length) {
+      selected = filtered;
+    } else {
+      selected = multiple ? filtered.push(multiple) : [val];
+    }
+
+    this.setState(prevState => ({ gridData: { ...prevState.gridData, selected: selected } }), this.onSelectFromJournalPopup);
+  };
+
   openSelectModal = () => {
     const { isJournalConfigFetched, isGridDataReady } = this.state;
 
@@ -743,8 +768,9 @@ export default class SelectJournal extends Component {
       'select-journal_view-only': viewOnly
     });
 
-    let selectModalTitle = t('select-journal.select-modal.title');
-    let editModalTitle = t('select-journal.edit-modal.title');
+    let selectModalTitle = t(Labels.MODAL_TITLE_SELECT);
+    let editModalTitle = t(Labels.MODAL_TITLE_EDIT);
+
     if (journalConfig.meta.title) {
       selectModalTitle += `: ${journalConfig.meta.title}`;
     }
@@ -777,7 +803,7 @@ export default class SelectJournal extends Component {
                     className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                     onClick={this.toggleCollapsePanel}
                   >
-                    {t('select-journal.select-modal.filter-button')}
+                    {t(Labels.MODAL_BTN_FILTER)}
                   </IcoBtn>
 
                   {hideCreateButton ? null : (
@@ -804,13 +830,14 @@ export default class SelectJournal extends Component {
 
               <Grid
                 {...gridData}
+                className={gridClasses}
                 singleSelectable={!multiple}
                 multiSelectable={multiple}
-                onSelect={this.onSelectGridItem}
                 selectAllRecords={null}
                 selectAllRecordsVisible={null}
-                className={gridClasses}
                 scrollable={false}
+                onSelect={this.onSelectGridItem}
+                onRowDoubleClick={this.onRowDoubleClick}
               />
 
               <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
@@ -818,10 +845,10 @@ export default class SelectJournal extends Component {
 
             <div className="select-journal-select-modal__buttons">
               <Btn className={'select-journal-select-modal__buttons-cancel'} onClick={this.onCancelSelect}>
-                {t('select-journal.select-modal.cancel-button')}
+                {t(Labels.MODAL_BTN_CANCEL)}
               </Btn>
               <Btn className={'ecos-btn_blue select-journal-select-modal__buttons-ok'} onClick={this.onSelectFromJournalPopup}>
-                {t('select-journal.select-modal.ok-button')}
+                {t(Labels.MODAL_BTN_OK)}
               </Btn>
             </div>
           </EcosModal>
