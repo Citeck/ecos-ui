@@ -28,6 +28,10 @@
 
   &__value {
     max-width: 200px;
+
+    .ecos-select.select_width_full {
+      min-width: 120px;
+    }
   }
 
   &__selector {

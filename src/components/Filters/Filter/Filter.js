@@ -9,7 +9,7 @@ import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicates, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import { getPredicates, getPredicateValue, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
 import { ParserPredicate } from '../predicates';
@@ -17,7 +17,7 @@ import { ParserPredicate } from '../predicates';
 import './Filter.scss';
 
 export default class Filter extends Component {
-  #controls = new Map();
+  _controls = new Map();
 
   static propTypes = {
     filter: PropTypes.object,
@@ -99,7 +99,7 @@ export default class Filter extends Component {
   };
 
   getSelectedPredicate = (predicates, predicate) => {
-    return predicates.filter(p => p.value === predicate.t)[0] || predicates[0];
+    return predicates.filter(p => p.value === getPredicateValue(predicate))[0] || predicates[0];
   };
 
   get labelClassNames() {
@@ -114,24 +114,47 @@ export default class Filter extends Component {
     return 'ecos-filter__value-wrapper ecos-filter_step';
   }
 
-  ValueControl = React.memo((props, context) => {
+  get selectedPredicate() {
     const {
-      value,
+      filter: {
+        meta: { column },
+        predicate
+      }
+    } = this.props;
+    const predicates = getPredicates(column);
+
+    return this.getSelectedPredicate(predicates, predicate);
+  }
+
+  get valueControlProps() {
+    const {
       filter: {
         meta: { column },
         predicate = {}
-      },
-      metaRecord
-    } = props;
+      }
+    } = this.props;
+    const { value } = this.state;
+
+    return {
+      ...this.props,
+      column,
+      predicate,
+      value
+    };
+  }
+
+  ValueControl = React.memo((props, context) => {
+    const { value, predicate, column, metaRecord } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const isShow = !ParserPredicate.predicatesWithoutValue.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+    const isShow =
+      !ParserPredicate.predicatesWithoutValue.includes(getPredicateValue(predicate)) && get(selectedPredicate, 'needValue', true);
     const editorType = get(column, 'newEditor.type');
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      if (this.#controls.has(key)) {
-        return this.#controls.get(key);
+      if (this._controls.has(key)) {
+        return this._controls.get(key);
       } else {
         const control = EditorService.getEditorControl({
           recordRef: metaRecord,
@@ -140,10 +163,11 @@ export default class Filter extends Component {
           value,
           scope: EditorScope.FILTER,
           onUpdate: this.onChangeValue,
+          onKeyDown: this.onKeyDown,
           controlProps: { predicate: omit(predicate, 'val') }
         });
 
-        this.#controls.set(key, control);
+        this._controls.set(key, control);
 
         return control;
       }
@@ -169,12 +193,10 @@ export default class Filter extends Component {
   renderSelector() {
     const {
       filter: {
-        meta: { column },
-        predicate
+        meta: { column }
       }
     } = this.props;
     const predicates = getPredicates(column);
-    const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
 
     return (
       <Select
@@ -183,18 +205,16 @@ export default class Filter extends Component {
         options={predicates}
         getOptionLabel={option => option.label}
         getOptionValue={option => option.value}
-        value={selectedPredicate}
+        value={this.selectedPredicate}
         onChange={this.onChangePredicate}
       />
     );
   }
 
   renderValue() {
-    const { value } = this.state;
-
     return (
       <div className={this.valueClassNames}>
-        <this.ValueControl {...this.props} value={value} />
+        <this.ValueControl {...this.valueControlProps} />
       </div>
     );
   }

@@ -166,6 +166,10 @@ export function getPredicate(value) {
   return predicate;
 }
 
+export function getPredicateValue(predicate) {
+  return predicate.t || predicate.value;
+}
+
 export function filterPredicates(filterArr) {
   if (!allPredicates.length) {
     allPredicates = getAllPredicates();

@@ -151,6 +151,18 @@ export default class HeaderFormatter extends Component {
     ]);
   }, 150);
 
+  handleFilter = predicate => {
+    this.props.onFilter([
+      {
+        ...get(this.props, 'predicate'),
+        ...predicate,
+        value: predicate.val,
+        t: predicate.value,
+        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
+      }
+    ]);
+  };
+
   handleChangeFilterPredicate = ({ predicate }) => {
     this.setState(
       state => ({
@@ -187,6 +199,12 @@ export default class HeaderFormatter extends Component {
   };
 
   renderFilter = () => {
+    const { filterable } = this.props;
+
+    if (!filterable) {
+      return null;
+    }
+
     const { column, predicate } = this.props;
     const { open, text } = this.state;
     const filterIcon = document.getElementById(this.id);
@@ -217,6 +235,7 @@ export default class HeaderFormatter extends Component {
             }}
             onChangeValue={this.handleChangeFilterValue}
             onChangePredicate={this.handleChangeFilterPredicate}
+            onFilter={this.handleFilter}
             onDelete={this.onClear}
             onToggle={this.onToggle}
           />
@@ -257,7 +276,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, filterable, sortable } = this.props;
+    const { column = {}, sortable } = this.props;
 
     this.id = `filter-${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
@@ -273,7 +292,7 @@ export default class HeaderFormatter extends Component {
           </EcosTooltip>
           {this.renderActions()}
         </div>
-        {filterable && this.renderFilter()}
+        {this.renderFilter()}
         <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} />
       </div>
     );
