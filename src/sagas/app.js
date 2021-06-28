@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, getTextByLocale } from '../helpers/util';
 import {
   backPageFromTransitionsHistory,
   getAppEdition,
@@ -134,7 +134,7 @@ export function* fetchFooter({ api, logger }) {
     const footer = yield call(api.app.getFooter);
 
     if (footer) {
-      yield put(setFooter(footer));
+      yield put(setFooter(getTextByLocale(footer)));
     }
   } catch (e) {
     logger.error('[fetchFooter saga] error', e.message);
