@@ -147,4 +147,9 @@
     width: 100%;
     font-size: $font-size-small;
   }
+
+  &-message {
+    white-space: break-spaces;
+    color: $text-color-gray;
+  }
 }

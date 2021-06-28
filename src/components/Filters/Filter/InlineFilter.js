@@ -10,8 +10,6 @@ import './Filter.scss';
 import './InlineFilter.scss';
 
 class InlineFilter extends Filter {
-  // #controls = new Map();
-
   constructor(props) {
     super(props);
 

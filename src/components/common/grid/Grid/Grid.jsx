@@ -18,6 +18,7 @@ import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatte
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
+import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 
 import './Grid.scss';
 
@@ -525,17 +526,19 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter } = this.props;
-    const isFilterable = /*get(column, 'searchableByText') !== false &&*/ filterable && typeof onFilter === 'function';
+    const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
+    const isFilterable = filterable && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
-      const filterPredicate = (filters || []).filter(filter => filter.att === column.dataField)[0] || {};
+      const filterPredicates = (filters || []).filter(filter => filter.att === column.dataField) || [];
+      const filterPredicate = get(filterPredicates, [0], {});
       const filterValue = filterPredicate.val || '';
       const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
 
       return (
         <HeaderFormatter
+          isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
@@ -547,6 +550,7 @@ class Grid extends Component {
           column={column}
           colIndex={colIndex}
           onDividerMouseDown={this.getStartDividerPosition}
+          onOpenSettings={onOpenSettings}
         />
       );
     };
@@ -1139,6 +1143,7 @@ Grid.propTypes = {
   onCheckDropPermission: PropTypes.func,
   onChangeTrOptions: PropTypes.func,
   onScrolling: PropTypes.func,
+  onOpenSettings: PropTypes.func,
   inlineTools: PropTypes.func
 };
 
