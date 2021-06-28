@@ -36,6 +36,7 @@ import './build-info';
 import './services/esign';
 import preval from 'preval.macro';
 import './services/EcosModules';
+import { Base64 } from 'js-base64';
 
 /* set moment locale */
 const currentLocale = getCurrentLocale();
@@ -77,6 +78,7 @@ if (!window.Citeck) {
   window.Citeck = {};
 }
 window.Citeck.NotificationManager = NotificationManager;
+window.Citeck.Base64 = Base64;
 
 const runApp = () => {
   store.dispatch(
