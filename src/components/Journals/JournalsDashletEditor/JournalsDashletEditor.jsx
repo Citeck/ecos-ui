@@ -27,7 +27,7 @@ import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
 import SelectJournal from '../../common/form/SelectJournal';
-import { selectDashletConfig, selectIsNotExistsJournal, selectNewVersionDashletConfig } from '../../../selectors/journals';
+import { selectDashletConfig, selectDashletConfigJournalId, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
 
@@ -38,10 +38,11 @@ const mapStateToProps = (state, ownProps) => {
     journalSettings: newState.journalSettings,
     generalConfig: selectDashletConfig(state, ownProps.stateId),
     config: selectNewVersionDashletConfig(state, ownProps.stateId),
+    configJournalId: selectDashletConfigJournalId(state, ownProps.stateId),
     initConfig: newState.initConfig,
     editorMode: newState.editorMode,
     resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {}),
-    isNotExistsJournal: selectIsNotExistsJournal(state, ownProps.stateId)
+    isNotExistsJournal: !newState.isExistJournal
   };
 };
 
@@ -256,7 +257,7 @@ class JournalsDashletEditor extends Component {
   };
 
   render() {
-    const { className, measurer, recordRef, journalSettings, isNotExistsJournal } = this.props;
+    const { className, measurer, recordRef, journalSettings, configJournalId } = this.props;
     const { customJournal, isCustomJournalMode } = this.state;
     const config = this.props.config || {};
     const isSmall = measurer && (measurer.xxs || measurer.xxxs);
@@ -314,7 +315,7 @@ class JournalsDashletEditor extends Component {
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>
           <Btn onClick={this.clear}>{t(Labels.RESET_BTN)}</Btn>
           <div className="ecos-journal-dashlet-editor__actions-diver" />
-          {!isNotExistsJournal && <Btn onClick={this.cancel}>{t(Labels.CANCEL_BTN)}</Btn>}
+          {configJournalId && <Btn onClick={this.cancel}>{t(Labels.CANCEL_BTN)}</Btn>}
           <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.save} disabled={this.isDisabled}>
             {t(Labels.SAVE_BTN)}
           </Btn>

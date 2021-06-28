@@ -10,10 +10,6 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { NotificationManager } from 'react-notifications';
 
-import JournalsConverter from '../dto/journals';
-import Records from '../components/Records';
-import JournalsService from '../components/Journals/service';
-import EditorService from '../components/Journals/service/editors/EditorService';
 import {
   checkConfig,
   createJournalSetting,
@@ -62,6 +58,8 @@ import {
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
+import JournalsService from '../components/Journals/service';
+import EditorService from '../components/Journals/service/editors/EditorService';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_JOURNALS_PAGINATION,
@@ -70,16 +68,18 @@ import {
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
+import Records from '../components/Records';
 import { ActionTypes } from '../components/Records/actions';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
-import PageService from '../services/PageService';
-import { selectIsNotExistsJournal, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { hasInString, t } from '../helpers/util';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
+import PageService from '../services/PageService';
 import { JournalUrlParams } from '../constants';
-import { loadDocumentLibrarySettings } from './docLib';
+import JournalsConverter from '../dto/journals';
+import { selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { emptyJournalConfig } from '../reducers/journals';
+import { loadDocumentLibrarySettings } from './docLib';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -622,10 +622,6 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
     yield call(loadDocumentLibrarySettings, journalConfig.id, w);
 
     yield put(setLoading(w(false)));
-
-    if (yield select(state => selectIsNotExistsJournal(state, stateId))) {
-      yield put(setEditorMode(w(true)));
-    }
   } catch (e) {
     yield put(setLoading(w(false)));
     logger.error('[journals sagaInitJournal saga error', e.message);
@@ -993,13 +989,11 @@ function* sagaCheckConfig({ logger, w, stateId }, { payload }) {
     const config = get(payload, get(payload, 'version'));
     const customJournalMode = get(config, 'customJournalMode');
     const id = get(config, customJournalMode ? 'customJournal' : 'journalId', '');
-    const isCalculated = id.indexOf('${') !== -1;
-    const isNotExistsJournal = yield call([JournalsService, JournalsService.isNotExistsJournal], id);
-    const passedCheck = !(isEmpty(id) || isCalculated || isNotExistsJournal);
+    const isNotExistsJournal = !!id && (yield call([JournalsService, JournalsService.isNotExistsJournal], id));
 
-    yield put(setJournalExistStatus(w(passedCheck)));
+    yield put(setJournalExistStatus(w(!isNotExistsJournal)));
     yield put(setCheckLoading(w(false)));
-    yield put(setEditorMode(w(!passedCheck)));
+    yield put(setEditorMode(w(isEmpty(id))));
   } catch (e) {
     logger.error('[journals sagaCheckConfig saga error', e.message);
   }
