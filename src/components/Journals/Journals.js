@@ -9,7 +9,6 @@ import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import merge from 'lodash/merge';
-import JSONPretty from 'react-json-pretty';
 
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
@@ -31,6 +30,7 @@ import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '.
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
 import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
 import { wrapArgs } from '../../helpers/redux';
+import { showModalJson } from '../../helpers/tools';
 import FormManager from '../EcosForm/FormManager';
 
 import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
@@ -489,7 +489,7 @@ class Journals extends React.Component {
 
   renderHeader = () => {
     if (this.displayElements.header) {
-      const { menuOpen, viewMode, showJournalConfig } = this.state;
+      const { menuOpen, viewMode } = this.state;
       const { isMobile, docLibFolderTitle, journalConfig } = this.props;
       const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
       let showLabel = isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu');
@@ -501,14 +501,9 @@ class Journals extends React.Component {
       const displayConfigPopup = event => {
         if (event.ctrlKey && event.shiftKey) {
           event.stopPropagation();
-          this.setState({ showJournalConfig: true });
+          !!journalConfig && showModalJson(journalConfig, 'Journal Config');
         }
       };
-      const hideConfigPopup = () => {
-        this.setState({ showJournalConfig: false });
-      };
-
-      const showConfigPopup = showJournalConfig === true && !!journalConfig;
 
       return (
         <>
@@ -523,13 +518,6 @@ class Journals extends React.Component {
               hasBtnMenu={this.displayElements.menu}
             />
           </div>
-          {showConfigPopup && (
-            <EcosModal title="Journal Config" size="xl" isOpen={showConfigPopup} hideModal={hideConfigPopup}>
-              <div className="journal__config-json-viewer">
-                <JSONPretty data={journalConfig} />
-              </div>
-            </EcosModal>
-          )}
         </>
       );
     }

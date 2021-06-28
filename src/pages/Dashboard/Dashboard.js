@@ -12,6 +12,7 @@ import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
 import { DashboardTypes } from '../../constants/dashboard';
 import { isMobileAppWebView, t } from '../../helpers/util';
+import { showModalJson } from '../../helpers/tools';
 import { decodeLink, getSortedUrlParams, isDashboard, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import {
   getDashboardConfig,
@@ -408,6 +409,20 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
+  handleReloadContent = event => {
+    if (event.ctrlKey) {
+      event.stopPropagation();
+      this.setState({ reloadContent: true }, () => this.setState({ reloadContent: false }));
+    }
+  };
+
+  handleShowConfig = event => {
+    if (event.ctrlKey && event.shiftKey) {
+      event.stopPropagation();
+      showModalJson(this.props.originalConfig);
+    }
+  };
+
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
 
@@ -535,6 +550,8 @@ class Dashboard extends Component {
           'ecos-dashboard__header_mobile': isMobile,
           'ecos-dashboard__header_no-next': isMobile && !this.isShowTabs
         })}
+        onDoubleClick={this.handleReloadContent}
+        onClick={this.handleShowConfig}
       >
         {title}
         {showStatus && (
@@ -599,7 +616,7 @@ class Dashboard extends Component {
         {this.renderTopMenu()}
         {this.renderHeader()}
         {this.renderTabs()}
-        {this.renderContent()}
+        {!this.state.reloadContent && this.renderContent()}
         {this.renderLoader()}
       </>
     );
