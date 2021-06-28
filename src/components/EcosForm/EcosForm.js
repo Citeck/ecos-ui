@@ -98,7 +98,7 @@ class EcosForm extends React.Component {
     }
 
     options.recordId = recordId;
-    options.isMobileDevice = isMobileDevice();
+    options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
     options.formSubmitDonePromise = new Promise(resolve => {
       this._formSubmitDoneResolve = resolve;
     });
@@ -142,7 +142,7 @@ class EcosForm extends React.Component {
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
-      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
+      const isDebugModeOn = options.ecosIsDebugOn || localStorage.getItem('enableLoggerForNewForms');
 
       let canWritePromise = false;
 
