@@ -55,7 +55,7 @@ export class DevToolsApi extends CommonApi {
       {
         label: 'label',
         repo: 'info.repo',
-        commits: 'info.commits?json'
+        commits: 'info.commits[]?json'
       }
     );
   };
