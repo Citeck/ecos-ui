@@ -7,11 +7,13 @@ import { Btn } from '../../../../../btns';
 import classNames from 'classnames';
 import { Icon } from '../../../../../index';
 
+const Labels = {
+  PLACEHOLDER: 'select-orgstruct.search.placeholder'
+};
+
 const Search = () => {
   const context = useContext(SelectOrgstructContext);
-
-  const { searchText, updateSearchText, onSubmitSearchForm } = context;
-
+  const { searchText, updateSearchText, onSubmitSearchForm, resetSearchText } = context;
   const inputRef = useRef(null);
 
   const onSearchIconClick = () => {
@@ -24,21 +26,13 @@ const Search = () => {
     }
   };
 
-  const onClean = () => {
-    updateSearchText({
-      target: {
-        value: ''
-      }
-    });
-  };
-
   return (
     <div className="select-orgstruct__search">
       <div className="select-orgstruct__search-wrapper">
         <span className="icon icon-search select-orgstruct__search-icon" onClick={onSearchIconClick} />
         <Input
           getInputRef={el => (inputRef.current = el.current)}
-          placeholder={t('select-orgstruct.search.placeholder')}
+          placeholder={t(Labels.PLACEHOLDER)}
           onKeyDown={onKeyDown}
           className="select-orgstruct__search-input"
           value={searchText}
@@ -48,11 +42,11 @@ const Search = () => {
           className={classNames('icon-small-close select-orgstruct__search-cleaner', {
             'select-orgstruct__search-cleaner_show': !!searchText
           })}
-          onClick={onClean}
+          onClick={resetSearchText}
         />
       </div>
       <Btn onClick={onSubmitSearchForm} className="ecos-btn_blue">
-        {t('select-orgstruct.search.placeholder')}
+        {t(Labels.PLACEHOLDER)}
       </Btn>
     </div>
   );

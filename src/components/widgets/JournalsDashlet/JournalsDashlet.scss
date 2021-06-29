@@ -30,16 +30,44 @@
   }
 
   &__footer {
-    padding: 15px 15px 0;
+    padding: 0 15px 0;
   }
 
   &__grid {
     position: relative;
+
+    &-wrapper {
+      padding-bottom: 15px;
+
+      &:after {
+        content: '';
+        width: 100%;
+        height: 15px;
+        background: #ffffff;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        z-index: 20;
+      }
+
+      .ecos-grid__table.table {
+        margin-bottom: 15px;
+      }
+    }
+
+    &-track {
+      &_h {
+        bottom: 6px;
+      }
+    }
   }
 
   &__body {
     min-height: 115px;
-    //padding-bottom: 10px;
+
+    &_warnings {
+      min-height: auto;
+    }
   }
 
   &__group-actions {

@@ -19,8 +19,30 @@
   //white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: 170px;
+  width: 180px;
   line-height: 1.2;
+  margin-right: 10px;
+  padding-right: 10px;
+
+  &_required {
+    position: relative;
+
+    &:after {
+      content: '*';
+      position: absolute;
+      right: 0;
+      top: 0;
+      color: red;
+      width: 10px;
+      height: 10px;
+      font-size: 1em;
+    }
+  }
+
+  &_align-top {
+    display: flex;
+    align-self: baseline;
+  }
 }
 
 .ecos-field__label_small {

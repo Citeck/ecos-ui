@@ -94,7 +94,9 @@ class Birthdays extends BaseWidget {
   };
 
   handleGoToProfile = url => {
-    PageService.changeUrlLink(url, { openNewBrowserTab: !isNewVersionPage(url), openNewTab: isNewVersionPage(url) });
+    const openNewTab = isNewVersionPage(url);
+
+    PageService.changeUrlLink(url, { openNewBrowserTab: !openNewTab, openNewTab });
   };
 
   handleReloadData = () => {

@@ -348,13 +348,8 @@ export default [
           if (!data.journalId) {
             return [];
           }
-          
-          return fetch('/share/proxy/alfresco/api/journals/config?journalId=' + data.journalId, {
-            credentials: 'include',
-            headers: {
-              'Content-type': 'application/json;charset=UTF-8'
-            },
-          }).then(r => r.json()).then(config => {
+                    
+          return window.Citeck.Journals.getJournalConfig(data.journalId).then(config => {
             if (config.columns && Array.isArray(config.columns)) {
               return config.columns.map(function (item) {
                 return {

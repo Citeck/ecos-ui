@@ -27,8 +27,12 @@
       top: calc(100% - 20px - 8px);
     }
 
-    &-input {
+    &-input:disabled {
       padding: 11px 15px;
+      border-color: $color-gray-6;
+      background-color: $color-gray-4;
+      color: $text-color-gray;
+      cursor: not-allowed;
     }
   }
 }

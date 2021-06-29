@@ -8,23 +8,30 @@ import {
   resetStore,
   saveMenuSettings,
   setAuthorities,
+  setCreateMenuItems,
   setGroupPriority,
-  setLastAddedItems,
+  setLastAddedLeftItems,
+  setLeftMenuItems,
   setLoading,
   setMenuIcons,
-  setMenuItems,
-  setOpenMenuSettings
+  setOpenMenuSettings,
+  setOriginalConfig
 } from '../actions/menuSettings';
+import MenuConverter from '../dto/menu';
 
 const initialState = {
   editedId: undefined,
-  items: [],
+  originalConfig: {},
+  leftItems: [],
+  availableSections: [],
+  createItems: [],
   authorities: [],
   groupPriority: [],
   isLoading: false,
   isLoadingPriority: false,
   isOpenMenuSettings: false,
-  lastAddedItems: [],
+  lastAddedLeftItems: [],
+  lastAddedCreateItems: [],
   fontIcons: []
 };
 
@@ -47,14 +54,28 @@ export default handleActions(
       ...initialState,
       isOpenMenuSettings: payload
     }),
-    [setMenuItems]: (state, { payload }) => ({
+    [setOriginalConfig]: (state, { payload }) => ({
       ...state,
-      items: treeSetDndIndex(payload),
+      originalConfig: payload
+    }),
+    [setLeftMenuItems]: (state, { payload }) => {
+      const leftItems = treeSetDndIndex(payload);
+
+      return {
+        ...state,
+        leftItems,
+        availableSections: MenuConverter.getAllSectionsFlat(leftItems),
+        isLoading: false
+      };
+    },
+    [setCreateMenuItems]: (state, { payload }) => ({
+      ...state,
+      createItems: treeSetDndIndex(payload),
       isLoading: false
     }),
-    [setLastAddedItems]: (state, { payload }) => ({
+    [setLastAddedLeftItems]: (state, { payload }) => ({
       ...state,
-      lastAddedItems: payload
+      lastAddedLeftItems: payload
     }),
     [addJournalMenuItems]: state => ({
       ...state,

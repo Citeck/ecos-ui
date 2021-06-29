@@ -4,12 +4,14 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import uuidV4 from 'uuidv4';
 
 import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { prepareTooltipId } from '../../../../helpers/util';
+import { t } from '../../../../helpers/export/util';
 import { allowedLanguages } from '../../../../constants/lang';
 
 import './style.scss';
@@ -29,6 +31,9 @@ class BaseMLField extends Component {
     value: PropTypes.object,
     style: PropTypes.object,
     lang: PropTypes.string,
+    placeholder: PropTypes.string,
+    disabled: PropTypes.bool,
+    viewOnly: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -37,6 +42,7 @@ class BaseMLField extends Component {
   };
 
   _key = prepareTooltipId(uuidV4());
+  _inputRef = null;
 
   constructor(props) {
     super(props);
@@ -51,11 +57,15 @@ class BaseMLField extends Component {
       selectedLang,
       isShowTooltip: false,
       isShowButton: false,
-      isFocus: false
+      isFocus: false,
+      cursorPosition: null
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { cursorPosition } = this.state;
+    const isSelectedText = !isEmpty(window.getSelection().toString());
+
     if (this.value === undefined && !isEqual(this.props.value, prevProps.value)) {
       const selectedLang = this.getLocaleWithValue(this.props.value);
 
@@ -79,6 +89,10 @@ class BaseMLField extends Component {
         this.setState({ selectedLang });
       }
     }
+
+    if (!isSelectedText && this._inputRef && prevState.isFocus && this.state.isFocus && cursorPosition !== null) {
+      this._inputRef.setSelectionRange(cursorPosition, cursorPosition);
+    }
   }
 
   componentWillUnmount() {
@@ -89,7 +103,7 @@ class BaseMLField extends Component {
     const { value } = this.props;
     const { selectedLang } = this.state;
 
-    return get(value, selectedLang);
+    return get(value, selectedLang, '');
   }
 
   get inputProps() {
@@ -102,21 +116,39 @@ class BaseMLField extends Component {
       'className',
       'setWrapperProps',
       'imgClassName',
-      'inputClassName'
+      'inputClassName',
+      'viewOnly'
     ]);
 
     return {
       ...inputProps,
+      forwardedRef: this.setInputRef,
       className: classNames('ecos-ml-text__input', inputClassName),
       onFocus: () => this.handleToggleFocus(true),
-      onBlur: () => this.handleToggleFocus(false),
+      onBlur: this.handleBlur,
+      onClick: this.handleClick,
       onMouseEnter: () => this.handleToggleShowButton(true),
       onMouseLeave: () => this.handleToggleShowButton(false)
     };
   }
 
+  setInputRef = ref => {
+    if (!ref) {
+      return;
+    }
+
+    const { forwardedRef } = this.props;
+
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(ref);
+    }
+
+    this._inputRef = ref;
+  };
+
   getLocaleWithValue(values) {
     const currentLocale = getCurrentLocale();
+
     if (values && !values[currentLocale]) {
       for (let lang in values) {
         if (values.hasOwnProperty(lang) && values[lang]) {
@@ -124,6 +156,7 @@ class BaseMLField extends Component {
         }
       }
     }
+
     return currentLocale;
   }
 
@@ -146,13 +179,25 @@ class BaseMLField extends Component {
       [selectedLang]: value
     };
 
+    for (let key in newValue) {
+      if (newValue.hasOwnProperty(key)) {
+        if (isEmpty(newValue[key])) {
+          delete newValue[key];
+        }
+      }
+    }
+
     if (typeof onChange === 'function') {
       onChange(newValue);
+    }
+
+    if (this._inputRef) {
+      this.setState({ cursorPosition: this._inputRef.selectionStart });
     }
   };
 
   handleClickLang = selectedLang => {
-    this.setState({ selectedLang });
+    this.setState({ selectedLang, cursorPosition: null });
   };
 
   handleToggleTooltip = (isShowTooltip = !this.state.isShowTooltip) => {
@@ -168,6 +213,17 @@ class BaseMLField extends Component {
     this.setState({ isFocus });
   };
 
+  handleBlur = () => {
+    this.handleToggleFocus(false);
+    this.setState({ cursorPosition: null });
+  };
+
+  handleClick = () => {
+    if (this._inputRef) {
+      this.setState({ cursorPosition: this._inputRef.selectionStart });
+    }
+  };
+
   renderTooltip() {
     const { languages } = this.props;
     const { selectedLang } = this.state;
@@ -181,6 +237,10 @@ class BaseMLField extends Component {
         </div>
       ));
   }
+
+  renderInputElement = () => null;
+
+  renderViewElement = () => this.value || t('boolean.no');
 
   renderLang() {
     const { languages, imgClassName } = this.props;
@@ -223,7 +283,19 @@ class BaseMLField extends Component {
   }
 
   render() {
-    return <div />;
+    const { className, style, disabled, viewOnly } = this.props;
+
+    return (
+      <div
+        style={style}
+        className={classNames('ecos-ml-text', className, {
+          'ecos-ml-text_disabled': disabled
+        })}
+      >
+        {viewOnly ? this.renderViewElement() : this.renderInputElement()}
+        {!viewOnly && this.renderLang()}
+      </div>
+    );
   }
 }
 

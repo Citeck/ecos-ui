@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { TMP_ICON_EMPTY } from '../../constants';
 import { MenuSettings } from '../../constants/menu';
+import MenuSettingsService from '../MenuSettingsService';
 
 export const ITEMS_INPUT = [
   {
@@ -10,7 +11,8 @@ export const ITEMS_INPUT = [
     type: 'item',
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER_ORGSTRUCT',
@@ -18,7 +20,8 @@ export const ITEMS_INPUT = [
     type: 'item',
     hidden: false,
     icon: 'ui/icon@icon-empty',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER-DIVIDER',
@@ -26,7 +29,8 @@ export const ITEMS_INPUT = [
     icon: '',
     type: 'HEADER-DIVIDER',
     hidden: false,
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'ARBITRARY',
@@ -34,7 +38,8 @@ export const ITEMS_INPUT = [
     type: 'item',
     icon: '',
     hidden: false,
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER_TASKS',
@@ -42,21 +47,24 @@ export const ITEMS_INPUT = [
     type: 'SECTION',
     hidden: false,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'HEADER_TASKS',
     label: 'menu.header.tasks',
     type: 'SECTION',
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'JOURNAL_1',
     label: 'menu.header.tasks',
     type: 'JOURNAL',
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
   },
   {
     id: 'JOURNAL_2',
@@ -64,7 +72,17 @@ export const ITEMS_INPUT = [
     type: 'JOURNAL',
     hidden: true,
     icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
-    config: {}
+    config: {},
+    allowedFor: []
+  },
+  {
+    id: 'CREATE_IN_SECTION',
+    label: 'menu.header.create',
+    type: 'CREATE_IN_SECTION',
+    hidden: false,
+    icon: 'uiserv/icon@3e0627d9-3c0b-49ac-8a11-97ae3da86527',
+    config: {},
+    allowedFor: []
   }
 ];
 
@@ -81,7 +99,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[0].config },
     items: [],
     locked: !!ITEMS_INPUT[0].hidden,
-    draggable: false
+    draggable: false,
+    allowedFor: []
   },
   {
     id: ITEMS_INPUT[1].id,
@@ -95,7 +114,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[1].config },
     items: [],
     locked: !!ITEMS_INPUT[1].hidden,
-    draggable: false
+    draggable: false,
+    allowedFor: []
   },
   {
     id: ITEMS_INPUT[2].id,
@@ -106,7 +126,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[2].config },
     items: [],
     locked: !!ITEMS_INPUT[2].hidden,
-    draggable: true
+    draggable: true,
+    allowedFor: []
   },
   {
     id: ITEMS_INPUT[3].id,
@@ -117,7 +138,8 @@ export const ITEM_PARAMS_OUTPUT = [
     config: { ...ITEMS_INPUT[3].config },
     items: [],
     locked: !!ITEMS_INPUT[3].hidden,
-    draggable: false
+    draggable: false,
+    allowedFor: []
   },
   {
     config: {},
@@ -128,7 +150,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     label: 'menu.header.tasks',
     locked: false,
-    type: 'SECTION'
+    type: 'SECTION',
+    allowedFor: []
   },
   {
     config: {},
@@ -139,7 +162,8 @@ export const ITEM_PARAMS_OUTPUT = [
     items: [],
     label: 'menu.header.tasks',
     locked: false,
-    type: 'SECTION'
+    type: 'SECTION',
+    allowedFor: []
   }
 ];
 
@@ -175,7 +199,7 @@ export const ACTIONS_BY_TYPE = {
   [MenuSettings.ItemTypes.SECTION]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
   [MenuSettings.ItemTypes.JOURNAL]: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
   [MenuSettings.ItemTypes.ARBITRARY]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_ON],
-  [MenuSettings.ItemTypes.LINK_CREATE_CASE]: [ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
+  [MenuSettings.ItemTypes.LINK_CREATE_CASE]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: [ACTIONS.EDIT, ACTIONS.DELETE, ACTIONS.ACTIVE_OFF],
   EMPTY_TYPE: [ACTIONS.DELETE, ACTIONS.ACTIVE_ON]
 };
@@ -210,7 +234,7 @@ export const PERMISSIONS_BY_TYPE = {
   },
   [MenuSettings.ItemTypes.LINK_CREATE_CASE]: {
     draggable: true,
-    editable: false,
+    editable: true,
     hasIcon: true,
     hasUrl: false,
     hideable: true,
@@ -218,6 +242,24 @@ export const PERMISSIONS_BY_TYPE = {
     hideableLabel: false
   },
   [MenuSettings.ItemTypes.HEADER_DIVIDER]: {
+    draggable: true,
+    editable: true,
+    hasIcon: false,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false
+  },
+  [MenuSettings.ItemTypes.CREATE_IN_SECTION]: {
+    draggable: true,
+    editable: true,
+    hasIcon: false,
+    hasUrl: false,
+    hideable: true,
+    removable: true,
+    hideableLabel: false
+  },
+  [MenuSettings.ItemTypes.EDIT_RECORD]: {
     draggable: true,
     editable: true,
     hasIcon: false,
@@ -263,22 +305,26 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 300
+                      dndIdx: 300,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 200
+                  dndIdx: 200,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 100
+              dndIdx: 100,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 0
+          dndIdx: 0,
+          allowedFor: []
         },
         {
           id: 'HEADER_SITES',
@@ -325,17 +371,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                               items: [],
                               locked: false,
                               draggable: true,
-                              dndIdx: 5100000
+                              dndIdx: 5100000,
+                              allowedFor: []
                             }
                           ],
                           locked: false,
                           draggable: true,
-                          dndIdx: 410000
+                          dndIdx: 410000,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31000
+                      dndIdx: 31000,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_DOCUMENT_LIBRARY',
@@ -346,7 +395,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31001
+                      dndIdx: 31001,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_CALENDAR',
@@ -357,17 +407,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31002
+                      dndIdx: 31002,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2100
+                  dndIdx: 2100,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 110
+              dndIdx: 110,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_SEARCH',
@@ -379,7 +432,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 111
+              dndIdx: 111,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_CREATE',
@@ -391,12 +445,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 112
+              dndIdx: 112,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 1
+          dndIdx: 1,
+          allowedFor: []
         },
         {
           id: 'HEADER_ORGSTRUCT',
@@ -416,12 +472,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 120
+              dndIdx: 120,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 2
+          dndIdx: 2,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_MY_GROUP',
@@ -441,7 +499,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 130
+              dndIdx: 130,
+              allowedFor: []
             },
             {
               id: 'HEADER_COMPLETED_WORKFLOWS',
@@ -453,7 +512,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 131
+              dndIdx: 131,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_CONTENT',
@@ -465,7 +525,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 132
+              dndIdx: 132,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_SITES',
@@ -477,7 +538,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 133
+              dndIdx: 133,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_FILES',
@@ -489,7 +551,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 134
+              dndIdx: 134,
+              allowedFor: []
             },
             {
               id: 'HEADER_DATA_LISTS',
@@ -516,12 +579,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33500
+                      dndIdx: 33500,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2350
+                  dndIdx: 2350,
+                  allowedFor: []
                 },
                 {
                   id: 'USER_SITES_REFERENCES',
@@ -546,27 +611,32 @@ export const ACTIONS_ON_MENU_ITEMS = {
                           items: [],
                           locked: false,
                           draggable: true,
-                          dndIdx: 435100
+                          dndIdx: 435100,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33510
+                      dndIdx: 33510,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2351
+                  dndIdx: 2351,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 135
+              dndIdx: 135,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 3
+          dndIdx: 3,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_TOOLS_GROUP',
@@ -586,7 +656,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 140
+              dndIdx: 140,
+              allowedFor: []
             },
             {
               id: 'HEADER_APPLICATION',
@@ -598,7 +669,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 141
+              dndIdx: 141,
+              allowedFor: []
             },
             {
               id: 'HEADER_FLOWABLE_MODELER',
@@ -610,7 +682,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 142
+              dndIdx: 142,
+              allowedFor: []
             },
             {
               id: 'HEADER_GROUPS',
@@ -622,7 +695,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 143
+              dndIdx: 143,
+              allowedFor: []
             },
             {
               id: 'HEADER_USERS',
@@ -634,7 +708,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 144
+              dndIdx: 144,
+              allowedFor: []
             },
             {
               id: 'HEADER_TYPES',
@@ -646,7 +721,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 145
+              dndIdx: 145,
+              allowedFor: []
             },
             {
               id: 'HEADER_SYSTEM_JOURNALS',
@@ -658,7 +734,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 146
+              dndIdx: 146,
+              allowedFor: []
             },
             {
               id: 'HEADER_META_JOURNALS',
@@ -670,7 +747,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 147
+              dndIdx: 147,
+              allowedFor: []
             },
             {
               id: 'HEADER_TEMPLATES',
@@ -682,7 +760,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 148
+              dndIdx: 148,
+              allowedFor: []
             },
             {
               id: 'HEADER_DEV_TOOLS',
@@ -694,7 +773,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 149
+              dndIdx: 149,
+              allowedFor: []
             },
             {
               id: 'HEADER_MORE',
@@ -706,19 +786,22 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 1410
+              dndIdx: 1410,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 4
+          dndIdx: 4,
+          allowedFor: []
         }
       ],
       action: 'CREATE',
       data: [
         { id: 'c111aeed-77be-4675-828d-2d4b20432910', label: 'Тестовый', config: { recordRef: 'uiserv/journal@Test' }, type: 'JOURNAL' }
       ],
-      level: 1
+      level: 1,
+      configType: 'left'
     },
     {
       items: [
@@ -753,22 +836,26 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 300
+                      dndIdx: 300,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 200
+                  dndIdx: 200,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 100
+              dndIdx: 100,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 0
+          dndIdx: 0,
+          allowedFor: []
         },
         {
           id: 'HEADER_SITES',
@@ -815,17 +902,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                               items: [],
                               locked: false,
                               draggable: true,
-                              dndIdx: 5100000
+                              dndIdx: 5100000,
+                              allowedFor: []
                             }
                           ],
                           locked: false,
                           draggable: true,
-                          dndIdx: 410000
+                          dndIdx: 410000,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31000
+                      dndIdx: 31000,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_DOCUMENT_LIBRARY',
@@ -836,7 +926,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31001
+                      dndIdx: 31001,
+                      allowedFor: []
                     },
                     {
                       id: 'SITE_CALENDAR',
@@ -847,17 +938,20 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 31002
+                      dndIdx: 31002,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2100
+                  dndIdx: 2100,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 110
+              dndIdx: 110,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_SEARCH',
@@ -869,7 +963,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 111
+              dndIdx: 111,
+              allowedFor: []
             },
             {
               id: 'HEADER_SITES_CREATE',
@@ -881,12 +976,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 112
+              dndIdx: 112,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 1
+          dndIdx: 1,
+          allowedFor: []
         },
         {
           id: 'HEADER_ORGSTRUCT',
@@ -906,12 +1003,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 120
+              dndIdx: 120,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 2
+          dndIdx: 2,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_MY_GROUP',
@@ -931,7 +1030,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 130
+              dndIdx: 130,
+              allowedFor: []
             },
             {
               id: 'HEADER_COMPLETED_WORKFLOWS',
@@ -943,7 +1043,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 131
+              dndIdx: 131,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_CONTENT',
@@ -955,7 +1056,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 132
+              dndIdx: 132,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_SITES',
@@ -967,7 +1069,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 133
+              dndIdx: 133,
+              allowedFor: []
             },
             {
               id: 'HEADER_MY_FILES',
@@ -979,7 +1082,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 134
+              dndIdx: 134,
+              allowedFor: []
             },
             {
               id: 'HEADER_DATA_LISTS',
@@ -1006,12 +1110,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
                       items: [],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33500
+                      dndIdx: 33500,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2350
+                  dndIdx: 2350,
+                  allowedFor: []
                 },
                 {
                   id: 'USER_SITES_REFERENCES',
@@ -1036,27 +1142,32 @@ export const ACTIONS_ON_MENU_ITEMS = {
                           items: [],
                           locked: false,
                           draggable: true,
-                          dndIdx: 435100
+                          dndIdx: 435100,
+                          allowedFor: []
                         }
                       ],
                       locked: false,
                       draggable: true,
-                      dndIdx: 33510
+                      dndIdx: 33510,
+                      allowedFor: []
                     }
                   ],
                   locked: false,
                   draggable: true,
-                  dndIdx: 2351
+                  dndIdx: 2351,
+                  allowedFor: []
                 }
               ],
               locked: false,
               draggable: true,
-              dndIdx: 135
+              dndIdx: 135,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 3
+          dndIdx: 3,
+          allowedFor: []
         },
         {
           id: 'HEADER_MORE_TOOLS_GROUP',
@@ -1076,7 +1187,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 140
+              dndIdx: 140,
+              allowedFor: []
             },
             {
               id: 'HEADER_APPLICATION',
@@ -1088,7 +1200,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 141
+              dndIdx: 141,
+              allowedFor: []
             },
             {
               id: 'HEADER_FLOWABLE_MODELER',
@@ -1100,7 +1213,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 142
+              dndIdx: 142,
+              allowedFor: []
             },
             {
               id: 'HEADER_GROUPS',
@@ -1112,7 +1226,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 143
+              dndIdx: 143,
+              allowedFor: []
             },
             {
               id: 'HEADER_USERS',
@@ -1124,7 +1239,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 144
+              dndIdx: 144,
+              allowedFor: []
             },
             {
               id: 'HEADER_TYPES',
@@ -1136,7 +1252,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 145
+              dndIdx: 145,
+              allowedFor: []
             },
             {
               id: 'HEADER_SYSTEM_JOURNALS',
@@ -1148,7 +1265,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 146
+              dndIdx: 146,
+              allowedFor: []
             },
             {
               id: 'HEADER_META_JOURNALS',
@@ -1160,7 +1278,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 147
+              dndIdx: 147,
+              allowedFor: []
             },
             {
               id: 'HEADER_TEMPLATES',
@@ -1172,7 +1291,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 148
+              dndIdx: 148,
+              allowedFor: []
             },
             {
               id: 'HEADER_DEV_TOOLS',
@@ -1184,7 +1304,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 149
+              dndIdx: 149,
+              allowedFor: []
             },
             {
               id: 'HEADER_MORE',
@@ -1196,12 +1317,14 @@ export const ACTIONS_ON_MENU_ITEMS = {
               items: [],
               locked: false,
               draggable: true,
-              dndIdx: 1410
+              dndIdx: 1410,
+              allowedFor: []
             }
           ],
           locked: false,
           draggable: true,
-          dndIdx: 4
+          dndIdx: 4,
+          allowedFor: []
         },
         {
           id: 'c111aeed-77be-4675-828d-2d4b20432910',
@@ -1212,7 +1335,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
           locked: false,
-          draggable: true
+          draggable: true,
+          allowedFor: []
         }
       ],
       newItems: [
@@ -1225,7 +1349,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
           config: { recordRef: 'uiserv/journal@Test' },
           items: [],
           locked: false,
-          draggable: true
+          draggable: true,
+          allowedFor: []
         }
       ]
     }
@@ -1728,7 +1853,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         }
       ],
       action: 'DELETE',
-      id: 'c111aeed-77be-4675-828d-2d4b20432910'
+      id: 'c111aeed-77be-4675-828d-2d4b20432910',
+      configType: 'left'
     },
     {
       items: [
@@ -2727,7 +2853,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         }
       ],
       action: 'DISPLAY_COUNT',
-      id: '73faa604-38c5-405d-ba60-9748e590f34d'
+      id: '73faa604-38c5-405d-ba60-9748e590f34d',
+      configType: 'left'
     },
     {
       items: [
@@ -3774,7 +3901,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
             'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWdvbiBwb2ludHM9IjEyIDIgMTUuMDkgOC4yNiAyMiA5LjI3IDE3IDE0LjE0IDE4LjE4IDIxLjAyIDEyIDE3Ljc3IDUuODIgMjEuMDIgNyAxNC4xNCAyIDkuMjcgOC45MSA4LjI2IDEyIDIiPjwvcG9seWdvbj48L3N2Zz4='
         },
         type: 'SECTION'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -4854,7 +4982,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         config: { url: 'https://2gis.ru/kostroma?m=40.934715%2C57.766496%2F15' },
         icon: { value: 'icon-empty', type: 'icon' },
         type: 'ARBITRARY'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -5859,7 +5988,8 @@ export const ACTIONS_ON_MENU_ITEMS = {
         config: { url: 'https://2gis.ru/kostroma?m=40.934715%2C57.766496%2F15' },
         icon: { value: 'icon-empty', type: 'icon' },
         type: 'ARBITRARY'
-      }
+      },
+      configType: 'left'
     },
     {
       items: [
@@ -6362,27 +6492,52 @@ export const ACTIONS_ON_MENU_ITEMS = {
   ]
 };
 
-export const CREATE_OPTIONS = [
-  { key: 'SECTION', label: 'menu-item.type.section', when: { maxLevel: 0 } },
-  { key: 'HEADER-DIVIDER', label: 'menu-item.type.header-divider', when: { maxLevel: 0, minLevel: 0 } },
-  { key: 'JOURNAL', label: 'menu-item.type.journal', when: { minLevel: 0 } },
-  { key: 'ARBITRARY', label: 'menu-item.type.arbitrary', when: { minLevel: 0 } },
-  { key: 'LINK-CREATE-CASE', label: 'menu-item.type.link-create-case', when: { minLevel: 0 } }
-];
-
-function _getAvailableOptions(items) {
-  return (items || cloneDeep(CREATE_OPTIONS)).map(item => ({ ...item, id: item.label }));
+function _getMCOs(items) {
+  return cloneDeep(items).map(item => ({ ...item, id: item.label }));
 }
 
 export const AVAILABLE_CREATE_OPTIONS = [
-  [undefined, undefined, _getAvailableOptions()],
-  [undefined, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
-  [{ type: 'SECTION' }, { level: -1 }, _getAvailableOptions([CREATE_OPTIONS[0]])],
-  [undefined, { level: 0 }, _getAvailableOptions()],
-  [{ type: 'item' }, { level: 0 }, []],
-  [{ type: 'SECTION' }, { level: 0 }, _getAvailableOptions()],
-  [undefined, { level: 2 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'SECTION' }, { level: 1 }, _getAvailableOptions([CREATE_OPTIONS[2], CREATE_OPTIONS[3], CREATE_OPTIONS[4]])],
-  [{ type: 'ARBITRARY' }, { level: 3 }, []],
-  [{ type: 'JOURNAL' }, { level: 2 }, []]
+  [undefined, undefined, []],
+  [undefined, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  [{ type: 'SECTION' }, { configType: 'left', level: -1 }, _getMCOs([MenuSettingsService.leftMenuCreateOptions[0]])],
+  [undefined, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [{ type: 'item' }, { configType: 'left', level: 0 }, []],
+  [{ type: 'SECTION' }, { configType: 'left', level: 0 }, _getMCOs(MenuSettingsService.leftMenuCreateOptions)],
+  [
+    undefined,
+    { configType: 'left', level: 2 },
+    _getMCOs([
+      MenuSettingsService.leftMenuCreateOptions[2],
+      MenuSettingsService.leftMenuCreateOptions[3],
+      MenuSettingsService.leftMenuCreateOptions[4],
+      MenuSettingsService.leftMenuCreateOptions[5]
+    ])
+  ],
+  [
+    { type: 'SECTION' },
+    { configType: 'left', level: 1 },
+    _getMCOs([
+      MenuSettingsService.leftMenuCreateOptions[2],
+      MenuSettingsService.leftMenuCreateOptions[3],
+      MenuSettingsService.leftMenuCreateOptions[4],
+      MenuSettingsService.leftMenuCreateOptions[5]
+    ])
+  ],
+  [{ type: 'ARBITRARY' }, { configType: 'left', level: 3 }, []],
+  [{ type: 'JOURNAL' }, { configType: 'left', level: 2 }, []],
+  [{ type: 'JOURNAL' }, { configType: 'create', level: -1 }, []],
+  [undefined, { configType: 'create', level: -1 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [{ type: 'SECTION' }, { configType: 'create', level: 0 }, _getMCOs(MenuSettingsService.createMenuCreateOptions)],
+  [
+    { type: 'SECTION' },
+    { configType: 'create', level: 1 },
+    _getMCOs([
+      MenuSettingsService.createMenuCreateOptions[1],
+      MenuSettingsService.createMenuCreateOptions[2],
+      MenuSettingsService.createMenuCreateOptions[3],
+      MenuSettingsService.createMenuCreateOptions[4]
+    ])
+  ],
+  [{ type: 'CREATE_IN_SECTION' }, { configType: 'create', level: 0 }, []],
+  [{ type: 'EDIT_RECORD' }, { configType: 'create', level: 0 }, []]
 ];

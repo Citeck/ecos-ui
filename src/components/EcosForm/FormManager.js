@@ -1,125 +1,82 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import debounce from 'lodash/debounce';
 
-import { goToCreateRecordPage } from '../../helpers/urls';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import EcosForm from './EcosForm';
 
 class FormManager {
-  static createRecordByVariant = debounce(
-    (variant, options = {}) => {
-      if (!variant) {
-        console.error("Create variant is undefined. Record creation can't be preformed");
-        return;
-      }
-
-      let recordRef = variant.recordRef || (variant.type ? 'dict@' + variant.type : '');
-      let formId = variant.formId;
-      let isNewFormShouldBeUsed = variant.formKey || !variant.type;
-      let isNewFormCanBeUsed = isNewFormShouldBeUsed || !!recordRef;
-
-      if (isNewFormCanBeUsed && !isNewFormShouldBeUsed) {
-        if (recordRef) {
-          if (localStorage.forceEnableNewForms === 'true') {
-            isNewFormShouldBeUsed = Promise.resolve(true);
-          } else {
-            isNewFormShouldBeUsed = EcosFormUtils.isNewFormsEnabled();
-          }
-
-          const shouldDisplayNewFormsForUser = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
-          isNewFormShouldBeUsed = Promise.all([isNewFormShouldBeUsed, shouldDisplayNewFormsForUser])
-            .then(function(values) {
-              if (values.includes(true)) {
-                return !!formId || EcosFormUtils.hasForm(recordRef, variant.formKey);
-              }
-              return false;
-            })
-            .catch(function(e) {
-              console.error(e);
-              return false;
-            });
-        } else {
-          isNewFormShouldBeUsed = Promise.resolve(false);
-        }
-      } else {
-        isNewFormShouldBeUsed = Promise.resolve(true);
-      }
-
-      isNewFormShouldBeUsed
-        .then(value => {
-          if (value) {
-            let attributes = variant.attributes || {};
-
-            if (variant.destination && !attributes['_parent']) {
-              attributes['_parent'] = variant.destination;
-            }
-
-            const props = {
-              record: recordRef,
-              formKey: variant.formKey,
-              attributes,
-              options: {
-                params: this.parseCreateArguments(variant.createArguments)
-              },
-              ...options
-            };
-
-            if (EcosFormUtils.isFormId(variant.formId)) {
-              props.formId = variant.formId;
-            }
-
-            this.openFormModal(props);
-          } else {
-            goToCreateRecordPage(variant);
-          }
-        })
-        .catch(e => {
-          console.error(e);
-          goToCreateRecordPage(variant);
-        });
-    },
-    3000,
-    {
-      leading: true,
-      trailing: false
+  static createRecordByVariant = (variant, options = {}) => {
+    if (!variant) {
+      console.error("[FormManager createRecordByVariant] Create variant is undefined. Record creation can't be preformed");
+      return;
     }
-  );
 
-  static parseCreateArguments(createArgs) {
-    if (!createArgs) {
-      return {};
+    let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, formOptions = {} } = variant;
+
+    formId = formRef || formId;
+
+    if (!record && sourceId) {
+      record = `${variant.sourceId}@`;
     }
-    let params = {};
-    try {
-      let args = createArgs.split('&');
-      for (let i = 0; i < args.length; i++) {
-        let keyValue = (args[i] || '').split('=');
-        if (keyValue.length === 2) {
-          let key = keyValue[0] || '';
-          let value = keyValue[1] || '';
-          if (key.indexOf('param_') === 0) {
-            params[key.substring('param_'.length)] = value;
-          }
-        }
-      }
-    } catch (e) {
-      //protection for hotfix
-      //todo: remove it in develop
-      console.error(e);
+
+    if (!record && type) {
+      record = `dict@${variant.type}`;
     }
-    return params;
-  }
+
+    if (destination && !attributes._parent) {
+      attributes._parent = destination;
+    }
+
+    const props = {
+      record,
+      formKey,
+      attributes,
+      options: {
+        ...formOptions
+      },
+      ...options
+    };
+
+    if (variant.typeRef) {
+      props.options.typeRef = variant.typeRef;
+    }
+
+    if (EcosFormUtils.isFormId(formId)) {
+      props.formId = formId;
+    }
+
+    this.openFormModal(props);
+  };
 
   static openFormModal(props) {
-    let form = React.createElement(EcosFormModal, { ...props, isModalOpen: true });
+    const container = document.createElement('div');
+    const handleUnmount = () => {
+      ReactDOM.unmountComponentAtNode(container);
+      document.body.removeChild(container);
+    };
 
-    let container = document.createElement('div');
+    const form = React.createElement(EcosFormModal, {
+      ...props,
+      isModalOpen: true,
+      onHideModal: () => {
+        handleUnmount();
+
+        if (props.onHideModal) {
+          props.onHideModal();
+        }
+      },
+      onCancelModal: () => {
+        handleUnmount();
+
+        if (typeof props.onModalCancel === 'function') {
+          props.onModalCancel();
+        }
+      }
+    });
+
     document.body.appendChild(container);
-
     ReactDOM.render(form, container);
 
     return container;
@@ -139,7 +96,7 @@ class FormManager {
       onFormCancel && onFormCancel();
     };
 
-    modal.open(<EcosForm {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} initiator={{ type: 'modal' }} />, { title });
+    modal.open(<EcosForm initiator={{ type: 'modal' }} {...props} onSubmit={_onSubmit} onFormCancel={_onFormCancel} />, { title });
 
     return modal;
   }

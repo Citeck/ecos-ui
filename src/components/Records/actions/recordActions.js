@@ -4,7 +4,7 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
 
-import { extractLabel, t } from '../../../helpers/util';
+import { extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
@@ -78,7 +78,8 @@ export const DEFAULT_MODEL = {
   config: {},
   confirm: null,
   result: null,
-  features: {}
+  features: {},
+  preActionModule: ''
 };
 
 class RecordActions {
@@ -232,6 +233,50 @@ class RecordActions {
     return await new Promise(resolve => {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
     });
+  }
+
+  static async _preProcessAction({ records, action, context }, nameFunction) {
+    const result = { preProcessed: false, configMerged: false, hasError: false };
+
+    if (!action.preActionModule) {
+      return result;
+    }
+
+    const preActionHandler = await getModule(action.preActionModule)
+      .then(module => module[nameFunction])
+      .catch(e => {
+        console.error('Error while pre process module loading', e);
+        result.hasError = true;
+      });
+
+    if (typeof preActionHandler === 'function') {
+      try {
+        const response = await preActionHandler(records, action, context);
+        result.preProcessed = true;
+
+        if (Array.isArray(get(response, 'results'))) {
+          result.results = response.results;
+          result.preProcessedRecords = result.results.map(res => res.recordRef);
+        }
+
+        if (!isEmpty(get(response, 'config'))) {
+          result.config = { ...action.config, ...response.config };
+          result.configMerged = true;
+        }
+      } catch (e) {
+        console.error('Error while pre process module loading', e, preActionHandler);
+        result.hasError = true;
+      }
+    } else {
+      console.error(nameFunction, 'This is not function. Check preActionModule', preActionHandler);
+      result.hasError = true;
+    }
+
+    if (result.hasError) {
+      notifyFailure();
+    }
+
+    return result;
   }
 
   /**
@@ -394,6 +439,7 @@ class RecordActions {
       notifyFailure();
       return false;
     }
+
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -401,6 +447,7 @@ class RecordActions {
       console.error('No handler. Action: ', action);
       return false;
     }
+
     const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
     const execContext = {
       ...actionContext,
@@ -422,6 +469,16 @@ class RecordActions {
       ...action,
       config
     };
+
+    const preResult = await RecordActions._preProcessAction(
+      { records: [Records.get(record)], action: actionToExec, context },
+      'execForRecord'
+    );
+
+    if (preResult.configMerged) {
+      action.config = preResult.config;
+    }
+
     const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
@@ -467,6 +524,10 @@ class RecordActions {
         return false;
       }
 
+      if (!isEmpty(confirmed)) {
+        RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+      }
+
       popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => r.id), resultOptions);
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
@@ -502,8 +563,22 @@ class RecordActions {
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
-      const result = handler.execForRecords(allowedRecords, action, execContext);
+      const preResult = await RecordActions._preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
+
+      if (preResult.configMerged) {
+        action.config = preResult.config;
+      }
+
+      const filteredRecords = preResult.preProcessedRecords
+        ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
+        : allowedRecords;
+
+      const result = handler.execForRecords(filteredRecords, action, execContext);
       const actResult = await RecordActions._wrapResultIfRequired(result);
+
+      if (!isBoolean(actResult) && preResult.preProcessedRecords) {
+        actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+      }
 
       RecordActions._updateRecords(allowedRecords, true);
 
@@ -591,6 +666,10 @@ class RecordActions {
 
     if (!confirmed) {
       return;
+    }
+
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
     const result = handler.execForQuery(query, action, execContext);

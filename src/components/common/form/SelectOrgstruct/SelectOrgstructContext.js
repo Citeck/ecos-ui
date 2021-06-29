@@ -6,7 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -40,17 +40,24 @@ export const SelectOrgstructProvider = props => {
   const [isRootGroupsFetched, setIsRootGroupsFetched] = useState(false);
   const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
+  const [isSearching, setIsSearching] = useState(false);
   const [targetId, setTargetId] = useState(undefined);
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
     [TabTypes.USERS]: [],
     [TabTypes.SELECTED]: []
   });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    count: ITEMS_PER_PAGE,
+    maxCount: 0
+  });
   const prevDefaultValue = usePrevious(defaultValue);
 
   const onSubmitSearchForm = () => {
-    setIsRootGroupsFetched(false);
-    setIsAllUsersGroupFetched(false);
+    currentTab === TabTypes.LEVELS && setIsRootGroupsFetched(false);
+    currentTab === TabTypes.USERS && setIsAllUsersGroupFetched(false);
+    setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
   const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
@@ -93,7 +100,7 @@ export const SelectOrgstructProvider = props => {
       }
     }
 
-    valuePromise.then(value => typeof onChange === 'function' && onChange(value));
+    valuePromise.then(value => typeof onChange === 'function' && onChange(value, selectedList));
   };
 
   // fetch root group list
@@ -101,6 +108,7 @@ export const SelectOrgstructProvider = props => {
     const trimSearchText = (searchText || '').trim();
 
     if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
+      setIsSearching(true);
       orgStructApi
         .fetchGroup({
           query: {
@@ -122,6 +130,7 @@ export const SelectOrgstructProvider = props => {
 
           checkIsAllUsersGroupExists();
           setIsRootGroupsFetched(true);
+          setIsSearching(false);
         });
     }
   }, [isRootGroupsFetched, isSelectModalOpen, currentTab]);
@@ -129,15 +138,20 @@ export const SelectOrgstructProvider = props => {
   // fetch "all" group list (all users)
   useEffect(() => {
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
-      OrgStructApi.getUserList(searchText, userSearchExtraFields).then(items => {
-        setTabItems({
-          ...tabItems,
-          [TabTypes.USERS]: items.map(item => setSelectedItem(item))
-        });
+      setIsSearching(true);
+      OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
+        ({ items, totalCount }) => {
+          setTabItems({
+            ...tabItems,
+            [TabTypes.USERS]: items.map(item => setSelectedItem(item))
+          });
 
-        checkIsAllUsersGroupExists();
-        setIsAllUsersGroupFetched(true);
-      });
+          checkIsAllUsersGroupExists();
+          setIsAllUsersGroupFetched(true);
+          setPagination({ ...pagination, maxCount: totalCount });
+          setIsSearching(false);
+        }
+      );
     }
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
@@ -175,9 +189,7 @@ export const SelectOrgstructProvider = props => {
 
       Promise.all(promises)
         .then(handleResponse)
-        .then(items => {
-          return items.map(item => prepareSelected(item));
-        })
+        .then(items => items.map(prepareSelected))
         .then(selectedItems => {
           setTabItems({
             ...tabItems,
@@ -186,7 +198,8 @@ export const SelectOrgstructProvider = props => {
             [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
           });
           setSelectedRows([...selectedItems]);
-        });
+        })
+        .catch(_ => _);
     }
   }, [isSelectedFetched]);
 
@@ -213,6 +226,8 @@ export const SelectOrgstructProvider = props => {
         liveSearch,
         hideTabSwitcher,
         targetId,
+        isSearching,
+        pagination,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
@@ -293,6 +308,11 @@ export const SelectOrgstructProvider = props => {
           if (liveSearch) {
             liveSearchDebounce();
           }
+        },
+
+        resetSearchText: e => {
+          updateSearchText('');
+          liveSearchDebounce();
         },
 
         onSelect: () => {
@@ -426,6 +446,11 @@ export const SelectOrgstructProvider = props => {
                 .concat(tabItems[currentTab].slice(itemIdx + 1))
             });
           }
+        },
+
+        onChangePage: ({ page, maxItems }) => {
+          setPagination({ ...pagination, page, count: maxItems });
+          setIsAllUsersGroupFetched(false);
         }
       }}
     >

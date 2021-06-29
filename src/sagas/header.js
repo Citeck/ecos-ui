@@ -28,29 +28,27 @@ import MenuConverter from '../dto/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
-    const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
-    const siteVars = yield call(api.menu.getCreateVariantsForAllSites);
+    const createMenuView = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
+    const workflowVars = yield call(api.menu.getCreateWorkflowVariants); //todo: temp solution to get create variants from menu config
+    const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
     const customVars = yield call(api.menu.getCustomCreateVariants);
 
-    const _sites = MenuConverter.getCreateSiteItems(siteVars);
+    const _config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
     const _customs = MenuConverter.getCreateCustomItems(customVars);
-    const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
+    const { config, customs } = MenuConverter.mergeCustomsAndConfig(_customs, _config);
 
-    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, sites)));
-
-    const isCascadeMenu = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
-    yield put(setCreateCaseWidgetIsCascade(isCascadeMenu === 'cascad'));
+    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, config)));
+    yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);
   }
 }
 
-function* fetchUserMenu({ api, fakeApi, logger }) {
+function* fetchUserMenu({ logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const isExternalAuthentication = yield call(fakeApi.getIsExternalAuthentication); // TODO use real api
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalAuthentication));
+    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable));
 
     yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
@@ -67,7 +65,7 @@ function* fetchInfluentialParams() {
   return { isAdmin, dashboardEditable, leftMenuEditable };
 }
 
-function* fetchSiteMenu({ api, fakeApi, logger }) {
+function* fetchSiteMenu({ logger }) {
   try {
     const params = yield fetchInfluentialParams();
     const url = document.location.href;
@@ -108,7 +106,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
   }
 }
 
-function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
+function* goToPageSiteMenu({ api, logger }, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);
@@ -119,7 +117,7 @@ function* goToPageSiteMenu({ api, fakeApi, logger }, { payload }) {
   }
 }
 
-function* sagaRunSearchAutocomplete({ api, fakeApi, logger }, { payload }) {
+function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
   try {
     const documents = yield api.menu.getLiveSearchDocuments(payload, 0);
     const sites = yield api.menu.getLiveSearchSites(payload);

@@ -5,9 +5,10 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import BaseWidget from '../BaseWidget';
-import { arrayCompare, getAdaptiveNumberStr, t } from '../../../helpers/util';
+import { getAdaptiveNumberStr, t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
   addAssociations,
@@ -21,7 +22,7 @@ import {
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
-import { DropdownMenu as Menu, Icon, Loader } from '../../common/index';
+import { EcosDropdownMenu, Icon, Loader } from '../../common/index';
 import { RemoveDialog } from '../../common/dialogs/index';
 import SelectJournal from '../../common/form/SelectJournal/index';
 import Dashlet from '../../Dashlet';
@@ -97,7 +98,7 @@ class DocAssociations extends BaseWidget {
     const prevTrackedAssoc = this.getTrackedAssoc(prevProps.allowedAssociations);
     const newTrackedAssoc = this.getTrackedAssoc();
 
-    if (!arrayCompare(prevTrackedAssoc, newTrackedAssoc)) {
+    if (!isEqual(prevTrackedAssoc, newTrackedAssoc)) {
       this.watcherAssoc && this.instanceRecord.unwatch(prevTrackedAssoc);
       newTrackedAssoc &&
         (this.watcherAssoc = this.instanceRecord.watch(newTrackedAssoc, () => {
@@ -269,28 +270,50 @@ class DocAssociations extends BaseWidget {
   renderAddButton = () => {
     const { menu, id, isLoadingMenu } = this.props;
     const { isMenuOpen } = this.state;
+    const tooltipId = `tooltip-plus-${id}`;
 
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button" className="ecos-doc-associations__button-add">
         <DropdownToggle tag="button" className="ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue">
-          <Icon id={`tooltip-plus-${id}`} className="icon-small-plus" />
+          <Icon id={tooltipId} className="icon-small-plus" />
           <UncontrolledTooltip
             placement="top"
             boundariesElement="window"
             className="ecos-base-tooltip ecos-base-tooltip_opaque"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
-            target={`tooltip-plus-${id}`}
+            target={tooltipId}
           >
             {t(LABELS.TOOLTIP_ADD_LINK)}
           </UncontrolledTooltip>
         </DropdownToggle>
-        <DropdownMenu className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu">
-          <Menu
+        <DropdownMenu
+          className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu"
+          modifiers={{
+            computeStyle: {
+              fn: data => {
+                const { popper } = data.instance;
+                const style = popper.getAttribute('style');
+
+                popper.setAttribute('style', `${style} left: unset !important; right: 0;`);
+
+                return data;
+              }
+            }
+          }}
+        >
+          <EcosDropdownMenu
             emptyMessage={t(LABELS.EMPTY_ALLOWED_ASSOCIATIONS_MESSAGE)}
             items={menu}
             mode="cascade"
             isLoading={isLoadingMenu}
+            modifiers={{
+              preventOverflow: {
+                escapeWithReference: true,
+                boundariesElement: 'viewport'
+              },
+              onlyFirstParent: true
+            }}
             onClick={this.handleSelectMenuItem}
           />
         </DropdownMenu>
@@ -348,28 +371,21 @@ class DocAssociations extends BaseWidget {
   render() {
     const { canDragging, dragHandleProps, associationsTotalCount, isLoading, isMobile } = this.props;
     const { isCollapsed } = this.state;
-    const actions = {
-      [DAction.Actions.RELOAD]: {
-        onClick: this.handleReloadData
-      }
-    };
     const actionRules = { orderedVisible: [DAction.Actions.RELOAD, 'addLink'] };
-
-    if (!isMobile) {
-      actions.addLink = {
-        component: this.renderAddButton(),
-        text: t(LABELS.TOOLTIP_ADD_LINK)
-      };
-    }
 
     return (
       <Dashlet
         className={classNames('ecos-doc-associations', { 'ecos-doc-associations_small': this.isSmallWidget })}
         title={t(LABELS.TITLE)}
         needGoTo={false}
-        actionConfig={actions}
+        actionConfig={{
+          [DAction.Actions.RELOAD]: {
+            onClick: this.handleReloadData
+          }
+        }}
         actionRules={actionRules}
         canDragging={canDragging}
+        customActions={this.renderAddButton()}
         resizable
         contentMaxHeight={this.clientHeight}
         onResize={this.handleResize}

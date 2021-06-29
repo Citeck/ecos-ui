@@ -1,6 +1,7 @@
 import isBoolean from 'lodash/isBoolean';
 import DialogManager from '../../../common/dialogs/Manager';
 import { DetailActionResult, prepareResult } from '../util/actionUtils';
+import * as util from '../../../../helpers/util';
 import recordActions, { DEFAULT_MODEL as GLOBAL_DEFAULT_MODEL } from '../recordActions';
 import actionsRegistry from '../actionsRegistry';
 
@@ -14,6 +15,12 @@ jest.mock('../recordActionsApi');
 actionsRegistry.register(new TestActionExecutor());
 
 describe('RecordActions service', () => {
+  const mockGetModule = jest.spyOn(util, 'getModule');
+
+  afterEach(() => {
+    mockGetModule.mockReset();
+  });
+
   it('Method _fillDataByMap', () => {
     const action = {
       config: {},
@@ -32,6 +39,61 @@ describe('RecordActions service', () => {
     });
 
     expect(action.config.body).toEqual({ comment: 'test' });
+  });
+
+  describe('Method _preProcessAction', () => {
+    let action;
+
+    beforeEach(() => {
+      action = {
+        config: {
+          A: 'A'
+        },
+        preActionModule: 'module.js',
+        features: {
+          execForQuery: false,
+          execForRecord: false,
+          execForRecords: false
+        }
+      };
+    });
+
+    it('execForRecord was preprocessed & config merged', async () => {
+      action.features.execForRecord = true;
+      mockGetModule.mockImplementation(() =>
+        Promise.resolve({
+          execForRecord: () => ({ config: { B: 'B' } })
+        })
+      );
+      const response = await recordActions.constructor._preProcessAction({ action }, 'execForRecord');
+      expect(action.config).toEqual({ A: 'A' });
+      expect(response.config).toEqual({ A: 'A', B: 'B' });
+      expect(response.configMerged).toBeTruthy();
+      expect(response.preProcessed).toBeTruthy();
+    });
+
+    it('execForRecord was preprocessed', async () => {
+      action.features.execForRecord = true;
+      mockGetModule.mockImplementation(() =>
+        Promise.resolve({
+          execForRecord: () => {}
+        })
+      );
+      const response = await recordActions.constructor._preProcessAction({ action }, 'execForRecord');
+      expect(action.config).toEqual({ A: 'A' });
+      expect(response.config).toBeUndefined();
+      expect(response.configMerged).toBeFalsy();
+      expect(response.preProcessed).toBeTruthy();
+    });
+
+    it("execForRecord doesn't exist", async () => {
+      action.features.execForRecord = true;
+      mockGetModule.mockImplementation(() => Promise.resolve());
+      const response = await recordActions.constructor._preProcessAction({ action }, 'execForRecord');
+      expect(action.config).toEqual({ A: 'A' });
+      expect(response.configMerged).toBeFalsy();
+      expect(response.preProcessed).toBeFalsy();
+    });
   });
 
   test('Service test', async () => {

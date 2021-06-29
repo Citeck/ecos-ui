@@ -1,6 +1,8 @@
 import { all } from 'redux-saga/effects';
 import app from './app';
 import bpmn from './bpmn';
+import bpmnEditor from './bpmnEditor';
+import docLib from './docLib';
 import header from './header';
 import journals from './journals';
 import pageTabs from './pageTabs';
@@ -32,11 +34,16 @@ import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
+import adminSection from './adminSection';
+import cmmnEditor from './cmmnEditor';
+import customEvent from './customEvent';
 
 export default function* rootSaga(extraArguments) {
   yield all([
     app(extraArguments),
     bpmn(extraArguments),
+    bpmnEditor(extraArguments),
+    docLib(extraArguments),
     header(extraArguments),
     journals(extraArguments),
     pageTabs(extraArguments),
@@ -67,6 +74,9 @@ export default function* rootSaga(extraArguments) {
     documents(extraArguments),
     userProfile(extraArguments),
     docConstructor(extraArguments),
-    iconSelect(extraArguments)
+    iconSelect(extraArguments),
+    adminSection(extraArguments),
+    cmmnEditor(extraArguments),
+    customEvent(extraArguments)
   ]);
 }

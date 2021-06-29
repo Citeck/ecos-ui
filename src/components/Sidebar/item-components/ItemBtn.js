@@ -2,12 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import handleControl, { HandleControlTypes } from '../../../helpers/handleControl';
-import { MenuSettings } from '../../../constants/menu';
-
-const mapDispatchToProps = dispatch => ({
-  dispatch
-});
+import { performAction } from '../../../actions/slideMenu';
 
 class ItemBtn extends React.Component {
   static propTypes = {
@@ -21,14 +16,9 @@ class ItemBtn extends React.Component {
   };
 
   clickHandler = e => {
-    const { dispatch, data } = this.props;
+    const { data, performAction } = this.props;
 
-    if (data.type === MenuSettings.ItemTypes.LINK_CREATE_CASE) {
-      handleControl(HandleControlTypes.ECOS_CREATE_VARIANT, data.params.createVariant, dispatch);
-    } else {
-      handleControl(HandleControlTypes.ALF_CREATE_SITE, null, dispatch);
-    }
-
+    performAction(data);
     e.stopPropagation();
   };
 
@@ -42,6 +32,10 @@ class ItemBtn extends React.Component {
     );
   }
 }
+
+const mapDispatchToProps = dispatch => ({
+  performAction: data => dispatch(performAction(data))
+});
 
 export default connect(
   null,

@@ -1,7 +1,13 @@
-import Harness from '../../../test/harness';
-import CheckBoxComponent from './Checkbox';
+import cloneDeep from 'lodash/cloneDeep';
 
+import Harness from '../../../test/harness';
+
+import CheckBoxComponent from './Checkbox';
+import { basicSectionTest } from '../../../test/builder/helpers';
 import comp1 from './fixtures/comp1';
+import comp2 from './fixtures/comp2';
+
+basicSectionTest(CheckBoxComponent);
 
 describe('Checkbox Component', () => {
   it('Should build a checkbox component', done => {
@@ -56,5 +62,75 @@ describe('Checkbox Component', () => {
       expect(component.element.getAttribute('class').indexOf('checkbox-checked')).toBe(-1);
       done();
     });
+  });
+});
+
+describe('Checkbox Component with three states', () => {
+  it('Should be able to set and get data', done => {
+    Harness.testCreate(CheckBoxComponent, comp2).then(component => {
+      Harness.testSetGet(component, true);
+      Harness.testSetGet(component, false);
+      Harness.testSetGet(component, null);
+      done();
+    });
+  });
+
+  it('Should set the checkbox-checked_cross class on wrapper of checkbox have value "false"', done => {
+    const comp = Object.assign(cloneDeep(comp2), { defaultValue: true });
+
+    Harness.testCreate(CheckBoxComponent, comp).then(component => {
+      expect(component.element.getAttribute('class').indexOf('checkbox-checked_cross')).toBe(-1);
+      Harness.clickElement(component, 'input[type="checkbox"]');
+      expect(component.element.getAttribute('class').indexOf('checkbox-checked_cross')).not.toBe(-1);
+      done();
+    });
+  });
+
+  it('Should unset the checkbox-checked_cross class on wrapper of checkbox have value "true"', done => {
+    const comp = Object.assign(cloneDeep(comp2), { defaultValue: null });
+
+    Harness.testCreate(CheckBoxComponent, comp).then(component => {
+      expect(component.element.getAttribute('class').indexOf('checkbox-checked_cross')).toBe(-1);
+      Harness.clickElement(component, 'input[type="checkbox"]');
+      expect(component.element.getAttribute('class').indexOf('checkbox-checked_cross')).toBe(-1);
+      Harness.clickElement(component, 'input[type="checkbox"]');
+      expect(component.element.getAttribute('class').indexOf('checkbox-checked_cross')).not.toBe(-1);
+      Harness.clickElement(component, 'input[type="checkbox"]');
+      expect(component.element.getAttribute('class').indexOf('checkbox-checked_cross')).toBe(-1);
+      done();
+    });
+  });
+
+  it('Should be value "true" if default value is "true"', done => {
+    const comp = Object.assign(cloneDeep(comp2), { defaultValue: true });
+
+    Harness.testCreate(CheckBoxComponent, comp).then(component => {
+      expect(component.getValue()).toBe(true);
+      done();
+    });
+  });
+
+  it('Should be value "false" if default value is "false"', done => {
+    const comp = Object.assign(cloneDeep(comp2), { defaultValue: false });
+
+    Harness.testCreate(CheckBoxComponent, comp).then(component => {
+      expect(component.getValue()).toBe(false);
+      done();
+    });
+  });
+
+  it('Should be value "null" if default value is "null"', done => {
+    const comp = Object.assign(cloneDeep(comp2), { defaultValue: null });
+
+    Harness.testCreate(CheckBoxComponent, comp).then(component => {
+      expect(component.getValue()).toBe(null);
+      done();
+    });
+  });
+
+  it('Should be unreadable value', done => {
+    const comp = Object.assign(cloneDeep(comp2), { unreadable: true });
+
+    Harness.testCreate(CheckBoxComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
   });
 });

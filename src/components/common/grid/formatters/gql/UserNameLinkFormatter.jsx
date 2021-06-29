@@ -24,6 +24,10 @@ export default class UserNameLinkFormatter extends DefaultGqlFormatter {
     const { userName, displayName } = cell;
     const url = createProfileUrl(userName);
 
-    return <a href={url}>{this.value(displayName)}</a>;
+    return (
+      <this.PopperWrapper text={this.value(displayName)}>
+        <a href={url}>{this.value(displayName)}</a>
+      </this.PopperWrapper>
+    );
   }
 }

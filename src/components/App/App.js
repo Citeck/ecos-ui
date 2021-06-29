@@ -7,7 +7,6 @@ import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
 import { NotificationContainer } from 'react-notifications';
 import { replace } from 'connected-react-router';
-import * as queryString from 'query-string';
 
 import CacheRoute, { CacheSwitch } from '../ReactRouterCache';
 
@@ -21,30 +20,27 @@ import { ErrorBoundary } from '../ErrorBoundary';
 
 import { initAppSettings } from '../../actions/app';
 import { setTab, updateTab } from '../../actions/pageTabs';
-import { Pages, pagesWithOnlyContent, URL } from '../../constants';
+import { Pages, pagesWithOnlyContent, RELOCATED_URL, URL } from '../../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../../constants/menu';
 import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { isMobileAppWebView, t } from '../../helpers/util';
-import PageService, { Events } from '../../services/PageService';
 import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
-import { decodeLink, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
-import { selectActiveThemeImage } from '../../selectors/view';
-import { DefaultImages } from '../../constants/theme';
 
 import './App.scss';
 
 const allowedLinks = [
   URL.DASHBOARD,
-  '/share/page/bpmn-designer',
-  URL.FORM_COMPONENTS,
-  '/v2/debug/tree',
   URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
+  URL.ADMIN_PAGE,
   URL.JOURNAL,
   URL.DEV_TOOLS,
+  URL.BPMN_EDITOR,
+  URL.CMMN_EDITOR,
+
   URL.TIMESHEET,
   URL.TIMESHEET_SUBORDINATES,
   URL.TIMESHEET_FOR_VERIFICATION,
@@ -55,60 +51,17 @@ const allowedLinks = [
   URL.TIMESHEET_IFRAME_DELEGATED
 ];
 
+if (process.env.NODE_ENV === 'development') {
+  allowedLinks.push(URL.FORM_COMPONENTS, '/v2/debug/cmmn', '/v2/debug/tree');
+}
+
 class App extends Component {
   _footerRef = null;
 
   componentDidMount() {
-    const { initAppSettings } = this.props;
-
-    initAppSettings();
-    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.handleCustomEvent, false);
-    UserLocalSettingsService.checkDasletsUpdatedDate();
+    this.props.initAppSettings();
+    UserLocalSettingsService.checkDashletsUpdatedDate();
   }
-
-  handleCustomEvent = event => {
-    const {
-      params: { link = '', rerenderPage, replaceHistory }
-    } = event;
-    const { isShowTabs, isMobile, replace, setTab, updateTab } = this.props;
-
-    if (!(isShowTabs && !this.isOnlyContent && !isMobile) || (rerenderPage && replaceHistory)) {
-      const { url, query } = queryString.parseUrl(link);
-
-      pushHistoryLink(window, {
-        pathname: url,
-        search: decodeLink(queryString.stringify(query))
-      });
-
-      replace(link);
-
-      return;
-    }
-
-    const { reopen, closeActiveTab, updates, pushHistory, ...data } = PageService.parseEvent({ event }) || {};
-
-    if (updates) {
-      const { link } = updates;
-
-      if (link) {
-        if (pushHistory) {
-          const { url, query } = queryString.parseUrl(link);
-
-          pushHistoryLink(window, {
-            pathname: url,
-            search: decodeLink(queryString.stringify(query))
-          });
-        } else {
-          replaceHistoryLink(window, link);
-        }
-      }
-
-      updateTab({ updates });
-
-      return;
-    }
-    setTab({ data, params: { reopen, closeActiveTab } });
-  };
 
   get isOnlyContent() {
     const url = get(this.props, ['history', 'location', 'pathname'], '/');
@@ -210,6 +163,10 @@ class App extends Component {
     return <ReduxModal />;
   }
 
+  renderRedirectOldRoots = () => {
+    return Object.keys(RELOCATED_URL).map(key => <Redirect from={key} to={RELOCATED_URL[key]} />);
+  };
+
   renderCachedRouter = React.memo(props => {
     const { tab } = props;
     const isCurrent = pageTabList.isActiveTab(tab.id);
@@ -238,12 +195,6 @@ class App extends Component {
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
-              exact
-              path="/share/page/bpmn-designer"
-              render={() => <Redirect to={URL.BPMN_DESIGNER} />}
-            />
-            <CacheRoute
-              {...baseCacheRouteProps}
               path={URL.DASHBOARD_SETTINGS}
               render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
             />
@@ -255,7 +206,7 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.BPMN_DESIGNER}
+              path={URL.ADMIN_PAGE}
               render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />}
             />
             <CacheRoute
@@ -268,6 +219,17 @@ class App extends Component {
               path={URL.DEV_TOOLS}
               render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />}
             />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.BPMN_EDITOR}
+              render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.CMMN_EDITOR}
+              render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} footer={null} />}
+            />
+            {/* --- TIMESHEETs start */}
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.TIMESHEET}
@@ -310,12 +272,13 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
             />
+            {/* --- TIMESHEETs end */}
 
-            {/*temporary routes */}
+            {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
 
-            {/* Redirect not working: https://github.com/CJY0208/react-router-cache-route/issues/72 */}
+            {this.renderRedirectOldRoots()}
             <Redirect to={URL.DASHBOARD} />
           </CacheSwitch>
         </Suspense>
@@ -332,15 +295,17 @@ class App extends Component {
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
-            <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
             <Route
               path={URL.DASHBOARD_SETTINGS}
               render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
             />
             <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
-            <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
+            <Route path={URL.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
             <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
+            <Route path={URL.BPMN_EDITOR} render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} {...basePageProps} />} />
+            <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} />} />
+            {/* --- TIMESHEETs start */}
             <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
             <Route
               path={URL.TIMESHEET_SUBORDINATES}
@@ -371,11 +336,12 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
             />
+            {/* --- TIMESHEETs end */}
 
             {/* temporary routes */}
             <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
             <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
-
+            {this.renderRedirectOldRoots()}
             <Redirect to={URL.DASHBOARD} />
           </Switch>
         </Suspense>
@@ -394,7 +360,7 @@ class App extends Component {
   }
 
   render() {
-    const { isInit, isInitFailure, isAuthenticated, isMobile, theme, loginLogo } = this.props;
+    const { isInit, isInitFailure, isMobile } = this.props;
 
     if (!isInit) {
       // TODO: Loading component
@@ -404,14 +370,6 @@ class App extends Component {
     if (isInitFailure) {
       // TODO: Crash app component
       return null;
-    }
-
-    if (!isAuthenticated) {
-      return (
-        <Suspense fallback={null}>
-          <Page pageKey={Pages.LOGIN} theme={theme} logo={loginLogo} />
-        </Suspense>
-      );
     }
 
     const appClassNames = classNames('app-container', { mobile: isMobile });
@@ -444,13 +402,10 @@ const mapStateToProps = state => ({
   isInit: get(state, ['app', 'isInit']),
   isInitFailure: get(state, ['app', 'isInitFailure']),
   isMobile: get(state, ['view', 'isMobile']),
-  theme: get(state, ['view', 'theme']),
-  isAuthenticated: get(state, ['user', 'isAuthenticated']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  footer: get(state, 'app.footer', null),
-  loginLogo: selectActiveThemeImage(state, DefaultImages.LOGIN_LOGO)
+  footer: get(state, 'app.footer', null)
 });
 
 const mapDispatchToProps = dispatch => ({

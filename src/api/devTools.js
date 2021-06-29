@@ -3,6 +3,7 @@ import { SourcesId } from '../constants';
 import { getCurrentUserName } from '../helpers/util';
 import Records from '../components/Records';
 import { CommonApi } from './common';
+import buildInfo from '../build-info';
 
 export class DevToolsApi extends CommonApi {
   /**
@@ -38,7 +39,7 @@ export class DevToolsApi extends CommonApi {
    * @returns {Promise<[]>} Promise object represents commits list
    */
   getUiCommits = async () => {
-    return this.getJson(`/build-info/full.json`);
+    return this.getJson(`/build-info/full.json?` + buildInfo.time);
   };
 
   /**

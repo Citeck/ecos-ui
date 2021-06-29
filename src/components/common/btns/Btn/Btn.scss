@@ -419,6 +419,16 @@ button {
     }
   }
 
+  &.ecos-btn_grey-dark {
+    background: $color-gray-11;
+    color: $color-white;
+
+    &:focus,
+    &:hover {
+      background: lighten($color-gray-11, 10%);
+    }
+  }
+
   &.ecos-btn_brown {
     background: $color-white;
     color: $color-brown-2;

@@ -2,8 +2,11 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import EcosSelectComponent from './EcosSelect';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2 } from './fixtures';
+
+basicSectionTest(EcosSelectComponent);
 
 describe('EcosSelect Component', () => {
   it('Should build a Select component', done => {
@@ -75,6 +78,12 @@ describe('EcosSelect Component', () => {
         expect(component.inputs[0].value).toBe('');
         done();
       });
+    });
+
+    it('Should be unreadable value', done => {
+      const comp = Object.assign(cloneDeep(comp2), { unreadable: true });
+
+      Harness.testCreate(EcosSelectComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
     });
   });
 });

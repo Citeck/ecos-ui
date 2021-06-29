@@ -1,8 +1,12 @@
 import Harness from '../../../test/harness';
 import ButtonComponent from './Button';
 import Formio from '../../../Formio';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
+import comp2 from './fixtures/comp2';
+
+basicSectionTest(ButtonComponent);
 
 describe('Button Component', () => {
   it('Should build a button component', done => {
@@ -11,6 +15,18 @@ describe('Button Component', () => {
       for (const button of buttons) {
         expect(button.name).toBe(`data[${comp1.key}]`);
         expect(button.innerHTML).toBe(comp1.label);
+      }
+      done();
+    });
+  });
+
+  it('Should build a button component with ML label', done => {
+    Harness.testCreate(ButtonComponent, comp2).then(component => {
+      const buttons = Harness.testElements(component, 'button[type="submit"]', 1);
+
+      for (const button of buttons) {
+        expect(button.name).toBe(`data[${comp2.key}]`);
+        expect(button.innerHTML).toBe(comp2.label.en);
       }
       done();
     });

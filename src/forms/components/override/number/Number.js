@@ -210,6 +210,11 @@ export default class NumberComponent extends FormIONumberComponent {
   }
 
   setupValueElement(element) {
+    if (this.component.unreadable) {
+      super.setUnreadableLabel(element);
+      return;
+    }
+
     const renderValue = val => {
       element.innerHTML = val;
     };

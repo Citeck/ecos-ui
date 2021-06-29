@@ -1,23 +1,20 @@
 import { handleActions } from 'redux-actions';
+import get from 'lodash/get';
+
 import {
   collapseAllItems,
-  setInitExpandableItems,
+  setExpandableItems,
   setIsReady,
-  setLargeLogo,
   setScrollTop,
   setSelectedId,
   setSiteDashboardEnable,
-  setSlideMenuExpandableItems,
   setSlideMenuItems,
-  setSmallLogo,
   toggleExpanded,
   toggleIsOpen
 } from '../actions/slideMenu';
 import SidebarService from '../services/sidebar';
 
 const initialState = {
-  smallLogo: null,
-  largeLogo: null,
   selectedId: null,
   items: [],
   expandableItems: [],
@@ -37,32 +34,19 @@ export default handleActions(
         selectedId: action.payload
       };
     },
-    [setSmallLogo]: (state, action) => {
-      return {
-        ...state,
-        smallLogo: action.payload
-      };
-    },
-    [setLargeLogo]: (state, action) => {
-      return {
-        ...state,
-        largeLogo: action.payload
-      };
-    },
     [setSlideMenuItems]: (state, action) => {
       return {
         ...state,
         items: action.payload
       };
     },
-    [setSlideMenuExpandableItems]: (state, action) => {
-      return {
-        ...state,
-        expandableItems: action.payload
-      };
-    },
-    [setInitExpandableItems]: (state, action) => {
-      const expandableItems = SidebarService.getExpandableItems(state.items, state.selectedId, state.isOpen);
+    [setExpandableItems]: (state, action) => {
+      const selectedId = state.selectedId || get(action, 'payload.selectedId');
+      const force = get(action, 'payload.force');
+      const expandableItems =
+        force || !state.expandableItems.length
+          ? SidebarService.initExpandableItems(state.items, selectedId, state.isOpen)
+          : SidebarService.getExpandableItems(state.expandableItems, state.items, selectedId);
 
       return {
         ...state,
@@ -72,7 +56,7 @@ export default handleActions(
     [toggleExpanded]: (state, { payload: selectedItem }) => {
       const isObject = !!selectedItem && typeof selectedItem === 'object';
       const idItem = isObject ? selectedItem.id : selectedItem;
-      const initNestedItems = isObject && SidebarService.getExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
+      const initNestedItems = isObject && SidebarService.initExpandableItems(selectedItem.items || [], state.selectedId, state.isOpen);
 
       return {
         ...state,
@@ -80,7 +64,7 @@ export default handleActions(
           if (item.id === idItem) {
             return {
               ...item,
-              isNestedListExpanded: !item.isNestedListExpanded
+              isExpanded: !item.isExpanded
             };
           }
 
@@ -97,7 +81,7 @@ export default handleActions(
     [collapseAllItems]: (state, action) => {
       return {
         ...state,
-        expandableItems: state.expandableItems.map(item => ({ ...item, isNestedListExpanded: false }))
+        expandableItems: state.expandableItems.map(item => ({ ...item, isExpanded: false }))
       };
     },
     [toggleIsOpen]: (state, action) => {

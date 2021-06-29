@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import { ResizeBoxes } from '../../common';
@@ -17,7 +17,7 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const Grid = ({ showPreview, ...props }) => (
+const Grid = React.memo(({ showPreview, ...props }) => (
   <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
     <JournalsDashletGrid
       noTopBorder
@@ -27,7 +27,7 @@ const Grid = ({ showPreview, ...props }) => (
       {...props}
     />
   </Well>
-);
+));
 
 const Preview = ({ stateId, recordId }) => (
   <Well className="ecos-well_full ecos-journals-content__preview-well">
@@ -55,6 +55,7 @@ class JournalsContent extends Component {
   render() {
     const { stateId, showPreview, maxHeight } = this.props;
     const { recordId } = this.state;
+
     const grid = (
       <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />
     );

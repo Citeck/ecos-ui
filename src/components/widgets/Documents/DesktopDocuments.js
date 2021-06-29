@@ -17,6 +17,7 @@ import DropZone from './parts/DropZone';
 import DocumentsConverter from '../../../dto/documents';
 import {
   execRecordsAction,
+  getAvailableTypes,
   getDocumentsByType,
   getTypeSettings,
   initStore,
@@ -103,7 +104,7 @@ class DesktopDocuments extends BaseDocuments {
     };
 
     this._tablePanel = React.createRef();
-    this._tableRef = React.createRef();
+    this._tableRef = null;
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
@@ -140,7 +141,7 @@ class DesktopDocuments extends BaseDocuments {
   }
 
   get tableHeight() {
-    return get(this._tableRef, 'current.offsetHeight', 0);
+    return get(this._tableRef, 'offsetHeight', 0);
   }
 
   get tableWidth() {
@@ -262,6 +263,12 @@ class DesktopDocuments extends BaseDocuments {
     return cloneDeep(type);
   };
 
+  setTableRef = ref => {
+    if (ref) {
+      this._tableRef = ref;
+    }
+  };
+
   refreshGrid() {
     this.setState({ needRefreshGrid: true }, () => this.setState({ needRefreshGrid: false }));
   }
@@ -367,7 +374,7 @@ class DesktopDocuments extends BaseDocuments {
       return false;
     }
 
-    if (this.getformId(type)) {
+    if (this.getFormId(type)) {
       this.props.onUploadFiles({ files, type: type.type, openForm: this.openForm });
     } else {
       this.props.onUploadFiles({ files, type: type.type });
@@ -687,7 +694,7 @@ class DesktopDocuments extends BaseDocuments {
           sortable={false}
           fixedHeader
           scrollAutoHide={autoHide}
-          forwardedRef={this._tableRef}
+          forwardedRef={this.setTableRef}
           autoHeight
           maxHeight={this.tableMaxHeight}
           keyField={documentFields.id}
@@ -756,7 +763,7 @@ class DesktopDocuments extends BaseDocuments {
           selectedType={selectedType}
           autoHide={autoHide}
           isHoverLastRow={isHoverLastRow}
-          forwardedRef={this._tableRef}
+          forwardedRef={this.setTableRef}
           scrollPosition={this.scrollPosition}
           tableData={this.tableData}
           countFormatter={this.countFormatter}
@@ -834,7 +841,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),
     execRecordsAction: data => dispatch(execRecordsAction({ ...baseParams, ...data })),
     setInlineTools: tools => dispatch(setInlineTools({ ...baseParams, tools })),
-    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type }))
+    getTypeSettings: type => dispatch(getTypeSettings({ ...baseParams, type })),
+    getAvailableTypes: () => dispatch(getAvailableTypes(baseParams.key))
   };
 };
 

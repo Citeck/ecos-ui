@@ -23,6 +23,11 @@ import LocaleFormatter from './gql/LocaleFormatter';
 import ActionFormatter from './gql/ActionFormatter';
 import FileFormatter from './gql/FileFormatter';
 
+/**
+ * @deprecated
+ * actual until version 2.0
+ * use {@link src/components/Journals/service/formatters}
+ */
 const formatterStore = {
   UserNameLinkFormatter,
   FunctionFormatter,

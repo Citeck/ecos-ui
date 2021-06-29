@@ -2,8 +2,11 @@ import _ from 'lodash';
 
 import Harness from '../../../test/harness';
 import NumberComponent from './Number';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2, comp3, comp4 } from './fixtures';
+
+basicSectionTest(NumberComponent);
 
 describe('Number Component', () => {
   it('Should build an number component', done => {
@@ -322,5 +325,11 @@ describe('Number Component', () => {
       Harness.testSetInput(component, 12345678.03, 12345678.03, '12,345,678.03');
       done();
     });
+  });
+
+  it('Should be unreadable value', done => {
+    const comp = Object.assign(_.cloneDeep(comp2), { unreadable: true });
+
+    Harness.testCreate(NumberComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
   });
 });

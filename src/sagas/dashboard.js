@@ -4,7 +4,6 @@ import { NotificationManager } from 'react-notifications';
 
 import { RequestStatuses } from '../constants';
 import { t } from '../helpers/util';
-import { createOldVersionUrlDocument } from '../helpers/urls';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import {
   getDashboardConfig,
@@ -22,7 +21,6 @@ import { setDashboardConfig as setDashboardSettingsConfig } from '../actions/das
 import { selectDashboardConfigs, selectIdentificationForView, selectResetStatus } from '../selectors/dashboard';
 import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
-import PageService from '../services/PageService';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
 function* _parseConfig({ api, logger }, { recordRef, config }) {
@@ -37,13 +35,6 @@ function* _parseConfig({ api, logger }, { recordRef, config }) {
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
     const { recordRef } = payload;
-    const redirect = yield call(api.dashboard.isRedirectOld, recordRef);
-
-    if (redirect) {
-      PageService.changeUrlLink(createOldVersionUrlDocument(recordRef), { reopenBrowserTab: true });
-      return;
-    }
-
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
     if (!recordIsExist) {

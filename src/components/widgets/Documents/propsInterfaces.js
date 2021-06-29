@@ -50,6 +50,5 @@ export const DocumentInterface = {
   loadedBy: PropTypes.string,
   modified: PropTypes.string,
   name: PropTypes.string,
-  type: PropTypes.string,
-  typeName: PropTypes.string
+  type: PropTypes.string
 };

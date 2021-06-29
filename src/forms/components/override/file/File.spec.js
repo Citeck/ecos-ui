@@ -1,6 +1,11 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 import Harness from '../../../test/harness';
-import FileComponent from './File';
 import comp1 from './fixtures/comp1';
+import FileComponent from './File';
+import { basicSectionTest } from '../../../test/builder/helpers';
+
+basicSectionTest(FileComponent);
 
 describe('File Component', () => {
   it('Should build a file component', done => {
@@ -70,5 +75,11 @@ describe('File Component', () => {
       Harness.testElements(component, 'a.browse', 1);
       expect(!!component.checkValidity(component.getValue())).toBe(true);
     });
+  });
+
+  it('Should be unreadable value', done => {
+    const comp = Object.assign(cloneDeep(comp1), { unreadable: true });
+
+    Harness.testCreate(FileComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
   });
 });

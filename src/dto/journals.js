@@ -1,6 +1,8 @@
 import cloneDeep from 'lodash/cloneDeep';
 import concat from 'lodash/concat';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import AttributesService from '../services/AttributesService';
 import { ParserPredicate } from '../components/Filters/predicates';
@@ -83,5 +85,28 @@ export default class JournalsConverter {
       forQuery: source.forQuery || {},
       forRecord: source.forRecord || {}
     };
+  }
+
+  static mergeColumnsSetup(arrayFrom, arrayTo, compareField = 'dataField') {
+    let result = cloneDeep(arrayTo);
+
+    if (isEmpty(arrayFrom) || isEqual(arrayFrom, arrayTo)) {
+      return result;
+    }
+
+    for (let i = result.length - 1; i >= 0; i--) {
+      const item = arrayFrom.find(item => item[compareField] === result[i][compareField]);
+
+      if (isEmpty(item)) {
+        continue;
+      }
+
+      result[i] = {
+        ...result[i],
+        ...item
+      };
+    }
+
+    return result;
   }
 }

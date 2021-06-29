@@ -1,1 +1,1 @@
-export { default as ErrorCell } from './ErrorCell';
+export { default } from './ErrorCell';

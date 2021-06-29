@@ -1,23 +1,34 @@
 import Records from '../components/Records';
 import { DEFAULT_REF, documentFields } from '../constants/documents';
-import { Permissions, SourcesId } from '../constants';
-import GqlDataSource from '../components/common/grid/dataSource/GqlDataSource';
-import { PROXY_URI } from '../constants/alfresco';
+import { SourcesId } from '../constants';
+import journalsService from '../components/Journals/service/journalsService';
 
 export class DocumentsApi {
   getDocumentTypes = () => {
     return Records.query(
       {
-        sourceId: SourcesId.TYPE
+        sourceId: SourcesId.TYPE,
+        query: {},
+        language: 'predicate'
       },
       {
         name: 'name',
-        parent: 'parent?id',
+        parent: 'parent?id'
+      }
+    );
+  };
+
+  getTypeInfo = (id, loadData) => {
+    const types = Array.isArray(id) ? id : [id];
+
+    return Records.get(types).load(
+      loadData || {
+        name: 'name',
         formId: 'form?id',
-        createVariants: 'createVariants?json',
+        createVariants: 'inhCreateVariants[]?json',
         actions: 'actions[]?id'
       }
-    ).then(response => response);
+    );
   };
 
   getDynamicTypes = recordRef => {
@@ -35,23 +46,13 @@ export class DocumentsApi {
     );
   };
 
-  /***
-   * @todo use JournalsService
-   */
   getColumnsConfigByType = typeRef => {
-    return Records.queryOne(
-      {
-        sourceId: 'uiserv/journal_v1',
-        query: { typeRef }
-      },
-      '.json'
-    ).then(response => response);
+    return journalsService.getJournalConfigByType(typeRef);
   };
 
   getFormIdByType = type => {
     return Records.get(type)
       .load('form?id')
-      .then(response => response)
       .catch(() => null);
   };
 
@@ -62,7 +63,7 @@ export class DocumentsApi {
       record.att(key, data[key]);
     });
 
-    return record.save().then(response => response);
+    return record.save();
   };
 
   getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {
@@ -97,47 +98,5 @@ export class DocumentsApi {
       .load('createVariants?json')
       .then(response => response || {})
       .catch(() => null);
-  };
-
-  getFormattedColumns = async config => {
-    const { predicate = {}, columns = [], sourceId } = config;
-    let queryPredicates = predicate.val || [];
-
-    if (!Array.isArray(queryPredicates)) {
-      queryPredicates = [queryPredicates];
-    }
-
-    const bodyQuery = {
-      query: {
-        t: 'and',
-        val: queryPredicates.filter(item => {
-          return item.val !== '' && item.val !== null;
-        })
-      },
-      language: 'predicate',
-      consistency: 'EVENTUAL'
-    };
-
-    if (sourceId) {
-      bodyQuery['sourceId'] = sourceId;
-    }
-    /***
-     * @todo use JournalsService
-     */
-    const dataSource = new GqlDataSource({
-      url: `${PROXY_URI}citeck/ecos/records`,
-      dataSourceName: 'GqlDataSource',
-      ajax: {
-        body: {
-          query: bodyQuery
-        }
-      },
-      columns: columns || [],
-      permissions: [Permissions.Write]
-    });
-
-    await dataSource.load();
-
-    return dataSource.getColumns();
   };
 }

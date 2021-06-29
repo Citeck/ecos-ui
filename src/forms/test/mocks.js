@@ -11,6 +11,8 @@ global.document.createRange = () => ({
 
 global.require = () => {};
 
+global.getSelection = () => '';
+
 // const createElement = global.document.createElement;
 // const FAKECanvasElement = {
 //   getContext: jest.fn(() => {

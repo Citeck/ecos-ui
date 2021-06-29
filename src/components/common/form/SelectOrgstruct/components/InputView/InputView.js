@@ -13,6 +13,14 @@ import ViewMode from '../ViewMode';
 
 import './InputView.scss';
 
+const Labels = {
+  PLACEHOLDER: 'select-orgstruct.placeholder',
+  NO_LABEL_LINK: 'select-orgstruct.no-label',
+  BUTTON_ADD: 'select-orgstruct.button.add',
+  BUTTON_CHANGE: 'select-orgstruct.button.change',
+  BUTTON_SELECT: 'select-orgstruct.button.select'
+};
+
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
   const { selectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
@@ -40,16 +48,7 @@ const InputView = () => {
     return <ViewMode />;
   }
 
-  const wrapperClasses = classNames('select-orgstruct__input-view', {
-    'select-orgstruct__input-view_compact': isCompact
-  });
-
-  const buttonClasses = classNames('ecos-btn_blue', {
-    'ecos-btn_narrow': true, //isCompact,
-    'select-orgstruct__input-view-button_compact': isCompact
-  });
-
-  const placeholderText = placeholder ? placeholder : t('select-orgstruct.placeholder');
+  const placeholderText = placeholder ? placeholder : t(Labels.PLACEHOLDER);
 
   const onClickDelete = e => {
     deleteSelectedItem(e.target.dataset.id);
@@ -73,10 +72,11 @@ const InputView = () => {
 
     return (
       <AssocLink
-        label={item.label || t('select-orgstruct.no-label')}
+        label={item.label || t(Labels.NO_LABEL_LINK)}
         asText={isSelectedValueAsText}
         {...props}
-        className={classNames('select-orgstruct__values-list-disp', { 'select-orgstruct__values-list-disp_no-label': !item.label })}
+        className="select-orgstruct__values-list-disp"
+        extraData={!item.label && (get(item, 'attributes.shortName') || get(item, 'attributes.name'))}
       />
     );
   };
@@ -105,7 +105,7 @@ const InputView = () => {
               {disabled ? null : (
                 <div className="select-orgstruct__values-list-actions">
                   {/*<span data-id={item.id} className={'icon icon-edit'} onClick={() => {}} />*/}
-                  <span data-id={item.id} className={'icon icon-delete'} onClick={onClickDelete} />
+                  <span data-id={item.id} className="icon icon-delete" onClick={onClickDelete} />
                 </div>
               )}
             </li>
@@ -118,18 +118,18 @@ const InputView = () => {
   );
 
   return (
-    <div className={wrapperClasses}>
+    <div className={classNames('select-orgstruct__input-view', { 'select-orgstruct__input-view_compact': isCompact })}>
       {isCompact ? null : valuesList}
 
       {error ? (
         <p className="select-orgstruct__error">{error.message}</p>
       ) : (
-        <Btn className={buttonClasses} onClick={toggleSelectModal} disabled={disabled}>
-          {selectedRows.length > 0
-            ? multiple
-              ? t('select-orgstruct.button.add')
-              : t('select-orgstruct.button.change')
-            : t('select-orgstruct.button.select')}
+        <Btn
+          className={classNames('ecos-btn_blue ecos-btn_narrow', { 'select-orgstruct__input-view-button_compact': isCompact })}
+          onClick={toggleSelectModal}
+          disabled={disabled}
+        >
+          {selectedRows.length > 0 ? (multiple ? t(Labels.BUTTON_ADD) : t(Labels.BUTTON_CHANGE)) : t(Labels.BUTTON_SELECT)}
         </Btn>
       )}
 

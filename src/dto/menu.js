@@ -1,11 +1,12 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { CreateMenuTypes, MenuTypes } from '../constants/menu';
+import { CreateMenuTypes, MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
-import { extractLabel } from '../helpers/util';
+import { extractLabel, getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
+import MenuConverterExport from './export/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 
 const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
@@ -59,32 +60,76 @@ export default class MenuConverter {
   }
 
   /* menu create */
-  static getCreateSiteItems(source = []) {
-    const target = [];
+  static getMainMenuCreateItems(source = []) {
+    const ITs = MenuSettings.ItemTypes;
 
-    for (const site of source) {
-      const items = [];
+    return (function recursion(items) {
+      return (items || [])
+        .map(item => {
+          const option = { ...item, label: getTextByLocale(item.label) };
 
-      for (const variant of site.createVariants) {
-        if (!variant.canCreate) {
-          continue;
-        }
-        const id = getId(`${site.siteId}_${variant.type}`);
-        items.push({
-          id,
-          label: variant.title,
-          control: {
-            type: HandleControlTypes.ECOS_CREATE_VARIANT,
-            payload: variant
+          switch (item.type) {
+            case ITs.LINK_CREATE_CASE:
+              return MenuConverter.prepareLinkCreateCase(option);
+            case ITs.ARBITRARY:
+              option.disabled = !get(item, 'config.url');
+              return { ...option, ...MenuConverter.getLinkMove(item) };
+            case ITs.SECTION:
+              option.disabled = !option.items.length;
+              break;
+            default:
+              break;
           }
-        });
-      }
 
-      const id = getId(site.siteId);
-      target.push({ id, siteId: site.siteId, label: site.siteTitle, items });
+          option.items = recursion(item.items);
+
+          return option;
+        })
+        .filter(item => !item.hidden);
+    })(source);
+  }
+
+  static prepareCreateVariants(createVariants) {
+    return createVariants.map(variant => ({
+      type: MenuSettings.ItemTypes.LINK_CREATE_CASE,
+      label: getTextByLocale(variant.name),
+      config: { variant }
+    }));
+  }
+
+  /**
+   * @deprecated
+   * @description for supporting old menu where user can create lick create case with a few options
+   * @param option from menu config
+   * @returns Object
+   */
+  static prepareLinkCreateCase(option) {
+    const createVariants = get(option, '_remoteData_.createVariants') || [];
+
+    if (createVariants.length) {
+      return {
+        ...option,
+        type: MenuSettings.ItemTypes.SECTION,
+        items: MenuConverter.prepareCreateVariants(createVariants)
+      };
     }
 
-    return target;
+    return option;
+  }
+
+  static getLinkMove(data) {
+    const targetUrl = get(data, 'config.url') || {};
+
+    return {
+      targetUrl,
+      control: {
+        type: HandleControlTypes.ALF_NAVIGATE_TO_PAGE,
+        payload: {
+          url: targetUrl,
+          target: targetUrl.includes('http') ? '_blank' : '_self'
+        }
+      }
+    };
   }
 
   static getCreateCustomItems(source = []) {
@@ -107,12 +152,12 @@ export default class MenuConverter {
     });
   }
 
-  static mergeCustomsAndSites(_customs, _sites) {
-    const sites = cloneDeep(_sites);
+  static mergeCustomsAndConfig(_customs, _config) {
+    const config = cloneDeep(_config);
     const exSiteId = [];
 
     _customs.forEach(item => {
-      sites.forEach(site => {
+      config.forEach(site => {
         if (site.siteId === item.siteId) {
           exSiteId.push(item.siteId);
           site.items = [item, ...site.items];
@@ -122,17 +167,17 @@ export default class MenuConverter {
 
     const customs = _customs.filter(item => !exSiteId.includes(item.siteId));
 
-    return { customs, sites };
+    return { customs, config };
   }
 
   /* menu settings */
-  static getMenuItemsWeb(source) {
+  static getMenuItemsWeb(source, params = {}) {
     const target = [];
 
     (function prepareTree(sItems, tItems, level) {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
-        const tItem = MenuSettingsService.getItemParams(sItem, { level });
+        const tItem = MenuSettingsService.getItemParams(sItem, { level, ...params });
 
         tItem.items = [];
         tItem.config = { ...sItem.config };
@@ -155,7 +200,7 @@ export default class MenuConverter {
       for (let i = 0; i < sItems.length; i++) {
         const sItem = sItems[i];
         const { dndIdx, locked, draggable, icon, ...newData } = sItem;
-        const oldData = treeFindFirstItem({ items: source.originalItems, value: sItem.id, key: 'id' }) || {};
+        const oldData = treeFindFirstItem({ items: source.originalItems || [], value: sItem.id, key: 'id' }) || {};
         const tItem = { ...oldData, ...newData, items: [] };
 
         tItem.icon = getIconRef(icon);
@@ -199,5 +244,9 @@ export default class MenuConverter {
     })(source, target);
 
     return target;
+  }
+
+  static getAllSectionsFlat(source) {
+    return MenuConverterExport.getAllSectionsFlat(source);
   }
 }

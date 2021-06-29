@@ -11,8 +11,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Citeck ECOS &raquo; BPMN Editor</title>
-    <!--link rel="icon" type="image/ico" href="favicon.ico"-->
-    <link rel="shortcut icon" href="/share/res/favicon.ico" type="image/vnd.microsoft.icon">
+
     <meta name="description" content="">
     <meta name="viewport"
           content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width">
@@ -22,16 +21,16 @@
     <!--<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png?v=Om5N75Y123">-->
     <!--<link rel="icon" type="image/png" href="images/favicon-32x32.png?v=Om5N75Y123" sizes="32x32">-->
     <!--<link rel="icon" type="image/png" href="images/favicon-16x16.png?v=Om5N75Y123" sizes="16x16">-->
+    <link rel="icon" href="/gateway/uiserv/api/theme/active/image/favicon" type="image/vnd.microsoft.icon">
     <link rel="manifest" href="manifest.json">
     <link rel="mask-icon" href="images/safari-pinned-tab.svg?v=Om5N75Y123" color="#506d75">
-    <link rel="shortcut icon" href="favicon.ico?v=Om5N75Y123">
     <link rel="Stylesheet" href="libs/ui-grid_3.0.0/ui-grid.css" type="text/css"/>
     <link rel="Stylesheet" href="libs/handsontable_0.31.2/handsontable.full.min.css" type="text/css"/>
 
     <!-- build:css styles/3thparty.css -->
     <link rel="stylesheet" href="libs/bootstrap_3.1.1/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="libs/bootstrap-tour_0.9.1/bootstrap-tour.min.css"/>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="libs/angular-spectrum-colorpicker_1.0.13/spectrum.css"/>
     <!-- endbuild -->
 
@@ -298,41 +297,27 @@
   window.BPMN_DESIGNER_CONTEXT = '/v2/bpmn-designer';
   window.CARD_DETAILS_CONTEXT = '/share/page/card-details?nodeRef=workspace://SpacesStore/';
 
-  function redirectToBPMNDesignerPage() {
-    window.location.href = window.BPMN_DESIGNER_CONTEXT;
-  }
-
-  fetch('/share/service/modules/authenticated?noCache=${new Date().getTime()}&a=user', {
-    credentials: 'include'
-  }).then(function (response) {
-    if (response.status !== 200) {
-      redirectToBPMNDesignerPage();
-    }
-
-    require(['ecosui!header'], function(Header) {
-      Header.render('share-header', {
-        hideSiteMenu: true
-      }, () => {
-        require([
-          'ecosui!slide-menu'
-        ], function(SlideMenu) {
-          SlideMenu.render('slide-menu');
-        });
+  require(['ecosui!header'], function(Header) {
+    Header.render('share-header', {
+      hideSiteMenu: true
+    }, () => {
+      require([
+        'ecosui!slide-menu'
+      ], function(SlideMenu) {
+        SlideMenu.render('slide-menu');
       });
     });
+  });
 
-    require(['ecosui!idle-timer'], function(IdleTimer) {
-      const idleTimer = new IdleTimer.default();
-      idleTimer
-        .setCheckInterval(60000)
-        .setIdleTimeout(60000 * 60 * 3)
-        .setNoIdleCallback(() => {
-          fetch('/share/proxy/alfresco/citeck/ecos/touch', { credentials: 'include' });
-        })
-        .run();
-    });
-  }).catch(() => {
-    redirectToBPMNDesignerPage();
+  require(['ecosui!idle-timer'], function(IdleTimer) {
+    const idleTimer = new IdleTimer.default();
+    idleTimer
+      .setCheckInterval(60000)
+      .setIdleTimeout(60000 * 60 * 3)
+      .setNoIdleCallback(() => {
+        fetch('/gateway/alfresco/alfresco/s/citeck/ecos/touch', { credentials: 'include' });
+      })
+      .run();
   });
 </script>
 

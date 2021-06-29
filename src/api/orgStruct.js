@@ -1,6 +1,6 @@
 import * as queryString from 'query-string';
 
-import { DataTypes } from '../components/common/form/SelectOrgstruct/constants';
+import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
@@ -15,7 +15,7 @@ export class OrgStructApi extends RecordService {
   _loadedGroups = {};
 
   getUsers = (searchText = '') => {
-    let url = `${PROXY_URI}/api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
+    let url = `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
     if (searchText) {
       url += `&filter=${searchText}`;
     }
@@ -43,7 +43,7 @@ export class OrgStructApi extends RecordService {
     }
 
     const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}/api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
+      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
       query: urlQuery
     });
 
@@ -79,13 +79,14 @@ export class OrgStructApi extends RecordService {
       return Promise.resolve(this._loadedAuthorities[nodeRef]);
     }
 
-    let url = `${PROXY_URI}/api/orgstruct/authority?nodeRef=${nodeRef}`;
+    let url = `${PROXY_URI}api/orgstruct/authority?nodeRef=${nodeRef}`;
+
     return this.getJson(url)
       .then(result => {
         this._loadedAuthorities[nodeRef] = result;
         return result;
       })
-      .catch(() => []);
+      .catch(() => (isNodeRef(nodeRef) ? { nodeRef } : { nodeRef, name: nodeRef }));
   };
 
   fetchAuthorityByName = async (authName = '') => {
@@ -106,8 +107,9 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   }
 
-  static async getUserList(searchText, extraFields = []) {
-    const val = searchText.trim();
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
+    const valRaw = searchText.trim();
+    const val = valRaw.split(' ');
 
     const queryVal = [
       {
@@ -154,29 +156,72 @@ export class OrgStructApi extends RecordService {
         addExtraFields(extraFields);
       }
 
-      queryVal.push({
-        t: 'or',
-        val: searchFields.map(att => ({
-          t: 'contains',
-          att,
-          val
-        }))
-      });
+      if (val.length < 2) {
+        queryVal.push({
+          t: 'or',
+          val: searchFields.map(att => ({
+            t: 'contains',
+            att: att,
+            val: val[0]
+          }))
+        });
+      } else {
+        const firstLast = {
+          t: 'and',
+          val: [
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[1]
+            }
+          ]
+        };
+
+        const lastFirst = {
+          t: 'and',
+          val: [
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[1]
+            }
+          ]
+        };
+
+        queryVal.push({
+          t: 'or',
+          val: [firstLast, lastFirst]
+        });
+      }
     }
 
     return Records.query(
       {
         query: { t: 'and', val: queryVal },
         language: 'predicate',
+        consistency: 'EVENTUAL',
         page: {
-          maxItems: 20,
-          skipCount: 0
+          maxItems: params.maxItems,
+          skipCount: params.page * params.maxItems
         }
       },
       {
         fullName: '.disp',
         userName: 'userName'
       }
-    ).then(result => converterUserList(result.records));
+    ).then(result => ({
+      items: converterUserList(result.records),
+      totalCount: result.totalCount
+    }));
   }
 }

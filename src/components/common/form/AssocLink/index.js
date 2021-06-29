@@ -5,7 +5,7 @@ import PageService from '../../../../services/PageService';
 
 import './style.scss';
 
-export const AssocLink = ({ className, label, asText, link, paramsLink = {} }) => {
+export const AssocLink = ({ className, label, asText, link, extraData, paramsLink = {} }) => {
   let onClickHandler = null;
 
   if (!asText && link) {
@@ -16,7 +16,12 @@ export const AssocLink = ({ className, label, asText, link, paramsLink = {} }) =
   }
 
   if (asText) {
-    return <span className={classNames('assoc-value', className)}>{label}</span>;
+    return (
+      <div className="assoc-container">
+        <span className={classNames('assoc-value', className)}>{label}</span>
+        {extraData && <span className="assoc-extra-data">({extraData})</span>}
+      </div>
+    );
   }
 
   return (

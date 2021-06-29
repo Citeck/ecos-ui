@@ -62,7 +62,7 @@
 
   &_left {
     text-align: left;
-    padding-left: 15px;
+    padding-left: 10px;
   }
 
   &_right {
@@ -78,7 +78,7 @@
 }
 
 .ecos-ml-text {
-  &__input {
+  &__input &:not(disabled) {
     &:focus,
     &:hover {
       border-color: $color-blue-light;

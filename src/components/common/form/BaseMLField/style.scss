@@ -7,7 +7,15 @@
 }
 
 .ecos-ml-text {
+  $ml: &;
+
   position: relative;
+
+  &_disabled {
+    #{$ml}__image {
+      display: none;
+    }
+  }
 
   &__image {
     @extend %image;
@@ -27,6 +35,9 @@
   }
 
   &__input {
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   &__tooltip {

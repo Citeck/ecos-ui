@@ -2,9 +2,13 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import MLTextareaComponent from './MLTextarea';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
 import comp2 from './fixtures/comp2';
+import MLTextComponent from '../mlText';
+
+basicSectionTest(MLTextareaComponent);
 
 describe('MLTextarea Component', () => {
   it('Should build a MLTextarea component', done => {
@@ -43,6 +47,23 @@ describe('MLTextarea Component', () => {
       component.on('componentChange', () => {
         expect(component.getValue()).toEqual(cloneDeep(value2));
         Harness.getInputValue(component, 'Textarea', value2.ru, 'textarea');
+        done();
+      });
+    });
+  });
+
+  it('Only text should be displayed in mode viewOnly', done => {
+    Harness.testCreate(MLTextComponent, comp2).then(component => {
+      const value = { en: 'test' };
+
+      component.setReactProps({ viewOnly: true });
+      component.setReactProps({ value });
+      component.setValue(value);
+
+      component.on('componentChange', () => {
+        expect(component.element.querySelector('input')).toEqual(null);
+        expect(component.element.querySelector('.ecos-ml-text').innerHTML).toEqual(value.en);
+
         done();
       });
     });

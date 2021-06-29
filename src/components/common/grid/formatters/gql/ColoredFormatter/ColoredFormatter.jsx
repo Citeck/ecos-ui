@@ -1,6 +1,7 @@
 import React from 'react';
-import DefaultGqlFormatter from '../DefaultGqlFormatter';
 import isObject from 'lodash/isObject';
+
+import DefaultGqlFormatter from '../DefaultGqlFormatter';
 
 import './ColoredFormatter.scss';
 
@@ -9,6 +10,7 @@ export default class ColoredFormatter extends DefaultGqlFormatter {
     if (!cell) {
       return '';
     }
+
     return cell.disp || cell._disp || '';
   }
 
@@ -16,6 +18,7 @@ export default class ColoredFormatter extends DefaultGqlFormatter {
     if (!cell) {
       return '';
     }
+
     return cell.str || cell._str || '';
   }
 
@@ -25,6 +28,7 @@ export default class ColoredFormatter extends DefaultGqlFormatter {
 
     let cellColor = params.defaultColor || '#FFFFFF';
     let colorKey = isObject(cell) ? this.getId(cell) : cell;
+
     cellColor = color[colorKey] || cellColor;
 
     let style = {
@@ -32,6 +36,7 @@ export default class ColoredFormatter extends DefaultGqlFormatter {
     };
 
     let text = '';
+
     if (params.hiddenText !== 'true') {
       text = this.value(cell);
     } else {
@@ -40,9 +45,11 @@ export default class ColoredFormatter extends DefaultGqlFormatter {
     }
 
     return (
-      <span style={style} className={`colored-formatter`}>
-        {text}
-      </span>
+      <this.PopperWrapper text={text}>
+        <span style={style} className={`colored-formatter`}>
+          {text}
+        </span>
+      </this.PopperWrapper>
     );
   }
 }

@@ -1,3 +1,5 @@
+import get from 'lodash/get';
+
 export const getTitleFormatter = module => {
   return (action, time, took) => `${module} >>> action @ ${action.type}`;
 };
@@ -17,7 +19,7 @@ export const handleState = (state, stateId, payload) =>
       };
 
 export const handleAction = action => {
-  const { _args } = action.payload || {};
+  const _args = get(action, 'payload._args');
 
   if (_args !== undefined) {
     action.payload = _args;
@@ -31,7 +33,7 @@ export function wrapArgs(stateId) {
 }
 
 export function* wrapSaga({ api, logger, saga }, action) {
-  const stateId = action.payload.stateId;
+  const stateId = get(action, 'payload.stateId');
   const w = wrapArgs(stateId);
 
   action = handleAction(action);
@@ -56,14 +58,20 @@ export function deleteStateById(state, stateId) {
 }
 
 export function startLoading(initialState) {
-  return function(state, { payload: { stateId } }) {
-    return {
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        isLoading: true
-      }
-    };
+  return function(state, action = {}) {
+    const stateId = get(action, 'payload.stateId');
+
+    if (stateId) {
+      return {
+        ...state,
+        [stateId]: {
+          ...getCurrentStateById(state, stateId, initialState),
+          isLoading: true
+        }
+      };
+    }
+
+    return state;
   };
 }
 

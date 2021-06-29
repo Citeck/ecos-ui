@@ -6,6 +6,9 @@ import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
 
+import recordsClientManager from './client';
+import { prepareAttsToLoad } from './utils/recordUtils';
+
 export const EVENT_CHANGE = 'change';
 
 export default class Record {
@@ -301,80 +304,91 @@ export default class Record {
     return watcher;
   }
 
-  load(attributes, force) {
-    let attsMapping = {};
+  async load(attributes, force) {
+    let attsAliases = [];
     let attsToLoad = [];
-    let isSingleAttribute = _.isString(attributes);
 
-    if (isSingleAttribute) {
-      attsToLoad = [attributes];
-    } else if (_.isArray(attributes)) {
-      attsToLoad = attributes;
-    } else if (_.isObject(attributes)) {
-      for (let attAlias in attributes) {
-        if (attributes.hasOwnProperty(attAlias)) {
-          let attToLoad = attributes[attAlias];
-          attsMapping[attributes[attAlias]] = attAlias;
-          attsToLoad.push(attToLoad);
-        }
+    const isSingleAttribute = _.isString(attributes);
+    prepareAttsToLoad(attributes, attsToLoad, attsAliases);
+
+    const attsToLoadLengthWithoutClient = attsToLoad.length;
+
+    let clientData = null;
+
+    if (!this.isVirtual()) {
+      const sourceIdDelimIdx = this.id.indexOf('@');
+      let clientSourceId = null;
+      if (sourceIdDelimIdx !== -1) {
+        clientSourceId = this.id.substring(0, sourceIdDelimIdx);
       }
-    } else {
-      attsToLoad = attributes;
+      clientData = await recordsClientManager.preProcessAtts(clientSourceId, attsToLoad);
+      if (clientData && clientData.clientAtts) {
+        prepareAttsToLoad(clientData.clientAtts, attsToLoad, attsAliases);
+      }
     }
 
-    return Promise.all(
-      attsToLoad.map(att => {
-        let parsedAtt = parseAttribute(att);
-        if (parsedAtt === null) {
-          let value = this._recordFieldsToSave[att];
-          if (value === undefined) {
-            value = this._recordFields[att];
-          }
-          if (!force && value !== undefined) {
-            return value;
-          } else {
-            value = this._loadRecordAttImpl(att, force);
-            if (value && value.then) {
-              this._recordFields[att] = value
-                .then(loaded => {
-                  this._recordFields[att] = loaded;
-                  return loaded;
-                })
-                .catch(e => {
-                  console.error(e);
-                  this._recordFields[att] = null;
-                  return null;
-                });
-            } else {
-              this._recordFields[att] = value;
-            }
-            return this._recordFields[att];
-          }
-        } else {
-          let attribute = this._attributes[parsedAtt.name];
-          if (!attribute) {
-            attribute = new Attribute(this, parsedAtt.name);
-            this._attributes[parsedAtt.name] = attribute;
-          }
-          return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
-        }
-      })
-    ).then(loadedAtts => {
-      let result = {};
+    let loadedAtts = await Promise.all(attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
 
-      for (let i = 0; i < attsToLoad.length; i++) {
-        let attKey = attsToLoad[i];
-        attKey = attsMapping[attKey] || attKey;
-        result[attsMapping[attKey] || attKey] = loadedAtts[i];
+    if (clientData) {
+      const clientAtts = {};
+      for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
+        clientAtts[attsAliases[i]] = loadedAtts[i];
       }
+      loadedAtts = await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+    }
 
-      return isSingleAttribute ? result[Object.keys(result)[0]] : result;
-    });
+    if (isSingleAttribute) {
+      return loadedAtts[0];
+    }
+
+    let attsResultMap = {};
+    for (let i = 0; i < attsToLoadLengthWithoutClient; i++) {
+      attsResultMap[attsAliases[i]] = loadedAtts[i];
+    }
+
+    return attsResultMap;
+  }
+
+  async _loadAttWithCacheImpl(att, force) {
+    let parsedAtt = parseAttribute(att);
+    if (parsedAtt != null) {
+      let attribute = this._attributes[parsedAtt.name];
+      if (!attribute) {
+        attribute = new Attribute(this, parsedAtt.name);
+        this._attributes[parsedAtt.name] = attribute;
+      }
+      return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
+    }
+
+    let value = this._recordFieldsToSave[att];
+    if (value === undefined) {
+      value = this._recordFields[att];
+    }
+    if (!force && value !== undefined) {
+      return value;
+    } else {
+      value = this._loadRecordAttImpl(att, force);
+      if (value && value.then) {
+        this._recordFields[att] = value
+          .then(loaded => {
+            this._recordFields[att] = loaded;
+            return loaded;
+          })
+          .catch(e => {
+            console.error(e);
+            this._recordFields[att] = null;
+            return null;
+          });
+      } else {
+        this._recordFields[att] = value;
+      }
+      return this._recordFields[att];
+    }
   }
 
   _loadRecordAttImpl(attribute, force) {
     if (this._baseRecord) {
-      return this._baseRecord.load(attribute, force);
+      return this._baseRecord._loadAttWithCacheImpl(attribute, force);
     } else {
       return loadAttribute(this.id, attribute);
     }

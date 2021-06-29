@@ -34,14 +34,13 @@ export default class DocumentsConverter {
     }));
   };
 
-  static getDynamicTypes = ({ types = [], typeNames = {}, countByTypes = [], availableTypes }, locked = false) => {
+  static getDynamicTypes = ({ types = [], countByTypes = [] }, locked = false) => {
     if (!types.length) {
       return types;
     }
 
     return types.map((item, index) => {
       const documents = get(countByTypes, [index], []);
-      const createVariants = get(availableTypes.find(i => i.id === item.type), 'createVariants', {});
       let document = {};
 
       if (documents.length) {
@@ -58,11 +57,11 @@ export default class DocumentsConverter {
         canUpload: !isExistValue(canUpload) || canUpload,
         locked: get(item, 'locked', locked),
         formId: DocumentsConverter.formIdIsNull(item.formId) ? null : item.formId,
-        name: item.name || get(typeNames, [item.type], t('documents-widget.untitled')),
+        name: item.name || t('documents-widget.untitled'),
         countDocuments: documents.length,
         lastDocumentRef: get(document, documentFields.id, ''),
         [documentFields.loadedBy]: get(document, documentFields.loadedBy, ''),
-        canDropUpload: (!isExistValue(canUpload) || canUpload) && !createVariants.formRef,
+        canDropUpload: (!isExistValue(canUpload) || canUpload) && !get(item, 'createVariants[0]formRef'),
         [documentFields.modified]: DocumentsConverter.getFormattedDate(get(document, documentFields.modified, ''))
       };
     });
@@ -88,7 +87,7 @@ export default class DocumentsConverter {
     return target;
   };
 
-  static getDocuments = ({ documents, type, typeName }) => {
+  static getDocuments = ({ documents, type }) => {
     return documents.map(document => {
       const target = { ...document };
 
@@ -97,7 +96,6 @@ export default class DocumentsConverter {
       }
 
       target.type = type;
-      target.typeName = typeName;
 
       return target;
     });
@@ -179,8 +177,8 @@ export default class DocumentsConverter {
   };
 
   static combineTypes = (baseTypes = [], userTypes = []) => {
-    const base = deepClone(baseTypes, []);
-    const user = deepClone(userTypes, []);
+    const base = lodashClone(baseTypes);
+    const user = lodashClone(userTypes);
 
     return user.reduce((result, current) => {
       const index = result.findIndex(item => item.type === current.type);
@@ -273,10 +271,9 @@ export default class DocumentsConverter {
 
         if (attribute && schema) {
           if (schema.charAt(0) === '.') {
-            return `${alias}:${schema.slice(1)}`;
+            return `"${alias}":${schema.slice(1)}`;
           }
-
-          return `${alias}:att(n:"${schema}"){disp}`;
+          return `"${alias}":att(n:"${schema}"){disp}`;
         }
 
         if (!attribute && !name) {
@@ -284,19 +281,19 @@ export default class DocumentsConverter {
         }
 
         if (!attribute) {
-          return `${alias}:att(n:"${name}"){disp}`;
+          return `"${alias}":att(n:"${name}"){disp}`;
         }
 
         if (attribute.charAt(0) === '.') {
-          return `${alias}:${attribute.slice(1)}`;
+          return `"${alias}":${attribute.slice(1)}`;
         }
 
         if (name) {
           if (attribute.includes('att(n:')) {
-            return `${alias}:${attribute}`;
+            return `"${alias}":${attribute}`;
           }
 
-          return `${alias}:att(n:"${attribute}"){disp}`;
+          return `"${alias}":att(n:"${attribute}"){disp}`;
         }
 
         return attribute || name;
@@ -462,7 +459,7 @@ export default class DocumentsConverter {
       const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
 
       if (findIndex >= 0 && !columns[findIndex].formatter) {
-        columns[findIndex].formatter = info.formatter;
+        columns[findIndex].newFormatter = info.formatter;
       }
     }
   }

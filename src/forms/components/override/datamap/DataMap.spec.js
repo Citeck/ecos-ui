@@ -1,6 +1,9 @@
 import Harness from '../../../test/harness';
 import DataMapComponent from './DataMap';
 import comp1 from './fixtures/comp1';
+import { basicSectionTest } from '../../../test/builder/helpers';
+
+basicSectionTest(DataMapComponent);
 
 describe('DataMap Component', () => {
   it('Should build a data map component', done => {

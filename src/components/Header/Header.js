@@ -7,8 +7,9 @@ import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
-import { JournalUrlParams, URL } from '../../constants';
+import { JournalUrlParams, SourcesId, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
+import Records from '../Records';
 import SlideMenuBtn from './SlideMenuBtn';
 import CreateMenu from './CreateMenu';
 import UserMenu from './UserMenu';
@@ -27,6 +28,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const mapStateToProps = state => ({
+  menuId: get(state, 'menu.id'),
   isMobile: get(state, 'view.isMobile'),
   theme: get(state, 'view.theme'),
   menuType: get(state, 'menu.type', ''),
@@ -42,6 +44,19 @@ class Header extends React.Component {
     this.props.fetchCreateCaseWidgetData();
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.menuId && this.props.menuId) {
+      this.recordMenu = Records.get(`${SourcesId.RESOLVED_MENU}@${this.props.menuId}`);
+      this.updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
+        this.props.fetchCreateCaseWidgetData();
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
   }
 
   get menuWidth() {
