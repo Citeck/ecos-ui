@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
-import { getCurrentUserName, getTextByLocale } from '../helpers/util';
+import { getCurrentLocale, getCurrentUserName } from '../helpers/util';
 import {
   backPageFromTransitionsHistory,
   getAppEdition,
@@ -131,10 +131,15 @@ export function* fetchLeftMenuEditable({ api, logger }) {
 
 export function* fetchFooter({ api, logger }) {
   try {
-    const footer = yield call(api.app.getFooter);
+    const params = `value.${getCurrentLocale()}?str!value.en`;
+    let footer = yield call(api.app.getFooter, params);
+
+    if (!footer) {
+      footer = yield call(api.app.getFooter);
+    }
 
     if (footer) {
-      yield put(setFooter(getTextByLocale(footer)));
+      yield put(setFooter(footer));
     }
   } catch (e) {
     logger.error('[fetchFooter saga] error', e.message);
