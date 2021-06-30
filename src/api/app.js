@@ -70,9 +70,9 @@ export class AppApi extends CommonApi {
       });
   };
 
-  getFooter = () => {
+  getFooter = (params = 'value?str') => {
     return Records.get(`${SourcesId.CONFIG}@footer-content`)
-      .load('value?str')
+      .load(params)
       .catch(() => null);
   };
 
