@@ -1,4 +1,6 @@
+import React from 'react';
 import _ from 'lodash';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -7,6 +9,7 @@ import JournalsService from '../../../../components/Journals/service';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
+import { Loader } from '../../../../components/common';
 
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
@@ -73,6 +76,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
   checkConditions(data) {
     let result = super.checkConditions(data);
+
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
     if (displayElementsJS) {
@@ -129,7 +133,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return TableForm;
+    return this.visible ? TableForm : () => <Loader blur />;
   }
 
   setReactValue(component, value) {
@@ -447,6 +451,7 @@ export default class TableFormComponent extends BaseReactComponent {
       const customStringForConcatWithStaticTitle = this.t(component.customStringForConcatWithStaticTitle);
 
       return {
+        notAllowed: !this.visible,
         createVariants: this._createVariants,
         columns,
         error,
