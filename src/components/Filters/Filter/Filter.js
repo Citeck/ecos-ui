@@ -9,27 +9,27 @@ import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
-import { getPredicates, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import { getPredicates, getPredicateValue, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
-import ParserPredicate from '../predicates/ParserPredicate';
+import { ParserPredicate } from '../predicates';
 
 import './Filter.scss';
 
-const WITHOUT_VAL = ParserPredicate.predicatesWithoutValue;
-
 export default class Filter extends Component {
-  #controls = new Map();
+  _controls = new Map();
 
   static propTypes = {
     filter: PropTypes.object,
     needUpdate: PropTypes.bool,
+    rowConfig: PropTypes.array,
     onChangeValue: PropTypes.func,
     onChangePredicate: PropTypes.func,
     onDelete: PropTypes.func
   };
 
   static defaultProps = {
+    rowConfig: [{ sm: 3 }, { sm: 4 }, { sm: 4 }, { sm: 1 }],
     onChangeValue: _ => _,
     onChangePredicate: _ => _,
     onDelete: _ => _
@@ -66,16 +66,16 @@ export default class Filter extends Component {
     this.handleChangeValue.cancel();
   }
 
-  onChangeValue = value => {
-    this.setState({ value, hasDataEntry: true }, this.handleChangeValue);
+  onChangeValue = (value, withoutValue) => {
+    this.setState({ value, hasDataEntry: true }, () => this.handleChangeValue(withoutValue));
   };
 
   handleChangeValue = debounce(
-    () => {
+    withoutValue => {
       const { value: val } = this.state;
       const { index } = this.props;
 
-      this.props.onChangeValue({ val, index });
+      this.props.onChangeValue({ val, index, withoutValue });
       this.setState({ isInput: false });
     },
     350,
@@ -89,7 +89,7 @@ export default class Filter extends Component {
 
     if (fixedValue !== undefined) {
       this.onChangeValue(fixedValue);
-    } else if (WITHOUT_VAL.includes(predicate) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
+    } else if (ParserPredicate.predicatesWithoutValue.includes(predicate) || PREDICATE_LIST_WITH_CLEARED_VALUES.includes(predicate)) {
       this.onChangeValue('');
     }
   };
@@ -99,27 +99,62 @@ export default class Filter extends Component {
   };
 
   getSelectedPredicate = (predicates, predicate) => {
-    return predicates.filter(p => p.value === predicate.t)[0] || predicates[0];
+    return predicates.filter(p => p.value === getPredicateValue(predicate))[0] || predicates[0];
   };
 
-  ValueControl = React.memo((props, context) => {
+  get labelClassNames() {
+    return 'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey';
+  }
+
+  get selectorClassNames() {
+    return 'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full';
+  }
+
+  get valueClassNames() {
+    return 'ecos-filter__value-wrapper ecos-filter_step';
+  }
+
+  get selectedPredicate() {
     const {
-      value,
+      filter: {
+        meta: { column },
+        predicate
+      }
+    } = this.props;
+    const predicates = getPredicates(column);
+
+    return this.getSelectedPredicate(predicates, predicate);
+  }
+
+  get valueControlProps() {
+    const {
       filter: {
         meta: { column },
         predicate = {}
-      },
-      metaRecord
-    } = props;
+      }
+    } = this.props;
+    const { value } = this.state;
+
+    return {
+      ...this.props,
+      column,
+      predicate,
+      value
+    };
+  }
+
+  ValueControl = React.memo((props, context) => {
+    const { value, predicate, column, metaRecord } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
-    const isShow = !WITHOUT_VAL.includes(predicate.t) && get(selectedPredicate, 'needValue', true);
+    const isShow =
+      !ParserPredicate.predicatesWithoutValue.includes(getPredicateValue(predicate)) && get(selectedPredicate, 'needValue', true);
     const editorType = get(column, 'newEditor.type');
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      if (this.#controls.has(key)) {
-        return this.#controls.get(key);
+      if (this._controls.has(key)) {
+        return this._controls.get(key);
       } else {
         const control = EditorService.getEditorControl({
           recordRef: metaRecord,
@@ -128,10 +163,11 @@ export default class Filter extends Component {
           value,
           scope: EditorScope.FILTER,
           onUpdate: this.onChangeValue,
+          onKeyDown: this.onKeyDown,
           controlProps: { predicate: omit(predicate, 'val') }
         });
 
-        this.#controls.set(key, control);
+        this._controls.set(key, control);
 
         return control;
       }
@@ -140,52 +176,91 @@ export default class Filter extends Component {
     return null;
   });
 
-  render() {
-    const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
+  renderLabel() {
     const {
-      className,
-      children,
       filter: {
-        meta: { column },
-        predicate
+        meta: { column }
       }
     } = this.props;
-    const { value } = this.state;
-    const predicates = getPredicates(column);
-    const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
 
     return (
-      <div className={classNames('ecos-filter', className)}>
+      <Label title={column.text} className={this.labelClassNames}>
+        {column.text}
+      </Label>
+    );
+  }
+
+  renderSelector() {
+    const {
+      filter: {
+        meta: { column }
+      }
+    } = this.props;
+    const predicates = getPredicates(column);
+
+    return (
+      <Select
+        className={this.selectorClassNames}
+        placeholder={t('journals.default')}
+        options={predicates}
+        getOptionLabel={option => option.label}
+        getOptionValue={option => option.value}
+        value={this.selectedPredicate}
+        onChange={this.onChangePredicate}
+      />
+    );
+  }
+
+  renderValue() {
+    return (
+      <div className={this.valueClassNames}>
+        <this.ValueControl {...this.valueControlProps} />
+      </div>
+    );
+  }
+
+  renderDeleteAction() {
+    const btnClasses = 'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
+
+    return (
+      <IcoBtn
+        icon={'icon-delete'}
+        className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
+        onClick={this.onDeletePredicate}
+      />
+    );
+  }
+
+  renderDragAction() {
+    return <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />;
+  }
+
+  renderActions() {
+    return (
+      <div className="ecos-filter__actions">
+        {this.renderDeleteAction()}
+        {this.renderDragAction()}
+      </div>
+    );
+  }
+
+  render() {
+    const { className, children, rowConfig } = this.props;
+
+    return (
+      <div
+        className={classNames('ecos-filter', className)}
+        onClick={e => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+      >
         {children}
 
         <Columns
           classNamesColumn={'columns_height_full columns-setup__column_align'}
-          cfgs={[{ sm: 3 }, { sm: 4 }, { sm: 4 }, { sm: 1 }]}
-          cols={[
-            <Label title={column.text} className={'ecos-filter__label ecos-filter_step label_clear label_bold label_middle-grey'}>
-              {column.text}
-            </Label>,
-            <Select
-              className={'ecos-filter_step ecos-filter_font_12 select_narrow select_width_full'}
-              placeholder={t('journals.default')}
-              options={predicates}
-              getOptionLabel={option => option.label}
-              getOptionValue={option => option.value}
-              value={selectedPredicate}
-              onChange={this.onChangePredicate}
-            />,
-            <div className="ecos-filter__value-wrapper">
-              <this.ValueControl {...this.props} value={value} />
-            </div>,
-            <div className="ecos-filter__actions">
-              <IcoBtn
-                icon={'icon-delete'}
-                className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
-                onClick={this.onDeletePredicate}
-              />
-              <i className="ecos-btn__i ecos-btn__i_right icon-custom-drag-big ecos-filter__drag-ico" />
-            </div>
-          ]}
+          cfgs={rowConfig}
+          cols={[this.renderLabel(), this.renderSelector(), this.renderValue(), this.renderActions()]}
         />
       </div>
     );

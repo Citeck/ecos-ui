@@ -702,6 +702,7 @@ class Journals extends React.Component {
                 showPreview={showPreview && !isMobile}
                 maxHeight={this.getJournalContentMaxHeight()}
                 isActivePage={isActivePage}
+                onOpenSettings={this.toggleSettings}
               />
             )}
 

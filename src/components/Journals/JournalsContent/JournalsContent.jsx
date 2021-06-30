@@ -53,11 +53,19 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, maxHeight } = this.props;
+    const { stateId, showPreview, maxHeight, onOpenSettings } = this.props;
     const { recordId } = this.state;
 
     const grid = (
-      <Grid stateId={stateId} showPreview={showPreview} onRowClick={this.onRowClick} maxHeight={maxHeight} autoHeight minHeight={468} />
+      <Grid
+        stateId={stateId}
+        showPreview={showPreview}
+        onRowClick={this.onRowClick}
+        onOpenSettings={onOpenSettings}
+        maxHeight={maxHeight}
+        autoHeight
+        minHeight={468}
+      />
     );
 
     if (!showPreview) {
