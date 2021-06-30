@@ -451,7 +451,6 @@ export default class TableFormComponent extends BaseReactComponent {
       const customStringForConcatWithStaticTitle = this.t(component.customStringForConcatWithStaticTitle);
 
       return {
-        notAllowed: !this.visible,
         createVariants: this._createVariants,
         columns,
         error,
