@@ -36,6 +36,8 @@ export default class DebugFormAction extends ActionsExecutor {
         options.ecosIsMobile = true;
         className = 'ecos-modal_width-xs';
         break;
+      default:
+        break;
     }
 
     showForm(recordRef, { formId: record.id, options }, className);
