@@ -4,7 +4,7 @@ import { maskInput } from 'vanilla-text-mask';
 import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
 
-import { overrideTriggerChange } from '../misc';
+import { overrideFieldLogic, overrideTriggerChange } from '../misc';
 import { reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
@@ -27,6 +27,7 @@ export default class NumberComponent extends FormIONumberComponent {
   constructor(...args) {
     super(...args);
 
+    overrideFieldLogic.call(this);
     overrideTriggerChange.call(this);
   }
 
@@ -113,6 +114,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return this.formatValue(this.clearInput(value));
   }
 
+  /**
+   * @override Number
+   */
   clearInput(input) {
     let value = parseFloat(input);
 
@@ -135,6 +139,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return value;
   }
 
+  /**
+   * @override Number
+   */
   setValue(value, flags) {
     if (!Array.isArray(value)) {
       let stringValue = value;
@@ -153,6 +160,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return super.setValue(value, flags);
   }
 
+  /**
+   * @override Number
+   */
   formatValue(value) {
     const decimalLimit = _.get(this.component, 'decimalLimit', this.decimalLimit);
 
@@ -168,6 +178,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return value;
   }
 
+  /**
+   * @override Number
+   */
   getValue() {
     let value = super.getValue();
 
@@ -209,6 +222,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return value;
   }
 
+  /**
+   * @override Base
+   */
   setupValueElement(element) {
     const renderValue = val => {
       element.innerHTML = val;
@@ -323,6 +339,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return newValue;
   };
 
+  /**
+   * @override Number
+   */
   getValueAt(index) {
     if (!this.inputs.length || !this.inputs[index]) {
       return null;
@@ -340,8 +359,10 @@ export default class NumberComponent extends FormIONumberComponent {
 
     return this.parseNumber(val);
   }
-
-  // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
+  /**
+   * @override Number
+   * @see Cause: https://citeck.atlassian.net/browse/ECOSUI-528
+   */
   parseNumber(value) {
     // Remove delimiters and convert decimal separator to dot.
     value = value
@@ -356,6 +377,9 @@ export default class NumberComponent extends FormIONumberComponent {
     return parseFloat(value);
   }
 
+  /**
+   * @override Number
+   */
   setInputMask(input) {
     input.setAttribute('pattern', '\\d*');
 
@@ -365,7 +389,10 @@ export default class NumberComponent extends FormIONumberComponent {
     });
   }
 
-  // Cause: https://citeck.atlassian.net/browse/ECOSUI-109
+  /**
+   * @override Number
+   * @see Cause: https://citeck.atlassian.net/browse/ECOSUI-109
+   */
   recalculateMask = (value, options, input) => {
     const inputType = _.get(window, 'event.inputType');
     let newValue = value;
