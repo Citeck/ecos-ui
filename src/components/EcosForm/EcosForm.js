@@ -98,7 +98,7 @@ class EcosForm extends React.Component {
     }
 
     options.recordId = recordId;
-    options.isMobileDevice = isMobileDevice();
+    options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
     options.formSubmitDonePromise = new Promise(resolve => {
       this._formSubmitDoneResolve = resolve;
     });
@@ -142,7 +142,7 @@ class EcosForm extends React.Component {
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
-      const isDebugModeOn = localStorage.getItem('enableLoggerForNewForms');
+      const isDebugModeOn = options.ecosIsDebugOn || localStorage.getItem('enableLoggerForNewForms');
 
       let canWritePromise = false;
 
@@ -206,7 +206,7 @@ class EcosForm extends React.Component {
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
           const form = formAndCustom[0];
           const customModule = formAndCustom[1];
-          const handlersPrefix = 'onForm';
+          const HANDLER_PREFIX = 'onForm';
 
           self._form = form;
           form.ecos = { custom: customModule };
@@ -227,9 +227,9 @@ class EcosForm extends React.Component {
           });
 
           const events = Object.keys(self.props)
-            .filter(key => key.startsWith(handlersPrefix))
+            .filter(key => key.startsWith(HANDLER_PREFIX))
             .map(prop => {
-              const str = prop.replace(handlersPrefix, '');
+              const str = prop.replace(HANDLER_PREFIX, '');
               return { prop, event: strSplice(str, 0, 1, str[0].toLowerCase()) };
             });
 
