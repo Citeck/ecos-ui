@@ -216,7 +216,7 @@ export default class Filter extends Component {
   renderValue() {
     return (
       <div className={this.valueClassNames}>
-        <this.ValueControl {...this.valueControlProps} value={this.state.value} />
+        <this.ValueControl {...this.valueControlProps} />
       </div>
     );
   }
