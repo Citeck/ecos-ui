@@ -153,24 +153,26 @@ export default class Filter extends Component {
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      if (this._controls.has(key)) {
+      const ControlComponent = this._controls.get(key);
+
+      if (ControlComponent) {
         return this._controls.get(key);
-      } else {
-        const control = EditorService.getEditorControl({
-          recordRef: metaRecord,
-          attribute: column.attribute,
-          editor: column.newEditor,
-          value,
-          scope: EditorScope.FILTER,
-          onUpdate: this.onChangeValue,
-          onKeyDown: this.onKeyDown,
-          controlProps: { predicate: omit(predicate, 'val') }
-        });
-
-        this._controls.set(key, control);
-
-        return control;
       }
+
+      const control = EditorService.getEditorControl({
+        recordRef: metaRecord,
+        attribute: column.attribute,
+        editor: column.newEditor,
+        value,
+        scope: EditorScope.FILTER,
+        onUpdate: this.onChangeValue,
+        onKeyDown: this.onKeyDown,
+        controlProps: { predicate: omit(predicate, 'val') }
+      });
+
+      this._controls.set(key, control);
+
+      return control;
     }
 
     return null;
@@ -214,7 +216,7 @@ export default class Filter extends Component {
   renderValue() {
     return (
       <div className={this.valueClassNames}>
-        <this.ValueControl {...this.valueControlProps} />
+        <this.ValueControl {...this.valueControlProps} value={this.state.value} />
       </div>
     );
   }
