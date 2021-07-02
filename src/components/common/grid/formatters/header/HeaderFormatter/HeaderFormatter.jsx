@@ -6,12 +6,19 @@ import replace from 'lodash/replace';
 import get from 'lodash/get';
 import { Tooltip } from 'reactstrap';
 
-import { getId, isExistValue, trigger } from '../../../../../../helpers/util';
+import { closest, getId, isExistValue, trigger } from '../../../../../../helpers/util';
+import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
+import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 
 import './HeaderFormatter.scss';
+
+const Labels = {
+  COMPLEX_FILTER_LABEL_PART_1: 'journals.header-formatter.message.complex-filter.part-1',
+  COMPLEX_FILTER_LABEL_PART_2: 'journals.header-formatter.message.complex-filter.part-2'
+};
 
 export default class HeaderFormatter extends Component {
   constructor(props) {
@@ -20,7 +27,7 @@ export default class HeaderFormatter extends Component {
     this.thRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
-    this.state = { open: false };
+    this.state = { open: false, predicate: {} };
   }
 
   componentDidMount() {
@@ -35,6 +42,7 @@ export default class HeaderFormatter extends Component {
 
   componentWillUnmount() {
     this.fetchValue = false;
+    this.handleSetFilter.cancel();
   }
 
   _setFilterValue = () => {
@@ -69,6 +77,7 @@ export default class HeaderFormatter extends Component {
 
   onToggle = e => {
     const open = !this.state.open;
+
     this.setState({ open });
     e && e.stopPropagation();
   };
@@ -126,6 +135,52 @@ export default class HeaderFormatter extends Component {
     }
   };
 
+  handleChangeFilterValue = ({ val }) => {
+    this.setState(
+      state => ({
+        predicate: {
+          ...state.predicate,
+          val
+        }
+      }),
+      this.handleSetFilter
+    );
+  };
+
+  handleSetFilter = debounce(() => {
+    this.props.onFilter([
+      {
+        ...this.props.predicate,
+        ...this.state.predicate,
+        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
+      }
+    ]);
+  }, 150);
+
+  handleFilter = predicate => {
+    this.props.onFilter([
+      {
+        ...get(this.props, 'predicate'),
+        ...predicate,
+        value: predicate.val,
+        t: predicate.value,
+        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
+      }
+    ]);
+  };
+
+  handleChangeFilterPredicate = ({ predicate }) => {
+    this.setState(
+      state => ({
+        predicate: {
+          ...state.predicate,
+          t: predicate
+        }
+      }),
+      this.handleSetFilter
+    );
+  };
+
   renderInput() {
     const { text } = this.state;
 
@@ -141,7 +196,65 @@ export default class HeaderFormatter extends Component {
     );
   }
 
+  handleClickOutside = e => {
+    if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container')) {
+      return;
+    }
+
+    this.state.open && this.onToggle(e);
+  };
+
+  handleOpenSettings = () => {
+    const { onOpenSettings } = this.props;
+
+    if (typeof onOpenSettings === 'function') {
+      onOpenSettings();
+
+      this.state.open && this.onToggle();
+    }
+  };
+
   renderFilter = () => {
+    const { filterable, isComplexFilter } = this.props;
+
+    if (!filterable) {
+      return null;
+    }
+
+    let tooltipBody = (
+      <div className="ecos-th__filter-tooltip-message">
+        {t(Labels.COMPLEX_FILTER_LABEL_PART_1)}
+        <span className="pseudo-link" onClick={this.handleOpenSettings}>
+          {t(Labels.COMPLEX_FILTER_LABEL_PART_2)}
+        </span>
+      </div>
+    );
+
+    if (!isComplexFilter) {
+      const { column, predicate } = this.props;
+      const { text } = this.state;
+
+      tooltipBody = (
+        <InlineFilter
+          filter={{
+            meta: {
+              column,
+              condition: {}
+            },
+            predicate: {
+              ...predicate,
+              val: text
+            }
+          }}
+          onChangeValue={this.handleChangeFilterValue}
+          onChangePredicate={this.handleChangeFilterPredicate}
+          onFilter={this.handleFilter}
+          onDelete={this.onClear}
+          onToggle={this.onToggle}
+        />
+      );
+    }
+
     const { open } = this.state;
     const filterIcon = document.getElementById(this.id);
 
@@ -157,9 +270,8 @@ export default class HeaderFormatter extends Component {
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
       >
-        <ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>
-          {this.renderInput()}
-          <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />
+        <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
+          {tooltipBody}
         </ClickOutside>
       </Tooltip>
     );
@@ -197,7 +309,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, filterable, sortable } = this.props;
+    const { column = {}, sortable } = this.props;
 
     this.id = `filter-${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
@@ -213,7 +325,7 @@ export default class HeaderFormatter extends Component {
           </EcosTooltip>
           {this.renderActions()}
         </div>
-        {filterable && this.renderFilter()}
+        {this.renderFilter()}
         <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} />
       </div>
     );
@@ -232,5 +344,9 @@ HeaderFormatter.propTypes = {
 
   column: PropTypes.object,
   colIndex: PropTypes.number,
-  onDividerMouseDown: PropTypes.func
+  onDividerMouseDown: PropTypes.func,
+
+  isComplexFilter: PropTypes.bool,
+  predicate: PropTypes.object,
+  onOpenSettings: PropTypes.func
 };

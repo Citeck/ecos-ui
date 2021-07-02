@@ -746,6 +746,9 @@
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 
+  "journals.header-formatter.message.complex-filter.part-1": "A complex filter has been applied.\nGo to the ",
+  "journals.header-formatter.message.complex-filter.part-2": "journal settings.",
+
   "label.password": "Password",
   "label.username": "User Name",
 

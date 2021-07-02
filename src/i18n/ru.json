@@ -746,6 +746,9 @@
 
   "journals.formatter.action.execution-error": "Действие не может быть выполнено",
 
+  "journals.header-formatter.message.complex-filter.part-1": "Применён комплексный фильтр.\nПерейдите в ",
+  "journals.header-formatter.message.complex-filter.part-2": "настройки журнала.",
+
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
 

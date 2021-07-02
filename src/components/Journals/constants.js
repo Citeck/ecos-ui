@@ -30,3 +30,5 @@ export const JOURNAL_VIEW_MODE = {
 };
 
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
+
+export const COMPLEX_FILTER_LIMIT = 1;

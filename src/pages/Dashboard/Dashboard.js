@@ -467,7 +467,7 @@ class Dashboard extends Component {
     if (isMobile) {
       return (
         <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
-          <Tabs items={this.tabList} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
+          <Tabs isMobile items={this.tabList} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
         </div>
       );
     }
