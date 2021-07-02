@@ -11,7 +11,7 @@ export default class SelectEditor extends BaseEditor {
       const [options, setOptions] = useState(config.options);
 
       if (!options) {
-        const optionsAtt = config.optionsAtt || `_edge.${attribute}.options{value:?str,label:?disp}`;
+        const optionsAtt = config.optionsAtt || `_edge.${attribute}.options[]{value:?str,label:?disp}`;
         Records.get(recordRef)
           .load(optionsAtt)
           .then(res => {
