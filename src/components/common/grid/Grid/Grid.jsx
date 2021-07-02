@@ -560,7 +560,7 @@ class Grid extends Component {
   createMultiSelectionCheckboxes(props) {
     this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
-    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this.state.selected /* this._selected.length*/) {
+    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this.state.selected) {
       this.#isAllSelected = true;
     }
 
@@ -607,13 +607,7 @@ class Grid extends Component {
 
           this._selected = data
             .map(row => row[this._keyField])
-            .filter(item => {
-              if (nonSelectable.includes(item) && selected.includes(item)) {
-                return true;
-              }
-
-              return !nonSelectable.includes(item);
-            });
+            .filter(item => (nonSelectable.includes(item) && selected.includes(item)) || !nonSelectable.includes(item));
           this.#isAllSelected = true;
           this.onSelect(true);
 
