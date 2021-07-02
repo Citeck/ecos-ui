@@ -32,7 +32,7 @@ export default class SelectEditor extends BaseEditor {
 
       useEffect(() => {
         if (!options && !isLoading) {
-          const optionsAtt = config.optionsAtt || `_edge.${attribute}.options{value:?str,label:?disp}`;
+          const optionsAtt = config.optionsAtt || `_edge.${attribute}.options[]{value:?str,label:?disp}`;
 
           setLoading(true);
           Records.get(recordRef)
