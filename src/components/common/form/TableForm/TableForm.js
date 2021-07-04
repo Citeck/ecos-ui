@@ -1,7 +1,9 @@
 import React from 'react';
+
 import TableFormPropTypes from './TableFormPropTypes';
 import TableFormRoot from './components/TableFormRoot';
 import { TableFormContextProvider } from './TableFormContext';
+
 import './TableForm.scss';
 
 const TableForm = props => {

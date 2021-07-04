@@ -69,7 +69,8 @@ class Grid extends Component {
     this._optionMinWidth = null;
 
     this.state = {
-      tableHeight: 0
+      tableHeight: 0,
+      selected: props.selected || []
     };
   }
 
@@ -248,6 +249,8 @@ class Grid extends Component {
   };
 
   onSelect = (all, selected = this._selected) => {
+    this.setState({ selected });
+
     trigger.call(this, 'onSelect', {
       selected: [...new Set(selected)],
       all
@@ -557,14 +560,14 @@ class Grid extends Component {
   createMultiSelectionCheckboxes(props) {
     this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
 
-    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this._selected.length) {
+    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this.state.selected) {
       this.#isAllSelected = true;
     }
 
     return {
       mode: 'checkbox',
       classes: 'ecos-grid__tr_selected',
-      selected: this._selected,
+      selected: this.state.selected,
       nonSelectable: props.nonSelectable || [],
       onSelect: (row, isSelect) => {
         const selected = this._selected;
@@ -583,10 +586,28 @@ class Grid extends Component {
         this.onSelect(false);
       },
       onSelectAll: (isSelect, rows) => {
-        const { nonSelectable, data } = this.props;
+        const { nonSelectable, data, selected } = this.props;
 
         if (!isSelect && !isEmpty(nonSelectable) && isEqual(this._selected, nonSelectable)) {
           this._selected = data.map(row => row[this._keyField]);
+          this.#isAllSelected = true;
+          this.onSelect(true);
+
+          return;
+        }
+
+        if (!isSelect && rows.length !== data.length) {
+          if (isEqual(rows.map(i => i[this._keyField]), this.state.selected)) {
+            this._selected = selected;
+            this.#isAllSelected = false;
+            this.onSelect(true);
+
+            return;
+          }
+
+          this._selected = data
+            .map(row => row[this._keyField])
+            .filter(item => (nonSelectable.includes(item) && selected.includes(item)) || !nonSelectable.includes(item));
           this.#isAllSelected = true;
           this.onSelect(true);
 
@@ -598,6 +619,7 @@ class Grid extends Component {
         }
 
         this.#isAllSelected = isSelect;
+
         this._selected = isSelect
           ? [...this._selected, ...rows.map(row => row[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
@@ -1090,7 +1112,9 @@ Grid.propTypes = {
 
 Grid.defaultProps = {
   scrollable: true,
-  sortable: true
+  sortable: true,
+  nonSelectable: [],
+  selected: []
 };
 
 export default Grid;
