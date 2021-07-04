@@ -42,7 +42,7 @@ class InlineFilter extends Filter {
     return {
       ...predicate,
       ...fullPredicateInfo,
-      val: this.state.value
+      val: predicate.fixedValue || this.state.value
     };
   }
 
