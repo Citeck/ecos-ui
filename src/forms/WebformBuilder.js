@@ -343,6 +343,11 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   });
 
   this.addEventListener(saveButton, 'click', event => {
+    console.warn({
+      'this.editForm': this.editForm,
+      isValid: this.editForm.checkValidity(this.editForm.data, true)
+    });
+
     if (!this.editForm.checkValidity(this.editForm.data, true)) {
       return;
     }
