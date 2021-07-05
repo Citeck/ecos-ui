@@ -8,6 +8,7 @@ const CAPICOM_MY_STORE = 'My';
 const CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED = 2;
 
 const CIPHER_KEYS_ALIAS = '__cipher_gost_keys';
+const CIPHER_MKEY_ALIAS = '__cipher_mkey';
 
 export default class CipherSwpGostClient extends RecordsClient {
   constructor() {
@@ -41,7 +42,8 @@ export default class CipherSwpGostClient extends RecordsClient {
     }
     return {
       clientAtts: {
-        [CIPHER_KEYS_ALIAS]: '_cipher.keys{wrappedKey._as.sym-key-blobs,certThumbprint|hex(" ")}'
+        [CIPHER_KEYS_ALIAS]: '_cipher.keys{wrappedKey._as.sym-key-blobs,certThumbprint|hex(" ")}',
+        [CIPHER_MKEY_ALIAS]: 'mkey|hex()'
       },
       config: {
         attsToEncryptIndexes,
@@ -94,6 +96,22 @@ export default class CipherSwpGostClient extends RecordsClient {
       if (value && _.isString(value)) {
         loadedAtts[assocAttIdx] = await this._records.get(value).load({ value: '?assoc', disp: '?disp' });
       }
+    }
+
+    let mkey = clientAtts[CIPHER_MKEY_ALIAS];
+    if (mkey && symAlgAllowed) {
+      const symAlg = await this._createSymAlg(key.wrappedKey, certificates);
+      mkey = await this._decryptBase64(symAlg, mkey);
+    } else {
+      mkey = null;
+    }
+
+    return mkey ? { mkey: mkey.trim() } : null;
+  }
+
+  async prepareMutation(attributes, config) {
+    if (config.mkey) {
+      attributes.mkey = config.mkey;
     }
   }
 
@@ -150,6 +168,16 @@ export default class CipherSwpGostClient extends RecordsClient {
   }
 
   async _decrypt(symAlg, encryptedData) {
+    try {
+      const decryptedBase64 = await this._decryptBase64(symAlg, encryptedData);
+      return JSON.parse(Base64.decode(decryptedBase64));
+    } catch (e) {
+      console.error("Attribute can't be decrypted", e);
+      return null;
+    }
+  }
+
+  async _decryptBase64(symAlg, encryptedData) {
     if (!encryptedData || encryptedData.length <= 8) {
       return encryptedData;
     }
@@ -157,16 +185,15 @@ export default class CipherSwpGostClient extends RecordsClient {
     const iv = encryptedData.substring(0, 16);
     const data = encryptedData.substring(16);
 
-    return window.cadesplugin.async_spawn(function*() {
-      yield symAlg.propset_IV(iv);
-      try {
-        let decryptedBase64 = yield symAlg.Decrypt(data, 1);
-        return JSON.parse(Base64.decode(decryptedBase64));
-      } catch (e) {
-        console.error("Attribute can't be decrypted", e);
-        return encryptedData;
-      }
-    });
+    try {
+      return window.cadesplugin.async_spawn(function*() {
+        yield symAlg.propset_IV(iv);
+        return yield symAlg.Decrypt(data, 1);
+      });
+    } catch (e) {
+      console.error("Attribute can't be decrypted", e);
+      return null;
+    }
   }
 
   _getAsEncryptedAttOrFalse = (att, attsToEncrypt) => {

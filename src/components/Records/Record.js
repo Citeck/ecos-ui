@@ -334,7 +334,10 @@ export default class Record {
       for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
         clientAtts[attsAliases[i]] = loadedAtts[i];
       }
-      loadedAtts = await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+      const mutClientData = await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+      if (mutClientData) {
+        this._mutClientData = mutClientData;
+      }
     }
 
     if (isSingleAttribute) {
@@ -497,7 +500,6 @@ export default class Record {
     if (this.isVirtual()) {
       return;
     }
-
     let self = this;
 
     let requestRecords = [];
@@ -506,12 +508,14 @@ export default class Record {
       return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
 
-    return recordsToSavePromises.then(recordsToSave => {
+    return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
         if (!_.isEmpty(attributesToSave)) {
+          if (record._mutClientData) {
+            await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
+          }
           let baseId = record.getBaseRecord().id;
-
           requestRecords.push({
             id: baseId,
             attributes: attributesToSave

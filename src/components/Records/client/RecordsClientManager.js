@@ -47,8 +47,19 @@ export default class RecordsClientManager {
     if (!client) {
       return loadedAtts;
     }
-    await client.postProcessAtts(loadedAtts, clientAtts, config);
-    return loadedAtts;
+    const mutConfig = await client.postProcessAtts(loadedAtts, clientAtts, config);
+    if (mutConfig != null) {
+      return {
+        client,
+        config: mutConfig
+      };
+    }
+    return null;
+  }
+
+  async prepareMutation(attributes, mutClientData) {
+    const { client, config } = mutClientData;
+    return client.prepareMutation(attributes, config);
   }
 
   async _getClient(sourceId) {

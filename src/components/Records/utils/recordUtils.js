@@ -102,6 +102,9 @@ export function getSourceId(recordRef) {
 }
 
 export function prepareAttsToLoad(attributes, attsToLoad, attsAliases) {
+  if (!attributes) {
+    return;
+  }
   if (_.isString(attributes)) {
     attsToLoad.push(attributes);
     attsAliases.push(attributes);

@@ -194,7 +194,6 @@ class RecordsComponent {
     let attsToLoad = [];
     let attsAliases = [];
 
-    let isSingleAttribute = attributes && isString(attributes);
     prepareAttsToLoad(attributes, attsToLoad, attsAliases);
 
     const attsToLoadLengthWithoutClient = attsToLoad.length;

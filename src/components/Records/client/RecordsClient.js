@@ -30,6 +30,10 @@ export default class RecordsClient {
     throw new Error('Not implemented');
   }
 
+  async prepareMutation(attributes, prepareMutData) {
+    throw new Error('Not implemented');
+  }
+
   /**
    * Return client type
    */
