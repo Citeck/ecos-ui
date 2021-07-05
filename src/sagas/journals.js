@@ -777,8 +777,6 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { id: journalSettingId } = action.payload;
 
-    console.warn({ 'action.payload': action.payload });
-
     yield call(api.journals.saveJournalSetting, action.payload);
 
     const { journalConfig } = yield select(selectJournalData, stateId);
