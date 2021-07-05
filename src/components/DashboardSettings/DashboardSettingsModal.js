@@ -5,12 +5,12 @@ import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { Container } from 'reactstrap';
 
+import { getDashboardConfig, resetAllDashboardsConfig } from '../../actions/dashboard';
 import { RequestStatuses } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { t } from '../../helpers/export/util';
 import DashboardService from '../../services/dashboard';
-import { clearCache } from '../../components/ReactRouterCache';
-import { getDashboardConfig, resetAllDashboardsConfig } from '../../actions/dashboard';
+import { clearCache } from '../ReactRouterCache';
 import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
 
 class DashboardSettingsModal extends Settings {

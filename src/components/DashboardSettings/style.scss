@@ -16,13 +16,6 @@
     padding: 0;
     max-width: unset;
 
-    .ecos-tab:not(.ecos-tab_active),
-    #{$settings}__layout-tabs-add-tab:not(:hover):not(:focus):not(:active) {
-      border-width: 1px;
-      border-color: $color-gray-6;
-      border-style: solid;
-    }
-
     #{$settings} {
       &__body {
         overflow-y: auto;
@@ -161,10 +154,16 @@
   }
 
   &__device-tabs {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 
     &-item {
       padding: 0 15px;
+    }
+
+    .ecos-tab {
+      &:not(.ecos-tab_active) {
+        background: $color-gray-4;
+      }
     }
   }
 
@@ -204,7 +203,6 @@
   }
 
   &__container {
-    @extend %block--1;
     margin-bottom: 30px;
 
     &-title {
@@ -340,6 +338,10 @@
     &-container {
       width: 100%;
       box-sizing: border-box;
+
+      & > div {
+        transition: height 500ms ease;
+      }
     }
 
     &-item {

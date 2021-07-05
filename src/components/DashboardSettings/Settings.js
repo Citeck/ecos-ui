@@ -7,26 +7,10 @@ import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
 import { Col, Container, Row } from 'reactstrap';
 
-import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import { arrayCompare, deepClone, t } from '../../helpers/util';
-import { RequestStatuses, URL } from '../../constants';
-import { clearCache } from '../../components/ReactRouterCache';
-import DashboardService from '../../services/dashboard';
-import { removeItems } from '../../helpers/ls';
-import UserLocalSettingsService from '../../services/userLocalSettings';
-
-import { Layouts, LayoutTypes } from '../../constants/layout';
-import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
-import DashboardSettingsConverter from '../../dto/dashboardSettings';
-import PageService from '../../services/PageService';
-import { Loader, Tabs } from '../../components/common';
-import { Btn } from '../../components/common/btns';
-import { TunableDialog } from '../../components/common/dialogs';
-import { selectStateByKey } from '../../selectors/dashboardSettings';
 import {
   getAwayFromPage,
   getCheckUpdatedDashboardConfig,
@@ -36,6 +20,23 @@ import {
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { t } from '../../helpers/util';
+import { removeItems } from '../../helpers/ls';
+import { RequestStatuses, URL } from '../../constants';
+import { Layouts, LayoutTypes } from '../../constants/layout';
+import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
+import DashboardSettingsConverter from '../../dto/dashboardSettings';
+import DashboardService from '../../services/dashboard';
+import pageTabList from '../../services/pageTabs/PageTabList';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import PageService from '../../services/PageService';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import { Loader, Tabs } from '../../components/common';
+import { Btn } from '../../components/common/btns';
+import { TunableDialog } from '../../components/common/dialogs';
+import { clearCache } from '../ReactRouterCache';
 import SetBind from './parts/SetBind';
 import SetTabs from './parts/SetTabs';
 import SetLayouts from './parts/SetLayouts';
@@ -199,8 +200,8 @@ class Settings extends Component {
     }
 
     if (
-      !arrayCompare(availableWidgets, nextProps.availableWidgets) ||
-      !arrayCompare(nextProps.availableWidgets, this.state.availableWidgets, 'name')
+      !isEqualWith(availableWidgets, nextProps.availableWidgets, isEqual) ||
+      !isEqualWith(nextProps.availableWidgets, this.state.availableWidgets, (a, b) => isEqual(a['name'], b['name']))
     ) {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
@@ -452,6 +453,8 @@ class Settings extends Component {
         onClick={toggleTab}
         activeTabKey={activeDeviceTabId}
         keyField="key"
+        widthFull
+        narrow
       />
     );
   }
@@ -517,7 +520,7 @@ class Settings extends Component {
       identification: { type, key }
     } = this.props;
     const setData = layout => {
-      const { activeLayoutTabId, selectedWidgets, selectedLayout } = deepClone(this.state);
+      const { activeLayoutTabId, selectedWidgets, selectedLayout } = cloneDeep(this.state);
 
       selectedLayout[activeLayoutTabId] = layout.type;
       selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
