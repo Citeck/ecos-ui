@@ -40,8 +40,8 @@ export default class FiltersGroup extends Component {
   onChangeFilterValue = ({ val, index }) => {
     const groupIndex = this.props.index;
     const filter = this.cloneFilters[index];
-    filter.predicate.setVal(val);
 
+    filter.predicate.setVal(val);
     this.props.onChangeFilter({ filter, index, groupIndex });
   };
 
