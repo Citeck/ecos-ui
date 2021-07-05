@@ -30,9 +30,6 @@ class DashboardSettingsModal extends Settings {
     mode: 'modal'
   };
 
-  _actionsRef = null;
-  _bodyRef = null;
-
   componentDidUpdate(prevProps, prevState) {
     super.componentDidUpdate(prevProps, prevState);
 
@@ -42,48 +39,6 @@ class DashboardSettingsModal extends Settings {
     if (type !== get(prevProps, 'identification.type') && typeof onSetDialogProps === 'function') {
       onSetDialogProps({ title: this.getTitleByType(type) });
     }
-  }
-
-  get bodyStyles() {
-    const modal = get(this, 'props.modalRef.current._dialog');
-    const footerHeight = get(this._actionsRef, 'offsetHeight', 0);
-    const height = [];
-
-    if (modal) {
-      const header = modal.querySelector('.ecos-modal-header');
-
-      if (header) {
-        height.push(`${header.offsetHeight}px`);
-      }
-    }
-
-    if (footerHeight) {
-      height.push(`${footerHeight}px`);
-    }
-
-    if (this._bodyRef) {
-      const styles = window.getComputedStyle(this._bodyRef);
-
-      if (styles.marginTop) {
-        height.push(styles.marginTop);
-      }
-
-      if (styles.paddingTop) {
-        height.push(styles.paddingTop);
-      }
-
-      if (styles.paddingBottom) {
-        height.push(styles.paddingBottom);
-      }
-
-      if (styles.marginBottom) {
-        height.push(styles.marginBottom);
-      }
-    }
-
-    return {
-      maxHeight: `calc(100vh - (${height.join(' + ') || 0}))`
-    };
   }
 
   getTitleByType = type => {
@@ -102,18 +57,6 @@ class DashboardSettingsModal extends Settings {
     }
 
     return title;
-  };
-
-  setBodyRef = ref => {
-    if (ref) {
-      this._bodyRef = ref;
-    }
-  };
-
-  setActionRef = ref => {
-    if (ref) {
-      this._actionsRef = ref;
-    }
   };
 
   fetchData(props = this.props) {
@@ -202,7 +145,7 @@ class DashboardSettingsModal extends Settings {
     return (
       <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">
         {this.renderLoader()}
-        <div className="ecos-dashboard-settings__body" style={this.bodyStyles} ref={this.setBodyRef}>
+        <div className="ecos-dashboard-settings__body">
           {this.renderSpecificationsBlock()}
           {this.renderOwnershipBlock()}
           {this.renderDeviceTabsBlock()}
@@ -212,7 +155,7 @@ class DashboardSettingsModal extends Settings {
             {this.renderWidgetsBlock()}
           </div>
         </div>
-        <div ref={this.setActionRef}>{this.renderButtons()}</div>
+        {this.renderButtons()}
         {this.renderDialogs()}
       </Container>
     );

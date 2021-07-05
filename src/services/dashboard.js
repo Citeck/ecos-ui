@@ -266,7 +266,8 @@ export default class DashboardService {
       title: props.title || title,
       className: 'ecos-dashboard-settings-modal-wrapper ecos-modal_width-lg',
       isTopDivider: true,
-      reactstrapProps: { ref: modalRef },
+      isBigHeader: true,
+      reactstrapProps: { ref: modalRef, backdrop: 'static' },
       onHide: () => dialog.setVisible(false),
       body: (
         <Provider store={store}>

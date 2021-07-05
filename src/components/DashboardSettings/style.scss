@@ -4,8 +4,6 @@
 .ecos-dashboard-settings {
   $settings: &;
 
-  position: relative;
-
   &__tooltip {
     .tooltip {
       z-index: 10001;
@@ -20,8 +18,8 @@
       &__body {
         overflow-y: auto;
         position: relative;
-        padding: 10px 17px 10px 20px;
-        margin: 10px 3px 10px 0;
+        padding-right: 2px;
+        height: calc(100vh - 248px);
       }
 
       &__container {
@@ -37,42 +35,19 @@
       }
 
       &__actions {
-        position: relative;
-        padding-left: 15px;
-        padding-bottom: 20px;
-        padding-top: 15px;
+        margin-top: 35px;
 
         &:before {
-          content: '';
+          content: ' ';
           display: block;
-          background: #e8edef;
+          background: $color-gray-4;
           height: 2px;
           position: absolute;
+          margin-top: -20px;
           left: 0;
-          top: 0;
           width: 100%;
         }
       }
-    }
-  }
-
-  &-modal-wrapper.ecos-modal {
-    top: 10px;
-    margin-top: 0;
-    margin-bottom: 0;
-
-    .ecos-modal-header {
-      display: flex;
-      flex-shrink: 0;
-      flex-basis: auto;
-    }
-
-    .modal-body {
-      padding: 0;
-    }
-
-    .modal-content {
-      max-height: calc(100vh - 20px);
     }
   }
 
@@ -207,7 +182,7 @@
 
     &-title {
       @extend %title-block--1;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     &-subtitle {
