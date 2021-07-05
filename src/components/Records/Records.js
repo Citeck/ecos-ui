@@ -232,7 +232,7 @@ class RecordsComponent {
           for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
             clientAtts[attsAliases[i]] = loadedAtts[i];
           }
-          loadedAtts = await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+          await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
         }
 
         let recordLoadedAtts = {};
