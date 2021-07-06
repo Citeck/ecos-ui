@@ -1,6 +1,9 @@
-import _ from 'lodash';
 import FormIOEditGridComponent from 'formiojs/components/editgrid/EditGrid';
 import Components from 'formiojs/components/Components';
+import cloneDeep from 'lodash/cloneDeep';
+import clone from 'lodash/clone';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 export default class EditGridComponent extends FormIOEditGridComponent {
   getCancelButton(rowIndex) {
@@ -24,7 +27,7 @@ export default class EditGridComponent extends FormIOEditGridComponent {
 
   createRow(row, rowIndex) {
     const wrapper = this.ce('li', { class: 'list-group-item' });
-    const rowTemplate = _.get(this.component, 'templates.row', EditGridComponent.defaultRowTemplate);
+    const rowTemplate = get(this.component, 'templates.row', EditGridComponent.defaultRowTemplate);
 
     // Store info so we can detect changes later.
     wrapper.rowData = row.data;
@@ -34,8 +37,8 @@ export default class EditGridComponent extends FormIOEditGridComponent {
 
     if (wrapper.rowOpen) {
       const editForm = this.component.components.map(comp => {
-        const component = _.cloneDeep(comp);
-        const options = _.clone(this.options);
+        const component = cloneDeep(comp);
+        const options = clone(this.options);
 
         options.row = `${this.row}-${rowIndex}`;
         options.name += `[${rowIndex}]`;
@@ -144,20 +147,24 @@ export default class EditGridComponent extends FormIOEditGridComponent {
   }
 
   get isEmptyEditRows() {
-    if (_.isEmpty(this.editRows)) {
+    if (isEmpty(this.editRows)) {
       return true;
     }
 
     return this.editRows.every(row => {
       const { data: { name = '', actions = [], trigger = {} } = {}, isOpen } = row;
 
-      return isOpen && _.isEmpty(actions) && _.isEmpty(name) && Object.keys(trigger).every(key => _.isEmpty(trigger[key]));
+      return isOpen && isEmpty(actions) && isEmpty(name) && Object.keys(trigger).every(key => isEmpty(trigger[key]));
     });
+  }
+
+  get keysIgnoringBasicValidation() {
+    return ['logic'];
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1212
   checkValidity(data, dirty) {
-    if (this.key === 'logic' && this.isEmptyEditRows) {
+    if (this.keysIgnoringBasicValidation.includes(this.key) && this.isEmptyEditRows) {
       return true;
     }
 
