@@ -341,6 +341,11 @@ export default class ParserPredicate {
 
             out.push(item);
           } else if (isArray(item.val)) {
+            if (item.val.every(v => typeof v === 'string')) {
+              out.push(item);
+              return;
+            }
+
             flat(item.val);
           }
         });
