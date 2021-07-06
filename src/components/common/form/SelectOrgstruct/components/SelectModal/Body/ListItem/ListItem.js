@@ -30,9 +30,16 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     }
   };
 
+  const onDoubleClick = e => {
+    if (isAllUsers || isAllowedSelect) {
+      e.stopPropagation();
+      context.onToggleSelectItem(item, true);
+    }
+  };
+
   const renderCollapseHandler = () => {
     if (item.hasChildren) {
-      const collapseHandlerClassNames = classNames('icon', 'select-orgstruct__collapse-handler', {
+      const collapseHandlerClassNames = classNames('icon select-orgstruct__collapse-handler', {
         'icon-small-right': !item.isOpen,
         'icon-small-down': item.isOpen
       });
@@ -43,13 +50,18 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 
   const renderSelectHandler = () => {
     if (isAllUsers || isAllowedSelect) {
-      const selectHandlerClassNames = classNames('icon', 'select-orgstruct__select-handler', {
+      const selectHandlerClassNames = classNames('icon select-orgstruct__select-handler', {
         'icon-small-plus': !item.isSelected,
-        'select-orgstruct__select-handler_selected': item.isSelected,
-        'icon-custom-checkbox-check': item.isSelected
+        'select-orgstruct__select-handler_selected icon-custom-checkbox-check': item.isSelected
       });
 
-      return <span className={selectHandlerClassNames} onClick={() => context.onToggleSelectItem(item)} />;
+      return (
+        <span
+          className={selectHandlerClassNames}
+          onClick={() => context.onToggleSelectItem(item)}
+          onDoubleClick={e => e.stopPropagation()}
+        />
+      );
     }
   };
 
@@ -64,7 +76,7 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 
   return (
     <li>
-      <div className={listItemClassNames}>
+      <div className={listItemClassNames} onDoubleClick={onDoubleClick}>
         <div className={listItemLabelClassNames} onClick={onClickLabel}>
           {renderCollapseHandler()}
           {renderListItem(item)}

@@ -3,6 +3,9 @@ import _ from 'lodash';
 import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
+import { isNodeRef } from '../../../../helpers/util';
+import { createDocumentUrl } from '../../../../helpers/urls';
+
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
@@ -43,7 +46,8 @@ export default class SelectComponent extends BaseComponent {
         sort: '',
         refreshOnEvent: false,
         selectThreshold: 0.3,
-        refreshOn: []
+        refreshOn: [],
+        isSelectedValueAsText: false
       },
       ...extend
     );
@@ -155,7 +159,7 @@ export default class SelectComponent extends BaseComponent {
     return false;
   }
 
-  itemTemplate(data) {
+  getLabel(data) {
     if (!data) {
       return '';
     }
@@ -170,17 +174,29 @@ export default class SelectComponent extends BaseComponent {
       const itemLabel = data.label || data;
       return typeof itemLabel === 'string' ? this.t(itemLabel) : itemLabel;
     }
+
     if (typeof data === 'string') {
       return this.t(data);
     }
 
     const template = this.component.template ? this.interpolate(this.component.template, { item: data }) : data.label;
+
     if (template) {
-      const label = template.replace(/<\/?[^>]+(>|$)/g, '');
-      return template.replace(label, this.t(label));
+      const str = template.replace(/<\/?[^>]+(>|$)/g, '');
+      return template.replace(str, this.t(str));
     } else {
       return JSON.stringify(data);
     }
+  }
+
+  itemTemplate(data) {
+    const label = this.getLabel(data);
+
+    if (this.viewOnly && !this.component.isSelectedValueAsText && (data.recordRef || isNodeRef(data.value))) {
+      return `<a href='${createDocumentUrl(data.recordRef || data.value)}'>${label}</a>`;
+    }
+
+    return label;
   }
 
   /**
@@ -275,7 +291,7 @@ export default class SelectComponent extends BaseComponent {
    * Sets the scroll loading state.
    *
    * @param isScrolling
-   * @return {*}
+   * @return {undefined|boolean}
    */
   set scrollLoading(isScrolling) {
     // Only continue if they are different.

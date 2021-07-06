@@ -238,9 +238,15 @@ export default class EcosFormUtils {
           EcosFormUtils.hasForm(recordRef).then(result => {
             if (result) {
               showForm(recordRef);
-            } else throw new Error(`hasForm ${result}`);
+            } else {
+              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+              throw new Error(`hasForm ${result}`);
+            }
           });
-        } else throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+        } else {
+          NotificationManager.error(t('form-is-not-available'), t('error'));
+          throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+        }
       })
       .catch(e => {
         console.error(e);

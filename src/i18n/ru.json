@@ -372,6 +372,8 @@
   "ecos-form.error-get-form": "Ошибка: форма не загружена. Попробуйте настроить ее",
   "ecos-form.error.clone-get-fields": "Копия записи не получена",
   "ecos-form.error.clone-record": "Клонирование записи не удалось",
+  "ecos-form.error.no-form": "Нет формы",
+  "ecos-form.error.form-is-not-available": "Форма недоступна",
   "ecos-form.success.clone-record": "Запись склонирована",
 
   "ecos-forms.datepicker.time-label": "Время",
