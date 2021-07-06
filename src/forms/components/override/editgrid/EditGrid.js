@@ -143,8 +143,24 @@ export default class EditGridComponent extends FormIOEditGridComponent {
     return wrapper;
   }
 
+  get isEmptyEditRows() {
+    if (_.isEmpty(this.editRows)) {
+      return true;
+    }
+
+    return this.editRows.every(row => {
+      const { data: { name = '', actions = [], trigger = {} } = {}, isOpen } = row;
+
+      return isOpen && _.isEmpty(actions) && _.isEmpty(name) && Object.keys(trigger).every(key => _.isEmpty(trigger[key]));
+    });
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1212
   checkValidity(data, dirty) {
-    console.warn({ data, dirty, self: this, editRows: this.editRows });
+    if (this.key === 'logic' && this.isEmptyEditRows) {
+      return true;
+    }
+
     return super.checkValidity.call(this, data, dirty);
   }
 }
