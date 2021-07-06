@@ -4,7 +4,6 @@ import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import { Attributes } from '../../../../constants';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { DisplayModes, SortOrderOptions, TableTypes } from './constants';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
@@ -26,8 +25,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         isFullScreenWidthModal: false,
         isSelectedValueAsText: false,
         isTableMode: false,
-        sortAttribute: Attributes.DBID,
-        sortAscending: SortOrderOptions.ASC.value,
+        sortAttribute: '',
+        sortAscending: SortOrderOptions.DESC.value,
         source: {
           custom: {
             columns: []
