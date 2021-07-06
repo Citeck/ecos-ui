@@ -209,6 +209,10 @@ export default class EcosFormUtils {
           params.contentAfter = config.contentAfter;
         }
 
+        if (config.options) {
+          params.options = config.options;
+        }
+
         EcosFormUtils.eform(recordRef, {
           params,
           class: 'ecos-modal_width-lg',
@@ -238,9 +242,15 @@ export default class EcosFormUtils {
           EcosFormUtils.hasForm(recordRef).then(result => {
             if (result) {
               showForm(recordRef);
-            } else throw new Error(`hasForm ${result}`);
+            } else {
+              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+              throw new Error(`hasForm ${result}`);
+            }
           });
-        } else throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+        } else {
+          NotificationManager.error(t('form-is-not-available'), t('error'));
+          throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+        }
       })
       .catch(e => {
         console.error(e);

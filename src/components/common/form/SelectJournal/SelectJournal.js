@@ -564,6 +564,22 @@ export default class SelectJournal extends Component {
     });
   };
 
+  onRowDoubleClick = ([, data]) => {
+    const { multiple } = this.props;
+    const val = data.id;
+    const _selected = this.state.gridData.selected;
+    const filtered = _selected.filter(v => v !== val);
+    let selected;
+
+    if (filtered.length !== _selected.length) {
+      selected = filtered;
+    } else {
+      selected = multiple ? filtered.push(multiple) : [val];
+    }
+
+    this.setState(prevState => ({ gridData: { ...prevState.gridData, selected: selected } }), this.onSelectFromJournalPopup);
+  };
+
   openSelectModal = () => {
     const { isJournalConfigFetched, isGridDataReady, journalConfig } = this.state;
 
@@ -732,6 +748,7 @@ export default class SelectJournal extends Component {
             selectAllRecordsVisible={null}
             className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
             scrollable={false}
+            onRowDoubleClick={this.onRowDoubleClick}
           />
 
           <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
