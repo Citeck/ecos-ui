@@ -122,7 +122,8 @@ export const Permissions = {
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 
 export const Attributes = {
-  DBID: 'sys:node-dbid'
+  DBID: 'sys:node-dbid',
+  CREATED: '_created'
 };
 
 export const TMP_ICON_EMPTY = 'icon-empty';
