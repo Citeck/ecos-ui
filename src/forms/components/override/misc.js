@@ -11,7 +11,6 @@ const TRIGGER_CHANGE_DEBOUNCE_WAIT = 500;
 
 /**
  * Overrides this.triggerChange behaviour, declared in formiojs/components/base/Base.js
- * @todo overrideFieldLogic fixes overrideTriggerChange - focus becomes good
  */
 export function overrideTriggerChange() {
   /**
@@ -48,41 +47,5 @@ export function overrideTriggerChange() {
     }
 
     return _triggerChange(...args);
-  };
-}
-
-/**
- * Overrides this.fieldLogic behaviour, declared in formiojs/components/base/Base.js
- * @override
- * @see Cause https://citeck.atlassian.net/browse/ECOSUI-1234
- */
-export function overrideFieldLogic() {
-  this.fieldLogic = data => {
-    data = data || this.rootValue;
-
-    const _this12 = this;
-    const logics = this.logic;
-
-    if (logics.length === 0) {
-      return;
-    }
-
-    const newComponent = cloneDeep(this.component); //difference
-
-    let changed = logics.reduce(function(changed, logic) {
-      const result = checkTrigger(newComponent, logic.trigger, _this12.data, data, _this12.root ? _this12.root._form : {}, _this12);
-
-      if (result) {
-        changed |= _this12.applyActions(logic.actions, result, data, newComponent);
-      }
-
-      return changed;
-    }, false);
-    if (!isEqual(this.component, newComponent)) {
-      this.component = newComponent;
-      changed = true;
-    }
-
-    return changed;
   };
 }

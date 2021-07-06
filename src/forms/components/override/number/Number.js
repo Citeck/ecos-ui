@@ -4,7 +4,7 @@ import { maskInput } from 'vanilla-text-mask';
 import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
 
-import { overrideFieldLogic, overrideTriggerChange } from '../misc';
+import { overrideTriggerChange } from '../misc';
 import { reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
@@ -13,12 +13,13 @@ export default class NumberComponent extends FormIONumberComponent {
       {
         delimiter: false,
         requireDecimal: false,
-        decimalLimit: '',
-        stringValue: ''
+        decimalLimit: ''
       },
       ...extend
     );
   }
+
+  stringValue = '';
 
   get defaultSchema() {
     return NumberComponent.schema();
@@ -27,7 +28,6 @@ export default class NumberComponent extends FormIONumberComponent {
   constructor(...args) {
     super(...args);
 
-    overrideFieldLogic.call(this);
     overrideTriggerChange.call(this);
   }
 
@@ -59,8 +59,7 @@ export default class NumberComponent extends FormIONumberComponent {
       const value = _.get(this, 'inputs.[0].value');
       const stringValue = this._getPureStringValue(value);
 
-      _.set(this.component, 'stringValue', stringValue);
-
+      this.stringValue = stringValue;
       this.setValue(stringValue);
     }
   };
@@ -69,7 +68,7 @@ export default class NumberComponent extends FormIONumberComponent {
     const value = _.get(event, 'target.value');
 
     if (this.isBigNumber()) {
-      _.set(this.component, 'stringValue', this._getPureStringValue(value));
+      this.stringValue = this._getPureStringValue(value);
 
       return;
     }
@@ -125,10 +124,10 @@ export default class NumberComponent extends FormIONumberComponent {
 
       if (this.isBigNumber()) {
         strNumber = String(input);
-        _.set(this.component, 'stringValue', strNumber);
+        this.stringValue = strNumber;
       } else if (this.hasDegree(strNumber)) {
         strNumber = this.getFormattedByBigNumber(strNumber);
-        _.set(this.component, 'stringValue', strNumber);
+        this.stringValue = strNumber;
       }
 
       value = String(strNumber).replace('.', this.decimalSeparator);
@@ -152,7 +151,7 @@ export default class NumberComponent extends FormIONumberComponent {
         stringValue = this.getFormattedByBigNumber(value);
       }
 
-      _.set(this.component, 'stringValue', stringValue);
+      this.stringValue = stringValue;
 
       return super.setValue(stringValue, flags);
     }
@@ -216,7 +215,7 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     if (this.hasDegree(value)) {
-      return parseFloat(this.component.stringValue);
+      return parseFloat(this.stringValue);
     }
 
     return value;
@@ -287,10 +286,10 @@ export default class NumberComponent extends FormIONumberComponent {
       const pureStringValue = this._getPureStringValue(newValue);
 
       newValue = String(value);
-      _.set(this.component, 'stringValue', pureStringValue);
+      this.stringValue = pureStringValue;
     } else if (this.hasDegree(newValue)) {
       newValue = this.getFormattedByBigNumber(value);
-      _.set(this.component, 'stringValue', newValue);
+      this.stringValue = newValue;
     }
 
     newValue = newValue.replace(/,/g, '.');
@@ -354,7 +353,7 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     if (this.isBigNumber()) {
-      return this.component.stringValue;
+      return this.stringValue;
     }
 
     return this.parseNumber(val);
