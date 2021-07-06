@@ -145,17 +145,25 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     });
   }
 
-  addAce(element) {
+  addAce(element, settings, props) {
     window.require(['/js/lib/ace/1.4.1/ace.js'], () => {
       const mode = this.component.as || 'javascript';
       this.editor = window.ace.edit(element);
 
+      if (props.rows) {
+        const height = (this.editor.getOption('fontSize') + 2) * props.rows;
+        this.input.style.height = height + 'px';
+      }
+
+      this.editor.setOptions(settings);
       this.editor.on('change', () => this.updateEditorValue(this.editor.getValue()));
       this.editor.getSession().setTabSize(2);
       this.editor.getSession().setMode(`ace/mode/${mode}`);
       this.editor.on('input', () => this.acePlaceholder());
+
       setTimeout(() => this.acePlaceholder(), 100);
       this.editorReadyResolve(this.editor);
+
       return this.editor;
     });
   }
@@ -174,7 +182,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     if (this.component.editor === 'ace') {
-      this.addAce(this.input);
+      const settings = _.cloneDeep(this.component.wysiwyg || {});
+      const props = { rows: this.component.rows };
+
+      this.addAce(this.input, settings, props);
+
       return this.input;
     }
 
