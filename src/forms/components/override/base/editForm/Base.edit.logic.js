@@ -7,6 +7,11 @@ const actionsGrid = get(advancedLogicComponent, 'components', []).find(item => i
 const actionPanel = get(actionsGrid, 'components', []).find(item => item.key === 'actionPanel');
 const actionTypeProperty = get(actionPanel, 'components', []).find(item => item.key === 'property');
 
+BaseEditLogic.push({
+  key: 'logic',
+  cancelRow: 'Cancel'
+});
+
 // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3287
 set(actionTypeProperty, 'data.json', [
   { label: 'Persistent', value: 'persistent', type: 'boolean' },
