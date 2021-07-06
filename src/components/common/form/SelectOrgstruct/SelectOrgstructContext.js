@@ -41,6 +41,7 @@ export const SelectOrgstructProvider = props => {
   const [isAllUsersGroupsFetched, setIsAllUsersGroupFetched] = useState(false);
   const [isAllUsersGroupsExists, setIsAllUsersGroupsExists] = useState(undefined);
   const [targetId, setTargetId] = useState(undefined);
+  const [applyAndClose, setApplyAndClose] = useState(false);
   const [tabItems, setTabItems] = useState({
     [TabTypes.LEVELS]: [],
     [TabTypes.USERS]: [],
@@ -100,6 +101,12 @@ export const SelectOrgstructProvider = props => {
     }
 
     valuePromise.then(value => typeof onChange === 'function' && onChange(value));
+  };
+
+  const onSelect = () => {
+    onChangeValue(tabItems[TabTypes.SELECTED]);
+    setSelectedRows([...tabItems[TabTypes.SELECTED]]);
+    toggleSelectModal(false);
   };
 
   // fetch root group list
@@ -203,6 +210,13 @@ export const SelectOrgstructProvider = props => {
     !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
   }, [targetId]);
 
+  useEffect(() => {
+    if (applyAndClose) {
+      setApplyAndClose(false);
+      onSelect();
+    }
+  });
+
   return (
     <SelectOrgstructContext.Provider
       value={{
@@ -223,6 +237,10 @@ export const SelectOrgstructProvider = props => {
         hideTabSwitcher,
         targetId,
         pagination,
+
+        setCurrentTab,
+        onSelect,
+        onSubmitSearchForm,
 
         renderListItem: item => {
           if (typeof renderListItem === 'function') {
@@ -305,19 +323,7 @@ export const SelectOrgstructProvider = props => {
           }
         },
 
-        onSelect: () => {
-          onChangeValue(tabItems[TabTypes.SELECTED]);
-          setSelectedRows([...tabItems[TabTypes.SELECTED]]);
-          toggleSelectModal(false);
-        },
-
-        onSubmitSearchForm,
-
-        setCurrentTab: tabId => {
-          setCurrentTab(tabId);
-        },
-
-        onToggleSelectItem: targetItem => {
+        onToggleSelectItem: (targetItem, apply) => {
           const itemIdx = tabItems[TabTypes.SELECTED].findIndex(item => item.id === targetItem.id);
 
           if (itemIdx === -1) {
@@ -384,6 +390,10 @@ export const SelectOrgstructProvider = props => {
                 return item;
               })
             });
+          }
+
+          if (apply) {
+            setApplyAndClose(true);
           }
         },
 
