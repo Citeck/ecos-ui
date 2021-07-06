@@ -116,6 +116,10 @@ export default class ParserPredicate {
       return [];
     }
 
+    if (typeof val === 'string') {
+      return val;
+    }
+
     for (let i = 0, length = val.length; i < length; i++) {
       const item = val[i];
 
@@ -137,6 +141,10 @@ export default class ParserPredicate {
         return true;
       }
 
+      if (typeof v === 'string' && !isEmpty(v)) {
+        return true;
+      }
+
       return !!v.val || v.val === 0 || v.val === false;
     });
   }
@@ -146,6 +154,14 @@ export default class ParserPredicate {
   }
 
   static replacePredicateType(predicate) {
+    /* Cause: https://citeck.atlassian.net/browse/ECOSUI-1197
+     *
+     * To support multiple selection of predicate text values
+     */
+    if (typeof predicate === 'string') {
+      return predicate;
+    }
+
     let type = EQUAL_PREDICATES_MAP[predicate.t] || predicate.t;
     let val = predicate.val;
 
@@ -325,6 +341,11 @@ export default class ParserPredicate {
 
             out.push(item);
           } else if (isArray(item.val)) {
+            if (item.val.every(v => typeof v === 'string')) {
+              out.push(item);
+              return;
+            }
+
             flat(item.val);
           }
         });

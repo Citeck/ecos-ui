@@ -4,7 +4,8 @@ import get from 'lodash/get';
 
 import Filter from './Filter';
 import { IcoBtn } from '../../common/btns';
-import { getPredicates } from '../../Records/predicates/predicates';
+import { getPredicates, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import { ParserPredicate } from '../predicates';
 
 import './Filter.scss';
 import './InlineFilter.scss';
@@ -74,7 +75,14 @@ class InlineFilter extends Filter {
   }
 
   onChangePredicate = predicate => {
-    this.setState({ predicate });
+    const newState = { predicate };
+    const { value } = predicate;
+
+    if (PREDICATE_LIST_WITH_CLEARED_VALUES.includes(value) || ParserPredicate.predicatesWithoutValue.includes(value)) {
+      newState.value = '';
+    }
+
+    this.setState({ ...newState });
   };
 
   onChangeValue = value => {

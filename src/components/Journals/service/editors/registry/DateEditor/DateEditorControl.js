@@ -19,6 +19,8 @@ export default class DateEditorControl extends React.Component {
     };
   }
 
+  _control = new Map();
+
   get isCell() {
     const { scope } = this.props;
     return scope === EditorScope.CELL;
@@ -78,12 +80,24 @@ export default class DateEditorControl extends React.Component {
     }
   };
 
+  get inputControl() {
+    const key = JSON.stringify([this.props.config, this.props.scope]);
+
+    if (this._control.has(key)) {
+      return this._control.get(key);
+    }
+
+    const editorInstance = editorRegistry.getEditor(TextEditor.TYPE);
+    const Control = editorInstance.getControl(this.props.config, this.props.scope);
+
+    this._control.set(key, Control);
+
+    return Control;
+  }
+
   render() {
     if (this.isFilter && [get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
-      let editorInstance = editorRegistry.getEditor(TextEditor.TYPE);
-      const Control = editorInstance.getControl(this.props.config, this.props.scope);
-
-      return <Control {...this.props} />;
+      return <this.inputControl {...this.props} />;
     }
 
     return (
