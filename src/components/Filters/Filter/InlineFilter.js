@@ -56,9 +56,21 @@ class InlineFilter extends Filter {
     };
   }
 
+  get deleteActionIcon() {
+    return 'icon-small-close';
+  }
+
   handleConfirmAction = () => {
     this.props.onFilter(this.selectedPredicate);
     this.props.onToggle();
+  };
+
+  onChangePredicate = predicate => {
+    this.setState({ predicate });
+  };
+
+  onChangeValue = value => {
+    this.setState({ value });
   };
 
   renderConfirmAction() {
@@ -72,14 +84,6 @@ class InlineFilter extends Filter {
       />
     );
   }
-
-  onChangePredicate = predicate => {
-    this.setState({ predicate });
-  };
-
-  onChangeValue = value => {
-    this.setState({ value });
-  };
 
   render() {
     const { className, children } = this.props;

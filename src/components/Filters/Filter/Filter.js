@@ -143,6 +143,10 @@ export default class Filter extends Component {
     };
   }
 
+  get deleteActionIcon() {
+    return 'icon-delete';
+  }
+
   ValueControl = React.memo((props, context) => {
     const { value, predicate, column, metaRecord } = props;
     const predicates = getPredicates(column);
@@ -224,7 +228,7 @@ export default class Filter extends Component {
 
     return (
       <IcoBtn
-        icon={'icon-delete'}
+        icon={this.deleteActionIcon}
         className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
         onClick={this.onDeletePredicate}
       />
