@@ -14,6 +14,13 @@
     padding: 0;
     max-width: unset;
 
+    .ecos-tab_editable:not(.ecos-tab_active),
+    #{$settings}__layout-tabs-add-tab:not(:hover):not(:focus):not(:active) {
+      border-width: 1px;
+      border-color: $color-gray-6;
+      border-style: solid;
+    }
+
     #{$settings} {
       &__body {
         overflow-y: auto;
@@ -64,6 +71,10 @@
     @extend %title-page;
     margin-top: 30px;
     margin-bottom: 24px;
+  }
+
+  &__section {
+    padding: 5px;
   }
 
   &__spec {
@@ -125,6 +136,18 @@
       font-size: $font-size-small;
       color: $color-gray-5;
       max-width: 350px;
+    }
+
+    &-reset {
+      &-tooltip {
+        .tooltip {
+          z-index: 9999;
+        }
+
+        .tooltip-inner {
+          min-width: 400px;
+        }
+      }
     }
   }
 

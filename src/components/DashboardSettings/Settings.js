@@ -453,8 +453,6 @@ class Settings extends Component {
         onClick={toggleTab}
         activeTabKey={activeDeviceTabId}
         keyField="key"
-        widthFull
-        narrow
       />
     );
   }
@@ -530,12 +528,14 @@ class Settings extends Component {
     const typeByRecord = key && key.includes('workspace://SpacesStore/') ? key : null;
 
     return (
-      <SetLayouts
-        dashboardType={type || typeByRecord}
-        activeLayout={this.activeData.layout}
-        setData={setData}
-        isMobile={this.isSelectedMobileVer}
-      />
+      <div className="ecos-dashboard-settings__container">
+        <SetLayouts
+          dashboardType={type || typeByRecord}
+          activeLayout={this.activeData.layout}
+          setData={setData}
+          isMobile={this.isSelectedMobileVer}
+        />
+      </div>
     );
   }
 
@@ -574,15 +574,17 @@ class Settings extends Component {
     };
 
     return (
-      <SetWidgets
-        availableWidgets={this.availableWidgets}
-        activeWidgets={this.activeData.widgets}
-        columns={this.selectedTypeLayout.columns}
-        setData={setData}
-        isMobile={isMob}
-        positionAdjustment={this.getPositionOffset}
-        modelAttributes={modelAttributes}
-      />
+      <div className="ecos-dashboard-settings__container">
+        <SetWidgets
+          availableWidgets={this.availableWidgets}
+          activeWidgets={this.activeData.widgets}
+          columns={this.selectedTypeLayout.columns}
+          setData={setData}
+          isMobile={isMob}
+          positionAdjustment={this.getPositionOffset}
+          modelAttributes={modelAttributes}
+        />
+      </div>
     );
   }
 
@@ -698,12 +700,12 @@ class Settings extends Component {
         {this.renderHeader()}
         {this.renderOwnershipBlock()}
         {this.renderDeviceTabsBlock()}
-        {this.renderLayoutTabsBlock()}
-        <div className="ecos-dashboard-settings__container">
+        <section className="ecos-dashboard-settings__section">
+          {this.renderLayoutTabsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
-          {this.renderButtons()}
-        </div>
+        </section>
+        {this.renderButtons()}
         {this.renderDialogs()}
       </Container>
     );

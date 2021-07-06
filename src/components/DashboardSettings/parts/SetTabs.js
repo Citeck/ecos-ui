@@ -16,6 +16,13 @@ import { RemoveDialog } from '../../../components/common/dialogs';
 
 import '../style.scss';
 
+const Labels = {
+  TITLE: 'dashboard-settings.board-tabs.title',
+  DESC: 'dashboard-settings.board-tabs.edit-number-contents',
+  REMOVE_TITLE: 'dashboard-settings.remove-tab-dialog.title',
+  REMOVE_TEXT: 'dashboard-settings.remove-tab-dialog.text'
+};
+
 class SetTabs extends React.Component {
   static propTypes = {
     activeTabKey: PropTypes.string,
@@ -174,7 +181,8 @@ class SetTabs extends React.Component {
 
     return (
       <>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
+        <h5 className="ecos-dashboard-settings__container-title">{t(Labels.TITLE)}</h5>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t(Labels.DESC)}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {this.renderArrowTabs()}
           {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
@@ -186,13 +194,8 @@ class SetTabs extends React.Component {
         </div>
         <RemoveDialog
           isOpen={!isEmpty(removedTab)}
-          title={t('dashboard-settings.remove-tab-dialog.title')}
-          text={
-            <>
-              <div>{`${t('dashboard-settings.remove-tab-dialog.text1')} "${get(removedTab, 'label', '')}"?`}</div>
-              <div>{`${t('dashboard-settings.remove-tab-dialog.text2')}`}</div>
-            </>
-          }
+          title={t(Labels.REMOVE_TITLE)}
+          text={t(Labels.REMOVE_TEXT, { name: get(removedTab, 'label', '') })}
           onDelete={this.onDeleteTab}
           onCancel={this.closeDialog}
           onClose={this.closeDialog}
