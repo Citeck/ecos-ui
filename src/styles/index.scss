@@ -56,10 +56,10 @@ ul {
 .pseudo-link {
   color: $text-link;
   font-size: $font-size-standard;
-  text-decoration: underline dashed;
   cursor: pointer;
 
   &:hover {
     color: $text-link_hover;
+    text-decoration: underline;
   }
 }

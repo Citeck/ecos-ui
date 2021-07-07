@@ -96,6 +96,10 @@
 }
 
 .ecos-th__filter-tooltip {
+  & > .tooltip.show {
+    opacity: 1;
+  }
+
   .ecos-th__filter-tooltip-body {
     background-color: $color-white;
     color: $color-gray-6;

@@ -11,6 +11,15 @@
         margin: 0;
       }
     }
+
+    .select-journal {
+      color: $text-color-dark;
+      align-self: center;
+
+      &__values-list_compact {
+        font-size: $font-size-standard;
+      }
+    }
   }
 
   &__actions {

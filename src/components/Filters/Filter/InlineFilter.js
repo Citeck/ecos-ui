@@ -57,22 +57,14 @@ class InlineFilter extends Filter {
     };
   }
 
-  handleConfirmAction = () => {
+  get deleteActionIcon() {
+    return 'icon-small-close';
+  }
+
+  onConfirmAction = () => {
     this.props.onFilter(this.selectedPredicate);
     this.props.onToggle();
   };
-
-  renderConfirmAction() {
-    const btnClasses = 'ecos-btn_i ecos-btn_transparent ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
-
-    return (
-      <IcoBtn
-        icon="icon-small-check"
-        className={classNames(btnClasses, 'ecos-inline-filter__actions-confirm')}
-        onClick={this.handleConfirmAction}
-      />
-    );
-  }
 
   onChangePredicate = predicate => {
     const newState = { predicate };
@@ -88,6 +80,18 @@ class InlineFilter extends Filter {
   onChangeValue = value => {
     this.setState({ value });
   };
+
+  renderConfirmAction() {
+    const btnClasses = 'ecos-btn_i ecos-btn_transparent ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
+
+    return (
+      <IcoBtn
+        icon="icon-small-check"
+        className={classNames(btnClasses, 'ecos-inline-filter__actions-confirm')}
+        onClick={this.onConfirmAction}
+      />
+    );
+  }
 
   render() {
     const { className, children } = this.props;
