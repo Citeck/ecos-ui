@@ -17,14 +17,14 @@
     align-items: center;
 
     .close {
-      margin: 0;
+      white-space: nowrap;
+      margin: 0 0 0 5px;
       padding: 0;
-      position: absolute;
-      right: 15px;
-      top: 15px;
       opacity: 1;
       z-index: 1;
       line-height: 0;
+      flex: auto;
+      text-align: right;
       color: $color-gray-dark;
 
       .ecos-modal-close__icon {
@@ -39,10 +39,6 @@
         }
 
         & .close {
-          position: static;
-          margin-left: 15px;
-          white-space: nowrap;
-
           .ecos-modal-close__icon {
             margin-left: 5px;
           }
@@ -67,6 +63,7 @@
     @extend %ellipsis;
     font-size: $font-size-large;
     font-weight: $font-weight-bold;
+    width: 100%;
     color: $text-color-dark;
     line-height: 22px;
     display: flex;

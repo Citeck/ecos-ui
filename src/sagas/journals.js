@@ -427,7 +427,6 @@ function* getGridData(api, params, stateId) {
   const { pagination: _pagination, predicates: _predicates, searchPredicate, ...forRequest } = params;
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
-
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
     ...forRequest,
     recordRef,
