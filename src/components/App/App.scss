@@ -35,6 +35,10 @@
   }
 
   &-content {
+    & > .ecos-journal-page > .ecos-journal {
+      overflow-x: unset;
+      overflow-y: unset;
+    }
   }
 
   &-footer {
