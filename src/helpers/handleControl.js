@@ -3,6 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import DialogManager from '../components/common/dialogs/Manager';
 import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
@@ -275,6 +276,7 @@ export default function handleControl(type, payload) {
     case HCT.ECOS_EDIT_PASSWORD:
       RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
       break;
+
     case HCT.ECOS_OPEN_FORM:
       EcosFormUtils.eform(payload.recordRef, {
         params: { formId: payload.formRef, options: payload.formOptions },
@@ -283,6 +285,7 @@ export default function handleControl(type, payload) {
         isBigHeader: true
       });
       break;
+
     default:
       console.warn('Unknown control type: ', type);
   }
