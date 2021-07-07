@@ -148,6 +148,16 @@ export default class MenuConverter {
         };
       }
 
+      if (params.type === CreateMenuTypes.Custom.FORM) {
+        return {
+          ...item,
+          control: {
+            type: HandleControlTypes.ECOS_OPEN_FORM,
+            payload: item.config
+          }
+        };
+      }
+
       return item;
     });
   }
