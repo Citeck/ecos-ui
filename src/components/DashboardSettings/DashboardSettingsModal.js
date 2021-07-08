@@ -9,6 +9,7 @@ import { RequestStatuses } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { t } from '../../helpers/export/util';
 import DashboardService from '../../services/dashboard';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import { clearCache } from '../../components/ReactRouterCache';
 import { getDashboardConfig, resetAllDashboardsConfig } from '../../actions/dashboard';
 import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
@@ -227,7 +228,7 @@ class DashboardSettingsModal extends Settings {
 }
 
 const _mapDispatchToProps = (dispatch, ownProps) => {
-  const key = getStateId(ownProps);
+  const key = PageTabList.activeTab.id;
 
   return {
     ...mapDispatchToProps(dispatch, ownProps),
