@@ -446,18 +446,15 @@ class Settings extends Component {
     };
 
     return (
-      <>
-        <h5 className="ecos-dashboard-settings__container-title">{t(Labels.DEVICE_TITLE)}</h5>
-        <Tabs
-          hasHover
-          className="ecos-dashboard-settings__device-tabs"
-          classNameTab="ecos-dashboard-settings__device-tabs-item"
-          items={DeviceTabs.map(item => ({ ...item, label: t(item.label) }))}
-          onClick={toggleTab}
-          activeTabKey={activeDeviceTabId}
-          keyField="key"
-        />
-      </>
+      <Tabs
+        hasHover
+        className="ecos-dashboard-settings__device-tabs"
+        classNameTab="ecos-dashboard-settings__device-tabs-item"
+        items={DeviceTabs.map(item => ({ ...item, label: t(item.label) }))}
+        onClick={toggleTab}
+        activeTabKey={activeDeviceTabId}
+        keyField="key"
+      />
     );
   }
 
@@ -705,6 +702,7 @@ class Settings extends Component {
         {this.renderOwnershipBlock()}
         {this.renderDeviceTabsBlock()}
         <section className="ecos-dashboard-settings__section">
+          <h5 className="ecos-dashboard-settings__container-title">{t(Labels.DEVICE_TITLE)}</h5>
           {this.renderLayoutTabsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
