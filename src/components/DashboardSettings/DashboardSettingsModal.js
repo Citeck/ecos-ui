@@ -12,7 +12,7 @@ import DashboardService from '../../services/dashboard';
 import PageTabList from '../../services/pageTabs/PageTabList';
 import { clearCache } from '../../components/ReactRouterCache';
 import { getDashboardConfig, resetAllDashboardsConfig } from '../../actions/dashboard';
-import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
+import Settings, { mapDispatchToProps, mapStateToProps } from './Settings';
 
 class DashboardSettingsModal extends Settings {
   static propTypes = {
