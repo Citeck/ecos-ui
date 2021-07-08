@@ -33,7 +33,6 @@ import './App.scss';
 
 const allowedLinks = [
   URL.DASHBOARD,
-  URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.ADMIN_PAGE,
   URL.JOURNAL,
@@ -195,11 +194,6 @@ class App extends Component {
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.DASHBOARD_SETTINGS}
-              render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
-            />
-            <CacheRoute
-              {...baseCacheRouteProps}
               path={URL.DASHBOARD}
               exact
               render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
@@ -295,10 +289,6 @@ class App extends Component {
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
-            <Route
-              path={URL.DASHBOARD_SETTINGS}
-              render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
-            />
             <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
             <Route path={URL.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />

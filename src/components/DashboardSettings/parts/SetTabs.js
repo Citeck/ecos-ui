@@ -6,7 +6,6 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import classNames from 'classnames';
 
 import DashboardService from '../../../services/dashboard';
 import { t } from '../../../helpers/util';
@@ -27,8 +26,7 @@ class SetTabs extends React.Component {
   static propTypes = {
     activeTabKey: PropTypes.string,
     tabs: PropTypes.array,
-    setData: PropTypes.func,
-    mode: PropTypes.oneOf(['modal', 'page'])
+    setData: PropTypes.func
   };
 
   static defaultProps = {
@@ -137,7 +135,7 @@ class SetTabs extends React.Component {
   };
 
   renderArrowTabs() {
-    const { tabs, activeTabKey, mode } = this.props;
+    const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd, editableTab, updateScrollPosition } = this.state;
     const empty = isEmpty(tabs);
 
@@ -156,7 +154,7 @@ class SetTabs extends React.Component {
       >
         <EditTabs
           className="ecos-dashboard-settings__layout-tabs-wrap"
-          classNameTab={classNames('ecos-dashboard-settings__layout-tabs-item', `ecos-dashboard-settings__layout-tabs-item_${mode}`)}
+          classNameTab="ecos-dashboard-settings__layout-tabs-item ecos-dashboard-settings__layout-tabs-item_modal"
           classNameTooltip="ecos-dashboard-settings__tooltip"
           hasHover
           hasHint

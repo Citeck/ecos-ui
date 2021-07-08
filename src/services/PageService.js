@@ -14,7 +14,6 @@ const pageApi = new PageApi();
 export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
-  SETTINGS: 'dashboard/settings',
   ADMIN_PAGE: 'admin',
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
@@ -119,17 +118,6 @@ export default class PageService {
         const prom = pageApi.getJournalTitle(journalId);
 
         return prom.then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
-      }
-    },
-    [PageTypes.SETTINGS]: {
-      getTitle: ({ recordRef, journalId }) => {
-        const promise = journalId
-          ? pageApi.getJournalTitle(journalId)
-          : recordRef
-          ? pageApi.getRecordTitle(recordRef)
-          : staticTitle(TITLE.HOMEPAGE);
-
-        return promise.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {

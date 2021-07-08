@@ -1,7 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
   getAvailableWidgets,
-  getAwayFromPage,
   getCheckUpdatedDashboardConfig,
   getDashboardConfig,
   getDashboardKeys,
@@ -123,14 +122,6 @@ export default handleActions(
           ...state[payload.key],
           requestResult: payload,
           isLoading: false
-        }
-      };
-    },
-    [getAwayFromPage]: (state, { payload = {} }) => {
-      return {
-        ...state,
-        [payload]: {
-          ...initialState
         }
       };
     },

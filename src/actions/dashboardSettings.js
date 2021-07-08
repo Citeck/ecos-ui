@@ -14,8 +14,6 @@ export const setLoadingKeys = createAction(prefix + 'SET_LOADING_KEYS');
 
 export const setDashboardData = createAction(prefix + 'SET_DASHBOARD_DATA');
 
-export const getAwayFromPage = createAction(prefix + 'GET_AWAY_FROM_PAGE');
-
 export const getAvailableWidgets = createAction(prefix + 'GET_AVAILABLE_WIDGETS');
 export const getDashboardKeys = createAction(prefix + 'GET_DASHBOARD_KEYS');
 export const getDashboardConfig = createAction(prefix + 'GET_DASHBOARD_CONFIG');
