@@ -3,15 +3,16 @@ import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
-import dialogManager from '../components/common/dialogs/Manager';
-import DialogManager from '../components/common/dialogs/Manager/DialogManager';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import DialogManager from '../components/common/dialogs/Manager';
 import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
 import RecordActions from '../components/Records/actions/recordActions';
 import { CommonApi } from '../api/common';
 import PageService from '../services/PageService';
 import { NEW_VERSION_PREFIX } from './export/urls';
-import { getCurrentUserName, t } from './util';
+import { extractLabel, getCurrentUserName, t } from './util';
+import formDefinitionUserStatus from './menu/formDefinitionUserStatus';
 import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
@@ -23,7 +24,9 @@ export const HandleControlTypes = {
   ALF_BECOME_SITE_MANAGER: 'ALF_BECOME_SITE_MANAGER',
   ALF_REQUEST_SITE_MEMBERSHIP: 'ALF_REQUEST_SITE_MEMBERSHIP',
   ECOS_EDIT_PASSWORD: 'ECOS_EDIT_PASSWORD',
-  ECOS_EDIT_AVAILABILITY: 'ECOS_EDIT_AVAILABILITY'
+  ECOS_EDIT_AVAILABILITY: 'ECOS_EDIT_AVAILABILITY',
+  ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT',
+  ECOS_OPEN_FORM: 'ECOS_OPEN_FORM'
 };
 
 const HCT = HandleControlTypes;
@@ -56,53 +59,7 @@ export const toggleAvailabilityStatus = payload => {
     reactstrapProps: {
       backdrop: true
     },
-    formDefinition: {
-      display: 'form',
-      components: [
-        {
-          key: 'absenceBeginning',
-          type: 'datetime',
-          label: t('modal.make-notavailable.start.label'),
-          labelPosition: 'left-left',
-          format: 'yyyy-MM-dd H:mm',
-          displayInTimezone: 'viewer',
-          datepickerMode: 'day',
-          customDefaultValue: 'value = moment();',
-          datePicker: {
-            minDate: 'moment()'
-          },
-          timePicker: {
-            showMeridian: false
-          }
-        },
-        {
-          key: 'absenceEnd',
-          type: 'datetime',
-          label: t('modal.make-notavailable.end.label'),
-          labelPosition: 'left-left',
-          format: 'yyyy-MM-dd H:mm',
-          displayInTimezone: 'viewer',
-          datepickerMode: 'day',
-          customDefaultValue: "value = moment().add(5, 'm');",
-          datePicker: {
-            minDate: "moment().add(1, 'm')"
-          },
-          timePicker: {
-            showMeridian: false
-          },
-          validate: {
-            required: true,
-            custom: "valid = moment(data.dateTime2).isBefore(value) ? true : 'Дата начала не может быть больше даты окончания';"
-          }
-        },
-        {
-          key: 'autoAnswer',
-          type: 'textarea',
-          label: t('modal.make-notavailable.auto-answer.label'),
-          labelPosition: 'left-left'
-        }
-      ]
-    },
+    formDefinition: formDefinitionUserStatus,
     onSubmit: async submission => {
       const userRef = await Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`).load('nodeRef?str');
       const result = await ecosFetch(`${PROXY_URI}citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent`, {
@@ -190,22 +147,22 @@ export default function handleControl(type, payload) {
     case HCT.ALF_LEAVE_SITE:
       return (() => {
         const { site, siteTitle, user, userFullName } = payload;
-        dialogManager.confirmDialog({
+        DialogManager.confirmDialog({
           title: t('message.leave', { name: siteTitle }),
           text: t('message.leave-site-prompt', { name: siteTitle }),
-          onNo: () => {},
+          onNo: _ => _,
           onYes: () => {
             const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships/${encodeURIComponent(user)}`;
             return ecosFetch(url, { method: 'DELETE' })
               .then(resp => {
                 if (resp.status !== 200) {
-                  return dialogManager.showInfoDialog({
+                  return DialogManager.showInfoDialog({
                     title: t('error'),
                     text: t('message.leave-failure', { userFullName, siteTitle })
                   });
                 }
 
-                dialogManager.showInfoDialog({
+                DialogManager.showInfoDialog({
                   text: t('message.leaving', { userFullName, siteTitle })
                 });
 
@@ -236,7 +193,7 @@ export default function handleControl(type, payload) {
               return;
             }
 
-            dialogManager.showInfoDialog({
+            DialogManager.showInfoDialog({
               text: t('message.joining', { user, site })
             });
 
@@ -297,13 +254,13 @@ export default function handleControl(type, payload) {
                 ? 'message.request-join-site-pending-failure'
                 : 'message.request-join-site-failure';
 
-              return dialogManager.showInfoDialog({
+              return DialogManager.showInfoDialog({
                 title: t('error'),
                 text: t(failureMessage)
               });
             }
 
-            return dialogManager.showInfoDialog({
+            return DialogManager.showInfoDialog({
               title: t('message.request-join-success-title'),
               text: t('message.request-join-success', { site: siteTitle || site }),
               onClose: () => {
@@ -319,6 +276,16 @@ export default function handleControl(type, payload) {
     case HCT.ECOS_EDIT_PASSWORD:
       RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
       break;
+
+    case HCT.ECOS_OPEN_FORM:
+      EcosFormUtils.eform(payload.recordRef, {
+        params: { formId: payload.formRef, options: payload.formOptions },
+        title: extractLabel(payload.formTitle),
+        class: 'ecos-modal_width-lg',
+        isBigHeader: true
+      });
+      break;
+
     default:
       console.warn('Unknown control type: ', type);
   }
