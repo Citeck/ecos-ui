@@ -80,7 +80,8 @@ export const ActionModes = {
 
 export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE'
+  FAILURE: 'FAILURE',
+  RESET: 'RESET'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
