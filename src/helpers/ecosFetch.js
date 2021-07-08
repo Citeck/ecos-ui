@@ -4,6 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import { getCurrentLocale } from './export/util';
 
 const acceptLanguage = getCurrentLocale();
+const timezoneOffset = -new Date().getTimezoneOffset() / 60;
 
 const ecosFetch = function(url, options = {}) {
   const { method, headers = {}, body, noHeaders = false, mode } = options;
@@ -17,7 +18,8 @@ const ecosFetch = function(url, options = {}) {
   if (!noHeaders) {
     params.headers = {
       ...headers,
-      'Accept-Language': acceptLanguage
+      'Accept-Language': acceptLanguage,
+      'X-ECOS-Timezone': timezoneOffset
     };
   }
 

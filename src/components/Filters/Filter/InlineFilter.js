@@ -4,7 +4,8 @@ import get from 'lodash/get';
 
 import Filter from './Filter';
 import { IcoBtn } from '../../common/btns';
-import { getPredicates } from '../../Records/predicates/predicates';
+import { getPredicates, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import { ParserPredicate } from '../predicates';
 
 import './Filter.scss';
 import './InlineFilter.scss';
@@ -56,9 +57,28 @@ class InlineFilter extends Filter {
     };
   }
 
-  handleConfirmAction = () => {
+  get deleteActionIcon() {
+    return 'icon-small-close';
+  }
+
+  onConfirmAction = () => {
     this.props.onFilter(this.selectedPredicate);
     this.props.onToggle();
+  };
+
+  onChangePredicate = predicate => {
+    const newState = { predicate };
+    const { value } = predicate;
+
+    if (PREDICATE_LIST_WITH_CLEARED_VALUES.includes(value) || ParserPredicate.predicatesWithoutValue.includes(value)) {
+      newState.value = '';
+    }
+
+    this.setState({ ...newState });
+  };
+
+  onChangeValue = value => {
+    this.setState({ value });
   };
 
   renderConfirmAction() {
@@ -68,18 +88,10 @@ class InlineFilter extends Filter {
       <IcoBtn
         icon="icon-small-check"
         className={classNames(btnClasses, 'ecos-inline-filter__actions-confirm')}
-        onClick={this.handleConfirmAction}
+        onClick={this.onConfirmAction}
       />
     );
   }
-
-  onChangePredicate = predicate => {
-    this.setState({ predicate });
-  };
-
-  onChangeValue = value => {
-    this.setState({ value });
-  };
 
   render() {
     const { className, children } = this.props;

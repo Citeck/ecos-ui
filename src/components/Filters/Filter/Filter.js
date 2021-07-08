@@ -143,6 +143,10 @@ export default class Filter extends Component {
     };
   }
 
+  get deleteActionIcon() {
+    return 'icon-delete';
+  }
+
   ValueControl = React.memo((props, context) => {
     const { value, predicate, column, metaRecord } = props;
     const predicates = getPredicates(column);
@@ -153,24 +157,26 @@ export default class Filter extends Component {
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      if (this._controls.has(key)) {
+      const ControlComponent = this._controls.get(key);
+
+      if (ControlComponent) {
         return this._controls.get(key);
-      } else {
-        const control = EditorService.getEditorControl({
-          recordRef: metaRecord,
-          attribute: column.attribute,
-          editor: column.newEditor,
-          value,
-          scope: EditorScope.FILTER,
-          onUpdate: this.onChangeValue,
-          onKeyDown: this.onKeyDown,
-          controlProps: { predicate: omit(predicate, 'val') }
-        });
-
-        this._controls.set(key, control);
-
-        return control;
       }
+
+      const control = EditorService.getEditorControl({
+        recordRef: metaRecord,
+        attribute: column.attribute,
+        editor: column.newEditor,
+        value,
+        scope: EditorScope.FILTER,
+        onUpdate: this.onChangeValue,
+        onKeyDown: this.onKeyDown,
+        controlProps: { predicate: omit(predicate, 'val') }
+      });
+
+      this._controls.set(key, control);
+
+      return control;
     }
 
     return null;
@@ -224,7 +230,7 @@ export default class Filter extends Component {
 
     return (
       <IcoBtn
-        icon={'icon-delete'}
+        icon={this.deleteActionIcon}
         className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
         onClick={this.onDeletePredicate}
       />
