@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/util';
-import { PointsLoader, Tooltip } from '../../../components/common';
+import { Icon, PointsLoader, Tooltip } from '../../../components/common';
 import { Checkbox, Dropdown } from '../../../components/common/form';
 import { Btn } from '../../../components/common/btns';
 import DialogManager from '../../../components/common/dialogs/Manager';
@@ -80,6 +80,9 @@ class SetBind extends React.Component {
             />
             {isLoadingKeys && <PointsLoader className="ecos-dashboard-settings__bindings-types-loader" color={'light-blue'} />}
           </div>
+          <Btn className="ecos-btn_blue" onClick={this.onClickReset} disabled={!selectedDashboardKey || isDefaultConfig}>
+            {t(Labels.RESET_BTN)}
+          </Btn>
           <Tooltip
             target="ecos-dashboard-settings-bindings-reset"
             text={t(Labels.RESET_DESC)}
@@ -87,14 +90,7 @@ class SetBind extends React.Component {
             autohide
             className="ecos-dashboard-settings__bindings-reset-tooltip"
           >
-            <Btn
-              id="ecos-dashboard-settings-bindings-reset"
-              className="ecos-btn_blue"
-              onClick={this.onClickReset}
-              disabled={!selectedDashboardKey || isDefaultConfig}
-            >
-              {t(Labels.RESET_BTN)}
-            </Btn>
+            <Icon id="ecos-dashboard-settings-bindings-reset" className="icon-question" />
           </Tooltip>
         </div>
         {isAdmin && (
