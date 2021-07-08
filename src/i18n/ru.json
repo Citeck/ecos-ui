@@ -189,7 +189,7 @@
   "dashboard-settings.error.check-updates": "Проверка обновлений дашборда не удалась",
   "dashboard-settings.error.save-config": "Конфигурация дашборда не сохранена",
   "dashboard-settings.error.reset-config": "Конфигурация дашборда не сброшена",
-  "dashboard-settings.success.reset-config": "Конфигурация дашборда сброшена",
+  "dashboard-settings.success.reset-config": "Конфигурация дашборда сброшена и применена",
   "dashboard-settings.label.for-all": "Применить для всех пользователей",
   "dashboard-settings.menu-constructor.placeholder1": "Нет доступных пунктов меню",
   "dashboard-settings.menu-constructor.placeholder2": "Перетащите пункты меню сюда",
@@ -374,6 +374,8 @@
   "ecos-form.error-get-form": "Ошибка: форма не загружена. Попробуйте настроить ее",
   "ecos-form.error.clone-get-fields": "Копия записи не получена",
   "ecos-form.error.clone-record": "Клонирование записи не удалось",
+  "ecos-form.error.no-form": "Нет формы",
+  "ecos-form.error.form-is-not-available": "Форма недоступна",
   "ecos-form.success.clone-record": "Запись склонирована",
 
   "ecos-forms.datepicker.time-label": "Время",

@@ -80,7 +80,8 @@ export const ActionModes = {
 
 export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE'
+  FAILURE: 'FAILURE',
+  RESET: 'RESET'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
@@ -122,7 +123,8 @@ export const Permissions = {
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 
 export const Attributes = {
-  DBID: 'sys:node-dbid'
+  DBID: 'sys:node-dbid',
+  CREATED: '_created'
 };
 
 export const TMP_ICON_EMPTY = 'icon-empty';

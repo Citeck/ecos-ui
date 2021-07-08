@@ -940,8 +940,8 @@ export const selectJournalCase = {
       isFullScreenWidthModal: false,
       isSelectedValueAsText: false,
       isTableMode: false,
-      sortAttribute: 'sys:node-dbid',
-      sortAscending: 'asc',
+      sortAttribute: '',
+      sortAscending: 'desc',
       computed: {
         valueDisplayName: ''
       },

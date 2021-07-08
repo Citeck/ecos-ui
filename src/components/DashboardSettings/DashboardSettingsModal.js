@@ -10,6 +10,7 @@ import { RequestStatuses } from '../../constants';
 import { DashboardTypes } from '../../constants/dashboard';
 import { t } from '../../helpers/export/util';
 import DashboardService from '../../services/dashboard';
+import PageTabList from '../../services/pageTabs/PageTabList';
 import { clearCache } from '../ReactRouterCache';
 import Settings, { getStateId, mapDispatchToProps, mapStateToProps } from './Settings';
 
@@ -80,33 +81,40 @@ class DashboardSettingsModal extends Settings {
 
   checkRequestResult(prevProps) {
     const oldRStatus = get(prevProps, 'requestResult.status', null);
-    const newRStatus = get(this.props, 'requestResult.status', null);
     const oldSaveWay = get(prevProps, 'requestResult.saveWay', null);
     const checkResult = get(this.props, 'requestResult', {});
+    const newRStatus = checkResult.status;
     const newSaveWay = checkResult.saveWay;
 
-    if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
+    if (newRStatus && oldRStatus !== newRStatus) {
       const { getAwayFromPage, updateDashboard, getDashboardConfig, resetAllDashboardsConfig, onSave, identification } = this.props;
       let { recordRef } = this.props;
 
-      if (isEmpty(recordRef)) {
-        recordRef = get(this.getPathInfo(), 'recordRef');
-      }
-
       clearCache();
       this.clearLocalStorage();
-      getAwayFromPage();
 
-      if (updateDashboard) {
-        getDashboardConfig({ recordRef });
-      } else {
-        resetAllDashboardsConfig(identification);
-      }
+      switch (newRStatus) {
+        case RequestStatuses.SUCCESS: {
+          if (isEmpty(recordRef)) {
+            recordRef = get(this.getPathInfo(), 'recordRef');
+          }
 
-      if (typeof onSave === 'function') {
-        onSave();
+          getAwayFromPage();
+          updateDashboard ? getDashboardConfig({ recordRef }) : resetAllDashboardsConfig(identification);
+          typeof onSave === 'function' && onSave();
+
+          return;
+        }
+        case RequestStatuses.RESET: {
+          getDashboardConfig({ recordRef });
+          return;
+        }
+        default:
+          return;
       }
-    } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
+    }
+
+    if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
       this.acceptChanges(checkResult.dashboardId);
     }
   }
@@ -163,7 +171,7 @@ class DashboardSettingsModal extends Settings {
 }
 
 const _mapDispatchToProps = (dispatch, ownProps) => {
-  const key = getStateId(ownProps);
+  const key = PageTabList.activeTab.id;
 
   return {
     ...mapDispatchToProps(dispatch, ownProps),

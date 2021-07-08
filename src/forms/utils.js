@@ -66,6 +66,7 @@ export const runTransform = (config, tabs) => {
       'simple-conditional': { weight: 900 }
     }
   };
+
   const tabsByKey = tabs || [
     { key: 'display', components: cloneDeep(BaseEditDisplay) },
     { key: 'data', components: cloneDeep(BaseEditData) },
