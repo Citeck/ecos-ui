@@ -148,9 +148,9 @@ class DashboardSettingsModal extends Settings {
         <div className="ecos-dashboard-settings__body">
           {this.renderSpecificationsBlock()}
           {this.renderOwnershipBlock()}
-          {this.renderDeviceTabsBlock()}
-          {this.renderLayoutTabsBlock()}
-          <div className="ecos-dashboard-settings__container">
+          <div className="ecos-dashboard-settings__section">
+            {this.renderDeviceTabsBlock()}
+            {this.renderLayoutTabsBlock()}
             {this.renderLayoutsBlock()}
             {this.renderWidgetsBlock()}
           </div>

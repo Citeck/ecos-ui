@@ -74,7 +74,8 @@
   }
 
   &__section {
-    padding: 5px;
+    border-top: 2px solid $color-gray-4;
+    padding-top: 20px;
   }
 
   &__spec {
@@ -180,9 +181,7 @@
 
       &_modal {
         &.ecos-tab_draggable {
-          border-width: 1px;
-          border-color: $color-gray-6;
-          border-style: solid;
+          border: 1px solid $color-gray-6;
         }
       }
     }
@@ -201,7 +200,7 @@
   }
 
   &__container {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     &-title {
       @extend %title-block--1;

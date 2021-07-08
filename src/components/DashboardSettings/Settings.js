@@ -85,7 +85,8 @@ const Labels = {
   DIALOG_CONFIRM_TITLE: 'dashboard-settings.confirm-changes',
   DIALOG_BOARD_EXISTS: 'dashboard-settings.already-exists',
   DIALOG_BTN_CANCEL: 'dashboard-settings.cancel',
-  DIALOG_BTN_REPLACE: 'dashboard-settings.replace'
+  DIALOG_BTN_REPLACE: 'dashboard-settings.replace',
+  DEVICE_TITLE: 'dashboard-settings.device.title'
 };
 
 class Settings extends Component {
@@ -445,15 +446,18 @@ class Settings extends Component {
     };
 
     return (
-      <Tabs
-        hasHover
-        className="ecos-dashboard-settings__device-tabs"
-        classNameTab="ecos-dashboard-settings__device-tabs-item"
-        items={DeviceTabs.map(item => ({ ...item, label: t(item.label) }))}
-        onClick={toggleTab}
-        activeTabKey={activeDeviceTabId}
-        keyField="key"
-      />
+      <>
+        <h5 className="ecos-dashboard-settings__container-title">{t(Labels.DEVICE_TITLE)}</h5>
+        <Tabs
+          hasHover
+          className="ecos-dashboard-settings__device-tabs"
+          classNameTab="ecos-dashboard-settings__device-tabs-item"
+          items={DeviceTabs.map(item => ({ ...item, label: t(item.label) }))}
+          onClick={toggleTab}
+          activeTabKey={activeDeviceTabId}
+          keyField="key"
+        />
+      </>
     );
   }
 

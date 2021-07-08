@@ -181,7 +181,6 @@ class SetTabs extends React.Component {
 
     return (
       <>
-        <h5 className="ecos-dashboard-settings__container-title">{t(Labels.TITLE)}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">{t(Labels.DESC)}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {this.renderArrowTabs()}
