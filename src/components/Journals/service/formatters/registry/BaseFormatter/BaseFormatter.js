@@ -2,6 +2,9 @@ import CellType from '../../CellType';
 
 import './BaseFormatter.scss';
 
+/**
+ * Formatter should be stateless for performance reasons.
+ */
 class BaseFormatter {
   static TYPE = '';
 
