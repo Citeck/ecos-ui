@@ -7,7 +7,7 @@ import journalsApi from './journalsServiceApi';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
-import { COMPUTED_ATT_PREFIX, COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from './util';
+import { COMPUTED_ATT_PREFIX, COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders } from './util';
 import { DEFAULT_TYPE } from './constants';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
@@ -88,10 +88,33 @@ class JournalsService {
     legacyConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(legacyConfig);
     legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
 
-    legacyConfig.columns = await this.resolveColumns(legacyConfig.columns);
+    let columns = this.__replaceConfigPlaceholders(legacyConfig.columns, legacyConfig.configData.configComputed);
+
+    legacyConfig.columns = await this.resolveColumns(columns);
     legacyConfig.modelVersion = 1;
 
     return legacyConfig;
+  }
+
+  __replaceConfigPlaceholders(columns, computed) {
+    return columns.map(column => {
+      ['newFormatter', 'newEditor', 'formatter', 'editor'].forEach(prop => {
+        const config = _.get(column, `${prop}.config`);
+        if (_.size(config) > 0) {
+          _.set(
+            column,
+            `${prop}.config`,
+            replacePlaceholders(config, computed, key => {
+              if (key.indexOf('$computed.') !== 0) {
+                return null;
+              }
+              return key.replace('$computed.', '');
+            })
+          );
+        }
+      });
+      return column;
+    });
   }
 
   // This conversion needed for backward compatibility with other code in UI.

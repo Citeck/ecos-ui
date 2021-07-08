@@ -63,5 +63,46 @@ describe('Journal util', () => {
     );
 
     expect(result).toEqual({ array: params.valueArr });
+
+    // test with unknown key
+
+    result = Util.replacePlaceholders(
+      {
+        unknown: '${unknown}'
+      },
+      params
+    );
+
+    expect(result).toEqual({ unknown: '${unknown}' });
+
+    // test with preproc key
+
+    result = Util.replacePlaceholders(
+      {
+        key: '${prefix-valueStr}',
+        withoutPrefix: '${valueNum}',
+        deep: {
+          deep: {
+            arr: ['${prefix-valueStr}']
+          }
+        },
+        multiKeys: '${valueNum}${prefix-valueStr}${valueNum}${prefix-valueStr}'
+      },
+      params,
+      key => {
+        if (key.indexOf('prefix-') === 0) {
+          return key.replace('prefix-', '');
+        } else {
+          return null;
+        }
+      }
+    );
+
+    expect(result).toEqual({
+      key: params.valueStr,
+      withoutPrefix: '${valueNum}',
+      deep: { deep: { arr: [params.valueStr] } },
+      multiKeys: `\${valueNum}${params.valueStr}\${valueNum}${params.valueStr}`
+    });
   });
 });
