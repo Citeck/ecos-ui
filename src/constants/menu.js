@@ -26,7 +26,8 @@ export const MenuTypesView = [
 
 export const CreateMenuTypes = {
   Custom: {
-    LINK: 'link'
+    LINK: 'link',
+    FORM: 'open-form'
   }
 };
 
