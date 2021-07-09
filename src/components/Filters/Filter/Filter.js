@@ -44,10 +44,16 @@ export default class Filter extends Component {
     };
   }
 
+  componentDidMount() {
+    console.warn('componentDidMount');
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     const prevValue = get(prevProps, 'filter.predicate.val', '');
     const currentValue = get(this.props, 'filter.predicate.val', '');
     const { value, hasDataEntry } = this.state;
+
+    console.warn('componentDidUpdate');
 
     if (!prevProps.needUpdate && this.props.needUpdate && value !== currentValue) {
       this.setState({ value: currentValue });
@@ -63,6 +69,8 @@ export default class Filter extends Component {
   }
 
   componentWillUnmount() {
+    console.warn('componentWillUnmount');
+
     this.handleChangeValue.cancel();
   }
 

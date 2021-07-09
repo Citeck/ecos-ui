@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
-import { t, trigger } from '../../../helpers/util';
+import { getId, t, trigger } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select, Well } from '../../common/form';
 import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
@@ -13,7 +13,7 @@ import { Filter, FiltersCondition } from '../';
 
 import './FiltersGroup.scss';
 
-const ListItem = ({ cssItemClasses, provided, item }) => {
+const ListItem = ({ cssItemClasses, provided, item, children }) => {
   return (
     <li
       className={cssItemClasses}
@@ -22,12 +22,14 @@ const ListItem = ({ cssItemClasses, provided, item }) => {
       {...provided.dragHandleProps}
       style={{ ...provided.draggableProps.style }}
     >
-      {item}
+      {item || children}
     </li>
   );
 };
 
 export default class FiltersGroup extends Component {
+  #filters = new Map();
+
   constructor(props) {
     super(props);
     this.portal = this.createDraggableContainer();
@@ -36,6 +38,44 @@ export default class FiltersGroup extends Component {
   get cloneFilters() {
     return cloneDeep(this.props.group.filters);
   }
+
+  getFilters = (filters, params) => {
+    return filters.map((filter, idx) => {
+      const { sourceId, metaRecord, needUpdate, groupConditions } = params;
+      const key = JSON.stringify([filter, params]);
+      let cachedFilter = this.#filters.get(key);
+
+      if (!cachedFilter) {
+        console.warn('NEW => ', idx);
+        cachedFilter = (
+          <Filter
+            key={getId()}
+            index={idx}
+            filter={filter}
+            sourceId={sourceId}
+            metaRecord={metaRecord}
+            needUpdate={needUpdate}
+            onChangeValue={this.onChangeFilterValue}
+            onChangePredicate={this.onChangeFilterPredicate}
+            onDelete={this.deleteFilter}
+          >
+            {idx > 0 && (
+              <FiltersCondition
+                index={idx}
+                cross
+                onClick={this.changeFilterCondition}
+                condition={filter.getCondition()}
+                conditions={groupConditions}
+              />
+            )}
+          </Filter>
+        );
+        this.#filters.set(key, cachedFilter);
+      }
+
+      return cachedFilter;
+    });
+  };
 
   onChangeFilterValue = ({ val, index }) => {
     const groupIndex = this.props.index;
@@ -101,12 +141,12 @@ export default class FiltersGroup extends Component {
     this.removeDraggableContainer();
   }
 
-  render() {
-    const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty, needUpdate } = this.props;
-    const groupConditions = ParserPredicate.getGroupConditions();
-    const droppableId = `${droppableIdPrefix}${index}`;
+  renderFilter = React.memo(props => {
+    const { idx, filter, sourceId, metaRecord, needUpdate, groupConditions } = props;
 
-    const dndFilters = group.filters.map((filter, idx) => (
+    console.warn({ props });
+
+    return (
       <Filter
         key={idx}
         index={idx}
@@ -128,7 +168,38 @@ export default class FiltersGroup extends Component {
           />
         )}
       </Filter>
-    ));
+    );
+  });
+
+  render() {
+    const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty, needUpdate } = this.props;
+    const groupConditions = ParserPredicate.getGroupConditions();
+    const droppableId = `${droppableIdPrefix}${index}`;
+    // const dndFilters = this.getFilters(group.filters, { sourceId, metaRecord, needUpdate, groupConditions });
+
+    // const dndFilters = group.filters.map((filter, idx) => (
+    //   <Filter
+    //     key={idx}
+    //     index={idx}
+    //     filter={filter}
+    //     sourceId={sourceId}
+    //     metaRecord={metaRecord}
+    //     needUpdate={needUpdate}
+    //     onChangeValue={this.onChangeFilterValue}
+    //     onChangePredicate={this.onChangeFilterPredicate}
+    //     onDelete={this.deleteFilter}
+    //   >
+    //     {idx > 0 && (
+    //       <FiltersCondition
+    //         index={idx}
+    //         cross
+    //         onClick={this.changeFilterCondition}
+    //         condition={filter.getCondition()}
+    //         conditions={groupConditions}
+    //       />
+    //     )}
+    //   </Filter>
+    // ));
 
     return (
       <Well className={classNames('ecos-well_full ecos-well_border ecos-well_radius_6 ecos-filters-group', className)}>
@@ -180,7 +251,7 @@ export default class FiltersGroup extends Component {
         <Droppable droppableId={droppableId}>
           {provided => (
             <ul className="ecos-filters-group__droppable" {...provided.droppableProps} ref={provided.innerRef}>
-              {dndFilters.map((item, index) => {
+              {group.filters.map((item, index) => {
                 const draggableId = `${droppableId}_${index}`;
 
                 return (
@@ -193,20 +264,41 @@ export default class FiltersGroup extends Component {
                               'ecos-filters-group__item_draggable': snapshot.isDragging
                             })}
                             provided={provided}
-                            item={item}
-                          />,
+                            // item={item}
+                          >
+                            <this.renderFilter
+                              idx={index}
+                              filter={item}
+                              sourceId={sourceId}
+                              metaRecord={metaRecord}
+                              needUpdate={needUpdate}
+                              groupConditions={groupConditions}
+                            />
+                          </ListItem>,
                           this.portal
                         )
                       ) : (
-                        <ListItem provided={provided} item={item} />
+                        <ListItem
+                          provided={provided}
+                          // item={item}
+                        >
+                          <this.renderFilter
+                            idx={index}
+                            filter={item}
+                            sourceId={sourceId}
+                            metaRecord={metaRecord}
+                            needUpdate={needUpdate}
+                            groupConditions={groupConditions}
+                          />
+                        </ListItem>
                       );
                     }}
                   </Draggable>
                 );
               })}
-              <div className={classNames({ 'ecos-filters-group__empty': !dndFilters.length })}>
+              <div className={classNames({ 'ecos-filters-group__empty': !group.filters.length })}>
                 {provided.placeholder}
-                {!dndFilters.length && textEmpty}
+                {!group.filters.length && textEmpty}
               </div>
             </ul>
           )}

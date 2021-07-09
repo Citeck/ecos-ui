@@ -43,6 +43,7 @@ import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
+import SettingsModal from './SettingsModal';
 import { JournalsGroupActionsTools } from './JournalsTools';
 import DocLibBreadcrumbs from './DocLib/DocLibBreadcrumbs';
 import DocLibSettingsBar from './DocLib/DocLibSettingsBar';
@@ -51,6 +52,7 @@ import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 
 import './Journals.scss';
+import { selectSettingsFilters } from '../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -70,7 +72,9 @@ const mapStateToProps = (state, props) => {
     urlParams: newState.url,
     _url: window.location.href,
     isDocLibEnabled: selectIsDocLibEnabled(state, props.stateId),
-    docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId)
+    docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId),
+
+    settingsFiltersData: selectSettingsFilters(state, props.stateId)
   };
 };
 
@@ -525,7 +529,7 @@ class Journals extends React.Component {
 
   renderSettings = () => {
     if (this.displayElements.settings) {
-      const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
+      const { settingsFiltersData, stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
       const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
       const visibleColumns = columns.filter(c => c.visible);
@@ -536,40 +540,63 @@ class Journals extends React.Component {
 
       return (
         <>
-          <EcosModal
-            title={t('journals.action.setting-dialog-msg')}
-            isOpen={settingsVisible}
-            hideModal={() => this.toggleSettings(true)}
-            isBigHeader
-            className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
-          >
-            <Well className="ecos-journal__settings">
-              <EcosModalHeight>
-                {height => (
-                  <Scrollbars style={{ height }}>
-                    <JournalsFilters
-                      stateId={stateId}
-                      columns={visibleColumns}
-                      sourceId={sourceId}
-                      metaRecord={get(meta, 'metaRecord')}
-                      needUpdate={isReset}
-                    />
-                    <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
-                    <JournalsGrouping stateId={stateId} columns={visibleColumns} />
-                  </Scrollbars>
-                )}
-              </EcosModalHeight>
+          {/*<EcosModal*/}
+          {/*  title={t('journals.action.setting-dialog-msg')}*/}
+          {/*  isOpen={settingsVisible}*/}
+          {/*  hideModal={() => this.toggleSettings(true)}*/}
+          {/*  isBigHeader*/}
+          {/*  className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}*/}
+          {/*>*/}
+          {/*  <Well className="ecos-journal__settings">*/}
+          {/*    <EcosModalHeight>*/}
+          {/*      {height => (*/}
+          {/*        <Scrollbars style={{ height }}>*/}
+          {/*          <JournalsFilters*/}
+          {/*            stateId={stateId}*/}
+          {/*            columns={visibleColumns}*/}
+          {/*            sourceId={sourceId}*/}
+          {/*            metaRecord={get(meta, 'metaRecord')}*/}
+          {/*            needUpdate={isReset}*/}
+          {/*          />*/}
+          {/*          <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />*/}
+          {/*          <JournalsGrouping stateId={stateId} columns={visibleColumns} />*/}
+          {/*        </Scrollbars>*/}
+          {/*      )}*/}
+          {/*    </EcosModalHeight>*/}
 
-              <JournalsSettingsFooter
-                parentClass="ecos-journal__settings"
-                stateId={stateId}
-                journalId={journalId}
-                onApply={this.applySettings}
-                onCreate={this.toggleSettings}
-                onReset={this.resetSettings}
-              />
-            </Well>
-          </EcosModal>
+          {/*    <JournalsSettingsFooter*/}
+          {/*      parentClass="ecos-journal__settings"*/}
+          {/*      stateId={stateId}*/}
+          {/*      journalId={journalId}*/}
+          {/*      onApply={this.applySettings}*/}
+          {/*      onCreate={this.toggleSettings}*/}
+          {/*      onReset={this.resetSettings}*/}
+          {/*    />*/}
+          {/*  </Well>*/}
+          {/*</EcosModal>*/}
+
+          <SettingsModal
+            filtersData={settingsFiltersData}
+            meta={meta}
+            columns={visibleColumns}
+            stateId={stateId}
+            sourceId={sourceId}
+            isReset={isReset}
+            journalConfig={journalConfig}
+            grid={grid}
+            selectedRecords={selectedRecords}
+            reloadGrid={reloadGrid}
+            isDocLibEnabled={isDocLibEnabled}
+            isOpen={settingsVisible}
+            settingsVisible={settingsVisible}
+            createIsLoading={createIsLoading}
+            journalId={journalId}
+            onClose={() => this.toggleSettings(true)}
+            onApply={this.applySettings}
+            onCreate={this.toggleSettings}
+            onReset={this.resetSettings}
+          />
+
           <JournalsSettingsBar
             grid={grid}
             journalConfig={journalConfig}

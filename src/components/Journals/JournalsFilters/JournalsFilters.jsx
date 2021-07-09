@@ -8,22 +8,23 @@ import { t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsFilters.scss';
+import { selectFilterGroup } from '../../../selectors/journals';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
-
-  return {
-    predicate: newState.predicate
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    setPredicate: predicate => dispatch(setPredicate(w(predicate)))
-  };
-};
+// const mapStateToProps = (state, props) => {
+//   const newState = state.journals[props.stateId] || {};
+//
+//   return {
+//     predicate: newState.predicate,
+//   };
+// };
+//
+// const mapDispatchToProps = (dispatch, props) => {
+//   const w = wrapArgs(props.stateId);
+//
+//   return {
+//     setPredicate: predicate => dispatch(setPredicate(w(predicate)))
+//   };
+// };
 
 class JournalsFilters extends Component {
   onChangeFilters = predicate => {
@@ -43,13 +44,16 @@ class JournalsFilters extends Component {
           needUpdate={needUpdate}
           className="ecos-journals-filters"
           onChange={this.onChangeFilters}
+          groups={selectFilterGroup(predicate, columns)}
         />
       </PanelBar>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsFilters);
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(JournalsFilters);
+
+export default JournalsFilters;

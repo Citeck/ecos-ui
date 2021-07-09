@@ -7,6 +7,7 @@ import { defaultState, emptyJournalConfig } from '../reducers/journals';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import cloneDeep from 'lodash/cloneDeep';
+import { ParserPredicate } from '../components/Filters/predicates';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -117,5 +118,23 @@ export const selectDashletConfigJournalId = createSelector(
     }
 
     return !props.customJournalMode || !props.customJournal ? props.journalId : props.customJournal;
+  }
+);
+
+export const selectFilterGroup = createSelector(
+  (predicate, columns) => ({ predicate, columns }),
+  ({ predicate, columns }) => {
+    return ParserPredicate.parse(predicate, columns);
+  }
+);
+
+export const selectSettingsFilters = createSelector(
+  selectState,
+  ownProps => {
+    return {
+      predicate: ownProps.predicate,
+      columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
+      metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
+    };
   }
 );
