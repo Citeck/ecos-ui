@@ -14,6 +14,7 @@ import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import {
+  applyJournalSetting,
   execRecordsAction,
   getJournalsData,
   onJournalSettingsSelect,
@@ -21,6 +22,7 @@ import {
   restoreJournalSettingData,
   runSearch,
   setGrid,
+  setPredicate,
   setSelectAllRecords,
   setSelectedRecords,
   setUrl
@@ -52,7 +54,7 @@ import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 
 import './Journals.scss';
-import { selectSettingsFilters } from '../../selectors/journals';
+import { selectSettingsData, selectSettingsFilters } from '../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -74,7 +76,8 @@ const mapStateToProps = (state, props) => {
     isDocLibEnabled: selectIsDocLibEnabled(state, props.stateId),
     docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId),
 
-    settingsFiltersData: selectSettingsFilters(state, props.stateId)
+    settingsFiltersData: selectSettingsFilters(state, props.stateId),
+    settingsData: selectSettingsData(state, props.stateId)
   };
 };
 
@@ -91,7 +94,8 @@ const mapDispatchToProps = (dispatch, props) => {
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id)))
+    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
+    applySettings: settings => dispatch(applyJournalSetting(w(settings)))
   };
 };
 
@@ -331,14 +335,29 @@ class Journals extends React.Component {
     );
   };
 
-  applySettings = isChangedPredicates => {
-    if (isChangedPredicates) {
-      const { clearSearch } = this.props;
-      const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
+  // applySettings = (isChangedPredicates, predicate) => {
+  //   if (isChangedPredicates) {
+  //     const { clearSearch, setPredicate } = this.props;
+  //     const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
+  //
+  //     window.history.replaceState({ path: url }, '', url);
+  //     clearSearch();
+  //     setPredicate(predicate);
+  //   }
+  //
+  //   this.toggleSettings();
+  // };
 
-      window.history.replaceState({ path: url }, '', url);
-      clearSearch();
-    }
+  applySettings = (isChangedPredicates, settings) => {
+    this.props.applySettings({ settings });
+    // if (isChangedPredicates) {
+    //   const { clearSearch, setPredicate } = this.props;
+    //   const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
+    //
+    //   window.history.replaceState({ path: url }, '', url);
+    //   clearSearch();
+    //   setPredicate(predicate);
+    // }
 
     this.toggleSettings();
   };
@@ -529,7 +548,17 @@ class Journals extends React.Component {
 
   renderSettings = () => {
     if (this.displayElements.settings) {
-      const { settingsFiltersData, stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
+      const {
+        settingsFiltersData,
+        stateId,
+        journalConfig,
+        grid,
+        isMobile,
+        selectedRecords,
+        reloadGrid,
+        isDocLibEnabled,
+        settingsData
+      } = this.props;
       const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
       const visibleColumns = columns.filter(c => c.visible);
@@ -591,6 +620,7 @@ class Journals extends React.Component {
             settingsVisible={settingsVisible}
             createIsLoading={createIsLoading}
             journalId={journalId}
+            {...settingsData}
             onClose={() => this.toggleSettings(true)}
             onApply={this.applySettings}
             onCreate={this.toggleSettings}

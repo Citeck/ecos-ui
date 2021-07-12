@@ -11,6 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { NotificationManager } from 'react-notifications';
 
 import {
+  applyJournalSetting,
   checkConfig,
   createJournalSetting,
   deleteJournalSetting,
@@ -77,7 +78,7 @@ import { hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import { JournalUrlParams } from '../constants';
 import JournalsConverter from '../dto/journals';
-import { selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
+import { selectGridPaginationMaxItems, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { loadDocumentLibrarySettings } from './docLib';
 
@@ -832,6 +833,22 @@ function* sagaRenameJournalSetting({ api, logger, stateId, w }, action) {
   }
 }
 
+function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
+  try {
+    const { settings } = action.payload;
+    const { columns, groupBy, sortBy, predicate } = settings;
+    const predicates = predicate ? [predicate] : [];
+    const maxItems = yield select(selectGridPaginationMaxItems, stateId);
+    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
+
+    yield put(setJournalSetting(w(settings)));
+    yield put(setPredicate(w(predicate)));
+    yield put(reloadGrid(w({ columns, groupBy, sortBy, predicates, pagination, search: '' })));
+  } catch (e) {
+    logger.error('[journals sagaApplyJournalSetting saga error', e.message);
+  }
+}
+
 function* sagaInitPreview({ api, logger, stateId, w }, action) {
   try {
     const nodeRef = action.payload;
@@ -1016,6 +1033,7 @@ function* saga(ea) {
   yield takeEvery(createJournalSetting().type, wrapSaga, { ...ea, saga: sagaCreateJournalSetting });
   yield takeEvery(deleteJournalSetting().type, wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
   yield takeEvery(renameJournalSetting().type, wrapSaga, { ...ea, saga: sagaRenameJournalSetting });
+  yield takeEvery(applyJournalSetting().type, wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
 
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });

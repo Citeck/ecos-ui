@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import omit from 'lodash/omit';
+import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
@@ -46,6 +48,10 @@ export default class Filter extends Component {
 
   componentDidMount() {
     console.warn('componentDidMount');
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return !isEqual(omit(this.props, ['children']), omit(nextProps, ['children'])) || !isEqual(this.state, nextState);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -165,13 +171,26 @@ export default class Filter extends Component {
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      const ControlComponent = this._controls.get(key);
+      // const ControlComponent = this._controls.get(key);
 
-      if (ControlComponent) {
-        return this._controls.get(key);
-      }
+      // if (ControlComponent) {
+      //   return this._controls.get(key);
+      // }
 
-      const control = EditorService.getEditorControl({
+      // const control = EditorService.getEditorControl({
+      //   recordRef: metaRecord,
+      //   attribute: column.attribute,
+      //   editor: column.newEditor,
+      //   value,
+      //   scope: EditorScope.FILTER,
+      //   onUpdate: this.onChangeValue,
+      //   onKeyDown: this.onKeyDown,
+      //   controlProps: { predicate: omit(predicate, 'val') }
+      // });
+      //
+      // this._controls.set(key, control);
+
+      return EditorService.getEditorControl({
         recordRef: metaRecord,
         attribute: column.attribute,
         editor: column.newEditor,
@@ -181,10 +200,6 @@ export default class Filter extends Component {
         onKeyDown: this.onKeyDown,
         controlProps: { predicate: omit(predicate, 'val') }
       });
-
-      this._controls.set(key, control);
-
-      return control;
     }
 
     return null;

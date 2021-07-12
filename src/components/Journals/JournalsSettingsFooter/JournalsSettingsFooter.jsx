@@ -98,23 +98,36 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    const { setJournalSetting, reloadGrid, maxItems, originPredicate } = this.props;
-    const journalSetting = this.getSetting();
-    const { columns, groupBy, sortBy, predicate } = journalSetting;
-    const predicates = predicate ? [predicate] : [];
-    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
+    const {
+      onApply
+      // setJournalSetting, reloadGrid, maxItems, originPredicate
+    } = this.props;
+    // const journalSetting = this.getSetting();
+    // const { columns, groupBy, sortBy, predicate } = journalSetting;
+    // const predicates = predicate ? [predicate] : [];
+    // const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
-    setJournalSetting(journalSetting);
-    reloadGrid({ columns, groupBy, sortBy, predicates, pagination, search: '' });
+    if (typeof onApply === 'function') {
+      onApply();
+    }
 
-    trigger.call(this, 'onApply', !isEqual(predicates, originPredicate));
+    // setJournalSetting(journalSetting);
+    // reloadGrid({ columns, groupBy, sortBy, predicates, pagination, search: '' });
+
+    // trigger.call(this, 'onApply', !isEqual(predicates, originPredicate));
   };
 
   resetSettings = () => {
-    const { onReset, resetJournalSettingData, journalSetting } = this.props;
+    // const { onReset, resetJournalSettingData, journalSetting } = this.props;
+    //
+    // resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD] || '');
+    // onReset(cloneDeep(journalSetting));
 
-    resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD] || '');
-    onReset(cloneDeep(journalSetting));
+    const { onReset } = this.props;
+
+    if (typeof onReset === 'function') {
+      onReset();
+    }
   };
 
   getSetting = title => {

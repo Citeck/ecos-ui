@@ -42,6 +42,7 @@ export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTIN
 export const renameJournalSetting = createAction(prefix + 'RENAME_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
+export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
 
 export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setOriginGridSettings = createAction(prefix + 'SET_ORIGIN_GRID_SETTINGS');

@@ -11,14 +11,74 @@ import JournalsColumnsSetup from './JournalsColumnsSetup/JournalsColumnsSetup';
 import JournalsGrouping from './JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from './JournalsSettingsFooter/JournalsSettingsFooter';
 import EcosModal from '../common/EcosModal';
+import isEqual from 'lodash/isEqual';
 
 class SettingsModal extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      predicate: get(props, 'filtersData.predicate'),
+      needUpdate: false
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.isOpen && this.props.isOpen) {
+      this.setState({ predicate: get(this.props, 'filtersData.predicate') });
+    }
+  }
+
+  getSetting = title => {
+    const { journalSetting, grouping, columnsSetup } = this.props;
+    const { predicate } = this.state;
+
+    return {
+      ...journalSetting,
+      sortBy: columnsSetup.sortBy,
+      groupBy: grouping.groupBy,
+      columns: grouping.groupBy.length ? grouping.columns : columnsSetup.columns,
+      predicate,
+      title: title || journalSetting.title
+    };
+  };
+
   handleSetPredicate = predicate => {
+    this.setState({ predicate });
     console.warn('handleSetPredicate => ', predicate);
+  };
+
+  handleApply = () => {
+    const { filtersData, onApply } = this.props;
+    const { predicate } = this.state;
+
+    if (typeof onApply === 'function') {
+      onApply(!isEqual(predicate, get(filtersData, 'predicate')), this.getSetting());
+      // onApply(!isEqual(predicate, get(filtersData, 'predicate')), predicate, Array.isArray(predicate) ? predicate : [predicate]);
+    }
+  };
+
+  handleCreate = () => {};
+
+  handleReset = () => {
+    const { originSettings } = this.props;
+
+    this.setState(
+      {
+        predicate: get(originSettings, 'predicate'),
+        needUpdate: true
+      },
+      () => this.setState({ needUpdate: false })
+    );
   };
 
   render() {
     const { filtersData, columns, meta, stateId, sourceId, journalId, isOpen, isReset, onClose, onApply, onCreate, onReset } = this.props;
+    const { predicate, needUpdate } = this.state;
+
+    // if (!isOpen) {
+    //   return null;
+    // }
 
     return (
       <EcosModal
@@ -32,7 +92,12 @@ class SettingsModal extends Component {
           <EcosModalHeight>
             {height => (
               <Scrollbars style={{ height }}>
-                <JournalsFilters {...filtersData} needUpdate={isReset} setPredicate={this.handleSetPredicate} />
+                <JournalsFilters
+                  {...filtersData}
+                  predicate={predicate}
+                  needUpdate={isReset || needUpdate}
+                  setPredicate={this.handleSetPredicate}
+                />
                 <JournalsColumnsSetup stateId={stateId} columns={columns} />
                 <JournalsGrouping stateId={stateId} columns={columns} />
               </Scrollbars>
@@ -43,9 +108,9 @@ class SettingsModal extends Component {
             parentClass="ecos-journal__settings"
             stateId={stateId}
             journalId={journalId}
-            onApply={onApply}
-            onCreate={onCreate}
-            onReset={onReset}
+            onApply={this.handleApply}
+            onCreate={this.handleCreate}
+            onReset={this.handleReset}
           />
         </Well>
       </EcosModal>

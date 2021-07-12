@@ -144,8 +144,6 @@ export default class FiltersGroup extends Component {
   renderFilter = React.memo(props => {
     const { idx, filter, sourceId, metaRecord, needUpdate, groupConditions } = props;
 
-    console.warn({ props });
-
     return (
       <Filter
         key={idx}

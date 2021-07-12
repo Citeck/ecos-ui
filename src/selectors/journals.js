@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 
 import { defaultState, emptyJournalConfig } from '../reducers/journals';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
+import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import cloneDeep from 'lodash/cloneDeep';
 import { ParserPredicate } from '../components/Filters/predicates';
@@ -128,6 +128,21 @@ export const selectFilterGroup = createSelector(
   }
 );
 
+export const selectSettingsData = createSelector(
+  selectState,
+  ownProps => {
+    const settingsId = get(ownProps, 'url.journalSettingId');
+    const settings = get(ownProps, 'journalSettings', []).find(item => item[JOURNAL_SETTING_ID_FIELD] === settingsId);
+
+    return {
+      journalSetting: ownProps.journalSetting,
+      columnsSetup: ownProps.columnsSetup,
+      grouping: ownProps.grouping,
+      originSettings: get(settings, 'data')
+    };
+  }
+);
+
 export const selectSettingsFilters = createSelector(
   selectState,
   ownProps => {
@@ -136,5 +151,12 @@ export const selectSettingsFilters = createSelector(
       columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
       metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
     };
+  }
+);
+
+export const selectGridPaginationMaxItems = createSelector(
+  selectState,
+  ownProps => {
+    return get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems);
   }
 );

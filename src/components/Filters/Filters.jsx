@@ -73,18 +73,10 @@ class Filters extends Component {
     this.triggerChange(this.groups);
   };
 
-  triggerChange = debounce(groups => {
+  triggerChange = groups => {
     const predicate = ParserPredicate.reverse(groups);
-
     trigger.call(this, 'onChange', predicate);
-
-    console.warn('UPDATED');
-  }, 5000);
-
-  // triggerChange = groups => {
-  //   const predicate = ParserPredicate.reverse(groups);
-  //   trigger.call(this, 'onChange', predicate);
-  // };
+  };
 
   createGroup = (group, first, idx, sourceId, metaRecord) => {
     const { classNameGroup, textEmpty, columns, needUpdate } = this.props;
@@ -225,8 +217,6 @@ class Filters extends Component {
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
     this.groups = groups;
-
-    console.warn({ groups });
 
     return (
       <ErrorBoundary>

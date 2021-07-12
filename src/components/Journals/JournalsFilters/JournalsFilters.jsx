@@ -27,6 +27,10 @@ import { selectFilterGroup } from '../../../selectors/journals';
 // };
 
 class JournalsFilters extends Component {
+  componentWillUnmount() {
+    console.warn('componentWillUnmount => JournalsFilters');
+  }
+
   onChangeFilters = predicate => {
     this.props.setPredicate(predicate);
   };
