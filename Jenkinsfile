@@ -42,7 +42,7 @@ timestamps {
 
       stage('Assembling and publishing project artifacts') {
         withMaven(mavenLocalRepo: '/opt/jenkins/.m2/repository', tempBinDir: '') {
-          sh "yarn && CI=true yarn test && yarn build"
+          sh "yarn && yarn test --watchAll=false && yarn build"
 
           // build-info
           def buildData = buildTools.getBuildInfo(repoUrl, "${env.BRANCH_NAME}", project_version)
