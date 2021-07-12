@@ -1,6 +1,6 @@
 import { t } from '../../common/util';
-import { showModal, hideModal, leaveSiteRequest, joinSiteRequest, becomeSiteManagerRequest, requestSiteMembership } from '../actions';
-import { toggleUnavailableStatus } from '../../../helpers/handleControl';
+import { becomeSiteManagerRequest, hideModal, joinSiteRequest, leaveSiteRequest, requestSiteMembership, showModal } from '../actions';
+import newHandleControl from '../../../helpers/handleControl';
 
 const Alfresco = window.Alfresco || {};
 const Citeck = window.Citeck || {};
@@ -13,19 +13,6 @@ export default function handleControl(type, payload, dispatch) {
       }).then(() => {
         window.location.reload();
       });
-      break;
-
-    case 'ALF_SHOW_MODAL_MAKE_UNAVAILABLE':
-      return toggleUnavailableStatus(payload);
-
-    case 'ALF_NAVIGATE_TO_PAGE':
-      // TODO improve it
-      // if (payload.targetUrlType === 'FULL_PATH')
-      if (payload.target && payload.target === '_blank') {
-        window.open(payload.url, '_blank');
-      } else {
-        window.location.href = payload.url;
-      }
       break;
 
     case 'ALF_EDIT_SITE':
@@ -85,6 +72,10 @@ export default function handleControl(type, payload, dispatch) {
       break;
 
     default:
-      console.log('Unknown control type: ', type);
+      try {
+        return newHandleControl(type, payload, dispatch);
+      } catch (e) {
+        console.warn('Unknown control type: ', type);
+      }
   }
 }
