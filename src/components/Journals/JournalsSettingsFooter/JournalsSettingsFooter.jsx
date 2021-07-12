@@ -83,10 +83,11 @@ class JournalsSettingsFooter extends Component {
   };
 
   createSetting = () => {
-    if (this.settingName) {
-      this.props.createJournalSetting(this.props.journalId, this.getSetting(this.settingName));
+    const { onCreate } = this.props;
+
+    if (typeof onCreate === 'function' && this.settingName) {
+      onCreate(this.settingName);
       this.closeDialog();
-      trigger.call(this, 'onCreate');
     }
   };
 
@@ -98,31 +99,14 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    const {
-      onApply
-      // setJournalSetting, reloadGrid, maxItems, originPredicate
-    } = this.props;
-    // const journalSetting = this.getSetting();
-    // const { columns, groupBy, sortBy, predicate } = journalSetting;
-    // const predicates = predicate ? [predicate] : [];
-    // const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
+    const { onApply } = this.props;
 
     if (typeof onApply === 'function') {
       onApply();
     }
-
-    // setJournalSetting(journalSetting);
-    // reloadGrid({ columns, groupBy, sortBy, predicates, pagination, search: '' });
-
-    // trigger.call(this, 'onApply', !isEqual(predicates, originPredicate));
   };
 
   resetSettings = () => {
-    // const { onReset, resetJournalSettingData, journalSetting } = this.props;
-    //
-    // resetJournalSettingData(journalSetting[JOURNAL_SETTING_ID_FIELD] || '');
-    // onReset(cloneDeep(journalSetting));
-
     const { onReset } = this.props;
 
     if (typeof onReset === 'function') {

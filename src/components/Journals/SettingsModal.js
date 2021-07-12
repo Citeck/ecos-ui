@@ -54,11 +54,16 @@ class SettingsModal extends Component {
 
     if (typeof onApply === 'function') {
       onApply(!isEqual(predicate, get(filtersData, 'predicate')), this.getSetting());
-      // onApply(!isEqual(predicate, get(filtersData, 'predicate')), predicate, Array.isArray(predicate) ? predicate : [predicate]);
     }
   };
 
-  handleCreate = () => {};
+  handleCreate = settingsName => {
+    const { onCreate } = this.props;
+
+    if (typeof onCreate === 'function') {
+      onCreate(this.getSetting(settingsName));
+    }
+  };
 
   handleReset = () => {
     const { originSettings } = this.props;
@@ -75,10 +80,6 @@ class SettingsModal extends Component {
   render() {
     const { filtersData, columns, meta, stateId, sourceId, journalId, isOpen, isReset, onClose, onApply, onCreate, onReset } = this.props;
     const { predicate, needUpdate } = this.state;
-
-    // if (!isOpen) {
-    //   return null;
-    // }
 
     return (
       <EcosModal

@@ -15,6 +15,7 @@ import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import {
   applyJournalSetting,
+  createJournalSetting,
   execRecordsAction,
   getJournalsData,
   onJournalSettingsSelect,
@@ -95,7 +96,8 @@ const mapDispatchToProps = (dispatch, props) => {
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
-    applySettings: settings => dispatch(applyJournalSetting(w(settings)))
+    applySettings: settings => dispatch(applyJournalSetting(w(settings))),
+    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings })))
   };
 };
 
@@ -333,6 +335,16 @@ class Journals extends React.Component {
     this.setState({ savedSetting: { ...savedSetting, predicate, columns: get(journalConfig, 'columns', []) }, isReset: true }, () =>
       this.setState({ isReset: false })
     );
+  };
+
+  createSettings = settings => {
+    const {
+      journalConfig: { id },
+      createJournalSetting
+    } = this.props;
+
+    createJournalSetting(id, settings);
+    this.toggleSettings();
   };
 
   // applySettings = (isChangedPredicates, predicate) => {
@@ -623,7 +635,7 @@ class Journals extends React.Component {
             {...settingsData}
             onClose={() => this.toggleSettings(true)}
             onApply={this.applySettings}
-            onCreate={this.toggleSettings}
+            onCreate={this.createSettings}
             onReset={this.resetSettings}
           />
 
