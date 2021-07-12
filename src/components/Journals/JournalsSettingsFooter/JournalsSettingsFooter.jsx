@@ -92,10 +92,11 @@ class JournalsSettingsFooter extends Component {
   };
 
   saveSetting = () => {
-    const journalSetting = this.getSetting();
+    const { onSave } = this.props;
 
-    this.props.saveJournalSetting(journalSetting[[JOURNAL_SETTING_ID_FIELD]], this.getSetting());
-    trigger.call(this, 'onSave');
+    if (typeof onSave === 'function') {
+      onSave();
+    }
   };
 
   applySetting = () => {

@@ -12,6 +12,7 @@ import JournalsGrouping from './JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from './JournalsSettingsFooter/JournalsSettingsFooter';
 import EcosModal from '../common/EcosModal';
 import isEqual from 'lodash/isEqual';
+import { JOURNAL_SETTING_ID_FIELD } from './constants';
 
 class SettingsModal extends Component {
   constructor(props) {
@@ -65,6 +66,16 @@ class SettingsModal extends Component {
     }
   };
 
+  handleSave = () => {
+    const { onSave } = this.props;
+
+    if (typeof onSave === 'function') {
+      const journalSetting = this.getSetting();
+
+      onSave(journalSetting[[JOURNAL_SETTING_ID_FIELD]], journalSetting);
+    }
+  };
+
   handleReset = () => {
     const { originSettings } = this.props;
 
@@ -112,6 +123,7 @@ class SettingsModal extends Component {
             onApply={this.handleApply}
             onCreate={this.handleCreate}
             onReset={this.handleReset}
+            onSave={this.handleSave}
           />
         </Well>
       </EcosModal>
