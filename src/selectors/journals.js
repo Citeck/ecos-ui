@@ -153,10 +153,28 @@ export const selectSettingsFilters = createSelector(
 
 export const selectSettingsColumns = createSelector(
   selectState,
-  ownProps => {
+  selectJournalSettings,
+  (ownProps, settings) => {
+    // const id = get(settings, [JOURNAL_SETTING_ID_FIELD], '');
+    // const setting = ownProps.journalSettings.find(item => item[JOURNAL_SETTING_ID_FIELD] === id);
+
+    // const key = JournalsApi.getLsJournalSettingId(get(ownProps, 'journalConfig.id'))
+    // console.warn({ settings, journalSettings: ownProps.journalSettings, setting, id });
     return cloneDeep({
       columns: get(ownProps, 'columnsSetup.columns'),
+      // columns: get(setting, 'data.columns'),
+      // sortBy: get(setting, 'data.sortBy'),
       sortBy: get(ownProps, 'columnsSetup.sortBy')
+    });
+  }
+);
+
+export const selectSettingsGrouping = createSelector(
+  selectState,
+  ownProps => {
+    return cloneDeep({
+      columns: get(ownProps, 'grouping.columns'),
+      groupBy: get(ownProps, 'grouping.groupBy')
     });
   }
 );

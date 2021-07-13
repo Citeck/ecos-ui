@@ -23,6 +23,7 @@ class SettingsModal extends Component {
       predicate: get(props, 'filtersData.predicate', []),
       columns: get(props, 'columnsData.columns', []),
       sortBy: get(props, 'columnsData.sortBy', []),
+      grouping: get(props, 'groupingData', {}),
       needUpdate: false
     };
   }
@@ -32,14 +33,15 @@ class SettingsModal extends Component {
       this.setState({
         predicate: get(this.props, 'filtersData.predicate', []),
         columns: get(this.props, 'columnsData.columns', []),
-        sortBy: get(this.props, 'columnsData.sortBy', [])
+        sortBy: get(this.props, 'columnsData.sortBy', []),
+        grouping: get(this.props, 'groupingData', {})
       });
     }
   }
 
   getSetting = title => {
-    const { journalSetting, grouping, columnsSetup } = this.props;
-    const { predicate, columns, sortBy } = this.state;
+    const { journalSetting /*grouping, columnsSetup*/ } = this.props;
+    const { predicate, columns, sortBy, grouping } = this.state;
 
     console.warn(grouping.groupBy.length);
 
@@ -47,9 +49,10 @@ class SettingsModal extends Component {
       ...journalSetting,
       sortBy,
       groupBy: grouping.groupBy,
-      columns, //  TODO: check this with groupBy => : grouping.groupBy.length ? columns : columnsSetup.columns,
+      columns, // : grouping.groupBy.length ? grouping.columns : columns, //  TODO: check this with groupBy => : grouping.groupBy.length ? columns : columnsSetup.columns,
       predicate,
-      title: title || journalSetting.title
+      title: title || journalSetting.title,
+      grouping
     };
   };
 
@@ -60,19 +63,11 @@ class SettingsModal extends Component {
   };
 
   handleChangeColumns = ({ columns, sortBy }) => {
-    const newState = {};
+    this.setState({ columns, sortBy });
+  };
 
-    if (!isEqual(columns, this.state.columns)) {
-      newState.columns = columns;
-    }
-
-    if (!isEqual(sortBy, this.state.sortBy)) {
-      newState.sortBy = sortBy;
-    }
-
-    if (!isEmpty(newState)) {
-      this.setState({ ...newState });
-    }
+  handleChangeGrouping = grouping => {
+    this.setState({ grouping });
   };
 
   handleApply = () => {
@@ -110,6 +105,7 @@ class SettingsModal extends Component {
         predicate: get(originGridSettings, 'predicate'),
         sortBy: get(originGridSettings, 'columnsSetup.sortBy'),
         columns: get(originGridSettings, 'columnsSetup.columns'),
+        grouping: get(originGridSettings, 'grouping'),
         needUpdate: true
       },
       () => this.setState({ needUpdate: false })
@@ -132,7 +128,7 @@ class SettingsModal extends Component {
       onReset,
       columnsData
     } = this.props;
-    const { predicate, needUpdate, columns, sortBy } = this.state;
+    const { predicate, needUpdate, columns, sortBy, grouping } = this.state;
 
     // if (!isOpen) {
     //   return null;
@@ -157,7 +153,12 @@ class SettingsModal extends Component {
                   setPredicate={this.handleSetPredicate}
                 />
                 <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />
-                <JournalsGrouping stateId={stateId} columns={propsColumns} />
+                <JournalsGrouping
+                  // stateId={stateId}
+                  grouping={grouping}
+                  allowedColumns={columns}
+                  onChange={this.handleChangeGrouping}
+                />
               </Scrollbars>
             )}
           </EcosModalHeight>

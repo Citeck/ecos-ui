@@ -9,38 +9,41 @@ import { wrapArgs } from '../../../helpers/redux';
 
 import './JournalsGrouping.scss';
 
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+// const mapStateToProps = (state, props) => {
+//   const newState = state.journals[props.stateId] || {};
+//
+//   return {
+//     grouping: newState.grouping,
+//     columnsSetup: newState.columnsSetup
+//   };
+// };
 
-  return {
-    grouping: newState.grouping,
-    columnsSetup: newState.columnsSetup
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    setGrouping: grouping => dispatch(setGrouping(w(grouping)))
-  };
-};
+// const mapDispatchToProps = (dispatch, props) => {
+//   const w = wrapArgs(props.stateId);
+//
+//   return {
+//     setGrouping: grouping => dispatch(setGrouping(w(grouping)))
+//   };
+// };
 
 class JournalsGrouping extends Component {
-  onGrouping = grouping => {
-    this.props.setGrouping(grouping);
-  };
+  // onGrouping = grouping => {
+  //   this.props.setGrouping(grouping);
+  // };
 
   render() {
-    const { grouping, columnsSetup } = this.props;
+    const { grouping, columnsSetup, allowedColumns, onChange } = this.props;
 
     let groupingList = [];
     let aggregation = [];
 
-    const columns = columnsSetup.columns.filter(c => c.default);
+    const columns = allowedColumns.filter(c => c.default);
+
+    // console.warn({ columns });
 
     grouping.columns.forEach(groupingColumn => {
       const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];
+
       match ? groupingList.push(groupingColumn) : aggregation.push(groupingColumn);
     });
 
@@ -60,14 +63,16 @@ class JournalsGrouping extends Component {
           valueField={'attribute'}
           titleField={'text'}
           showAggregation={grouping.groupBy.length}
-          onGrouping={this.onGrouping}
+          onGrouping={onChange}
         />
       </PanelBar>
     );
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsGrouping);
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(JournalsGrouping);
+
+export default JournalsGrouping;

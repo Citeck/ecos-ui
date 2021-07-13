@@ -56,7 +56,7 @@ import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 
 import './Journals.scss';
-import { selectSettingsColumns, selectSettingsData, selectSettingsFilters } from '../../selectors/journals';
+import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -80,6 +80,7 @@ const mapStateToProps = (state, props) => {
 
     settingsFiltersData: selectSettingsFilters(state, props.stateId),
     settingsColumnsData: selectSettingsColumns(state, props.stateId),
+    settingsGroupingData: selectSettingsGrouping(state, props.stateId),
     settingsData: selectSettingsData(state, props.stateId)
   };
 };
@@ -579,7 +580,8 @@ class Journals extends React.Component {
         reloadGrid,
         isDocLibEnabled,
         settingsData,
-        settingsColumnsData
+        settingsColumnsData,
+        settingsGroupingData
       } = this.props;
       const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
@@ -629,6 +631,7 @@ class Journals extends React.Component {
           <SettingsModal
             filtersData={settingsFiltersData}
             columnsData={settingsColumnsData}
+            groupingData={settingsGroupingData}
             meta={meta}
             columns={visibleColumns}
             stateId={stateId}
