@@ -367,6 +367,8 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
     yield put(setColumnsSetup(w(columnsSetup)));
     yield put(setGrouping(w(grouping)));
 
+    console.warn('sagaInitJournalSettingData');
+
     yield put(
       setOriginGridSettings(
         w({
@@ -843,6 +845,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
 
     yield put(setJournalSetting(w(settings)));
     yield put(setPredicate(w(predicate)));
+    yield put(setColumnsSetup(w({ columns, sortBy })));
     yield put(reloadGrid(w({ columns, groupBy, sortBy, predicates, pagination, search: '' })));
   } catch (e) {
     logger.error('[journals sagaApplyJournalSetting saga error', e.message);

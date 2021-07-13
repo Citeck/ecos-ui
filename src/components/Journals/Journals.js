@@ -56,7 +56,7 @@ import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 
 import './Journals.scss';
-import { selectSettingsData, selectSettingsFilters } from '../../selectors/journals';
+import { selectSettingsColumns, selectSettingsData, selectSettingsFilters } from '../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -79,6 +79,7 @@ const mapStateToProps = (state, props) => {
     docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId),
 
     settingsFiltersData: selectSettingsFilters(state, props.stateId),
+    settingsColumnsData: selectSettingsColumns(state, props.stateId),
     settingsData: selectSettingsData(state, props.stateId)
   };
 };
@@ -386,15 +387,15 @@ class Journals extends React.Component {
     const { gridPredicates, journalSetting } = this.props;
     const { savedSetting, settingsVisible, isReset } = this.state;
 
-    if (savedSetting && settingsVisible) {
-      const predicate = isReset ? get(this.props, 'predicate', {}) : get(savedSetting, 'predicate', {});
+    // if (savedSetting && settingsVisible) {
+    //   const predicate = isReset ? get(this.props, 'predicate', {}) : get(savedSetting, 'predicate', {});
+    //
+    //   this.props.restoreJournalSettingData({ ...savedSetting, predicate, isReset });
+    // }
 
-      this.props.restoreJournalSettingData({ ...savedSetting, predicate, isReset });
-    }
-
-    if (!savedSetting && settingsVisible && isCancel) {
-      this.props.restoreJournalSettingData({ ...journalSetting, predicate: get(gridPredicates, ['0'], {}) });
-    }
+    // if (!savedSetting && settingsVisible && isCancel) {
+    //   this.props.restoreJournalSettingData({ ...journalSetting, predicate: get(gridPredicates, ['0'], {}) });
+    // }
 
     this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
   };
@@ -577,7 +578,8 @@ class Journals extends React.Component {
         selectedRecords,
         reloadGrid,
         isDocLibEnabled,
-        settingsData
+        settingsData,
+        settingsColumnsData
       } = this.props;
       const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
       const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
@@ -626,6 +628,7 @@ class Journals extends React.Component {
 
           <SettingsModal
             filtersData={settingsFiltersData}
+            columnsData={settingsColumnsData}
             meta={meta}
             columns={visibleColumns}
             stateId={stateId}

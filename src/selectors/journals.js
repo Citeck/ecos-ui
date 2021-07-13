@@ -2,11 +2,11 @@ import { createSelector } from 'reselect';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { defaultState, emptyJournalConfig } from '../reducers/journals';
 import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
-import cloneDeep from 'lodash/cloneDeep';
 import { ParserPredicate } from '../components/Filters/predicates';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
@@ -131,26 +131,33 @@ export const selectFilterGroup = createSelector(
 export const selectSettingsData = createSelector(
   selectState,
   ownProps => {
-    const settingsId = get(ownProps, 'url.journalSettingId');
-    const settings = get(ownProps, 'journalSettings', []).find(item => item[JOURNAL_SETTING_ID_FIELD] === settingsId);
-
-    return {
+    return cloneDeep({
       journalSetting: ownProps.journalSetting,
       columnsSetup: ownProps.columnsSetup,
       grouping: ownProps.grouping,
-      originSettings: get(settings, 'data')
-    };
+      originGridSettings: ownProps.originGridSettings
+    });
   }
 );
 
 export const selectSettingsFilters = createSelector(
   selectState,
   ownProps => {
-    return {
+    return cloneDeep({
       predicate: ownProps.predicate,
       columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
       metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
-    };
+    });
+  }
+);
+
+export const selectSettingsColumns = createSelector(
+  selectState,
+  ownProps => {
+    return cloneDeep({
+      columns: get(ownProps, 'columnsSetup.columns'),
+      sortBy: get(ownProps, 'columnsSetup.sortBy')
+    });
   }
 );
 
