@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
+import RecordActions from '../../../../../Records/actions/recordActions';
 import { t } from '../../../../../../helpers/export/util';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
@@ -25,18 +26,21 @@ const InlineActions = () => {
 
   const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
   const shouldShowPreviewButton = isBoolean(get(displayElements, 'preview')) ? displayElements.preview : false;
-  const shouldShowEditButton = isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true;
-  const shouldShowCloneButton = isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false;
-  const shouldShowDeleteButton = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
+  const shouldShowEditButton = !disabled && !viewOnly && (isBoolean(get(displayElements, 'edit')) ? displayElements.edit : true);
+  const shouldShowCloneButton =
+    !disabled && !viewOnly && !isEmpty(createVariants) && (isBoolean(get(displayElements, 'clone')) ? displayElements.clone : false);
+  const shouldShowDeleteButton = !disabled && !viewOnly && (isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true);
 
   const renderButtons = useMemo(() => {
-    let renderButtons;
+    const keyRender = act => `${act.id}-${act.key}`;
     let actions = [];
 
     if (isUsedJournalActions) {
       actions = get(journalActions, ['forRecord', inlineToolsOffsets.rowId], []);
-      console.log(actions);
+      actions = actions.map(act => ({ ...act, onClick: () => RecordActions.execForRecord(inlineToolsOffsets.rowId, act) }));
     } else {
+      //todo: should use action service for inline buttons
+
       shouldShowViewButton &&
         actions.push({
           key: 'view',
@@ -53,28 +57,21 @@ const InlineActions = () => {
           onClick: () => showPreview(inlineToolsOffsets.rowId)
         });
 
-      !disabled &&
-        !viewOnly &&
-        shouldShowEditButton &&
+      shouldShowEditButton &&
         actions.push({
           key: 'edit',
           icon: 'icon-edit',
           onClick: () => showEditForm(inlineToolsOffsets.rowId)
         });
 
-      !disabled &&
-        !viewOnly &&
-        !isEmpty(createVariants) &&
-        shouldShowCloneButton &&
+      shouldShowCloneButton &&
         actions.push({
           key: 'clone',
           icon: 'icon-copy',
           onClick: () => runCloneRecord(inlineToolsOffsets.rowId)
         });
 
-      !disabled &&
-        !viewOnly &&
-        shouldShowDeleteButton &&
+      shouldShowDeleteButton &&
         actions.push({
           key: 'delete',
           icon: 'icon-delete',
@@ -85,9 +82,7 @@ const InlineActions = () => {
         });
     }
 
-    renderButtons = actions.map(action => renderAction(action, action.key, !!action.name));
-
-    return renderButtons;
+    return actions.map(action => renderAction(action, keyRender(action), !!action.name));
   }, [displayElements, journalActions, inlineToolsOffsets]);
 
   return <InlineToolsDisconnected selectedRecords={selectedRows} {...inlineToolsOffsets} tools={renderButtons} />;
