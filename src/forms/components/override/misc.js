@@ -1,7 +1,4 @@
 import debounce from 'lodash/debounce';
-import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
-import { checkTrigger } from 'formiojs/utils/utils';
 
 const TRIGGER_CHANGE_DEBOUNCE_WAIT = 500;
 
