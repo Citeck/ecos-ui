@@ -31,13 +31,9 @@ function* fetchCreateCaseWidget({ api, logger }) {
     const createMenuView = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
     const workflowVars = yield call(api.menu.getCreateWorkflowVariants); //todo: temp solution to get create variants from menu config
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
-    const customVars = yield call(api.menu.getCustomCreateVariants);
+    const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 
-    const _config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
-    const _customs = MenuConverter.getCreateCustomItems(customVars);
-    const { config, customs } = MenuConverter.mergeCustomsAndConfig(_customs, _config);
-
-    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, config)));
+    yield put(setCreateCaseWidgetItems([].concat(workflowVars, config)));
     yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);

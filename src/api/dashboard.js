@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, isExistValue, t } from '../helpers/util';
+import { getCurrentUserName, isExistIndex, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';
@@ -72,9 +72,15 @@ export class DashboardApi {
 
       types.push(...typeParents);
 
+      const repeatedI = types.findIndex(t => t.id === type);
+
+      if (isExistIndex(repeatedI)) {
+        types.splice(repeatedI, 1);
+      }
+
       if (type !== EmodelTypes.BASE) {
         const baseI = types.findIndex(t => t.id === EmodelTypes.BASE);
-        isExistValue(baseI) && types.splice(baseI, 1);
+        isExistIndex(baseI) && types.splice(baseI, 1);
       }
     } else {
       disp = await Helper.getDisp(EmodelTypes.BASE);
@@ -128,53 +134,43 @@ export class DashboardApi {
     return Records.queryOne({ sourceId: SourcesId.DASHBOARD, query }, { ...defaultAttr });
   };
 
-  getDashboardByRecordRef = recordRef => {
-    const _getDashboardByUserAndType = this.getDashboardByUserAndType;
+  getDashboardByRecordRef = async recordRef => {
+    let recType;
 
-    function* getDashboard() {
-      let recType;
-
-      if (recordRef) {
-        recType = yield Records.get(recordRef.replace('alfresco/@', '')).load('_etype?id', true);
-      }
-
-      if (!recType) {
-        recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
-      }
-
-      const user = getCurrentUserName();
-      const key = yield Records.queryOne(
-        {
-          sourceId: SourcesId.DASHBOARD,
-          query: {
-            typeRef: recType,
-            authority: user,
-            recordRef
-          }
-        },
-        'typeRef?id'
-      );
-      let type = recType;
-
-      if (!key) {
-        type = recordRef;
-      }
-
-      const cacheKey = DashboardService.getCacheKey({ type, user });
-      const result = cache.get(cacheKey);
-
-      if (result) {
-        return result;
-      }
-
-      const dashboard = yield _getDashboardByUserAndType(user, recType, recordRef);
-
-      cache.set(cacheKey, dashboard);
-
-      return dashboard;
+    if (recordRef) {
+      recType = await Records.get(recordRef.replace('alfresco/@', '')).load('_etype?id', true);
     }
 
-    return getDashboard();
+    if (!recType) {
+      recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
+    }
+
+    const user = getCurrentUserName();
+    const key = await Records.queryOne(
+      {
+        sourceId: SourcesId.DASHBOARD,
+        query: {
+          typeRef: recType,
+          authority: user,
+          recordRef
+        }
+      },
+      'typeRef?id'
+    );
+
+    const type = !key ? recordRef : recType;
+    const cacheKey = DashboardService.getCacheKey({ type, user });
+    const result = cache.get(cacheKey);
+
+    if (result) {
+      return result;
+    }
+
+    const dashboard = await this.getDashboardByUserAndType(user, recType, recordRef);
+
+    cache.set(cacheKey, dashboard);
+
+    return dashboard;
   };
 
   getTitleInfo = async recordRef => {

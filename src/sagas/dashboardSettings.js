@@ -1,6 +1,5 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
-import queryString from 'query-string';
 import get from 'lodash/get';
 
 import {
@@ -27,7 +26,6 @@ import { getSearchParams } from '../helpers/urls';
 import { getRefExceptAlfrescoPrefix, getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
-import PageService from '../services/PageService';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
 import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
@@ -211,14 +209,8 @@ function* doResetConfigToDefault({ api, logger }, { payload }) {
     const isRemoved = yield call(api.dashboard.removeDashboard, { id: identification.id, recordRef });
 
     if (isRemoved) {
-      const result = yield call(api.dashboard.getDashboardByRecordRef, recordRef);
-      const dashboardId = result.id;
-
-      PageService.changeUrlLink(
-        queryString.stringifyUrl({ url: `${window.location.pathname}${window.location.search}`, query: { dashboardId } }),
-        { updateUrl: true }
-      );
-
+      yield put(getDashboardConfig({ recordRef, key }));
+      yield put(setRequestResultDashboard({ request: { status: RequestStatuses.RESET }, key }));
       NotificationManager.success(t('dashboard-settings.success.reset-config'), t('success'));
     }
   } catch (e) {

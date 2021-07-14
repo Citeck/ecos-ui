@@ -3,7 +3,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, URL } from '../constants';
 import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import DialogManager from '../components/common/dialogs/Manager';
 import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
@@ -11,7 +10,7 @@ import RecordActions from '../components/Records/actions/recordActions';
 import { CommonApi } from '../api/common';
 import PageService from '../services/PageService';
 import { NEW_VERSION_PREFIX } from './export/urls';
-import { extractLabel, getCurrentUserName, t } from './util';
+import { getCurrentUserName, t } from './util';
 import formDefinitionUserStatus from './menu/formDefinitionUserStatus';
 import ecosFetch from './ecosFetch';
 
@@ -24,9 +23,7 @@ export const HandleControlTypes = {
   ALF_BECOME_SITE_MANAGER: 'ALF_BECOME_SITE_MANAGER',
   ALF_REQUEST_SITE_MEMBERSHIP: 'ALF_REQUEST_SITE_MEMBERSHIP',
   ECOS_EDIT_PASSWORD: 'ECOS_EDIT_PASSWORD',
-  ECOS_EDIT_AVAILABILITY: 'ECOS_EDIT_AVAILABILITY',
-  ECOS_CREATE_VARIANT: 'ECOS_CREATE_VARIANT',
-  ECOS_OPEN_FORM: 'ECOS_OPEN_FORM'
+  ECOS_EDIT_AVAILABILITY: 'ECOS_EDIT_AVAILABILITY'
 };
 
 const HCT = HandleControlTypes;
@@ -275,15 +272,6 @@ export default function handleControl(type, payload) {
 
     case HCT.ECOS_EDIT_PASSWORD:
       RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
-      break;
-
-    case HCT.ECOS_OPEN_FORM:
-      EcosFormUtils.eform(payload.recordRef, {
-        params: { formId: payload.formRef, options: payload.formOptions },
-        title: extractLabel(payload.formTitle),
-        class: 'ecos-modal_width-lg',
-        isBigHeader: true
-      });
       break;
 
     default:

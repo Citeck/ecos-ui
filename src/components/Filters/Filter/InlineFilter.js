@@ -81,6 +81,16 @@ class InlineFilter extends Filter {
     this.setState({ value });
   };
 
+  onKeyDown = e => {
+    if (e.key !== 'Enter') {
+      return;
+    }
+
+    this.setState({ value: e.target.value }, () => {
+      this.onConfirmAction();
+    });
+  };
+
   renderConfirmAction() {
     const btnClasses = 'ecos-btn_i ecos-btn_transparent ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height';
 
