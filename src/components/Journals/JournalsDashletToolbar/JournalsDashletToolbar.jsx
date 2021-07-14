@@ -103,9 +103,6 @@ class JournalsDashletToolbar extends Component {
       stateId,
       journalConfig,
       selectedJournals,
-      journalConfig: {
-        meta: { nodeRef = '' }
-      },
       journalSettings,
       measurer,
       isSmall,
@@ -114,6 +111,7 @@ class JournalsDashletToolbar extends Component {
       selectedRecords,
       lsJournalId
     } = this.props;
+    const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
 
     return (
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
