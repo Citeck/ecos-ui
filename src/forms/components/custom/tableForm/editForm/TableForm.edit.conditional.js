@@ -45,26 +45,26 @@ export default [
         rows: 5,
         editor: 'ace',
         label: 'Component Actions',
-        input: true,
-        conditional: {
-          json: {
-            and: [{ '!=': [{ var: 'data.isUsedJournalActions' }, true] }]
-          }
-        }
+        input: true
       },
       {
         type: 'htmlelement',
         tag: 'div',
-        content: `<p>
-Enter custom javascript code. You must assign the <strong>value</strong> variable.
+        content: `
+<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.
 The <strong>value</strong> variable can contain next boolean properties:
 <strong>create</strong>, <strong>clone</strong>, <strong>view</strong>, <strong>preview</strong>, <strong>edit</strong>, <strong>delete</strong>.
 Default <em>preview</em>, <em>clone</em> are <em>false</em>.
-For example, value = {view: false, edit: true, delete: false, clone: false, preview: false};
-</p>`,
+For example, <strong>value = {view: false, edit: true, delete: false, clone: false, preview: false};</strong></p>`
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        customClass: 'alert alert-secondary',
+        content: '<div>You use Journal Actions. Except <strong>create</strong> other will be disable</div>',
         conditional: {
           json: {
-            and: [{ '!=': [{ var: 'data.isUsedJournalActions' }, true] }]
+            and: [{ '==': [{ var: 'data.isUsedJournalActions' }, true] }]
           }
         }
       }
