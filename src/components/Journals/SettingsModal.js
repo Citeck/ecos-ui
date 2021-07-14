@@ -40,16 +40,14 @@ class SettingsModal extends Component {
   }
 
   getSetting = title => {
-    const { journalSetting /*grouping, columnsSetup*/ } = this.props;
+    const { journalSetting } = this.props;
     const { predicate, columns, sortBy, grouping } = this.state;
-
-    console.warn(grouping.groupBy.length);
 
     return {
       ...journalSetting,
       sortBy,
       groupBy: grouping.groupBy,
-      columns, // : grouping.groupBy.length ? grouping.columns : columns, //  TODO: check this with groupBy => : grouping.groupBy.length ? columns : columnsSetup.columns,
+      columns,
       predicate,
       title: title || journalSetting.title,
       grouping
@@ -113,26 +111,8 @@ class SettingsModal extends Component {
   };
 
   render() {
-    const {
-      filtersData,
-      columns: propsColumns,
-      meta,
-      stateId,
-      sourceId,
-      journalId,
-      isOpen,
-      isReset,
-      onClose,
-      onApply,
-      onCreate,
-      onReset,
-      columnsData
-    } = this.props;
+    const { filtersData, journalSetting, isOpen, isReset, onClose } = this.props;
     const { predicate, needUpdate, columns, sortBy, grouping } = this.state;
-
-    // if (!isOpen) {
-    //   return null;
-    // }
 
     return (
       <EcosModal
@@ -153,20 +133,14 @@ class SettingsModal extends Component {
                   setPredicate={this.handleSetPredicate}
                 />
                 <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />
-                <JournalsGrouping
-                  // stateId={stateId}
-                  grouping={grouping}
-                  allowedColumns={columns}
-                  onChange={this.handleChangeGrouping}
-                />
+                <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
               </Scrollbars>
             )}
           </EcosModalHeight>
 
           <JournalsSettingsFooter
             parentClass="ecos-journal__settings"
-            stateId={stateId}
-            journalId={journalId}
+            canSave={!isEmpty(journalSetting[JOURNAL_SETTING_ID_FIELD])}
             onApply={this.handleApply}
             onCreate={this.handleCreate}
             onReset={this.handleReset}

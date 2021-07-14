@@ -46,7 +46,6 @@ export default class FiltersGroup extends Component {
       let cachedFilter = this.#filters.get(key);
 
       if (!cachedFilter) {
-        console.warn('NEW => ', idx);
         cachedFilter = (
           <Filter
             key={getId()}

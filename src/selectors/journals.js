@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { defaultState, emptyJournalConfig } from '../reducers/journals';
-import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_ID_FIELD } from '../components/Journals/constants';
+import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
 
@@ -153,17 +153,9 @@ export const selectSettingsFilters = createSelector(
 
 export const selectSettingsColumns = createSelector(
   selectState,
-  selectJournalSettings,
-  (ownProps, settings) => {
-    // const id = get(settings, [JOURNAL_SETTING_ID_FIELD], '');
-    // const setting = ownProps.journalSettings.find(item => item[JOURNAL_SETTING_ID_FIELD] === id);
-
-    // const key = JournalsApi.getLsJournalSettingId(get(ownProps, 'journalConfig.id'))
-    // console.warn({ settings, journalSettings: ownProps.journalSettings, setting, id });
+  ownProps => {
     return cloneDeep({
       columns: get(ownProps, 'columnsSetup.columns'),
-      // columns: get(setting, 'data.columns'),
-      // sortBy: get(setting, 'data.sortBy'),
       sortBy: get(ownProps, 'columnsSetup.sortBy')
     });
   }

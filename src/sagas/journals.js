@@ -280,7 +280,8 @@ function* getJournalConfig(api, journalId, w) {
 
 function* getColumns({ stateId }) {
   const { journalConfig = {}, journalSetting = {}, grouping = {} } = yield select(selectJournalData, stateId);
-  const columns = yield JournalsService.resolveColumns(get(grouping, 'columns', journalSetting.columns));
+  const groupingColumns = get(grouping, 'columns');
+  const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) ? journalSetting.columns : groupingColumns);
 
   if (columns.length) {
     return columns.map(setting => {
@@ -353,9 +354,8 @@ function* getJournalSharedSettings(api, id) {
 function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const { journalSetting, predicate } = action.payload;
-    const { journalConfig } = yield select(selectJournalData, stateId);
     const columnsSetup = {
-      columns: journalSetting.columns, // (journalSetting.groupBy.length ? journalConfig.columns : journalSetting.columns).map(c => ({ ...c })),
+      columns: journalSetting.columns,
       sortBy: journalSetting.sortBy.map(s => ({ ...s }))
     };
     const grouping = {

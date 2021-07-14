@@ -1,51 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import connect from 'react-redux/es/connect/connect';
-import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
-import {
-  createJournalSetting,
-  reloadGrid,
-  resetJournalSettingData,
-  saveJournalSetting,
-  setJournalSetting
-} from '../../../actions/journals';
-import { closest, t, trigger } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
-import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { closest, t } from '../../../helpers/util';
 
 import './JournalsSettingsFooter.scss';
-
-const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
-
-  return {
-    predicate: newState.predicate,
-    originPredicate: get(newState, 'grid.predicates'),
-    columnsSetup: newState.columnsSetup,
-    grouping: newState.grouping,
-    journalSetting: newState.journalSetting,
-    maxItems: get(newState, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems)
-  };
-};
-
-const mapDispatchToProps = (dispatch, props) => {
-  const w = wrapArgs(props.stateId);
-
-  return {
-    reloadGrid: options => dispatch(reloadGrid(w(options))),
-    setJournalSetting: setting => dispatch(setJournalSetting(w(setting))),
-    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
-    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    resetJournalSettingData: journalSettingId => dispatch(resetJournalSettingData(w(journalSettingId)))
-  };
-};
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
@@ -74,6 +36,7 @@ class JournalsSettingsFooter extends Component {
   onKeydown = e => {
     if (e.key === 'Enter') {
       const inputRef = this.settingTitleInputRef || {};
+
       if (e.target === inputRef.current) {
         this.createSetting();
       } else if (closest(e.target, this.props.parentClass)) {
@@ -157,7 +120,7 @@ class JournalsSettingsFooter extends Component {
   };
 
   render() {
-    const { journalSetting } = this.props;
+    const { canSave } = this.props;
 
     return (
       <>
@@ -168,7 +131,7 @@ class JournalsSettingsFooter extends Component {
               <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
                 {t('journals.action.create-template')}
               </Btn>
-              {journalSetting[JOURNAL_SETTING_ID_FIELD] && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
+              {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
             </>,
 
             <>
@@ -208,8 +171,7 @@ class JournalsSettingsFooter extends Component {
 
 JournalsSettingsFooter.propTypes = {
   parentClass: PropTypes.string,
-  stateId: PropTypes.string,
-  journalId: PropTypes.string,
+  canSave: PropTypes.bool,
 
   onApply: PropTypes.func,
   onCreate: PropTypes.func,
@@ -217,7 +179,4 @@ JournalsSettingsFooter.propTypes = {
   onSave: PropTypes.func
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(JournalsSettingsFooter);
+export default JournalsSettingsFooter;

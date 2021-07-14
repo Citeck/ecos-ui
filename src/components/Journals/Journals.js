@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
@@ -10,9 +9,6 @@ import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import merge from 'lodash/merge';
 
-import EcosModal from '../common/EcosModal/EcosModal';
-import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
-import { Well } from '../common/form';
 import {
   applyJournalSetting,
   createJournalSetting,
@@ -24,7 +20,6 @@ import {
   runSearch,
   saveJournalSetting,
   setGrid,
-  setPredicate,
   setSelectAllRecords,
   setSelectedRecords,
   setUrl
@@ -39,10 +34,6 @@ import FormManager from '../EcosForm/FormManager';
 
 import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
-import JournalsGrouping from './JournalsGrouping';
-import JournalsFilters from './JournalsFilters';
-import JournalsColumnsSetup from './JournalsColumnsSetup';
-import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
@@ -54,9 +45,8 @@ import DocLibSettingsBar from './DocLib/DocLibSettingsBar';
 import DocLibPagination from './DocLib/DocLibPagination';
 import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
-
-import './Journals.scss';
 import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
+import './Journals.scss';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -357,46 +347,21 @@ class Journals extends React.Component {
     this.toggleSettings();
   };
 
-  // applySettings = (isChangedPredicates, predicate) => {
-  //   if (isChangedPredicates) {
-  //     const { clearSearch, setPredicate } = this.props;
-  //     const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
-  //
-  //     window.history.replaceState({ path: url }, '', url);
-  //     clearSearch();
-  //     setPredicate(predicate);
-  //   }
-  //
-  //   this.toggleSettings();
-  // };
-
   applySettings = (isChangedPredicates, settings) => {
     this.props.applySettings({ settings });
-    // if (isChangedPredicates) {
-    //   const { clearSearch, setPredicate } = this.props;
-    //   const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
-    //
-    //   window.history.replaceState({ path: url }, '', url);
-    //   clearSearch();
-    //   setPredicate(predicate);
-    // }
+    if (isChangedPredicates) {
+      const { clearSearch } = this.props;
+      const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
+
+      window.history.replaceState({ path: url }, '', url);
+      clearSearch();
+    }
 
     this.toggleSettings();
   };
 
-  toggleSettings = (isCancel = false) => {
-    const { gridPredicates, journalSetting } = this.props;
-    const { savedSetting, settingsVisible, isReset } = this.state;
-
-    // if (savedSetting && settingsVisible) {
-    //   const predicate = isReset ? get(this.props, 'predicate', {}) : get(savedSetting, 'predicate', {});
-    //
-    //   this.props.restoreJournalSettingData({ ...savedSetting, predicate, isReset });
-    // }
-
-    // if (!savedSetting && settingsVisible && isCancel) {
-    //   this.props.restoreJournalSettingData({ ...journalSetting, predicate: get(gridPredicates, ['0'], {}) });
-    // }
+  toggleSettings = () => {
+    const { settingsVisible } = this.state;
 
     this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
   };
@@ -593,41 +558,6 @@ class Journals extends React.Component {
 
       return (
         <>
-          {/*<EcosModal*/}
-          {/*  title={t('journals.action.setting-dialog-msg')}*/}
-          {/*  isOpen={settingsVisible}*/}
-          {/*  hideModal={() => this.toggleSettings(true)}*/}
-          {/*  isBigHeader*/}
-          {/*  className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}*/}
-          {/*>*/}
-          {/*  <Well className="ecos-journal__settings">*/}
-          {/*    <EcosModalHeight>*/}
-          {/*      {height => (*/}
-          {/*        <Scrollbars style={{ height }}>*/}
-          {/*          <JournalsFilters*/}
-          {/*            stateId={stateId}*/}
-          {/*            columns={visibleColumns}*/}
-          {/*            sourceId={sourceId}*/}
-          {/*            metaRecord={get(meta, 'metaRecord')}*/}
-          {/*            needUpdate={isReset}*/}
-          {/*          />*/}
-          {/*          <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />*/}
-          {/*          <JournalsGrouping stateId={stateId} columns={visibleColumns} />*/}
-          {/*        </Scrollbars>*/}
-          {/*      )}*/}
-          {/*    </EcosModalHeight>*/}
-
-          {/*    <JournalsSettingsFooter*/}
-          {/*      parentClass="ecos-journal__settings"*/}
-          {/*      stateId={stateId}*/}
-          {/*      journalId={journalId}*/}
-          {/*      onApply={this.applySettings}*/}
-          {/*      onCreate={this.toggleSettings}*/}
-          {/*      onReset={this.resetSettings}*/}
-          {/*    />*/}
-          {/*  </Well>*/}
-          {/*</EcosModal>*/}
-
           <SettingsModal
             filtersData={settingsFiltersData}
             columnsData={settingsColumnsData}
@@ -647,7 +577,7 @@ class Journals extends React.Component {
             createIsLoading={createIsLoading}
             journalId={journalId}
             {...settingsData}
-            onClose={() => this.toggleSettings(true)}
+            onClose={this.toggleSettings}
             onApply={this.applySettings}
             onCreate={this.createSettings}
             onReset={this.resetSettings}

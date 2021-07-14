@@ -1,36 +1,13 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 
 import Filters from '../../Filters/Filters';
 import PanelBar from '../../common/PanelBar/PanelBar';
-import { setPredicate } from '../../../actions/journals';
 import { t } from '../../../helpers/util';
-import { wrapArgs } from '../../../helpers/redux';
-
-import './JournalsFilters.scss';
 import { selectFilterGroup } from '../../../selectors/journals';
 
-// const mapStateToProps = (state, props) => {
-//   const newState = state.journals[props.stateId] || {};
-//
-//   return {
-//     predicate: newState.predicate,
-//   };
-// };
-//
-// const mapDispatchToProps = (dispatch, props) => {
-//   const w = wrapArgs(props.stateId);
-//
-//   return {
-//     setPredicate: predicate => dispatch(setPredicate(w(predicate)))
-//   };
-// };
+import './JournalsFilters.scss';
 
 class JournalsFilters extends Component {
-  componentWillUnmount() {
-    console.warn('componentWillUnmount => JournalsFilters');
-  }
-
   onChangeFilters = predicate => {
     this.props.setPredicate(predicate);
   };
@@ -54,10 +31,5 @@ class JournalsFilters extends Component {
     );
   }
 }
-
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(JournalsFilters);
 
 export default JournalsFilters;
