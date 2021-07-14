@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import omit from 'lodash/omit';
-import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/util';
@@ -190,18 +189,7 @@ export default class Filter extends Component {
 
       this._controls.set(key, control);
 
-      return ControlComponent;
-
-      return EditorService.getEditorControl({
-        recordRef: metaRecord,
-        attribute: column.attribute,
-        editor: column.newEditor,
-        value,
-        scope: EditorScope.FILTER,
-        onUpdate: this.onChangeValue,
-        onKeyDown: this.onKeyDown,
-        controlProps: { predicate: omit(predicate, 'val') }
-      });
+      return control;
     }
 
     return null;

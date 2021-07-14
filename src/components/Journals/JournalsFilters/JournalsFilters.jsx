@@ -9,14 +9,18 @@ import './JournalsFilters.scss';
 
 class JournalsFilters extends Component {
   onChangeFilters = predicate => {
-    this.props.setPredicate(predicate);
+    const { setPredicate } = this.props;
+
+    if (typeof setPredicate === 'function') {
+      setPredicate(predicate);
+    }
   };
 
   render() {
     const { predicate, columns, sourceId, metaRecord, needUpdate } = this.props;
 
     return (
-      <PanelBar header={t('filter-list.panel-header')} css={{ headerClassName: 'panel-bar__header_upper' }}>
+      <PanelBar header={t('filter-list.panel-header')} css={{ headerClassName: 'panel-bar__header_upper' }} open>
         <Filters
           predicate={predicate}
           columns={columns}
