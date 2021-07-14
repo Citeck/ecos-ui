@@ -1,7 +1,8 @@
-import React, { Fragment } from 'react';
-import DefaultGqlFormatter from './DefaultGqlFormatter';
+import React from 'react';
+
 import Records from '../../../../../components/Records';
 import { DropdownEditor } from '../../editors';
+import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class SelectFormatter extends DefaultGqlFormatter {
   static getQueryString(attribute) {
@@ -15,6 +16,16 @@ export default class SelectFormatter extends DefaultGqlFormatter {
   state = {
     displayValue: ''
   };
+
+  _alive = true;
+
+  componentDidMount() {
+    this.calculateDisplayValue().then(displayValue => this && this._alive && this.setState({ displayValue }));
+  }
+
+  componentWillUnmount() {
+    this._alive = false;
+  }
 
   calculateDisplayValue() {
     const { cell, row, params = {} } = this.props;
@@ -55,13 +66,7 @@ export default class SelectFormatter extends DefaultGqlFormatter {
     return cell.str || '';
   }
 
-  componentDidMount() {
-    this.calculateDisplayValue().then(displayValue => {
-      this.setState({ displayValue });
-    });
-  }
-
   render() {
-    return <Fragment>{this.state.displayValue}</Fragment>;
+    return <>{this.state.displayValue}</>;
   }
 }
