@@ -46,7 +46,7 @@ export default [
         editor: 'ace',
         label: 'Component Actions',
         input: true,
-        description: "Standard available actions in component. If you use journal actions, every, except 'create', will be disable.</div>"
+        description: "Standard available actions in component. If you use journal actions, every, except 'create', will be disable."
       },
       {
         type: 'htmlelement',
