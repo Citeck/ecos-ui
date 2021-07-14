@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isNull from 'lodash/isNull';
@@ -7,28 +8,11 @@ import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
-import { Col, Container, Row } from 'reactstrap';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
+import { Container } from 'reactstrap';
 
-import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
-import { DndUtils } from '../../components/Drag-n-Drop';
-import pageTabList from '../../services/pageTabs/PageTabList';
-import { arrayCompare, deepClone, t } from '../../helpers/util';
-import { RequestStatuses, URL } from '../../constants';
-import { clearCache } from '../../components/ReactRouterCache';
-import DashboardService from '../../services/dashboard';
-import { removeItems } from '../../helpers/ls';
-import UserLocalSettingsService from '../../services/userLocalSettings';
-
-import { Layouts, LayoutTypes } from '../../constants/layout';
-import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
-import DashboardSettingsConverter from '../../dto/dashboardSettings';
-import PageService from '../../services/PageService';
-import { Loader, Tabs } from '../../components/common';
-import { Btn } from '../../components/common/btns';
-import { TunableDialog } from '../../components/common/dialogs';
-import { selectStateByKey } from '../../selectors/dashboardSettings';
 import {
-  getAwayFromPage,
   getCheckUpdatedDashboardConfig,
   initDashboardSettings,
   resetConfigToDefault,
@@ -36,6 +20,24 @@ import {
   saveDashboardConfig,
   setCheckUpdatedDashboardConfig
 } from '../../actions/dashboardSettings';
+import { getDashboardConfig as getDashboardConfigPage, resetAllDashboardsConfig } from '../../actions/dashboard';
+import { selectStateByKey } from '../../selectors/dashboardSettings';
+import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
+import { t } from '../../helpers/util';
+import { removeItems } from '../../helpers/ls';
+import { RequestStatuses } from '../../constants';
+import { Layouts, LayoutTypes } from '../../constants/layout';
+import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
+import DashboardSettingsConverter from '../../dto/dashboardSettings';
+import DashboardService from '../../services/dashboard';
+import PageTabList from '../../services/pageTabs/PageTabList';
+import UserLocalSettingsService from '../../services/userLocalSettings';
+import { DndUtils } from '../../components/Drag-n-Drop';
+import { Loader, Tabs } from '../../components/common';
+import { Btn } from '../../components/common/btns';
+import { TunableDialog } from '../../components/common/dialogs';
+import { clearCache } from '../ReactRouterCache';
+
 import SetBind from './parts/SetBind';
 import SetTabs from './parts/SetTabs';
 import SetLayouts from './parts/SetLayouts';
@@ -49,31 +51,6 @@ const findLayout = type => Layouts.find(layout => layout.type === type) || {};
 
 export const getStateId = props => get(getSearchParams(), SearchKeys.DASHBOARD_ID, props.tabId || 'base');
 
-export const mapStateToProps = (state, ownProps) => ({
-  isActive: ownProps.tabId ? pageTabList.isActiveTab(ownProps.tabId) : true,
-  userData: {
-    userName: get(state, 'user.userName'),
-    isAdmin: get(state, 'user.isAdmin', false)
-  },
-  isLoadingMenu: get(state, ['menu', 'isLoading']),
-  menuType: get(state, ['menu', 'type']),
-  ...selectStateByKey(state, getStateId(ownProps))
-});
-
-export const mapDispatchToProps = (dispatch, ownProps) => {
-  const key = getStateId(ownProps);
-
-  return {
-    initSettings: payload => dispatch(initDashboardSettings({ ...payload, key })),
-    checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig({ ...payload, key })),
-    saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
-    getAwayFromPage: () => dispatch(getAwayFromPage(key)),
-    setCheckUpdatedConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
-    resetConfig: () => dispatch(resetDashboardConfig(key)),
-    resetConfigToDefault: payload => dispatch(resetConfigToDefault({ ...payload, key }))
-  };
-};
-
 const Labels = {
   USER_TITLE: 'dashboard-settings.page-title',
   CARD_TITLE: 'dashboard-settings.card-settings',
@@ -84,7 +61,8 @@ const Labels = {
   DIALOG_CONFIRM_TITLE: 'dashboard-settings.confirm-changes',
   DIALOG_BOARD_EXISTS: 'dashboard-settings.already-exists',
   DIALOG_BTN_CANCEL: 'dashboard-settings.cancel',
-  DIALOG_BTN_REPLACE: 'dashboard-settings.replace'
+  DIALOG_BTN_REPLACE: 'dashboard-settings.replace',
+  DEVICE_TITLE: 'dashboard-settings.device.title'
 };
 
 class Settings extends Component {
@@ -103,7 +81,13 @@ class Settings extends Component {
     dashboardKeyItems: PropTypes.array,
     requestResult: PropTypes.object,
     isMobile: PropTypes.bool,
-    mode: PropTypes.oneOf(['modal', 'page'])
+    updateDashboard: PropTypes.bool,
+    modalRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+    dashboardId: PropTypes.string,
+    recordRef: PropTypes.string,
+    onSave: PropTypes.func,
+    onClose: PropTypes.func,
+    onSetDialogProps: PropTypes.func
   };
 
   static defaultProps = {
@@ -113,8 +97,7 @@ class Settings extends Component {
     mobileConfig: [],
     availableWidgets: [],
     dashboardKeyItems: [],
-    requestResult: {},
-    mode: 'page'
+    requestResult: {}
   };
 
   state = {
@@ -159,24 +142,24 @@ class Settings extends Component {
   }
 
   componentWillUnmount() {
-    this.props.resetConfig();
+    this.props.resetConfigState();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (nextProps.tabId && !pageTabList.isActiveTab(nextProps.tabId)) {
+    if (nextProps.tabId && !PageTabList.isActiveTab(nextProps.tabId)) {
       return false;
     }
 
     return true;
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps, nextContext) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
     let { config, mobileConfig, availableWidgets } = this.props;
     let state = {};
 
-    if (!pageTabList.isActiveTab(nextProps.tabId)) {
+    if (!PageTabList.isActiveTab(nextProps.tabId)) {
       return;
     }
 
@@ -199,8 +182,8 @@ class Settings extends Component {
     }
 
     if (
-      !arrayCompare(availableWidgets, nextProps.availableWidgets) ||
-      !arrayCompare(nextProps.availableWidgets, this.state.availableWidgets, 'name')
+      !isEqualWith(availableWidgets, nextProps.availableWidgets, isEqual) ||
+      !isEqualWith(nextProps.availableWidgets, this.state.availableWidgets, (a, b) => isEqual(a['name'], b['name']))
     ) {
       state.availableWidgets = DndUtils.setDndId(nextProps.availableWidgets);
     }
@@ -208,15 +191,30 @@ class Settings extends Component {
     this.setState({ ...state });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     this.checkRequestResult(prevProps);
+
+    const { onSetDialogProps, identification } = this.props;
+    const type = get(identification, 'type');
+
+    if (type !== get(prevProps, 'identification.type') && typeof onSetDialogProps === 'function') {
+      onSetDialogProps({ title: this.getTitleByType(type) });
+    }
   }
 
   fetchData(props = this.props) {
     const { initSettings } = props;
-    const { recordRef, dashboardId } = this.getPathInfo();
+    let { recordRef, dashboardId } = props;
 
-    if (!dashboardId || !pageTabList.isActiveTab(props.tabId)) {
+    if (isEmpty(recordRef)) {
+      recordRef = get(this.getPathInfo(), 'recordRef');
+    }
+
+    if (isEmpty(dashboardId)) {
+      dashboardId = get(this.getPathInfo(), 'dashboardId');
+    }
+
+    if (!dashboardId && !recordRef) {
       return;
     }
 
@@ -294,17 +292,40 @@ class Settings extends Component {
 
   checkRequestResult(prevProps) {
     const oldRStatus = get(prevProps, 'requestResult.status', null);
-    const newRStatus = get(this.props, 'requestResult.status', null);
     const oldSaveWay = get(prevProps, 'requestResult.saveWay', null);
     const checkResult = get(this.props, 'requestResult', {});
+    const newRStatus = checkResult.status;
     const newSaveWay = checkResult.saveWay;
 
-    if (newRStatus && oldRStatus !== newRStatus && newRStatus === RequestStatuses.SUCCESS) {
+    if (newRStatus && oldRStatus !== newRStatus) {
+      const { updateDashboard, getDashboardConfig, resetAllDashboardsConfig, onSave, identification } = this.props;
+      let { recordRef } = this.props;
+
       clearCache();
       this.clearLocalStorage();
-      this.closePage(this.props);
-    } else if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
-      this.acceptChanges(checkResult.dashboardId);
+
+      switch (newRStatus) {
+        case RequestStatuses.SUCCESS: {
+          if (isEmpty(recordRef)) {
+            recordRef = get(this.getPathInfo(), 'recordRef');
+          }
+
+          updateDashboard ? getDashboardConfig({ recordRef }) : resetAllDashboardsConfig(identification);
+          typeof onSave === 'function' && onSave();
+
+          return;
+        }
+        case RequestStatuses.RESET: {
+          getDashboardConfig({ recordRef });
+          return;
+        }
+        default:
+          return;
+      }
+    }
+
+    if (newSaveWay && oldSaveWay !== newSaveWay && newSaveWay !== DashboardService.SaveWays.CONFIRM) {
+      this.handleAcceptChanges(checkResult.dashboardId);
     }
   }
 
@@ -316,17 +337,6 @@ class Settings extends Component {
 
   getPathInfo() {
     return queryString.parse(decodeLink(this.state.urlParams));
-  }
-
-  getUrlToDashboard() {
-    const { recordRef } = this.getPathInfo();
-    const pathDashboardParams = {};
-
-    if (recordRef) {
-      pathDashboardParams.recordRef = recordRef;
-    }
-
-    return URL.DASHBOARD + (isEmpty(pathDashboardParams) ? '' : `?${queryString.stringify(pathDashboardParams)}`);
   }
 
   get selectedTypeLayout() {
@@ -363,14 +373,10 @@ class Settings extends Component {
     return DashboardSettingsConverter.getSelectedWidgetsFromDesktop(selectedWidgets, tabs);
   }
 
-  getPositionOffset = () => {
-    return { left: 0, top: 0 };
-  };
-
-  renderHeader() {
+  getTitleByType = type => {
     let title = '';
 
-    switch (get(this, 'props.identification.type', '')) {
+    switch (type) {
       case DashboardTypes.USER:
         title = t(Labels.USER_TITLE);
         break;
@@ -381,14 +387,31 @@ class Settings extends Component {
         title = t(Labels.DEFAULT_TITLE);
         break;
     }
-    return (
-      <Row>
-        <Col md={12}>
-          <div className="ecos-dashboard-settings__header">{title}</div>
-        </Col>
-      </Row>
-    );
-  }
+
+    return title;
+  };
+
+  getPositionOffset = () => {
+    const defaultOffset = { left: 0, top: 0 };
+    const modal = get(this, 'props.modalRef.current._dialog');
+
+    if (!modal) {
+      return defaultOffset;
+    }
+
+    const content = modal.querySelector('.modal-content');
+
+    if (!content) {
+      return defaultOffset;
+    }
+
+    const positions = content.getBoundingClientRect();
+
+    return {
+      left: -positions.left,
+      top: -positions.top
+    };
+  };
 
   renderSpecificationsBlock() {
     const { identification } = this.props;
@@ -461,7 +484,6 @@ class Settings extends Component {
       return null;
     }
 
-    const { mode } = this.props;
     const isMob = this.isSelectedMobileVer;
     const state = {};
 
@@ -509,30 +531,33 @@ class Settings extends Component {
     const currentTabs = isMob ? mobileTabs : tabs;
     const active = isMob ? mobileActiveLayoutTabId : activeLayoutTabId;
 
-    return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} mode={mode} />;
+    return <SetTabs tabs={currentTabs} activeTabKey={active} setData={setData} />;
   }
 
   renderLayoutsBlock() {
     const {
       identification: { type, key }
     } = this.props;
+    const typeByRecord = key && key.includes('workspace://SpacesStore/') ? key : null;
+
     const setData = layout => {
-      const { activeLayoutTabId, selectedWidgets, selectedLayout } = deepClone(this.state);
+      const { activeLayoutTabId, selectedWidgets, selectedLayout } = cloneDeep(this.state);
 
       selectedLayout[activeLayoutTabId] = layout.type;
       selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
 
       this.setState({ selectedWidgets, selectedLayout });
     };
-    const typeByRecord = key && key.includes('workspace://SpacesStore/') ? key : null;
 
     return (
-      <SetLayouts
-        dashboardType={type || typeByRecord}
-        activeLayout={this.activeData.layout}
-        setData={setData}
-        isMobile={this.isSelectedMobileVer}
-      />
+      <div className="ecos-dashboard-settings__container">
+        <SetLayouts
+          dashboardType={type || typeByRecord}
+          activeLayout={this.activeData.layout}
+          setData={setData}
+          isMobile={this.isSelectedMobileVer}
+        />
+      </div>
     );
   }
 
@@ -571,30 +596,39 @@ class Settings extends Component {
     };
 
     return (
-      <SetWidgets
-        availableWidgets={this.availableWidgets}
-        activeWidgets={this.activeData.widgets}
-        columns={this.selectedTypeLayout.columns}
-        setData={setData}
-        isMobile={isMob}
-        positionAdjustment={this.getPositionOffset}
-        modelAttributes={modelAttributes}
-      />
+      <div className="ecos-dashboard-settings__container">
+        <SetWidgets
+          availableWidgets={this.availableWidgets}
+          activeWidgets={this.activeData.widgets}
+          columns={this.selectedTypeLayout.columns}
+          setData={setData}
+          isMobile={isMob}
+          positionAdjustment={this.getPositionOffset}
+          modelAttributes={modelAttributes}
+        />
+      </div>
     );
   }
 
   handleCloseSettings = () => {
-    this.closePage();
+    const { onClose } = this.props;
+
+    if (typeof onClose === 'function') {
+      onClose();
+    }
   };
 
   handleCheckChanges = () => {
+    /**
+     * @todo rethink checking of changing / exist. Do easier: full check with confirms via saga & DialogManager
+     */
     const { checkUpdatedSettings } = this.props;
     const { selectedDashboardKey: dashboardKey, isForAllUsers } = this.state;
 
     checkUpdatedSettings({ isForAllUsers, dashboardKey });
   };
 
-  acceptChanges = checkResultId => {
+  handleAcceptChanges = checkResultId => {
     const { saveSettings, identification, userData } = this.props;
     const { recordRef } = this.getPathInfo();
 
@@ -621,13 +655,6 @@ class Settings extends Component {
         tabs: mobileTabs
       }
     });
-  };
-
-  closePage = () => {
-    const urlGoTo = this.getUrlToDashboard();
-
-    this.props.getAwayFromPage();
-    PageService.changeUrlLink(urlGoTo, { openNewTab: true, closeActiveTab: true });
   };
 
   renderButtons() {
@@ -690,21 +717,50 @@ class Settings extends Component {
 
   render() {
     return (
-      <Container className="ecos-dashboard-settings">
+      <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">
         {this.renderLoader()}
-        {this.renderHeader()}
+        {this.renderSpecificationsBlock()}
         {this.renderOwnershipBlock()}
-        {this.renderDeviceTabsBlock()}
-        {this.renderLayoutTabsBlock()}
-        <div className="ecos-dashboard-settings__container">
+        <div className="ecos-dashboard-settings__section">
+          {this.renderDeviceTabsBlock()}
+          <h5 className="ecos-dashboard-settings__container-title">{t(Labels.DEVICE_TITLE)}</h5>
+          {this.renderLayoutTabsBlock()}
           {this.renderLayoutsBlock()}
           {this.renderWidgetsBlock()}
-          {this.renderButtons()}
         </div>
+        {this.renderButtons()}
         {this.renderDialogs()}
       </Container>
     );
   }
 }
 
-export default Settings;
+export const mapStateToProps = (state, ownProps) => ({
+  userData: {
+    userName: get(state, 'user.userName'),
+    isAdmin: get(state, 'user.isAdmin', false)
+  },
+  isLoadingMenu: get(state, ['menu', 'isLoading']),
+  menuType: get(state, ['menu', 'type']),
+  ...selectStateByKey(state, getStateId(ownProps))
+});
+
+export const mapDispatchToProps = (dispatch, ownProps) => {
+  const key = getStateId(ownProps);
+
+  return {
+    initSettings: payload => dispatch(initDashboardSettings({ ...payload, key })),
+    checkUpdatedSettings: payload => dispatch(getCheckUpdatedDashboardConfig({ ...payload, key })),
+    saveSettings: payload => dispatch(saveDashboardConfig({ ...payload, key })),
+    setCheckUpdatedConfig: payload => dispatch(setCheckUpdatedDashboardConfig({ ...payload, key })),
+    resetConfigState: () => dispatch(resetDashboardConfig(key)),
+    resetConfigToDefault: payload => dispatch(resetConfigToDefault({ ...payload, key })),
+    getDashboardConfig: payload => dispatch(getDashboardConfigPage({ ...payload, key: ownProps.tabId })),
+    resetAllDashboardsConfig: payload => dispatch(resetAllDashboardsConfig({ ...payload }))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Settings);

@@ -4,10 +4,13 @@ export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
+  /** @deprecated */
   DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  /** @deprecated */
   MENU_SETTINGS: '/v2/menu-settings',
   ADMIN_PAGE: '/v2/admin',
-  BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated
+  /** @deprecated */
+  BPMN_DESIGNER: '/v2/bpmn-designer',
   BPMN_EDITOR: '/v2/bpmn-editor',
   CMMN_EDITOR: '/v2/cmmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
@@ -80,7 +83,8 @@ export const ActionModes = {
 
 export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE'
+  FAILURE: 'FAILURE',
+  RESET: 'RESET'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
@@ -129,7 +133,6 @@ export const Attributes = {
 export const TMP_ICON_EMPTY = 'icon-empty';
 
 export const Pages = {
-  DASHBOARD_SETTINGS: 'dashboard-settings',
   DASHBOARD: 'dashboard',
   BPMN: 'bpmn',
   JOURNAL: 'journal',

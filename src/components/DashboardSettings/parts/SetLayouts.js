@@ -60,7 +60,6 @@ class SetLayouts extends React.Component {
 
     return (
       <>
-        <h5 className="ecos-dashboard-settings__container-title">{t('dashboard-settings.columns.title')}</h5>
         <h6 className="ecos-dashboard-settings__container-subtitle">
           {!isMobile && t('dashboard-settings.columns.subtitle')}
           {isMobile && t('dashboard-settings.columns.subtitle-mobile')}

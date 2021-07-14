@@ -28,6 +28,9 @@ const Labels = {
   TIP_DROP_HERE: 'dashboard-settings.column.placeholder'
 };
 
+const WIDGET_ITEM_H = 32;
+const WIDGET_ITEMS_H_MAX = 320;
+
 class SetWidgets extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -68,6 +71,14 @@ class SetWidgets extends React.Component {
     const ids = get(activeWidgets, '[0]', []).map(item => item.id);
 
     return availableWidgets.filter(widget => !ids.includes(widget.id));
+  }
+
+  get scrollWidgetHeight() {
+    const { activeWidgets = [] } = this.props;
+    const maxWidgets = Math.max(...activeWidgets.map(item => item && item.length));
+    const scrollHeight = maxWidgets * WIDGET_ITEM_H + WIDGET_ITEM_H * 2;
+
+    return scrollHeight > WIDGET_ITEMS_H_MAX ? WIDGET_ITEMS_H_MAX : scrollHeight;
   }
 
   handleDragUpdate = provided => {
@@ -168,7 +179,7 @@ class SetWidgets extends React.Component {
                 classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
                 placeholder={t(Labels.TIP_DROP_HERE)}
                 isDragingOver={draggableDestination === NAMES.WIDGETS_TO + indexColumn}
-                scrollHeight={320}
+                scrollHeight={this.scrollWidgetHeight}
               >
                 {activeWidgets &&
                   activeWidgets[indexColumn] &&
