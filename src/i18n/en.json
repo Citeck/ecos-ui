@@ -186,7 +186,7 @@
   "dashboard-settings.error.check-updates": "Check for dashboard updates failed",
   "dashboard-settings.error.save-config": "Dashboard config hasn't saved",
   "dashboard-settings.error.reset-config": "Dashboard config hasn't reset",
-  "dashboard-settings.success.reset-config": "Dashboard config has reset",
+  "dashboard-settings.success.reset-config": "Dashboard config has reset and applied",
   "dashboard-settings.label.for-all": "Apply for all users",
   "dashboard-settings.menu-constructor.placeholder1": "No available menu items",
   "dashboard-settings.menu-constructor.placeholder2": "Drag menu items here",

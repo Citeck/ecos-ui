@@ -55,7 +55,8 @@ const ContextMenuTypes = {
   CLOSE_LEFT: 'close-left',
   CLOSE_RIGHT: 'close-right',
   CLOSE_OTHER: 'close-other',
-  CLOSE_ALL: 'close-all'
+  CLOSE_ALL: 'close-all',
+  GO_SOURCE_HOST: 'go-source-host'
 };
 
 class PageTabs extends React.Component {
@@ -290,6 +291,9 @@ class PageTabs extends React.Component {
         break;
       case ContextMenuTypes.CLOSE_SELF:
         this.handleCloseTab(tab);
+        break;
+      case ContextMenuTypes.GO_SOURCE_HOST:
+        window.open(`${process.env.REACT_APP_SHARE_PROXY_URL}${window.location.pathname}${window.location.search}`, '_blank');
         break;
       default:
         console.error(`PageTabs:ContextMenuItem: Unknown type ${type}`);
@@ -628,6 +632,13 @@ class PageTabs extends React.Component {
       actions.push({
         title: t(Labels.CONTEXT_CLOSE_ALL),
         onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.CLOSE_ALL)
+      });
+    }
+
+    if (process.env.NODE_ENV === 'development' && get(this.state, 'contextMenu.tab.isActive')) {
+      actions.push({
+        title: `Go to ${process.env.REACT_APP_SHARE_PROXY_URL}`,
+        onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST)
       });
     }
 
