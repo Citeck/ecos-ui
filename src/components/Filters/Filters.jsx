@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
-import debounce from 'lodash/debounce';
 
 import { t, trigger } from '../../helpers/util';
 import { RemoveDialog } from '../common/dialogs';
@@ -18,10 +17,6 @@ class Filters extends Component {
     dialogTitle: '',
     dialogText: ''
   };
-
-  constructor(props) {
-    super(props);
-  }
 
   onChangeFilter = ({ filter, index, groupIndex }) => {
     this.groups[groupIndex].filters[index] = filter;
@@ -212,8 +207,7 @@ class Filters extends Component {
 
   render() {
     const { isDialogShow, dialogTitle, dialogText } = this.state;
-    const { predicate, columns, sourceId, metaRecord, className, groups } = this.props;
-    // const groups = (this.groups = ParserPredicate.parse(predicate, columns));
+    const { sourceId, metaRecord, className, groups } = this.props;
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
     this.groups = groups;

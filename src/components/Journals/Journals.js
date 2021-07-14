@@ -534,77 +534,65 @@ class Journals extends React.Component {
   };
 
   renderSettings = () => {
-    if (this.displayElements.settings) {
-      const {
-        settingsFiltersData,
-        stateId,
-        journalConfig,
-        grid,
-        isMobile,
-        selectedRecords,
-        reloadGrid,
-        isDocLibEnabled,
-        settingsData,
-        settingsColumnsData,
-        settingsGroupingData
-      } = this.props;
-      const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
-      const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
-      const visibleColumns = columns.filter(c => c.visible);
-
-      if (this.isDocLibMode) {
-        return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
-      }
-
-      return (
-        <>
-          <SettingsModal
-            filtersData={settingsFiltersData}
-            columnsData={settingsColumnsData}
-            groupingData={settingsGroupingData}
-            meta={meta}
-            columns={visibleColumns}
-            stateId={stateId}
-            sourceId={sourceId}
-            isReset={isReset}
-            journalConfig={journalConfig}
-            grid={grid}
-            selectedRecords={selectedRecords}
-            reloadGrid={reloadGrid}
-            isDocLibEnabled={isDocLibEnabled}
-            isOpen={settingsVisible}
-            settingsVisible={settingsVisible}
-            createIsLoading={createIsLoading}
-            journalId={journalId}
-            {...settingsData}
-            onClose={this.toggleSettings}
-            onApply={this.applySettings}
-            onCreate={this.createSettings}
-            onReset={this.resetSettings}
-            onSave={this.saveSettings}
-          />
-
-          <JournalsSettingsBar
-            grid={grid}
-            journalConfig={journalConfig}
-            stateId={stateId}
-            showPreview={showPreview}
-            toggleSettings={this.toggleSettings}
-            togglePreview={this.togglePreview}
-            showDocLibrary={this.showDocLibrary}
-            showGrid={this.showGrid}
-            refresh={reloadGrid}
-            onSearch={this.onSearch}
-            addRecord={this.addRecord}
-            isMobile={isMobile}
-            searchText={this.getSearchText()}
-            selectedRecords={selectedRecords}
-            isDocLibEnabled={isDocLibEnabled}
-            createIsLoading={createIsLoading}
-          />
-        </>
-      );
+    if (!this.displayElements.settings) {
+      return null;
     }
+
+    const {
+      settingsFiltersData,
+      stateId,
+      journalConfig,
+      grid,
+      isMobile,
+      selectedRecords,
+      reloadGrid,
+      isDocLibEnabled,
+      settingsData,
+      settingsColumnsData,
+      settingsGroupingData
+    } = this.props;
+    const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
+
+    if (this.isDocLibMode) {
+      return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
+    }
+
+    return (
+      <>
+        <SettingsModal
+          {...settingsData}
+          filtersData={settingsFiltersData}
+          columnsData={settingsColumnsData}
+          groupingData={settingsGroupingData}
+          isReset={isReset}
+          isOpen={settingsVisible}
+          onClose={this.toggleSettings}
+          onApply={this.applySettings}
+          onCreate={this.createSettings}
+          onReset={this.resetSettings}
+          onSave={this.saveSettings}
+        />
+
+        <JournalsSettingsBar
+          grid={grid}
+          journalConfig={journalConfig}
+          stateId={stateId}
+          showPreview={showPreview}
+          toggleSettings={this.toggleSettings}
+          togglePreview={this.togglePreview}
+          showDocLibrary={this.showDocLibrary}
+          showGrid={this.showGrid}
+          refresh={reloadGrid}
+          onSearch={this.onSearch}
+          addRecord={this.addRecord}
+          isMobile={isMobile}
+          searchText={this.getSearchText()}
+          selectedRecords={selectedRecords}
+          isDocLibEnabled={isDocLibEnabled}
+          createIsLoading={createIsLoading}
+        />
+      </>
+    );
   };
 
   renderGroupActions = () => {

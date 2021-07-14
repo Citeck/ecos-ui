@@ -171,24 +171,26 @@ export default class Filter extends Component {
     const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      // const ControlComponent = this._controls.get(key);
+      const ControlComponent = this._controls.get(key);
 
-      // if (ControlComponent) {
-      //   return this._controls.get(key);
-      // }
+      if (ControlComponent) {
+        return ControlComponent;
+      }
 
-      // const control = EditorService.getEditorControl({
-      //   recordRef: metaRecord,
-      //   attribute: column.attribute,
-      //   editor: column.newEditor,
-      //   value,
-      //   scope: EditorScope.FILTER,
-      //   onUpdate: this.onChangeValue,
-      //   onKeyDown: this.onKeyDown,
-      //   controlProps: { predicate: omit(predicate, 'val') }
-      // });
-      //
-      // this._controls.set(key, control);
+      const control = EditorService.getEditorControl({
+        recordRef: metaRecord,
+        attribute: column.attribute,
+        editor: column.newEditor,
+        value,
+        scope: EditorScope.FILTER,
+        onUpdate: this.onChangeValue,
+        onKeyDown: this.onKeyDown,
+        controlProps: { predicate: omit(predicate, 'val') }
+      });
+
+      this._controls.set(key, control);
+
+      return ControlComponent;
 
       return EditorService.getEditorControl({
         recordRef: metaRecord,

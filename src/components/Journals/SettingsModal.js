@@ -16,6 +16,25 @@ import EcosModal from '../common/EcosModal';
 import { JOURNAL_SETTING_ID_FIELD } from './constants';
 
 class SettingsModal extends Component {
+  static propTypes = {
+    journalSetting: PropTypes.array,
+    columnsSetup: PropTypes.object,
+    grouping: PropTypes.object,
+    originGridSettings: PropTypes.object,
+    filtersData: PropTypes.object,
+    columnsData: PropTypes.object,
+    groupingData: PropTypes.object,
+    isReset: PropTypes.bool,
+    isOpen: PropTypes.bool,
+    onClose: PropTypes.func,
+    onApply: PropTypes.func,
+    onCreate: PropTypes.func,
+    onReset: PropTypes.func,
+    onSave: PropTypes.func
+  };
+
+  static defaultProps = {};
+
   constructor(props) {
     super(props);
 
