@@ -1,15 +1,12 @@
 import get from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
 
-import { CreateMenuTypes, MenuSettings, MenuTypes } from '../constants/menu';
+import { MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
-import { extractLabel, getTextByLocale } from '../helpers/util';
+import { getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
 import MenuConverterExport from './export/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
-
-const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
 
 export default class MenuConverter {
   /* menu config */
@@ -26,27 +23,6 @@ export default class MenuConverter {
     }
 
     return target;
-  }
-
-  static getAvailableSoloItemsForWeb(items = []) {
-    return items.map(item => {
-      return {
-        label: item.label,
-        link: item.link || '',
-        id: item.id
-      };
-    });
-  }
-
-  static getMenuItemsForServer(items = []) {
-    return items.map((item, index) => {
-      return {
-        label: item.label,
-        position: index,
-        link: item.link || '',
-        id: item.id
-      };
-    });
   }
 
   static getSettingsConfigForServer(source) {
@@ -117,6 +93,12 @@ export default class MenuConverter {
     return option;
   }
 
+  /**
+   * @deprecated
+   * Use action goToPageSiteMenu ex: SiteMenu.handleClickItem
+   * @param data
+   * @returns Object
+   */
   static getLinkMove(data) {
     const targetUrl = get(data, 'config.url') || {};
 
@@ -130,54 +112,6 @@ export default class MenuConverter {
         }
       }
     };
-  }
-
-  static getCreateCustomItems(source = []) {
-    return source.map(params => {
-      const item = {
-        ...params,
-        id: getId(`${params.siteId}_${params.type}`),
-        label: extractLabel(params.label)
-      };
-
-      if (params.type === CreateMenuTypes.Custom.LINK) {
-        return {
-          ...item,
-          targetUrl: get(params, 'config.uri'),
-          target: get(params, 'config.target')
-        };
-      }
-
-      if (params.type === CreateMenuTypes.Custom.FORM) {
-        return {
-          ...item,
-          control: {
-            type: HandleControlTypes.ECOS_OPEN_FORM,
-            payload: item.config
-          }
-        };
-      }
-
-      return item;
-    });
-  }
-
-  static mergeCustomsAndConfig(_customs, _config) {
-    const config = cloneDeep(_config);
-    const exSiteId = [];
-
-    _customs.forEach(item => {
-      config.forEach(site => {
-        if (site.siteId === item.siteId) {
-          exSiteId.push(item.siteId);
-          site.items = [item, ...site.items];
-        }
-      });
-    });
-
-    const customs = _customs.filter(item => !exSiteId.includes(item.siteId));
-
-    return { customs, config };
   }
 
   /* menu settings */

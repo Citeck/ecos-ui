@@ -33,13 +33,6 @@ export const MenuTypesView = [
   // }
 ];
 
-export const CreateMenuTypes = {
-  Custom: {
-    LINK: 'link',
-    FORM: 'open-form'
-  }
-};
-
 export const MenuSettings = {
   ActionTypes: {
     ACTIVE: 'ACTIVE',
