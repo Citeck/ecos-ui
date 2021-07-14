@@ -35,6 +35,10 @@
     }
   }
 
+  & .tooltip {
+    z-index: 9999;
+  }
+
   .bs-tooltip {
     &-top {
       .arrow {

@@ -19,6 +19,7 @@ export default {
   parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
   isUsedJournalActions: PropTypes.bool,
+  journalActions: PropTypes.bool,
   displayElements: PropTypes.shape({
     create: PropTypes.bool,
     view: PropTypes.bool,

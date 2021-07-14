@@ -23,6 +23,8 @@ export default class TableFormComponent extends BaseReactComponent {
   _nonSelectableRows = [];
   _createVariants = [];
 
+  #journalConfig;
+
   static schema(...extend) {
     return BaseReactComponent.schema(
       {
@@ -184,6 +186,10 @@ export default class TableFormComponent extends BaseReactComponent {
 
     this.refreshElementHasValueClasses();
 
+    if (this.component.isUsedJournalActions && !_.isEmpty(value)) {
+      this._fetchActions(value).then(journalActions => this.setReactProps({ journalActions }));
+    }
+
     return changed;
   }
 
@@ -291,19 +297,13 @@ export default class TableFormComponent extends BaseReactComponent {
             let columns = journalConfig.columns;
 
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-              columns = columns.map(item => {
-                return {
-                  ...item,
-                  default: displayColumns.indexOf(item.attribute) !== -1
-                };
-              });
+              columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
             }
 
             this._createVariants = journalConfig.meta.createVariants || [];
+            this.#journalConfig = journalConfig;
 
-            resolve({
-              columns: await JournalsService.resolveColumns(columns)
-            });
+            resolve({ columns: await JournalsService.resolveColumns(columns) });
           } catch (error) {
             console.error(error);
             return resolve({ error: new Error(t(Labels.MSG_NO_J_CONFIG)) });
@@ -430,6 +430,13 @@ export default class TableFormComponent extends BaseReactComponent {
         default:
           return resolve({ error: new Error(t(Labels.MSG_ERR_SOURCE)) });
       }
+    });
+  };
+
+  _fetchActions = value => {
+    return new Promise(async resolve => {
+      const journalActions = await JournalsService.getRecordActions(this.#journalConfig, value).catch(() => ({}));
+      resolve(journalActions);
     });
   };
 
