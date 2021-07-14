@@ -8,6 +8,15 @@ import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
 
+const Labels = {
+  MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
+  MSG_NO_J_CONFIG: 'ecos-table-form.error.no-journal-config',
+  MSG_ERR_SOURCE: 'ecos-table-form.error.source',
+  MSG_NO_HANDLER: 'ecos-table-form.error.no-response-handler',
+  MSG_FAIL_IMPORT: 'ecos-table-form.error.failure-to-import',
+  DIALOG_TITLE: 'ecos-table-form.error-dialog.title'
+};
+
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
   _displayElementsValue = {};
@@ -41,7 +50,8 @@ export default class TableFormComponent extends BaseReactComponent {
         isStaticModalTitle: false,
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
-        displayElementsJS: '',
+        isUsedJournalActions: false,
+        displayElementsJS: {},
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
@@ -273,7 +283,7 @@ export default class TableFormComponent extends BaseReactComponent {
           const displayColumns = journal.columns;
 
           if (!journalId) {
-            return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
+            return resolve({ error: new Error(t(Labels.MSG_NO_J_ID)) });
           }
 
           try {
@@ -296,7 +306,7 @@ export default class TableFormComponent extends BaseReactComponent {
             });
           } catch (error) {
             console.error(error);
-            return resolve({ error: new Error(`${t('ecos-table-form.error.no-journal-id')} (${error.message})`) });
+            return resolve({ error: new Error(t(Labels.MSG_NO_J_CONFIG)) });
           }
           break;
         case 'custom':
@@ -418,7 +428,7 @@ export default class TableFormComponent extends BaseReactComponent {
           }
           break;
         default:
-          return resolve({ error: new Error(t('ecos-table-form.error.source')) });
+          return resolve({ error: new Error(t(Labels.MSG_ERR_SOURCE)) });
       }
     });
   };
@@ -465,6 +475,7 @@ export default class TableFormComponent extends BaseReactComponent {
         parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
+        isUsedJournalActions: component.isUsedJournalActions,
         settingElements: {
           isInstantClone: component.isInstantClone
         },
@@ -495,7 +506,7 @@ export default class TableFormComponent extends BaseReactComponent {
     const { uploadUrl, responseHandler } = importConfig;
 
     if (!responseHandler) {
-      return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
+      return this.showErrorMessage(t(Labels.MSG_NO_HANDLER));
     }
 
     const formData = new FormData();
@@ -524,13 +535,13 @@ export default class TableFormComponent extends BaseReactComponent {
       this.updateValue({}, newValue);
     } catch (e) {
       console.error('TableForm error. Failure to upload file: ', e.message);
-      this.showErrorMessage(t('ecos-table-form.error.failure-to-import'));
+      this.showErrorMessage(t(Labels.MSG_FAIL_IMPORT));
     }
   };
 
   showErrorMessage = text => {
     DialogManager.showInfoDialog({
-      title: t('ecos-table-form.error-dialog.title'),
+      title: t(Labels.DIALOG_TITLE),
       text
     });
   };

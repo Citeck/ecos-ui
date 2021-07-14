@@ -65,10 +65,12 @@ export const TableFormContextProvider = props => {
     if (initValue) {
       const atts = [];
       const noNeedParseIndices = [];
+
       columns.forEach((item, idx) => {
         const isFullName = item.attribute.startsWith('.att');
         const hasBracket = item.attribute.includes('{');
         const hasQChar = item.attribute.includes('?');
+
         if (isFullName || hasBracket || hasQChar) {
           atts.push(item.attribute);
           noNeedParseIndices.push(idx);
@@ -77,6 +79,7 @@ export const TableFormContextProvider = props => {
 
         const multiplePostfix = item.multiple ? 's' : '';
         const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+
         atts.push(schema);
       });
 
@@ -94,6 +97,7 @@ export const TableFormContextProvider = props => {
           return promise.then(result => {
             const fetchedAtts = {};
             let currentAttIndex = 0;
+
             for (let attSchema in result) {
               if (!result.hasOwnProperty(attSchema)) {
                 continue;
