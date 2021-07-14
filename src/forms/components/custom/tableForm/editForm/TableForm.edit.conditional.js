@@ -45,7 +45,8 @@ export default [
         rows: 5,
         editor: 'ace',
         label: 'Component Actions',
-        input: true
+        input: true,
+        description: "Standard available actions in component. If you use journal actions, every, except 'create', will be disable.</div>"
       },
       {
         type: 'htmlelement',
@@ -56,17 +57,6 @@ The <strong>value</strong> variable can contain next boolean properties:
 <strong>create</strong>, <strong>clone</strong>, <strong>view</strong>, <strong>preview</strong>, <strong>edit</strong>, <strong>delete</strong>.
 Default <em>preview</em>, <em>clone</em> are <em>false</em>.
 For example, <strong>value = {view: false, edit: true, delete: false, clone: false, preview: false};</strong></p>`
-      },
-      {
-        type: 'htmlelement',
-        tag: 'div',
-        customClass: 'alert alert-secondary',
-        content: '<div>You use Journal Actions. Except <strong>create</strong> other will be disable</div>',
-        conditional: {
-          json: {
-            and: [{ '==': [{ var: 'data.isUsedJournalActions' }, true] }]
-          }
-        }
       }
     ]
   },
