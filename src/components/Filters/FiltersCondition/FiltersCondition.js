@@ -1,28 +1,55 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { trigger } from '../../../helpers/util';
+import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
 
 import './FiltersCondition.scss';
 
 export default class FiltersCondition extends Component {
-  onClick = () => {
-    const { index } = this.props;
-    const condition = this.getCondition(true).value;
+  constructor(props) {
+    super(props);
 
-    trigger.call(this, 'onClick', { condition, index });
+    this.state = {
+      condition: (props.conditions || []).filter(c => Boolean() !== (c.value === props.condition))[0] || {}
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!isEqual(prevProps.condition, this.props.condition) && !isEqual(this.props.condition && this.state.condition.value)) {
+      const condition = (this.props.conditions || []).filter(c => Boolean() !== (c.value === this.props.condition))[0] || {};
+
+      this.setState({ condition });
+    }
+  }
+
+  componentWillUnmount() {
+    this.saveData.cancel();
+  }
+
+  onClick = () => {
+    const { index, onClick } = this.props;
+    const condition = this.getCondition(true);
+
+    this.setState({ condition });
+    this.saveData(() => onClick({ condition: condition.value, index }));
   };
 
+  saveData = debounce(callback => callback(), 450);
+
   getCondition = change => {
-    const { conditions, condition } = this.props;
-    return conditions.filter(c => Boolean(change) !== (c.value === condition))[0] || {};
+    const { conditions } = this.props;
+    const { condition } = this.state;
+
+    return conditions.filter(c => Boolean(change) !== (c.value === condition.value))[0] || {};
   };
 
   render() {
     const { className, cross } = this.props;
+    const { condition } = this.state;
 
     return (
       <span onClick={this.onClick} className={classNames('ecos-filters-condition', cross && 'ecos-filters-condition_cross', className)}>
-        {this.getCondition().label}
+        {condition.label}
       </span>
     );
   }
