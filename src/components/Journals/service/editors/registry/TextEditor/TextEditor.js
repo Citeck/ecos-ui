@@ -12,20 +12,27 @@ export default class TextEditor extends BaseEditor {
   getControl(config, scope) {
     const isCell = scope === EditorScope.CELL;
 
-    return ({ value, onUpdate }) => {
+    return ({ value, onUpdate, onKeyDown }) => {
       const [data, setData] = useState(value || '');
 
       const sendDate = () => {
-        onUpdate(data);
+        if (typeof onUpdate === 'function') {
+          onUpdate(data);
+        }
       };
 
       const onInputChange = e => {
         setData(e.target.value);
       };
 
-      const onKeyDown = e => {
+      const _onKeyDown = e => {
         if (e.key === 'Enter') {
-          sendDate();
+          sendDate(true);
+        }
+
+        if (typeof onKeyDown === 'function') {
+          e.persist();
+          onKeyDown(e);
         }
       };
 
@@ -39,7 +46,7 @@ export default class TextEditor extends BaseEditor {
           })}
           onChange={onInputChange}
           onBlur={sendDate}
-          onKeyDown={onKeyDown}
+          onKeyDown={_onKeyDown}
           autoFocus={isCell}
         />
       );

@@ -183,7 +183,7 @@ class RecordsComponent {
     });
   }
 
-  async query(query, attributes, foreach) {
+  async query(query, attributes, options) {
     if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
@@ -264,27 +264,15 @@ class RecordsComponent {
       attributes: queryAttributes
     };
 
-    if (foreach) {
-      queryBody.foreach = foreach;
+    if (options && options.debug) {
+      queryBody.msgLevel = 'DEBUG';
     }
 
     const response = await recordsQueryFetch(queryBody);
 
-    const { errors, hasMore, totalCount, records: _records } = response;
-    let records;
-
-    if (!foreach) {
-      records = await processRespRecords(_records);
-    } else {
-      const recordsArr = _records || [];
-      records = [];
-
-      for (let resRecs of recordsArr) {
-        records.push(await processRespRecords(resRecs));
-      }
-    }
-
-    return { records, errors, hasMore, totalCount };
+    const { messages, hasMore, totalCount, records: _records } = response;
+    let records = await processRespRecords(_records);
+    return { records, messages, hasMore, totalCount };
   }
 }
 

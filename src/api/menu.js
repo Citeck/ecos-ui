@@ -103,14 +103,6 @@ export class MenuApi extends CommonApi {
     );
   };
 
-  getCustomCreateVariants = () => {
-    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
-      .load('value[]?json', true)
-      .then(res => lodashGet(res, '[0]', []))
-      .then(res => (Array.isArray(res) ? res : []))
-      .catch(() => []);
-  };
-
   getLiveSearchDocuments = (terms, startIndex) => {
     const url = `${PROXY_URI}slingshot/live-search-docs?t=${generateSearchTerm(terms)}&maxResults=5&startIndex=${startIndex}`;
     return this.getJson(url);
