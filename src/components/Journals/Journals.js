@@ -45,6 +45,7 @@ import DocLibPagination from './DocLib/DocLibPagination';
 import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
 import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
+
 import './Journals.scss';
 
 const mapStateToProps = (state, props) => {

@@ -8,6 +8,7 @@ import { defaultState, emptyJournalConfig } from '../reducers/journals';
 import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
+import { getId } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -155,7 +156,10 @@ export const selectSettingsColumns = createSelector(
   selectState,
   ownProps => {
     return cloneDeep({
-      columns: get(ownProps, 'columnsSetup.columns'),
+      columns: get(ownProps, 'columnsSetup.columns', []).map(item => ({
+        ...item,
+        id: getId()
+      })),
       sortBy: get(ownProps, 'columnsSetup.sortBy')
     });
   }
