@@ -254,7 +254,14 @@ class RecordsComponent {
     return recordsQueryFetch(queryBody).then(response => {
       const { messages, hasMore, totalCount, records: _records } = response;
       let records = processRespRecords(_records);
-      return { records, messages, hasMore, totalCount, attributes: queryBody.attributes };
+      return {
+        records,
+        messages,
+        hasMore,
+        totalCount,
+        attributes: queryBody.attributes,
+        errors: messages.filter(msg => msg && msg.level === 'ERROR')
+      };
     });
   }
 }
