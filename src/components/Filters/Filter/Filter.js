@@ -71,6 +71,10 @@ export default class Filter extends Component {
     this.handleChangeValue.cancel();
   }
 
+  get type() {
+    return 'base';
+  }
+
   onChangeValue = (value, withoutValue) => {
     this.setState({ value, hasDataEntry: true }, () => this.handleChangeValue(withoutValue));
   };
@@ -159,15 +163,8 @@ export default class Filter extends Component {
     const isShow =
       !ParserPredicate.predicatesWithoutValue.includes(getPredicateValue(predicate)) && get(selectedPredicate, 'needValue', true);
     const editorType = get(column, 'newEditor.type');
-    const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      const ControlComponent = this._controls.get(key);
-
-      if (ControlComponent) {
-        return ControlComponent;
-      }
-
       const control = EditorService.getEditorControl({
         recordRef: metaRecord,
         attribute: column.attribute,
@@ -178,6 +175,21 @@ export default class Filter extends Component {
         onKeyDown: this.onKeyDown,
         controlProps: { predicate: omit(predicate, 'val') }
       });
+
+      if (this.type === 'base') {
+        return control;
+      }
+
+      const key = JSON.stringify({
+        column,
+        metaRecord,
+        predicate: omit(predicate, 'val')
+      });
+      const ControlComponent = this._controls.get(key);
+
+      if (ControlComponent) {
+        return ControlComponent;
+      }
 
       this._controls.set(key, control);
 
