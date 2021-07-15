@@ -59,10 +59,6 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getJournals = () => {
-    return this.getJson(`${PROXY_URI}api/journals/all`).then(resp => resp.journals || []);
-  };
-
   getDashletConfig = id => {
     return this.getJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`).catch(() => null);
   };

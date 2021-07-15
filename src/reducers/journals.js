@@ -18,7 +18,6 @@ import {
   setGrouping,
   setJournalConfig,
   setJournalExistStatus,
-  setJournals,
   setJournalSetting,
   setJournalSettings,
   setJournalsItem,
@@ -423,12 +422,6 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { editorMode: action.payload });
-    },
-    [setJournals]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, { journals: action.payload });
     },
     [setGrid]: (state, action) => {
       const stateId = action.payload.stateId;
