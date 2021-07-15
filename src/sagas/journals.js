@@ -45,7 +45,6 @@ import {
   setGrouping,
   setJournalConfig,
   setJournalExistStatus,
-  setJournals,
   setJournalSetting,
   setJournalSettings,
   setLoading,
@@ -144,11 +143,10 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
     const config = yield call(api.journals.getDashletConfig, action.payload);
 
     if (config) {
-      const { journalsListId, journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
+      const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config;
 
       yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
-      yield getJournals(api, journalsListId, w);
       yield put(initJournal(w({ journalId, journalSettingId, customJournal, customJournalMode })));
     } else {
       yield put(setEditorMode(w(true)));
@@ -193,7 +191,6 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
     if (journalsListId) {
       yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
-      yield getJournals(api, journalsListId, w);
       if (customJournalMode && customJournal) {
         let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
         yield put(initJournal(w({ journalId: resolvedCustomJournal })));
@@ -240,27 +237,13 @@ function* _resolveTemplate(recordRef, template) {
 function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
   try {
     const url = yield select(selectUrl, stateId);
-    const { journalsListId, journalId, journalSettingId = '', userConfigId } = url;
+    const { journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
-    yield getJournals(api, journalsListId, w);
     yield put(initJournal(w({ journalId, journalSettingId, userConfigId })));
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e.message);
   }
-}
-
-function* getJournals(api, journalsListId, w) {
-  const journals = yield call(api.journals.getJournals);
-
-  yield Promise.all(
-    journals.map(async journal => {
-      const uiType = 'react';
-      return (journal.uiType = uiType);
-    })
-  );
-
-  yield put(setJournals(w(journals)));
 }
 
 function* getJournalSettings(api, journalId, w) {
