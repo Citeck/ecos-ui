@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
+import { trimFields } from '../../../../helpers/util';
 import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { DisplayModes, SortOrderOptions, TableTypes } from './constants';
-import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
-import { trimFields } from '../../../../helpers/util';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -88,10 +88,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
         return resolve([]);
       }
 
-      if (source.type === 'custom') {
+      if (source.type === TableTypes.CUSTOM) {
         const component = this.component;
         const record = this.getRecord();
         const attribute = this.getAttributeToEdit();
+
+        let customCreateVariants = null;
+        let createVariantsPromise = Promise.resolve([]);
+
         const columns = await Promise.all(
           source.custom.columns.map(async item => {
             const col = { ...item };
@@ -109,8 +113,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
           })
         );
 
-        let customCreateVariants = null;
-
         if (component.customCreateVariantsJs) {
           try {
             customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
@@ -118,8 +120,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
             console.error(e);
           }
         }
-
-        let createVariantsPromise = Promise.resolve([]);
 
         if (customCreateVariants) {
           let fetchCustomCreateVariantsPromise;
@@ -138,12 +138,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
               return Records.get(variant)
                 .load('.disp')
-                .then(dispName => {
-                  return {
-                    recordRef: variant,
-                    label: dispName
-                  };
-                });
+                .then(dispName => ({
+                  recordRef: variant,
+                  label: dispName
+                }));
             })
           );
         } else if (attribute) {
@@ -152,8 +150,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
         try {
           const createVariants = await createVariantsPromise;
-          let columnsMap = {};
-          let formatters = {};
+          const columnsMap = {};
+          const formatters = {};
+
+          let columnsInfoPromise;
+          let inputsPromise;
 
           columns.forEach(item => {
             const key = `.edge(n:"${item.name}"){title,type,multiple}`;
@@ -164,9 +165,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
               formatters[item.name] = item.formatter;
             }
           });
-
-          let columnsInfoPromise;
-          let inputsPromise;
 
           if (createVariants.length < 1 || columns.length < 1) {
             columnsInfoPromise = await Promise.all(
@@ -185,7 +183,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             );
             inputsPromise = Promise.resolve({});
           } else {
-            let cvRecordRef = createVariants[0].recordRef;
+            const cvRecordRef = createVariants[0].recordRef;
 
             columnsInfoPromise = Records.get(cvRecordRef)
               .load(Object.keys(columnsMap))
@@ -224,7 +222,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
                 let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
 
                 if (computedDispName) {
-                  //Is this filter required?
+                  //todo: Is this filter required?
                   column.formatter = {
                     name: 'FormFieldFormatter',
                     params: input
@@ -240,9 +238,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             })
             .catch(err => {
               console.error(err);
-              columnsInfoPromise.then(columns => {
-                resolve(GqlDataSource.getColumnsStatic(columns));
-              });
+              columnsInfoPromise.then(columns => resolve(GqlDataSource.getColumnsStatic(columns)));
             });
         } catch (e) {
           console.warn(`[SelectJournal fetchAsyncProperties] Can't fetch create variants: ${e.message}`);
@@ -294,7 +290,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
-        onError: () => {},
+        onError: () => undefined,
         // Cause https://citeck.atlassian.net/browse/ECOSUI-208
         // If component has calculateValue, disable value reset when apply custom predicate
         disableResetOnApplyCustomPredicate: !!component.calculateValue
@@ -321,12 +317,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
       return this.getRecord()
         .loadEditorKey(attribute)
-        .then(editorKey => {
-          return fetchPropertiesAndResolve(editorKey);
-        })
-        .catch(() => {
-          return fetchPropertiesAndResolve(null);
-        });
+        .then(editorKey => fetchPropertiesAndResolve(editorKey))
+        .catch(() => fetchPropertiesAndResolve(null));
     } else {
       return fetchPropertiesAndResolve(journalId);
     }
@@ -370,13 +362,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   static getValueDisplayName = (component, value) => {
     let dispNameJs = _.get(component, 'computed.valueDisplayName', null);
-    let result = null;
+    let result;
 
     if (dispNameJs) {
       let model = { _ };
 
       if (_.isString(value)) {
-        let recordId = value[0] === '{' ? EcosFormUtils.initJsonRecord(value) : value;
+        const recordId = value[0] === '{' ? EcosFormUtils.initJsonRecord(value) : value;
         model.value = Records.get(recordId);
       } else {
         model.value = value;
@@ -386,7 +378,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
     } else {
       result = Records.get(value).load('.disp');
     }
-    return result ? result : value;
+
+    return result || value;
   };
 
   static optimizeSchema(comp) {
