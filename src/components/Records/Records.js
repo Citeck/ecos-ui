@@ -272,7 +272,13 @@ class RecordsComponent {
 
     const { messages, hasMore, totalCount, records: _records } = response;
     let records = await processRespRecords(_records);
-    return { records, messages, hasMore, totalCount };
+    return {
+      records,
+      messages,
+      hasMore,
+      totalCount,
+      errors: messages.filter(msg => msg && msg.level === 'ERROR')
+    };
   }
 }
 
