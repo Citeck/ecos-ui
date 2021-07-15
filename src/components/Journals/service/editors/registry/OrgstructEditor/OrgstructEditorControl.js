@@ -7,7 +7,7 @@ import { getCellValue } from '../../util';
 class OrgstructEditorControl extends React.Component {
   render() {
     const { value, config, extraProps, onBlur, onUpdate, ...props } = this.props;
-    const multiple = get(config, 'multiple') || false;
+    const multiple = get(config, 'multiple') || get(props, 'multiple') || false;
     const allowedAuthorityTypesStr = get(config, 'allowedAuthorityTypes') || '';
     const allowedAuthorityTypes = allowedAuthorityTypesStr.split(',').map(item => item.trim());
 
