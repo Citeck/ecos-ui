@@ -7,6 +7,7 @@ import ecosFetch from '../../helpers/ecosFetch';
 import { getSourceId } from './utils/recordUtils';
 import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
 import { t } from '../../helpers/util';
+import { SETTING_ENABLE_RECORDS_API_DEBUG } from '../../pages/DevTools/constants';
 
 /**
  * Request identification
@@ -32,9 +33,11 @@ function getRecognizableUrl(url, body) {
 }
 
 function recordsFetch(url, body) {
-  if (url.indexOf('mutate') >= 0 || url.indexOf('delete') >= 0) {
-    body.version = 1;
+  if (!body.msgLevel && localStorage.getItem(SETTING_ENABLE_RECORDS_API_DEBUG) === 'true') {
+    body.msgLevel = 'DEBUG';
   }
+
+  body.version = 1;
   url = getRecognizableUrl(url, body);
 
   return ecosFetch(url, { method: 'POST', body }).then(response => {

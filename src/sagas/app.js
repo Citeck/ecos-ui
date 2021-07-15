@@ -55,6 +55,9 @@ export function* initApp({ api, logger }, { payload }) {
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
+      if (e.message === 'User is disabled') {
+        alert('User is disabled');
+      }
       logger.error('[initApp saga] error inner', e.message);
       yield put(validateUserFailure());
     }

@@ -180,7 +180,7 @@ class RecordsComponent {
     });
   }
 
-  query(query, attributes, foreach) {
+  query(query, attributes, options) {
     if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
@@ -247,26 +247,14 @@ class RecordsComponent {
       attributes: queryAttributes
     };
 
-    if (foreach) {
-      queryBody.foreach = foreach;
+    if (options && options.debug) {
+      queryBody.msgLevel = 'DEBUG';
     }
 
     return recordsQueryFetch(queryBody).then(response => {
-      const { errors, hasMore, totalCount, records: _records } = response;
-      let records;
-
-      if (!foreach) {
-        records = processRespRecords(_records);
-      } else {
-        const recordsArr = _records || [];
-        records = [];
-
-        for (let resRecs of recordsArr) {
-          records.push(processRespRecords(resRecs));
-        }
-      }
-
-      return { records, errors, hasMore, totalCount, attributes: queryBody.attributes };
+      const { messages, hasMore, totalCount, records: _records } = response;
+      let records = processRespRecords(_records);
+      return { records, messages, hasMore, totalCount, attributes: queryBody.attributes };
     });
   }
 }

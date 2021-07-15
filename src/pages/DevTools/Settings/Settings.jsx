@@ -9,30 +9,25 @@ import SwitchSetting from './SwitchSetting';
 
 const SettingsTab = () => {
   const context = useContext(SettingsContext);
-  const { forceEnableNewForms, setForceEnableNewForms, enableLoggerForNewForms, setEnableLoggerForNewForms } = context;
+  const { settings } = context;
 
-  return (
-    <Row>
-      <Col xl={4} lg={6}>
-        <Setting title={t('dev-tools.settings.force-enable-new-forms')}>
+  const settingsSwitches = Object.keys(settings).map(settingKey => {
+    const setting = settings[settingKey];
+
+    return (
+      <Col xl={4} lg={6} key={settingKey}>
+        <Setting title={t(`dev-tools.settings.${settingKey}`)}>
           <SwitchSetting
-            checked={forceEnableNewForms}
-            onToggle={setForceEnableNewForms}
-            label={forceEnableNewForms ? t('dev-tools.settings.on') : t('dev-tools.settings.off')}
+            checked={setting.value}
+            onToggle={setting.setValue}
+            label={setting.value ? t('dev-tools.settings.on') : t('dev-tools.settings.off')}
           />
         </Setting>
       </Col>
-      <Col xl={4} lg={6}>
-        <Setting title={t('dev-tools.settings.enable-logger-for-new-forms')}>
-          <SwitchSetting
-            checked={enableLoggerForNewForms}
-            onToggle={setEnableLoggerForNewForms}
-            label={enableLoggerForNewForms ? t('dev-tools.settings.on') : t('dev-tools.settings.off')}
-          />
-        </Setting>
-      </Col>
-    </Row>
-  );
+    );
+  });
+
+  return <Row>{settingsSwitches}</Row>;
 };
 
 export default SettingsTab;

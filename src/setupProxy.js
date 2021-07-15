@@ -4,7 +4,6 @@ console.log('Setup proxy...');
 
 const PROXY_URL = {
   SHARE: process.env.SHARE_PROXY_URL || 'http://localhost:8080',
-  BPMN_EDITOR: process.env.BPMN_EDITOR_PROXY_URL || 'http://localhost:3000',
   GATEWAY_RECORDS: process.env.GATEWAY_RECORDS_PROXY_URL || process.env.SHARE_PROXY_URL || 'http://localhost'
 };
 
@@ -46,7 +45,7 @@ const shareProxyOptions = {
 };
 
 const bpmnEditorProxyOptions = {
-  target: PROXY_URL.BPMN_EDITOR,
+  target: PROXY_URL.SHARE,
   changeOrigin: true,
   logLevel: 'warn', // ['debug', 'info', 'warn', 'error', 'silent']
   ws: true,
