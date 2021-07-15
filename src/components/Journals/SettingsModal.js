@@ -29,7 +29,6 @@ class SettingsModal extends Component {
     onClose: PropTypes.func,
     onApply: PropTypes.func,
     onCreate: PropTypes.func,
-    onReset: PropTypes.func,
     onSave: PropTypes.func
   };
 

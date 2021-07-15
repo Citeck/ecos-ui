@@ -323,14 +323,6 @@ class Journals extends React.Component {
     });
   };
 
-  resetSettings = savedSetting => {
-    const { predicate, journalConfig } = this.props;
-
-    this.setState({ savedSetting: { ...savedSetting, predicate, columns: get(journalConfig, 'columns', []) }, isReset: true }, () =>
-      this.setState({ isReset: false })
-    );
-  };
-
   saveSettings = (id, settings) => {
     const { saveJournalSetting } = this.props;
 
@@ -569,7 +561,6 @@ class Journals extends React.Component {
           onClose={this.toggleSettings}
           onApply={this.applySettings}
           onCreate={this.createSettings}
-          onReset={this.resetSettings}
           onSave={this.saveSettings}
         />
 

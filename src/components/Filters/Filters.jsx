@@ -230,7 +230,6 @@ class Filters extends Component {
     const { sourceId, metaRecord, className, groups } = this.props;
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
-    // this.groups = groups;
 
     return (
       <ErrorBoundary>

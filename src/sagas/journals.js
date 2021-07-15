@@ -355,7 +355,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const { journalSetting, predicate } = action.payload;
     const columnsSetup = {
-      columns: journalSetting.columns,
+      columns: JournalsConverter.injectId(journalSetting.columns),
       sortBy: journalSetting.sortBy.map(s => ({ ...s }))
     };
     const grouping = {

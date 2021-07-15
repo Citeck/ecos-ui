@@ -145,7 +145,7 @@ export default class FiltersGroup extends Component {
 
     return (
       <Filter
-        key={idx}
+        key={filter.id || idx}
         index={idx}
         filter={filter}
         sourceId={sourceId}
@@ -172,31 +172,6 @@ export default class FiltersGroup extends Component {
     const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty, needUpdate } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
     const droppableId = `${droppableIdPrefix}${index}`;
-    // const dndFilters = this.getFilters(group.filters, { sourceId, metaRecord, needUpdate, groupConditions });
-
-    // const dndFilters = group.filters.map((filter, idx) => (
-    //   <Filter
-    //     key={idx}
-    //     index={idx}
-    //     filter={filter}
-    //     sourceId={sourceId}
-    //     metaRecord={metaRecord}
-    //     needUpdate={needUpdate}
-    //     onChangeValue={this.onChangeFilterValue}
-    //     onChangePredicate={this.onChangeFilterPredicate}
-    //     onDelete={this.deleteFilter}
-    //   >
-    //     {idx > 0 && (
-    //       <FiltersCondition
-    //         index={idx}
-    //         cross
-    //         onClick={this.changeFilterCondition}
-    //         condition={filter.getCondition()}
-    //         conditions={groupConditions}
-    //       />
-    //     )}
-    //   </Filter>
-    // ));
 
     return (
       <Well className={classNames('ecos-well_full ecos-well_border ecos-well_radius_6 ecos-filters-group', className)}>
@@ -261,7 +236,6 @@ export default class FiltersGroup extends Component {
                               'ecos-filters-group__item_draggable': snapshot.isDragging
                             })}
                             provided={provided}
-                            // item={item}
                           >
                             <this.renderFilter
                               idx={index}
@@ -275,10 +249,7 @@ export default class FiltersGroup extends Component {
                           this.portal
                         )
                       ) : (
-                        <ListItem
-                          provided={provided}
-                          // item={item}
-                        >
+                        <ListItem provided={provided}>
                           <this.renderFilter
                             idx={index}
                             filter={item}
