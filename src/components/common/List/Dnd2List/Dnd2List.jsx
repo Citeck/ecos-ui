@@ -8,9 +8,9 @@ import Columns from '../../templates/Columns/Columns';
 
 import './Dnd2List.scss';
 
-const ListItem = ({ cssItemClasses, provided, item }) => {
+const ListItem = React.memo(({ cssItemClasses, provided, item }) => {
   return (
-    <li
+    <span
       className={cssItemClasses}
       ref={provided.innerRef}
       {...provided.draggableProps}
@@ -18,18 +18,18 @@ const ListItem = ({ cssItemClasses, provided, item }) => {
       style={{ ...provided.draggableProps.style }}
     >
       {item.content}
-    </li>
+    </span>
   );
-};
+});
 
-const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName }) => {
+const Dnd = React.memo(({ data, cssClasses, cssItemClasses, id, portal, draggableClassName }) => {
   return (
     <div className={'ecos-dnd2-list__column'}>
       <Scrollbars style={{ height: '100%' }}>
         <Droppable droppableId={id}>
           {provided => (
             <div className={data.length > 3 ? '' : 'ecos-dnd2-list__placeholder_full'}>
-              <ul className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
+              <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
                     {(provided, snapshot) => {
@@ -48,7 +48,7 @@ const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName 
                     }}
                   </Draggable>
                 ))}
-              </ul>
+              </div>
               {provided.placeholder}
             </div>
           )}
@@ -56,7 +56,7 @@ const Dnd = ({ data, cssClasses, cssItemClasses, id, portal, draggableClassName 
       </Scrollbars>
     </div>
   );
-};
+});
 
 export default class Dnd2List extends Component {
   constructor(props) {
