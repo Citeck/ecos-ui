@@ -356,11 +356,11 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
     const { journalSetting, predicate } = action.payload;
     const columnsSetup = {
       columns: JournalsConverter.injectId(journalSetting.columns),
-      sortBy: journalSetting.sortBy.map(s => ({ ...s }))
+      sortBy: cloneDeep(journalSetting.sortBy)
     };
     const grouping = {
-      columns: (journalSetting.groupBy.length ? journalSetting.columns : []).map(c => ({ ...c })),
-      groupBy: journalSetting.groupBy.map(g => ({ ...g }))
+      columns: cloneDeep(journalSetting.groupBy.length ? journalSetting.grouping.columns : []),
+      groupBy: cloneDeep(journalSetting.groupBy)
     };
 
     yield put(setPredicate(w(predicate || journalSetting.predicate)));

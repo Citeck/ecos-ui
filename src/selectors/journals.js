@@ -157,8 +157,8 @@ export const selectSettingsColumns = createSelector(
   ownProps => {
     return cloneDeep({
       columns: get(ownProps, 'columnsSetup.columns', []).map(item => ({
-        ...item,
-        id: getId()
+        id: getId(),
+        ...item
       })),
       sortBy: get(ownProps, 'columnsSetup.sortBy')
     });
