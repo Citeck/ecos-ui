@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { t } from '../../helpers/export/util';
@@ -38,10 +39,10 @@ class SettingsModal extends Component {
     super(props);
 
     this.state = {
-      predicate: get(props, 'filtersData.predicate', []),
-      columns: get(props, 'columnsData.columns', []),
-      sortBy: get(props, 'columnsData.sortBy', []),
-      grouping: get(props, 'groupingData', {}),
+      predicate: cloneDeep(get(props, 'filtersData.predicate', [])),
+      columns: cloneDeep(get(props, 'columnsData.columns', [])),
+      sortBy: cloneDeep(get(props, 'columnsData.sortBy', [])),
+      grouping: cloneDeep(get(props, 'groupingData', {})),
       needUpdate: false
     };
   }
@@ -49,10 +50,10 @@ class SettingsModal extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (!prevProps.isOpen && this.props.isOpen) {
       this.setState({
-        predicate: get(this.props, 'filtersData.predicate', []),
-        columns: get(this.props, 'columnsData.columns', []),
-        sortBy: get(this.props, 'columnsData.sortBy', []),
-        grouping: get(this.props, 'groupingData', {})
+        predicate: cloneDeep(get(this.props, 'filtersData.predicate', [])),
+        columns: cloneDeep(get(this.props, 'columnsData.columns', [])),
+        sortBy: cloneDeep(get(this.props, 'columnsData.sortBy', [])),
+        grouping: cloneDeep(get(this.props, 'groupingData', {}))
       });
     }
   }
@@ -118,10 +119,10 @@ class SettingsModal extends Component {
 
     this.setState(
       {
-        predicate: get(originGridSettings, 'predicate'),
-        sortBy: get(originGridSettings, 'columnsSetup.sortBy'),
-        columns: get(originGridSettings, 'columnsSetup.columns'),
-        grouping: get(originGridSettings, 'grouping'),
+        predicate: cloneDeep(get(originGridSettings, 'predicate')),
+        sortBy: cloneDeep(get(originGridSettings, 'columnsSetup.sortBy')),
+        columns: cloneDeep(get(originGridSettings, 'columnsSetup.columns')),
+        grouping: cloneDeep(get(originGridSettings, 'grouping')),
         needUpdate: true
       },
       () => this.setState({ needUpdate: false })

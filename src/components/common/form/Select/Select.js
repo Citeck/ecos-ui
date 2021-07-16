@@ -41,7 +41,7 @@ export default class Select extends Component {
       value = handleSetValue(value, options || []);
     }
 
-    return value || defaultValue;
+    return value === undefined ? defaultValue : value;
   };
 
   componentWillReceiveProps(nextProps) {

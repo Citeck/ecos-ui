@@ -33,7 +33,7 @@ export default class ListItem extends Component {
   getSelected = (column, sortBy) => {
     const sort = sortBy.filter(s => s.attribute === column.attribute)[0];
 
-    return sort ? this.sortTypes.filter(o => o.value === sort.ascending)[0] : null;
+    return sort ? this.sortTypes.filter(o => o.value === sort.ascending)[0] || null : null;
   };
 
   render() {
@@ -50,7 +50,7 @@ export default class ListItem extends Component {
           </div>,
 
           <Select
-            isClearable={true}
+            isClearable
             options={this.sortTypes}
             getOptionLabel={option => option.title}
             getOptionValue={option => option.value}
