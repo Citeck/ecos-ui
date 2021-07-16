@@ -329,6 +329,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
     this.refreshElementHasValueClasses();
   }
 
+  onReactValueChanged = value => {
+    this.setPristine(false);
+    this.updateValue({ skipReactWrapperUpdating: true, noUpdateEvent: true }, value);
+  };
+
   updateValue(flags, value) {
     const changed = super.updateValue(flags, value);
 
