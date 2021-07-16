@@ -5,14 +5,14 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 
 import { getId } from '../../../../helpers/util';
-import { ListItem } from '../../../ColumnsSetup/ColumnsSetup';
+import ListItem from '../../../ColumnsSetup/ListItem';
 
 import './DndList.scss';
 
 const Scroll = React.memo(({ noScroll, children }) =>
   noScroll ? children : <Scrollbars style={{ height: '100%' }}>{children}</Scrollbars>
 );
-const ListItemWrapper = ({ cssItemClasses, provided, children }) => {
+const ListItemWrapper = React.memo(({ cssItemClasses, provided, children }) => {
   return (
     <span
       className={cssItemClasses}
@@ -24,7 +24,7 @@ const ListItemWrapper = ({ cssItemClasses, provided, children }) => {
       {children}
     </span>
   );
-};
+});
 
 export default class DndList extends Component {
   constructor(props) {
