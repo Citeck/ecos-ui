@@ -213,9 +213,9 @@ export default class BaseReactComponent extends BaseComponent {
     }
   }
 
-  onReactValueChanged = value => {
+  onReactValueChanged = (value, addFlags = {}) => {
     this.setPristine(false);
-    this.updateValue({ skipReactWrapperUpdating: true }, value);
+    this.updateValue({ skipReactWrapperUpdating: true, ...addFlags }, value);
   };
 
   setValue(value, flags) {

@@ -269,7 +269,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         placeholder: component.placeholder,
         disabled: component.disabled,
         journalId: journalId,
-        onChange: this.onReactValueChanged,
+        onChange: value => this.onReactValueChanged(value, { noUpdateEvent: true }),
         viewOnly: this.viewOnly,
         queryData: _.isEmpty(component.queryData) ? {} : this.evaluate(component.queryData, {}, 'value', true),
         viewMode: component.source.viewMode,
@@ -328,11 +328,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
     super.viewOnlyBuild();
     this.refreshElementHasValueClasses();
   }
-
-  onReactValueChanged = value => {
-    this.setPristine(false);
-    this.updateValue({ skipReactWrapperUpdating: true, noUpdateEvent: true }, value);
-  };
 
   updateValue(flags, value) {
     const changed = super.updateValue(flags, value);
