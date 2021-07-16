@@ -15,7 +15,7 @@ import JournalsService from '../../../Journals/service';
 import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
-import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
+import { matchCardDetailsLinkFormatterColumn } from '../../grid/mapping/Mapper';
 import FormManager from '../../../EcosForm/FormManager';
 import Records from '../../../Records';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
@@ -715,14 +715,14 @@ export default class SelectJournal extends Component {
             <div className="select-journal-collapse-panel__controls-left">
               <IcoBtn
                 invert
-                icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
+                icon={classNames({ 'icon-small-up': isCollapsePanelOpen, 'icon-small-down': !isCollapsePanelOpen })}
                 className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                 onClick={this.toggleCollapsePanel}
               >
                 {t(Labels.FILTER_BUTTON)}
               </IcoBtn>
 
-              {hideCreateButton ? null : (
+              {!hideCreateButton && (
                 <CreateVariants items={get(journalConfig, 'meta.createVariants')} onCreateFormSubmit={this.onCreateFormSubmit} />
               )}
             </div>
@@ -732,11 +732,11 @@ export default class SelectJournal extends Component {
           </div>
 
           <Collapse isOpen={isCollapsePanelOpen}>
-            {journalConfig.columns ? <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} /> : null}
+            {journalConfig.columns && <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} />}
           </Collapse>
         </div>
 
-        <div className={'select-journal__grid-container'}>
+        <div className="select-journal__grid-container">
           {!isGridDataReady && <Loader />}
 
           <Grid
@@ -751,7 +751,7 @@ export default class SelectJournal extends Component {
             onRowDoubleClick={this.onRowDoubleClick}
           />
 
-          <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
+          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
         </div>
 
         <div className="select-journal-select-modal__buttons">

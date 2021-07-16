@@ -12,26 +12,26 @@ import './Filter.scss';
 const Filter = ({
   idx,
   text,
+  item,
   predicates,
   selectedPredicate,
-  onRemove,
-  changePredicate,
   predicateValue,
-  changePredicateValue,
-  applyFilters,
-  item
+  onRemove,
+  onChangePredicate,
+  onChangePredicateValue
 }) => {
+  const editorType = get(item, 'newEditor.type');
   const isShow = get(selectedPredicate, 'needValue', true);
-  const FilterValueComponent = React.memo(({ item }) => {
-    return EditorService.getEditorControl({
+  const FilterValueComponent = React.memo(({ item }) =>
+    EditorService.getEditorControl({
       attribute: item.attribute,
       editor: item.newEditor,
       value: predicateValue,
       scope: EditorScope.FILTER,
-      onUpdate: changePredicateValue,
-      onKeyDown: applyFilters
-    });
-  });
+      onUpdate: onChangePredicateValue,
+      controlProps: { predicate: selectedPredicate }
+    })
+  );
 
   return (
     <li className="select-journal-filter">
@@ -41,15 +41,17 @@ const Filter = ({
       <div className="select-journal-filter__right">
         <div className="select-journal-filter__predicate">
           <Select
-            className={'select_narrow select-journal-filter__predicate-select'}
+            className="select_narrow select-journal-filter__predicate-select"
             options={predicates}
             value={selectedPredicate}
             data-idx={idx}
-            onChange={changePredicate}
+            onChange={onChangePredicate}
           />
-          <div className="select-journal-filter__predicate-control">{isShow && <FilterValueComponent item={item} />}</div>
+          <div className="select-journal-filter__predicate-control">
+            {isShow && EditorService.isRegistered(editorType) && <FilterValueComponent item={item} />}
+          </div>
         </div>
-        <span data-idx={idx} className={'icon icon-delete select-journal-filter__remove-btn'} onClick={onRemove} />
+        <span data-idx={idx} className="icon icon-delete select-journal-filter__remove-btn" onClick={onRemove} />
       </div>
     </li>
   );
