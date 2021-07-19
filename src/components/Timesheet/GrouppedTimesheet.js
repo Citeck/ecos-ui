@@ -401,18 +401,22 @@ class GrouppedTimesheet extends BaseTimesheet {
     const { daysOfMonth, groupBy } = this.props;
     const { filteredEventTypes } = this.state;
 
-    return filteredEventTypes.map((item, index) => (
-      <div key={`event-${item.userName}-${index}`}>
-        <CalendarRow>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
-        <Collapse
-          transition="height 250ms linear 0s"
-          className="ecos-timesheet__table-group-collapse-wrapper"
-          isOpen={this.getGroupStatus(item[groupBy])}
-        >
-          {item.eventTypes.map(event => this.renderEventCalendarRow(event, item.userName))}
-        </Collapse>
-      </div>
-    ));
+    return filteredEventTypes.map((item, index) => {
+      return (
+        <div key={`event-${item.userName}-${index}`}>
+          <CalendarRow>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
+          {this.getGroupStatus(item[groupBy]) && (
+            <Collapse
+              transition="height 250ms linear 0s"
+              className="ecos-timesheet__table-group-collapse-wrapper"
+              isOpen={this.getGroupStatus(item[groupBy])}
+            >
+              {item.eventTypes.map(event => this.renderEventCalendarRow(event, item.userName))}
+            </Collapse>
+          )}
+        </div>
+      );
+    });
   }
 
   renderCalendar() {

@@ -61,15 +61,23 @@ export class TimesheetCommonApi extends RecordService {
   };
 
   getTimesheetCalendarEventsList = async ({ month, year, userNames }) => {
-    const events = {};
+    // const events = {};
 
-    for (let userName of userNames) {
-      const res = await this.getTimesheetCalendarEventsByUserName({ month, year, userName });
+    return await Promise.all(
+      userNames.map(async userName => {
+        const res = await this.getTimesheetCalendarEventsByUserName({ month, year, userName });
 
-      events[userName] = res.records || [];
-    }
+        return res.records || [];
+      })
+    );
 
-    return events;
+    // for (let userName of userNames) {
+    //   const res = await this.getTimesheetCalendarEventsByUserName({ month, year, userName });
+    //
+    //   events[userName] = res.records || [];
+    // }
+    //
+    // return events;
   };
 
   getInfoPeopleList = ({ userNames }) => {
