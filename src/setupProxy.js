@@ -111,7 +111,7 @@ const gatewayRecordsProxyOptions = {
 
 module.exports = function(app) {
   app.use(
-    proxy(['/share/api/records'], {
+    proxy(['/share/api/records', '/eis.json'], {
       ...gatewayRecordsProxyOptions
     })
   );

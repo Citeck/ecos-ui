@@ -21,6 +21,7 @@
     "history": "^4.7.2",
     "http-proxy-middleware": "^0.19.1",
     "i18next": "^17.1.0",
+    "keycloak-js": "^12.0.2",
     "lodash": "^4.17.11",
     "logplease": "^1.2.15",
     "moment": "^2.23.0",

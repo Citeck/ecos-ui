@@ -17,8 +17,9 @@ import 'moment/locale/en-gb';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
-import { getCurrentLocale } from './helpers/util';
+import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
 
+import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
@@ -79,29 +80,37 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-store.dispatch(
-  initAppRequest({
-    onSuccess: isAuthenticated => {
-      store.dispatch(
-        loadThemeRequest({
-          isAuthenticated,
-          onSuccess: () => {
-            i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
-              ReactDOM.render(
-                <Provider store={store}>
-                  <ConnectedRouter history={history}>
-                    <App />
-                  </ConnectedRouter>
-                </Provider>,
-                document.getElementById('root')
-              );
-            });
-          }
-        })
-      );
-    }
-  })
-);
+const runApp = () => {
+  store.dispatch(
+    initAppRequest({
+      onSuccess: isAuthenticated => {
+        store.dispatch(
+          loadThemeRequest({
+            isAuthenticated,
+            onSuccess: () => {
+              i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
+                ReactDOM.render(
+                  <Provider store={store}>
+                    <ConnectedRouter history={history}>
+                      <App />
+                    </ConnectedRouter>
+                  </Provider>,
+                  document.getElementById('root')
+                );
+              });
+            }
+          })
+        );
+      }
+    })
+  );
+};
+
+if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
+  authService.init().then(runApp);
+} else {
+  runApp();
+}
 
 const idleTimer = new IdleTimer();
 idleTimer
