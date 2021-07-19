@@ -19,6 +19,7 @@ import { goToCardDetailsPage } from '../helpers/urls';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
 import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
 
 function* fetchSlideMenu({ api, logger }, action) {
   try {
@@ -95,6 +96,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
 
         createVariant.formTitle = yield call(api.page.getRecordTitle, recordRef);
         createVariant.recordRef = recordRef;
+        createVariant.formRef = yield Records.get(recordRef).load('startFormRef?id');
         break;
       default:
         break;
