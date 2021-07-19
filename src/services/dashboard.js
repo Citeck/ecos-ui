@@ -7,7 +7,7 @@ import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { SourcesId } from '../constants';
-import { CONFIG_VERSION, DashboardTypes } from '../constants/dashboard';
+import { CONFIG_VERSION } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
 import pageTabList from './pageTabs/PageTabList';

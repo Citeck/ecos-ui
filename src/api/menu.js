@@ -71,28 +71,6 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
-  /**
-   * @deprecated
-   * @description Don't expand it. Register process & form in according journals to start workflow
-   * @returns Array
-   */
-  getCreateWorkflowVariants = () => {
-    return Promise.resolve([
-      {
-        id: 'HEADER_CREATE_WORKFLOW',
-        label: 'header.create-workflow.label',
-        items: [
-          // TODO: Migration to form required
-          {
-            id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
-            label: 'header.create-workflow-confirm.label',
-            targetUrl: '/share/page/start-specified-workflow?workflowId=activiti$confirm'
-          }
-        ]
-      }
-    ]);
-  };
-
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
 
