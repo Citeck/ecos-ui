@@ -29,11 +29,10 @@ import MenuConverter from '../dto/menu';
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
     const createMenuView = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
-    const workflowVars = yield call(api.menu.getCreateWorkflowVariants); //todo: temp solution to get create variants from menu config
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
     const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 
-    yield put(setCreateCaseWidgetItems([].concat(workflowVars, config)));
+    yield put(setCreateCaseWidgetItems(config));
     yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);
