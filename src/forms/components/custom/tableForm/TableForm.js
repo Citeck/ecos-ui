@@ -75,6 +75,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   checkConditions(data) {
+    const isVisible = _.cloneDeep(this.visible);
     let result = super.checkConditions(data);
 
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
@@ -123,6 +124,10 @@ export default class TableFormComponent extends BaseReactComponent {
           });
         }
       });
+    }
+
+    if (!isVisible && this.visible) {
+      this.redraw();
     }
 
     return result;

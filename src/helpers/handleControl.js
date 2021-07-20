@@ -94,16 +94,14 @@ export default function handleControl(type, payload) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
       const logoutHandler = (logoutURL = LOGOUT_URL_DEFAULT) => {
-        ecosFetch(logoutURL, { method: 'POST', mode: 'no-cors' }).then(() => {
-          window.location.reload();
-        });
+        ecosFetch(logoutURL, { method: 'POST', mode: 'no-cors' }).then(() => window.location.reload());
       };
 
       ecosFetch(URL_EIS_CONFIG)
         .then(r => r.json())
         .then(config => {
           const EIS_LOGOUT_URL_DEFAULT_VALUE = 'LOGOUT_URL';
-          let { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
+          const { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
 
           if (logoutUrl === EIS_LOGOUT_URL_DEFAULT_VALUE) {
             logoutUrl = LOGOUT_URL_DEFAULT;
@@ -132,11 +130,20 @@ export default function handleControl(type, payload) {
       }
       break;
 
+    case HCT.ALF_CREATE_SITE:
+      if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
+        window.Alfresco.module.getCreateSiteInstance().show();
+      } else {
+        const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
+
+        requireShareAssets().then(() => loadScript(createSiteScript, () => window.Alfresco.module.getCreateSiteInstance().show()));
+      }
+
+      break;
+
     case HCT.ALF_EDIT_SITE:
-      if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getEditSiteInstance === 'function') {
-        window.Alfresco.module.getEditSiteInstance().show({
-          shortName: payload.site
-        });
+      if (typeof get(window, 'Alfresco.module.getEditSiteInstance') === 'function') {
+        window.Alfresco.module.getEditSiteInstance().show({ shortName: payload.site });
       }
 
       break;
@@ -144,6 +151,7 @@ export default function handleControl(type, payload) {
     case HCT.ALF_LEAVE_SITE:
       return (() => {
         const { site, siteTitle, user, userFullName } = payload;
+
         DialogManager.confirmDialog({
           title: t('message.leave', { name: siteTitle }),
           text: t('message.leave-site-prompt', { name: siteTitle }),
@@ -165,9 +173,7 @@ export default function handleControl(type, payload) {
 
                 window.location.href = URL.DASHBOARD;
               })
-              .catch(err => {
-                console.log('error', err);
-              });
+              .catch(err => console.log('error', err));
           }
         });
       })();
@@ -190,15 +196,10 @@ export default function handleControl(type, payload) {
               return;
             }
 
-            DialogManager.showInfoDialog({
-              text: t('message.joining', { user, site })
-            });
-
+            DialogManager.showInfoDialog({ text: t('message.joining', { user, site }) });
             window.location.reload();
           })
-          .catch(err => {
-            console.log('error', err);
-          });
+          .catch(err => console.log('error', err));
       })();
 
     case HCT.ALF_BECOME_SITE_MANAGER:
@@ -207,9 +208,7 @@ export default function handleControl(type, payload) {
         const url = `${PROXY_URI}api/sites/${encodeURIComponent(site)}/memberships`;
         const data = {
           role: 'SiteManager',
-          person: {
-            userName: user ? user : getCurrentUserName()
-          }
+          person: { userName: user ? user : getCurrentUserName() }
         };
 
         return ecosFetch(url, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: data })
@@ -221,9 +220,7 @@ export default function handleControl(type, payload) {
 
             window.location.reload();
           })
-          .catch(err => {
-            console.log('error', err);
-          });
+          .catch(err => console.log('error', err));
       })();
 
     case HCT.ALF_REQUEST_SITE_MEMBERSHIP:
@@ -260,18 +257,16 @@ export default function handleControl(type, payload) {
             return DialogManager.showInfoDialog({
               title: t('message.request-join-success-title'),
               text: t('message.request-join-success', { site: siteTitle || site }),
-              onClose: () => {
-                window.location.href = URL.DASHBOARD;
-              }
+              onClose: () => (window.location.href = URL.DASHBOARD)
             });
           })
-          .catch(err => {
-            console.log('error', err);
-          });
+          .catch(err => console.log('error', err));
       })();
 
     case HCT.ECOS_EDIT_PASSWORD:
-      RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
+      RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(e =>
+        console.error('error', e)
+      );
       break;
 
     default:
