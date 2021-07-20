@@ -101,7 +101,7 @@ export default function handleControl(type, payload) {
         .then(r => r.json())
         .then(config => {
           const EIS_LOGOUT_URL_DEFAULT_VALUE = 'LOGOUT_URL';
-          const { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
+          let { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
 
           if (logoutUrl === EIS_LOGOUT_URL_DEFAULT_VALUE) {
             logoutUrl = LOGOUT_URL_DEFAULT;
@@ -128,17 +128,6 @@ export default function handleControl(type, payload) {
       } else {
         window.location.href = payload.url;
       }
-      break;
-
-    case HCT.ALF_CREATE_SITE:
-      if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
-        window.Alfresco.module.getCreateSiteInstance().show();
-      } else {
-        const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
-
-        requireShareAssets().then(() => loadScript(createSiteScript, () => window.Alfresco.module.getCreateSiteInstance().show()));
-      }
-
       break;
 
     case HCT.ALF_EDIT_SITE:

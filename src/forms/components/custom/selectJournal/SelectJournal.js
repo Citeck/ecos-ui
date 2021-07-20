@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
-import { Attributes } from '../../../../constants';
 import { trimFields } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import { SelectJournal } from '../../../../components/common/form';
