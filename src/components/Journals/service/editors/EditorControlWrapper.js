@@ -2,7 +2,7 @@ import React from 'react';
 
 import { normalizeEditorValue, getEditorValue } from './editorUtils';
 
-export default class EditorControlWrapper extends React.PureComponent {
+export default class EditorControlWrapper extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
     const editorValue = getEditorValue(props.value, props.multiple);

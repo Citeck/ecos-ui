@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { t, trigger } from '../../helpers/util';
 import { RemoveDialog } from '../common/dialogs';
@@ -18,58 +19,75 @@ class Filters extends Component {
     dialogText: ''
   };
 
+  get groups() {
+    return cloneDeep(this.props.groups);
+  }
+
   onChangeFilter = ({ filter, index, groupIndex }) => {
-    this.groups[groupIndex].filters[index] = filter;
-    this.triggerChange(this.groups);
+    const groups = this.groups;
+
+    groups[groupIndex].filters[index] = filter;
+    this.triggerChange(groups);
   };
 
   onDeleteFilter = () => {
     const index = this._filterIndex;
     const groupIndex = this._groupIndex;
+    const groups = this.groups;
 
-    let filters = this.groups[groupIndex].filters;
+    let filters = groups[groupIndex].filters;
     filters.splice(index, 1);
 
     if (groupIndex > 0 && !filters.length) {
-      this.groups.splice(groupIndex, 1);
+      groups.splice(groupIndex, 1);
     }
 
-    this.triggerChange(this.groups);
-
+    this.triggerChange(groups);
     this.closeDialog();
   };
 
   onDeleteGroup = () => {
     if (this._groupIndex) {
-      this.groups.splice(this._groupIndex, 1);
-      this.triggerChange(this.groups);
+      const groups = this.groups;
+
+      groups.splice(this._groupIndex, 1);
+      this.triggerChange(groups);
     }
 
     this.closeDialog();
   };
 
   onAddFilter = ({ filter, groupIndex }) => {
-    this.groups[groupIndex].filters.push(filter);
-    this.triggerChange(this.groups);
+    const groups = this.groups;
+
+    groups[groupIndex].filters.push(filter);
+    this.triggerChange(groups);
   };
 
   onChangeFilterCondition = ({ condition, index, groupIndex }) => {
-    this.groups[groupIndex].filters[index].setCondition(condition);
-    this.triggerChange(this.groups);
+    const groups = this.groups;
+
+    groups[groupIndex].filters[index].setCondition(condition);
+    this.triggerChange(groups);
   };
 
   onChangeGroupFilterCondition = ({ condition, groupIndex }) => {
-    this.groups[groupIndex].setCondition(condition);
-    this.triggerChange(this.groups);
+    const groups = this.groups;
+
+    groups[groupIndex].setCondition(condition);
+    this.triggerChange(groups);
   };
 
   addGroup = condition => {
-    this.groups.push(ParserPredicate.createGroup(condition.value));
-    this.triggerChange(this.groups);
+    const groups = this.groups;
+
+    groups.push(ParserPredicate.createGroup(condition.value));
+    this.triggerChange(groups);
   };
 
   triggerChange = groups => {
     const predicate = ParserPredicate.reverse(groups);
+
     trigger.call(this, 'onChange', predicate);
   };
 
@@ -154,22 +172,24 @@ class Filters extends Component {
       return;
     }
 
+    const groups = this.groups;
+
     if (source.droppableId === destination.droppableId) {
-      const group = this.order(this.groups[fromGroupIndex], source.index, destination.index);
+      const group = this.order(groups[fromGroupIndex], source.index, destination.index);
 
       if (group) {
-        this.groups[fromGroupIndex] = group;
-        this.triggerChange(this.groups);
+        groups[fromGroupIndex] = group;
+        this.triggerChange(groups);
       }
     } else {
       const toGroupIndex = this.getIndexFromDroppableId(destination.droppableId);
 
-      const moved = this.move(this.groups[fromGroupIndex], this.groups[toGroupIndex], source.index, destination.index);
+      const moved = this.move(groups[fromGroupIndex], groups[toGroupIndex], source.index, destination.index);
 
       if (moved) {
-        this.groups[fromGroupIndex] = moved.from;
-        this.groups[toGroupIndex] = moved.to;
-        this.triggerChange(this.groups);
+        groups[fromGroupIndex] = moved.from;
+        groups[toGroupIndex] = moved.to;
+        this.triggerChange(groups);
       }
     }
   };
@@ -207,8 +227,7 @@ class Filters extends Component {
 
   render() {
     const { isDialogShow, dialogTitle, dialogText } = this.state;
-    const { predicate, columns, sourceId, metaRecord, className } = this.props;
-    const groups = (this.groups = ParserPredicate.parse(predicate, columns));
+    const { sourceId, metaRecord, className, groups } = this.props;
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
 

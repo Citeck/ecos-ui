@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import omit from 'lodash/omit';
+import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
@@ -44,6 +45,10 @@ export default class Filter extends Component {
     };
   }
 
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return !isEqual(omit(this.props, ['children']), omit(nextProps, ['children'])) || !isEqual(this.state, nextState);
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     const prevValue = get(prevProps, 'filter.predicate.val', '');
     const currentValue = get(this.props, 'filter.predicate.val', '');
@@ -64,6 +69,10 @@ export default class Filter extends Component {
 
   componentWillUnmount() {
     this.handleChangeValue.cancel();
+  }
+
+  get type() {
+    return 'base';
   }
 
   onChangeValue = (value, withoutValue) => {
@@ -154,15 +163,8 @@ export default class Filter extends Component {
     const isShow =
       !ParserPredicate.predicatesWithoutValue.includes(getPredicateValue(predicate)) && get(selectedPredicate, 'needValue', true);
     const editorType = get(column, 'newEditor.type');
-    const key = JSON.stringify({ column, metaRecord, predicate: omit(predicate, 'val') });
 
     if (isShow && EditorService.isRegistered(editorType)) {
-      const ControlComponent = this._controls.get(key);
-
-      if (ControlComponent) {
-        return this._controls.get(key);
-      }
-
       const control = EditorService.getEditorControl({
         recordRef: metaRecord,
         attribute: column.attribute,
@@ -173,6 +175,21 @@ export default class Filter extends Component {
         onKeyDown: this.onKeyDown,
         controlProps: { predicate: omit(predicate, 'val') }
       });
+
+      if (this.type === 'base') {
+        return control;
+      }
+
+      const key = JSON.stringify({
+        column,
+        metaRecord,
+        predicate: omit(predicate, 'val')
+      });
+      const ControlComponent = this._controls.get(key);
+
+      if (ControlComponent) {
+        return ControlComponent;
+      }
 
       this._controls.set(key, control);
 
