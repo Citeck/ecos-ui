@@ -15,6 +15,7 @@ import {
   saveRecords,
   setColumnsSetup,
   setGridInlineToolSettings,
+  setJournalSetting,
   setPredicate,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
@@ -52,6 +53,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     setPredicate: options => dispatch(setPredicate(w(options))),
+    setJournalSetting: settings => dispatch(setJournalSetting(w(settings))),
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
 };
@@ -117,6 +119,7 @@ class JournalsDashletGrid extends Component {
   onFilter = ([filter]) => {
     const {
       setPredicate,
+      setJournalSetting,
       grid: { columns, pagination: pager, predicates }
     } = this.props;
     const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
@@ -134,6 +137,7 @@ class JournalsDashletGrid extends Component {
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
+    setJournalSetting({ predicate: newPredicate });
     this.reloadGrid({ predicates: [newPredicate], pagination });
   };
 

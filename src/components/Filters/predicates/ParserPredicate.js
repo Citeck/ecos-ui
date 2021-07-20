@@ -356,7 +356,7 @@ export default class ParserPredicate {
     return out;
   }
 
-  static setPredicateValue(predicates, newPredicate) {
+  static setPredicateValue(predicates, newPredicate, many) {
     if (!predicates) {
       return [];
     }
@@ -365,7 +365,7 @@ export default class ParserPredicate {
       let newPredicates = predicates;
 
       newPredicate.forEach(item => {
-        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item);
+        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item, many);
       });
 
       return newPredicates;
@@ -374,8 +374,24 @@ export default class ParserPredicate {
     predicates = cloneDeep(predicates);
 
     const foreach = arr => {
-      arr.forEach(item => {
+      const newItems = {};
+
+      arr.forEach((item, index) => {
         if (!isArray(item.val) && item.att === newPredicate.att) {
+          if (many && item.att === newPredicate.att && !isEmpty(item.val)) {
+            const newItem = cloneDeep(item);
+
+            newItem.val = newPredicate.val;
+
+            if (newItem.t) {
+              newItem.t = newPredicate.t;
+            }
+
+            newItems[index + 1] = newItem;
+
+            return;
+          }
+
           item.val = newPredicate.val;
 
           if (newPredicate.t) {
@@ -384,6 +400,10 @@ export default class ParserPredicate {
         } else if (isArray(item.val)) {
           foreach(item.val);
         }
+      });
+
+      Object.keys(newItems).forEach(key => {
+        arr.splice(key, 0, newItems[key]);
       });
     };
 
