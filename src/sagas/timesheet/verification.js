@@ -28,15 +28,8 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
       year: currentDate.getFullYear()
     });
 
-    let userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
-
-    // if (userNamesPure.length > 10) {
-    //   userNamesPure = userNamesPure.slice(0, 3);
-    // }
-
+    const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
     const peopleList = yield call(api.timesheetCommon.getInfoPeopleList, { userNames: userNamesPure });
-
-    // return false;
 
     const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
       month: currentDate.getMonth(),
@@ -44,12 +37,10 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
       userNames: userNamesPure
     });
 
-    console.warn(calendarEvents);
-
     const list = VerificationTimesheetService.mergeManyToOneList({
       peopleList: peopleList.records,
       calendarEvents,
-      requestList: requestList.records // .slice(0, 3)
+      requestList: requestList.records
     });
 
     const mergedList = VerificationTimesheetConverter.getVerificationEventsListForWeb(list);

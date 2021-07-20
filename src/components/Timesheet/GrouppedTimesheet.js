@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
@@ -308,6 +308,55 @@ class GrouppedTimesheet extends BaseTimesheet {
     });
   }
 
+  renderItem = React.memo(({ item, index, onToggle, isOpen }) => {
+    useEffect(() => {
+      console.warn('component did mount');
+
+      return () => {
+        console.warn('component will unmount');
+      };
+    }, []);
+
+    return (
+      <SortableElement index={index}>
+        <div className="ecos-timesheet__table-group">
+          <div className="ecos-timesheet__table-group-header">
+            <div className="ecos-timesheet__table-group-line">
+              <div className="ecos-timesheet__table-group-name">
+                <SortableHandle>
+                  <Icon className="icon-custom-drag-big ecos-timesheet__table-group-header-dnd" />
+                </SortableHandle>
+
+                <Icon
+                  className={classNames('icon-small-down ecos-timesheet__table-group-collapse', {
+                    'ecos-timesheet__table-group-collapse_open': isOpen
+                  })}
+                  data-key={item.user}
+                  onClick={onToggle}
+                />
+
+                <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
+              </div>
+
+              <div className="ecos-timesheet__table-group-number">
+                {this.renderEventHistoryBtn(index, item)}
+                <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
+              </div>
+            </div>
+
+            <div className="ecos-timesheet__table-group-line ecos-timesheet__table-group-line_space-between ">
+              {this.renderGroupBtnByConfig(index)}
+            </div>
+          </div>
+
+          <Collapse isOpen={this.getGroupStatus(item.user)} transition="height 250ms linear 0s">
+            {this.renderEventsGroup(item.eventTypes, index)}
+          </Collapse>
+        </div>
+      </SortableElement>
+    );
+  });
+
   renderGroupedEvents() {
     const { filteredEventTypes } = this.state;
 
@@ -321,42 +370,13 @@ class GrouppedTimesheet extends BaseTimesheet {
       >
         <div>
           {filteredEventTypes.map((item, index) => (
-            <SortableElement key={`${item.timesheetNumber}-${index}`} index={index}>
-              <div className="ecos-timesheet__table-group">
-                <div className="ecos-timesheet__table-group-header">
-                  <div className="ecos-timesheet__table-group-line">
-                    <div className="ecos-timesheet__table-group-name">
-                      <SortableHandle>
-                        <Icon className="icon-custom-drag-big ecos-timesheet__table-group-header-dnd" />
-                      </SortableHandle>
-
-                      <Icon
-                        className={classNames('icon-small-down ecos-timesheet__table-group-collapse', {
-                          'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
-                        })}
-                        data-key={item.user}
-                        onClick={this.handleToggleGroupCollapse}
-                      />
-
-                      <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
-                    </div>
-
-                    <div className="ecos-timesheet__table-group-number">
-                      {this.renderEventHistoryBtn(index, item)}
-                      <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
-                    </div>
-                  </div>
-
-                  <div className="ecos-timesheet__table-group-line ecos-timesheet__table-group-line_space-between ">
-                    {this.renderGroupBtnByConfig(index)}
-                  </div>
-                </div>
-
-                <Collapse isOpen={this.getGroupStatus(item.user)} transition="height 250ms linear 0s">
-                  {this.renderEventsGroup(item.eventTypes, index)}
-                </Collapse>
-              </div>
-            </SortableElement>
+            <this.renderItem
+              key={item.timesheetNumber}
+              item={item}
+              index={index}
+              isOpen={this.getGroupStatus(item.user)}
+              onToggle={this.handleToggleGroupCollapse}
+            />
           ))}
         </div>
       </SortableContainer>
