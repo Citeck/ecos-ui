@@ -53,7 +53,7 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
         isUsedJournalActions: false,
-        displayElementsJS: {},
+        displayElementsJS: '',
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
         import: {
