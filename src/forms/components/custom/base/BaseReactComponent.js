@@ -110,7 +110,9 @@ export default class BaseReactComponent extends BaseComponent {
 
   updateReactComponent(updateFunc) {
     this.react.innerPromise.then(comp => {
-      updateFunc(comp);
+      if (typeof updateFunc === 'function') {
+        updateFunc(comp);
+      }
     });
   }
 
