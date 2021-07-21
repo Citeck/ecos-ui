@@ -1,5 +1,6 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -356,7 +357,9 @@ export default class ParserPredicate {
     return out;
   }
 
-  static setPredicateValue(predicates, newPredicate, many) {
+  static setNewPredicates(predicates, newPredicate) {
+    predicates = cloneDeep(predicates);
+
     if (!predicates) {
       return [];
     }
@@ -365,7 +368,58 @@ export default class ParserPredicate {
       let newPredicates = predicates;
 
       newPredicate.forEach(item => {
-        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item, many);
+        newPredicates = ParserPredicate.setNewPredicates(newPredicates, item);
+      });
+
+      return newPredicates;
+    }
+
+    const forEach = arr => {
+      arr.forEach(item => {
+        if (typeof item === 'string') {
+          return;
+        }
+
+        if (isArray(item.val) && !item.val.some(i => typeof i === 'string')) {
+          forEach(item.val);
+
+          return;
+        }
+
+        if (item.att === newPredicate.att) {
+          if (isEqual(newPredicate, item)) {
+            delete newPredicate.att;
+            return;
+          }
+
+          if (isEqual(item.att, newPredicate.att) && !isEqual(item.val, newPredicate.val)) {
+            item.val = newPredicate.val;
+
+            if (newPredicate.t) {
+              item.t = newPredicate.t;
+            }
+
+            delete newPredicate.att;
+          }
+        }
+      });
+    };
+
+    forEach(predicates.val || []);
+
+    return predicates;
+  }
+
+  static setPredicateValue(predicates, newPredicate) {
+    if (!predicates) {
+      return [];
+    }
+
+    if (Array.isArray(newPredicate)) {
+      let newPredicates = predicates;
+
+      newPredicate.forEach(item => {
+        newPredicates = ParserPredicate.setPredicateValue(newPredicates, item);
       });
 
       return newPredicates;
@@ -374,24 +428,8 @@ export default class ParserPredicate {
     predicates = cloneDeep(predicates);
 
     const foreach = arr => {
-      const newItems = {};
-
-      arr.forEach((item, index) => {
+      arr.forEach(item => {
         if (!isArray(item.val) && item.att === newPredicate.att) {
-          if (many && item.att === newPredicate.att && !isEmpty(item.val)) {
-            const newItem = cloneDeep(item);
-
-            newItem.val = newPredicate.val;
-
-            if (newItem.t) {
-              newItem.t = newPredicate.t;
-            }
-
-            newItems[index + 1] = newItem;
-
-            return;
-          }
-
           item.val = newPredicate.val;
 
           if (newPredicate.t) {
@@ -400,10 +438,6 @@ export default class ParserPredicate {
         } else if (isArray(item.val)) {
           foreach(item.val);
         }
-      });
-
-      Object.keys(newItems).forEach(key => {
-        arr.splice(key, 0, newItems[key]);
       });
     };
 

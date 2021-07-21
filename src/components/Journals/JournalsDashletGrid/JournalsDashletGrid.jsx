@@ -120,7 +120,7 @@ class JournalsDashletGrid extends Component {
     const {
       setPredicate,
       setJournalSetting,
-      grid: { columns, pagination: pager, predicates }
+      grid: { pagination: pager, predicates }
     } = this.props;
     const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
     const filterIdx = currentFilters.findIndex(item => item.att === filter.att);
@@ -131,8 +131,7 @@ class JournalsDashletGrid extends Component {
       currentFilters.push(filter);
     }
 
-    const predicate = ParserPredicate.getDefaultPredicates(columns, currentFilters.map(filter => filter.att));
-    const newPredicate = ParserPredicate.setPredicateValue(predicate, currentFilters, true);
+    const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
     const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
