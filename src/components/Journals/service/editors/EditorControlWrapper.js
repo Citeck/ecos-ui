@@ -111,7 +111,7 @@ export default class EditorControlWrapper extends React.Component {
   }
 
   render() {
-    const { onKeyDown = _ => _, multiple, attribute, recordRef } = this.props;
+    const { onKeyDown = _ => _, multiple, attribute, recordRef, forwardedRef } = this.props;
 
     const onBlur = () => {
       if (this.props.onBlur != null) {
@@ -139,6 +139,7 @@ export default class EditorControlWrapper extends React.Component {
 
     return (
       <Control
+        forwardedRef={forwardedRef}
         recordRef={recordRef}
         attribute={attribute}
         value={value}

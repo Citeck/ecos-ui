@@ -37,4 +37,10 @@
     position: absolute;
     right: 0;
   }
+
+  &__droppable {
+    & *:focus-visible {
+      outline: none !important;
+    }
+  }
 }
