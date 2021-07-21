@@ -116,7 +116,7 @@ class JournalsDashletGrid extends Component {
 
   onFilter = ([filter]) => {
     const {
-      setPredicate,
+      setPredicate = () => undefined,
       grid: { columns, pagination: pager, predicates }
     } = this.props;
     const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];

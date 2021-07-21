@@ -1,30 +1,62 @@
 export default [
   {
     type: 'panel',
-    title: 'Display Elements',
+    title: 'Display Actions',
     collapsible: true,
     collapsed: true,
     customClass: 'pt-1',
     key: 'displayElementsJS-js',
     components: [
       {
+        type: 'checkbox',
+        input: true,
+        key: 'isUsedJournalActions',
+        label: 'Use actions of journal',
+        tooltip: "If you use data source - Journal, it's better to use its actions",
+        defaultValue: false,
+        calculateValue: "value = _.isEmpty(data.displayElementsJS) ? !!_.get(data, 'source.journal.journalId') : false",
+        allowCalculateOverride: true,
+        customClass: 'mb-2',
+        logic: [
+          {
+            name: 'props',
+            trigger: {
+              type: 'javascript',
+              javascript: "result =!_.get(data, 'source.journal.journalId')"
+            },
+            actions: [
+              {
+                name: 'setDisabled',
+                type: 'property',
+                property: {
+                  label: 'Disabled',
+                  value: 'disabled',
+                  type: 'boolean'
+                },
+                state: 'true'
+              }
+            ]
+          }
+        ]
+      },
+      {
         type: 'textarea',
         key: 'displayElementsJS',
         rows: 5,
         editor: 'ace',
-        hideLabel: true,
-        input: true
+        label: 'Component Actions',
+        input: true,
+        description: "Standard available actions in component. If you use journal actions, every, except 'create', will be disable."
       },
       {
         type: 'htmlelement',
         tag: 'div',
-        content: `<p>
-Enter custom javascript code. You must assign the <strong>value</strong> variable.
+        content: `
+<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.
 The <strong>value</strong> variable can contain next boolean properties:
 <strong>create</strong>, <strong>clone</strong>, <strong>view</strong>, <strong>preview</strong>, <strong>edit</strong>, <strong>delete</strong>.
 Default <em>preview</em>, <em>clone</em> are <em>false</em>.
-For example, value = {view: false, edit: true, delete: false, clone: false, preview: false};
-</p>`
+For example, <strong>value = {view: false, edit: true, delete: false, clone: false, preview: false};</strong></p>`
       }
     ]
   },
