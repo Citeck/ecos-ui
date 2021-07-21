@@ -45,12 +45,12 @@ function* fetchCreateCaseWidget({ api, logger }) {
   }
 }
 
-function* fetchUserMenu({ api, fakeApi, logger }) {
+function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const isExternalAuthentication = yield call(fakeApi.getIsExternalAuthentication); // TODO use real api
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalAuthentication));
+    const isExternalIDP = yield call(api.app.getIsExternalIDP);
+    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalIDP));
 
     yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
@@ -67,7 +67,7 @@ function* fetchInfluentialParams() {
   return { isAdmin, dashboardEditable, leftMenuEditable };
 }
 
-function* fetchSiteMenu({ api, fakeApi, logger }) {
+function* fetchSiteMenu({ api, logger }) {
   try {
     const params = yield fetchInfluentialParams();
     const url = document.location.href;

@@ -1,3 +1,5 @@
+import { CITECK_URI } from './alfresco';
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
@@ -88,7 +90,7 @@ export const LoaderTypes = {
   POINTS: 'points'
 };
 
-export const IMAGE_URL_PATH = '/share/proxy/alfresco/citeck/ecos/image/thumbnail';
+export const IMAGE_URL_PATH = `${CITECK_URI}ecos/image/thumbnail`;
 
 export const DocScaleOptions = {
   AUTO: 'auto',

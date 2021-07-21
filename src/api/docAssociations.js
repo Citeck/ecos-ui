@@ -3,6 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
 import { EmodelTypes } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
 import { DocumentsApi } from './documents';
 
 export class DocAssociationsApi extends DocumentsApi {
@@ -109,7 +110,7 @@ export class DocAssociationsApi extends DocumentsApi {
    * @returns {Promise<any | never>}
    */
   getJournalList = site => {
-    return ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=site-${site}-main`, {
+    return ecosFetch(`${PROXY_URI}api/journals/list?journalsList=site-${site}-main`, {
       headers: { 'Content-type': 'application/json;charset=UTF-8' }
     }).then(response => response.json().then(response => response.journals));
   };

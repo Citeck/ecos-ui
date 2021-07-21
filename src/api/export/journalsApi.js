@@ -1,8 +1,9 @@
 import { URL } from '../../constants';
+import { PROXY_URI, URL_PAGECONTEXT } from '../../constants/alfresco';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
-import Records from '../../components/Records';
 import ecosFetch from '../../helpers/ecosFetch';
+import Records from '../../components/Records';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;
@@ -51,7 +52,7 @@ const getFirstJournalByList = listId => {
     return fromCache;
   }
 
-  let request = ecosFetch(`/share/proxy/alfresco/api/journals/list?journalsList=${listId}`)
+  let request = ecosFetch(`${PROXY_URI}api/journals/list?journalsList=${listId}`)
     .then(response => {
       if (response.status >= 200 && response.status < 300) {
         return response.json();
@@ -95,11 +96,13 @@ export const getNewPageUrl = params => {
 export const getOldPageUrl = params => {
   const { journalId, siteId, listId, filterRef, settingsId, skipCount, maxItems } = params;
 
-  let targetUrl = '/share/page';
+  let targetUrl = URL_PAGECONTEXT;
+
   if (siteId) {
-    targetUrl += `/site/${siteId}`;
+    targetUrl += `site/${siteId}`;
   }
-  targetUrl += `/journals2/list/${listId}#`;
+
+  targetUrl += `journals2/list/${listId}#`;
 
   if (journalId) {
     targetUrl += `journal=${journalId}`;
@@ -155,7 +158,7 @@ export const getJournalUIType = journalId => {
         const journalsList = Object.keys(uiTypeByJournalIdQueryBatch);
         uiTypeByJournalIdQueryBatch = null;
 
-        ecosFetch(`/share/proxy/alfresco/api/journals/journals-ui-type`, {
+        ecosFetch(`${PROXY_URI}api/journals/journals-ui-type`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -1,7 +1,8 @@
-import { RecordService } from './recordService';
-import Records from '../components/Records';
-
 import endsWith from 'lodash/endsWith';
+
+import Records from '../components/Records';
+import { PROXY_URI_SHORT } from '../constants/alfresco';
+import { RecordService } from './recordService';
 
 export class DocPreviewApi extends RecordService {
   static getPreviewLinkByRecord = recordRef => {
@@ -38,7 +39,7 @@ export class DocPreviewApi extends RecordService {
 
         return '';
       })
-      .then(url => (url ? `/share/proxy/${url}` : ''))
+      .then(url => (url ? `${PROXY_URI_SHORT}${url}` : ''))
       .catch(e => {
         console.error(e);
         return '';
@@ -86,7 +87,7 @@ export class DocPreviewApi extends RecordService {
         resp = resp || {};
 
         const { originalUrl, originalName, originalExt } = resp.info || {};
-        const link = originalUrl ? `/share/proxy/${originalUrl}` : '';
+        const link = originalUrl ? `${PROXY_URI_SHORT}${originalUrl}` : '';
         let fileName = originalName || resp.fileName;
 
         if (!endsWith(fileName, originalExt)) {
