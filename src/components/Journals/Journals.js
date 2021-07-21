@@ -2,24 +2,22 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
-import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import merge from 'lodash/merge';
 
-import EcosModal from '../common/EcosModal/EcosModal';
-import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
-import { Well } from '../common/form';
 import {
+  applyJournalSetting,
+  createJournalSetting,
   execRecordsAction,
   getJournalsData,
   onJournalSettingsSelect,
   reloadGrid,
   restoreJournalSettingData,
   runSearch,
+  saveJournalSetting,
   setGrid,
   setSelectAllRecords,
   setSelectedRecords,
@@ -35,20 +33,18 @@ import FormManager from '../EcosForm/FormManager';
 
 import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
-import JournalsGrouping from './JournalsGrouping';
-import JournalsFilters from './JournalsFilters';
-import JournalsColumnsSetup from './JournalsColumnsSetup';
-import JournalsSettingsFooter from './JournalsSettingsFooter';
 import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
+import SettingsModal from './SettingsModal';
 import { JournalsGroupActionsTools } from './JournalsTools';
 import DocLibBreadcrumbs from './DocLib/DocLibBreadcrumbs';
 import DocLibSettingsBar from './DocLib/DocLibSettingsBar';
 import DocLibPagination from './DocLib/DocLibPagination';
 import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
+import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
 
 import './Journals.scss';
 
@@ -70,7 +66,12 @@ const mapStateToProps = (state, props) => {
     urlParams: newState.url,
     _url: window.location.href,
     isDocLibEnabled: selectIsDocLibEnabled(state, props.stateId),
-    docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId)
+    docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId),
+
+    settingsFiltersData: selectSettingsFilters(state, props.stateId),
+    settingsColumnsData: selectSettingsColumns(state, props.stateId),
+    settingsGroupingData: selectSettingsGrouping(state, props.stateId),
+    settingsData: selectSettingsData(state, props.stateId)
   };
 };
 
@@ -87,7 +88,10 @@ const mapDispatchToProps = (dispatch, props) => {
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id)))
+    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
+    applySettings: settings => dispatch(applyJournalSetting(w(settings))),
+    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
+    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings })))
   };
 };
 
@@ -319,15 +323,24 @@ class Journals extends React.Component {
     });
   };
 
-  resetSettings = savedSetting => {
-    const { predicate, journalConfig } = this.props;
+  saveSettings = (id, settings) => {
+    const { saveJournalSetting } = this.props;
 
-    this.setState({ savedSetting: { ...savedSetting, predicate, columns: get(journalConfig, 'columns', []) }, isReset: true }, () =>
-      this.setState({ isReset: false })
-    );
+    saveJournalSetting(id, settings);
   };
 
-  applySettings = isChangedPredicates => {
+  createSettings = settings => {
+    const {
+      journalConfig: { id },
+      createJournalSetting
+    } = this.props;
+
+    createJournalSetting(id, settings);
+    this.toggleSettings();
+  };
+
+  applySettings = (isChangedPredicates, settings) => {
+    this.props.applySettings({ settings });
     if (isChangedPredicates) {
       const { clearSearch } = this.props;
       const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
@@ -339,19 +352,8 @@ class Journals extends React.Component {
     this.toggleSettings();
   };
 
-  toggleSettings = (isCancel = false) => {
-    const { gridPredicates, journalSetting } = this.props;
-    const { savedSetting, settingsVisible, isReset } = this.state;
-
-    if (savedSetting && settingsVisible) {
-      const predicate = isReset ? get(this.props, 'predicate', {}) : get(savedSetting, 'predicate', {});
-
-      this.props.restoreJournalSettingData({ ...savedSetting, predicate, isReset });
-    }
-
-    if (!savedSetting && settingsVisible && isCancel) {
-      this.props.restoreJournalSettingData({ ...journalSetting, predicate: get(gridPredicates, ['0'], {}) });
-    }
+  toggleSettings = () => {
+    const { settingsVisible } = this.state;
 
     this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
   };
@@ -524,73 +526,64 @@ class Journals extends React.Component {
   };
 
   renderSettings = () => {
-    if (this.displayElements.settings) {
-      const { stateId, journalConfig, grid, isMobile, selectedRecords, reloadGrid, isDocLibEnabled } = this.props;
-      const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
-      const { id: journalId, columns = [], meta = {}, sourceId } = pick(this.props.journalConfig, ['id', 'columns', 'meta', 'sourceId']);
-      const visibleColumns = columns.filter(c => c.visible);
-
-      if (this.isDocLibMode) {
-        return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
-      }
-
-      return (
-        <>
-          <EcosModal
-            title={t('journals.action.setting-dialog-msg')}
-            isOpen={settingsVisible}
-            hideModal={() => this.toggleSettings(true)}
-            isBigHeader
-            className={'ecos-modal_width-m ecos-modal_zero-padding ecos-modal_shadow'}
-          >
-            <Well className="ecos-journal__settings">
-              <EcosModalHeight>
-                {height => (
-                  <Scrollbars style={{ height }}>
-                    <JournalsFilters
-                      stateId={stateId}
-                      columns={visibleColumns}
-                      sourceId={sourceId}
-                      metaRecord={get(meta, 'metaRecord')}
-                      needUpdate={isReset}
-                    />
-                    <JournalsColumnsSetup stateId={stateId} columns={visibleColumns} />
-                    <JournalsGrouping stateId={stateId} columns={visibleColumns} />
-                  </Scrollbars>
-                )}
-              </EcosModalHeight>
-
-              <JournalsSettingsFooter
-                parentClass="ecos-journal__settings"
-                stateId={stateId}
-                journalId={journalId}
-                onApply={this.applySettings}
-                onCreate={this.toggleSettings}
-                onReset={this.resetSettings}
-              />
-            </Well>
-          </EcosModal>
-          <JournalsSettingsBar
-            grid={grid}
-            journalConfig={journalConfig}
-            stateId={stateId}
-            showPreview={showPreview}
-            toggleSettings={this.toggleSettings}
-            togglePreview={this.togglePreview}
-            showDocLibrary={this.showDocLibrary}
-            showGrid={this.showGrid}
-            refresh={reloadGrid}
-            onSearch={this.onSearch}
-            addRecord={this.addRecord}
-            isMobile={isMobile}
-            searchText={this.getSearchText()}
-            selectedRecords={selectedRecords}
-            isDocLibEnabled={isDocLibEnabled}
-            createIsLoading={createIsLoading}
-          />
-        </>
-      );
+    if (!this.displayElements.settings) {
+      return null;
     }
+
+    const {
+      settingsFiltersData,
+      stateId,
+      journalConfig,
+      grid,
+      isMobile,
+      selectedRecords,
+      reloadGrid,
+      isDocLibEnabled,
+      settingsData,
+      settingsColumnsData,
+      settingsGroupingData
+    } = this.props;
+    const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
+
+    if (this.isDocLibMode) {
+      return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
+    }
+
+    return (
+      <>
+        <SettingsModal
+          {...settingsData}
+          filtersData={settingsFiltersData}
+          columnsData={settingsColumnsData}
+          groupingData={settingsGroupingData}
+          isReset={isReset}
+          isOpen={settingsVisible}
+          onClose={this.toggleSettings}
+          onApply={this.applySettings}
+          onCreate={this.createSettings}
+          onSave={this.saveSettings}
+        />
+
+        <JournalsSettingsBar
+          grid={grid}
+          journalConfig={journalConfig}
+          stateId={stateId}
+          showPreview={showPreview}
+          toggleSettings={this.toggleSettings}
+          togglePreview={this.togglePreview}
+          showDocLibrary={this.showDocLibrary}
+          showGrid={this.showGrid}
+          refresh={reloadGrid}
+          onSearch={this.onSearch}
+          addRecord={this.addRecord}
+          isMobile={isMobile}
+          searchText={this.getSearchText()}
+          selectedRecords={selectedRecords}
+          isDocLibEnabled={isDocLibEnabled}
+          createIsLoading={createIsLoading}
+        />
+      </>
+    );
   };
 
   renderGroupActions = () => {

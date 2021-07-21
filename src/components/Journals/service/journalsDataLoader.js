@@ -13,7 +13,7 @@ import { COMPUTED_ATT_PREFIX } from './util';
 
 class JournalsDataLoader {
   async load(journalConfig, settings = {}) {
-    const columns = journalConfig.columns || [];
+    const columns = journalConfig.columns || settings.columns || [];
     const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
     let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
 

@@ -22,6 +22,10 @@ class InlineFilter extends Filter {
 
   componentDidUpdate() {}
 
+  get type() {
+    return 'inline';
+  }
+
   get valueClassNames() {
     return classNames(super.valueClassNames, 'ecos-inline-filter__value');
   }

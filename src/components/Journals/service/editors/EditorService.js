@@ -9,6 +9,7 @@ import EditorControlWrapper from './EditorControlWrapper';
 import { getEditorValue } from './editorUtils';
 import { DEFAULT_EDITOR_TYPE } from './constants';
 import JournalEditor from './registry/JournalEditor';
+import OrgstructEditor from './registry/OrgstructEditor';
 
 /**
  * @typedef {Object} EditorServiceProps
@@ -57,7 +58,8 @@ class EditorService {
 
       const getDisplayName =
         scope === EditorScope.CELL ? (v, state) => editorInstance.getDisplayName(v, editorConfig, scope, state || {}) : null;
-      const multipleProp = scope === EditorScope.CELL ? multiple === true : editor.type === JournalEditor.TYPE;
+      const multipleProp =
+        scope === EditorScope.CELL ? multiple === true : [OrgstructEditor.TYPE, JournalEditor.TYPE].includes(editor.type);
       const control = editorInstance.getControl(editorConfig, scope, controlProps);
 
       if (!control) {

@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import AttributesService from '../services/AttributesService';
 import { ParserPredicate } from '../components/Filters/predicates';
+import { getId } from '../helpers/util';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -108,5 +109,18 @@ export default class JournalsConverter {
     }
 
     return result;
+  }
+
+  static injectId(data) {
+    if (Array.isArray(data)) {
+      return data.map(item => JournalsConverter.injectId(item));
+    }
+
+    return data.id
+      ? data
+      : {
+          ...data,
+          id: getId()
+        };
   }
 }

@@ -1,18 +1,30 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Col, Row } from 'reactstrap';
 import PropTypes from 'prop-types';
 
-import Dropdown from '../../../../common/form/Dropdown';
-import { Btn, IcoBtn } from '../../../../common/btns';
-import FiltersContext from './FiltersContext';
-import Filter from '../Filter';
 import { t } from '../../../../../helpers/util';
+import { Btn, IcoBtn } from '../../../../common/btns';
+import Dropdown from '../../../../common/form/Dropdown';
 import ParserPredicate from '../../../../Filters/predicates/ParserPredicate';
+import Filter from '../Filter';
+import FiltersContext from './FiltersContext';
 
 import './Filters.scss';
 
-class Filters extends Component {
-  onApply = () => {
+class Filters extends React.Component {
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  componentWillUnmount() {
+    document.addEventListener('keydown', this.onKeydown);
+  }
+
+  onKeydown = e => {
+    if (e.key !== 'Enter') {
+      return;
+    }
+
     const { fields } = this.context;
     const { onApply } = this.props;
 
@@ -45,32 +57,22 @@ class Filters extends Component {
       <div className="select-journal-filters">
         <div className="select-journal-filters__list-wrapper">
           <ul className="select-journal-filters__list">
-            {fields.map((item, idx) => {
-              const onChangePredicate = value => {
-                changePredicate(idx, value);
-              };
-
-              const onChangePredicateValue = value => {
-                changePredicateValue(idx, value);
-              };
-
-              return (
-                <Filter
-                  key={`${item.attribute}_${idx}`}
-                  text={item.text}
-                  item={item}
-                  idx={idx}
-                  data-idx={idx}
-                  predicates={item.predicates}
-                  selectedPredicate={item.selectedPredicate}
-                  onRemove={removeField}
-                  changePredicate={onChangePredicate}
-                  predicateValue={item.predicateValue}
-                  applyFilters={this.onApply}
-                  changePredicateValue={onChangePredicateValue}
-                />
-              );
-            })}
+            {fields.map((item, idx) => (
+              <Filter
+                key={`${item.attribute}_${item.type}_${item.schema}`}
+                text={item.text}
+                item={item}
+                idx={idx}
+                data-idx={idx}
+                predicates={item.predicates}
+                selectedPredicate={item.selectedPredicate}
+                predicateValue={item.predicateValue}
+                onRemove={removeField}
+                onApplyFilters={this.onApply}
+                onChangePredicate={value => changePredicate(idx, value)}
+                onChangePredicateValue={value => changePredicateValue(idx, value)}
+              />
+            ))}
           </ul>
         </div>
 
