@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import { trigger } from '../../../../helpers/util';
-
 import './Checkbox.scss';
 
 export default class Checkbox extends Component {
@@ -34,31 +32,36 @@ export default class Checkbox extends Component {
   }
 
   toggle = () => {
-    const checked = !this.state.checked;
+    const { disabled, onClick } = this.props;
+    const { checked } = this.state;
 
-    if (this.props.disabled) {
+    if (disabled) {
       return false;
     }
 
-    trigger.call(this, 'onClick', checked);
+    if (typeof onClick === 'function') {
+      onClick(!checked);
+    }
 
-    this.change({ checked: checked });
+    this.change({ checked: !checked });
   };
 
   componentDidUpdate(prevProps) {
-    const props = this.props;
+    const { checked, indeterminate, disabled } = this.props;
 
-    if (props.checked !== prevProps.checked || props.indeterminate !== prevProps.indeterminate || props.disabled !== prevProps.disabled) {
-      this.change({
-        checked: props.checked,
-        indeterminate: props.indeterminate
-      });
+    if (checked !== prevProps.checked || indeterminate !== prevProps.indeterminate || disabled !== prevProps.disabled) {
+      this.change({ checked, indeterminate });
     }
   }
 
   change(state) {
+    const { onChange } = this.props;
+
     this.setState(state);
-    trigger.call(this, 'onChange', state);
+
+    if (typeof onChange === 'function') {
+      onChange(state);
+    }
   }
 
   renderIcons() {
@@ -101,13 +104,11 @@ export default class Checkbox extends Component {
 
   render() {
     const { className, disabled, children, title } = this.props;
-    const cssClasses = classNames('ecos-checkbox', className, { 'ecos-checkbox_disabled': disabled });
-    const text = children ? <span className="ecos-checkbox__text">{children}</span> : null;
 
     return (
-      <span className={cssClasses} onClick={this.toggle} title={title}>
+      <span className={classNames('ecos-checkbox', className, { 'ecos-checkbox_disabled': disabled })} onClick={this.toggle} title={title}>
         {this.renderIcons()}
-        {text}
+        {children ? <span className="ecos-checkbox__text">{children}</span> : null}
       </span>
     );
   }

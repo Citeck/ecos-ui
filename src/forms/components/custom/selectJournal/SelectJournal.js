@@ -17,7 +17,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: '',
-        queryData: '',
+        queryData: null,
         presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
@@ -62,13 +62,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   checkConditions(data) {
-    let result = super.checkConditions(data);
+    const result = super.checkConditions(data);
 
     if (!this.component.customPredicateJs) {
       return result;
     }
 
-    let customPredicate = this.evaluate(this.component.customPredicateJs, {}, 'value', true);
+    const customPredicate = this.evaluate(this.component.customPredicateJs, {}, 'value', true);
 
     if (!_.isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
@@ -188,7 +188,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             columnsInfoPromise = Records.get(cvRecordRef)
               .load(Object.keys(columnsMap))
               .then(loadedAtt => {
-                let cols = [];
+                const cols = [];
 
                 for (let i in columnsMap) {
                   if (!columnsMap.hasOwnProperty(i)) {
@@ -215,11 +215,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
           Promise.all([columnsInfoPromise, inputsPromise])
             .then(columnsAndInputs => {
-              let [columns, inputs] = columnsAndInputs;
+              const [columns, inputs] = columnsAndInputs;
 
               for (let column of columns) {
-                let input = inputs[column.attribute] || {};
-                let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+                const input = inputs[column.attribute] || {};
+                const computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
 
                 if (computedDispName) {
                   //todo: Is this filter required?
@@ -251,15 +251,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
   };
 
   getInitialReactProps() {
-    let resolveProps = (journalId, columns = []) => {
+    const resolveProps = (journalId, columns = []) => {
       const component = this.component;
       const isModalMode = !!(this.element && this.element.closest('.modal'));
-
-      let presetFilterPredicates = null;
-
-      if (component.presetFilterPredicatesJs) {
-        presetFilterPredicates = this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true);
-      }
+      const presetFilterPredicates = component.presetFilterPredicatesJs
+        ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
+        : null;
+      const queryData = component.queryData ? this.evaluate(component.queryData, {}, 'value', true) : null;
 
       const reactComponentProps = {
         columns: columns.length ? trimFields(columns) : undefined,
@@ -271,7 +269,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         journalId: journalId,
         onChange: value => this.onReactValueChanged(value, { noUpdateEvent: true }),
         viewOnly: this.viewOnly,
-        queryData: _.isEmpty(component.queryData) ? {} : this.evaluate(component.queryData, {}, 'value', true),
+        queryData,
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
         hideCreateButton: component.hideCreateButton,
@@ -299,6 +297,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       if (component.customSourceId) {
         reactComponentProps.customSourceId = component.customSourceId;
       }
+
       if (this.customPredicateValue) {
         reactComponentProps.initCustomPredicate = this.customPredicateValue;
       }
@@ -306,14 +305,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
       return reactComponentProps;
     };
 
-    let journalId = this.component.journalId;
-
-    const fetchPropertiesAndResolve = journalId => {
-      return this.fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
-    };
+    const journalId = this.component.journalId;
+    const fetchPropertiesAndResolve = journalId =>
+      this.fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
 
     if (!journalId) {
-      let attribute = this.getAttributeToEdit();
+      const attribute = this.getAttributeToEdit();
 
       return this.getRecord()
         .loadEditorKey(attribute)
@@ -361,11 +358,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   static getValueDisplayName = (component, value) => {
-    let dispNameJs = _.get(component, 'computed.valueDisplayName', null);
+    const dispNameJs = _.get(component, 'computed.valueDisplayName', null);
     let result;
 
     if (dispNameJs) {
-      let model = { _ };
+      const model = { _ };
 
       if (_.isString(value)) {
         const recordId = value[0] === '{' ? EcosFormUtils.initJsonRecord(value) : value;

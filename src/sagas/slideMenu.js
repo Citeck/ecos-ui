@@ -19,6 +19,8 @@ import { goToCardDetailsPage } from '../helpers/urls';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
 import FormManager from '../components/EcosForm/FormManager';
+import Records from '../components/Records';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 
 function* fetchSlideMenu({ api, logger }, action) {
   try {
@@ -95,6 +97,15 @@ function* sagaPerformAction({ api, logger }, { payload }) {
 
         createVariant.formTitle = yield call(api.page.getRecordTitle, recordRef);
         createVariant.recordRef = recordRef;
+        createVariant.formRef = yield Records.get(recordRef).load('startFormRef?id');
+
+        if (processDefWithoutPrefix.indexOf('activiti$') !== -1) {
+          const hasForm = !!createVariant.formRef || (yield EcosFormUtils.hasForm(recordRef));
+          if (!hasForm) {
+            window.open('/share/page/start-specified-workflow?workflowId=' + processDefWithoutPrefix, '_self');
+            return;
+          }
+        }
         break;
       default:
         break;

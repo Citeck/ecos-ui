@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -167,7 +167,7 @@ export default class Grouping extends Component {
         </div>
 
         {showAggregation ? (
-          <Fragment>
+          <>
             <div className={'grouping__toolbar grouping__toolbar_aggregation'}>
               <Columns
                 cols={[
@@ -182,7 +182,7 @@ export default class Grouping extends Component {
                 <List className={'ecos-list-group_overflow_visible'} list={this.getAggregationList()} />
               </Scrollbars>
             </div>
-          </Fragment>
+          </>
         ) : null}
       </div>
     );

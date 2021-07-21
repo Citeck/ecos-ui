@@ -623,8 +623,8 @@ class Grid extends Component {
 
         if (!isSelect && rows.length !== data.length) {
           if (isEqual(rows.map(i => i[this._keyField]), this.state.selected)) {
-            this._selected = selected;
-            this.#isAllSelected = false;
+            this._selected = data.map(row => row[this._keyField]).filter(i => !nonSelectable.includes(i));
+            this.#isAllSelected = true;
             this.onSelect(true);
 
             return;
@@ -646,7 +646,7 @@ class Grid extends Component {
         this.#isAllSelected = isSelect;
 
         this._selected = isSelect
-          ? [...this._selected, ...rows.map(row => row[this._keyField])]
+          ? [...this._selected, ...rows.map(i => i[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
 
         this.onSelect(isSelect);
