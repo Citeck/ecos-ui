@@ -34,6 +34,7 @@ function PropertiesEditModal(props) {
       onSubmit={onFormSubmit}
       isModalOpen={isOpen}
       onHideModal={onFormCancel}
+      onCancelModal={onFormCancel}
       options={{
         formMode: FORM_MODE_EDIT
       }}
