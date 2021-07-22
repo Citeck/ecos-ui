@@ -51,7 +51,7 @@ export default [
     data: { custom: ' values = data.displayColumnsAsyncData' },
     template: '<span>{{ item.label }}</span>',
     refreshOn: 'displayColumnsAsyncData',
-    dataSrc: 'custom'
+    dataSrc: TableTypes.CUSTOM
   },
   {
     type: 'select',
