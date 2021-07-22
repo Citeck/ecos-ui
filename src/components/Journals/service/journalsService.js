@@ -211,7 +211,7 @@ class JournalsService {
    * @return {Promise<RecordsActionsRes>}
    */
   async getRecordActions(journalConfig, recordRefs) {
-    let journalActions = journalConfig.actions;
+    const journalActions = journalConfig.actions;
     const actionsContext = {
       mode: ActionModes.JOURNAL,
       scope: journalConfig.id

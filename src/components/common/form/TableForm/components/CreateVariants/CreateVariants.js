@@ -32,11 +32,15 @@ const CreateVariants = () => {
   const variantsToRender = [];
   if (Array.isArray(createVariants)) {
     for (let variant of createVariants) {
-      let variantToRender = Object.assign({}, variant);
+      const variantToRender = Object.assign({}, variant);
+
       if (!variantToRender.label && variantToRender.title) {
         variantToRender.label = variantToRender.title;
       }
-      variantToRender.createVariantKey = variantToRender.recordRef + '-' + variantToRender.formKey + '-' + variantToRender.type;
+
+      variantToRender.createVariantKey = `${variantToRender.id}-${variantToRender.recordRef}-${variantToRender.formKey}-${
+        variantToRender.type
+      }`;
       variantsToRender.push(variantToRender);
     }
   }

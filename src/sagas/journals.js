@@ -336,7 +336,7 @@ function* getJournalSharedSettings(api, id) {
 
 function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
-    const { journalSetting, predicate } = action.payload;
+    const { journalSetting = {}, predicate } = action.payload;
     const columnsSetup = {
       columns: JournalsConverter.injectId(journalSetting.columns),
       sortBy: cloneDeep(journalSetting.sortBy)
@@ -874,14 +874,12 @@ function* sagaInitPreview({ api, logger, stateId, w }, action) {
 function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
   try {
     const journalData = yield select(selectJournalData, stateId);
-    const { journalConfig = {}, grid = {} } = journalData;
+    const { journalConfig = {}, grid = {} } = journalData || {};
     const { columns, groupBy = [] } = grid;
+    const { criteria = [], predicate = {} } = journalConfig.meta || {};
 
     let row = cloneDeep(action.payload);
-    let {
-      id = '',
-      meta: { criteria = [], predicate = {} }
-    } = journalConfig;
+    let id = journalConfig.id || '';
     let filter = '';
 
     if (id === 'event-lines-stat') {
@@ -951,7 +949,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 function* getSearchPredicate({ logger, stateId, grid }) {
   try {
     const journalData = yield select(selectJournalData, stateId);
-    let { journalConfig, grid: gridData } = journalData;
+    let { journalConfig, grid: gridData = {} } = journalData;
     const fullSearch = get(journalConfig, ['params', 'full-search-predicate']);
     let predicate;
 
