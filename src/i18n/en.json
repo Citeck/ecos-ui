@@ -1256,6 +1256,7 @@
   "menu-settings.tabs.menu-config": "Selected configuration settings",
   "menu-settings.tabs.global-config": "Global settings",
   "menu-settings.tabs.menu-create-config": "Menu \"Create\"",
+  "menu-settings.text.default": "Default",
   "menu-settings.desc.global-config": "These settings apply to the entire site.\n\nThe group list corresponds to values are specified in all menu configurations.\nGroup priority is inversely proportional to the level of the group's hierarchy in the Organizational Chart or the level of the functional hierarchy.The more specific group, than priority is higher.\nAdministrator groups are usually placed first. User has the highest priority.",
   "menu-settings.desc.editor-group-priority": "Use drag-and-drop to change priority.",
   "menu-settings.data.id": "ID menu",
