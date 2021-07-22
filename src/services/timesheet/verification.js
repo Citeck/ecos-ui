@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash/cloneDeep';
+
 export default class VerificationTimesheetService {
   static mergeManyToOneList({ peopleList, calendarEvents, requestList = [] }) {
     const target = [];
@@ -14,5 +16,58 @@ export default class VerificationTimesheetService {
     }
 
     return target;
+  }
+
+  static mergeList({ currentList = [], newItem, eventTypes }) {
+    const target = cloneDeep(currentList);
+    const merge = newItem => {
+      const index = target.findIndex(item => item.userName === newItem.userName);
+      const data = cloneDeep({
+        ...newItem,
+        eventTypes
+      });
+
+      if (index !== -1) {
+        target[index] = data;
+      } else {
+        target.push(data);
+      }
+    };
+
+    if (Array.isArray(newItem)) {
+      newItem.forEach(merge);
+    } else {
+      merge(newItem);
+    }
+
+    return target;
+
+    // if (Array.isArray(newItem)) {
+    //   return newItem.reduce((result, current) => {
+    //     return [
+    //       ...result,
+    //       ...VerificationTimesheetService.mergeList({
+    //         currentList,
+    //         newItem: current,
+    //         eventTypes
+    //       })
+    //     ]
+    //   });
+    // }
+
+    // const target = cloneDeep(currentList);
+    // const index = target.findIndex(item => item.userName === newItem.userName);
+    // const data = cloneDeep({
+    //   ...newItem,
+    //   eventTypes
+    // });
+    //
+    // if (index !== -1) {
+    //   target[index] = data;
+    // } else {
+    //   target.push(data);
+    // }
+    //
+    // return target;
   }
 }

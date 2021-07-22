@@ -1,5 +1,8 @@
 import { put, select, takeEvery, takeLatest, call } from 'redux-saga/effects';
+import cloneDeep from 'lodash/cloneDeep';
+
 import {
+  getCalendarEvents,
   getVerificationTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
@@ -10,6 +13,7 @@ import {
   setUpdatingEventDayHours,
   setVerificationTimesheetByParams
 } from '../../actions/timesheet/verification';
+import { setUsers } from '../../actions/timesheet/common';
 import VerificationTimesheetService from '../../services/timesheet/verification';
 import VerificationTimesheetConverter from '../../dto/timesheet/verification';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -22,30 +26,76 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
   try {
     const { currentDate, status } = payload;
 
-    const requestList = yield call(api.timesheetVerification.getRequestListByStatus, {
-      status,
-      month: currentDate.getMonth(),
-      year: currentDate.getFullYear()
+    // const requestList = yield call(api.timesheetVerification.getRequestListByStatus, {
+    //   status,
+    //   month: currentDate.getMonth(),
+    //   year: currentDate.getFullYear()
+    // });
+
+    const allUsers = VerificationTimesheetConverter.getUsersForWeb(
+      yield call(api.timesheetCommon.getAllUsersByDate, {
+        status,
+        month: currentDate.getMonth(),
+        year: currentDate.getFullYear()
+      })
+    );
+
+    if (!allUsers.length) {
+      yield put(setVerificationTimesheetByParams());
+      return;
+    }
+
+    yield put(setUsers(allUsers));
+
+    let userNamesPure = CommonTimesheetService.getUserNameList(allUsers);
+    // const peopleList = yield call(api.timesheetCommon.getInfoPeopleList, { userNames: userNamesPure });
+
+    // if (userNamesPure.length > 1) {
+    //   userNamesPure = userNamesPure.splice(0, 1);
+    // }
+
+    const currentList = yield select(selectTVerificationMergedList);
+    const mergedList = VerificationTimesheetService.mergeList({
+      currentList,
+      newItem: allUsers,
+      eventTypes: CommonTimesheetService.eventTypes
     });
 
-    const userNamesPure = CommonTimesheetService.getUserNameList(requestList.records);
-    const peopleList = yield call(api.timesheetCommon.getInfoPeopleList, { userNames: userNamesPure });
+    console.warn({ mergedList });
 
-    const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
-      month: currentDate.getMonth(),
-      year: currentDate.getFullYear(),
-      userNames: userNamesPure
-    });
+    yield put(setVerificationTimesheetByParams({ mergedList }));
 
-    const list = VerificationTimesheetService.mergeManyToOneList({
-      peopleList: peopleList.records,
-      calendarEvents,
-      requestList: requestList.records
-    });
+    yield put(
+      getCalendarEvents({
+        month: currentDate.getMonth(),
+        year: currentDate.getFullYear(),
+        userName: userNamesPure[0]
+      })
+    );
 
-    const mergedList = VerificationTimesheetConverter.getVerificationEventsListForWeb(list);
+    return;
 
-    yield put(setVerificationTimesheetByParams({ status, mergedList, calendarEvents }));
+    // if (userNamesPure.length > 1) {
+    //
+    // }
+    //
+    // console.warn({ allUsers });
+    //
+    // const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsList, {
+    //   month: currentDate.getMonth(),
+    //   year: currentDate.getFullYear(),
+    //   userNames: userNamesPure
+    // });
+    //
+    // const list = VerificationTimesheetService.mergeManyToOneList({
+    //   peopleList: peopleList.records,
+    //   calendarEvents,
+    //   requestList: allUsers
+    // });
+    //
+    // const mergedList = VerificationTimesheetConverter.getVerificationEventsListForWeb(list);
+    //
+    // yield put(setVerificationTimesheetByParams({ status, mergedList, calendarEvents }));
   } catch (e) {
     logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e.message);
   }
@@ -127,6 +177,31 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetCalendarEvents({ api, logger }, { payload }) {
+  try {
+    const calendarEvents = yield call(api.timesheetCommon.getTimesheetCalendarEventsByUserName, {
+      month: payload.month,
+      year: payload.year,
+      userName: payload.userName
+    });
+    const currentList = yield select(selectTVerificationMergedList);
+    const index = currentList.findIndex(item => item.userName === payload.userName);
+
+    if (index === -1) {
+      return;
+    }
+
+    currentList[index].eventTypes = VerificationTimesheetConverter.getCalendarEventsForWeb(calendarEvents.records);
+
+    yield put(setVerificationTimesheetByParams({ mergedList: currentList }));
+
+    // console.warn({ calendarEvents, currentList, forWeb: VerificationTimesheetConverter.getCalendarEventsForWeb(calendarEvents.records) });
+  } catch (e) {
+    yield put(setLoading(false));
+    logger.error('[timesheetVerification sagaGetCalendarEvents saga] error', e.message);
+  }
+}
+
 function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   try {
     const currentUser = yield select(selectUserName);
@@ -157,6 +232,7 @@ function* saga(ea) {
   yield takeEvery(modifyEventDayHours().type, sagaModifyEventDayHours, ea);
   yield takeLatest(resetEventDayHours().type, sagaResetEventDayHours, ea);
   yield takeLatest(modifyStatus().type, sagaModifyTaskStatus, ea);
+  yield takeLatest(getCalendarEvents().type, sagaGetCalendarEvents, ea);
 }
 
 export default saga;

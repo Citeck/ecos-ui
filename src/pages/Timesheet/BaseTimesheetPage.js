@@ -9,6 +9,7 @@ import { TunableDialog } from '../../components/common/dialogs';
 import { CommentModal } from '../../components/Timesheet';
 
 import './style.scss';
+import { getCalendarEvents } from '../../actions/timesheet/verification';
 
 class BaseTimesheetPage extends React.Component {
   constructor(props) {
@@ -107,6 +108,17 @@ class BaseTimesheetPage extends React.Component {
 
     this.props.resetEventDayHours && this.props.resetEventDayHours({ value, date, eventType, number, userName });
   }
+
+  handleGetCalendarEvents = userName => {
+    const { getCalendarEvents } = this.props;
+    const { currentDate } = this.state;
+
+    getCalendarEvents({
+      userName,
+      month: currentDate.getMonth(),
+      year: currentDate.getFullYear()
+    });
+  };
 
   clearCommentModalData() {
     this.setState({
