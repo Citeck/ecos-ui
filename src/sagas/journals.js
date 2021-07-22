@@ -15,6 +15,7 @@ import {
   checkConfig,
   createJournalSetting,
   deleteJournalSetting,
+  execJournalAction,
   execRecordsAction,
   getDashletConfig,
   getDashletEditorData,
@@ -241,7 +242,7 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
     const { journalId, journalSettingId = '', userConfigId } = url;
 
     yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
-    yield put(initJournal(w({ journalId, journalSettingId, userConfigId })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force })));
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e.message);
   }
@@ -255,8 +256,8 @@ function* getJournalSettings(api, journalId, w) {
   return settings;
 }
 
-function* getJournalConfig(api, journalId, w) {
-  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId);
+function* getJournalConfig({ api, w, force }, journalId) {
+  const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
   yield put(setJournalConfig(w(journalConfig)));
   return journalConfig;
 }
@@ -582,7 +583,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
-    const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode } = action.payload;
+    const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode, force } = action.payload;
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
 
     let { journalConfig } = yield select(selectJournalData, stateId);
@@ -592,8 +593,8 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
 
     yield put(setJournalExistStatus(w(isNotExistsJournal !== true)));
 
-    if (isEmpty(journalConfig) || isEmptyConfig) {
-      journalConfig = yield getJournalConfig(api, id, w);
+    if (isEmpty(journalConfig) || isEmptyConfig || force) {
+      journalConfig = yield getJournalConfig({ api, w, force }, id);
 
       yield getJournalSettings(api, journalConfig.id, w);
     }
@@ -692,7 +693,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
 
     yield put(setLoading(w(true)));
 
-    const journalConfig = yield getJournalConfig(api, journalId, w);
+    const journalConfig = yield getJournalConfig({ api, w }, journalId);
 
     yield getJournalSettings(api, journalConfig.id, w);
     yield loadGrid(api, { journalConfig, stateId }, w);
@@ -1026,6 +1027,18 @@ function* sagaCheckConfig({ logger, w, stateId }, { payload }) {
   }
 }
 
+function* sagaExecJournalAction({ api, logger, w, stateId }, { payload }) {
+  try {
+    const actionResult = yield call(api.recordActions.executeAction, payload);
+
+    if (actionResult) {
+      yield put(getJournalsData(w({ force: true })));
+    }
+  } catch (e) {
+    logger.error('[journals sagaExecJournalAction saga error', e.message, e);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1045,6 +1058,7 @@ function* saga(ea) {
   yield takeEvery(deleteJournalSetting().type, wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
   yield takeEvery(renameJournalSetting().type, wrapSaga, { ...ea, saga: sagaRenameJournalSetting });
   yield takeEvery(applyJournalSetting().type, wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
+  yield takeEvery(execJournalAction().type, wrapSaga, { ...ea, saga: sagaExecJournalAction });
 
   yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
   yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
