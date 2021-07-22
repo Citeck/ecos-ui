@@ -5,7 +5,7 @@ import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { SourcesId, URL } from '../constants';
+import { DEFAULT_EIS, SourcesId, URL } from '../constants';
 import { CITECK_URI, MICRO_URI, PROXY_URI, URL_SERVICECONTEXT } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
@@ -71,7 +71,7 @@ export class AppApi extends CommonApi {
   };
 
   getFooter = (params = 'value?str') => {
-    return Records.get('uiserv/config@footer-content')
+    return Records.get(`${SourcesId.CONFIG}@footer-content`)
       .load(params)
       .catch(() => null);
   };
@@ -179,8 +179,10 @@ export class AppApi extends CommonApi {
       .then(r => r.json())
       .then(config => {
         const { logoutUrl, eisId } = config || {};
+        const checkLogoutUrl = !logoutUrl || logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const checkEisId = eisId && eisId !== DEFAULT_EIS.EIS_ID;
 
-        return !logoutUrl && !!eisId;
+        return checkLogoutUrl && checkEisId;
       })
       .catch(() => false);
   };
@@ -192,8 +194,10 @@ export class AppApi extends CommonApi {
       .then(r => r.json())
       .then(config => {
         const { logoutUrl, eisId } = config || {};
+        const checkLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const checkEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
 
-        return logoutUrl ? logoutUrl : !eisId ? shareDoLogout : undefined;
+        return checkLogoutUrl ? logoutUrl : checkEisId ? shareDoLogout : undefined;
       })
       .catch(() => shareDoLogout);
 

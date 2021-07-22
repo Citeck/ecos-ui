@@ -1,5 +1,10 @@
 import { CITECK_URI } from './alfresco';
 
+export const DEFAULT_EIS = Object.freeze({
+  EIS_ID: 'EIS_ID',
+  LOGOUT_URL: 'LOGOUT_URL'
+});
+
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
