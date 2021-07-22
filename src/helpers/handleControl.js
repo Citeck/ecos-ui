@@ -113,7 +113,7 @@ export default function handleControl(type, payload) {
       break;
 
     case HCT.ALF_CREATE_SITE:
-      if (window.Alfresco && window.Alfresco.module && typeof window.Alfresco.module.getCreateSiteInstance === 'function') {
+      if (typeof get(window, 'Alfresco.module.getCreateSiteInstance') === 'function') {
         window.Alfresco.module.getCreateSiteInstance().show();
       } else {
         const createSiteScript = `${URL_RESCONTEXT}modules/create-site${process.env.NODE_ENV === 'development' ? '.js' : '-min.js'}`;
@@ -124,7 +124,7 @@ export default function handleControl(type, payload) {
       break;
 
     case HCT.ALF_EDIT_SITE:
-      if (get(window, 'window.Alfresco.module.getEditSiteInstance') && typeof window.Alfresco.module.getEditSiteInstance === 'function') {
+      if (typeof get(window, 'Alfresco.module.getEditSiteInstance') === 'function') {
         window.Alfresco.module.getEditSiteInstance().show({ shortName: payload.site });
       } else {
         const exFile = process.env.NODE_ENV === 'development' ? '.js' : '-min.js';
