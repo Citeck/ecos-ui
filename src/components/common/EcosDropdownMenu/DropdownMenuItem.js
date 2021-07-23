@@ -122,7 +122,7 @@ class DropdownMenuItem extends React.Component {
     }
 
     return (
-      <li>
+      <li className="ecos-dropdown-menu__item">
         <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
           {this.iconLeft && <i className={this.iconLeft} />}
           {img && this.renderImg()}

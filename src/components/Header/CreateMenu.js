@@ -54,14 +54,13 @@ class CreateMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu
-          className={classNames('ecos-header-create__menu ecos-dropdown__menu ecos-dropdown__menu_links', {
-            'ecos-dropdown__menu_cascade': isCascade
-          })}
+          className={classNames(`ecos-header-create__menu ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_${mode}`)}
         >
           <EcosDropdownMenu
             items={items}
             mode={mode}
             setCascade={{ collapseOneItem: true }}
+            setGroup={{ showSeparator: false, showGroupName: false, showEmptyGroup: false }}
             emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
             onClick={this.onClickItem}
           />
