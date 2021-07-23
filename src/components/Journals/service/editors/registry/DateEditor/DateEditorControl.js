@@ -71,6 +71,7 @@ export default class DateEditorControl extends React.Component {
   };
 
   sendData = () => {
+    console.warn('sendData');
     this.props.onUpdate && this.props.onUpdate(this.state.date);
   };
 
@@ -110,7 +111,6 @@ export default class DateEditorControl extends React.Component {
           'ecos-filter_width_full': !this.isCell
         })}
         onChange={this.onChange}
-        onBlur={this.sendData}
         onKeyDown={this.onKeyDown}
         autoFocus={this.isCell}
         showIcon={!this.isCell}
