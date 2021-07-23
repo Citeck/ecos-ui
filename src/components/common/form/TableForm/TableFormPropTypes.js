@@ -18,11 +18,15 @@ export default {
   viewOnly: PropTypes.bool,
   parentForm: PropTypes.object,
   triggerEventOnTableChange: PropTypes.func,
+  isUsedJournalActions: PropTypes.bool,
+  journalActions: PropTypes.object,
   displayElements: PropTypes.shape({
     create: PropTypes.bool,
     view: PropTypes.bool,
     edit: PropTypes.bool,
-    delete: PropTypes.bool
+    delete: PropTypes.bool,
+    clone: PropTypes.bool,
+    preview: PropTypes.bool
   }),
   nonSelectableRows: PropTypes.array,
   importButton: PropTypes.shape({
