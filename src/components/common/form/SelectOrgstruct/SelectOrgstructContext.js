@@ -113,6 +113,7 @@ export const SelectOrgstructProvider = props => {
   // fetch root group list
   useEffect(() => {
     const trimSearchText = (searchText || '').trim();
+    let livePromise = true;
 
     if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
       setIsSearching(true);
@@ -128,31 +129,41 @@ export const SelectOrgstructProvider = props => {
         })
         .then(handleResponse)
         .then(items => {
+          if (!livePromise) {
+            return;
+          }
+
           setTabItems({
             ...tabItems,
             [TabTypes.LEVELS]: items
               .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
               .map(item => setSelectedItem(item))
           });
-
           checkIsAllUsersGroupExists();
           setIsRootGroupsFetched(true);
           setIsSearching(false);
         });
     }
+
+    return () => (livePromise = false);
   }, [isRootGroupsFetched, isSelectModalOpen, currentTab]);
 
   // fetch "all" group list (all users)
   useEffect(() => {
+    let livePromise = true;
+
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
       setIsSearching(true);
       OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
         ({ items, totalCount }) => {
+          if (!livePromise) {
+            return;
+          }
+
           setTabItems({
             ...tabItems,
             [TabTypes.USERS]: items.map(item => setSelectedItem(item))
           });
-
           checkIsAllUsersGroupExists();
           setIsAllUsersGroupFetched(true);
           setPagination({ ...pagination, maxCount: totalCount });
@@ -160,6 +171,8 @@ export const SelectOrgstructProvider = props => {
         }
       );
     }
+
+    return () => (livePromise = false);
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
   // reset isSelectedFetched if new previewValue
@@ -180,6 +193,7 @@ export const SelectOrgstructProvider = props => {
     setIsSelectedFetched(true);
 
     let initValue;
+    let livePromise = true;
 
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
@@ -198,6 +212,10 @@ export const SelectOrgstructProvider = props => {
         .then(handleResponse)
         .then(items => items.map(prepareSelected))
         .then(selectedItems => {
+          if (!livePromise) {
+            return;
+          }
+
           setTabItems({
             ...tabItems,
             [TabTypes.SELECTED]: [...selectedItems],
@@ -208,6 +226,8 @@ export const SelectOrgstructProvider = props => {
         })
         .catch(_ => _);
     }
+
+    return () => (livePromise = false);
   }, [isSelectedFetched]);
 
   useEffect(() => {

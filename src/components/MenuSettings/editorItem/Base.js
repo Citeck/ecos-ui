@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { MenuSettings as MS } from '../../../constants/menu';
 import { t } from '../../../helpers/export/util';
-import { extractLabel, packInLabel } from '../../../helpers/util';
+import { extractLabel, isFilledLabelWeak } from '../../../helpers/util';
 import MenuSettingsService from '../../../services/MenuSettingsService';
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
@@ -80,9 +80,7 @@ class Base extends React.Component {
 
   get isInvalidLabel() {
     const { label } = this.state;
-    const _label = packInLabel(label);
-
-    return Object.values(_label).every(val => !val);
+    return !isFilledLabelWeak(label);
   }
 
   wrapperModal = React.memo((props, context) => {

@@ -8,6 +8,7 @@ export default class Input extends Component {
   static propTypes = {
     align: PropTypes.oneOf(['left', 'center', 'right']),
     forwardedRef: PropTypes.func,
+    placeholder: PropTypes.string,
     type: PropTypes.string,
     autoFocus: PropTypes.bool,
     autoSelect: PropTypes.string

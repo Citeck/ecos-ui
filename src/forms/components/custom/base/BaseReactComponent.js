@@ -17,14 +17,9 @@ export default class BaseReactComponent extends BaseComponent {
     );
   }
 
+  react = {};
+
   build() {
-    this.onReactValueChanged = value => {
-      this.setPristine(false);
-      this.setValue(value, { skipReactWrapperUpdating: true });
-    };
-
-    this.react = {};
-
     this.react.wrapper = new Promise(resolveComponent => {
       this.react.resolve = resolveComponent;
     }).then(component => {
@@ -110,7 +105,9 @@ export default class BaseReactComponent extends BaseComponent {
 
   updateReactComponent(updateFunc) {
     this.react.innerPromise.then(comp => {
-      updateFunc(comp);
+      if (typeof updateFunc === 'function') {
+        updateFunc(comp);
+      }
     });
   }
 
@@ -220,6 +217,11 @@ export default class BaseReactComponent extends BaseComponent {
     }
   }
 
+  onReactValueChanged = (value, addFlags = {}) => {
+    this.setPristine(false);
+    this.updateValue({ skipReactWrapperUpdating: true, ...addFlags }, value);
+  };
+
   setValue(value, flags) {
     flags = this.getFlags.apply(this, arguments);
     this.updateValue(flags, value);
@@ -250,9 +252,7 @@ export default class BaseReactComponent extends BaseComponent {
     this.updateOnChange(flags, changed);
 
     if (!flags.skipReactWrapperUpdating && changed) {
-      this.updateReactComponent(component => {
-        this.setReactValue(component, this.dataValue);
-      });
+      this.updateReactComponent(component => this.setReactValue(component, this.dataValue));
     }
 
     return changed;

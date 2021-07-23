@@ -11,11 +11,22 @@ import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
 import { Loader } from '../../../../components/common';
 
+const Labels = {
+  MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
+  MSG_NO_J_CONFIG: 'ecos-table-form.error.no-journal-config',
+  MSG_ERR_SOURCE: 'ecos-table-form.error.source',
+  MSG_NO_HANDLER: 'ecos-table-form.error.no-response-handler',
+  MSG_FAIL_IMPORT: 'ecos-table-form.error.failure-to-import',
+  DIALOG_TITLE: 'ecos-table-form.error-dialog.title'
+};
+
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
   _displayElementsValue = {};
   _nonSelectableRows = [];
   _createVariants = [];
+
+  #journalConfig;
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -44,6 +55,7 @@ export default class TableFormComponent extends BaseReactComponent {
         isStaticModalTitle: false,
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
+        isUsedJournalActions: false,
         displayElementsJS: '',
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
@@ -75,6 +87,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   checkConditions(data) {
+    const isVisible = _.cloneDeep(this.visible);
     let result = super.checkConditions(data);
 
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
@@ -123,6 +136,10 @@ export default class TableFormComponent extends BaseReactComponent {
           });
         }
       });
+    }
+
+    if (!isVisible && this.visible) {
+      this.redraw();
     }
 
     return result;
@@ -177,6 +194,10 @@ export default class TableFormComponent extends BaseReactComponent {
     const changed = super.updateValue(flags, value);
 
     this.refreshElementHasValueClasses();
+
+    if (this.component.isUsedJournalActions && !_.isEmpty(value)) {
+      this._fetchActions(value).then(journalActions => this.setReactProps({ journalActions }));
+    }
 
     return changed;
   }
@@ -277,7 +298,7 @@ export default class TableFormComponent extends BaseReactComponent {
           const displayColumns = journal.columns;
 
           if (!journalId) {
-            return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
+            return resolve({ error: new Error(t(Labels.MSG_NO_J_ID)) });
           }
 
           try {
@@ -285,22 +306,16 @@ export default class TableFormComponent extends BaseReactComponent {
             let columns = journalConfig.columns;
 
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-              columns = columns.map(item => {
-                return {
-                  ...item,
-                  default: displayColumns.indexOf(item.attribute) !== -1
-                };
-              });
+              columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
             }
 
             this._createVariants = journalConfig.meta.createVariants || [];
+            this.#journalConfig = journalConfig;
 
-            resolve({
-              columns: await JournalsService.resolveColumns(columns)
-            });
+            resolve({ columns: await JournalsService.resolveColumns(columns) });
           } catch (error) {
             console.error(error);
-            return resolve({ error: new Error(`${t('ecos-table-form.error.no-journal-id')} (${error.message})`) });
+            return resolve({ error: new Error(t(Labels.MSG_NO_J_CONFIG)) });
           }
           break;
         case 'custom':
@@ -422,8 +437,15 @@ export default class TableFormComponent extends BaseReactComponent {
           }
           break;
         default:
-          return resolve({ error: new Error(t('ecos-table-form.error.source')) });
+          return resolve({ error: new Error(t(Labels.MSG_ERR_SOURCE)) });
       }
+    });
+  };
+
+  _fetchActions = value => {
+    return new Promise(async resolve => {
+      const journalActions = await JournalsService.getRecordActions(this.#journalConfig, value).catch(() => ({}));
+      resolve(journalActions);
     });
   };
 
@@ -469,6 +491,7 @@ export default class TableFormComponent extends BaseReactComponent {
         parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
+        isUsedJournalActions: component.isUsedJournalActions,
         settingElements: {
           isInstantClone: component.isInstantClone
         },
@@ -499,7 +522,7 @@ export default class TableFormComponent extends BaseReactComponent {
     const { uploadUrl, responseHandler } = importConfig;
 
     if (!responseHandler) {
-      return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
+      return this.showErrorMessage(t(Labels.MSG_NO_HANDLER));
     }
 
     const formData = new FormData();
@@ -528,13 +551,13 @@ export default class TableFormComponent extends BaseReactComponent {
       this.updateValue({}, newValue);
     } catch (e) {
       console.error('TableForm error. Failure to upload file: ', e.message);
-      this.showErrorMessage(t('ecos-table-form.error.failure-to-import'));
+      this.showErrorMessage(t(Labels.MSG_FAIL_IMPORT));
     }
   };
 
   showErrorMessage = text => {
     DialogManager.showInfoDialog({
-      title: t('ecos-table-form.error-dialog.title'),
+      title: t(Labels.DIALOG_TITLE),
       text
     });
   };

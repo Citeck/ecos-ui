@@ -852,6 +852,14 @@ export function packInLabel(text = '') {
   return text;
 }
 
+export function isFilledLabelWeak(label) {
+  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).some(val => !!val);
+}
+
+export function isFilledLabelStrict(label) {
+  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).every(val => !!val);
+}
+
 export function getTimezoneValue() {
   let timezone, offset;
 
