@@ -20,7 +20,7 @@ export default class DropdownMenuGroup extends React.Component {
   };
 
   renderMenuItems(items) {
-    return isEmpty(items) ? null : items.map((item, key) => <DropdownMenuItem key={key} data={item} />);
+    return isEmpty(items) ? null : items.map((item, key) => <DropdownMenuItem key={key} data={item} onClick={this.props.onClick} />);
   }
 
   render() {
@@ -33,8 +33,8 @@ export default class DropdownMenuGroup extends React.Component {
       return (
         <div key={key} className="ecos-dropdown-menu__group">
           {showSeparator && !!i && <Separator noIndents />}
-          {showGroupName && <div className="ecos-dropdown-menu__group-label">{t(label)}</div>}
-          {this.renderMenuItems(items)}
+          {!item.isolated && showGroupName && <div className="ecos-dropdown-menu__group-label">{t(label)}</div>}
+          {this.renderMenuItems(item.isolated ? [item] : items)}
         </div>
       );
     });
