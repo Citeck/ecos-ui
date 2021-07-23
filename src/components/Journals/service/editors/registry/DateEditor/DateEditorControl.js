@@ -71,7 +71,6 @@ export default class DateEditorControl extends React.Component {
   };
 
   sendData = () => {
-    console.warn('sendData');
     this.props.onUpdate && this.props.onUpdate(this.state.date);
   };
 
