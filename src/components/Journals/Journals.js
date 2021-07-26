@@ -6,11 +6,13 @@ import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import merge from 'lodash/merge';
 
 import {
   applyJournalSetting,
   createJournalSetting,
+  execJournalAction,
   execRecordsAction,
   getJournalsData,
   onJournalSettingsSelect,
@@ -23,13 +25,15 @@ import {
   setSelectedRecords,
   setUrl
 } from '../../actions/journals';
-import { JournalUrlParams as JUP } from '../../constants';
+import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
+import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
+import { JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
-import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import FormManager from '../EcosForm/FormManager';
+import { ActionTypes } from '../Records/actions';
 
 import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
@@ -44,7 +48,6 @@ import DocLibSettingsBar from './DocLib/DocLibSettingsBar';
 import DocLibPagination from './DocLib/DocLibPagination';
 import DocLibGroupActions from './DocLib/DocLibGroupActions';
 import FilesViewer from './DocLib/FilesViewer';
-import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
 
 import './Journals.scss';
 
@@ -52,8 +55,9 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    isMobile: state.view.isMobile,
-    pageTabsIsShow: state.pageTabs.isShow,
+    isAdmin: get(state, 'user.isAdmin'),
+    isMobile: get(state, 'view.isMobile'),
+    pageTabsIsShow: get(state, 'pageTabs.isShow'),
     journalConfig: newState.journalConfig,
     journalSetting: newState.journalSetting,
     predicate: newState.predicate,
@@ -82,6 +86,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
+    execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
@@ -100,7 +105,15 @@ const defaultDisplayElements = {
   header: true,
   settings: true,
   pagination: true,
-  groupActions: true
+  groupActions: true,
+  editJournal: true
+};
+
+const Labels = {
+  J_SHOW_MENU: 'journals.action.show-menu',
+  J_SHOW_MENU_SM: 'journals.action.show-menu_sm',
+  DL_SHOW_MENU: 'journals.action.show-folder-tree',
+  DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm'
 };
 
 class Journals extends React.Component {
@@ -223,6 +236,7 @@ class Journals extends React.Component {
   componentWillUnmount() {
     this.onForceUpdate.cancel();
     this.setHeight.cancel();
+    this.onEditJournal.cancel();
 
     if (this._toggleMenuTimerId) {
       window.clearTimeout(this._toggleMenuTimerId);
@@ -247,7 +261,8 @@ class Journals extends React.Component {
   get displayElements() {
     return {
       ...defaultDisplayElements,
-      ...(this.props.displayElements || {})
+      ...(this.props.displayElements || {}),
+      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin && get(this.props, 'journalConfig.id')
     };
   }
 
@@ -370,7 +385,15 @@ class Journals extends React.Component {
     this.setState({ showPreview: false, viewMode: undefined });
   };
 
-  toggleMenu = () => {
+  onEditJournal = throttle(
+    () => {
+      this.props.execJournalAction(`${SourcesId.JOURNAL}@${this.props.journalConfig.id}`, { type: ActionTypes.EDIT });
+    },
+    300,
+    { leading: false, trailing: true }
+  );
+
+  onToggleMenu = () => {
     if (this._toggleMenuTimerId) {
       window.clearTimeout(this._toggleMenuTimerId);
     }
@@ -494,10 +517,10 @@ class Journals extends React.Component {
       const { menuOpen, viewMode } = this.state;
       const { isMobile, docLibFolderTitle, journalConfig } = this.props;
       const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
-      let showLabel = isMobile ? t('journals.action.show-menu_sm') : t('journals.action.show-menu');
+      let showLabel = isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU);
 
       if (this.isDocLibMode) {
-        showLabel = isMobile ? t('journals.action.show-folder-tree_sm') : t('journals.action.show-folder-tree');
+        showLabel = isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU);
       }
 
       const displayConfigPopup = event => {
@@ -511,13 +534,15 @@ class Journals extends React.Component {
         <>
           <div onClick={displayConfigPopup}>
             <JournalsHead
-              toggleMenu={this.toggleMenu}
               title={title}
               showLabel={showLabel}
               viewMode={viewMode}
               menuOpen={menuOpen}
               isMobile={isMobile}
               hasBtnMenu={this.displayElements.menu}
+              hasBtnEdit={this.displayElements.editJournal}
+              onToggleMenu={this.onToggleMenu}
+              onEditJournal={this.onEditJournal}
             />
           </div>
         </>
@@ -646,7 +671,7 @@ class Journals extends React.Component {
             forwardedRef={this.setJournalMenuRef}
             stateId={stateId}
             open={menuOpen}
-            onClose={this.toggleMenu}
+            onClose={this.onToggleMenu}
             isActivePage={isActivePage}
             viewMode={viewMode}
           />
