@@ -28,7 +28,7 @@ export default class VerificationTimesheetConverter {
   }
 
   static getUsersForWeb(data) {
-    const source = get(data, 'records', []).splice(0, 100);
+    const source = get(data, 'records', []);
     const target = [];
 
     source.forEach(item => {

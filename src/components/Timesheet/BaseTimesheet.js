@@ -215,9 +215,19 @@ class BaseTimesheet extends Component {
   }
 
   renderEvents() {
+    const { daysOfMonth, updatingHours } = this.props;
     const { filteredEventTypes } = this.state;
 
-    return filteredEventTypes.map(this.renderEventCalendarRow);
+    return filteredEventTypes.map(item => (
+      <this.renderEventCalendarRow
+        key={item.name}
+        eventItem={item}
+        daysOfMonth={daysOfMonth}
+        updatingHours={updatingHours}
+        onChange={this.handleChangeEventHours}
+        onReset={this.handleResetEventHours}
+      />
+    ));
   }
 
   renderNoData() {
@@ -228,11 +238,10 @@ class BaseTimesheet extends Component {
     );
   }
 
-  renderEventCalendarRow = (eventItem, userName) => {
+  renderEventCalendarRow = React.memo(({ eventItem, userName, daysOfMonth, updatingHours, onChange, onReset }) => {
     return (
       <CalendarRow key={`calendar-row-${eventItem.name}`}>
-        {this.props.daysOfMonth.map(day => {
-          const { updatingHours } = this.props;
+        {daysOfMonth.map(day => {
           const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name, userName });
           const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
           const count = +(eventDay.hours || 0);
@@ -249,8 +258,8 @@ class BaseTimesheet extends Component {
                 count={count}
                 settings={eventItem.hours}
                 halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
-                onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
-                onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
+                onChange={value => onChange(eventItem.name, day.number, value, userName)}
+                onReset={value => onReset(eventItem.name, day.number, value, userName)}
                 updatingInfo={get(updatingHours, keyHour, null)}
               />
             </CalendarCell>
@@ -258,7 +267,39 @@ class BaseTimesheet extends Component {
         })}
       </CalendarRow>
     );
-  };
+  });
+
+  /*renderEventCalendarRow = (eventItem, userName) => {*/
+  //   return (
+  //     <CalendarRow key={`calendar-row-${eventItem.name}`}>
+  //       {this.props.daysOfMonth.map(day => {
+  //         const { updatingHours } = this.props;
+  //         const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name, userName });
+  //         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
+  //         const count = +(eventDay.hours || 0);
+  //
+  //         return (
+  //           <CalendarCell
+  //             key={`calendar-cell-${day.number}-${count}`}
+  //             className={classNames({
+  //               'ecos-timesheet__table-calendar-cell_not-available': !get(eventItem, 'hours.editable', false)
+  //             })}
+  //           >
+  //             <Hour
+  //               color={eventItem.color}
+  //               count={count}
+  //               settings={eventItem.hours}
+  //               halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
+  //               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
+  //               onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
+  //               updatingInfo={get(updatingHours, keyHour, null)}
+  //             />
+  //           </CalendarCell>
+  //         );
+  //       })}
+  //     </CalendarRow>
+  //   );
+  // };
 
   renderCalendar() {
     const { isAvailable } = this.props;

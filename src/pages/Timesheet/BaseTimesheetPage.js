@@ -1,7 +1,9 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
+import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { getDaysOfMonth, getNewDateByDayNumber } from '../../helpers/timesheet/util';
 import CommonTimesheetService from '../../services/timesheet/common';
@@ -9,7 +11,6 @@ import { TunableDialog } from '../../components/common/dialogs';
 import { CommentModal } from '../../components/Timesheet';
 
 import './style.scss';
-import { getCalendarEvents } from '../../actions/timesheet/verification';
 
 class BaseTimesheetPage extends React.Component {
   constructor(props) {
@@ -47,11 +48,8 @@ class BaseTimesheetPage extends React.Component {
   }
 
   getDaysOfMonth = currentDate => {
-    //   if (this.cacheDays.has(currentDate)) {
-    //     return this.cacheDays.get(currentDate);
-    //   }
     const days = getDaysOfMonth(currentDate);
-    //   this.cacheDays.set(currentDate, days);
+
     return days;
   };
 
@@ -68,11 +66,15 @@ class BaseTimesheetPage extends React.Component {
   }
 
   handleClosePopup() {
-    this.props.setPopupMessage && this.props.setPopupMessage('');
+    const { setPopupMessage } = this.props;
+
+    if (isFunction(setPopupMessage)) {
+      setPopupMessage('');
+    }
   }
 
   handleChangeActiveDateTab(tabIndex) {
-    const dateTabs = deepClone(this.state.dateTabs);
+    const dateTabs = cloneDeep(this.state.dateTabs);
 
     dateTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
@@ -82,7 +84,7 @@ class BaseTimesheetPage extends React.Component {
   }
 
   handleChangeStatusTab(tabIndex, callback = () => null) {
-    const statusTabs = deepClone(this.state.statusTabs);
+    const statusTabs = cloneDeep(this.state.statusTabs);
 
     statusTabs.forEach((tab, index) => {
       tab.isActive = index === tabIndex;
@@ -134,7 +136,7 @@ class BaseTimesheetPage extends React.Component {
   handleOpenCommentModal = (data = {}) => {
     this.setState({
       isOpenCommentModal: true,
-      currentTimesheetData: deepClone(data)
+      currentTimesheetData: cloneDeep(data)
     });
   };
 
@@ -142,7 +144,6 @@ class BaseTimesheetPage extends React.Component {
     const { outcome, ...data } = this.state.currentTimesheetData || {};
 
     this.handleChangeStatus({ ...data, comment }, outcome);
-
     this.clearCommentModalData();
   };
 
