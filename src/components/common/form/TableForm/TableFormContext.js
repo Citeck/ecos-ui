@@ -64,6 +64,7 @@ export const TableFormContextProvider = props => {
 
     if (initValue) {
       const atts = [];
+      const attsAsIs = [];
       const noNeedParseIndices = [];
 
       columns.forEach((item, idx) => {
@@ -81,44 +82,49 @@ export const TableFormContextProvider = props => {
         const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
 
         atts.push(schema);
+        attsAsIs.push(item.attribute);
       });
 
       Promise.all(
-        initValue.map(r => {
+        initValue.map(async r => {
           const record = Records.get(r);
-          let promise;
+          const fetchedAtts = {};
+          let result = {};
+          let currentAttIndex = 0;
 
-          if (isEmpty(get(record.toJson(), 'attributes'))) {
-            promise = record.load(atts);
+          if (record.isBaseRecord()) {
+            result = await record.load(atts);
           } else {
-            promise = record.toJsonAsync(true).then(result => get(result, 'attributes', {}));
+            result = await record.toJsonAsync(true).then(result => get(result, 'attributes', {}));
+            const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
+
+            if (!isEmpty(nonExistAttrs)) {
+              const more = await record.load(nonExistAttrs);
+              result = { ...result, ...more };
+            }
           }
 
-          return promise.then(result => {
-            const fetchedAtts = {};
-            let currentAttIndex = 0;
+          for (let attSchema in result) {
+            if (!result.hasOwnProperty(attSchema)) {
+              continue;
+            }
 
-            for (let attSchema in result) {
-              if (!result.hasOwnProperty(attSchema)) {
+            if (noNeedParseIndices.includes(currentAttIndex)) {
+              fetchedAtts[attSchema] = result[attSchema];
+            } else {
+              const attData = parseAttribute(attSchema);
+
+              if (!attData) {
+                currentAttIndex++;
                 continue;
               }
 
-              if (noNeedParseIndices.includes(currentAttIndex)) {
-                fetchedAtts[attSchema] = result[attSchema];
-              } else {
-                const attData = parseAttribute(attSchema);
-                if (!attData) {
-                  currentAttIndex++;
-                  continue;
-                }
-
-                fetchedAtts[attData.name] = result[attSchema];
-              }
-              currentAttIndex++;
+              fetchedAtts[attData.name] = result[attSchema];
             }
+            currentAttIndex++;
+          }
 
-            return { ...fetchedAtts, id: r };
-          });
+          return { ...fetchedAtts, id: r };
         })
       ).then(result => {
         setGridRows(result);
