@@ -365,11 +365,18 @@ export default class ParserPredicate {
     }
 
     if (Array.isArray(newPredicate)) {
+      const flatPredicates = ParserPredicate.getFlatFilters(predicates);
       let newPredicates = predicates;
 
-      newPredicate.forEach(item => {
-        newPredicates = ParserPredicate.setNewPredicates(newPredicates, item);
-      });
+      newPredicate
+        .filter(item => {
+          const index = (flatPredicates || []).findIndex(i => isEqual(i, item));
+
+          return index === -1;
+        })
+        .forEach(item => {
+          newPredicates = ParserPredicate.setNewPredicates(newPredicates, item);
+        });
 
       return newPredicates;
     }
