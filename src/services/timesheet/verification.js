@@ -41,33 +41,5 @@ export default class VerificationTimesheetService {
     }
 
     return target;
-
-    // if (Array.isArray(newItem)) {
-    //   return newItem.reduce((result, current) => {
-    //     return [
-    //       ...result,
-    //       ...VerificationTimesheetService.mergeList({
-    //         currentList,
-    //         newItem: current,
-    //         eventTypes
-    //       })
-    //     ]
-    //   });
-    // }
-
-    // const target = cloneDeep(currentList);
-    // const index = target.findIndex(item => item.userName === newItem.userName);
-    // const data = cloneDeep({
-    //   ...newItem,
-    //   eventTypes
-    // });
-    //
-    // if (index !== -1) {
-    //   target[index] = data;
-    // } else {
-    //   target.push(data);
-    // }
-    //
-    // return target;
   }
 }

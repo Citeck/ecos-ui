@@ -269,38 +269,6 @@ class BaseTimesheet extends Component {
     );
   });
 
-  /*renderEventCalendarRow = (eventItem, userName) => {*/
-  //   return (
-  //     <CalendarRow key={`calendar-row-${eventItem.name}`}>
-  //       {this.props.daysOfMonth.map(day => {
-  //         const { updatingHours } = this.props;
-  //         const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name, userName });
-  //         const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
-  //         const count = +(eventDay.hours || 0);
-  //
-  //         return (
-  //           <CalendarCell
-  //             key={`calendar-cell-${day.number}-${count}`}
-  //             className={classNames({
-  //               'ecos-timesheet__table-calendar-cell_not-available': !get(eventItem, 'hours.editable', false)
-  //             })}
-  //           >
-  //             <Hour
-  //               color={eventItem.color}
-  //               count={count}
-  //               settings={eventItem.hours}
-  //               halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
-  //               onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
-  //               onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
-  //               updatingInfo={get(updatingHours, keyHour, null)}
-  //             />
-  //           </CalendarCell>
-  //         );
-  //       })}
-  //     </CalendarRow>
-  //   );
-  // };
-
   renderCalendar() {
     const { isAvailable } = this.props;
 
