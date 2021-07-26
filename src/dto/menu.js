@@ -41,11 +41,11 @@ export default class MenuConverter {
   static getMainMenuCreateItems(source = []) {
     const ITs = MenuSettings.ItemTypes;
 
-    return (function recursion(items) {
+    return (function recursion(items, level) {
       return (items || [])
         .map((item = {}) => {
           const label = getTextByLocale(item.label);
-          const option = { ...item, label };
+          const option = { ...item, label, isolated: !level && true };
 
           switch (item.type) {
             case ITs.LINK_CREATE_CASE:
@@ -55,17 +55,18 @@ export default class MenuConverter {
               return { ...option, ...MenuConverter.getLinkMove(item) };
             case ITs.SECTION:
               option.disabled = !option.items.length;
+              option.isolated = false;
               break;
             default:
               break;
           }
 
-          option.items = recursion(item.items);
+          option.items = recursion(item.items, level + 1);
 
           return option;
         })
         .filter(item => !item.hidden);
-    })(source);
+    })(source, 0);
   }
 
   static prepareCreateVariants(createVariants) {
