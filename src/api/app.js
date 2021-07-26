@@ -5,22 +5,22 @@ import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { SourcesId, URL } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
+import { DEFAULT_EIS, SourcesId, URL } from '../constants';
+import { CITECK_URI, MICRO_URI, PROXY_URI, URL_SERVICECONTEXT } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
-    const url = `${PROXY_URI}citeck/ecosConfig/ecos-config-value?configName=${configName}`;
+    const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
     return this.getJson(url)
       .then(resp => resp.value)
       .catch(() => '');
   };
 
   touch = () => {
-    const url = `${PROXY_URI}citeck/ecos/touch`;
+    const url = `${CITECK_URI}ecos/touch`;
     return this.getJson(url);
   };
 
@@ -71,7 +71,7 @@ export class AppApi extends CommonApi {
   };
 
   getFooter = (params = 'value?str') => {
-    return Records.get('uiserv/config@footer-content')
+    return Records.get(`${SourcesId.CONFIG}@footer-content`)
       .load(params)
       .catch(() => null);
   };
@@ -95,7 +95,7 @@ export class AppApi extends CommonApi {
       .load('attributes.i18n-cache-key')
       .then(k => k || '0')
       .catch(_ => '0');
-    const url = queryString.stringifyUrl({ url: `${PROXY_URI}citeck/micro/uiserv/api/messages/locale`, query: { id, cb } });
+    const url = queryString.stringifyUrl({ url: `${MICRO_URI}api/messages/locale`, query: { id, cb } });
 
     return ecosFetch(url)
       .then(res => (res.ok ? res.json() : Promise.reject(res)))
@@ -172,5 +172,35 @@ export class AppApi extends CommonApi {
 
   getAppEdition = () => {
     return Records.get(`${SourcesId.A_META}@`).load('attributes.edition');
+  };
+
+  getIsExternalIDP = () => {
+    return ecosFetch('/eis.json')
+      .then(r => r.json())
+      .then(config => {
+        const { logoutUrl, eisId } = config || {};
+        const checkLogoutUrl = !logoutUrl || logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const checkEisId = eisId && eisId !== DEFAULT_EIS.EIS_ID;
+
+        return checkLogoutUrl && checkEisId;
+      })
+      .catch(() => false);
+  };
+
+  static doLogOut = () => {
+    const shareDoLogout = `${URL_SERVICECONTEXT}dologout`;
+
+    const beforehand = ecosFetch('/eis.json')
+      .then(r => r.json())
+      .then(config => {
+        const { logoutUrl, eisId } = config || {};
+        const checkLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const checkEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
+
+        return checkLogoutUrl ? logoutUrl : checkEisId ? shareDoLogout : undefined;
+      })
+      .catch(() => shareDoLogout);
+
+    beforehand.then(url => url && ecosFetch(url, { method: 'POST', mode: 'no-cors' }).then(window.location.reload));
   };
 }

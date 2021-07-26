@@ -1,11 +1,10 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { PROXY_URI, URL_EIS_CONFIG, URL_PAGECONTEXT, URL_RESCONTEXT, URL_SERVICECONTEXT } from '../constants/alfresco';
-import { extractLabel, getCurrentUserName, loadScript, t } from './util';
-import { goToCardDetailsPage } from './urls';
+import { PROXY_URI, URL_PAGECONTEXT, URL_RESCONTEXT } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import { requireShareAssets } from '../legacy/share';
+import { AppApi } from '../api/app';
 import FormManager from '../components/EcosForm/FormManager';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import DialogManager from '../components/common/dialogs/Manager';
@@ -13,6 +12,8 @@ import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
 import RecordActions from '../components/Records/actions/recordActions';
 import formDefinitionUserStatus from './menu/formDefinitionUserStatus';
+import { goToCardDetailsPage } from './urls';
+import { extractLabel, getCurrentUserName, loadScript, t } from './util';
 import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
@@ -31,8 +32,6 @@ export const HandleControlTypes = {
 };
 
 const HCT = HandleControlTypes;
-
-const LOGOUT_URL_DEFAULT = `${URL_SERVICECONTEXT}dologout`;
 
 const toggleUnavailableStatus = payload => {
   if (!payload.isAvailable) {
@@ -80,23 +79,7 @@ const toggleUnavailableStatus = payload => {
 export default function handleControl(type, payload) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      const logoutHandler = (logoutURL = LOGOUT_URL_DEFAULT) => {
-        ecosFetch(logoutURL, { method: 'POST', mode: 'no-cors' }).then(() => window.location.reload());
-      };
-
-      ecosFetch(URL_EIS_CONFIG)
-        .then(r => r.json())
-        .then(config => {
-          const EIS_LOGOUT_URL_DEFAULT_VALUE = 'LOGOUT_URL';
-          const { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
-
-          if (logoutUrl !== EIS_LOGOUT_URL_DEFAULT_VALUE) {
-            return logoutHandler(logoutUrl);
-          }
-
-          return logoutHandler();
-        })
-        .catch(() => logoutHandler());
+      AppApi.doLogOut();
       break;
 
     case HCT.ALF_SHOW_MODAL_MAKE_UNAVAILABLE:
