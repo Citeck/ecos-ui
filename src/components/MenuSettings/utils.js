@@ -13,6 +13,7 @@ export const Labels = {
   TAB_LEFT_MENU: 'menu-settings.tabs.menu-config',
   TAB_GLOBAL: 'menu-settings.tabs.global-config',
   TAB_CREATE_MENU: 'menu-settings.tabs.menu-create-config',
+  DEFAULT: 'menu-settings.text.default',
   //editor menu
   BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',

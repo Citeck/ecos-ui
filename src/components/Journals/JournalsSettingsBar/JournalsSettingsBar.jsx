@@ -30,7 +30,8 @@ const JournalsSettingsBar = ({
   viewMode,
   showDocLibrary,
   isDocLibEnabled,
-  createIsLoading
+  createIsLoading,
+  isLoading
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -85,6 +86,7 @@ const JournalsSettingsBar = ({
           icon={'icon-settings'}
           className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
           onClick={toggleSettings}
+          loading={isLoading}
         />
       )}
 

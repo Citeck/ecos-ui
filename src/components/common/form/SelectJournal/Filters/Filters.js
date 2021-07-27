@@ -1,6 +1,8 @@
 import React from 'react';
 import { Col, Row } from 'reactstrap';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../../../helpers/util';
 import { Btn, IcoBtn } from '../../../../common/btns';
@@ -12,49 +14,51 @@ import FiltersContext from './FiltersContext';
 import './Filters.scss';
 
 class Filters extends React.Component {
-  componentDidMount() {
-    document.addEventListener('keydown', this.onKeydown);
-  }
-
   componentWillUnmount() {
-    document.addEventListener('keydown', this.onKeydown);
+    this.onKeydown.cancel();
   }
 
-  onKeydown = e => {
+  onApply = () => {
+    const { fields } = this.context;
+    const { onApply } = this.props;
+
+    if (isFunction(onApply)) {
+      onApply(
+        fields.map(item => {
+          const { selectedPredicate, attribute, predicateValue } = item;
+          const predicate = {
+            t: selectedPredicate.value,
+            att: attribute
+          };
+
+          if (selectedPredicate.needValue) {
+            predicate.val = predicateValue;
+          }
+
+          if (selectedPredicate.fixedValue) {
+            predicate.val = selectedPredicate.fixedValue;
+          }
+
+          return ParserPredicate.replacePredicateType(predicate);
+        })
+      );
+    }
+  };
+
+  onKeydown = debounce(e => {
     if (e.key !== 'Enter') {
       return;
     }
 
-    const { fields } = this.context;
-    const { onApply } = this.props;
-
-    onApply(
-      fields.map(item => {
-        const { selectedPredicate, attribute, predicateValue } = item;
-        const predicate = {
-          t: selectedPredicate.value,
-          att: attribute
-        };
-
-        if (selectedPredicate.needValue) {
-          predicate.val = predicateValue;
-        }
-
-        if (selectedPredicate.fixedValue) {
-          predicate.val = selectedPredicate.fixedValue;
-        }
-
-        return ParserPredicate.replacePredicateType(predicate);
-      })
-    );
-  };
+    this.onApply();
+  }, 50);
 
   render() {
     const { fields, changePredicate, changePredicateValue, addField, removeField } = this.context;
     const { columns } = this.props;
 
     return (
-      <div className="select-journal-filters">
+      <div className="select-journal-filters" onKeyDown={this.onKeydown}>
         <div className="select-journal-filters__list-wrapper">
           <ul className="select-journal-filters__list">
             {fields.map((item, idx) => (
@@ -68,7 +72,6 @@ class Filters extends React.Component {
                 selectedPredicate={item.selectedPredicate}
                 predicateValue={item.predicateValue}
                 onRemove={removeField}
-                onApplyFilters={this.onApply}
                 onChangePredicate={value => changePredicate(idx, value)}
                 onChangePredicateValue={value => changePredicateValue(idx, value)}
               />

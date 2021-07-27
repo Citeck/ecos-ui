@@ -4,9 +4,9 @@ import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
 
-import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
+import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, ROOT_GROUP_NAME, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -29,7 +29,8 @@ export const SelectOrgstructProvider = props => {
     renderListItem,
     userSearchExtraFields,
     isIncludedAdminGroup,
-    dataType
+    dataType,
+    rootGroupName
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -101,7 +102,11 @@ export const SelectOrgstructProvider = props => {
       }
     }
 
-    valuePromise.then(value => typeof onChange === 'function' && onChange(value, selectedList));
+    valuePromise.then(value => {
+      if (typeof onChange === 'function') {
+        onChange(value, selectedList);
+      }
+    });
   };
 
   const onSelect = () => {
@@ -113,13 +118,14 @@ export const SelectOrgstructProvider = props => {
   // fetch root group list
   useEffect(() => {
     const trimSearchText = (searchText || '').trim();
+    let livePromise = true;
 
     if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
       setIsSearching(true);
       orgStructApi
         .fetchGroup({
           query: {
-            groupName: ROOT_ORGSTRUCT_GROUP,
+            groupName: rootGroupName,
             searchText: trimSearchText
           },
           excludeAuthoritiesByName,
@@ -128,31 +134,41 @@ export const SelectOrgstructProvider = props => {
         })
         .then(handleResponse)
         .then(items => {
+          if (!livePromise) {
+            return;
+          }
+
           setTabItems({
             ...tabItems,
             [TabTypes.LEVELS]: items
               .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
               .map(item => setSelectedItem(item))
           });
-
           checkIsAllUsersGroupExists();
           setIsRootGroupsFetched(true);
           setIsSearching(false);
         });
     }
+
+    return () => (livePromise = false);
   }, [isRootGroupsFetched, isSelectModalOpen, currentTab]);
 
   // fetch "all" group list (all users)
   useEffect(() => {
+    let livePromise = true;
+
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
       setIsSearching(true);
       OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
         ({ items, totalCount }) => {
+          if (!livePromise) {
+            return;
+          }
+
           setTabItems({
             ...tabItems,
             [TabTypes.USERS]: items.map(item => setSelectedItem(item))
           });
-
           checkIsAllUsersGroupExists();
           setIsAllUsersGroupFetched(true);
           setPagination({ ...pagination, maxCount: totalCount });
@@ -160,6 +176,8 @@ export const SelectOrgstructProvider = props => {
         }
       );
     }
+
+    return () => (livePromise = false);
   }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
 
   // reset isSelectedFetched if new previewValue
@@ -180,6 +198,7 @@ export const SelectOrgstructProvider = props => {
     setIsSelectedFetched(true);
 
     let initValue;
+    let livePromise = true;
 
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
@@ -198,6 +217,10 @@ export const SelectOrgstructProvider = props => {
         .then(handleResponse)
         .then(items => items.map(prepareSelected))
         .then(selectedItems => {
+          if (!livePromise) {
+            return;
+          }
+
           setTabItems({
             ...tabItems,
             [TabTypes.SELECTED]: [...selectedItems],
@@ -205,6 +228,8 @@ export const SelectOrgstructProvider = props => {
             [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
           });
           setSelectedRows([...selectedItems]);
+
+          livePromise = false;
         })
         .catch(_ => _);
     }

@@ -83,8 +83,9 @@ export const createThumbnailUrl = (nodeRef, extra) => {
 };
 
 export function createPrintUrl({ record, config }) {
+  const nodeRef = record.id.replace('alfresco/@', '');
   const params = {
-    nodeRef: record.id,
+    nodeRef,
     print: true,
     templateType: config.templateType,
     format: config.format,

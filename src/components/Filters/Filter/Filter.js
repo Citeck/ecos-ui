@@ -19,6 +19,7 @@ import './Filter.scss';
 
 export default class Filter extends Component {
   _controls = new Map();
+  #controlRef = null;
 
   static propTypes = {
     filter: PropTypes.object,
@@ -148,7 +149,8 @@ export default class Filter extends Component {
       ...this.props,
       column,
       predicate,
-      value
+      value,
+      forwardedRef: this.setControlRef
     };
   }
 
@@ -156,8 +158,23 @@ export default class Filter extends Component {
     return 'icon-delete';
   }
 
+  setControlRef = ref => {
+    if (ref) {
+      this.#controlRef = ref;
+    }
+  };
+
+  handleMouseDown = () => {
+    const { value } = this.state;
+    const controlValue = get(this.#controlRef, 'value');
+
+    if (controlValue !== undefined && value !== controlValue) {
+      this.onChangeValue(controlValue);
+    }
+  };
+
   ValueControl = React.memo((props, context) => {
-    const { value, predicate, column, metaRecord } = props;
+    const { value, predicate, column, metaRecord, forwardedRef } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow =
@@ -167,12 +184,12 @@ export default class Filter extends Component {
     if (isShow && EditorService.isRegistered(editorType)) {
       const control = EditorService.getEditorControl({
         recordRef: metaRecord,
+        forwardedRef,
         attribute: column.attribute,
         editor: column.newEditor,
         value,
         scope: EditorScope.FILTER,
         onUpdate: this.onChangeValue,
-        onKeyDown: this.onKeyDown,
         controlProps: { predicate: omit(predicate, 'val') }
       });
 
@@ -277,6 +294,7 @@ export default class Filter extends Component {
           e.stopPropagation();
           e.preventDefault();
         }}
+        onMouseDown={this.handleMouseDown}
       >
         {children}
 

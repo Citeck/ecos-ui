@@ -1,21 +1,34 @@
 import React from 'react';
 import _ from 'lodash';
 
-import BaseReactComponent from '../base/BaseReactComponent';
-import TableForm from '../../../../components/common/form/TableForm';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import Records from '../../../../components/Records';
-import JournalsService from '../../../../components/Journals/service';
-import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
 import { Loader } from '../../../../components/common';
+import TableForm from '../../../../components/common/form/TableForm';
+import DialogManager from '../../../../components/common/dialogs/Manager';
+import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import Records from '../../../../components/Records';
+import JournalsService from '../../../../components/Journals/service';
+import BaseReactComponent from '../base/BaseReactComponent';
+import { TableTypes } from './constants';
+
+const Labels = {
+  MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
+  MSG_NO_J_CONFIG: 'ecos-table-form.error.no-journal-config',
+  MSG_ERR_SOURCE: 'ecos-table-form.error.source',
+  MSG_NO_HANDLER: 'ecos-table-form.error.no-response-handler',
+  MSG_FAIL_IMPORT: 'ecos-table-form.error.failure-to-import',
+  DIALOG_TITLE: 'ecos-table-form.error-dialog.title'
+};
 
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
   _displayElementsValue = {};
   _nonSelectableRows = [];
   _createVariants = [];
+  _visibleRender = false;
+
+  #journalConfig;
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -44,6 +57,7 @@ export default class TableFormComponent extends BaseReactComponent {
         isStaticModalTitle: false,
         customStringForConcatWithStaticTitle: '',
         isSelectableRows: false,
+        isUsedJournalActions: false,
         displayElementsJS: '',
         nonSelectableRowsJS: '',
         selectedRowsJS: '',
@@ -75,42 +89,40 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   checkConditions(data) {
-    let result = super.checkConditions(data);
-
+    const isVisible = _.cloneDeep(this.visible);
+    const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
     if (displayElementsJS) {
       let displayElements = this.evaluate(displayElementsJS, {}, 'value', true);
+
       if (!_.isEqual(displayElements, this._displayElementsValue)) {
         this._displayElementsValue = displayElements;
-        this.setReactProps({
-          displayElements
-        });
+        this.setReactProps({ displayElements });
       }
     }
 
     if (nonSelectableRowsJS) {
       let nonSelectableRows = this.evaluate(nonSelectableRowsJS, {}, 'value', true);
+
       if (!_.isEqual(nonSelectableRows, this._nonSelectableRows)) {
         this._nonSelectableRows = nonSelectableRows;
-        this.setReactProps({
-          nonSelectableRows
-        });
+        this.setReactProps({ nonSelectableRows });
       }
     }
 
     if (selectedRowsJS) {
       let selectedRows = this.evaluate(selectedRowsJS, {}, 'value', true);
+
       if (!_.isEqual(selectedRows, this._selectedRows)) {
         this._selectedRows = selectedRows;
-        this.setReactProps({
-          selectedRows
-        });
+        this.setReactProps({ selectedRows });
       }
     }
 
     if (customCreateVariantsJs) {
       const createVariantsResult = this._getCustomCreateVariants();
+
       createVariantsResult.then(createVariants => {
         if (!createVariants) {
           return;
@@ -118,11 +130,13 @@ export default class TableFormComponent extends BaseReactComponent {
 
         if (!_.isEqual(createVariants, this._createVariants)) {
           this._createVariants = createVariants;
-          this.setReactProps({
-            createVariants
-          });
+          this.setReactProps({ createVariants });
         }
       });
+    }
+
+    if ((!isVisible || !this._visibleRender) && this.visible) {
+      this.redraw();
     }
 
     return result;
@@ -133,6 +147,8 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
+    this._visibleRender = this.visible;
+
     return this.visible ? TableForm : () => <Loader blur />;
   }
 
@@ -177,6 +193,10 @@ export default class TableFormComponent extends BaseReactComponent {
     const changed = super.updateValue(flags, value);
 
     this.refreshElementHasValueClasses();
+
+    if (this.component.isUsedJournalActions && !_.isEmpty(value)) {
+      this._fetchActions(value).then(journalActions => this.setReactProps({ journalActions }));
+    }
 
     return changed;
   }
@@ -268,7 +288,7 @@ export default class TableFormComponent extends BaseReactComponent {
       const attribute = this.getAttributeToEdit();
 
       switch (source.type) {
-        case 'journal':
+        case TableTypes.JOURNAL:
           const { journal } = source;
           const journalId = await (journal.journalId ||
             this.getRecord()
@@ -277,7 +297,7 @@ export default class TableFormComponent extends BaseReactComponent {
           const displayColumns = journal.columns;
 
           if (!journalId) {
-            return resolve({ error: new Error(t('ecos-table-form.error.no-journal-id')) });
+            return resolve({ error: new Error(t(Labels.MSG_NO_J_ID)) });
           }
 
           try {
@@ -285,36 +305,33 @@ export default class TableFormComponent extends BaseReactComponent {
             let columns = journalConfig.columns;
 
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
-              columns = columns.map(item => {
-                return {
-                  ...item,
-                  default: displayColumns.indexOf(item.attribute) !== -1
-                };
-              });
+              columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
             }
 
             this._createVariants = journalConfig.meta.createVariants || [];
+            this.#journalConfig = journalConfig;
 
-            resolve({
-              columns: await JournalsService.resolveColumns(columns)
-            });
+            resolve({ columns: await JournalsService.resolveColumns(columns) });
           } catch (error) {
             console.error(error);
-            return resolve({ error: new Error(`${t('ecos-table-form.error.no-journal-id')} (${error.message})`) });
+            return resolve({ error: new Error(t(Labels.MSG_NO_J_CONFIG)) });
           }
           break;
-        case 'custom':
+        case TableTypes.CUSTOM:
           const record = this.getRecord();
           const columns = (_.get(source, 'custom.columns') || []).map(item => {
             const col = { ...item };
+
             if (item.formatter) {
               col.formatter = this.evaluate(item.formatter, {}, 'value', true);
             }
+
             return col;
           });
 
           const customCreateVariants = await this._getCustomCreateVariants();
           let createVariantsPromise = Promise.resolve([]);
+
           if (customCreateVariants) {
             createVariantsPromise = customCreateVariants;
           } else if (attribute) {
@@ -330,7 +347,9 @@ export default class TableFormComponent extends BaseReactComponent {
 
             columns.forEach(item => {
               const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+
               columnsMap[key] = item;
+
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
               }
@@ -338,8 +357,8 @@ export default class TableFormComponent extends BaseReactComponent {
 
             let columnsInfoPromise;
             let inputsPromise;
-
             let spareCreateVariants = [];
+
             if (!Array.isArray(createVariants) || createVariants.length < 1) {
               if (customCreateVariants && attribute) {
                 spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute);
@@ -348,37 +367,37 @@ export default class TableFormComponent extends BaseReactComponent {
 
             if (createVariants.length < 1 && spareCreateVariants.length < 1) {
               columnsInfoPromise = Promise.resolve(
-                columns.map(item => {
-                  return {
-                    default: true,
-                    type: item.type,
-                    text: item.title ? this.t(item.title) : '',
-                    multiple: item.multiple,
-                    attribute: item.name
-                  };
-                })
+                columns.map(item => ({
+                  default: true,
+                  type: item.type,
+                  text: item.title ? this.t(item.title) : '',
+                  multiple: item.multiple,
+                  attribute: item.name
+                }))
               );
               inputsPromise = Promise.resolve({});
             } else {
               const firstCreateVariant = _.get(createVariants, '[0]', _.get(spareCreateVariants, '[0]'));
-              let cvRecordRef = firstCreateVariant.recordRef;
+              const cvRecordRef = firstCreateVariant.recordRef;
+
               columnsInfoPromise = Records.get(cvRecordRef)
                 .load(Object.keys(columnsMap))
                 .then(loadedAtt => {
                   let cols = [];
-                  for (let i in columnsMap) {
-                    if (!columnsMap.hasOwnProperty(i)) {
+                  for (let keyCol in columnsMap) {
+                    if (!columnsMap.hasOwnProperty(keyCol)) {
                       continue;
                     }
 
-                    const originalColumn = columnsMap[i];
+                    const originalColumn = columnsMap[keyCol];
                     const isManualAttributes = originalColumn.setAttributesManually;
+                    const dataAtt = _.get(loadedAtt, [keyCol]) || {};
 
                     cols.push({
                       default: true,
-                      type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
-                      text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : loadedAtt[i].title,
-                      multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
+                      type: isManualAttributes && originalColumn.type ? originalColumn.type : dataAtt.type,
+                      text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : dataAtt.title,
+                      multiple: isManualAttributes ? originalColumn.multiple : dataAtt.multiple,
                       attribute: originalColumn.name
                     });
                   }
@@ -413,17 +432,24 @@ export default class TableFormComponent extends BaseReactComponent {
               }
             }
 
-            resolve({
-              columns: await JournalsService.resolveColumns(updColumns)
-            });
+            const resolvedColumns = await JournalsService.resolveColumns(updColumns);
+
+            resolve({ columns: resolvedColumns });
           } catch (error) {
             console.error(error);
             return resolve({ error: new Error(`Can't fetch create variants: ${error.message}`) });
           }
           break;
         default:
-          return resolve({ error: new Error(t('ecos-table-form.error.source')) });
+          return resolve({ error: new Error(t(Labels.MSG_ERR_SOURCE)) });
       }
+    });
+  };
+
+  _fetchActions = value => {
+    return new Promise(async resolve => {
+      const journalActions = await JournalsService.getRecordActions(this.#journalConfig, value).catch(() => ({}));
+      resolve(journalActions);
     });
   };
 
@@ -469,6 +495,7 @@ export default class TableFormComponent extends BaseReactComponent {
         parentForm: this.root,
         triggerEventOnTableChange,
         displayElements: this._displayElementsValue,
+        isUsedJournalActions: component.isUsedJournalActions,
         settingElements: {
           isInstantClone: component.isInstantClone
         },
@@ -499,7 +526,7 @@ export default class TableFormComponent extends BaseReactComponent {
     const { uploadUrl, responseHandler } = importConfig;
 
     if (!responseHandler) {
-      return this.showErrorMessage(t('ecos-table-form.error.no-response-handler'));
+      return this.showErrorMessage(t(Labels.MSG_NO_HANDLER));
     }
 
     const formData = new FormData();
@@ -528,13 +555,13 @@ export default class TableFormComponent extends BaseReactComponent {
       this.updateValue({}, newValue);
     } catch (e) {
       console.error('TableForm error. Failure to upload file: ', e.message);
-      this.showErrorMessage(t('ecos-table-form.error.failure-to-import'));
+      this.showErrorMessage(t(Labels.MSG_FAIL_IMPORT));
     }
   };
 
   showErrorMessage = text => {
     DialogManager.showInfoDialog({
-      title: t('ecos-table-form.error-dialog.title'),
+      title: t(Labels.DIALOG_TITLE),
       text
     });
   };

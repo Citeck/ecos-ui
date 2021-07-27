@@ -566,7 +566,8 @@ class Journals extends React.Component {
       isDocLibEnabled,
       settingsData,
       settingsColumnsData,
-      settingsGroupingData
+      settingsGroupingData,
+      isLoading
     } = this.props;
     const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
 
@@ -606,6 +607,7 @@ class Journals extends React.Component {
           selectedRecords={selectedRecords}
           isDocLibEnabled={isDocLibEnabled}
           createIsLoading={createIsLoading}
+          isLoading={isLoading}
         />
       </>
     );

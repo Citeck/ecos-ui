@@ -225,6 +225,7 @@ export const TableFormContextProvider = props => {
           setClonedRecord(null);
         },
 
+        //todo: should use action service for inline buttons
         showCreateForm: createVariant => {
           setIsViewOnlyForm(false);
           setRecord(null);

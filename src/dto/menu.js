@@ -1,12 +1,14 @@
 import get from 'lodash/get';
+import replace from 'lodash/replace';
 
+import { SourcesId } from '../constants';
 import { MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
 import { getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
-import MenuConverterExport from './export/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
+import MenuConverterExport from './export/menu';
 
 export default class MenuConverter {
   /* menu config */
@@ -39,10 +41,11 @@ export default class MenuConverter {
   static getMainMenuCreateItems(source = []) {
     const ITs = MenuSettings.ItemTypes;
 
-    return (function recursion(items) {
+    return (function recursion(items, level) {
       return (items || [])
-        .map(item => {
-          const option = { ...item, label: getTextByLocale(item.label) };
+        .map((item = {}) => {
+          const label = getTextByLocale(item.label);
+          const option = { ...item, label, isolated: !level && true };
 
           switch (item.type) {
             case ITs.LINK_CREATE_CASE:
@@ -52,17 +55,18 @@ export default class MenuConverter {
               return { ...option, ...MenuConverter.getLinkMove(item) };
             case ITs.SECTION:
               option.disabled = !option.items.length;
+              option.isolated = false;
               break;
             default:
               break;
           }
 
-          option.items = recursion(item.items);
+          option.items = recursion(item.items, level + 1);
 
           return option;
         })
         .filter(item => !item.hidden);
-    })(source);
+    })(source, 0);
   }
 
   static prepareCreateVariants(createVariants) {
@@ -125,7 +129,7 @@ export default class MenuConverter {
 
         tItem.items = [];
         tItem.config = { ...sItem.config };
-        tItem.label = get(sItem, '_remoteData_.label') || tItem.label;
+        tItem.label = MenuConverter.getSpecialLabel(sItem);
 
         sItem.items && prepareTree(sItem.items, tItem.items, level + 1);
 
@@ -135,6 +139,23 @@ export default class MenuConverter {
     })(source, target, 0);
 
     return target;
+  }
+
+  static getSpecialLabel(item) {
+    let label = get(item, '_remoteData_.label') || item.label;
+
+    switch (item.type) {
+      case MenuSettings.ItemTypes.START_WORKFLOW:
+        label = item.label || get(item, '_remoteData_.label') || replace(get(item, 'config.processDef'), SourcesId.BPMN_DEF, '');
+        break;
+      case MenuSettings.ItemTypes.JOURNAL:
+        label = label || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
+        break;
+      default:
+        break;
+    }
+
+    return label;
   }
 
   static getMenuItemsServer(source) {
