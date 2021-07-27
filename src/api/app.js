@@ -178,17 +178,14 @@ export class AppApi extends CommonApi {
     return ecosFetch('/eis.json')
       .then(r => r.json())
       .then(config => {
-        const { logoutUrl, eisId } = config || {};
-        const checkLogoutUrl = !logoutUrl || logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
-        const checkEisId = eisId && eisId !== DEFAULT_EIS.EIS_ID;
-
-        return checkLogoutUrl && checkEisId;
+        const { logoutUrl } = config || {};
+        return !logoutUrl || logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
       })
       .catch(() => false);
   };
 
   static doLogOut = () => {
-    const shareDoLogout = `/logout`;
+    const DEF_LOGOUT = `/logout`;
 
     const beforehand = ecosFetch('/eis.json')
       .then(r => r.json())
@@ -197,9 +194,9 @@ export class AppApi extends CommonApi {
         const checkLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
         const checkEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
 
-        return checkLogoutUrl ? logoutUrl : checkEisId ? shareDoLogout : undefined;
+        return checkLogoutUrl ? logoutUrl : checkEisId ? DEF_LOGOUT : undefined;
       })
-      .catch(() => shareDoLogout);
+      .catch(() => DEF_LOGOUT);
 
     beforehand.then(url => url && ecosFetch(url, { method: 'POST', mode: 'no-cors' }).then(window.location.reload));
   };
