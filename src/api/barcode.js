@@ -1,6 +1,5 @@
 import { CITECK_URI } from '../constants/alfresco';
 import { CommonApi } from './common';
-import { PROXY_URI } from '../constants/alfresco';
 
 export class BarcodeApi extends CommonApi {
   getBade64Barcode = ({ record, params = {} }) => {

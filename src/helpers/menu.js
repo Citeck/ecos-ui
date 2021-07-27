@@ -3,11 +3,11 @@ import isEmpty from 'lodash/isEmpty';
 import { SourcesId, URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import Records from '../components/Records';
+import MenuSettingsService from '../services/MenuSettingsService';
+import DashboardService from '../services/dashboard';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
-import MenuSettingsService from '../services/MenuSettingsService';
-import DashboardService from '../services/dashboard';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =

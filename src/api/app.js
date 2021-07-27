@@ -6,7 +6,7 @@ import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { DEFAULT_EIS, SourcesId, URL } from '../constants';
-import { CITECK_URI, MICRO_URI, PROXY_URI, URL_SERVICECONTEXT, UISERV_API } from '../constants/alfresco';
+import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
@@ -188,7 +188,7 @@ export class AppApi extends CommonApi {
   };
 
   static doLogOut = () => {
-    const shareDoLogout = `${URL_SERVICECONTEXT}dologout`;
+    const shareDoLogout = `/logout`;
 
     const beforehand = ecosFetch('/eis.json')
       .then(r => r.json())
@@ -202,5 +202,12 @@ export class AppApi extends CommonApi {
       .catch(() => shareDoLogout);
 
     beforehand.then(url => url && ecosFetch(url, { method: 'POST', mode: 'no-cors' }).then(window.location.reload));
+  };
+
+  static doToggleAvailable = isAvailable => {
+    return new CommonApi()
+      .postJson(`${PROXY_URI}api/availability/make-available`, { isAvailable })
+      .then(window.location.reload)
+      .catch(() => '');
   };
 }

@@ -9,7 +9,7 @@ export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
-  DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  DASHBOARD_SETTINGS: '/v2/dashboard/settings', // @deprecated
   MENU_SETTINGS: '/v2/menu-settings',
   ADMIN_PAGE: '/v2/admin',
   BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated

@@ -2,9 +2,8 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, URL } from '../constants';
-import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
+import { PROXY_URI } from '../constants/alfresco';
 import { AppApi } from '../api/app';
-import { CommonApi } from '../api/common';
 import DialogManager from '../components/common/dialogs/Manager';
 import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
@@ -13,8 +12,6 @@ import PageService from '../services/PageService';
 import { NEW_VERSION_PREFIX } from './export/urls';
 import { getCurrentUserName, t } from './util';
 import formDefinitionUserStatus from './menu/formDefinitionUserStatus';
-import { goToCardDetailsPage } from './urls';
-import { extractLabel, getCurrentUserName, loadScript, t } from './util';
 import ecosFetch from './ecosFetch';
 
 export const HandleControlTypes = {
@@ -32,21 +29,8 @@ export const HandleControlTypes = {
 const HCT = HandleControlTypes;
 
 export const toggleAvailabilityStatus = payload => {
-  const commonApi = new CommonApi();
-  const fetch = () => {
-    return commonApi
-      .postJson(`${PROXY_URI}api/availability/make-available`, {
-        isAvailable: !payload.isAvailable
-      })
-      .then(() => {
-        window.location.reload();
-      })
-      .catch(() => '');
-  };
-
   if (!payload.isAvailable) {
-    fetch();
-
+    AppApi.doToggleAvailable(payload.isAvailable);
     return;
   }
 
@@ -72,12 +56,10 @@ export const toggleAvailabilityStatus = payload => {
         }
       })
         .then(response => response.json())
-        .catch(e => {
-          console.error(e);
-        });
+        .catch(console.error);
 
       if (!isEmpty(result)) {
-        await fetch();
+        await AppApi.doToggleAvailable(payload.isAvailable);
       }
     }
   });
