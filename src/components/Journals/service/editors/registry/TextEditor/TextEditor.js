@@ -12,7 +12,7 @@ export default class TextEditor extends BaseEditor {
   getControl(config, scope) {
     const isCell = scope === EditorScope.CELL;
 
-    return ({ value, onUpdate, onKeyDown }) => {
+    return ({ value, onUpdate, onKeyDown, forwardedRef }) => {
       const [data, setData] = useState(value || '');
 
       const sendDate = () => {
@@ -38,6 +38,7 @@ export default class TextEditor extends BaseEditor {
 
       return (
         <Input
+          forwardedRef={forwardedRef}
           type={this.inputType}
           defaultValue={data}
           className={classNames('ecos-input_hover', {

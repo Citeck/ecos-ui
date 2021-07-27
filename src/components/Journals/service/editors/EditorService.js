@@ -34,6 +34,7 @@ class EditorService {
 
   static getEditorControl({
     ref,
+    forwardedRef,
     value,
     attribute,
     recordRef,
@@ -69,6 +70,7 @@ class EditorService {
       return (
         <EditorControlWrapper
           ref={ref}
+          forwardedRef={forwardedRef}
           recordRef={recordRef}
           attribute={attribute}
           value={value}

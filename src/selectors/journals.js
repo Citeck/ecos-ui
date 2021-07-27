@@ -145,7 +145,7 @@ export const selectSettingsFilters = createSelector(
   selectState,
   ownProps => {
     return cloneDeep({
-      predicate: ownProps.predicate,
+      predicate: get(ownProps, 'journalSetting.predicate'),
       columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
       metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
     });
