@@ -74,6 +74,8 @@ export default class SelectJournal extends Component {
     customPredicate: null
   };
 
+  liveComponent = true;
+
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
@@ -122,6 +124,10 @@ export default class SelectJournal extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.liveComponent = false;
+  }
+
   updateSelectedValue(value = this.props.defaultValue, shouldTriggerOnChange = false) {
     const { multiple } = this.props;
     let newValue;
@@ -138,9 +144,7 @@ export default class SelectJournal extends Component {
   setCustomPredicate(customPredicate) {
     if (!isEqual(this.state.customPredicate, customPredicate)) {
       this.setState({ customPredicate, isGridDataReady: false }, () => {
-        this.shouldResetValue().then(({ shouldReset, matchedRows }) => {
-          shouldReset && this.setValue(matchedRows);
-        });
+        this.shouldResetValue().then(({ shouldReset, matchedRows }) => this.liveComponent && shouldReset && this.setValue(matchedRows));
       });
     }
   }
@@ -385,12 +389,9 @@ export default class SelectJournal extends Component {
   };
 
   onSelectFromJournalPopup = () => {
-    this.setValue(this.state.gridData.selected).then(() => {
-      this.setState({
-        isSelectModalOpen: false,
-        wasChangedFromPopup: true
-      });
-    });
+    this.setValue(this.state.gridData.selected).then(
+      () => this.liveComponent && this.setState({ isSelectModalOpen: false, wasChangedFromPopup: true })
+    );
   };
 
   fillCanEdit = rows => {
@@ -515,6 +516,10 @@ export default class SelectJournal extends Component {
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
       .then(selected => {
+        if (!this.liveComponent) {
+          return;
+        }
+
         let newValue;
         if (multiple) {
           newValue = selected.map(item => item.id);
