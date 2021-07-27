@@ -8,12 +8,13 @@ import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
+import { URL_PAGECONTEXT } from '../constants/alfresco';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =
   'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
 
-export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalAuthentication) => {
+export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalIDP) => {
   const customFeedbackUrlPromise = Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
     .load('value?str')
     .then(value => value || DEFAULT_FEEDBACK_URL)
@@ -25,6 +26,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
 
   const urls = await Promise.all([customFeedbackUrlPromise, customReportIssueUrlPromise]);
   const availability = 'make-' + (isAvailable === false ? '' : 'not') + 'available';
+  const available = isAvailable === false ? 'true' : 'false';
   let userMenuItems = [];
 
   userMenuItems.push(
@@ -36,7 +38,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
     {
       id: 'HEADER_USER_MENU_AVAILABILITY',
       label: 'header.' + availability + '.label',
-      targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false'),
+      targetUrl: `${URL_PAGECONTEXT}components/deputy/make-available?available=${available}`,
       control:
         isAvailable === false
           ? null
@@ -44,7 +46,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
               type: HandleControlTypes.ALF_SHOW_MODAL_MAKE_UNAVAILABLE,
               payload: {
                 isAvailable,
-                targetUrl: '/share/page/components/deputy/make-available?available=' + (isAvailable === false ? 'true' : 'false')
+                targetUrl: `${URL_PAGECONTEXT}components/deputy/make-available?available=${available}`
               }
             }
     },
@@ -85,7 +87,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
     }
   );
 
-  if (!isExternalAuthentication) {
+  if (!isExternalIDP) {
     userMenuItems.push({
       id: 'HEADER_USER_MENU_LOGOUT',
       label: 'header.logout.label',
@@ -116,7 +118,7 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
       if (item.config.targetUrlType && item.config.targetUrlType === 'FULL_PATH') {
         newItem.targetUrl = item.config.targetUrl;
       } else {
-        newItem.targetUrl = '/share/page/' + item.config.targetUrl;
+        newItem.targetUrl = URL_PAGECONTEXT + item.config.targetUrl;
       }
 
       if (item.config.targetUrlLocation && item.config.targetUrlLocation === 'NEW') {
@@ -128,6 +130,7 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
       newItem.control = {
         type: item.config.publishTopic
       };
+
       if (item.config.publishPayload) {
         newItem.control.payload = item.config.publishPayload;
       }

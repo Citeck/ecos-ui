@@ -54,7 +54,7 @@ const changeUrl = (url, opts = {}) => {
 };
 
 export const createOldVersionUrlDocument = recordRef => {
-  return `/share/page/card-details?nodeRef=${recordRef}`;
+  return `${URL_PAGECONTEXT}card-details?nodeRef=${recordRef}`;
 };
 
 export const createProfileUrl = userName => {
@@ -62,7 +62,7 @@ export const createProfileUrl = userName => {
     return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
   }
 
-  return `/share/page/user/${userName}/profile`;
+  return `${URL_PAGECONTEXT}user/${userName}/profile`;
 };
 
 export const createDocumentUrl = recordRef => {
