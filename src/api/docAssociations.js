@@ -3,6 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import ecosFetch from '../helpers/ecosFetch';
 import Records from '../components/Records';
 import { DataFormatTypes, EmodelTypes } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
 import { DocumentsApi } from './documents';
 import { PROXY_URI } from '../constants/alfresco';
 import journalsService from '../components/Journals/service/journalsService';

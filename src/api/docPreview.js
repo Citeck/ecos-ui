@@ -1,8 +1,8 @@
-import { RecordService } from './recordService';
-import Records from '../components/Records';
-
 import endsWith from 'lodash/endsWith';
+
+import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
+import { RecordService } from './recordService';
 
 export class DocPreviewApi extends RecordService {
   static getPreviewLinkByRecord = recordRef => {
