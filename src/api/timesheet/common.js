@@ -1,7 +1,7 @@
 import { RecordService } from '../recordService';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
-import { TASKS_URI } from '../../constants/alfresco';
+import { CITECK_URI } from '../../constants/alfresco';
 import { TimesheetSourcesId } from '../../constants/timesheet';
 
 export function getQueryFewValues(prefix, values) {
@@ -103,7 +103,7 @@ export class TimesheetCommonApi extends RecordService {
   changeTaskOwner = ({ taskId, currentUser }) => {
     const data = { cm_owner: currentUser, action: 'claim' };
 
-    return this.putJson(`${TASKS_URI}change-task-owner/${taskId}`, data, true).then(resp => resp);
+    return this.putJson(`${CITECK_URI}tasks/change-task-owner/${taskId}`, data, true).then(resp => resp);
   };
 
   modifyStatus = ({ outcome, taskId, currentUser, comment = '' }) => {

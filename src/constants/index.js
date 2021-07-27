@@ -1,10 +1,15 @@
-import { PROXY_URI } from './alfresco';
+import { CITECK_URI } from './alfresco';
+
+export const DEFAULT_EIS = Object.freeze({
+  EIS_ID: 'EIS_ID',
+  LOGOUT_URL: 'LOGOUT_URL'
+});
 
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
-  DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  DASHBOARD_SETTINGS: '/v2/dashboard/settings', // @deprecated
   MENU_SETTINGS: '/v2/menu-settings',
   ADMIN_PAGE: '/v2/admin',
   BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated
@@ -106,7 +111,7 @@ export const LoaderTypes = {
   POINTS: 'points'
 };
 
-export const IMAGE_URL_PATH = `${PROXY_URI}citeck/ecos/image/thumbnail`;
+export const IMAGE_URL_PATH = `${CITECK_URI}ecos/image/thumbnail`;
 
 export const DocScaleOptions = {
   AUTO: 'auto',

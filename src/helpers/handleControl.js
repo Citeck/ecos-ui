@@ -2,12 +2,12 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, URL } from '../constants';
-import { PROXY_URI, URL_EIS_CONFIG } from '../constants/alfresco';
+import { PROXY_URI } from '../constants/alfresco';
+import { AppApi } from '../api/app';
 import DialogManager from '../components/common/dialogs/Manager';
 import Records from '../components/Records/Records';
 import { ActionTypes } from '../components/Records/actions';
 import RecordActions from '../components/Records/actions/recordActions';
-import { CommonApi } from '../api/common';
 import PageService from '../services/PageService';
 import { NEW_VERSION_PREFIX } from './export/urls';
 import { getCurrentUserName, t } from './util';
@@ -28,24 +28,9 @@ export const HandleControlTypes = {
 
 const HCT = HandleControlTypes;
 
-const LOGOUT_URL_DEFAULT = '/logout';
-
 export const toggleAvailabilityStatus = payload => {
-  const commonApi = new CommonApi();
-  const fetch = () => {
-    return commonApi
-      .postJson(`${PROXY_URI}api/availability/make-available`, {
-        isAvailable: !payload.isAvailable
-      })
-      .then(() => {
-        window.location.reload();
-      })
-      .catch(() => '');
-  };
-
   if (!payload.isAvailable) {
-    fetch();
-
+    AppApi.doToggleAvailable(payload.isAvailable);
     return;
   }
 
@@ -71,12 +56,10 @@ export const toggleAvailabilityStatus = payload => {
         }
       })
         .then(response => response.json())
-        .catch(e => {
-          console.error(e);
-        });
+        .catch(console.error);
 
       if (!isEmpty(result)) {
-        await fetch();
+        await AppApi.doToggleAvailable(payload.isAvailable);
       }
     }
   });
@@ -93,23 +76,7 @@ export const toggleAvailabilityStatus = payload => {
 export default function handleControl(type, payload) {
   switch (type) {
     case HCT.ALF_DOLOGOUT:
-      const logoutHandler = (logoutURL = LOGOUT_URL_DEFAULT) => {
-        ecosFetch(logoutURL, { method: 'POST', mode: 'no-cors' }).then(() => window.location.reload());
-      };
-
-      ecosFetch(URL_EIS_CONFIG)
-        .then(r => r.json())
-        .then(config => {
-          const EIS_LOGOUT_URL_DEFAULT_VALUE = 'LOGOUT_URL';
-          let { logoutUrl = EIS_LOGOUT_URL_DEFAULT_VALUE } = config || {};
-
-          if (logoutUrl === EIS_LOGOUT_URL_DEFAULT_VALUE) {
-            logoutUrl = LOGOUT_URL_DEFAULT;
-          }
-
-          return logoutHandler(logoutUrl);
-        })
-        .catch(() => logoutHandler());
+      AppApi.doLogOut();
       break;
 
     case HCT.ECOS_EDIT_AVAILABILITY:
@@ -134,7 +101,6 @@ export default function handleControl(type, payload) {
       if (typeof get(window, 'Alfresco.module.getEditSiteInstance') === 'function') {
         window.Alfresco.module.getEditSiteInstance().show({ shortName: payload.site });
       }
-
       break;
 
     case HCT.ALF_LEAVE_SITE:
