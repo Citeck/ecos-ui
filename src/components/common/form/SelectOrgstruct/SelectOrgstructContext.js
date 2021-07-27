@@ -4,9 +4,9 @@ import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
 
-import { OrgStructApi, ROOT_ORGSTRUCT_GROUP } from '../../../../api/orgStruct';
+import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, ROOT_GROUP_NAME, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -29,7 +29,8 @@ export const SelectOrgstructProvider = props => {
     renderListItem,
     userSearchExtraFields,
     isIncludedAdminGroup,
-    dataType
+    dataType,
+    rootGroupName
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
@@ -117,7 +118,7 @@ export const SelectOrgstructProvider = props => {
       orgStructApi
         .fetchGroup({
           query: {
-            groupName: ROOT_ORGSTRUCT_GROUP,
+            groupName: rootGroupName,
             searchText: trimSearchText
           },
           excludeAuthoritiesByName,
