@@ -101,7 +101,11 @@ export const SelectOrgstructProvider = props => {
       }
     }
 
-    valuePromise.then(value => typeof onChange === 'function' && onChange(value, selectedList));
+    valuePromise.then(value => {
+      if (typeof onChange === 'function') {
+        onChange(value, selectedList);
+      }
+    });
   };
 
   const onSelect = () => {
@@ -223,11 +227,11 @@ export const SelectOrgstructProvider = props => {
             [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
           });
           setSelectedRows([...selectedItems]);
+
+          livePromise = false;
         })
         .catch(_ => _);
     }
-
-    return () => (livePromise = false);
   }, [isSelectedFetched]);
 
   useEffect(() => {
