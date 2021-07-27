@@ -1,15 +1,16 @@
 import React from 'react';
 import _ from 'lodash';
 
-import BaseReactComponent from '../base/BaseReactComponent';
-import TableForm from '../../../../components/common/form/TableForm';
-import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
-import Records from '../../../../components/Records';
-import JournalsService from '../../../../components/Journals/service';
-import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
 import { Loader } from '../../../../components/common';
+import TableForm from '../../../../components/common/form/TableForm';
+import DialogManager from '../../../../components/common/dialogs/Manager';
+import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
+import Records from '../../../../components/Records';
+import JournalsService from '../../../../components/Journals/service';
+import BaseReactComponent from '../base/BaseReactComponent';
+import { TableTypes } from './constants';
 
 const Labels = {
   MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
@@ -25,6 +26,7 @@ export default class TableFormComponent extends BaseReactComponent {
   _displayElementsValue = {};
   _nonSelectableRows = [];
   _createVariants = [];
+  _visibleRender = false;
 
   #journalConfig;
 
@@ -88,42 +90,39 @@ export default class TableFormComponent extends BaseReactComponent {
 
   checkConditions(data) {
     const isVisible = _.cloneDeep(this.visible);
-    let result = super.checkConditions(data);
-
+    const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
     if (displayElementsJS) {
       let displayElements = this.evaluate(displayElementsJS, {}, 'value', true);
+
       if (!_.isEqual(displayElements, this._displayElementsValue)) {
         this._displayElementsValue = displayElements;
-        this.setReactProps({
-          displayElements
-        });
+        this.setReactProps({ displayElements });
       }
     }
 
     if (nonSelectableRowsJS) {
       let nonSelectableRows = this.evaluate(nonSelectableRowsJS, {}, 'value', true);
+
       if (!_.isEqual(nonSelectableRows, this._nonSelectableRows)) {
         this._nonSelectableRows = nonSelectableRows;
-        this.setReactProps({
-          nonSelectableRows
-        });
+        this.setReactProps({ nonSelectableRows });
       }
     }
 
     if (selectedRowsJS) {
       let selectedRows = this.evaluate(selectedRowsJS, {}, 'value', true);
+
       if (!_.isEqual(selectedRows, this._selectedRows)) {
         this._selectedRows = selectedRows;
-        this.setReactProps({
-          selectedRows
-        });
+        this.setReactProps({ selectedRows });
       }
     }
 
     if (customCreateVariantsJs) {
       const createVariantsResult = this._getCustomCreateVariants();
+
       createVariantsResult.then(createVariants => {
         if (!createVariants) {
           return;
@@ -131,14 +130,12 @@ export default class TableFormComponent extends BaseReactComponent {
 
         if (!_.isEqual(createVariants, this._createVariants)) {
           this._createVariants = createVariants;
-          this.setReactProps({
-            createVariants
-          });
+          this.setReactProps({ createVariants });
         }
       });
     }
 
-    if (!isVisible && this.visible) {
+    if ((!isVisible || !this._visibleRender) && this.visible) {
       this.redraw();
     }
 
@@ -150,6 +147,8 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
+    this._visibleRender = this.visible;
+
     return this.visible ? TableForm : () => <Loader blur />;
   }
 
@@ -289,7 +288,7 @@ export default class TableFormComponent extends BaseReactComponent {
       const attribute = this.getAttributeToEdit();
 
       switch (source.type) {
-        case 'journal':
+        case TableTypes.JOURNAL:
           const { journal } = source;
           const journalId = await (journal.journalId ||
             this.getRecord()
@@ -318,18 +317,21 @@ export default class TableFormComponent extends BaseReactComponent {
             return resolve({ error: new Error(t(Labels.MSG_NO_J_CONFIG)) });
           }
           break;
-        case 'custom':
+        case TableTypes.CUSTOM:
           const record = this.getRecord();
           const columns = (_.get(source, 'custom.columns') || []).map(item => {
             const col = { ...item };
+
             if (item.formatter) {
               col.formatter = this.evaluate(item.formatter, {}, 'value', true);
             }
+
             return col;
           });
 
           const customCreateVariants = await this._getCustomCreateVariants();
           let createVariantsPromise = Promise.resolve([]);
+
           if (customCreateVariants) {
             createVariantsPromise = customCreateVariants;
           } else if (attribute) {
@@ -345,7 +347,9 @@ export default class TableFormComponent extends BaseReactComponent {
 
             columns.forEach(item => {
               const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+
               columnsMap[key] = item;
+
               if (item.formatter) {
                 formatters[item.name] = item.formatter;
               }
@@ -353,8 +357,8 @@ export default class TableFormComponent extends BaseReactComponent {
 
             let columnsInfoPromise;
             let inputsPromise;
-
             let spareCreateVariants = [];
+
             if (!Array.isArray(createVariants) || createVariants.length < 1) {
               if (customCreateVariants && attribute) {
                 spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute);
@@ -363,37 +367,37 @@ export default class TableFormComponent extends BaseReactComponent {
 
             if (createVariants.length < 1 && spareCreateVariants.length < 1) {
               columnsInfoPromise = Promise.resolve(
-                columns.map(item => {
-                  return {
-                    default: true,
-                    type: item.type,
-                    text: item.title ? this.t(item.title) : '',
-                    multiple: item.multiple,
-                    attribute: item.name
-                  };
-                })
+                columns.map(item => ({
+                  default: true,
+                  type: item.type,
+                  text: item.title ? this.t(item.title) : '',
+                  multiple: item.multiple,
+                  attribute: item.name
+                }))
               );
               inputsPromise = Promise.resolve({});
             } else {
               const firstCreateVariant = _.get(createVariants, '[0]', _.get(spareCreateVariants, '[0]'));
-              let cvRecordRef = firstCreateVariant.recordRef;
+              const cvRecordRef = firstCreateVariant.recordRef;
+
               columnsInfoPromise = Records.get(cvRecordRef)
                 .load(Object.keys(columnsMap))
                 .then(loadedAtt => {
                   let cols = [];
-                  for (let i in columnsMap) {
-                    if (!columnsMap.hasOwnProperty(i)) {
+                  for (let keyCol in columnsMap) {
+                    if (!columnsMap.hasOwnProperty(keyCol)) {
                       continue;
                     }
 
-                    const originalColumn = columnsMap[i];
+                    const originalColumn = columnsMap[keyCol];
                     const isManualAttributes = originalColumn.setAttributesManually;
+                    const dataAtt = _.get(loadedAtt, [keyCol]) || {};
 
                     cols.push({
                       default: true,
-                      type: isManualAttributes && originalColumn.type ? originalColumn.type : loadedAtt[i].type,
-                      text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : loadedAtt[i].title,
-                      multiple: isManualAttributes ? originalColumn.multiple : loadedAtt[i].multiple,
+                      type: isManualAttributes && originalColumn.type ? originalColumn.type : dataAtt.type,
+                      text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : dataAtt.title,
+                      multiple: isManualAttributes ? originalColumn.multiple : dataAtt.multiple,
                       attribute: originalColumn.name
                     });
                   }
@@ -428,9 +432,9 @@ export default class TableFormComponent extends BaseReactComponent {
               }
             }
 
-            resolve({
-              columns: await JournalsService.resolveColumns(updColumns)
-            });
+            const resolvedColumns = await JournalsService.resolveColumns(updColumns);
+
+            resolve({ columns: resolvedColumns });
           } catch (error) {
             console.error(error);
             return resolve({ error: new Error(`Can't fetch create variants: ${error.message}`) });

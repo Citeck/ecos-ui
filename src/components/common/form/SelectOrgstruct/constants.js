@@ -4,6 +4,8 @@ export const TabTypes = {
   SELECTED: 'TAB_ONLY_SELECTED'
 };
 
+export const ROOT_GROUP_NAME = '_orgstruct_home_';
+
 export const ALL_USERS_GROUP_SHORT_NAME = 'all';
 
 export const AUTHORITY_TYPE_GROUP = 'GROUP';

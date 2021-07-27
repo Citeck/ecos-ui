@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import SelectOrgstructRoot from './components/SelectOrgstructRoot';
 import { SelectOrgstructProvider } from './SelectOrgstructContext';
 import { OrgStructApi } from '../../../../api/orgStruct';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, GroupTypes, TabTypes, ViewModes } from './constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, GroupTypes, ROOT_GROUP_NAME, TabTypes, ViewModes } from './constants';
 
 import './SelectOrgstruct.scss';
 
@@ -21,6 +21,7 @@ const SelectOrgstruct = props => {
 SelectOrgstruct.defaultProps = {
   allowedAuthorityTypes: [AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER],
   allowedGroupTypes: [GroupTypes.BRANCH, GroupTypes.ROLE],
+  rootGroupName: ROOT_GROUP_NAME,
   allowedGroupSubTypes: [],
   defaultTab: TabTypes.LEVELS,
   dataType: DataTypes.NODE_REF,
@@ -49,6 +50,7 @@ SelectOrgstruct.propTypes = {
   modalTitle: PropTypes.string,
   allowedAuthorityTypes: PropTypes.array,
   allowedGroupTypes: PropTypes.arrayOf(PropTypes.oneOf(Object.values(GroupTypes))),
+  rootGroupName: PropTypes.string,
   allowedGroupSubTypes: PropTypes.array,
   excludeAuthoritiesByName: PropTypes.string,
   excludeAuthoritiesByType: PropTypes.array,

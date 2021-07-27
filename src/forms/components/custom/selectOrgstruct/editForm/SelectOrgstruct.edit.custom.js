@@ -2,6 +2,7 @@ import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
   GroupTypes,
+  ROOT_GROUP_NAME,
   TabTypes
 } from '../../../../../components/common/form/SelectOrgstruct/constants';
 
@@ -60,10 +61,25 @@ export default [
     label: 'Allowed group type',
     description: `Available types: ${Object.values(GroupTypes).join(', ')}`,
     defaultValue: `${GroupTypes.ROLE}, ${GroupTypes.BRANCH}`,
+    weight: 19,
+    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
+    customConditional: `
+      const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
+      show = allowedTypes.indexOf('${AUTHORITY_TYPE_GROUP}') !== -1;
+    `
+  },
+  {
+    type: 'textfield',
+    input: true,
+    key: 'rootGroupName',
+    label: 'Root group name',
+    description: "If it's empty, default: " + ROOT_GROUP_NAME,
+    defaultValue: `${ROOT_GROUP_NAME}`,
     validate: {
       required: false
     },
-    weight: 19,
+    weight: 20,
+    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_GROUP}') !== -1;
@@ -80,6 +96,7 @@ export default [
       required: false
     },
     weight: 20,
+    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_GROUP,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_GROUP}') !== -1;
@@ -120,6 +137,7 @@ export default [
       required: false
     },
     weight: 24,
+    tooltip: 'only if Allowed authority type has ' + AUTHORITY_TYPE_USER,
     customConditional: `
       const allowedTypes = data.allowedAuthorityType.split(',').map(item => item.trim());
       show = allowedTypes.indexOf('${AUTHORITY_TYPE_USER}') !== -1;
