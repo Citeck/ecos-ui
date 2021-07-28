@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+
 import { deepClone, t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import { isOnlyContent } from '../../helpers/timesheet/util';
@@ -119,6 +120,10 @@ export default class CommonTimesheetService {
       }
     ];
   };
+
+  static get eventTypes() {
+    return CommonTimesheetService.getEventTypes();
+  }
 
   static getEventTypes = () => {
     return [

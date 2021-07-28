@@ -1,10 +1,11 @@
 import { handleActions } from 'redux-actions';
-import { getTotalCounts, setTotalCounts } from '../../actions/timesheet/common';
+import { getTotalCounts, setTotalCounts, setUsers } from '../../actions/timesheet/common';
 
 const initialState = {
   totalCounts: {
     delegated: null
-  }
+  },
+  users: []
 };
 
 Object.freeze(initialState);
@@ -23,6 +24,10 @@ export default handleActions(
         ...state.totalCounts,
         ...actions.payload
       }
+    }),
+    [setUsers]: (state, actions) => ({
+      ...state,
+      users: actions.payload
     })
   },
   initialState

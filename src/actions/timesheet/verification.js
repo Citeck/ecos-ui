@@ -15,3 +15,6 @@ export const setUpdatingEventDayHours = createAction(prefix + 'SET_UPDATING_EVEN
 
 export const setPopupMessage = createAction(prefix + 'SET_POPUP_MESSAGE');
 export const setLoading = createAction(prefix + 'SET_LOADING');
+
+export const getCalendarEvents = createAction(prefix + 'GET_CALENDAR_EVENTS');
+export const setCalendarEvents = createAction(prefix + 'SET_CALENDAR_EVENTS');
