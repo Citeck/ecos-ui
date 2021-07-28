@@ -7,6 +7,7 @@ import { BaseConfigGroupButtons } from '../../helpers/timesheet/util';
 import { CommonLabels, VerifyTimesheetLabels } from '../../helpers/timesheet/dictionary';
 import { ServerStatusKeys, ServerStatusOutcomeKeys, TimesheetTypes } from '../../constants/timesheet';
 import {
+  getCalendarEvents,
   getVerificationTimesheetByParams,
   modifyEventDayHours,
   modifyStatus,
@@ -112,17 +113,19 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth } = this.state;
-    const { mergedList, updatingHours } = this.props;
+    const { mergedList, updatingHours, loadingOnTimesheet } = this.props;
 
     return (
       <Timesheet
-        groupBy={'user'}
+        groupBy={'userName'}
         eventTypes={mergedList}
         daysOfMonth={daysOfMonth}
         configGroupBtns={this.configGroupBtns}
         isAvailable
+        loadingOnTimesheet={loadingOnTimesheet}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
         onResetHours={this.handleResetEventDayHours.bind(this)}
+        onGetCalendarEvents={this.handleGetCalendarEvents}
         updatingHours={updatingHours}
       />
     );
@@ -172,6 +175,7 @@ const mapStateToProps = state => ({
   mergedList: get(state, 'timesheetVerification.mergedList', []),
   updatingHours: get(state, 'timesheetVerification.updatingHours', {}),
   isLoading: get(state, 'timesheetVerification.isLoading', false),
+  loadingOnTimesheet: get(state, 'timesheetVerification.loadingOnTimesheet', ''),
   popupMsg: get(state, 'timesheetVerification.popupMsg', '')
 });
 
@@ -181,7 +185,8 @@ const mapDispatchToProps = dispatch => ({
   modifyStatus: payload => dispatch(modifyStatus(payload)),
   modifyEventDayHours: payload => dispatch(modifyEventDayHours(payload)),
   resetEventDayHours: payload => dispatch(resetEventDayHours(payload)),
-  setPopupMessage: payload => dispatch(setPopupMessage(payload))
+  setPopupMessage: payload => dispatch(setPopupMessage(payload)),
+  getCalendarEvents: payload => dispatch(getCalendarEvents(payload))
 });
 
 export default connect(

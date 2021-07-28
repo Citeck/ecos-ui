@@ -63,11 +63,15 @@ export class TimesheetCommonApi extends RecordService {
   getTimesheetCalendarEventsList = async ({ month, year, userNames }) => {
     const events = {};
 
-    for (let userName of userNames) {
-      const res = await this.getTimesheetCalendarEventsByUserName({ month, year, userName });
+    await Promise.all(
+      userNames.map(async userName => {
+        const res = await this.getTimesheetCalendarEventsByUserName({ month, year, userName });
 
-      events[userName] = res.records || [];
-    }
+        events[userName] = res.records || [];
+
+        return false;
+      })
+    );
 
     return events;
   };
@@ -162,5 +166,24 @@ export class TimesheetCommonApi extends RecordService {
         eventType: 'eventType'
       }
     }).then(res => res);
+  };
+
+  getAllUsersByDate = ({ year, month, status }) => {
+    return Records.query(
+      {
+        query: `TYPE:'timesheet:Request' AND @timesheet:currentYear:${year} AND @timesheet:currentMonth:${month +
+          1} AND @timesheet:status:${status}`,
+        language: 'fts-alfresco',
+        maxItems: 100,
+        debug: false
+      },
+      {
+        userName: 'timesheet:requestorUsername',
+        fullName: 'timesheet:requestor',
+        status: 'timesheet:status?str',
+        taskId: 'timesheet:currentTaskId',
+        uid: 'sys:node-uuid'
+      }
+    ).then(res => res);
   };
 }

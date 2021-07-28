@@ -6,11 +6,12 @@ import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 
-import { Icon, ResizeBoxes } from '../common';
+import { Icon, Loader, ResizeBoxes } from '../common';
 import { Input } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
 import { SortableContainer, SortableElement, SortableHandle } from '../Drag-n-Drop';
@@ -39,6 +40,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     eventTypes: PropTypes.array,
     daysOfMonth: PropTypes.array,
     groupBy: PropTypes.string,
+    loadingOnTimesheet: PropTypes.string,
     configGroupBtns: PropTypes.array,
     updatingHours: PropTypes.object,
     onChangeHours: PropTypes.func
@@ -50,10 +52,14 @@ class GrouppedTimesheet extends BaseTimesheet {
     groupBy: ''
   };
 
+  #leftId = uniqueId('tableLeftColumn_');
+  #rightId = uniqueId('tableRightColumn_');
+
   constructor(props) {
     super(props);
 
     this.state = {
+      ...this.state,
       typeFilter: '',
       filteredEventTypes: cloneDeep(props.eventTypes),
       groupsStatuses: this.initGroupsStatuses(props) || {},
@@ -104,7 +110,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       .reduce(
         (result, key, index) => ({
           ...result,
-          [key]: !index
+          [key]: index === 0 || undefined
         }),
         {}
       );
@@ -138,7 +144,7 @@ class GrouppedTimesheet extends BaseTimesheet {
     const { groupsStatuses } = this.state;
 
     if (groupsStatuses[key] === undefined) {
-      return true;
+      return false;
     }
 
     return groupsStatuses[key];
@@ -167,8 +173,9 @@ class GrouppedTimesheet extends BaseTimesheet {
     this.setState({ filteredEventTypes: eventTypes, draggableNode: null });
   };
 
-  handleToggleGroupCollapse = event => {
-    const key = event.target.dataset.key;
+  handleToggleGroupCollapse = (group, event) => {
+    const { groupBy, onGetCalendarEvents } = this.props;
+    const key = group[groupBy];
 
     event.stopPropagation();
 
@@ -176,7 +183,11 @@ class GrouppedTimesheet extends BaseTimesheet {
       const { groupsStatuses } = state;
 
       if (groupsStatuses[key] === undefined) {
-        groupsStatuses[key] = true;
+        groupsStatuses[key] = false;
+
+        if (isFunction(onGetCalendarEvents)) {
+          onGetCalendarEvents(group.userName);
+        }
       }
 
       groupsStatuses[key] = !groupsStatuses[key];
@@ -249,7 +260,11 @@ class GrouppedTimesheet extends BaseTimesheet {
         updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle
       >
-        <div className="ecos-timesheet__table-events">{group.map((item, index) => this.renderEventType(item, index, key))}</div>
+        <div className="ecos-timesheet__table-events">
+          {group.map((item, index) => (
+            <this.renderEventType key={item.name} item={item} position={index} groupPosition={key} />
+          ))}
+        </div>
       </SortableContainer>
     );
   }
@@ -308,7 +323,47 @@ class GrouppedTimesheet extends BaseTimesheet {
     });
   }
 
+  renderItem = React.memo(({ item, index, onToggle, isOpen }) => (
+    <SortableElement index={index}>
+      <div className="ecos-timesheet__table-group">
+        <div className="ecos-timesheet__table-group-header">
+          <div className="ecos-timesheet__table-group-line">
+            <div className="ecos-timesheet__table-group-name">
+              <SortableHandle>
+                <Icon className="icon-custom-drag-big ecos-timesheet__table-group-header-dnd" />
+              </SortableHandle>
+
+              <Icon
+                className={classNames('icon-small-down ecos-timesheet__table-group-collapse', {
+                  'ecos-timesheet__table-group-collapse_open': isOpen
+                })}
+                data-key={item.user}
+                onClick={onToggle}
+              />
+
+              <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
+            </div>
+
+            <div className="ecos-timesheet__table-group-number">
+              {this.renderEventHistoryBtn(index, item)}
+              <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
+            </div>
+          </div>
+
+          <div className="ecos-timesheet__table-group-line ecos-timesheet__table-group-line_space-between ">
+            {this.renderGroupBtnByConfig(index)}
+          </div>
+        </div>
+
+        <Collapse isOpen={isOpen} transition="height 250ms linear 0s">
+          {this.renderEventsGroup(item.eventTypes, index)}
+        </Collapse>
+      </div>
+    </SortableElement>
+  ));
+
   renderGroupedEvents() {
+    const { groupBy } = this.props;
     const { filteredEventTypes } = this.state;
 
     return (
@@ -321,42 +376,14 @@ class GrouppedTimesheet extends BaseTimesheet {
       >
         <div>
           {filteredEventTypes.map((item, index) => (
-            <SortableElement key={`${item.timesheetNumber}-${index}`} index={index}>
-              <div className="ecos-timesheet__table-group">
-                <div className="ecos-timesheet__table-group-header">
-                  <div className="ecos-timesheet__table-group-line">
-                    <div className="ecos-timesheet__table-group-name">
-                      <SortableHandle>
-                        <Icon className="icon-custom-drag-big ecos-timesheet__table-group-header-dnd" />
-                      </SortableHandle>
-
-                      <Icon
-                        className={classNames('icon-small-down ecos-timesheet__table-group-collapse', {
-                          'ecos-timesheet__table-group-collapse_open': this.getGroupStatus(item.user)
-                        })}
-                        data-key={item.user}
-                        onClick={this.handleToggleGroupCollapse}
-                      />
-
-                      <div className="ecos-timesheet__table-group-header-title">{item.user}</div>
-                    </div>
-
-                    <div className="ecos-timesheet__table-group-number">
-                      {this.renderEventHistoryBtn(index, item)}
-                      <div className="ecos-timesheet__table-group-header-badge">{item.timesheetNumber}</div>
-                    </div>
-                  </div>
-
-                  <div className="ecos-timesheet__table-group-line ecos-timesheet__table-group-line_space-between ">
-                    {this.renderGroupBtnByConfig(index)}
-                  </div>
-                </div>
-
-                <Collapse isOpen={this.getGroupStatus(item.user)} transition="height 250ms linear 0s">
-                  {this.renderEventsGroup(item.eventTypes, index)}
-                </Collapse>
-              </div>
-            </SortableElement>
+            <this.renderItem
+              key={item.timesheetNumber}
+              item={item}
+              groupBy={groupBy}
+              index={index}
+              isOpen={this.getGroupStatus(item[groupBy])}
+              onToggle={e => this.handleToggleGroupCollapse(item, e)}
+            />
           ))}
         </div>
       </SortableContainer>
@@ -398,19 +425,28 @@ class GrouppedTimesheet extends BaseTimesheet {
   }
 
   renderEvents() {
-    const { daysOfMonth, groupBy } = this.props;
+    const { daysOfMonth, groupBy, loadingOnTimesheet, updatingHours } = this.props;
     const { filteredEventTypes } = this.state;
 
     return filteredEventTypes.map((item, index) => (
-      <div key={`event-${item.userName}-${index}`}>
+      <div key={`event-${item.userName}-${index}`} className="position-relative">
         <CalendarRow>{daysOfMonth.map(this.renderCountByDay)}</CalendarRow>
-        <Collapse
-          transition="height 250ms linear 0s"
-          className="ecos-timesheet__table-group-collapse-wrapper"
-          isOpen={this.getGroupStatus(item[groupBy])}
-        >
-          {item.eventTypes.map(event => this.renderEventCalendarRow(event, item.userName))}
-        </Collapse>
+        {loadingOnTimesheet === item.userName && <Loader darkened blur />}
+        {this.getGroupStatus(item[groupBy]) && (
+          <Collapse transition="height 250ms linear 0s" className="ecos-timesheet__table-group-collapse-wrapper" isOpen>
+            {item.eventTypes.map(event => (
+              <this.renderEventCalendarRow
+                key={`${item.userName}-${event.name}`}
+                eventItem={event}
+                userName={item.userName}
+                daysOfMonth={daysOfMonth}
+                updatingHours={updatingHours}
+                onChange={this.handleChangeEventHours}
+                onReset={this.handleResetEventHours}
+              />
+            ))}
+          </Collapse>
+        )}
       </div>
     ));
   }
@@ -448,19 +484,17 @@ class GrouppedTimesheet extends BaseTimesheet {
   }
 
   render() {
-    const leftId = uniqueId('tableLeftColumn_');
-    const rightId = uniqueId('tableRightColumn_');
     const { filteredEventTypes } = this.state;
 
     return (
       <>
         <div className="ecos-timesheet__table">
-          <div className="ecos-timesheet__table-left-column" id={leftId}>
+          <div className="ecos-timesheet__table-left-column" id={this.#leftId}>
             {this.renderFilter()}
             {this.renderGroupedEvents()}
-            <ResizeBoxes className="ecos-timesheet__resizer" leftId={leftId} rightId={rightId} />
+            <ResizeBoxes className="ecos-timesheet__resizer" leftId={this.#leftId} rightId={this.#rightId} />
           </div>
-          <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={rightId}>
+          <div className="ecos-timesheet__table-right-column" ref={this._calendarWrapper} id={this.#rightId}>
             {this.renderCalendar()}
           </div>
           {this.renderLock()}
