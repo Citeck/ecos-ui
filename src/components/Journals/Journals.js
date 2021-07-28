@@ -380,6 +380,12 @@ class Journals extends Component {
       height -= 15; // for indent under pagination
     }
 
+    const appFooter = document.querySelector('.app-footer');
+
+    if (appFooter) {
+      height -= get(appFooter, 'offsetHeight', 0);
+    }
+
     if (this._journalBodyRef) {
       const styles = window.getComputedStyle(this._journalBodyRef, null);
 
