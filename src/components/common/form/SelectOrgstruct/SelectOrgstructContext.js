@@ -6,7 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, ROOT_GROUP_NAME, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
