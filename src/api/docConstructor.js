@@ -1,11 +1,11 @@
-import { PROXY_URI } from '../constants/alfresco';
+import { CITECK_URI } from '../constants/alfresco';
 import ecosFetch from '../helpers/ecosFetch';
 import { t } from '../helpers/util';
 import Records from '../components/Records/Records';
 
 export class DocConstructorApi {
   getSettings = ({ name }) => {
-    return ecosFetch(`${PROXY_URI}citeck/global-properties?name=${name}&format=json`)
+    return ecosFetch(`${CITECK_URI}global-properties?name=${name}&format=json`)
       .then(response => (response.ok ? response.json() : Promise.reject(response)))
       .then(result => (result && result.data ? result.data : Promise.reject(result)))
       .catch(e => {
@@ -29,7 +29,7 @@ export class DocConstructorApi {
   };
 
   createDocumentDocOne = ({ record }) => {
-    return ecosFetch(`${PROXY_URI}citeck/ecos/create-doc-one-file-by-node-with-template?nodeRef=${record}`, { method: 'POST' })
+    return ecosFetch(`${CITECK_URI}ecos/create-doc-one-file-by-node-with-template?nodeRef=${record}`, { method: 'POST' })
       .then(response => (response.ok ? response.json() : Promise.reject({ message: response.statusText })))
       .then(response => (response && response.result ? response.result : Promise.reject(response)))
       .catch(e => {
@@ -43,7 +43,7 @@ export class DocConstructorApi {
       return Promise.reject(new Error(t('doc-constructor-widget.error.invalid-doc-one-id')));
     }
 
-    return ecosFetch(`${PROXY_URI}citeck/write-doc-one-content-to-node?nodeRef=${record}&id=${docOneDocumentId}`)
+    return ecosFetch(`${CITECK_URI}write-doc-one-content-to-node?nodeRef=${record}&id=${docOneDocumentId}`)
       .then(response => (response.ok ? response.json() : Promise.reject(response)))
       .then(response => !!(response && response.result))
       .catch(e => {
@@ -53,7 +53,7 @@ export class DocConstructorApi {
   };
 
   deleteDocumentDocOne = ({ record }) => {
-    return ecosFetch(`${PROXY_URI}citeck/ecos/delete-content-and-doc-one-id?nodeRef=${record}`, { method: 'DELETE' })
+    return ecosFetch(`${CITECK_URI}ecos/delete-content-and-doc-one-id?nodeRef=${record}`, { method: 'DELETE' })
       .then(response => (response.ok ? response.json() : Promise.reject(response)))
       .then(response => (response && response.result ? response.result : Promise.reject(response)))
       .catch(e => {
@@ -67,10 +67,9 @@ export class DocConstructorApi {
       return Promise.reject(new Error(t('doc-constructor-widget.error.invalid-doc-one-id')));
     }
 
-    return ecosFetch(
-      `${PROXY_URI}citeck/ecos/set-permission-for-role?nodeRef=${record}&role=${options.role}&permission=${options.permission}`,
-      { method: 'POST' }
-    )
+    return ecosFetch(`${CITECK_URI}ecos/set-permission-for-role?nodeRef=${record}&role=${options.role}&permission=${options.permission}`, {
+      method: 'POST'
+    })
       .then(response => (response.ok ? response : Promise.reject(response)))
       .catch(e => {
         console.error(e);

@@ -1,8 +1,8 @@
 import { URL } from '../../constants';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
-import Records from '../../components/Records';
-import ecosFetch from '../../helpers/ecosFetch';
 import { PROXY_URI } from '../../constants/alfresco';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
+import ecosFetch from '../../helpers/ecosFetch';
+import Records from '../../components/Records';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;

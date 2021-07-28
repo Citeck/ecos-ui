@@ -3,17 +3,17 @@ import isEmpty from 'lodash/isEmpty';
 import { SourcesId, URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
 import Records from '../components/Records';
+import MenuSettingsService from '../services/MenuSettingsService';
+import DashboardService from '../services/dashboard';
 import { HandleControlTypes } from './handleControl';
 import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
-import MenuSettingsService from '../services/MenuSettingsService';
-import DashboardService from '../services/dashboard';
 
 const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
 const DEFAULT_REPORT_ISSUE_URL =
   'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
 
-export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalAuthentication) => {
+export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalIDP) => {
   const customFeedbackUrlPromise = Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
     .load('value?str')
     .then(value => value || DEFAULT_FEEDBACK_URL)
@@ -25,7 +25,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
 
   const urls = await Promise.all([customFeedbackUrlPromise, customReportIssueUrlPromise]);
   const availability = 'make-' + (isAvailable === false ? '' : 'not') + 'available';
-  let userMenuItems = [];
+  const userMenuItems = [];
 
   userMenuItems.push(
     {
@@ -70,7 +70,7 @@ export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExte
     }
   );
 
-  if (!isExternalAuthentication) {
+  if (!isExternalIDP) {
     userMenuItems.push({
       id: 'HEADER_USER_MENU_LOGOUT',
       label: 'header.logout.label',
@@ -111,6 +111,7 @@ export function processMenuItemsFromOldMenu(oldMenuItems) {
       newItem.control = {
         type: item.config.publishTopic
       };
+
       if (item.config.publishPayload) {
         newItem.control.payload = item.config.publishPayload;
       }

@@ -1,6 +1,8 @@
 import get from 'lodash/get';
 import { handleActions } from 'redux-actions';
+
 import {
+  getCalendarEvents,
   getVerificationTimesheetByParams,
   modifyStatus,
   resetVerificationTimesheet,
@@ -14,46 +16,52 @@ import {
 const initialState = {
   isLoading: false,
   mergedList: [],
-  popupMsg: ''
+  popupMsg: '',
+  loadingOnTimesheet: ''
 };
 
 Object.freeze(initialState);
 
 export default handleActions(
   {
-    [setPopupMessage]: (state, actions) => ({
+    [setPopupMessage]: (state, { payload }) => ({
       ...state,
-      popupMsg: actions.payload
+      popupMsg: payload
     }),
-    [setLoading]: (state, actions) => ({
+    [setLoading]: (state, { payload }) => ({
       ...state,
-      isLoading: actions.payload
+      isLoading: payload
     }),
-    [setMergedList]: (state, actions) => ({
+    [setMergedList]: (state, { payload }) => ({
       ...state,
-      mergedList: actions.payload || [],
+      mergedList: payload || [],
       isLoading: false
     }),
-    [resetVerificationTimesheet]: (state, actions) => ({
+    [resetVerificationTimesheet]: () => ({
       ...initialState
     }),
-    [getVerificationTimesheetByParams]: (state, actions) => ({
+    [getVerificationTimesheetByParams]: state => ({
       ...state,
       isLoading: true,
       mergedList: []
     }),
-    [setVerificationTimesheetByParams]: (state, actions) => ({
+    [setVerificationTimesheetByParams]: (state, { payload }) => ({
       ...state,
       isLoading: false,
-      mergedList: get(actions, 'payload.mergedList', [])
+      loadingOnTimesheet: '',
+      mergedList: get(payload, 'mergedList', [])
     }),
-    [setUpdatingEventDayHours]: (state, actions) => ({
+    [setUpdatingEventDayHours]: (state, { payload }) => ({
       ...state,
-      updatingHours: actions.payload
+      updatingHours: payload
     }),
-    [modifyStatus]: (state, actions) => ({
+    [modifyStatus]: state => ({
       ...state,
       isLoading: true
+    }),
+    [getCalendarEvents]: (state, { payload }) => ({
+      ...state,
+      loadingOnTimesheet: get(payload, 'userName', '')
     })
   },
   initialState

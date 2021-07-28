@@ -5,22 +5,22 @@ import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { SourcesId, URL } from '../constants';
-import { PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { DEFAULT_EIS, SourcesId, URL } from '../constants';
+import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
-    const url = `${PROXY_URI}citeck/ecosConfig/ecos-config-value?configName=${configName}`;
+    const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
     return this.getJson(url)
       .then(resp => resp.value)
       .catch(() => '');
   };
 
   touch = () => {
-    const url = `${PROXY_URI}citeck/ecos/touch`;
+    const url = `${CITECK_URI}ecos/touch`;
     return this.getJson(url);
   };
 
@@ -172,5 +172,39 @@ export class AppApi extends CommonApi {
 
   getAppEdition = () => {
     return Records.get(`${SourcesId.A_META}@`).load('attributes.edition');
+  };
+
+  getIsExternalIDP = () => {
+    return ecosFetch('/eis.json')
+      .then(r => r.json())
+      .then(config => {
+        const { logoutUrl } = config || {};
+        return !logoutUrl || logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+      })
+      .catch(() => false);
+  };
+
+  static doLogOut = () => {
+    const DEF_LOGOUT = `/logout`;
+
+    const beforehand = ecosFetch('/eis.json')
+      .then(r => r.json())
+      .then(config => {
+        const { logoutUrl, eisId } = config || {};
+        const checkLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const checkEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
+
+        return checkLogoutUrl ? logoutUrl : checkEisId ? DEF_LOGOUT : undefined;
+      })
+      .catch(() => DEF_LOGOUT);
+
+    beforehand.then(url => url && ecosFetch(url, { method: 'POST', mode: 'no-cors' }).then(window.location.reload));
+  };
+
+  static doToggleAvailable = isAvailable => {
+    return new CommonApi()
+      .postJson(`${PROXY_URI}api/availability/make-available`, { isAvailable })
+      .then(window.location.reload)
+      .catch(() => '');
   };
 }

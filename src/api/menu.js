@@ -4,7 +4,7 @@ import lodashSet from 'lodash/set';
 import { generateSearchTerm, getCurrentUserName, isNodeRef } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
-import { PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI, CITECK_URI, UISERV_API } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
@@ -105,7 +105,7 @@ export class MenuApi extends CommonApi {
     return cacheKey
       .then(key =>
         this.getJsonWithSessionCache({
-          url: `/gateway/uiserv/api/usermenu?username=${username}`,
+          url: `${UISERV_API}usermenu?username=${username}`,
           cacheKey: key,
           timeout: 14400000, //4h
           postProcess: menu => postProcessMenuConfig(menu)
@@ -135,14 +135,14 @@ export class MenuApi extends CommonApi {
 
   getMenuItemIconUrl = iconName => {
     return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`,
+      url: `${CITECK_URI}menu/icon?iconName=${iconName}`,
       timeout: 14400000, //4h
       onError: () => null
     });
   };
 
   getJournalTotalCount = journalId => {
-    return Records.get('uiserv/rjournal@' + journalId)
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
       .load('totalCount?num')
       .then(res => res || 0);
   };

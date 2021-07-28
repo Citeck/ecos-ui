@@ -39,11 +39,12 @@ function* fetchCreateCaseWidget({ api, logger }) {
   }
 }
 
-function* fetchUserMenu({ logger }) {
+function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable));
+    const isExternalIDP = yield call(api.app.getIsExternalIDP);
+    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalIDP));
 
     yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
@@ -72,7 +73,7 @@ function* fetchSiteMenu({ logger }) {
   }
 }
 
-function* filterSiteMenu({ api, logger }, { payload = {} }) {
+function* filterSiteMenu({ logger }, { payload = {} }) {
   try {
     const params = yield fetchInfluentialParams();
     const { identification = null } = payload;
@@ -101,7 +102,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
   }
 }
 
-function* goToPageSiteMenu({ api, logger }, { payload }) {
+function* goToPageSiteMenu({ logger }, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);
