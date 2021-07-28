@@ -26,8 +26,14 @@ export const DEFAULT_INLINE_TOOL_SETTINGS = {
 export const JOURNAL_MIN_HEIGHT = 300;
 
 export const JOURNAL_VIEW_MODE = {
+  GRID: 'grid',
+  PREVIEW: 'preview',
   DOC_LIB: 'document-library'
 };
+
+export const isGrid = vm => !vm || vm === JOURNAL_VIEW_MODE.GRID;
+export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
+export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
 
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
 
