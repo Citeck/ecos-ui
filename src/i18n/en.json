@@ -144,6 +144,7 @@
   "current-tasks-widget.column.title": "Task",
   "current-tasks-widget.no-data": "No data",
   "current-tasks-widget.no-tasks": "No current tasks",
+  "current-tasks-widget.notify.title": "Widget Tasks",
   "current-tasks-widget.error.get-tasks": "Failure to fetch all tasks",
   "current-tasks-widget.error.get-actions": "Failure to fetch tasks actions",
   "current-tasks-widget.error.execute-action": "Failure to execute action",
@@ -525,7 +526,6 @@
   "record-action.name.edit-password": "Change password",
   "record-action.name.open-submit-form": "Open and submit",
 
-  "records-actions.failed": "Action failed",
   "records-actions.actions": "Actions",
   "records-actions.create": "Create",
   "records-actions.download": "Download",
@@ -536,6 +536,9 @@
   "records-actions.dialog.all-records-not-allowed.title": "Action is not allowed",
   "records-actions.dialog.all-records-not-allowed.text": "The action with selected lines is not allowed",
   "records-actions.confirm-not-allowed": "Action is not allowed for all lines. Continue?",
+  "records-actions.notify.title": "Widget Actions",
+  "records-actions.error.execute-action": "Action failed",
+  "records-actions.error.get-actions": "Actions haven't received",
 
   "group-action.select.copy-to": "Copy to...",
   "group-action.select.delete": "Delete",
@@ -946,7 +949,7 @@
   "tasks-widget.no-tasks": "No tasks",
   "tasks-widget.saga.change-assignee-success": "Task assigned successfully",
   "tasks-widget.error.get-tasks": "Error. Failure to fetch data",
-  "tasks-widget.error.assign-task": "Assignment error",
+  "tasks-widget.error.assign-task": "Task assignment error",
   "tasks-widget.error.failed-assign-task": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
 

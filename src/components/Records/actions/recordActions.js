@@ -118,11 +118,15 @@ class RecordActions {
     if (!context) {
       context = {};
     }
+
     let idx = -1;
     const result = [];
-    for (let action of actionsDto) {
-      idx++;
+
+    for (let i = 0; i < actionsDto.length; i++) {
+      const action = actionsDto[i] || {};
       const handler = actionsRegistry.getHandler(action.type);
+      idx++;
+
       if (!handler) {
         console.error('Handler is not defined for type ' + action.type + '. Action will be ignored.', action);
         continue;
@@ -130,6 +134,7 @@ class RecordActions {
       if (!handler.isAllowedInContext(context)) {
         continue;
       }
+
       let features = action.features ? { ...action.features } : {};
       if (handler instanceof ActionsExecutor) {
         features.execForQuery = RecordActions._checkExecActionFeature('execForQuery', handler, features.execForQuery);
@@ -320,7 +325,7 @@ class RecordActions {
 
     const resolvedActions = await this.getActionsForRecords([recordRef], actions, context);
 
-    return resolvedActions.forRecord[recordRef] || [];
+    return get(resolvedActions, ['forRecord', recordRef]) || [];
   }
 
   /**
@@ -351,23 +356,23 @@ class RecordActions {
     }
 
     const localContext = cloneDeep(context);
-
     const ctxActions = RecordActions._getActionsWithContext(resolvedActions.actions, localContext);
     const actionsMaskByRecordRef = {};
+
     for (let i = 0; i < resolvedActions.records.length; i++) {
       actionsMaskByRecordRef[recordRefs[i]] = resolvedActions.records[i];
     }
 
     const actionsForRecords = {
       forRecords: {
-        actions: ctxActions.filter(a => {
+        actions: ctxActions.filter(action => {
           const { records } = resolvedActions;
 
-          if (!a.features.execForRecords || isEmpty(records)) {
+          if (!get(action, 'features.execForRecords') || isEmpty(records)) {
             return false;
           }
 
-          return records.some(mask => (mask & a[ACTION_CONTEXT_KEY].recordMask) !== 0);
+          return records.some(mask => (mask & get(action, [ACTION_CONTEXT_KEY, 'recordMask'])) !== 0);
         }),
         records: actionsMaskByRecordRef
       },
@@ -379,13 +384,16 @@ class RecordActions {
     // resolve actions for record
 
     const recordsResolvedActions = new Array(ctxActions.length);
+
     for (let actionIdx = 0; actionIdx < ctxActions.length; actionIdx++) {
       let recordsResolvedActionsForAction = null;
-      let action = ctxActions[actionIdx];
+      let action = ctxActions[actionIdx] || {};
       let handler = actionsRegistry.getHandler(action.type);
+
       if (handler instanceof RecordActionsResolver && action.features.execForRecord === true) {
         recordsResolvedActionsForAction = {};
         let resolvedActions = await handler.resolve(recordInst, action, localContext);
+
         for (let ref in resolvedActions) {
           if (resolvedActions.hasOwnProperty(ref)) {
             recordsResolvedActionsForAction[ref] = (recordsResolvedActionsForAction[ref] || []).concat(resolvedActions[ref]);
@@ -395,20 +403,15 @@ class RecordActions {
       recordsResolvedActions[actionIdx] = recordsResolvedActionsForAction;
     }
 
-    const possibleActionsForRecord = ctxActions.map(a => {
-      return {
-        action: a,
-        mask: (a[ACTION_CONTEXT_KEY] || {}).recordMask
-      };
-    });
-
+    const possibleActionsForRecord = ctxActions.map(action => ({ action, mask: get(action, [ACTION_CONTEXT_KEY, 'recordMask']) }));
     const forRecord = {};
+
     for (let ref of recordRefs) {
       let recordMask = actionsMaskByRecordRef[ref];
       let actions = [];
 
       for (let actionIdx = 0; actionIdx < ctxActions.length; actionIdx++) {
-        let possibleAction = possibleActionsForRecord[actionIdx];
+        let possibleAction = possibleActionsForRecord[actionIdx] || {};
 
         if ((possibleAction.mask & recordMask) === 0 || possibleAction.action.features.execForRecord !== true) {
           continue;
