@@ -284,12 +284,14 @@ export default class Record {
     const attsPromise = this.load(attributes);
 
     this._watchers.push(watcher);
+    const _update = _.debounce(() => this.update(), 400);
 
     Promise.all([attsPromise, this.load('pendingUpdate?bool')])
       .then(([loadedAtts, pendingUpdate]) => {
         if (pendingUpdate) {
-          this.update();
+          _update();
         }
+
         watcher.setAttributes(loadedAtts);
       })
       .catch(e => {

@@ -216,7 +216,7 @@ class BaseWidget extends Component {
       },
       () => this.setState({ runUpdate: false })
     );
-  }, 1000);
+  }, 0);
 
   handleChangeHeight = userHeight => {
     userHeight = userHeight > 0 ? userHeight : 0;
