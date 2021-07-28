@@ -9,43 +9,33 @@ import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import { getCreateVariantKeyField } from '../service/util';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import { isDocLib, isPreview, JOURNAL_VIEW_MODE } from '../constants';
+import { JOURNAL_VIEW_MODE } from '../constants';
 
 import './JournalsSettingsBar.scss';
 
-const Labels = {
-  BTN_SETTINGS: 'journals.settings',
-  BTN_EXPORT: 'button.export',
-  BTN_UPDATE: 'dashlet.update.title',
-  BTN_JOURNAL: 'journal.title',
-  BTN_PREVIEW: 'doc-preview.preview',
-  BTN_DOCLIB: 'document-library.title'
-};
-
 const JournalsSettingsBar = ({
   stateId,
-  grid,
+  showPreview,
+  toggleSettings,
+  togglePreview,
+  showGrid,
+  refresh,
+  onSearch,
   journalConfig,
+  addRecord,
+  grid,
+  isMobile,
   searchText,
   selectedRecords,
   viewMode,
-
-  isMobile,
+  showDocLibrary,
   isDocLibEnabled,
-  isCreateLoading,
-  isLoading,
-
-  onRefresh,
-  onSearch,
-  onToggleSettings,
-  onToggleViewMode,
-  onAddRecord
+  createIsLoading,
+  isLoading
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
-  const isDocLibViewMode = isDocLib(viewMode);
-  const isPreviewViewMode = isPreview(viewMode);
 
   const renderCreateMenu = () => {
     const createVariants = get(journalConfig, 'meta.createVariants') || [];
@@ -57,11 +47,11 @@ const JournalsSettingsBar = ({
     if (createVariants.length === 1) {
       return (
         <IcoBtn
-          loading={isCreateLoading}
+          loading={createIsLoading}
           colorLoader="light-blue"
           icon="icon-small-plus"
           className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-          onClick={() => onAddRecord(createVariants[0])}
+          onClick={() => addRecord(createVariants[0])}
         />
       );
     }
@@ -77,12 +67,14 @@ const JournalsSettingsBar = ({
         keyFields={keyFields}
         valueField="destination"
         titleField="title"
-        onChange={onAddRecord}
+        onChange={addRecord}
         controlIcon="icon-small-plus"
         controlClassName="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
       />
     );
   };
+
+  const isDocLibViewMode = viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
 
   return (
     <div className={classNames('ecos-journal__settings-bar', { 'ecos-journal__settings-bar_mobile': isMobile })}>
@@ -90,10 +82,10 @@ const JournalsSettingsBar = ({
 
       {!isMobile && (
         <IcoBtn
-          title={t(Labels.BTN_SETTINGS)}
+          title={t('journals.settings')}
           icon={'icon-settings'}
           className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
-          onClick={onToggleSettings}
+          onClick={toggleSettings}
           loading={isLoading}
         />
       )}
@@ -120,18 +112,18 @@ const JournalsSettingsBar = ({
             'ecos-btn_i ecos-btn_white': isMobile
           })}
         >
-          {!isMobile && t(Labels.BTN_EXPORT)}
+          {!isMobile && t('button.export')}
         </IcoBtn>
       </Export>
 
       <IcoBtn
-        title={t(Labels.BTN_UPDATE)}
+        title={t('dashlet.update.title')}
         icon={'icon-reload'}
         className={classNames('ecos-journal__settings-bar-update', step, {
           [grey]: !isMobile,
           'ecos-btn_i ecos-btn_white': isMobile
         })}
-        onClick={onRefresh}
+        onClick={refresh}
       />
 
       <div className="ecos-journal__settings-bar_right">
@@ -144,34 +136,34 @@ const JournalsSettingsBar = ({
         {!isMobile && (
           <>
             <IcoBtn
-              title={t(Labels.BTN_JOURNAL)}
+              title={t('journal.title')}
               icon={'icon-list'}
               className={classNames('ecos-journal__settings-bar_right-btn', step, {
-                [blue]: !isPreviewViewMode && !isDocLibViewMode,
-                [grey]: isPreviewViewMode || isDocLibViewMode
+                [blue]: !showPreview && !isDocLibViewMode,
+                [grey]: showPreview || isDocLibViewMode
               })}
-              onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.GRID)}
+              onClick={showGrid}
             />
             <IcoBtn
-              title={t(Labels.BTN_PREVIEW)}
+              title={t('doc-preview.preview')}
               icon={'icon-columns'}
               className={classNames('ecos-journal__settings-bar_right-btn', step, {
-                [blue]: isPreviewViewMode && !isDocLibViewMode,
-                [grey]: !isPreviewViewMode || isDocLibViewMode
+                [blue]: showPreview && !isDocLibViewMode,
+                [grey]: !showPreview || isDocLibViewMode
               })}
-              onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.PREVIEW)}
+              onClick={togglePreview}
             />
           </>
         )}
         {isDocLibEnabled && (
           <IcoBtn
-            title={t(Labels.BTN_DOCLIB)}
+            title={t('document-library.title')}
             icon={'icon-folder'}
             className={classNames('ecos-journal__settings-bar_right-btn', step, {
               [blue]: isDocLibViewMode,
               [grey]: !isDocLibViewMode
             })}
-            onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.DOC_LIB)}
+            onClick={showDocLibrary}
           />
         )}
       </div>

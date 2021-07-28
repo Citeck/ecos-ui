@@ -7,7 +7,7 @@ import TitlePageLoader from '../../common/TitlePageLoader';
 
 import './JournalsHead.scss';
 
-const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, labelBtnMenu, onToggleMenu, onEditJournal }) => {
+const JournalsHead = ({ menuOpen, title, isMobile, hasBtnMenu, hasBtnEdit, showLabel, onToggleMenu, onEditJournal }) => {
   return (
     <div className="journals-head">
       <TitlePageLoader isReady={!!title}>
@@ -23,13 +23,13 @@ const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, lab
         </Caption>
       </TitlePageLoader>
       {hasBtnMenu && (
-        <div className={classNames('journals-head__menu-btn', { 'journals-head__menu-btn_hidden': isOpenMenu })}>
+        <div className={classNames('journals-head__menu-btn', { 'journals-head__menu-btn_hidden': menuOpen })}>
           <IcoBtn
             onClick={onToggleMenu}
             icon="icon-small-arrow-left"
-            className="ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest"
+            className="ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest"
           >
-            {labelBtnMenu}
+            {showLabel}
           </IcoBtn>
         </div>
       )}

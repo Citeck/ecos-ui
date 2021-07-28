@@ -35,7 +35,7 @@ import { showModalJson } from '../../helpers/tools';
 import FormManager from '../EcosForm/FormManager';
 import { ActionTypes } from '../Records/actions';
 
-import { isDocLib, isPreview, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
+import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
@@ -127,22 +127,16 @@ class Journals extends React.Component {
   constructor(props) {
     super(props);
 
-    const showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
-    let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
-
-    if (showPreview && !viewMode) {
-      viewMode = JOURNAL_VIEW_MODE.PREVIEW;
-    }
-
     this.state = {
       menuOpen: false,
       isReset: false,
       isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
-      isCreateLoading: false,
+      createIsLoading: false,
       savedSetting: null,
-      viewMode
+      showPreview: getBool(get(getSearchParams(), JUP.SHOW_PREVIEW)),
+      viewMode: getBool(get(getSearchParams(), JUP.VIEW_MODE))
     };
   }
 
@@ -177,8 +171,12 @@ class Journals extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { _url, urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, onJournalSettingsSelect } = this.props;
-    const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate } = this.state;
-    const stateShowPreview = this.isPreviewMode;
+    const {
+      journalId: stateJournalId,
+      showPreview: stateShowPreview,
+      viewMode: stateViewMode,
+      isForceUpdate: stateIsForceUpdate
+    } = this.state;
 
     const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
     const newJournalId = get(urlParams, JUP.JOURNAL_ID);
@@ -269,11 +267,9 @@ class Journals extends React.Component {
   }
 
   get isDocLibMode() {
-    return isDocLib(this.state.viewMode);
-  }
+    const { viewMode } = this.state;
 
-  get isPreviewMode() {
-    return isPreview(this.state.viewMode);
+    return viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
   }
 
   setJournalRef = ref => {
@@ -320,19 +316,25 @@ class Journals extends React.Component {
     return get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
   };
 
-  handleAddRecord = createVariant => {
-    const { isCreateLoading } = this.state;
+  addRecord = createVariant => {
+    const { createIsLoading } = this.state;
 
-    if (isCreateLoading) {
+    if (createIsLoading) {
       return;
     }
 
-    this.setState({ isCreateLoading: true });
+    this.setState({ createIsLoading: true });
 
     FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
-      onReady: () => this.setState({ isCreateLoading: false }),
-      onAfterHideModal: () => this.setState({ isCreateLoading: false })
+      onSubmit: record => {
+        goToCardDetailsPage(record.id);
+      },
+      onReady: () => {
+        this.setState({ createIsLoading: false });
+      },
+      onAfterHideModal: () => {
+        this.setState({ createIsLoading: false });
+      }
     });
   };
 
@@ -349,7 +351,7 @@ class Journals extends React.Component {
     } = this.props;
 
     createJournalSetting(id, settings);
-    this.handleToggleSettings();
+    this.toggleSettings();
   };
 
   applySettings = (isChangedPredicates, settings) => {
@@ -362,17 +364,25 @@ class Journals extends React.Component {
       clearSearch();
     }
 
-    this.handleToggleSettings();
+    this.toggleSettings();
   };
 
-  handleToggleSettings = () => {
+  toggleSettings = () => {
     const { settingsVisible } = this.state;
 
     this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
   };
 
-  handleToggleViewMode = viewMode => {
-    this.setState({ viewMode });
+  togglePreview = () => {
+    this.setState(state => ({ showPreview: !state.showPreview, viewMode: undefined }));
+  };
+
+  showDocLibrary = () => {
+    this.setState(() => ({ viewMode: JOURNAL_VIEW_MODE.DOC_LIB, showPreview: false }));
+  };
+
+  showGrid = () => {
+    this.setState({ showPreview: false, viewMode: undefined });
   };
 
   onEditJournal = throttle(
@@ -418,7 +428,7 @@ class Journals extends React.Component {
     );
   };
 
-  handleSearch = text => {
+  onSearch = text => {
     if (text === get(this.props, ['urlParams', JUP.SEARCH], '')) {
       return;
     }
@@ -504,13 +514,13 @@ class Journals extends React.Component {
 
   renderHeader = () => {
     if (this.displayElements.header) {
-      const { menuOpen } = this.state;
+      const { menuOpen, viewMode } = this.state;
       const { isMobile, docLibFolderTitle, journalConfig } = this.props;
       const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
-      let labelBtnMenu = isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU);
+      let showLabel = isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU);
 
       if (this.isDocLibMode) {
-        labelBtnMenu = isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU);
+        showLabel = isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU);
       }
 
       const displayConfigPopup = event => {
@@ -525,8 +535,9 @@ class Journals extends React.Component {
           <div onClick={displayConfigPopup}>
             <JournalsHead
               title={title}
-              labelBtnMenu={labelBtnMenu}
-              isOpenMenu={menuOpen}
+              showLabel={showLabel}
+              viewMode={viewMode}
+              menuOpen={menuOpen}
               isMobile={isMobile}
               hasBtnMenu={this.displayElements.menu}
               hasBtnEdit={this.displayElements.editJournal}
@@ -558,12 +569,10 @@ class Journals extends React.Component {
       settingsGroupingData,
       isLoading
     } = this.props;
-    const { settingsVisible, isReset, isCreateLoading, viewMode } = this.state;
+    const { showPreview, settingsVisible, isReset, createIsLoading } = this.state;
 
     if (this.isDocLibMode) {
-      return (
-        <DocLibSettingsBar stateId={stateId} showGrid={this.handleShowGrid} togglePreview={this.handleTogglePreview} isMobile={isMobile} />
-      );
+      return <DocLibSettingsBar stateId={stateId} showGrid={this.showGrid} togglePreview={this.togglePreview} isMobile={isMobile} />;
     }
 
     return (
@@ -575,28 +584,30 @@ class Journals extends React.Component {
           groupingData={settingsGroupingData}
           isReset={isReset}
           isOpen={settingsVisible}
-          onClose={this.handleToggleSettings}
+          onClose={this.toggleSettings}
           onApply={this.applySettings}
           onCreate={this.createSettings}
           onSave={this.saveSettings}
         />
 
         <JournalsSettingsBar
-          stateId={stateId}
           grid={grid}
           journalConfig={journalConfig}
+          stateId={stateId}
+          showPreview={showPreview}
+          toggleSettings={this.toggleSettings}
+          togglePreview={this.togglePreview}
+          showDocLibrary={this.showDocLibrary}
+          showGrid={this.showGrid}
+          refresh={reloadGrid}
+          onSearch={this.onSearch}
+          addRecord={this.addRecord}
+          isMobile={isMobile}
           searchText={this.getSearchText()}
           selectedRecords={selectedRecords}
-          viewMode={viewMode}
-          isMobile={isMobile}
           isDocLibEnabled={isDocLibEnabled}
-          isCreateLoading={isCreateLoading}
+          createIsLoading={createIsLoading}
           isLoading={isLoading}
-          onRefresh={reloadGrid}
-          onSearch={this.handleSearch}
-          onToggleSettings={this.handleToggleSettings}
-          onToggleViewMode={this.handleToggleViewMode}
-          onAddRecord={this.handleAddRecord}
         />
       </>
     );
@@ -673,7 +684,7 @@ class Journals extends React.Component {
 
   render() {
     const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, className, bodyClassName } = this.props;
-    const { height } = this.state;
+    const { showPreview, height } = this.state;
 
     if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
       return null;
@@ -693,7 +704,7 @@ class Journals extends React.Component {
             className={classNames('ecos-journal__body', bodyClassName, {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
               'ecos-journal__body_mobile': isMobile,
-              'ecos-journal__body_with-preview': this.isPreviewMode
+              'ecos-journal__body_with-preview': showPreview
             })}
           >
             <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
@@ -708,10 +719,10 @@ class Journals extends React.Component {
             ) : (
               <JournalsContent
                 stateId={stateId}
-                showPreview={this.isPreviewMode && !isMobile}
+                showPreview={showPreview && !isMobile}
                 maxHeight={this.getJournalContentMaxHeight()}
                 isActivePage={isActivePage}
-                onOpenSettings={this.handleToggleSettings}
+                onOpenSettings={this.toggleSettings}
               />
             )}
 
