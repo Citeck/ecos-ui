@@ -3,25 +3,26 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import classNames from 'classnames';
 
+import { t } from '../../../helpers/export/util';
 import { IcoBtn } from '../../common/btns';
 import { DropdownOuter } from '../../common/form/Dropdown';
-import { t } from '../../../helpers/export/util';
 import { Tools } from '../../common/grid';
 
 import './JournalsTools.scss';
 
 export default React.memo(function JournalsGroupActionsTools(props) {
   const {
+    className,
     isMobile,
     selectAllRecordsVisible,
     selectAllRecords,
-    grid,
     selectedRecords,
-    onExecuteAction,
-    className,
+    grid,
+    forwardedRef,
+
     onGoTo,
     onSelectAll,
-    forwardedRef
+    onExecuteAction
   } = props;
 
   if (isEmpty(selectedRecords) && !selectAllRecords) {
@@ -82,13 +83,13 @@ export default React.memo(function JournalsGroupActionsTools(props) {
 
   return (
     <Tools
+      className={classNames('ecos-journal-group-actions', 'grid-tools_r_12', className)}
       forwardedRef={forwardedRef}
-      onSelectAll={onSelectAll}
       selectAllVisible={selectAllRecordsVisible}
       selectAll={selectAllRecords}
       total={total}
-      className={classNames('ecos-journal-group-actions', 'grid-tools_r_12', className)}
       tools={tools}
+      onSelectAll={onSelectAll}
     />
   );
 });

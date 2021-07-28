@@ -6,19 +6,12 @@ import get from 'lodash/get';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
-import { JOURNAL_VIEW_MODE } from '../constants';
+import { isDocLib } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
 import { Labels } from './constants';
 import JournalSettings from './JournalSettings';
 
 import './JournalsMenu.scss';
-
-const mapStateToProps = (state, props) => {
-  return {
-    isMobile: state.view.isMobile,
-    pageTabsIsShow: state.pageTabs.isShow
-  };
-};
 
 class JournalsMenu extends React.Component {
   static propTypes = {
@@ -31,6 +24,10 @@ class JournalsMenu extends React.Component {
     journalsHeight: 0,
     settingsHeight: 0
   };
+
+  get isDocLibMode() {
+    return isDocLib(this.props.viewMode);
+  }
 
   onClose = () => {
     const onClose = this.props.onClose;
@@ -68,13 +65,11 @@ class JournalsMenu extends React.Component {
   };
 
   render() {
-    const { stateId, open, pageTabsIsShow, isMobile, viewMode } = this.props;
+    const { stateId, open, pageTabsIsShow, isMobile } = this.props;
 
     if (!open) {
       return null;
     }
-
-    const isDocLibMode = viewMode === JOURNAL_VIEW_MODE.DOC_LIB;
 
     return (
       <div
@@ -91,18 +86,25 @@ class JournalsMenu extends React.Component {
             onClick={this.onClose}
             icon="icon-small-arrow-right"
             invert
-            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest"
+            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
           >
-            {isMobile ? t(Labels.HIDE_MENU_sm) : isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
+            {isMobile ? t(Labels.HIDE_MENU_sm) : this.isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
           </IcoBtn>
         </div>
 
-        {!isDocLibMode && <JournalSettings stateId={stateId} />}
+        {!this.isDocLibMode && <JournalSettings stateId={stateId} />}
 
-        {isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
+        {this.isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
       </div>
     );
   }
 }
+
+const mapStateToProps = (state, props) => {
+  return {
+    isMobile: state.view.isMobile,
+    pageTabsIsShow: state.pageTabs.isShow
+  };
+};
 
 export default connect(mapStateToProps)(JournalsMenu);
