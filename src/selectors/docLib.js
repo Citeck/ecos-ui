@@ -1,14 +1,8 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
+import { defaultState } from '../reducers/documentLibrary';
 
-import { defaultState } from '../reducers/journals';
-
-const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
-
-export const selectDocLib = createSelector(
-  selectState,
-  ownState => get(ownState, 'documentLibrary', {})
-);
+const selectDocLib = (state, key) => get(state, ['documentLibrary', key]) || { ...defaultState };
 
 export const selectIsDocLibEnabled = createSelector(
   selectDocLib,
@@ -52,7 +46,7 @@ export const selectDocLibFileViewer = createSelector(
 
 export const selectDocLibFileViewerIsReady = createSelector(
   selectDocLibFileViewer,
-  fileViewer => get(fileViewer, 'isReady', {})
+  fileViewer => get(fileViewer, 'isReady', false)
 );
 
 export const selectDocLibFileViewerPagination = createSelector(

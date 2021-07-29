@@ -21,7 +21,7 @@ class DocLibService {
   }
 
   getRootId(typeRef) {
-    return `${SourcesId.DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
+    return typeRef && `${SourcesId.DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
   }
 
   async getTypeRef(journalId) {

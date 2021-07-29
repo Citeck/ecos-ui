@@ -113,7 +113,7 @@ export function* loadDocumentLibrarySettings(stateId, w) {
   const rootId = yield call(DocLibService.getRootId, typeRef);
   yield put(setRootId(w(rootId)));
 
-  return { rootId };
+  return { rootId, typeRef };
 }
 
 export function* sagaInitDocumentLibrary({ logger, stateId, w }) {
