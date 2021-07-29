@@ -99,3 +99,12 @@ export const selectDocLibGroupActions = createSelector(
   selectDocLib,
   docLib => get(docLib, 'groupActions', {})
 );
+
+export const selectDocLibPageProps = createSelector(
+  [selectIsDocLibEnabled, selectDocLibFolderTitle, selectDocLibTypeRef, selectDocLibRootId],
+  (isDocLibEnabled, docLibFolderTitle, docLibTypeRef) => ({
+    isDocLibEnabled,
+    docLibFolderTitle,
+    docLibTypeRef
+  })
+);

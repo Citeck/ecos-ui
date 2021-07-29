@@ -181,3 +181,23 @@ export const selectGridPaginationMaxItems = createSelector(
     return get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems);
   }
 );
+
+export const selectJournalPageProps = createSelector(
+  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsColumns, selectSettingsGrouping, selectSettingsData],
+  (ownState, journalSetting, settingsFiltersData, settingsColumnsData, settingsGroupingData, settingsData) => ({
+    journalConfig: ownState.journalConfig,
+    predicate: ownState.predicate,
+    gridPredicates: get(ownState, 'grid.predicates', []),
+    grid: ownState.grid,
+    selectedRecords: ownState.selectedRecords,
+    selectAllRecords: ownState.selectAllRecords,
+    selectAllRecordsVisible: ownState.selectAllRecordsVisible,
+    isLoading: ownState.loading,
+    urlParams: ownState.url,
+    journalSetting,
+    settingsFiltersData,
+    settingsColumnsData,
+    settingsGroupingData,
+    settingsData
+  })
+);

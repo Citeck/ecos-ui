@@ -59,6 +59,8 @@ import {
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
+import { getTypeRef } from '../actions/docLib';
+import { selectGridPaginationMaxItems, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import JournalsService from '../components/Journals/service';
 import EditorService from '../components/Journals/service/editors/EditorService';
 import {
@@ -76,11 +78,9 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import { hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
-import { JournalUrlParams } from '../constants';
 import JournalsConverter from '../dto/journals';
-import { selectGridPaginationMaxItems, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { emptyJournalConfig } from '../reducers/journals';
-import { loadDocumentLibrarySettings } from './docLib';
+import { JournalUrlParams } from '../constants';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -136,7 +136,7 @@ function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
 
     yield getJournalSettings(api, config.journalType, w);
   } catch (e) {
-    logger.error('[journals sagaGetDashletEditorData saga error', e.message);
+    logger.error('[journals sagaGetDashletEditorData saga error', e);
   }
 }
 
@@ -154,7 +154,7 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
       yield put(setEditorMode(w(true)));
     }
   } catch (e) {
-    logger.error('[journals sagaGetDashletConfig saga error', e.message);
+    logger.error('[journals sagaGetDashletConfig saga error', e);
   }
 }
 
@@ -203,7 +203,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
       yield put(setEditorMode(w(true)));
     }
   } catch (e) {
-    logger.error('[journals sagaSetDashletConfigFromParams saga error', e.message);
+    logger.error('[journals sagaSetDashletConfigFromParams saga error', e);
   }
 }
 
@@ -244,7 +244,7 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
     yield put(setGrid(w({ pagination: DEFAULT_JOURNALS_PAGINATION })));
     yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force })));
   } catch (e) {
-    logger.error('[journals sagaGetJournalsData saga error', e.message);
+    logger.error('[journals sagaGetJournalsData saga error', e);
   }
 }
 
@@ -327,7 +327,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
     return journalSetting;
   } catch (e) {
-    console.error('[journals getJournalSetting saga error', e.message);
+    console.error('[journals getJournalSetting saga error', e);
   }
 }
 
@@ -361,7 +361,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
       )
     );
   } catch (e) {
-    logger.error('[journals sagaInitJournalSettingData saga error', e.message);
+    logger.error('[journals sagaInitJournalSettingData saga error', e);
   }
 }
 
@@ -381,7 +381,7 @@ function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
 
     yield getJournalSetting(api, { journalSettingId, journalConfig, stateId }, w);
   } catch (e) {
-    logger.error('[journals sagaResetJournalSettingData saga error', e.message);
+    logger.error('[journals sagaResetJournalSettingData saga error', e);
   }
 }
 
@@ -400,7 +400,7 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
     yield put(setJournalSetting(w(journalSetting)));
     yield put(initJournalSettingData(w({ journalSetting })));
   } catch (e) {
-    logger.error('[journals sagaResetJournalSettingData saga error', e.message);
+    logger.error('[journals sagaResetJournalSettingData saga error', e);
   }
 }
 
@@ -549,7 +549,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaReloadGrid saga error', e.message);
+    logger.error('[journals sagaReloadGrid saga error', e);
   }
 }
 
@@ -564,7 +564,7 @@ function* sagaReloadTreeGrid({ api, logger, stateId, w }) {
 
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaReloadTreeGrid saga error', e.message);
+    logger.error('[journals sagaReloadTreeGrid saga error', e);
   }
 }
 
@@ -575,7 +575,7 @@ function* sagaSaveDashlet({ api, logger, stateId, w }, action) {
     yield call(api.journals.saveDashletConfig, config, id);
     yield put(getDashletConfig(w(id)));
   } catch (e) {
-    logger.error('[journals sagaSaveDashlet saga error', e.message);
+    logger.error('[journals sagaSaveDashlet saga error', e);
   }
 }
 
@@ -609,12 +609,12 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
       },
       (...data) => ({ ...w(...data), logger })
     );
-    yield call(loadDocumentLibrarySettings, journalConfig.id, w);
 
+    yield put(getTypeRef(w({ journalId: journalConfig.id })));
     yield put(setLoading(w(false)));
   } catch (e) {
     yield put(setLoading(w(false)));
-    logger.error('[journals sagaInitJournal saga error', e.message);
+    logger.error('[journals sagaInitJournal saga error', e);
   }
 }
 
@@ -640,7 +640,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
 
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
   } catch (e) {
-    logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
+    logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
 }
 
@@ -655,7 +655,7 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
     yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaOnJournalSettingsSelect saga error', e.message);
+    logger.error('[journals sagaOnJournalSettingsSelect saga error', e);
   }
 }
 
@@ -683,7 +683,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
 
     yield call(PageService.changeUrlLink, url, { openNewTab: true, pushHistory: true });
   } catch (e) {
-    logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
+    logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
 }
 
@@ -699,7 +699,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     yield loadGrid(api, { journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaOnJournalSelect saga error', e.message);
+    logger.error('[journals sagaOnJournalSelect saga error', e);
   }
 }
 
@@ -714,7 +714,7 @@ function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
       }
     }
   } catch (e) {
-    logger.error('[journals sagaExecRecordsAction saga error', e.message, e);
+    logger.error('[journals sagaExecRecordsAction saga error', e);
   }
 }
 
@@ -760,7 +760,7 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
     yield put(setGrid(w({ ...grid, editingRules })));
   } catch (e) {
-    logger.error('[journals sagaSaveRecords saga error', e.message);
+    logger.error('[journals sagaSaveRecords saga error', e);
   }
 }
 
@@ -774,7 +774,7 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
 
     yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
   } catch (e) {
-    logger.error('[journals sagaSaveJournalSetting saga error', e.message);
+    logger.error('[journals sagaSaveJournalSetting saga error', e);
   }
 }
 
@@ -786,7 +786,7 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
     yield getJournalSettings(api, journalConfig.id, w);
     yield put(openSelectedJournalSettings(w(journalSettingId)));
   } catch (e) {
-    logger.error('[journals sagaCreateJournalSetting saga error', e.message);
+    logger.error('[journals sagaCreateJournalSetting saga error', e);
   }
 }
 
@@ -798,7 +798,7 @@ function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
     yield getJournalSettings(api, journalConfig.id, w);
     yield put(openSelectedJournalSettings(''));
   } catch (e) {
-    logger.error('[journals sagaCreateJournalSetting saga error', e.message);
+    logger.error('[journals sagaCreateJournalSetting saga error', e);
   }
 }
 
@@ -819,7 +819,7 @@ function* sagaRenameJournalSetting({ api, logger, stateId, w }, action) {
     yield call(api.journals.saveJournalSetting, { id: journalSettingId, settings: journalSetting });
     yield getJournalSettings(api, journalConfig.id, w);
   } catch (e) {
-    logger.error('[journals sagaRenameJournalSetting saga error', e.message);
+    logger.error('[journals sagaRenameJournalSetting saga error', e);
   }
 }
 
@@ -857,7 +857,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
       )
     );
   } catch (e) {
-    logger.error('[journals sagaApplyJournalSetting saga error', e.message);
+    logger.error('[journals sagaApplyJournalSetting saga error', e);
   }
 }
 
@@ -868,7 +868,7 @@ function* sagaInitPreview({ api, logger, stateId, w }, action) {
 
     yield put(setPreviewUrl(w(previewUrl)));
   } catch (e) {
-    logger.error('[journals sagaInitPreview saga error', e.message);
+    logger.error('[journals sagaInitPreview saga error', e);
   }
 }
 
@@ -943,7 +943,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     yield put(setPreviewFileName(w('')));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
   } catch (e) {
-    logger.error('[journals sagaGoToJournalsPage saga error', e.message);
+    logger.error('[journals sagaGoToJournalsPage saga error', e);
   }
 }
 
@@ -982,7 +982,7 @@ function* getSearchPredicate({ logger, stateId, grid }) {
 
     return predicate;
   } catch (e) {
-    logger.error('[journals getSearchPredicate saga error', e.message);
+    logger.error('[journals getSearchPredicate saga error', e);
   }
 }
 
@@ -1004,7 +1004,7 @@ function* sagaSearch({ logger, w, stateId }, { payload }) {
       yield call(PageService.changeUrlLink, decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
   } catch (e) {
-    logger.error('[journals sagaSearch saga error', e.message);
+    logger.error('[journals sagaSearch saga error', e);
   }
 }
 
@@ -1021,7 +1021,7 @@ function* sagaCheckConfig({ logger, w, stateId }, { payload }) {
     yield put(setCheckLoading(w(false)));
     yield put(setEditorMode(w(isEmpty(id))));
   } catch (e) {
-    logger.error('[journals sagaCheckConfig saga error', e.message);
+    logger.error('[journals sagaCheckConfig saga error', e);
   }
 }
 
@@ -1033,7 +1033,7 @@ function* sagaExecJournalAction({ api, logger, w, stateId }, { payload }) {
       yield put(getJournalsData(w({ force: true })));
     }
   } catch (e) {
-    logger.error('[journals sagaExecJournalAction saga error', e.message, e);
+    logger.error('[journals sagaExecJournalAction saga error', e);
   }
 }
 

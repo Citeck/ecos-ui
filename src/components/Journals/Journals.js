@@ -25,8 +25,9 @@ import {
   setSelectedRecords,
   setUrl
 } from '../../actions/journals';
-import { selectDocLibFolderTitle, selectIsDocLibEnabled } from '../../selectors/docLib';
-import { selectSettingsColumns, selectSettingsData, selectSettingsFilters, selectSettingsGrouping } from '../../selectors/journals';
+import { initDocLib } from '../../actions/docLib';
+import { selectDocLibPageProps } from '../../selectors/docLib';
+import { selectJournalPageProps } from '../../selectors/journals';
 import { JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
@@ -52,30 +53,16 @@ import FilesViewer from './DocLib/FilesViewer';
 import './Journals.scss';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const journalProps = selectJournalPageProps(state, props.stateId);
+  const doclibProps = selectDocLibPageProps(state, props.stateId);
 
   return {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
-    journalConfig: newState.journalConfig,
-    journalSetting: newState.journalSetting,
-    predicate: newState.predicate,
-    gridPredicates: get(newState, 'grid.predicates', []),
-    grid: newState.grid,
-    selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    isLoading: newState.loading,
-    urlParams: newState.url,
     _url: window.location.href,
-    isDocLibEnabled: selectIsDocLibEnabled(state, props.stateId),
-    docLibFolderTitle: selectDocLibFolderTitle(state, props.stateId),
-
-    settingsFiltersData: selectSettingsFilters(state, props.stateId),
-    settingsColumnsData: selectSettingsColumns(state, props.stateId),
-    settingsGroupingData: selectSettingsGrouping(state, props.stateId),
-    settingsData: selectSettingsData(state, props.stateId)
+    ...journalProps,
+    ...doclibProps
   };
 };
 
@@ -96,7 +83,8 @@ const mapDispatchToProps = (dispatch, props) => {
     onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings })))
+    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
+    initDocLib: () => dispatch(initDocLib(w({})))
   };
 };
 
@@ -142,6 +130,7 @@ class Journals extends React.Component {
       settingsVisible: false,
       isCreateLoading: false,
       savedSetting: null,
+      wasOpenedDocLib: false,
       viewMode
     };
   }
@@ -176,8 +165,20 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, onJournalSettingsSelect } = this.props;
-    const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate } = this.state;
+    const {
+      _url,
+      urlParams,
+      stateId,
+      isActivePage,
+      isLoading,
+      getJournalsData,
+      reloadGrid,
+      setUrl,
+      onJournalSettingsSelect,
+      initDocLib,
+      docLibTypeRef
+    } = this.props;
+    const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate, wasOpenedDocLib } = this.state;
     const stateShowPreview = this.isPreviewMode;
 
     const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
@@ -204,7 +205,13 @@ class Journals extends React.Component {
     }
 
     if (isNewJournalOnActive || prevProps.stateId !== stateId) {
+      newState = merge(newState, { wasOpenedDocLib: false });
       getJournalsData();
+    }
+
+    if (isActivePage && docLibTypeRef && !wasOpenedDocLib && this.isDocLibMode) {
+      newState = merge(newState, { wasOpenedDocLib: true });
+      initDocLib();
     }
 
     const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
@@ -390,9 +397,7 @@ class Journals extends React.Component {
   };
 
   handleEditJournal = throttle(
-    () => {
-      this.props.execJournalAction(`${SourcesId.JOURNAL}@${this.props.journalConfig.id}`, { type: ActionTypes.EDIT });
-    },
+    () => this.props.execJournalAction(`${SourcesId.JOURNAL}@${this.props.journalConfig.id}`, { type: ActionTypes.EDIT }),
     300,
     { leading: false, trailing: true }
   );
