@@ -267,7 +267,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         placeholder: component.placeholder,
         disabled: component.disabled,
         journalId: journalId,
-        onChange: value => this.onReactValueChanged(value, { noUpdateEvent: true }),
+        onChange: value => this.onReactValueChanged(value, { noUpdateEvent: this._isInlineEditingMode }),
         viewOnly: this.viewOnly,
         queryData,
         viewMode: component.source.viewMode,
