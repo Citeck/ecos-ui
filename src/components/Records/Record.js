@@ -637,7 +637,7 @@ export default class Record {
         if (toSave) {
           let currentValue = this._recordFields[name];
           if (currentValue === undefined) {
-            this._recordFieldsToSave[name] = this.load(name)
+            this._recordFieldsToSave[name] = this.load(name, true)
               .then(loadedValue => {
                 if (!_.isEqual(loadedValue, value)) {
                   this._recordFieldsToSave[name] = value;
