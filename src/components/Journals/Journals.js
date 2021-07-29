@@ -176,7 +176,8 @@ class Journals extends React.Component {
       setUrl,
       onJournalSettingsSelect,
       initDocLib,
-      docLibTypeRef
+      docLibTypeRef,
+      isDocLibEnabled
     } = this.props;
     const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate, wasOpenedDocLib } = this.state;
     const stateShowPreview = this.isPreviewMode;
@@ -209,7 +210,7 @@ class Journals extends React.Component {
       getJournalsData();
     }
 
-    if (isActivePage && docLibTypeRef && !wasOpenedDocLib && this.isDocLibMode) {
+    if (isActivePage && isDocLibEnabled && docLibTypeRef && !wasOpenedDocLib && this.isDocLibMode) {
       newState = merge(newState, { wasOpenedDocLib: true });
       initDocLib();
     }
