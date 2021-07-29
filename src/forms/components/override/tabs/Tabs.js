@@ -1,6 +1,7 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import throttle from 'lodash/throttle';
+
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
 import { animateScrollTo } from '../../../../helpers/util';
 
@@ -39,6 +40,8 @@ export default class TabsComponent extends NestedComponent {
       schema: TabsComponent.schema()
     };
   }
+
+  #tabs = new Map();
 
   constructor(component, options, data) {
     super(component, options, data);
@@ -441,12 +444,47 @@ export default class TabsComponent extends NestedComponent {
     this.addClass(this.tabLinks[index], 'active')
       .addClass(this.tabLinks[index].tabLink, 'active')
       .addClass(this.tabs[index], 'active');
+
+    this.checkNeedUpdate(index);
+  }
+
+  checkNeedUpdate(index) {
+    const tab = this.#tabs.get(index);
+    const setUpdateStatus = (component, status) => {
+      if (Array.isArray(component.components)) {
+        component.components.forEach(c => setUpdateStatus(c, status));
+      }
+
+      if (component._needUpdate !== undefined) {
+        component._needUpdate = status;
+        status && component.checkConditions();
+      }
+    };
+
+    [...this.#tabs.values()].forEach(t => setUpdateStatus(t, false));
+
+    if (tab) {
+      setUpdateStatus(tab, true);
+    }
   }
 
   destroy() {
     const state = super.destroy() || {};
+
     state.currentTab = this.currentTab;
+
+    this.#tabs.clear();
+
     return state;
+  }
+
+  addComponent(...data) {
+    const component = super.addComponent(...data);
+    const tabId = lodashGet(component, 'component.tab');
+
+    if (tabId !== undefined) {
+      this.#tabs.set(tabId, component);
+    }
   }
 
   /**
