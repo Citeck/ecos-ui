@@ -236,9 +236,9 @@ class Journals extends React.Component {
   }
 
   componentWillUnmount() {
-    this.onForceUpdate.cancel();
+    this.handleForceUpdate.cancel();
     this.setHeight.cancel();
-    this.onEditJournal.cancel();
+    this.handleEditJournal.cancel();
 
     if (this._toggleMenuTimerId) {
       window.clearTimeout(this._toggleMenuTimerId);
@@ -276,6 +276,26 @@ class Journals extends React.Component {
     return isPreview(this.state.viewMode);
   }
 
+  get searchText() {
+    const { isActivePage, urlParams } = this.props;
+    return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
+  }
+
+  get titleHeader() {
+    const { docLibFolderTitle, journalConfig } = this.props;
+    return this.isDocLibMode ? docLibFolderTitle : get(journalConfig, 'meta.title', '');
+  }
+
+  get labelBtnMenu() {
+    const { isMobile } = this.props;
+
+    if (this.isDocLibMode) {
+      return isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU);
+    }
+
+    return isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU);
+  }
+
   setJournalRef = ref => {
     if (ref) {
       this._journalRef = ref;
@@ -306,19 +326,13 @@ class Journals extends React.Component {
     }
   };
 
-  onForceUpdate = debounce(() => {
+  setHeight = debounce(height => {
+    this.setState({ height });
+  }, 500);
+
+  handleForceUpdate = debounce(() => {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
   }, 250);
-
-  getSearchText = () => {
-    const { isActivePage, urlParams } = this.props;
-
-    if (!isActivePage) {
-      return '';
-    }
-
-    return get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
-  };
 
   handleAddRecord = createVariant => {
     const { isCreateLoading } = this.state;
@@ -336,13 +350,13 @@ class Journals extends React.Component {
     });
   };
 
-  saveSettings = (id, settings) => {
+  handleSaveSettings = (id, settings) => {
     const { saveJournalSetting } = this.props;
 
     saveJournalSetting(id, settings);
   };
 
-  createSettings = settings => {
+  handleCreateSettings = settings => {
     const {
       journalConfig: { id },
       createJournalSetting
@@ -352,7 +366,7 @@ class Journals extends React.Component {
     this.handleToggleSettings();
   };
 
-  applySettings = (isChangedPredicates, settings) => {
+  handleApplySettings = (isChangedPredicates, settings) => {
     this.props.applySettings({ settings });
     if (isChangedPredicates) {
       const { clearSearch } = this.props;
@@ -375,7 +389,7 @@ class Journals extends React.Component {
     this.setState({ viewMode });
   };
 
-  onEditJournal = throttle(
+  handleEditJournal = throttle(
     () => {
       this.props.execJournalAction(`${SourcesId.JOURNAL}@${this.props.journalConfig.id}`, { type: ActionTypes.EDIT });
     },
@@ -383,7 +397,7 @@ class Journals extends React.Component {
     { leading: false, trailing: true }
   );
 
-  onToggleMenu = () => {
+  handleToggleMenu = () => {
     if (this._toggleMenuTimerId) {
       window.clearTimeout(this._toggleMenuTimerId);
     }
@@ -431,7 +445,7 @@ class Journals extends React.Component {
     this.props.runSearch(text);
   };
 
-  onResize = (w, h) => {
+  handleResize = (w, h) => {
     const height = parseInt(h);
 
     if (!h || Number.isNaN(height) || height === this.state.height) {
@@ -441,11 +455,7 @@ class Journals extends React.Component {
     this.setHeight(height);
   };
 
-  setHeight = debounce(height => {
-    this.setState({ height });
-  }, 500);
-
-  onSelectAllRecords = () => {
+  handleSelectAllRecords = () => {
     const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
 
     setSelectAllRecords(!selectAllRecords);
@@ -455,7 +465,7 @@ class Journals extends React.Component {
     }
   };
 
-  onExecuteGroupAction = action => {
+  handleExecuteGroupAction = action => {
     const { selectAllRecords } = this.props;
 
     if (!selectAllRecords) {
@@ -466,6 +476,14 @@ class Journals extends React.Component {
       const query = get(this.props, 'grid.query');
 
       this.props.execRecordsAction(query, action);
+    }
+  };
+
+  handleDisplayConfigPopup = event => {
+    if (event.ctrlKey && event.shiftKey) {
+      const { journalConfig } = this.props;
+      event.stopPropagation();
+      !!journalConfig && showModalJson(journalConfig, 'Journal Config');
     }
   };
 
@@ -502,39 +520,32 @@ class Journals extends React.Component {
     return height < journalMinHeight ? journalMinHeight : height;
   };
 
+  renderBreadcrumbs = () => {
+    const { stateId } = this.props;
+
+    if (this.isDocLibMode) {
+      return <DocLibBreadcrumbs stateId={stateId} />;
+    }
+  };
+
   renderHeader = () => {
     if (this.displayElements.header) {
       const { menuOpen } = this.state;
-      const { isMobile, docLibFolderTitle, journalConfig } = this.props;
-      const title = this.isDocLibMode ? docLibFolderTitle : get(this.props, 'journalConfig.meta.title', '');
-      let labelBtnMenu = isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU);
-
-      if (this.isDocLibMode) {
-        labelBtnMenu = isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU);
-      }
-
-      const displayConfigPopup = event => {
-        if (event.ctrlKey && event.shiftKey) {
-          event.stopPropagation();
-          !!journalConfig && showModalJson(journalConfig, 'Journal Config');
-        }
-      };
+      const { isMobile } = this.props;
 
       return (
-        <>
-          <div onClick={displayConfigPopup}>
-            <JournalsHead
-              title={title}
-              labelBtnMenu={labelBtnMenu}
-              isOpenMenu={menuOpen}
-              isMobile={isMobile}
-              hasBtnMenu={this.displayElements.menu}
-              hasBtnEdit={this.displayElements.editJournal}
-              onToggleMenu={this.onToggleMenu}
-              onEditJournal={this.onEditJournal}
-            />
-          </div>
-        </>
+        <div onClick={this.handleDisplayConfigPopup}>
+          <JournalsHead
+            title={this.titleHeader}
+            labelBtnMenu={this.labelBtnMenu}
+            isOpenMenu={menuOpen}
+            isMobile={isMobile}
+            hasBtnMenu={this.displayElements.menu}
+            hasBtnEdit={this.displayElements.editJournal}
+            onToggleMenu={this.handleToggleMenu}
+            onEditJournal={this.handleEditJournal}
+          />
+        </div>
       );
     }
   };
@@ -561,9 +572,7 @@ class Journals extends React.Component {
     const { settingsVisible, isReset, isCreateLoading, viewMode } = this.state;
 
     if (this.isDocLibMode) {
-      return (
-        <DocLibSettingsBar stateId={stateId} showGrid={this.handleShowGrid} togglePreview={this.handleTogglePreview} isMobile={isMobile} />
-      );
+      return <DocLibSettingsBar stateId={stateId} isMobile={isMobile} onToggleViewMode={this.handleToggleViewMode} />;
     }
 
     return (
@@ -576,16 +585,16 @@ class Journals extends React.Component {
           isReset={isReset}
           isOpen={settingsVisible}
           onClose={this.handleToggleSettings}
-          onApply={this.applySettings}
-          onCreate={this.createSettings}
-          onSave={this.saveSettings}
+          onApply={this.handleApplySettings}
+          onCreate={this.handleCreateSettings}
+          onSave={this.handleSaveSettings}
         />
 
         <JournalsSettingsBar
           stateId={stateId}
           grid={grid}
           journalConfig={journalConfig}
-          searchText={this.getSearchText()}
+          searchText={this.searchText}
           selectedRecords={selectedRecords}
           viewMode={viewMode}
           isMobile={isMobile}
@@ -617,12 +626,30 @@ class Journals extends React.Component {
           selectAllRecords={selectAllRecords}
           grid={grid}
           selectedRecords={selectedRecords}
-          onExecuteAction={this.onExecuteGroupAction}
+          onExecuteAction={this.handleExecuteGroupAction}
           onGoTo={this.onGoTo}
-          onSelectAll={this.onSelectAllRecords}
+          onSelectAll={this.handleSelectAllRecords}
         />
       );
     }
+  };
+
+  renderContent = () => {
+    const { stateId, isMobile, isActivePage } = this.props;
+
+    if (this.isDocLibMode) {
+      return <FilesViewer stateId={stateId} isMobile={isMobile} />;
+    }
+
+    return (
+      <JournalsContent
+        stateId={stateId}
+        showPreview={this.isPreviewMode && !isMobile}
+        maxHeight={this.getJournalContentMaxHeight()}
+        isActivePage={isActivePage}
+        onOpenSettings={this.handleToggleSettings}
+      />
+    );
   };
 
   renderPagination = () => {
@@ -662,7 +689,7 @@ class Journals extends React.Component {
             forwardedRef={this.setJournalMenuRef}
             stateId={stateId}
             open={menuOpen}
-            onClose={this.onToggleMenu}
+            onClose={this.handleToggleMenu}
             isActivePage={isActivePage}
             viewMode={viewMode}
           />
@@ -672,7 +699,7 @@ class Journals extends React.Component {
   };
 
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, isMobile, isActivePage, className, bodyClassName } = this.props;
+    const { journalConfig, pageTabsIsShow, isMobile, className, bodyClassName } = this.props;
     const { height } = this.state;
 
     if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
@@ -680,7 +707,7 @@ class Journals extends React.Component {
     }
 
     return (
-      <ReactResizeDetector handleHeight onResize={this.onResize}>
+      <ReactResizeDetector handleHeight onResize={this.handleResize}>
         <div
           ref={this.setJournalRef}
           className={classNames('ecos-journal', className, {
@@ -697,23 +724,13 @@ class Journals extends React.Component {
             })}
           >
             <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
-              {this.isDocLibMode && <DocLibBreadcrumbs stateId={stateId} />}
+              {this.renderBreadcrumbs()}
               {this.renderHeader()}
               {this.renderSettings()}
               {this.renderGroupActions()}
             </div>
 
-            {this.isDocLibMode ? (
-              <FilesViewer stateId={stateId} isMobile={isMobile} />
-            ) : (
-              <JournalsContent
-                stateId={stateId}
-                showPreview={this.isPreviewMode && !isMobile}
-                maxHeight={this.getJournalContentMaxHeight()}
-                isActivePage={isActivePage}
-                onOpenSettings={this.handleToggleSettings}
-              />
-            )}
+            {this.renderContent()}
 
             <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
               {this.renderPagination()}

@@ -2,28 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { t } from '../../../../helpers/util';
+import { JOURNAL_VIEW_MODE } from '../../constants';
+import { getCreateVariantKeyField } from '../../service/util';
 import { Search } from '../../../common';
+import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
 import { Dropdown } from '../../../common/form';
-import { getCreateVariantKeyField } from '../../service/util';
 
 import DocLibService from '../DocLibService';
 import DocLibPagination from '../DocLibPagination';
+
 import './DocLibSettingsBar.scss';
 
-const DocLibSettingsBar = ({
-  stateId,
-  searchText,
-  createVariants,
-  createNode,
-  togglePreview,
-  showGrid,
-  isMobile,
-  onRefresh,
-  startSearch
-}) => {
+const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh, onToggleViewMode }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
@@ -105,7 +97,7 @@ const DocLibSettingsBar = ({
           title={t('journal.title')}
           icon="icon-list"
           className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-          onClick={showGrid}
+          onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.GRID)}
         />
         {!isMobile && (
           <>
@@ -113,7 +105,7 @@ const DocLibSettingsBar = ({
               title={t('doc-preview.preview')}
               icon="icon-columns"
               className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-              onClick={togglePreview}
+              onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.PREVIEW)}
             />
             <IcoBtn
               title={t('document-library.title')}
@@ -137,8 +129,7 @@ DocLibSettingsBar.propTypes = {
     })
   ),
   createNode: PropTypes.func,
-  togglePreview: PropTypes.func,
-  showGrid: PropTypes.func,
+  onToggleViewMode: PropTypes.func,
   isMobile: PropTypes.bool,
   onRefresh: PropTypes.func,
   startSearch: PropTypes.func
