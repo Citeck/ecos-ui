@@ -122,13 +122,13 @@ class GrouppedTimesheet extends BaseTimesheet {
     }
   }
 
-  initGroupsStatuses(eventTypes, groupBy) {
+  initGroupsStatuses(eventTypes, groupBy, prevValues) {
     return eventTypes
       .map(item => item[groupBy])
       .reduce(
         (result, key, index) => ({
           ...result,
-          [key]: index === 0 || undefined
+          [key]: index === 0 || get(prevValues, [key], undefined)
         }),
         {}
       );
@@ -248,7 +248,7 @@ class GrouppedTimesheet extends BaseTimesheet {
         }
       }
 
-      groupsStatuses = this.initGroupsStatuses(filteredEventTypes, groupBy);
+      groupsStatuses = this.initGroupsStatuses(filteredEventTypes, groupBy, this.state.groupsStatuses);
     }
 
     this.setState({ typeFilter, filteredEventTypes, groupsStatuses });
