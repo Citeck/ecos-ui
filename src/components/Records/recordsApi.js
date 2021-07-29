@@ -150,10 +150,14 @@ export function loadAttribute(recordId, attribute) {
             throw new Error(t('server-error-occurred-with-code', { code: errorCode }));
           }
           records.forEach((recordId, idx) => {
-            let rec = resultRecords[idx];
+            let rec = resultRecords[idx] || {};
             let attributes = rec.attributes || {};
             for (let attKey of attsKeys) {
-              sourceBuffer[recordId][attKey].resolve(attributes[attKey]);
+              let attValue = attributes[attKey];
+              if (attValue === undefined) {
+                attValue = null;
+              }
+              sourceBuffer[recordId][attKey].resolve(attValue);
               delete sourceBuffer[recordId][attKey];
             }
             pendingRequests.delete(getPendingKey(recordId, attsKeys));
