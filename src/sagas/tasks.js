@@ -33,7 +33,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
     SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   } catch (e) {
     notify('error', 'tasks-widget.error.get-tasks');
-    logger.error('[tasks/sagaGetTasks saga] error', e.message);
+    logger.error('[tasks/sagaGetTasks saga] error', e);
   }
 }
 
@@ -45,7 +45,7 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
     yield Records.get(record).update();
   } catch (e) {
     notify('error', 'tasks-widget.error.assign-task');
-    logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);
+    logger.error('[tasks/sagaChangeAssigneeTask saga] error', e);
   }
 }
 

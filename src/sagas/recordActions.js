@@ -25,7 +25,7 @@ function* sagaGetActions({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setActions({ stateId, list: [] }));
     notify('error', 'records-actions.error.get-actions');
-    logger.error('[recordActions/sagaGetActions saga] error', e.message);
+    logger.error('[recordActions/sagaGetActions saga] error', e);
   }
 }
 
@@ -47,7 +47,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
   } catch (e) {
     yield put(backExecuteAction({ stateId }));
     notify('error', 'records-actions.error.execute-action');
-    logger.error('[recordActions/sagaExecuteAction saga] error', e.message);
+    logger.error('[recordActions/sagaExecuteAction saga] error', e);
   }
 }
 
