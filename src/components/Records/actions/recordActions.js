@@ -749,7 +749,7 @@ class RecordActions {
    * @param {RecordAction} action
    * @return {ActionsExecutor|null}
    */
-  static _getActionsExecutor(action) {
+  static _getActionsExecutor(action = {}) {
     const handler = actionsRegistry.getHandler(action.type);
     if (handler == null) {
       console.error('Handler is not found for action! Action: ', action);
