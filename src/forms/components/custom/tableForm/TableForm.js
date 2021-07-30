@@ -186,7 +186,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
     this.refreshElementHasValueClasses();
 
-    if (this.component.isUsedJournalActions && !_.isEmpty(value)) {
+    if (!_.isEmpty(value)) {
       this._fetchActions(value).then(journalActions => this.setReactProps({ journalActions }));
     }
 
@@ -296,12 +296,12 @@ export default class TableFormComponent extends BaseReactComponent {
             const journalConfig = await JournalsService.getJournalConfig(journalId);
             let columns = journalConfig.columns;
 
+            this.#journalConfig = journalConfig;
+            this._createVariants = journalConfig.meta.createVariants || [];
+
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
               columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
             }
-
-            this._createVariants = journalConfig.meta.createVariants || [];
-            this.#journalConfig = journalConfig;
 
             resolve({ columns: await JournalsService.resolveColumns(columns) });
           } catch (error) {
@@ -433,18 +433,21 @@ export default class TableFormComponent extends BaseReactComponent {
     });
   };
 
-  _fetchActions = value => {
-    return new Promise(async resolve => {
-      const journalActions = await JournalsService.getRecordActions(this.#journalConfig, value).catch(() => ({}));
-      resolve(journalActions);
-    });
+  _fetchActions = records => {
+    if (!this.component.isUsedJournalActions || !this.#journalConfig) {
+      return Promise.resolve({});
+    }
+
+    return new Promise(async resolve =>
+      resolve(await JournalsService.getRecordActions(this.#journalConfig, records || []).catch(() => ({})))
+    );
   };
 
   getInitialReactProps() {
     const component = this.component;
 
     let resolveProps = props => {
-      const { columns = [], error } = props || {};
+      const { columns = [], error, journalActions } = props || {};
 
       let triggerEventOnTableChange = null;
       if (component.eventName) {
@@ -464,9 +467,10 @@ export default class TableFormComponent extends BaseReactComponent {
       const customStringForConcatWithStaticTitle = this.t(component.customStringForConcatWithStaticTitle);
 
       return {
-        createVariants: this._createVariants,
         columns,
+        journalActions,
         error,
+        createVariants: this._createVariants,
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
@@ -498,7 +502,9 @@ export default class TableFormComponent extends BaseReactComponent {
       };
     };
 
-    return this._fetchAsyncProperties(component.source).then(resolveProps);
+    return this._fetchAsyncProperties(component.source)
+      .then(async props => ({ ...props, journalActions: await this._fetchActions(this.dataValue) }))
+      .then(resolveProps);
   }
 
   importFiles = fileList => {
