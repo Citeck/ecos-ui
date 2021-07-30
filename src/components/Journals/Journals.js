@@ -101,7 +101,8 @@ const Labels = {
   J_SHOW_MENU: 'journals.action.show-menu',
   J_SHOW_MENU_SM: 'journals.action.show-menu_sm',
   DL_SHOW_MENU: 'journals.action.show-folder-tree',
-  DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm'
+  DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm',
+  UNAVAILABLE_VIEW: 'journal.page.unavailable-view'
 };
 
 class Journals extends React.Component {
@@ -526,6 +527,27 @@ class Journals extends React.Component {
     return height < journalMinHeight ? journalMinHeight : height;
   };
 
+  InfoUnavailableView = React.memo(
+    props => {
+      const { isDocLibEnabled, isDocLibLoading } = props;
+      const isDisplay = this.isDocLibMode && !isDocLibEnabled && !isDocLibLoading;
+
+      if (isDisplay) {
+        return (
+          <div className="alert alert-secondary" role="alert">
+            {t(Labels.UNAVAILABLE_VIEW)}
+          </div>
+        );
+      }
+
+      return null;
+    },
+    (prevProps, nextProps) =>
+      prevProps.viewMode === nextProps.viewMode &&
+      prevProps.isDocLibLoading === nextProps.isDocLibLoading &&
+      prevProps.isDocLibEnabled === nextProps.isDocLibEnabled
+  );
+
   renderBreadcrumbs = () => {
     const { stateId } = this.props;
 
@@ -706,7 +728,7 @@ class Journals extends React.Component {
 
   render() {
     const { journalConfig, pageTabsIsShow, isMobile, className, bodyClassName } = this.props;
-    const { height } = this.state;
+    const { height, viewMode } = this.state;
 
     if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
       return null;
@@ -736,6 +758,7 @@ class Journals extends React.Component {
               {this.renderGroupActions()}
             </div>
 
+            <this.InfoUnavailableView viewMode={viewMode} {...this.props} />
             {this.renderContent()}
 
             <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>

@@ -38,6 +38,7 @@ const initialState = {};
 
 export const defaultState = Object.freeze({
   isEnabled: false,
+  isLoading: true,
   typeRef: null,
   fileTypeRefs: [],
   dirTypeRef: null,
@@ -65,8 +66,7 @@ export const defaultState = Object.freeze({
     lastClicked: null,
     total: 0,
     pagination: DEFAULT_DOCLIB_PAGINATION,
-    hasError: false,
-    isLoading: false
+    hasError: false
   }
 });
 
@@ -74,9 +74,11 @@ export default handleActions(
   {
     [setIsDocLibEnabled]: (state, action) => {
       const stateId = action.payload.stateId;
+      const isLoading = state[stateId].isLoading;
       action = handleAction(action);
+      const isEnabled = action.payload;
 
-      return updateState(state, stateId, { isEnabled: action.payload }, defaultState);
+      return updateState(state, stateId, { isEnabled, isLoading: isEnabled && isLoading }, defaultState);
     },
     [setTypeRef]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -389,10 +391,7 @@ export default handleActions(
 
       return handleState(state, stateId, {
         ...state[stateId],
-        fileViewer: {
-          ...fileViewer,
-          isLoading: handledAction.payload
-        }
+        isLoading: handledAction.payload
       });
     },
     [setIsGroupActionsReady]: (state, action) => {

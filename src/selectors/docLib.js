@@ -65,8 +65,8 @@ export const selectDocLibFileCanUploadFiles = createSelector(
 );
 
 export const selectDocLibFileViewerLoadingStatus = createSelector(
-  selectDocLibFileViewer,
-  fileViewer => get(fileViewer, 'isLoading', false)
+  selectDocLib,
+  docLib => get(docLib, 'isLoading', false)
 );
 
 export const selectDocLibFolderId = createSelector(
@@ -95,11 +95,12 @@ export const selectDocLibGroupActions = createSelector(
 );
 
 export const selectDocLibPageProps = createSelector(
-  [selectIsDocLibEnabled, selectDocLibFolderTitle, selectDocLibTypeRef],
-  (isDocLibEnabled, docLibFolderTitle, docLibTypeRef) => ({
+  [selectIsDocLibEnabled, selectDocLibFolderTitle, selectDocLibTypeRef, selectDocLibFileViewerLoadingStatus],
+  (isDocLibEnabled, docLibFolderTitle, docLibTypeRef, isDocLibLoading) => ({
     isDocLibEnabled,
     docLibFolderTitle,
-    docLibTypeRef
+    docLibTypeRef,
+    isDocLibLoading
   })
 );
 

@@ -610,6 +610,7 @@
 
   "journal.page.error-boundary.title": "Error",
   "journal.page.error-boundary.msg": "Try updating the page. If the error reappears, contact your administrator",
+  "journal.page.unavailable-view": "This view is not available for this journal. Change the view option or customize the journal",
   "journal.add-filter-criterion": "Add Filter Criterion",
   "journal.apply-criteria": "Apply Criteria",
   "journal.create": "Create",
