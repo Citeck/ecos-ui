@@ -392,11 +392,22 @@ class RecordActions {
 
       if (handler instanceof RecordActionsResolver && action.features.execForRecord === true) {
         recordsResolvedActionsForAction = {};
-        let resolvedActions = await handler.resolve(recordInst, action, localContext);
+        let resolvedActions = (await handler.resolve(recordInst, action, localContext)) || {};
 
         for (let ref in resolvedActions) {
           if (resolvedActions.hasOwnProperty(ref)) {
-            recordsResolvedActionsForAction[ref] = (recordsResolvedActionsForAction[ref] || []).concat(resolvedActions[ref]);
+            const filteredActions = (resolvedActions[ref] || []).filter(a => !!a);
+
+            if (get(resolvedActions, [ref, 'length']) > filteredActions.length) {
+              console.warn('After updating a record, not all actions are available. Try to refresh the page', {
+                resolvedActions,
+                filteredActions
+              });
+            }
+
+            if (filteredActions.length) {
+              recordsResolvedActionsForAction[ref] = (recordsResolvedActionsForAction[ref] || []).concat(filteredActions);
+            }
           }
         }
       }
