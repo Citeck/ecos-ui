@@ -20,6 +20,10 @@ export function getCreateVariantKeyField(createVariant) {
   return Object.keys(createVariant).filter(key => !!createVariant[key] && typeof createVariant[key] === 'string');
 }
 
+export function valueOrNull(value) {
+  return value === undefined ? null : value;
+}
+
 export function replacePlaceholders(object, values, keyPreProc) {
   if (!object || !values) {
     return object;
