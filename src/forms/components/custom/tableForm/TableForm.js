@@ -84,6 +84,8 @@ export default class TableFormComponent extends BaseReactComponent {
     };
   }
 
+  _needUpdate = false;
+
   get defaultSchema() {
     return TableFormComponent.schema();
   }
@@ -135,7 +137,8 @@ export default class TableFormComponent extends BaseReactComponent {
       });
     }
 
-    if ((!isVisible || !this._visibleRender) && this.visible) {
+    if ((!isVisible && this.visible) || this._needUpdate) {
+      this._needUpdate = false;
       this.redraw();
     }
 

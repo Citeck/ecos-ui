@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 
 import { t } from '../../../../helpers/export/util';
-import { replacePlaceholders } from '../util';
+import { replacePlaceholders, valueOrNull } from '../util';
 import formatterRegistry from './registry';
 import isPlainObject from 'lodash/isPlainObject';
 import CellType from './CellType';
@@ -107,8 +107,8 @@ class FormatterService {
         cellValue = { value: cellValue, disp: cellValue };
       } else {
         cellValue = {
-          value: cellValue.value || null,
-          disp: cellValue.disp || cellValue.value || null
+          value: valueOrNull(cellValue.value),
+          disp: valueOrNull(cellValue.disp || cellValue.value)
         };
       }
     } else if (fmtInstance.getSupportedCellType() === CellType.SCALAR) {

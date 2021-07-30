@@ -150,9 +150,15 @@ export function loadAttribute(recordId, attribute) {
             throw new Error(t('server-error-occurred-with-code', { code: errorCode }));
           }
           records.forEach((recordId, idx) => {
-            let rec = resultRecords[idx];
+            let rec = resultRecords[idx] || {};
             let attributes = rec.attributes || {};
             for (let attKey of attsKeys) {
+              let attValue = attributes[attKey];
+
+              if (attValue === undefined) {
+                attValue = null;
+              }
+
               lodashGet(sourceBuffer, [recordId, attKey, 'resolve'], v => console.warn('try to resolve', v))(attributes[attKey]);
               delete sourceBuffer[recordId][attKey];
             }

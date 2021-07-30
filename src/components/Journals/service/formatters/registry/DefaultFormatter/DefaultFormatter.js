@@ -1,6 +1,7 @@
 import BaseFormatter from '../BaseFormatter';
 import CellType from '../../CellType';
 import { t } from '../../../../../../helpers/export/util';
+import isPlainObject from 'lodash/isPlainObject';
 
 export default class DefaultFormatter extends BaseFormatter {
   static TYPE = 'default';
@@ -16,8 +17,10 @@ export default class DefaultFormatter extends BaseFormatter {
 
     if (typeof cell === 'boolean') {
       text = cell ? t('boolean.yes') : t('boolean.no');
+    } else if (isPlainObject(cell)) {
+      text = cell.disp || '';
     } else {
-      text = cell.disp || cell;
+      text = cell || '';
     }
 
     return text;
