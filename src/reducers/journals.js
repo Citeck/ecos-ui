@@ -143,11 +143,11 @@ Object.freeze(defaultState);
 export default handleActions(
   {
     [initState]: (state, action) => {
-      const id = action.payload;
+      const stateId = action.payload.stateId;
 
       return {
         ...state,
-        [id]: { ...cloneDeep(defaultState), ...(state[id] || {}) }
+        [stateId]: { ...cloneDeep(defaultState), ...(state[stateId] || {}) }
       };
     },
     [setUrl]: (state, action) => {

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
@@ -36,7 +37,7 @@ import { showModalJson } from '../../helpers/tools';
 import FormManager from '../EcosForm/FormManager';
 import { ActionTypes } from '../Records/actions';
 
-import { isDocLib, isPreview, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE } from './constants';
+import { isDocLib, isGrid, isPreview, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
@@ -120,7 +121,7 @@ class Journals extends React.Component {
     let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
 
     if (showPreview && !viewMode) {
-      viewMode = JOURNAL_VIEW_MODE.PREVIEW;
+      viewMode = JVM.PREVIEW;
     }
 
     this.state = {
@@ -131,7 +132,7 @@ class Journals extends React.Component {
       settingsVisible: false,
       isCreateLoading: false,
       savedSetting: null,
-      wasOpenedDocLib: false,
+      wasOpenedView: {},
       viewMode
     };
   }
@@ -180,7 +181,7 @@ class Journals extends React.Component {
       docLibTypeRef,
       isDocLibEnabled
     } = this.props;
-    const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate, wasOpenedDocLib } = this.state;
+    const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate, wasOpenedView } = this.state;
     const stateShowPreview = this.isPreviewMode;
 
     const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
@@ -202,18 +203,23 @@ class Journals extends React.Component {
 
     const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
 
+    const dispatchAfterState = new Set();
+
     if (isActiveChanged || prevProps.stateId !== stateId) {
       setUrl(getSearchParams());
     }
 
     if (isNewJournalOnActive || prevProps.stateId !== stateId) {
-      newState = merge(newState, { wasOpenedDocLib: false });
-      getJournalsData();
+      set(newState, 'wasOpenedView', {});
     }
 
-    if (isActivePage && isDocLibEnabled && docLibTypeRef && !wasOpenedDocLib && this.isDocLibMode) {
-      newState = merge(newState, { wasOpenedDocLib: true });
-      initDocLib();
+    if (((this.isGridMode || this.isPreviewMode) && isNewJournalOnActive) || prevProps.stateId !== stateId) {
+      set(newState, ['wasOpenedView', JVM.GRID], true);
+      dispatchAfterState.add('getJournalsData');
+    }
+    if (this.isDocLibMode && isDocLibEnabled && docLibTypeRef && !wasOpenedView[JVM.DOC_LIB]) {
+      set(newState, ['wasOpenedView', JVM.DOC_LIB], true);
+      dispatchAfterState.add('initDocLib');
     }
 
     const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
@@ -225,7 +231,7 @@ class Journals extends React.Component {
 
     if ((isActivePage && stateIsForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
       newState = merge(newState, { isForceUpdate: false });
-      reloadGrid();
+      dispatchAfterState.add('reloadGrid');
     }
 
     if (prevProps.isActivePage && !isActivePage && isLoading) {
@@ -240,7 +246,7 @@ class Journals extends React.Component {
       newUrl = merge(newUrl, { viewMode: stateViewMode });
     }
 
-    newState && this.setState(newState);
+    newState && this.setState(newState, () => dispatchAfterState.forEach(func => func()));
     newUrl && updateCurrentUrl(newUrl);
   }
 
@@ -727,12 +733,8 @@ class Journals extends React.Component {
   };
 
   render() {
-    const { journalConfig, pageTabsIsShow, isMobile, className, bodyClassName } = this.props;
+    const { pageTabsIsShow, isMobile, className, bodyClassName } = this.props;
     const { height, viewMode } = this.state;
-
-    if (!journalConfig || !journalConfig.columns || !journalConfig.columns.length) {
-      return null;
-    }
 
     return (
       <ReactResizeDetector handleHeight onResize={this.handleResize}>

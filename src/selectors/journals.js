@@ -12,6 +12,8 @@ import { getId } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
+export const selectJournalData = selectState;
+
 export const selectJournalSettings = createSelector(
   selectState,
   ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
@@ -22,14 +24,10 @@ export const selectJournals = createSelector(
   ownState => get(ownState, 'journals', [])
 );
 
-export const selectJournalUiType = createSelector(
-  (journals, id) => journals.find(journal => journal.nodeRef === id),
-  journal => get(journal, 'uiType')
+export const selectUrl = createSelector(
+  selectState,
+  ownState => get(ownState, 'url', {})
 );
-
-export const selectUrl = (state, id) => get(state, ['journals', id, 'url']) || {};
-
-export const selectJournalData = selectState;
 
 export const selectNewVersionDashletConfig = createSelector(
   selectState,
@@ -105,10 +103,7 @@ export const selectColumnsByGroupable = createSelector(
 
 export const selectViewColumns = createSelector(
   selectState,
-  ownProps => {
-    const columns = get(ownProps, 'grid.columns') || [];
-    return columns.filter(col => col.default);
-  }
+  ownProps => (get(ownProps, 'grid.columns') || []).filter(col => col.default)
 );
 
 export const selectDashletConfigJournalId = createSelector(
@@ -131,60 +126,54 @@ export const selectFilterGroup = createSelector(
 
 export const selectSettingsData = createSelector(
   selectState,
-  ownProps => {
-    return cloneDeep({
+  ownProps =>
+    cloneDeep({
       journalSetting: ownProps.journalSetting,
       columnsSetup: ownProps.columnsSetup,
       grouping: ownProps.grouping,
       originGridSettings: ownProps.originGridSettings
-    });
-  }
+    })
 );
 
 export const selectSettingsFilters = createSelector(
   selectState,
-  ownProps => {
-    return cloneDeep({
+  ownProps =>
+    cloneDeep({
       predicate: get(ownProps, 'journalSetting.predicate'),
       columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
       metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
-    });
-  }
+    })
 );
 
 export const selectSettingsColumns = createSelector(
   selectState,
-  ownProps => {
-    return cloneDeep({
+  ownProps =>
+    cloneDeep({
       columns: get(ownProps, 'columnsSetup.columns', []).map(item => ({
         id: getId(),
         ...item
       })),
       sortBy: get(ownProps, 'columnsSetup.sortBy')
-    });
-  }
+    })
 );
 
 export const selectSettingsGrouping = createSelector(
   selectState,
-  ownProps => {
-    return cloneDeep({
+  ownProps =>
+    cloneDeep({
       columns: get(ownProps, 'grouping.columns'),
       groupBy: get(ownProps, 'grouping.groupBy')
-    });
-  }
+    })
 );
 
 export const selectGridPaginationMaxItems = createSelector(
   selectState,
-  ownProps => {
-    return get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems);
-  }
+  ownProps => get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems)
 );
 
 export const selectJournalPageProps = createSelector(
-  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsColumns, selectSettingsGrouping, selectSettingsData],
-  (ownState, journalSetting, settingsFiltersData, settingsColumnsData, settingsGroupingData, settingsData) => ({
+  [selectState, selectJournalSettings, selectUrl, selectSettingsFilters, selectSettingsColumns, selectSettingsGrouping, selectSettingsData],
+  (ownState, journalSetting, urlParams, settingsFiltersData, settingsColumnsData, settingsGroupingData, settingsData) => ({
     journalConfig: ownState.journalConfig,
     predicate: ownState.predicate,
     gridPredicates: get(ownState, 'grid.predicates', []),
@@ -193,7 +182,7 @@ export const selectJournalPageProps = createSelector(
     selectAllRecords: ownState.selectAllRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     isLoading: ownState.loading,
-    urlParams: ownState.url,
+    urlParams,
     journalSetting,
     settingsFiltersData,
     settingsColumnsData,

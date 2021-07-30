@@ -386,7 +386,6 @@ export default handleActions(
     },
     [setFileViewerLoadingStatus]: (state, action) => {
       const stateId = action.payload.stateId;
-      const fileViewer = state[stateId].fileViewer;
       const handledAction = handleAction(cloneDeep(action));
 
       return handleState(state, stateId, {
