@@ -83,7 +83,8 @@ class EcosForm extends React.Component {
       definition: 'definition?json',
       customModule: 'customModule',
       title: 'title',
-      i18n: 'i18n?json'
+      i18n: 'i18n?json',
+      formId: '?localId'
     };
 
     let formLoadingPromise;
@@ -137,7 +138,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      self.setState({ originalFormDefinition, formDefinition });
+      self.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
@@ -250,8 +251,6 @@ class EcosForm extends React.Component {
             }
           });
 
-          self.setState({ formId: formData.id });
-
           form.formReady.then(() => {
             if (self.props.onReady) {
               self.props.onReady(form);
@@ -341,15 +340,18 @@ class EcosForm extends React.Component {
     onToggleLoader(state);
   };
 
-  onShowFormBuilder = callback => {
+  onShowFormBuilder = async callback => {
     if (this._formBuilderModal.current) {
-      const { originalFormDefinition, formId } = this.state;
+      const { formId } = this.state;
+      const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
-      this._formBuilderModal.current.show(originalFormDefinition, form => {
+      this._formBuilderModal.current.show(definitionToEdit, form => {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
-          this.initForm(form);
-          this.props.onFormSubmitDone();
-          typeof callback === 'function' && callback(form);
+          EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+            this.initForm(newFormDef);
+            this.props.onFormSubmitDone();
+            typeof callback === 'function' && callback(newFormDef);
+          });
         });
       });
     }
