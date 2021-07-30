@@ -47,6 +47,7 @@ export const SourcesId = {
   EAPPS_BUILD_INFO: 'eapps/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
+  RESOLVED_FORM: 'uiserv/rform',
   EFORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',

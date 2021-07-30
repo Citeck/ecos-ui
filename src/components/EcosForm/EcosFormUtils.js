@@ -331,7 +331,7 @@ export default class EcosFormUtils {
       }
 
       let query = {
-        sourceId: SourcesId.EFORM,
+        sourceId: SourcesId.RESOLVED_FORM,
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -389,11 +389,11 @@ export default class EcosFormUtils {
   }
 
   static getFormById(formId, attributes = null) {
+    let resolvedFormId = formId.replace('uiserv/form@', 'uiserv/rform@');
     if (attributes) {
-      return Records.get(formId).load(attributes);
+      return Records.get(resolvedFormId).load(attributes);
     }
-
-    return Records.get(formId);
+    return Records.get(resolvedFormId);
   }
 
   static getCreateVariants(record, attribute) {
