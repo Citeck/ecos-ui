@@ -150,7 +150,7 @@ const JournalsSettingsBar = ({
                 [blue]: !isPreviewViewMode && !isDocLibViewMode,
                 [grey]: isPreviewViewMode || isDocLibViewMode
               })}
-              onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.GRID)}
+              onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.TABLE)}
             />
             <IcoBtn
               title={t(Labels.BTN_PREVIEW)}

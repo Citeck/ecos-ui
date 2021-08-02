@@ -85,14 +85,14 @@ export function* sagaGetTypeRef({ logger, stateId, w }, action) {
 
     const isDocumentLibraryEnabled = yield call(DocLibService.isDocLibEnabled, typeRef);
     yield put(setIsDocLibEnabled(w(!!isDocumentLibraryEnabled)));
+
+    return { typeRef };
   } catch (e) {
     logger.error('[docLib sagaGetTypeRef saga error', e);
   }
 }
 
-export function* loadDocumentLibrarySettings(stateId, w) {
-  const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
-
+export function* loadDocumentLibrarySettings(typeRef, w) {
   const fileTypeRefs = yield call(DocLibService.getFileTypeRefs, typeRef);
   yield put(setFileTypeRefs(w(fileTypeRefs)));
 
@@ -113,12 +113,13 @@ export function* loadDocumentLibrarySettings(stateId, w) {
   const rootId = yield call(DocLibService.getRootId, typeRef);
   yield put(setRootId(w(rootId)));
 
-  return { rootId, typeRef };
+  return { rootId };
 }
 
 export function* sagaInitDocumentLibrary({ logger, stateId, w }) {
   try {
-    let { rootId: selectedItemId } = yield call(loadDocumentLibrarySettings, stateId, w);
+    const typeRef = yield select(state => selectDocLibTypeRef(state, stateId));
+    let { rootId: selectedItemId } = yield call(loadDocumentLibrarySettings, typeRef, w);
 
     // set selected item from url
     const url = yield select(selectUrl, stateId);

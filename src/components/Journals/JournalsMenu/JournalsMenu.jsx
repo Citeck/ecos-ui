@@ -5,8 +5,9 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
+import { selectViewMode } from '../../../selectors/journals';
 import { IcoBtn } from '../../common/btns';
-import { isDocLib } from '../constants';
+import { isDocLib, JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
 import { Labels } from './constants';
 import JournalSettings from './JournalSettings';
@@ -64,8 +65,20 @@ class JournalsMenu extends React.Component {
     }
   };
 
+  renderByViewMode = () => {
+    const { viewMode, stateId } = this.props;
+
+    switch (viewMode) {
+      case JOURNAL_VIEW_MODE.DOC_LIB:
+        return <FoldersTree stateId={stateId} closeMenu={this.onClose} />;
+      case JOURNAL_VIEW_MODE.TABLE:
+      default:
+        return <JournalSettings stateId={stateId} />;
+    }
+  };
+
   render() {
-    const { stateId, open, pageTabsIsShow, isMobile } = this.props;
+    const { open, pageTabsIsShow, isMobile, menuOpenAnimate } = this.props;
 
     if (!open) {
       return null;
@@ -73,37 +86,46 @@ class JournalsMenu extends React.Component {
 
     return (
       <div
-        ref={this.setRef}
-        className={classNames('ecos-journal-menu', 'ecos-journal-menu_grid', {
-          'ecos-journal-menu_open': open,
-          'ecos-journal-menu_tabs': pageTabsIsShow,
-          'ecos-journal-menu_mobile': isMobile
+        className={classNames('ecos-journal__menu', {
+          'ecos-journal__menu_with-tabs': pageTabsIsShow,
+          'ecos-journal__menu_mobile': isMobile,
+          'ecos-journal__menu_expanded': menuOpenAnimate,
+          'ecos-journal__menu_expanded-document-library': menuOpenAnimate && this.isDocLibMode
         })}
-        style={{ maxHeight: this.getMaxMenuHeight() }}
       >
-        <div className="ecos-journal-menu__hide-menu-btn">
-          <IcoBtn
-            onClick={this.onClose}
-            icon="icon-small-arrow-right"
-            invert
-            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
-          >
-            {isMobile ? t(Labels.HIDE_MENU_sm) : this.isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
-          </IcoBtn>
+        <div
+          ref={this.setRef}
+          className={classNames('ecos-journal-menu', 'ecos-journal-menu_grid', {
+            'ecos-journal-menu_open': open,
+            'ecos-journal-menu_tabs': pageTabsIsShow,
+            'ecos-journal-menu_mobile': isMobile
+          })}
+          style={{ maxHeight: this.getMaxMenuHeight() }}
+        >
+          <div className="ecos-journal-menu__hide-menu-btn">
+            <IcoBtn
+              onClick={this.onClose}
+              icon="icon-small-arrow-right"
+              invert
+              className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
+            >
+              {isMobile ? t(Labels.HIDE_MENU_sm) : this.isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
+            </IcoBtn>
+          </div>
+          {this.renderByViewMode()}
         </div>
-
-        {!this.isDocLibMode && <JournalSettings stateId={stateId} />}
-
-        {this.isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
       </div>
     );
   }
 }
 
 const mapStateToProps = (state, props) => {
+  const viewMode = selectViewMode(state, props.stateId);
+
   return {
     isMobile: state.view.isMobile,
-    pageTabsIsShow: state.pageTabs.isShow
+    pageTabsIsShow: state.pageTabs.isShow,
+    viewMode
   };
 };
 

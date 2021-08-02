@@ -14,46 +14,32 @@ import {
   applyJournalSetting,
   createJournalSetting,
   execJournalAction,
-  execRecordsAction,
   getJournalsData,
   onJournalSettingsSelect,
   reloadGrid,
   restoreJournalSettingData,
-  runSearch,
-  saveJournalSetting,
   setGrid,
-  setSelectAllRecords,
-  setSelectedRecords,
-  setUrl
+  setUrl,
+  toggleViewMode
 } from '../../actions/journals';
-import { initDocLib } from '../../actions/docLib';
 import { selectDocLibPageProps } from '../../selectors/docLib';
-import { selectJournalPageProps } from '../../selectors/journals';
+import { selectCommonJournalPageProps, selectJournalPageProps } from '../../selectors/journals';
 import { JournalUrlParams as JUP, SourcesId } from '../../constants';
-import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
-import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
+import { animateScrollTo, getBool, getScrollbarWidth, objectCompare } from '../../helpers/util';
+import { equalsQueryUrls, getSearchParams, updateCurrentUrl } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
-import FormManager from '../EcosForm/FormManager';
 import { ActionTypes } from '../Records/actions';
 
-import { isDocLib, isGrid, isPreview, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM } from './constants';
-import JournalsDashletPagination from './JournalsDashletPagination';
+import { isPreview, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM } from './constants';
 import JournalsMenu from './JournalsMenu';
-import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
-import JournalsContent from './JournalsContent';
-import SettingsModal from './SettingsModal';
-import { JournalsGroupActionsTools } from './JournalsTools';
-import DocLibBreadcrumbs from './DocLib/DocLibBreadcrumbs';
-import DocLibSettingsBar from './DocLib/DocLibSettingsBar';
-import DocLibPagination from './DocLib/DocLibPagination';
-import DocLibGroupActions from './DocLib/DocLibGroupActions';
-import FilesViewer from './DocLib/FilesViewer';
+import { DocLibView, TableView } from './Views';
 
 import './Journals.scss';
 
 const mapStateToProps = (state, props) => {
+  const commonProps = selectCommonJournalPageProps(state, props.stateId);
   const journalProps = selectJournalPageProps(state, props.stateId);
   const doclibProps = selectDocLibPageProps(state, props.stateId);
 
@@ -62,6 +48,7 @@ const mapStateToProps = (state, props) => {
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
     _url: window.location.href,
+    ...commonProps,
     ...journalProps,
     ...doclibProps
   };
@@ -71,21 +58,16 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
-    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
-    getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
-    runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
-    initDocLib: () => dispatch(initDocLib(w({})))
+
+    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode })))
   };
 };
 
@@ -98,25 +80,62 @@ const defaultDisplayElements = {
   editJournal: true
 };
 
-const Labels = {
-  J_SHOW_MENU: 'journals.action.show-menu',
-  J_SHOW_MENU_SM: 'journals.action.show-menu_sm',
-  DL_SHOW_MENU: 'journals.action.show-folder-tree',
-  DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm',
-  UNAVAILABLE_VIEW: 'journal.page.unavailable-view'
-};
-
 class Journals extends React.Component {
-  _journalRef = null;
-  _journalBodyRef = null;
-  _beforeJournalBlockRef = null;
-  _journalFooterRef = null;
+  _journalRef = React.createRef();
+  _journalBodyRef = React.createRef();
+  _bodyTopForwardedRef = React.createRef();
+  _journalFooterRef = React.createRef();
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
 
-  constructor(props) {
-    super(props);
+  state = {
+    menuOpen: false,
+    isReset: false,
+    isForceUpdate: false,
+    menuOpenAnimate: false,
+    savedSetting: undefined,
 
+    journalId: undefined
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    const journalId = get(props, ['urlParams', JUP.JOURNAL_ID]);
+    let newState = {};
+
+    if (props.isActivePage && journalId !== state.journalId) {
+      newState = merge(newState, { journalId });
+    }
+
+    if (isEmpty(newState)) {
+      return null;
+    }
+
+    return newState;
+  }
+
+  // static getDerivedStateFromProps(props, state) {
+  // let newState = {};
+
+  ////todo move back
+  // if (
+  //   !state.isReset &&
+  //   state.settingsVisible &&
+  //   state.savedSetting &&
+  //   !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))
+  // ) {
+  //   const savedSetting = merge(state.savedSetting, { predicate: props.predicate });
+  //   newState = merge(newState, { savedSetting });
+  // }
+  //
+  // if (!newState) {
+  //   return null;
+  // }
+  //
+  // return newState;
+  // }
+
+  componentDidMount() {
+    //todo перенести в отдельный компонент табов
     const showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
     let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
 
@@ -124,134 +143,81 @@ class Journals extends React.Component {
       viewMode = JVM.PREVIEW;
     }
 
-    this.state = {
-      menuOpen: false,
-      isReset: false,
-      isForceUpdate: false,
-      menuOpenAnimate: false,
-      settingsVisible: false,
-      isCreateLoading: false,
-      savedSetting: null,
-      wasOpenedView: {},
-      viewMode
-    };
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    let newState = {};
-    const journalId = get(props, ['urlParams', JUP.JOURNAL_ID]);
-
-    if (props.isActivePage && journalId !== state.journalId) {
-      newState = merge(newState, { journalId });
-    }
-
-    if (
-      !state.isReset &&
-      state.settingsVisible &&
-      state.savedSetting &&
-      !objectCompare(props.predicate, get(state, 'savedSetting.predicate', {}))
-    ) {
-      const savedSetting = merge(state.savedSetting, { predicate: props.predicate });
-      newState = merge(newState, { savedSetting });
-    }
-
-    if (!newState) {
-      return null;
-    }
-
-    return newState;
-  }
-
-  componentDidMount() {
+    this.props.toggleViewMode(viewMode);
     this.props.setUrl(getSearchParams());
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const {
-      _url,
-      urlParams,
-      stateId,
-      isActivePage,
-      isLoading,
-      getJournalsData,
-      reloadGrid,
-      setUrl,
-      onJournalSettingsSelect,
-      initDocLib,
-      docLibTypeRef,
-      isDocLibEnabled
-    } = this.props;
-    const { journalId: stateJournalId, viewMode: stateViewMode, isForceUpdate: stateIsForceUpdate, wasOpenedView } = this.state;
-    const stateShowPreview = this.isPreviewMode;
-
-    const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
-    const newJournalId = get(urlParams, JUP.JOURNAL_ID);
-    const urlShowPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
-    const urlViewMode = get(getSearchParams(), JUP.VIEW_MODE);
-
-    let newState;
-    let newUrl;
-
-    const isNewJournalOnActive =
-      isActivePage &&
-      ((prevProps.isActivePage && newJournalId && newJournalId !== prevJournalId) || stateJournalId !== prevState.journalId);
-
-    const isEqualQuery = equalsQueryUrls({
-      urls: [_url, prevProps._url],
-      ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, JUP.DOCLIB_FOLDER_ID, JUP.DOCLIB_SEARCH]
-    });
-
-    const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
-
-    const dispatchAfterState = new Set();
-
-    if (isActiveChanged || prevProps.stateId !== stateId) {
-      setUrl(getSearchParams());
-    }
-
-    if (isNewJournalOnActive || prevProps.stateId !== stateId) {
-      set(newState, 'wasOpenedView', {});
-    }
-
-    if (((this.isGridMode || this.isPreviewMode) && isNewJournalOnActive) || prevProps.stateId !== stateId) {
-      set(newState, ['wasOpenedView', JVM.GRID], true);
-      dispatchAfterState.add('getJournalsData');
-    }
-    if (this.isDocLibMode && isDocLibEnabled && docLibTypeRef && !wasOpenedView[JVM.DOC_LIB]) {
-      set(newState, ['wasOpenedView', JVM.DOC_LIB], true);
-      dispatchAfterState.add('initDocLib');
-    }
-
-    const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
-    const isSameSearchParam = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.SEARCH] });
-
-    if (isActiveChanged && !isSameSettingId) {
-      onJournalSettingsSelect(get(getSearchParams(), JUP.JOURNAL_SETTING_ID) || '');
-    }
-
-    if ((isActivePage && stateIsForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
-      newState = merge(newState, { isForceUpdate: false });
-      dispatchAfterState.add('reloadGrid');
-    }
-
-    if (prevProps.isActivePage && !isActivePage && isLoading) {
-      newState = merge(newState, { isForceUpdate: true });
-    }
-
-    if (isActivePage && urlShowPreview !== stateShowPreview) {
-      newUrl = merge(newUrl, { showPreview: stateShowPreview });
-    }
-
-    if (isActivePage && urlViewMode !== stateViewMode) {
-      newUrl = merge(newUrl, { viewMode: stateViewMode });
-    }
-
-    newState && this.setState(newState, () => dispatchAfterState.forEach(func => func()));
-    newUrl && updateCurrentUrl(newUrl);
-  }
+  //   componentDidUpdate(prevProps, prevState, snapshot) {
+  //     const {
+  //       _url,
+  //       urlParams,
+  //       stateId,
+  //       isActivePage,
+  //       isLoading,
+  //       getJournalsData,
+  //       reloadGrid,
+  //       setUrl,
+  //       onJournalSettingsSelect,
+  //       viewMode
+  //     } = this.props;
+  //     const { journalId: stateJournalId, isForceUpdate: stateIsForceUpdate } = this.state;
+  //     const stateShowPreview = this.isPreviewMode;
+  //
+  //     const prevJournalId = get(prevProps.urlParams, JUP.JOURNAL_ID);
+  //     const newJournalId = get(urlParams, JUP.JOURNAL_ID);
+  //     const urlShowPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
+  //     const urlViewMode = get(getSearchParams(), JUP.VIEW_MODE);
+  //
+  //     let newState;
+  //     let newUrl;
+  //
+  //     const isNewJournalOnActive =
+  //       isActivePage &&
+  //       ((prevProps.isActivePage && newJournalId && newJournalId !== prevJournalId) || stateJournalId !== prevState.journalId);
+  //
+  //     const isEqualQuery = equalsQueryUrls({
+  //       urls: [_url, prevProps._url],
+  //       ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, JUP.DOCLIB_FOLDER_ID, JUP.DOCLIB_SEARCH]
+  //     });
+  //
+  //     const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
+  //
+  //     if (isActiveChanged || prevProps.stateId !== stateId) {
+  //       setUrl(getSearchParams());
+  //     }
+  //
+  //     if (isNewJournalOnActive || prevProps.stateId !== stateId) {
+  //       getJournalsData();
+  //     }
+  //
+  //     const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
+  //     const isSameSearchParam = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.SEARCH] });
+  //
+  //     if (isActiveChanged && !isSameSettingId) {
+  //       onJournalSettingsSelect(get(getSearchParams(), JUP.JOURNAL_SETTING_ID) || '');
+  //     }
+  //
+  //     if ((isActivePage && stateIsForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
+  //       newState = merge(newState, { isForceUpdate: false });
+  //       reloadGrid();
+  //     }
+  //
+  //     if (prevProps.isActivePage && !isActivePage && isLoading) {
+  //       newState = merge(newState, { isForceUpdate: true });
+  //     }
+  //
+  //     if (isActivePage && urlShowPreview !== stateShowPreview) {
+  //       newUrl = merge(newUrl, { showPreview: stateShowPreview });
+  //     }
+  //
+  // //todo change url view
+  //
+  //     newState && this.setState(newState);
+  //     newUrl && updateCurrentUrl(newUrl);
+  //   }
 
   componentWillUnmount() {
-    this.handleForceUpdate.cancel();
+    // this.handleForceUpdate.cancel();
     this.setHeight.cancel();
     this.handleEditJournal.cancel();
 
@@ -261,19 +227,20 @@ class Journals extends React.Component {
     }
   }
 
-  get isOpenGroupActions() {
-    const { grid, selectedRecords, selectAllRecords } = this.props;
-
-    if (isEmpty(selectedRecords) && !selectAllRecords) {
-      return false;
-    }
-
-    const forRecords = get(grid, 'actions.forRecords', {});
-    const forQuery = get(grid, 'actions.forQuery', {});
-    const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
-
-    return !isEmpty(groupActions);
-  }
+  //todo need?
+  // get isOpenGroupActions() {
+  //   const { grid, selectedRecords, selectAllRecords } = this.props;
+  //
+  //   if (isEmpty(selectedRecords) && !selectAllRecords) {
+  //     return false;
+  //   }
+  //
+  //   const forRecords = get(grid, 'actions.forRecords', {});
+  //   const forQuery = get(grid, 'actions.forQuery', {});
+  //   const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
+  //
+  //   return !isEmpty(groupActions);
+  // }
 
   get displayElements() {
     return {
@@ -283,57 +250,10 @@ class Journals extends React.Component {
     };
   }
 
-  get isDocLibMode() {
-    return isDocLib(this.state.viewMode);
+  get tableProps() {
+    const { selectAllRecordsVisible, selectAllRecords, isActivePage } = this.props;
+    return { selectAllRecordsVisible, selectAllRecords, isActivePage, getJournalContentMaxHeight: this.getJournalContentMaxHeight };
   }
-
-  get isPreviewMode() {
-    return isPreview(this.state.viewMode);
-  }
-
-  get searchText() {
-    const { isActivePage, urlParams } = this.props;
-    return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
-  }
-
-  get titleHeader() {
-    const { docLibFolderTitle, journalConfig } = this.props;
-    return this.isDocLibMode ? docLibFolderTitle : get(journalConfig, 'meta.title', '');
-  }
-
-  get labelBtnMenu() {
-    const { isMobile } = this.props;
-
-    if (this.isDocLibMode) {
-      return isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU);
-    }
-
-    return isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU);
-  }
-
-  setJournalRef = ref => {
-    if (ref) {
-      this._journalRef = ref;
-    }
-  };
-
-  setJournalBodyRef = ref => {
-    if (ref) {
-      this._journalBodyRef = ref;
-    }
-  };
-
-  setJournalBodyGroupRef = ref => {
-    if (ref) {
-      this._beforeJournalBlockRef = ref;
-    }
-  };
-
-  setJournalFooterRef = ref => {
-    if (ref) {
-      this._journalFooterRef = ref;
-    }
-  };
 
   setJournalMenuRef = ref => {
     if (ref) {
@@ -345,64 +265,10 @@ class Journals extends React.Component {
     this.setState({ height });
   }, 500);
 
-  handleForceUpdate = debounce(() => {
-    this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
-  }, 250);
-
-  handleAddRecord = createVariant => {
-    const { isCreateLoading } = this.state;
-
-    if (isCreateLoading) {
-      return;
-    }
-
-    this.setState({ isCreateLoading: true });
-
-    FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
-      onReady: () => this.setState({ isCreateLoading: false }),
-      onAfterHideModal: () => this.setState({ isCreateLoading: false })
-    });
-  };
-
-  handleSaveSettings = (id, settings) => {
-    const { saveJournalSetting } = this.props;
-
-    saveJournalSetting(id, settings);
-  };
-
-  handleCreateSettings = settings => {
-    const {
-      journalConfig: { id },
-      createJournalSetting
-    } = this.props;
-
-    createJournalSetting(id, settings);
-    this.handleToggleSettings();
-  };
-
-  handleApplySettings = (isChangedPredicates, settings) => {
-    this.props.applySettings({ settings });
-    if (isChangedPredicates) {
-      const { clearSearch } = this.props;
-      const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
-
-      window.history.replaceState({ path: url }, '', url);
-      clearSearch();
-    }
-
-    this.handleToggleSettings();
-  };
-
-  handleToggleSettings = () => {
-    const { settingsVisible } = this.state;
-
-    this.setState({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false });
-  };
-
-  handleToggleViewMode = viewMode => {
-    this.setState({ viewMode });
-  };
+  //todo need?
+  // handleForceUpdate = debounce(() => {
+  //   this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
+  // }, 250);
 
   handleEditJournal = throttle(
     () => this.props.execJournalAction(`${SourcesId.JOURNAL}@${this.props.journalConfig.id}`, { type: ActionTypes.EDIT }),
@@ -418,13 +284,13 @@ class Journals extends React.Component {
     this.setState({ menuOpenAnimate: !this.state.menuOpenAnimate });
 
     if (this.state.menuOpen) {
-      animateScrollTo(this._journalRef, {
+      animateScrollTo(this._journalRef.current, {
         scrollLeft: this._journalRef.scrollLeft - get(this, '_journalMenuRef.offsetWidth', 0)
       });
     }
 
     this._toggleMenuTimerId = window.setTimeout(
-      () => {
+      () =>
         this.setState({ menuOpen: !this.state.menuOpen }, () => {
           if (this.props.isMobile) {
             return;
@@ -432,30 +298,16 @@ class Journals extends React.Component {
 
           if (this.state.menuOpen) {
             animateScrollTo(
-              this._journalRef,
+              this._journalRef.current,
               {
                 scrollLeft: this._journalRef.scrollLeft + get(this, '_journalMenuRef.offsetWidth', 0)
               },
               500
             );
           }
-        });
-      },
+        }),
       this.state.menuOpen ? 500 : 0
     );
-  };
-
-  handleSearch = text => {
-    if (text === get(this.props, ['urlParams', JUP.SEARCH], '')) {
-      return;
-    }
-
-    const searchParams = {
-      ...getSearchParams(),
-      search: text
-    };
-    this.props.setUrl(searchParams);
-    this.props.runSearch(text);
   };
 
   handleResize = (w, h) => {
@@ -466,30 +318,6 @@ class Journals extends React.Component {
     }
 
     this.setHeight(height);
-  };
-
-  handleSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
-
-    setSelectAllRecords(!selectAllRecords);
-
-    if (!selectAllRecords) {
-      setSelectedRecords([]);
-    }
-  };
-
-  handleExecuteGroupAction = action => {
-    const { selectAllRecords } = this.props;
-
-    if (!selectAllRecords) {
-      const records = get(this.props, 'selectedRecords', []);
-
-      this.props.execRecordsAction(records, action);
-    } else {
-      const query = get(this.props, 'grid.query');
-
-      this.props.execRecordsAction(query, action);
-    }
   };
 
   handleDisplayConfigPopup = event => {
@@ -508,12 +336,12 @@ class Journals extends React.Component {
     height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
     height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
 
-    if (this._beforeJournalBlockRef) {
-      height -= get(this._beforeJournalBlockRef, 'offsetHeight', 0);
+    if (get(this, '_bodyTopForwardedRef.current')) {
+      height -= get(this._bodyTopForwardedRef.current, 'offsetHeight', 0);
     }
 
-    if (this._journalFooterRef) {
-      height -= get(this._journalFooterRef, 'offsetHeight', 0);
+    if (get(this, '_journalFooterRef.current')) {
+      height -= get(this._journalFooterRef.current, 'offsetHeight', 0);
       height -= 15; // for indent under pagination
     }
 
@@ -523,8 +351,8 @@ class Journals extends React.Component {
       height -= get(appFooter, 'offsetHeight', 0);
     }
 
-    if (this._journalBodyRef) {
-      const styles = window.getComputedStyle(this._journalBodyRef, null);
+    if (get(this, '_journalBodyRef.current')) {
+      const styles = window.getComputedStyle(this._journalBodyRef.current, null);
 
       height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
       height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
@@ -539,36 +367,7 @@ class Journals extends React.Component {
     return height < journalMinHeight ? journalMinHeight : height;
   };
 
-  InfoUnavailableView = React.memo(
-    props => {
-      const { isDocLibEnabled, isDocLibLoading } = props;
-      const isDisplay = this.isDocLibMode && !isDocLibEnabled && !isDocLibLoading;
-
-      if (isDisplay) {
-        return (
-          <div className="alert alert-secondary" role="alert">
-            {t(Labels.UNAVAILABLE_VIEW)}
-          </div>
-        );
-      }
-
-      return null;
-    },
-    (prevProps, nextProps) =>
-      prevProps.viewMode === nextProps.viewMode &&
-      prevProps.isDocLibLoading === nextProps.isDocLibLoading &&
-      prevProps.isDocLibEnabled === nextProps.isDocLibEnabled
-  );
-
-  renderBreadcrumbs = () => {
-    const { stateId } = this.props;
-
-    if (this.isDocLibMode) {
-      return <DocLibBreadcrumbs stateId={stateId} />;
-    }
-  };
-
-  renderHeader = () => {
+  Header = props => {
     if (this.displayElements.header) {
       const { menuOpen } = this.state;
       const { isMobile } = this.props;
@@ -576,8 +375,8 @@ class Journals extends React.Component {
       return (
         <div onClick={this.handleDisplayConfigPopup}>
           <JournalsHead
-            title={this.titleHeader}
-            labelBtnMenu={this.labelBtnMenu}
+            title={props.title}
+            labelBtnMenu={props.labelBtnMenu}
             isOpenMenu={menuOpen}
             isMobile={isMobile}
             hasBtnMenu={this.displayElements.menu}
@@ -588,193 +387,64 @@ class Journals extends React.Component {
         </div>
       );
     }
+
+    return <React.Fragment />;
   };
 
-  renderSettings = () => {
-    if (!this.displayElements.settings) {
-      return null;
-    }
-
-    const {
-      settingsFiltersData,
-      stateId,
-      journalConfig,
-      grid,
-      isMobile,
-      selectedRecords,
-      reloadGrid,
-      isDocLibEnabled,
-      settingsData,
-      settingsColumnsData,
-      settingsGroupingData,
-      isLoading
-    } = this.props;
-    const { settingsVisible, isReset, isCreateLoading, viewMode } = this.state;
-
-    if (this.isDocLibMode) {
-      return <DocLibSettingsBar stateId={stateId} isMobile={isMobile} onToggleViewMode={this.handleToggleViewMode} />;
-    }
-
-    return (
-      <>
-        <SettingsModal
-          {...settingsData}
-          filtersData={settingsFiltersData}
-          columnsData={settingsColumnsData}
-          groupingData={settingsGroupingData}
-          isReset={isReset}
-          isOpen={settingsVisible}
-          onClose={this.handleToggleSettings}
-          onApply={this.handleApplySettings}
-          onCreate={this.handleCreateSettings}
-          onSave={this.handleSaveSettings}
-        />
-
-        <JournalsSettingsBar
-          stateId={stateId}
-          grid={grid}
-          journalConfig={journalConfig}
-          searchText={this.searchText}
-          selectedRecords={selectedRecords}
-          viewMode={viewMode}
-          isMobile={isMobile}
-          isDocLibEnabled={isDocLibEnabled}
-          isCreateLoading={isCreateLoading}
-          isLoading={isLoading}
-          onRefresh={reloadGrid}
-          onSearch={this.handleSearch}
-          onToggleSettings={this.handleToggleSettings}
-          onToggleViewMode={this.handleToggleViewMode}
-          onAddRecord={this.handleAddRecord}
-        />
-      </>
-    );
-  };
-
-  renderGroupActions = () => {
-    if (this.displayElements.groupActions) {
-      const { stateId, grid, isMobile, selectedRecords, selectAllRecordsVisible, selectAllRecords } = this.props;
-
-      if (this.isDocLibMode) {
-        return <DocLibGroupActions isMobile={isMobile} stateId={stateId} />;
-      }
-
-      return (
-        <JournalsGroupActionsTools
-          isMobile={isMobile}
-          selectAllRecordsVisible={selectAllRecordsVisible}
-          selectAllRecords={selectAllRecords}
-          grid={grid}
-          selectedRecords={selectedRecords}
-          onExecuteAction={this.handleExecuteGroupAction}
-          onGoTo={this.onGoTo}
-          onSelectAll={this.handleSelectAllRecords}
-        />
-      );
-    }
-  };
-
-  renderContent = () => {
-    const { stateId, isMobile, isActivePage } = this.props;
-
-    if (this.isDocLibMode) {
-      return <FilesViewer stateId={stateId} isMobile={isMobile} />;
-    }
-
-    return (
-      <JournalsContent
-        stateId={stateId}
-        showPreview={this.isPreviewMode && !isMobile}
-        maxHeight={this.getJournalContentMaxHeight()}
-        isActivePage={isActivePage}
-        onOpenSettings={this.handleToggleSettings}
-      />
-    );
-  };
-
-  renderPagination = () => {
-    if (this.displayElements.pagination) {
-      const { stateId, isMobile } = this.props;
-
-      if (this.isDocLibMode) {
-        return <DocLibPagination stateId={stateId} hasPageSize isMobile={isMobile} />;
-      }
-
-      return (
-        <JournalsDashletPagination
-          stateId={stateId}
-          hasPageSize
-          className={classNames('ecos-journal__pagination', { 'ecos-journal__pagination_mobile': isMobile })}
-        />
-      );
-    }
-  };
-
-  renderMenu = () => {
+  Menu = () => {
     if (this.displayElements.menu) {
-      const { stateId, pageTabsIsShow, isMobile, isActivePage } = this.props;
-      const { menuOpen, menuOpenAnimate, height, viewMode } = this.state;
+      const { stateId, isActivePage } = this.props;
+      const { menuOpen, menuOpenAnimate, height } = this.state;
 
       return (
-        <div
-          className={classNames('ecos-journal__menu', {
-            'ecos-journal__menu_with-tabs': pageTabsIsShow,
-            'ecos-journal__menu_mobile': isMobile,
-            'ecos-journal__menu_expanded': menuOpenAnimate,
-            'ecos-journal__menu_expanded-document-library': menuOpenAnimate && this.isDocLibMode
-          })}
-        >
-          <JournalsMenu
-            height={height}
-            forwardedRef={this.setJournalMenuRef}
-            stateId={stateId}
-            open={menuOpen}
-            onClose={this.handleToggleMenu}
-            isActivePage={isActivePage}
-            viewMode={viewMode}
-          />
-        </div>
+        <JournalsMenu
+          height={height}
+          stateId={stateId}
+          open={menuOpen}
+          isActivePage={isActivePage}
+          forwardedRef={this.setJournalMenuRef}
+          onClose={this.handleToggleMenu}
+          menuOpenAnimate={menuOpenAnimate}
+        />
       );
     }
+
+    return <React.Fragment />;
   };
 
   render() {
-    const { pageTabsIsShow, isMobile, className, bodyClassName } = this.props;
-    const { height, viewMode } = this.state;
+    const { isMobile, className, bodyClassName, stateId } = this.props;
+    const { journalId, height, displayElements } = this.state;
 
     return (
       <ReactResizeDetector handleHeight onResize={this.handleResize}>
         <div
-          ref={this.setJournalRef}
+          ref={this._journalRef}
           className={classNames('ecos-journal', className, {
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
           })}
         >
-          <div
-            ref={this.setJournalBodyRef}
-            className={classNames('ecos-journal__body', bodyClassName, {
-              'ecos-journal__body_with-tabs': pageTabsIsShow,
-              'ecos-journal__body_mobile': isMobile,
-              'ecos-journal__body_with-preview': this.isPreviewMode
-            })}
-          >
-            <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
-              {this.renderBreadcrumbs()}
-              {this.renderHeader()}
-              {this.renderSettings()}
-              {this.renderGroupActions()}
-            </div>
-
-            <this.InfoUnavailableView viewMode={viewMode} {...this.props} />
-            {this.renderContent()}
-
-            <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
-              {this.renderPagination()}
-            </div>
-          </div>
-
-          {this.renderMenu()}
+          <TableView
+            stateId={stateId}
+            bodyClassName={bodyClassName}
+            Header={this.Header}
+            bodyForwardedRef={this._journalBodyRef}
+            bodyTopForwardedRef={this._bodyTopForwardedRef}
+            footerForwardedRef={this._journalFooterRef}
+            displayElements={displayElements}
+            {...this.tableProps}
+          />
+          <DocLibView
+            stateId={stateId}
+            bodyClassName={bodyClassName}
+            Header={this.Header}
+            bodyForwardedRef={this._journalBodyRef}
+            bodyTopForwardedRef={this._bodyTopForwardedRef}
+            footerForwardedRef={this._journalFooterRef}
+            displayElements={displayElements}
+          />
+          <this.Menu />
         </div>
       </ReactResizeDetector>
     );
@@ -793,7 +463,9 @@ Journals.propTypes = {
     settings: PropTypes.bool,
     pagination: PropTypes.bool,
     groupActions: PropTypes.bool
-  })
+  }),
+  selectAllRecordsVisible: PropTypes.bool,
+  selectAllRecords: PropTypes.bool
 };
 
 Journals.defaultProps = {

@@ -33,10 +33,11 @@ import {
   setSelectedJournals,
   setSelectedRecords,
   setSettingItem,
-  setUrl
+  setUrl,
+  toggleViewMode
 } from '../actions/journals';
 import { t } from '../helpers/util';
-import { handleAction, handleState } from '../helpers/redux';
+import { handleAction, handleState, updateState } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
@@ -52,6 +53,7 @@ export const emptyJournalConfig = Object.freeze({
 export const defaultState = {
   loading: true,
   editorMode: false,
+  viewMode: undefined,
 
   url: {},
 
@@ -149,6 +151,12 @@ export default handleActions(
         ...state,
         [stateId]: { ...cloneDeep(defaultState), ...(state[stateId] || {}) }
       };
+    },
+    [toggleViewMode]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return updateState(state, stateId, { viewMode: action.payload.viewMode }, defaultState);
     },
     [setUrl]: (state, action) => {
       const stateId = action.payload.stateId;

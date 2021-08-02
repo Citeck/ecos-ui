@@ -18,7 +18,7 @@ import { JOURNAL_SETTING_ID_FIELD } from './constants';
 
 class SettingsModal extends Component {
   static propTypes = {
-    journalSetting: PropTypes.array,
+    journalSetting: PropTypes.object,
     columnsSetup: PropTypes.object,
     grouping: PropTypes.object,
     originGridSettings: PropTypes.object,

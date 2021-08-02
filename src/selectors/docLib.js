@@ -96,11 +96,11 @@ export const selectDocLibGroupActions = createSelector(
 
 export const selectDocLibPageProps = createSelector(
   [selectIsDocLibEnabled, selectDocLibFolderTitle, selectDocLibTypeRef, selectDocLibFileViewerLoadingStatus],
-  (isDocLibEnabled, docLibFolderTitle, docLibTypeRef, isDocLibLoading) => ({
-    isDocLibEnabled,
-    docLibFolderTitle,
-    docLibTypeRef,
-    isDocLibLoading
+  (isEnabled, folderTitle, typeRef, isLoading) => ({
+    isEnabled,
+    folderTitle,
+    typeRef,
+    isLoading
   })
 );
 

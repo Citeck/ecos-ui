@@ -15,7 +15,7 @@ import DocLibPagination from '../DocLibPagination';
 
 import './DocLibSettingsBar.scss';
 
-const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh, onToggleViewMode }) => {
+const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh, toggleViewMode }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
@@ -97,7 +97,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
           title={t('journal.title')}
           icon="icon-list"
           className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-          onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.GRID)}
+          onClick={() => toggleViewMode(JOURNAL_VIEW_MODE.TABLE)}
         />
         {!isMobile && (
           <>
@@ -105,12 +105,13 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
               title={t('doc-preview.preview')}
               icon="icon-columns"
               className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-              onClick={() => onToggleViewMode(JOURNAL_VIEW_MODE.PREVIEW)}
+              onClick={() => toggleViewMode(JOURNAL_VIEW_MODE.PREVIEW)}
             />
             <IcoBtn
               title={t('document-library.title')}
               icon="icon-folder"
               className={classNames('ecos-doclib__settings-bar_right-btn', step, blue)}
+              disabled
             />
           </>
         )}

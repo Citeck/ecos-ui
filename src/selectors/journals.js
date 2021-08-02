@@ -29,6 +29,11 @@ export const selectUrl = createSelector(
   ownState => get(ownState, 'url', {})
 );
 
+export const selectViewMode = createSelector(
+  selectState,
+  ownState => get(ownState, 'viewMode', {})
+);
+
 export const selectNewVersionDashletConfig = createSelector(
   selectState,
   ownProps => get(ownProps, ['config', JOURNAL_DASHLET_CONFIG_VERSION], null)
@@ -188,5 +193,13 @@ export const selectJournalPageProps = createSelector(
     settingsColumnsData,
     settingsGroupingData,
     settingsData
+  })
+);
+
+export const selectCommonJournalPageProps = createSelector(
+  [selectState, selectUrl],
+  (ownState, urlParams) => ({
+    viewMode: ownState.viewMode,
+    urlParams
   })
 );
