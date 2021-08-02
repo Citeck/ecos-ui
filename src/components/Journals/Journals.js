@@ -433,6 +433,7 @@ class Journals extends React.Component {
             bodyTopForwardedRef={this._bodyTopForwardedRef}
             footerForwardedRef={this._journalFooterRef}
             displayElements={displayElements}
+            journalId={journalId}
             {...this.tableProps}
           />
           <DocLibView

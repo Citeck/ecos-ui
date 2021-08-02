@@ -17,9 +17,9 @@ let optionalMiddlewares = [];
 if (process.env.NODE_ENV === 'development') {
   const logger = createLogger({
     collapsed: true,
-    diff: true
+    diff: true,
     //please, don't delete predicate, it's needed for dev
-    //, predicate: (getState, action) => action.type.startsWith('journals') || action.type.startsWith('docLib')
+    predicate: (getState, action) => action.type.startsWith('journals') || action.type.startsWith('docLib')
   });
   optionalMiddlewares.push(logger);
 }

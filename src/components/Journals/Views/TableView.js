@@ -64,10 +64,9 @@ class TableView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { stateId, urlParams } = this.props;
-    console.log(stateId);
-    //todo??
-    if (!isEmpty(urlParams) && prevProps.stateId !== stateId) {
+    const { isActivePage, stateId, journalId } = this.props;
+
+    if (isActivePage && (prevProps.journalId !== journalId || prevProps.stateId !== stateId)) {
       this.props.getJournalsData();
     }
   }
