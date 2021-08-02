@@ -18,6 +18,7 @@ class RecordActionsApi {
    */
   async getActionsForRecords(recordRefs, actionRefs) {
     let result = null;
+
     try {
       result = await Records.queryOne(
         {
@@ -35,9 +36,11 @@ class RecordActionsApi {
     } catch (e) {
       console.error('Exception while type actions was loaded', recordRefs, actionRefs, e);
     }
+
     if (!result) {
       result = {};
     }
+
     return {
       records: result['records'] || new Array(recordRefs.length).fill(0),
       actions: result['actions'] || []

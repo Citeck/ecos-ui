@@ -269,6 +269,8 @@ export default class Record {
     return promise;
   }
 
+  debounceUpdate = _.debounce(() => this.update(), 400);
+
   unwatch(watcher) {
     for (let i = 0; i < this._watchers; i++) {
       if (this._watchers[i] === watcher) {
@@ -291,8 +293,9 @@ export default class Record {
     Promise.all([attsPromise, this.load('pendingUpdate?bool')])
       .then(([loadedAtts, pendingUpdate]) => {
         if (pendingUpdate) {
-          this.update();
+          this.debounceUpdate();
         }
+
         watcher.setAttributes(loadedAtts);
       })
       .catch(e => {

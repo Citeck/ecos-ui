@@ -3,11 +3,14 @@ import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
 import { changeTaskAssignee, getTaskList, setTaskAssignee, setTaskList } from '../actions/tasks';
-import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import TasksConverter from '../dto/tasks';
 import SidebarService from '../services/sidebar';
 import Records from '../components/Records';
+
+function notify(type, keyMsg) {
+  NotificationManager[type](t(keyMsg), t('current-tasks-widget.notify.title'));
+}
 
 function* sagaGetTasks({ api, logger }, { payload }) {
   try {
@@ -15,7 +18,7 @@ function* sagaGetTasks({ api, logger }, { payload }) {
     const res = yield call(api.tasks.getTasksForUser, { document });
 
     if (isEmpty(res)) {
-      NotificationManager.warning(t('tasks-widget.error.get-tasks'));
+      notify('warning', 'tasks-widget.error.get-tasks');
       setTaskList({ stateId, list: [], totalCount: 0 });
     } else {
       yield put(
@@ -29,8 +32,8 @@ function* sagaGetTasks({ api, logger }, { payload }) {
 
     SidebarService.emitter.emit(SidebarService.UPDATE_EVENT);
   } catch (e) {
-    yield put(setNotificationMessage(t('tasks-widget.error.get-tasks')));
-    logger.error('[tasks/sagaGetTasks saga] error', e.message);
+    notify('error', 'tasks-widget.error.get-tasks');
+    logger.error('[tasks/sagaGetTasks saga] error', e);
   }
 }
 
@@ -41,8 +44,8 @@ function* sagaChangeTaskAssignee({ api, logger }, { payload }) {
     yield put(setTaskAssignee({ stateId }));
     yield Records.get(record).update();
   } catch (e) {
-    yield put(setNotificationMessage(t('tasks-widget.error.assign-task')));
-    logger.error('[tasks/sagaChangeAssigneeTask saga] error', e.message);
+    notify('error', 'tasks-widget.error.assign-task');
+    logger.error('[tasks/sagaChangeAssigneeTask saga] error', e);
   }
 }
 

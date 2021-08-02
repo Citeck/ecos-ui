@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import debounce from 'lodash/debounce';
 
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
@@ -85,11 +86,7 @@ class Tasks extends React.Component {
     resetTaskList();
   }
 
-  getTaskList = () => {
-    const { getTaskList } = this.props;
-
-    getTaskList();
-  };
+  getTaskList = debounce(() => this.props.getTaskList(), 400);
 
   onAssignClick = sentData => {
     const { changeTaskAssignee } = this.props;

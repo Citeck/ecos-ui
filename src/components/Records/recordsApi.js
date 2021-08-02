@@ -154,10 +154,12 @@ export function loadAttribute(recordId, attribute) {
             let attributes = rec.attributes || {};
             for (let attKey of attsKeys) {
               let attValue = attributes[attKey];
+
               if (attValue === undefined) {
                 attValue = null;
               }
-              sourceBuffer[recordId][attKey].resolve(attValue);
+
+              lodashGet(sourceBuffer, [recordId, attKey, 'resolve'], v => console.warn('try to resolve', v))(attributes[attKey]);
               delete sourceBuffer[recordId][attKey];
             }
             pendingRequests.delete(getPendingKey(recordId, attsKeys));
@@ -166,7 +168,7 @@ export function loadAttribute(recordId, attribute) {
         .catch(e => {
           for (let recordId in sourceBuffer) {
             for (let attKey of attsKeys) {
-              sourceBuffer[recordId][attKey].reject(e);
+              lodashGet(sourceBuffer, [recordId, attKey, 'reject'], v => console.error('try to reject', v))(e);
               delete sourceBuffer[recordId][attKey];
             }
             pendingRequests.delete(getPendingKey(recordId, attsKeys));

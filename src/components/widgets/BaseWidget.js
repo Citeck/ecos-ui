@@ -3,18 +3,16 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 
+import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
-import { MIN_WIDTH_DASHLET_SMALL, MAX_DEFAULT_HEIGHT_DASHLET } from '../../constants';
 
 class BaseWidget extends Component {
-  _dashletRef = null;
+  #dashletRef = null;
+  #observableFieldsToUpdate = ['_modified'];
+  #updateWatcher = null;
 
   contentRef = React.createRef();
-
-  updateWatcher = null;
-
-  _observableFieldsToUpdate = ['_modified'];
 
   constructor(props) {
     super(props);
@@ -33,7 +31,7 @@ class BaseWidget extends Component {
       userHeight: UserLocalSettingsService.getDashletHeight(lsId),
       isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
     };
-    this.updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
+    this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
   }
 
   componentDidMount() {
@@ -59,7 +57,7 @@ class BaseWidget extends Component {
   }
 
   componentWillUnmount() {
-    this.instanceRecord.unwatch(this.updateWatcher);
+    this.instanceRecord.unwatch(this.#updateWatcher);
   }
 
   get instanceRecord() {
@@ -87,20 +85,20 @@ class BaseWidget extends Component {
   }
 
   get observableFieldsToUpdate() {
-    return this._observableFieldsToUpdate;
+    return this.#observableFieldsToUpdate;
   }
 
   get dashletHeight() {
-    return get(this._dashletRef, 'offsetHeight', 0);
+    return get(this.#dashletRef, 'offsetHeight', 0);
   }
 
   get dashletOtherHeight() {
-    if (!this._dashletRef) {
+    if (!this.#dashletRef) {
       return 0;
     }
 
-    const body = this._dashletRef.querySelector('.dashlet__body');
-    const header = this._dashletRef.querySelector('.dashlet__header-wrapper');
+    const body = this.#dashletRef.querySelector('.dashlet__body');
+    const header = this.#dashletRef.querySelector('.dashlet__header-wrapper');
     const styles = window.getComputedStyle(body, null);
     let paddingBottom = parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
     let paddingTop = parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
@@ -144,6 +142,18 @@ class BaseWidget extends Component {
     return props;
   }
 
+  set observableFieldsToUpdate(fields) {
+    this.#observableFieldsToUpdate = fields;
+
+    if (this.#updateWatcher) {
+      this.instanceRecord.unwatch(this.#updateWatcher);
+    }
+
+    if (!isEmpty(fields)) {
+      this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
+    }
+  }
+
   /**
    * for Dashlet component; props - setRef
    *
@@ -151,7 +161,7 @@ class BaseWidget extends Component {
    */
   setDashletRef = ref => {
     if (ref) {
-      this._dashletRef = ref;
+      this.#dashletRef = ref;
     }
   };
 
@@ -184,16 +194,8 @@ class BaseWidget extends Component {
     }
   };
 
-  set observableFieldsToUpdate(fields) {
-    this._observableFieldsToUpdate = fields;
-
-    if (this.updateWatcher) {
-      this.instanceRecord.unwatch(this.updateWatcher);
-    }
-
-    if (!isEmpty(fields)) {
-      this.updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
-    }
+  setPreviousHeight() {
+    this.setState({ previousHeight: this.dashletHeight - this.otherHeight });
   }
 
   updateLocalStorageDate = () => {
@@ -205,6 +207,16 @@ class BaseWidget extends Component {
       this.setState({ userHeight: this.fullHeight });
     }
   }, 400);
+
+  reload = debounce(() => {
+    this.setState(
+      {
+        runUpdate: true,
+        previousHeight: this.dashletHeight - this.otherHeight
+      },
+      () => this.setState({ runUpdate: false })
+    );
+  }, 0);
 
   handleChangeHeight = userHeight => {
     userHeight = userHeight > 0 ? userHeight : 0;
@@ -232,20 +244,6 @@ class BaseWidget extends Component {
   };
 
   handleUpdate() {}
-
-  reload() {
-    this.setState(
-      {
-        runUpdate: true,
-        previousHeight: this.dashletHeight - this.otherHeight
-      },
-      () => this.setState({ runUpdate: false })
-    );
-  }
-
-  setPreviousHeight() {
-    this.setState({ previousHeight: this.dashletHeight - this.otherHeight });
-  }
 }
 
 export default BaseWidget;
