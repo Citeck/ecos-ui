@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -279,7 +280,7 @@ class Grid extends Component {
 
         const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
 
-        column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
+        column = this.setHeaderFormatter(column, /*filterable*/ props.filterable, props.sortable ? column.sortable : false);
 
         if (column.customFormatter === undefined) {
           column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
@@ -825,8 +826,12 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  onFilter = predicates => {
-    trigger.call(this, 'onFilter', predicates);
+  onFilter = (predicates, column) => {
+    const { onFilter } = this.props;
+
+    if (isFunction(onFilter)) {
+      onFilter(predicates, column);
+    }
   };
 
   onEdit = (oldValue, newValue, row, column) => {

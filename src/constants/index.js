@@ -156,6 +156,11 @@ export const SystemJournals = {
   MENUS: 'ecos-menus'
 };
 
+export const DateFormats = {
+  DATE: 'dd.MM.YYYY',
+  DATETIME: 'dd.MM.YYYY HH:mm'
+};
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

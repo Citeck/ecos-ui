@@ -6,6 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
+import moment from 'moment';
 
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
@@ -17,6 +18,7 @@ import { Grid } from '../../common/grid';
 import EventsHistoryCard from './EventsHistoryCard';
 
 import './style.scss';
+import { DataFormatTypes, DateFormats } from '../../../constants';
 
 const mapStateToProps = (state, context) => {
   const ahState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
@@ -123,6 +125,8 @@ class EventsHistory extends React.Component {
     return 0;
   }
 
+  isDate = value => [DataFormatTypes.DATETIME, DataFormatTypes.DATE].includes(value);
+
   checkHeight(old) {
     const { isLoading, height, minHeight, maxHeight, getContentHeight } = this.props;
     const table = get(this.props, 'forwardedRef.current', null);
@@ -159,7 +163,16 @@ class EventsHistory extends React.Component {
         if (formatter && formatter.getFilterValue) {
           const value = formatter.getFilterValue(item[filter.att], item, get(column, 'formatExtraData.params'), index) || '';
 
-          return value.toLowerCase().includes((filter.val || '').toLowerCase());
+          if (typeof filter.val === 'string') {
+            return value.toLowerCase().includes((filter.val || '').toLowerCase());
+          }
+
+          if (typeof filter.val === 'object' && filter.val.constructor.name === 'Date' && this.isDate(column.type)) {
+            const format = column.type === DataFormatTypes.DATE ? DateFormats.DATE : DateFormats.DATETIME;
+            const filterInMoment = moment(filter.val);
+
+            return filterInMoment.format(format) === moment(value).format(format);
+          }
         }
 
         return item[filter.att].includes(filter.val);
@@ -173,10 +186,26 @@ class EventsHistory extends React.Component {
     filterEventsHistory({ stateId, record, columns, predicates });
   };
 
-  onGridFilter = (newFilters = []) => {
+  applyFiltering = (items, newItem, type) => {
+    const filtering = item => {
+      if (typeof item.att === 'object' && item.att.constructor.name === 'Date') {
+        // todo: use moment
+        return;
+      }
+
+      return item.att !== newItem.att;
+    };
+
+    return items.filter(filtering);
+  };
+
+  onGridFilter = (newFilters = [], column) => {
     const { filters } = this.state;
     const newFilter = get(newFilters, '0', {});
-    const upFilters = filters.filter(item => item.att !== newFilter.att).concat(newFilters || []);
+    // const upFilters = filters.filter(item => item.att !== newFilter.att).concat(newFilters || []);
+    const upFilters = this.applyFiltering(filters, newFilter, column.type).concat(newFilters || []);
+
+    console.warn({ filters, column, upFilters });
 
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import replace from 'lodash/replace';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import { Tooltip } from 'reactstrap';
 
 import { getId, isExistValue, trigger } from '../../../../../../helpers/util';
@@ -12,6 +13,10 @@ import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
 
 import './HeaderFormatter.scss';
+import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../../../Records/predicates/predicates';
+import { DateEditor } from '../../../editors';
+import { DataFormatTypes, DateFormats } from '../../../../../../constants';
+import { DatePicker } from '../../../../form';
 
 export default class HeaderFormatter extends Component {
   constructor(props) {
@@ -20,7 +25,7 @@ export default class HeaderFormatter extends Component {
     this.thRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
-    this.state = { open: false };
+    this.state = { open: false, date: null };
   }
 
   componentDidMount() {
@@ -37,7 +42,11 @@ export default class HeaderFormatter extends Component {
         }
       });
     } else {
-      this.setState({ text: filterValue, first: filterValue });
+      if (this.typeIsDate(column.type)) {
+        this.setState({ date: filterValue });
+      } else {
+        this.setState({ text: filterValue, first: filterValue });
+      }
     }
   }
 
@@ -46,8 +55,8 @@ export default class HeaderFormatter extends Component {
   }
 
   get activeFilter() {
-    const { text, open } = this.state;
-    return text || open;
+    const { text, open, date } = this.state;
+    return text || date || open;
   }
 
   get indentation() {
@@ -56,6 +65,8 @@ export default class HeaderFormatter extends Component {
 
     return actions.length * 30;
   }
+
+  typeIsDate = type => [DataFormatTypes.DATETIME, DataFormatTypes.DATE].includes(type);
 
   onToggle = e => {
     const open = !this.state.open;
@@ -69,6 +80,11 @@ export default class HeaderFormatter extends Component {
     this.setState({ text });
   };
 
+  onChangeDate = date => {
+    console.warn({ date });
+    this.setState({ date });
+  };
+
   onKeyDown = e => {
     const { text, first } = this.state;
 
@@ -77,20 +93,34 @@ export default class HeaderFormatter extends Component {
     }
   };
 
+  onSelectDate = date => {
+    const { column } = this.props;
+
+    this.triggerPendingChange(date, column.dataField, column);
+  };
+
   onClear = () => {
     this.setState({ text: '' });
     this.triggerPendingChange('', this.props.column.dataField);
   };
 
-  triggerPendingChange = debounce((text, dataField) => {
+  triggerPendingChange = debounce((val, dataField, column) => {
+    const { onFilter } = this.props;
+
     this.onToggle();
-    trigger.call(this, 'onFilter', [
-      {
-        att: dataField,
-        t: 'contains',
-        val: text.trim()
-      }
-    ]);
+
+    if (isFunction(onFilter)) {
+      onFilter(
+        [
+          {
+            att: dataField,
+            t: 'contains',
+            val: typeof val === 'string' ? val.trim() : val
+          }
+        ],
+        column
+      );
+    }
   }, 0);
 
   onDividerMouseDown = e => {
@@ -116,7 +146,32 @@ export default class HeaderFormatter extends Component {
     }
   };
 
+  renderDatePicker() {
+    const { column } = this.props;
+    const { date } = this.state;
+    const withTime = column.type === DataFormatTypes.DATETIME;
+
+    return (
+      <div className="">
+        <DatePicker
+          // showTimeInput={withTime}
+          showTimeInput
+          dateFormat={withTime ? DateFormats.DATETIME : DateFormats.DATE}
+          selected={date}
+          onChange={this.onChangeDate}
+          onSelect={this.onSelectDate}
+        />
+      </div>
+    );
+  }
+
   renderInput() {
+    const { column } = this.props;
+
+    if ([DataFormatTypes.DATETIME, DataFormatTypes.DATE].includes(column.type)) {
+      return this.renderDatePicker();
+    }
+
     const { text } = this.state;
 
     return (
