@@ -589,9 +589,13 @@ export default class SelectJournal extends Component {
     if (filtered.length !== _selected.length) {
       selected = filtered;
     } else {
-      selected = multiple ? filtered.push(multiple) : [val];
+      if (multiple) {
+        filtered.push(val);
+        selected = filtered;
+      } else {
+        selected = [val];
+      }
     }
-
     this.setState(prevState => ({ gridData: { ...prevState.gridData, selected: selected } }), this.onSelectFromJournalPopup);
   };
 
