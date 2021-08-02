@@ -145,6 +145,7 @@
   "current-tasks-widget.column.title": "Задача",
   "current-tasks-widget.no-data": "Нет данных",
   "current-tasks-widget.no-tasks": "Текущих задач нет",
+  "current-tasks-widget.notify.title": "Виджет Задачи",
   "current-tasks-widget.error.get-tasks": "Ошибка получения списка всех задач",
   "current-tasks-widget.error.get-actions": "Ошибка получения действий задач",
   "current-tasks-widget.error.execute-action": "Не удалось выполнить действие",
@@ -526,7 +527,6 @@
   "record-action.name.edit-password": "Изменить пароль",
   "record-action.name.open-submit-form": "Открыть и рассмотреть",
 
-  "records-actions.failed": "Действие не выполнено",
   "records-actions.actions": "Действия",
   "records-actions.create": "Создать",
   "records-actions.download": "Скачать",
@@ -537,6 +537,9 @@
   "records-actions.dialog.all-records-not-allowed.title": "Действие нельзя выполнить",
   "records-actions.dialog.all-records-not-allowed.text": "Данное действие над выбранными строками недоступно",
   "records-actions.confirm-not-allowed": "Действие разрешено не для всех строк. Продолжить?",
+  "records-actions.notify.title": "Виджет Действия",
+  "records-actions.error.execute-action": "Ошибка выполнения действия",
+  "records-actions.error.get-actions": "Действия не получены",
 
   "group-action.select.copy-to": "Копировать в...",
   "group-action.select.delete": "Удалить",
@@ -947,7 +950,7 @@
   "tasks-widget.no-tasks": "Нет задач",
   "tasks-widget.saga.change-assignee-success": "Успешное назначение задачи",
   "tasks-widget.error.get-tasks": "Ошибка получения данных",
-  "tasks-widget.error.assign-task": "Ошибка назначения",
+  "tasks-widget.error.assign-task": "Ошибка назначения задачи",
   "tasks-widget.error.failed-assign-task": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
   "tasks-widget.title": "Мои задачи",
 
