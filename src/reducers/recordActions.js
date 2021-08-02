@@ -15,7 +15,7 @@ export default handleActions(
       ...state,
       [stateId]: {
         ...getCurrentStateById(state, stateId, initialState),
-        list: list,
+        list,
         isLoading: false
       }
     }),

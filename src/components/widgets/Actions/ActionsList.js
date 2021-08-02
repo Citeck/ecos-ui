@@ -33,7 +33,7 @@ class ActionsList extends React.Component {
 
   renderVariant = (action, variant, postfix) => {
     const { isLoading, isActiveLayout } = this.props;
-    const id = `variant-action-${action.type}-${variant.type}-${postfix}`;
+    const id = `variant-${variant.type}-${postfix}`;
     const variantAction = Object.assign({}, action, variant);
 
     return (
@@ -59,9 +59,9 @@ class ActionsList extends React.Component {
         {isLoading && <Loader className="ecos-actions-list__loader" blur />}
         {!isLoading && isEmpty(list) && <InfoText className="ecos-actions-list__text-empty" text={t('records-actions.no-available')} />}
         {Array.isArray(list) &&
-          list.map((action, index) => {
+          list.map((action = {}, index) => {
             const hasVariants = !isEmpty(action.variants);
-            const id = `action-${action.type}-${index}`;
+            const id = `action-${action.id}-${action.type}`;
 
             return (
               <div
@@ -82,7 +82,7 @@ class ActionsList extends React.Component {
                 {hasVariants && (
                   <div className="ecos-actions-list__item-variants">
                     {!isEmpty(action.variants) &&
-                      action.variants.map((variant, position) => this.renderVariant(action, variant, `${index}-${position}`))}
+                      action.variants.map((variant, position) => this.renderVariant(action || {}, variant || {}, `${id}-${position}`))}
                   </div>
                 )}
                 {isMobile && index < list.length - 1 && !hasVariants && <Separator noIndents />}

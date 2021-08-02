@@ -331,7 +331,7 @@ export default class EcosFormUtils {
       }
 
       let query = {
-        sourceId: SourcesId.EFORM,
+        sourceId: SourcesId.RESOLVED_FORM,
         query: {
           record: recordInstance.id,
           formKey: keys[idx]
@@ -388,12 +388,31 @@ export default class EcosFormUtils {
     }
   }
 
-  static getFormById(formId, attributes = null) {
+  static getFormById(formId, attributes = null, force = false) {
+    let resolvedFormId = EcosFormUtils.getResolvedFormId(formId);
     if (attributes) {
-      return Records.get(formId).load(attributes);
+      return Records.get(resolvedFormId).load(attributes, force);
     }
+    return Records.get(resolvedFormId);
+  }
 
-    return Records.get(formId);
+  static getNotResolvedFormId(formId) {
+    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.EFORM);
+  }
+
+  static getResolvedFormId(formId) {
+    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.RESOLVED_FORM);
+  }
+
+  static getFormIdWithSource(formId, sourceId) {
+    if (!formId) {
+      return formId;
+    }
+    const sourceIdDelimIdx = formId.indexOf('@');
+    if (sourceIdDelimIdx > 0) {
+      formId = formId.substring(sourceIdDelimIdx + 1);
+    }
+    return sourceId + '@' + formId;
   }
 
   static getCreateVariants(record, attribute) {
@@ -965,10 +984,11 @@ export default class EcosFormUtils {
     return id;
   }
 
-  static saveFormBuilder(form, formId) {
-    const record = Records.get(formId);
+  static saveFormBuilder(definition, formId) {
+    const formIdToUpdate = EcosFormUtils.getNotResolvedFormId(formId);
+    const record = Records.get(formIdToUpdate);
 
-    record.att('definition?json', form);
+    record.att('definition?json', definition);
 
     return record.save();
   }

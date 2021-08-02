@@ -91,7 +91,7 @@ export class AppApi extends CommonApi {
    * @returns {Promise<Object<String,String>>}
    */
   static async getDictionaryServer(id) {
-    const cb = await Records.get(SourcesId.META + '@')
+    const cb = await Records.get(`${SourcesId.META}@`)
       .load('attributes.i18n-cache-key')
       .then(k => k || '0')
       .catch(_ => '0');
@@ -106,7 +106,7 @@ export class AppApi extends CommonApi {
   }
 
   isForceOldUserDashboardEnabled() {
-    return Records.get('ecos-config@force-old-user-dashboard-enabled')
+    return Records.get(`${SourcesId.CONFIG}@force-old-user-dashboard-enabled`)
       .load('.bool')
       .then(res => res === true)
       .catch(() => false);
@@ -179,26 +179,31 @@ export class AppApi extends CommonApi {
       .then(r => r.json())
       .then(config => {
         const { logoutUrl } = config || {};
-        return !logoutUrl || logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        return !logoutUrl || logoutUrl === DEFAULT_EIS.LOGOUT_URL;
       })
       .catch(() => false);
   };
 
-  static doLogOut = () => {
+  static doLogOut = async () => {
     const DEF_LOGOUT = `/logout`;
 
-    const beforehand = ecosFetch('/eis.json')
+    const url = await ecosFetch('/eis.json')
       .then(r => r.json())
       .then(config => {
         const { logoutUrl, eisId } = config || {};
-        const checkLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
-        const checkEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
+        const isLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const isNoEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
 
-        return checkLogoutUrl ? logoutUrl : checkEisId ? DEF_LOGOUT : undefined;
+        return isLogoutUrl ? logoutUrl : isNoEisId ? DEF_LOGOUT : undefined;
       })
       .catch(() => DEF_LOGOUT);
 
-    beforehand.then(url => url && ecosFetch(url, { method: 'POST', mode: 'no-cors' }).then(window.location.reload));
+    if (url) {
+      await ecosFetch(url, { method: 'POST', mode: 'no-cors' });
+      window.location.reload();
+    } else {
+      NotificationManager.warning(t('page.error.logout.no-url'));
+    }
   };
 
   static doToggleAvailable = isAvailable => {
