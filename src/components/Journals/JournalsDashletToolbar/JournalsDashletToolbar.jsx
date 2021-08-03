@@ -58,7 +58,7 @@ class JournalsDashletToolbar extends Component {
   };
 
   onChangeJournalSetting = setting => {
-    this.props.onSelectJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
+    this.props.onSelectJournalSettings(setting[JOURNAL_SETTING_ID_FIELD] || '');
   };
 
   renderCreateMenu = () => {

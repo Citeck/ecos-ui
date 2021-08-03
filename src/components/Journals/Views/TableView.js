@@ -88,7 +88,7 @@ class TableView extends React.Component {
     }
 
     if (urlParams[JUP.JOURNAL_SETTING_ID] !== get(prevProps, ['urlParams', JUP.JOURNAL_SETTING_ID])) {
-      this.props.selectJournalSettings(urlParams[JUP.JOURNAL_SETTING_ID]);
+      this.props.selectJournalSettings(urlParams[JUP.JOURNAL_SETTING_ID] || '');
     }
   }
 
