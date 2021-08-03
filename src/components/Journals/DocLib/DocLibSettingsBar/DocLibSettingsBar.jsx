@@ -3,20 +3,19 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { t } from '../../../../helpers/util';
-import { JOURNAL_VIEW_MODE } from '../../constants';
 import { getCreateVariantKeyField } from '../../service/util';
 import { Search } from '../../../common';
 import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
 import { Dropdown } from '../../../common/form';
 
+import ViewTabs from '../../ViewTabs';
 import DocLibService from '../DocLibService';
 import DocLibPagination from '../DocLibPagination';
 
 import './DocLibSettingsBar.scss';
 
 const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh, toggleViewMode }) => {
-  const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
 
@@ -93,28 +92,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
 
       <div className="ecos-doclib__settings-bar_right">
         <DocLibPagination stateId={stateId} isMobile={isMobile} className={step} />
-        <IcoBtn
-          title={t('journal.title')}
-          icon="icon-list"
-          className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-          onClick={() => toggleViewMode(JOURNAL_VIEW_MODE.TABLE)}
-        />
-        {!isMobile && (
-          <>
-            <IcoBtn
-              title={t('doc-preview.preview')}
-              icon="icon-columns"
-              className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-              onClick={() => toggleViewMode(JOURNAL_VIEW_MODE.PREVIEW)}
-            />
-            <IcoBtn
-              title={t('document-library.title')}
-              icon="icon-folder"
-              className={classNames('ecos-doclib__settings-bar_right-btn', step, blue)}
-              disabled
-            />
-          </>
-        )}
+        <ViewTabs stateId={stateId} />
       </div>
     </div>
   );

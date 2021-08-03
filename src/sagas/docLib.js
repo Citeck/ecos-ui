@@ -320,6 +320,8 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
         )
       )
     );
+
+    yield put(setFileViewerLoadingStatus(w(false)));
   } catch (e) {
     logger.error('[docLib getFilesViewerData error', e);
   }

@@ -59,7 +59,6 @@ import {
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
-import { getTypeRef } from '../actions/docLib';
 import { selectGridPaginationMaxItems, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import JournalsService from '../components/Journals/service';
 import EditorService from '../components/Journals/service/editors/EditorService';
@@ -610,7 +609,6 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
       (...data) => ({ ...w(...data), logger })
     );
 
-    yield put(getTypeRef(w({ journalId: journalConfig.id })));
     yield put(setLoading(w(false)));
   } catch (e) {
     yield put(setLoading(w(false)));

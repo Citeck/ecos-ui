@@ -1,15 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import SettingsModal from '../SettingsModal';
-import JournalsSettingsBar from '../JournalsSettingsBar';
-import { JournalsGroupActionsTools } from '../JournalsTools';
-import { isPreview, isTable } from '../constants';
-import JournalsContent from '../JournalsContent';
-import JournalsDashletPagination from '../JournalsDashletPagination';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import { t } from '../../../helpers/export/util';
+
 import {
   execRecordsAction,
   getJournalsData,
@@ -17,18 +10,25 @@ import {
   saveJournalSetting,
   setSelectAllRecords,
   setSelectedRecords,
-  setUrl,
-  toggleViewMode
+  setUrl
 } from '../../../actions/journals';
-import { wrapArgs } from '../../../helpers/redux';
 import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
-import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import { JournalUrlParams as JUP } from '../../../constants';
+import { t } from '../../../helpers/export/util';
+import { wrapArgs } from '../../../helpers/redux';
+import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import FormManager from '../../EcosForm/FormManager';
+import { isPreview, isTableOrPreview } from '../constants';
+import SettingsModal from '../SettingsModal';
+import JournalsSettingsBar from '../JournalsSettingsBar';
+import { JournalsGroupActionsTools } from '../JournalsTools';
+import JournalsContent from '../JournalsContent';
+import JournalsDashletPagination from '../JournalsDashletPagination';
 
 function mapStateToProps(state, props) {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
   const journalProps = selectJournalPageProps(state, props.stateId);
+
   return {
     ...commonProps,
     ...journalProps
@@ -37,6 +37,7 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch, props) {
   const w = wrapArgs(props.stateId);
+
   return {
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
@@ -44,9 +45,7 @@ function mapDispatchToProps(dispatch, props) {
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
-    setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    //todo перенести в отдельный компонент табов
-    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode })))
+    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
   };
 }
 
@@ -57,18 +56,28 @@ const Labels = {
 
 class TableView extends React.Component {
   state = {
+    isClose: true,
     isReset: false, //
     isForceUpdate: false, //
+    savedSetting: undefined, //
     settingsVisible: false,
     isCreateLoading: false
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, stateId, journalId } = this.props;
+    const { isActivePage, viewMode, stateId, journalId } = this.props;
 
-    if (isActivePage && (prevProps.journalId !== journalId || prevProps.stateId !== stateId)) {
-      this.props.getJournalsData();
+    if (
+      isActivePage &&
+      isTableOrPreview(viewMode) &&
+      (prevProps.journalId !== journalId || prevProps.stateId !== stateId || this.state.isClose)
+    ) {
+      this.setState({ isClose: false }, () => this.props.getJournalsData());
     }
+  }
+
+  componentWillUnmount() {
+    this.setState({ isClose: true });
   }
 
   get searchText() {
@@ -165,6 +174,12 @@ class TableView extends React.Component {
   };
 
   render() {
+    const { isClose } = this.state;
+
+    if (isClose) {
+      return null;
+    }
+
     const {
       viewMode,
       stateId,
@@ -198,7 +213,7 @@ class TableView extends React.Component {
 
     return (
       <div
-        hidden={!isTable(viewMode)}
+        hidden={!isTableOrPreview(viewMode)}
         ref={bodyForwardedRef}
         className={classNames('ecos-journal__body', bodyClassName, {
           'ecos-journal__body_with-tabs': pageTabsIsShow,

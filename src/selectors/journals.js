@@ -9,6 +9,7 @@ import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { getId } from '../helpers/util';
+import { selectIsDocLibEnabled } from './docLib';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -197,9 +198,10 @@ export const selectJournalPageProps = createSelector(
 );
 
 export const selectCommonJournalPageProps = createSelector(
-  [selectState, selectUrl],
-  (ownState, urlParams) => ({
+  [selectState, selectUrl, selectIsDocLibEnabled],
+  (ownState, urlParams, isDocLibEnabled) => ({
     viewMode: ownState.viewMode,
-    urlParams
+    urlParams,
+    isDocLibEnabled
   })
 );

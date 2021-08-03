@@ -46,11 +46,10 @@ class DocLibView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { viewMode, typeRef, initDocLib } = this.props;
+    const { viewMode, typeRef, isActivePage } = this.props;
 
-    if (isDocLib(viewMode) && typeRef !== prevProps.typeRef) {
-      this.setState({ isClose: false });
-      initDocLib();
+    if (isActivePage && isDocLib(viewMode) && (typeRef !== prevProps.typeRef || (typeRef && this.state.isClose))) {
+      this.setState({ isClose: false }, () => this.props.initDocLib());
     }
   }
 
@@ -59,6 +58,12 @@ class DocLibView extends React.Component {
   }
 
   render() {
+    const { isClose } = this.state;
+
+    if (isClose) {
+      return null;
+    }
+
     const {
       viewMode,
       folderTitle,
@@ -71,11 +76,6 @@ class DocLibView extends React.Component {
       bodyClassName,
       Header
     } = this.props;
-    const { isClose } = this.state;
-
-    if (isClose) {
-      return null;
-    }
 
     return (
       <div

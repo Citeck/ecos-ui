@@ -6,6 +6,7 @@ import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
 import {
   addSidebarItems,
   foldSidebarItem,
+  getTypeRef,
   setCanUploadFiles,
   setCreateVariants,
   setDirTypeRef,
@@ -80,14 +81,16 @@ export default handleActions(
 
       return updateState(state, stateId, { isEnabled, isLoading: isEnabled && isLoading }, defaultState);
     },
+    [getTypeRef]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return updateState(state, stateId, { typeRef: null }, defaultState);
+    },
     [setTypeRef]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, {
-        ...state[stateId],
-        typeRef: action.payload
-      });
+      return updateState(state, stateId, { typeRef: action.payload }, defaultState);
     },
     [setFileTypeRefs]: (state, action) => {
       const stateId = action.payload.stateId;
