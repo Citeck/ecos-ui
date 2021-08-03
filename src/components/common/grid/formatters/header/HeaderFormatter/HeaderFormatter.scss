@@ -96,6 +96,12 @@
 }
 
 .ecos-th__filter-tooltip {
+  &_date {
+    .tooltip-inner {
+      max-width: 250px;
+    }
+  }
+
   .ecos-th__filter-tooltip-body {
     background-color: $color-white;
     color: $color-gray-6;
@@ -140,5 +146,45 @@
     padding-left: 5px;
     width: 100%;
     font-size: $font-size-small;
+  }
+
+  .tooltip.show {
+    opacity: 1;
+  }
+
+  &-datepicker {
+    display: flex;
+    align-items: center;
+
+    &-predicate {
+      margin-right: 5px;
+
+      &-toggle {
+        .ecos-dropdown__toggle_selected {
+          padding: 0 5px;
+          height: 26px;
+          width: 45px;
+        }
+      }
+    }
+
+    &-apply {
+      line-height: 26px;
+      margin-left: 10px;
+    }
+
+    .ecos-input {
+      height: 26px;
+      padding-left: 5px;
+    }
+
+    .ecos-th__filter-tooltip-close {
+      top: calc(50% - 7px);
+      right: 25px;
+    }
+
+    .ecos-datepicker__icon {
+      line-height: 26px;
+    }
   }
 }

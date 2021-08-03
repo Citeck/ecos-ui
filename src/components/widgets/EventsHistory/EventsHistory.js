@@ -16,9 +16,18 @@ import { getOptimalHeight } from '../../../helpers/layout';
 import { InfoText, Loader } from '../../common';
 import { Grid } from '../../common/grid';
 import EventsHistoryCard from './EventsHistoryCard';
+import { DataFormatTypes, DateFormats } from '../../../constants';
+import {
+  PREDICATE_CONTAINS,
+  PREDICATE_EQ,
+  PREDICATE_GE,
+  PREDICATE_GT,
+  PREDICATE_LE,
+  PREDICATE_LT,
+  PREDICATE_NOT_EQ
+} from '../../Records/predicates/predicates';
 
 import './style.scss';
-import { DataFormatTypes, DateFormats } from '../../../constants';
 
 const mapStateToProps = (state, context) => {
   const ahState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
@@ -159,25 +168,48 @@ class EventsHistory extends React.Component {
       filters.every(filter => {
         const column = columns.find(column => column.attribute === filter.att || column.dataField === filter.att);
         const formatter = get(column, 'formatExtraData.formatter');
+        const format = column.type === DataFormatTypes.DATE ? DateFormats.DATE : DateFormats.DATETIME;
 
         if (formatter && formatter.getFilterValue) {
           const value = formatter.getFilterValue(item[filter.att], item, get(column, 'formatExtraData.params'), index) || '';
 
-          if (typeof filter.val === 'string') {
+          if (!this.isDate(column.type)) {
             return value.toLowerCase().includes((filter.val || '').toLowerCase());
           }
 
-          if (typeof filter.val === 'object' && filter.val.constructor.name === 'Date' && this.isDate(column.type)) {
-            const format = column.type === DataFormatTypes.DATE ? DateFormats.DATE : DateFormats.DATETIME;
-            const filterInMoment = moment(filter.val);
-
-            return filterInMoment.format(format) === moment(value).format(format);
-          }
+          return this.getDateCompareResult(filter, value, format);
         }
 
-        return item[filter.att].includes(filter.val);
+        if (!this.isDate(column.type)) {
+          return item[filter.att].includes(filter.val);
+        }
+
+        return this.getDateCompareResult(filter, item[filter.att]);
       })
     );
+  }
+
+  getDateCompareResult(filter, value, format) {
+    const valueInMoment = moment(value);
+    const filterInMoment = moment(filter.val);
+
+    switch (filter.t) {
+      case PREDICATE_GT:
+        return moment(valueInMoment.format(format)).isAfter(filterInMoment.format(format));
+      case PREDICATE_GE:
+        return moment(valueInMoment.format(format)).isSameOrAfter(filterInMoment.format(format));
+      case PREDICATE_LT:
+        return moment(valueInMoment.format(format)).isBefore(filterInMoment.format(format));
+      case PREDICATE_LE:
+        return moment(valueInMoment.format(format)).isSameOrBefore(filterInMoment.format(format));
+      case PREDICATE_NOT_EQ:
+        return filterInMoment.format(format) !== valueInMoment.format(format);
+      case PREDICATE_EQ:
+        return filterInMoment.format(format) === valueInMoment.format(format);
+      case PREDICATE_CONTAINS:
+      default:
+        return true;
+    }
   }
 
   onFilter = predicates => {
@@ -186,26 +218,20 @@ class EventsHistory extends React.Component {
     filterEventsHistory({ stateId, record, columns, predicates });
   };
 
-  applyFiltering = (items, newItem, type) => {
-    const filtering = item => {
-      if (typeof item.att === 'object' && item.att.constructor.name === 'Date') {
-        // todo: use moment
-        return;
-      }
+  applyFiltering = (items, newItem) => {
+    const filtering = item => !isEmpty(newItem.val) && item.att !== newItem.att;
 
-      return item.att !== newItem.att;
-    };
+    if (isEmpty(items)) {
+      return filtering(newItem) ? [newItem] : [];
+    }
 
     return items.filter(filtering);
   };
 
-  onGridFilter = (newFilters = [], column) => {
+  onGridFilter = (newFilters = [], type) => {
     const { filters } = this.state;
     const newFilter = get(newFilters, '0', {});
-    // const upFilters = filters.filter(item => item.att !== newFilter.att).concat(newFilters || []);
-    const upFilters = this.applyFiltering(filters, newFilter, column.type).concat(newFilters || []);
-
-    console.warn({ filters, column, upFilters });
+    const upFilters = this.applyFiltering(filters, newFilter, type).concat(newFilters || []);
 
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);
@@ -232,6 +258,7 @@ class EventsHistory extends React.Component {
 
     return (
       <Grid
+        withDateFilter
         fixedHeader
         data={this.filteredGridData}
         columns={columns}

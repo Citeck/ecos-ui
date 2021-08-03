@@ -6,26 +6,70 @@ import replace from 'lodash/replace';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import { Tooltip } from 'reactstrap';
+import moment from 'moment';
 
 import { getId, isExistValue, trigger } from '../../../../../../helpers/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
-import { Input } from '../../../../form';
+import { Dropdown, Input } from '../../../../form';
+import {
+  PREDICATE_CONTAINS,
+  PREDICATE_EQ,
+  PREDICATE_GE,
+  PREDICATE_GT,
+  PREDICATE_LE,
+  PREDICATE_LT,
+  PREDICATE_NOT_EQ
+} from '../../../../../Records/predicates/predicates';
+import { DataFormatTypes } from '../../../../../../constants';
+import { DatePicker } from '../../../../form';
+import { IcoBtn } from '../../../../btns';
 
 import './HeaderFormatter.scss';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../../../Records/predicates/predicates';
-import { DateEditor } from '../../../editors';
-import { DataFormatTypes, DateFormats } from '../../../../../../constants';
-import { DatePicker } from '../../../../form';
 
 export default class HeaderFormatter extends Component {
+  #datePickerSelectorData = [
+    {
+      value: '',
+      key: null
+    },
+    {
+      value: '=',
+      key: PREDICATE_EQ
+    },
+    {
+      value: '!=',
+      key: PREDICATE_NOT_EQ
+    },
+    {
+      value: '>',
+      key: PREDICATE_GT
+    },
+    {
+      value: '>=',
+      key: PREDICATE_GE
+    },
+    {
+      value: '<',
+      key: PREDICATE_LT
+    },
+    {
+      value: '<=',
+      key: PREDICATE_LE
+    }
+  ];
+
   constructor(props) {
     super(props);
 
     this.thRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
-    this.state = { open: false, date: null };
+    this.state = {
+      open: false,
+      date: null,
+      predicateValue: get(props, 'filter.t', null)
+    };
   }
 
   componentDidMount() {
@@ -80,9 +124,17 @@ export default class HeaderFormatter extends Component {
     this.setState({ text });
   };
 
-  onChangeDate = date => {
-    console.warn({ date });
+  onChangeDate = (value, event) => {
+    const { column } = this.props;
+    const date = moment(value)
+      .utc()
+      .format();
+
     this.setState({ date });
+
+    if (event.key === 'Enter') {
+      this.triggerPendingChange(date, column.dataField);
+    }
   };
 
   onKeyDown = e => {
@@ -93,19 +145,29 @@ export default class HeaderFormatter extends Component {
     }
   };
 
-  onSelectDate = date => {
+  onSelectDate = (date, event) => {
     const { column } = this.props;
 
-    this.triggerPendingChange(date, column.dataField, column);
+    if (event.key === 'Enter') {
+      this.triggerPendingChange(
+        moment(date)
+          .utc()
+          .format(),
+        column.dataField
+      );
+    }
   };
 
   onClear = () => {
-    this.setState({ text: '' });
-    this.triggerPendingChange('', this.props.column.dataField);
+    const { column } = this.props;
+
+    this.setState({ text: '', date: null });
+    this.triggerPendingChange('', column.dataField, column.type);
   };
 
-  triggerPendingChange = debounce((val, dataField, column) => {
-    const { onFilter } = this.props;
+  triggerPendingChange = debounce((val, dataField, type) => {
+    const { onFilter, column } = this.props;
+    const { predicateValue } = this.state;
 
     this.onToggle();
 
@@ -114,11 +176,11 @@ export default class HeaderFormatter extends Component {
         [
           {
             att: dataField,
-            t: 'contains',
+            t: predicateValue || PREDICATE_CONTAINS,
             val: typeof val === 'string' ? val.trim() : val
           }
         ],
-        column
+        type || column.type
       );
     }
   }, 0);
@@ -146,24 +208,57 @@ export default class HeaderFormatter extends Component {
     }
   };
 
-  renderDatePicker() {
+  onChangePredicate = predicate => {
+    this.setState({ predicateValue: predicate.key });
+  };
+
+  onApplyDate = () => {
     const { column } = this.props;
     const { date } = this.state;
+
+    this.triggerPendingChange(date, column.dataField);
+  };
+
+  renderDatePicker() {
+    const { column } = this.props;
+    const { date, predicateValue } = this.state;
     const withTime = column.type === DataFormatTypes.DATETIME;
 
     return (
-      <div className="">
-        <DatePicker
-          // showTimeInput={withTime}
-          showTimeInput
-          dateFormat={withTime ? DateFormats.DATETIME : DateFormats.DATE}
-          selected={date}
-          onChange={this.onChangeDate}
-          onSelect={this.onSelectDate}
+      <div className="ecos-th__filter-tooltip-datepicker">
+        <Dropdown
+          source={this.#datePickerSelectorData}
+          className="ecos-th__filter-tooltip-datepicker-predicate"
+          toggleClassName="ecos-th__filter-tooltip-datepicker-predicate-toggle"
+          valueField="key"
+          titleField="value"
+          value={predicateValue}
+          onChange={this.onChangePredicate}
+        />
+        <div className="position-relative">
+          <DatePicker
+            showTimeInput={withTime}
+            dateFormat={column.type === DataFormatTypes.DATETIME ? 'dd.MM.yyyy HH:mm' : 'dd.MM.yyyy'}
+            showIcon
+            shouldCloseOnSelect
+            selected={date}
+            onChange={this.onChangeDate}
+            onSelect={this.onSelectDate}
+          />
+
+          {this.renderCloseButton()}
+        </div>
+
+        <IcoBtn
+          icon="icon-small-check"
+          className="ecos-btn ecos-btn_i_15 ecos-btn_r_0 ecos-btn_color_green ecos-btn_hover_t_light-green ecos-btn_transparent ecos-th__filter-tooltip-datepicker-apply"
+          onClick={this.onApplyDate}
         />
       </div>
     );
   }
+
+  renderCloseButton = () => <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />;
 
   renderInput() {
     const { column } = this.props;
@@ -175,18 +270,22 @@ export default class HeaderFormatter extends Component {
     const { text } = this.state;
 
     return (
-      <Input
-        autoFocus
-        type="text"
-        className="ecos-th__filter-tooltip-input"
-        onChange={this.onChange}
-        onKeyDown={this.onKeyDown}
-        value={text}
-      />
+      <>
+        <Input
+          autoFocus
+          type="text"
+          className="ecos-th__filter-tooltip-input"
+          onChange={this.onChange}
+          onKeyDown={this.onKeyDown}
+          value={text}
+        />
+        {this.renderCloseButton()}
+      </>
     );
   }
 
   renderFilter = () => {
+    const { column } = this.props;
     const { open } = this.state;
     const filterIcon = document.getElementById(this.id);
 
@@ -198,13 +297,14 @@ export default class HeaderFormatter extends Component {
         trigger={'click'}
         placement="top"
         boundariesElement={'window'}
-        className="ecos-th__filter-tooltip"
+        className={classNames('ecos-th__filter-tooltip', {
+          'ecos-th__filter-tooltip_date': this.typeIsDate(column.type)
+        })}
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
       >
         <ClickOutside handleClickOutside={e => this.state.open && this.onToggle(e)} excludeElements={[filterIcon]}>
           {this.renderInput()}
-          <Icon className="ecos-th__filter-tooltip-close icon-small-close icon_small" onClick={this.onClear} />
         </ClickOutside>
       </Tooltip>
     );
@@ -249,7 +349,13 @@ export default class HeaderFormatter extends Component {
     this.tooltipTextId = `tooltip-text-${this.id}`;
 
     return (
-      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': this.activeFilter, 'ecos-th_sortable': sortable })}>
+      <div
+        ref={this.thRef}
+        className={classNames('ecos-th', {
+          'ecos-th_filtered': this.activeFilter,
+          'ecos-th_sortable': sortable
+        })}
+      >
         <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
           <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
             <span id={this.tooltipTextId} className="ecos-th__content-text">
