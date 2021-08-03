@@ -710,8 +710,9 @@ export default class EcosFormUtils {
     return Object.assign(result, attributes, formI18n);
   }
 
-  static hasWritePermission(recordId, force) {
-    return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}', force);
+  static async hasWritePermission(recordId, force) {
+    let res = await Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}', force);
+    return res == null ? true : res;
   }
 
   static processValueBeforeSubmit(value, input, keysMapping) {
