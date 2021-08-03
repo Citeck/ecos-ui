@@ -177,6 +177,35 @@ export const selectGridPaginationMaxItems = createSelector(
   ownProps => get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems)
 );
 
+export const selectJournalDashletProps = createSelector(
+  [selectState, selectDashletConfig, selectDashletConfigJournalId],
+  (ownState, config, configJournalId) => ({
+    editorMode: ownState.editorMode,
+    journalConfig: ownState.journalConfig,
+    grid: ownState.grid,
+    selectedRecords: ownState.selectedRecords,
+    selectAllRecords: ownState.selectAllRecords,
+    selectAllRecordsVisible: ownState.selectAllRecordsVisible,
+    isLoading: ownState.isCheckLoading || ownState.loading,
+    isExistJournal: ownState.isExistJournal,
+    config,
+    configJournalId
+  })
+);
+
+export const selectJournalDashletGridProps = createSelector(
+  [selectState, selectViewColumns],
+  (ownState, viewColumns) => ({
+    loading: ownState.loading,
+    grid: ownState.grid,
+    predicate: ownState.predicate,
+    journalConfig: ownState.journalConfig,
+    selectedRecords: ownState.selectedRecords,
+    selectAllRecords: ownState.selectAllRecords,
+    viewColumns
+  })
+);
+
 export const selectJournalPageProps = createSelector(
   [selectState, selectJournalSettings, selectUrl, selectSettingsFilters, selectSettingsColumns, selectSettingsGrouping, selectSettingsData],
   (ownState, journalSetting, urlParams, settingsFiltersData, settingsColumnsData, settingsGroupingData, settingsData) => ({

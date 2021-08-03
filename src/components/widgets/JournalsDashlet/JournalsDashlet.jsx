@@ -24,7 +24,7 @@ import {
   setSelectAllRecords,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectDashletConfig, selectDashletConfigJournalId } from '../../../selectors/journals';
+import { selectJournalDashletProps } from '../../../selectors/journals';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
@@ -46,21 +46,13 @@ const getKey = ({ tabId = '', stateId, id }) =>
   (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
 
 const mapStateToProps = (state, ownProps) => {
-  const newState = state.journals[getKey(ownProps)] || {};
+  const stateId = getKey(ownProps);
+  const ownState = selectJournalDashletProps(state, stateId);
 
   return {
-    stateId: getKey(ownProps),
-    editorMode: newState.editorMode,
-    journalConfig: newState.journalConfig,
-    config: selectDashletConfig(state, getKey(ownProps)),
-    configJournalId: selectDashletConfigJournalId(state, getKey(ownProps)),
-    isMobile: (state.view || {}).isMobile === true,
-    grid: newState.grid,
-    selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    isLoading: newState.isCheckLoading || newState.loading,
-    isExistJournal: newState.isExistJournal
+    stateId,
+    isMobile: !!get(state, 'view.isMobile'),
+    ...ownState
   };
 };
 
@@ -157,8 +149,7 @@ class JournalsDashlet extends BaseWidget {
     }
 
     if (isActiveLayout && this.state.runUpdate) {
-      this.setState({ runUpdate: false });
-      reloadGrid();
+      this.setState({ runUpdate: false }, () => reloadGrid());
     }
   }
 

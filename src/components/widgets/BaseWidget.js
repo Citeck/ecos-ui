@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
@@ -7,7 +7,7 @@ import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../const
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
 
-class BaseWidget extends Component {
+class BaseWidget extends React.Component {
   #dashletRef = null;
   #observableFieldsToUpdate = ['_modified'];
   #updateWatcher = null;

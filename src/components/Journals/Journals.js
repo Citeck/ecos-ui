@@ -144,15 +144,15 @@ class Journals extends React.Component {
 
   get commonProps() {
     const { bodyClassName, stateId, isActivePage } = this.props;
-    const { journalId, displayElements } = this.state;
+    const { journalId } = this.state;
 
     return {
       stateId,
       journalId,
-      displayElements,
       bodyClassName,
       isActivePage,
       Header: this.Header,
+      displayElements: this.displayElements,
       bodyForwardedRef: this._journalBodyRef,
       bodyTopForwardedRef: this._bodyTopForwardedRef,
       footerForwardedRef: this._journalFooterRef

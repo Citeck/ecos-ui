@@ -189,7 +189,7 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const { valueField, source, value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
+    const { valueField, source = [], value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div>{children}</div>;
 
