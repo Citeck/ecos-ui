@@ -3,7 +3,7 @@ import clone from 'lodash/clone';
 
 import DocLibService from '../../components/Journals/DocLib/DocLibService';
 import JournalsService from '../../components/Journals/service/journalsService';
-import { JournalUrlParams } from '../../constants';
+import { DocLibUrlParams, JournalUrlParams } from '../../constants';
 import { wrapArgs } from '../../helpers/redux';
 import {
   loadDocumentLibrarySettings,
@@ -119,10 +119,10 @@ describe('docLib sagas tests', () => {
       expect(setFolderIdAction.payload).toEqual(w(testRootId));
     });
 
-    it(`should set folderId from "${JournalUrlParams.DOCLIB_FOLDER_ID}" url-parameter`, async () => {
+    it(`should set folderId from "${DocLibUrlParams.FOLDER_ID}" url-parameter`, async () => {
       const dispatched = [];
       const thisState = clone(fakeState);
-      thisState.journals[stateId].url[JournalUrlParams.DOCLIB_FOLDER_ID] = 'folder1';
+      thisState.journals[stateId].url[DocLibUrlParams.FOLDER_ID] = 'folder1';
 
       await runSaga(
         {
@@ -137,10 +137,10 @@ describe('docLib sagas tests', () => {
       expect(setFolderIdAction.payload).toEqual(w('folder1'));
     });
 
-    it(`should set searchText from "${JournalUrlParams.DOCLIB_SEARCH}" url-parameter`, async () => {
+    it(`should set searchText from "${DocLibUrlParams.SEARCH}" url-parameter`, async () => {
       const dispatched = [];
       const thisState = clone(fakeState);
-      thisState.journals[stateId].url[JournalUrlParams.DOCLIB_SEARCH] = 'search text';
+      thisState.journals[stateId].url[DocLibUrlParams.SEARCH] = 'search text';
 
       await runSaga(
         {

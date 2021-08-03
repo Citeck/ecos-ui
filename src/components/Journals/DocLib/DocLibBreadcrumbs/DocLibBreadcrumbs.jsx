@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
-import { JournalUrlParams } from '../../../../constants';
+import { DocLibUrlParams } from '../../../../constants';
 import DocLibConverter from '../../../../dto/docLib';
 
 import './DocLibBreadcrumbs.scss';
@@ -21,7 +21,7 @@ const DocLibBreadcrumbs = ({ path = [], onClick }) => {
 
     const urlParts = queryString.parseUrl(window.location.href);
     const query = urlParts.query;
-    query[JournalUrlParams.DOCLIB_FOLDER_ID] = folderId;
+    query[DocLibUrlParams.FOLDER_ID] = folderId;
     const urlQuery = queryString.stringify(query);
     const url = `${urlParts.url}?${urlQuery}`;
 

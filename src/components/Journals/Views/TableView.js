@@ -6,6 +6,8 @@ import get from 'lodash/get';
 import {
   execRecordsAction,
   getJournalsData,
+  onJournalSettingsSelect,
+  reloadGrid,
   runSearch,
   saveJournalSetting,
   setSelectAllRecords,
@@ -41,11 +43,13 @@ function mapDispatchToProps(dispatch, props) {
   return {
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
+    reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
-    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
+    setUrl: urlParams => dispatch(setUrl(w(urlParams))),
+    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id)))
   };
 }
 
@@ -57,22 +61,31 @@ const Labels = {
 class TableView extends React.Component {
   state = {
     isClose: true,
-    isReset: false, //
-    isForceUpdate: false, //
-    savedSetting: undefined, //
+    isReset: false,
     settingsVisible: false,
     isCreateLoading: false
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, stateId, journalId } = this.props;
+    const { isActivePage, viewMode, stateId, journalId, urlParams = {} } = this.props;
+
+    if (!isActivePage && !isTableOrPreview(viewMode)) {
+      return;
+    }
+
+    if (prevProps.journalId !== journalId || prevProps.stateId !== stateId || this.state.isClose) {
+      this.setState({ isClose: false }, () => this.props.getJournalsData());
+    }
+
+    if (get(prevProps, ['urlParams', JUP.SEARCH]) && urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
+      this.props.reloadGrid();
+    }
 
     if (
-      isActivePage &&
-      isTableOrPreview(viewMode) &&
-      (prevProps.journalId !== journalId || prevProps.stateId !== stateId || this.state.isClose)
+      get(prevProps, ['urlParams', JUP.JOURNAL_SETTING_ID]) &&
+      urlParams[JUP.JOURNAL_SETTING_ID] !== get(prevProps, ['urlParams', JUP.JOURNAL_SETTING_ID])
     ) {
-      this.setState({ isClose: false }, () => this.props.getJournalsData());
+      this.props.onJournalSettingsSelect(urlParams[JUP.JOURNAL_SETTING_ID]);
     }
   }
 
@@ -102,7 +115,7 @@ class TableView extends React.Component {
   };
 
   handleToggleSettings = () => {
-    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, savedSetting: null, isReset: false }));
+    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
   };
 
   handleSaveSettings = (id, settings) => {
@@ -141,12 +154,11 @@ class TableView extends React.Component {
       return;
     }
 
-    const searchParams = {
-      ...getSearchParams(),
-      search: text
-    };
-    this.props.setUrl(searchParams);
     this.props.runSearch(text);
+  };
+
+  handleRefresh = () => {
+    this.props.reloadGrid();
   };
 
   handleSelectAllRecords = () => {
@@ -191,22 +203,21 @@ class TableView extends React.Component {
       pageTabsIsShow,
       bodyClassName,
       Header,
+      isActivePage,
+      displayElements = {},
+      isDocLibEnabled,
 
-      settingsFiltersData,
       journalConfig,
       grid,
-
-      selectedRecords,
-      reloadGrid,
-      isDocLibEnabled,
-      settingsData,
-      settingsColumnsData,
-      settingsGroupingData,
       isLoading,
-      displayElements = {},
+      selectedRecords,
       selectAllRecordsVisible,
       selectAllRecords,
-      isActivePage,
+      settingsData,
+      settingsFiltersData,
+      settingsColumnsData,
+      settingsGroupingData,
+
       getJournalContentMaxHeight
     } = this.props;
     const { settingsVisible, isReset, isCreateLoading } = this.state;
@@ -245,7 +256,7 @@ class TableView extends React.Component {
             isDocLibEnabled={isDocLibEnabled}
             isCreateLoading={isCreateLoading}
             isLoading={isLoading}
-            onRefresh={reloadGrid}
+            onRefresh={this.handleRefresh}
             onSearch={this.handleSearch}
             onToggleSettings={this.handleToggleSettings}
             onToggleViewMode={toggleViewMode}

@@ -168,9 +168,12 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode',
-  DOCLIB_FOLDER_ID: 'folderId',
-  DOCLIB_SEARCH: 'dlSearch'
+  VIEW_MODE: 'viewMode'
+};
+
+export const DocLibUrlParams = {
+  FOLDER_ID: 'folderId',
+  SEARCH: 'dlSearch'
 };
 
 export const SYSTEM_LIST = 'global-system';

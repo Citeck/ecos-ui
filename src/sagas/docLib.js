@@ -57,7 +57,7 @@ import {
   selectDocLibSidebar,
   selectDocLibTypeRef
 } from '../selectors/docLib';
-import { JournalUrlParams } from '../constants';
+import { DocLibUrlParams } from '../constants';
 import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
 import { t } from '../helpers/export/util';
@@ -123,14 +123,14 @@ export function* sagaInitDocumentLibrary({ logger, stateId, w }) {
 
     // set selected item from url
     const url = yield select(selectUrl, stateId);
-    if (url[JournalUrlParams.DOCLIB_FOLDER_ID]) {
-      selectedItemId = url[JournalUrlParams.DOCLIB_FOLDER_ID];
+    if (url[DocLibUrlParams.FOLDER_ID]) {
+      selectedItemId = url[DocLibUrlParams.FOLDER_ID];
     }
 
     yield put(initSidebar(w()));
 
-    if (url[JournalUrlParams.DOCLIB_SEARCH]) {
-      yield put(setSearchText(w(url[JournalUrlParams.DOCLIB_SEARCH])));
+    if (url[DocLibUrlParams.SEARCH]) {
+      yield put(setSearchText(w(url[DocLibUrlParams.SEARCH])));
     }
 
     yield put(setFolderId(w(selectedItemId)));
@@ -255,8 +255,8 @@ function* sagaOpenFolder({ api, logger, stateId, w }, action) {
 
     const rootId = yield select(state => selectDocLibRootId(state, stateId));
     const query = getSearchParams();
-    query[JournalUrlParams.DOCLIB_FOLDER_ID] = folderId === rootId ? undefined : folderId;
-    query[JournalUrlParams.DOCLIB_SEARCH] = undefined;
+    query[DocLibUrlParams.FOLDER_ID] = folderId === rootId ? undefined : folderId;
+    query[DocLibUrlParams.SEARCH] = undefined;
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
   } catch (e) {
@@ -333,7 +333,7 @@ function* sagaDocLibStartSearch({ api, logger, stateId, w }, action) {
     yield put(setSearchText(w(searchText)));
 
     const query = getSearchParams();
-    query[JournalUrlParams.DOCLIB_SEARCH] = searchText.length ? searchText : undefined;
+    query[DocLibUrlParams.SEARCH] = searchText.length ? searchText : undefined;
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
 
