@@ -48,12 +48,6 @@ const mapDispatchToProps = (dispatch, props) => {
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId })))
-    // clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
-    // restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
-
-    // onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
-    // applySettings: settings => dispatch(applyJournalSetting(w(settings))),
-    // createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
   };
 };
 
@@ -305,11 +299,11 @@ class Journals extends React.Component {
         <JournalsMenu
           height={height}
           stateId={stateId}
-          open={menuOpen}
           isActivePage={isActivePage}
+          open={menuOpen}
+          menuOpenAnimate={menuOpenAnimate}
           forwardedRef={this.setJournalMenuRef}
           onClose={this.handleToggleMenu}
-          menuOpenAnimate={menuOpenAnimate}
         />
       );
     }

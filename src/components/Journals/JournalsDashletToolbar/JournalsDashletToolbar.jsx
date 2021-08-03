@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
+import { selectJournal, selectJournalSettings } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -33,8 +33,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId))),
-    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId)))
+    onSelectJournal: journalId => dispatch(selectJournal(w(journalId))),
+    onSelectJournalSettings: journalSettingId => dispatch(selectJournalSettings(journalSettingId))
   };
 };
 
@@ -48,9 +48,9 @@ class JournalsDashletToolbar extends Component {
   };
 
   onChangeJournal = journal => {
-    const { onChangeSelectedJournal, onJournalSelect } = this.props;
+    const { onChangeSelectedJournal, onSelectJournal } = this.props;
 
-    onJournalSelect(journal.id);
+    onSelectJournal(journal.id);
 
     if (typeof onChangeSelectedJournal === 'function') {
       onChangeSelectedJournal(journal.id);
@@ -58,7 +58,7 @@ class JournalsDashletToolbar extends Component {
   };
 
   onChangeJournalSetting = setting => {
-    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
+    this.props.onSelectJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
   };
 
   renderCreateMenu = () => {

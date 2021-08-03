@@ -4,12 +4,15 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import {
+  applyJournalSetting,
+  createJournalSetting,
   execRecordsAction,
   getJournalsData,
-  onJournalSettingsSelect,
   reloadGrid,
   runSearch,
   saveJournalSetting,
+  selectJournalSettings,
+  setGrid,
   setSelectAllRecords,
   setSelectedRecords,
   setUrl
@@ -41,6 +44,9 @@ function mapDispatchToProps(dispatch, props) {
   const w = wrapArgs(props.stateId);
 
   return {
+    applySettings: settings => dispatch(applyJournalSetting(w(settings))),
+    clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
+    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
@@ -49,7 +55,7 @@ function mapDispatchToProps(dispatch, props) {
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id)))
+    selectJournalSettings: id => dispatch(selectJournalSettings(w(id)))
   };
 }
 
@@ -81,11 +87,8 @@ class TableView extends React.Component {
       this.props.reloadGrid();
     }
 
-    if (
-      get(prevProps, ['urlParams', JUP.JOURNAL_SETTING_ID]) &&
-      urlParams[JUP.JOURNAL_SETTING_ID] !== get(prevProps, ['urlParams', JUP.JOURNAL_SETTING_ID])
-    ) {
-      this.props.onJournalSettingsSelect(urlParams[JUP.JOURNAL_SETTING_ID]);
+    if (urlParams[JUP.JOURNAL_SETTING_ID] !== get(prevProps, ['urlParams', JUP.JOURNAL_SETTING_ID])) {
+      this.props.selectJournalSettings(urlParams[JUP.JOURNAL_SETTING_ID]);
     }
   }
 
@@ -233,6 +236,7 @@ class TableView extends React.Component {
       >
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
           <Header title={get(journalConfig, 'meta.title', '')} labelBtnMenu={isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU)} />
+
           <SettingsModal
             {...settingsData}
             filtersData={settingsFiltersData}
@@ -245,6 +249,7 @@ class TableView extends React.Component {
             onCreate={this.handleCreateSettings}
             onSave={this.handleSaveSettings}
           />
+
           <JournalsSettingsBar
             stateId={stateId}
             grid={grid}
@@ -271,7 +276,6 @@ class TableView extends React.Component {
               grid={grid}
               selectedRecords={selectedRecords}
               onExecuteAction={this.handleExecuteGroupAction}
-              onGoTo={this.onGoTo}
               onSelectAll={this.handleSelectAllRecords}
             />
           )}

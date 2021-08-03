@@ -24,8 +24,8 @@ import {
   initJournal,
   initJournalSettingData,
   initPreview,
-  onJournalSelect,
-  onJournalSettingsSelect,
+  selectJournal,
+  selectJournalSettings,
   openSelectedJournal,
   openSelectedJournalSettings,
   reloadGrid,
@@ -642,7 +642,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
+function* sagaSelectJournalSettings({ api, logger, stateId, w }, action) {
   try {
     yield put(setLoading(w(true)));
 
@@ -653,7 +653,7 @@ function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
     yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaOnJournalSettingsSelect saga error', e);
+    logger.error('[journals sagaSelectJournalSettings saga error', e);
   }
 }
 
@@ -685,7 +685,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
+function* sagaSelectJournal({ api, logger, stateId, w }, action) {
   try {
     const journalId = action.payload;
 
@@ -697,7 +697,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     yield loadGrid(api, { journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaOnJournalSelect saga error', e);
+    logger.error('[journals sagaSelectJournal saga error', e);
   }
 }
 
@@ -1056,10 +1056,11 @@ function* saga(ea) {
   yield takeEvery(applyJournalSetting().type, wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
   yield takeEvery(execJournalAction().type, wrapSaga, { ...ea, saga: sagaExecJournalAction });
 
-  yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
-  yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
-  yield takeEvery(openSelectedJournal().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournal });
   yield takeEvery(openSelectedJournalSettings().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournalSettings });
+  yield takeEvery(selectJournalSettings().type, wrapSaga, { ...ea, saga: sagaSelectJournalSettings });
+  yield takeEvery(openSelectedJournal().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournal });
+  yield takeEvery(selectJournal().type, wrapSaga, { ...ea, saga: sagaSelectJournal });
+
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
   yield takeEvery(resetJournalSettingData().type, wrapSaga, { ...ea, saga: sagaResetJournalSettingData });
   yield takeEvery(restoreJournalSettingData().type, wrapSaga, { ...ea, saga: sagaRestoreJournalSettingData });
