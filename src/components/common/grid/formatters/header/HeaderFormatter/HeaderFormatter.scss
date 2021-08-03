@@ -186,5 +186,15 @@
     .ecos-datepicker__icon {
       line-height: 26px;
     }
+
+    .ecos-dropdown__menu.show {
+      min-width: unset;
+      width: 46px;
+
+      li {
+        padding: 5px 10px;
+        height: 31px;
+      }
+    }
   }
 }

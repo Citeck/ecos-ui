@@ -30,7 +30,7 @@ import './HeaderFormatter.scss';
 export default class HeaderFormatter extends Component {
   #datePickerSelectorData = [
     {
-      value: '',
+      value: '    ',
       key: null
     },
     {
