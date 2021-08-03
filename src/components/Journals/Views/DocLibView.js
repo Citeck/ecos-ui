@@ -48,7 +48,11 @@ class DocLibView extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { viewMode, typeRef, isActivePage } = this.props;
 
-    if (isActivePage && isDocLib(viewMode) && (typeRef !== prevProps.typeRef || (typeRef && this.state.isClose))) {
+    if (!isActivePage || !isDocLib(viewMode)) {
+      return;
+    }
+
+    if (typeRef !== prevProps.typeRef || (typeRef && this.state.isClose)) {
       this.setState({ isClose: false }, () => this.props.initDocLib());
     }
   }

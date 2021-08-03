@@ -69,7 +69,7 @@ class TableView extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { isActivePage, viewMode, stateId, journalId, urlParams = {} } = this.props;
 
-    if (!isActivePage && !isTableOrPreview(viewMode)) {
+    if (!isActivePage || !isTableOrPreview(viewMode)) {
       return;
     }
 
