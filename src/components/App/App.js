@@ -206,6 +206,7 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              cacheKey={URL.ADMIN_PAGE}
               path={URL.ADMIN_PAGE}
               render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />}
             />
@@ -216,6 +217,7 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              cacheKey={URL.DEV_TOOLS}
               path={URL.DEV_TOOLS}
               render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />}
             />

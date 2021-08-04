@@ -20,20 +20,32 @@ import Loader from './Loader';
 
 import './DevTools.scss';
 
-export default () => {
+export default props => {
   const [isReady, setIsReady] = useState(false);
   const [hasAccess, setAccess] = useState(false);
   const [isOpenMenu, setOpenMenu] = useState(false);
+  const checkAccess = async () => {
+    const isAccessible = await api.getIsAccessiblePage();
+    setAccess(isAccessible);
+    setIsReady(true);
+  };
+
   useEffect(() => {
-    (async () => {
-      const isAccessible = await api.getIsAccessiblePage();
-      setAccess(isAccessible);
-      setIsReady(true);
-    })();
+    checkAccess();
   }, []);
+
+  useEffect(() => {
+    if (props.tabLink === props.cacheKey) {
+      setIsReady(false);
+      setAccess(false);
+
+      checkAccess();
+    }
+  }, [props.tabLink, props.cacheKey]);
 
   const query = queryString.parse(window.location.search);
   let activeTab = query.activeTab;
+
   if (!Object.values(TABS).includes(activeTab)) {
     activeTab = TABS.BUILD;
   }

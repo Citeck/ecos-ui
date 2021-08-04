@@ -15,7 +15,7 @@ import { usePrevious } from '../../hooks/usePrevious';
 
 import './style.scss';
 
-const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
+const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage }) => {
   const wrapperRef = useRef(null);
   const [isOpenMenu, setOpenMenu] = useState(false);
   const [journalStateId, setJournalStateId] = useState(null);
@@ -74,7 +74,7 @@ const AdminSection = ({ activeSection = {}, tabId, isActivePage }) => {
       </AdminMenu>
     </div>
   );
-};
+});
 
 const mapStateToProps = (state, props) => ({
   activeSection: state.adminSection.activeSection || {},

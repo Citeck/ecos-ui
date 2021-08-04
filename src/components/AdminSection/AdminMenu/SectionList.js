@@ -25,7 +25,7 @@ function SectionList({ list = [], title = null, setActive, activeSection }) {
       classNameList="ecos-admin-menu-section__list"
       emptyText={t(Labels.EMPTY_LIST)}
       list={renderItems()}
-      selected={selected}
+      selected={selected /* !== -1*/}
     >
       {title}
     </CollapsibleList>

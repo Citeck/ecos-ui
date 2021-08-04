@@ -10,10 +10,15 @@ import SectionList from './SectionList';
 
 import './style.scss';
 
-const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGroupSectionList }) => {
+const AdminMenu = React.memo(({ isMobile, groupSectionList, children, toggle, open, getGroupSectionList }) => {
   const sidebarRef = useRef(null);
   const [topHeight, setTopHeight] = useState(500);
   const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    getGroupSectionList();
+    setInitialized(true);
+  }, []);
 
   useEffect(() => {
     if (!initialized) {
@@ -65,7 +70,7 @@ const AdminMenu = ({ isMobile, groupSectionList, children, toggle, open, getGrou
       </div>
     </>
   );
-};
+});
 
 const mapStateToProps = state => ({
   isMobile: state.view.isMobile,
