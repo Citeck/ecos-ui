@@ -12,22 +12,9 @@
   position: relative;
 
   &:hover {
-    #{$mlText}__divider {
-      background: $color-blue-light;
-    }
-
     #{$mlText}__input {
       border-color: $color-blue-light;
     }
-  }
-
-  &__divider {
-    position: absolute;
-    right: 40px;
-    top: 0;
-    height: 100%;
-    width: 2px;
-    background: $color-gray-6;
   }
 
   &__image {
@@ -48,23 +35,7 @@
   }
 
   &__input {
-    padding-right: 45px;
-
-    &:focus {
-      & ~ #{$mlText}__divider {
-        background: $color-blue-light;
-      }
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      right: 40px;
-      top: 0;
-      height: 100%;
-      width: 2px;
-      background: $color-gray-6;
-    }
+    padding-right: 40px;
   }
 
   &__tooltip {
