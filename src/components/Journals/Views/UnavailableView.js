@@ -1,9 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { t } from '../../../helpers/export/util';
 
-UnavailableView.propTypes = {};
-//todo
 function UnavailableView(props) {
   return (
     <div className="alert alert-secondary" role="alert">

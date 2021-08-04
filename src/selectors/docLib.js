@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import get from 'lodash/get';
 import { defaultState } from '../reducers/documentLibrary';
 
-const selectDocLib = (state, key) => get(state, ['documentLibrary', key]) || { ...defaultState };
+export const selectDocLib = (state, key) => get(state, ['documentLibrary', key]) || { ...defaultState };
 
 export const selectIsDocLibEnabled = createSelector(
   selectDocLib,
