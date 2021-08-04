@@ -393,9 +393,14 @@ export default handleActions(
       action = handleAction(action);
 
       const initConfig = get(state, [stateId, 'initConfig']);
-      const loading = !isEqual(initConfig, action.payload);
+      const config = action.payload;
+      const data = { config, initConfig: config };
 
-      return handleState(state, stateId, { initConfig: action.payload, config: action.payload, loading });
+      if (!!initConfig && !isEqual(initConfig, config)) {
+        data.loading = true;
+      }
+
+      return handleState(state, stateId, data);
     },
     [setJournalConfig]: (state, action) => {
       const stateId = action.payload.stateId;

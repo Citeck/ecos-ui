@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { defaultState, emptyJournalConfig } from '../reducers/journals';
-import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { getId } from '../helpers/util';
@@ -174,36 +174,7 @@ export const selectSettingsGrouping = createSelector(
 
 export const selectGridPaginationMaxItems = createSelector(
   selectState,
-  ownProps => get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems)
-);
-
-export const selectJournalDashletProps = createSelector(
-  [selectState, selectDashletConfig, selectDashletConfigJournalId],
-  (ownState, config, configJournalId) => ({
-    editorMode: ownState.editorMode,
-    journalConfig: ownState.journalConfig,
-    grid: ownState.grid,
-    selectedRecords: ownState.selectedRecords,
-    selectAllRecords: ownState.selectAllRecords,
-    selectAllRecordsVisible: ownState.selectAllRecordsVisible,
-    isLoading: ownState.isCheckLoading || ownState.loading,
-    isExistJournal: ownState.isExistJournal,
-    config,
-    configJournalId
-  })
-);
-
-export const selectJournalDashletGridProps = createSelector(
-  [selectState, selectViewColumns],
-  (ownState, viewColumns) => ({
-    loading: ownState.loading,
-    grid: ownState.grid,
-    predicate: ownState.predicate,
-    journalConfig: ownState.journalConfig,
-    selectedRecords: ownState.selectedRecords,
-    selectAllRecords: ownState.selectAllRecords,
-    viewColumns
-  })
+  ownProps => get(ownProps, 'grid.pagination.maxItems', DEFAULT_PAGINATION.maxItems)
 );
 
 export const selectJournalPageProps = createSelector(

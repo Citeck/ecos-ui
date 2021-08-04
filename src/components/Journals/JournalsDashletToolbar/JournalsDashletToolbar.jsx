@@ -13,19 +13,20 @@ import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
-import { selectNewVersionDashletConfig } from '../../../selectors/journals';
+import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const ownState = selectJournalData(state, props.stateId);
+  const config = selectNewVersionDashletConfig(state, props.stateId);
 
   return {
-    journals: newState.journals,
-    journalConfig: newState.journalConfig,
-    journalSettings: newState.journalSettings,
-    config: selectNewVersionDashletConfig(state, props.stateId),
-    grid: newState.grid,
-    selectedRecords: newState.selectedRecords,
-    selectedJournals: newState.selectedJournals
+    journals: ownState.journals,
+    journalConfig: ownState.journalConfig,
+    journalSettings: ownState.journalSettings,
+    grid: ownState.grid,
+    selectedRecords: ownState.selectedRecords,
+    selectedJournals: ownState.selectedJournals,
+    config
   };
 };
 

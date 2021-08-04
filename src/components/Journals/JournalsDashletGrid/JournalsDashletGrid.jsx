@@ -21,8 +21,8 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectJournalDashletGridProps } from '../../../selectors/journals';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
+import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
@@ -121,8 +121,8 @@ class JournalsDashletGrid extends React.Component {
     }
 
     const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
-    const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
-    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
+    const { maxItems } = pager || DEFAULT_PAGINATION;
+    const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
     setJournalSetting({ predicate: newPredicate });
@@ -218,13 +218,14 @@ class JournalsDashletGrid extends React.Component {
       maxHeight,
       autoHeight,
       predicate,
-      journalConfig: { params = {} },
+      journalConfig,
       selectorContainer,
       viewColumns,
       onOpenSettings
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
+    const { params = {} } = journalConfig || {};
 
     let editable = true;
 

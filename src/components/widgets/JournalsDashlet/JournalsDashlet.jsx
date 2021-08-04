@@ -24,7 +24,7 @@ import {
   setSelectAllRecords,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectJournalDashletProps } from '../../../selectors/journals';
+import { selectJournalDashletProps } from '../../../selectors/dashletJournals';
 import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
