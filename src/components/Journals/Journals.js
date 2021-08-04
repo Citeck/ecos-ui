@@ -107,9 +107,10 @@ class Journals extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { _url, isActivePage, stateId } = this.props;
+    const { journalId } = this.state;
 
-    if (this.state.journalId !== prevState.journalId) {
-      this.props.getTypeRef(this.state.journalId);
+    if (journalId && journalId !== prevState.journalId) {
+      this.props.getTypeRef(journalId);
     }
 
     const isEqualQuery = equalsQueryUrls({
@@ -117,7 +118,7 @@ class Journals extends React.Component {
       ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, DLUP.FOLDER_ID, DLUP.SEARCH]
     });
 
-    const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
+    const isActiveChanged = journalId && isActivePage && prevProps.isActivePage && !isEqualQuery;
 
     if (isActiveChanged || prevProps.stateId !== stateId) {
       this.props.setUrl(getSearchParams());

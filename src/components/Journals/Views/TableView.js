@@ -79,7 +79,7 @@ class TableView extends React.Component {
       return;
     }
 
-    if (prevProps.journalId !== journalId || prevProps.stateId !== stateId || this.state.isClose) {
+    if ((journalId && prevProps.journalId !== journalId) || (stateId && prevProps.stateId !== stateId) || this.state.isClose) {
       this.setState({ isClose: false }, () => this.props.getJournalsData());
     }
 
