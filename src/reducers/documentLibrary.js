@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import { handleAction, handleState, updateState } from '../helpers/redux';
 import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
@@ -73,9 +74,9 @@ export const defaultState = Object.freeze({
 
 export default handleActions(
   {
-    [setIsDocLibEnabled]: (state, action) => {
+    [setIsDocLibEnabled]: (state = {}, action) => {
       const stateId = action.payload.stateId;
-      const isLoading = state[stateId].isLoading;
+      const isLoading = get(state, [stateId, 'isLoading'], defaultState.isLoading);
       action = handleAction(action);
       const isEnabled = action.payload;
 

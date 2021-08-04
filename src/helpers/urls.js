@@ -11,7 +11,6 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-const JOURNALS_LIST_ID_KEY = JournalUrlParams.JOURNALS_LIST_ID;
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';

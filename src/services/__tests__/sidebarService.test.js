@@ -107,7 +107,7 @@ describe('Sidebar Service', () => {
         title: `Menu v1 - url for ${MITypes.JOURNAL}`,
         input: _.JOURNAL,
         output: {
-          targetUrl: `${URL.JOURNAL}?journalId=${_.JOURNAL.params.journalId}&journalsListId=${_.JOURNAL.params.journalsListId}`,
+          targetUrl: `${URL.JOURNAL}?journalId=${_.JOURNAL.params.journalId}`,
           attributes: {}
         }
       },
