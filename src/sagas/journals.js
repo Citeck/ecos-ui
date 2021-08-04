@@ -177,7 +177,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
     let dataInitJournal;
 
     switch (true) {
-      case customJournalMode && customJournal:
+      case !!(customJournalMode && customJournal):
         journalId = yield _resolveTemplate(recordRef, customJournal);
         dataInitJournal = { journalId };
         break;

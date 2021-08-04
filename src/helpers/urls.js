@@ -104,11 +104,10 @@ export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter, search }) => {
+export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search }) => {
   const qString = queryString.stringify({
-    [JOURNALS_LIST_ID_KEY]: journalsListId,
     [JOURNAL_ID_KEY]: journalId,
-    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
+    [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
     [SEARCH_KEY]: search || filter
   });
 

@@ -118,16 +118,14 @@ class JournalsDashletToolbar extends Component {
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
         {this.renderCreateMenu()}
 
-        {selectedJournals.length > 1 && (
+        {!!selectedJournals && selectedJournals.length > 1 && (
           <Dropdown
             hasEmpty
             source={selectedJournals}
             value={lsJournalId || nodeRef}
             valueField={'id'}
             titleField={'title'}
-            className={classNames({
-              'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
-            })}
+            className={classNames({ 'ecos-journal-dashlet__toolbar-dropdown_small': isSmall })}
             onChange={this.onChangeJournal}
           >
             <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />

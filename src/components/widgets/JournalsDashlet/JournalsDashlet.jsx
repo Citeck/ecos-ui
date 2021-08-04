@@ -223,12 +223,10 @@ class JournalsDashlet extends BaseWidget {
   }
 
   goToJournalsPage = () => {
-    const {
-      config: { journalsListId = '', journalSettingId = '' }
-    } = this.props;
+    const journalSettingId = get(this.props, 'config.journalSettingId', '');
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
 
-    goToJournalsPage({ journalsListId, journalId: nodeRef, journalSettingId, nodeRef });
+    goToJournalsPage({ journalId: nodeRef, journalSettingId, nodeRef });
   };
 
   handleChangeSelectedJournal = journalId => {
