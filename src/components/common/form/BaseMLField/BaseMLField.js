@@ -211,8 +211,8 @@ class BaseMLField extends Component {
       >
         <img
           id={this._key}
-          className={classNames('ecos-ml-text__image', imgClassName, {
-            'ecos-ml-text__image_visible': isShowButton || isFocus
+          className={classNames('ecos-ml-text__image ecos-ml-text__image_visible', imgClassName, {
+            // 'ecos-ml-text__image_visible': isShowButton || isFocus
           })}
           src={lang.img}
           alt={lang.label}

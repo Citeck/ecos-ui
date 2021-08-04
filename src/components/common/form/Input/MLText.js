@@ -14,6 +14,7 @@ class MLText extends BaseMLField {
       <div style={style} className={classNames('ecos-ml-text', className)}>
         <Input {...this.inputProps} value={this.value} onChange={this.handleChangeText} />
         {this.renderLang()}
+        <div className="ecos-ml-text__divider" />
       </div>
     );
   }
