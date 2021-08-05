@@ -27,6 +27,8 @@ const journalId = 'testJournalId';
 const typeRef = 'testTypeRef';
 const stateId = 'testStateId';
 const rootId = 'testRootId';
+const dirType = 'testDirType';
+const fileType = 'testFileType';
 const w = wrapArgs(stateId);
 const logger = {
   error: jest.fn()
@@ -93,10 +95,10 @@ describe('docLib sagas tests', () => {
   describe('loadDocumentLibrarySettings saga', () => {
     it('should done loadDocumentLibrarySettings saga', async () => {
       const dispatched = [];
-      const getFileTypeRefsSpy = jest.spyOn(DocLibService, 'getFileTypeRefs').mockResolvedValue(['fileType1']);
-      const getDirTypeRefSpy = jest.spyOn(DocLibService, 'getDirTypeRef').mockResolvedValue('dirType1');
+      const getFileTypeRefsSpy = jest.spyOn(DocLibService, 'getFileTypeRefs').mockResolvedValue([fileType]);
+      const getDirTypeRefSpy = jest.spyOn(DocLibService, 'getDirTypeRef').mockResolvedValue(dirType);
       const getCreateVariantsSpy = jest.spyOn(DocLibService, 'getCreateVariants').mockResolvedValue([]);
-      const getRootIdSpy = jest.spyOn(DocLibService, 'getRootId').mockResolvedValue('rootId');
+      const getRootIdSpy = jest.spyOn(DocLibService, 'getRootId').mockResolvedValue(rootId);
 
       await runSaga(
         {
@@ -112,7 +114,7 @@ describe('docLib sagas tests', () => {
       expect(getDirTypeRefSpy).toHaveBeenCalled();
       expect(getDirTypeRefSpy).toHaveBeenCalledWith(typeRef);
       expect(getCreateVariantsSpy).toHaveBeenCalled();
-      expect(getCreateVariantsSpy).toHaveBeenCalledWith('dirType1', ['fileType1']);
+      expect(getCreateVariantsSpy).toHaveBeenCalledWith(dirType, [fileType]);
       expect(getRootIdSpy).toHaveBeenCalled();
       expect(getRootIdSpy).toHaveBeenCalledWith(typeRef);
       expect(dispatched.length).toBe(4);
@@ -136,7 +138,7 @@ describe('docLib sagas tests', () => {
       ).done;
 
       const setFolderIdAction = dispatched.find(item => item.type === setFolderId().type);
-      expect(setFolderIdAction.payload).toEqual(w(`${SourcesId.DOCLIB}@${typeRef}$`));
+      expect(setFolderIdAction.payload).toEqual(w(rootId));
     });
 
     it(`should set folderId from "${DocLibUrlParams.FOLDER_ID}" url-parameter`, async () => {
