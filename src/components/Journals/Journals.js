@@ -11,9 +11,9 @@ import merge from 'lodash/merge';
 
 import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
 import { getTypeRef } from '../../actions/docLib';
-import { selectCommonJournalPageProps, selectJournalPageProps } from '../../selectors/journals';
+import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
-import { animateScrollTo, getBool, getScrollbarWidth } from '../../helpers/util';
+import { animateScrollTo, getBool, getScrollbarWidth, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
@@ -28,15 +28,13 @@ import './style.scss';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
-  const journalProps = selectJournalPageProps(state, props.stateId);
 
   return {
     isAdmin: get(state, 'user.isAdmin'),
     isMobile: get(state, 'view.isMobile'),
     pageTabsIsShow: get(state, 'pageTabs.isShow'),
     _url: window.location.href,
-    ...commonProps,
-    ...journalProps
+    ...commonProps
   };
 };
 
@@ -60,11 +58,17 @@ const defaultDisplayElements = {
   editJournal: true
 };
 
+const Labels = {
+  [JVM.PREVIEW]: 'doc-preview.preview',
+  [JVM.TABLE]: 'journal.title',
+  [JVM.DOC_LIB]: 'document-library.title'
+};
+
 class Journals extends React.Component {
-  _journalRef = React.createRef();
-  _journalBodyRef = React.createRef();
-  _bodyTopForwardedRef = React.createRef();
-  _journalFooterRef = React.createRef();
+  _journalRef = null;
+  _journalBodyRef = null;
+  _journalBodyTopRef = null;
+  _journalFooterRef = null;
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
 
@@ -153,10 +157,11 @@ class Journals extends React.Component {
       bodyClassName,
       isActivePage,
       Header: this.Header,
+      UnavailableView: this.UnavailableView,
       displayElements: this.displayElements,
-      bodyForwardedRef: this._journalBodyRef,
-      bodyTopForwardedRef: this._bodyTopForwardedRef,
-      footerForwardedRef: this._journalFooterRef
+      bodyForwardedRef: this.setJournalBodyRef,
+      bodyTopForwardedRef: this.setJournalBodyTopRef,
+      footerForwardedRef: this.setJournalFooterRef
     };
   }
 
@@ -165,11 +170,15 @@ class Journals extends React.Component {
     return { selectAllRecordsVisible, selectAllRecords, getJournalContentMaxHeight: this.getJournalContentMaxHeight };
   }
 
-  setJournalMenuRef = ref => {
-    if (ref) {
-      this._journalMenuRef = ref;
-    }
-  };
+  setJournalRef = ref => !!ref && (this._journalRef = ref);
+
+  setJournalBodyRef = ref => !!ref && (this._journalBodyRef = ref);
+
+  setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
+
+  setJournalFooterRef = ref => !!ref && (this._journalFooterRef = ref);
+
+  setJournalMenuRef = ref => !!ref && (this._journalMenuRef = ref);
 
   setHeight = debounce(height => this.setState({ height }), 500);
 
@@ -188,7 +197,7 @@ class Journals extends React.Component {
 
     if (this.state.menuOpen) {
       const scrollLeft = this._journalRef.scrollLeft - get(this, '_journalMenuRef.offsetWidth', 0);
-      animateScrollTo(this._journalRef.current, { scrollLeft });
+      animateScrollTo(this._journalRef, { scrollLeft });
     }
 
     this._toggleMenuTimerId = window.setTimeout(
@@ -202,7 +211,7 @@ class Journals extends React.Component {
 
             if (this.state.menuOpen) {
               const scrollLeft = this._journalRef.scrollLeft + get(this, '_journalMenuRef.offsetWidth', 0);
-              animateScrollTo(this._journalRef.current, { scrollLeft }, 500);
+              animateScrollTo(this._journalRef, { scrollLeft }, 500);
             }
           }
         ),
@@ -236,12 +245,12 @@ class Journals extends React.Component {
     height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
     height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
 
-    if (get(this, '_bodyTopForwardedRef.current')) {
-      height -= get(this._bodyTopForwardedRef.current, 'offsetHeight', 0);
+    if (this._journalBodyTopRef) {
+      height -= get(this._journalBodyTopRef, 'offsetHeight', 0);
     }
 
-    if (get(this, '_journalFooterRef.current')) {
-      height -= get(this._journalFooterRef.current, 'offsetHeight', 0);
+    if (this._journalFooterRef) {
+      height -= get(this._journalFooterRef, 'offsetHeight', 0);
       height -= 15; // for indent under pagination
     }
 
@@ -251,8 +260,8 @@ class Journals extends React.Component {
       height -= get(appFooter, 'offsetHeight', 0);
     }
 
-    if (get(this, '_journalBodyRef.current')) {
-      const styles = window.getComputedStyle(this._journalBodyRef.current, null);
+    if (this._journalBodyRef) {
+      const styles = window.getComputedStyle(this._journalBodyRef, null);
 
       height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
       height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
@@ -312,6 +321,17 @@ class Journals extends React.Component {
     return <React.Fragment />;
   };
 
+  UnavailableView = () => {
+    const { viewMode } = this.props;
+    const name = t(Labels[viewMode]);
+
+    return (
+      <div className="alert alert-secondary" role="alert">
+        {t('journal.page.unavailable-view', { name })}
+      </div>
+    );
+  };
+
   render() {
     const { isMobile, className } = this.props;
     const { height } = this.state;
@@ -319,7 +339,7 @@ class Journals extends React.Component {
     return (
       <ReactResizeDetector handleHeight onResize={this.handleResize}>
         <div
-          ref={this._journalRef}
+          ref={this.setJournalRef}
           className={classNames('ecos-journal', className, {
             'ecos-journal_mobile': isMobile,
             'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT

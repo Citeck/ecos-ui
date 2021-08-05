@@ -9,7 +9,7 @@ import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { extractLabel, t } from '../../../helpers/util';
+import { extractLabel, isExistValue, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -165,33 +165,17 @@ class JournalsDashlet extends BaseWidget {
     return get(this._footerRef, 'offsetHeight', 0);
   }
 
-  setToolbarRef = ref => {
-    if (ref) {
-      this._toolbarRef = ref;
-    }
-  };
+  setToolbarRef = ref => !!ref && (this._toolbarRef = ref);
 
-  setFooterRef = ref => {
-    if (ref) {
-      this._footerRef = ref;
-    }
-  };
+  setFooterRef = ref => !!ref && (this._footerRef = ref);
 
-  setGroupActionsRef = ref => {
-    if (ref) {
-      this._groupActionsRef = ref;
-    }
-  };
+  setGroupActionsRef = ref => !!ref && (this._groupActionsRef = ref);
 
-  handleResize = width => {
-    !!width && this.setState({ width });
-  };
+  handleResize = width => !!width && this.setState({ width });
 
   showEditor = () => this.props.setEditorMode(true);
 
-  handleReload = () => {
-    this.props.reloadGrid();
-  };
+  handleReload = () => this.props.reloadGrid();
 
   handleUpdate() {
     super.handleUpdate();
@@ -246,11 +230,12 @@ class JournalsDashlet extends BaseWidget {
 
   getMessages() {
     const { editorMode, isExistJournal, isLoading, journalConfig } = this.props;
-    const msgs = [];
 
-    if (isLoading || editorMode) {
-      return msgs;
+    if (!isExistValue(isLoading) || isLoading || editorMode) {
+      return [];
     }
+
+    const msgs = [];
 
     !isExistJournal && msgs.push(Labels.J_NOT_EXISTED);
     isExistJournal && isEmpty(get(journalConfig, 'columns')) && msgs.push(Labels.J_NO_COLS);

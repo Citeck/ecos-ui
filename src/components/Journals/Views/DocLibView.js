@@ -14,7 +14,6 @@ import DocLibSettingsBar from '../DocLib/DocLibSettingsBar/DocLibSettingsBarCont
 import DocLibGroupActions from '../DocLib/DocLibGroupActions/DocLibGroupActionsContainer';
 import DocLibPagination from '../DocLib/DocLibPagination/DocLibPaginationContainer';
 import FilesViewer from '../DocLib/FilesViewer/FilesViewerContainer';
-import { UnavailableView } from './';
 
 const mapStateToProps = (state, props) => {
   const viewMode = selectViewMode(state, props.stateId);
@@ -75,12 +74,14 @@ class DocLibView extends React.Component {
       stateId,
       isMobile,
       isEnabled,
+      isLoading,
       bodyForwardedRef,
       bodyTopForwardedRef,
       footerForwardedRef,
       pageTabsIsShow,
       bodyClassName,
-      Header
+      Header,
+      UnavailableView
     } = this.props;
 
     return (
@@ -99,8 +100,8 @@ class DocLibView extends React.Component {
           <DocLibGroupActions stateId={stateId} />
         </div>
 
-        {!isEnabled && <UnavailableView />}
-        {isEnabled && <FilesViewer stateId={stateId} />}
+        {!isEnabled && !isLoading && <UnavailableView />}
+        {(isEnabled || isLoading) && <FilesViewer stateId={stateId} />}
 
         <div className="ecos-journal__footer" ref={footerForwardedRef}>
           <DocLibPagination stateId={stateId} hasPageSize />
