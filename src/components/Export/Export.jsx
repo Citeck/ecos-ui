@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import omit from 'lodash/omit';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
@@ -85,7 +86,7 @@ export default class Export extends Component {
   };
 
   getSearchPredicate = (grid = {}) => {
-    const { search: text, columns, groupBy } = grid;
+    const { search: text, columns, groupBy } = grid || {};
 
     if (isEmpty(text)) {
       return {};
@@ -94,32 +95,30 @@ export default class Export extends Component {
     return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
   };
 
-  getQuery = (config, type, grid) => {
-    grid = grid || {};
-    config = config || {};
-    config.meta = config.meta || {};
-    config.meta.createVariants = config.meta.createVariants || [];
+  getQuery = (config = {}, reportType, grid = {}) => {
+    set(config, 'meta.createVariants', get(config, 'meta.createVariants') || []);
 
-    const name = (config.meta.createVariants[0] || {}).title || config.meta.title;
-    const reportColumns = (grid.columns || config.columns || [])
-      .filter(c => c.default)
-      .map(column => ({ attribute: column.attribute, title: column.text }));
-    const gridPredicate = get(grid, ['predicates', 0], {});
+    const reportTitle = get(config, 'meta.createVariants[0].title') || get(config, 'meta.title');
+    const criteria = get(config, 'meta.criteria') || [];
+    const columns = get(grid, 'columns') || config.columns || [];
+    const reportColumns = columns.filter(c => c.default).map(({ attribute, text }) => ({ attribute, title: text }));
+    const gridPredicate = get(grid, 'predicates[0]', {});
     const mainPredicate = get(grid, 'predicate', {});
     const searchPredicate = this.getSearchPredicate(grid);
     const predicates = [mainPredicate, searchPredicate, gridPredicate];
-    const predicate = cloneDeep({ t: PREDICATE_AND, val: predicates });
+    const predicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
+    const sortBy = get(grid, 'sortBy') || [{ attribute: 'cm:created', order: 'desc' }];
 
     const query = {
-      sortBy: grid.sortBy || [{ attribute: 'cm:created', order: 'desc' }],
-      predicate: ParserPredicate.removeEmptyPredicates([predicate])[0] || null,
-      reportType: type,
-      reportTitle: name,
-      reportColumns: reportColumns,
-      reportFilename: `${name}.${type}`
+      sortBy,
+      predicate: get(predicate, '[0]', null),
+      reportType,
+      reportTitle,
+      reportColumns,
+      reportFilename: `${reportTitle}.${reportType}`
     };
 
-    (config.meta.criteria || []).forEach((criterion, idx) => {
+    criteria.forEach((criterion = {}, idx) => {
       query['field_' + idx] = criterion.field;
       query['predicate_' + idx] = criterion.predicate;
       query['value_' + idx] = criterion.value;
