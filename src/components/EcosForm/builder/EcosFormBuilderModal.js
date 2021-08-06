@@ -1,8 +1,9 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 
-import EcosFormBuilder from './EcosFormBuilder';
+import { t } from '../../../helpers/util';
 import EcosModal from '../../common/EcosModal';
+import EcosFormBuilder from './EcosFormBuilder';
 
 export default class EcosFormBuilderModal extends React.Component {
   constructor(props) {
@@ -28,22 +29,21 @@ export default class EcosFormBuilderModal extends React.Component {
     });
   }
 
-  toggleVisibility() {
-    this.setState({
-      isModalOpen: !this.state.isModalOpen
-    });
-  }
+  toggleVisibility = () => {
+    this.setState(({ isModalOpen }) => ({
+      isModalOpen: !isModalOpen
+    }));
+  };
 
-  onSubmit(form) {
+  onSubmit = form => {
     if (this.state.onSubmit) {
       this.state.onSubmit(form);
     }
     this.hide();
-  }
+  };
 
   render() {
-    let onSubmit = this.onSubmit.bind(this);
-    let toggleVisibility = this.toggleVisibility.bind(this);
+    const { isModalOpen, formDefinition } = this.state;
 
     return (
       <EcosModal
@@ -51,12 +51,12 @@ export default class EcosFormBuilderModal extends React.Component {
           backdrop: 'static'
         }}
         className="ecos-modal_width-extra-lg"
-        title={'Form Builder'}
-        isOpen={this.state.isModalOpen}
+        title={t('eform.modal.title.constructor')}
+        isOpen={isModalOpen}
         zIndex={9000}
-        hideModal={toggleVisibility}
+        hideModal={this.toggleVisibility}
       >
-        <EcosFormBuilder formDefinition={this.state.formDefinition} onSubmit={onSubmit} onCancel={toggleVisibility} />
+        <EcosFormBuilder formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
       </EcosModal>
     );
   }

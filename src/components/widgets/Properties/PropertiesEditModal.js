@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import EcosFormModal from '../../EcosForm/EcosFormModal';
-import { FORM_MODE_EDIT } from '../../EcosForm/constants';
+import { FORM_MODE_EDIT } from '../../EcosForm';
 
 function usePrevious(value = false) {
   const ref = useRef();
@@ -34,6 +34,7 @@ function PropertiesEditModal(props) {
       onSubmit={onFormSubmit}
       isModalOpen={isOpen}
       onHideModal={onFormCancel}
+      onCancelModal={onFormCancel}
       options={{
         formMode: FORM_MODE_EDIT
       }}

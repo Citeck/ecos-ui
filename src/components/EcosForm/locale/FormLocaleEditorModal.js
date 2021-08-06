@@ -1,7 +1,8 @@
 import React from 'react';
 
-import EcosFormLocaleEditor from './EcosFormLocaleEditor';
+import { t } from '../../../helpers/util';
 import EcosModal from '../../common/EcosModal';
+import EcosFormLocaleEditor from './EcosFormLocaleEditor';
 
 export default class FormLocaleEditorModal extends React.Component {
   constructor(props) {
@@ -16,7 +17,7 @@ export default class FormLocaleEditorModal extends React.Component {
   show(i18n, onSubmit) {
     this.setState({
       isModalOpen: true,
-      i18n: i18n,
+      i18n,
       onSubmit
     });
   }
@@ -27,22 +28,21 @@ export default class FormLocaleEditorModal extends React.Component {
     });
   }
 
-  toggleVisibility() {
+  onToggleVisibility = () => {
     this.setState({
       isModalOpen: !this.state.isModalOpen
     });
-  }
+  };
 
-  onSubmit(i18n) {
+  onSubmit = i18n => {
     if (this.state.onSubmit) {
       this.state.onSubmit(i18n);
     }
     this.hide();
-  }
+  };
 
   render() {
-    let onSubmit = this.onSubmit.bind(this);
-    let toggleVisibility = this.toggleVisibility.bind(this);
+    const { isModalOpen, i18n } = this.state;
 
     return (
       <EcosModal
@@ -50,12 +50,12 @@ export default class FormLocaleEditorModal extends React.Component {
           backdrop: 'static'
         }}
         className="ecos-modal_width-extra-lg"
-        title={'Edit Locale'}
-        isOpen={this.state.isModalOpen}
-        hideModal={toggleVisibility}
+        title={t('eform.modal.title.edit-locale')}
+        isOpen={isModalOpen}
+        hideModal={this.onToggleVisibility}
         zIndex={9000}
       >
-        <EcosFormLocaleEditor i18n={this.state.i18n} onSubmit={onSubmit} onCancel={toggleVisibility} />
+        <EcosFormLocaleEditor i18n={i18n} onSubmit={this.onSubmit} onCancel={this.onToggleVisibility} />
       </EcosModal>
     );
   }
