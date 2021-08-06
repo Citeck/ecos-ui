@@ -15,9 +15,9 @@ import { usePrevious } from '../../hooks/usePrevious';
 
 import './style.scss';
 
-const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage }) => {
+const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOpenMenu }) => {
   const wrapperRef = useRef(null);
-  const [isOpenMenu, setOpenMenu] = useState(false);
+  // const [isOpenMenu, setOpenMenu] = useState(false);
   const [journalStateId, setJournalStateId] = useState(null);
   const [additionalHeights, setAdditionalHeights] = useState(0);
   const prevJournalStateId = usePrevious(journalStateId);
@@ -69,7 +69,10 @@ const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage }) =>
           </Row>
         </Container>
       </div>
-      <AdminMenu open={isOpenMenu} toggle={setOpenMenu}>
+      <AdminMenu
+      // open={isOpenMenu}
+      // toggle={setOpenMenu}
+      >
         {!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalSettings stateId={journalStateId} />}
       </AdminMenu>
     </div>
@@ -77,6 +80,7 @@ const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage }) =>
 });
 
 const mapStateToProps = (state, props) => ({
+  isOpenMenu: state.adminSection.isOpenMenu,
   activeSection: state.adminSection.activeSection || {},
   groupSectionList: state.adminSection.groupSectionList,
   isActivePage: pageTabList.isActiveTab(props.tabId)
