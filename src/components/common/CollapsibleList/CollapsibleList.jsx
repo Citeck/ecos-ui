@@ -34,7 +34,7 @@ export default class CollapsibleList extends Component {
   }
 
   render() {
-    const { className, close, children, list, emptyText } = this.props;
+    const { className, close, children, list, emptyText, onTogglePanel } = this.props;
 
     return (
       <div className={classNames('collapsible-list', className)}>
@@ -49,6 +49,7 @@ export default class CollapsibleList extends Component {
           collapseTheme={{
             collapse: 'collapsible-list__collapse'
           }}
+          onTogglePanel={onTogglePanel}
         >
           {!(list && list.length) && !!emptyText && <InfoText noIndents text={emptyText} />}
 

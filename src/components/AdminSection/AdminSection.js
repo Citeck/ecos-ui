@@ -12,12 +12,12 @@ import { JournalSettings } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
 import { usePrevious } from '../../hooks/usePrevious';
+import DevTools from '../../pages/DevTools';
 
 import './style.scss';
 
 const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOpenMenu }) => {
   const wrapperRef = useRef(null);
-  // const [isOpenMenu, setOpenMenu] = useState(false);
   const [journalStateId, setJournalStateId] = useState(null);
   const [additionalHeights, setAdditionalHeights] = useState(0);
   const prevJournalStateId = usePrevious(journalStateId);
@@ -65,16 +65,12 @@ const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOp
                 additionalHeights={-additionalHeights}
                 stateId={prevJournalStateId && prevJournalStateId !== journalStateId ? null : journalStateId}
               />
+              <DevTools hidden={isHidden(SectionTypes.DEV_TOOLS)} />
             </Col>
           </Row>
         </Container>
       </div>
-      <AdminMenu
-      // open={isOpenMenu}
-      // toggle={setOpenMenu}
-      >
-        {!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalSettings stateId={journalStateId} />}
-      </AdminMenu>
+      <AdminMenu>{!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalSettings stateId={journalStateId} />}</AdminMenu>
     </div>
   );
 });

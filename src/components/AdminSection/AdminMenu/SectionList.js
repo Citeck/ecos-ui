@@ -9,7 +9,7 @@ import { CollapsibleList } from '../../common';
 
 import './style.scss';
 
-function SectionList({ list = [], title = null, setActive, activeSection }) {
+function SectionList({ list = [], title = null, setActive, activeSection, onToggle, isOpen }) {
   const renderItems = () => {
     return list.map(item => (
       <div className="ecos-admin-menu-section__item" key={item.label} onClick={() => setActive(item)}>
@@ -25,7 +25,9 @@ function SectionList({ list = [], title = null, setActive, activeSection }) {
       classNameList="ecos-admin-menu-section__list"
       emptyText={t(Labels.EMPTY_LIST)}
       list={renderItems()}
-      selected={selected /* !== -1*/}
+      selected={selected}
+      close={!isOpen}
+      onTogglePanel={onToggle}
     >
       {title}
     </CollapsibleList>

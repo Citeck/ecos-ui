@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Collapse } from 'react-collapse';
+import isFunction from 'lodash/isFunction';
 
 import './PanelBar.scss';
 
@@ -15,7 +16,13 @@ export default class PanelBar extends Component {
   }
 
   showPanel = () => {
+    const { onTogglePanel, open } = this.props;
+
     this.setState({ panelVisible: !this.state.panelVisible });
+
+    if (isFunction(onTogglePanel)) {
+      onTogglePanel(!open);
+    }
   };
 
   render() {

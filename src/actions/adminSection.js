@@ -10,3 +10,4 @@ export const updActiveSection = createAction(prefix + 'UPD_ACTIVE_SECTION');
 export const getIsAccessible = createAction(prefix + 'GET_IS_ACCESSIBLE');
 export const setIsAccessible = createAction(prefix + 'SET_IS_ACCESSIBLE');
 export const toggleMenu = createAction(prefix + 'TOGGLE_MENU');
+export const toggleSection = createAction(prefix + 'TOGGLE_SECTION');
