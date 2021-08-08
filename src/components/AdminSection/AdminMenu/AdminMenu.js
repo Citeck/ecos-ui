@@ -17,21 +17,12 @@ const AdminMenu = React.memo(
   ({ isMobile, groupSectionList, children, toggleMenu, getGroupSectionList, activeSection, isOpen, toggleSection, sectionState }) => {
     const sidebarRef = useRef(null);
     const [topHeight, setTopHeight] = useState(500);
-    const [initialized, setInitialized] = useState(false);
     const [needRecalculateSize, setNeedRecalculateSize] = useState(false);
     const prevActiveSection = usePrevious(activeSection);
 
     useEffect(() => {
       getGroupSectionList();
-      setInitialized(true);
     }, []);
-
-    useEffect(() => {
-      if (!initialized) {
-        getGroupSectionList();
-        setInitialized(true);
-      }
-    }, [initialized]);
 
     useEffect(() => {
       if (!isEqual(activeSection, prevActiveSection)) {

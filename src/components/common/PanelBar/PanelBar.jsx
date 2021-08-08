@@ -41,7 +41,13 @@ export default class PanelBar extends Component {
           </div>
         )}
 
-        <Collapse isOpened={panelVisible} theme={collapseTheme}>
+        <Collapse
+          isOpened={panelVisible}
+          theme={collapseTheme}
+          className={classNames('panel-bar__collapse', {
+            'panel-bar__collapse_closed': !panelVisible
+          })}
+        >
           <div className={classNames('panel-bar__content', css.contentClassName)}>{children}</div>
         </Collapse>
       </div>

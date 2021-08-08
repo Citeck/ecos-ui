@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { t } from '../../../helpers/util';
@@ -9,22 +9,29 @@ import { CollapsibleList } from '../../common';
 
 import './style.scss';
 
-function SectionList({ list = [], title = null, setActive, activeSection, onToggle, isOpen }) {
-  const renderItems = () => {
-    return list.map(item => (
-      <div className="ecos-admin-menu-section__item" key={item.label} onClick={() => setActive(item)}>
-        {t(item.label)}
-      </div>
-    ));
-  };
-  const selected = AdminSectionService.getSelectedSectionIndex(list, activeSection);
+const renderItem = (item, onClick) => (
+  <div className="ecos-admin-menu-section__item" key={item.label} onClick={() => onClick(item)}>
+    {t(item.label)}
+  </div>
+);
+
+const SectionList = React.memo(({ list = [], title = null, setActive, activeSection, onToggle, isOpen }) => {
+  const [selected, setSelected] = useState(false);
+
+  useEffect(() => {
+    const newSelected = AdminSectionService.getSelectedSectionIndex(list, activeSection);
+
+    if (newSelected !== selected) {
+      setSelected(newSelected);
+    }
+  }, [list, activeSection]);
 
   return (
     <CollapsibleList
       className="ecos-admin-menu-section"
       classNameList="ecos-admin-menu-section__list"
       emptyText={t(Labels.EMPTY_LIST)}
-      list={renderItems()}
+      list={list.map(i => renderItem(i, setActive))}
       selected={selected}
       close={!isOpen}
       onTogglePanel={onToggle}
@@ -32,7 +39,7 @@ function SectionList({ list = [], title = null, setActive, activeSection, onTogg
       {title}
     </CollapsibleList>
   );
-}
+});
 
 const mapStateToProps = state => ({
   isAdmin: state.user.isAdmin,
