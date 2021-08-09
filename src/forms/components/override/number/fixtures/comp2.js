@@ -25,5 +25,6 @@ export default {
   inputType: 'number',
   tableView: true,
   delimiter: true,
+  decimalValue: '.',
   input: true
 };
