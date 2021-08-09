@@ -94,9 +94,13 @@ class Grid extends Component {
     this.checkScrollPosition();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
+    }
+
+    if (isEmpty(prevProps.selected) && !isEmpty(this.props.selected)) {
+      this.setState({ selected: this.props.selected });
     }
 
     this.setColumnsSizes();
@@ -558,16 +562,17 @@ class Grid extends Component {
   }
 
   createMultiSelectionCheckboxes(props) {
-    this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
+    const { selected } = this.state;
+    this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : selected || [];
 
-    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this.state.selected) {
+    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === selected) {
       this.#isAllSelected = true;
     }
 
     return {
       mode: 'checkbox',
       classes: 'ecos-grid__tr_selected',
-      selected: this.state.selected,
+      selected,
       nonSelectable: props.nonSelectable || [],
       onSelect: (row, isSelect) => {
         const selected = this._selected;
@@ -597,7 +602,7 @@ class Grid extends Component {
         }
 
         if (!isSelect && rows.length !== data.length) {
-          if (isEqual(rows.map(i => i[this._keyField]), this.state.selected)) {
+          if (isEqual(rows.map(i => i[this._keyField]), selected)) {
             this._selected = selected;
             this.#isAllSelected = false;
             this.onSelect(true);
