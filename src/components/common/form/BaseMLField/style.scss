@@ -7,7 +7,15 @@
 }
 
 .ecos-ml-text {
+  $mlText: &;
+
   position: relative;
+
+  &:hover {
+    #{$mlText}__input {
+      border-color: $color-blue-light;
+    }
+  }
 
   &__image {
     @extend %image;
@@ -27,6 +35,7 @@
   }
 
   &__input {
+    padding-right: 40px;
   }
 
   &__tooltip {
@@ -46,7 +55,7 @@
       cursor: pointer;
 
       &:hover {
-        color: #7396cd;
+        color: $color-blue-light;
       }
 
       &-label {

@@ -184,7 +184,7 @@ class BaseMLField extends Component {
 
   renderLang() {
     const { languages, imgClassName } = this.props;
-    const { selectedLang, isShowTooltip, isShowButton, isFocus } = this.state;
+    const { selectedLang, isShowTooltip } = this.state;
     const lang = languages.find(item => item.id === selectedLang);
     const extraImageProps = {};
 
@@ -211,9 +211,7 @@ class BaseMLField extends Component {
       >
         <img
           id={this._key}
-          className={classNames('ecos-ml-text__image', imgClassName, {
-            'ecos-ml-text__image_visible': isShowButton || isFocus
-          })}
+          className={classNames('ecos-ml-text__image ecos-ml-text__image_visible', imgClassName)}
           src={lang.img}
           alt={lang.label}
           {...extraImageProps}

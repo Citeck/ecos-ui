@@ -23,12 +23,12 @@
   &__ml {
     &-image {
       margin: unset;
-      left: 8px;
-      top: calc(100% - 20px - 8px);
+      right: 10px;
+      top: 11px;
     }
 
     &-input {
-      padding: 11px 15px;
+      padding: 11px 30px 11px 15px;
     }
   }
 }
