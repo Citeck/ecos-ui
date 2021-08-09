@@ -565,7 +565,7 @@ class Grid extends Component {
     const { selected } = this.state;
     this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : selected || [];
 
-    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === selected) {
+    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === selected.length) {
       this.#isAllSelected = true;
     }
 
