@@ -83,7 +83,7 @@ class TableView extends React.Component {
       this.setState({ isClose: false }, () => this.props.getJournalsData());
     }
 
-    if (get(prevProps, ['urlParams', JUP.SEARCH]) && urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
+    if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
       this.props.reloadGrid();
     }
 
