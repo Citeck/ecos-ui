@@ -102,9 +102,9 @@ export default class Export extends Component {
     const criteria = get(config, 'meta.criteria') || [];
     const columns = get(grid, 'columns') || config.columns || [];
     const reportColumns = columns.filter(c => c.default).map(({ attribute, text }) => ({ attribute, title: text }));
+    const mainPredicate = get(config, 'predicate', {});
     const gridPredicate = get(grid, 'predicates[0]', {});
-    const mainPredicate = get(grid, 'predicate', {});
-    const searchPredicate = this.getSearchPredicate(grid);
+    const searchPredicate = get(grid, 'searchPredicate[0]', {});
     const predicates = [mainPredicate, searchPredicate, gridPredicate];
     const predicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
     const sortBy = get(grid, 'sortBy') || [{ attribute: 'cm:created', order: 'desc' }];
