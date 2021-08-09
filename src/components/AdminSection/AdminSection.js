@@ -11,7 +11,7 @@ import BPMNDesigner from '../BPMNDesigner';
 import { JournalSettings } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
-import { usePrevious } from '../../hooks/usePrevious';
+import { usePrevious } from '../../hooks';
 import DevTools from '../../pages/DevTools';
 
 import './style.scss';

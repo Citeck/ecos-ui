@@ -61,11 +61,7 @@ const DevTools = props => {
 
   return (
     <DevToolsContextProvider activeTab={activeTab} setActiveTab={setActiveTab}>
-      <div
-        className={classNames({
-          'd-none': hidden
-        })}
-      >
+      <div className={classNames({ 'd-none': hidden })}>
         {hasAccess ? (
           <>
             <Row>

@@ -15,6 +15,14 @@ export default class PanelBar extends Component {
     };
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { open } = this.props;
+
+    if (prevProps.open !== open && open !== this.state.panelVisible) {
+      this.setState({ panelVisible: open });
+    }
+  }
+
   showPanel = () => {
     const { onTogglePanel, open } = this.props;
 

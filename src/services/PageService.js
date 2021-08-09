@@ -183,7 +183,6 @@ export default class PageService {
 
     try {
       CHANGE_URL.params = { link: decodeLink(link), ...params };
-      console.warn('changeUrlLink => ', link, decodeLink(link));
       document.dispatchEvent(CHANGE_URL);
     } finally {
       PageService.eventIsDispatched = false;
