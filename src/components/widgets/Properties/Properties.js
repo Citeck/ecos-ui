@@ -7,8 +7,8 @@ import debounce from 'lodash/debounce';
 
 import { t } from '../../../helpers/util';
 import EcosForm from '../../EcosForm/EcosForm';
-import { FORM_MODE_EDIT } from '../../EcosForm/constants';
-import { InfoText, Loader } from '../../common/index';
+import { FORM_MODE_EDIT } from '../../EcosForm';
+import { InfoText, Loader } from '../../common';
 import { ComponentKeys } from '../Components';
 
 import './style.scss';
