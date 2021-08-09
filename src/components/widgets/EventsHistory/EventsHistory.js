@@ -6,6 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
@@ -219,19 +220,26 @@ class EventsHistory extends React.Component {
   };
 
   applyFiltering = (items, newItem) => {
-    const filtering = item => !isEmpty(newItem.val) && item.att !== newItem.att;
+    const filtering = item => {
+      if (isEqual(item, newItem)) {
+        return false;
+      }
 
-    if (isEmpty(items)) {
-      return filtering(newItem) ? [newItem] : [];
+      return item.att !== newItem.att;
+    };
+    const result = items.filter(filtering);
+
+    if (!isEmpty(newItem.val)) {
+      result.push(newItem);
     }
 
-    return items.filter(filtering);
+    return result;
   };
 
   onGridFilter = (newFilters = [], type) => {
     const { filters } = this.state;
     const newFilter = get(newFilters, '0', {});
-    const upFilters = this.applyFiltering(filters, newFilter, type).concat(newFilters || []);
+    const upFilters = this.applyFiltering(filters, newFilter, type);
 
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);
