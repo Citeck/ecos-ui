@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
-import { reverseString } from '../../../../helpers/util';
+import { getNumberSeparators, reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -29,6 +29,8 @@ export default class NumberComponent extends FormIONumberComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+
+    this.decimalSeparator = ',';
   }
 
   build(state) {
@@ -257,10 +259,13 @@ export default class NumberComponent extends FormIONumberComponent {
 
     value = value.toString();
     value = value.replace(/,/g, '.');
+
     if (!!decimalLimit) {
       value = parseFloat(parseFloat(value).toFixed(decimalLimit)).toString();
     }
+
     value = value.replace(/\./g, this.decimalSeparator);
+
     if (!!decimalLimit) {
       value = this._fillZeros(value);
     }
@@ -335,6 +340,12 @@ export default class NumberComponent extends FormIONumberComponent {
   _applyThousandsSeparator = value => {
     const [mainPart, decimalPart] = value.split(this.decimalSeparator);
     let newValue = parseInt(mainPart).toLocaleString();
+
+    if (this.component.delimiterValue) {
+      const { thousand } = getNumberSeparators();
+
+      newValue = newValue.replace(thousand, this.component.delimiterValue);
+    }
 
     if (decimalPart) {
       newValue = `${newValue}${this.decimalSeparator}${decimalPart}`;
