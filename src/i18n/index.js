@@ -4,6 +4,8 @@ import lodashSet from 'lodash/set';
 import { getCurrentLocale } from '../helpers/util';
 import { AppApi } from '../api/app';
 
+window.AppApi = AppApi;
+
 export function i18nInit({ debug = false }) {
   const lng = getCurrentLocale();
   const promiseServer = AppApi.getDictionaryServer(lng);
