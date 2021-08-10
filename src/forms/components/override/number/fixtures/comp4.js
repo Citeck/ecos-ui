@@ -9,6 +9,7 @@ export default {
   key: 'number',
   delimiter: true,
   requireDecimal: true,
+  decimalValue: '.',
   encrypted: false,
   decimalLimit: 2
 };

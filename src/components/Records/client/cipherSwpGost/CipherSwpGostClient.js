@@ -2,6 +2,7 @@ import { Base64 } from 'js-base64';
 import RecordsClient from '../RecordsClient';
 import { ASSOC_DEFAULT_INNER_SCHEMA } from '../../constants';
 import _ from 'lodash';
+import { t } from '../../../../helpers/util';
 
 const CAPICOM_CURRENT_USER_STORE = 2;
 const CAPICOM_MY_STORE = 'My';
@@ -9,6 +10,8 @@ const CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED = 2;
 
 const CIPHER_KEYS_ALIAS = '__cipher_gost_keys';
 const CIPHER_MKEY_ALIAS = '__cipher_mkey';
+
+let pluginEnabled = null;
 
 export default class CipherSwpGostClient extends RecordsClient {
   constructor() {
@@ -21,8 +24,18 @@ export default class CipherSwpGostClient extends RecordsClient {
   }
 
   async preProcessAtts(attsToLoad, config) {
-    if (!config.attsToEncrypt || config.attsToEncrypt.length === 0) {
+    if (pluginEnabled === false || !config.attsToEncrypt || config.attsToEncrypt.length === 0) {
       return null;
+    }
+    if (pluginEnabled == null) {
+      try {
+        await window.cadesplugin;
+        pluginEnabled = true;
+      } catch (e) {
+        pluginEnabled = false;
+        console.warn(t('cipher-swp-gost.missing-plugin'));
+        return null;
+      }
     }
     const attsToEncryptIndexes = [];
     const assocAtts = [];

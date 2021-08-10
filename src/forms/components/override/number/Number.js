@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
-import { reverseString } from '../../../../helpers/util';
+import { getNumberSeparators, reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -13,7 +13,8 @@ export default class NumberComponent extends FormIONumberComponent {
       {
         delimiter: false,
         requireDecimal: false,
-        decimalLimit: ''
+        decimalLimit: '',
+        decimalValue: ','
       },
       ...extend
     );
@@ -29,7 +30,22 @@ export default class NumberComponent extends FormIONumberComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+
+    this.initNumberMask();
   }
+
+  get decimalSeparator() {
+    if (this.component.decimalValue) {
+      return this.component.decimalValue;
+    }
+
+    const { decimal } = getNumberSeparators(this.options.language);
+
+    return decimal;
+  }
+
+  // Must be left to override property this.decimalSeparator
+  set decimalSeparator(value) {}
 
   build(state) {
     super.build(state);
@@ -41,18 +57,22 @@ export default class NumberComponent extends FormIONumberComponent {
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
     if (this.delimiter) {
-      this.numberMask = createNumberMask({
-        prefix: '',
-        suffix: '',
-        requireDecimal: _.get(this.component, 'requireDecimal', false),
-        thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
-        decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
-        decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
-        allowNegative: _.get(this.component, 'allowNegative', true),
-        allowDecimal: _.get(this.component, 'allowDecimal', !(this.component.validate && this.component.validate.integer))
-      });
+      this.initNumberMask();
     }
   }
+
+  initNumberMask = () => {
+    this.numberMask = createNumberMask({
+      prefix: '',
+      suffix: '',
+      requireDecimal: _.get(this.component, 'requireDecimal', false),
+      thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
+      decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
+      decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
+      allowNegative: _.get(this.component, 'allowNegative', true),
+      allowDecimal: _.get(this.component, 'allowDecimal', !(this.component.validate && this.component.validate.integer))
+    });
+  };
 
   onBlur = () => {
     if (this.isBigNumber()) {
@@ -257,10 +277,13 @@ export default class NumberComponent extends FormIONumberComponent {
 
     value = value.toString();
     value = value.replace(/,/g, '.');
+
     if (!!decimalLimit) {
       value = parseFloat(parseFloat(value).toFixed(decimalLimit)).toString();
     }
+
     value = value.replace(/\./g, this.decimalSeparator);
+
     if (!!decimalLimit) {
       value = this._fillZeros(value);
     }
@@ -335,6 +358,13 @@ export default class NumberComponent extends FormIONumberComponent {
   _applyThousandsSeparator = value => {
     const [mainPart, decimalPart] = value.split(this.decimalSeparator);
     let newValue = parseInt(mainPart).toLocaleString();
+
+    if (this.component.delimiterValue) {
+      const { thousand } = getNumberSeparators();
+      const regex = new RegExp(thousand, 'g');
+
+      newValue = newValue.replace(regex, this.component.delimiterValue);
+    }
 
     if (decimalPart) {
       newValue = `${newValue}${this.decimalSeparator}${decimalPart}`;

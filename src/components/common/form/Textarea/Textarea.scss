@@ -23,16 +23,20 @@
   &__ml {
     &-image {
       margin: unset;
-      left: 8px;
-      top: calc(100% - 20px - 8px);
+      right: 10px;
+      top: 11px;
     }
 
-    &-input:disabled {
-      padding: 11px 15px;
-      border-color: $color-gray-6;
-      background-color: $color-gray-4;
-      color: $text-color-gray;
-      cursor: not-allowed;
+    &-input {
+      padding: 11px 30px 11px 15px;
+
+      &:disabled {
+        padding: 11px 15px;
+        border-color: $color-gray-6;
+        background-color: $color-gray-4;
+        color: $text-color-gray;
+        cursor: not-allowed;
+      }
     }
   }
 }

@@ -1124,6 +1124,8 @@
   "report-widget.records.no-document-type": "Без статуса",
   "report-widget.records.no-status": "Без статуса",
 
+  "cipher-swp-gost.missing-plugin": "Не найден плагин КриптоПРО. Дешифрование будет отключено.",
+
   "esign.error": "Ошибка",
   "esign.add-plugin.title": "Установите расширение",
   "esign.message.add-plugin": "Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru",

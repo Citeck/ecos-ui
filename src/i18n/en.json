@@ -1124,6 +1124,8 @@
   "report-widget.records.no-document-type": "No status",
   "report-widget.records.no-status": "No status",
 
+  "cipher-swp-gost.missing-plugin": "CryptoPRO plugin doesn't found. Decryption will be disabled.",
+
   "esign.error": "Error",
   "esign.add-plugin.title": "Please, install extension",
   "esign.message.add-plugin": "To continue, install the Cryptopro browser extension from cryptopro.ru",

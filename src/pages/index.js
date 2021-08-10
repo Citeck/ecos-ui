@@ -5,7 +5,6 @@ import { Pages } from '../constants';
 const AdminPage = lazy(() => import('./AdminPage'));
 const DashboardPage = lazy(() => import('./Dashboard'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
-const DevToolsPage = lazy(() => import('./DevTools'));
 const CMMNEditorPage = lazy(() => import('./ModelEditor/CMMNEditor'));
 const BPMNEditorPage = lazy(() => import('./ModelEditor/BPMNEditor'));
 const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
@@ -22,13 +21,11 @@ export default ({ pageKey, footer, ...props }) => {
 
   switch (pageKey) {
     case Pages.BPMN:
+    case Pages.DEV_TOOLS:
       Page = AdminPage;
       break;
     case Pages.DASHBOARD:
       Page = DashboardPage;
-      break;
-    case Pages.DEV_TOOLS:
-      Page = DevToolsPage;
       break;
     case Pages.JOURNAL:
       Page = JournalsPage;
