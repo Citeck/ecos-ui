@@ -9,6 +9,14 @@
       transform: rotate(225deg);
     }
   }
+
+  &__collapse {
+    height: 100% !important;
+
+    &_closed {
+      height: 0 !important;
+    }
+  }
 }
 
 .panel-bar__header {

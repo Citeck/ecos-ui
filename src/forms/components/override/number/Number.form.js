@@ -28,10 +28,22 @@ but this limitation should be taken as limitations of the data format.`
             key: 'delimiterValue',
             customConditional: 'show = !!data.delimiter',
             input: true,
-            defaultValue: '',
+            defaultValue: ' ',
             clearOnHide: false,
             tooltip: `For the mask to work correctly, there are restrictions on symbols:
 - it is advisable not to use the decimal separator (dot for all locale);
+- do not use underscore (_) - a special character that is used in the component mask.`
+          },
+          {
+            weight: 72,
+            type: 'textfield',
+            label: 'Decimal separator character',
+            key: 'decimalValue',
+            input: true,
+            defaultValue: ',',
+            clearOnHide: false,
+            tooltip: `For the mask to work correctly, there are restrictions on symbols:
+- the separators of thousands and fractional parts must be different.;
 - do not use underscore (_) - a special character that is used in the component mask.`
           }
         ]

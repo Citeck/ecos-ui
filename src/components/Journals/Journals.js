@@ -195,13 +195,13 @@ class Journals extends React.Component {
       ignored: [JUP.SHOW_PREVIEW, JUP.VIEW_MODE, JUP.DOCLIB_FOLDER_ID, JUP.DOCLIB_SEARCH]
     });
 
-    const isActiveChanged = isActivePage && prevProps.isActivePage && !isEqualQuery;
+    const isActiveChanged = newJournalId && isActivePage && prevProps.isActivePage && !isEqualQuery;
 
     if (isActiveChanged || prevProps.stateId !== stateId) {
       setUrl(getSearchParams());
     }
 
-    if (isNewJournalOnActive || prevProps.stateId !== stateId) {
+    if (newJournalId && (isNewJournalOnActive || prevProps.stateId !== stateId)) {
       getJournalsData();
     }
 
