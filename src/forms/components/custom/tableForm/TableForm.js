@@ -17,7 +17,6 @@ export default class TableFormComponent extends BaseReactComponent {
   _displayElementsValue = {};
   _nonSelectableRows = [];
   _createVariants = [];
-  _visibleRender = false;
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -71,8 +70,6 @@ export default class TableFormComponent extends BaseReactComponent {
       schema: TableFormComponent.schema()
     };
   }
-
-  _needUpdate = false;
 
   get defaultSchema() {
     return TableFormComponent.schema();
@@ -138,15 +135,11 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    this._visibleRender = this.visible;
-
     return this.visible ? TableForm : () => <Loader blur />;
   }
 
-  setReactValue(component, value) {
-    this.setReactProps({
-      defaultValue: value
-    });
+  setReactValue(component, defaultValue) {
+    this.setReactProps({ defaultValue });
   }
 
   getValueFormKey(value) {
