@@ -10,7 +10,7 @@ import { ErrorBoundary } from '../ErrorBoundary';
 import { Journals } from '../Journals';
 import { getSearchParams } from '../../helpers/urls';
 
-const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, stateId, ...props }) => {
+const JournalViewer = React.memo(({ hidden, isActivePage, initStateJournal, upStateId, stateId, ...props }) => {
   const tableCont = useRef(null);
   const [initialized, setInitialized] = useState(false);
   const [prefixStateId, setPrefixStateId] = useState('');
@@ -39,7 +39,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, stat
       {!hidden && initialized && stateId && (
         <ErrorBoundary>
           <Journals
-            isActivePage={isActivePage}
+            isActivePage={isActivePage && !hidden}
             stateId={stateId}
             displayElements={{ menu: false, header: false }}
             additionalHeights={props.additionalHeights}
@@ -50,7 +50,7 @@ const JournalViewer = ({ hidden, isActivePage, initStateJournal, upStateId, stat
       )}
     </div>
   );
-};
+});
 
 const mapStateToProps = (store, props) => ({
   isActivePage: pageTabList.isActiveTab(props.tabId)

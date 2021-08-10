@@ -63,10 +63,12 @@ export function* openActiveSection({ api, logger }, action) {
     const newType = get(item, 'type');
     const options = yield call(AdminSectionService.getTabOptions, currentType, newType);
     const href = yield call(AdminSectionService.getURLSection, item);
-    const isSameLink = equalsQueryUrls({ urls: [href, window.location.href], compareBy: ['type', 'journalId'] });
+    const isSameLink = equalsQueryUrls({ urls: [href, window.location.href], compareBy: ['activeTab', 'type', 'journalId'] });
 
     if (!isSameLink && href) {
-      yield call(PageService.changeUrlLink, href, options);
+      const contains = window.location.href.includes(href);
+
+      yield call(PageService.changeUrlLink, contains ? window.location.href : href, options);
     }
   } catch (e) {
     logger.error('[adminSection openActiveSection saga] error', e.message);
