@@ -1,5 +1,5 @@
 properties([
-    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
+    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '3')),
 ])
 timestamps {
   node {
