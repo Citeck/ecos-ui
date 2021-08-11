@@ -34,7 +34,7 @@ class JournalSettings extends React.Component {
   get renderList() {
     const { journalSettings } = this.props;
 
-    return journalSettings.map((setting, idx) => <this.renderItem item={setting} selected={idx === this.selected} />);
+    return journalSettings && journalSettings.map((setting, idx) => <this.renderItem item={setting} selected={idx === this.selected} />);
   }
 
   renderItem = React.memo(
@@ -74,8 +74,8 @@ const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
 
   return {
-    journalSettings: newState.journalSettings,
-    journalSetting: newState.journalSetting
+    journalSettings: newState.journalSettings || [],
+    journalSetting: newState.journalSetting || {}
   };
 };
 

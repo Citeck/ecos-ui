@@ -1,14 +1,8 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
+import { defaultState } from '../reducers/documentLibrary';
 
-import { defaultState } from '../reducers/journals';
-
-const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
-
-export const selectDocLib = createSelector(
-  selectState,
-  ownState => get(ownState, 'documentLibrary', {})
-);
+export const selectDocLib = (state, key) => get(state, ['documentLibrary', key]) || { ...defaultState };
 
 export const selectIsDocLibEnabled = createSelector(
   selectDocLib,
@@ -52,7 +46,7 @@ export const selectDocLibFileViewer = createSelector(
 
 export const selectDocLibFileViewerIsReady = createSelector(
   selectDocLibFileViewer,
-  fileViewer => get(fileViewer, 'isReady', {})
+  fileViewer => get(fileViewer, 'isReady', false)
 );
 
 export const selectDocLibFileViewerPagination = createSelector(
@@ -71,8 +65,8 @@ export const selectDocLibFileCanUploadFiles = createSelector(
 );
 
 export const selectDocLibFileViewerLoadingStatus = createSelector(
-  selectDocLibFileViewer,
-  fileViewer => get(fileViewer, 'isLoading', false)
+  selectDocLib,
+  docLib => get(docLib, 'isLoading', false)
 );
 
 export const selectDocLibFolderId = createSelector(
@@ -98,4 +92,24 @@ export const selectDocLibSearchText = createSelector(
 export const selectDocLibGroupActions = createSelector(
   selectDocLib,
   docLib => get(docLib, 'groupActions', {})
+);
+
+export const selectDocLibPageProps = createSelector(
+  [selectIsDocLibEnabled, selectDocLibFolderTitle, selectDocLibTypeRef, selectDocLibFileViewerLoadingStatus],
+  (isEnabled, folderTitle, typeRef, isLoading) => ({
+    isEnabled,
+    folderTitle,
+    typeRef,
+    isLoading
+  })
+);
+
+export const selectFilesViewerProps = createSelector(
+  [selectDocLibFileViewer, selectDocLibGroupActions, selectDocLibFolderPath, selectDocLibFileViewerLoadingStatus],
+  (fileViewer, groupActions, path, isLoading) => ({
+    fileViewer,
+    groupActions,
+    path,
+    isLoading
+  })
 );

@@ -52,15 +52,16 @@ export const initJournalSettingData = createAction(prefix + 'INIT_JOURNAL_SETTIN
 export const resetJournalSettingData = createAction(prefix + 'RESET_JOURNAL_SETTING_DATA');
 export const restoreJournalSettingData = createAction(prefix + 'RESTORE_JOURNAL_SETTING_DATA');
 
-export const onJournalSettingsSelect = createAction(prefix + 'ON_JOURNAL_SETTINGS_SELECT');
-export const onJournalSelect = createAction(prefix + 'ON_JOURNAL_SELECT');
-export const openSelectedJournal = createAction(prefix + 'OPEN_SELECTED_JOURNAL');
 export const openSelectedJournalSettings = createAction(prefix + 'OPEN_SELECTED_JOURNAL_SETTINGS');
+export const selectJournalSettings = createAction(prefix + 'SELECT_JOURNAL_SETTINGS');
+export const openSelectedJournal = createAction(prefix + 'OPEN_SELECTED_JOURNAL');
+export const selectJournal = createAction(prefix + 'SELECT_JOURNAL');
 
 export const initPreview = createAction(prefix + 'INIT_PREVIEW');
 export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');
 export const setPreviewFileName = createAction(prefix + 'SET_PREVIEW_FILE_NAME');
 
+export const toggleViewMode = createAction(prefix + 'TOGGLE_VIEW_MODE');
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
 export const runSearch = createAction(prefix + 'RUN_SEARCH');
 export const setUrl = createAction(prefix + 'SET_URL');

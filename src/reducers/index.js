@@ -10,6 +10,7 @@ import notification from './notification';
 import user from './user';
 import view from './view';
 import journals from './journals';
+import documentLibrary from './documentLibrary';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
 import comments from './comments';
@@ -51,6 +52,7 @@ const reducers = {
   user,
   view,
   journals,
+  documentLibrary,
   pageTabs,
   tasks,
   comments,

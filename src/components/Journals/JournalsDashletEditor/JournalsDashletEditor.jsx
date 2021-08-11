@@ -21,28 +21,21 @@ import {
   setOnlyLinked,
   setSettingItem
 } from '../../../actions/journals';
-
+import { selectJournalDashletEditorProps } from '../../../selectors/dashletJournals';
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import DashboardService from '../../../services/dashboard';
 import SelectJournal from '../../common/form/SelectJournal';
-import { selectDashletConfig, selectDashletConfigJournalId, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
 
 const mapStateToProps = (state, ownProps) => {
-  const newState = state.journals[ownProps.stateId] || {};
+  const ownState = selectJournalDashletEditorProps(state, ownProps.stateId);
 
   return {
-    journalSettings: newState.journalSettings,
-    generalConfig: selectDashletConfig(state, ownProps.stateId),
-    config: selectNewVersionDashletConfig(state, ownProps.stateId),
-    configJournalId: selectDashletConfigJournalId(state, ownProps.stateId),
-    initConfig: newState.initConfig,
-    editorMode: newState.editorMode,
-    resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {}),
-    isNotExistsJournal: !newState.isExistJournal
+    ...ownState,
+    resultDashboard: get(state, ['dashboard', DashboardService.key, 'requestResult'], {})
   };
 };
 
@@ -285,7 +278,6 @@ class JournalsDashletEditor extends Component {
                   hideCreateButton
                   isSelectedValueAsText
                   onChange={this.setSelectedJournals}
-                  onCancel={() => this.setSelectedJournals()}
                 />
               </Field>
 

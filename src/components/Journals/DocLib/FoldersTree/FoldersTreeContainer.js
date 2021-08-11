@@ -10,6 +10,7 @@ const mapStateToProps = (state, { stateId }) => {
   const sidebar = selectDocLibSidebar(state, stateId);
   const selected = selectDocLibFolderId(state, stateId) || null;
   return {
+    isMobile: state.view.isMobile,
     hasError: sidebar.hasError,
     isReady: sidebar.isReady,
     items: sidebar.items,

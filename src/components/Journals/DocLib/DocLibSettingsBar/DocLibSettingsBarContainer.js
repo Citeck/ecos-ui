@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 
 import { wrapArgs } from '../../../../helpers/redux';
 import { loadFilesViewerData, startSearch, createNode } from '../../../../actions/docLib';
+import { toggleViewMode } from '../../../../actions/journals';
 import { selectDocLibCreateVariants, selectDocLibSearchText } from '../../../../selectors/docLib';
 
 import DocLibSettingsBar from './DocLibSettingsBar';
@@ -12,7 +13,8 @@ const mapStateToProps = (state, { stateId }) => {
 
   return {
     createVariants,
-    searchText
+    searchText,
+    isMobile: state.view.isMobile
   };
 };
 
@@ -21,7 +23,8 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     onRefresh: () => dispatch(loadFilesViewerData(w())),
     startSearch: text => dispatch(startSearch(w(text))),
-    createNode: data => dispatch(createNode(w(data)))
+    createNode: data => dispatch(createNode(w(data))),
+    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode })))
   };
 };
 

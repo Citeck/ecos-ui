@@ -111,6 +111,10 @@ export function getPropByStringKey(obj, strKey) {
 }
 
 export function getSelectedValue(source, field, value, selectedField) {
+  if (isEmpty(source)) {
+    return;
+  }
+
   const selected = source.filter(option => option[field] === value);
 
   if (isEmpty(selectedField)) {

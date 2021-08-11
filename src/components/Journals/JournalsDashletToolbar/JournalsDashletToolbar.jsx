@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 
-import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
+import { selectJournal, selectJournalSettings } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -13,19 +13,20 @@ import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
-import { selectNewVersionDashletConfig } from '../../../selectors/journals';
+import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const ownState = selectJournalData(state, props.stateId);
+  const config = selectNewVersionDashletConfig(state, props.stateId);
 
   return {
-    journals: newState.journals,
-    journalConfig: newState.journalConfig,
-    journalSettings: newState.journalSettings,
-    config: selectNewVersionDashletConfig(state, props.stateId),
-    grid: newState.grid,
-    selectedRecords: newState.selectedRecords,
-    selectedJournals: newState.selectedJournals
+    journals: ownState.journals,
+    journalConfig: ownState.journalConfig,
+    journalSettings: ownState.journalSettings,
+    grid: ownState.grid,
+    selectedRecords: ownState.selectedRecords,
+    selectedJournals: ownState.selectedJournals,
+    config
   };
 };
 
@@ -33,8 +34,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId))),
-    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId)))
+    onSelectJournal: journalId => dispatch(selectJournal(w(journalId))),
+    onSelectJournalSettings: journalSettingId => dispatch(selectJournalSettings(journalSettingId))
   };
 };
 
@@ -48,9 +49,9 @@ class JournalsDashletToolbar extends Component {
   };
 
   onChangeJournal = journal => {
-    const { onChangeSelectedJournal, onJournalSelect } = this.props;
+    const { onChangeSelectedJournal, onSelectJournal } = this.props;
 
-    onJournalSelect(journal.id);
+    onSelectJournal(journal.id);
 
     if (typeof onChangeSelectedJournal === 'function') {
       onChangeSelectedJournal(journal.id);
@@ -58,7 +59,7 @@ class JournalsDashletToolbar extends Component {
   };
 
   onChangeJournalSetting = setting => {
-    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
+    this.props.onSelectJournalSettings(setting[JOURNAL_SETTING_ID_FIELD] || '');
   };
 
   renderCreateMenu = () => {
@@ -117,16 +118,14 @@ class JournalsDashletToolbar extends Component {
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
         {this.renderCreateMenu()}
 
-        {selectedJournals.length > 1 && (
+        {!!selectedJournals && selectedJournals.length > 1 && (
           <Dropdown
             hasEmpty
             source={selectedJournals}
             value={lsJournalId || nodeRef}
             valueField={'id'}
             titleField={'title'}
-            className={classNames({
-              'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
-            })}
+            className={classNames({ 'ecos-journal-dashlet__toolbar-dropdown_small': isSmall })}
             onChange={this.onChangeJournal}
           >
             <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />

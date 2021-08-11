@@ -614,6 +614,7 @@
 
   "journal.page.error-boundary.title": "Ошибка",
   "journal.page.error-boundary.msg": "Попробуйте обновить страницу. Если ошибка повторится, обратитесь к администратору",
+  "journal.page.unavailable-view": "Представление «{{name}}» недоступно для этого журнала. Смените вариант представления или настройте журнал",
   "journal.add-filter-criterion": "Добавить критерий фильтрации",
   "journal.apply-criteria": "Применить",
   "journal.create": "Создать",

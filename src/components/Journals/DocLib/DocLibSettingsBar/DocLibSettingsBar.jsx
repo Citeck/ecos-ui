@@ -2,29 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { t } from '../../../../helpers/util';
+import { getCreateVariantKeyField } from '../../service/util';
 import { Search } from '../../../common';
+import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
 import { Dropdown } from '../../../common/form';
-import { getCreateVariantKeyField } from '../../service/util';
 
+import ViewTabs from '../../ViewTabs';
 import DocLibService from '../DocLibService';
 import DocLibPagination from '../DocLibPagination';
+
 import './DocLibSettingsBar.scss';
 
-const DocLibSettingsBar = ({
-  stateId,
-  searchText,
-  createVariants,
-  createNode,
-  togglePreview,
-  showGrid,
-  isMobile,
-  onRefresh,
-  startSearch
-}) => {
-  const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
+const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh, toggleViewMode }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
 
@@ -101,27 +92,7 @@ const DocLibSettingsBar = ({
 
       <div className="ecos-doclib__settings-bar_right">
         <DocLibPagination stateId={stateId} isMobile={isMobile} className={step} />
-        <IcoBtn
-          title={t('journal.title')}
-          icon="icon-list"
-          className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-          onClick={showGrid}
-        />
-        {!isMobile && (
-          <>
-            <IcoBtn
-              title={t('doc-preview.preview')}
-              icon="icon-columns"
-              className={classNames('ecos-doclib__settings-bar_right-btn', step, grey)}
-              onClick={togglePreview}
-            />
-            <IcoBtn
-              title={t('document-library.title')}
-              icon="icon-folder"
-              className={classNames('ecos-doclib__settings-bar_right-btn', step, blue)}
-            />
-          </>
-        )}
+        <ViewTabs stateId={stateId} />
       </div>
     </div>
   );
@@ -137,8 +108,7 @@ DocLibSettingsBar.propTypes = {
     })
   ),
   createNode: PropTypes.func,
-  togglePreview: PropTypes.func,
-  showGrid: PropTypes.func,
+  onToggleViewMode: PropTypes.func,
   isMobile: PropTypes.bool,
   onRefresh: PropTypes.func,
   startSearch: PropTypes.func

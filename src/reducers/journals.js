@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 
 import {
   initState,
-  onJournalSelect,
+  selectJournal,
   runSearch,
   setCheckLoading,
   setColumnsSetup,
@@ -23,8 +23,8 @@ import {
   setJournalsItem,
   setLoading,
   setOnlyLinked,
-  setPredicate,
   setOriginGridSettings,
+  setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setRecordRef,
@@ -33,40 +33,11 @@ import {
   setSelectedJournals,
   setSelectedRecords,
   setSettingItem,
-  setUrl
+  setUrl,
+  toggleViewMode
 } from '../actions/journals';
-import {
-  addSidebarItems,
-  foldSidebarItem,
-  setCanUploadFiles,
-  setCreateVariants,
-  setDirTypeRef,
-  setFileTypeRefs,
-  setFileViewerError,
-  setFileViewerIsReady,
-  setFileViewerItems,
-  setFileViewerLastClicked,
-  setFileViewerLoadingStatus,
-  setFileViewerPagination,
-  setFileViewerSelected,
-  setFileViewerTotal,
-  setFolderId,
-  setFolderPath,
-  setFolderTitle,
-  setGroupActions,
-  setIsDocLibEnabled,
-  setIsGroupActionsReady,
-  setRootId,
-  setSearchText,
-  setSidebarError,
-  setSidebarIsReady,
-  setSidebarItems,
-  setTypeRef,
-  unfoldSidebarItem,
-  updateSidebarItem
-} from '../actions/docLib';
 import { t } from '../helpers/util';
-import { handleAction, handleState } from '../helpers/redux';
+import { handleAction, handleState, updateState } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
@@ -74,7 +45,6 @@ import {
   JOURNAL_SETTING_DATA_FIELD,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
-import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
 
 export const emptyJournalConfig = Object.freeze({
   meta: { createVariants: [] }
@@ -83,6 +53,7 @@ export const emptyJournalConfig = Object.freeze({
 export const defaultState = {
   loading: true,
   editorMode: false,
+  viewMode: undefined,
 
   url: {},
 
@@ -156,41 +127,6 @@ export const defaultState = {
 
   isLoadingPerformGroupActions: false,
   performGroupActionResponse: [],
-
-  documentLibrary: {
-    isEnabled: false,
-    typeRef: null,
-    fileTypeRefs: [],
-    dirTypeRef: null,
-    rootId: null,
-    folderId: null,
-    folderTitle: '',
-    folderPath: [],
-    searchText: '',
-    createVariants: [],
-    canUploadFiles: false,
-    groupActions: {
-      isReady: true,
-      forRecords: {},
-      forQuery: {}
-    },
-    sidebar: {
-      isReady: false,
-      items: [],
-      hasError: false
-    },
-    fileViewer: {
-      isReady: false,
-      items: [],
-      selected: [],
-      lastClicked: null,
-      total: 0,
-      pagination: DEFAULT_DOCLIB_PAGINATION,
-      hasError: false,
-      isLoading: false
-    }
-  },
-
   selectedJournals: []
 };
 
@@ -209,12 +145,18 @@ Object.freeze(defaultState);
 export default handleActions(
   {
     [initState]: (state, action) => {
-      const id = action.payload;
+      const stateId = action.payload.stateId;
 
       return {
         ...state,
-        [id]: { ...cloneDeep(defaultState), ...(state[id] || {}) }
+        [stateId]: { ...cloneDeep(defaultState), ...(state[stateId] || {}) }
       };
+    },
+    [toggleViewMode]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return updateState(state, stateId, { viewMode: action.payload.viewMode }, defaultState);
     },
     [setUrl]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -451,9 +393,14 @@ export default handleActions(
       action = handleAction(action);
 
       const initConfig = get(state, [stateId, 'initConfig']);
-      const loading = !isEqual(initConfig, action.payload);
+      const config = action.payload;
+      const data = { config, initConfig: config };
 
-      return handleState(state, stateId, { initConfig: action.payload, config: action.payload, loading });
+      if (!!initConfig && !isEqual(initConfig, config)) {
+        data.loading = true;
+      }
+
+      return handleState(state, stateId, data);
     },
     [setJournalConfig]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -506,423 +453,13 @@ export default handleActions(
         }
       });
     },
-    [onJournalSelect]: (state, action) => {
+    [selectJournal]: (state, action) => {
       const stateId = action.payload.stateId;
 
       return handleState(state, stateId, {
         grid: {
           ...(state[stateId] || {}).grid,
           pagination: { ...DEFAULT_PAGINATION }
-        }
-      });
-    },
-
-    [setIsDocLibEnabled]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          isEnabled: action.payload
-        }
-      });
-    },
-    [setTypeRef]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          typeRef: action.payload
-        }
-      });
-    },
-    [setFileTypeRefs]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          fileTypeRefs: Array.isArray(action.payload) ? action.payload : []
-        }
-      });
-    },
-    [setDirTypeRef]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          dirTypeRef: action.payload
-        }
-      });
-    },
-    [setCreateVariants]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          createVariants: Array.isArray(action.payload) ? action.payload : []
-        }
-      });
-    },
-    [setCanUploadFiles]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          canUploadFiles: action.payload
-        }
-      });
-    },
-    [setRootId]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          rootId: action.payload
-        }
-      });
-    },
-    [setFolderId]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          folderId: handledAction.payload
-        }
-      });
-    },
-    [setFolderTitle]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          folderTitle: handledAction.payload
-        }
-      });
-    },
-    [setFolderPath]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          folderPath: Array.isArray(handledAction.payload) ? handledAction.payload : []
-        }
-      });
-    },
-    [setSearchText]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...state[stateId].documentLibrary,
-          searchText: handledAction.payload
-        }
-      });
-    },
-    [setSidebarItems]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            items: action.payload
-          }
-        }
-      });
-    },
-    [addSidebarItems]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      action = handleAction(action);
-
-      const resultItems = cloneDeep(documentLibrary.sidebar.items);
-      const addItems = Array.isArray(action.payload) ? action.payload : [];
-
-      for (let i = 0; i < addItems.length; i++) {
-        const newItem = addItems[i];
-        const newItemId = newItem.id;
-        const index = resultItems.findIndex(item => item.id === newItemId);
-        if (index === -1) {
-          resultItems.push(newItem);
-        } else {
-          resultItems[index] = { ...resultItems[index], ...newItem };
-        }
-      }
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            items: resultItems
-          }
-        }
-      });
-    },
-    [setSidebarIsReady]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            isReady: action.payload
-          }
-        }
-      });
-    },
-    [setSidebarError]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            hasError: action.payload
-          }
-        }
-      });
-    },
-    [foldSidebarItem]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            items: documentLibrary.sidebar.items.map(item => {
-              if (item.id !== handledAction.payload) {
-                return item;
-              }
-              return { ...item, isUnfolded: false };
-            })
-          }
-        }
-      });
-    },
-    [unfoldSidebarItem]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            items: documentLibrary.sidebar.items.map(item => {
-              if (item.id !== handledAction.payload) {
-                return item;
-              }
-              return { ...item, isUnfolded: true };
-            })
-          }
-        }
-      });
-    },
-    [updateSidebarItem]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      action = handleAction(action);
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          sidebar: {
-            ...documentLibrary.sidebar,
-            items: documentLibrary.sidebar.items.map(item => {
-              if (item.id !== action.payload.id) {
-                return item;
-              }
-              return { ...item, ...action.payload };
-            })
-          }
-        }
-      });
-    },
-    [setFileViewerIsReady]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            isReady: handledAction.payload
-          }
-        }
-      });
-    },
-    [setFileViewerItems]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            items: handledAction.payload
-          }
-        }
-      });
-    },
-    [setFileViewerError]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            hasError: handledAction.payload
-          }
-        }
-      });
-    },
-    [setFileViewerPagination]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            pagination: {
-              ...documentLibrary.fileViewer.pagination,
-              ...handledAction.payload
-            }
-          }
-        }
-      });
-    },
-    [setFileViewerTotal]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            total: handledAction.payload
-          }
-        }
-      });
-    },
-    [setFileViewerSelected]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            selected: Array.isArray(handledAction.payload) ? handledAction.payload : []
-          }
-        }
-      });
-    },
-    [setFileViewerLastClicked]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            lastClicked: handledAction.payload
-          }
-        }
-      });
-    },
-    [setFileViewerLoadingStatus]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          fileViewer: {
-            ...documentLibrary.fileViewer,
-            isLoading: handledAction.payload
-          }
-        }
-      });
-    },
-    [setIsGroupActionsReady]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          groupActions: {
-            ...documentLibrary.groupActions,
-            isReady: handledAction.payload
-          }
-        }
-      });
-    },
-    [setGroupActions]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const documentLibrary = state[stateId].documentLibrary;
-      const handledAction = handleAction(cloneDeep(action));
-
-      return handleState(state, stateId, {
-        documentLibrary: {
-          ...documentLibrary,
-          groupActions: {
-            ...documentLibrary.groupActions,
-            forRecords: handledAction.payload.forRecords || {},
-            forQuery: handledAction.payload.forQuery || {}
-          }
         }
       });
     },

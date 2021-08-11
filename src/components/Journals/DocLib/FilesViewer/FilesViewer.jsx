@@ -20,13 +20,13 @@ const FilesViewer = ({
   openFolder,
   setSelected,
   setLastClicked,
-  groupActions,
-  path,
+  groupActions = {},
+  path = [],
   onInitData,
   onDrop,
   isLoading
 }) => {
-  const { hasError, isReady, items, selected, lastClicked } = fileViewer;
+  const { hasError, isReady, items = [], selected, lastClicked } = fileViewer;
 
   let content;
 
@@ -46,7 +46,7 @@ const FilesViewer = ({
     const isGroupActionsReady = get(groupActions, 'isReady', false);
     const forRecords = get(groupActions, 'forRecords', {});
     const isGroupActionsVisible = !isGroupActionsReady || !isEmpty(forRecords.actions);
-    const isBreadcrumbsVisible = !!path.length;
+    const isBreadcrumbsVisible = !isEmpty(path);
 
     content =
       items.length > 0 ? (
