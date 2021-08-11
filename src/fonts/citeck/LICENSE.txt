@@ -18,4 +18,12 @@ Font license info
    License:   SIL (http://scripts.sil.org/OFL)
    Homepage:  http://typicons.com/
 
+## Freepik
+
+   (c) Freepik
+
+   Author:    Freepik
+   License:   Flaticon License (https://www.flaticon.com/)
+   Homepage:  https://www.flaticon.com/packs/ecommerce-265
+
 

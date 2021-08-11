@@ -241,7 +241,6 @@
 .icon-folder {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe850;&nbsp;');
 }
-
 .icon-bug {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe851;&nbsp;');
 }
@@ -259,6 +258,9 @@
 }
 .icon-code-json {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe857;&nbsp;');
+}
+.icon-filter-clean {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe858;&nbsp;');
 }
 .icon-actual {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85a;&nbsp;');
