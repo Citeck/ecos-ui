@@ -15,7 +15,7 @@ import './JournalsSettingsBar.scss';
 
 const Labels = {
   BTN_CREATE: 'journals.bar.btn.create',
-  BTN_SETTINGS: 'journals.bar.btn.settings',
+  BTN_SETTINGS: 'journals.bar.btn.settings-table',
   BTN_EXPORT: 'journals.bar.btn.export',
   BTN_UPDATE: 'journals.bar.btn.update',
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del'

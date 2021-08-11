@@ -754,7 +754,7 @@
   "journals.menu.journal-list.title": "Журналы",
   "journals.menu.journal-list.empty": "Список пуст",
   "journals.bar.btn.create": "Создать запись",
-  "journals.bar.btn.settings": "Настройки",
+  "journals.bar.btn.settings-table": "Настройки таблицы",
   "journals.bar.btn.export": "Экспорт",
   "journals.bar.btn.update": "Обновить данные",
   "journals.bar.btn.filter-del": "Сбросить фильтры",
