@@ -42,6 +42,7 @@ export const renameJournalSetting = createAction(prefix + 'RENAME_JOURNAL_SETTIN
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
 export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
+export const resetFiltering = createAction(prefix + 'RESET_JOURNAL_FILTERING');
 export const execJournalAction = createAction(prefix + 'EXEC_JOURNAL_ACTION');
 
 export const setPredicate = createAction(prefix + 'SET_PREDICATE');

@@ -753,6 +753,10 @@
   "journals.tpl.defaults": "Settings template",
   "journals.menu.journal-list.title": "Journals",
   "journals.menu.journal-list.empty": "List is empty",
+  "journals.bar.btn.settings": "Settings",
+  "journals.bar.btn.export": "Export",
+  "journals.bar.btn.update": "Update",
+  "journals.bar.btn.filter-del": "Reset filter",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 

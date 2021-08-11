@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
-import { Search } from '../../common';
+import { Search, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
@@ -14,9 +14,10 @@ import ViewTabs from '../ViewTabs';
 import './JournalsSettingsBar.scss';
 
 const Labels = {
-  BTN_SETTINGS: 'journals.settings',
-  BTN_EXPORT: 'button.export',
-  BTN_UPDATE: 'dashlet.update.title'
+  BTN_SETTINGS: 'journals.bar.btn.settings',
+  BTN_EXPORT: 'journals.bar.btn.export',
+  BTN_UPDATE: 'journals.bar.btn.update',
+  BTN_FILTER_DEL: 'journals.bar.btn.filter-del'
 };
 
 const JournalsSettingsBar = ({
@@ -29,11 +30,13 @@ const JournalsSettingsBar = ({
   isMobile,
   isCreateLoading,
   isLoading,
+  isShowResetFilter,
 
   onRefresh,
   onSearch,
   onToggleSettings,
-  onAddRecord
+  onAddRecord,
+  onResetFilter
 }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
@@ -75,18 +78,22 @@ const JournalsSettingsBar = ({
     );
   };
 
+  const getTooltipId = key => 'ecos-journal-settings-bar-' + key;
+
   return (
     <div className={classNames('ecos-journal__settings-bar', { 'ecos-journal__settings-bar_mobile': isMobile })}>
       {renderCreateMenu()}
 
       {!isMobile && (
-        <IcoBtn
-          title={t(Labels.BTN_SETTINGS)}
-          icon={'icon-settings'}
-          className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
-          onClick={onToggleSettings}
-          loading={isLoading}
-        />
+        <Tooltip target={getTooltipId(Labels.BTN_SETTINGS)} text={t(Labels.BTN_SETTINGS)} uncontrolled>
+          <IcoBtn
+            id={getTooltipId(Labels.BTN_SETTINGS)}
+            icon={'icon-settings'}
+            className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
+            onClick={onToggleSettings}
+            loading={isLoading}
+          />
+        </Tooltip>
       )}
 
       <Search
@@ -115,15 +122,31 @@ const JournalsSettingsBar = ({
         </IcoBtn>
       </Export>
 
-      <IcoBtn
-        title={t(Labels.BTN_UPDATE)}
-        icon={'icon-reload'}
-        className={classNames('ecos-journal__settings-bar-update', step, {
-          [grey]: !isMobile,
-          'ecos-btn_i ecos-btn_white': isMobile
-        })}
-        onClick={onRefresh}
-      />
+      <Tooltip target={getTooltipId(Labels.BTN_UPDATE)} text={t(Labels.BTN_UPDATE)} uncontrolled>
+        <IcoBtn
+          id={getTooltipId(Labels.BTN_UPDATE)}
+          icon={'icon-reload'}
+          className={classNames('ecos-journal__settings-bar-update', step, {
+            [grey]: !isMobile,
+            'ecos-btn_i ecos-btn_white': isMobile
+          })}
+          onClick={onRefresh}
+        />
+      </Tooltip>
+
+      {isShowResetFilter && (
+        <Tooltip target={getTooltipId(Labels.BTN_FILTER_DEL)} text={t(Labels.BTN_FILTER_DEL)} uncontrolled>
+          <IcoBtn
+            id={getTooltipId(Labels.BTN_FILTER_DEL)}
+            icon={'icon-filter-clean'}
+            className={classNames('ecos-journal__settings-bar-filter-del', step, {
+              [grey]: !isMobile,
+              'ecos-btn_i ecos-btn_white': isMobile
+            })}
+            onClick={onResetFilter}
+          />
+        </Tooltip>
+      )}
 
       <div className="ecos-journal__settings-bar_right">
         <JournalsDashletPagination
