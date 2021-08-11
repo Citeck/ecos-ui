@@ -40,7 +40,6 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setUsers(allUsers));
 
-    let userNamesPure = CommonTimesheetService.getUserNameList(allUsers);
     const currentList = yield select(selectTVerificationMergedList);
     const mergedList = VerificationTimesheetService.mergeList({
       currentList,
@@ -49,14 +48,6 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
     });
 
     yield put(setVerificationTimesheetByParams({ mergedList }));
-
-    yield put(
-      getCalendarEvents({
-        month: currentDate.getMonth(),
-        year: currentDate.getFullYear(),
-        userName: userNamesPure[0]
-      })
-    );
   } catch (e) {
     logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e.message);
   }
