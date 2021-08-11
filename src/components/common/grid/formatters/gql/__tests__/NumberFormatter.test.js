@@ -36,22 +36,22 @@ describe('NumberFormatter React Component', () => {
     {
       title: 'Number with a large number of characters after the separator (maximumFractionDigits = 16)',
       input: { cell: 0.0134072699580621 },
-      output: '0.0134072699580621'
+      output: '0,0134072699580621'
     },
     {
       title: 'Large number (> 64 bit), no parameters (maximumFractionDigits = 16)',
       input: { cell: 1364.0134072699580621 },
-      output: '1,364.013407269958'
+      output: '1 364,013407269958'
     },
     {
       title: 'Large number in string format, no parameters (maximumFractionDigits = 16)',
       input: { cell: '1364.013407269958062178' },
-      output: '1,364.0134072699580622'
+      output: '1 364,0134072699580622'
     },
     {
       title: 'Number with more characters after separator with maximumFractionDigits = 3',
       input: { cell: 21.01340726995806217, params: { maximumFractionDigits: 3 } },
-      output: '21.013'
+      output: '21,013'
     }
   ];
 
