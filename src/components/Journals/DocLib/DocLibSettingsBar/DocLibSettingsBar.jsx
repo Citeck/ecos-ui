@@ -15,7 +15,7 @@ import DocLibPagination from '../DocLibPagination';
 
 import './DocLibSettingsBar.scss';
 
-const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh, toggleViewMode }) => {
+const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, isMobile, startSearch, onRefresh }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-doclib__settings-bar_step', { 'ecos-doclib__settings-bar_step-mobile': isMobile });
 
@@ -38,7 +38,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
 
     if (createVariants.length === 1) {
       return (
-        <Tooltip target="ecos-doclib-settings-bar-create" text={t('journals.bar.btn.create')} uncontrolled>
+        <Tooltip off={isMobile} target="ecos-doclib-settings-bar-create" text={t('journals.bar.btn.create')} uncontrolled>
           <IcoBtn
             id="ecos-doclib-settings-bar-create"
             icon={'icon-small-plus'}
@@ -83,7 +83,7 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
         cleaner
       />
 
-      <Tooltip target="ecos-doclib-settings-bar-update" text={t('journals.bar.btn.update')} uncontrolled>
+      <Tooltip off={isMobile} target="ecos-doclib-settings-bar-update" text={t('journals.bar.btn.update')} uncontrolled>
         <IcoBtn
           id="ecos-doclib-settings-bar-update"
           icon={'icon-reload'}

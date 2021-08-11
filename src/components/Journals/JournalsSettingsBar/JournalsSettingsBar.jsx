@@ -51,7 +51,7 @@ const JournalsSettingsBar = ({
 
     if (createVariants.length === 1) {
       return (
-        <Tooltip target="ecos-journal-settings-bar-create" text={t(Labels.BTN_CREATE)} uncontrolled>
+        <Tooltip off={isMobile} target="ecos-journal-settings-bar-create" text={t(Labels.BTN_CREATE)} uncontrolled>
           <IcoBtn
             id="ecos-journal-settings-bar-create"
             loading={isCreateLoading}
@@ -89,7 +89,7 @@ const JournalsSettingsBar = ({
       {renderCreateMenu()}
 
       {!isMobile && (
-        <Tooltip target="ecos-journal-settings-bar-settings" text={t(Labels.BTN_SETTINGS)} uncontrolled>
+        <Tooltip off={isMobile} target="ecos-journal-settings-bar-settings" text={t(Labels.BTN_SETTINGS)} uncontrolled>
           <IcoBtn
             id="ecos-journal-settings-bar-settings"
             icon={'icon-settings'}
@@ -126,7 +126,7 @@ const JournalsSettingsBar = ({
         </IcoBtn>
       </Export>
 
-      <Tooltip target="ecos-journal-settings-bar-update" text={t(Labels.BTN_UPDATE)} uncontrolled>
+      <Tooltip off={isMobile} target="ecos-journal-settings-bar-update" text={t(Labels.BTN_UPDATE)} uncontrolled>
         <IcoBtn
           id="ecos-journal-settings-bar-update"
           icon={'icon-reload'}
@@ -139,7 +139,7 @@ const JournalsSettingsBar = ({
       </Tooltip>
 
       {isShowResetFilter && (
-        <Tooltip target="ecos-journal-settings-bar-reset-filter" text={t(Labels.BTN_FILTER_DEL)} uncontrolled>
+        <Tooltip off={isMobile} target="ecos-journal-settings-bar-reset-filter" text={t(Labels.BTN_FILTER_DEL)} uncontrolled>
           <IcoBtn
             id="ecos-journal-settings-bar-reset-filter"
             icon={'icon-filter-clean'}
