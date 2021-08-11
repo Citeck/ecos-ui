@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { t } from '../../../../helpers/util';
 import { getCreateVariantKeyField } from '../../service/util';
-import { Search } from '../../../common';
+import { Search, Tooltip } from '../../../common';
 import DialogManager from '../../../common/dialogs/Manager/DialogManager';
 import { IcoBtn, TwoIcoBtn } from '../../../common/btns';
 import { Dropdown } from '../../../common/form';
@@ -38,11 +38,14 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
 
     if (createVariants.length === 1) {
       return (
-        <IcoBtn
-          icon={'icon-small-plus'}
-          className={`ecos-doclib__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-          onClick={() => openCreateForm(createVariants[0])}
-        />
+        <Tooltip target="ecos-doclib-settings-bar-create" text={t('journals.bar.btn.create')} uncontrolled>
+          <IcoBtn
+            id="ecos-doclib-settings-bar-create"
+            icon={'icon-small-plus'}
+            className={`ecos-doclib__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+            onClick={() => openCreateForm(createVariants[0])}
+          />
+        </Tooltip>
       );
     }
 
@@ -80,15 +83,17 @@ const DocLibSettingsBar = ({ stateId, searchText, createVariants, createNode, is
         cleaner
       />
 
-      <IcoBtn
-        title={t('dashlet.update.title')}
-        icon={'icon-reload'}
-        className={classNames('ecos-doclib__settings-bar-update', step, {
-          [grey]: !isMobile,
-          'ecos-btn_i ecos-btn_white': isMobile
-        })}
-        onClick={onRefresh}
-      />
+      <Tooltip target="ecos-doclib-settings-bar-update" text={t('journals.bar.btn.update')} uncontrolled>
+        <IcoBtn
+          id="ecos-doclib-settings-bar-update"
+          icon={'icon-reload'}
+          className={classNames('ecos-doclib__settings-bar-update', step, {
+            [grey]: !isMobile,
+            'ecos-btn_i ecos-btn_white': isMobile
+          })}
+          onClick={onRefresh}
+        />
+      </Tooltip>
 
       <div className="ecos-doclib__settings-bar_right">
         <DocLibPagination stateId={stateId} isMobile={isMobile} className={step} />
