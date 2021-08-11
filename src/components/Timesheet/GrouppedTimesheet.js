@@ -7,6 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
@@ -62,7 +63,7 @@ class GrouppedTimesheet extends BaseTimesheet {
       ...this.state,
       typeFilter: '',
       filteredEventTypes: cloneDeep(props.eventTypes),
-      groupsStatuses: this.initGroupsStatuses(props) || {},
+      groupsStatuses: this.initGroupsStatuses(props.eventTypes, props.groupBy) || {},
       eventsFilterTabs: [
         {
           name: t(CommonLabels.FILTER_BY_PEOPLE),
@@ -88,29 +89,46 @@ class GrouppedTimesheet extends BaseTimesheet {
     };
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.filteredEventTypes)) {
-      const nextGroupsKeys = Object.keys(this.initGroupsStatuses(nextProps));
-      const currentGroupsKeys = Object.keys(this.state.groupsStatuses);
-      const nextState = {
-        filteredEventTypes: cloneDeep(nextProps.eventTypes)
-      };
+  componentWillReceiveProps(nextProps, nextContext) {}
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { eventTypes, groupBy, onGetCalendarEvents } = this.props;
+    const { typeFilter, groupsStatuses } = this.state;
+    const nextState = {};
+
+    if (!isEqual(prevProps.eventTypes, eventTypes)) {
+      const filteredEventTypes = typeFilter !== '' ? this.getFiltered(cloneDeep(eventTypes), typeFilter) : cloneDeep(eventTypes);
+      const nextGroupStatuses = this.initGroupsStatuses(filteredEventTypes, groupBy);
+      const nextGroupsKeys = Object.keys(nextGroupStatuses);
+      const currentGroupsKeys = Object.keys(groupsStatuses);
+
+      nextState.filteredEventTypes = filteredEventTypes;
 
       if (!isEqual(currentGroupsKeys, nextGroupsKeys)) {
-        nextState.groupsStatuses = this.initGroupsStatuses(nextProps);
-      }
+        const userName = get(filteredEventTypes, '0.userName');
 
+        if (groupsStatuses[userName] === undefined) {
+          if (isFunction(onGetCalendarEvents)) {
+            onGetCalendarEvents(userName);
+          }
+        }
+
+        nextState.groupsStatuses = nextGroupStatuses;
+      }
+    }
+
+    if (!isEmpty(nextState)) {
       this.setState({ ...nextState });
     }
   }
 
-  initGroupsStatuses(props) {
-    return props.eventTypes
-      .map(item => item[props.groupBy])
+  initGroupsStatuses(eventTypes, groupBy, prevValues) {
+    return eventTypes
+      .map(item => item[groupBy])
       .reduce(
         (result, key, index) => ({
           ...result,
-          [key]: index === 0 || undefined
+          [key]: index === 0 || get(prevValues, [key], undefined)
         }),
         {}
       );
@@ -215,13 +233,25 @@ class GrouppedTimesheet extends BaseTimesheet {
   };
 
   filterTypes(typeFilter = '') {
-    let filteredEventTypes = cloneDeep(this.props.eventTypes);
+    const { eventTypes, groupBy, onGetCalendarEvents } = this.props;
+    let filteredEventTypes = cloneDeep(eventTypes);
+    let groupsStatuses = this.initGroupsStatuses(eventTypes, groupBy);
 
-    if (typeFilter) {
+    if (!isEqual(typeFilter, this.state.typeFilter)) {
       filteredEventTypes = this.getFiltered(filteredEventTypes, typeFilter);
+
+      const userName = get(filteredEventTypes, '0.userName');
+
+      if (groupsStatuses[userName] === undefined) {
+        if (isFunction(onGetCalendarEvents)) {
+          onGetCalendarEvents(userName);
+        }
+      }
+
+      groupsStatuses = this.initGroupsStatuses(filteredEventTypes, groupBy, this.state.groupsStatuses);
     }
 
-    this.setState({ typeFilter, filteredEventTypes });
+    this.setState({ typeFilter, filteredEventTypes, groupsStatuses });
   }
 
   renderFilter() {
