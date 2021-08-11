@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -281,7 +282,9 @@ class Grid extends Component {
           column.hidden = !column.default;
         }
 
-        const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+        const filterable = [COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(column.type)
+          ? props.withDateFilter
+          : props.filterable;
 
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
@@ -519,13 +522,15 @@ class Grid extends Component {
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
-      const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
+      const filter = (filters || []).filter(filter => filter.att === column.dataField)[0] || {};
+      const filterValue = filter.val || '';
       const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
 
       return (
         <HeaderFormatter
           filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
+          filter={filter}
           filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={isSortable}
@@ -830,8 +835,12 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  onFilter = predicates => {
-    trigger.call(this, 'onFilter', predicates);
+  onFilter = (predicates, type) => {
+    const { onFilter } = this.props;
+
+    if (isFunction(onFilter)) {
+      onFilter(predicates, type);
+    }
   };
 
   onEdit = (oldValue, newValue, row, column) => {
@@ -1088,6 +1097,7 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  withDateFilter: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 

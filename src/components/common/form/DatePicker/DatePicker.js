@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+
 import { t } from '../../../../helpers/util';
+
 import '../Input/Input.scss';
 import './DatePicker.scss';
 
@@ -14,8 +17,32 @@ class CustomInput extends Component {
 }
 
 export default class extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpen: props.isOpen
+    };
+  }
+
+  handleToggleCalendar = () => {
+    this.setState(state => ({ isOpen: !state.isOpen }));
+  };
+
+  handleInputClick = event => {
+    const { onInputClick } = this.props;
+
+    if (isFunction(onInputClick)) {
+      event.persist();
+      onInputClick(event);
+    }
+
+    this.setState({ isOpen: true });
+  };
+
   render() {
     const { className, showIcon, dateFormat = 'P', wrapperClasses, ...otherProps } = this.props;
+    const { isOpen } = this.state;
     const cssClasses = classNames('ecos-input', className);
     const wrapperCssClasses = classNames(
       'ecos-datepicker',
@@ -26,12 +53,7 @@ export default class extends Component {
     );
 
     const calendarIcon = showIcon ? (
-      <span
-        className="icon icon-calendar ecos-datepicker__icon"
-        onClick={() => {
-          this.datePickerInput && this.datePickerInput.click();
-        }}
-      />
+      <span className="icon icon-calendar ecos-datepicker__icon" onClick={this.handleToggleCalendar} />
     ) : null;
 
     let additionalProps = {};
@@ -62,8 +84,10 @@ export default class extends Component {
           {...otherProps}
           selected={selected || null}
           {...additionalProps}
+          open={isOpen}
           className={cssClasses}
           calendarClassName="ecos-datepicker__calendar"
+          onInputClick={this.handleInputClick}
         />
         {calendarIcon}
       </div>
