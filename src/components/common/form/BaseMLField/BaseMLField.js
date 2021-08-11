@@ -88,8 +88,6 @@ class BaseMLField extends Component {
       }
 
       if (this.state.selectedLang !== selectedLang) {
-        console.warn('prevProps.lang !== this.props.lang => ', selectedLang);
-
         this.setState({ selectedLang });
       }
     }
