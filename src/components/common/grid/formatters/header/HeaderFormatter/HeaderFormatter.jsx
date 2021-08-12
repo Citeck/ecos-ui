@@ -158,6 +158,10 @@ export default class HeaderFormatter extends Component {
   };
 
   handleSetFilter = debounce(() => {
+    console.warn({
+      'this.props.predicate': this.props.predicate,
+      'this.state.predicate': this.state.predicate
+    });
     this.props.onFilter(
       [
         {
@@ -173,13 +177,25 @@ export default class HeaderFormatter extends Component {
   handleFilter = data => {
     const { onFilter, predicate, column } = this.props;
 
+    console.warn(
+      'handleFilter => ',
+      {
+        ...predicate,
+        ...data,
+        value: predicate.val,
+        t: predicate.value,
+        att: column.attribute || column.dataField
+      },
+      { predicate, column, data }
+    );
+
     onFilter(
       [
         {
           ...predicate,
           ...data,
           value: predicate.val,
-          t: predicate.value,
+          t: predicate.value || data.value,
           att: column.attribute || column.dataField
         }
       ],

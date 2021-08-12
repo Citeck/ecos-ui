@@ -17,12 +17,15 @@ import { Grid } from '../../common/grid';
 import EventsHistoryCard from './EventsHistoryCard';
 import { DataFormatTypes, DateFormats } from '../../../constants';
 import {
+  datePredicateVariables,
   PREDICATE_CONTAINS,
+  PREDICATE_EMPTY,
   PREDICATE_EQ,
   PREDICATE_GE,
   PREDICATE_GT,
   PREDICATE_LE,
   PREDICATE_LT,
+  PREDICATE_NOT_EMPTY,
   PREDICATE_NOT_EQ
 } from '../../Records/predicates/predicates';
 
@@ -169,15 +172,26 @@ class EventsHistory extends React.Component {
         return filterInMoment.format(format) !== valueInMoment.format(format);
       case PREDICATE_EQ:
         return filterInMoment.format(format) === valueInMoment.format(format);
+      case PREDICATE_EMPTY:
+        return isEmpty(value);
+      case PREDICATE_NOT_EMPTY:
+        return !isEmpty(value);
       case PREDICATE_CONTAINS:
-      default:
+      default: {
+        if (filter.val === datePredicateVariables.TODAY) {
+          return valueInMoment.format(DateFormats.DATE) === moment().format(DateFormats.DATE);
+        }
+
         return true;
+      }
     }
   }
 
   get filteredGridData() {
     const { list, columns } = this.props;
     const { filters } = this.state;
+
+    console.warn({ list, columns, filters });
 
     return list.filter((item, index) =>
       filters.every(filter => {
@@ -232,7 +246,7 @@ class EventsHistory extends React.Component {
 
     const result = items.filter(filtering);
 
-    if (!isEmpty(newItem.val)) {
+    if (!isEmpty(newItem.val) || !newItem.needValue) {
       result.push(newItem);
     }
 
@@ -243,6 +257,8 @@ class EventsHistory extends React.Component {
     const { filters } = this.state;
     const newFilter = get(newFilters, '0', {});
     const upFilters = this.applyFiltering(filters, newFilter, type);
+
+    console.warn({ newFilters, upFilters });
 
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);
@@ -266,6 +282,8 @@ class EventsHistory extends React.Component {
   renderTable() {
     const { columns, isMobile, maxHeight } = this.props;
     const { filters } = this.state;
+
+    console.warn('this.filteredGridData => ', this.filteredGridData);
 
     return (
       <Grid

@@ -65,7 +65,13 @@ class InlineFilter extends Filter {
     return 'icon-small-close';
   }
 
-  onConfirmAction = () => {
+  onConfirmAction = e => {
+    e.stopPropagation();
+
+    console.warn({
+      'this.selectedPredicate =>': this.selectedPredicate
+    });
+
     this.props.onFilter(this.selectedPredicate);
     this.props.onToggle();
   };
