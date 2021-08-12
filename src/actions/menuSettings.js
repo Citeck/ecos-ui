@@ -22,5 +22,6 @@ export const setLastAddedCreateItems = createAction(prefix + 'SET_LAST_ADDED_Cre
 
 export const setAuthorities = createAction(prefix + 'SET_AUTHORITIES');
 export const getAuthorityInfoByRefs = createAction(prefix + 'GET_AUTHORITY_INFO_BY_REFS');
+export const setIsForAll = createAction(prefix + 'SET_IS_FOR_ALL');
 
 export const resetStore = createAction(prefix + 'RESET_STORE');
