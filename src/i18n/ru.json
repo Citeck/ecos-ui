@@ -543,6 +543,9 @@
   "records-actions.error.execute-action": "Ошибка выполнения действия",
   "records-actions.error.get-actions": "Действия не получены",
 
+  "records-actions.create.create-variants-not-found": "Варианты создания не найдены",
+  "records-actions.create.create-variant-with-id-not-found": "Вариант создания с id = '{{id}}' не найден",
+
   "group-action.select.copy-to": "Копировать в...",
   "group-action.select.delete": "Удалить",
   "group-action.select.download": "Скачать как Zip",
