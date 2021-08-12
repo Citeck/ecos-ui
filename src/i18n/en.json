@@ -543,7 +543,6 @@
   "records-actions.error.execute-action": "Action failed",
   "records-actions.error.get-actions": "Actions haven't received",
 
-  "records-actions.create.create-variants-not-found": "Creation variants doesn't found",
   "records-actions.create.create-variant-with-id-not-found": "Creation variant with id = '{{id}}' doesn't found",
 
   "group-action.select.copy-to": "Copy to...",
