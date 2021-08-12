@@ -1,4 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
+import values from 'lodash/values';
+import findIndex from 'lodash/findIndex';
 
 import { goToCardDetailsPage } from '../../../../../helpers/urls';
 import Records from '../../../Records';
@@ -28,16 +30,13 @@ export default class CreateAction extends ActionsExecutor {
 
     if (config.typeRef) {
       // You should use ${att_name} instead of $att_name in this mode
-      const resolvedTypeRef = config.typeRef.replace(SourcesId.TYPE, SourcesId.RESOLVED_TYPE);
-      let variant;
-      if (config.createVariant) {
+      let variant = null;
+      if (config.createVariant && findIndex(values(config.createVariant), v => !!v) !== -1) {
         variant = config.createVariant;
-      } else {
+      }
+      if (!variant) {
+        const resolvedTypeRef = config.typeRef.replace(SourcesId.TYPE, SourcesId.RESOLVED_TYPE);
         let createVariants = (await Records.get(resolvedTypeRef).load('createVariants[]?json', true)) || [];
-        if (!createVariants.length) {
-          NotificationManager.error('', t('records-actions.create.create-variants-not-found'));
-          return;
-        }
         if (config.createVariantId) {
           variant = createVariants.filter(v => v.id === config.createVariantId)[0];
           if (!variant) {
@@ -50,7 +49,11 @@ export default class CreateAction extends ActionsExecutor {
             return;
           }
         } else {
-          variant = createVariants[0];
+          if (createVariants.length) {
+            variant = createVariants[0];
+          } else {
+            variant = {};
+          }
         }
       }
       variant = { ...variant };
@@ -67,6 +70,7 @@ export default class CreateAction extends ActionsExecutor {
         actionRecord: record.id
       };
       if (!variant.formRef) {
+        const resolvedTypeRef = variant.typeRef.replace(SourcesId.TYPE, SourcesId.RESOLVED_TYPE);
         variant.formRef = await Records.get(resolvedTypeRef).load('formRef?id', true);
       }
 
