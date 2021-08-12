@@ -89,27 +89,37 @@ export default class HeaderFormatter extends Component {
   };
 
   onKeyDown = e => {
+    const { column } = this.props;
     const { text, first } = this.state;
 
     if (e.key === 'Enter' && text !== first) {
-      this.triggerPendingChange(text, this.props.column.dataField);
+      this.triggerPendingChange(text, column.dataField, column.type);
     }
   };
 
   onClear = () => {
+    const { column } = this.props;
+
     this.setState({ text: '' });
-    this.triggerPendingChange('', this.props.column.dataField);
+    this.triggerPendingChange('', column.dataField, column.type);
   };
 
-  triggerPendingChange = debounce((text, dataField) => {
+  triggerPendingChange = debounce((text, dataField, type) => {
+    const { column } = this.props;
+
     this.onToggle();
-    trigger.call(this, 'onFilter', [
-      {
-        att: dataField,
-        t: 'contains',
-        val: text.trim()
-      }
-    ]);
+    trigger.call(
+      this,
+      'onFilter',
+      [
+        {
+          att: dataField,
+          t: 'contains',
+          val: text.trim()
+        }
+      ],
+      type || column.type
+    );
   }, 0);
 
   onDividerMouseDown = e => {
@@ -148,25 +158,33 @@ export default class HeaderFormatter extends Component {
   };
 
   handleSetFilter = debounce(() => {
-    this.props.onFilter([
-      {
-        ...this.props.predicate,
-        ...this.state.predicate,
-        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
-      }
-    ]);
+    this.props.onFilter(
+      [
+        {
+          ...this.props.predicate,
+          ...this.state.predicate,
+          att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
+        }
+      ],
+      get(this.props, 'column.type')
+    );
   }, 150);
 
-  handleFilter = predicate => {
-    this.props.onFilter([
-      {
-        ...get(this.props, 'predicate'),
-        ...predicate,
-        value: predicate.val,
-        t: predicate.value,
-        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
-      }
-    ]);
+  handleFilter = data => {
+    const { onFilter, predicate, column } = this.props;
+
+    onFilter(
+      [
+        {
+          ...predicate,
+          ...data,
+          value: predicate.val,
+          t: predicate.value,
+          att: column.attribute || column.dataField
+        }
+      ],
+      column.type
+    );
   };
 
   handleChangeFilterPredicate = ({ predicate }) => {
