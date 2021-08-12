@@ -69,9 +69,21 @@ export default class CreateAction extends ActionsExecutor {
         ...(config.options || {}),
         actionRecord: record.id
       };
+      const attsToLoadFromType = {};
       if (!variant.formRef) {
+        attsToLoadFromType['formRef'] = 'formRef?id';
+      }
+      if (!variant.sourceId) {
+        attsToLoadFromType['sourceId'] = 'sourceId';
+      }
+      if (Object.keys(attsToLoadFromType).length) {
         const resolvedTypeRef = variant.typeRef.replace(SourcesId.TYPE, SourcesId.RESOLVED_TYPE);
-        variant.formRef = await Records.get(resolvedTypeRef).load('formRef?id', true);
+        const atts = await Records.get(resolvedTypeRef).load(attsToLoadFromType, true);
+        for (let att in atts) {
+          if (atts.hasOwnProperty(att)) {
+            variant[att] = atts[att];
+          }
+        }
       }
 
       return new Promise(resolve => {
