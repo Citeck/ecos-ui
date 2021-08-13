@@ -181,9 +181,33 @@ class EcosForm extends React.Component {
         const i18n = options.i18n || {};
         const language = options.language || getCurrentLocale();
         const defaultI18N = i18n[language] || {};
-        const formI18N = (formData.i18n || {})[language] || {};
+        let currentLangTranslate = {};
+        let enTranslate = {};
 
-        i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
+        // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
+        const translations = Object.keys(formData.i18n).reduce((result, key) => {
+          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
+
+          if (key === language) {
+            currentLangTranslate = translate;
+          }
+
+          if (key === 'en') {
+            enTranslate = translate;
+          }
+
+          return {
+            ...result,
+            ...translate
+          };
+        }, {});
+
+        i18n[language] = {
+          ...translations,
+          ...enTranslate,
+          ...currentLangTranslate
+        };
+
         options.theme = EcosFormUtils.getThemeName();
         options.language = language;
         options.i18n = i18n;

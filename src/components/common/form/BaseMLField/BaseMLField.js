@@ -12,7 +12,7 @@ import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { prepareTooltipId } from '../../../../helpers/util';
 import { t } from '../../../../helpers/export/util';
-import { allowedLanguages } from '../../../../constants/lang';
+import { allowedLanguages, LANGUAGE_EN } from '../../../../constants/lang';
 
 import './style.scss';
 
@@ -48,6 +48,7 @@ class BaseMLField extends Component {
     super(props);
 
     let selectedLang = props.lang;
+    const currentLang = getCurrentLocale();
 
     if (!selectedLang) {
       selectedLang = this.getLocaleWithValue(props.value);
@@ -58,19 +59,20 @@ class BaseMLField extends Component {
       isShowTooltip: false,
       isShowButton: false,
       isFocus: false,
-      cursorPosition: null
+      cursorPosition: null,
+      canCheckLang: currentLang === selectedLang
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { cursorPosition } = this.state;
+    const { cursorPosition, canCheckLang } = this.state;
     const isSelectedText = !isEmpty(window.getSelection().toString());
 
-    if (this.value === undefined && !isEqual(this.props.value, prevProps.value)) {
+    if (!isEqual(this.props.value, prevProps.value) && canCheckLang) {
       const selectedLang = this.getLocaleWithValue(this.props.value);
 
       if (this.state.selectedLang !== selectedLang) {
-        this.setState({ selectedLang });
+        this.setState({ selectedLang, canCheckLang: false });
       }
     }
 
@@ -157,7 +159,17 @@ class BaseMLField extends Component {
       }
     }
 
-    return currentLocale;
+    if (!isEmpty(values[currentLocale])) {
+      return currentLocale;
+    }
+
+    if (!isEmpty(values[LANGUAGE_EN])) {
+      return LANGUAGE_EN;
+    }
+
+    const firstNotEmptyLang = Object.keys(values).find(key => !isEmpty(values[key]));
+
+    return firstNotEmptyLang || currentLocale;
   }
 
   handleToggleShowButton = debounce((isShowButton = !this.state.isShowButton) => {
@@ -190,6 +202,8 @@ class BaseMLField extends Component {
     if (typeof onChange === 'function') {
       onChange(newValue);
     }
+
+    this.setState({ canCheckLang: false });
 
     if (this._inputRef) {
       this.setState({ cursorPosition: this._inputRef.selectionStart });
