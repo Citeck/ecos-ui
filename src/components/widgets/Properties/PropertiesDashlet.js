@@ -206,11 +206,12 @@ class PropertiesDashlet extends BaseWidget {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
     const { isSmallMode, isEditProps, formIsChanged, isCollapsed, isShowSetting, title: titleForm, previousHeight } = this.state;
     const { formId = '', titleAsFormName } = config || {};
+    const titleDashlet = t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE);
 
     return (
       <Dashlet
         setRef={this.setDashletRef}
-        title={t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE)}
+        title={titleDashlet}
         className={classNames('ecos-properties-dashlet', classNameDashlet)}
         bodyClassName="ecos-properties-dashlet__body"
         actionConfig={this.dashletActions}

@@ -432,6 +432,8 @@
   "eform.header.EDIT.title": "Edit",
   "eform.header.VIEW.title": "View",
   "eform.btn.tooltip.constructor": "Go to form builder",
+  "eform.modal.title.constructor": "Form Builder",
+  "eform.modal.title.edit-locale": "Edit Locale",
   "eform.form-is-not-ready": "Form is not ready",
 
   "events-history-widget.info.no-columns": "No display settings",
