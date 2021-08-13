@@ -321,9 +321,9 @@ export default class EcosFormUtils {
       });
   }
 
-  static getForm(record, formKey = null, attributes = null) {
-    let recordInstance = isString(record) ? Records.get(record) : record;
-    recordInstance = recordInstance.getBaseRecord();
+  static async getForm(record, formKey = null, attributes = null) {
+    const recordInstance = isString(record) ? Records.get(record) : record;
+    const baseRecord = recordInstance.getBaseRecord();
 
     let getFormByKeysFromRecord = (keys, idx) => {
       if (!keys || idx >= keys.length) {
@@ -333,7 +333,7 @@ export default class EcosFormUtils {
       let query = {
         sourceId: SourcesId.EFORM,
         query: {
-          record: recordInstance.id,
+          record: baseRecord.id,
           formKey: keys[idx]
         }
       };
@@ -355,34 +355,48 @@ export default class EcosFormUtils {
     };
 
     if (!formKey) {
-      return recordInstance
-        .load({
+      let recordAtts = await baseRecord.load({
+        formKey: '_formKey[]?str',
+        typeId: '_type?id',
+        // legacy attribute. _type is preferred
+        etypeId: '_etype?id',
+        formRef: '_formRef?id'
+      });
+      if (!(recordAtts.formKey || []).length && !recordAtts.typeId && !recordAtts.etypeId && !recordAtts.formRef) {
+        recordAtts = await recordInstance.load({
           formKey: '_formKey[]?str',
           typeId: '_type?id',
+          // legacy attribute. _type is preferred
+          etypeId: '_etype?id',
           formRef: '_formRef?id'
-        })
-        .then(({ typeId, formKey, formRef }) => {
-          if (EcosFormUtils.isFormId(formRef)) {
-            return EcosFormUtils.getFormById(formRef, attributes);
-          }
-          if (typeId && typeId.indexOf('emodel/type@') === 0) {
-            return Records.get(typeId)
-              .load('inhFormRef?id')
-              .then(formId => {
-                if (EcosFormUtils.isFormId(formId)) {
-                  return EcosFormUtils.getFormById(formId, attributes);
-                } else {
-                  return getFormByKeysFromRecord(formKey, 0);
-                }
-              })
-              .catch(e => {
-                console.error(e);
-                return getFormByKeysFromRecord(formKey, 0);
-              });
-          } else {
-            return getFormByKeysFromRecord(formKey, 0);
-          }
         });
+      }
+      let { typeId, etypeId, formKey, formRef } = recordAtts;
+
+      if (!typeId) {
+        typeId = etypeId;
+      }
+
+      if (EcosFormUtils.isFormId(formRef)) {
+        return EcosFormUtils.getFormById(formRef, attributes);
+      }
+      if (typeId && typeId.indexOf('emodel/type@') === 0) {
+        return Records.get(typeId)
+          .load('inhFormRef?id')
+          .then(formId => {
+            if (EcosFormUtils.isFormId(formId)) {
+              return EcosFormUtils.getFormById(formId, attributes);
+            } else {
+              return getFormByKeysFromRecord(formKey, 0);
+            }
+          })
+          .catch(e => {
+            console.error(e);
+            return getFormByKeysFromRecord(formKey, 0);
+          });
+      } else {
+        return getFormByKeysFromRecord(formKey, 0);
+      }
     } else {
       return getFormByKeysFromRecord([formKey], 0);
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { t } from '../../../helpers/util';
 import EcosModal from '../../common/EcosModal';
 import EcosFormLocaleEditor from './EcosFormLocaleEditor';
 
@@ -49,7 +50,7 @@ export default class FormLocaleEditorModal extends React.Component {
           backdrop: 'static'
         }}
         className="ecos-modal_width-extra-lg"
-        title={'Edit Locale'}
+        title={t('eform.modal.title.edit-locale')}
         isOpen={isModalOpen}
         hideModal={this.onToggleVisibility}
         zIndex={9000}

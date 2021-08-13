@@ -68,21 +68,22 @@ export const TableFormContextProvider = props => {
       const noNeedParseIndices = [];
 
       columns.forEach((item, idx) => {
-        const isFullName = item.attribute.startsWith('.att');
-        const hasBracket = item.attribute.includes('{');
-        const hasQChar = item.attribute.includes('?');
+        const { attribute = '', multiple = false } = item || {};
+        const isFullName = attribute.startsWith('.att');
+        const hasBracket = attribute.includes('{');
+        const hasQChar = attribute.includes('?');
 
         if (isFullName || hasBracket || hasQChar) {
-          atts.push(item.attribute);
+          atts.push(attribute);
           noNeedParseIndices.push(idx);
           return;
         }
 
-        const multiplePostfix = item.multiple ? 's' : '';
-        const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+        const multiplePostfix = multiple ? 's' : '';
+        const schema = `.att${multiplePostfix}(n:"${attribute}"){disp}`;
 
         atts.push(schema);
-        attsAsIs.push(item.attribute);
+        attsAsIs.push(attribute);
       });
 
       Promise.all(
@@ -95,7 +96,7 @@ export const TableFormContextProvider = props => {
           if (record.isBaseRecord()) {
             result = await record.load(atts);
           } else {
-            result = await record.toJsonAsync(true).then(result => get(result, 'attributes', {}));
+            result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
             const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
 
             if (!isEmpty(nonExistAttrs)) {

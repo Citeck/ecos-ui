@@ -430,6 +430,8 @@
   "eform.header.EDIT.title": "Редактировать",
   "eform.header.VIEW.title": "Просмотр",
   "eform.btn.tooltip.constructor": "Перейти в конструктор",
+  "eform.modal.title.constructor": "Конструктор формы",
+  "eform.modal.title.edit-locale": "Редактирование локализации",
   "eform.form-is-not-ready": "Форма не готова к отправке",
 
   "events-history-widget.info.no-columns": "Нет настроек отображения",
