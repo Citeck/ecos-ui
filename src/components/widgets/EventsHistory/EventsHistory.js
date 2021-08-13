@@ -20,17 +20,20 @@ import {
   datePredicateVariables,
   PREDICATE_CONTAINS,
   PREDICATE_EMPTY,
+  PREDICATE_ENDS,
   PREDICATE_EQ,
   PREDICATE_GE,
   PREDICATE_GT,
   PREDICATE_LE,
   PREDICATE_LT,
+  PREDICATE_NOT_CONTAINS,
   PREDICATE_NOT_EMPTY,
-  PREDICATE_NOT_EQ
+  PREDICATE_NOT_EQ,
+  PREDICATE_STARTS
 } from '../../Records/predicates/predicates';
+import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../../Journals/service/util';
 
 import './style.scss';
-import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../../Journals/service/util';
 
 const mapStateToProps = (state, context) => {
   const ahState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
@@ -156,18 +159,17 @@ class EventsHistory extends React.Component {
 
   getDateCompareResult(filter, value, format) {
     const valueInMoment = moment(value);
-
     const filterInMoment = moment(filter.val);
 
     switch (filter.t) {
       case PREDICATE_GT:
-        return moment(valueInMoment.format(format)).isAfter(filterInMoment.format(format));
+        return valueInMoment.isAfter(filterInMoment);
       case PREDICATE_GE:
-        return moment(valueInMoment.format(format)).isSameOrAfter(filterInMoment.format(format));
+        return valueInMoment.isSameOrAfter(filterInMoment);
       case PREDICATE_LT:
-        return moment(valueInMoment.format(format)).isBefore(filterInMoment.format(format));
+        return valueInMoment.isBefore(filterInMoment);
       case PREDICATE_LE:
-        return moment(valueInMoment.format(format)).isSameOrBefore(filterInMoment.format(format));
+        return valueInMoment.isSameOrBefore(filterInMoment);
       case PREDICATE_NOT_EQ:
         return filterInMoment.format(format) !== valueInMoment.format(format);
       case PREDICATE_EQ:
@@ -187,11 +189,36 @@ class EventsHistory extends React.Component {
     }
   }
 
+  getCompareResult(filter, value) {
+    if (Array.isArray(filter.val)) {
+      return filter.val.some(item => this.getCompareResult({ t: filter.t, val: item }, value));
+    }
+
+    switch (filter.t) {
+      case PREDICATE_EMPTY:
+        return isEmpty(value);
+      case PREDICATE_NOT_EMPTY:
+        return !isEmpty(value);
+      case PREDICATE_ENDS:
+        return value.endsWith(filter.val);
+      case PREDICATE_STARTS:
+        return value.startsWith(filter.val);
+      case PREDICATE_EQ:
+        return isEqual(value, filter.val);
+      case PREDICATE_NOT_EQ:
+        return !isEqual(value, filter.val);
+      case PREDICATE_CONTAINS:
+        return value.toLowerCase().includes((filter.val || '').toLowerCase());
+      case PREDICATE_NOT_CONTAINS:
+        return !value.toLowerCase().includes((filter.val || '').toLowerCase());
+      default:
+        return true;
+    }
+  }
+
   get filteredGridData() {
     const { list, columns } = this.props;
     const { filters } = this.state;
-
-    console.warn({ list, columns, filters });
 
     return list.filter((item, index) =>
       filters.every(filter => {
@@ -210,18 +237,14 @@ class EventsHistory extends React.Component {
             ) || '';
 
           if (!this.isDate(column.type)) {
-            if (Array.isArray(filter.val)) {
-              return filter.val.some(val => val.toLowerCase().includes(value.toLowerCase()));
-            }
-
-            return value.toLowerCase().includes((filter.val || '').toLowerCase());
+            return this.getCompareResult(filter, value);
           }
 
           return this.getDateCompareResult(filter, value, format);
         }
 
         if (!this.isDate(column.type)) {
-          return item[filter.att].includes(filter.val);
+          return this.getCompareResult(filter, item[filter.att]);
         }
 
         return this.getDateCompareResult(filter, item[filter.att]);
@@ -258,7 +281,7 @@ class EventsHistory extends React.Component {
     const newFilter = get(newFilters, '0', {});
     const upFilters = this.applyFiltering(filters, newFilter, type);
 
-    console.warn({ newFilters, upFilters });
+    // console.warn({ newFilters, upFilters });
 
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);
@@ -282,8 +305,6 @@ class EventsHistory extends React.Component {
   renderTable() {
     const { columns, isMobile, maxHeight } = this.props;
     const { filters } = this.state;
-
-    console.warn('this.filteredGridData => ', this.filteredGridData);
 
     return (
       <Grid
