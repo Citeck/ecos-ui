@@ -1262,7 +1262,7 @@
   "menu-settings.tabs.menu-create-config": "Menu \"Create\"",
   "menu-settings.text.default": "Default",
   "menu-settings.label.for-all": "For everyone",
-  "menu-settings.dialog.for-all.title": "Will it be installed for everyone?",
+  "menu-settings.dialog.for-all.title": "It'll be installed for everyone",
   "menu-settings.dialog.for-all.text": "Installation will reset users / groups",
   "menu-settings.dialog.org-struct.text": "The membership selection field for users and / or groups is left blank. Are you sure you want to set the accessory for all users of the system?",
   "menu-settings.desc.global-config": "These settings apply to the entire site.\n\nThe group list corresponds to values are specified in all menu configurations.\nGroup priority is inversely proportional to the level of the group's hierarchy in the Organizational Chart or the level of the functional hierarchy.The more specific group, than priority is higher.\nAdministrator groups are usually placed first. User has the highest priority.",

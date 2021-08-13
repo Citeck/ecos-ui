@@ -13,6 +13,7 @@ import { MenuSettings, MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
+import DialogManager from '../common/dialogs/Manager';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Labels } from './utils';
 import EditorLeftMenu from './editorMenu/EditorLeftMenu';
@@ -84,7 +85,17 @@ class Settings extends React.Component {
   };
 
   handleApply = () => {
-    this.props.saveSettings();
+    const { authorities } = this.props;
+
+    if (isEmpty(authorities)) {
+      DialogManager.confirmDialog({
+        title: Labels.DIALOG_FOR_ALL_TITLE,
+        text: Labels.DIALOG_ORG_STRUCT_TEXT,
+        onYes: () => this.props.saveSettings()
+      });
+    } else {
+      this.props.saveSettings();
+    }
   };
 
   setData = data => {
@@ -244,7 +255,8 @@ const mapStateToProps = state => ({
   type: get(state, 'menu.type') || MenuTypes.LEFT,
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
   isLoading: get(state, 'menuSettings.isLoading'),
-  editedId: get(state, 'menuSettings.editedId')
+  editedId: get(state, 'menuSettings.editedId'),
+  authorities: get(state, 'menuSettings.authorities') || []
 });
 
 const mapDispatchToProps = dispatch => ({

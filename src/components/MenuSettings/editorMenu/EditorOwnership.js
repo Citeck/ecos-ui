@@ -12,7 +12,7 @@ import DialogManager from '../../common/dialogs/Manager';
 
 class EditorOwnership extends React.Component {
   state = {
-    redraw: false
+    isThinking: false
   };
 
   handleToggleForAll = checked => {
@@ -23,47 +23,36 @@ class EditorOwnership extends React.Component {
     }
 
     if (checked && authorityRefs.length) {
-      this.confirmSetForAll(Labels.DIALOG_FOR_ALL_TEXT);
+      DialogManager.confirmDialog({
+        title: Labels.DIALOG_FOR_ALL_TITLE,
+        text: Labels.DIALOG_FOR_ALL_TEXT,
+        onNo: () => this.props.setIsForAll(false),
+        onYes: () => {
+          this.props.getAuthorityInfoByRefs([]);
+          this.props.setIsForAll(true);
+        }
+      });
     } else {
       this.props.setIsForAll(checked);
     }
   };
 
   handleSelectOrg = data => {
-    if (!data.length) {
-      this.confirmSetForAll(Labels.DIALOG_ORG_STRUCT_TEXT);
-    } else {
-      this.props.getAuthorityInfoByRefs(data);
-    }
+    this.props.getAuthorityInfoByRefs(data);
   };
 
-  confirmSetForAll(text) {
-    DialogManager.confirmDialog({
-      title: Labels.DIALOG_FOR_ALL_TITLE,
-      text,
-      onNo: () => {
-        this.props.getAuthorityInfoByRefs(this.props.authorityRefs);
-        this.props.setIsForAll(false);
-      },
-      onYes: () => {
-        this.props.getAuthorityInfoByRefs([]);
-        this.props.setIsForAll(true);
-      }
-    });
-  }
-
   render() {
-    const { redraw } = this.state;
-
-    if (redraw) {
-      return null;
-    }
-
+    const { isThinking } = this.state;
     const { authorityRefs, disabledEdit, isForAll } = this.props;
 
     return (
       <div className="ecos-menu-settings-ownership">
-        <Checkbox checked={isForAll} onClick={this.handleToggleForAll} className="ecos-menu-settings-ownership__field-for-all">
+        <Checkbox
+          checked={isForAll}
+          onClick={this.handleToggleForAll}
+          className="ecos-menu-settings-ownership__field-for-all"
+          disabled={isThinking}
+        >
           {t(Labels.FIELD_FOR_ALL_USERS)}
         </Checkbox>
         <SelectOrgstruct
