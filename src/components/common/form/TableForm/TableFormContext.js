@@ -51,7 +51,7 @@ export const TableFormContextProvider = props => {
   };
 
   useEffect(() => {
-    if (!defaultValue || columns.length < 1) {
+    if (isEmpty(defaultValue) || isEmpty(columns)) {
       return;
     }
 

@@ -12,6 +12,8 @@ import JournalsService from '../../../../components/Journals/service';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { TableTypes } from './constants';
 
+const TableLoader = () => <Loader blur />;
+
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
   _displayElementsValue = {};
@@ -135,7 +137,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return this.visible ? TableForm : () => <Loader blur />;
+    return this.visible ? TableForm : TableLoader;
   }
 
   setReactValue(component, defaultValue) {
