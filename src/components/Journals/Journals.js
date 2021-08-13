@@ -380,6 +380,7 @@ class Journals extends Component {
   }
 
   getJournalContentMaxHeight = () => {
+    const { footerRef } = this.props;
     const journalMinHeight = 175;
     let height = document.body.offsetHeight;
 
@@ -395,10 +396,8 @@ class Journals extends Component {
       height -= 15; // for indent under pagination
     }
 
-    const appFooter = document.querySelector('.app-footer');
-
-    if (appFooter) {
-      height -= get(appFooter, 'offsetHeight', 0);
+    if (footerRef) {
+      height -= get(footerRef, 'offsetHeight', 0);
     }
 
     if (this._journalBodyRef) {

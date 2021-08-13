@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
-import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
+import BaseComponent from './BaseComponent';
 
 export default class BaseReactComponent extends BaseComponent {
   static schema(...extend) {
@@ -13,6 +15,8 @@ export default class BaseReactComponent extends BaseComponent {
       ...extend
     );
   }
+
+  _needUpdate = false;
 
   build() {
     this.onReactValueChanged = value => {
@@ -92,6 +96,12 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   setReactProps(props) {
+    const currentProps = get(this.react, 'innerComponent.props.props');
+
+    if (!isEqual(props, currentProps)) {
+      this._needUpdate = true;
+    }
+
     if (this.react.resolve) {
       this.react.waitingProps = {
         ...(this.react.waitingProps || {}),
