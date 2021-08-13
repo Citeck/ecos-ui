@@ -1,7 +1,6 @@
 import React, { Component, Suspense } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Redirect, Route, Switch } from 'react-router';
@@ -56,8 +55,6 @@ const allowedLinks = [
 ];
 
 class App extends Component {
-  _footerRef = null;
-
   componentDidMount() {
     const { initAppSettings } = this.props;
 
@@ -138,12 +135,6 @@ class App extends Component {
     return { height: height.length ? `calc(100vh - (${height.join(' + ')}))` : '100%' };
   }
 
-  setFooterRef = ref => {
-    if (ref) {
-      this._footerRef = ref;
-    }
-  };
-
   renderMenu() {
     const { menuType } = this.props;
 
@@ -223,8 +214,7 @@ class App extends Component {
     const basePageProps = {
       tabId: tab.id,
       tabLink: tab.link,
-      enableCache: true,
-      footer: this.renderFooter()
+      enableCache: true
     };
     const styles = { ...this.wrapperStyle };
 
@@ -278,7 +268,7 @@ class App extends Component {
               {...baseCacheRouteProps}
               path={URL.TIMESHEET_IFRAME}
               exact
-              render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
@@ -288,7 +278,7 @@ class App extends Component {
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.TIMESHEET_IFRAME_SUBORDINATES}
-              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
@@ -298,7 +288,7 @@ class App extends Component {
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
-              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} withoutFooter />}
             />
             <CacheRoute
               {...baseCacheRouteProps}
@@ -308,7 +298,7 @@ class App extends Component {
             <CacheRoute
               {...baseCacheRouteProps}
               path={URL.TIMESHEET_IFRAME_DELEGATED}
-              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} withoutFooter />}
             />
 
             {/*temporary routes */}
@@ -324,57 +314,37 @@ class App extends Component {
   });
 
   renderRouter = () => {
-    const basePageProps = {
-      footer: this.renderFooter()
-    };
-
     return (
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
             <Route exact path="/share/page/bpmn-designer" render={() => <Redirect to={URL.BPMN_DESIGNER} />} />
-            <Route
-              path={URL.DASHBOARD_SETTINGS}
-              render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
-            />
-            <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />} />
-            <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} {...basePageProps} />} />
-            <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} {...basePageProps} />} />
-            <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} {...basePageProps} />} />
-            <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} />} />
-            <Route
-              path={URL.TIMESHEET_SUBORDINATES}
-              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} />}
-            />
-            <Route
-              path={URL.TIMESHEET_FOR_VERIFICATION}
-              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} />}
-            />
-            <Route
-              path={URL.TIMESHEET_DELEGATED}
-              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} />}
-            />
-            <Route
-              path={URL.TIMESHEET_IFRAME}
-              exact
-              render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} {...basePageProps} footer={null} />}
-            />
+            <Route path={URL.DASHBOARD_SETTINGS} render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} />} />
+            <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} />} />
+            <Route path={URL.BPMN_DESIGNER} render={props => <Page pageKey={Pages.BPMN} {...props} />} />
+            <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} />} />
+            <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} />} />
+            <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} />} />
+            <Route path={URL.TIMESHEET_SUBORDINATES} render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} />} />
+            <Route path={URL.TIMESHEET_FOR_VERIFICATION} render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} />} />
+            <Route path={URL.TIMESHEET_DELEGATED} render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} />} />
+            <Route path={URL.TIMESHEET_IFRAME} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} withoutFooter />} />
             <Route
               path={URL.TIMESHEET_IFRAME_SUBORDINATES}
-              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} withoutFooter />}
             />
             <Route
               path={URL.TIMESHEET_IFRAME_FOR_VERIFICATION}
-              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_VERIFICATION} {...props} withoutFooter />}
             />
             <Route
               path={URL.TIMESHEET_IFRAME_DELEGATED}
-              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} footer={null} />}
+              render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} withoutFooter />}
             />
 
             {/* temporary routes */}
-            <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} {...basePageProps} />} />
-            <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} {...basePageProps} />} />
+            <Route path="/v2/debug/formio-develop" render={props => <Page pageKey={Pages.DEBUG_FORMIO} {...props} />} />
+            <Route path="/v2/debug/tree" render={props => <Page pageKey={Pages.DEBUG_TREE} {...props} />} />
 
             <Redirect to={URL.DASHBOARD} />
           </Switch>
@@ -382,16 +352,6 @@ class App extends Component {
       </div>
     );
   };
-
-  renderFooter() {
-    const { footer } = this.props;
-
-    if (isEmpty(footer)) {
-      return null;
-    }
-
-    return <div ref={this.setFooterRef} className="app-footer" dangerouslySetInnerHTML={{ __html: footer }} />;
-  }
 
   render() {
     const { isInit, isInitFailure, isAuthenticated, isMobile, theme, loginLogo } = this.props;
@@ -449,7 +409,6 @@ const mapStateToProps = state => ({
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
   menuType: get(state, ['menu', 'type']),
-  footer: get(state, 'app.footer', null),
   loginLogo: selectActiveThemeImage(state, DefaultImages.LOGIN_LOGO)
 });
 
