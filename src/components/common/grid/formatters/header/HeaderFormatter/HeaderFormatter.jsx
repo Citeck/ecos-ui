@@ -114,8 +114,6 @@ export default class HeaderFormatter extends Component {
     this.onToggle();
 
     if (isFunction(onFilter)) {
-      console.warn(get(predicate, 't', ''));
-
       onFilter(
         [
           {
