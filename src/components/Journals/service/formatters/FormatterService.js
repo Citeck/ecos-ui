@@ -58,8 +58,7 @@ class FormatterService {
 
   static _formatImpl(props = {}, formatter = {}) {
     const { row, cell } = props;
-    const { name } = formatter;
-    const type = formatter.type || FormatterService.getTypeByName(name);
+    const { type } = formatter;
     const config = get(formatter, 'config', get(formatter, 'params'));
 
     if (!type) {
