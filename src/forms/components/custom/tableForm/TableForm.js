@@ -3,7 +3,6 @@ import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
-import { Loader } from '../../../../components/common';
 import TableForm from '../../../../components/common/form/TableForm';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -11,8 +10,6 @@ import Records from '../../../../components/Records';
 import JournalsService from '../../../../components/Journals/service';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { TableTypes } from './constants';
-
-const TableLoader = () => <Loader blur />;
 
 export default class TableFormComponent extends BaseReactComponent {
   _selectedRows = [];
@@ -124,11 +121,6 @@ export default class TableFormComponent extends BaseReactComponent {
       });
     }
 
-    if ((!isVisible && this.visible) || this._needUpdate) {
-      this._needUpdate = false;
-      this.redraw();
-    }
-
     return result;
   }
 
@@ -137,7 +129,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return this.visible ? TableForm : TableLoader;
+    return TableForm;
   }
 
   setReactValue(component, defaultValue) {
