@@ -5,6 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/export/util';
 import { SourcesId as SourceId, SystemJournals } from '../../../constants';
+import { MenuSettings } from '../../../constants/menu';
 import { Dropdown, SelectJournal } from '../../common/form';
 import { Labels } from '../utils';
 import { Field } from '../Field';
@@ -12,6 +13,7 @@ import Records from '../../Records';
 import Base from './Base';
 
 export default class LinkCreateCase extends Base {
+  type = MenuSettings.ItemTypes.LINK_CREATE_CASE;
   state = {
     ...super.state,
     typeRef: '',

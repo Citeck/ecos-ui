@@ -28,29 +28,23 @@ import MenuConverter from '../dto/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
-    const workflowVars = yield call(api.menu.getCreateWorkflowVariants);
-    //todo: temp solution to get create variants from menu config
+    const createMenuView = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
-    const _sites = MenuConverter.getMainMenuCreateItems(menuConfigItems);
-    const customVars = yield call(api.menu.getCustomCreateVariants);
-    const _customs = MenuConverter.getCreateCustomItems(customVars);
-    const { sites, customs } = MenuConverter.mergeCustomsAndSites(_customs, _sites);
+    const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 
-    yield put(setCreateCaseWidgetItems([].concat(customs, workflowVars, sites)));
-
-    const isCascadeMenu = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
-
-    yield put(setCreateCaseWidgetIsCascade(isCascadeMenu === 'cascad'));
+    yield put(setCreateCaseWidgetItems(config));
+    yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
     logger.error('[fetchCreateCaseWidget saga] error', e.message);
   }
 }
 
-function* fetchUserMenu({ logger }) {
+function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable));
+    const isExternalIDP = yield call(api.app.getIsExternalIDP);
+    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalIDP));
 
     yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
@@ -79,7 +73,7 @@ function* fetchSiteMenu({ logger }) {
   }
 }
 
-function* filterSiteMenu({ api, logger }, { payload = {} }) {
+function* filterSiteMenu({ logger }, { payload = {} }) {
   try {
     const params = yield fetchInfluentialParams();
     const { identification = null } = payload;
@@ -108,7 +102,7 @@ function* filterSiteMenu({ api, logger }, { payload = {} }) {
   }
 }
 
-function* goToPageSiteMenu({ api, logger }, { payload }) {
+function* goToPageSiteMenu({ logger }, { payload }) {
   try {
     const dashboard = yield select(selectIdentificationForView);
     const link = yield MenuService.getSiteMenuLink(payload, dashboard);

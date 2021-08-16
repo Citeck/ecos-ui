@@ -1,15 +1,17 @@
-import { deepClone } from './util';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 
 /**
  * Возвращает новый массив отсортированный по заданному полю
  * @param array {Array} источник
- * @param key {String} ключ поля
+ * @param key {String} ключевой путь поля
  * @returns {Array} отсортированный массив
  */
 export function sort(array, key) {
-  const arr = deepClone(array);
+  const arr = cloneDeep(array);
 
-  return deepClone(arr).sort((c, n) => c[key] - n[key]);
+  return cloneDeep(arr).sort((c, n) => get(c, key) - get(n, key));
 }
 
 /**
@@ -18,19 +20,19 @@ export function sort(array, key) {
  * @param oKeys {Object} объект в котором ключ = ключу в объекте массива, а значение новому ключу => {key: "newKey"}
  * @returns {Array} массив с обновленными ключами объектов
  */
-export function replaceKeys(array, oKeys) {
-  const arr = deepClone(array);
+export function replaceKeys(array = [], oKeys) {
+  const arr = cloneDeep(array);
 
   if (!oKeys || (oKeys && !Object.keys(oKeys).length)) {
     return arr;
   }
 
-  return arr.map(item => {
-    const newItem = deepClone(item);
+  return arr.map((item = {}) => {
+    const newItem = cloneDeep(item);
 
     for (const key in newItem) {
       if (newItem.hasOwnProperty(key) && oKeys.hasOwnProperty(key)) {
-        newItem[oKeys[key]] = item[key];
+        set(newItem, oKeys[key], get(item, key));
         delete newItem[key];
       }
     }
@@ -45,15 +47,15 @@ export function replaceKeys(array, oKeys) {
  * @param aKeys {Array} массив ключей,
  * @returns {Array} массив объектов с указанными ключами
  */
-export function filterKeys(array, aKeys) {
-  const arr = deepClone(array);
+export function filterKeys(array = [], aKeys) {
+  const arr = cloneDeep(array);
 
   return arr.map(item => {
     const newItem = {};
 
     for (const key in item) {
       if (item.hasOwnProperty(key) && aKeys.includes(key)) {
-        newItem[key] = item[key];
+        set(newItem, key, get(item, key));
       }
     }
 
@@ -64,28 +66,28 @@ export function filterKeys(array, aKeys) {
 /**
  * Возврат объекта из массива по ключу и его значению
  * @param array {Array} источник
- * @param key {String} свойство искомого объекта
+ * @param key {String} путь к искомому объекту
  * @param value {any} значение ключа в объекте
  * @returns {{}}
  */
 export function getObjectByKV(array, key, value) {
-  return array.find(item => item[key] === value) || {};
+  return array.find(item => get(item, key) === value) || {};
 }
 
 export function getIndexObjectByKV(array, key, value) {
-  return array.findIndex(item => item[key] === value);
+  return array.findIndex(item => get(item, key) === value);
 }
 
 /**
- * Поиск певого элемент в дереве
+ * Поиск первого элемента в дереве
  * @param items {Array} источник
- * @param key {String} ключ поля,
+ * @param key {String} ключевой путь поля,
  * @param value {number|string|boolean} значение поля,
  * @returns {Object|undefined} найденный элемент
  */
 export function treeFindFirstItem({ items, key, value }) {
   for (const item of items) {
-    if (item[key] === value) {
+    if (get(item, key) === value) {
       return item;
     }
 
@@ -98,10 +100,10 @@ export function treeFindFirstItem({ items, key, value }) {
 }
 
 /**
- * Удаление певого найденного элемента
- * * изменяет массив
+ * Удаление первого найденного элемента
+ * *изменяет массив
  * @param items {Array} источник
- * @param key {String} ключ поля,
+ * @param key {String} ключевой путь поля,
  * @param value {number|string|boolean} значение поля,
  * @returns {Object|undefined} удаленный элемент
  */
@@ -109,7 +111,7 @@ export function treeRemoveItem({ items, key, value }) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
 
-    if (item[key] === value) {
+    if (get(item, key) === value) {
       return items.splice(i, 1)[0];
     }
 
@@ -127,7 +129,7 @@ export function treeRemoveItem({ items, key, value }) {
  * key и value для поиска ветки в которую вставлять
  * @param items {Array} источник
  * @param newItem {Object} новый элемент
- * @param key {String} ключ поля,
+ * @param key {String} ключевой путь поля,
  * @param value {number|string|boolean} значение поля,
  * @param indexTo {number|undefined} куда вставлять, если не указано использует найденный i для value,
  * @returns {boolean} успешно ли вставлено
@@ -136,7 +138,7 @@ export function treeAddItem({ items, newItem, key, value, indexTo }) {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
 
-    if (item[key] === value) {
+    if (get(item, key) === value) {
       items.splice(indexTo != null ? indexTo : i + 1, 0, newItem);
       return true;
     }
@@ -152,7 +154,7 @@ export function treeAddItem({ items, newItem, key, value, indexTo }) {
 /**
  * Получение координат элемента
  * @param items {Array} источник
- * @param key {String} ключ поля
+ * @param key {String} ключевой путь поля
  * @param value {number|string|boolean} значение поля
  * @returns {object} {уровень, родительИндекс, индекс}
  */
@@ -161,7 +163,7 @@ export function treeGetItemCoords({ items, key, value }) {
     for (let i = 0; i < _items.length; i++) {
       const item = _items[i];
 
-      if (item[key] === value) {
+      if (get(item, key) === value) {
         return { level, parent, index: i };
       }
 
@@ -179,7 +181,7 @@ export function treeGetItemCoords({ items, key, value }) {
 /**
  * Получение пути к элементу
  * @param items {Array} источник
- * @param key {String} ключ поля,
+ * @param key {String} ключевой путь поля,
  * @param value {number|string|boolean} значение поля,
  * @param _path {string} внутренняя переменная, не следует задавать инит значение без необходимости,
  * @returns {string} путь
@@ -188,7 +190,7 @@ export function treeGetPathItem({ items, key, value }, _path = '') {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
 
-    if (item[key] === value) {
+    if (get(item, key) === value) {
       return `${_path}[${i}]`;
     }
 
@@ -214,7 +216,7 @@ export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
     return original;
   }
 
-  const items = deepClone(original);
+  const items = cloneDeep(original);
   const infoTo = treeGetItemCoords({ items, key, value: toId });
   const infoFrom = treeGetItemCoords({ items, key, value: fromId });
   const movedItem = treeRemoveItem({ items, key, value: fromId });
@@ -230,8 +232,8 @@ export function treeMoveItem({ fromId, toId, original, key = 'id' }) {
   return items;
 }
 
-export function treeSetDndIndex(items, callback) {
-  const _items = deepClone(items);
+export function treeSetDndIndex(items = [], callback) {
+  const _items = cloneDeep(items);
 
   const _set = (list, level, parent) => {
     list &&
@@ -245,4 +247,40 @@ export function treeSetDndIndex(items, callback) {
   _set(_items, 0, 0);
 
   return _items;
+}
+
+/**
+ * If there is exact in array, it'll return exact item, else suitable item or undefined
+ * @param items {Array} data array
+ * @param key {String} key path field
+ * @param value {String} compared value
+ * @param props {Object} props: reverse - reverse comparison value with
+ * @return {Object | undefined} found item
+ */
+export function treeFindSuitableItem(items = [], key, value, props) {
+  const _items = cloneDeep(items);
+  const reverse = get(props, 'reverse', false);
+  const onlyExact = get(props, 'onlyExact', false);
+
+  let exact, suitable;
+
+  const _find = arr => {
+    return (arr || []).find(item => {
+      const _exact = get(item, key) === value;
+      const _suitable = reverse ? String(value).includes(get(item, key)) : String(get(item, key)).includes(value);
+
+      if (_exact) {
+        exact = item;
+        return true;
+      } else if (!onlyExact && _suitable) {
+        suitable = item;
+      }
+
+      return _find(get(item, 'items'));
+    });
+  };
+
+  _find(_items);
+
+  return exact || suitable;
 }

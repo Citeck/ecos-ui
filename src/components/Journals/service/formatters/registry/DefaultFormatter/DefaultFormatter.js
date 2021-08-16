@@ -1,3 +1,5 @@
+import isPlainObject from 'lodash/isPlainObject';
+
 import BaseFormatter from '../BaseFormatter';
 import CellType from '../../CellType';
 import { t } from '../../../../../../helpers/export/util';
@@ -12,11 +14,17 @@ export default class DefaultFormatter extends BaseFormatter {
       return '';
     }
 
+    let text;
+
     if (typeof cell === 'boolean') {
-      return cell ? t('boolean.yes') : t('boolean.no');
+      text = cell ? t('boolean.yes') : t('boolean.no');
+    } else if (isPlainObject(cell)) {
+      text = cell.disp || '';
+    } else {
+      text = cell || '';
     }
 
-    return cell.disp || cell;
+    return text;
   }
 
   getSupportedCellType() {

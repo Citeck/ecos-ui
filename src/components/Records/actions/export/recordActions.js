@@ -1,6 +1,6 @@
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 
-export const createUserActionNode = (config, fallback) => {
+export const createUserActionNode = (config, fallback, formParams = {}) => {
   return new Promise(resolve => {
     let recordRef = 'dict@' + config.nodeType;
 
@@ -17,6 +17,7 @@ export const createUserActionNode = (config, fallback) => {
       try {
         EcosFormUtils.eform(recordRef, {
           params: {
+            ...formParams,
             onSubmit: () => resolve(true),
             onFormCancel: () => resolve(true),
             attributes

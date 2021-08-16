@@ -171,7 +171,7 @@ function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
     yield put(setAuthorities(payload.map(ref => ({ ref }))));
 
     if (payload && payload.length) {
-      const authorities = yield call(api.menu.getAuthoritiesInfoByRef, payload);
+      const authorities = yield call(api.menu.getAuthoritiesInfo, payload);
 
       yield put(setAuthorities(authorities));
     }

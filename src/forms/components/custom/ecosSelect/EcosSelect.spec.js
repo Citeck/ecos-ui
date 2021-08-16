@@ -2,8 +2,11 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import EcosSelectComponent from './EcosSelect';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2 } from './fixtures';
+
+basicSectionTest(EcosSelectComponent);
 
 describe('EcosSelect Component', () => {
   it('Should build a Select component', done => {

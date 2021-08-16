@@ -19,7 +19,7 @@ const mapStateToProps = state => ({
 class DropdownMenuItem extends React.Component {
   static propTypes = {
     key: PropTypes.string,
-    data: PropTypes.PropTypes.shape({
+    data: PropTypes.shape({
       id: PropTypes.string,
       img: PropTypes.string,
       targetUrl: PropTypes.string,
@@ -78,6 +78,10 @@ class DropdownMenuItem extends React.Component {
   }
 
   handlerClick = event => {
+    if (this.url) {
+      return;
+    }
+
     const {
       data,
       data: { control, isLegacy, id },
@@ -118,7 +122,7 @@ class DropdownMenuItem extends React.Component {
     }
 
     return (
-      <li>
+      <li className="ecos-dropdown-menu__item">
         <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
           {this.iconLeft && <i className={this.iconLeft} />}
           {img && this.renderImg()}

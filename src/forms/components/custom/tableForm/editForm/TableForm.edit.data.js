@@ -1,5 +1,3 @@
-import { PROXY_URI } from '../../../../../constants/alfresco';
-
 const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
 const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
@@ -350,13 +348,8 @@ export default [
           if (!data.journalId) {
             return [];
           }
-          
-          return fetch('${PROXY_URI}api/journals/config?journalId=' + data.journalId, {
-            credentials: 'include',
-            headers: {
-              'Content-type': 'application/json;charset=UTF-8'
-            },
-          }).then(r => r.json()).then(config => {
+                    
+          return window.Citeck.Journals.getJournalConfig(data.journalId).then(config => {
             if (config.columns && Array.isArray(config.columns)) {
               return config.columns.map(function (item) {
                 return {

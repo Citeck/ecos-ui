@@ -15,22 +15,47 @@ export class DevToolsApi extends CommonApi {
     return this.getJson(`${PROXY_URI}modules/info.json`);
   };
 
+  _getBuildInfoImpl = async atts => {
+    let res = null;
+    try {
+      res = await Records.query(
+        {
+          sourceId: SourcesId.EAPPS_BUILD_INFO
+        },
+        atts
+      );
+    } catch (e) {
+      console.error('build info fetch error', e);
+    }
+    if (!res || !res.records || !res.records.length) {
+      res = await Records.query(
+        {
+          sourceId: SourcesId.UISERV_BUILD_INFO
+        },
+        atts
+      );
+    }
+    if (res && res.records && atts.commits) {
+      res.records.forEach(r => {
+        if (r.commits && r.commits.length === 1 && Array.isArray(r.commits[0])) {
+          r.commits = r.commits[0];
+        }
+      });
+    }
+    return res;
+  };
+
   /**
    * Fetch system modules list
    *
    * @returns {Promise<[]>} Promise object represents system modules list
    */
   getSystemModules = async () => {
-    return Records.query(
-      {
-        sourceId: SourcesId.BUILD_INFO
-      },
-      {
-        label: 'label',
-        version: 'info.version',
-        buildDate: 'info.buildDate'
-      }
-    );
+    return this._getBuildInfoImpl({
+      label: 'label',
+      version: 'info.version',
+      buildDate: 'info.buildDate'
+    });
   };
 
   /**
@@ -48,16 +73,11 @@ export class DevToolsApi extends CommonApi {
    * @returns {Promise<[]>} Promise object represents commits list
    */
   getAllAppsCommits = async () => {
-    return Records.query(
-      {
-        sourceId: SourcesId.BUILD_INFO
-      },
-      {
-        label: 'label',
-        repo: 'info.repo',
-        commits: 'info.commits?json'
-      }
-    );
+    return this._getBuildInfoImpl({
+      label: 'label',
+      repo: 'info.repo',
+      commits: 'info.commits[]?json'
+    });
   };
 
   getIsAccessiblePage = () => {

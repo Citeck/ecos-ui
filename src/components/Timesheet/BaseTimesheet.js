@@ -4,9 +4,10 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { deepClone, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { CommonLabels } from '../../helpers/timesheet/dictionary';
 import CommonTimesheetService from '../../services/timesheet/common';
 
@@ -43,7 +44,7 @@ class BaseTimesheet extends Component {
 
     this.state = {
       typeFilter: '',
-      filteredEventTypes: deepClone(props.eventTypes),
+      filteredEventTypes: cloneDeep(props.eventTypes),
       isOpen: false,
       draggableNode: null
     };
@@ -62,7 +63,7 @@ class BaseTimesheet extends Component {
     if (JSON.stringify(nextProps.eventTypes) !== JSON.stringify(this.state.eventTypes)) {
       this.setState({
         eventTypes: nextProps.eventTypes,
-        filteredEventTypes: deepClone(nextProps.eventTypes)
+        filteredEventTypes: cloneDeep(nextProps.eventTypes)
       });
     }
   }
@@ -87,7 +88,7 @@ class BaseTimesheet extends Component {
 
   handleSortEnd = ({ oldIndex, newIndex }, event) => {
     const { filteredEventTypes, draggableNode } = this.state;
-    const eventTypes = deepClone(filteredEventTypes);
+    const eventTypes = cloneDeep(filteredEventTypes);
     const draggableEvent = eventTypes[oldIndex];
 
     event.stopPropagation();
@@ -130,7 +131,7 @@ class BaseTimesheet extends Component {
 
   filterTypes(typeFilter = '') {
     const { eventTypes } = this.props;
-    let filteredEventTypes = deepClone(eventTypes);
+    let filteredEventTypes = cloneDeep(eventTypes);
 
     if (typeFilter) {
       filteredEventTypes = this.getFiltered(eventTypes, typeFilter);
@@ -171,12 +172,16 @@ class BaseTimesheet extends Component {
         updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle
       >
-        <div className="ecos-timesheet__table-events">{filteredEventTypes.map(this.renderEventType)}</div>
+        <div className="ecos-timesheet__table-events">
+          {filteredEventTypes.map((item, index) => (
+            <this.renderEventType key={item.name} item={item} position={index} />
+          ))}
+        </div>
       </SortableContainer>
     );
   }
 
-  renderEventType = (item, position, groupPosition = 'none') => (
+  renderEventType = React.memo(({ item, position, groupPosition = 'none' }) => (
     <SortableElement key={item.title} index={position}>
       <div className="ecos-timesheet__table-events-item">
         <SortableHandle>
@@ -190,7 +195,7 @@ class BaseTimesheet extends Component {
         {/*<Tooltip target={`event-type-${position}-group-${groupPosition}`} content={t(CommonLabels.ADD_DAYS)} />*/}
       </div>
     </SortableElement>
-  );
+  ));
 
   renderCountByDay = day => (
     <CalendarCell
@@ -210,9 +215,19 @@ class BaseTimesheet extends Component {
   }
 
   renderEvents() {
+    const { daysOfMonth, updatingHours } = this.props;
     const { filteredEventTypes } = this.state;
 
-    return filteredEventTypes.map(this.renderEventCalendarRow);
+    return filteredEventTypes.map(item => (
+      <this.renderEventCalendarRow
+        key={item.name}
+        eventItem={item}
+        daysOfMonth={daysOfMonth}
+        updatingHours={updatingHours}
+        onChange={this.handleChangeEventHours}
+        onReset={this.handleResetEventHours}
+      />
+    ));
   }
 
   renderNoData() {
@@ -223,35 +238,36 @@ class BaseTimesheet extends Component {
     );
   }
 
-  renderEventCalendarRow = (eventItem, userName) => (
-    <CalendarRow key={`calendar-row-${eventItem.name}`}>
-      {this.props.daysOfMonth.map(day => {
-        const { updatingHours } = this.props;
-        const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name, userName });
-        const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
-        const count = +(eventDay.hours || 0);
+  renderEventCalendarRow = React.memo(({ eventItem, userName, daysOfMonth, updatingHours, onChange, onReset }) => {
+    return (
+      <CalendarRow key={`calendar-row-${eventItem.name}`}>
+        {daysOfMonth.map(day => {
+          const keyHour = CommonTimesheetService.getKeyHours({ number: day.number, eventType: eventItem.name, userName });
+          const eventDay = (eventItem.days || []).find(dayItem => dayItem.number === day.number) || {};
+          const count = +(eventDay.hours || 0);
 
-        return (
-          <CalendarCell
-            key={`calendar-cell-${day.number}`}
-            className={classNames({
-              'ecos-timesheet__table-calendar-cell_not-available': !get(eventItem, 'hours.editable', false)
-            })}
-          >
-            <Hour
-              color={eventItem.color}
-              count={count}
-              settings={eventItem.hours}
-              halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
-              onChange={value => this.handleChangeEventHours(eventItem.name, day.number, value, userName)}
-              onReset={value => this.handleResetEventHours(eventItem.name, day.number, value, userName)}
-              updatingInfo={get(updatingHours, keyHour, null)}
-            />
-          </CalendarCell>
-        );
-      })}
-    </CalendarRow>
-  );
+          return (
+            <CalendarCell
+              key={`calendar-cell-${day.number}-${count}`}
+              className={classNames({
+                'ecos-timesheet__table-calendar-cell_not-available': !get(eventItem, 'hours.editable', false)
+              })}
+            >
+              <Hour
+                color={eventItem.color}
+                count={count}
+                settings={eventItem.hours}
+                halfHour={eventItem.name === ServerEventTypes.DAYTIME_WORK}
+                onChange={value => onChange(eventItem.name, day.number, value, userName)}
+                onReset={value => onReset(eventItem.name, day.number, value, userName)}
+                updatingInfo={get(updatingHours, keyHour, null)}
+              />
+            </CalendarCell>
+          );
+        })}
+      </CalendarRow>
+    );
+  });
 
   renderCalendar() {
     const { isAvailable } = this.props;

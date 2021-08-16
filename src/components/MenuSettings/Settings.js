@@ -56,7 +56,7 @@ class Settings extends React.Component {
   }
 
   get authorityRefs() {
-    return this.props.authorities.map(item => item.ref);
+    return this.props.authorities.map(item => item.ref || item.name);
   }
 
   get mainTabs() {
@@ -137,7 +137,8 @@ class Settings extends React.Component {
       >
         <div className={classNames(`ecos-menu-settings__tab-content tab--${key}`, { 'd-none': this.activeTabId !== key })}>
           {this.renderMenuInfo()}
-          <div>
+
+          <div className="ecos-menu-settings__tab-content-item ecos-menu-settings__tab-content-item_greedy">
             <div className="ecos-menu-settings__title">{t(Labels.TITLE_ITEMS)}</div>
             <EditorLeftMenu />
           </div>
@@ -194,10 +195,10 @@ class Settings extends React.Component {
   };
 
   renderButtons() {
-    const { editedId, authorities } = this.props;
+    const { editedId } = this.props;
 
     const isDisabled = () => {
-      return !editedId || !(authorities || []).length;
+      return !editedId;
     };
 
     return (

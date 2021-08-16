@@ -119,8 +119,9 @@ function getValidNodeRef(nodeRef) {
   if (!nodeRef) {
     return nodeRef;
   }
-  if (nodeRef.indexOf('alfresco/@') === 0) {
-    nodeRef = nodeRef.replace('alfresco/@', '');
+  const workspaceIdx = nodeRef.indexOf('workspace://SpacesStore/');
+  if (workspaceIdx !== 0) {
+    nodeRef = nodeRef.substring(workspaceIdx);
   }
   return nodeRef;
 }

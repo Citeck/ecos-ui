@@ -3,6 +3,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import Harness from '../../../test/harness';
 import comp1 from './fixtures/comp1';
 import FileComponent from './File';
+import { basicSectionTest } from '../../../test/builder/helpers';
+
+basicSectionTest(FileComponent);
 
 describe('File Component', () => {
   it('Should build a file component', done => {

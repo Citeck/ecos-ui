@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentLocale, getCurrentUserName } from '../helpers/util';
 import PageService from '../services/PageService';
 import {
   backPageFromTransitionsHistory,
@@ -55,6 +55,9 @@ export function* initApp({ api, logger }, { payload }) {
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
+      if (e.message === 'User is disabled') {
+        alert('User is disabled');
+      }
       logger.error('[initApp saga] error inner', e.message);
       yield put(validateUserFailure());
     }
@@ -128,7 +131,12 @@ export function* fetchLeftMenuEditable({ api, logger }) {
 
 export function* fetchFooter({ api, logger }) {
   try {
-    const footer = yield call(api.app.getFooter);
+    const params = `value.${getCurrentLocale()}?str!value.en`;
+    let footer = yield call(api.app.getFooter, params);
+
+    if (!footer) {
+      footer = yield call(api.app.getFooter);
+    }
 
     if (footer) {
       yield put(setFooter(footer));

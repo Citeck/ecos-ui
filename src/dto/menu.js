@@ -1,15 +1,14 @@
 import get from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
+import replace from 'lodash/replace';
 
-import { CreateMenuTypes, MenuSettings, MenuTypes } from '../constants/menu';
+import { SourcesId } from '../constants';
+import { MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
-import { extractLabel, getTextByLocale } from '../helpers/util';
+import { getTextByLocale } from '../helpers/util';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
 import { getIconRef } from '../helpers/icon';
-import MenuConverterExport from './export/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
-
-const getId = unique => `HEADER_${unique.replace(/-/g, '_').toUpperCase()}`;
+import MenuConverterExport from './export/menu';
 
 export default class MenuConverter {
   /* menu config */
@@ -28,27 +27,6 @@ export default class MenuConverter {
     return target;
   }
 
-  static getAvailableSoloItemsForWeb(items = []) {
-    return items.map(item => {
-      return {
-        label: item.label,
-        link: item.link || '',
-        id: item.id
-      };
-    });
-  }
-
-  static getMenuItemsForServer(items = []) {
-    return items.map((item, index) => {
-      return {
-        label: item.label,
-        position: index,
-        link: item.link || '',
-        id: item.id
-      };
-    });
-  }
-
   static getSettingsConfigForServer(source) {
     const target = {};
 
@@ -60,70 +38,35 @@ export default class MenuConverter {
   }
 
   /* menu create */
-  static getCreateSiteItems(source = []) {
-    const target = [];
-
-    for (const site of source) {
-      const items = [];
-
-      for (const variant of site.createVariants) {
-        if (!variant.canCreate) {
-          continue;
-        }
-        const id = getId(`${site.siteId}_${variant.type}`);
-        items.push({
-          id,
-          label: variant.title,
-          control: {
-            type: HandleControlTypes.ECOS_CREATE_VARIANT,
-            payload: variant
-          }
-        });
-      }
-
-      const id = getId(site.siteId);
-      target.push({ id, siteId: site.siteId, label: site.siteTitle, items });
-    }
-
-    return target;
-  }
-
   static getMainMenuCreateItems(source = []) {
     const ITs = MenuSettings.ItemTypes;
 
-    return (function recursion(items) {
+    return (function recursion(items, level) {
       return (items || [])
-        .map(item => {
-          const option = {
-            ...item,
-            label: getTextByLocale(item.label)
-          };
+        .map((item = {}) => {
+          const label = getTextByLocale(item.label);
+          const option = { ...item, label, isolated: !level && true };
 
-          if (item.type === ITs.LINK_CREATE_CASE) {
-            const createVariants = get(item, '_remoteData_.createVariants') || [];
-
-            if (createVariants.length) {
-              return {
-                ...option,
-                type: ITs.SECTION,
-                items: recursion(MenuConverter.prepareCreateVariants(createVariants))
-              };
-            }
-
-            return { ...option, ...MenuConverter.getLinkCreateCase(item) };
+          switch (item.type) {
+            case ITs.LINK_CREATE_CASE:
+              return MenuConverter.prepareLinkCreateCase(option);
+            case ITs.ARBITRARY:
+              option.disabled = !get(item, 'config.url');
+              return { ...option, ...MenuConverter.getLinkMove(item) };
+            case ITs.SECTION:
+              option.disabled = !option.items.length;
+              option.isolated = false;
+              break;
+            default:
+              break;
           }
 
-          if (item.type === ITs.ARBITRARY) {
-            return { ...option, ...MenuConverter.getLinkMove(item) };
-          }
-
-          option.items = recursion(item.items);
-          option.disabled = !option.items.length;
+          option.items = recursion(item.items, level + 1);
 
           return option;
         })
         .filter(item => !item.hidden);
-    })(source);
+    })(source, 0);
   }
 
   static prepareCreateVariants(createVariants) {
@@ -134,28 +77,32 @@ export default class MenuConverter {
     }));
   }
 
-  static getLinkCreateCase(data) {
-    const variant = get(data, 'config.variant') || {};
+  /**
+   * @deprecated
+   * @description for supporting old menu where user can create lick create case with a few options
+   * @param option from menu config
+   * @returns Object
+   */
+  static prepareLinkCreateCase(option) {
+    const createVariants = get(option, '_remoteData_.createVariants') || [];
 
-    return {
-      id: variant.id,
-      control: {
-        type: HandleControlTypes.ECOS_CREATE_VARIANT,
-        payload: {
-          title: getTextByLocale(variant.label),
-          recordRef: variant.sourceId + '@',
-          formId: variant.formRef,
-          canCreate: true,
-          postActionRef: variant.postActionRef,
-          typeRef: variant.typeRef,
-          attributes: {
-            ...variant.attributes
-          }
-        }
-      }
-    };
+    if (createVariants.length) {
+      return {
+        ...option,
+        type: MenuSettings.ItemTypes.SECTION,
+        items: MenuConverter.prepareCreateVariants(createVariants)
+      };
+    }
+
+    return option;
   }
 
+  /**
+   * @deprecated
+   * Use action goToPageSiteMenu ex: SiteMenu.handleClickItem
+   * @param data
+   * @returns Object
+   */
   static getLinkMove(data) {
     const targetUrl = get(data, 'config.url') || {};
 
@@ -171,44 +118,6 @@ export default class MenuConverter {
     };
   }
 
-  static getCreateCustomItems(source = []) {
-    return source.map(params => {
-      const item = {
-        ...params,
-        id: getId(`${params.siteId}_${params.type}`),
-        label: extractLabel(params.label)
-      };
-
-      if (params.type === CreateMenuTypes.Custom.LINK) {
-        return {
-          ...item,
-          targetUrl: get(params, 'config.uri'),
-          target: get(params, 'config.target')
-        };
-      }
-
-      return item;
-    });
-  }
-
-  static mergeCustomsAndSites(_customs, _sites) {
-    const sites = cloneDeep(_sites);
-    const exSiteId = [];
-
-    _customs.forEach(item => {
-      sites.forEach(site => {
-        if (site.siteId === item.siteId) {
-          exSiteId.push(item.siteId);
-          site.items = [item, ...site.items];
-        }
-      });
-    });
-
-    const customs = _customs.filter(item => !exSiteId.includes(item.siteId));
-
-    return { customs, sites };
-  }
-
   /* menu settings */
   static getMenuItemsWeb(source, params = {}) {
     const target = [];
@@ -220,7 +129,7 @@ export default class MenuConverter {
 
         tItem.items = [];
         tItem.config = { ...sItem.config };
-        tItem.label = get(sItem, '_remoteData_.label') || tItem.label;
+        tItem.label = MenuConverter.getSpecialLabel(sItem);
 
         sItem.items && prepareTree(sItem.items, tItem.items, level + 1);
 
@@ -230,6 +139,23 @@ export default class MenuConverter {
     })(source, target, 0);
 
     return target;
+  }
+
+  static getSpecialLabel(item) {
+    let label = get(item, '_remoteData_.label') || item.label;
+
+    switch (item.type) {
+      case MenuSettings.ItemTypes.START_WORKFLOW:
+        label = item.label || get(item, '_remoteData_.label') || replace(get(item, 'config.processDef'), SourcesId.BPMN_DEF, '');
+        break;
+      case MenuSettings.ItemTypes.JOURNAL:
+        label = label || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
+        break;
+      default:
+        break;
+    }
+
+    return label;
   }
 
   static getMenuItemsServer(source) {

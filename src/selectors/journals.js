@@ -2,11 +2,13 @@ import { createSelector } from 'reselect';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { defaultState, emptyJournalConfig } from '../reducers/journals';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
+import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
-import cloneDeep from 'lodash/cloneDeep';
+import { ParserPredicate } from '../components/Filters/predicates';
+import { getId } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -106,5 +108,76 @@ export const selectViewColumns = createSelector(
   ownProps => {
     const columns = get(ownProps, 'grid.columns') || [];
     return columns.filter(col => col.default);
+  }
+);
+
+export const selectDashletConfigJournalId = createSelector(
+  selectNewVersionDashletConfig,
+  props => {
+    if (!props) {
+      return null;
+    }
+
+    return !props.customJournalMode || !props.customJournal ? props.journalId : props.customJournal;
+  }
+);
+
+export const selectFilterGroup = createSelector(
+  (predicate, columns) => ({ predicate, columns }),
+  ({ predicate, columns }) => {
+    return ParserPredicate.parse(predicate, columns);
+  }
+);
+
+export const selectSettingsData = createSelector(
+  selectState,
+  ownProps => {
+    return cloneDeep({
+      journalSetting: ownProps.journalSetting,
+      columnsSetup: ownProps.columnsSetup,
+      grouping: ownProps.grouping,
+      originGridSettings: ownProps.originGridSettings
+    });
+  }
+);
+
+export const selectSettingsFilters = createSelector(
+  selectState,
+  ownProps => {
+    return cloneDeep({
+      predicate: get(ownProps, 'journalSetting.predicate'),
+      columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
+      metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
+    });
+  }
+);
+
+export const selectSettingsColumns = createSelector(
+  selectState,
+  ownProps => {
+    return cloneDeep({
+      columns: get(ownProps, 'columnsSetup.columns', []).map(item => ({
+        id: getId(),
+        ...item
+      })),
+      sortBy: get(ownProps, 'columnsSetup.sortBy')
+    });
+  }
+);
+
+export const selectSettingsGrouping = createSelector(
+  selectState,
+  ownProps => {
+    return cloneDeep({
+      columns: get(ownProps, 'grouping.columns'),
+      groupBy: get(ownProps, 'grouping.groupBy')
+    });
+  }
+);
+
+export const selectGridPaginationMaxItems = createSelector(
+  selectState,
+  ownProps => {
+    return get(ownProps, 'grid.pagination.maxItems', DEFAULT_JOURNALS_PAGINATION.maxItems);
   }
 );

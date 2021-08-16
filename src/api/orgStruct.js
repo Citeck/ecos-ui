@@ -1,14 +1,12 @@
 import * as queryString from 'query-string';
 
-import { DataTypes } from '../components/common/form/SelectOrgstruct/constants';
+import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName, isNodeRef } from '../helpers/util';
 import { RecordService } from './recordService';
-
-export const ROOT_ORGSTRUCT_GROUP = '_orgstruct_home_';
 
 export class OrgStructApi extends RecordService {
   _loadedAuthorities = {};
@@ -86,7 +84,7 @@ export class OrgStructApi extends RecordService {
         this._loadedAuthorities[nodeRef] = result;
         return result;
       })
-      .catch(() => []);
+      .catch(() => (isNodeRef(nodeRef) ? { nodeRef } : { nodeRef, name: nodeRef }));
   };
 
   fetchAuthorityByName = async (authName = '') => {
@@ -107,7 +105,7 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   }
 
-  static async getUserList(searchText, extraFields = []) {
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
     const valRaw = searchText.trim();
     const val = valRaw.split(' ');
 
@@ -209,15 +207,19 @@ export class OrgStructApi extends RecordService {
       {
         query: { t: 'and', val: queryVal },
         language: 'predicate',
+        consistency: 'EVENTUAL',
         page: {
-          maxItems: 20,
-          skipCount: 0
+          maxItems: params.maxItems,
+          skipCount: params.page * params.maxItems
         }
       },
       {
         fullName: '.disp',
         userName: 'userName'
       }
-    ).then(result => converterUserList(result.records));
+    ).then(result => ({
+      items: converterUserList(result.records),
+      totalCount: result.totalCount
+    }));
   }
 }

@@ -1,6 +1,11 @@
 import CellType from '../../CellType';
 
-export default class BaseFormatter {
+import './BaseFormatter.scss';
+
+/**
+ * Formatter should be stateless for performance reasons.
+ */
+class BaseFormatter {
   static TYPE = '';
 
   /**
@@ -28,3 +33,5 @@ export default class BaseFormatter {
     return CellType.SCALAR;
   }
 }
+
+export default BaseFormatter;

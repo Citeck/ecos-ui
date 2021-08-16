@@ -1,5 +1,6 @@
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -84,8 +85,9 @@ export default class ParserPredicate {
   static getDefaultPredicates(columns, extra) {
     let val = [];
 
-    for (let i = 0, length = columns.length; i < length; i++) {
-      const column = columns[i];
+    for (let i = 0; i < get(columns, 'length', 0); i++) {
+      const column = columns[i] || {};
+
       if ((column.searchable && column.default) || (extra && extra.includes(column.attribute))) {
         const predicates = getPredicates(column);
         val.push(new Predicate({ att: column.attribute, t: predicates[0].value, val: '' }));
@@ -115,6 +117,10 @@ export default class ParserPredicate {
       return [];
     }
 
+    if (typeof val === 'string') {
+      return val;
+    }
+
     for (let i = 0, length = val.length; i < length; i++) {
       const item = val[i];
 
@@ -136,6 +142,10 @@ export default class ParserPredicate {
         return true;
       }
 
+      if (typeof v === 'string' && !isEmpty(v)) {
+        return true;
+      }
+
       return !!v.val || v.val === 0 || v.val === false;
     });
   }
@@ -145,6 +155,14 @@ export default class ParserPredicate {
   }
 
   static replacePredicateType(predicate) {
+    /* Cause: https://citeck.atlassian.net/browse/ECOSUI-1197
+     *
+     * To support multiple selection of predicate text values
+     */
+    if (typeof predicate === 'string') {
+      return predicate;
+    }
+
     let type = EQUAL_PREDICATES_MAP[predicate.t] || predicate.t;
     let val = predicate.val;
 
@@ -324,6 +342,11 @@ export default class ParserPredicate {
 
             out.push(item);
           } else if (isArray(item.val)) {
+            if (item.val.every(v => typeof v === 'string')) {
+              out.push(item);
+              return;
+            }
+
             flat(item.val);
           }
         });
@@ -332,6 +355,66 @@ export default class ParserPredicate {
     flat(predicates);
 
     return out;
+  }
+
+  static setNewPredicates(predicates, newPredicate) {
+    predicates = cloneDeep(predicates);
+
+    if (!predicates) {
+      return [];
+    }
+
+    if (Array.isArray(newPredicate)) {
+      const flatPredicates = ParserPredicate.getFlatFilters(predicates);
+      let newPredicates = predicates;
+
+      newPredicate
+        .filter(item => {
+          const index = (flatPredicates || []).findIndex(i => isEqual(i, item));
+
+          return index === -1;
+        })
+        .forEach(item => {
+          newPredicates = ParserPredicate.setNewPredicates(newPredicates, item);
+        });
+
+      return newPredicates;
+    }
+
+    const forEach = arr => {
+      arr.forEach(item => {
+        if (typeof item === 'string') {
+          return;
+        }
+
+        if (isArray(item.val) && !item.val.some(i => typeof i === 'string')) {
+          forEach(item.val);
+
+          return;
+        }
+
+        if (item.att === newPredicate.att) {
+          if (isEqual(newPredicate, item)) {
+            delete newPredicate.att;
+            return;
+          }
+
+          if (isEqual(item.att, newPredicate.att) && !isEqual(item.val, newPredicate.val)) {
+            item.val = newPredicate.val;
+
+            if (newPredicate.t) {
+              item.t = newPredicate.t;
+            }
+
+            delete newPredicate.att;
+          }
+        }
+      });
+    };
+
+    forEach(predicates.val || []);
+
+    return predicates;
   }
 
   static setPredicateValue(predicates, newPredicate) {

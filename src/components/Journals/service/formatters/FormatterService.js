@@ -1,14 +1,14 @@
 import React from 'react';
-
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 import get from 'lodash/get';
 
 import { t } from '../../../../helpers/export/util';
-import { replacePlaceholders } from '../util';
+import { replacePlaceholders, valueOrNull } from '../util';
 import formatterRegistry from './registry';
 import isPlainObject from 'lodash/isPlainObject';
 import CellType from './CellType';
+import Popper from '../../../common/Popper';
 
 /**
  * @typedef {Object} FormatterConfig
@@ -29,6 +29,20 @@ import CellType from './CellType';
 class FormatterService {
   static get errorMessage() {
     return `#${t('error').toUpperCase()}`;
+  }
+
+  static PopperWrapper(props) {
+    return (
+      <Popper
+        showAsNeeded
+        icon="icon-question"
+        popupClassName="formatter-popper"
+        text={props.text}
+        contentComponent={props.contentComponent}
+      >
+        {props.children}
+      </Popper>
+    );
   }
 
   /**
@@ -106,8 +120,8 @@ class FormatterService {
         cellValue = { value: cellValue, disp: cellValue };
       } else {
         cellValue = {
-          value: cellValue.value || null,
-          disp: cellValue.disp || cellValue.value || null
+          value: valueOrNull(cellValue.value),
+          disp: valueOrNull(cellValue.disp || cellValue.value)
         };
       }
     } else if (fmtInstance.getSupportedCellType() === CellType.SCALAR) {
@@ -117,7 +131,7 @@ class FormatterService {
     }
     formatProps.cell = cellValue;
     try {
-      return fmtInstance.format(formatProps);
+      return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
     } catch (e) {
       console.error('[FormattersService._formatSingleValueCellImpl] error', e);
       return FormatterService.errorMessage;

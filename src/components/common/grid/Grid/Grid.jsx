@@ -14,11 +14,11 @@ import pick from 'lodash/pick';
 
 import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
+import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 
 import './Grid.scss';
 
@@ -73,7 +73,8 @@ class Grid extends Component {
     this._optionMinWidth = null;
 
     this.state = {
-      tableHeight: 0
+      tableHeight: 0,
+      selected: props.selected || []
     };
   }
 
@@ -109,6 +110,10 @@ class Grid extends Component {
 
     if (prevProps.resizableColumns !== resizableColumns) {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
+    }
+
+    if (isEmpty(prevProps.selected) && !isEmpty(this.props.selected)) {
+      this.setState({ selected: this.props.selected });
     }
 
     this.setColumnsSizes();
@@ -261,6 +266,8 @@ class Grid extends Component {
   };
 
   onSelect = (all, selected = this._selected) => {
+    this.setState({ selected });
+
     trigger.call(this, 'onSelect', {
       selected: [...new Set(selected)],
       all
@@ -287,7 +294,7 @@ class Grid extends Component {
           column.hidden = !column.default;
         }
 
-        const filterable = column.type === COLUMN_DATA_TYPE_DATE || column.type === COLUMN_DATA_TYPE_DATETIME ? false : props.filterable;
+        const filterable = props.filterable;
 
         column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
 
@@ -336,17 +343,18 @@ class Grid extends Component {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
         this.onRowClick(e.currentTarget);
       },
+      onDoubleClick: this.onDoubleClick,
       onDragOver: this.onDragOver,
       onDrop: this.onDrop,
       ...extra.rowEvents
     };
 
     if (props.multiSelectable) {
-      options.selectRow = this.createMultiSelectionCheckboxs(props);
+      options.selectRow = this.createMultiSelectionCheckboxes(props);
     }
 
     if (props.singleSelectable) {
-      options.selectRow = this.createSingleSelectionCheckboxs(props);
+      options.selectRow = this.createSingleSelectionCheckboxes(props);
     }
 
     const CUSTOM_NESTED_DELIMITER = '|';
@@ -464,7 +472,7 @@ class Grid extends Component {
     const style = {
       height: tr.offsetHeight + 2,
       top: tr.offsetTop - 1,
-      left: scrollLeft
+      right: -scrollLeft
     };
 
     if (elContainer && !isInViewport(elGrid)) {
@@ -526,16 +534,20 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter } = this.props;
-    const isFilterable = get(column, 'searchableByText') !== false && filterable && typeof onFilter === 'function';
+    const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
+    const isFilterable = filterable && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
-      const filterValue = ((filters || []).filter(filter => filter.att === column.dataField)[0] || {}).val || '';
+      const filterPredicates = (filters || []).filter(filter => filter.att === column.dataField) || [];
+      const filterPredicate = get(filterPredicates, [0], {});
+      const filterValue = filterPredicate.val || '';
       const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
 
       return (
         <HeaderFormatter
+          isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
+          predicate={filterPredicate}
           filterable={isFilterable}
           closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
@@ -546,6 +558,7 @@ class Grid extends Component {
           column={column}
           colIndex={colIndex}
           onDividerMouseDown={this.getStartDividerPosition}
+          onOpenSettings={onOpenSettings}
         />
       );
     };
@@ -553,7 +566,7 @@ class Grid extends Component {
     return column;
   };
 
-  createSingleSelectionCheckboxs(props) {
+  createSingleSelectionCheckboxes(props) {
     this._selected = props.selected || [];
 
     return {
@@ -573,17 +586,18 @@ class Grid extends Component {
     };
   }
 
-  createMultiSelectionCheckboxs(props) {
-    this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : props.selected || [];
+  createMultiSelectionCheckboxes(props) {
+    const { selected } = this.state;
+    this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : selected || [];
 
-    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === this._selected.length) {
+    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === selected.length) {
       this.#isAllSelected = true;
     }
 
     return {
       mode: 'checkbox',
       classes: 'ecos-grid__tr_selected',
-      selected: this._selected,
+      selected,
       nonSelectable: props.nonSelectable || [],
       onSelect: (row, isSelect) => {
         const selected = this._selected;
@@ -602,10 +616,28 @@ class Grid extends Component {
         this.onSelect(false);
       },
       onSelectAll: (isSelect, rows) => {
-        const { nonSelectable, data } = this.props;
+        const { nonSelectable, data, selected } = this.props;
 
         if (!isSelect && !isEmpty(nonSelectable) && isEqual(this._selected, nonSelectable)) {
           this._selected = data.map(row => row[this._keyField]);
+          this.#isAllSelected = true;
+          this.onSelect(true);
+
+          return;
+        }
+
+        if (!isSelect && rows.length !== data.length) {
+          if (isEqual(rows.map(i => i[this._keyField]), selected)) {
+            this._selected = data.map(row => row[this._keyField]).filter(i => !nonSelectable.includes(i));
+            this.#isAllSelected = true;
+            this.onSelect(true);
+
+            return;
+          }
+
+          this._selected = data
+            .map(row => row[this._keyField])
+            .filter(item => (nonSelectable.includes(item) && selected.includes(item)) || !nonSelectable.includes(item));
           this.#isAllSelected = true;
           this.onSelect(true);
 
@@ -617,8 +649,9 @@ class Grid extends Component {
         }
 
         this.#isAllSelected = isSelect;
+
         this._selected = isSelect
-          ? [...this._selected, ...rows.map(row => row[this._keyField])]
+          ? [...this._selected, ...rows.map(i => i[this._keyField])]
           : this.getSelectedByPage(this.props.data, false);
 
         this.onSelect(isSelect);
@@ -812,6 +845,10 @@ class Grid extends Component {
   onRowClick = tr => {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
     trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
+  };
+
+  onDoubleClick = (...params) => {
+    this.props.onRowDoubleClick && this.props.onRowDoubleClick(params);
   };
 
   onSort = e => {
@@ -1129,6 +1166,8 @@ Grid.propTypes = {
 
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
+  onRowClick: PropTypes.func,
+  onRowDoubleClick: PropTypes.func,
   onRowDrop: PropTypes.func,
   onDragOver: PropTypes.func,
   onRowDragEnter: PropTypes.func,
@@ -1138,13 +1177,16 @@ Grid.propTypes = {
   onCheckDropPermission: PropTypes.func,
   onChangeTrOptions: PropTypes.func,
   onScrolling: PropTypes.func,
+  onOpenSettings: PropTypes.func,
   inlineTools: PropTypes.func
 };
 
 Grid.defaultProps = {
   scrollable: true,
   sortable: true,
-  resizableColumns: true
+  resizableColumns: true,
+  nonSelectable: [],
+  selected: []
 };
 
 export default Grid;

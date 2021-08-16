@@ -1,43 +1,29 @@
 import React, { useState } from 'react';
 
+import { SETTING_ENABLE_RECORDS_API_DEBUG, SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, SETTING_FORCE_ENABLE_NEW_FORMS } from '../constants';
+
 export const SettingsContext = React.createContext();
 
-const SETTING_FORCE_ENABLE_NEW_FORMS = 'forceEnableNewForms';
-const SETTING_ENABLE_LOGGING_FOR_NEW_FORMS = 'enableLoggerForNewForms';
-
 export const SettingsContextProvider = props => {
-  const forceEnableNewFormsInitState = !!JSON.parse(localStorage.getItem(SETTING_FORCE_ENABLE_NEW_FORMS));
-  const [forceEnableNewForms, setForceEnableNewForms] = useState(forceEnableNewFormsInitState);
-  const _setForceEnableNewForms = value => {
-    setForceEnableNewForms(value);
-    if (value) {
-      localStorage.setItem(SETTING_FORCE_ENABLE_NEW_FORMS, JSON.stringify(value));
-    } else {
-      localStorage.removeItem(SETTING_FORCE_ENABLE_NEW_FORMS);
-    }
-  };
+  const settings = {};
+  [SETTING_FORCE_ENABLE_NEW_FORMS, SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, SETTING_ENABLE_RECORDS_API_DEBUG].forEach(prop => {
+    const initState = !!JSON.parse(localStorage.getItem(prop));
+    const [stateValue, setNewState] = useState(initState);
 
-  const enableLoggerForNewFormsInitState = !!JSON.parse(localStorage.getItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS));
-  const [enableLoggerForNewForms, setEnableLoggerForNewForms] = useState(enableLoggerForNewFormsInitState);
-  const _setEnableLoggerForNewForms = value => {
-    setEnableLoggerForNewForms(value);
-    if (value) {
-      localStorage.setItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, JSON.stringify(value));
-    } else {
-      localStorage.removeItem(SETTING_ENABLE_LOGGING_FOR_NEW_FORMS);
-    }
-  };
+    const _setNewValue = value => {
+      setNewState(value);
+      if (value) {
+        localStorage.setItem(prop, JSON.stringify(value));
+      } else {
+        localStorage.removeItem(prop);
+      }
+    };
 
-  return (
-    <SettingsContext.Provider
-      value={{
-        forceEnableNewForms,
-        setForceEnableNewForms: _setForceEnableNewForms,
-        enableLoggerForNewForms,
-        setEnableLoggerForNewForms: _setEnableLoggerForNewForms
-      }}
-    >
-      {props.children}
-    </SettingsContext.Provider>
-  );
+    settings[prop] = {
+      value: stateValue,
+      setValue: _setNewValue
+    };
+  });
+
+  return <SettingsContext.Provider value={{ settings }}>{props.children}</SettingsContext.Provider>;
 };

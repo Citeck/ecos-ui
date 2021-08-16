@@ -209,6 +209,10 @@ export default class EcosFormUtils {
           params.contentAfter = config.contentAfter;
         }
 
+        if (config.options) {
+          params.options = config.options;
+        }
+
         EcosFormUtils.eform(recordRef, {
           params,
           class: 'ecos-modal_width-lg',
@@ -233,22 +237,24 @@ export default class EcosFormUtils {
     const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
 
     Promise.all([isFormsEnabled, isShouldDisplay])
-      .then(function(values) {
+      .then(values => {
         if (values[0] || values[1]) {
-          EcosFormUtils.hasForm(recordRef).then(function(result) {
+          EcosFormUtils.hasForm(recordRef).then(result => {
             if (result) {
               showForm(recordRef);
             } else {
-              showForm(null);
+              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+              throw new Error(`hasForm ${result}`);
             }
           });
         } else {
-          showForm(null);
+          NotificationManager.error(t('form-is-not-available'), t('error'));
+          throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
         }
       })
-      .catch(function(e) {
+      .catch(e => {
         console.error(e);
-        showForm(null);
+        showForm();
       });
   }
 
@@ -353,22 +359,27 @@ export default class EcosFormUtils {
         formKey: '_formKey[]?str',
         typeId: '_type?id',
         // legacy attribute. _type is preferred
-        etypeId: '_etype?id'
+        etypeId: '_etype?id',
+        formRef: '_formRef?id'
       });
-      if (!(recordAtts.formKey || []).length && !recordAtts.typeId && !recordAtts.etypeId) {
+      if (!(recordAtts.formKey || []).length && !recordAtts.typeId && !recordAtts.etypeId && !recordAtts.formRef) {
         recordAtts = await recordInstance.load({
           formKey: '_formKey[]?str',
           typeId: '_type?id',
           // legacy attribute. _type is preferred
-          etypeId: '_etype?id'
+          etypeId: '_etype?id',
+          formRef: '_formRef?id'
         });
       }
-      let { typeId, etypeId, formKey } = recordAtts;
+      let { typeId, etypeId, formKey, formRef } = recordAtts;
 
       if (!typeId) {
         typeId = etypeId;
       }
 
+      if (EcosFormUtils.isFormId(formRef)) {
+        return EcosFormUtils.getFormById(formRef, attributes);
+      }
       if (typeId && typeId.indexOf('emodel/type@') === 0) {
         return Records.get(typeId)
           .load('inhFormRef?id')
@@ -713,8 +724,9 @@ export default class EcosFormUtils {
     return Object.assign(result, attributes, formI18n);
   }
 
-  static hasWritePermission(recordId, force) {
-    return Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}', force);
+  static async hasWritePermission(recordId, force) {
+    let res = await Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}', force);
+    return res == null ? true : res;
   }
 
   static processValueBeforeSubmit(value, input, keysMapping) {

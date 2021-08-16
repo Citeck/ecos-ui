@@ -16,7 +16,6 @@ export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
 export const setOnlyLinked = createAction(prefix + 'SET_ONLY_LINKED');
 export const setCustomJournalMode = createAction(prefix + 'SET_CUSTOM_JOURNAL_MODE');
 export const setCustomJournal = createAction(prefix + 'SET_CUSTOM_JOURNAL');
-export const setJournals = createAction(prefix + 'SET_JOURNALS');
 export const setSelectedJournals = createAction(prefix + 'SET_SELECTED_JOURNALS');
 
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
@@ -42,6 +41,7 @@ export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTIN
 export const renameJournalSetting = createAction(prefix + 'RENAME_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
+export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
 
 export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setOriginGridSettings = createAction(prefix + 'SET_ORIGIN_GRID_SETTINGS');

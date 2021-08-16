@@ -8,14 +8,14 @@ import { initialState, reducer } from './reducer';
 
 export const DevModulesContext = React.createContext();
 
-const DEV_MODULES_JOURNAL_ID = 'dev-modules';
+const DEV_MODULE_ACTIONS_JOURNAL_ID = 'dev-module-actions';
 
 export const DevModulesContextProvider = props => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const getDevModulesData = async () => {
     try {
-      const journalConfig = await JournalsService.getJournalConfig(DEV_MODULES_JOURNAL_ID);
+      const journalConfig = await JournalsService.getJournalConfig(DEV_MODULE_ACTIONS_JOURNAL_ID);
 
       const columns = await JournalsService.resolveColumns(journalConfig.columns);
       dispatch({ type: SET_GRID_COLUMNS, payload: columns });

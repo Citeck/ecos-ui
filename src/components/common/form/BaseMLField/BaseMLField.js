@@ -11,6 +11,7 @@ import uuidV4 from 'uuidv4';
 import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { prepareTooltipId } from '../../../../helpers/util';
+import { t } from '../../../../helpers/export/util';
 import { allowedLanguages } from '../../../../constants/lang';
 
 import './style.scss';
@@ -31,6 +32,8 @@ class BaseMLField extends Component {
     style: PropTypes.object,
     lang: PropTypes.string,
     placeholder: PropTypes.string,
+    disabled: PropTypes.bool,
+    viewOnly: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -113,7 +116,8 @@ class BaseMLField extends Component {
       'className',
       'setWrapperProps',
       'imgClassName',
-      'inputClassName'
+      'inputClassName',
+      'viewOnly'
     ]);
 
     return {
@@ -236,9 +240,11 @@ class BaseMLField extends Component {
 
   renderInputElement = () => null;
 
+  renderViewElement = () => this.value || t('boolean.no');
+
   renderLang() {
     const { languages, imgClassName } = this.props;
-    const { selectedLang, isShowTooltip, isShowButton, isFocus } = this.state;
+    const { selectedLang, isShowTooltip } = this.state;
     const lang = languages.find(item => item.id === selectedLang);
     const extraImageProps = {};
 
@@ -265,9 +271,7 @@ class BaseMLField extends Component {
       >
         <img
           id={this._key}
-          className={classNames('ecos-ml-text__image', imgClassName, {
-            'ecos-ml-text__image_visible': isShowButton || isFocus
-          })}
+          className={classNames('ecos-ml-text__image ecos-ml-text__image_visible', imgClassName)}
           src={lang.img}
           alt={lang.label}
           {...extraImageProps}
@@ -277,12 +281,17 @@ class BaseMLField extends Component {
   }
 
   render() {
-    const { className, style } = this.props;
+    const { className, style, disabled, viewOnly } = this.props;
 
     return (
-      <div style={style} className={classNames('ecos-ml-text', className)}>
-        {this.renderInputElement()}
-        {this.renderLang()}
+      <div
+        style={style}
+        className={classNames('ecos-ml-text', className, {
+          'ecos-ml-text_disabled': disabled
+        })}
+      >
+        {viewOnly ? this.renderViewElement() : this.renderInputElement()}
+        {!viewOnly && this.renderLang()}
       </div>
     );
   }

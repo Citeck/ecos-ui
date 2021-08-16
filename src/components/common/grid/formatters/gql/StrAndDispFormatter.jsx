@@ -19,6 +19,6 @@ export default class StrAndDispFormatter extends DefaultGqlFormatter {
   }
 
   render() {
-    return <>{this.value()}</>;
+    return <this.PopperWrapper text={this.value()} />;
   }
 }

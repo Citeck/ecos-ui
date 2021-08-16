@@ -5,22 +5,22 @@ import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { SourcesId, URL } from '../constants';
-import { PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { DEFAULT_EIS, SourcesId, URL } from '../constants';
+import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
-    const url = `${PROXY_URI}citeck/ecosConfig/ecos-config-value?configName=${configName}`;
+    const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
     return this.getJson(url)
       .then(resp => resp.value)
       .catch(() => '');
   };
 
   touch = () => {
-    const url = `${PROXY_URI}citeck/ecos/touch`;
+    const url = `${CITECK_URI}ecos/touch`;
     return this.getJson(url);
   };
 
@@ -70,9 +70,9 @@ export class AppApi extends CommonApi {
       });
   };
 
-  getFooter = () => {
+  getFooter = (params = 'value?str') => {
     return Records.get(`${SourcesId.CONFIG}@footer-content`)
-      .load('value?str')
+      .load(params)
       .catch(() => null);
   };
 
@@ -91,7 +91,7 @@ export class AppApi extends CommonApi {
    * @returns {Promise<Object<String,String>>}
    */
   static async getDictionaryServer(id) {
-    const cb = await Records.get(SourcesId.META + '@')
+    const cb = await Records.get(`${SourcesId.META}@`)
       .load('attributes.i18n-cache-key')
       .then(k => k || '0')
       .catch(_ => '0');
@@ -106,7 +106,7 @@ export class AppApi extends CommonApi {
   }
 
   isForceOldUserDashboardEnabled() {
-    return Records.get('ecos-config@force-old-user-dashboard-enabled')
+    return Records.get(`${SourcesId.CONFIG}@force-old-user-dashboard-enabled`)
       .load('.bool')
       .then(res => res === true)
       .catch(() => false);
@@ -172,5 +172,44 @@ export class AppApi extends CommonApi {
 
   getAppEdition = () => {
     return Records.get(`${SourcesId.A_META}@`).load('attributes.edition');
+  };
+
+  getIsExternalIDP = () => {
+    return ecosFetch('/eis.json')
+      .then(r => r.json())
+      .then(config => {
+        const { logoutUrl } = config || {};
+        return !logoutUrl || logoutUrl === DEFAULT_EIS.LOGOUT_URL;
+      })
+      .catch(() => false);
+  };
+
+  static doLogOut = async () => {
+    const DEF_LOGOUT = `/logout`;
+
+    const url = await ecosFetch('/eis.json')
+      .then(r => r.json())
+      .then(config => {
+        const { logoutUrl, eisId } = config || {};
+        const isLogoutUrl = logoutUrl && logoutUrl !== DEFAULT_EIS.LOGOUT_URL;
+        const isNoEisId = !eisId || eisId === DEFAULT_EIS.EIS_ID;
+
+        return isLogoutUrl ? logoutUrl : isNoEisId ? DEF_LOGOUT : undefined;
+      })
+      .catch(() => DEF_LOGOUT);
+
+    if (url) {
+      await ecosFetch(url, { method: 'POST', mode: 'no-cors' });
+      window.location.reload();
+    } else {
+      NotificationManager.warning(t('page.error.logout.no-url'));
+    }
+  };
+
+  static doToggleAvailable = isAvailable => {
+    return new CommonApi()
+      .postJson(`${PROXY_URI}api/availability/make-available`, { isAvailable })
+      .then(window.location.reload)
+      .catch(() => '');
   };
 }

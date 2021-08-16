@@ -1,11 +1,11 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 
-import { generateSearchTerm, getCurrentUserName, t } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName, isNodeRef } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
-import { PROXY_URI } from '../constants/alfresco';
-import { MENU_VERSION, LOWEST_PRIORITY, MenuSettings as ms } from '../constants/menu';
+import { PROXY_URI, CITECK_URI, UISERV_API } from '../constants/alfresco';
+import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
@@ -71,34 +71,6 @@ export class MenuApi extends CommonApi {
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
   };
 
-  getCreateWorkflowVariants = () => {
-    return Promise.resolve([
-      {
-        id: 'HEADER_CREATE_WORKFLOW',
-        label: 'header.create-workflow.label',
-        items: [
-          {
-            id: 'HEADER_CREATE_WORKFLOW_ADHOC',
-            label: 'header.create-workflow-adhoc.label',
-            control: {
-              type: 'ECOS_CREATE_VARIANT',
-              payload: {
-                formTitle: t('header.create-workflow-adhoc.description'),
-                recordRef: 'workflow@def_activiti$perform'
-              }
-            }
-          },
-          // TODO: Migration to form required
-          {
-            id: 'HEADER_CREATE_WORKFLOW_CONFIRM',
-            label: 'header.create-workflow-confirm.label',
-            targetUrl: '/share/page/start-specified-workflow?workflowId=activiti$confirm'
-          }
-        ]
-      }
-    ]);
-  };
-
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
 
@@ -107,14 +79,6 @@ export class MenuApi extends CommonApi {
         lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json' }
       )
     );
-  };
-
-  getCustomCreateVariants = () => {
-    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
-      .load('value[]?json', true)
-      .then(res => lodashGet(res, '[0]', []))
-      .then(res => (Array.isArray(res) ? res : []))
-      .catch(() => []);
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {
@@ -141,7 +105,7 @@ export class MenuApi extends CommonApi {
     return cacheKey
       .then(key =>
         this.getJsonWithSessionCache({
-          url: `/gateway/uiserv/api/usermenu?username=${username}`,
+          url: `${UISERV_API}usermenu?username=${username}`,
           cacheKey: key,
           timeout: 14400000, //4h
           postProcess: menu => postProcessMenuConfig(menu)
@@ -171,14 +135,14 @@ export class MenuApi extends CommonApi {
 
   getMenuItemIconUrl = iconName => {
     return this.getJsonWithSessionCache({
-      url: `${PROXY_URI}citeck/menu/icon?iconName=${iconName}`,
+      url: `${CITECK_URI}menu/icon?iconName=${iconName}`,
       timeout: 14400000, //4h
       onError: () => null
     });
   };
 
   getJournalTotalCount = journalId => {
-    return Records.get('uiserv/rjournal@' + journalId)
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
       .load('totalCount?num')
       .then(res => res || 0);
   };
@@ -226,10 +190,10 @@ export class MenuApi extends CommonApi {
     );
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
-    setSectionTitles(updCreateItems, updLeftItems);
-    const filterAuthorities = (lodashGet(config, 'authorities') || []).filter(item => item !== LOWEST_PRIORITY);
+    const filterAuthorities = lodashGet(config, 'authorities') || [];
 
-    !filterAuthorities.length && filterAuthorities.push(getCurrentUserName());
+    !filterAuthorities.length && filterAuthorities.push(GROUP_EVERYONE);
+    setSectionTitles(updCreateItems, updLeftItems);
 
     const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
 
@@ -262,6 +226,15 @@ export class MenuApi extends CommonApi {
     return Records.get(refs).load({ ref: '.str', name: 'cm:userName!cm:authorityName', label: '.disp' });
   };
 
+  getAuthoritiesInfo = async values => {
+    const names = values.filter(val => !isNodeRef(val));
+    const refs = values.filter(val => isNodeRef(val));
+    const infoNames = await this.getAuthoritiesInfoByName(names);
+    const infoRefs = await this.getAuthoritiesInfoByRef(refs);
+
+    return [...infoNames, ...infoRefs];
+  };
+
   getGroupPriority = () => {
     return Records.get(`${SourcesId.CONFIG}@menu-group-priority`).load('value?json');
   };
@@ -279,7 +252,7 @@ export class MenuApi extends CommonApi {
     const groupPriority = await this.getGroupPriority();
     const setAuthorities = (groupPriority || []).map(item => item.id);
     const mergeAuthorities = Array.from(new Set([...setAuthorities, ...serverAuthorities, ...localAuthorities]));
-    const filteredAuthorities = mergeAuthorities.filter(id => id !== LOWEST_PRIORITY && id.includes(AUTHORITY_TYPE_GROUP));
+    const filteredAuthorities = mergeAuthorities.filter(id => id !== GROUP_EVERYONE && id.includes(AUTHORITY_TYPE_GROUP));
 
     return fetchExtraGroupItemInfo(filteredAuthorities.map(id => ({ id })));
   };
@@ -288,7 +261,7 @@ export class MenuApi extends CommonApi {
     const recordId = id.includes(SourcesId.MENU) ? id : `${SourcesId.MENU}@${id}`;
     const rec = Records.get(recordId);
 
-    !authorities.length && authorities.push(LOWEST_PRIORITY);
+    !authorities.length && authorities.push(GROUP_EVERYONE);
 
     rec.att('subMenu?json', subMenu);
     rec.att('authorities[]?str', authorities);
@@ -313,16 +286,16 @@ export class MenuApi extends CommonApi {
 }
 
 async function fetchExtraItemInfo(data, attributes) {
-  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD } = ms.ItemTypes;
+  const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW } = ms.ItemTypes;
 
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
       let attrs = typeof attributes === 'function' ? attributes(item) : attributes;
-      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId');
+      let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId') || lodashGet(item, 'config.processDef');
 
-      if (attrs && ref && [JOURNAL, EDIT_RECORD].includes(item.type)) {
+      if (attrs && ref && [JOURNAL, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
         ref = ref.replace('/journal@', '/rjournal@');
         ref = ref.replace('/journal_all@', '/rjournal@');
         target._remoteData_ = await Records.get(ref).load(attrs);
@@ -338,7 +311,6 @@ async function fetchExtraItemInfo(data, attributes) {
           if (attrs === undefined) {
             attrs = {};
           }
-
           lodashSet(attrs, 'label', `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}}`);
         }
 

@@ -1,0 +1,49 @@
+@import '../../../styles/constants';
+
+.ecos-inline-filter {
+  &__body {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+
+    .ecos-filter_step {
+      &:empty {
+        margin: 0;
+      }
+    }
+
+    .select-journal {
+      color: $text-color-dark;
+      align-self: center;
+
+      &__values-list_compact {
+        font-size: $font-size-standard;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+
+    &-confirm.ecos-btn {
+      color: $color-gray-6;
+
+      i:hover {
+        color: $color-green1;
+        background-color: transparent;
+      }
+    }
+  }
+
+  &__value {
+    max-width: 200px;
+
+    .ecos-select.select_width_full {
+      min-width: 120px;
+    }
+  }
+
+  &__selector {
+    min-width: 120px;
+  }
+}

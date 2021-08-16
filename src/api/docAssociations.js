@@ -1,12 +1,12 @@
 import isEmpty from 'lodash/isEmpty';
 
 import ecosFetch from '../helpers/ecosFetch';
-import Records from '../components/Records';
-import { DataFormatTypes, EmodelTypes } from '../constants';
-import { DocumentsApi } from './documents';
-import { PROXY_URI } from '../constants/alfresco';
-import journalsService from '../components/Journals/service/journalsService';
 import { getOutputFormat } from '../helpers/util';
+import { DataFormatTypes, EmodelTypes } from '../constants';
+import { PROXY_URI } from '../constants/alfresco';
+import Records from '../components/Records';
+import journalsService from '../components/Journals/service/journalsService';
+import { DocumentsApi } from './documents';
 
 export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
@@ -59,7 +59,7 @@ export class DocAssociationsApi extends DocumentsApi {
           newFormatter: {
             type: 'script',
             config: {
-              script: 'return cell ? vars.formatDate(cell) : "";',
+              fn: 'return cell ? vars.formatDate(cell) : "";',
               vars: {
                 formatDate: cell => getOutputFormat(DataFormatTypes.DATETIME, cell)
               }

@@ -120,9 +120,9 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
     }
 
     if (type === 'html') {
-      return <div dangerouslySetInnerHTML={{ __html: value }} />;
+      return <this.PopperWrapper contentComponent={() => <div dangerouslySetInnerHTML={{ __html: value }} />} />;
     }
 
-    return value;
+    return <this.PopperWrapper text={value} />;
   }
 }

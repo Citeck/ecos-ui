@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
   fetchCreateCaseWidgetData,
+  fetchUserMenuData,
   resetSearchAutocompleteItems,
   runSearchAutocompleteItems,
   setCreateCaseWidgetIsCascade,
@@ -12,6 +13,7 @@ import {
 
 const initialState = {
   createCaseWidget: {
+    isLoading: false,
     isCascade: false,
     items: []
   },
@@ -26,7 +28,8 @@ const initialState = {
     items: []
   },
   userMenu: {
-    items: []
+    items: [],
+    isLoading: false
   }
 };
 
@@ -37,7 +40,7 @@ export default handleActions(
     [fetchCreateCaseWidgetData]: (state, action) => {
       return {
         ...state,
-        createCaseWidget: { ...initialState.createCaseWidget }
+        createCaseWidget: { ...initialState.createCaseWidget, isLoading: true }
       };
     },
     [setCreateCaseWidgetItems]: (state, action) => {
@@ -45,7 +48,8 @@ export default handleActions(
         ...state,
         createCaseWidget: {
           ...state.createCaseWidget,
-          items: action.payload
+          items: action.payload,
+          isLoading: false
         }
       };
     },
@@ -95,12 +99,19 @@ export default handleActions(
       };
     },
 
+    [fetchUserMenuData]: state => {
+      return {
+        ...state,
+        userMenu: { ...initialState.userMenu, isLoading: true }
+      };
+    },
     [setUserMenuItems]: (state, action) => {
       return {
         ...state,
         userMenu: {
           ...state.userMenu,
-          items: action.payload
+          items: action.payload,
+          isLoading: false
         }
       };
     },

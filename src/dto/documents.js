@@ -139,6 +139,7 @@ export default class DocumentsConverter {
     target.countDocuments = get(source, 'countDocuments', 0);
     target.locked = get(source, 'locked', false);
     target.canUpload = !isExistValue(canUpload) || canUpload;
+    target.journalId = get(source, 'journalId', '');
 
     return target;
   };
@@ -169,6 +170,7 @@ export default class DocumentsConverter {
       target.multiple = get(item, 'multiple', false);
       target.mandatory = get(item, 'mandatory', false);
       target.canUpload = !isExistValue(canUpload) || canUpload;
+      target.journalId = get(item, 'journalId', '');
 
       return target;
     });
@@ -265,7 +267,6 @@ export default class DocumentsConverter {
     return source
       .map(column => {
         let { name, schema, attribute, dataField } = column;
-
         const alias = dataField || attribute || name;
 
         if (attribute && schema) {
@@ -319,24 +320,30 @@ export default class DocumentsConverter {
     });
   }
 
+  static prepareAttrName(name) {
+    return name.replace(/[-,:]/g, '_');
+  }
+
   static getAttribute(attr = '', name = '') {
+    const alias = DocumentsConverter.prepareAttrName(name);
+
     if (name) {
-      return name;
+      return alias;
     }
 
     if (attr.charAt(0) === '.') {
-      return name;
+      return alias;
     }
 
     if (attr.includes(':')) {
-      return name;
+      return alias;
     }
 
     if (attr.includes('-')) {
       return attr.toLowerCase().replace(/-/g, '_');
     }
 
-    return attr || name;
+    return attr || alias;
   }
 
   static getColumnsForSettings(columns = [], configColumns = []) {

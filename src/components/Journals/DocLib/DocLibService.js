@@ -1,3 +1,5 @@
+import { EventEmitter2 } from 'eventemitter2';
+
 import { SourcesId } from '../../../constants';
 import DocLibConverter from '../../../dto/docLib';
 
@@ -12,6 +14,12 @@ import docLibApi from './DocLibServiceApi';
  * Service to work with document library.
  */
 class DocLibService {
+  actionSuccessCallback = 'ACTION_SUCCESS_CALLBACK';
+
+  constructor() {
+    this.emitter = new EventEmitter2();
+  }
+
   getRootId(typeRef) {
     return `${SourcesId.DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
   }

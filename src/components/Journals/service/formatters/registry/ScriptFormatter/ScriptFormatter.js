@@ -31,6 +31,7 @@ export default class ScriptFormatter extends BaseFormatter {
     const vars = config.vars || {};
     const args = [cell, row, {}, cell, rowIndex, { lodash: _, ecosFetch, Records, _, t, ...vars }];
     let result;
+    let content;
 
     if (typeof script === 'function') {
       result = script(...args);
@@ -57,10 +58,12 @@ export default class ScriptFormatter extends BaseFormatter {
 
     switch (typeof result) {
       case 'boolean':
-        return result ? t('boolean.yes') : t('boolean.no');
+        content = result ? t('boolean.yes') : t('boolean.no');
+        break;
       case 'number':
       case 'string':
-        return result;
+        content = result;
+        break;
       default:
         if (_.isPlainObject(result)) {
           if (typeof format !== 'function') {
@@ -68,16 +71,17 @@ export default class ScriptFormatter extends BaseFormatter {
           }
           const newFormatter = _.omit(result, ['cell']);
           const newProps = _.clone(props);
+
           if (result.cell) {
             newProps.cell = result.cell;
           }
 
-          return format(newProps, newFormatter);
+          content = format(newProps, newFormatter);
         }
         break;
     }
 
-    return null;
+    return content;
   }
 
   getSupportedCellType() {

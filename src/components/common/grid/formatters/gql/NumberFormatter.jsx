@@ -1,3 +1,4 @@
+import React from 'react';
 import BigNumber from 'bignumber.js';
 import get from 'lodash/get';
 
@@ -46,6 +47,6 @@ export default class NumberFormatter extends DefaultGqlFormatter {
   render() {
     const { cell, params } = this.props;
 
-    return NumberFormatter.formatNumber(cell, params);
+    return <this.PopperWrapper text={NumberFormatter.formatNumber(cell, params)} />;
   }
 }

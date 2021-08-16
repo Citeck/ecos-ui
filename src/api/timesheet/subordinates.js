@@ -28,7 +28,7 @@ export class TimesheetSubordinatesApi extends RecordService {
   getSubordinatesList = ({ userName }) => {
     return Records.query(
       {
-        //query: `@ggodic:geSupervisorId:${userName} AND (userName:1* OR userName:2*)`,
+        // query: `@ggodic:geSupervisorId:${userName} AND (userName:1* OR userName:2*)`,
         //Temporary relaxed query for testing TODO: switch to query above
         query: `@ggodic:geSupervisorId:${userName}`,
         language: 'fts-alfresco',

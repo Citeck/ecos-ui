@@ -38,6 +38,16 @@ describe('TextField Builder', () => {
     });
   });
 
+  it('The first tab in the builder must be "Basic"', done => {
+    builder.editForm.formReady.then(() => {
+      const firstTab = builder.dialog.querySelector('.nav-item');
+
+      expect(firstTab).not.toBeUndefined();
+      expect(firstTab.textContent).toBe('Basic');
+      done();
+    });
+  });
+
   it('Should allow you to change the label', done => {
     Harness.setComponentProperty('label', 'Text Field', { en: 'First Name' }, preview => {
       expect(!!preview.match(/label.*input/)).toBe(true);

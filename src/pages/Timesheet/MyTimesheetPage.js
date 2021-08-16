@@ -78,8 +78,14 @@ class MyTimesheetPage extends BaseTimesheetPage {
 
   get isAvailable() {
     const { status, delegatedToRef } = this.props;
+    const unavailableStatuses = [
+      ServerStatusKeys.MANAGER_APPROVAL,
+      ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM,
+      ServerStatusKeys.APPROVED_BY_HR,
+      ServerStatusKeys.APPROVED_BY_MANAGER
+    ];
 
-    return ![ServerStatusKeys.MANAGER_APPROVAL, ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM].includes(status.key) && !delegatedToRef;
+    return !unavailableStatuses.includes(status.key) && !delegatedToRef;
   }
 
   getData = () => {

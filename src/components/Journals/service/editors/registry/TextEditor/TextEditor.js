@@ -12,26 +12,33 @@ export default class TextEditor extends BaseEditor {
   getControl(config, scope) {
     const isCell = scope === EditorScope.CELL;
 
-    return ({ value, onUpdate }) => {
+    return ({ value, onUpdate, onKeyDown, forwardedRef }) => {
       const [data, setData] = useState(value || '');
 
       const sendDate = () => {
-        onUpdate(data);
+        if (typeof onUpdate === 'function') {
+          onUpdate(data);
+        }
       };
 
       const onInputChange = e => {
         setData(e.target.value);
       };
 
-      const onKeyDown = e => {
+      const _onKeyDown = e => {
         if (e.key === 'Enter') {
-          e.stopPropagation();
-          sendDate();
+          sendDate(true);
+        }
+
+        if (typeof onKeyDown === 'function') {
+          e.persist();
+          onKeyDown(e);
         }
       };
 
       return (
         <Input
+          forwardedRef={forwardedRef}
           type={this.inputType}
           defaultValue={data}
           className={classNames('ecos-input_hover', {
@@ -40,7 +47,7 @@ export default class TextEditor extends BaseEditor {
           })}
           onChange={onInputChange}
           onBlur={sendDate}
-          onKeyDown={onKeyDown}
+          onKeyDown={_onKeyDown}
           autoFocus={isCell}
         />
       );

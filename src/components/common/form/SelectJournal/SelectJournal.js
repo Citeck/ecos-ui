@@ -15,10 +15,11 @@ import JournalsService from '../../../Journals/service';
 import { EcosModal, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
-import { matchCardDetailsLinkFormatterColumn } from '../../../common/grid/mapping/Mapper';
 import FormManager from '../../../EcosForm/FormManager';
 import Records from '../../../Records';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
+import { DialogManager } from '../../dialogs';
+import { matchCardDetailsLinkFormatterColumn } from '../../grid/mapping/Mapper';
 
 import InputView from './InputView';
 import ViewMode from './ViewMode';
@@ -26,7 +27,6 @@ import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
-import { DialogManager } from '../../dialogs';
 
 import './SelectJournal.scss';
 
@@ -70,6 +70,8 @@ export default class SelectJournal extends Component {
     customPredicate: null
   };
 
+  liveComponent = true;
+
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
@@ -86,17 +88,14 @@ export default class SelectJournal extends Component {
 
   componentDidMount() {
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
+    let initValue;
+
     this.checkJournalId();
 
-    let initValue;
     if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
       initValue = [...defaultValue];
     } else if (!multiple && !!defaultValue) {
-      if (Array.isArray(defaultValue)) {
-        initValue = defaultValue;
-      } else {
-        initValue = [defaultValue];
-      }
+      initValue = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
     }
 
     if (initValue) {
@@ -122,6 +121,10 @@ export default class SelectJournal extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.liveComponent = false;
+  }
+
   updateSelectedValue(value = this.props.defaultValue, shouldTriggerOnChange = false) {
     const { multiple } = this.props;
     let newValue;
@@ -129,11 +132,7 @@ export default class SelectJournal extends Component {
     if (multiple && Array.isArray(value) && value.length > 0) {
       newValue = [...value];
     } else if (!multiple && !!value) {
-      if (Array.isArray(value)) {
-        newValue = value;
-      } else {
-        newValue = [value];
-      }
+      newValue = Array.isArray(value) ? value : [value];
     }
 
     this.setValue(newValue, shouldTriggerOnChange);
@@ -142,23 +141,21 @@ export default class SelectJournal extends Component {
   setCustomPredicate(customPredicate) {
     if (!isEqual(this.state.customPredicate, customPredicate)) {
       this.setState({ customPredicate, isGridDataReady: false }, () => {
-        this.shouldResetValue().then(({ shouldReset, matchedRows }) => {
-          shouldReset && this.setValue(matchedRows);
-        });
+        this.shouldResetValue().then(({ shouldReset, matchedRows }) => this.liveComponent && shouldReset && this.setValue(matchedRows));
       });
     }
   }
 
   checkJournalId = () => {
     const { journalId, onError } = this.props;
+    let error = null;
 
     if (!journalId) {
-      const error = new Error(t(Labels.NO_JOURNAL_ID_ERROR));
+      error = new Error(t(Labels.NO_JOURNAL_ID_ERROR));
       typeof onError === 'function' && onError(error);
-      this.setState({ error });
-    } else {
-      this.setState({ error: null });
     }
+
+    this.setState({ error });
   };
 
   isEmptyJournalConfig(config) {
@@ -310,17 +307,19 @@ export default class SelectJournal extends Component {
     for (let i = 0; i < inMemoryData.length; i++) {
       const memoryRecord = inMemoryData[i];
       const exists = fetchedGridData.data.find(item => item.id === memoryRecord.id);
+
       if (exists) {
         // if the record has been indexed, remove it from inMemoryData
         newInMemoryData = newInMemoryData.filter(item => item.id !== memoryRecord.id);
       } else if (fetchedGridData.data.length < pagination.maxItems) {
         // otherwise, try to load absent attributes
         const rec = Records.get(memoryRecord.id);
-        await rec.load(fetchedGridData.attributes);
-        const loadedAtts = rec.getRawAttributes();
 
-        // Cause: https://citeck.atlassian.net/browse/ECOSUI-908
-        const formattedAtts = {};
+        await rec.load(fetchedGridData.attributes);
+
+        const loadedAtts = rec.getRawAttributes();
+        const formattedAtts = {}; // Cause: https://citeck.atlassian.net/browse/ECOSUI-908
+
         for (let attr in loadedAtts) {
           if (!loadedAtts.hasOwnProperty(attr)) {
             continue;
@@ -369,18 +368,13 @@ export default class SelectJournal extends Component {
   };
 
   toggleCollapsePanel = () => {
-    this.setState({
-      isCollapsePanelOpen: !this.state.isCollapsePanelOpen
-    });
+    this.setState({ isCollapsePanelOpen: !this.state.isCollapsePanelOpen });
   };
 
   onSelectFromJournalPopup = () => {
-    this.setValue(this.state.gridData.selected).then(() => {
-      this.setState({
-        isSelectModalOpen: false,
-        wasChangedFromPopup: true
-      });
-    });
+    this.setValue(this.state.gridData.selected).then(
+      () => this.liveComponent && this.setState({ isSelectModalOpen: false, wasChangedFromPopup: true })
+    );
   };
 
   fillCanEdit = rows => {
@@ -409,6 +403,7 @@ export default class SelectJournal extends Component {
     }
 
     let readyPromise = Promise.resolve();
+
     if (!isJournalConfigFetched) {
       readyPromise = this.getJournalConfig().then(this.refreshGridData);
     } else if (!isGridDataReady) {
@@ -424,6 +419,7 @@ export default class SelectJournal extends Component {
         const isFullName = item.attribute.startsWith('.att');
         const hasBracket = item.attribute.includes('{');
         const hasQChar = item.attribute.includes('?');
+
         if (isFullName || hasBracket || hasQChar) {
           atts.push(item.attribute);
           noNeedParseIndices.push(idx);
@@ -432,6 +428,7 @@ export default class SelectJournal extends Component {
 
         const multiplePostfix = item.multiple ? 's' : '';
         const schema = `.att${multiplePostfix}(n:"${item.attribute}"){disp}`;
+
         atts.push(schema);
       });
 
@@ -505,25 +502,22 @@ export default class SelectJournal extends Component {
       .then(this.fillCanEdit)
       .then(this.fetchTableAttributes)
       .then(selected => {
-        let newValue;
-        if (multiple) {
-          newValue = selected.map(item => item.id);
-        } else {
-          newValue = selected.length > 0 ? selected[0]['id'] : '';
+        if (!this.liveComponent) {
+          return;
         }
+
+        const newValue = multiple ? selected.map(item => item.id) : get(selected, '[0].id', '');
 
         return new Promise(resolve => {
           this.setState(
-            prevState => {
-              return {
-                value: newValue,
-                selectedRows: selected,
-                gridData: {
-                  ...prevState.gridData,
-                  selected: selected.map(item => item.id)
-                }
-              };
-            },
+            prevState => ({
+              value: newValue,
+              selectedRows: selected,
+              gridData: {
+                ...prevState.gridData,
+                selected: selected.map(item => item.id)
+              }
+            }),
             () => {
               if (shouldTriggerOnChange && typeof onChange === 'function') {
                 onChange(newValue, selected);
@@ -538,15 +532,13 @@ export default class SelectJournal extends Component {
   onCancelSelect = () => {
     const { multiple, onCancel } = this.props;
 
-    this.setState(prevState => {
-      return {
-        gridData: {
-          ...prevState.gridData,
-          selected: multiple ? prevState.value : [prevState.value]
-        },
-        isSelectModalOpen: false
-      };
-    });
+    this.setState(prevState => ({
+      gridData: {
+        ...prevState.gridData,
+        selected: multiple ? prevState.value : [prevState.value]
+      },
+      isSelectModalOpen: false
+    }));
 
     if (typeof onCancel === 'function') {
       onCancel.call(this);
@@ -554,14 +546,32 @@ export default class SelectJournal extends Component {
   };
 
   onSelectGridItem = value => {
-    this.setState(prevState => {
-      return {
-        gridData: {
-          ...prevState.gridData,
-          selected: value.selected
-        }
-      };
-    });
+    this.setState(prevState => ({
+      gridData: {
+        ...prevState.gridData,
+        selected: value.selected
+      }
+    }));
+  };
+
+  onRowDoubleClick = ([, data]) => {
+    const { multiple } = this.props;
+    const val = data.id;
+    const _selected = this.state.gridData.selected;
+    const filtered = _selected.filter(v => v !== val);
+    let selected;
+
+    if (filtered.length !== _selected.length) {
+      selected = filtered;
+    } else {
+      if (multiple) {
+        filtered.push(val);
+        selected = filtered;
+      } else {
+        selected = [val];
+      }
+    }
+    this.setState(prevState => ({ gridData: { ...prevState.gridData, selected: selected } }), this.onSelectFromJournalPopup);
   };
 
   openSelectModal = () => {
@@ -640,13 +650,14 @@ export default class SelectJournal extends Component {
   };
 
   onApplyFilters = filterPredicate => {
-    this.setState(prevState => {
-      return {
+    this.setState(
+      () => ({
         filterPredicate,
         pagination: paginationInitState,
         isJournalConfigFetched: true
-      };
-    }, this.refreshGridData);
+      }),
+      this.refreshGridData
+    );
   };
 
   getColumns = () => {
@@ -699,14 +710,14 @@ export default class SelectJournal extends Component {
             <div className="select-journal-collapse-panel__controls-left">
               <IcoBtn
                 invert
-                icon={isCollapsePanelOpen ? 'icon-small-up' : 'icon-small-down'}
+                icon={classNames({ 'icon-small-up': isCollapsePanelOpen, 'icon-small-down': !isCollapsePanelOpen })}
                 className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                 onClick={this.toggleCollapsePanel}
               >
                 {t(Labels.FILTER_BUTTON)}
               </IcoBtn>
 
-              {hideCreateButton ? null : (
+              {!hideCreateButton && (
                 <CreateVariants items={get(journalConfig, 'meta.createVariants')} onCreateFormSubmit={this.onCreateFormSubmit} />
               )}
             </div>
@@ -716,11 +727,11 @@ export default class SelectJournal extends Component {
           </div>
 
           <Collapse isOpen={isCollapsePanelOpen}>
-            {journalConfig.columns ? <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} /> : null}
+            {journalConfig.columns && <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} />}
           </Collapse>
         </div>
 
-        <div className={'select-journal__grid-container'}>
+        <div className="select-journal__grid-container">
           {!isGridDataReady && <Loader />}
 
           <Grid
@@ -732,9 +743,10 @@ export default class SelectJournal extends Component {
             selectAllRecordsVisible={null}
             className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
             scrollable={false}
+            onRowDoubleClick={this.onRowDoubleClick}
           />
 
-          <Pagination className={'select-journal__pagination'} total={gridData.total} {...pagination} onChange={this.onChangePage} />
+          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
         </div>
 
         <div className="select-journal-select-modal__buttons">

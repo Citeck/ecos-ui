@@ -5,8 +5,8 @@ import set from 'lodash/set';
 import { t } from '../../../helpers/util';
 import { MenuSettings } from '../../../constants/menu';
 import { Input, MLText } from '../../common/form';
-import { Labels } from './../utils';
-import { Field } from './../Field';
+import { Labels } from '../utils';
+import { Field } from '../Field';
 import Base from './Base';
 
 export default class Arbitrary extends Base {

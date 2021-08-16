@@ -7,7 +7,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { goToPageFromSiteMenu } from '../../actions/header';
 import { processMenuItemsFromOldMenu } from '../../helpers/menu';
-import { DropdownMenu as Menu, Icon } from '../common';
+import { EcosDropdownMenu, Icon } from '../common';
 import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
@@ -80,7 +80,7 @@ class SiteMenu extends React.Component {
           </IcoBtn>
         </DropdownToggle>
         <DropdownMenu className="ecos-header-site__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-          <Menu items={menuItems} onClick={this.handleClickItem} />
+          <EcosDropdownMenu items={menuItems} onClick={this.handleClickItem} />
         </DropdownMenu>
       </Dropdown>
     );

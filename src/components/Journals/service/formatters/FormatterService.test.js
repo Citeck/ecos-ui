@@ -1,3 +1,5 @@
+import { mount } from 'enzyme';
+
 import FormatterService from './FormatterService';
 import formatterRegistry from './registry';
 
@@ -21,7 +23,7 @@ describe('FormatterService', () => {
         }
       );
       expect(spy).toHaveBeenCalled();
-      expect(result).toBe('OK');
+      expect(mount(result).text()).toBe('OK');
     });
     it('should replace placeholders in the config fields', () => {
       const result = FormatterService.format(
@@ -42,7 +44,7 @@ describe('FormatterService', () => {
           }
         }
       );
-      expect(result).toBe(15);
+      expect(mount(result).text()).toBe('15');
     });
     it('should display error message when formatter type is empty', () => {
       expect(FormatterService.format({}, {})).toBe(FormatterService.errorMessage);

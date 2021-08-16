@@ -1,7 +1,10 @@
 import Harness from '../../../test/harness';
 import DataGridComponent from './DataGrid';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2, withDefValue, withRowGroupsAndDefValue } from './fixtures';
+
+basicSectionTest(DataGridComponent);
 
 describe('DataGrid Component', function() {
   it('Should build a data grid component', done => {

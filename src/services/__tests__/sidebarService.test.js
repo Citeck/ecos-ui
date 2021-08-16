@@ -171,4 +171,99 @@ describe('Sidebar Service', () => {
 
     check(data, 'getPropsUrl');
   });
+
+  describe('Method getSelectedId', () => {
+    const items = [
+      {
+        id: '16457ea7-d2b0-4a51-b993-903198210878',
+        type: 'SECTION',
+        config: {},
+        action: {
+          type: '',
+          config: {}
+        },
+        items: [
+          {
+            id: 'cc02d5ac-e511-4b06-9dc6-73273fa0a801',
+            type: 'ARBITRARY',
+            config: {
+              url: '/v2/dashboard'
+            }
+          },
+          {
+            id: 'tttcc02d5ac-e511-4b06-9dc6-73273fa0a801',
+            type: 'ARBITRARY',
+            config: {
+              url: '/v2/dashboard?recordRef=alfresco/@workspace://SpacesStore/ceb274df-4718-4683-ac4f-801daca655c0'
+            }
+          },
+          {
+            id: '9305e85e-6184-4c28-a0c0-a2ec9854d2a1',
+            type: 'SECTION',
+            config: {},
+            items: [
+              {
+                id: '3333339305e85e-6184-4c28-a0c0-a2ec9854d2a1',
+                type: 'SECTION',
+                config: {},
+                items: [
+                  {
+                    id: '88be206d-2cd8-4fd8-bcd0-ab4f6b1a6c23',
+                    label: {},
+                    icon: '',
+                    hidden: false,
+                    type: 'JOURNAL',
+                    config: {
+                      recordRef: 'uiserv/journal@system-notifications'
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: '979bfe85-5361-4cf2-a0a3-dd43dabc95b6',
+            type: 'ARBITRARY',
+            config: {
+              url: '/v2/bpmn-designer'
+            },
+            action: {
+              type: '',
+              config: {}
+            },
+            items: [],
+            allowedFor: []
+          }
+        ]
+      }
+    ];
+    describe.each([
+      [
+        'home dashboard',
+        `/v2/dashboard`,
+        'activeLayoutId=layout_bb6e6685-f802-4680-8606-007a42a8c1bd',
+        'cc02d5ac-e511-4b06-9dc6-73273fa0a801'
+      ],
+      [
+        'some dashboard',
+        `/v2/dashboard`,
+        'recordRef=alfresco/@workspace://SpacesStore/ceb274df-4718-4683-ac4f-801daca655c0',
+        'tttcc02d5ac-e511-4b06-9dc6-73273fa0a801'
+      ],
+      ['journal', `/v2/journals`, 'journalId=system-notifications', '88be206d-2cd8-4fd8-bcd0-ab4f6b1a6c23'],
+      ['undefined', `/v2/journals`, 'journalId=system', undefined],
+      ['admin old link', `/v2/bpmn-designer`, '', '979bfe85-5361-4cf2-a0a3-dd43dabc95b6'],
+      ['admin', `/v2/admin`, 'type=BPM', '979bfe85-5361-4cf2-a0a3-dd43dabc95b6']
+    ])('%s', (title, pathname, search, output) => {
+      beforeEach(() => {
+        delete window.location;
+        window.location = { pathname, search };
+      });
+
+      it(title, () => {
+        const returnValue = SidebarService.getSelectedId(items);
+        expect(returnValue).toEqual(output);
+      });
+    });
+  });
 });

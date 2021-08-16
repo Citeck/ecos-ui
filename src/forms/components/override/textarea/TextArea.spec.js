@@ -2,7 +2,10 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import TextAreaComponent from './TextArea';
+import { basicSectionTest } from '../../../test/builder/helpers';
 import comp1 from './fixtures/comp1';
+
+basicSectionTest(TextAreaComponent);
 
 describe('TextArea Component', () => {
   it('Should build a TextArea component', done => {

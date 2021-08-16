@@ -13,8 +13,8 @@ import recordActions, { ActionTypes } from '../components/Records/actions';
 import DocumentsConverter from '../dto/documents';
 import { selectIsMobile } from '../selectors/view';
 import {
+  selectActionsByTypes,
   selectActionsDynamicType,
-  selectActionsDynamicTypes,
   selectAvailableType,
   selectAvailableTypes,
   selectColumnsConfig,
@@ -47,10 +47,12 @@ import {
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
+  setLoadingStatus,
   updateVersion,
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
+import journalsService from '../components/Journals/service';
 
 function* fillTypeInfo(api, types = []) {
   const typeKeys = types.map(record => record.type);
@@ -75,7 +77,14 @@ function* fillTypeInfo(api, types = []) {
 
   yield all(
     filtered.map(function*(item) {
-      const journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+      let journalConfig;
+
+      if (!isEmpty(item.journalId)) {
+        journalConfig = yield journalsService.getJournalConfig(item.journalId);
+      } else {
+        journalConfig = yield call(api.documents.getColumnsConfigByType, item.type) || {};
+      }
+
       const columns = DocumentsConverter.getColumnsForGrid(journalConfig.columns);
 
       DocumentsConverter.setDefaultFormatters(columns);
@@ -176,6 +185,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
     const attributes = DocumentsConverter.getColumnsAttributes(
       yield select(state => selectColumnsConfig(state, payload.key, payload.type))
     );
+
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, payload.type, attributes);
 
     if (errors.length) {
@@ -277,10 +287,39 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
       })
     );
 
-    yield put(initStore({ ...payload }));
+    if (!isEmpty(payload.selectedType)) {
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: true
+        })
+      );
+      yield* sagaInitWidget({ api, logger }, { payload: { ...payload, type: payload.selectedType } });
+    } else {
+      yield put(initStore({ ...payload }));
+    }
   } catch (e) {
     logger.error('[documents sagaSaveSettings saga error', e.message);
   } finally {
+    if (!isEmpty(payload.selectedType)) {
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: true
+        })
+      );
+      yield* sagaGetDocumentsByType({ api, logger }, { payload: { ...payload, type: payload.selectedType } });
+      yield put(
+        setLoadingStatus({
+          key: payload.key,
+          loadingField: 'isLoading',
+          status: false
+        })
+      );
+    }
+
     yield put(saveSettingsFinally(payload.key));
   }
 }
@@ -306,7 +345,7 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
   }
 }
 
-function* uploadFile({ api, file, callback }) {
+export function* uploadFile({ api, file, callback }) {
   try {
     const formData = new FormData();
 
@@ -470,23 +509,43 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
     const documentsIds = [];
     const types = yield select(state => selectDynamicTypes(state, payload.key));
     const { records, errors } = yield call(api.documents.getDocumentsByTypes, payload.record, types.map(item => item.type));
+    let actionsByRecordsFromTypes = {};
 
     if (errors.length) {
       throw new Error(errors.join(' '));
     }
 
-    types.forEach((item, index) => {
-      const documents = get(records, `[${index}].documents`, []);
+    yield Promise.all(
+      types.map(async (item, index) => {
+        const documents = get(records, `[${index}].documents`, []);
 
-      documentsByTypes[item.type] = documents;
-      documentsIds.push(...documents.map(doc => doc[documentFields.id]));
-    });
+        documentsByTypes[item.type] = documents;
+        documentsIds.push(...documents.map(doc => doc[documentFields.id]));
+
+        if (!isEmpty(item.actions)) {
+          const actions = await recordActions.getActionsForRecords(documentsIds, item.actions);
+
+          actionsByRecordsFromTypes = {
+            ...actionsByRecordsFromTypes,
+            ...get(actions, 'forRecord', {})
+          };
+        }
+      })
+    );
 
     if (documentsIds.length) {
-      const typeActions = yield select(state => selectActionsDynamicTypes(state, payload.key, payload.type));
+      const typeActions = yield select(state => selectActionsByTypes(state, payload.key, types.map(item => item.type)));
       const actions = yield getRecordActionsByType(documentsIds, typeActions);
 
-      yield put(setActions({ key: payload.key, actions: actions.forRecord }));
+      yield put(
+        setActions({
+          key: payload.key,
+          actions: {
+            ...actions.forRecord,
+            ...actionsByRecordsFromTypes
+          }
+        })
+      );
     }
 
     yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));

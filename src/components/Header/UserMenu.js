@@ -1,19 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import isArray from 'lodash/isArray';
-import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { Avatar, DropdownMenu as Menu, Tooltip } from '../common';
+
+import { t } from '../../helpers/util';
+import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
   userPhotoUrl: state.user.thumbnail,
   items: state.header.userMenu.items,
+  isLoading: state.header.userMenu.isLoading,
   theme: state.view.theme
 });
+
+const Labels = {
+  EMPTY: 'header.menu.msg.empty-list',
+  LOADING: 'header.menu.msg.loading'
+};
 
 class UserMenu extends React.Component {
   static propTypes = {
@@ -37,9 +43,8 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
+    const { isLoading, userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
-    const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames('ecos-header-user__btn', 'ecos-btn_tight', 'ecos-btn_r_6', 'ecos-btn_blue-classic', {
       [`ecos-btn_theme_${theme}`]: !mob && !!theme,
@@ -53,18 +58,13 @@ class UserMenu extends React.Component {
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle" id="ecos-header-dropdown--user-name">
             <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled showAsNeeded>
               {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
-              <IcoBtn
-                invert={true}
-                icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}
-                className={classNameIcoBtn}
-                disabled={disabled}
-              >
+              <IcoBtn invert={true} icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'} className={classNameIcoBtn}>
                 {!mob && userFullName}
               </IcoBtn>
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-            <Menu items={items} />
+            <EcosDropdownMenu items={items} emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)} />
           </DropdownMenu>
         </Dropdown>
       </>

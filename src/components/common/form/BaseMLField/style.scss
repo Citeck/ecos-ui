@@ -7,7 +7,21 @@
 }
 
 .ecos-ml-text {
+  $ml: &;
+
   position: relative;
+
+  &:hover {
+    #{$ml}__input {
+      border-color: $color-blue-light;
+    }
+  }
+
+  &_disabled {
+    #{$ml}__image {
+      display: none;
+    }
+  }
 
   &__image {
     @extend %image;
@@ -27,6 +41,11 @@
   }
 
   &__input {
+    padding-right: 40px;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
   }
 
   &__tooltip {
@@ -46,7 +65,7 @@
       cursor: pointer;
 
       &:hover {
-        color: #7396cd;
+        color: $color-blue-light;
       }
 
       &-label {

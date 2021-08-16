@@ -61,4 +61,10 @@
       }
     }
   }
+
+  &-popper {
+    &:not(:last-child):not(:first-child) {
+      border-bottom: $border-width-standard solid $color-gray-4;
+    }
+  }
 }

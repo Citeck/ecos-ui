@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
-import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
+import { setScrollTop, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { getIconObjectWeb } from '../../helpers/icon';
@@ -72,10 +72,10 @@ class Item extends React.Component {
   }
 
   get isHandler() {
-    return (
-      [ActionTypes.CREATE_SITE].includes(get(this.props, 'data.action.type', '')) ||
-      [MenuSettings.ItemTypes.LINK_CREATE_CASE].includes(get(this.props, 'data.type', ''))
-    );
+    const Types = MenuSettings.ItemTypes;
+    const type = get(this.props, 'data.action.type', '') || get(this.props, 'data.type', '');
+
+    return [ActionTypes.CREATE_SITE, Types.LINK_CREATE_CASE, Types.START_WORKFLOW].includes(type);
   }
 
   onToggleList = e => {
@@ -91,12 +91,6 @@ class Item extends React.Component {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-354
     if (!this.collapsible && !isNewVersionPage() && isOpen) {
       toggleIsOpen(false);
-    }
-  };
-
-  onClickLink = () => {
-    if (!this.hasSubItems && !this.isHandler) {
-      this.props.setSelectItem(this.dataId);
     }
   };
 
@@ -145,7 +139,7 @@ class Item extends React.Component {
     }
 
     return (
-      <ItemLink data={data} extraParams={extraParams} onClick={this.onClickLink}>
+      <ItemLink data={data} extraParams={extraParams}>
         <this.renderContent {...contentProps} />
       </ItemLink>
     );
@@ -220,7 +214,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setSelectItem: id => dispatch(setSelectedId(id)),
   toggleExpanded: item => dispatch(toggleExpanded(item)),
   setScrollTop: value => dispatch(setScrollTop(value)),
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))

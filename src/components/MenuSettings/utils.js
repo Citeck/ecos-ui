@@ -13,6 +13,7 @@ export const Labels = {
   TAB_LEFT_MENU: 'menu-settings.tabs.menu-config',
   TAB_GLOBAL: 'menu-settings.tabs.global-config',
   TAB_CREATE_MENU: 'menu-settings.tabs.menu-create-config',
+  DEFAULT: 'menu-settings.text.default',
   //editor menu
   BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',
@@ -42,6 +43,7 @@ export const Labels = {
   FIELD_ALLOWED_FOR_PLACEHOLDER: 'menu-settings.editor-item.field.allowed-for.placeholder',
   FIELD_CREATE_METHOD: 'menu-settings.editor-item.field.create-variant.title',
   FIELD_DATA_TYPE: 'menu-settings.editor-item.field.data-type.title',
+  FIELD_PROCESS: 'menu-settings.editor-item.field.process-def.title',
 
   FIELD_ICON_LABEL: 'menu-settings.editor-item.field.icon.label',
   FIELD_ICON_BTN_CANCEL: 'menu-settings.editor-item.field.icon.btn.cancel',

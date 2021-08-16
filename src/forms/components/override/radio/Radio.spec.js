@@ -1,7 +1,10 @@
 import Harness from '../../../test/harness';
 import RadioComponent from './Radio';
+import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
+
+basicSectionTest(RadioComponent);
 
 describe('Radio Component', () => {
   it('Should build a radio component', done => {

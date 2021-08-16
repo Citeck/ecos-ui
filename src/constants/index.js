@@ -1,10 +1,15 @@
-import { PROXY_URI } from './alfresco';
+import { CITECK_URI } from './alfresco';
+
+export const DEFAULT_EIS = Object.freeze({
+  EIS_ID: 'EIS_ID',
+  LOGOUT_URL: 'LOGOUT_URL'
+});
 
 export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
-  DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  DASHBOARD_SETTINGS: '/v2/dashboard/settings', // @deprecated
   MENU_SETTINGS: '/v2/menu-settings',
   ADMIN_PAGE: '/v2/admin',
   BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated
@@ -22,6 +27,10 @@ export const URL = {
   FORM_COMPONENTS: '/v2/debug/formio-develop'
 };
 
+export const RELOCATED_URL = {
+  [URL.BPMN_DESIGNER]: URL.ADMIN_PAGE
+};
+
 export const pagesWithOnlyContent = [
   URL.TIMESHEET_IFRAME,
   URL.TIMESHEET_IFRAME_SUBORDINATES,
@@ -31,7 +40,8 @@ export const pagesWithOnlyContent = [
 
 export const SourcesId = {
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
-  BUILD_INFO: 'uiserv/build-info',
+  UISERV_BUILD_INFO: 'uiserv/build-info',
+  EAPPS_BUILD_INFO: 'eapps/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
   EFORM: 'uiserv/form',
@@ -50,6 +60,7 @@ export const SourcesId = {
   FONT_ICON: 'ui/icon',
   A_AUTHORITY: 'alfresco/authority',
   A_META: 'alfresco/meta',
+  A_WORKFLOW: 'alfresco/workflow',
   ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
@@ -59,7 +70,8 @@ export const SourcesId = {
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
   TASK: 'wftask',
-  WORKFLOW: 'workflow'
+  WORKFLOW: 'workflow',
+  BPMN_DEF: 'eproc/bpmn-def'
 };
 
 export const EmodelTypes = {
@@ -74,7 +86,8 @@ export const ActionModes = {
 
 export const RequestStatuses = {
   SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE'
+  FAILURE: 'FAILURE',
+  RESET: 'RESET'
 };
 
 export const MIN_WIDTH_DASHLET_SMALL = 290;
@@ -98,7 +111,7 @@ export const LoaderTypes = {
   POINTS: 'points'
 };
 
-export const IMAGE_URL_PATH = `${PROXY_URI}citeck/ecos/image/thumbnail`;
+export const IMAGE_URL_PATH = `${CITECK_URI}ecos/image/thumbnail`;
 
 export const DocScaleOptions = {
   AUTO: 'auto',
@@ -116,7 +129,8 @@ export const Permissions = {
 export const MOBILE_APP_USER_AGENT = 'ecos-mobile-app';
 
 export const Attributes = {
-  DBID: 'sys:node-dbid'
+  DBID: 'sys:node-dbid',
+  CREATED: '_created'
 };
 
 export const TMP_ICON_EMPTY = 'icon-empty';
@@ -162,7 +176,8 @@ export const SystemJournals = {
   JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
-  FORMS: 'ecos-forms'
+  FORMS: 'ecos-forms',
+  PROCESS: 'bpmn-process-def'
 };
 
 window.Citeck = window.Citeck || {};

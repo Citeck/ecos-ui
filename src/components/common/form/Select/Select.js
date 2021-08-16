@@ -41,7 +41,7 @@ export default class Select extends Component {
       value = handleSetValue(value, options || []);
     }
 
-    return value || defaultValue;
+    return value === undefined ? defaultValue : value;
   };
 
   componentWillReceiveProps(nextProps) {
@@ -58,7 +58,7 @@ export default class Select extends Component {
         placeholder={t('ecos-ui.select.placeholder')}
         loadingMessage={this.selectLoadingMessage}
         noOptionsMessage={this.selectNoOptionsMessage}
-        blurInputOnSelect={true}
+        blurInputOnSelect
         {...props}
         loadOptions={this.loadOptions}
         value={this.state.value}

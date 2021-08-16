@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
+import isEqual from 'lodash/isEqual';
 
 import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
@@ -17,25 +18,22 @@ export default class BaseReactComponent extends BaseComponent {
     );
   }
 
+  react = {};
+
   build() {
-    this.onReactValueChanged = value => {
-      this.setPristine(false);
-      this.setValue(value, { skipReactWrapperUpdating: true });
-    };
-
-    this.react = {};
-
     this.react.wrapper = new Promise(resolveComponent => {
       this.react.resolve = resolveComponent;
     }).then(component => {
       this.react.wrapper = component;
       this.react.resolve = null;
+
       return component;
     });
     this.react.innerPromise = new Promise(innerResolve => {
       this.react.innerResolve = innerResolve;
     }).then(comp => {
       this.react.innerResolve = null;
+
       return comp;
     });
 
@@ -77,10 +75,26 @@ export default class BaseReactComponent extends BaseComponent {
     this.attachRefreshOn();
     // this.autofocus();
     this.attachLogic();
+    this.showElement(this.isShowElement);
+
+    if (!this.isShowElement && this.component.clearOnHide) {
+      this.dataValue = this.emptyValue;
+    }
+  }
+
+  get isShowElement() {
+    if (this.options.builder) {
+      return true;
+    }
+
+    return !Boolean(this.component.hidden) && this.checkConditions();
   }
 
   get htmlAttributes() {
-    return pick(get(this, 'info.attr', {}), ['id', 'name', 'type']);
+    return {
+      ...pick(get(this, 'info.attr', {}), ['id', 'name', 'type']),
+      disabled: this.disabled
+    };
   }
 
   createViewOnlyValue(container) {
@@ -92,7 +106,9 @@ export default class BaseReactComponent extends BaseComponent {
 
   updateReactComponent(updateFunc) {
     this.react.innerPromise.then(comp => {
-      updateFunc(comp);
+      if (typeof updateFunc === 'function') {
+        updateFunc(comp);
+      }
     });
   }
 
@@ -202,6 +218,15 @@ export default class BaseReactComponent extends BaseComponent {
     }
   }
 
+  onReactValueChanged = (value, addFlags = {}) => {
+    if (isEqual(value, this.dataValue)) {
+      return;
+    }
+
+    this.setPristine(false);
+    this.updateValue({ skipReactWrapperUpdating: true, ...addFlags }, value);
+  };
+
   setValue(value, flags) {
     flags = this.getFlags.apply(this, arguments);
     this.updateValue(flags, value);
@@ -232,9 +257,7 @@ export default class BaseReactComponent extends BaseComponent {
     this.updateOnChange(flags, changed);
 
     if (!flags.skipReactWrapperUpdating && changed) {
-      this.updateReactComponent(component => {
-        this.setReactValue(component, this.dataValue);
-      });
+      this.updateReactComponent(component => this.setReactValue(component, this.dataValue));
     }
 
     return changed;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
@@ -9,12 +9,34 @@ import Loader from '../../../common/Loader/Loader';
 import { t } from '../../../../helpers/export/util';
 
 import FileList from './FileList';
+import Empty from './Empty';
+import DocLibService from '../DocLibService';
+
 import './FileViewer.scss';
 
-const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLastClicked, groupActions, path }) => {
+const FilesViewer = ({
+  isMobile,
+  fileViewer = {},
+  openFolder,
+  setSelected,
+  setLastClicked,
+  groupActions,
+  path,
+  onInitData,
+  onDrop,
+  isLoading
+}) => {
   const { hasError, isReady, items, selected, lastClicked } = fileViewer;
 
   let content;
+
+  useEffect(() => {
+    DocLibService.emitter.on(DocLibService.actionSuccessCallback, onInitData);
+
+    return () => {
+      DocLibService.emitter.off(DocLibService.actionSuccessCallback, onInitData);
+    };
+  }, []);
 
   if (hasError) {
     content = t('document-library.failure-to-fetch-data');
@@ -44,14 +66,20 @@ const FilesViewer = ({ isMobile, fileViewer = {}, openFolder, setSelected, setLa
             openFolder={openFolder}
             setSelected={setSelected}
             setLastClicked={setLastClicked}
+            onDrop={onDrop}
           />
         </div>
       ) : (
-        t('document-library.empty-folder')
+        <Empty onDrop={onDrop} />
       );
   }
 
-  return <Well style={{ padding: 12 }}>{content}</Well>;
+  return (
+    <Well className="ecos-doclib__fileviewer-well">
+      {isLoading && <Loader blur rounded />}
+      {content}
+    </Well>
+  );
 };
 
 FilesViewer.propTypes = {

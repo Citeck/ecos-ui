@@ -1,5 +1,4 @@
 import { put, select, takeLatest, takeEvery, call } from 'redux-saga/effects';
-import get from 'lodash/get';
 
 import { TimesheetMessages } from '../../helpers/timesheet/dictionary';
 import {
@@ -15,16 +14,14 @@ import {
   setUpdatingStatus,
   delegateTo,
   setDelegatedTo,
-  removeDelegation,
-  setEvents
+  removeDelegation
 } from '../../actions/timesheet/mine';
 import { selectUserName } from '../../selectors/user';
-import { selectTMineUpdatingHours, selectTMineDelegatedTo, selectTMineEvents } from '../../selectors/timesheet';
+import { selectTMineUpdatingHours, selectTMineDelegatedTo } from '../../selectors/timesheet';
 import CommonTimesheetConverter from '../../dto/timesheet/common';
 import DelegationTimesheetConverter from '../../dto/timesheet/delegated';
 import CommonTimesheetService from '../../services/timesheet/common';
 import { DelegationTypes } from '../../constants/timesheet';
-import { deepClone } from '../../helpers/util';
 
 function* sagaGetMyTimesheetByParams({ api, logger }, { payload }) {
   try {
@@ -97,29 +94,6 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
   }
 }
 
-function* updateEvents({ value, number, userName }) {
-  try {
-    const events = deepClone(yield select(selectTMineEvents));
-    const event = get(events, `[${userName}]`, []);
-    let dayIndex = get(event, 'days', []).findIndex(day => day.number === number);
-
-    if (!~dayIndex) {
-      event.days.push({ number, hours: value });
-      dayIndex = event.days.length - 1;
-    }
-
-    if (!!value) {
-      event.days[dayIndex].hours = value;
-    } else {
-      event.days.splice(dayIndex, 1);
-    }
-
-    yield put(setEvents(events));
-  } catch (e) {
-    console.error('[timesheetMine updateEvents] error', e.message);
-  }
-}
-
 function* sagaModifyEventDayHours({ api, logger }, { payload }) {
   const userName = yield select(selectUserName);
   const updatingHoursState = yield select(selectTMineUpdatingHours);
@@ -134,7 +108,6 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, payload, true);
 
     yield put(setUpdatingEventDayHours(secondState));
-    yield* updateEvents(payload);
   } catch (e) {
     const updatingHoursState = yield select(selectTMineUpdatingHours);
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });

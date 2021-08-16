@@ -6509,7 +6509,8 @@ export const AVAILABLE_CREATE_OPTIONS = [
     _getMCOs([
       MenuSettingsService.leftMenuCreateOptions[2],
       MenuSettingsService.leftMenuCreateOptions[3],
-      MenuSettingsService.leftMenuCreateOptions[4]
+      MenuSettingsService.leftMenuCreateOptions[4],
+      MenuSettingsService.leftMenuCreateOptions[5]
     ])
   ],
   [
@@ -6518,7 +6519,8 @@ export const AVAILABLE_CREATE_OPTIONS = [
     _getMCOs([
       MenuSettingsService.leftMenuCreateOptions[2],
       MenuSettingsService.leftMenuCreateOptions[3],
-      MenuSettingsService.leftMenuCreateOptions[4]
+      MenuSettingsService.leftMenuCreateOptions[4],
+      MenuSettingsService.leftMenuCreateOptions[5]
     ])
   ],
   [{ type: 'ARBITRARY' }, { configType: 'left', level: 3 }, []],
@@ -6532,7 +6534,8 @@ export const AVAILABLE_CREATE_OPTIONS = [
     _getMCOs([
       MenuSettingsService.createMenuCreateOptions[1],
       MenuSettingsService.createMenuCreateOptions[2],
-      MenuSettingsService.createMenuCreateOptions[3]
+      MenuSettingsService.createMenuCreateOptions[3],
+      MenuSettingsService.createMenuCreateOptions[4]
     ])
   ],
   [{ type: 'CREATE_IN_SECTION' }, { configType: 'create', level: 0 }, []],

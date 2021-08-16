@@ -56,6 +56,8 @@ const getBoolOrElse = (value, orElse) => {
 };
 
 class JournalColumnsResolver {
+  #controls = new Map();
+
   async resolve(columns) {
     if (!columns) {
       columns = [];
@@ -135,7 +137,8 @@ class JournalColumnsResolver {
 
   _initEditorRenderer = column => {
     return (editorProps, value, row) => {
-      return EditorService.getEditorControl({
+      const key = JSON.stringify({ column, editorProps, row });
+      const control = EditorService.getEditorControl({
         value,
         recordRef: row.id,
         attribute: column.attribute,
@@ -147,6 +150,14 @@ class JournalColumnsResolver {
         multiple: column.multiple,
         scope: EditorScope.CELL
       });
+
+      if (this.#controls.has(key)) {
+        return this.#controls.get(key);
+      }
+
+      this.#controls.set(key, control);
+
+      return control;
     };
   };
 

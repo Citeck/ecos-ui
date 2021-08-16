@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 
 import Loader from '../Loader/Loader';
 import DropdownMenuCascade from './DropdownMenuCascade';
@@ -17,13 +18,14 @@ const MenuModes = {
   LIST: 'list'
 };
 
-export default class DropdownMenu extends React.Component {
+export default class EcosDropdownMenu extends React.Component {
   static propTypes = {
     items: PropTypes.array,
     mode: PropTypes.oneOf([MenuModes.CASCADE, MenuModes.GROUP, MenuModes.LIST]),
     setGroup: PropTypes.shape({
       showGroupName: PropTypes.bool,
-      showSeparator: PropTypes.bool
+      showSeparator: PropTypes.bool,
+      showEmptyGroup: PropTypes.bool
     }),
     setCascade: PropTypes.shape({
       collapseOneItem: PropTypes.bool
@@ -61,22 +63,18 @@ export default class DropdownMenu extends React.Component {
     }
 
     if (mode === MenuModes.CASCADE && setCascade.collapseOneItem) {
-      menu = menu.map(item => {
-        if (item.items && item.items.length === 1) {
-          return item.items[0];
-        }
+      menu = menu.map(item => (get(item, 'items.length') === 1 ? item.items[0] : item));
+    }
 
-        return item;
-      });
+    if (mode === MenuModes.GROUP && setGroup.showEmptyGroup) {
+      menu = menu.filter(item => !!get(item, 'items.length'));
     }
 
     switch (mode) {
       case MenuModes.CASCADE:
         return <DropdownMenuCascade groups={menu} onClick={onClick} modifiers={modifiers} />;
       case MenuModes.GROUP: {
-        const { showGroupName, showSeparator } = setGroup;
-
-        return <DropdownMenuGroup groups={menu} showGroupName={showGroupName} showSeparator={showSeparator} />;
+        return <DropdownMenuGroup groups={menu} onClick={onClick} {...setGroup} />;
       }
       case MenuModes.LIST:
       default:

@@ -710,7 +710,7 @@ export function animateScrollTo(element = '', scrollTo = {}, delay = 0) {
   }
 }
 
-export function hasChildWithId(items, selectedId) {
+export function hasChildWithId(items = [], selectedId) {
   let childIndex = items.findIndex(item => item.id === selectedId);
 
   if (childIndex !== -1) {
@@ -850,6 +850,14 @@ export function packInLabel(text = '') {
   }
 
   return text;
+}
+
+export function isFilledLabelWeak(label) {
+  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).some(val => !!val);
+}
+
+export function isFilledLabelStrict(label) {
+  return typeof label === 'string' ? !!label.trim() : label && Object.values(label).every(val => !!val);
 }
 
 export function getTimezoneValue() {

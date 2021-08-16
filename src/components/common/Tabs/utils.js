@@ -7,6 +7,7 @@ export const commonOneTabPropTypes = {
   isActive: PropTypes.bool,
   hasHover: PropTypes.bool,
   hasHint: PropTypes.bool,
+  isMobile: PropTypes.bool,
   onClick: PropTypes.func
 };
 
@@ -28,6 +29,7 @@ export const commonTabsPropTypes = {
   hasHint: PropTypes.bool,
   widthFull: PropTypes.bool,
   narrow: PropTypes.bool,
+  isMobile: PropTypes.bool,
   keyField: PropTypes.string,
   valueField: PropTypes.string,
   activeTabKey: PropTypes.string,

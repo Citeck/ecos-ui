@@ -15,6 +15,7 @@ import {
   saveRecords,
   setColumnsSetup,
   setGridInlineToolSettings,
+  setJournalSetting,
   setPredicate,
   setSelectAllRecords,
   setSelectAllRecordsVisible,
@@ -52,6 +53,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     setPredicate: options => dispatch(setPredicate(w(options))),
+    setJournalSetting: settings => dispatch(setJournalSetting(w(settings))),
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
 };
@@ -117,18 +119,24 @@ class JournalsDashletGrid extends Component {
   onFilter = ([filter]) => {
     const {
       setPredicate = () => undefined,
-      grid: { columns, pagination: pager, predicates }
+      setJournalSetting,
+      grid: { pagination: pager, predicates }
     } = this.props;
     const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
+    const filterIdx = currentFilters.findIndex(item => item.att === filter.att);
 
-    currentFilters.push(filter);
+    if (filterIdx !== -1) {
+      currentFilters[filterIdx] = filter;
+    } else {
+      currentFilters.push(filter);
+    }
 
-    const predicate = ParserPredicate.getDefaultPredicates(columns, currentFilters.map(filter => filter.att));
-    const newPredicate = ParserPredicate.setPredicateValue(predicate, currentFilters, true);
+    const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
     const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
+    setJournalSetting({ predicate: newPredicate });
     this.reloadGrid({ predicates: [newPredicate], pagination });
   };
 
@@ -233,7 +241,8 @@ class JournalsDashletGrid extends Component {
       predicate,
       journalConfig: { params = {} },
       selectorContainer,
-      viewColumns
+      viewColumns,
+      onOpenSettings
     } = this.props;
 
     let editable = true;
@@ -280,6 +289,7 @@ class JournalsDashletGrid extends Component {
               autoHeight={autoHeight}
               scrollPosition={this.scrollPosition}
               selectorContainer={selectorContainer}
+              onOpenSettings={onOpenSettings}
             />
           </HeightCalculation>
         </div>
@@ -298,7 +308,8 @@ JournalsDashletGrid.propTypes = {
   autoHeight: PropTypes.bool,
   doInlineToolsOnRowClick: PropTypes.bool,
   isWidget: PropTypes.bool,
-  onRowClick: PropTypes.func
+  onRowClick: PropTypes.func,
+  onOpenSettings: PropTypes.func
 };
 
 export default connect(

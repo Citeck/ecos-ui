@@ -7,6 +7,7 @@ import ecosFetch from '../../helpers/ecosFetch';
 import { getSourceId } from './utils/recordUtils';
 import { DELETE_URL, MUTATE_URL, QUERY_URL } from './constants';
 import { t } from '../../helpers/util';
+import { SETTING_ENABLE_RECORDS_API_DEBUG } from '../../pages/DevTools/constants';
 
 /**
  * Request identification
@@ -32,9 +33,11 @@ function getRecognizableUrl(url, body) {
 }
 
 function recordsFetch(url, body) {
-  if (url.indexOf('mutate') >= 0 || url.indexOf('delete') >= 0) {
-    body.version = 1;
+  if (!body.msgLevel && localStorage.getItem(SETTING_ENABLE_RECORDS_API_DEBUG) === 'true') {
+    body.msgLevel = 'DEBUG';
   }
+
+  body.version = 1;
   url = getRecognizableUrl(url, body);
 
   return ecosFetch(url, { method: 'POST', body }).then(response => {
@@ -147,10 +150,16 @@ export function loadAttribute(recordId, attribute) {
             throw new Error(t('server-error-occurred-with-code', { code: errorCode }));
           }
           records.forEach((recordId, idx) => {
-            let rec = resultRecords[idx];
+            let rec = resultRecords[idx] || {};
             let attributes = rec.attributes || {};
             for (let attKey of attsKeys) {
-              sourceBuffer[recordId][attKey].resolve(attributes[attKey]);
+              let attValue = attributes[attKey];
+
+              if (attValue === undefined) {
+                attValue = null;
+              }
+
+              lodashGet(sourceBuffer, [recordId, attKey, 'resolve'], v => console.warn('try to resolve', v))(attributes[attKey]);
               delete sourceBuffer[recordId][attKey];
             }
             pendingRequests.delete(getPendingKey(recordId, attsKeys));
@@ -159,7 +168,7 @@ export function loadAttribute(recordId, attribute) {
         .catch(e => {
           for (let recordId in sourceBuffer) {
             for (let attKey of attsKeys) {
-              sourceBuffer[recordId][attKey].reject(e);
+              lodashGet(sourceBuffer, [recordId, attKey, 'reject'], v => console.error('try to reject', v))(e);
               delete sourceBuffer[recordId][attKey];
             }
             pendingRequests.delete(getPendingKey(recordId, attsKeys));

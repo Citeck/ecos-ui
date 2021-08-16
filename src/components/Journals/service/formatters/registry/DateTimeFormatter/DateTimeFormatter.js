@@ -17,6 +17,7 @@ export default class DateTimeFormatter extends BaseFormatter {
     }
 
     const value = this.getTimeOrValue(cell, config);
+
     if (!value) {
       return '';
     }

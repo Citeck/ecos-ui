@@ -11,7 +11,8 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     return FormIOCheckBoxComponent.schema(
       {
         defaultValue: undefined,
-        hasThreeStates: false
+        hasThreeStates: false,
+        labelPosition: 'right-left'
       },
       ...extend
     );
@@ -117,6 +118,74 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     }
 
     return super.isEmpty(value);
+  }
+
+  setInputLabelStyle(label) {
+    const span = this.labelSpan;
+
+    span.className = `form-check-label__span form-check-label__span_position-${this.component.labelPosition}`;
+
+    return super.setInputLabelStyle(label);
+  }
+
+  createElement() {
+    const className = ['form-check', this.className];
+
+    if (!this.labelIsHidden()) {
+      className.push(this.component.inputType || 'checkbox');
+    }
+
+    if (['left-right', 'right-right'].includes(this.component.labelPosition)) {
+      className.push('formio-component-checkbox_right');
+    }
+
+    // If the element is already created, don't recreate.
+    if (this.element) {
+      //update class for case when Logic changed container class (customClass)
+      this.element.className = className.join(' ');
+      return this.element;
+    }
+
+    this.element = this.ce('div', {
+      id: this.id,
+      class: className.join(' ')
+    });
+    this.element.component = this;
+  }
+
+  createLabel(container, input) {
+    const isLabelHidden = this.labelIsHidden();
+    const className = ['control-label', 'form-check-label'];
+
+    if (this.component.input && !this.options.inputsOnly && this.component.validate && this.component.validate.required) {
+      className.push('field-required');
+    }
+
+    this.labelElement = this.ce('label', {
+      class: className.join(' ')
+    });
+    this.addShortcut();
+
+    if (!isLabelHidden) {
+      // Create the SPAN around the textNode for better style hooks
+      this.labelSpan = this.ce('span');
+
+      if (this.info.attr.id) {
+        this.labelElement.setAttribute('for', this.info.attr.id);
+      }
+    }
+
+    this.addInput(input, this.labelElement);
+
+    if (!isLabelHidden) {
+      this.setInputLabelStyle(this.labelElement);
+      this.setInputStyle(input);
+      this.labelSpan.appendChild(this.text(this.addShortcutToLabel()));
+      this.labelElement.appendChild(this.labelSpan);
+    }
+
+    this.createTooltip(this.labelElement);
+    container.appendChild(this.labelElement);
   }
 
   getValueByString = data => {

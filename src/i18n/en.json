@@ -21,9 +21,9 @@
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
+  "page.error.logout.no-url": "Insufficient parameters. Contact your administrator",
 
   "record.permission-denied.message": "You do not have sufficient rights to view this document. Contact your administrator.",
-
   "record.not-found.message": "The document was deleted or not yet created.",
 
   "bpmn-card.go-back-to-list-button.text": "Back to list",
@@ -98,11 +98,13 @@
   "button.leave-site.cancel-label": "Cancel",
   "button.leave-site.confirm-label": "OK",
   "button.login": "Login",
-  "close-button.label": "Close",
+  "button.close.label": "Close",
+
   "columns-setup.ascending": "Ascending",
   "columns-setup.descending": "Descending",
   "columns-setup.order": "Column order and display",
   "columns-setup.sort": "Sort by column",
+
   "comments-widget.add": "Add a comment",
   "comments-widget.comment-form1": "comment",
   "comments-widget.comment-form2": "comments",
@@ -136,7 +138,6 @@
   "comments-widget.title": "Comments",
   "comments-widget.edited-by": "edited by",
   "comments-widget.edited-in": "in",
-  "create_case.label": "Create",
 
   "current-tasks-widget.title": "All tasks",
   "current-tasks-widget.column.actors": "Performer",
@@ -144,6 +145,7 @@
   "current-tasks-widget.column.title": "Task",
   "current-tasks-widget.no-data": "No data",
   "current-tasks-widget.no-tasks": "No current tasks",
+  "current-tasks-widget.notify.title": "Widget Tasks",
   "current-tasks-widget.error.get-tasks": "Failure to fetch all tasks",
   "current-tasks-widget.error.get-actions": "Failure to fetch tasks actions",
   "current-tasks-widget.error.execute-action": "Failure to execute action",
@@ -157,8 +159,7 @@
   "widget-settings.display-condition": "Display condition",
   "widget-settings.dc-no-attributes": "Attributes type are not configured",
   "widget-settings.dc-no-rules": "Condition group is not set",
-  "widget-settings.display-condition.element-title": "Display conditions",
-  "widget-settings.display-condition.element-btn.open-settings": "Set \"{{title}}\"",
+  "widget-settings.display-condition.element-title": "Element display condition \"{{title}}\"",
 
   "dashboard-settings.config.default": "Default",
   "dashboard-settings.config.custom": "Custom",
@@ -187,7 +188,7 @@
   "dashboard-settings.error.check-updates": "Check for dashboard updates failed",
   "dashboard-settings.error.save-config": "Dashboard config hasn't saved",
   "dashboard-settings.error.reset-config": "Dashboard config hasn't reset",
-  "dashboard-settings.success.reset-config": "Dashboard config has reset",
+  "dashboard-settings.success.reset-config": "Dashboard config has reset and applied",
   "dashboard-settings.label.for-all": "Apply for all users",
   "dashboard-settings.menu-constructor.placeholder1": "No available menu items",
   "dashboard-settings.menu-constructor.placeholder2": "Drag menu items here",
@@ -250,8 +251,9 @@
   "dev-tools.error.failure-to-fetch-data": "Failure to fetch data",
   "dev-tools.build.alfresco.panel-title": "Alfresco modules",
   "dev-tools.build.system.panel-title": "System modules",
-  "dev-tools.settings.force-enable-new-forms": "Force new forms",
-  "dev-tools.settings.enable-logger-for-new-forms": "Enable logger for new forms",
+  "dev-tools.settings.forceEnableNewForms": "Force new forms",
+  "dev-tools.settings.enableLoggerForNewForms": "Enable logger for new forms",
+  "dev-tools.settings.enableRecordsApiDebug": "Enable debug for Records API",
   "dev-tools.settings.on": "On",
   "dev-tools.settings.off": "Off",
   "dev-tools.dev-modules.panel-title": "Modules",
@@ -265,7 +267,7 @@
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",
   "doc-associations-widget.basis-document": "Basis document",
-  "doc-associations-widget.closing-document": "Сlosing document",
+  "doc-associations-widget.closing-document": "Closing document",
   "doc-associations-widget.confirm-remove-modal.text": "Are you sure you want to remove the document association:",
   "doc-associations-widget.confirm-remove-modal.title": "Removing document association",
   "doc-associations-widget.not-added": "Not added",
@@ -302,6 +304,9 @@
   "document-library.create-node.title": "Create new \"{{name}}\"",
   "document-library.create-node.fields.title": "Name",
   "document-library.create-node.fields.content": "Content",
+  "document-library.uploading-file.message.success": "File \"{{file}}\" has been successfully uploaded to the folder \"{{folder}}\"",
+  "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
+  "document-library.uploading-file.message.abort": "Unable to upload file(s)",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",
@@ -322,11 +327,13 @@
   "type-permissions.load-data-error": "Failure to load data",
   "type-permissions.save-permissions-error.title": "Error",
   "type-permissions.save-permissions-error.message": "Failure to save permissions",
+
   "doc-status-widget.no-status": "No status",
   "doc-status-widget.saga.error1": "Error. Failure to fetch document status",
   "doc-status-widget.saga.error2": "Error. Failure to fetch document status list",
   "doc-status-widget.saga.error3": "Error. Failure to change document status",
   "doc-status-widget.title": "Status",
+
   "dochist.assoc.added": "Added",
   "dochist.assoc.contains": "Document",
   "dochist.assoc.removed": "Removed",
@@ -358,6 +365,7 @@
   "dochist.workflow.end": "Workflow ended",
   "dochist.workflow.end.cancelled": "Workflow cancelled",
   "dochist.workflow.start": "Workflow started",
+
   "dropdown-filter.all-fields": "All fields",
   "dropdown-filter.icon-button.label": "Filter",
   "dropdown-filter.item.placeholder": "Filter",
@@ -367,11 +375,14 @@
   "ecos-form.error-get-form": "Error: form is not loaded. Try to configure form",
   "ecos-form.error.clone-get-fields": "Cloned record hasn't received",
   "ecos-form.error.clone-record": "Record hasn't cloned",
+  "ecos-form.error.no-form": "No form",
+  "ecos-form.error.form-is-not-available": "Form is not available",
   "ecos-form.success.clone-record": "Record has cloned",
 
   "ecos-forms.datepicker.time-label": "Time",
   "ecos-forms.datepicker.month-prev-label": "Previous Month",
   "ecos-forms.datepicker.month-next-label": "Next Month",
+
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.import-button": "Import",
   "ecos-table-form.create-modal.title": "Create",
@@ -391,6 +402,7 @@
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos-ui.select.placeholder": "Select",
+
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
   "ecos.forms.File Name": "File Name",
   "ecos.forms.Size": "Size",
@@ -403,7 +415,7 @@
   "ecos.forms.invalid_regex": "{{field}} does not match the pattern {{regex}}.",
   "ecos.forms.mask": "{{field}} does not match the mask.",
   "ecos.forms.max": "{{field}} cannot be greater than {{max}}.",
-  "ecos.forms.maxLength": "{{field}} must be shorter than {{length}} characters.",
+  "ecos.forms.maxLength": "{{field}} must contain no more than {{length}} characters.",
   "ecos.forms.min": "{{field}} cannot be less than {{min}}.",
   "ecos.forms.minLength": "{{field}} must be longer than {{length}} characters.",
   "ecos.forms.next": "Next",
@@ -421,6 +433,7 @@
   "eform.modal.title.constructor": "Form Builder",
   "eform.modal.title.edit-locale": "Edit Locale",
   "eform.form-is-not-ready": "Form is not ready",
+
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.info.no-data": "No data",
@@ -516,7 +529,6 @@
   "record-action.name.edit-password": "Change password",
   "record-action.name.open-submit-form": "Open and submit",
 
-  "records-actions.failed": "Action failed",
   "records-actions.actions": "Actions",
   "records-actions.create": "Create",
   "records-actions.download": "Download",
@@ -527,6 +539,9 @@
   "records-actions.dialog.all-records-not-allowed.title": "Action is not allowed",
   "records-actions.dialog.all-records-not-allowed.text": "The action with selected lines is not allowed",
   "records-actions.confirm-not-allowed": "Action is not allowed for all lines. Continue?",
+  "records-actions.notify.title": "Widget Actions",
+  "records-actions.error.execute-action": "Action failed",
+  "records-actions.error.get-actions": "Actions haven't received",
 
   "group-action.select.copy-to": "Copy to...",
   "group-action.select.delete": "Delete",
@@ -569,6 +584,12 @@
   "grouping.how": "How to group",
   "grouping.show": "View the principle of grouping",
   "grouping.what": "What to group",
+
+  "header.menu.create.btn.label": "Create",
+  "header.menu.msg.empty-list": "No available items",
+  "header.menu.msg.loading": "Loading...",
+  "header.search.people": "People",
+  "header.search.documents": "Documents",
   "header.create-workflow-adhoc.label": "Assignment",
   "header.create-workflow-adhoc.description": "Create an assignment",
   "header.create-workflow-confirm.label": "Approval",
@@ -577,9 +598,6 @@
   "header.logout.label": "Logout",
   "header.make-available.label": "Change status to \"I'm here\"",
   "header.make-notavailable.label": "Change status to \"I'm absent\"",
-  "modal.make-notavailable.start.label": "Beginning of absence",
-  "modal.make-notavailable.end.label": "End of absence",
-  "modal.make-notavailable.auto-answer.label": "Auto answer",
   "header.reportIssue.label": "Report an issue",
   "header.user-menu.my-profile": "My Profile",
   "header.user-menu.edit-password": "Change password",
@@ -588,6 +606,9 @@
   "header.site-menu.go-home-page": "Go home",
   "header.site-menu.menu-settings": "Menu settings",
   "header.site-menu.page-settings": "Page settings",
+  "modal.make-notavailable.start.label": "Beginning of absence",
+  "modal.make-notavailable.end.label": "End of absence",
+  "modal.make-notavailable.auto-answer.label": "Auto answer",
   "hints.disabled": "Hints is disabled",
   "hints.enabled": "Hints is enabled",
 
@@ -678,9 +699,11 @@
   "journal.task.statistics.perform_time_ration.title": "Expected lead time / Lead time",
   "journal.task.statistics.task_type.title": "Task type",
   "journal.title": "Journal",
-  "journal.not-exists.warning": "The specified Journal does not exist, check the settings",
+  "journal.not-exists.warning": "The set journal does not exist, check the settings (ID: {{configJournalId}})",
+  "journal.no-config-columns.warning": "The journal {{journalName}} doesn't set columns, check the journal settings (ID: {{configJournalId}})",
   "journal.cell.no-label": "(Missing Label)",
   "journal.error.fail-get-settings-template": "Settings template not received",
+  "journal.generated-field.editor.not-exist": "Editor doesn't exist",
 
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
@@ -731,6 +754,9 @@
   "journals.menu.journal-list.empty": "List is empty",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
+
+  "journals.header-formatter.message.complex-filter.part-1": "A complex filter has been applied.\nGo to the ",
+  "journals.header-formatter.message.complex-filter.part-2": "journal settings.",
 
   "label.password": "Password",
   "label.username": "User Name",
@@ -864,11 +890,9 @@
   "relative.year": "about a year ago",
   "relative.years": "over {{value}} years ago",
   "relative.yesterday": "Yesterday",
-  "search.documents": "Documents",
   "search.label": "Search files, people, sites",
   "search.more": "More",
   "search.no-results": "Nothing found",
-  "search.people": "People",
   "search.placeholder": "Search",
   "search.show-more-results": "Show more results",
   "search.sites": "Sites",
@@ -915,6 +939,7 @@
   "size.kilobytes": "KB",
   "size.megabytes": "MB",
   "slide_menu_click_to_open.label": "Click to open the menu",
+
   "tasks-widget.assign.assign": "Assign",
   "tasks-widget.assign.me": "I will perform this",
   "tasks-widget.assign.reassign": "Reassign",
@@ -927,7 +952,7 @@
   "tasks-widget.no-tasks": "No tasks",
   "tasks-widget.saga.change-assignee-success": "Task assigned successfully",
   "tasks-widget.error.get-tasks": "Error. Failure to fetch data",
-  "tasks-widget.error.assign-task": "Assignment error",
+  "tasks-widget.error.assign-task": "Task assignment error",
   "tasks-widget.error.failed-assign-task": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
 
@@ -1021,6 +1046,10 @@
   "timesheets.error.get-subordinates": "There's error while getting subordinates",
   "timesheets.error.no-subordinates": "There aren't subordinates",
 
+  "dropzone.modal.dropzone_placeholder": "Drag the file here or select manually",
+  "dropzone.modal.dropzone_button_select": "Select file",
+  "dropzone.modal.dropzone_button_cancel": "Cancel",
+
   "versions-journal-widget.add": "Add new version",
   "versions-journal-widget.add-version": "Add version",
   "versions-journal-widget.current-version": "Current version",
@@ -1034,9 +1063,6 @@
   "versions-journal-widget.modal.comment_title": "Comment",
   "versions-journal-widget.modal.download": "Download",
   "versions-journal-widget.modal.no-document-data": "No document data",
-  "dropzone.modal.dropzone_placeholder": "Drag the file here or select manually",
-  "dropzone.modal.dropzone_button_select": "Select file",
-  "dropzone.modal.dropzone_button_cancel": "Cancel",
   "versions-journal-widget.modal.error-file-size": "Can't upload file VAL, because it size is VAL bytes.",
   "versions-journal-widget.modal.error-file-upload": "Can't upload file. Contact administrator",
   "versions-journal-widget.modal.error-file-aborted": "Uploading file is canceled",
@@ -1052,8 +1078,7 @@
   "versions-journal-widget.set-current-version": "Set current version",
   "versions-journal-widget.title": "Versions journal",
   "versions-journal-widget.version": "Version",
-  "view-table.labels.actions": "Actions",
-  "widget.document.title.preview": "Document preview",
+
   "web-page-widget.title": "Web Page",
   "web-page-widget.empty": "No content. Specify the address of the web page in the settings.",
   "web-page-widget.settings.caption": "Setting widget",
@@ -1143,6 +1168,7 @@
   "documents-widget.tree.selected-inside-of": "of",
   "documents-widget.type-settings.title": "settings",
   "documents-widget.type-settings.allowed-number-files": "Allowed number of files",
+  "documents-widget.type-settings.journal": "Journal with column and action settings",
   "documents-widget.type-settings.sort-label": "Order and display of columns in the type",
   "documents-widget.type-settings.one-file": "Only one",
   "documents-widget.type-settings.multiple-files": "Multiple files",
@@ -1236,6 +1262,7 @@
   "menu-settings.tabs.menu-config": "Selected configuration settings",
   "menu-settings.tabs.global-config": "Global settings",
   "menu-settings.tabs.menu-create-config": "Menu \"Create\"",
+  "menu-settings.text.default": "Default",
   "menu-settings.desc.global-config": "These settings apply to the entire site.\n\nThe group list corresponds to values are specified in all menu configurations.\nGroup priority is inversely proportional to the level of the group's hierarchy in the Organizational Chart or the level of the functional hierarchy.The more specific group, than priority is higher.\nAdministrator groups are usually placed first. User has the highest priority.",
   "menu-settings.desc.editor-group-priority": "Use drag-and-drop to change priority.",
   "menu-settings.data.id": "ID menu",
@@ -1277,6 +1304,7 @@
   "menu-settings.editor-item.field.allowed-for.placeholder": "everyone",
   "menu-settings.editor-item.field.create-variant.title": "Create method",
   "menu-settings.editor-item.field.data-type.title": "Data type",
+  "menu-settings.editor-item.field.process-def.title": "Process",
   "menu-settings.editor-item.title.add": "Create: {{type}}",
   "menu-settings.editor-item.title.edit": "Edit: {{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Cancel",
@@ -1287,7 +1315,6 @@
   "menu-settings.editor-group-priority.title": "Group priority",
   "menu-settings.error-boundary.title": "Error",
   "menu-settings.error-boundary.msg": "Try reopen the settings. If the error reappears, contact your administrator",
-
   "menu-settings.error.no-id-config": "User menu ID is absent",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
@@ -1308,6 +1335,7 @@
   "menu-item.type.header-divider": "Header Divider",
   "menu-item.type.create-in-section": "Create in section options",
   "menu-item.type.edit-record": "Editing a record",
+  "menu-item.type.start-workflow": "Start workflow",
 
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",
@@ -1350,8 +1378,6 @@
   "legacy-cmmn-editor.button.cancel.label": "Cancel",
   "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Copy temporary case ID",
 
-  "generated-field.editor.not-exist": "Editor doesn't exist",
-
   "go-to.home-page": "Go to home page",
   "notification.journal-will-be-opened-soon": "Journal will be opened soon",
   "task": "Task",
@@ -1365,7 +1391,7 @@
 
   "ecos-form.import-button.confirm.default-title": "Removing previously added entries",
   "ecos-form.import-button.confirm.default-description": "Before loading lines from the template file, the current lines will be deleted. Do you want to continue the action?",
-  "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
+  "ecos-form.import-button.failed-uploading.description": "Failure to upload file",
   "ecos-form.import-button.failed-uploading.title": "Error",
   "ecos-form.import-button.error.no-response-handler": "You must set \"Response handler\" setting"
 }

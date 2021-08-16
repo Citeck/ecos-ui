@@ -37,7 +37,11 @@ import TableForm from './custom/tableForm';
 import TaskOutcome from './custom/taskOutcome/index';
 import ImportButton from './custom/importButton';
 
-Components.setComponents({
+import { prepareComponents } from '../utils';
+
+import './Validator';
+
+const components = {
   ...DefaultComponents,
   asyncData: AsyncData,
   base: Base,
@@ -74,6 +78,8 @@ Components.setComponents({
   hidden: Hidden,
   importButton: ImportButton,
   datagrid: DataGrid
-});
+};
+
+Components.setComponents(prepareComponents(components));
 
 export { Components };

@@ -75,6 +75,7 @@ const List = React.memo(
       noHeader
     } = props;
     const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
+    const rowsIds = gridRows.map(i => i.id);
 
     return (
       <>
@@ -87,7 +88,7 @@ const List = React.memo(
             multiSelectable={!viewOnly && isSelectableRows}
             onSelect={onSelectGridItem}
             selected={selectedRows}
-            nonSelectable={nonSelectableRows}
+            nonSelectable={nonSelectableRows.filter(item => rowsIds.includes(item))}
             inlineTools={() => <InlineActions />}
             onChangeTrOptions={setInlineToolsOffsets}
             className="ecos-table-form__grid"

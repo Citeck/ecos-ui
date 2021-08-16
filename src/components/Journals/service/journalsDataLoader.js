@@ -13,7 +13,7 @@ import { COMPUTED_ATT_PREFIX } from './util';
 
 class JournalsDataLoader {
   async load(journalConfig, settings = {}) {
-    const columns = journalConfig.columns || [];
+    const columns = journalConfig.columns || settings.columns || [];
     const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
     let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
 
@@ -75,9 +75,10 @@ class JournalsDataLoader {
     if (!sortBy.length) {
       sortBy = journalConfig.sortBy || [];
     }
+    sortBy = sortBy.filter(s => !!s.attribute);
 
-    if (!sortBy.length && recordsQuery.sourceId === '') {
-      sortBy = [{ attribute: Attributes.DBID, ascending: false }];
+    if (!sortBy.length) {
+      sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
     }
     recordsQuery.sortBy = sortBy;
 

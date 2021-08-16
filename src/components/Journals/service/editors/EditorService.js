@@ -8,6 +8,8 @@ import EditorScope from './EditorScope';
 import EditorControlWrapper from './EditorControlWrapper';
 import { getEditorValue } from './editorUtils';
 import { DEFAULT_EDITOR_TYPE } from './constants';
+import JournalEditor from './registry/JournalEditor';
+import OrgstructEditor from './registry/OrgstructEditor';
 
 /**
  * @typedef {Object} EditorServiceProps
@@ -32,6 +34,7 @@ class EditorService {
 
   static getEditorControl({
     ref,
+    forwardedRef,
     value,
     attribute,
     recordRef,
@@ -56,16 +59,18 @@ class EditorService {
 
       const getDisplayName =
         scope === EditorScope.CELL ? (v, state) => editorInstance.getDisplayName(v, editorConfig, scope, state || {}) : null;
-      const multipleProp = scope === EditorScope.CELL ? multiple === true : false;
+      const multipleProp =
+        scope === EditorScope.CELL ? multiple === true : [OrgstructEditor.TYPE, JournalEditor.TYPE].includes(editor.type);
       const control = editorInstance.getControl(editorConfig, scope, controlProps);
 
       if (!control) {
-        return <div className="text-warning">{t('generated-field.editor.not-exist')}</div>;
+        return <div className="text-warning">{t('journal.generated-field.editor.not-exist')}</div>;
       }
 
       return (
         <EditorControlWrapper
           ref={ref}
+          forwardedRef={forwardedRef}
           recordRef={recordRef}
           attribute={attribute}
           value={value}

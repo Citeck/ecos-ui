@@ -1,4 +1,4 @@
-import { MICRO_URI, PROXY_URI } from '../constants/alfresco';
+import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
@@ -59,43 +59,39 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getJournals = () => {
-    return this.getJson(`${PROXY_URI}api/journals/all`).then(resp => resp.journals || []);
-  };
-
   getDashletConfig = id => {
-    return this.getJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`).catch(() => null);
+    return this.getJson(`${CITECK_URI}dashlet/config?key=${id}`).catch(() => null);
   };
 
   saveDashletConfig = (config, id) => {
-    return this.postJson(`${PROXY_URI}citeck/dashlet/config?key=${id}`, config);
+    return this.postJson(`${CITECK_URI}dashlet/config?key=${id}`, config);
   };
 
   getJournalSettings = journalType => {
-    return this.getJson(`${MICRO_URI}api/journalprefs/list?journalId=${journalType}`);
+    return this.getJson(`${UISERV_API}journalprefs/list?journalId=${journalType}`);
   };
 
   getJournalSetting = id => {
-    return this.getJson(`${MICRO_URI}api/journalprefs?id=${id}`).catch(error => {
+    return this.getJson(`${UISERV_API}journalprefs?id=${id}`).catch(error => {
       console.error(error);
       return { error };
     });
   };
 
   saveJournalSetting = ({ id, settings }) => {
-    return this.putJson(`${MICRO_URI}api/journalprefs?id=${id}`, settings, true);
+    return this.putJson(`${UISERV_API}journalprefs?id=${id}`, settings, true);
   };
 
   createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${MICRO_URI}api/journalprefs?journalId=${journalId}`, settings, true).catch(() => null);
+    return this.postJson(`${UISERV_API}journalprefs?journalId=${journalId}`, settings, true).catch(() => null);
   };
 
   deleteJournalSetting = id => {
-    return this.deleteJson(`${MICRO_URI}api/journalprefs/id/${id}`, true);
+    return this.deleteJson(`${UISERV_API}journalprefs/id/${id}`, true);
   };
 
   getNodeContent = nodeRef => {
-    return this.getJson(`${PROXY_URI}citeck/node-content?nodeRef=${nodeRef}`);
+    return this.getJson(`${CITECK_URI}node-content?nodeRef=${nodeRef}`);
   };
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;

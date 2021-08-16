@@ -118,11 +118,15 @@ class RecordActions {
     if (!context) {
       context = {};
     }
+
     let idx = -1;
     const result = [];
-    for (let action of actionsDto) {
-      idx++;
+
+    for (let i = 0; i < actionsDto.length; i++) {
+      const action = actionsDto[i] || {};
       const handler = actionsRegistry.getHandler(action.type);
+      idx++;
+
       if (!handler) {
         console.error('Handler is not defined for type ' + action.type + '. Action will be ignored.', action);
         continue;
@@ -130,6 +134,7 @@ class RecordActions {
       if (!handler.isAllowedInContext(context)) {
         continue;
       }
+
       let features = action.features ? { ...action.features } : {};
       if (handler instanceof ActionsExecutor) {
         features.execForQuery = RecordActions._checkExecActionFeature('execForQuery', handler, features.execForQuery);
@@ -188,7 +193,7 @@ class RecordActions {
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId, modalClass } = data;
+    const { title, text, formId, modalClass, options = {} } = data;
 
     if (formId) {
       EcosFormUtils.getFormById(formId, { definition: 'definition?json', i18n: 'i18n?json' })
@@ -197,7 +202,7 @@ class RecordActions {
 
           DialogManager.showFormDialog({
             title,
-            formOptions,
+            formOptions: { ...formOptions, ...options },
             formDefinition: { display: 'form', ...definition },
             onSubmit: submission => callback(submission.data),
             onCancel: _ => callback(false)
@@ -223,12 +228,14 @@ class RecordActions {
     }
   }
 
-  static async _checkConfirmAction(action) {
+  static async _checkConfirmAction(action, params) {
     const confirmData = RecordActions._getConfirmData(action);
 
     if (!confirmData) {
       return true;
     }
+
+    get(params, 'actionRecord') && set(confirmData, 'options.actionRecord', params.actionRecord);
 
     return await new Promise(resolve => {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
@@ -318,7 +325,7 @@ class RecordActions {
 
     const resolvedActions = await this.getActionsForRecords([recordRef], actions, context);
 
-    return resolvedActions.forRecord[recordRef] || [];
+    return get(resolvedActions, ['forRecord', recordRef]) || [];
   }
 
   /**
@@ -349,16 +356,24 @@ class RecordActions {
     }
 
     const localContext = cloneDeep(context);
-
     const ctxActions = RecordActions._getActionsWithContext(resolvedActions.actions, localContext);
     const actionsMaskByRecordRef = {};
+
     for (let i = 0; i < resolvedActions.records.length; i++) {
       actionsMaskByRecordRef[recordRefs[i]] = resolvedActions.records[i];
     }
 
     const actionsForRecords = {
       forRecords: {
-        actions: ctxActions.filter(a => a.features.execForRecords === true),
+        actions: ctxActions.filter(action => {
+          const { records } = resolvedActions;
+
+          if (!get(action, 'features.execForRecords') || isEmpty(records)) {
+            return false;
+          }
+
+          return records.some(mask => (mask & get(action, [ACTION_CONTEXT_KEY, 'recordMask'])) !== 0);
+        }),
         records: actionsMaskByRecordRef
       },
       forQuery: {
@@ -369,36 +384,46 @@ class RecordActions {
     // resolve actions for record
 
     const recordsResolvedActions = new Array(ctxActions.length);
+
     for (let actionIdx = 0; actionIdx < ctxActions.length; actionIdx++) {
       let recordsResolvedActionsForAction = null;
-      let action = ctxActions[actionIdx];
+      let action = ctxActions[actionIdx] || {};
       let handler = actionsRegistry.getHandler(action.type);
+
       if (handler instanceof RecordActionsResolver && action.features.execForRecord === true) {
         recordsResolvedActionsForAction = {};
-        let resolvedActions = await handler.resolve(recordInst, action, localContext);
+        let resolvedActions = (await handler.resolve(recordInst, action, localContext)) || {};
+
         for (let ref in resolvedActions) {
           if (resolvedActions.hasOwnProperty(ref)) {
-            recordsResolvedActionsForAction[ref] = (recordsResolvedActionsForAction[ref] || []).concat(resolvedActions[ref]);
+            const filteredActions = (resolvedActions[ref] || []).filter(a => !!a);
+
+            if (get(resolvedActions, [ref, 'length']) > filteredActions.length) {
+              console.warn('After updating a record, not all actions are available. Try to refresh the page', {
+                resolvedActions,
+                filteredActions
+              });
+            }
+
+            if (filteredActions.length) {
+              recordsResolvedActionsForAction[ref] = (recordsResolvedActionsForAction[ref] || []).concat(filteredActions);
+            }
           }
         }
       }
       recordsResolvedActions[actionIdx] = recordsResolvedActionsForAction;
     }
 
-    const possibleActionsForRecord = ctxActions.map(a => {
-      return {
-        action: a,
-        mask: (a[ACTION_CONTEXT_KEY] || {}).recordMask
-      };
-    });
-
+    const possibleActionsForRecord = ctxActions.map(action => ({ action, mask: get(action, [ACTION_CONTEXT_KEY, 'recordMask']) }));
     const forRecord = {};
+
     for (let ref of recordRefs) {
       let recordMask = actionsMaskByRecordRef[ref];
       let actions = [];
 
       for (let actionIdx = 0; actionIdx < ctxActions.length; actionIdx++) {
-        let possibleAction = possibleActionsForRecord[actionIdx];
+        let possibleAction = possibleActionsForRecord[actionIdx] || {};
+
         if ((possibleAction.mask & recordMask) === 0 || possibleAction.action.features.execForRecord !== true) {
           continue;
         }
@@ -431,6 +456,7 @@ class RecordActions {
       return false;
     }
 
+    const recordInstance = Records.get(record);
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -445,7 +471,7 @@ class RecordActions {
       ...context
     };
 
-    const confirmed = await RecordActions._checkConfirmAction(action);
+    const confirmed = await RecordActions._checkConfirmAction(action, { actionRecord: recordInstance.id });
 
     if (!confirmed) {
       return false;
@@ -461,16 +487,13 @@ class RecordActions {
       config
     };
 
-    const preResult = await RecordActions._preProcessAction(
-      { records: [Records.get(record)], action: actionToExec, context },
-      'execForRecord'
-    );
+    const preResult = await RecordActions._preProcessAction({ records: [recordInstance], action: actionToExec, context }, 'execForRecord');
 
     if (preResult.configMerged) {
       action.config = preResult.config;
     }
 
-    const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+    const result = handler.execForRecord(recordInstance, actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);
@@ -590,6 +613,7 @@ class RecordActions {
     };
 
     const executor = RecordActions._getActionsExecutor(action);
+
     if (!executor) {
       return allNotAllowedResult;
     }
@@ -725,7 +749,7 @@ class RecordActions {
    * @param {RecordAction} action
    * @return {ActionsExecutor|null}
    */
-  static _getActionsExecutor(action) {
+  static _getActionsExecutor(action = {}) {
     const handler = actionsRegistry.getHandler(action.type);
     if (handler == null) {
       console.error('Handler is not found for action! Action: ', action);
