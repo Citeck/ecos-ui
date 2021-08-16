@@ -15,7 +15,7 @@ export default class DefaultFormatter extends BaseFormatter {
     if (typeof cell === 'boolean') {
       return cell ? t('boolean.yes') : t('boolean.no');
     }
-    con;
+
     return cell.disp || cell;
   }
 
