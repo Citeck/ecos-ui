@@ -1,5 +1,7 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { getTextByLocale, t } from '../../../helpers/util';
 import EditorService from '../service/editors/EditorService';
@@ -14,6 +16,7 @@ import {
 } from '../../Records/predicates/predicates';
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
+import FormatterService from './formatters/FormatterService';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -114,8 +117,11 @@ class JournalColumnsResolver {
           type: 'bool'
         };
       } else {
+        const type = get(updColumn, 'newFormatter.type', FormatterService.getTypeByName(get(updColumn, 'newFormatter.name')));
+
         updColumn.newFormatter = {
-          type: 'default'
+          ...get(updColumn, 'newFormatter', {}),
+          type: isEmpty(type) ? 'default' : type
         };
       }
     }

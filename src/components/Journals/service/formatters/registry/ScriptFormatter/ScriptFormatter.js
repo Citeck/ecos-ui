@@ -1,9 +1,11 @@
 import _ from 'lodash';
+import get from 'lodash/get';
+
 import Records from '../../../../../Records';
 import { t } from '../../../../../../helpers/export/util';
-
 import BaseFormatter from '../BaseFormatter';
 import CellType from '../../CellType';
+import ecosFetch from '../../../../../../helpers/ecosFetch';
 
 /**
  * @typedef {FormatterProps} ScriptFormatterProps
@@ -21,15 +23,37 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config = {}, cell, format } = props;
+    const { config = {}, cell, format, rowIndex, row } = props;
     const script = config.fn;
     if (!script) {
       throw new Error(`"fn" is a mandatory parameter in the ScriptFormatter config. Current config: ${JSON.stringify(config)}`);
     }
     const vars = config.vars || {};
+    const args = [cell, row, {}, cell, rowIndex, { lodash: _, ecosFetch, Records, _, t, ...vars }];
+    let result;
 
-    /* eslint-disable-next-line */
-    const result = new Function('Records', '_', 't', 'vars', 'cell', script)(Records, _, t, vars, cell);
+    if (typeof script === 'function') {
+      result = script(...args);
+
+      const then = get(result, 'then');
+
+      if (typeof then === 'function') {
+        return result;
+      }
+    }
+
+    if (typeof script === 'string') {
+      try {
+        // eslint-disable-next-line
+        const extractedFn = eval(`(function() { return function (cell, row, column, data, rowIndex, utils) { ${script};}})()`);
+
+        if (typeof extractedFn === 'function') {
+          result = extractedFn(...args);
+        }
+      } catch (e) {
+        console.error('String script Error => ', e);
+      }
+    }
 
     switch (typeof result) {
       case 'boolean':

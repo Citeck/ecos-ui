@@ -2,6 +2,7 @@ import React from 'react';
 
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
+import get from 'lodash/get';
 
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders } from '../util';
@@ -44,9 +45,22 @@ class FormatterService {
     }
   }
 
+  static getTypeByName(formatterName) {
+    switch (formatterName) {
+      case 'FunctionFormatterV2':
+      case 'FunctionFormatter':
+      case 'ScriptFormatter':
+        return 'script';
+      default:
+        return 'default';
+    }
+  }
+
   static _formatImpl(props = {}, formatter = {}) {
     const { row, cell } = props;
-    const { type, config } = formatter;
+    const { name } = formatter;
+    const type = formatter.type || FormatterService.getTypeByName(name);
+    const config = get(formatter, 'config', get(formatter, 'params'));
 
     if (!type) {
       console.error('[FormattersService.format] empty formatter type', formatter);
