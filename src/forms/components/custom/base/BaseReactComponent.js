@@ -12,8 +12,15 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   #react = {};
+  #viewOnlyPrev = {};
 
   build() {
+    if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
+      super.clear();
+      this.#react = {};
+      this.#viewOnlyPrev = this.viewOnly;
+    }
+
     const firstBuild = isEmpty(this.#react);
 
     this.#react.wrapper = new Promise(resolveComponent => (this.#react.resolve = resolveComponent)).then(component => {
