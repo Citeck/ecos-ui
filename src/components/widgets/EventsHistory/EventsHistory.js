@@ -281,8 +281,6 @@ class EventsHistory extends React.Component {
     const newFilter = get(newFilters, '0', {});
     const upFilters = this.applyFiltering(filters, newFilter, type);
 
-    // console.warn({ newFilters, upFilters });
-
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);
     });

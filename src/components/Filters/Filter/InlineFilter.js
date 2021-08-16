@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import Filter from './Filter';
 import { IcoBtn } from '../../common/btns';
@@ -66,14 +67,17 @@ class InlineFilter extends Filter {
   }
 
   onConfirmAction = e => {
+    const { onFilter, onToggle } = this.props;
+
     e.stopPropagation();
 
-    console.warn({
-      'this.selectedPredicate =>': this.selectedPredicate
-    });
+    if (isFunction(onFilter)) {
+      onFilter(this.selectedPredicate);
+    }
 
-    this.props.onFilter(this.selectedPredicate);
-    this.props.onToggle();
+    if (isFunction(onToggle)) {
+      onToggle();
+    }
   };
 
   onChangePredicate = predicate => {

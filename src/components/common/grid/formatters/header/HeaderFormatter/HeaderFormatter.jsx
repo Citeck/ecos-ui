@@ -109,15 +109,18 @@ export default class HeaderFormatter extends Component {
 
   triggerPendingChange = debounce((text, dataField, type) => {
     const { column, onFilter } = this.props;
+    const { predicate } = this.state;
 
     this.onToggle();
 
     if (isFunction(onFilter)) {
+      console.warn(get(predicate, 't', ''));
+
       onFilter(
         [
           {
             att: dataField,
-            t: 'contains',
+            t: get(predicate, 't', ''),
             val: text.trim()
           }
         ],

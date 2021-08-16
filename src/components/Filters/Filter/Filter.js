@@ -85,8 +85,6 @@ export default class Filter extends Component {
       const { value: val } = this.state;
       const { index } = this.props;
 
-      console.warn({ val, index, withoutValue });
-
       this.props.onChangeValue({ val, index, withoutValue });
       this.setState({ isInput: false });
     },
