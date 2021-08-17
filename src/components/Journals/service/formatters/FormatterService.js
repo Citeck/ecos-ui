@@ -2,11 +2,11 @@ import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 import get from 'lodash/get';
+import isPlainObject from 'lodash/isPlainObject';
 
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders, valueOrNull } from '../util';
 import formatterRegistry from './registry';
-import isPlainObject from 'lodash/isPlainObject';
 import CellType from './CellType';
 import Popper from '../../../common/Popper';
 
@@ -60,20 +60,27 @@ class FormatterService {
   }
 
   static getTypeByName(formatterName) {
-    switch (formatterName) {
-      case 'FunctionFormatterV2':
-      case 'FunctionFormatter':
-      case 'ScriptFormatter':
-        return 'script';
-      default:
-        return 'default';
+    const formatter = formatterRegistry.getFormatter(formatterName);
+
+    return get(formatter, 'constructor.TYPE', 'default');
+  }
+
+  static _convertLegacyFormatterData(formatter = {}) {
+    const { type, name, config, params } = formatter;
+    const newFormatter = { ...formatter };
+
+    newFormatter.config = config || params || {};
+
+    if (!type) {
+      newFormatter.type = FormatterService.getTypeByName(name);
     }
+
+    return newFormatter;
   }
 
   static _formatImpl(props = {}, formatter = {}) {
     const { row, cell } = props;
-    const { type } = formatter;
-    const config = get(formatter, 'config', get(formatter, 'params'));
+    const { type, config } = FormatterService._convertLegacyFormatterData(formatter);
 
     if (!type) {
       console.error('[FormattersService.format] empty formatter type', formatter);
@@ -86,6 +93,7 @@ class FormatterService {
     }
 
     const fmtInstance = formatterRegistry.getFormatter(type);
+
     if (!fmtInstance || typeof fmtInstance.format !== 'function') {
       console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);
       return FormatterService.errorMessage;
@@ -101,7 +109,9 @@ class FormatterService {
       if (cell.length === 1) {
         return FormatterService._formatSingleValueCellImpl(cell[0], formatProps, fmtInstance);
       }
+
       let idx = 0;
+
       return cell.map(elem => {
         return <div key={idx++}>{FormatterService._formatSingleValueCellImpl(elem, formatProps, fmtInstance)}</div>;
       });
