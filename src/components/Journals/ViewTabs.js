@@ -9,10 +9,11 @@ import { toggleViewMode } from '../../actions/journals';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { getSearchParams, isExistValue, t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
+import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
-import { isDocLib, isPreview, isTable, JOURNAL_VIEW_MODE as JVM } from './constants';
 import { updateCurrentUrl } from '../../helpers/urls';
 import { JournalUrlParams } from '../../constants';
+import { isDocLib, isPreview, isTable, JOURNAL_VIEW_MODE as JVM } from './constants';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -75,36 +76,42 @@ class ViewTabs extends React.Component {
       <div className="ecos-journal__view-tabs">
         {!isMobile && (
           <>
-            <IcoBtn
-              title={t(Labels.BTN_JOURNAL)}
-              icon="icon-list"
-              className={classNames(common, {
-                [available]: isTableMode,
-                [disable]: !isTableMode
-              })}
-              onClick={() => this.onToggleViewMode(JVM.TABLE)}
-            />
-            <IcoBtn
-              title={t(Labels.BTN_PREVIEW)}
-              icon="icon-columns"
-              className={classNames(common, {
-                [available]: isPreviewMode,
-                [disable]: !isPreviewMode
-              })}
-              onClick={() => this.onToggleViewMode(JVM.PREVIEW)}
-            />
+            <Tooltip off={isMobile} target="ecos-journal-view-table" text={t(Labels.BTN_JOURNAL)} uncontrolled>
+              <IcoBtn
+                id="ecos-journal-view-table"
+                icon="icon-list"
+                className={classNames(common, {
+                  [available]: isTableMode,
+                  [disable]: !isTableMode
+                })}
+                onClick={() => this.onToggleViewMode(JVM.TABLE)}
+              />
+            </Tooltip>
+            <Tooltip off={isMobile} target="ecos-journal-view-preview" text={t(Labels.BTN_PREVIEW)} uncontrolled>
+              <IcoBtn
+                id="ecos-journal-view-preview"
+                icon="icon-columns"
+                className={classNames(common, {
+                  [available]: isPreviewMode,
+                  [disable]: !isPreviewMode
+                })}
+                onClick={() => this.onToggleViewMode(JVM.PREVIEW)}
+              />
+            </Tooltip>
           </>
         )}
         {isDocLibEnabled && (
-          <IcoBtn
-            title={t(Labels.BTN_DOCLIB)}
-            icon="icon-folder"
-            className={classNames(common, {
-              [available]: isDocLibMode,
-              [disable]: !isDocLibMode
-            })}
-            onClick={() => this.onToggleViewMode(JVM.DOC_LIB)}
-          />
+          <Tooltip off={isMobile} target="ecos-journal-view-doc-lib" text={t(Labels.BTN_DOCLIB)} uncontrolled>
+            <IcoBtn
+              id="ecos-journal-view-doc-lib"
+              icon="icon-folder"
+              className={classNames(common, {
+                [available]: isDocLibMode,
+                [disable]: !isDocLibMode
+              })}
+              onClick={() => this.onToggleViewMode(JVM.DOC_LIB)}
+            />
+          </Tooltip>
         )}
       </div>
     );

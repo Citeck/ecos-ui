@@ -259,6 +259,9 @@
 .icon-code-json:before {
   content: '\e857';
 } /* '' */
+.icon-filter-clean:before {
+  content: '\e858';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */

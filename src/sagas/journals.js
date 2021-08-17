@@ -30,6 +30,7 @@ import {
   reloadGrid,
   reloadTreeGrid,
   renameJournalSetting,
+  resetFiltering,
   resetJournalSettingData,
   restoreJournalSettingData,
   runSearch,
@@ -60,7 +61,13 @@ import {
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
-import { selectGridPaginationMaxItems, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
+import {
+  selectGridPaginationMaxItems,
+  selectJournalData,
+  selectNewVersionDashletConfig,
+  selectSettingsData,
+  selectUrl
+} from '../selectors/journals';
 import JournalsService from '../components/Journals/service';
 import EditorService from '../components/Journals/service/editors/EditorService';
 import {
@@ -1036,6 +1043,23 @@ function* sagaExecJournalAction({ api, logger, w, stateId }, { payload }) {
   }
 }
 
+function* sagaResetFiltering({ logger, w, stateId }) {
+  try {
+    const {
+      originGridSettings: { predicate }
+    } = yield select(selectSettingsData, stateId);
+    const maxItems = yield select(selectGridPaginationMaxItems, stateId);
+    const pagination = { ...DEFAULT_PAGINATION, maxItems };
+    const predicates = predicate ? [predicate] : [];
+
+    yield put(setPredicate(w(predicate)));
+    yield put(setJournalSetting(w({ predicate })));
+    yield put(reloadGrid(w({ predicates, pagination })));
+  } catch (e) {
+    logger.error('[journals sagaResetFiltering saga error', e);
+  }
+}
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1055,6 +1079,7 @@ function* saga(ea) {
   yield takeEvery(deleteJournalSetting().type, wrapSaga, { ...ea, saga: sagaDeleteJournalSetting });
   yield takeEvery(renameJournalSetting().type, wrapSaga, { ...ea, saga: sagaRenameJournalSetting });
   yield takeEvery(applyJournalSetting().type, wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
+  yield takeEvery(resetFiltering().type, wrapSaga, { ...ea, saga: sagaResetFiltering });
   yield takeEvery(execJournalAction().type, wrapSaga, { ...ea, saga: sagaExecJournalAction });
 
   yield takeEvery(openSelectedJournalSettings().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournalSettings });

@@ -9,6 +9,7 @@ import {
   execRecordsAction,
   getJournalsData,
   reloadGrid,
+  resetFiltering,
   runSearch,
   saveJournalSetting,
   selectJournalSettings,
@@ -45,6 +46,7 @@ function mapDispatchToProps(dispatch, props) {
 
   return {
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
+    resetFiltering: () => dispatch(resetFiltering(w())),
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
@@ -188,6 +190,10 @@ class TableView extends React.Component {
     }
   };
 
+  handleResetFilter = () => {
+    this.props.resetFiltering();
+  };
+
   render() {
     const { isClose } = this.state;
 
@@ -213,6 +219,7 @@ class TableView extends React.Component {
       journalConfig,
       grid,
       isLoading,
+      isFilterOn,
       selectedRecords,
       selectAllRecordsVisible,
       selectAllRecords,
@@ -261,11 +268,13 @@ class TableView extends React.Component {
             isDocLibEnabled={isDocLibEnabled}
             isCreateLoading={isCreateLoading}
             isLoading={isLoading}
+            isShowResetFilter={isFilterOn}
             onRefresh={this.handleRefresh}
             onSearch={this.handleSearch}
             onToggleSettings={this.handleToggleSettings}
             onToggleViewMode={toggleViewMode}
             onAddRecord={this.handleAddRecord}
+            onResetFilter={this.handleResetFilter}
           />
 
           {displayElements.groupActions && (

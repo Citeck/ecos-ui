@@ -188,6 +188,7 @@ export const selectJournalPageProps = createSelector(
     selectAllRecords: ownState.selectAllRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     isLoading: ownState.loading,
+    isFilterOn: !isEqual(settingsFiltersData.predicate, settingsData.originGridSettings.predicate),
     urlParams,
     journalSetting,
     settingsFiltersData,
