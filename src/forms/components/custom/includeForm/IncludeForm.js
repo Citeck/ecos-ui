@@ -1,6 +1,6 @@
 import { t } from '../../../../helpers/util';
-import BaseComponent from '../base/BaseComponent';
 import Records from '../../../../components/Records';
+import BaseComponent from '../base/BaseComponent';
 
 export default class IncludeFormComponent extends BaseComponent {
   static schema(...extend) {

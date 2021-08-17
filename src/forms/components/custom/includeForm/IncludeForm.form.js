@@ -2,6 +2,7 @@ export default function() {
   return {
     components: [
       {
+        weight: 0,
         label: {
           ru: 'HTML'
         },
@@ -15,6 +16,7 @@ export default function() {
         input: false
       },
       {
+        weight: 10,
         label: {
           ru: 'Select Form'
         },
