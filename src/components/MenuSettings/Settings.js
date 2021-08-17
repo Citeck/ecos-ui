@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { getAuthorityInfoByRefs, saveMenuSettings } from '../../actions/menuSettings';
+import { saveMenuSettings } from '../../actions/menuSettings';
 import { t } from '../../helpers/util';
 import { goToAdminPage } from '../../helpers/urls';
 import { SystemJournals } from '../../constants';
@@ -13,13 +13,13 @@ import { MenuSettings, MenuTypes } from '../../constants/menu';
 import MenuSettingsService from '../../services/MenuSettingsService';
 import { EcosModal, Loader, Tabs } from '../common';
 import { Btn, IcoBtn } from '../common/btns';
-import { SelectOrgstruct } from '../common/form';
-import { GroupTypes, ViewModes } from '../common/form/SelectOrgstruct/constants';
+import DialogManager from '../common/dialogs/Manager';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Labels } from './utils';
 import EditorLeftMenu from './editorMenu/EditorLeftMenu';
 import EditorCreateMenu from './editorMenu/EditorCreateMenu';
 import EditorGroupPriority from './EditorGroupPriority';
+import EditorOwnership from './editorMenu/EditorOwnership';
 
 import './style.scss';
 
@@ -55,10 +55,6 @@ class Settings extends React.Component {
     }
   }
 
-  get authorityRefs() {
-    return this.props.authorities.map(item => item.ref || item.name);
-  }
-
   get mainTabs() {
     return [
       { id: 'settings-menu-config', label: t(Labels.TAB_LEFT_MENU), _render: 'renderMenuConfigTab' },
@@ -89,15 +85,21 @@ class Settings extends React.Component {
   };
 
   handleApply = () => {
-    this.props.saveSettings();
+    const { authorities } = this.props;
+
+    if (isEmpty(authorities)) {
+      DialogManager.confirmDialog({
+        title: Labels.DIALOG_FOR_ALL_TITLE,
+        text: Labels.DIALOG_ORG_STRUCT_TEXT,
+        onYes: () => this.props.saveSettings()
+      });
+    } else {
+      this.props.saveSettings();
+    }
   };
 
   setData = data => {
     this.setState(data);
-  };
-
-  handleSelectOrg = data => {
-    this.props.getAuthorityInfoByRefs(data);
   };
 
   handleClickTab = (selectedTab = 0) => {
@@ -126,8 +128,6 @@ class Settings extends React.Component {
   };
 
   renderMenuConfigTab = key => {
-    const { disabledEdit } = this.props;
-
     return (
       <ErrorBoundary
         key={key}
@@ -144,18 +144,7 @@ class Settings extends React.Component {
           </div>
           <div>
             <div className="ecos-menu-settings__title">{t(Labels.TITLE_OWNERSHIP)}</div>
-            <div className="ecos-menu-settings-ownership">
-              <SelectOrgstruct
-                defaultValue={this.authorityRefs}
-                multiple
-                onChange={this.handleSelectOrg}
-                isSelectedValueAsText
-                viewOnly={disabledEdit}
-                viewModeType={ViewModes.LINE_SEPARATED}
-                allowedGroupTypes={Object.values(GroupTypes)}
-                isIncludedAdminGroup
-              />
-            </div>
+            <EditorOwnership />
           </div>
         </div>
       </ErrorBoundary>
@@ -265,14 +254,13 @@ const mapStateToProps = state => ({
   isAdmin: get(state, 'user.isAdmin'),
   type: get(state, 'menu.type') || MenuTypes.LEFT,
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
-  authorities: get(state, 'menuSettings.authorities') || [],
   isLoading: get(state, 'menuSettings.isLoading'),
-  editedId: get(state, 'menuSettings.editedId')
+  editedId: get(state, 'menuSettings.editedId'),
+  authorities: get(state, 'menuSettings.authorities') || []
 });
 
 const mapDispatchToProps = dispatch => ({
-  saveSettings: payload => dispatch(saveMenuSettings(payload)),
-  getAuthorityInfoByRefs: payload => dispatch(getAuthorityInfoByRefs(payload))
+  saveSettings: payload => dispatch(saveMenuSettings(payload))
 });
 
 export default connect(

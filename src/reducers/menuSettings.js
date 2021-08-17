@@ -10,6 +10,7 @@ import {
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
+  setIsForAll,
   setLastAddedLeftItems,
   setLeftMenuItems,
   setLoading,
@@ -32,7 +33,8 @@ const initialState = {
   isOpenMenuSettings: false,
   lastAddedLeftItems: [],
   lastAddedCreateItems: [],
-  fontIcons: []
+  fontIcons: [],
+  isForAll: false
 };
 
 Object.freeze(initialState);
@@ -84,6 +86,10 @@ export default handleActions(
     [setAuthorities]: (state, { payload }) => ({
       ...state,
       authorities: payload
+    }),
+    [setIsForAll]: (state, { payload }) => ({
+      ...state,
+      isForAll: payload
     }),
     [setMenuIcons]: (state, { payload }) => ({
       ...state,

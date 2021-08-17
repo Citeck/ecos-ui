@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../helpers/util';
-import { ConfigTypes, MenuSettings as ms } from '../constants/menu';
+import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import {
@@ -17,6 +17,7 @@ import {
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
+  setIsForAll,
   setLastAddedCreateItems,
   setLastAddedLeftItems,
   setLeftMenuItems,
@@ -43,12 +44,14 @@ function* fetchSettingsConfig({ api, logger }) {
     const icons = get(_font, 'icons') || [];
     const prefix = get(_font, 'preferences.fontPref.prefix') || '';
     const font = icons.map(item => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
+    const authorities = config.authorities.filter(item => item.name !== GROUP_EVERYONE);
 
     yield put(setOriginalConfig(config));
     yield put(setLeftMenuItems(leftItems));
     yield put(setCreateMenuItems(createItems));
-    yield put(setAuthorities(config.authorities));
+    yield put(setAuthorities(authorities));
     yield put(setMenuIcons({ font }));
+    yield put(setIsForAll(!authorities.length));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
