@@ -20,7 +20,6 @@ import {
 } from '../../../actions/journals';
 import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
 import { JournalUrlParams as JUP } from '../../../constants';
-import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import FormManager from '../../EcosForm/FormManager';
@@ -60,11 +59,6 @@ function mapDispatchToProps(dispatch, props) {
     selectJournalSettings: id => dispatch(selectJournalSettings(w(id)))
   };
 }
-
-const Labels = {
-  J_SHOW_MENU: 'journals.action.show-menu',
-  J_SHOW_MENU_SM: 'journals.action.show-menu_sm'
-};
 
 class TableView extends React.Component {
   state = {
@@ -202,6 +196,8 @@ class TableView extends React.Component {
     }
 
     const {
+      Header,
+
       viewMode,
       stateId,
       isMobile,
@@ -211,7 +207,6 @@ class TableView extends React.Component {
       footerForwardedRef,
       pageTabsIsShow,
       bodyClassName,
-      Header,
       isActivePage,
       displayElements = {},
       isDocLibEnabled,
@@ -242,7 +237,8 @@ class TableView extends React.Component {
         })}
       >
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          <Header title={get(journalConfig, 'meta.title', '')} labelBtnMenu={isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU)} />
+          {/*todo common with kanban*/}
+          <Header title={get(journalConfig, 'meta.title', '')} />
 
           <SettingsModal
             {...settingsData}

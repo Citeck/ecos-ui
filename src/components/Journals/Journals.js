@@ -19,10 +19,10 @@ import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions';
 
-import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM } from './constants';
+import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
-import { DocLibView, TableView } from './Views';
+import { DocLibView, TableView, KanbanView } from './Views';
 
 import './style.scss';
 
@@ -58,10 +58,11 @@ const defaultDisplayElements = {
   editJournal: true
 };
 
-const Labels = {
-  [JVM.PREVIEW]: 'doc-preview.preview',
-  [JVM.TABLE]: 'journal.title',
-  [JVM.DOC_LIB]: 'document-library.title'
+const ViewLabels = {
+  [JVM.PREVIEW]: Labels.V_PREVIEW,
+  [JVM.TABLE]: Labels.V_JOURNAL,
+  [JVM.DOC_LIB]: Labels.V_DOCLIB,
+  [JVM.KANBAN]: Labels.V_KANBAN
 };
 
 class Journals extends React.Component {
@@ -285,7 +286,7 @@ class Journals extends React.Component {
         <div onClick={this.handleDisplayConfigPopup}>
           <JournalsHead
             title={props.title}
-            labelBtnMenu={props.labelBtnMenu}
+            labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU))}
             isOpenMenu={menuOpen}
             isMobile={isMobile}
             hasBtnMenu={this.displayElements.menu}
@@ -323,7 +324,7 @@ class Journals extends React.Component {
 
   UnavailableView = () => {
     const { viewMode } = this.props;
-    const name = t(Labels[viewMode]);
+    const name = t(ViewLabels[viewMode]);
 
     return (
       <div className="alert alert-secondary" role="alert">
@@ -347,6 +348,7 @@ class Journals extends React.Component {
         >
           <TableView {...this.commonProps} {...this.tableProps} />
           <DocLibView {...this.commonProps} />
+          <KanbanView {...this.commonProps} />
           <this.RightMenu />
         </div>
       </ReactResizeDetector>

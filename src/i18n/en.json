@@ -762,6 +762,10 @@
   "journals.bar.btn.export": "Export",
   "journals.bar.btn.update": "Update data",
   "journals.bar.btn.filter-del": "Reset filtration",
+  "journals.view.journal": "Journal",
+  "journals.view.journal-preview": "Preview",
+  "journals.view.document-library": "Document library",
+  "journals.view.kanban": "Kanban",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 

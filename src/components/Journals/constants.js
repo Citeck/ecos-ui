@@ -22,12 +22,23 @@ export const JOURNAL_MIN_HEIGHT = 300;
 export const JOURNAL_VIEW_MODE = {
   TABLE: 'table',
   PREVIEW: 'table-preview',
-  DOC_LIB: 'document-library'
+  DOC_LIB: 'document-library',
+  KANBAN: 'kanban'
+};
+
+export const Labels = {
+  J_SHOW_MENU: 'journals.action.show-menu',
+  J_SHOW_MENU_SM: 'journals.action.show-menu_sm',
+  V_JOURNAL: 'journals.view.label.journal',
+  V_PREVIEW: 'journals.view.label.journal-preview',
+  V_DOCLIB: 'journals.view.label.document-library',
+  V_KANBAN: 'journals.view.label.kanban'
 };
 
 export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;
 export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
+export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
 export const isTableOrPreview = vm => isTable(vm) || isPreview(vm);
 
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';

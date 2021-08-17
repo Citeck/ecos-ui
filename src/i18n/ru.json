@@ -762,6 +762,10 @@
   "journals.bar.btn.export": "Экспорт",
   "journals.bar.btn.update": "Обновить данные",
   "journals.bar.btn.filter-del": "Сбросить фильтры",
+  "journals.view.label.journal": "Журнал",
+  "journals.view.label.journal-preview": "Предпросмотр",
+  "journals.view.label.document-library": "Библиотека документов",
+  "journals.view.label.kanban": "Канбан",
 
   "journals.formatter.action.execution-error": "Действие не может быть выполнено",
 

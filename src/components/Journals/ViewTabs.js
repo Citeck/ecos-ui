@@ -13,7 +13,7 @@ import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 import { updateCurrentUrl } from '../../helpers/urls';
 import { JournalUrlParams } from '../../constants';
-import { isDocLib, isPreview, isTable, JOURNAL_VIEW_MODE as JVM } from './constants';
+import { isDocLib, isKanban, isPreview, isTable, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 
 const mapStateToProps = (state, props) => {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
@@ -31,12 +31,6 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode })))
   };
-};
-
-const Labels = {
-  BTN_JOURNAL: 'journal.title',
-  BTN_PREVIEW: 'doc-preview.preview',
-  BTN_DOCLIB: 'document-library.title'
 };
 
 class ViewTabs extends React.Component {
@@ -71,12 +65,13 @@ class ViewTabs extends React.Component {
     const isPreviewMode = isPreview(viewMode);
     const isTableMode = isTable(viewMode);
     const isDocLibMode = isDocLib(viewMode);
+    const isKanbanMode = isKanban(viewMode);
 
     return (
       <div className="ecos-journal__view-tabs">
         {!isMobile && (
           <>
-            <Tooltip off={isMobile} target="ecos-journal-view-table" text={t(Labels.BTN_JOURNAL)} uncontrolled>
+            <Tooltip off={isMobile} target="ecos-journal-view-table" text={t(Labels.V_JOURNAL)} uncontrolled>
               <IcoBtn
                 id="ecos-journal-view-table"
                 icon="icon-list"
@@ -87,7 +82,7 @@ class ViewTabs extends React.Component {
                 onClick={() => this.onToggleViewMode(JVM.TABLE)}
               />
             </Tooltip>
-            <Tooltip off={isMobile} target="ecos-journal-view-preview" text={t(Labels.BTN_PREVIEW)} uncontrolled>
+            <Tooltip off={isMobile} target="ecos-journal-view-preview" text={t(Labels.V_PREVIEW)} uncontrolled>
               <IcoBtn
                 id="ecos-journal-view-preview"
                 icon="icon-columns"
@@ -98,10 +93,21 @@ class ViewTabs extends React.Component {
                 onClick={() => this.onToggleViewMode(JVM.PREVIEW)}
               />
             </Tooltip>
+            <Tooltip off={isMobile} target="ecos-journal-view-kanban" text={t(Labels.V_KANBAN)} uncontrolled>
+              <IcoBtn
+                id="ecos-journal-view-kanban"
+                icon="i-leftmenu-workflows"
+                className={classNames(common, {
+                  [available]: isKanbanMode,
+                  [disable]: !isKanbanMode
+                })}
+                onClick={() => this.onToggleViewMode(JVM.KANBAN)}
+              />
+            </Tooltip>
           </>
         )}
         {isDocLibEnabled && (
-          <Tooltip off={isMobile} target="ecos-journal-view-doc-lib" text={t(Labels.BTN_DOCLIB)} uncontrolled>
+          <Tooltip off={isMobile} target="ecos-journal-view-doc-lib" text={t(Labels.V_DOCLIB)} uncontrolled>
             <IcoBtn
               id="ecos-journal-view-doc-lib"
               icon="icon-folder"
