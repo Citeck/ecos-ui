@@ -10,6 +10,7 @@ import BaseWidget from '../BaseWidget';
 import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
+import Settings from './Settings';
 
 // Все задачи
 class CurrentTasksDashlet extends BaseWidget {
@@ -44,27 +45,56 @@ class CurrentTasksDashlet extends BaseWidget {
       ...this.state,
       isSmallMode: false,
       totalCount: 0,
-      isLoading: true
+      isLoading: true,
+      isOpenSettings: false
     };
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
+  }
+
+  get actions() {
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: () => this.reload()
+      },
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.onToggleSettings
+      }
+    };
   }
 
   onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
+  onToggleSettings = () => {
+    this.setState(state => ({ isOpenSettings: !state.isOpenSettings }));
+  };
+
+  onSaveSettings = settings => {
+    console.warn({ settings });
+
+    this.setState({
+      isOpenSettings: false
+    });
+  };
+
   setInfo = data => {
     this.setState(data);
   };
 
+  renderSettings() {
+    const { isOpenSettings } = this.state;
+
+    if (!isOpenSettings) {
+      return null;
+    }
+
+    return <Settings isOpen onHide={this.onToggleSettings} onSave={this.onSaveSettings} />;
+  }
+
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading } = this.state;
-    const actions = {
-      [DAction.Actions.RELOAD]: {
-        onClick: () => this.reload()
-      }
-    };
 
     return (
       <Dashlet
@@ -73,7 +103,7 @@ class CurrentTasksDashlet extends BaseWidget {
         className={classNames('ecos-current-task-list-dashlet', classNameDashlet)}
         resizable
         contentMaxHeight={this.clientHeight}
-        actionConfig={actions}
+        actionConfig={this.actions}
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
@@ -98,6 +128,8 @@ class CurrentTasksDashlet extends BaseWidget {
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
         />
+
+        {this.renderSettings()}
       </Dashlet>
     );
   }
