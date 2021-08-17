@@ -36,6 +36,7 @@ import SelectOrgstruct from './custom/selectOrgstruct';
 import TableForm from './custom/tableForm';
 import TaskOutcome from './custom/taskOutcome/index';
 import ImportButton from './custom/importButton';
+import IncludeForm from './custom/includeForm';
 
 import { prepareComponents } from '../utils';
 
@@ -77,7 +78,8 @@ const components = {
   url: Url,
   hidden: Hidden,
   importButton: ImportButton,
-  datagrid: DataGrid
+  datagrid: DataGrid,
+  includeForm: IncludeForm
 };
 
 Components.setComponents(prepareComponents(components));

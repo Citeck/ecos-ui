@@ -433,6 +433,7 @@
   "eform.modal.title.constructor": "Конструктор формы",
   "eform.modal.title.edit-locale": "Редактирование локализации",
   "eform.form-is-not-ready": "Форма не готова к отправке",
+  "ecos.forms.include-form.label.form": "Форма: {{name}}",
 
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",

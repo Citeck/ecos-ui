@@ -433,6 +433,7 @@
   "eform.modal.title.constructor": "Form Builder",
   "eform.modal.title.edit-locale": "Edit Locale",
   "eform.form-is-not-ready": "Form is not ready",
+  "ecos.forms.include-form.label.form": "Form: {{name}}",
 
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
