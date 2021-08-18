@@ -1,17 +1,32 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
-function mapStateToProps(state) {
-  return {};
+import { extractLabel } from '../../../helpers/util';
+import { selectBoardConfig } from '../../../selectors/kanban';
+
+import './style.scss';
+
+function mapStateToProps(state, props) {
+  return selectBoardConfig(state, props.stateId);
 }
 
 function mapDispatchToProps(dispatch) {
   return {};
 }
 
-class Kanban extends Component {
+class Kanban extends React.Component {
   render() {
-    return <div />;
+    const { columns = [] } = this.props;
+
+    return (
+      <div className="ecos-kanban">
+        {columns.map(col => (
+          <div className="ecos-kanban__column" key={col.id}>
+            <div className="ecos-kanban__column-name">{extractLabel(col.name)}</div>
+          </div>
+        ))}
+      </div>
+    );
   }
 }
 

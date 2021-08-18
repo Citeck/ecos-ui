@@ -1,0 +1,10 @@
+@import '../../../styles/constants';
+
+.ecos-kanban {
+  display: flex;
+  flex-direction: row;
+
+  &__column {
+    flex: auto;
+  }
+}

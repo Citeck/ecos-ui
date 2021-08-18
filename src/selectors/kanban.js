@@ -6,17 +6,17 @@ export const selectKanban = (state, key) => get(state, ['kanban', key]) || { ...
 
 export const selectBoardList = createSelector(
   selectKanban,
-  state => get(state, 'boardList')
+  state => get(state, 'boardList') || []
 );
 
 export const selectBoardConfig = createSelector(
   selectKanban,
-  state => get(state, 'boardConfig')
+  state => get(state, 'boardConfig') || {}
 );
 
 export const selectIsKanbanEnabled = createSelector(
   selectKanban,
-  state => get(state, 'isEnabled')
+  state => get(state, 'isEnabled') || false
 );
 
 export const selectKanbanPageProps = createSelector(

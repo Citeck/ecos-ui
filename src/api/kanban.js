@@ -18,7 +18,15 @@ export class KanbanApi {
       actions: ['uiserv/action@some-action'], // действия
       columns: [
         {
-          id: 'some-id',
+          id: 'some-id1',
+          name: { ru: 'Русское имя', en: 'English name' }
+        },
+        {
+          id: 'some-id2',
+          name: { ru: 'Русское имя', en: 'English name' }
+        },
+        {
+          id: 'some-id3',
           name: { ru: 'Русское имя', en: 'English name' }
         }
       ]

@@ -12,6 +12,7 @@ import ViewTabs from '../ViewTabs';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { getBoardConfig } from '../../../actions/kanban';
 import { Loader } from '../../common';
+import Kanban from '../Kanban';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
@@ -63,7 +64,10 @@ class KanbanView extends React.Component {
         <div>
           <ViewTabs stateId={stateId} />
         </div>
-        <div>{isLoading && <Loader />}</div>
+        <div>
+          {isLoading && <Loader />}
+          <Kanban stateId={stateId} />
+        </div>
       </div>
     );
   }
