@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import { FormGroup, Collapse, Alert, Table } from 'reactstrap';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { FormGroup, Collapse, Alert, Table, FormText } from 'reactstrap';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import moment from 'moment';
 
 import { EcosModal, Icon } from '../../common';
 import { Input, Label } from '../../common/form';
@@ -12,15 +14,26 @@ import { DateFormats } from '../../../constants';
 import { settingsInfoExamples } from './utils';
 
 const Labels = {
+  WIDGET_NAME: 'current-tasks-widget.title',
+  WIDGET_LABEL: 'widget-settings.title',
   CANCEL_BUTTON: 'btn.cancel.label',
-  OK_BUTTON: 'btn.apply.label'
+  OK_BUTTON: 'btn.apply.label',
+  EXAMPLE_DATE_FORMAT: 'current-tasks-widget.settings.example-format',
+  DATE_FORMAT_TITLE: 'current-tasks-widget.settings.date-format.title',
+  MORE_LABEL: 'current-tasks-widget.settings.info.more.label',
+  INFO_DESCRIPTION: 'current-tasks-widget.settings.info.description'
 };
 
-class Settings extends Component {
-  static propTypes = {};
+class Settings extends React.Component {
+  static propTypes = {
+    isOpen: PropTypes.bool,
+    settings: PropTypes.object,
+    onHide: PropTypes.func,
+    onSave: PropTypes.func
+  };
 
   static defaultProps = {
-    title: 'Настройки виджета'
+    settings: {}
   };
 
   #key = getId();
@@ -29,16 +42,17 @@ class Settings extends Component {
     super(props);
 
     this.state = {
-      format: get(props, 'format', DateFormats.DATE),
+      dateFormat: get(props, 'settings.dateFormat', DateFormats.DATE),
       isOpenInfo: false
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { format } = this.state;
+    const { settings } = this.props;
+    const { dateFormat } = this.state;
 
-    if (isEqual(format, prevState.format) && !isEqual(prevProps.format, this.props.format)) {
-      this.setState({ format: this.props.format });
+    if (isEqual(dateFormat, prevState.dateFormat) && !isEqual(prevProps.settings.dateFormat, settings.dateFormat)) {
+      this.setState({ dateFormat: settings.dateFormat });
     }
   }
 
@@ -47,9 +61,9 @@ class Settings extends Component {
   }
 
   handleChangeFormat = e => {
-    const format = get(e, 'target.value', '');
+    const dateFormat = get(e, 'target.value', '');
 
-    this.setState({ format });
+    this.setState({ dateFormat });
   };
 
   handleToggleInfo = () => {
@@ -58,10 +72,10 @@ class Settings extends Component {
 
   handleSaveSettings = () => {
     const { onSave } = this.props;
-    const { format } = this.state;
+    const { dateFormat } = this.state;
 
     if (isFunction(onSave)) {
-      onSave({ format });
+      onSave({ dateFormat });
     }
   };
 
@@ -71,10 +85,10 @@ class Settings extends Component {
     return (
       <Collapse isOpen={isOpenInfo}>
         <Alert color="info">
-          {'Примеры формата данных для moment.js'}
+          {t(Labels.INFO_DESCRIPTION)}
           <br />
           <a href="https://momentjs.com/docs/#/parsing/string-format/" target="_blank" rel="noopener noreferrer">
-            Подробнее
+            {t(Labels.MORE_LABEL)}
           </a>
         </Alert>
 
@@ -89,7 +103,7 @@ class Settings extends Component {
             </thead>
             <tbody>
               {settingsInfoExamples.map(item => (
-                <tr>
+                <tr key={item.input}>
                   <td className="text-right">{item.input}</td>
                   <td>{item.example}</td>
                   <td>{item.description}</td>
@@ -103,20 +117,27 @@ class Settings extends Component {
   }
 
   render() {
-    const { title, isOpen, onHide } = this.props;
-    const { format } = this.state;
+    const { isOpen, onHide } = this.props;
+    const { dateFormat } = this.state;
 
     return (
-      <EcosModal title={title} isOpen={isOpen} size="md" hideModal={onHide} className="ecos-current-task-settings">
+      <EcosModal
+        title={t(Labels.WIDGET_LABEL, { title: t(Labels.WIDGET_NAME) })}
+        isOpen={isOpen}
+        size="md"
+        hideModal={onHide}
+        className="ecos-current-task-settings"
+      >
         <FormGroup>
           <Label htmlFor={this.formatElementId}>
-            {'Формат даты'}
+            {t(Labels.DATE_FORMAT_TITLE)}
             <Icon className="icon-question ecos-current-task-settings__info-icon" onClick={this.handleToggleInfo} />
           </Label>
 
           {this.renderInfo()}
 
-          <Input id={this.formatElementId} value={format} onChange={this.handleChangeFormat} clear />
+          <Input id={this.formatElementId} value={dateFormat} onChange={this.handleChangeFormat} clear />
+          <FormText color="muted">{t(Labels.EXAMPLE_DATE_FORMAT, { format: moment().format(dateFormat) })}</FormText>
         </FormGroup>
 
         <FormGroup className="d-flex justify-content-end mb-0">
