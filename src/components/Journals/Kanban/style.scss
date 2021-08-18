@@ -6,5 +6,40 @@
 
   &__column {
     flex: auto;
+    word-break: break-all;
+
+    &:not(:first-child) {
+      margin-left: 20px;
+    }
+
+    &-name {
+      padding: 5px 10px;
+      box-shadow: none;
+
+      &-caption {
+        display: inline-block;
+        margin-right: 10px;
+      }
+    }
+
+    &-card {
+      margin-top: 10px;
+      padding: 0 10px 10px;
+
+      &-caption {
+        display: flex;
+        margin-bottom: 10px;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      &-action {
+        &-list {
+          & :not(:first-child) {
+            margin-left: 10px;
+          }
+        }
+      }
+    }
   }
 }

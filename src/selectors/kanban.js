@@ -28,3 +28,11 @@ export const selectKanbanPageProps = createSelector(
     isEnabled: data.isEnabled
   })
 );
+
+export const selectKanbanProps = createSelector(
+  selectKanban,
+  data => ({
+    ...data.boardConfig,
+    isLoading: data.isLoading
+  })
+);

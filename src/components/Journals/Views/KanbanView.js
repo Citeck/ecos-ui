@@ -55,7 +55,7 @@ class KanbanView extends React.Component {
   }
 
   render() {
-    const { Header, boardConfig, isLoading, stateId, viewMode, bodyForwardedRef, bodyClassName } = this.props;
+    const { Header, boardConfig, stateId, viewMode, bodyForwardedRef, bodyClassName } = this.props;
     const { name } = boardConfig || {};
 
     return (
@@ -65,7 +65,6 @@ class KanbanView extends React.Component {
           <ViewTabs stateId={stateId} />
         </div>
         <div>
-          {isLoading && <Loader />}
           <Kanban stateId={stateId} />
         </div>
       </div>
