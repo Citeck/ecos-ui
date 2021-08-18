@@ -20,11 +20,12 @@ function mapDispatchToProps(dispatch) {
 }
 
 class Kanban extends React.Component {
+  //todooo grid?
   renderHeaderCol = data => {
     return (
       <TitlePageLoader isReady={!!data.name} withBadge>
-        <Caption middle className="ecos-kanban__column-name-caption">
-          {extractLabel(data.name)}
+        <Caption small className="ecos-kanban__column-name-caption">
+          {extractLabel(data.name).toUpperCase()}
         </Caption>
         <Badge text={10} />
       </TitlePageLoader>
@@ -56,7 +57,7 @@ class Kanban extends React.Component {
     return (
       <div className="ecos-kanban__column" key={data.id}>
         <Panel className="ecos-kanban__column-name" header={this.renderHeaderCol(data)} noChild />
-        <div className="ecos-kanban__card-list">{cards.map(this.renderCard)}</div>
+        <div className="ecos-kanban__column-card-list">{cards.map(this.renderCard)}</div>
       </div>
     );
   };
@@ -68,7 +69,7 @@ class Kanban extends React.Component {
       <Panel key={data.id} className="ecos-kanban__column-card" header={this.renderHeaderCard(data)}>
         <EcosForm
           record={'uiserv/form@ECOSUI1242CARD'}
-          formId={'uiserv/form@ECOSUI1242CARD'}
+          formId={cardFormRef}
           options={{
             readOnly: true,
             viewAsHtml: true,
@@ -92,9 +93,13 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns = Array(3).fill({}) } = this.props;
+    const { columns = Array(3).fill({}), maxHeight } = this.props;
 
-    return <div className="ecos-kanban">{columns.map(this.renderColumn)}</div>;
+    return (
+      <div className="ecos-kanban" style={{ maxHeight }}>
+        {columns.map(this.renderColumn)}
+      </div>
+    );
   }
 }
 

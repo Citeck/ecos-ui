@@ -15,7 +15,7 @@ export class KanbanApi {
       typeRef: 'emodel/type@some-type', // ссылка на тип
       journalRef: 'uiserv/journal@some-journal', // ссылка на журнал
       cardFormRef: 'uiserv/form@ECOSUI1242CARD', // ссылка на форму для карточки
-      actions: ['uiserv/action@some-action'], // действия
+      actions: ['uiserv/action@edit-json', 'uiserv/action@activity-action'], // действия
       columns: [
         {
           id: 'some-id1',

@@ -354,7 +354,7 @@ class Journals extends React.Component {
         >
           <TableView {...this.commonProps} {...this.tableProps} />
           <DocLibView {...this.commonProps} />
-          <KanbanView {...this.commonProps} />
+          <KanbanView {...this.commonProps} maxHeight={this.getJournalContentMaxHeight()} />
           <this.RightMenu />
         </div>
       </ReactResizeDetector>

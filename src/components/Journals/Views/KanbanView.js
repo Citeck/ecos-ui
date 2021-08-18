@@ -11,8 +11,9 @@ import { isKanban } from '../constants';
 import ViewTabs from '../ViewTabs';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { getBoardConfig } from '../../../actions/kanban';
-import { Loader } from '../../common';
 import Kanban from '../Kanban';
+
+import '../style.scss';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
@@ -55,17 +56,33 @@ class KanbanView extends React.Component {
   }
 
   render() {
-    const { Header, boardConfig, stateId, viewMode, bodyForwardedRef, bodyClassName } = this.props;
+    const {
+      Header,
+      UnavailableView,
+      boardConfig,
+      stateId,
+      isLoading,
+      isEnabled,
+      viewMode,
+      bodyForwardedRef,
+      bodyTopForwardedRef,
+      bodyClassName,
+      maxHeight
+    } = this.props;
     const { name } = boardConfig || {};
 
     return (
       <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
-        <Header title={name} />
-        <div>
-          <ViewTabs stateId={stateId} />
+        <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
+          <Header title={name} />
+          <div>
+            <ViewTabs stateId={stateId} />
+          </div>
         </div>
+
         <div>
-          <Kanban stateId={stateId} />
+          {!isEnabled && !isLoading && <UnavailableView />}
+          <Kanban stateId={stateId} maxHeight={maxHeight} />
         </div>
       </div>
     );
