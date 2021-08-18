@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
@@ -10,7 +11,6 @@ import BaseWidget from '../BaseWidget';
 import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
-import Settings from './Settings';
 
 // Все задачи
 class CurrentTasksDashlet extends BaseWidget {
@@ -71,30 +71,24 @@ class CurrentTasksDashlet extends BaseWidget {
   };
 
   onSaveSettings = settings => {
-    console.warn({ settings });
+    const { id, onSave } = this.props;
 
     this.setState({
       isOpenSettings: false
     });
+
+    if (isFunction(onSave)) {
+      onSave(id, { config: { settings } });
+    }
   };
 
   setInfo = data => {
     this.setState(data);
   };
 
-  renderSettings() {
-    const { isOpenSettings } = this.state;
-
-    if (!isOpenSettings) {
-      return null;
-    }
-
-    return <Settings isOpen onHide={this.onToggleSettings} onSave={this.onSaveSettings} />;
-  }
-
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading } = this.state;
+    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading, isOpenSettings } = this.state;
 
     return (
       <Dashlet
@@ -127,9 +121,10 @@ class CurrentTasksDashlet extends BaseWidget {
           setInfo={this.setInfo}
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
+          isOpenSettings={isOpenSettings}
+          onSaveSettings={this.onSaveSettings}
+          onToggleSettings={this.onToggleSettings}
         />
-
-        {this.renderSettings()}
       </Dashlet>
     );
   }

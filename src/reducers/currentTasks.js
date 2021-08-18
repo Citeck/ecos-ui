@@ -7,7 +7,8 @@ import {
   resetCurrentTaskList,
   setActions,
   setCurrentTaskList,
-  setInlineTools
+  setInlineTools,
+  setSettings
 } from '../actions/currentTasks';
 
 const commonInitialState = {};
@@ -22,12 +23,18 @@ const initialState = {
 
 export default handleActions(
   {
-    [initCurrentTasks]: (state, { payload: { stateId } }) => updateState(state, stateId, { ...initialState, isLoading: true }),
+    [initCurrentTasks]: (state, { payload: { stateId, initData = {} } }) =>
+      updateState(state, stateId, {
+        ...initialState,
+        ...initData,
+        isLoading: true
+      }),
     [getCurrentTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { list: [], totalCount: 0, isLoading: true }),
     [setCurrentTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
     [setActions]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),
     [setInlineTools]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),
-    [resetCurrentTaskList]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)
+    [resetCurrentTaskList]: (state, { payload: { stateId } }) => deleteStateById(state, stateId),
+    [setSettings]: (state, { payload: { stateId, settings } }) => updateState(state, stateId, { settings })
   },
   commonInitialState
 );

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
 import { executeAction, setInlineTools } from '../../../actions/currentTasks';
@@ -95,7 +96,8 @@ class CurrentTaskList extends React.Component {
   };
 
   renderTable() {
-    const { currentTasks } = this.props;
+    const { currentTasks, settings } = this.props;
+    const dateFormat = get(settings, 'dateFormat');
     const formatTasks = currentTasks.map((task, i) => ({
       id: task.id,
       [DC.title.key]: task[DC.title.key] || noData,
@@ -115,7 +117,7 @@ class CurrentTaskList extends React.Component {
           )}
         </React.Fragment>
       ),
-      [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData
+      [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key], { dateFormat }) || noData
     }));
 
     const cols = [DC.title, DC.actors, DC.deadline];

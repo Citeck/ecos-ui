@@ -62,6 +62,11 @@ export const settingsInfoExamples = [
     description: t(`Day of month`)
   },
   {
+    input: 'ddd dddd',
+    example: 'Mon...Sunday',
+    description: t(`Day name in locale set by moment.locale()`)
+  },
+  {
     input: 'H HH',
     example: '0..23',
     description: t(`Hours (24 hour time)`)
