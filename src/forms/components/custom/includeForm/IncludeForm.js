@@ -29,6 +29,12 @@ export default class IncludeFormComponent extends BaseComponent {
     return IncludeFormComponent.schema();
   }
 
+  build() {
+    if (this.options.builder) {
+      super.build();
+    }
+  }
+
   createLabel(container) {
     const resolve = name => {
       this.component.label = t('ecos.forms.include-form.label.form', { name });
