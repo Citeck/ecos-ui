@@ -205,7 +205,6 @@ class TableView extends React.Component {
       bodyForwardedRef,
       bodyTopForwardedRef,
       footerForwardedRef,
-      pageTabsIsShow,
       bodyClassName,
       isActivePage,
       displayElements = {},
@@ -228,14 +227,7 @@ class TableView extends React.Component {
     const { settingsVisible, isReset, isCreateLoading } = this.state;
 
     return (
-      <div
-        hidden={!isTableOrPreview(viewMode)}
-        ref={bodyForwardedRef}
-        className={classNames('ecos-journal__body', bodyClassName, {
-          'ecos-journal__body_with-tabs': pageTabsIsShow,
-          'ecos-journal__body_mobile': isMobile
-        })}
-      >
+      <div hidden={!isTableOrPreview(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
           {/*todo common with kanban*/}
           <Header title={get(journalConfig, 'meta.title', '')} />

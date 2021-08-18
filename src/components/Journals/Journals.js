@@ -11,6 +11,7 @@ import merge from 'lodash/merge';
 
 import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
 import { getTypeRef } from '../../actions/docLib';
+import { getBoardList } from '../../actions/kanban';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, t } from '../../helpers/util';
@@ -45,7 +46,8 @@ const mapDispatchToProps = (dispatch, props) => {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
-    getTypeRef: journalId => dispatch(getTypeRef(w({ journalId })))
+    getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
+    getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId }))
   };
 };
 
@@ -116,6 +118,7 @@ class Journals extends React.Component {
 
     if (journalId && journalId !== prevState.journalId) {
       this.props.getTypeRef(journalId);
+      this.props.getBoardList(journalId);
     }
 
     const isEqualQuery = equalsQueryUrls({
@@ -149,20 +152,23 @@ class Journals extends React.Component {
   }
 
   get commonProps() {
-    const { bodyClassName, stateId, isActivePage } = this.props;
+    const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile } = this.props;
     const { journalId } = this.state;
 
     return {
       stateId,
       journalId,
-      bodyClassName,
       isActivePage,
       Header: this.Header,
       UnavailableView: this.UnavailableView,
       displayElements: this.displayElements,
       bodyForwardedRef: this.setJournalBodyRef,
       bodyTopForwardedRef: this.setJournalBodyTopRef,
-      footerForwardedRef: this.setJournalFooterRef
+      footerForwardedRef: this.setJournalFooterRef,
+      bodyClassName: classNames('ecos-journal__body', bodyClassName, {
+        'ecos-journal__body_with-tabs': pageTabsIsShow,
+        'ecos-journal__body_mobile': isMobile
+      })
     };
   }
 

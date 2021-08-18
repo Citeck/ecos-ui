@@ -10,6 +10,7 @@ import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { getId } from '../helpers/util';
 import { selectIsDocLibEnabled } from './docLib';
+import { selectIsKanbanEnabled } from './kanban';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -199,10 +200,11 @@ export const selectJournalPageProps = createSelector(
 );
 
 export const selectCommonJournalPageProps = createSelector(
-  [selectState, selectUrl, selectIsDocLibEnabled],
-  (ownState, urlParams, isDocLibEnabled) => ({
+  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled],
+  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled) => ({
     viewMode: ownState.viewMode,
     urlParams,
-    isDocLibEnabled
+    isDocLibEnabled,
+    isKanbanEnabled
   })
 );

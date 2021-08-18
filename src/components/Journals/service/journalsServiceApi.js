@@ -5,7 +5,7 @@ class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
     return Records.queryOne(
       {
-        sourceId: 'uiserv/rjournal',
+        sourceId: SourcesId.RESOLVED_JOURNAL,
         query: { typeRef },
         language: 'by-type'
       },

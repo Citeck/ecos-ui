@@ -16,18 +16,26 @@
     display: block;
   }
 
-  &__view-tabs {
-    &-btn {
-      margin-left: 15px;
+  &__view {
+    &-tabs {
+      &-btn {
+        margin-left: 15px;
 
-      &_disabled {
-        pointer-events: none;
-        cursor: default;
+        &_disabled {
+          pointer-events: none;
+          cursor: default;
+        }
+      }
+
+      &_mobile &-btn {
+        margin-left: 10px;
       }
     }
 
-    &_mobile &-btn {
-      margin-left: 10px;
+    &-btn {
+      &_kanban {
+        transform: rotate(90deg);
+      }
     }
   }
 

@@ -1,60 +1,75 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
+import get from 'lodash/get';
+
+import { selectViewMode } from '../../../selectors/journals';
 import { isKanban } from '../constants';
 import ViewTabs from '../ViewTabs';
-import { selectViewMode } from '../../../selectors/journals';
+import { selectKanbanPageProps } from '../../../selectors/kanban';
+import { getBoardConfig } from '../../../actions/kanban';
+import { Loader } from '../../common';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
-  //todo test
+  const ownProps = selectKanbanPageProps(state, props.stateId);
+
   return {
     viewMode,
-    id: 'board-identifier', // идентификатор доски
-    name: { ru: 'Русское имя', en: 'English name' }, // имя доски для отображения
-    readOnly: true, // возможно ли перемещать сущности между статусами
-    typeRef: 'emodel/type@some-type', // ссылка на тип
-    journalRef: 'uiserv/journal@some-journal', // ссылка на журнал
-    cardFormRef: 'uiserv/form@some-form', // ссылка на форму для карточки
-    actions: ['uiserv/action@some-action'], // действия
-    columns: [
-      {
-        id: 'some-id',
-        name: { ru: 'Русское имя', en: 'English name' }
-      }
-    ] // настройка колонок
+    ...ownProps
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {};
+function mapDispatchToProps(dispatch, props) {
+  const stateId = props.stateId;
+
+  return {
+    getBoardConfig: boardId => dispatch(getBoardConfig({ boardId, stateId }))
+  };
 }
 
 class KanbanView extends React.Component {
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, stateId, journalId, urlParams = {} } = this.props;
+  state = {
+    isClose: true
+  };
 
-    if (!journalId || !isActivePage || !isKanban(viewMode)) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { isActivePage, viewMode, urlParams = {}, boardList } = this.props;
+
+    if (!isActivePage || !isKanban(viewMode)) {
       return;
     }
 
-    if (prevProps.journalId !== journalId || (stateId && prevProps.stateId !== stateId) || this.state.isClose) {
-      this.setState({ isClose: false }, () => console.log(111));
+    if (!isEqualWith(boardList, prevProps.boardList, isEqual) || (!isEmpty(boardList) && this.state.isClose)) {
+      const { boardId } = urlParams || get(boardList, '[0].id');
+      this.setState({ isClose: false }, () => this.props.getBoardConfig(boardId));
     }
   }
 
+  componentWillUnmount() {
+    this.setState({ isClose: true });
+  }
+
   render() {
-    const { Header, name, stateId, viewMode, bodyForwardedRef } = this.props;
+    const { Header, boardConfig, isLoading, stateId, viewMode, bodyForwardedRef, bodyClassName } = this.props;
+    const { name } = boardConfig || {};
 
     return (
-      <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef}>
+      <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <Header title={name} />
         <div>
           <ViewTabs stateId={stateId} />
         </div>
-        <div>kanban</div>
+        <div>{isLoading && <Loader />}</div>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps)(KanbanView);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(KanbanView);

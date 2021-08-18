@@ -57,9 +57,9 @@ import {
   selectDocLibSidebar,
   selectDocLibTypeRef
 } from '../selectors/docLib';
+import { selectJournalData, selectUrl } from '../selectors/journals';
 import { DocLibUrlParams } from '../constants';
 import { DEFAULT_DOCLIB_PAGINATION, NODE_TYPES } from '../constants/docLib';
-import { selectJournalData, selectUrl } from '../selectors/journals';
 import { t } from '../helpers/export/util';
 import { getSearchParams, getUrlWithoutOrigin, goToCardDetailsPage } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';

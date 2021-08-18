@@ -55,7 +55,7 @@ class ViewTabs extends React.Component {
   };
 
   render() {
-    const { isMobile, isDocLibEnabled, viewMode } = this.props;
+    const { isMobile, isDocLibEnabled, isKanbanEnabled, viewMode } = this.props;
     const common = classNames(
       'ecos-journal__view-tabs-btn ecos-btn_i ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue',
       { 'ecos-journal__view-tabs_mobile': isMobile }
@@ -93,18 +93,21 @@ class ViewTabs extends React.Component {
                 onClick={() => this.onToggleViewMode(JVM.PREVIEW)}
               />
             </Tooltip>
-            <Tooltip off={isMobile} target="ecos-journal-view-kanban" text={t(Labels.V_KANBAN)} uncontrolled>
-              <IcoBtn
-                id="ecos-journal-view-kanban"
-                icon="i-leftmenu-workflows"
-                className={classNames(common, {
-                  [available]: isKanbanMode,
-                  [disable]: !isKanbanMode
-                })}
-                onClick={() => this.onToggleViewMode(JVM.KANBAN)}
-              />
-            </Tooltip>
           </>
+        )}
+        {isKanbanEnabled && (
+          <Tooltip off={isMobile} target="ecos-journal-view-kanban" text={t(Labels.V_KANBAN)} uncontrolled>
+            <IcoBtn
+              id="ecos-journal-view-kanban"
+              icon="icon-list"
+              // icon="i-leftmenu-workflows"
+              className={classNames(common, 'ecos-journal__view-btn_kanban', {
+                [available]: isKanbanMode,
+                [disable]: !isKanbanMode
+              })}
+              onClick={() => this.onToggleViewMode(JVM.KANBAN)}
+            />
+          </Tooltip>
         )}
         {isDocLibEnabled && (
           <Tooltip off={isMobile} target="ecos-journal-view-doc-lib" text={t(Labels.V_DOCLIB)} uncontrolled>
