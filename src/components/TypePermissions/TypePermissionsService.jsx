@@ -91,8 +91,8 @@ export default class TypePermissionsService {
     }
 
     let typeInfo = await TypePermissionsApi.getTypeInfo(typeRef);
-    let roles = [...typeInfo.roles, ...(permsData.roles || [])].filter(r => !!r.id);
-    let statuses = [...typeInfo.statuses, ...(permsData.statuses || [])].filter(s => !!s.id);
+    let roles = TypePermissionsService._filterWithUniqueId(permsData.roles, typeInfo.roles);
+    let statuses = TypePermissionsService._filterWithUniqueId(permsData.statuses, typeInfo.statuses);
 
     if (!roles.length) {
       DialogManager.showInfoDialog({
@@ -139,6 +139,27 @@ export default class TypePermissionsService {
         }
       });
     });
+  }
+
+  static _filterWithUniqueId(elements0, elements1) {
+    const elementsToProcess = [];
+    if (elements0) {
+      elementsToProcess.push(elements0);
+    }
+    if (elements1) {
+      elementsToProcess.push(elements1);
+    }
+    const result = [];
+    const resultIds = {};
+    for (let elements of elementsToProcess) {
+      for (let element of elements) {
+        if (!!element.id && !resultIds[element.id]) {
+          result.push(element);
+          resultIds[element.id] = true;
+        }
+      }
+    }
+    return result;
   }
 
   static getTypePermissions = async typeRef => {
