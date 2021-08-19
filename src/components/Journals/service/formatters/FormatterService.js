@@ -45,12 +45,6 @@ class FormatterService {
     }
   }
 
-  static getTypeByName(formatterName) {
-    const formatter = formatterRegistry.getFormatter(formatterName);
-
-    return get(formatter, 'constructor.TYPE', 'default');
-  }
-
   static _convertLegacyFormatterData(formatter = {}) {
     const { type, name, config, params } = formatter;
     const newFormatter = { ...formatter };
