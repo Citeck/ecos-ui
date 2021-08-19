@@ -62,7 +62,7 @@ class FormatterService {
     newFormatter.config = config || params || {};
 
     if (!type) {
-      newFormatter.type = FormatterService.getTypeByName(name);
+      newFormatter.type = name || 'default';
     }
 
     return newFormatter;

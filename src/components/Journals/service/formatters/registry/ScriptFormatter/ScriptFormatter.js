@@ -1,11 +1,9 @@
 import _ from 'lodash';
-import get from 'lodash/get';
 
 import Records from '../../../../../Records';
 import { t } from '../../../../../../helpers/export/util';
 import BaseFormatter from '../BaseFormatter';
 import CellType from '../../CellType';
-import ecosFetch from '../../../../../../helpers/ecosFetch';
 
 /**
  * @typedef {FormatterProps} ScriptFormatterProps
@@ -23,38 +21,40 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config = {}, cell, format, rowIndex, row } = props;
-    const script = config.fn;
+    const { config = {}, cell, row } = props;
+    let script = config.fn;
+
     if (!script) {
       throw new Error(`"fn" is a mandatory parameter in the ScriptFormatter config. Current config: ${JSON.stringify(config)}`);
     }
+
     const vars = config.vars || {};
-    const args = [cell, row, {}, cell, rowIndex, { lodash: _, ecosFetch, Records, _, t, ...vars }];
+    const args = [Records, _, t, vars, cell, row];
     let result;
-
-    if (typeof script === 'function') {
-      result = script(...args);
-
-      const then = get(result, 'then');
-
-      if (typeof then === 'function') {
-        return result;
-      }
-    }
 
     if (typeof script === 'string') {
       try {
         // eslint-disable-next-line
-        const extractedFn = eval(`(function() { return function (cell, row, column, data, rowIndex, utils) { ${script};}})()`);
-
-        if (typeof extractedFn === 'function') {
-          result = extractedFn(...args);
-        }
+        result = new Function('Records', '_', 't', 'vars', 'cell', 'row', script)(...args);
       } catch (e) {
         console.error('String script Error => ', e);
       }
     }
 
+    if (typeof script === 'function') {
+      result = script(...args);
+
+      const then = _.get(result, 'then');
+
+      if (typeof then === 'function') {
+        return result.then(res => this.getResultByType(res, props));
+      }
+    }
+
+    return this.getResultByType(result, props);
+  }
+
+  getResultByType(result, props) {
     switch (typeof result) {
       case 'boolean':
         return result ? t('boolean.yes') : t('boolean.no');
@@ -63,6 +63,8 @@ export default class ScriptFormatter extends BaseFormatter {
         return result;
       default:
         if (_.isPlainObject(result)) {
+          const { format } = props;
+
           if (typeof format !== 'function') {
             throw new Error(`"format" should be in props. Please don't use ScriptFormatter directly, use FormatterService instead`);
           }
