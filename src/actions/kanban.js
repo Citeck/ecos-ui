@@ -6,5 +6,9 @@ export const getBoardList = createAction(prefix + 'GET_BOARD_LIST');
 export const setBoardList = createAction(prefix + 'SET_BOARD_LIST');
 export const setIsEnabled = createAction(prefix + 'SET_IS_ENABLED');
 
+export const getBoardData = createAction(prefix + 'GET_BOARD_DATA');
 export const getBoardConfig = createAction(prefix + 'GET_BOARD_CONFIG');
 export const setBoardConfig = createAction(prefix + 'SET_BOARD_CONFIG');
+
+export const selectBoardId = createAction(prefix + 'SELECT_BOARD_ID');
+export const setLoading = createAction(prefix + 'SET_LOADING');

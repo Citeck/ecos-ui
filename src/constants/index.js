@@ -177,6 +177,11 @@ export const DocLibUrlParams = {
   SEARCH: 'dlSearch'
 };
 
+export const KanbanUrlParams = {
+  BOARD_ID: 'boardId',
+  SEARCH: 'kbSearch'
+};
+
 export const SYSTEM_LIST = 'global-system';
 
 export const SystemJournals = {

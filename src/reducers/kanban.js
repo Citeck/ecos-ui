@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { getBoardConfig, setBoardConfig, setBoardList, setIsEnabled } from '../actions/kanban';
+import { getBoardConfig, setBoardConfig, setBoardList, setIsEnabled, setLoading } from '../actions/kanban';
 import { startLoading, updateState } from '../helpers/redux';
 
 export const initialState = {
@@ -14,6 +14,10 @@ export default handleActions(
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;
       return updateState(state, stateId, { boardConfig, isLoading: false }, initialState);
+    },
+    [setLoading]: (state, { payload }) => {
+      const { stateId, isLoading } = payload;
+      return updateState(state, stateId, { isLoading }, initialState);
     },
     [setBoardList]: (state, { payload }) => {
       const { stateId, boardList } = payload;

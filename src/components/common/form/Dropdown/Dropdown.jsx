@@ -110,7 +110,7 @@ export default class Dropdown extends Component {
   getControl = text => {
     const { controlClassName, children, placeholder, hasEmpty, isButton, value } = this.props;
     const { dropdownOpen } = this.state;
-    let label = text;
+    let label = getTextByLocale(text);
 
     if (!children) {
       if (placeholder && hasEmpty && !value) {

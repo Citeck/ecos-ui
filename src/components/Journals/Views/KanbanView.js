@@ -1,15 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
-import { getBoardConfig } from '../../../actions/kanban';
+import { getBoardData, selectBoardId } from '../../../actions/kanban';
 import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
+import { KanbanUrlParams as KUP } from '../../../constants';
 import { t } from '../../../helpers/export/util';
+import { Dropdown } from '../../common/form';
 import { isKanban, Labels } from '../constants';
 import Kanban, { Bar } from '../Kanban';
 
@@ -20,6 +23,7 @@ function mapStateToProps(state, props) {
   const ownProps = selectKanbanPageProps(state, props.stateId);
 
   return {
+    urlParams: queryString.parse(window.location.search),
     viewMode,
     ...ownProps
   };
@@ -29,7 +33,8 @@ function mapDispatchToProps(dispatch, props) {
   const stateId = props.stateId;
 
   return {
-    getBoardConfig: boardId => dispatch(getBoardConfig({ boardId, stateId }))
+    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
+    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId }))
   };
 }
 
@@ -45,15 +50,27 @@ class KanbanView extends React.Component {
       return;
     }
 
-    if (!isEqualWith(boardList, prevProps.boardList, isEqual) || (!isEmpty(boardList) && this.state.isClose)) {
-      const { boardId } = urlParams || get(boardList, '[0].id');
-      this.setState({ isClose: false }, () => this.props.getBoardConfig(boardId));
+    if (
+      !isEqualWith(boardList, prevProps.boardList, isEqual) ||
+      (!isEmpty(boardList) && this.state.isClose) ||
+      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID])
+    ) {
+      this.setState({ isClose: false }, () => this.props.getBoardData(this.getSelectedBoard()));
     }
   }
 
   componentWillUnmount() {
     this.setState({ isClose: true });
   }
+
+  getSelectedBoard() {
+    const { urlParams = {}, boardList } = this.props;
+    return urlParams.boardId || get(boardList, '[0].id');
+  }
+
+  handleChangeBoard = board => {
+    this.props.selectBoardId(board.id);
+  };
 
   RightBarChild = () => {
     const { totalCount: count } = this.props;
@@ -62,19 +79,19 @@ class KanbanView extends React.Component {
 
   LeftBarChild = () => {
     const { boardList } = this.props;
-    return boardList.length;
-    // return <Dropdown
-    //   hasEmpty
-    //   isStatic
-    //   className={step}
-    //   source={createVariants}
-    //   keyFields={['id']}
-    //   valueField="name"
-    //   titleField="title"
-    //   onChange={onAddRecord}
-    //   controlIcon="icon-small-plus"
-    //   controlClassName="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
-    // />
+
+    return (
+      <Dropdown
+        hideSelected
+        isButton
+        source={boardList}
+        value={this.getSelectedBoard()}
+        valueField={'id'}
+        titleField={'name'}
+        onChange={this.handleChangeBoard}
+        controlClassName="ecos-btn_drop-down ecos-kanban__dropdown ecos-btn_grey3 ecos-btn_hover_blue2"
+      />
+    );
   };
 
   render() {

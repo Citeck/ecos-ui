@@ -2,6 +2,10 @@
 @import '../../../styles/loaderStripes';
 
 .ecos-kanban {
+  &__dropdown {
+    max-width: 300px;
+  }
+
   &__head {
     display: flex;
     flex-direction: row;
