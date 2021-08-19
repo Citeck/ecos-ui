@@ -21,11 +21,8 @@ import {
 import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
 import { JournalUrlParams as JUP } from '../../../constants';
 import { wrapArgs } from '../../../helpers/redux';
-import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
-import FormManager from '../../EcosForm/FormManager';
 import { isPreview, isTableOrPreview } from '../constants';
-import SettingsModal from '../SettingsModal';
-import JournalsSettingsBar from '../JournalsSettingsBar';
+import Bar from '../CommonBar';
 import { JournalsGroupActionsTools } from '../JournalsTools';
 import JournalsContent from '../JournalsContent';
 import JournalsDashletPagination from '../JournalsDashletPagination';
@@ -62,10 +59,7 @@ function mapDispatchToProps(dispatch, props) {
 
 class TableView extends React.Component {
   state = {
-    isClose: true,
-    isReset: false,
-    settingsVisible: false,
-    isCreateLoading: false
+    isClose: true
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -92,74 +86,6 @@ class TableView extends React.Component {
     this.setState({ isClose: true });
   }
 
-  get searchText() {
-    const { isActivePage, urlParams } = this.props;
-    return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
-  }
-
-  handleAddRecord = createVariant => {
-    const { isCreateLoading } = this.state;
-
-    if (isCreateLoading) {
-      return;
-    }
-
-    this.setState({ isCreateLoading: true });
-
-    FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => goToCardDetailsPage(record.id),
-      onReady: () => this.setState({ isCreateLoading: false }),
-      onAfterHideModal: () => this.setState({ isCreateLoading: false })
-    });
-  };
-
-  handleToggleSettings = () => {
-    this.setState(({ settingsVisible }) => ({ settingsVisible: !settingsVisible, isReset: false }));
-  };
-
-  handleSaveSettings = (id, settings) => {
-    const { saveJournalSetting } = this.props;
-
-    saveJournalSetting(id, settings);
-  };
-
-  handleCreateSettings = settings => {
-    const {
-      journalConfig: { id },
-      createJournalSetting
-    } = this.props;
-
-    createJournalSetting(id, settings);
-    this.handleToggleSettings();
-  };
-
-  handleApplySettings = (isChangedPredicates, settings) => {
-    const { clearSearch, applySettings } = this.props;
-
-    applySettings({ settings });
-
-    if (isChangedPredicates) {
-      const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
-
-      window.history.replaceState({ path: url }, '', url);
-      clearSearch();
-    }
-
-    this.handleToggleSettings();
-  };
-
-  handleSearch = text => {
-    if (text === get(this.props, ['urlParams', JUP.SEARCH], '')) {
-      return;
-    }
-
-    this.props.runSearch(text);
-  };
-
-  handleRefresh = () => {
-    this.props.reloadGrid();
-  };
-
   handleSelectAllRecords = () => {
     const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
 
@@ -184,10 +110,6 @@ class TableView extends React.Component {
     }
   };
 
-  handleResetFilter = () => {
-    this.props.resetFiltering();
-  };
-
   render() {
     const { isClose } = this.state;
 
@@ -201,69 +123,28 @@ class TableView extends React.Component {
       viewMode,
       stateId,
       isMobile,
-      toggleViewMode,
       bodyForwardedRef,
       bodyTopForwardedRef,
       footerForwardedRef,
       bodyClassName,
       isActivePage,
       displayElements = {},
-      isDocLibEnabled,
 
       journalConfig,
       grid,
-      isLoading,
-      isFilterOn,
       selectedRecords,
       selectAllRecordsVisible,
       selectAllRecords,
-      settingsData,
-      settingsFiltersData,
-      settingsColumnsData,
-      settingsGroupingData,
 
       getJournalContentMaxHeight
     } = this.props;
-    const { settingsVisible, isReset, isCreateLoading } = this.state;
 
     return (
       <div hidden={!isTableOrPreview(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          {/*todo common with kanban*/}
           <Header title={get(journalConfig, 'meta.title', '')} />
 
-          <SettingsModal
-            {...settingsData}
-            filtersData={settingsFiltersData}
-            columnsData={settingsColumnsData}
-            groupingData={settingsGroupingData}
-            isReset={isReset}
-            isOpen={settingsVisible}
-            onClose={this.handleToggleSettings}
-            onApply={this.handleApplySettings}
-            onCreate={this.handleCreateSettings}
-            onSave={this.handleSaveSettings}
-          />
-
-          <JournalsSettingsBar
-            stateId={stateId}
-            grid={grid}
-            journalConfig={journalConfig}
-            searchText={this.searchText}
-            selectedRecords={selectedRecords}
-            viewMode={viewMode}
-            isMobile={isMobile}
-            isDocLibEnabled={isDocLibEnabled}
-            isCreateLoading={isCreateLoading}
-            isLoading={isLoading}
-            isShowResetFilter={isFilterOn}
-            onRefresh={this.handleRefresh}
-            onSearch={this.handleSearch}
-            onToggleSettings={this.handleToggleSettings}
-            onToggleViewMode={toggleViewMode}
-            onAddRecord={this.handleAddRecord}
-            onResetFilter={this.handleResetFilter}
-          />
+          <Bar {...this.props} />
 
           {displayElements.groupActions && (
             <JournalsGroupActionsTools

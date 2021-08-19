@@ -8,10 +8,9 @@ import get from 'lodash/get';
 
 import { selectViewMode } from '../../../selectors/journals';
 import { isKanban } from '../constants';
-import ViewTabs from '../ViewTabs';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { getBoardConfig } from '../../../actions/kanban';
-import Kanban from '../Kanban';
+import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
 
@@ -56,6 +55,12 @@ class KanbanView extends React.Component {
   }
 
   render() {
+    const { isClose } = this.state;
+
+    if (isClose) {
+      return null;
+    }
+
     const {
       Header,
       UnavailableView,
@@ -75,9 +80,7 @@ class KanbanView extends React.Component {
       <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Header title={name} />
-          <div>
-            <ViewTabs stateId={stateId} />
-          </div>
+          <Bar stateId={stateId} />
         </div>
 
         <div>
