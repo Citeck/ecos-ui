@@ -311,6 +311,7 @@
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
 
   "kanban.label.big-total": "Total: {{count}}",
+  "kanban.label.no-card": "No Card",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",

@@ -311,6 +311,7 @@
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
 
   "kanban.label.big-total": "Всего: {{count}}",
+  "kanban.label.no-card": "Не карточек",
 
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",

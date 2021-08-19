@@ -122,11 +122,8 @@ class KanbanView extends React.Component {
           <Header title={name} />
           <Bar stateId={stateId} leftChild={<this.LeftBarChild />} rightChild={<this.RightBarChild />} />
         </div>
-
-        <div>
-          {!isEnabled && !isLoading && <UnavailableView />}
-          <Kanban stateId={stateId} maxHeight={maxHeight} />
-        </div>
+        {!isEnabled && !isLoading && <UnavailableView />}
+        <Kanban stateId={stateId} maxHeight={maxHeight} />
       </div>
     );
   }

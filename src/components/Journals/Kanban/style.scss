@@ -16,8 +16,7 @@
     display: flex;
     flex-direction: row;
     overflow-y: scroll;
-    padding: 0 5px 0 7px;
-    margin-right: -5px;
+    width: calc(100% + 5px);
   }
 
   &__column {
@@ -30,6 +29,8 @@
     }
 
     &-head {
+      background: $color-white;
+      border-radius: $border-radius-standard;
       padding: 5px 10px;
       box-shadow: none;
 
@@ -42,6 +43,20 @@
     &-card {
       padding: 0 10px;
       margin-bottom: 7px;
+
+      &-list {
+        height: 100%;
+      }
+
+      &_empty {
+        background: $color-blue-light4;
+        border-radius: $border-radius-standard;
+        flex: auto;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
       &-caption {
         display: flex;
