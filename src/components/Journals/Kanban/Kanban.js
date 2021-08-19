@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { extractLabel } from '../../../helpers/util';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { Panel, Separator } from '../../common';
+import { Loader, Panel, Separator } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
@@ -59,7 +59,7 @@ class Kanban extends React.Component {
   };
 
   renderColumnContent = data => {
-    const { cards = Array(13).fill({}) } = this.props;
+    const { cards = [] } = this.props;
 
     return (
       <div className="ecos-kanban__column" key={data.id}>
@@ -67,6 +67,8 @@ class Kanban extends React.Component {
       </div>
     );
   };
+
+  renderNoCard = () => {};
 
   renderCard = data => {
     const { cardFormRef } = this.props;
@@ -105,12 +107,13 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns = Array(3).fill({}), maxHeight } = this.props;
+    const { columns = Array(3).fill({}), maxHeight, isLoading } = this.props;
 
     return (
       <div className="ecos-kanban">
         <div className="ecos-kanban__head">{columns.map(this.renderColumnHead)}</div>
-        <div className="ecos-kanban__body" style={{ maxHeight: `calc(${maxHeight}px - 50px)` }}>
+        <div className="ecos-kanban__body" style={{ maxHeight: `calc(${maxHeight}px - 100px)` }}>
+          {isLoading && <Loader blur />}
           {columns.map(this.renderColumnContent)}
         </div>
       </div>
