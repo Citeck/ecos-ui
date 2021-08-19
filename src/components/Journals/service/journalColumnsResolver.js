@@ -16,7 +16,6 @@ import {
 } from '../../Records/predicates/predicates';
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
-import FormatterService from './formatters/FormatterService';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -119,7 +118,7 @@ class JournalColumnsResolver {
           type: 'bool'
         };
       } else {
-        const type = get(updColumn, 'newFormatter.type', FormatterService.getTypeByName(get(updColumn, 'newFormatter.name')));
+        const type = get(updColumn, 'newFormatter.type');
 
         updColumn.newFormatter = {
           ...get(updColumn, 'newFormatter', {}),
