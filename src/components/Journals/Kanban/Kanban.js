@@ -7,7 +7,7 @@ import { Panel, Separator } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
-import { FORM_MODE_EDIT, EcosForm } from '../../EcosForm';
+import { EcosForm, FORM_MODE_EDIT } from '../../EcosForm';
 
 import './style.scss';
 
@@ -20,18 +20,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 class Kanban extends React.Component {
-  //todooo grid?
-  renderHeaderCol = data => {
-    return (
-      <TitlePageLoader isReady={!!data.name} withBadge>
-        <Caption small className="ecos-kanban__column-name-caption">
-          {extractLabel(data.name).toUpperCase()}
-        </Caption>
-        <Badge text={10} />
-      </TitlePageLoader>
-    );
-  };
-
   renderHeaderCard = data => {
     const { readOnly, actions } = this.props;
     const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
@@ -51,12 +39,30 @@ class Kanban extends React.Component {
     );
   };
 
-  renderColumn = data => {
+  renderColumnHead = data => {
+    return (
+      <div className="ecos-kanban__column" key={data.id}>
+        <Panel
+          className="ecos-kanban__column-head"
+          header={
+            <TitlePageLoader isReady={!!data.name} withBadge>
+              <Caption small className="ecos-kanban__column-head-caption">
+                {extractLabel(data.name).toUpperCase()}
+              </Caption>
+              <Badge text={10} />
+            </TitlePageLoader>
+          }
+          noChild
+        />
+      </div>
+    );
+  };
+
+  renderColumnContent = data => {
     const { cards = Array(13).fill({}) } = this.props;
 
     return (
       <div className="ecos-kanban__column" key={data.id}>
-        <Panel className="ecos-kanban__column-name" header={this.renderHeaderCol(data)} noChild />
         <div className="ecos-kanban__column-card-list">{cards.map(this.renderCard)}</div>
       </div>
     );
@@ -66,8 +72,14 @@ class Kanban extends React.Component {
     const { cardFormRef } = this.props;
 
     return (
-      <Panel key={data.id} className="ecos-kanban__column-card" header={this.renderHeaderCard(data)}>
+      <Panel
+        key={data.id}
+        className="ecos-kanban__column-card"
+        bodyClassName="ecos-kanban__column-card-body"
+        header={this.renderHeaderCard(data)}
+      >
         <EcosForm
+          className="ecos-kanban__column-card-form"
           record={'uiserv/form@ECOSUI1242CARD'}
           formId={cardFormRef}
           options={{
@@ -96,8 +108,11 @@ class Kanban extends React.Component {
     const { columns = Array(3).fill({}), maxHeight } = this.props;
 
     return (
-      <div className="ecos-kanban" style={{ maxHeight }}>
-        {columns.map(this.renderColumn)}
+      <div className="ecos-kanban">
+        <div className="ecos-kanban__head">{columns.map(this.renderColumnHead)}</div>
+        <div className="ecos-kanban__body" style={{ maxHeight }}>
+          {columns.map(this.renderColumnContent)}
+        </div>
       </div>
     );
   }

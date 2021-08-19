@@ -1,11 +1,20 @@
 @import '../../../styles/constants';
+@import '../../../styles/loaderStripes';
 
 .ecos-kanban {
-  display: flex;
-  flex-direction: row;
-  overflow-y: auto;
-  padding-right: 5px;
-  margin-right: -5px;
+  &__head {
+    display: flex;
+    flex-direction: row;
+    padding: 0 8px;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: row;
+    overflow-y: scroll;
+    padding: 0 5px 0 7px;
+    margin-right: -5px;
+  }
 
   &__column {
     flex: auto;
@@ -16,9 +25,10 @@
       margin-left: 20px;
     }
 
-    &-name {
+    &-head {
       padding: 5px 10px;
       box-shadow: none;
+      margin-bottom: 7px;
 
       &-caption {
         display: inline-block;
@@ -27,14 +37,24 @@
     }
 
     &-card {
-      padding: 0 10px 10px;
+      padding: 0 10px;
       margin-bottom: 10px;
 
       &-caption {
         display: flex;
-        margin-bottom: 10px;
         justify-content: space-between;
         align-items: center;
+      }
+
+      &-body {
+        padding: 10px 0;
+      }
+
+      &-form {
+        & > div:empty {
+          @extend %animationStripes;
+          height: 15px;
+        }
       }
 
       &-action {
