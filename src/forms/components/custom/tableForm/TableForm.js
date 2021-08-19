@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -8,7 +9,6 @@ import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
 import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
-import get from 'lodash/get';
 
 const Labels = {
   MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
@@ -453,7 +453,7 @@ export default class TableFormComponent extends BaseReactComponent {
   _getFormatterTypeByName(formatterName) {
     const formatter = formatterRegistry.getFormatter(formatterName);
 
-    return get(formatter, 'constructor.TYPE', 'default');
+    return _.get(formatter, 'constructor.TYPE', 'default');
   }
 
   _fetchActions = records => {
