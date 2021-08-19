@@ -24,7 +24,9 @@ export default class EcosModal extends Component {
   static getDerivedStateFromProps(props, state) {
     if (props.isOpen !== state.isOpen) {
       let openModalsCounter = document.querySelectorAll('.ecos-modal').length;
+
       openModalsCounter += props.isOpen ? 1 : -1;
+
       if (openModalsCounter < 0) {
         openModalsCounter = 0;
       }
@@ -195,5 +197,5 @@ EcosModal.defaultProps = {
   customButtons: [],
   hideModal: () => null,
   onResize: () => null,
-  zIndex: 9000
+  zIndex: DEFAULT_Z_INDEX
 };
