@@ -1,5 +1,6 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import * as queryString from 'query-string';
+import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
@@ -14,10 +15,14 @@ import {
   selectBoardId,
   setBoardConfig,
   setBoardList,
+  setFormProps,
   setIsEnabled,
   setLoading
 } from '../actions/kanban';
 import PageService from '../services/PageService';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import { t } from '../helpers/export/util';
+import JournalsService from '../components/Journals/service/journalsService';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -48,11 +53,38 @@ function* sagaGetBoardConfig({ api, logger }, { payload }) {
   }
 }
 
+function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
+  try {
+    if (!formId) {
+      throw new Error('No form ID ' + formId);
+    }
+
+    const form = yield call(EcosFormUtils.getFormById, formId, { formDefinition: 'definition?json', formI18n: 'i18n?json' });
+
+    if (!form.formDefinition) {
+      throw new Error('Form is not found for ID ' + formId);
+    }
+
+    const formFields = EcosFormUtils.getFormInputs(form.formDefinition);
+    const formProps = { ...form, formFields };
+
+    yield put(setFormProps({ stateId, formProps }));
+
+    return formProps;
+  } catch (e) {
+    yield put(setFormProps({ stateId, formProps: {} }));
+    NotificationManager.error(t('kanban.error.form-not-found'), t('error'));
+    logger.error('[kanban/sagaFormProps saga] error', e.message);
+  }
+}
+
 function* sagaGetBoardData({ api, logger }, { payload }) {
   try {
     const { boardId, stateId } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api, logger }, { payload });
-
+    const formProps = yield sagaFormProps({ api, logger }, { payload: { formId: boardConfig.cardFormRef, stateId } });
+    const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], boardConfig.journalRef);
+    console.log({ journalConfig });
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e.message);

@@ -34,6 +34,7 @@ export const selectKanbanProps = createSelector(
   selectKanban,
   data => ({
     ...data.boardConfig,
+    formProps: data.formProps,
     isLoading: data.isLoading
   })
 );

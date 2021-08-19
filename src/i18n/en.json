@@ -312,6 +312,8 @@
 
   "kanban.label.big-total": "Total: {{count}}",
   "kanban.label.no-card": "No Card",
+  "kanban.label.no-name": "No Name",
+  "kanban.error.form-not-found": "Form card has not found",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",

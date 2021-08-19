@@ -89,7 +89,7 @@ class KanbanView extends React.Component {
         valueField={'id'}
         titleField={'name'}
         onChange={this.handleChangeBoard}
-        controlClassName="ecos-btn_drop-down ecos-kanban__dropdown ecos-btn_grey3 ecos-btn_hover_blue2"
+        controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
       />
     );
   };

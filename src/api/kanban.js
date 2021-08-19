@@ -10,12 +10,12 @@ export class KanbanApi {
   getBoardConfig({ boardId }) {
     return {
       id: 'board-identifier', // идентификатор доски
-      name: { ru: 'Русское имя', en: 'English name' }, // имя доски для отображения
+      name: { ru: 'Активные задачи', en: 'Active tasks' }, // имя доски для отображения
       readOnly: false, // возможно ли перемещать сущности между статусами
       typeRef: 'emodel/type@some-type', // ссылка на тип
-      journalRef: 'uiserv/journal@some-journal', // ссылка на журнал
+      journalRef: 'uiserv/journal@active-tasks', // ссылка на журнал
       cardFormRef: 'uiserv/form@ECOSUI1242CARD', // ссылка на форму для карточки
-      actions: ['uiserv/action@edit-json', 'uiserv/action@activity-action'], // действия
+      actions: ['uiserv/action@view-task', 'uiserv/action@view-task-in-background', 'uiserv/action@edit-task'], // действия
       columns: [
         {
           id: 'some-id1',
@@ -30,15 +30,15 @@ export class KanbanApi {
           name: { ru: 'Русское имя', en: 'English name' }
         },
         {
-          id: 'some-id1',
+          id: 'some-id12',
           name: { ru: 'Русское имя', en: 'English name' }
         },
         {
-          id: 'some-id2',
+          id: 'some-id23',
           name: { ru: 'Русское имя', en: 'English name' }
         },
         {
-          id: 'some-id3',
+          id: 'some-id34',
           name: { ru: 'Русское имя', en: 'English name' }
         }
       ]

@@ -312,6 +312,8 @@
 
   "kanban.label.big-total": "Всего: {{count}}",
   "kanban.label.no-card": "Не карточек",
+  "kanban.label.no-name": "Нет названия",
+  "kanban.error.form-not-found": "Форма карточки не найдена",
 
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",

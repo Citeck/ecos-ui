@@ -9,7 +9,7 @@ import { InfoText, Loader, Panel, Separator } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
-import { EcosForm, FORM_MODE_EDIT } from '../../EcosForm';
+import { FormWrapper } from '../../common/dialogs';
 
 import './style.scss';
 import { Labels } from '../constants';
@@ -30,7 +30,7 @@ class Kanban extends React.Component {
     return (
       <>
         <Caption small className="ecos-kanban__column-card-caption">
-          {extractLabel(data.name || 'TEST')}
+          {extractLabel(data.name || Labels.KB_CARD_NO_TITLE)}
           <div className="ecos-kanban__column-card-action-list">
             {!!actions && <IcoBtn icon="icon-custom-more-big-pressed" className={grey} onClick={_ => _} />}
 
@@ -48,7 +48,7 @@ class Kanban extends React.Component {
         <div className="ecos-kanban__column-head">
           <TitlePageLoader isReady={!!data.name} withBadge>
             <Caption small className="ecos-kanban__column-head-caption">
-              {extractLabel(data.name).toUpperCase()}
+              {extractLabel(data.name).toUpperCase() || t(Labels.KB_CARD_NO_TITLE)}
             </Caption>
             {data.totalCount && <Badge text={data.totalCount} />}
           </TitlePageLoader>
@@ -58,7 +58,7 @@ class Kanban extends React.Component {
   };
 
   renderColumnContent = data => {
-    const { cards = [], isLoading } = this.props;
+    const { cards = Array(3).fill({}), isLoading } = this.props;
 
     return (
       <div className="ecos-kanban__column" key={data.id}>
@@ -76,7 +76,7 @@ class Kanban extends React.Component {
   };
 
   renderCard = data => {
-    const { cardFormRef } = this.props;
+    const { formProps } = this.props;
 
     return (
       <Panel
@@ -85,26 +85,16 @@ class Kanban extends React.Component {
         bodyClassName="ecos-kanban__column-card-body"
         header={this.renderHeaderCard(data)}
       >
-        <EcosForm
-          className="ecos-kanban__column-card-form"
-          record={'uiserv/form@ECOSUI1242CARD'}
-          formId={cardFormRef}
-          options={{
+        <FormWrapper
+          isVisible
+          {...formProps}
+          formOptions={{
             readOnly: true,
             viewAsHtml: true,
             fullWidthColumns: true,
             viewAsHtmlConfig: {
               hidePanels: true
-            },
-            formMode: FORM_MODE_EDIT,
-            onInlineEditSave: _ => _
-          }}
-          onFormSubmitDone={_ => _}
-          onReady={_ => _}
-          onToggleLoader={_ => _}
-          initiator={{
-            type: 'widget',
-            name: 'kanban'
+            }
           }}
         />
       </Panel>
