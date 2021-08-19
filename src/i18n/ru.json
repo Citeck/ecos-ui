@@ -310,6 +310,8 @@
   "document-library.uploading-file.message.error": "Не удалось загрузить файл \"{{file}}\"",
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
 
+  "kanban.label.big-total": "Всего: {{count}}",
+
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",
   "type-permissions.empty-roles.title": "Роли не настроены",

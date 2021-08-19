@@ -110,6 +110,18 @@ class TableView extends React.Component {
     }
   };
 
+  RightBarChild = ({ hasPageSize }) => {
+    const { stateId, isMobile } = this.props;
+
+    return (
+      <JournalsDashletPagination
+        stateId={stateId}
+        hasPageSize={hasPageSize}
+        className={classNames('ecos-journal__pagination', { 'ecos-journal__pagination_mobile': isMobile })}
+      />
+    );
+  };
+
   render() {
     const { isClose } = this.state;
 
@@ -144,7 +156,7 @@ class TableView extends React.Component {
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
           <Header title={get(journalConfig, 'meta.title', '')} />
 
-          <Bar {...this.props} />
+          <Bar {...this.props} rightChild={<this.RightBarChild hasPageSize={false} />} />
 
           {displayElements.groupActions && (
             <JournalsGroupActionsTools
@@ -168,13 +180,7 @@ class TableView extends React.Component {
         />
 
         <div className="ecos-journal__footer" ref={footerForwardedRef}>
-          {displayElements.pagination && (
-            <JournalsDashletPagination
-              stateId={stateId}
-              hasPageSize
-              className={classNames('ecos-journal__pagination', { 'ecos-journal__pagination_mobile': isMobile })}
-            />
-          )}
+          {displayElements.pagination && <this.RightBarChild hasPageSize />}
         </div>
       </div>
     );

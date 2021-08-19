@@ -32,7 +32,8 @@ const JournalsSettingsBar = ({
   isCreateLoading,
   isLoading,
   isShowResetFilter,
-  noPagination,
+  leftChild,
+  rightChild,
 
   onRefresh,
   onSearch,
@@ -150,16 +151,10 @@ const JournalsSettingsBar = ({
           />
         </Tooltip>
       )}
+      {leftChild}
 
       <div className="ecos-journal__settings-bar_right">
-        {(noPagination || !stateId) && (
-          <JournalsDashletPagination
-            stateId={stateId}
-            className={classNames('ecos-journal__pagination', step, {
-              'ecos-journal__pagination_mobile': isMobile
-            })}
-          />
-        )}
+        {rightChild}
         <ViewTabs stateId={stateId} />
       </div>
     </div>

@@ -31,6 +31,7 @@ export const Labels = {
   J_SHOW_MENU_SM: 'journals.action.show-menu_sm',
   DL_SHOW_MENU: 'journals.action.show-folder-tree',
   DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm',
+  KB_BAR_TOTAL: 'kanban.label.big-total',
 
   V_JOURNAL: 'journals.view.label.journal',
   V_PREVIEW: 'journals.view.label.journal-preview',

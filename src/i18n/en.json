@@ -310,6 +310,8 @@
   "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
 
+  "kanban.label.big-total": "Total: {{count}}",
+
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",
   "type-permissions.empty-roles.title": "Roles is empty",

@@ -6,10 +6,11 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
-import { selectViewMode } from '../../../selectors/journals';
-import { isKanban } from '../constants';
-import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { getBoardConfig } from '../../../actions/kanban';
+import { selectViewMode } from '../../../selectors/journals';
+import { selectKanbanPageProps } from '../../../selectors/kanban';
+import { t } from '../../../helpers/export/util';
+import { isKanban, Labels } from '../constants';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
@@ -54,6 +55,28 @@ class KanbanView extends React.Component {
     this.setState({ isClose: true });
   }
 
+  RightBarChild = () => {
+    const { totalCount: count } = this.props;
+    return <span className="ecos-pagination__text">{t(Labels.KB_BAR_TOTAL, { count })}</span>;
+  };
+
+  LeftBarChild = () => {
+    const { boardList } = this.props;
+    return boardList.length;
+    // return <Dropdown
+    //   hasEmpty
+    //   isStatic
+    //   className={step}
+    //   source={createVariants}
+    //   keyFields={['id']}
+    //   valueField="name"
+    //   titleField="title"
+    //   onChange={onAddRecord}
+    //   controlIcon="icon-small-plus"
+    //   controlClassName="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
+    // />
+  };
+
   render() {
     const { isClose } = this.state;
 
@@ -80,7 +103,7 @@ class KanbanView extends React.Component {
       <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Header title={name} />
-          <Bar stateId={stateId} />
+          <Bar stateId={stateId} leftChild={<this.LeftBarChild />} rightChild={<this.RightBarChild />} />
         </div>
 
         <div>

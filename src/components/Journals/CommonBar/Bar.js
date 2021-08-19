@@ -101,7 +101,9 @@ export default class Bar extends Component {
       settingsFiltersData = {},
       settingsColumnsData = {},
       settingsGroupingData = {},
-      selectedRecords = []
+      selectedRecords = [],
+      leftChild,
+      rightChild
     } = this.props;
     const { settingsVisible, isReset, isCreateLoading } = this.state;
 
@@ -122,6 +124,8 @@ export default class Bar extends Component {
         />
 
         <JournalsSettingsBar
+          leftChild={leftChild}
+          rightChild={rightChild}
           stateId={stateId}
           grid={grid}
           journalConfig={journalConfig}

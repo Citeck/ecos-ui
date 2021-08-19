@@ -25,7 +25,8 @@ export const selectKanbanPageProps = createSelector(
     boardList: data.boardList,
     boardConfig: data.boardConfig,
     isLoading: data.isLoading,
-    isEnabled: data.isEnabled
+    isEnabled: data.isEnabled,
+    totalCount: 111
   })
 );
 
