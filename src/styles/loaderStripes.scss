@@ -3,13 +3,7 @@
 %animationStripes {
   width: 100%;
   height: inherit;
-  background-image: repeating-linear-gradient(
-    45deg,
-    $color-blue-light4,
-    $color-blue-light4 25px,
-    $color-blue-light2 25px,
-    $color-blue-light2 50px
-  );
+  background-image: repeating-linear-gradient(45deg, $color-blue-light4, $color-blue-light4 25px, $color-gray-1 25px, $color-gray-1 50px);
   -webkit-animation: progress 2s linear infinite;
   -moz-animation: progress 2s linear infinite;
   -ms-animation: progress 2s linear infinite;

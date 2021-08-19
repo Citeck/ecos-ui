@@ -110,7 +110,7 @@ class Kanban extends React.Component {
     return (
       <div className="ecos-kanban">
         <div className="ecos-kanban__head">{columns.map(this.renderColumnHead)}</div>
-        <div className="ecos-kanban__body" style={{ maxHeight }}>
+        <div className="ecos-kanban__body" style={{ maxHeight: `calc(${maxHeight}px - 50px)` }}>
           {columns.map(this.renderColumnContent)}
         </div>
       </div>
