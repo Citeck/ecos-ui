@@ -160,6 +160,7 @@ class SettingsModal extends Component {
 
           <JournalsSettingsFooter
             parentClass="ecos-journal__settings"
+            noCreateBtn={noCreateBtn}
             canSave={!noCreateBtn && !isEmpty(get(journalSetting, JOURNAL_SETTING_ID_FIELD))}
             onApply={this.handleApply}
             onCreate={this.handleCreate}
