@@ -155,12 +155,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addAce(element, settings, props) {
-    window.require(['/js/lib/ace/1.4.1/ace.js'], () => {
+    Formio.requireLibrary('ace', 'ace', '/js/lib/ace/1.4.1/ace.js', true).then(() => {
       const mode = this.component.as || 'javascript';
       this.editor = window.ace.edit(element);
 
       if (props.rows) {
         const height = (this.editor.getOption('fontSize') + 2) * props.rows;
+
         this.input.style.height = height + 'px';
       }
 
@@ -195,7 +196,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       const props = { rows: this.component.rows };
 
       this.addAce(this.input, settings, props);
-
       return this.input;
     }
 
