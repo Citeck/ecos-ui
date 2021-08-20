@@ -1,7 +1,5 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 
 import { getTextByLocale, t } from '../../../helpers/util';
 import EditorService from '../service/editors/EditorService';
@@ -118,11 +116,8 @@ class JournalColumnsResolver {
           type: 'bool'
         };
       } else {
-        const type = get(updColumn, 'newFormatter.type');
-
         updColumn.newFormatter = {
-          ...get(updColumn, 'newFormatter', {}),
-          type: isEmpty(type) ? 'default' : type
+          type: 'default'
         };
       }
     }

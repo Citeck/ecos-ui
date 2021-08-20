@@ -1,7 +1,6 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
-import isEmpty from 'lodash/isEmpty';
 import isPlainObject from 'lodash/isPlainObject';
 
 import { t } from '../../../../helpers/export/util';
@@ -59,26 +58,9 @@ class FormatterService {
     }
   }
 
-  static _convertLegacyFormatterData(formatter = {}) {
-    const { type, name, config, params } = formatter;
-    const newFormatter = { ...formatter };
-
-    if (isEmpty(formatter) || (!type && !name)) {
-      return {};
-    }
-
-    newFormatter.config = config || params || {};
-
-    if (!type) {
-      newFormatter.type = name || 'default';
-    }
-
-    return newFormatter;
-  }
-
   static _formatImpl(props = {}, formatter = {}) {
     const { row, cell } = props;
-    const { type, config } = FormatterService._convertLegacyFormatterData(formatter);
+    const { type, config } = formatter;
 
     if (!type) {
       console.error('[FormattersService.format] empty formatter type', formatter);
