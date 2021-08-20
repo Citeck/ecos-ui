@@ -43,14 +43,14 @@ describe('FormatterService', () => {
           }
         }
       });
-      expect(resultWithFuncInConfig).toBe('abc-def-ghi');
+      expect(mount(resultWithFuncInConfig).text()).toBe('abc-def-ghi');
       const resultWithScriptAsText = FormatterService.format(props, {
         type: FORMATTER_TYPE_SCRIPT,
         config: {
           fn: 'return cell + "-" + row.rowAtt + "-" + customArg'
         }
       });
-      expect(resultWithScriptAsText).toBe('abc-def-ghi');
+      expect(mount(resultWithScriptAsText).text()).toBe('abc-def-ghi');
     });
     it('should replace placeholders in the config fields', () => {
       const result = FormatterService.format(
