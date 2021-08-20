@@ -1,7 +1,6 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
-import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isPlainObject from 'lodash/isPlainObject';
 
@@ -55,7 +54,7 @@ class FormatterService {
     try {
       return FormatterService._formatImpl(props, formatter);
     } catch (e) {
-      console.error('[FormattersService.format] error', e);
+      console.error('[FormattersService.format] error', props, formatter, e);
       return FormatterService.errorMessage;
     }
   }
@@ -142,7 +141,7 @@ class FormatterService {
     try {
       return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
     } catch (e) {
-      console.error('[FormattersService._formatSingleValueCellImpl] error', e);
+      console.error('[FormattersService._formatSingleValueCellImpl] error. Props: ', formatProps, e);
       return FormatterService.errorMessage;
     }
   }
