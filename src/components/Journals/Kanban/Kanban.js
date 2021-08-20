@@ -7,6 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
+import { getNextPage } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { InfoText, Panel, PointsLoader, Separator } from '../../common';
 import { IcoBtn } from '../../common/btns';
@@ -21,8 +22,10 @@ function mapStateToProps(state, props) {
   return selectKanbanProps(state, props.stateId);
 }
 
-function mapDispatchToProps(dispatch) {
-  return {};
+function mapDispatchToProps(dispatch, props) {
+  return {
+    getNextPage: () => dispatch(getNextPage({ stateId: props.stateId }))
+  };
 }
 
 class Kanban extends React.Component {
@@ -100,6 +103,12 @@ class Kanban extends React.Component {
     );
   };
 
+  handleScrollFrame = (scroll = {}) => {
+    if (scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+      this.props.getNextPage();
+    }
+  };
+
   render() {
     const { dataCards = [], columns = Array(3).map((_, id) => ({ id })), maxHeight, isLoading } = this.props;
 
@@ -114,8 +123,10 @@ class Kanban extends React.Component {
           autoHeight
           autoHeightMin={maxHeight - 100}
           autoHeightMax={maxHeight - 100}
-          renderThumbVertical={props => <div {...props} hidden />}
+          renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
           renderTrackHorizontal={() => <div hidden />}
+          onScrollFrame={this.handleScrollFrame}
+          scrollDetectionThreshold={1000}
         >
           <div className="ecos-kanban__body">
             {columns.map((data, index) => (
@@ -129,4 +140,7 @@ class Kanban extends React.Component {
   }
 }
 
-export default connect(mapStateToProps)(Kanban);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Kanban);

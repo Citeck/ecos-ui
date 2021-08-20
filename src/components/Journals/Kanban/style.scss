@@ -7,7 +7,12 @@
   }
 
   &__loader {
+    padding: 10px;
     width: 10%;
+  }
+
+  &__scroll_v {
+    @extend %v-scroll;
   }
 
   &__head {

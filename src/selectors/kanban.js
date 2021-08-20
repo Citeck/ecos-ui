@@ -16,9 +16,19 @@ export const selectBoardConfig = createSelector(
   state => get(state, 'boardConfig') || {}
 );
 
+export const selectFormProps = createSelector(
+  selectKanban,
+  state => get(state, 'formProps') || {}
+);
+
 export const selectIsKanbanEnabled = createSelector(
   selectKanban,
   state => get(state, 'isEnabled') || false
+);
+
+export const selectPagination = createSelector(
+  selectKanban,
+  state => get(state, 'pagination')
 );
 
 export const selectKanbanPageProps = createSelector(
