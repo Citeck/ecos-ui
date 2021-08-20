@@ -1,11 +1,15 @@
 import { handleActions } from 'redux-actions';
 import { getBoardConfig, setBoardConfig, setBoardList, setFormProps, setIsEnabled, setLoading } from '../actions/kanban';
 import { startLoading, updateState } from '../helpers/redux';
+import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const initialState = {
   isLoading: false,
   boardConfig: undefined,
-  boardList: undefined
+  boardList: undefined,
+  formProps: null,
+  totalCount: 0,
+  pagination: DEFAULT_PAGINATION
 };
 
 export default handleActions(

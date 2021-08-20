@@ -82,7 +82,7 @@ import { ActionTypes } from '../components/Records/actions';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
-import { hasInString, t } from '../helpers/util';
+import { beArray, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -116,11 +116,7 @@ function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = D
   const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
   const { sourceId, id: journalId } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
-  const predicates = isArray(journalSettingPredicate)
-    ? journalSettingPredicate
-    : isEmpty(journalSettingPredicate)
-    ? []
-    : [journalSettingPredicate];
+  const predicates = beArray(journalSettingPredicate);
 
   return {
     groupActions: groupActions || [],

@@ -7,6 +7,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
+import isArray from 'lodash/isArray';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
@@ -1126,6 +1127,10 @@ export function strSplice(string, start, deleteCount, ...addString) {
   }
 
   return string;
+}
+
+export function beArray(data) {
+  return isArray(data) ? data : isEmpty(data) ? [] : [data];
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

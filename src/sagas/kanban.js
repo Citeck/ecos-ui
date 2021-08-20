@@ -1,13 +1,15 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
+import { t } from '../helpers/export/util';
 import {
   getBoardConfig,
   getBoardData,
@@ -19,10 +21,9 @@ import {
   setIsEnabled,
   setLoading
 } from '../actions/kanban';
+import { selectJournalInfo } from '../selectors/kanban';
 import PageService from '../services/PageService';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import { t } from '../helpers/export/util';
-import JournalsService from '../components/Journals/service/journalsService';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -83,8 +84,25 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
     const { boardId, stateId } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api, logger }, { payload });
     const formProps = yield sagaFormProps({ api, logger }, { payload: { formId: boardConfig.cardFormRef, stateId } });
-    const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], boardConfig.journalRef);
-    console.log({ journalConfig });
+    let journalInfo = yield select(selectJournalInfo, stateId);
+    console.log(journalInfo);
+    console.log();
+    if (isEmpty(journalInfo)) {
+      //todo use journal saga
+    }
+
+    // journalInfo = cloneDeep(journalInfo);
+    // console.log(journal.config.columns);
+    // delete journal.config.columns;
+    // console.log({ journal, boardConfig });
+
+    const params = {
+      columns: formProps.formFields
+    };
+
+    // const resultData = yield call(api.kanban.getBoardData, {boardConfig, journalConfig: journal.config, params});
+    // console.log({ resultData });
+
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e.message);

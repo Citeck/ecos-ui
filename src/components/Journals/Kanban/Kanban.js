@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
@@ -23,28 +24,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 class Kanban extends React.Component {
-  renderHeaderCard = data => {
-    const { readOnly, actions } = this.props;
-    const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
-
+  HeaderColumn = React.memo(({ data }) => {
     return (
-      <>
-        <Caption small className="ecos-kanban__column-card-caption">
-          {extractLabel(data.name || Labels.KB_CARD_NO_TITLE)}
-          <div className="ecos-kanban__column-card-action-list">
-            {!!actions && <IcoBtn icon="icon-custom-more-big-pressed" className={grey} onClick={_ => _} />}
-
-            {!readOnly && <IcoBtn icon="icon-custom-drag-big" className={grey} onClick={_ => _} />}
-          </div>
-        </Caption>
-        <Separator noIndents />
-      </>
-    );
-  };
-
-  renderColumnHead = data => {
-    return (
-      <div className="ecos-kanban__column" key={data.id}>
+      <div className="ecos-kanban__column">
         <div className="ecos-kanban__column-head">
           <TitlePageLoader isReady={!!data.name} withBadge>
             <Caption small className="ecos-kanban__column-head-caption">
@@ -55,14 +37,36 @@ class Kanban extends React.Component {
         </div>
       </div>
     );
-  };
+  }, isEqual);
 
-  renderColumnContent = data => {
-    const { cards = Array(3).fill({}), isLoading } = this.props;
+  HeaderCard = ({ data }) => {
+    const { readOnly, actions } = this.props;
+    const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
 
     return (
-      <div className="ecos-kanban__column" key={data.id}>
-        <div className="ecos-kanban__column-card-list">{isEmpty(cards) && !isLoading ? <this.NoCard /> : cards.map(this.renderCard)}</div>
+      <>
+        <Caption small className="ecos-kanban__column-card-caption">
+          {extractLabel(data.name || Labels.KB_CARD_NO_TITLE)}
+          <div className="ecos-kanban__column-card-action-list">
+            {!!actions && <IcoBtn icon="icon-custom-more-big-pressed" className={grey} onClick={_ => _} />}
+            {!readOnly && (
+              <IcoBtn icon="icon-custom-drag-big" className={'ecos-kanban__column-card-action-drag ' + grey} onClick={_ => _} />
+            )}
+          </div>
+        </Caption>
+        <Separator noIndents />
+      </>
+    );
+  };
+
+  ContentColumn = ({ data }) => {
+    const { cards, isLoading } = this.props;
+
+    return (
+      <div className="ecos-kanban__column">
+        <div className="ecos-kanban__column-card-list">
+          {isEmpty(cards) && !isLoading ? <this.NoCard /> : cards.map(data => <this.ContentCard key={data.id} data={data} />)}
+        </div>
       </div>
     );
   };
@@ -75,16 +79,11 @@ class Kanban extends React.Component {
     );
   };
 
-  renderCard = data => {
+  ContentCard = ({ data }) => {
     const { formProps } = this.props;
 
     return (
-      <Panel
-        key={data.id}
-        className="ecos-kanban__column-card"
-        bodyClassName="ecos-kanban__column-card-body"
-        header={this.renderHeaderCard(data)}
-      >
+      <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={<this.HeaderCard data={data} />}>
         <FormWrapper
           isVisible
           {...formProps}
@@ -102,14 +101,20 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns = Array(3).fill({}), maxHeight, isLoading } = this.props;
+    const { columns = Array(3).map((_, id) => ({ id })), maxHeight, isLoading } = this.props;
 
     return (
       <div className="ecos-kanban">
-        <div className="ecos-kanban__head">{columns.map(this.renderColumnHead)}</div>
+        <div className="ecos-kanban__head">
+          {columns.map(data => (
+            <this.HeaderColumn key={'head' + data.id} data={data} />
+          ))}
+        </div>
         <div className="ecos-kanban__body" style={{ height: `calc(${maxHeight}px - 100px)` }}>
           {isLoading && <Loader blur />}
-          {columns.map(this.renderColumnContent)}
+          {columns.map(data => (
+            <this.ContentColumn key={data.id} data={data} />
+          ))}
         </div>
       </div>
     );

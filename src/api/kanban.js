@@ -1,5 +1,6 @@
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
+import JournalsService from '../components/Journals/service/journalsService';
 
 export class KanbanApi {
   getBoardList({ journalId }) {
@@ -18,31 +19,28 @@ export class KanbanApi {
       actions: ['uiserv/action@view-task', 'uiserv/action@view-task-in-background', 'uiserv/action@edit-task'], // действия
       columns: [
         {
-          id: 'some-id1',
-          name: { ru: 'Русское имя', en: 'English name' }
+          id: 'alfresco/@workspace://SpacesStore/a8b0b9a2-8eea-4c5f-86da-0dd5e20eacd8',
+          name: { ru: 'Действует', en: '' }
         },
         {
-          id: 'some-id2',
-          name: { ru: 'Русское имя', en: 'English name' }
+          id: 'alfresco/@workspace://SpacesStore/7becc0d4-ee65-48bc-b6c3-aa83b31f9b25',
+          name: { ru: 'Черновик', en: '' }
         },
         {
-          id: 'some-id3',
-          name: { ru: 'Русское имя', en: 'English name' }
-        },
-        {
-          id: 'some-id12',
-          name: { ru: 'Русское имя', en: 'English name' }
-        },
-        {
-          id: 'some-id23',
-          name: { ru: 'Русское имя', en: 'English name' }
-        },
-        {
-          id: 'some-id34',
-          name: { ru: 'Русское имя', en: 'English name' }
+          id: 'alfresco/@workspace://SpacesStore/e6397523-f4ac-4a37-adeb-64e6232b7ffa',
+          name: { ru: 'Удален', en: '' }
         }
       ]
     };
     return Records.get(`${SourcesId.RESOLVED_BOARD}@${boardId}`).load('?json');
+  }
+
+  async getBoardData({ boardConfig, journalConfig, params }) {
+    const r = await boardConfig.columns.map(col => {
+      params.predicate = [{ t: 'eq', att: '_status', val: [col.id] }];
+      return JournalsService.getJournalData(journalConfig, params);
+    });
+    console.log(r);
+    return r;
   }
 }
