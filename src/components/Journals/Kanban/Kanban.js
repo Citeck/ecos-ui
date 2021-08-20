@@ -2,11 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
+import { Scrollbars } from 'react-custom-scrollbars';
 
 import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { InfoText, Loader, Panel, Separator } from '../../common';
+import { InfoText, Panel, PointsLoader, Separator } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
@@ -59,17 +61,15 @@ class Kanban extends React.Component {
     );
   };
 
-  ContentColumn = ({ data }) => {
-    const { cards, isLoading } = this.props;
-
+  ContentColumn = React.memo(({ cards = {} }) => {
     return (
       <div className="ecos-kanban__column">
         <div className="ecos-kanban__column-card-list">
-          {isEmpty(cards) && !isLoading ? <this.NoCard /> : cards.map(data => <this.ContentCard key={data.id} data={data} />)}
+          {isEmpty(cards) ? <this.NoCard /> : cards.map(data => <this.ContentCard key={data.id} data={data} />)}
         </div>
       </div>
     );
-  };
+  }, isEqual);
 
   NoCard = () => {
     return (
@@ -101,21 +101,29 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns = Array(3).map((_, id) => ({ id })), maxHeight, isLoading } = this.props;
+    const { dataCards = [], columns = Array(3).map((_, id) => ({ id })), maxHeight, isLoading } = this.props;
 
     return (
       <div className="ecos-kanban">
         <div className="ecos-kanban__head">
           {columns.map(data => (
-            <this.HeaderColumn key={'head' + data.id} data={data} />
+            <this.HeaderColumn key={'head' + data.id} data={{ ...data, totalCount: get(dataCards, [0, 'totalCount']) }} />
           ))}
         </div>
-        <div className="ecos-kanban__body" style={{ height: `calc(${maxHeight}px - 100px)` }}>
-          {isLoading && <Loader blur />}
-          {columns.map(data => (
-            <this.ContentColumn key={data.id} data={data} />
-          ))}
-        </div>
+        <Scrollbars
+          autoHeight
+          autoHeightMin={maxHeight - 100}
+          autoHeightMax={maxHeight - 100}
+          renderThumbVertical={props => <div {...props} hidden />}
+          renderTrackHorizontal={() => <div hidden />}
+        >
+          <div className="ecos-kanban__body">
+            {columns.map((data, index) => (
+              <this.ContentColumn key={data.id} cards={get(dataCards, [0, 'records'])} />
+            ))}
+          </div>
+          <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />
+        </Scrollbars>
       </div>
     );
   }

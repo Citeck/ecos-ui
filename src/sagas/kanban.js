@@ -5,7 +5,6 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
@@ -17,13 +16,21 @@ import {
   selectBoardId,
   setBoardConfig,
   setBoardList,
+  setDataCards,
   setFormProps,
   setIsEnabled,
-  setLoading
+  setLoading,
+  setTotalCount
 } from '../actions/kanban';
-import { selectJournalInfo } from '../selectors/kanban';
 import PageService from '../services/PageService';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import { selectJournalData } from '../selectors/journals';
+import { emptyJournalConfig } from '../reducers/journals';
+import { getGridParams, getJournalConfig, getJournalSetting, getJournalSettingFully } from './journals';
+import { wrapArgs } from '../helpers/redux';
+import JournalsConverter from '../dto/journals';
+import { ParserPredicate } from '../components/Filters/predicates';
+import JournalsService from '../components/Journals/service/journalsService';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -84,11 +91,12 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
     const { boardId, stateId } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api, logger }, { payload });
     const formProps = yield sagaFormProps({ api, logger }, { payload: { formId: boardConfig.cardFormRef, stateId } });
-    let journalInfo = yield select(selectJournalInfo, stateId);
-    console.log(journalInfo);
-    console.log();
-    if (isEmpty(journalInfo)) {
-      //todo use journal saga
+    let { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
+    console.log(journalConfig);
+    if (isEmpty(journalConfig) || isEqual(journalConfig, emptyJournalConfig)) {
+      const w = wrapArgs(stateId);
+      journalConfig = yield getJournalConfig({ api, w, force: true }, boardConfig.journalRef);
+      journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
     // journalInfo = cloneDeep(journalInfo);
@@ -96,13 +104,24 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
     // delete journal.config.columns;
     // console.log({ journal, boardConfig });
 
-    const params = {
-      columns: formProps.formFields
-    };
-
+    const params = getGridParams({ journalConfig, journalSetting });
+    delete params.columns;
+    delete params.groupBy;
+    delete params.groupActions;
+    params.columns = formProps.formFields;
+    const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+    const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates });
     // const resultData = yield call(api.kanban.getBoardData, {boardConfig, journalConfig: journal.config, params});
-    // console.log({ resultData });
-
+    let totalCount = 0;
+    const dataCards = yield boardConfig.columns.map(function*(col) {
+      console.log(col.predicate);
+      // settings.predicates
+      const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
+      totalCount += resultData.totalCount || 0;
+      return resultData;
+    });
+    yield put(setTotalCount({ stateId, totalCount }));
+    yield put(setDataCards({ stateId, dataCards }));
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e.message);

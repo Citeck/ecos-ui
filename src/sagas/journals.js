@@ -112,7 +112,7 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
+export function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
   const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
   const { sourceId, id: journalId } = journalConfig;
   const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
@@ -259,7 +259,7 @@ function* getJournalSettings(api, journalId, w) {
   return settings;
 }
 
-function* getJournalConfig({ api, w, force }, journalId) {
+export function* getJournalConfig({ api, w, force }, journalId) {
   const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
   yield put(setJournalConfig(w(journalConfig)));
   return journalConfig;
@@ -278,6 +278,19 @@ function* getColumns({ stateId }) {
   }
 
   return columns;
+}
+
+export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
+  const url = yield select(selectUrl, stateId);
+  const { journalSettingId = '', userConfigId } = url;
+
+  const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
+
+  if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
+    sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
+  }
+
+  return yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
 }
 
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {

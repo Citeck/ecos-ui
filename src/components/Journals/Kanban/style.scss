@@ -6,30 +6,33 @@
     max-width: 300px;
   }
 
+  &__loader {
+    width: 10%;
+  }
+
   &__head {
     display: flex;
     flex-direction: row;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
 
   &__body {
     display: flex;
-    flex-direction: row;
-    overflow-y: scroll;
-    width: calc(100% + 5px);
+    width: 100%;
   }
 
   &__column {
     flex: auto;
     word-break: break-all;
     position: relative;
+    width: 100%;
 
     &:not(:first-child) {
       margin-left: 20px;
     }
 
     &-head {
-      background: $color-white;
+      background: $color-gray-13;
       border-radius: $border-radius-standard;
       padding: 5px 10px;
       box-shadow: none;
@@ -42,7 +45,7 @@
 
     &-card {
       padding: 0 10px;
-      margin-bottom: 7px;
+      margin-bottom: 10px;
 
       &_empty {
         background: $color-blue-light4;

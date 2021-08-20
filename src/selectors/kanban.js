@@ -21,14 +21,6 @@ export const selectIsKanbanEnabled = createSelector(
   state => get(state, 'isEnabled') || false
 );
 
-export const selectJournalInfo = createSelector(
-  [selectJournalData, selectSettingsFilters],
-  (journal, settingsFiltersData) => ({
-    settingsFiltersData,
-    journalConfig: journal.journalConfig
-  })
-);
-
 export const selectKanbanPageProps = createSelector(
   selectKanban,
   data => ({
@@ -45,6 +37,7 @@ export const selectKanbanProps = createSelector(
   data => ({
     ...data.boardConfig,
     formProps: data.formProps,
+    dataCards: data.dataCards || [],
     isLoading: data.isLoading
   })
 );
