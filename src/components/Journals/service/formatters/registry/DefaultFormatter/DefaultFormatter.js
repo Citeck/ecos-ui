@@ -7,12 +7,15 @@ export default class DefaultFormatter extends BaseFormatter {
 
   format(props) {
     const { cell } = props;
+
     if (cell == null) {
       return '';
     }
+
     if (typeof cell === 'boolean') {
       return cell ? t('boolean.yes') : t('boolean.no');
     }
+
     return cell.disp || cell;
   }
 

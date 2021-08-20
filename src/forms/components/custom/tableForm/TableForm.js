@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -7,6 +8,7 @@ import JournalsService from '../../../../components/Journals/service';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
+import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
 
 const Labels = {
   MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
@@ -415,7 +417,7 @@ export default class TableFormComponent extends BaseReactComponent {
               }
 
               if (formatters.hasOwnProperty(col.attribute)) {
-                col.newFormatter = formatters[col.attribute];
+                col.newFormatter = this._convertLegacyFormatterData(formatters[col.attribute]);
               }
             }
 
@@ -432,6 +434,27 @@ export default class TableFormComponent extends BaseReactComponent {
       }
     });
   };
+
+  _convertLegacyFormatterData(formatter) {
+    const { type, name, params, config } = formatter;
+    const newFormatter = { type, config };
+
+    if (!type) {
+      newFormatter.type = this._getFormatterTypeByName(name);
+    }
+
+    if (!config) {
+      newFormatter.config = params || {};
+    }
+
+    return newFormatter;
+  }
+
+  _getFormatterTypeByName(formatterName) {
+    const formatter = formatterRegistry.getFormatter(formatterName);
+
+    return _.get(formatter, 'constructor.TYPE', 'default');
+  }
 
   _fetchActions = records => {
     if (!this.component.isUsedJournalActions || !this.#journalConfig) {
