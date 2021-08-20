@@ -113,7 +113,7 @@ const Harness = {
     timestamp = parseInt(timestamp / 1000, 10);
     return new Date(timestamp * 1000).toISOString();
   },
-  testCreate(Component, componentSettings, options = {}) {
+  testCreate(Component, componentSettings, options = {}, expected = true) {
     const compSettings = cloneDeep(componentSettings);
     const component = new Component(
       compSettings,
@@ -133,7 +133,7 @@ const Harness = {
           return reject(err);
         }
         component.build();
-        assert(Boolean(component.element), `No ${component.type} element created.`);
+        assert(Boolean(component.element) === expected, `No ${component.type} element created.`);
         return resolve(component);
       });
     });
