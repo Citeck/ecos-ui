@@ -4,8 +4,8 @@ import get from 'lodash/get';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 
-import BaseComponent from './BaseComponent';
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
+import BaseComponent from './BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
 
 export default class BaseReactComponent extends BaseComponent {
@@ -19,6 +19,8 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   react = {};
+
+  _needUpdate = false;
 
   build() {
     this.react.wrapper = new Promise(resolveComponent => {
@@ -113,6 +115,12 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   setReactProps(props) {
+    const currentProps = get(this.react, 'innerComponent.props.props');
+
+    if (!isEqual(props, currentProps)) {
+      this._needUpdate = true;
+    }
+
     if (this.react.resolve) {
       this.react.waitingProps = {
         ...(this.react.waitingProps || {}),

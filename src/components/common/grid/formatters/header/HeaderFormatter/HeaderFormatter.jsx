@@ -13,6 +13,7 @@ import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import { Input } from '../../../../form';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
+import { ParserPredicate } from '../../../../../Filters/predicates';
 
 import './HeaderFormatter.scss';
 
@@ -68,7 +69,7 @@ export default class HeaderFormatter extends Component {
     const { predicate } = this.props;
     const { text, open } = this.state;
 
-    return text || open || (predicate.needValue === false && predicate.t);
+    return text || open || (predicate.needValue === false && predicate.t) || ParserPredicate.predicatesWithoutValue.includes(predicate.t);
   }
 
   get indentation() {
@@ -341,7 +342,13 @@ export default class HeaderFormatter extends Component {
     this.tooltipTextId = `tooltip-text-${this.id}`;
 
     return (
-      <div ref={this.thRef} className={classNames('ecos-th', { 'ecos-th_filtered': this.activeFilter, 'ecos-th_sortable': sortable })}>
+      <div
+        ref={this.thRef}
+        className={classNames('ecos-th', {
+          'ecos-th_filtered': this.activeFilter,
+          'ecos-th_sortable': sortable
+        })}
+      >
         <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
           <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
             <span id={this.tooltipTextId} className="ecos-th__content-text">

@@ -18,14 +18,13 @@ const InputView = () => {
   const wrapperRef = useRef(null);
 
   useEffect(() => {
-    const resetInlineToolsOffsets = () => {
-      setInlineToolsOffsets({ height: 0, top: 0, row: {} });
-    };
-
+    const resetInlineToolsOffsets = () => setInlineToolsOffsets({ height: 0, top: 0, row: {} });
     const gridWrapper = wrapperRef.current;
+
     if (gridWrapper) {
       gridWrapper.addEventListener('mouseleave', resetInlineToolsOffsets);
     }
+
     return () => {
       if (gridWrapper) {
         gridWrapper.removeEventListener('mouseleave', resetInlineToolsOffsets);
@@ -49,12 +48,12 @@ const InputView = () => {
         noHeader={noColHeaders}
       />
       {!error && (
-        <div className={'ecos-table-form__buttons-wrapper'}>
+        <div className="ecos-table-form__buttons-wrapper">
           <ImportButton />
           <CreateVariants />
         </div>
       )}
-      {error && <p className={'ecos-table-form__error'}>{error.message}</p>}
+      {error && <p className="ecos-table-form__error">{error.message}</p>}
     </div>
   );
 };
