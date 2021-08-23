@@ -2,6 +2,8 @@
 @import '../../../styles/loaderStripes';
 
 .ecos-kanban {
+  counter-reset: page;
+
   &__dropdown {
     max-width: 300px;
   }
@@ -12,6 +14,10 @@
   }
 
   &__scroll_v {
+    @extend %v-scroll;
+  }
+
+  &__page-separator {
     @extend %v-scroll;
   }
 
@@ -27,6 +33,7 @@
   }
 
   &__column {
+    $col: &;
     flex: auto;
     word-break: break-all;
     position: relative;
@@ -48,9 +55,25 @@
       }
     }
 
+    &:last-child {
+      & :nth-child(10n)::after {
+        content: '- ' counter(page) ' -';
+        counter-increment: page;
+        color: $color-gray-5;
+        display: block;
+        position: absolute;
+        font-size: $font-size-extra-large;
+        right: 0;
+      }
+    }
+
     &-card {
       padding: 0 10px;
       margin-bottom: 10px;
+
+      &:nth-child(10n) {
+        margin-bottom: 30px;
+      }
 
       &_empty {
         background: $color-blue-light4;

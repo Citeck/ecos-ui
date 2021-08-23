@@ -88,7 +88,7 @@ class EcosForm extends React.Component {
     };
 
     let formLoadingPromise;
-    let alfConstants = (window.Alfresco || {}).constants || {};
+    let alfConstants = get(window, 'Alfresco.constants') || {};
     let proxyUri = PROXY_URI || '/';
 
     if (formId) {

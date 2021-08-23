@@ -9,6 +9,7 @@ import set from 'lodash/set';
 import { KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
 import { t } from '../helpers/export/util';
+import { wrapArgs } from '../helpers/redux';
 import {
   getBoardConfig,
   getBoardData,
@@ -21,18 +22,18 @@ import {
   setFormProps,
   setIsEnabled,
   setLoading,
+  setPagination,
   setTotalCount
 } from '../actions/kanban';
-import PageService from '../services/PageService';
-import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { selectJournalData } from '../selectors/journals';
+import { selectKanban, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
-import { getGridParams, getJournalConfig, getJournalSetting, getJournalSettingFully } from './journals';
-import { wrapArgs } from '../helpers/redux';
+import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
-import { selectBoardConfig, selectFormProps, selectPagination } from '../selectors/kanban';
+import { getGridParams, getJournalConfig, getJournalSetting, getJournalSettingFully } from './journals';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -76,6 +77,8 @@ function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
     }
 
     const formFields = EcosFormUtils.getFormInputs(form.formDefinition);
+    //todo get req fields for key , title
+    formFields.push({ attribute: 'id' }, { attribute: 'disp' });
     const formProps = { ...form, formFields };
 
     yield put(setFormProps({ stateId, formProps }));
@@ -114,6 +117,7 @@ function* sagaGetData({ api, logger }, { payload }) {
   try {
     const { boardConfig, journalConfig, journalSetting, formProps, pagination, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
+    const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
 
     delete params.columns;
     delete params.groupBy;
@@ -121,14 +125,29 @@ function* sagaGetData({ api, logger }, { payload }) {
     params.columns = formProps.formFields;
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
-    const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates });
 
-    let totalCount = 0;
     const dataCards = yield boardConfig.columns.map(function*(col) {
-      console.warn('todo col.predicate');
-      const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
-      totalCount += resultData.totalCount || 0;
-      return resultData;
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, col.predicate] });
+      return yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
+    });
+
+    const totalCount = dataCards.reduce((accumulator, col) => accumulator + get(col, 'totalCount', 0), 0);
+
+    //todo dooooooooooooooooooooooooooooooooooooo
+    dataCards.forEach((data, i) => {
+      const preparedRecords = data.records.map(recData => {
+        for (const recKey in recData) {
+          const field = formProps.formFields.find(field => field.attribute === recKey);
+
+          if (recData.hasOwnProperty(recKey) && field) {
+            recData[field.edgeSchema] = recData[recKey];
+          }
+        }
+
+        return recData;
+      });
+
+      return (data.records = [...get(prevDataCards, [i, 'records'], []), ...preparedRecords]);
     });
 
     yield put(setTotalCount({ stateId, totalCount }));
@@ -159,12 +178,12 @@ function* sagaSelectBoard({ api, logger }, { payload }) {
 function* sagaGetNextPage({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
-    const formProps = yield select(selectFormProps, stateId);
-    const boardConfig = yield select(selectBoardConfig, stateId);
+    const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
     const pagination = yield select(selectPagination, stateId);
     pagination.page += 1;
-    //todo накапливать данные ?
+
+    yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
   } catch (e) {
     logger.error('[kanban/sagaGetNextPage saga] error', e);

@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -14,9 +13,9 @@ import { IcoBtn } from '../../common/btns';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { FormWrapper } from '../../common/dialogs';
+import { Labels } from '../constants';
 
 import './style.scss';
-import { Labels } from '../constants';
 
 function mapStateToProps(state, props) {
   return selectKanbanProps(state, props.stateId);
@@ -29,22 +28,71 @@ function mapDispatchToProps(dispatch, props) {
 }
 
 class Kanban extends React.Component {
-  HeaderColumn = React.memo(({ data }) => {
+  handleScrollFrame = (scroll = {}) => {
+    if (scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+      this.props.getNextPage();
+    }
+  };
+
+  renderHeaderColumn = (data, index) => {
+    const { dataCards = [] } = this.props;
+    const totalCount = get(dataCards, [index, 'totalCount']);
+
     return (
-      <div className="ecos-kanban__column">
+      <div className="ecos-kanban__column" key={`head_${data.id}`}>
         <div className="ecos-kanban__column-head">
           <TitlePageLoader isReady={!!data.name} withBadge>
             <Caption small className="ecos-kanban__column-head-caption">
               {extractLabel(data.name).toUpperCase() || t(Labels.KB_CARD_NO_TITLE)}
             </Caption>
-            {data.totalCount && <Badge text={data.totalCount} />}
+            {totalCount && <Badge text={totalCount} />}
           </TitlePageLoader>
         </div>
       </div>
     );
-  }, isEqual);
+  };
 
-  HeaderCard = ({ data }) => {
+  renderContentColumn = (data, index) => {
+    const { dataCards, isLoading } = this.props;
+    const cards = get(dataCards, [index, 'records']);
+
+    return (
+      <div className="ecos-kanban__column" key={`col_${data.id}`}>
+        <div className="ecos-kanban__column-card-list">
+          {isEmpty(cards) ? this.renderNoCard(isLoading) : cards.map(this.renderContentCard)}
+        </div>
+      </div>
+    );
+  };
+
+  renderContentCard = (data, index) => {
+    const { formProps } = this.props;
+
+    return (
+      <Panel
+        key={`card_${data.id}`}
+        className="ecos-kanban__column-card"
+        bodyClassName="ecos-kanban__column-card-body"
+        header={this.renderHeaderCard(data)}
+      >
+        <FormWrapper
+          isVisible
+          {...formProps}
+          formData={data}
+          formOptions={{
+            readOnly: true,
+            viewAsHtml: true,
+            fullWidthColumns: true,
+            viewAsHtmlConfig: {
+              hidePanels: true
+            }
+          }}
+        />
+      </Panel>
+    );
+  };
+
+  renderHeaderCard = data => {
     const { readOnly, actions } = this.props;
     const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
 
@@ -64,61 +112,21 @@ class Kanban extends React.Component {
     );
   };
 
-  ContentColumn = React.memo(({ cards = {} }) => {
-    return (
-      <div className="ecos-kanban__column">
-        <div className="ecos-kanban__column-card-list">
-          {isEmpty(cards) ? <this.NoCard /> : cards.map(data => <this.ContentCard key={data.id} data={data} />)}
-        </div>
-      </div>
-    );
-  }, isEqual);
-
-  NoCard = () => {
+  renderNoCard = noText => {
     return (
       <div className="ecos-kanban__column-card_empty">
-        <InfoText text={t(Labels.KB_COL_NO_CARD)} />
+        <InfoText text={noText ? '' : t(Labels.KB_COL_NO_CARD)} />
       </div>
     );
-  };
-
-  ContentCard = ({ data }) => {
-    const { formProps } = this.props;
-
-    return (
-      <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={<this.HeaderCard data={data} />}>
-        <FormWrapper
-          isVisible
-          {...formProps}
-          formOptions={{
-            readOnly: true,
-            viewAsHtml: true,
-            fullWidthColumns: true,
-            viewAsHtmlConfig: {
-              hidePanels: true
-            }
-          }}
-        />
-      </Panel>
-    );
-  };
-
-  handleScrollFrame = (scroll = {}) => {
-    if (scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
-      this.props.getNextPage();
-    }
   };
 
   render() {
-    const { dataCards = [], columns = Array(3).map((_, id) => ({ id })), maxHeight, isLoading } = this.props;
+    const { columns = [], maxHeight } = this.props;
+    const cols = columns || Array(3).map((_, id) => ({ id }));
 
     return (
       <div className="ecos-kanban">
-        <div className="ecos-kanban__head">
-          {columns.map(data => (
-            <this.HeaderColumn key={'head' + data.id} data={{ ...data, totalCount: get(dataCards, [0, 'totalCount']) }} />
-          ))}
-        </div>
+        <div className="ecos-kanban__head">{cols.map(this.renderHeaderColumn)}</div>
         <Scrollbars
           autoHeight
           autoHeightMin={maxHeight - 100}
@@ -126,13 +134,8 @@ class Kanban extends React.Component {
           renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
           renderTrackHorizontal={() => <div hidden />}
           onScrollFrame={this.handleScrollFrame}
-          scrollDetectionThreshold={1000}
         >
-          <div className="ecos-kanban__body">
-            {columns.map((data, index) => (
-              <this.ContentColumn key={data.id} cards={get(dataCards, [0, 'records'])} />
-            ))}
-          </div>
+          <div className="ecos-kanban__body">{columns.map(this.renderContentColumn)}</div>
           <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />
         </Scrollbars>
       </div>

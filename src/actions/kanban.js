@@ -16,3 +16,4 @@ export const getNextPage = createAction(prefix + 'GET_NEXT_BOARD_PAGE');
 
 export const selectBoardId = createAction(prefix + 'SELECT_BOARD_ID');
 export const setLoading = createAction(prefix + 'SET_LOADING');
+export const setPagination = createAction(prefix + 'SET_PAGINATION');

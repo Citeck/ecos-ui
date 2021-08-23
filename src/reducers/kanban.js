@@ -7,13 +7,14 @@ import {
   setFormProps,
   setIsEnabled,
   setLoading,
+  setPagination,
   setTotalCount
 } from '../actions/kanban';
 import { startLoading, updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const initialState = {
-  isLoading: false,
+  isLoading: true,
   boardConfig: undefined,
   boardList: undefined,
   formProps: null,
@@ -51,6 +52,10 @@ export default handleActions(
     [setTotalCount]: (state, { payload }) => {
       const { stateId, totalCount } = payload;
       return updateState(state, stateId, { totalCount }, initialState);
+    },
+    [setPagination]: (state, { payload }) => {
+      const { stateId, pagination } = payload;
+      return updateState(state, stateId, { pagination }, initialState);
     }
   },
   {}

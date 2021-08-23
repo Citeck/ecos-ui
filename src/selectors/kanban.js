@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
-
-import { selectJournalData, selectSettingsFilters } from './journals';
+import cloneDeep from 'lodash/cloneDeep';
 import { initialState } from '../reducers/kanban';
+import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const selectKanban = (state, key) => get(state, ['kanban', key]) || { ...initialState };
 
@@ -28,7 +28,7 @@ export const selectIsKanbanEnabled = createSelector(
 
 export const selectPagination = createSelector(
   selectKanban,
-  state => get(state, 'pagination')
+  state => cloneDeep(get(state, 'pagination', DEFAULT_PAGINATION))
 );
 
 export const selectKanbanPageProps = createSelector(
