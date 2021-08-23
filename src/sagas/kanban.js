@@ -78,7 +78,11 @@ function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
 
     const formFields = EcosFormUtils.getFormInputs(form.formDefinition);
     //todo get req fields for key , title
-    formFields.push({ attribute: 'id' }, { attribute: 'disp' });
+    formFields.push(
+      { attribute: 'id', edgeSchema: 'cardId', schema: 'cardId' },
+      { attribute: '.disp', edgeSchema: 'cardTitle', schema: 'cardTitle' }
+    );
+
     const formProps = { ...form, formFields };
 
     yield put(setFormProps({ stateId, formProps }));
