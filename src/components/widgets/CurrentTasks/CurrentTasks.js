@@ -2,10 +2,12 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
+import isFunction from 'lodash/isFunction';
 
-import { getCurrentTaskList, initCurrentTasks, resetCurrentTaskList, setInlineTools } from '../../../actions/currentTasks';
+import { getCurrentTaskList, initCurrentTasks, resetCurrentTaskList, setInlineTools, setSettings } from '../../../actions/currentTasks';
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
 import CurrentTaskList from './CurrentTaskList';
+import Settings from './Settings';
 
 import './style.scss';
 
@@ -21,10 +23,11 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = (dispatch, { stateId, record }) => ({
-  initCurrentTasks: () => dispatch(initCurrentTasks({ stateId, record })),
+  initCurrentTasks: initData => dispatch(initCurrentTasks({ stateId, record, initData })),
   getCurrentTaskList: () => dispatch(getCurrentTaskList({ stateId, record })),
   resetCurrentTaskList: () => dispatch(resetCurrentTaskList({ stateId })),
-  setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools }))
+  setInlineTools: inlineTools => dispatch(setInlineTools({ stateId, inlineTools })),
+  setSettings: settings => dispatch(setSettings({ stateId, settings }))
 });
 
 class CurrentTasks extends React.Component {
@@ -56,7 +59,9 @@ class CurrentTasks extends React.Component {
   };
 
   componentDidMount() {
-    this.props.initCurrentTasks();
+    const { settings } = this.props;
+
+    this.props.initCurrentTasks({ settings });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -83,8 +88,18 @@ class CurrentTasks extends React.Component {
     this.setState({ contentHeight });
   };
 
+  handleSaveSettings = settings => {
+    const { onSaveSettings, setSettings } = this.props;
+
+    if (isFunction(onSaveSettings)) {
+      onSaveSettings(settings);
+    }
+
+    setSettings(settings);
+  };
+
   renderCurrentTaskList = () => {
-    const { className, forwardedRef, isSmallMode, stateId, record, height, isLoading } = this.props;
+    const { className, forwardedRef, isSmallMode, stateId, record, height, isLoading, settings } = this.props;
 
     return (
       <CurrentTaskList
@@ -94,9 +109,20 @@ class CurrentTasks extends React.Component {
         stateId={stateId}
         record={record}
         previousHeight={isLoading ? undefined : height}
+        settings={settings}
       />
     );
   };
+
+  renderSettings() {
+    const { settings, isOpenSettings, onToggleSettings } = this.props;
+
+    if (!isOpenSettings) {
+      return null;
+    }
+
+    return <Settings isOpen settings={settings} onHide={onToggleSettings} onSave={this.handleSaveSettings} />;
+  }
 
   render() {
     const { isMobile, scrollbarProps } = this.props;
@@ -106,13 +132,17 @@ class CurrentTasks extends React.Component {
     }
 
     return (
-      <Scrollbars
-        className="ecos-current-task-list"
-        renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
-        {...scrollbarProps}
-      >
-        {this.renderCurrentTaskList()}
-      </Scrollbars>
+      <>
+        <Scrollbars
+          className="ecos-current-task-list"
+          renderTrackVertical={props => <div {...props} className="ecos-current-task-list__v-scroll" />}
+          {...scrollbarProps}
+        >
+          {this.renderCurrentTaskList()}
+        </Scrollbars>
+
+        {this.renderSettings()}
+      </>
     );
   }
 }

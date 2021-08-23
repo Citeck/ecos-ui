@@ -241,4 +241,27 @@
       }
     }
   }
+
+  &-settings {
+    &__info {
+      &-icon.icon {
+        font-size: $font-size-standard;
+        margin-left: 5px;
+        cursor: help;
+      }
+
+      &-table {
+        max-height: 250px;
+        overflow: auto;
+        margin-bottom: 10px;
+
+        thead tr:nth-child(1) th {
+          background: white;
+          position: sticky;
+          top: -1px;
+          z-index: 10;
+        }
+      }
+    }
+  }
 }
