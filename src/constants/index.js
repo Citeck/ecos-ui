@@ -183,6 +183,11 @@ export const SystemJournals = {
   PROCESS: 'bpmn-process-def'
 };
 
+export const DateFormats = {
+  DATE: 'DD.MM.YYYY',
+  DATETIME: 'DD.MM.YYYY HH:mm'
+};
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import Filter from './Filter';
 import { IcoBtn } from '../../common/btns';
@@ -65,9 +66,18 @@ class InlineFilter extends Filter {
     return 'icon-small-close';
   }
 
-  onConfirmAction = () => {
-    this.props.onFilter(this.selectedPredicate);
-    this.props.onToggle();
+  onConfirmAction = e => {
+    const { onFilter, onToggle } = this.props;
+
+    e.stopPropagation();
+
+    if (isFunction(onFilter)) {
+      onFilter(this.selectedPredicate);
+    }
+
+    if (isFunction(onToggle)) {
+      onToggle();
+    }
   };
 
   onChangePredicate = predicate => {

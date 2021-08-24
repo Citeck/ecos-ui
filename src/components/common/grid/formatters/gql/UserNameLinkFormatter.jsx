@@ -6,8 +6,8 @@ import { createProfileUrl } from '../../../../../helpers/urls';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
 export default class UserNameLinkFormatter extends DefaultGqlFormatter {
-  static getFilterValue(cell) {
-    return get(cell, 'displayName');
+  static getFilterValue(cell, ...extra) {
+    return get(cell, extra[extra.length - 1] || 'displayName');
   }
 
   static getQueryString(attribute) {

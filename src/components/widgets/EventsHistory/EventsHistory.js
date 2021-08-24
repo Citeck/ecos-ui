@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import moment from 'moment';
 
 import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
@@ -13,6 +15,23 @@ import { t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common';
 import { Grid } from '../../common/grid';
 import EventsHistoryCard from './EventsHistoryCard';
+import { DataFormatTypes, DateFormats } from '../../../constants';
+import {
+  datePredicateVariables,
+  PREDICATE_CONTAINS,
+  PREDICATE_EMPTY,
+  PREDICATE_ENDS,
+  PREDICATE_EQ,
+  PREDICATE_GE,
+  PREDICATE_GT,
+  PREDICATE_LE,
+  PREDICATE_LT,
+  PREDICATE_NOT_CONTAINS,
+  PREDICATE_NOT_EMPTY,
+  PREDICATE_NOT_EQ,
+  PREDICATE_STARTS
+} from '../../Records/predicates/predicates';
+import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../../Journals/service/util';
 
 import './style.scss';
 
@@ -121,6 +140,8 @@ class EventsHistory extends React.Component {
     return 0;
   }
 
+  isDate = value => [DataFormatTypes.DATETIME, DataFormatTypes.DATE].includes(value);
+
   checkHeight(old) {
     const { getContentHeight } = this.props;
     const contentHeight = this.contentHeight;
@@ -136,6 +157,65 @@ class EventsHistory extends React.Component {
     getEventsHistory({ stateId, record, columns });
   };
 
+  getDateCompareResult(filter, value, format) {
+    const valueInMoment = moment(value);
+    const filterInMoment = moment(filter.val);
+
+    switch (filter.t) {
+      case PREDICATE_GT:
+        return valueInMoment.isAfter(filterInMoment);
+      case PREDICATE_GE:
+        return valueInMoment.isSameOrAfter(filterInMoment);
+      case PREDICATE_LT:
+        return valueInMoment.isBefore(filterInMoment);
+      case PREDICATE_LE:
+        return valueInMoment.isSameOrBefore(filterInMoment);
+      case PREDICATE_NOT_EQ:
+        return filterInMoment.format(format) !== valueInMoment.format(format);
+      case PREDICATE_EQ:
+        return filterInMoment.format(format) === valueInMoment.format(format);
+      case PREDICATE_EMPTY:
+        return isEmpty(value);
+      case PREDICATE_NOT_EMPTY:
+        return !isEmpty(value);
+      case PREDICATE_CONTAINS:
+      default: {
+        if (filter.val === datePredicateVariables.TODAY) {
+          return valueInMoment.format(DateFormats.DATE) === moment().format(DateFormats.DATE);
+        }
+
+        return true;
+      }
+    }
+  }
+
+  getCompareResult(filter, value) {
+    if (Array.isArray(filter.val)) {
+      return filter.val.some(item => this.getCompareResult({ t: filter.t, val: item }, value));
+    }
+
+    switch (filter.t) {
+      case PREDICATE_EMPTY:
+        return isEmpty(value);
+      case PREDICATE_NOT_EMPTY:
+        return !isEmpty(value);
+      case PREDICATE_ENDS:
+        return value.endsWith(filter.val);
+      case PREDICATE_STARTS:
+        return value.startsWith(filter.val);
+      case PREDICATE_EQ:
+        return isEqual(value, filter.val);
+      case PREDICATE_NOT_EQ:
+        return !isEqual(value, filter.val);
+      case PREDICATE_CONTAINS:
+        return value.toLowerCase().includes((filter.val || '').toLowerCase());
+      case PREDICATE_NOT_CONTAINS:
+        return !value.toLowerCase().includes((filter.val || '').toLowerCase());
+      default:
+        return true;
+    }
+  }
+
   get filteredGridData() {
     const { list, columns } = this.props;
     const { filters } = this.state;
@@ -144,14 +224,30 @@ class EventsHistory extends React.Component {
       filters.every(filter => {
         const column = columns.find(column => column.attribute === filter.att || column.dataField === filter.att);
         const formatter = get(column, 'formatExtraData.formatter');
+        const format = column.type === DataFormatTypes.DATE ? DateFormats.DATE : DateFormats.DATETIME;
 
         if (formatter && formatter.getFilterValue) {
-          const value = formatter.getFilterValue(item[filter.att], item, get(column, 'formatExtraData.params'), index) || '';
+          const value =
+            formatter.getFilterValue(
+              item[filter.att],
+              item,
+              get(column, 'formatExtraData.params'),
+              index,
+              column.type === COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.AUTHORITY ? 'nodeRef' : ''
+            ) || '';
 
-          return value.toLowerCase().includes((filter.val || '').toLowerCase());
+          if (!this.isDate(column.type)) {
+            return this.getCompareResult(filter, value);
+          }
+
+          return this.getDateCompareResult(filter, value, format);
         }
 
-        return item[filter.att].includes(filter.val);
+        if (!this.isDate(column.type)) {
+          return this.getCompareResult(filter, item[filter.att]);
+        }
+
+        return this.getDateCompareResult(filter, item[filter.att]);
       })
     );
   }
@@ -162,10 +258,28 @@ class EventsHistory extends React.Component {
     filterEventsHistory({ stateId, record, columns, predicates });
   };
 
-  onGridFilter = (newFilters = []) => {
+  applyFiltering = (items, newItem) => {
+    const filtering = item => {
+      if (isEqual(item, newItem)) {
+        return false;
+      }
+
+      return item.att !== newItem.att;
+    };
+
+    const result = items.filter(filtering);
+
+    if (!isEmpty(newItem.val) || !newItem.needValue) {
+      result.push(newItem);
+    }
+
+    return result;
+  };
+
+  onGridFilter = (newFilters = [], type) => {
     const { filters } = this.state;
     const newFilter = get(newFilters, '0', {});
-    const upFilters = filters.filter(item => item.att !== newFilter.att).concat(newFilters || []);
+    const upFilters = this.applyFiltering(filters, newFilter, type);
 
     this.setState({ filters: upFilters }, () => {
       this.onFilter(this.state.filters);
