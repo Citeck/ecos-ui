@@ -78,10 +78,10 @@ function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
 
     const formFields = EcosFormUtils.getFormInputs(form.formDefinition);
     //todo get req fields for key , title
-    formFields.push(
-      { attribute: 'id', edgeSchema: 'cardId', schema: 'cardId' },
-      { attribute: '.disp', edgeSchema: 'cardTitle', schema: 'cardTitle' }
-    );
+    // formFields.push(
+    //   { attribute: 'id', edgeSchema: 'cardId', schema: 'cardId' },
+    //   { attribute: '.disp', edgeSchema: 'cardTitle', schema: 'cardTitle' }
+    // );
 
     const formProps = { ...form, formFields };
 
@@ -137,7 +137,6 @@ function* sagaGetData({ api, logger }, { payload }) {
 
     const totalCount = dataCards.reduce((accumulator, col) => accumulator + get(col, 'totalCount', 0), 0);
 
-    //todo dooooooooooooooooooooooooooooooooooooo
     dataCards.forEach((data, i) => {
       const preparedRecords = data.records.map(recData => {
         for (const recKey in recData) {
@@ -182,6 +181,7 @@ function* sagaSelectBoard({ api, logger }, { payload }) {
 function* sagaGetNextPage({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
+
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
     const pagination = yield select(selectPagination, stateId);
@@ -189,6 +189,8 @@ function* sagaGetNextPage({ api, logger }, { payload }) {
 
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+
+    yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaGetNextPage saga] error', e);
   }

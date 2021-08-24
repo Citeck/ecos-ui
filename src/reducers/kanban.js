@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions';
 import {
   getBoardConfig,
+  getNextPage,
   setBoardConfig,
   setBoardList,
   setDataCards,
@@ -10,11 +11,12 @@ import {
   setPagination,
   setTotalCount
 } from '../actions/kanban';
-import { startLoading, updateState } from '../helpers/redux';
+import { updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const initialState = {
   isLoading: true,
+  isFirstLoading: true,
   boardConfig: undefined,
   boardList: undefined,
   formProps: null,
@@ -24,13 +26,20 @@ export const initialState = {
 
 export default handleActions(
   {
-    [getBoardConfig]: startLoading(initialState),
+    [getBoardConfig]: (state, { payload }) => {
+      const { stateId } = payload;
+      return updateState(state, stateId, { isFirstLoading: true, isLoading: true }, initialState);
+    },
+    [getNextPage]: (state, { payload }) => {
+      const { stateId } = payload;
+      return updateState(state, stateId, { isLoading: true }, initialState);
+    },
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;
-      return updateState(state, stateId, { boardConfig, isLoading: false }, initialState);
+      return updateState(state, stateId, { boardConfig }, initialState);
     },
     [setLoading]: (state, { payload }) => {
-      const { stateId, isLoading } = payload;
+      const { stateId, isLoading, isLoadingConfig } = payload;
       return updateState(state, stateId, { isLoading }, initialState);
     },
     [setFormProps]: (state, { payload }) => {
@@ -47,7 +56,7 @@ export default handleActions(
     },
     [setDataCards]: (state, { payload }) => {
       const { stateId, dataCards } = payload;
-      return updateState(state, stateId, { dataCards }, initialState);
+      return updateState(state, stateId, { dataCards, isFirstLoading: false }, initialState);
     },
     [setTotalCount]: (state, { payload }) => {
       const { stateId, totalCount } = payload;

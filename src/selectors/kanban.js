@@ -48,6 +48,7 @@ export const selectKanbanProps = createSelector(
     ...data.boardConfig,
     formProps: data.formProps,
     dataCards: data.dataCards || [],
-    isLoading: data.isLoading
+    isLoading: data.isLoading,
+    isFirstLoading: data.isFirstLoading
   })
 );
