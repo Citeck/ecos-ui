@@ -77,12 +77,6 @@ function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
     }
 
     const formFields = EcosFormUtils.getFormInputs(form.formDefinition);
-    //todo get req fields for key , title
-    // formFields.push(
-    //   { attribute: 'id', edgeSchema: 'cardId', schema: 'cardId' },
-    //   { attribute: '.disp', edgeSchema: 'cardTitle', schema: 'cardTitle' }
-    // );
-
     const formProps = { ...form, formFields };
 
     yield put(setFormProps({ stateId, formProps }));
@@ -126,7 +120,13 @@ function* sagaGetData({ api, logger }, { payload }) {
     delete params.columns;
     delete params.groupBy;
     delete params.groupActions;
-    params.columns = formProps.formFields;
+    delete params.attributes;
+
+    const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(formProps.formFields);
+
+    params.attributes = attributes;
+    params.attributes.cardId = '.id';
+    params.attributes.cardTitle = '.disp';
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
@@ -138,18 +138,7 @@ function* sagaGetData({ api, logger }, { payload }) {
     const totalCount = dataCards.reduce((accumulator, col) => accumulator + get(col, 'totalCount', 0), 0);
 
     dataCards.forEach((data, i) => {
-      const preparedRecords = data.records.map(recData => {
-        for (const recKey in recData) {
-          const field = formProps.formFields.find(field => field.attribute === recKey);
-
-          if (recData.hasOwnProperty(recKey) && field) {
-            recData[field.edgeSchema] = recData[recKey];
-          }
-        }
-
-        return recData;
-      });
-
+      const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
       return (data.records = [...get(prevDataCards, [i, 'records'], []), ...preparedRecords]);
     });
 
