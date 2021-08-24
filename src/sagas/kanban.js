@@ -130,19 +130,23 @@ function* sagaGetData({ api, logger }, { payload }) {
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
-    const result = yield boardConfig.columns.map(function*(col) {
-      const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, col.predicate] });
+    const result = yield boardConfig.columns.map(function*(column, i) {
+      if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
+        return yield {};
+      }
+
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, column.predicate] });
       return yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
     });
 
     const dataCards = [];
 
-    result.forEach((data, i) => {
-      if (data.error) {
+    result.forEach((data = {}, i) => {
+      if (!data.records || data.error) {
         dataCards.push({
           totalCount: get(prevDataCards, [i, 'totalCount'], 0),
           records: get(prevDataCards, [i, 'records'], []),
-          error: data.error.message
+          error: get(data, 'error.message')
         });
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
@@ -150,12 +154,10 @@ function* sagaGetData({ api, logger }, { payload }) {
       }
     });
 
-    yield put(setDataCards({ stateId, dataCards }));
+    const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
-    if (result.every(res => !res.error)) {
-      const totalCount = result.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
-      yield put(setTotalCount({ stateId, totalCount }));
-    }
+    yield put(setDataCards({ stateId, dataCards }));
+    yield put(setTotalCount({ stateId, totalCount }));
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e.message);
   }

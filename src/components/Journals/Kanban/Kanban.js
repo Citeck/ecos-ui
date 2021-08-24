@@ -7,7 +7,7 @@ import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { getNextPage } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { PointsLoader } from '../../common';
+import { InfoText, PointsLoader } from '../../common';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Labels } from '../constants';
@@ -26,8 +26,14 @@ function mapDispatchToProps(dispatch, props) {
 }
 
 class Kanban extends React.Component {
+  isNoMore = () => {
+    const { totalCount, dataCards } = this.props;
+
+    return totalCount !== 0 && totalCount === dataCards.reduce((count, card) => card.records.length + count, 0);
+  };
+
   handleScrollFrame = (scroll = {}) => {
-    if (scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+    if (!this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
       this.props.getNextPage();
     }
   };
@@ -52,7 +58,7 @@ class Kanban extends React.Component {
 
   renderColumn = (data, index) => {
     const { dataCards, isFirstLoading, formProps, readOnly } = this.props;
-    const records = get(dataCards, [index, 'records']);
+    const records = get(dataCards, [index, 'records'], []);
     const error = get(dataCards, [index, 'error']);
 
     return (
@@ -83,6 +89,7 @@ class Kanban extends React.Component {
           onScrollFrame={this.handleScrollFrame}
         >
           <div className="ecos-kanban__body">{columns.map(this.renderColumn)}</div>
+          {this.isNoMore() && <InfoText noIndents text={t(Labels.KB_COL_NO_MORE_CARDS)} />}
           {(isLoading || isFirstLoading) && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </Scrollbars>
       </div>

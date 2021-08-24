@@ -45,9 +45,10 @@ export const selectKanbanPageProps = createSelector(
 export const selectKanbanProps = createSelector(
   selectKanban,
   data => ({
-    ...data.boardConfig,
+    columns: get(data, 'boardConfig.columns'),
     formProps: data.formProps,
     dataCards: data.dataCards || [],
+    totalCount: data.totalCount,
     isLoading: data.isLoading,
     isFirstLoading: data.isFirstLoading
   })

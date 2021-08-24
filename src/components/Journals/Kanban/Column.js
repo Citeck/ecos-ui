@@ -7,19 +7,25 @@ import { Labels } from '../constants';
 import Card from './Card';
 
 class Column extends React.PureComponent {
-  renderTipCard = () => {
+  renderInfo = () => {
     const { records, isFirstLoading, error } = this.props;
     let text;
 
     if (error) {
       text = error;
-    } else if (!isFirstLoading && isEmpty(records)) {
+    } else if (isFirstLoading) {
+      text = ' ';
+    } else if (isEmpty(records)) {
       text = t(Labels.KB_COL_NO_CARD);
+    }
+
+    if (!text) {
+      return null;
     }
 
     return (
       <div className="ecos-kanban__column-card_empty">
-        <InfoText text={text} />
+        <InfoText text={text} noIndents />
       </div>
     );
   };
@@ -37,7 +43,7 @@ class Column extends React.PureComponent {
       <div className="ecos-kanban__column">
         <div className="ecos-kanban__column-card-list">
           {records.map(this.renderContentCard)}
-          {this.renderTipCard()}
+          {this.renderInfo()}
         </div>
       </div>
     );

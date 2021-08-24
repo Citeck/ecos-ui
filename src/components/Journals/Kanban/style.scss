@@ -29,6 +29,7 @@
 
   &__body {
     display: flex;
+    position: relative;
     width: 100%;
   }
 
@@ -36,7 +37,6 @@
     $col: &;
     flex: auto;
     word-break: break-all;
-    position: relative;
     width: 100%;
 
     &:not(:first-child) {
@@ -57,13 +57,15 @@
 
     &:last-child {
       & :nth-child(10n)::after {
-        content: '— ' counter(page);
         counter-increment: page;
+        content: '— ' counter(page) ' —';
         color: $color-gray-5;
         display: block;
         position: absolute;
-        font-size: $font-size-extra-large;
-        right: 0;
+        font-size: $font-size-large;
+        left: 0;
+        text-align: center;
+        width: 100%;
       }
     }
 
@@ -72,7 +74,7 @@
       margin-bottom: 12px;
 
       &:nth-child(10n) {
-        margin-bottom: 30px;
+        margin-bottom: 28px;
       }
 
       &_empty {
@@ -82,6 +84,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 5px;
       }
 
       &-list {

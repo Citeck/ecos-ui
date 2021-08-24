@@ -33,6 +33,7 @@ export const Labels = {
   DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm',
   KB_BAR_TOTAL: 'kanban.label.big-total',
   KB_COL_NO_CARD: 'kanban.label.no-card',
+  KB_COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
   KB_CARD_NO_TITLE: 'kanban.label.no-name',
 
   V_JOURNAL: 'journals.view.label.journal',
