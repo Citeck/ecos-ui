@@ -13,6 +13,8 @@ export const setFormProps = createAction(prefix + 'SET_FORM_PROPS');
 export const setDataCards = createAction(prefix + 'SET_DATA_CARDS');
 export const setTotalCount = createAction(prefix + 'SET_TOTAL_COUNT');
 export const getNextPage = createAction(prefix + 'GET_NEXT_BOARD_PAGE');
+export const setResolvedActions = createAction(prefix + 'SET_RESOLVED_ACTIONS');
+export const runAction = createAction(prefix + 'RUN_ACTION');
 
 export const selectBoardId = createAction(prefix + 'SELECT_BOARD_ID');
 export const setLoading = createAction(prefix + 'SET_LOADING');

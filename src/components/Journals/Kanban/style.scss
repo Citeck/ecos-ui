@@ -111,7 +111,7 @@
 
       &-action {
         &-list {
-          & :not(:first-child) {
+          & > :not(:first-child) {
             margin-left: 10px;
           }
         }

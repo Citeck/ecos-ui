@@ -23,6 +23,7 @@ import {
   setIsEnabled,
   setLoading,
   setPagination,
+  setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
 import { selectJournalData } from '../selectors/journals';
@@ -55,6 +56,14 @@ function* sagaGetBoardConfig({ api, logger }, { payload }) {
   try {
     const { boardId, stateId } = payload;
     const boardConfig = yield call(api.kanban.getBoardConfig, { boardId });
+
+    //todo уточнение
+
+    // const emptyCol = boardConfig.columns.find(col => col.id === 'EMPTY');
+    //
+    // if(!emptyCol) {
+    //   boardConfig.columns.push({"t": "not-empty", "att":"_status" })
+    // }
 
     yield put(setBoardConfig({ boardConfig, stateId }));
 
@@ -142,24 +151,45 @@ function* sagaGetData({ api, logger }, { payload }) {
     const dataCards = [];
 
     result.forEach((data = {}, i) => {
+      const prevRecords = get(prevDataCards, [i, 'records'], []);
+
       if (!data.records || data.error) {
         dataCards.push({
           totalCount: get(prevDataCards, [i, 'totalCount'], 0),
-          records: get(prevDataCards, [i, 'records'], []),
+          records: prevRecords,
           error: get(data, 'error.message')
         });
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
-        dataCards.push({ totalCount: data.totalCount, records: [...get(prevDataCards, [i, 'records'], []), ...preparedRecords] });
+        dataCards.push({ totalCount: data.totalCount, records: [...prevRecords, ...preparedRecords] });
       }
     });
 
     const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
+    yield sagaGetActions({ api, logger }, { payload: { boardConfig, dataCards, stateId } });
+
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e.message);
+  }
+}
+
+function* sagaGetActions({ api, logger }, { payload }) {
+  try {
+    const { boardConfig, dataCards, stateId } = payload;
+
+    const resolvedActions = yield boardConfig.columns.map(function*(column, i) {
+      const records = get(dataCards, [i, 'records'], []);
+      const recordRefs = records.map(rec => rec.cardId);
+
+      return yield call([JournalsService, JournalsService.getRecordActions], boardConfig, recordRefs);
+    });
+
+    yield put(setResolvedActions({ stateId, resolvedActions }));
+  } catch (e) {
+    logger.error('[kanban/sagaGetActions saga] error', e);
   }
 }
 

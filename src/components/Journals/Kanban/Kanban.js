@@ -57,20 +57,9 @@ class Kanban extends React.Component {
   };
 
   renderColumn = (data, index) => {
-    const { dataCards, isFirstLoading, formProps, readOnly } = this.props;
-    const records = get(dataCards, [index, 'records'], []);
-    const error = get(dataCards, [index, 'error']);
+    const { stateId } = this.props;
 
-    return (
-      <Column
-        key={`col_${data.id}`}
-        records={records}
-        error={error}
-        isFirstLoading={isFirstLoading}
-        formProps={formProps}
-        readOnly={readOnly}
-      />
-    );
+    return <Column key={`col_${data.id}`} stateId={stateId} columnIndex={index} />;
   };
 
   render() {

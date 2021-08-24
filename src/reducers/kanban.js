@@ -9,6 +9,7 @@ import {
   setIsEnabled,
   setLoading,
   setPagination,
+  setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
 import { updateState } from '../helpers/redux';
@@ -21,6 +22,7 @@ export const initialState = {
   boardList: undefined,
   formProps: null,
   totalCount: 0,
+  resolvedActions: [],
   pagination: DEFAULT_PAGINATION
 };
 
@@ -65,6 +67,10 @@ export default handleActions(
     [setPagination]: (state, { payload }) => {
       const { stateId, pagination } = payload;
       return updateState(state, stateId, { pagination }, initialState);
+    },
+    [setResolvedActions]: (state, { payload }) => {
+      const { stateId, resolvedActions } = payload;
+      return updateState(state, stateId, { resolvedActions }, initialState);
     }
   },
   {}

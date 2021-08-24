@@ -48,8 +48,25 @@ export const selectKanbanProps = createSelector(
     columns: get(data, 'boardConfig.columns'),
     formProps: data.formProps,
     dataCards: data.dataCards || [],
+    resolvedActions: data.resolvedActions,
     totalCount: data.totalCount,
     isLoading: data.isLoading,
     isFirstLoading: data.isFirstLoading
+  })
+);
+
+export const selectColumnData = (state, key, index) => get(state, ['kanban', key, 'dataCards', index]) || {};
+export const selectCardActions = (state, key, index) => get(state, ['kanban', key, 'resolvedActions', index]) || {};
+export const selectColumnProps = createSelector(
+  [selectKanban, selectColumnData, selectCardActions],
+  (board, column, actions) => ({
+    columns: get(board, 'boardConfig.columns'),
+    readOnly: get(board, 'boardConfig.readOnly'),
+    records: column.records,
+    error: column.error,
+    actions: actions.forRecord,
+    formProps: board.formProps,
+    isLoading: board.isLoading,
+    isFirstLoading: board.isFirstLoading
   })
 );

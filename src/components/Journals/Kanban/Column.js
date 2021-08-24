@@ -1,7 +1,9 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/export/util';
+import { selectColumnProps } from '../../../selectors/kanban';
 import { InfoText } from '../../common';
 import { Labels } from '../constants';
 import Card from './Card';
@@ -31,9 +33,9 @@ class Column extends React.PureComponent {
   };
 
   renderContentCard = (record, index) => {
-    const { formProps, readOnly } = this.props;
+    const { formProps, readOnly, actions } = this.props;
 
-    return <Card key={record.cardId} data={record} formProps={formProps} readOnly={readOnly} />;
+    return <Card key={record.cardId} data={record} formProps={formProps} readOnly={readOnly} actions={actions[record.cardId]} />;
   };
 
   render() {
@@ -50,4 +52,15 @@ class Column extends React.PureComponent {
   }
 }
 
-export default Column;
+function mapStateToProps(state, props) {
+  return selectColumnProps(state, props.stateId, props.columnIndex);
+}
+
+function mapDispatchToProps(dispatch) {
+  return {};
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Column);
