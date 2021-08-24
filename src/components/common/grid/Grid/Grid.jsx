@@ -11,6 +11,7 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
+import isFunction from 'lodash/isFunction';
 
 import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -855,8 +856,12 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  onFilter = predicates => {
-    trigger.call(this, 'onFilter', predicates);
+  onFilter = (predicates, type) => {
+    const { onFilter } = this.props;
+
+    if (isFunction(onFilter)) {
+      onFilter(predicates, type);
+    }
   };
 
   onEdit = (oldValue, newValue, row, column) => {

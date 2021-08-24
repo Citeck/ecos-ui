@@ -67,7 +67,7 @@ export default class DateEditorControl extends React.Component {
       date = date.format('YYYY-MM-DD');
     }
 
-    this.setState({ date });
+    this.setState({ date }, this.sendData);
   };
 
   sendData = () => {

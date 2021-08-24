@@ -1,11 +1,11 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
+import isPlainObject from 'lodash/isPlainObject';
 
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders, valueOrNull } from '../util';
 import formatterRegistry from './registry';
-import isPlainObject from 'lodash/isPlainObject';
 import CellType from './CellType';
 import Popper from '../../../common/Popper';
 
@@ -53,7 +53,7 @@ class FormatterService {
     try {
       return FormatterService._formatImpl(props, formatter);
     } catch (e) {
-      console.error('[FormattersService.format] error', e);
+      console.error('[FormattersService.format] error', props, formatter, e);
       return FormatterService.errorMessage;
     }
   }
@@ -73,6 +73,7 @@ class FormatterService {
     }
 
     const fmtInstance = formatterRegistry.getFormatter(type);
+
     if (!fmtInstance || typeof fmtInstance.format !== 'function') {
       console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);
       return FormatterService.errorMessage;
@@ -88,7 +89,9 @@ class FormatterService {
       if (cell.length === 1) {
         return FormatterService._formatSingleValueCellImpl(cell[0], formatProps, fmtInstance);
       }
+
       let idx = 0;
+
       return cell.map(elem => {
         return <div key={idx++}>{FormatterService._formatSingleValueCellImpl(elem, formatProps, fmtInstance)}</div>;
       });
@@ -120,7 +123,7 @@ class FormatterService {
     try {
       return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
     } catch (e) {
-      console.error('[FormattersService._formatSingleValueCellImpl] error', e);
+      console.error('[FormattersService._formatSingleValueCellImpl] error. Props: ', formatProps, e);
       return FormatterService.errorMessage;
     }
   }

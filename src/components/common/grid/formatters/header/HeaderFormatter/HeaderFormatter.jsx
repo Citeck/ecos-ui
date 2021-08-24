@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import replace from 'lodash/replace';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import { Tooltip } from 'reactstrap';
 
-import { closest, getId, isExistValue, trigger } from '../../../../../../helpers/util';
+import { closest, getId, isExistValue } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
@@ -64,8 +65,10 @@ export default class HeaderFormatter extends Component {
   };
 
   get activeFilter() {
+    const { predicate } = this.props;
     const { text, open } = this.state;
-    return text || open;
+
+    return text || open || (predicate.needValue === false && predicate.t);
   }
 
   get indentation() {
@@ -89,42 +92,56 @@ export default class HeaderFormatter extends Component {
   };
 
   onKeyDown = e => {
+    const { column } = this.props;
     const { text, first } = this.state;
 
     if (e.key === 'Enter' && text !== first) {
-      this.triggerPendingChange(text, this.props.column.dataField);
+      this.triggerPendingChange(text, column.dataField, column.type);
     }
   };
 
   onClear = () => {
+    const { column } = this.props;
+
     this.setState({ text: '' });
-    this.triggerPendingChange('', this.props.column.dataField);
+    this.triggerPendingChange('', column.dataField, column.type);
   };
 
-  triggerPendingChange = debounce((text, dataField) => {
+  triggerPendingChange = debounce((text, dataField, type) => {
+    const { column, onFilter } = this.props;
+    const { predicate } = this.state;
+
     this.onToggle();
-    trigger.call(this, 'onFilter', [
-      {
-        att: dataField,
-        t: 'contains',
-        val: text.trim()
-      }
-    ]);
+
+    if (isFunction(onFilter)) {
+      onFilter(
+        [
+          {
+            att: dataField,
+            t: get(predicate, 't', ''),
+            val: text.trim()
+          }
+        ],
+        type || column.type
+      );
+    }
   }, 0);
 
   onDividerMouseDown = e => {
-    const { colIndex } = this.props;
+    const { colIndex, onDividerMouseDown } = this.props;
     const current = this.thRef.current;
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
     e.stopPropagation();
 
-    trigger.call(this, 'onDividerMouseDown', {
-      e: e,
-      th: current.parentElement,
-      colIndex,
-      minW: this.indentation ? this.indentation + 20 : undefined
-    });
+    if (isFunction(onDividerMouseDown)) {
+      onDividerMouseDown({
+        e: e,
+        th: current.parentElement,
+        colIndex,
+        minW: this.indentation ? this.indentation + 20 : undefined
+      });
+    }
   };
 
   onSort = () => {
@@ -148,25 +165,33 @@ export default class HeaderFormatter extends Component {
   };
 
   handleSetFilter = debounce(() => {
-    this.props.onFilter([
-      {
-        ...this.props.predicate,
-        ...this.state.predicate,
-        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
-      }
-    ]);
+    this.props.onFilter(
+      [
+        {
+          ...this.props.predicate,
+          ...this.state.predicate,
+          att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
+        }
+      ],
+      get(this.props, 'column.type')
+    );
   }, 150);
 
-  handleFilter = predicate => {
-    this.props.onFilter([
-      {
-        ...get(this.props, 'predicate'),
-        ...predicate,
-        value: predicate.val,
-        t: predicate.value,
-        att: get(this.props, 'column.attribute') || get(this.props, 'column.dataField')
-      }
-    ]);
+  handleFilter = data => {
+    const { onFilter, predicate, column } = this.props;
+
+    onFilter(
+      [
+        {
+          ...predicate,
+          ...data,
+          value: data.val,
+          t: data.t || data.value,
+          att: column.attribute || column.dataField
+        }
+      ],
+      column.type
+    );
   };
 
   handleChangeFilterPredicate = ({ predicate }) => {

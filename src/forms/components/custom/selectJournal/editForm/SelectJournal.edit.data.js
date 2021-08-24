@@ -158,7 +158,7 @@ export default [
                         editor: 'ace',
                         hideLabel: true,
                         input: true,
-                        placeholder: `value = { name: 'FormatterClassName', params: {} };`
+                        placeholder: `value = { type: 'formatterTypeName', config: {} };`
                       },
                       {
                         type: 'htmlelement',

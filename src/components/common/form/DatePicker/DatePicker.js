@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../../helpers/util';
 import Input from '../Input';
@@ -29,6 +30,14 @@ export default class DatePicker extends Component {
     dateFormat: 'P',
     selected: null
   };
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isOpen: props.isOpen
+    };
+  }
 
   get timeProps() {
     if (this.props.showTimeInput || this.props.showTimeSelect) {
@@ -63,18 +72,32 @@ export default class DatePicker extends Component {
     return selected;
   }
 
+  handleToggleCalendar = () => {
+    this.setState(state => ({ isOpen: !state.isOpen }));
+  };
+
+  handleInputClick = event => {
+    const { onInputClick } = this.props;
+
+    if (isFunction(onInputClick)) {
+      event.persist();
+      onInputClick(event);
+    }
+
+    this.setState({ isOpen: true });
+  };
+
   setInputFocus = () => {
     !this.props.disabled && !this.props.readOnly && this.datePickerInput && this.datePickerInput.focus();
   };
 
   renderIcon = () => {
-    return this.props.showIcon ? (
-      <span className="icon icon-calendar ecos-datepicker__icon" onClick={() => this.datePickerInput && this.datePickerInput.click()} />
-    ) : null;
+    return this.props.showIcon ? <span className="icon icon-calendar ecos-datepicker__icon" onClick={this.handleToggleCalendar} /> : null;
   };
 
   render() {
-    const { className, showIcon, dateFormat, wrapperClasses, value, ...otherProps } = this.props;
+    const { className, showIcon, dateFormat, wrapperClasses, value, onChangeValue, ...otherProps } = this.props;
+    const { isOpen } = this.state;
 
     return (
       <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
@@ -82,12 +105,14 @@ export default class DatePicker extends Component {
           {...otherProps}
           {...this.timeProps}
           {...this.monthProps}
+          open={isOpen}
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} />}
           dateFormat={dateFormat}
           selected={this.selected}
           className={classNames('ecos-input_hover', className)}
           calendarClassName="ecos-datepicker__calendar"
           onSelect={this.setInputFocus}
+          onInputClick={this.handleInputClick}
         />
         {this.renderIcon()}
       </div>

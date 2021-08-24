@@ -21,43 +21,76 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config = {}, cell, format } = props;
-    const script = config.fn;
+    const { config = {}, cell, row, fnArgs } = props;
+    let script = config.fn;
+
     if (!script) {
-      throw new Error(`"fn" is a mandatory parameter in the ScriptFormatter config. Current config: ${JSON.stringify(config)}`);
+      let strConfig = null;
+      try {
+        strConfig = JSON.stringify(config);
+      } catch (e) {
+        console.error("ScriptFormatter config can't be converted to string", config, e);
+      }
+      throw new Error(`"fn" is a mandatory parameter in the ScriptFormatter config. Current config: ${strConfig}`);
     }
+
     const vars = config.vars || {};
+    let result;
 
-    /* eslint-disable-next-line */
-    const result = new Function('Records', '_', 't', 'vars', 'cell', script)(Records, _, t, vars, cell);
-    let content;
+    const args = { ...(fnArgs || {}), Records, _, t, vars, cell, row };
 
+    if (typeof script === 'string') {
+      const entries = Object.entries(args);
+      // eslint-disable-next-line
+      result = new Function(...entries.map(e => e[0]), script)(...entries.map(e => e[1]));
+    } else if (typeof script === 'function') {
+      result = script(args);
+    } else {
+      throw new Error('Unknown fn type: ' + typeof script);
+    }
+
+    if (result === null || result === undefined) {
+      return null;
+    }
+
+    const then = _.get(result, 'then');
+
+    if (typeof then === 'function') {
+      return result.then(res => this._getResultByType(res, props));
+    }
+
+    return this._getResultByType(result, props);
+  }
+
+  _getResultByType(result, props) {
     switch (typeof result) {
       case 'boolean':
-        content = result ? t('boolean.yes') : t('boolean.no');
-        break;
+        return result ? t('boolean.yes') : t('boolean.no');
       case 'number':
       case 'string':
-        content = result;
-        break;
+        return result;
       default:
         if (_.isPlainObject(result)) {
+          const { format } = props;
+
           if (typeof format !== 'function') {
             throw new Error(`"format" should be in props. Please don't use ScriptFormatter directly, use FormatterService instead`);
           }
-          const newFormatter = _.omit(result, ['cell']);
+          const newFormatter = _.omit(result, ['cell', 'row']);
           const newProps = _.clone(props);
-
           if (result.cell) {
             newProps.cell = result.cell;
           }
+          if (result.row) {
+            newProps.row = result.row;
+          }
 
-          content = format(newProps, newFormatter);
+          return format(newProps, newFormatter);
         }
         break;
     }
 
-    return content;
+    return null;
   }
 
   getSupportedCellType() {
