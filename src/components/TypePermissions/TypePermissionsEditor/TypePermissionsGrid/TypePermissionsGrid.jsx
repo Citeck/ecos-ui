@@ -5,7 +5,7 @@ import { Btn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
 import { t } from '../../../../helpers/util';
 
-import { TypePermissionsEditorContext } from '../TypePermissionsEditorContext';
+import { TypePermissionsEditorContext } from '../Context';
 import { STATUS_FIELD_NAME, TYPE_PERM_NONE, TYPE_PERM_READ, TYPE_PERM_WRITE } from '../../constants';
 import { switchTypePerm } from '../../helpers/switchTypePerm';
 

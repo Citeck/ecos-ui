@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 
 import { Loader } from '../../common';
 
-import { TypePermissionsEditorContext } from './TypePermissionsEditorContext';
+import { TypePermissionsEditorContext } from './Context';
 import TypePermissionsGrid from './TypePermissionsGrid';
 import ButtonsPanel from './ButtonsPanel';
 

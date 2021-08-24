@@ -2,7 +2,7 @@ import React from 'react';
 
 import TypePermissionsEditorPropTypes from './TypePermissionsEditorPropTypes';
 import TypePermissionsEditorRoot from './TypePermissionsEditor';
-import { TypePermissionsEditorContextProvider } from './TypePermissionsEditorContext';
+import { TypePermissionsEditorContextProvider } from './TypePermissionsEditorProvider';
 
 import './styles.scss';
 
