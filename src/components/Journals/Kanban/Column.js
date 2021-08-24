@@ -7,26 +7,37 @@ import { Labels } from '../constants';
 import Card from './Card';
 
 class Column extends React.PureComponent {
-  renderNoCard = noText => {
+  renderTipCard = () => {
+    const { records, isFirstLoading, error } = this.props;
+    let text;
+
+    if (error) {
+      text = error;
+    } else if (!isFirstLoading && isEmpty(records)) {
+      text = t(Labels.KB_COL_NO_CARD);
+    }
+
     return (
       <div className="ecos-kanban__column-card_empty">
-        <InfoText text={noText ? '' : t(Labels.KB_COL_NO_CARD)} />
+        <InfoText text={text} />
       </div>
     );
   };
 
-  renderContentCard = (data, index) => {
+  renderContentCard = (record, index) => {
     const { formProps, readOnly } = this.props;
 
-    return <Card key={data.cardId} data={data} formProps={formProps} readOnly={readOnly} />;
+    return <Card key={record.cardId} data={record} formProps={formProps} readOnly={readOnly} />;
   };
 
   render() {
-    const { cards, isFirstLoading } = this.props;
+    const { records = [] } = this.props;
+
     return (
       <div className="ecos-kanban__column">
         <div className="ecos-kanban__column-card-list">
-          {isEmpty(cards) ? this.renderNoCard(isFirstLoading) : cards.map(this.renderContentCard)}
+          {records.map(this.renderContentCard)}
+          {this.renderTipCard()}
         </div>
       </div>
     );

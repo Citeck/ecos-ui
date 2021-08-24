@@ -41,8 +41,9 @@ class JournalsServiceApi {
     return result.catch(e => {
       console.error(e);
       return {
+        error: e,
         records: [],
-        total: 0,
+        totalCount: 0,
         attributes
       };
     });

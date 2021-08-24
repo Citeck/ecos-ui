@@ -130,20 +130,32 @@ function* sagaGetData({ api, logger }, { payload }) {
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
 
-    const dataCards = yield boardConfig.columns.map(function*(col) {
+    const result = yield boardConfig.columns.map(function*(col) {
       const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, col.predicate] });
       return yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
     });
 
-    const totalCount = dataCards.reduce((accumulator, col) => accumulator + get(col, 'totalCount', 0), 0);
+    const dataCards = [];
 
-    dataCards.forEach((data, i) => {
-      const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
-      return (data.records = [...get(prevDataCards, [i, 'records'], []), ...preparedRecords]);
+    result.forEach((data, i) => {
+      if (data.error) {
+        dataCards.push({
+          totalCount: get(prevDataCards, [i, 'totalCount'], 0),
+          records: get(prevDataCards, [i, 'records'], []),
+          error: data.error.message
+        });
+      } else {
+        const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
+        dataCards.push({ totalCount: data.totalCount, records: [...get(prevDataCards, [i, 'records'], []), ...preparedRecords] });
+      }
     });
 
-    yield put(setTotalCount({ stateId, totalCount }));
     yield put(setDataCards({ stateId, dataCards }));
+
+    if (result.every(res => !res.error)) {
+      const totalCount = result.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
+      yield put(setTotalCount({ stateId, totalCount }));
+    }
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e.message);
   }

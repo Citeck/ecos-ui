@@ -43,7 +43,7 @@ class Kanban extends React.Component {
             <Caption small className="ecos-kanban__column-head-caption">
               {extractLabel(data.name).toUpperCase() || t(Labels.KB_CARD_NO_TITLE)}
             </Caption>
-            {totalCount && <Badge text={totalCount} />}
+            {!!totalCount && <Badge text={totalCount} />}
           </TitlePageLoader>
         </div>
       </div>
@@ -52,9 +52,19 @@ class Kanban extends React.Component {
 
   renderColumn = (data, index) => {
     const { dataCards, isFirstLoading, formProps, readOnly } = this.props;
-    const cards = get(dataCards, [index, 'records']);
+    const records = get(dataCards, [index, 'records']);
+    const error = get(dataCards, [index, 'error']);
 
-    return <Column key={`col_${data.id}`} cards={cards} isFirstLoading={isFirstLoading} formProps={formProps} readOnly={readOnly} />;
+    return (
+      <Column
+        key={`col_${data.id}`}
+        records={records}
+        error={error}
+        isFirstLoading={isFirstLoading}
+        formProps={formProps}
+        readOnly={readOnly}
+      />
+    );
   };
 
   render() {
