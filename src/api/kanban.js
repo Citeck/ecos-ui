@@ -21,7 +21,7 @@ export class KanbanApi {
           readOnly: false, // возможно ли перемещать сущности между статусами
           typeRef: 'emodel/type@some-type', // ссылка на тип
           journalRef: 'uiserv/journal@contract-agreements', // ссылка на журнал
-          cardFormRef: 'uiserv/form@agreement-form_card', // ссылка на форму для карточки
+          cardFormRef: 'uiserv/form@ECOSUI1242CARD', // ссылка на форму для карточки
           actions: ['uiserv/action@edit', 'uiserv/action@view-dashboard', 'uiserv/action@view-dashboard-in-background'], // действия
           columns: [
             {

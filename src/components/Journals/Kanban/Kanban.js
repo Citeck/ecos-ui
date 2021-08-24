@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
 
@@ -8,11 +7,11 @@ import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { getNextPage } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { InfoText, PointsLoader } from '../../common';
+import { PointsLoader } from '../../common';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Labels } from '../constants';
-import Card from './Card';
+import Column from './Column';
 
 import './style.scss';
 
@@ -51,31 +50,11 @@ class Kanban extends React.Component {
     );
   };
 
-  renderContentColumn = (data, index) => {
-    const { dataCards, isFirstLoading } = this.props;
+  renderColumn = (data, index) => {
+    const { dataCards, isFirstLoading, formProps, readOnly } = this.props;
     const cards = get(dataCards, [index, 'records']);
 
-    return (
-      <div className="ecos-kanban__column" key={`col_${data.id}`}>
-        <div className="ecos-kanban__column-card-list">
-          {isEmpty(cards) ? this.renderNoCard(isFirstLoading) : cards.map(this.renderContentCard)}
-        </div>
-      </div>
-    );
-  };
-
-  renderContentCard = (data, index) => {
-    const { formProps, readOnly } = this.props;
-
-    return <Card data={data} formProps={formProps} readOnly={readOnly} />;
-  };
-
-  renderNoCard = noText => {
-    return (
-      <div className="ecos-kanban__column-card_empty">
-        <InfoText text={noText ? '' : t(Labels.KB_COL_NO_CARD)} />
-      </div>
-    );
+    return <Column key={`col_${data.id}`} cards={cards} isFirstLoading={isFirstLoading} formProps={formProps} readOnly={readOnly} />;
   };
 
   render() {
@@ -93,7 +72,7 @@ class Kanban extends React.Component {
           renderTrackHorizontal={() => <div hidden />}
           onScrollFrame={this.handleScrollFrame}
         >
-          <div className="ecos-kanban__body">{columns.map(this.renderContentColumn)}</div>
+          <div className="ecos-kanban__body">{columns.map(this.renderColumn)}</div>
           {(isLoading || isFirstLoading) && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </Scrollbars>
       </div>

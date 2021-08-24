@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import { extractLabel } from '../../../helpers/util';
 import { Panel, Separator } from '../../common';
@@ -7,7 +7,7 @@ import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
 
-class Card extends Component {
+class Card extends React.PureComponent {
   renderHeaderCard = data => {
     const { readOnly, actions } = this.props;
     const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
