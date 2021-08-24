@@ -75,6 +75,19 @@
     padding-right: 15px;
     padding-left: 15px;
   }
+
+  &__icon {
+    &_clear.icon {
+      cursor: pointer;
+      position: absolute;
+      font-size: $font-size-standard;
+      z-index: 5;
+      line-height: 1em;
+      top: calc(50% - 1em / 2);
+      right: 0.5em;
+      color: $color-gray-12;
+    }
+  }
 }
 
 .ecos-ml-text {
