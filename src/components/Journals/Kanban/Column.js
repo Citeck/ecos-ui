@@ -4,6 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/export/util';
 import { selectColumnProps } from '../../../selectors/kanban';
+import { runAction } from '../../../actions/kanban';
 import { InfoText } from '../../common';
 import { Labels } from '../constants';
 import Card from './Card';
@@ -33,9 +34,18 @@ class Column extends React.PureComponent {
   };
 
   renderContentCard = (record, index) => {
-    const { formProps, readOnly, actions } = this.props;
+    const { formProps, readOnly, actions, runAction } = this.props;
 
-    return <Card key={record.cardId} data={record} formProps={formProps} readOnly={readOnly} actions={actions[record.cardId]} />;
+    return (
+      <Card
+        key={record.cardId}
+        data={record}
+        formProps={formProps}
+        readOnly={readOnly}
+        actions={actions[record.cardId]}
+        runAction={runAction}
+      />
+    );
   };
 
   render() {
@@ -56,8 +66,10 @@ function mapStateToProps(state, props) {
   return selectColumnProps(state, props.stateId, props.columnIndex);
 }
 
-function mapDispatchToProps(dispatch) {
-  return {};
+function mapDispatchToProps(dispatch, props) {
+  return {
+    runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
+  };
 }
 
 export default connect(

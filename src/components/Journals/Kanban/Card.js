@@ -7,12 +7,11 @@ import { FormWrapper } from '../../common/dialogs';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
-import RecordActions from '../../Records/actions/recordActions'; //todo
 
 class Card extends React.PureComponent {
   handleAction = action => {
     const { data } = this.props;
-    RecordActions.execForRecord(data.cardId, action);
+    this.props.runAction(data.cardId, action);
   };
 
   renderHeaderCard = () => {

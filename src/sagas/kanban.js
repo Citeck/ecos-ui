@@ -15,6 +15,7 @@ import {
   getBoardData,
   getBoardList,
   getNextPage,
+  runAction,
   selectBoardId,
   setBoardConfig,
   setBoardList,
@@ -34,6 +35,7 @@ import JournalsConverter from '../dto/journals';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
+import RecordActions from '../components/Records/actions/recordActions';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
@@ -230,12 +232,23 @@ function* sagaGetNextPage({ api, logger }, { payload }) {
   }
 }
 
+function* sagaRunAction({ api, logger }, { payload }) {
+  try {
+    const { stateId, recordRef, action } = payload;
+
+    RecordActions.execForRecord(recordRef, action);
+  } catch (e) {
+    logger.error('[kanban/sagaRunAction saga] error', e);
+  }
+}
+
 function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
   yield takeEvery(getBoardData().type, sagaGetBoardData, ea);
   yield takeEvery(selectBoardId().type, sagaSelectBoard, ea);
   yield takeEvery(getNextPage().type, sagaGetNextPage, ea);
+  yield takeEvery(runAction().type, sagaRunAction, ea);
 }
 
 export default docStatusSaga;
