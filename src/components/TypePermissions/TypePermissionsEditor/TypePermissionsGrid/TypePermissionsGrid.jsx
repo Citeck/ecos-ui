@@ -6,10 +6,12 @@ import { Grid } from '../../../common/grid';
 import { t } from '../../../../helpers/util';
 
 import { TypePermissionsEditorContext } from '../TypePermissionsEditorContext';
-import { STATUS_FIELD_NAME, TYPE_PERM_NONE, TYPE_PERM_WRITE } from '../../constants';
+import { STATUS_FIELD_NAME, TYPE_PERM_NONE, TYPE_PERM_READ, TYPE_PERM_WRITE } from '../../constants';
 import { switchTypePerm } from '../../helpers/switchTypePerm';
 
 class TypePermissionsGrid extends React.PureComponent {
+  static contextType = TypePermissionsEditorContext;
+
   get maxHeight() {
     return window.innerHeight - 200;
   }
@@ -22,7 +24,7 @@ class TypePermissionsGrid extends React.PureComponent {
       roles.forEach(role => {
         const rolePermissions = matrixConfig[role.id] || {};
 
-        rolesPermissions[role.id] = rolePermissions[status.id] || 'READ';
+        rolesPermissions[role.id] = rolePermissions[status.id] || TYPE_PERM_READ;
       });
 
       return {
@@ -91,7 +93,5 @@ class TypePermissionsGrid extends React.PureComponent {
     );
   }
 }
-
-TypePermissionsGrid.contextType = TypePermissionsEditorContext;
 
 export default TypePermissionsGrid;
