@@ -56,4 +56,10 @@ export class KanbanApi {
     });
     return Records.get(`${SourcesId.RESOLVED_BOARD}@${boardId}`).load('?json');
   }
+
+  moveRecord({ recordRef, columnId }) {
+    const rec = Records.get(recordRef);
+    rec.att('_status', columnId);
+    return rec.save();
+  }
 }

@@ -5,6 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
@@ -15,6 +16,7 @@ import {
   getBoardData,
   getBoardList,
   getNextPage,
+  moveCard,
   runAction,
   selectBoardId,
   setBoardConfig,
@@ -217,7 +219,6 @@ function* sagaSelectBoard({ api, logger }, { payload }) {
 function* sagaGetNextPage({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
-
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
     const pagination = yield select(selectPagination, stateId);
@@ -243,6 +244,27 @@ function* sagaRunAction({ api, logger }, { payload }) {
   }
 }
 
+function* sagaMoveCard({ api, logger }, { payload }) {
+  try {
+    const { stateId, cardIndex, fromColumnRef, toColumnRef, cardRef } = payload;
+    const { dataCards: prevDataCards, boardConfig } = yield select(selectKanban, stateId);
+    const dataCards = cloneDeep(prevDataCards);
+    const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
+    const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
+
+    dataCards[toColumnIndex].records.unshift(dataCards[fromColumnIndex].records[cardIndex]);
+    dataCards[toColumnIndex].totalCount += 1;
+    dataCards[fromColumnIndex].records.splice(cardIndex, 1);
+    dataCards[fromColumnIndex].totalCount -= 1;
+
+    //todo open
+    // yield call(api.kanban.moveRecord, { recordRef: cardRef, columnId: toColumnRef });
+    yield put(setDataCards({ stateId, dataCards: dataCards }));
+  } catch (e) {
+    logger.error('[kanban/sagaRunAction saga] error', e);
+  }
+}
+
 function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
@@ -250,6 +272,7 @@ function* docStatusSaga(ea) {
   yield takeEvery(selectBoardId().type, sagaSelectBoard, ea);
   yield takeEvery(getNextPage().type, sagaGetNextPage, ea);
   yield takeEvery(runAction().type, sagaRunAction, ea);
+  yield takeEvery(moveCard().type, sagaMoveCard, ea);
 }
 
 export default docStatusSaga;

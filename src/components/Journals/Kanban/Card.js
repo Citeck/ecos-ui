@@ -1,5 +1,6 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
+import { Draggable } from 'react-beautiful-dnd';
 
 import { extractLabel } from '../../../helpers/util';
 import { Panel, Separator } from '../../common';
@@ -55,24 +56,39 @@ class Card extends React.PureComponent {
   };
 
   render() {
-    const { data, formProps } = this.props;
+    const { data, cardIndex, formProps } = this.props;
 
     return (
-      <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={this.renderHeaderCard()}>
-        <FormWrapper
-          isVisible
-          {...formProps}
-          formData={data}
-          formOptions={{
-            readOnly: true,
-            viewAsHtml: true,
-            fullWidthColumns: true,
-            viewAsHtmlConfig: {
-              hidePanels: true
-            }
-          }}
-        />
-      </Panel>
+      <Draggable draggableId={data.cardId} index={cardIndex}>
+        {(provided, snapshot) => (
+          <p
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            style={{
+              ...provided.draggableProps.style,
+              margin: '5px',
+              background: snapshot.isDragging ? 'blue' : 'pink'
+            }}
+          >
+            <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={this.renderHeaderCard()}>
+              {/*<FormWrapper*/}
+              {/*  isVisible*/}
+              {/*  {...formProps}*/}
+              {/*  formData={data}*/}
+              {/*  formOptions={{*/}
+              {/*    readOnly: true,*/}
+              {/*    viewAsHtml: true,*/}
+              {/*    fullWidthColumns: true,*/}
+              {/*    viewAsHtmlConfig: {*/}
+              {/*      hidePanels: true*/}
+              {/*    }*/}
+              {/*  }}*/}
+              {/*/>*/}
+            </Panel>
+          </p>
+        )}
+      </Draggable>
     );
   }
 }

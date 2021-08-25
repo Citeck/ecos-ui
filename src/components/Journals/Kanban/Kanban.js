@@ -1,11 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
-import { getNextPage } from '../../../actions/kanban';
+import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { InfoText, PointsLoader } from '../../common';
 import { Badge, Caption } from '../../common/form';
@@ -21,11 +24,28 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch, props) {
   return {
-    getNextPage: () => dispatch(getNextPage({ stateId: props.stateId }))
+    getNextPage: () => dispatch(getNextPage({ stateId: props.stateId })),
+    moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data }))
   };
 }
 
 class Kanban extends React.Component {
+  refBody = React.createRef();
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const height = get(this.refBody, 'current.clientHeight');
+
+    if (!isEqualWith(prevProps.dataCards, this.props.dataCards, isEqual) && !!height) {
+      if (this.getHeight() > height && !this.isNoMore()) {
+        this.props.getNextPage();
+      }
+    }
+  }
+
+  getHeight() {
+    return this.props.maxHeight - 100;
+  }
+
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
 
@@ -36,6 +56,19 @@ class Kanban extends React.Component {
     if (!this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
       this.props.getNextPage();
     }
+  };
+
+  handleDragEnd = result => {
+    const cardRef = get(result, 'draggableId');
+    const cardIndex = get(result, 'source.index');
+    const fromColumnRef = get(result, 'source.droppableId');
+    const toColumnRef = get(result, 'destination.droppableId');
+
+    if (fromColumnRef === toColumnRef) {
+      return;
+    }
+
+    this.props.moveCard({ cardIndex, cardRef, fromColumnRef, toColumnRef });
   };
 
   renderHeaderColumn = (data, index) => {
@@ -59,11 +92,11 @@ class Kanban extends React.Component {
   renderColumn = (data, index) => {
     const { stateId } = this.props;
 
-    return <Column key={`col_${data.id}`} stateId={stateId} columnIndex={index} />;
+    return <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} />;
   };
 
   render() {
-    const { columns = [], maxHeight, isLoading, isFirstLoading } = this.props;
+    const { columns = [], isLoading, isFirstLoading } = this.props;
     const cols = columns || Array(3).map((_, id) => ({ id }));
 
     return (
@@ -71,13 +104,15 @@ class Kanban extends React.Component {
         <div className="ecos-kanban__head">{cols.map(this.renderHeaderColumn)}</div>
         <Scrollbars
           autoHeight
-          autoHeightMin={maxHeight - 100}
-          autoHeightMax={maxHeight - 100}
+          autoHeightMin={this.getHeight()}
+          autoHeightMax={this.getHeight()}
           renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
           renderTrackHorizontal={() => <div hidden />}
           onScrollFrame={this.handleScrollFrame}
         >
-          <div className="ecos-kanban__body">{columns.map(this.renderColumn)}</div>
+          <div className="ecos-kanban__body" ref={this.refBody}>
+            <DragDropContext onDragEnd={this.handleDragEnd}>{columns.map(this.renderColumn)}</DragDropContext>
+          </div>
           {this.isNoMore() && <InfoText noIndents text={t(Labels.KB_COL_NO_MORE_CARDS)} />}
           {(isLoading || isFirstLoading) && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </Scrollbars>

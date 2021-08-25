@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import isEmpty from 'lodash/isEmpty';
+import { Droppable } from 'react-beautiful-dnd';
 
 import { t } from '../../../helpers/export/util';
 import { selectColumnProps } from '../../../selectors/kanban';
@@ -38,11 +39,16 @@ class Column extends React.PureComponent {
   };
 
   renderContentCard = (record, index) => {
+    if (!record) {
+      return null;
+    }
+
     const { formProps, readOnly, actions = {} } = this.props;
 
     return (
       <Card
         key={record.cardId}
+        cardIndex={index}
         data={record}
         formProps={formProps}
         readOnly={readOnly}
@@ -53,15 +59,26 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [] } = this.props;
+    const { records = [], data } = this.props;
 
     return (
-      <div className="ecos-kanban__column">
-        <div className="ecos-kanban__column-card-list">
-          {records.map(this.renderContentCard)}
-          {this.renderInfo()}
-        </div>
-      </div>
+      <Droppable droppableId={data.id}>
+        {(provided, snapshot) => (
+          <div
+            className="ecos-kanban__column"
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            style={{
+              background: snapshot.isDraggingOver ? 'lightblue' : 'lightgrey'
+            }}
+          >
+            <div className="ecos-kanban__column-card-list">
+              {records.map(this.renderContentCard)}
+              {this.renderInfo()}
+            </div>
+          </div>
+        )}
+      </Droppable>
     );
   }
 }
