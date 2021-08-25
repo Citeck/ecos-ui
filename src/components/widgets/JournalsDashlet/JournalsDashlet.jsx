@@ -9,7 +9,7 @@ import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { extractLabel, t } from '../../../helpers/util';
+import { domElementMeasurer, extractLabel, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -25,7 +25,6 @@ import {
   setSelectedRecords
 } from '../../../actions/journals';
 import { selectDashletConfig, selectDashletConfigJournalId } from '../../../selectors/journals';
-import Measurer from '../../Measurer/Measurer';
 import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
@@ -293,15 +292,14 @@ class JournalsDashlet extends BaseWidget {
 
     return (
       <>
-        <Measurer>
-          <JournalsDashletToolbar
-            lsJournalId={journalId}
-            forwardRef={this.setToolbarRef}
-            stateId={stateId}
-            isSmall={width < MIN_WIDTH_DASHLET_LARGE}
-            onChangeSelectedJournal={this.handleChangeSelectedJournal}
-          />
-        </Measurer>
+        <JournalsDashletToolbar
+          measurer={domElementMeasurer(this._toolbarRef)}
+          lsJournalId={journalId}
+          forwardRef={this.setToolbarRef}
+          stateId={stateId}
+          isSmall={width < MIN_WIDTH_DASHLET_LARGE}
+          onChangeSelectedJournal={this.handleChangeSelectedJournal}
+        />
 
         <JournalsGroupActionsTools
           forwardedRef={this.setGroupActionsRef}

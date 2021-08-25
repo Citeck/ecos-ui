@@ -8,10 +8,9 @@ import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
-import { t } from '../../helpers/util';
+import { t, domElementMeasurer } from '../../helpers/util';
 import { Loader, Panel, ResizableBox } from '../common';
 import { Btn } from '../common/btns';
-import Measurer from '../Measurer/Measurer';
 import { ErrorBoundary } from '../ErrorBoundary';
 import Header from './Header';
 
@@ -257,24 +256,23 @@ class Dashlet extends Component {
           noHeader={noHeader}
           header={
             !noHeader && (
-              <Measurer className="dashlet__header-measurer">
-                <Header
-                  title={title}
-                  needGoTo={needGoTo}
-                  onGoTo={this.onGoTo}
-                  onToggleCollapse={this.onToggle}
-                  actionDrag={actionDrag && canDragging}
-                  dragHandleProps={dragHandleProps}
-                  titleClassName={titleClassName}
-                  isCollapsed={isCollapsed}
-                  badgeText={badgeText}
-                  dashletId={this.dashletId}
-                  actionConfig={actionConfig}
-                  actionRules={actionRules}
-                  noActions={noActions}
-                  customActions={customActions}
-                />
-              </Measurer>
+              <Header
+                measurer={domElementMeasurer(this.#dashletRef)}
+                title={title}
+                needGoTo={needGoTo}
+                onGoTo={this.onGoTo}
+                onToggleCollapse={this.onToggle}
+                actionDrag={actionDrag && canDragging}
+                dragHandleProps={dragHandleProps}
+                titleClassName={titleClassName}
+                isCollapsed={isCollapsed}
+                badgeText={badgeText}
+                dashletId={this.dashletId}
+                actionConfig={actionConfig}
+                actionRules={actionRules}
+                noActions={noActions}
+                customActions={customActions}
+              />
             )
           }
         >
