@@ -2,7 +2,7 @@ import { mountWithContext } from '../../../helpers/tests';
 
 import { switchTypePerm } from '../helpers/switchTypePerm';
 import { TYPE_PERM_NONE, TYPE_PERM_READ, TYPE_PERM_WRITE } from '../constants';
-import { TypePermissionsEditorContext } from '../TypePermissionsEditor/TypePermissionsEditorContext';
+import { TypePermissionsEditorContext } from '../TypePermissionsEditor/Context';
 import TypePermissionsEditor from '../TypePermissionsEditor/TypePermissionsEditor';
 import TypePermissionsGrid from '../TypePermissionsEditor/TypePermissionsGrid';
 import ButtonsPanel from '../TypePermissionsEditor/ButtonsPanel';
