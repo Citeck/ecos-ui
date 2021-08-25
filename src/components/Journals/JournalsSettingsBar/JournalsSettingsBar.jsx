@@ -8,7 +8,6 @@ import { IcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import { getCreateVariantKeyField } from '../service/util';
-import JournalsDashletPagination from '../JournalsDashletPagination';
 import ViewTabs from '../ViewTabs';
 
 import './JournalsSettingsBar.scss';

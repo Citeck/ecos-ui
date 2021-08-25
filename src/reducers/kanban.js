@@ -41,7 +41,7 @@ export default handleActions(
       return updateState(state, stateId, { boardConfig }, initialState);
     },
     [setLoading]: (state, { payload }) => {
-      const { stateId, isLoading, isLoadingConfig } = payload;
+      const { stateId, isLoading } = payload;
       return updateState(state, stateId, { isLoading }, initialState);
     },
     [setFormProps]: (state, { payload }) => {

@@ -235,9 +235,9 @@ function* sagaGetNextPage({ api, logger }, { payload }) {
 
 function* sagaRunAction({ api, logger }, { payload }) {
   try {
-    const { stateId, recordRef, action } = payload;
+    const { recordRef, action } = payload;
 
-    RecordActions.execForRecord(recordRef, action);
+    yield call([RecordActions, RecordActions.execForRecord], recordRef, action);
   } catch (e) {
     logger.error('[kanban/sagaRunAction saga] error', e);
   }

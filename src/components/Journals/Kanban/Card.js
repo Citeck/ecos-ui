@@ -36,12 +36,10 @@ class Card extends React.PureComponent {
                 modifiers={null}
                 withScrollbar
                 scrollbarHeightMax={200}
-                controlIcon="icon-custom-more-big-pressed"
                 className="ecos-kanban__column-card-action-dropdown"
-                controlClassName="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
               >
                 <IcoBtn
-                  icon="icon-custom-more-big-pressed"
+                  icon="icon-custom-more-small-normal"
                   className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
                 />
               </DropdownOuter>

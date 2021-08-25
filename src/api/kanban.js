@@ -1,6 +1,5 @@
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import JournalsService from '../components/Journals/service/journalsService';
 
 export class KanbanApi {
   getBoardList({ journalId }) {
