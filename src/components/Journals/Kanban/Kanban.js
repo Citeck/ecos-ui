@@ -49,7 +49,7 @@ class Kanban extends React.Component {
             <Caption small className="ecos-kanban__column-head-caption">
               {extractLabel(data.name).toUpperCase() || t(Labels.KB_CARD_NO_TITLE)}
             </Caption>
-            {!!totalCount && <Badge text={totalCount} />}
+            {!!totalCount && <Badge text={totalCount} outline />}
           </TitlePageLoader>
         </div>
       </div>

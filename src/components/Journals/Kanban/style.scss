@@ -48,9 +48,10 @@
       border-radius: $border-radius-standard;
       padding: 10px;
       box-shadow: none;
+      display: flex;
+      align-items: center;
 
       &-caption {
-        display: inline-block;
         margin-right: 15px;
       }
     }

@@ -1,6 +1,7 @@
 @import '../../../../styles/constants';
 
 .ecos-badge {
+  $badge: &;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,6 +20,23 @@
     background-color: $color-red-2;
   }
 
+  &_outline {
+    border: $border-width-standard solid;
+    background-color: $color-gray-13;
+
+    &#{$badge} {
+      &_info {
+        border-color: $color-gray-5;
+        color: $color-gray-11;
+      }
+
+      &_danger {
+        border-color: $color-red-2;
+        color: $color-red-2;
+      }
+    }
+  }
+
   &_small {
     font-size: $font-size-small;
     line-height: 1.4;
@@ -26,7 +44,7 @@
   }
 
   &_medium {
-    padding: 2px 5px;
+    padding: 0 5px;
     line-height: unset;
   }
 
