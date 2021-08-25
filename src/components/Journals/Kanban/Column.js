@@ -10,6 +10,10 @@ import { Labels } from '../constants';
 import Card from './Card';
 
 class Column extends React.PureComponent {
+  handleAction = (...data) => {
+    this.props.runAction(...data);
+  };
+
   renderInfo = () => {
     const { records, isFirstLoading, error } = this.props;
     let text;
@@ -34,7 +38,7 @@ class Column extends React.PureComponent {
   };
 
   renderContentCard = (record, index) => {
-    const { formProps, readOnly, actions, runAction } = this.props;
+    const { formProps, readOnly, actions = {} } = this.props;
 
     return (
       <Card
@@ -43,7 +47,7 @@ class Column extends React.PureComponent {
         formProps={formProps}
         readOnly={readOnly}
         actions={actions[record.cardId]}
-        runAction={runAction}
+        onClickAction={this.handleAction}
       />
     );
   };

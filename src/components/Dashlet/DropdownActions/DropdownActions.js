@@ -1,7 +1,7 @@
 import React from 'react';
 import { UncontrolledTooltip } from 'reactstrap';
 
-import { IcoBtn } from '../btns';
+import { IcoBtn } from '../../common/btns';
 
 import './style.scss';
 

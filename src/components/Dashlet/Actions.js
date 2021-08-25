@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { DropdownActions } from '../common';
 import { IcoBtn } from '../common/btns';
 import DashletActionService from '../../services/DashletActionService';
+import DropdownActions from './DropdownActions/DropdownActions';
 
 const BtnAction = ({ id, text, icon, onClick, component }) => {
   if (component) {

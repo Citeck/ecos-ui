@@ -2,16 +2,16 @@ import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 
 import { extractLabel } from '../../../helpers/util';
-import { DropdownActions, Panel, Separator } from '../../common';
+import { Panel, Separator } from '../../common';
 import { FormWrapper } from '../../common/dialogs';
-import { Caption } from '../../common/form';
+import { Caption, DropdownOuter } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
 
 class Card extends React.PureComponent {
   handleAction = action => {
     const { data } = this.props;
-    this.props.runAction(data.cardId, action);
+    this.props.onClickAction(data.cardId, action);
   };
 
   renderHeaderCard = () => {
@@ -24,11 +24,27 @@ class Card extends React.PureComponent {
           {extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}
           <div className="ecos-kanban__column-card-action-list">
             {!isEmpty(actions) && (
-              <DropdownActions
-                htmlId={data.cardId.replace(/[:@/]/gim, '')}
-                list={actions.map(act => ({ ...act, text: act.name }))}
-                onClick={this.handleAction}
-              />
+              <DropdownOuter
+                key={data.cardId}
+                source={actions}
+                valueField={'id'}
+                titleField={'name'}
+                onChange={this.handleAction}
+                isStatic
+                boundariesElement="window"
+                placement="bottom-end"
+                modifiers={null}
+                withScrollbar
+                scrollbarHeightMax={200}
+                controlIcon="icon-custom-more-big-pressed"
+                className="ecos-kanban__column-card-action-dropdown"
+                controlClassName="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
+              >
+                <IcoBtn
+                  icon="icon-custom-more-big-pressed"
+                  className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+                />
+              </DropdownOuter>
             )}
             {!readOnly && (
               <IcoBtn icon="icon-custom-drag-big" className={'ecos-kanban__column-card-action-drag ' + grey} onClick={_ => _} />
@@ -41,7 +57,7 @@ class Card extends React.PureComponent {
   };
 
   render() {
-    const { data, formProps, readOnly } = this.props;
+    const { data, formProps } = this.props;
 
     return (
       <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={this.renderHeaderCard()}>

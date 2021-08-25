@@ -64,7 +64,7 @@ export const selectColumnProps = createSelector(
     readOnly: get(board, 'boardConfig.readOnly'),
     records: column.records,
     error: column.error,
-    actions: actions.forRecord,
+    actions,
     formProps: board.formProps,
     isLoading: board.isLoading,
     isFirstLoading: board.isFirstLoading

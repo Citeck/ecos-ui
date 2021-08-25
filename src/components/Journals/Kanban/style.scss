@@ -116,6 +116,10 @@
           }
         }
 
+        &-dropdown {
+          display: inline-block;
+        }
+
         &-drag {
           &:hover {
             cursor: grab;

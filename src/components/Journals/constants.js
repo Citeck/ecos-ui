@@ -47,6 +47,7 @@ export const isPreview = vm => vm === JOURNAL_VIEW_MODE.PREVIEW;
 export const isDocLib = vm => vm === JOURNAL_VIEW_MODE.DOC_LIB;
 export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
 export const isTableOrPreview = vm => isTable(vm) || isPreview(vm);
+export const isUnknownView = vm => !Object.values(JOURNAL_VIEW_MODE).includes(vm);
 
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
 

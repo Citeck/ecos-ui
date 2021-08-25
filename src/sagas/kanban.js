@@ -151,6 +151,7 @@ function* sagaGetData({ api, logger }, { payload }) {
     });
 
     const dataCards = [];
+    const newRecordRefs = [];
 
     result.forEach((data = {}, i) => {
       const prevRecords = get(prevDataCards, [i, 'records'], []);
@@ -163,13 +164,14 @@ function* sagaGetData({ api, logger }, { payload }) {
         });
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
+        newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
         dataCards.push({ totalCount: data.totalCount, records: [...prevRecords, ...preparedRecords] });
       }
     });
 
     const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
-    yield sagaGetActions({ api, logger }, { payload: { boardConfig, dataCards, stateId } });
+    yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
 
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
@@ -180,13 +182,12 @@ function* sagaGetData({ api, logger }, { payload }) {
 
 function* sagaGetActions({ api, logger }, { payload }) {
   try {
-    const { boardConfig, dataCards, stateId } = payload;
+    const { boardConfig, newRecordRefs, stateId } = payload;
+    const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
     const resolvedActions = yield boardConfig.columns.map(function*(column, i) {
-      const records = get(dataCards, [i, 'records'], []);
-      const recordRefs = records.map(rec => rec.cardId);
-
-      return yield call([JournalsService, JournalsService.getRecordActions], boardConfig, recordRefs);
+      const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
+      return { ...get(prevResolvedActions, [i], {}), ...newResolvedActions.forRecord };
     });
 
     yield put(setResolvedActions({ stateId, resolvedActions }));

@@ -20,7 +20,7 @@ import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions';
 
-import { isKanban, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
 import { DocLibView, TableView, KanbanView } from './Views';
@@ -104,7 +104,7 @@ class Journals extends React.Component {
       viewMode = JVM.PREVIEW;
     }
 
-    if (!viewMode) {
+    if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
     }
 
