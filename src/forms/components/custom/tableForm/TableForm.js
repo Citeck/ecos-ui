@@ -1,9 +1,7 @@
-import React from 'react';
 import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
-import { Loader } from '../../../../components/common';
 import TableForm from '../../../../components/common/form/TableForm';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -89,7 +87,6 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   checkConditions(data) {
-    const isVisible = _.cloneDeep(this.visible);
     const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
@@ -135,11 +132,6 @@ export default class TableFormComponent extends BaseReactComponent {
       });
     }
 
-    if ((!isVisible && this.visible) || this._needUpdate) {
-      this._needUpdate = false;
-      this.redraw();
-    }
-
     return result;
   }
 
@@ -148,7 +140,7 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return this.visible ? TableForm : () => <Loader blur />;
+    return TableForm;
   }
 
   setReactValue(component, defaultValue) {

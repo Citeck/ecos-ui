@@ -550,16 +550,22 @@ export function getSearchParams(searchString = window.location.search) {
   return queryString.parse(searchString);
 }
 
-export function getOutputFormat(format, value) {
+export function getOutputFormat(format, value, settings = {}) {
   if (!format || !value) {
     return value || '';
   }
 
   switch (format) {
-    case DataFormatTypes.DATE:
-      return moment(value).format('DD.MM.YYYY');
-    case DataFormatTypes.DATETIME:
-      return moment(value).format('DD.MM.YYYY, hh:mm');
+    case DataFormatTypes.DATE: {
+      const inMoment = settings.isLocal ? moment(value).local() : moment(value);
+
+      return inMoment.format(settings.dateFormat || 'DD.MM.YYYY');
+    }
+    case DataFormatTypes.DATETIME: {
+      const inMoment = settings.isLocal ? moment(value).local() : moment(value);
+
+      return inMoment.format(settings.dateFormat || 'DD.MM.YYYY, hh:mm');
+    }
     default:
       return value;
   }

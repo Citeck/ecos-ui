@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
 import { executeAction, setInlineTools } from '../../../actions/currentTasks';
@@ -66,13 +67,13 @@ class CurrentTaskList extends React.Component {
   }, 100);
 
   renderEnum() {
-    const { currentTasks, isMobile, forwardedRef } = this.props;
+    const { currentTasks, isMobile, forwardedRef, settings } = this.props;
 
     return (
       <div className="ecos-current-task-list_view-enum" ref={forwardedRef}>
         {currentTasks.map((item, i) => (
           <React.Fragment key={cleanTaskId(item.id)}>
-            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item)} />
+            <CurrentTaskInfo task={item} isMobile={isMobile} actions={this.getActions(item)} settings={settings} />
             {!isLastItem(currentTasks, i) && <Separator noIndents />}
           </React.Fragment>
         ))}
@@ -95,7 +96,8 @@ class CurrentTaskList extends React.Component {
   };
 
   renderTable() {
-    const { currentTasks } = this.props;
+    const { currentTasks, settings } = this.props;
+    const dateFormat = get(settings, 'dateFormat');
     const formatTasks = currentTasks.map((task, i) => ({
       id: task.id,
       [DC.title.key]: task[DC.title.key] || noData,
@@ -115,7 +117,7 @@ class CurrentTaskList extends React.Component {
           )}
         </React.Fragment>
       ),
-      [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData
+      [DC.deadline.key]: getOutputFormat(DC.deadline.format, task[DC.deadline.key], { dateFormat, isLocal: true }) || noData
     }));
 
     const cols = [DC.title, DC.actors, DC.deadline];

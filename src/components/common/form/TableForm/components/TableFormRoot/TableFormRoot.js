@@ -22,6 +22,4 @@ const TableFormRoot = () => {
   );
 };
 
-TableFormRoot.propTypes = {};
-
 export default TableFormRoot;

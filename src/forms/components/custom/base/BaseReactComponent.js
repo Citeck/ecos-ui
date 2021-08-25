@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
@@ -18,23 +19,27 @@ export default class BaseReactComponent extends BaseComponent {
     );
   }
 
-  react = {};
-
-  _needUpdate = false;
+  #react = {};
+  #viewOnlyPrev = {};
 
   build() {
-    this.react.wrapper = new Promise(resolveComponent => {
-      this.react.resolve = resolveComponent;
-    }).then(component => {
-      this.react.wrapper = component;
-      this.react.resolve = null;
+    if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
+      super.clear();
+      this.#react = {};
+      this.#viewOnlyPrev = this.viewOnly;
+    }
+
+    const firstBuild = isEmpty(this.#react);
+
+    this.#react.wrapper = new Promise(resolveComponent => (this.#react.resolve = resolveComponent)).then(component => {
+      this.#react.wrapper = component;
+      this.#react.resolve = null;
 
       return component;
     });
-    this.react.innerPromise = new Promise(innerResolve => {
-      this.react.innerResolve = innerResolve;
-    }).then(comp => {
-      this.react.innerResolve = null;
+
+    this.#react.innerPromise = new Promise(innerResolve => (this.#react.innerResolve = innerResolve)).then(comp => {
+      this.#react.innerResolve = null;
 
       return comp;
     });
@@ -44,39 +49,34 @@ export default class BaseReactComponent extends BaseComponent {
     }
 
     this.restoreValue();
-
     this.createElement();
 
     const labelAtTheBottom = this.component.labelPosition === 'bottom';
-    if (!labelAtTheBottom) {
+    if (!labelAtTheBottom && firstBuild) {
       this.createLabel(this.element);
     }
-
-    this.react.container = this.ce('div');
-    this.element.appendChild(this.react.container);
 
     if (this.shouldDisable) {
       this.disabled = true;
     }
 
-    this.errorContainer = this.element;
-    this.createErrorElement();
+    this.embedReactContainer(this.element, 'div');
+    this.renderReactComponent(firstBuild);
 
-    this.renderReactComponent();
+    if (firstBuild) {
+      this.errorContainer = this.element;
+      this.createErrorElement();
 
-    // this.setInputStyles(this.inputsContainer);
+      if (labelAtTheBottom) {
+        this.createLabel(this.element);
+      }
 
-    if (labelAtTheBottom) {
-      this.createLabel(this.element);
+      this.createDescription(this.element);
+      this.createInlineEditSaveAndCancelButtons();
+      this.attachRefreshOn();
+      this.attachLogic();
     }
 
-    this.createDescription(this.element);
-
-    this.createInlineEditSaveAndCancelButtons();
-
-    this.attachRefreshOn();
-    // this.autofocus();
-    this.attachLogic();
     this.showElement(this.isShowElement);
 
     if (!this.isShowElement && this.component.clearOnHide) {
@@ -99,41 +99,45 @@ export default class BaseReactComponent extends BaseComponent {
     };
   }
 
+  embedReactContainer(container, tag) {
+    if (!this.#react.container) {
+      this.#react.container = this.ce(tag);
+      container.appendChild(this.#react.container);
+    }
+  }
+
   createViewOnlyValue(container) {
-    this.react.container = this.ce('dd');
-    container.appendChild(this.react.container);
+    this.embedReactContainer(container, 'dd');
     this.createInlineEditButton(container);
     this.renderReactComponent();
   }
 
   updateReactComponent(updateFunc) {
-    this.react.innerPromise.then(comp => {
+    this.#react.innerPromise.then(comp => {
       if (typeof updateFunc === 'function') {
         updateFunc(comp);
       }
     });
   }
 
+  replaceReactComponent(component) {
+    this.#react.wrapper.setComponent(component);
+  }
+
   setReactProps(props) {
-    const currentProps = get(this.react, 'innerComponent.props.props');
-
-    if (!isEqual(props, currentProps)) {
-      this._needUpdate = true;
-    }
-
-    if (this.react.resolve) {
-      this.react.waitingProps = {
-        ...(this.react.waitingProps || {}),
+    if (this.#react.resolve) {
+      this.#react.waitingProps = {
+        ...(this.#react.waitingProps || {}),
         props
       };
-      this.react.wrapper.then(w => {
-        w.setProps(this.react.waitingProps);
-        this.react.waitingProps = {};
+      this.#react.wrapper.then(w => {
+        w.setProps(this.#react.waitingProps);
+        this.#react.waitingProps = {};
       });
     } else {
       // is this checking required?
-      if (this.react.wrapper) {
-        this.react.wrapper.setProps(props);
+      if (this.#react.wrapper) {
+        this.#react.wrapper.setProps(props);
       }
     }
   }
@@ -146,56 +150,59 @@ export default class BaseReactComponent extends BaseComponent {
     return {};
   }
 
-  renderReactComponent() {
+  renderReactComponent(firstBuild = true) {
     const component = this.component.unreadable ? UnreadableLabel : this.getComponentToRender();
 
-    if (this.react.resolve) {
-      const render = props => {
-        this.react.isMounted = false;
-        this.react.innerComponent = null;
-
+    if (this.#react.resolve) {
+      const doRender = props => {
         const updateLoadingState = () => {
-          if (this.react.isMounted && this.react.innerComponent && this.react.innerResolve) {
-            this.react.innerResolve(this.react.innerComponent);
+          if (this.#react.isMounted && this.#react.innerComponent && this.#react.innerResolve) {
+            this.#react.innerResolve(this.#react.innerComponent);
           }
         };
 
         ReactDOM.render(
           <RawHtmlWrapper
             onMounted={() => {
-              this.react.isMounted = true;
+              this.#react.isMounted = true;
               updateLoadingState();
             }}
             onComponentLoaded={comp => {
-              this.react.innerComponent = comp;
+              this.#react.innerComponent = comp;
               updateLoadingState();
             }}
             component={component}
-            ref={this.react.resolve}
+            ref={this.#react.resolve}
             props={props}
           />,
-          this.react.container
+          this.#react.container
         );
+
+        if (!firstBuild && this.#react.innerComponent.setProps && !isEqual(this.#react.innerComponent.props, props)) {
+          this.#react.innerComponent.setProps(props);
+        }
       };
 
       let props = this.getInitialReactProps();
 
       if (props.then) {
-        props.then(render);
+        props.then(doRender);
       } else {
-        render(props);
+        doRender(props);
       }
     }
   }
 
   destroy() {
-    if (this.react.container) {
-      ReactDOM.unmountComponentAtNode(this.react.container);
-      this.react.wrapper = null;
+    if (this.#react.container) {
+      ReactDOM.unmountComponentAtNode(this.#react.container);
+      this.#react.wrapper = null;
     }
 
     return super.destroy();
   }
+
+  clear() {}
 
   get emptyValue() {
     return this.component.multiple ? [] : '';

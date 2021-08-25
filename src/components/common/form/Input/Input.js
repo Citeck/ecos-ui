@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
+import { Icon } from '../../index';
+
 import './Input.scss';
 
 export default class Input extends Component {
@@ -11,6 +13,7 @@ export default class Input extends Component {
     placeholder: PropTypes.string,
     type: PropTypes.string,
     autoFocus: PropTypes.bool,
+    clear: PropTypes.bool,
     autoSelect: PropTypes.string
   };
 
@@ -59,10 +62,47 @@ export default class Input extends Component {
     }
   };
 
-  render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, ...props } = this.props;
-    const cssClasses = classNames('ecos-input', className, `ecos-input_${align}`);
+  get hasClear() {
+    const { clear, value } = this.props;
 
-    return <input ref={this.setRef} {...props} className={cssClasses} />;
+    return clear && value;
+  }
+
+  handleClear = () => {
+    const input = this.inputRef.current;
+
+    if (input) {
+      const lastValue = input.value;
+
+      input.value = '';
+
+      const event = new Event('input', { bubbles: true });
+      const tracker = input._valueTracker;
+
+      if (tracker) {
+        tracker.setValue(lastValue);
+      }
+
+      input.dispatchEvent(event);
+    }
+  };
+
+  renderClearButton() {
+    if (!this.hasClear) {
+      return null;
+    }
+
+    return <Icon className="icon-small-close ecos-input__icon ecos-input__icon_clear" onClick={this.handleClear} />;
+  }
+
+  render() {
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, ...props } = this.props;
+
+    return (
+      <div className="position-relative">
+        <input ref={this.setRef} {...props} className={classNames('ecos-input', className, `ecos-input_${align}`)} />
+        {this.renderClearButton()}
+      </div>
+    );
   }
 }
