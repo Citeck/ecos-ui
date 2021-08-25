@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
@@ -33,6 +34,7 @@ const mapStateToProps = (state, props) => {
     grid: newState.grid,
     isMobile: (state.view || {}).isMobile === true,
     predicate: newState.predicate,
+    query: get(newState, 'grid.query.query'),
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
@@ -242,7 +244,8 @@ class JournalsDashletGrid extends Component {
       journalConfig: { params = {} },
       selectorContainer,
       viewColumns,
-      onOpenSettings
+      onOpenSettings,
+      query
     } = this.props;
 
     let editable = true;
@@ -251,7 +254,11 @@ class JournalsDashletGrid extends Component {
       editable = false;
     }
 
-    const filters = ParserPredicate.getFlatFilters(predicate);
+    let filters = ParserPredicate.getFlatFilters(predicate);
+
+    if (isEmpty(filters)) {
+      filters = ParserPredicate.getFlatFilters(query);
+    }
 
     return (
       <>
