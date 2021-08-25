@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import { Droppable } from 'react-beautiful-dnd';
 
@@ -65,17 +66,15 @@ class Column extends React.PureComponent {
       <Droppable droppableId={data.id}>
         {(provided, snapshot) => (
           <div
-            className="ecos-kanban__column"
+            className={classNames('ecos-kanban__column', {
+              'ecos-kanban__column_dragging-over': snapshot.isDraggingOver,
+              'ecos-kanban__column_dragging-over-owner': snapshot.draggingFromThisWith === snapshot.draggingOverWith
+            })}
             {...provided.droppableProps}
             ref={provided.innerRef}
-            style={{
-              background: snapshot.isDraggingOver ? 'lightblue' : 'lightgrey'
-            }}
           >
-            <div className="ecos-kanban__column-card-list">
-              {records.map(this.renderContentCard)}
-              {this.renderInfo()}
-            </div>
+            {records.map(this.renderContentCard)}
+            {this.renderInfo()}
           </div>
         )}
       </Droppable>

@@ -66,9 +66,8 @@ class Card extends React.PureComponent {
             {...provided.draggableProps}
             {...provided.dragHandleProps}
             style={{
-              ...provided.draggableProps.style,
-              margin: '5px',
-              background: snapshot.isDragging ? 'blue' : 'pink'
+              ...provided.draggableProps.style
+              // background: snapshot.isDragging ? 'blue' : 'pink'
             }}
           >
             <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={this.renderHeaderCard()}>

@@ -38,6 +38,22 @@
     flex: auto;
     word-break: break-all;
     width: 100%;
+    padding: 2px;
+    opacity: 1;
+
+    &_dragging-over {
+      border: $border-width-standard dashed $color-blue-light;
+
+      & :nth-child(n) {
+        transition: opacity ease-out 0.5s;
+        opacity: 0;
+      }
+
+      &-owner {
+        border-color: $color-gray-5;
+        cursor: no-drop;
+      }
+    }
 
     &:not(:first-child) {
       margin-left: 20px;
