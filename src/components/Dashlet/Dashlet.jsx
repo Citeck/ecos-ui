@@ -8,7 +8,7 @@ import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
-import { t, domElementMeasurer } from '../../helpers/util';
+import { t, getDOMElementMeasurer } from '../../helpers/util';
 import { Loader, Panel, ResizableBox } from '../common';
 import { Btn } from '../common/btns';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -257,7 +257,7 @@ class Dashlet extends Component {
           header={
             !noHeader && (
               <Header
-                measurer={domElementMeasurer(this.#dashletRef)}
+                measurer={getDOMElementMeasurer(this.#dashletRef)}
                 title={title}
                 needGoTo={needGoTo}
                 onGoTo={this.onGoTo}

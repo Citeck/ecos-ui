@@ -1127,7 +1127,7 @@ export function strSplice(string, start, deleteCount, ...addString) {
 /*
  * Ex Measurer component for Dashlet and JournalsDashlet
  */
-export function domElementMeasurer(element) {
+export function getDOMElementMeasurer(element) {
   if (!element) {
     return {};
   }
