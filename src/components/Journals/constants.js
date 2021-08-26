@@ -35,6 +35,8 @@ export const Labels = {
   KB_COL_NO_CARD: 'kanban.label.no-card',
   KB_COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
   KB_CARD_NO_TITLE: 'kanban.label.no-name',
+  KB_DND_MOVE_HERE: 'kanban.label.dnd.move-here',
+  KB_DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
 
   V_JOURNAL: 'journals.view.label.journal',
   V_PREVIEW: 'journals.view.label.journal-preview',

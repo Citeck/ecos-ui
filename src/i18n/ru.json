@@ -313,6 +313,8 @@
   "kanban.label.big-total": "Всего: {{count}}",
   "kanban.label.no-card": "Не карточек",
   "kanban.label.no-name": "Нет названия",
+  "kanban.label.dnd.move-here": "Пеместить в эту колонку",
+  "kanban.label.dnd.cant-move-here": "Карточка уже в этой колонке",
   "kanban.label.no-more-cards": "Больше нет карточек",
   "kanban.error.form-not-found": "Форма карточки не найдена",
 

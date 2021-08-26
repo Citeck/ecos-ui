@@ -313,6 +313,8 @@
   "kanban.label.big-total": "Total: {{count}}",
   "kanban.label.no-card": "No Card",
   "kanban.label.no-name": "No Name",
+  "kanban.label.dnd.move-here": "Move to this column",
+  "kanban.label.dnd.cant-move-here": "The card is already in this column",
   "kanban.label.no-more-cards": "No more cards",
   "kanban.error.form-not-found": "Form card has not found",
 

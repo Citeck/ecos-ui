@@ -31,6 +31,12 @@
     display: flex;
     position: relative;
     width: 100%;
+
+    &_dragging {
+      overflow: hidden;
+      max-height: inherit;
+      padding-bottom: 6px;
+    }
   }
 
   &__column {
@@ -40,13 +46,28 @@
     width: 100%;
     padding: 2px;
     opacity: 1;
+    border: $border-width-standard dashed transparent;
+    border-radius: $border-radius-large;
+    transition: padding-top ease-out 0.5s, opacity ease-out 0.5s;
+
+    &_dragging {
+      overflow: hidden;
+    }
 
     &_dragging-over {
-      border: $border-width-standard dashed $color-blue-light;
+      border-color: $success;
+      padding-top: 100px;
+      opacity: 0.5;
+      position: relative;
 
-      & :nth-child(n) {
-        transition: opacity ease-out 0.5s;
-        opacity: 0;
+      &::before {
+        content: attr(data-tip);
+        display: block;
+        padding: 5px;
+        top: 0;
+        position: absolute;
+        text-align: center;
+        width: 100%;
       }
 
       &-owner {
@@ -128,18 +149,17 @@
 
       &-action {
         &-list {
-          & > :not(:first-child) {
-            margin-left: 10px;
-          }
-        }
-
-        &-dropdown {
-          display: inline-block;
+          display: inline-flex;
+          align-items: center;
         }
 
         &-drag {
+          color: $color-gray-5;
+          height: 40px;
+          line-height: 2;
+
           &:hover {
-            cursor: grab;
+            color: $color-blue-light;
           }
         }
       }

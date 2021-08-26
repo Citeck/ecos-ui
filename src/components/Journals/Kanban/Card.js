@@ -3,11 +3,11 @@ import isEmpty from 'lodash/isEmpty';
 import { Draggable } from 'react-beautiful-dnd';
 
 import { extractLabel } from '../../../helpers/util';
-import { Panel, Separator } from '../../common';
-import { FormWrapper } from '../../common/dialogs';
+import { Icon, Panel, Separator } from '../../common';
 import { Caption, DropdownOuter } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
+import { FormWrapper } from '../../common/dialogs';
 
 class Card extends React.PureComponent {
   handleAction = action => {
@@ -15,9 +15,16 @@ class Card extends React.PureComponent {
     this.props.onClickAction(data.cardId, action);
   };
 
-  renderHeaderCard = () => {
+  changeTransform = (provided, snapshot) => {
+    const transform = provided.draggableProps.style.transform;
+
+    if (transform && !snapshot.isDragging) {
+      provided.draggableProps.style.transform = transform.split(',')[0] + ', 0)';
+    }
+  };
+
+  renderHeaderCard = provided => {
     const { readOnly, actions, data } = this.props;
-    const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
 
     return (
       <>
@@ -39,15 +46,10 @@ class Card extends React.PureComponent {
                 scrollbarHeightMax={200}
                 className="ecos-kanban__column-card-action-dropdown"
               >
-                <IcoBtn
-                  icon="icon-custom-more-small-normal"
-                  className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-                />
+                <IcoBtn icon="icon-custom-more-small-normal" className="ecos-btn_i ecos-btn_grey2 ecos-btn_hover_t-light-blue" />
               </DropdownOuter>
             )}
-            {!readOnly && (
-              <IcoBtn icon="icon-custom-drag-big" className={'ecos-kanban__column-card-action-drag ' + grey} onClick={_ => _} />
-            )}
+            {!readOnly && <Icon className="icon-custom-drag-big ecos-kanban__column-card-action-drag" {...provided.dragHandleProps} />}
           </div>
         </Caption>
         <Separator noIndents />
@@ -56,37 +58,36 @@ class Card extends React.PureComponent {
   };
 
   render() {
-    const { data, cardIndex, formProps } = this.props;
+    const { data, cardIndex, formProps, readOnly } = this.props;
 
     return (
-      <Draggable draggableId={data.cardId} index={cardIndex}>
-        {(provided, snapshot) => (
-          <p
-            ref={provided.innerRef}
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            style={{
-              ...provided.draggableProps.style
-              // background: snapshot.isDragging ? 'blue' : 'pink'
-            }}
-          >
-            <Panel className="ecos-kanban__column-card" bodyClassName="ecos-kanban__column-card-body" header={this.renderHeaderCard()}>
-              {/*<FormWrapper*/}
-              {/*  isVisible*/}
-              {/*  {...formProps}*/}
-              {/*  formData={data}*/}
-              {/*  formOptions={{*/}
-              {/*    readOnly: true,*/}
-              {/*    viewAsHtml: true,*/}
-              {/*    fullWidthColumns: true,*/}
-              {/*    viewAsHtmlConfig: {*/}
-              {/*      hidePanels: true*/}
-              {/*    }*/}
-              {/*  }}*/}
-              {/*/>*/}
-            </Panel>
-          </p>
-        )}
+      <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
+        {(provided, snapshot) => {
+          this.changeTransform(provided, snapshot);
+          return (
+            <div ref={provided.innerRef} {...provided.draggableProps}>
+              <Panel
+                className="ecos-kanban__column-card"
+                bodyClassName="ecos-kanban__column-card-body"
+                header={this.renderHeaderCard(provided)}
+              >
+                <FormWrapper
+                  isVisible
+                  {...formProps}
+                  formData={data}
+                  formOptions={{
+                    readOnly: true,
+                    viewAsHtml: true,
+                    fullWidthColumns: true,
+                    viewAsHtmlConfig: {
+                      hidePanels: true
+                    }
+                  }}
+                />
+              </Panel>
+            </div>
+          );
+        }}
       </Draggable>
     );
   }

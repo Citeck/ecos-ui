@@ -60,15 +60,17 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [], data } = this.props;
+    const { records = [], data, readOnly } = this.props;
 
     return (
-      <Droppable droppableId={data.id}>
-        {(provided, snapshot) => (
+      <Droppable droppableId={data.id} isDropDisabled={readOnly}>
+        {(provided, { draggingFromThisWith, draggingOverWith, isDraggingOver }) => (
           <div
+            data-tip={draggingFromThisWith === draggingOverWith ? t(Labels.KB_DND_NOT_MOVE_HERE) : t(Labels.KB_DND_MOVE_HERE)}
             className={classNames('ecos-kanban__column', {
-              'ecos-kanban__column_dragging-over': snapshot.isDraggingOver,
-              'ecos-kanban__column_dragging-over-owner': snapshot.draggingFromThisWith === snapshot.draggingOverWith
+              'ecos-kanban__column_dragging': !!draggingOverWith,
+              'ecos-kanban__column_dragging-over': isDraggingOver,
+              'ecos-kanban__column_dragging-over-owner': isDraggingOver && draggingFromThisWith === draggingOverWith
             })}
             {...provided.droppableProps}
             ref={provided.innerRef}
