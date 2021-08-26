@@ -57,8 +57,9 @@ class CurrentTaskInfo extends React.Component {
   }
 
   render() {
-    const { task, isMobile, actions } = this.props;
+    const { task, isMobile, actions, settings } = this.props;
     const { isOpenUsers, isOpenActions } = this.state;
+    const dateFormat = get(settings, 'dateFormat');
 
     return (
       <div className="ecos-current-task-info">
@@ -130,7 +131,9 @@ class CurrentTaskInfo extends React.Component {
 
           <div className="ecos-current-task-info__fields-item">
             {this.renderLabel('deadline')}
-            <div className="ecos-current-task-info-value">{getOutputFormat(DC.deadline.format, task[DC.deadline.key]) || noData}</div>
+            <div className="ecos-current-task-info-value">
+              {getOutputFormat(DC.deadline.format, task[DC.deadline.key], { dateFormat, isLocal: true }) || noData}
+            </div>
           </div>
         </div>
       </div>

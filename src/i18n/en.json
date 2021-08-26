@@ -149,6 +149,10 @@
   "current-tasks-widget.error.get-tasks": "Failure to fetch all tasks",
   "current-tasks-widget.error.get-actions": "Failure to fetch tasks actions",
   "current-tasks-widget.error.execute-action": "Failure to execute action",
+  "current-tasks-widget.settings.example-format": "Example of applying format: {{format}}",
+  "current-tasks-widget.settings.date-format.title": "Date format",
+  "current-tasks-widget.settings.info.more.label": "More details...",
+  "current-tasks-widget.settings.info.description": "Examples of data format for moment.js",
 
   "dashboard.error.get-config": "Dashboard config hasn't gotten",
   "dashboard.error.get-title": "Dashboard title hasn't gotten",
