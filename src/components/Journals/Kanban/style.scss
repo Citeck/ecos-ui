@@ -2,6 +2,8 @@
 @import '../../../styles/loaderStripes';
 
 .ecos-kanban {
+  $kanban: &;
+
   counter-reset: page;
 
   &__dropdown {
@@ -36,11 +38,59 @@
       overflow: hidden;
       max-height: inherit;
       padding-bottom: 6px;
+
+      & #{$kanban}__column {
+        $col: &;
+        $c_other: $primary;
+        $c_over: $success;
+        $c_owner: $color-gray-5;
+
+        overflow: hidden;
+        border-color: $c_other;
+        background: rgba($c_other, 0.1);
+
+        &::before {
+          color: $c_other;
+        }
+
+        &_dragging-over {
+          border-color: $c_over;
+          background: rgba($c_over, 0.1);
+          padding-top: 100px;
+          position: relative;
+
+          &::before {
+            content: attr(data-tip);
+            display: block;
+            padding: 5px;
+            top: 0;
+            position: absolute;
+            text-align: center;
+            width: 100%;
+            font-weight: $font-weight-bold;
+
+            color: $c_over;
+          }
+
+          &-owner {
+            border-color: $c_owner;
+            background: rgba($c_owner, 0.1);
+            cursor: no-drop;
+
+            &::before {
+              color: $c_owner;
+            }
+          }
+
+          & #{$col}-card:not(#{$col}-card_dragging) {
+            opacity: 0.5;
+          }
+        }
+      }
     }
   }
 
   &__column {
-    $col: &;
     flex: auto;
     word-break: break-all;
     width: 100%;
@@ -48,40 +98,6 @@
     border: $border-width-standard dashed transparent;
     border-radius: $border-radius-large;
     transition: padding-top ease-out 0.5s;
-
-    &_dragging {
-      overflow: hidden;
-    }
-
-    &_dragging-over {
-      border-color: $success;
-      padding-top: 100px;
-      position: relative;
-
-      &::before {
-        content: attr(data-tip);
-        display: block;
-        padding: 5px;
-        top: 0;
-        position: absolute;
-        text-align: center;
-        width: 100%;
-        font-weight: $font-weight-bold;
-        color: $success;
-      }
-
-      &-owner {
-        border-color: $color-gray-5;
-        cursor: no-drop;
-        &::before {
-          color: $color-gray-5;
-        }
-      }
-
-      & #{$col}-card:not(#{$col}-card_dragging) {
-        opacity: 0.5;
-      }
-    }
 
     &:not(:first-child) {
       margin-left: 20px;
