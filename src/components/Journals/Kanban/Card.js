@@ -1,6 +1,7 @@
 import React from 'react';
 import isEmpty from 'lodash/isEmpty';
 import { Draggable } from 'react-beautiful-dnd';
+import classNames from 'classnames';
 
 import { extractLabel } from '../../../helpers/util';
 import { Icon, Panel, Separator } from '../../common';
@@ -67,7 +68,7 @@ class Card extends React.PureComponent {
           return (
             <div ref={provided.innerRef} {...provided.draggableProps}>
               <Panel
-                className="ecos-kanban__column-card"
+                className={classNames('ecos-kanban__column-card', { 'ecos-kanban__column-card_dragging': snapshot.isDragging })}
                 bodyClassName="ecos-kanban__column-card-body"
                 header={this.renderHeaderCard(provided)}
               >

@@ -45,10 +45,9 @@
     word-break: break-all;
     width: 100%;
     padding: 2px;
-    opacity: 1;
     border: $border-width-standard dashed transparent;
     border-radius: $border-radius-large;
-    transition: padding-top ease-out 0.5s, opacity ease-out 0.5s;
+    transition: padding-top ease-out 0.5s;
 
     &_dragging {
       overflow: hidden;
@@ -57,7 +56,6 @@
     &_dragging-over {
       border-color: $success;
       padding-top: 100px;
-      opacity: 0.5;
       position: relative;
 
       &::before {
@@ -68,11 +66,20 @@
         position: absolute;
         text-align: center;
         width: 100%;
+        font-weight: $font-weight-bold;
+        color: $success;
       }
 
       &-owner {
         border-color: $color-gray-5;
         cursor: no-drop;
+        &::before {
+          color: $color-gray-5;
+        }
+      }
+
+      & #{$col}-card:not(#{$col}-card_dragging) {
+        opacity: 0.5;
       }
     }
 
@@ -110,6 +117,8 @@
     &-card {
       padding: 0 10px;
       margin-bottom: 12px;
+      opacity: 1;
+      transition: opacity ease-out 0.5s;
 
       &:nth-child(10n) {
         margin-bottom: 28px;
