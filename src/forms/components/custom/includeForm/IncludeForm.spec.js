@@ -12,6 +12,6 @@ describe('IncludeForm Component', () => {
   });
 
   it('Should build a IncludeForm component in Form View', done => {
-    Harness.testCreate(IncludeFormComponent, comp1, {}, false).then(() => done());
+    Harness.testCreate(IncludeFormComponent, comp1, {}).then(() => done());
   });
 });
