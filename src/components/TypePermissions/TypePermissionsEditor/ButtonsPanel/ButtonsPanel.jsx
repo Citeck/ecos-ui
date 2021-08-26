@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { Btn } from '../../../common/btns';
 import { t } from '../../../../helpers/util';
 
-import { TypePermissionsEditorContext } from '../TypePermissionsEditorContext';
+import { TypePermissionsEditorContext } from '../Context';
 
 const ButtonsPanel = () => {
   const context = useContext(TypePermissionsEditorContext);

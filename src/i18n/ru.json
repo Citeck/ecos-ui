@@ -149,6 +149,10 @@
   "current-tasks-widget.error.get-tasks": "Ошибка получения списка всех задач",
   "current-tasks-widget.error.get-actions": "Ошибка получения действий задач",
   "current-tasks-widget.error.execute-action": "Не удалось выполнить действие",
+  "current-tasks-widget.settings.example-format": "Пример применения формата: {{format}}",
+  "current-tasks-widget.settings.date-format.title": "Формат даты",
+  "current-tasks-widget.settings.info.more.label": "Подробнее...",
+  "current-tasks-widget.settings.info.description": "Примеры формата данных для moment.js",
 
   "dashboard.error.get-config": "Конфигурация дашборда не получена",
   "dashboard.error.get-title": "Заголовок дашборда не получен",

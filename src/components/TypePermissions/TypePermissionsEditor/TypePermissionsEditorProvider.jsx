@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import TypePermissionsEditorPropTypes from './TypePermissionsEditorPropTypes';
 import dialogManager from '../../common/dialogs/Manager/DialogManager';
 import { formatPermissionsMatrix } from '../helpers/formatPermissionsMatrix';
-
-export const TypePermissionsEditorContext = React.createContext();
+import { TypePermissionsEditorContext } from './Context';
 
 export const TypePermissionsEditorContextProvider = props => {
   const { controlProps } = props;

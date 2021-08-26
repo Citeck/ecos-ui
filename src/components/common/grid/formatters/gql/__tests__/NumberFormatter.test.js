@@ -5,21 +5,29 @@ import Adapter from 'enzyme-adapter-react-16';
 import { unmountComponentAtNode } from 'react-dom';
 
 import formatterStore from '../../formatterStore';
+import { LANGUAGE_EN } from '../../../../../../constants/lang';
 
 configure({ adapter: new Adapter() });
 
 const { NumberFormatter } = formatterStore;
+const originToLocaleString = Number.prototype.toLocaleString;
 let container = null;
 
 beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
+
+  Number.prototype.toLocaleString = function(locales, options) {
+    return originToLocaleString.call(this, LANGUAGE_EN, options);
+  };
 });
 
 afterEach(() => {
   unmountComponentAtNode(container);
   container.remove();
   container = null;
+
+  Number.prototype.toLocaleString = originToLocaleString;
 });
 
 describe('NumberFormatter React Component', () => {
@@ -44,6 +52,7 @@ describe('NumberFormatter React Component', () => {
       input: { cell: 1364.0134072699580621 },
       output: '1,364.013407269958'
     },
+    //
     {
       title: 'Large number in string format, no parameters (maximumFractionDigits = 16)',
       input: { cell: '1364.013407269958062178' },
