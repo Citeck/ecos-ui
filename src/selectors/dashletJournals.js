@@ -1,4 +1,7 @@
 import { createSelector } from 'reselect';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 import {
   selectDashletConfig,
   selectDashletConfigJournalId,
@@ -32,6 +35,8 @@ export const selectJournalDashletGridProps = createSelector(
     journalConfig: ownState.journalConfig,
     selectedRecords: ownState.selectedRecords,
     selectAllRecords: ownState.selectAllRecords,
+    query: get(ownState, 'grid.query.query'),
+    isGrouped: !isEmpty(get(ownState, 'grid.grouping.columns')),
     viewColumns
   })
 );

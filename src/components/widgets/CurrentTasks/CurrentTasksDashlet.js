@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
@@ -44,13 +45,41 @@ class CurrentTasksDashlet extends BaseWidget {
       ...this.state,
       isSmallMode: false,
       totalCount: 0,
-      isLoading: true
+      isLoading: true,
+      isOpenSettings: false
     };
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 
+  get actions() {
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: () => this.reload()
+      },
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.onToggleSettings
+      }
+    };
+  }
+
   onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  onToggleSettings = () => {
+    this.setState(state => ({ isOpenSettings: !state.isOpenSettings }));
+  };
+
+  onSaveSettings = settings => {
+    const { id, onSave } = this.props;
+
+    this.setState({
+      isOpenSettings: false
+    });
+
+    if (isFunction(onSave)) {
+      onSave(id, { config: { settings } });
+    }
   };
 
   setInfo = data => {
@@ -59,12 +88,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading } = this.state;
-    const actions = {
-      [DAction.Actions.RELOAD]: {
-        onClick: () => this.reload()
-      }
-    };
+    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading, isOpenSettings } = this.state;
 
     return (
       <Dashlet
@@ -73,7 +97,7 @@ class CurrentTasksDashlet extends BaseWidget {
         className={classNames('ecos-current-task-list-dashlet', classNameDashlet)}
         resizable
         contentMaxHeight={this.clientHeight}
-        actionConfig={actions}
+        actionConfig={this.actions}
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
@@ -97,6 +121,9 @@ class CurrentTasksDashlet extends BaseWidget {
           setInfo={this.setInfo}
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
+          isOpenSettings={isOpenSettings}
+          onSaveSettings={this.onSaveSettings}
+          onToggleSettings={this.onToggleSettings}
         />
       </Dashlet>
     );

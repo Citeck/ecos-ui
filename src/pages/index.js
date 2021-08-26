@@ -1,6 +1,7 @@
-import React, { lazy } from 'react';
+import React, { lazy, useState } from 'react';
 
 import { Pages } from '../constants';
+import Footer from './Footer';
 
 const AdminPage = lazy(() => import('./AdminPage'));
 const DashboardPage = lazy(() => import('./Dashboard'));
@@ -16,7 +17,8 @@ const FormIOPage = lazy(() => import('./debug/FormIOPage'));
 const TreePage = lazy(() => import('./debug/Tree'));
 const CmmnPage = lazy(() => import('./debug/CmmnPage'));
 
-export default ({ pageKey, footer, ...props }) => {
+export default ({ pageKey, withoutFooter, ...props }) => {
+  const [footerRef, setFooterRef] = useState(null);
   let Page = null;
 
   switch (pageKey) {
@@ -63,9 +65,9 @@ export default ({ pageKey, footer, ...props }) => {
   return (
     <>
       <div className="app-content">
-        <Page {...props} />
+        <Page {...props} footerRef={footerRef} />
       </div>
-      {footer}
+      {!withoutFooter && <Footer forwardedRef={setFooterRef} />}
     </>
   );
 };

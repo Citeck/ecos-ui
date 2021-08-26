@@ -2,8 +2,6 @@
 
 .ecos-doc-status {
   $root: &;
-  display: flex;
-  align-items: center;
   padding: 0 20px;
   min-height: 34px;
 
@@ -22,10 +20,10 @@
   }
 
   &__title {
-    display: inline-block;
     color: $text-color-gray;
     font-weight: $font-weight-bold;
     padding-right: 12px;
+    padding-bottom: 6px;
     min-width: fit-content;
     @extend %ellipsis;
   }
@@ -34,11 +32,8 @@
     min-width: 0;
 
     &_read {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 26px;
-      padding: 0 15px;
+      display: inline-block;
+      padding: 5px 15px;
       border-radius: $border-radius-standard;
       background: $color-blue-light2;
       color: $color-blue-dark;
@@ -65,10 +60,6 @@
     &_no-status {
       background-color: $color-gray-4;
       color: $text-color-gray;
-    }
-
-    &-label {
-      @extend %ellipsis;
     }
   }
 
