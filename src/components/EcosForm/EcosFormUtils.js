@@ -815,7 +815,7 @@ export default class EcosFormUtils {
     return value;
   }
 
-  static preProcessingAttrs(inputs) {
+  static preProcessingAttrs(inputs = []) {
     const inputByKey = {};
     const attributes = {};
 

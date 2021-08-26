@@ -11,7 +11,7 @@ import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { InfoText, PointsLoader } from '../../common';
+import { InfoText, PointsLoader, Tooltip } from '../../common';
 import { Badge, Caption } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Labels } from '../constants';
@@ -100,9 +100,11 @@ class Kanban extends React.Component {
       <div className="ecos-kanban__column" key={`head_${data.id}`}>
         <div className="ecos-kanban__column-head">
           <TitlePageLoader isReady={!isFirstLoading} withBadge>
-            <Caption small className="ecos-kanban__column-head-caption">
-              {extractLabel(data.name).toUpperCase() || t(Labels.KB_CARD_NO_TITLE)}
-            </Caption>
+            <Tooltip target={`head_${data.id}`} text={extractLabel(data.name)} uncontrolled>
+              <div className="ecos-kanban__column-head-caption" id={`head_${data.id}`}>
+                {extractLabel(data.name) || t(Labels.KB_CARD_NO_TITLE)}
+              </div>
+            </Tooltip>
             {!!totalCount && <Badge text={totalCount} outline />}
           </TitlePageLoader>
         </div>

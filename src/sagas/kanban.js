@@ -39,6 +39,7 @@ import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
 import RecordActions from '../components/Records/actions/recordActions';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
+import KanbanConverter from '../dto/kanban';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -49,7 +50,7 @@ function* sagaGetBoardList({ api, logger }, { payload }) {
     yield put(setIsEnabled({ isEnabled, stateId }));
 
     if (isEnabled) {
-      yield put(setBoardList({ boardList, stateId }));
+      yield put(setBoardList({ boardList: KanbanConverter.prepareList(boardList), stateId }));
     }
   } catch (e) {
     logger.error('[kanban/sagaGetBoardList saga] error', e.message);
@@ -59,7 +60,8 @@ function* sagaGetBoardList({ api, logger }, { payload }) {
 function* sagaGetBoardConfig({ api, logger }, { payload }) {
   try {
     const { boardId, stateId } = payload;
-    const boardConfig = yield call(api.kanban.getBoardConfig, { boardId });
+    const boardData = yield call(api.kanban.getBoardConfig, { boardId });
+    const boardConfig = KanbanConverter.prepareConfig(boardData.boardDef);
 
     //todo уточнение
 
@@ -126,7 +128,7 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
 
 function* sagaGetData({ api, logger }, { payload }) {
   try {
-    const { boardConfig, journalConfig, journalSetting, formProps, pagination, stateId } = payload;
+    const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
 
@@ -142,8 +144,8 @@ function* sagaGetData({ api, logger }, { payload }) {
     params.attributes.cardTitle = '.disp';
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
-
-    const result = yield boardConfig.columns.map(function*(column, i) {
+    console.log({ boardConfig });
+    const result = yield (boardConfig.columns || []).map(function*(column, i) {
       if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
         return yield {};
       }
@@ -184,10 +186,10 @@ function* sagaGetData({ api, logger }, { payload }) {
 
 function* sagaGetActions({ api, logger }, { payload }) {
   try {
-    const { boardConfig, newRecordRefs, stateId } = payload;
+    const { boardConfig = {}, newRecordRefs = [], stateId } = payload;
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
-    const resolvedActions = yield boardConfig.columns.map(function*(column, i) {
+    const resolvedActions = yield (boardConfig.columns || []).map(function*(column, i) {
       const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       return { ...get(prevResolvedActions, [i], {}), ...newResolvedActions.forRecord };
     });

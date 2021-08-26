@@ -112,7 +112,11 @@
       align-items: center;
 
       &-caption {
-        margin-right: 15px;
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        padding-right: 15px;
+        //@extend %ellipsis;
+        //flex: 1;
       }
     }
 
