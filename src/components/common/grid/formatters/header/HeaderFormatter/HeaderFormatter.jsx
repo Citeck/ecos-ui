@@ -11,7 +11,6 @@ import { closest, getId, isExistValue } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
-import { Input } from '../../../../form';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
