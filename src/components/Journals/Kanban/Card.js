@@ -5,7 +5,7 @@ import classNames from 'classnames';
 
 import { extractLabel } from '../../../helpers/util';
 import { Icon, Panel, Separator } from '../../common';
-import { Caption, DropdownOuter } from '../../common/form';
+import { DropdownOuter } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
 import { FormWrapper } from '../../common/dialogs';

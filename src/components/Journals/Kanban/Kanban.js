@@ -12,7 +12,7 @@ import { t } from '../../../helpers/export/util';
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { InfoText, PointsLoader, Tooltip } from '../../common';
-import { Badge, Caption } from '../../common/form';
+import { Badge } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Labels } from '../constants';
 import Column from './Column';
