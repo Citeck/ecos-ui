@@ -4,7 +4,11 @@
 .ecos-kanban {
   $kanban: &;
 
-  counter-reset: page;
+  :root {
+    --count-col: 1;
+  }
+
+  counter-set: count-page 1;
 
   &__dropdown {
     max-width: 300px;
@@ -93,37 +97,38 @@
   &__column {
     flex: auto;
     word-break: break-all;
-    width: 100%;
     padding: 2px;
     border: $border-width-standard dashed transparent;
     border-radius: $border-radius-large;
     transition: padding-top ease-out 0.5s;
+    width: calc(100% / var(--count-col) - 20px);
 
     &:not(:first-child) {
       margin-left: 20px;
     }
 
     &-head {
+      counter-increment: column;
       background: $color-gray-13;
       border-radius: $border-radius-standard;
-      padding: 10px;
+      padding: 7px 10px;
       box-shadow: none;
       display: flex;
       align-items: center;
 
       &-caption {
-        font-weight: $font-weight-bold;
+        font-weight: $font-weight-semi-bold;
         text-transform: uppercase;
         padding-right: 15px;
-        //@extend %ellipsis;
+        @extend %ellipsis;
         //flex: 1;
       }
     }
 
     &:last-child {
       & :nth-child(10n)::after {
-        counter-increment: page;
-        content: '— ' counter(page) ' —';
+        counter-increment: count-page;
+        content: '— ' counter(count-page) ' —';
         color: $color-gray-5;
         display: block;
         position: absolute;
@@ -159,10 +164,15 @@
         padding: 2px;
       }
 
-      &-caption {
+      &-head {
         display: flex;
         justify-content: space-between;
         align-items: center;
+      }
+
+      &-label {
+        font-weight: $font-weight-semi-bold;
+        padding: 5px 0;
       }
 
       &-body {
@@ -170,6 +180,10 @@
       }
 
       &-form {
+        &:empty {
+          min-height: 5px;
+        }
+
         & > div:empty {
           @extend %animationStripes;
           height: 15px;

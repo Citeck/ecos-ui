@@ -29,8 +29,8 @@ class Card extends React.PureComponent {
 
     return (
       <>
-        <Caption small className="ecos-kanban__column-card-caption">
-          {extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}
+        <div className="ecos-kanban__column-card-head">
+          <div className="ecos-kanban__column-card-label">{extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}</div>
           <div className="ecos-kanban__column-card-action-list">
             {!isEmpty(actions) && (
               <DropdownOuter
@@ -52,7 +52,7 @@ class Card extends React.PureComponent {
             )}
             {!readOnly && <Icon className="icon-custom-drag-big ecos-kanban__column-card-action-drag" {...provided.dragHandleProps} />}
           </div>
-        </Caption>
+        </div>
         <Separator noIndents />
       </>
     );
@@ -73,6 +73,7 @@ class Card extends React.PureComponent {
                 header={this.renderHeaderCard(provided)}
               >
                 <FormWrapper
+                  className="ecos-kanban__column-card-form"
                   isVisible
                   {...formProps}
                   formData={data}
