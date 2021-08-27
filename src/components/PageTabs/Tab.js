@@ -70,7 +70,7 @@ class Tab extends Component {
 
     event.preventDefault();
 
-    onContextMenu({ tab, position, x: event.clientX, y: event.clientY });
+    onContextMenu({ tab, position, x: event.clientX, y: event.clientY, ctrlKey: event.ctrlKey, shiftKey: event.shiftKey });
   };
 
   handleCloseTab = event => {

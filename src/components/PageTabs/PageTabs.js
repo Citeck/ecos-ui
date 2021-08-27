@@ -22,13 +22,14 @@ import {
   updateTabsFromStorage,
   closeTabs
 } from '../../actions/pageTabs';
-import { animateScrollTo, getScrollbarWidth, t } from '../../helpers/util';
+import { animateScrollTo, getScrollbarWidth, isModeDev, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
 import ClickOutside from '../ClickOutside';
 import { dropByCacheKey } from '../ReactRouterCache';
 import Tab from './Tab';
+import { _LOCALHOST_ } from '../../constants';
 import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
 import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
@@ -293,7 +294,10 @@ class PageTabs extends React.Component {
         this.handleCloseTab(tab);
         break;
       case ContextMenuTypes.GO_SOURCE_HOST:
-        window.open(`${process.env.REACT_APP_SHARE_PROXY_URL}${window.location.pathname}${window.location.search}`, '_blank');
+        window.open(
+          `${isModeDev() ? process.env.REACT_APP_SHARE_PROXY_URL : _LOCALHOST_}${window.location.pathname}${window.location.search}`,
+          '_blank'
+        );
         break;
       default:
         console.error(`PageTabs:ContextMenuItem: Unknown type ${type}`);
@@ -417,9 +421,9 @@ class PageTabs extends React.Component {
     this.setState({ draggableNode: null });
   };
 
-  handleContextMenu = ({ tab, position, x, y }) => {
+  handleContextMenu = ({ tab, position, x, y, ctrlKey, shiftKey }) => {
     this.setState({
-      contextMenu: { tab, position, x, y }
+      contextMenu: { tab, position, x, y, ctrlKey, shiftKey }
     });
   };
 
@@ -586,7 +590,7 @@ class PageTabs extends React.Component {
     }
 
     const { tabs } = this.props;
-    const { position, x, y } = contextMenu;
+    const { position, x, y, ctrlKey, shiftKey } = contextMenu;
     const actions = [
       {
         title: t(Labels.CONTEXT_COPY_LINK),
@@ -635,9 +639,9 @@ class PageTabs extends React.Component {
       });
     }
 
-    if (process.env.NODE_ENV === 'development' && get(this.state, 'contextMenu.tab.isActive')) {
+    if ((isModeDev() || (ctrlKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
       actions.push({
-        title: `Go to ${process.env.REACT_APP_SHARE_PROXY_URL}`,
+        title: `Go to ${isModeDev() ? process.env.REACT_APP_SHARE_PROXY_URL : 'local'}`,
         onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST)
       });
     }
