@@ -399,10 +399,10 @@ export default class ParserPredicate {
             return;
           }
 
-          if (isEqual(item.att, newPredicate.att) && !isEqual(item.val, newPredicate.val)) {
+          if (isEqual(item.att, newPredicate.att) && (!isEqual(item.val, newPredicate.val) || !isEqual(item.t, newPredicate.t))) {
             item.val = newPredicate.val;
 
-            if (newPredicate.t) {
+            if (isExistValue(newPredicate.t)) {
               item.t = newPredicate.t;
             }
 

@@ -82,8 +82,6 @@ const JournalsSettingsBar = ({
     );
   };
 
-  const getTooltipId = key => 'ecos-journal-settings-bar-' + key;
-
   return (
     <div className={classNames('ecos-journal__settings-bar', { 'ecos-journal__settings-bar_mobile': isMobile })}>
       {renderCreateMenu()}

@@ -9,7 +9,7 @@ import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
 import Record from '../../../Records/Record';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
-import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm/constants';
+import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
 
@@ -51,7 +51,7 @@ export const TableFormContextProvider = props => {
   };
 
   useEffect(() => {
-    if (!defaultValue || columns.length < 1) {
+    if (isEmpty(defaultValue) || isEmpty(columns)) {
       return;
     }
 
@@ -127,12 +127,17 @@ export const TableFormContextProvider = props => {
 
           return { ...fetchedAtts, id: r };
         })
-      ).then(result => {
-        setGridRows(result);
-        typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
-      });
+      )
+        .then(result => {
+          setGridRows(result);
+          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+        })
+        .catch(e => {
+          console.error(e);
+          setGridRows([]);
+        });
     }
-  }, [defaultValue, columns, setGridRows]);
+  }, [defaultValue, columns]);
 
   useEffect(() => {
     if (clonedRecord) {
@@ -147,11 +152,7 @@ export const TableFormContextProvider = props => {
             showCloneForm({ createVariant });
           }
         })
-        .then(record => {
-          if (record instanceof Record) {
-            onCreateFormSubmit(record);
-          }
-        });
+        .then(record => record instanceof Record && onCreateFormSubmit(record));
     }
   }, [clonedRecord]);
 

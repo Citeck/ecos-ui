@@ -151,6 +151,10 @@ class BaseMLField extends Component {
   getLocaleWithValue(values) {
     const currentLocale = getCurrentLocale();
 
+    if (isEmpty(values)) {
+      return currentLocale;
+    }
+
     if (values && !values[currentLocale]) {
       for (let lang in values) {
         if (values.hasOwnProperty(lang) && values[lang]) {
