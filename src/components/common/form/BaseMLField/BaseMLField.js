@@ -148,7 +148,7 @@ class BaseMLField extends Component {
     this._inputRef = ref;
   };
 
-  getLocaleWithValue(values) {
+  getLocaleWithValue(values = {}) {
     const currentLocale = getCurrentLocale();
 
     if (values && !values[currentLocale]) {
@@ -158,7 +158,7 @@ class BaseMLField extends Component {
         }
       }
     }
-
+    console.log(values);
     if (!isEmpty(values[currentLocale])) {
       return currentLocale;
     }
