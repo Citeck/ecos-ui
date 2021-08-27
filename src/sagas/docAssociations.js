@@ -107,22 +107,11 @@ function* sagaGetAssociations({ api, logger }, { payload }) {
 function* sagaGetMenu({ api, logger }, { payload }) {
   try {
     const firstLvl = yield call(api.docAssociations.getAllowedAssociations, payload);
-    let { records: secondLvl } = yield call(api.docAssociations.getSectionList, payload);
-
-    secondLvl = yield all(
-      secondLvl.map(function*(item) {
-        const journals = yield call(api.docAssociations.getJournalList, item.name);
-
-        item.items = journals.map(DocAssociationsConverter.getJournalForWeb);
-
-        return item;
-      })
-    );
 
     yield put(
       setMenu({
         key: payload,
-        menu: DocAssociationsConverter.getMenuForWeb(firstLvl, secondLvl)
+        menu: DocAssociationsConverter.getMenuForWeb(firstLvl)
       })
     );
   } catch (e) {

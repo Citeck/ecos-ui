@@ -54,29 +54,17 @@ export default class DocAssociationsConverter extends DocumentsConverter {
     return target;
   }
 
-  static getMenuForWeb(firstLvl = [], secondLvl = []) {
+  static getMenuForWeb(firstLvl = []) {
     if (isEmpty(firstLvl)) {
       return [];
     }
-
-    const mappingNextLevel = (item, associationId) => {
-      const target = {};
-
-      target.id = item.name;
-      target.label = getTextByLocale(item.title);
-      target.nodeRef = item.id;
-      target.associationId = associationId;
-      target.items = (item.items || []).map(i => ({ ...i, associationId }));
-
-      return target;
-    };
 
     return firstLvl.map(item => {
       const target = {};
 
       target.id = DocAssociationsConverter.getId(item);
       target.label = getTextByLocale(item.name);
-      target.items = secondLvl.map(i => mappingNextLevel(i, target.id)).filter(i => i.items.length);
+      target.items = item.journals.map(journal => ({ ...journal, associationId: item.id }));
 
       return target;
     });
