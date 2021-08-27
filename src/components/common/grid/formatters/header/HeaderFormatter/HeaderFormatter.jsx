@@ -207,21 +207,6 @@ export default class HeaderFormatter extends Component {
     );
   };
 
-  renderInput() {
-    const { text } = this.state;
-
-    return (
-      <Input
-        autoFocus
-        type="text"
-        className="ecos-th__filter-tooltip-input"
-        onChange={this.onChange}
-        onKeyDown={this.onKeyDown}
-        value={text}
-      />
-    );
-  }
-
   handleClickOutside = e => {
     if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container')) {
       return;
