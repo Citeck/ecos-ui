@@ -103,12 +103,12 @@ class InlineFilter extends Filter {
     this.setState({ value });
   };
 
-  onKeyDown = e => {
+  onKeyDown = (e, processedValue) => {
     if (e.key !== 'Enter') {
       return;
     }
 
-    this.setState({ value: e.target.value }, () => this.onConfirmAction(e));
+    this.setState({ value: processedValue || get(e, 'target.value') }, () => this.onConfirmAction(e));
   };
 
   renderConfirmAction() {
