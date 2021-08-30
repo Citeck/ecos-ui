@@ -35,6 +35,7 @@ const mapStateToProps = (state, props) => {
     isMobile: (state.view || {}).isMobile === true,
     predicate: newState.predicate,
     query: get(newState, 'grid.query.query'),
+    isGrouped: !isEmpty(get(newState, 'grid.grouping.columns')),
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,
@@ -245,7 +246,8 @@ class JournalsDashletGrid extends Component {
       selectorContainer,
       viewColumns,
       onOpenSettings,
-      query
+      query,
+      isGrouped
     } = this.props;
 
     let editable = true;
@@ -256,7 +258,7 @@ class JournalsDashletGrid extends Component {
 
     let filters = ParserPredicate.getFlatFilters(predicate);
 
-    if (isEmpty(filters)) {
+    if (isGrouped && isEmpty(filters)) {
       filters = ParserPredicate.getFlatFilters(query);
     }
 
