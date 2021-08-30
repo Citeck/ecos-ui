@@ -5,7 +5,6 @@ export const selectStateByKey = (state, key) => {
   const ownState = get(state, ['docAssociations', key], { ...initialState });
 
   return {
-    sectionList: get(ownState, ['sectionList'], []),
     associations: get(ownState, ['associations'], []),
     allowedAssociations: get(ownState, ['allowedAssociations'], []),
     isLoading: get(ownState, ['isLoading'], false),
@@ -43,4 +42,10 @@ export const selectAssociationColumnsConfig = (state, key, name) => {
     get(state, ['docAssociations', key, 'allowedAssociations'], []).find(item => item.name === name || item.attribute === name) || {};
 
   return get(association, 'columnsConfig.columns', []);
+};
+
+export const selectAssociationsByKey = (state, keyState, keyAssoc) => {
+  const assocData = get(state, ['docAssociations', keyState, 'associations'], []).find(item => item.key === keyAssoc) || {};
+
+  return get(assocData, 'associations', []).map(item => item.id);
 };

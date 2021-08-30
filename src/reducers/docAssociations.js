@@ -9,14 +9,11 @@ import {
   setAllowedConnections,
   setAssociations,
   setError,
-  setMenu,
-  setSectionList
+  setMenu
 } from '../actions/docAssociations';
 import { deleteStateById, getCurrentStateById } from '../helpers/redux';
 
 export const initialState = {
-  // list of sections
-  sectionList: [],
   // list of associations sorted by relationship
   associations: [],
   // list of available associations (first level menu)
@@ -45,13 +42,6 @@ export default handleActions(
       };
     },
     [resetStore]: (state, { payload }) => deleteStateById(state, payload),
-    [setSectionList]: (state, { payload }) => ({
-      ...state,
-      [payload.key]: {
-        ...state[payload.key],
-        sectionList: payload.sectionList
-      }
-    }),
 
     [setAssociations]: (state, { payload }) => ({
       ...state,

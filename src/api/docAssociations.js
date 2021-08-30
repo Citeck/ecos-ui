@@ -1,9 +1,10 @@
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import ecosFetch from '../helpers/ecosFetch';
-import { getOutputFormat } from '../helpers/util';
-import { DataFormatTypes, EmodelTypes } from '../constants';
+import { EmodelTypes } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
+import { baseColumnsConfig } from '../constants/docAssociations';
 import Records from '../components/Records';
 import journalsService from '../components/Journals/service/journalsService';
 import { DocumentsApi } from './documents';
@@ -27,13 +28,36 @@ export class DocAssociationsApi extends DocumentsApi {
         }
 
         return Records.get(type)
-          .load('assocsFull[]{id,attribute,direction,name,target?id,journals[]{id:?id,label:name,nodeRef}}', true)
+          .load('assocsFull[]{id,attribute,direction,name,target?id,journals[]{id:?id,label:name}}')
           .catch(e => {
             console.error(e);
             return [];
           });
       });
   };
+
+  async getColumnConfiguration(association) {
+    const baseConfig = cloneDeep(baseColumnsConfig);
+    baseConfig.columns = await journalsService.resolveColumns(baseColumnsConfig.columns);
+
+    if (association.target === EmodelTypes.BASE) {
+      return new Promise(async resolve => {
+        resolve({
+          ...association,
+          columnsConfig: baseConfig
+        });
+      });
+    }
+
+    return journalsService.getJournalConfigByType(association.target).then(async columnsConfig => {
+      const config = isEmpty(columnsConfig) ? baseConfig : columnsConfig;
+
+      return {
+        ...association,
+        columnsConfig: config
+      };
+    });
+  }
 
   /**
    * Partition List - Second Level Menu

@@ -1,4 +1,4 @@
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 import concat from 'lodash/concat';
 import { NotificationManager } from 'react-notifications';
 
@@ -15,7 +15,12 @@ import {
   setSectionList,
   viewAssociation
 } from '../actions/docAssociations';
-import { selectAllowedDirectionsByKey, selectAssocByAssocName, selectAssociationColumnsConfig } from '../selectors/docAssociations';
+import {
+  selectAllowedDirectionsByKey,
+  selectAssocByAssocName,
+  selectAssociationColumnsConfig,
+  selectAssociationsByKey
+} from '../selectors/docAssociations';
 import DocAssociationsConverter from '../dto/docAssociations';
 import { t } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
@@ -33,7 +38,7 @@ function* sagaGetSectionList({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    logger.error('[docAssociations sagaGetSectionList saga error', e.message);
+    logger.error('[docAssociations sagaGetSectionList saga error', e);
   }
 }
 
@@ -68,15 +73,17 @@ function* getAssociation({ api, logger }, { id, direction }, recordRef) {
       return concat(target, source);
     }
   } catch (e) {
-    logger.error('[docAssociations getAssociation saga error', e.message);
+    logger.error('[docAssociations getAssociation saga error', e);
   }
 }
 
 function* sagaGetAssociations({ api, logger }, { payload }) {
   try {
-    const allowedAssociations = DocAssociationsConverter.getAllowedAssociations(
-      yield call(api.docAssociations.getAllowedAssociations, payload)
-    );
+    const associations = yield call(api.docAssociations.getAllowedAssociations, payload);
+    const configuredAssociations = yield associations.map(function*(item) {
+      return yield call(api.docAssociations.getColumnConfiguration, item);
+    });
+    const allowedAssociations = DocAssociationsConverter.getAllowedAssociations(configuredAssociations);
 
     yield put(setAllowedConnections({ key: payload, allowedAssociations }));
 
@@ -100,23 +107,23 @@ function* sagaGetAssociations({ api, logger }, { payload }) {
     );
   } catch (e) {
     yield put(setError({ key: payload }));
-    logger.error('[docAssociations sagaGetAssociations saga error', e.message);
+    logger.error('[docAssociations sagaGetAssociations saga error', e);
   }
 }
 
 function* sagaGetMenu({ api, logger }, { payload }) {
   try {
-    const firstLvl = yield call(api.docAssociations.getAllowedAssociations, payload);
+    const allowedAssociations = yield call(api.docAssociations.getAllowedAssociations, payload);
 
     yield put(
       setMenu({
         key: payload,
-        menu: DocAssociationsConverter.getMenuForWeb(firstLvl)
+        menu: DocAssociationsConverter.getMenuForWeb(allowedAssociations)
       })
     );
   } catch (e) {
     yield put(setError({ key: payload }));
-    logger.error('[docAssociations sagaGetMenu saga error', e.message);
+    logger.error('[docAssociations sagaGetMenu saga error', e);
   }
 }
 
@@ -126,6 +133,8 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
     const directions = yield select(state => selectAllowedDirectionsByKey(state, record));
     const association = yield select(state => selectAssocByAssocName(state, record, associationId));
     const direction = association.attribute ? association.direction : directions[associationId];
+    const ownAssociations = yield select(state => selectAssociationsByKey(state, record, associationId));
+    const newAssociations = direction === DIRECTIONS.SOURCE ? [record] : associations;
 
     if (direction === DIRECTIONS.SOURCE) {
       yield associations.map(function*(recordRef) {
@@ -143,7 +152,11 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
       });
     }
 
-    yield Records.get([record, ...associations]).forEach(r => r && r.update());
+    if (!newAssociations.every(item => ownAssociations.includes(item))) {
+      yield put(setError({ key: payload.record }));
+    }
+
+    Records.get([record, ...associations]).forEach(r => r && r.update());
 
     NotificationManager.success(
       associations.length > 1
@@ -151,15 +164,13 @@ function* sagaAddAssociations({ api, logger }, { payload }) {
         : t('doc-associations-widget.add-association-one.success.message')
     );
   } catch (e) {
-    let message = t('doc-associations-widget.add-association.error.message');
-
-    yield put(setError({ key: payload.record }));
-    if (e.message.includes('type is incorrect')) {
-      message = t('doc-associations-widget.incorrect-type.error.message');
-    }
+    const message = !e.message.includes('type is incorrect')
+      ? t('doc-associations-widget.add-association.error.message')
+      : t('doc-associations-widget.incorrect-type.error.message');
 
     NotificationManager.error(message);
-    logger.error('[docAssociations sagaAddAssociations saga error', e.message);
+    yield put(setError({ key: payload.record }));
+    logger.error('[docAssociations sagaAddAssociations saga error', e);
   }
 }
 
@@ -182,14 +193,14 @@ function* sagaRemoveAssociations({ api, logger }, { payload }) {
       associationId: attribute || associationId
     });
 
-    yield Records.get([record, associationRef]).forEach(r => r && r.update());
+    Records.get([record, associationRef]).forEach(r => r && r.update());
 
     NotificationManager.success(t('doc-associations-widget.remove-association.success.message'));
   } catch (e) {
     yield put(setError({ key: payload.record }));
 
     NotificationManager.error(t('doc-associations-widget.incorrect-type.error.message'));
-    logger.error('[docAssociations sagaRemoveAssociations saga error', e.message);
+    logger.error('[docAssociations sagaRemoveAssociations saga error', e);
   }
 }
 
@@ -201,7 +212,7 @@ function* sagaViewAssociation({ api, logger }, { payload }) {
     });
   } catch (e) {
     NotificationManager.error(t('doc-associations-widget.view-association.error.message'), t('error'));
-    logger.error('[docAssociations sagaGetSectionList saga error', e.message);
+    logger.error('[docAssociations sagaViewAssociation saga error', e);
   }
 }
 

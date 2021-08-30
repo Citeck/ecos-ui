@@ -49,7 +49,6 @@ export default class DocAssociationsConverter extends DocumentsConverter {
 
     target.label = getTextByLocale(get(source, ['title'], ''));
     target.id = get(source, ['type'], '');
-    target.nodeRef = get(source, ['nodeRef'], '');
 
     return target;
   }
