@@ -1130,5 +1130,44 @@ export function strSplice(string, start, deleteCount, ...addString) {
   return string;
 }
 
+/*
+ * Ex Measurer component for Dashlet and JournalsDashlet
+ */
+export function getDOMElementMeasurer(element) {
+  if (!element) {
+    return {};
+  }
+
+  const XXS = 376;
+  const XS = 476;
+  const SM = 576;
+  const MD = 768;
+  const LG = 992;
+  const XL = 1200;
+
+  const xxxs = w => w < XXS;
+  const xxs = w => w >= XXS && w < XS;
+  const xs = w => w >= XS && w < SM;
+  const sm = w => w >= SM && w < MD;
+  const md = w => w >= MD && w < LG;
+  const lg = w => w >= LG && w < XL;
+  const xl = w => w >= XL;
+
+  const width = element.offsetWidth;
+  const measurer = {};
+
+  measurer.width = width;
+
+  measurer.xxxs = xxxs(width);
+  measurer.xxs = xxs(width);
+  measurer.xs = xs(width);
+  measurer.sm = sm(width);
+  measurer.md = md(width);
+  measurer.lg = lg(width);
+  measurer.xl = xl(width);
+
+  return measurer;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
