@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { ModalBody, ModalHeader } from 'reactstrap';
 import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
+import last from 'lodash/last';
+import get from 'lodash/get';
 
 import { t, trigger } from '../../../helpers/util';
 import Modal from './ModalDraggable';
@@ -24,6 +26,8 @@ export default class EcosModal extends Component {
   static getDerivedStateFromProps(props, state) {
     if (props.isOpen !== state.isOpen) {
       let openModalsCounter = document.querySelectorAll('.ecos-modal').length;
+      const modals = document.querySelectorAll('.ecos-modal-container');
+      const zIndexCalc = +get(last(modals), 'style.zIndex', DEFAULT_Z_INDEX) + 1;
 
       openModalsCounter += props.isOpen ? 1 : -1;
 
@@ -33,7 +37,8 @@ export default class EcosModal extends Component {
 
       return {
         isOpen: props.isOpen,
-        level: openModalsCounter
+        level: openModalsCounter,
+        zIndexCalc
       };
     }
 
@@ -115,10 +120,9 @@ export default class EcosModal extends Component {
   }
 
   render() {
-    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, zIndex, size } = this.props;
-    const { isOpen, level, draggableState } = this.state;
+    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size } = this.props;
+    const { isOpen, level, draggableState, zIndexCalc } = this.state;
 
-    const modalZIndex = (zIndex || DEFAULT_Z_INDEX) + level;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const modalClassName = classNames('ecos-modal', className, {
       'ecos-modal_draggable': draggableState !== null,
@@ -150,13 +154,14 @@ export default class EcosModal extends Component {
         isOpen={isOpen}
         isLoading={isLoading}
         toggle={hideModal}
-        zIndex={modalZIndex}
+        zIndex={zIndexCalc}
         size={size}
         className={modalClassName}
         {...reactstrapProps}
         getDialogRef={el => (this._dialog = el)}
         draggableProps={draggableProps}
         data-level={level}
+        containerClassName="ecos-modal-container"
       >
         {this.renderModalHeader()}
         <ModalBody className={classNameBody}>{children}</ModalBody>
@@ -183,8 +188,7 @@ EcosModal.propTypes = {
   reactstrapProps: PropTypes.object,
   title: PropTypes.string,
   onResize: PropTypes.func,
-  customButtons: PropTypes.array,
-  zIndex: PropTypes.number
+  customButtons: PropTypes.array
 };
 
 EcosModal.defaultProps = {
@@ -196,6 +200,5 @@ EcosModal.defaultProps = {
   title: '',
   customButtons: [],
   hideModal: () => null,
-  onResize: () => null,
-  zIndex: DEFAULT_Z_INDEX
+  onResize: () => null
 };
