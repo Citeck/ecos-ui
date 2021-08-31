@@ -136,6 +136,7 @@ function* sagaGetData({ api, logger }, { payload }) {
     delete params.groupBy;
     delete params.groupActions;
     delete params.attributes;
+    delete journalConfig.columns;
 
     const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(formProps.formFields);
 
