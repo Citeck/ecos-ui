@@ -53,7 +53,6 @@ export default class EcosFormBuilderModal extends React.Component {
         className="ecos-modal_width-extra-lg"
         title={t('eform.modal.title.constructor')}
         isOpen={isModalOpen}
-        zIndex={9000}
         hideModal={this.toggleVisibility}
       >
         <EcosFormBuilder formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />

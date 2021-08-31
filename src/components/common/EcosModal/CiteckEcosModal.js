@@ -51,7 +51,6 @@ class ModalWrapper extends React.Component {
         isBigHeader={this.props.isBigHeader}
         className={classNames.join(' ')}
         classNameBody={this.props.classNameBody}
-        zIndex={9000}
         reactstrapProps={this.props.reactstrapProps}
       >
         {this.props.children}
