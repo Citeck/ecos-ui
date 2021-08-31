@@ -6,8 +6,17 @@ export class KanbanApi {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('boardRefs[]{id:?id,name}');
   }
 
-  getBoardConfig({ boardId }) {
-    return Records.get(boardId).load('?json');
+  getBoardConfig({ boardId = '' }) {
+    const id = boardId.replace(SourcesId.BOARD, SourcesId.RESOLVED_BOARD);
+    return Records.get(id).load({
+      actions: 'actions[]?id![]',
+      cardFormRef: 'cardFormRef?id',
+      columns: 'columns[]{id,name}![]',
+      journalRef: 'journalRef?id',
+      name: 'name',
+      typeRef: 'typeRef?id',
+      readOnly: 'readOnly?bool!true'
+    });
   }
 
   moveRecord({ recordRef, columnId }) {

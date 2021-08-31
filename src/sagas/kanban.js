@@ -60,8 +60,8 @@ function* sagaGetBoardList({ api, logger }, { payload }) {
 function* sagaGetBoardConfig({ api, logger }, { payload }) {
   try {
     const { boardId, stateId } = payload;
-    const boardData = yield call(api.kanban.getBoardConfig, { boardId });
-    const boardConfig = KanbanConverter.prepareConfig(boardData.boardDef);
+    const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
+    const boardConfig = KanbanConverter.prepareConfig(config);
 
     //todo уточнение
 
@@ -144,13 +144,13 @@ function* sagaGetData({ api, logger }, { payload }) {
     params.attributes.cardTitle = '.disp';
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
-    console.log({ boardConfig });
     const result = yield (boardConfig.columns || []).map(function*(column, i) {
       if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
         return yield {};
       }
 
-      const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, column.predicate] });
+      const colPredicate = column.id === 'EMPTY' ? { t: 'not-empty', att: '_status' } : { t: 'eq', att: '_status', val: [column.id] };
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, colPredicate] });
       return yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
     });
 
@@ -190,6 +190,8 @@ function* sagaGetActions({ api, logger }, { payload }) {
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
     const resolvedActions = yield (boardConfig.columns || []).map(function*(column, i) {
+      //todo test ui action
+      boardConfig.actions.push('uiserv/action@edit');
       const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       return { ...get(prevResolvedActions, [i], {}), ...newResolvedActions.forRecord };
     });
