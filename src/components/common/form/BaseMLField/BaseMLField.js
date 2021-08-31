@@ -12,7 +12,7 @@ import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { prepareTooltipId } from '../../../../helpers/util';
 import { t } from '../../../../helpers/export/util';
-import { allowedLanguages } from '../../../../constants/lang';
+import { allowedLanguages, LANGUAGE_EN } from '../../../../constants/lang';
 
 import './style.scss';
 
@@ -149,6 +149,10 @@ class BaseMLField extends Component {
   getLocaleWithValue(values) {
     const currentLocale = getCurrentLocale();
 
+    if (isEmpty(values)) {
+      return currentLocale;
+    }
+
     if (values && !values[currentLocale]) {
       for (let lang in values) {
         if (values.hasOwnProperty(lang) && values[lang]) {
@@ -157,7 +161,17 @@ class BaseMLField extends Component {
       }
     }
 
-    return currentLocale;
+    if (!isEmpty(values[currentLocale])) {
+      return currentLocale;
+    }
+
+    if (!isEmpty(values[LANGUAGE_EN])) {
+      return LANGUAGE_EN;
+    }
+
+    const firstNotEmptyLang = Object.keys(values).find(key => !isEmpty(values[key]));
+
+    return firstNotEmptyLang || currentLocale;
   }
 
   handleToggleShowButton = debounce((isShowButton = !this.state.isShowButton) => {
