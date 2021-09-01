@@ -94,7 +94,7 @@ class DocConstructorDashlet extends BaseWidget {
   }
 
   componentDidMount() {
-    this.watcher = this.instanceRecord.watch('cm:modified', this.reload);
+    this.watcher = this.instanceRecord.watch('_modified', this.reload);
     this.props.initConstructor();
   }
 
