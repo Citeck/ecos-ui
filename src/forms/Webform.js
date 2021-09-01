@@ -46,6 +46,7 @@ Webform.prototype.onSubmit = function(submission, saved) {
   if (saved) {
     this.emit('submitDone', submission);
     this.loading = false;
+    this.attr(this.buttonElement, { disabled: this.disabled });
   }
 
   this.setAlert(false);

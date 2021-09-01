@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
@@ -20,6 +21,12 @@ class InlineFilter extends Filter {
       predicate: get(props, 'filter.predicate', {})
     };
   }
+
+  static propTypes = {
+    ...Filter.propTypes,
+    onToggle: PropTypes.func,
+    onFilter: PropTypes.func
+  };
 
   componentDidUpdate() {}
 
@@ -57,6 +64,7 @@ class InlineFilter extends Filter {
 
     return {
       ...super.valueControlProps,
+      onKeyDown: this.onKeyDown,
       predicate,
       value: this.state.value
     };
@@ -95,14 +103,12 @@ class InlineFilter extends Filter {
     this.setState({ value });
   };
 
-  onKeyDown = e => {
+  onKeyDown = (e, processedValue) => {
     if (e.key !== 'Enter') {
       return;
     }
 
-    this.setState({ value: e.target.value }, () => {
-      this.onConfirmAction();
-    });
+    this.setState({ value: processedValue || get(e, 'target.value') }, () => this.onConfirmAction(e));
   };
 
   renderConfirmAction() {

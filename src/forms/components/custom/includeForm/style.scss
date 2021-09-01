@@ -1,0 +1,12 @@
+.component-preview {
+  .formio-component-includeForm:not(:empty) {
+    padding: 10px;
+    border: 2px dashed #ddd;
+    margin-bottom: 0;
+    text-align: center;
+
+    label.control-label {
+      margin-bottom: 0;
+    }
+  }
+}
