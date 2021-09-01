@@ -1,4 +1,3 @@
-import React from 'react';
 import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
@@ -75,7 +74,6 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   checkConditions(data) {
-    const isVisible = _.cloneDeep(this.visible);
     const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 

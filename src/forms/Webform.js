@@ -4,8 +4,8 @@ import merge from 'lodash/merge';
 import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
 
 const originalSetElement = Webform.prototype.setElement;
-const originalOnSubmit = Webform.prototype.onSubmit;
 const originalSubmit = Webform.prototype.submit;
+const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
 
 Webform.prototype.setElement = function(element) {
   originalSetElement.call(this, element);
@@ -26,11 +26,31 @@ Webform.prototype.setElement = function(element) {
 };
 
 Webform.prototype.onSubmit = function(submission, saved) {
-  const result = originalOnSubmit.call(this, submission, saved);
+  this.loading = true;
+  this.submitting = false;
+  this.setPristine(true);
+  this.setValue(submission, {
+    noValidate: true,
+    noCheck: true
+  });
+
+  this.setAlert('success', `<p>${this.t('complete')}</p>`);
+
+  if (!submission.hasOwnProperty('saved')) {
+    submission.saved = saved;
+  }
+
+  this.emit('submit', submission);
+
+  if (saved) {
+    this.emit('submitDone', submission);
+    this.loading = false;
+    this.attr(this.buttonElement, { disabled: this.disabled });
+  }
 
   this.setAlert(false);
 
-  return result;
+  return submission;
 };
 
 Webform.prototype.submit = function(before, options) {
@@ -79,5 +99,19 @@ Webform.prototype.submit = function(before, options) {
     fireSubmit(new Date().getTime() + 5000);
   });
 };
+
+Object.defineProperty(Webform.prototype, 'loading', {
+  set: function(loading) {
+    originalPropertyLoading.set.call(this, loading);
+
+    if (!loading && this.loader) {
+      try {
+        this.removeChildFrom(this.loader, this.wrapper);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
+});
 
 export default Webform;

@@ -14,6 +14,11 @@ export default class ButtonComponent extends FormIOButtonComponent {
     return ButtonComponent.schema();
   }
 
+  set loading(loading) {
+    this.buttonElement.disabled = loading;
+    super.loading = loading;
+  }
+
   build() {
     super.build();
 
