@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
 import get from 'lodash/get';
+import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 
 import BaseWidget from '../BaseWidget';
@@ -14,7 +15,6 @@ import {
   addAssociations,
   getAssociations,
   getMenu,
-  getSectionList,
   removeAssociations,
   resetStore,
   viewAssociation
@@ -49,13 +49,11 @@ class DocAssociations extends BaseWidget {
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     canDragging: PropTypes.bool,
     dragHandleProps: PropTypes.object,
-    sectionList: PropTypes.array,
     associations: PropTypes.array,
     isLoading: PropTypes.bool,
     isLoadingMenu: PropTypes.bool,
     menu: PropTypes.array,
     associationsTotalCount: PropTypes.number,
-    getSectionList: PropTypes.func,
     getAssociations: PropTypes.func,
     getMenu: PropTypes.func,
     addAssociations: PropTypes.func,
@@ -77,7 +75,6 @@ class DocAssociations extends BaseWidget {
       isMenuOpen: false,
       isConfirmRemoveDialogOpen: false,
       journalId: '',
-      journalRef: '',
       associationId: '',
       selectedDocument: null
     };
@@ -98,12 +95,9 @@ class DocAssociations extends BaseWidget {
     const prevTrackedAssoc = this.getTrackedAssoc(prevProps.allowedAssociations);
     const newTrackedAssoc = this.getTrackedAssoc();
 
-    if (!isEqual(prevTrackedAssoc, newTrackedAssoc)) {
+    if (!isEqualWith(prevTrackedAssoc, newTrackedAssoc, isEqual)) {
       this.watcherAssoc && this.instanceRecord.unwatch(prevTrackedAssoc);
-      newTrackedAssoc &&
-        (this.watcherAssoc = this.instanceRecord.watch(newTrackedAssoc, () => {
-          this.reload();
-        }));
+      newTrackedAssoc && (this.watcherAssoc = this.instanceRecord.watch(newTrackedAssoc, () => this.reload()));
     }
   }
 
@@ -157,11 +151,10 @@ class DocAssociations extends BaseWidget {
   }
 
   handleToggleMenu = () => {
-    const { menu, getMenu, isLoadingMenu, getSectionList } = this.props;
+    const { menu, getMenu, isLoadingMenu } = this.props;
     const { isMenuOpen } = this.state;
 
     if (!menu.length && !isMenuOpen && !isLoadingMenu) {
-      getSectionList();
       getMenu();
     }
 
@@ -179,16 +172,15 @@ class DocAssociations extends BaseWidget {
 
     this.setState({
       journalId: item.id,
-      journalRef: item.nodeRef,
       associationId: item.associationId,
       isMenuOpen: false
     });
   };
 
   handleSelectJournal = associations => {
-    const { associationId, journalRef } = this.state;
+    const { associationId } = this.state;
 
-    this.props.addAssociations(associationId, journalRef, associations);
+    this.props.addAssociations(associationId, associations);
 
     this.setState({ journalId: '' });
   };
@@ -336,9 +328,7 @@ class DocAssociations extends BaseWidget {
         hideCreateButton
         renderView={() => null}
         onChange={this.handleSelectJournal}
-        onCancel={() => {
-          this.setState({ journalId: '' });
-        }}
+        onCancel={() => this.setState({ journalId: '' })}
       />
     );
   }
@@ -423,16 +413,14 @@ const mapStateToProps = (state, { record }) => ({
 
 const mapDispatchToProps = (dispatch, { record }) => ({
   resetStore: () => dispatch(resetStore(record)),
-  getSectionList: () => dispatch(getSectionList(record)),
   getAssociations: () => dispatch(getAssociations(record)),
   getMenu: () => dispatch(getMenu(record)),
   viewAssociation: associationRef => dispatch(viewAssociation(associationRef)),
-  addAssociations: (associationId, journalRef, associations) =>
+  addAssociations: (associationId, associations) =>
     dispatch(
       addAssociations({
         record,
         associationId,
-        journalRef,
         associations
       })
     ),
