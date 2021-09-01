@@ -75,7 +75,7 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import { hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
-import { JournalUrlParams } from '../constants';
+import { JournalUrlParams, SourcesId } from '../constants';
 import JournalsConverter from '../dto/journals';
 import { selectGridPaginationMaxItems, selectJournalData, selectNewVersionDashletConfig, selectUrl } from '../selectors/journals';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -885,14 +885,16 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     if (id === 'event-lines-stat') {
       //todo: move to journal config
       let eventTypeId = row['groupBy__type'];
+
       if (eventTypeId) {
-        eventTypeId = eventTypeId.replace('emodel/type@line-', '');
+        eventTypeId = eventTypeId.replace(`${SourcesId.TYPE}@line-`, '');
         id = 'event-lines-' + eventTypeId;
         NotificationManager.info('', t('notification.journal-will-be-opened-soon'), 1000);
         PageService.changeUrlLink('/v2/journals?journalId=' + id, { updateUrl: true });
+
         return;
       } else {
-        console.error("Target journal can't be resolved", row);
+        console.error("[journals sagaGoToJournalsPage] Target journal can't be resolved", row);
       }
     } else {
       const journalType = (criteria[0] || {}).value || predicate.val;
@@ -942,7 +944,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     yield put(setPreviewFileName(w('')));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
   } catch (e) {
-    logger.error('[journals sagaGoToJournalsPage saga error', e.message);
+    logger.error('[journals sagaGoToJournalsPage saga error]', e);
   }
 }
 
