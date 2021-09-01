@@ -11,7 +11,6 @@ import { closest, getId, isExistValue } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
-import { Input } from '../../../../form';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
@@ -206,21 +205,6 @@ export default class HeaderFormatter extends Component {
       this.handleSetFilter
     );
   };
-
-  renderInput() {
-    const { text } = this.state;
-
-    return (
-      <Input
-        autoFocus
-        type="text"
-        className="ecos-th__filter-tooltip-input"
-        onChange={this.onChange}
-        onKeyDown={this.onKeyDown}
-        value={text}
-      />
-    );
-  }
 
   handleClickOutside = e => {
     if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container')) {
