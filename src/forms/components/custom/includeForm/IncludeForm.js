@@ -32,7 +32,7 @@ export default class IncludeFormComponent extends BaseComponent {
   build() {
     this.createElement();
 
-    if (this.component.formRef) {
+    if (this.component.formRef && this.root.builderReady !== undefined) {
       super.build();
     }
   }
