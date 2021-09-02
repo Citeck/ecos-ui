@@ -319,10 +319,8 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     journalSetting = { ..._journalSetting, ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
     journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
 
-    const predicate = journalSetting.predicate;
-
     yield put(setJournalSetting(w(journalSetting)));
-    yield put(initJournalSettingData(w({ journalSetting, predicate })));
+    yield put(initJournalSettingData(w({ journalSetting })));
 
     return journalSetting;
   } catch (e) {
@@ -638,6 +636,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
+    yield put(onJournalSettingsSelect(w(selectedId)));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e.message);
   }
