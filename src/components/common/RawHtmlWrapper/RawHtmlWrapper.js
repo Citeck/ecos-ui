@@ -23,12 +23,7 @@ export default class RawHtmlWrapper extends Component {
   }
 
   setProps(props) {
-    this.setState({
-      props: {
-        ...this.state.props,
-        ...props
-      }
-    });
+    this.setState(state => ({ props: { ...state.props, ...props } }));
   }
 
   setComponent(component) {
