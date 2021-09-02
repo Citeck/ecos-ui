@@ -53,7 +53,6 @@ export default class FormLocaleEditorModal extends React.Component {
         title={t('eform.modal.title.edit-locale')}
         isOpen={isModalOpen}
         hideModal={this.onToggleVisibility}
-        zIndex={9000}
       >
         <EcosFormLocaleEditor i18n={i18n} onSubmit={this.onSubmit} onCancel={this.onToggleVisibility} />
       </EcosModal>
