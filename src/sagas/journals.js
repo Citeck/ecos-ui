@@ -900,8 +900,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       const journalType = (criteria[0] || {}).value || predicate.val;
 
       if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
-        const journalConfig = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
-        id = journalConfig.id;
+        const config = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
+        id = config.id;
       }
 
       if (groupBy.length) {
@@ -937,6 +937,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     const gridData = yield getGridData(api, { ...params }, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
 
+    yield put(setPredicate(w(predicateValue)));
     yield put(setSelectedRecords(w([])));
     yield put(setSelectAllRecordsVisible(w(false)));
     yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
