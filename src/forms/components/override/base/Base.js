@@ -10,7 +10,8 @@ import Tooltip from 'tooltip.js';
 import { getInputMask } from 'formiojs/utils/utils';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
-import { getMLValue, getCurrentLocale, getTextByLocale, t, calcTopIndexZ } from '../../../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../../../helpers/util';
+import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
 
@@ -797,8 +798,9 @@ Object.defineProperty(Base.prototype, 'originalComponent', {
 Base.prototype.createModal = function(...params) {
   const modal = originalCreateModal.call(this, ...params);
   modal.classList.add('ecosZIndexAnchor');
-  const zIndex = calcTopIndexZ();
-  modal.style.zIndex = String(zIndex);
+
+  ZIndex.calcZ();
+  ZIndex.setZ(modal);
 
   return modal;
 };

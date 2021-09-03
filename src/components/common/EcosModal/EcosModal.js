@@ -5,7 +5,8 @@ import { ModalBody, ModalHeader } from 'reactstrap';
 import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
 
-import { calcTopIndexZ, t, trigger } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
+import ZIndex from '../../../services/ZIndex';
 import Modal from './ModalDraggable';
 import { Icon } from '../';
 
@@ -21,8 +22,9 @@ export default class EcosModal extends Component {
   };
 
   static getDerivedStateFromProps(props, state) {
+    let newState = null;
+
     if (props.isOpen !== state.isOpen) {
-      const zIndexCalc = state.zIndexCalc || calcTopIndexZ();
       let openModalsCounter = document.querySelectorAll('.ecos-modal').length;
 
       openModalsCounter += props.isOpen ? 1 : -1;
@@ -31,14 +33,21 @@ export default class EcosModal extends Component {
         openModalsCounter = 0;
       }
 
-      return {
+      newState = {
+        ...newState,
         isOpen: props.isOpen,
-        level: openModalsCounter,
-        zIndexCalc
+        level: openModalsCounter
       };
     }
 
-    return null;
+    if (!state.zIndexCalc) {
+      newState = {
+        ...newState,
+        zIndexCalc: ZIndex.calcZ()
+      };
+    }
+
+    return newState;
   }
 
   componentDidMount() {
