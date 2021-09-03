@@ -10,6 +10,10 @@ import { Labels } from '../constants';
 import { FormWrapper } from '../../common/dialogs';
 
 class Card extends React.PureComponent {
+  state = {
+    setStateOpener: new Set()
+  };
+
   handleAction = action => {
     const { data } = this.props;
     this.props.onClickAction(data.cardId, action);
@@ -63,8 +67,22 @@ class Card extends React.PureComponent {
     );
   };
 
+  handleOpenCard = cardId => {
+    const { setStateOpener } = this.state;
+    const newSet = new Set([...setStateOpener]);
+
+    if (newSet.has(cardId)) {
+      newSet.delete(cardId);
+    } else {
+      newSet.add(cardId);
+    }
+
+    this.setState({ setStateOpener: newSet });
+  };
+
   render() {
     const { data, cardIndex, formProps, readOnly } = this.props;
+    const { setStateOpener } = this.state;
 
     return (
       <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
@@ -74,7 +92,9 @@ class Card extends React.PureComponent {
             <div ref={provided.innerRef} {...provided.draggableProps}>
               <div className={classNames('ecos-kanban__card', { 'ecos-kanban__card_dragging': snapshot.isDragging })}>
                 {this.renderHeaderCard(provided)}
-                <div className="ecos-kanban__card-body">
+                <div
+                  className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': !setStateOpener.has(data.cardId) })}
+                >
                   <FormWrapper
                     className="ecos-kanban__card-form"
                     isVisible
@@ -91,7 +111,13 @@ class Card extends React.PureComponent {
                   />
                 </div>
                 <div className="ecos-kanban__card-bottom">
-                  <Icon className={classNames('ecos-kanban__card-opener', { 'icon-small-down': 1, 'icon-small-up': 0 })} />
+                  <Icon
+                    className={classNames('ecos-kanban__card-opener', {
+                      'icon-small-down': !setStateOpener.has(data.cardId),
+                      'icon-small-up': setStateOpener.has(data.cardId)
+                    })}
+                    onClick={() => this.handleOpenCard(data.cardId)}
+                  />
                 </div>
               </div>
             </div>
