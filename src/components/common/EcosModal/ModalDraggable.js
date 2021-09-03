@@ -41,6 +41,7 @@ const propTypes = {
   modalClassName: PropTypes.string,
   backdropClassName: PropTypes.string,
   contentClassName: PropTypes.string,
+  containerClassName: PropTypes.string,
   external: PropTypes.node,
   fade: PropTypes.bool,
   cssModule: PropTypes.object,
@@ -242,6 +243,7 @@ class Modal extends React.Component {
     this._element.setAttribute('tabindex', '-1');
     this._element.style.position = 'absolute';
     this._element.style.zIndex = this.props.zIndex;
+    this._element.classList.add(this.props.containerClassName);
     this._originalBodyPadding = getOriginalBodyPadding();
 
     conditionallyUpdateScrollbar();

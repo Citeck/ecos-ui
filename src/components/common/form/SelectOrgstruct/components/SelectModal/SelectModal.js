@@ -34,7 +34,6 @@ const SelectModal = () => {
 
   return (
     <EcosModal
-      zIndex={10000}
       title={modalTitle || t(Labels.TITLE)}
       isOpen={isSelectModalOpen}
       hideModal={toggleSelectModal}

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import moment from 'moment';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
 import { DatePicker } from '../../../../../common/form';
@@ -77,6 +78,11 @@ export default class DateEditorControl extends React.Component {
   onKeyDown = e => {
     if (e.key === 'Enter') {
       this.sendData();
+    }
+
+    if (isFunction(this.props.onKeyDown)) {
+      e.persist();
+      this.props.onKeyDown(e, this.state.date);
     }
   };
 

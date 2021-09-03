@@ -6,7 +6,6 @@ import uuid from 'uuidv4';
 import { Icon } from '../../common';
 import { Grid } from '../../common/grid';
 import InlineToolsDisconnected from '../../common/grid/InlineTools/InlineToolsDisconnected';
-import DocAssociationsConverter from '../../../dto/docAssociations';
 import { t } from '../../../helpers/export/util';
 import { objectCompare } from '../../../helpers/util';
 
@@ -142,7 +141,7 @@ class AssociationGrid extends Component {
           data={associations}
           sortable={false}
           forwardedRef={this.#tableRef}
-          columns={DocAssociationsConverter.getColumnForWeb(columns)}
+          columns={columns}
           inlineTools={this.renderInlineTools}
           onChangeTrOptions={this.handleSetInlineToolsOffsets}
           onScrolling={this.handleScrollingTable}

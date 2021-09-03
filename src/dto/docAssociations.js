@@ -115,39 +115,4 @@ export default class DocAssociationsConverter extends DocumentsConverter {
   static getId(source = {}) {
     return source.id;
   }
-
-  static getColumnsAttributes(source = []) {
-    if (isEmpty(source)) {
-      return '';
-    }
-
-    if (!Array.isArray(source)) {
-      return '';
-    }
-
-    return source
-      .map(column => {
-        let attribute = column.attribute || '';
-
-        if (!attribute) {
-          return '';
-        }
-
-        if (attribute.charAt(0) === '.') {
-          return `${column.name}:${attribute.slice(1)}`;
-        }
-
-        if (column.name) {
-          if (attribute.includes('att(n:')) {
-            return `${column.name}:${attribute}`;
-          }
-
-          return `${column.name}:att(n:"${attribute}"){disp}`;
-        }
-
-        return attribute || column.name;
-      })
-      .filter(item => !!item)
-      .join(',');
-  }
 }
