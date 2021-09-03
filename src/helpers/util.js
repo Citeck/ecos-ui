@@ -1171,5 +1171,12 @@ export function getDOMElementMeasurer(element) {
   return measurer;
 }
 
+export function calcTopIndexZ() {
+  const modals = document.querySelectorAll('.ecosZIndexAnchor');
+  const count = modals.length;
+
+  return 10000 + count;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

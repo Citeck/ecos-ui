@@ -4,16 +4,13 @@ import classNames from 'classnames';
 import { ModalBody, ModalHeader } from 'reactstrap';
 import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
-import last from 'lodash/last';
-import get from 'lodash/get';
 
-import { t, trigger } from '../../../helpers/util';
+import { calcTopIndexZ, t, trigger } from '../../../helpers/util';
 import Modal from './ModalDraggable';
 import { Icon } from '../';
 
 import './EcosModal.scss';
 
-const DEFAULT_Z_INDEX = 10000;
 const MAX_LEVEL = 4;
 
 export default class EcosModal extends Component {
@@ -25,9 +22,8 @@ export default class EcosModal extends Component {
 
   static getDerivedStateFromProps(props, state) {
     if (props.isOpen !== state.isOpen) {
+      const zIndexCalc = state.zIndexCalc || calcTopIndexZ();
       let openModalsCounter = document.querySelectorAll('.ecos-modal').length;
-      const modals = document.querySelectorAll('.ecos-modal-container');
-      const zIndexCalc = +get(last(modals), 'style.zIndex', DEFAULT_Z_INDEX) + 1;
 
       openModalsCounter += props.isOpen ? 1 : -1;
 
@@ -161,7 +157,7 @@ export default class EcosModal extends Component {
         getDialogRef={el => (this._dialog = el)}
         draggableProps={draggableProps}
         data-level={level}
-        containerClassName="ecos-modal-container"
+        containerClassName="ecos-modal-container ecosZIndexAnchor"
       >
         {this.renderModalHeader()}
         <ModalBody className={classNameBody}>{children}</ModalBody>
