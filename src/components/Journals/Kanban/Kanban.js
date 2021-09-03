@@ -105,7 +105,7 @@ class Kanban extends React.Component {
                 {extractLabel(data.name) || t(Labels.KB_CARD_NO_TITLE)}
               </div>
             </Tooltip>
-            {!!totalCount && <Badge text={totalCount} outline />}
+            {!!totalCount && <Badge text={totalCount} light state={'primary'} />}
           </TitlePageLoader>
         </div>
       </div>

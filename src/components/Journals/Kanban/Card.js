@@ -4,9 +4,8 @@ import { Draggable } from 'react-beautiful-dnd';
 import classNames from 'classnames';
 
 import { extractLabel } from '../../../helpers/util';
-import { Icon, Panel, Separator } from '../../common';
+import { Icon } from '../../common';
 import { DropdownOuter } from '../../common/form';
-import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
 import { FormWrapper } from '../../common/dialogs';
 
@@ -28,33 +27,39 @@ class Card extends React.PureComponent {
     const { readOnly, actions, data } = this.props;
 
     return (
-      <>
-        <div className="ecos-kanban__column-card-head">
-          <div className="ecos-kanban__column-card-label">{extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}</div>
-          <div className="ecos-kanban__column-card-action-list">
-            {!isEmpty(actions) && (
-              <DropdownOuter
-                key={data.cardId}
-                source={actions}
-                valueField={'id'}
-                titleField={'name'}
-                onChange={this.handleAction}
-                isStatic
-                boundariesElement="window"
-                placement="bottom-end"
-                modifiers={null}
-                withScrollbar
-                scrollbarHeightMax={200}
-                className="ecos-kanban__column-card-action-dropdown"
-              >
-                <IcoBtn icon="icon-custom-more-small-normal" className="ecos-btn_i ecos-btn_grey2 ecos-btn_hover_t-light-blue" />
-              </DropdownOuter>
-            )}
-            {!readOnly && <Icon className="icon-custom-drag-big ecos-kanban__column-card-action-drag" {...provided.dragHandleProps} />}
-          </div>
+      <div className="ecos-kanban__card-head">
+        <div className="ecos-kanban__card-label">
+          <div className="ecos-kanban__card-label_main">{extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}</div>
+          <div className="ecos-kanban__card-label_secondary">№ 000003</div>
+          {/*todo number*/}
         </div>
-        <Separator noIndents />
-      </>
+        <div className="ecos-kanban__card-action-list">
+          {!isEmpty(actions) && (
+            <DropdownOuter
+              key={data.cardId}
+              source={actions}
+              valueField={'id'}
+              titleField={'name'}
+              onChange={this.handleAction}
+              isStatic
+              boundariesElement="window"
+              placement="bottom-end"
+              modifiers={null}
+              withScrollbar
+              scrollbarHeightMax={200}
+              className="ecos-kanban__card-action-dropdown"
+            >
+              <Icon className="ecos-kanban__card-action-icon icon-custom-more-small-normal" />
+            </DropdownOuter>
+          )}
+          {!readOnly && (
+            <Icon
+              className="ecos-kanban__card-action-icon icon-custom-drag-big ecos-kanban__card-action-drag"
+              {...provided.dragHandleProps}
+            />
+          )}
+        </div>
+      </div>
     );
   };
 
@@ -67,26 +72,28 @@ class Card extends React.PureComponent {
           this.changeTransform(provided, snapshot);
           return (
             <div ref={provided.innerRef} {...provided.draggableProps}>
-              <Panel
-                className={classNames('ecos-kanban__column-card', { 'ecos-kanban__column-card_dragging': snapshot.isDragging })}
-                bodyClassName="ecos-kanban__column-card-body"
-                header={this.renderHeaderCard(provided)}
-              >
-                <FormWrapper
-                  className="ecos-kanban__column-card-form"
-                  isVisible
-                  {...formProps}
-                  formData={data}
-                  formOptions={{
-                    readOnly: true,
-                    viewAsHtml: true,
-                    fullWidthColumns: true,
-                    viewAsHtmlConfig: {
-                      hidePanels: true
-                    }
-                  }}
-                />
-              </Panel>
+              <div className={classNames('ecos-kanban__card', { 'ecos-kanban__card_dragging': snapshot.isDragging })}>
+                {this.renderHeaderCard(provided)}
+                <div className="ecos-kanban__card-body">
+                  <FormWrapper
+                    className="ecos-kanban__card-form"
+                    isVisible
+                    {...formProps}
+                    formData={data}
+                    formOptions={{
+                      readOnly: true,
+                      viewAsHtml: true,
+                      fullWidthColumns: true,
+                      viewAsHtmlConfig: {
+                        hidePanels: true
+                      }
+                    }}
+                  />
+                </div>
+                <div className="ecos-kanban__card-bottom">
+                  <Icon className={classNames('ecos-kanban__card-opener', { 'icon-small-down': 1, 'icon-small-up': 0 })} />
+                </div>
+              </div>
             </div>
           );
         }}

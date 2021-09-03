@@ -102,6 +102,8 @@
     border-radius: $border-radius-large;
     transition: padding-top ease-out 0.5s;
     width: calc(100% / var(--count-col) - 20px);
+    min-width: 250px;
+    max-width: 280px;
 
     &:not(:first-child) {
       margin-left: 20px;
@@ -109,12 +111,16 @@
 
     &-head {
       counter-increment: column;
-      background: $color-gray-13;
-      border-radius: $border-radius-standard;
-      padding: 7px 10px;
+      background: $color-white;
+      border-radius: $border-radius-large $border-radius-large 0 0;
+      border: 1px $color-blue-light2 solid;
+      border-bottom: 3px $color-blue-light solid;
+      height: 50px;
       box-shadow: none;
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
 
       &-caption {
         font-weight: $font-weight-semi-bold;
@@ -138,74 +144,120 @@
         width: 100%;
       }
     }
+  }
 
-    &-card {
-      padding: 0 10px;
-      margin-bottom: 12px;
-      opacity: 1;
-      transition: opacity ease-out 0.5s;
+  &__card {
+    background: $color-white;
+    border-radius: $border-radius-large;
+    border: 1px $color-blue-light2 solid;
+    padding: 15px;
+    margin-bottom: 8px;
+    opacity: 1;
+    transition: opacity ease-out 0.5s;
+    display: flex;
+    flex-direction: column;
+    width: inherit;
 
-      &:nth-child(10n) {
-        margin-bottom: 28px;
+    &:nth-child(10n) {
+      margin-bottom: 28px;
+    }
+
+    & > :not(:last-child) {
+      border-bottom: 2px solid $color-gray-1;
+    }
+
+    &_empty {
+      background: $color-blue-light5;
+      border-radius: $border-radius-large;
+      flex: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 19px 0;
+    }
+
+    &-list {
+      height: 100%;
+      padding: 2px;
+    }
+
+    &-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    &-body {
+      padding: 10px 0;
+    }
+
+    &-bottom {
+      padding-top: 15px;
+    }
+
+    &-label {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding-bottom: 14px;
+
+      &_main {
+        @extend %ellipsis;
+
+        font-weight: $font-weight-normal;
+        font-size: $font-size-extra-large;
       }
 
-      &_empty {
-        background: $color-blue-light4;
-        border-radius: $border-radius-standard;
-        flex: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-      }
+      &_secondary {
+        font-weight: $font-weight-bold;
 
-      &-list {
-        height: 100%;
-        padding: 2px;
-      }
-
-      &-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      &-label {
-        font-weight: $font-weight-semi-bold;
-        padding: 5px 0;
-      }
-
-      &-body {
-        padding: 10px 0;
-      }
-
-      &-form {
         &:empty {
-          min-height: 5px;
-        }
-
-        & > div:empty {
-          @extend %animationStripes;
-          height: 15px;
+          display: none;
         }
       }
+    }
 
-      &-action {
-        &-list {
-          display: inline-flex;
-          align-items: center;
-        }
+    &-form {
+      &:empty {
+        min-height: 5px;
+      }
 
-        &-drag {
-          color: $color-gray-5;
-          height: 40px;
-          line-height: 2;
+      & > div:empty {
+        @extend %animationStripes;
+        height: 15px;
+      }
+    }
 
-          &:hover {
-            color: $color-blue-light;
-          }
+    &-action {
+      &-list {
+        display: inline-flex;
+        align-items: center;
+      }
+
+      &-drag {
+      }
+
+      &-icon {
+        color: $color-gray-6;
+        cursor: pointer;
+        line-height: 1.5;
+
+        &:hover {
+          color: $color-blue-light;
         }
       }
+    }
+
+    &-opener {
+      border-radius: 100%;
+      background: $color-gray-4;
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
   }
 }

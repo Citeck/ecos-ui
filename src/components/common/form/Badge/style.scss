@@ -20,6 +20,10 @@
     background-color: $color-red-2;
   }
 
+  &_primary {
+    background-color: $color-blue-light;
+  }
+
   &_outline {
     border: $border-width-standard solid;
     background-color: $color-gray-13;
@@ -33,6 +37,16 @@
       &_danger {
         border-color: $color-red-2;
         color: $color-red-2;
+      }
+    }
+  }
+
+  &_light {
+    &#{$badge} {
+      color: $text-color-dark;
+
+      &_primary {
+        background-color: $color-blue-light2;
       }
     }
   }

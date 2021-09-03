@@ -14,8 +14,9 @@ class Badge extends React.Component {
     text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     withPopup: PropTypes.bool,
     outline: PropTypes.bool,
+    light: PropTypes.bool,
     size: PropTypes.oneOf(['small', 'medium', 'large']),
-    state: PropTypes.oneOf(['info', 'danger']),
+    state: PropTypes.oneOf(['info', 'danger', 'primary']),
     style: PropTypes.object
   };
 
@@ -39,8 +40,14 @@ class Badge extends React.Component {
   }
 
   render() {
-    const { className, state, text, size, style, outline } = this.props;
-    const classes = classNames('ecos-badge', `ecos-badge_${state}`, `ecos-badge_${size}`, { 'ecos-badge_outline': outline }, className);
+    const { className, state, text, size, style, outline, light } = this.props;
+    const classes = classNames(
+      'ecos-badge',
+      `ecos-badge_${state}`,
+      `ecos-badge_${size}`,
+      { 'ecos-badge_outline': outline, 'ecos-badge_light': light },
+      className
+    );
 
     return isExistValue(text) ? (
       <span className={classes} style={style}>

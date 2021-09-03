@@ -33,8 +33,8 @@ class Column extends React.PureComponent {
     }
 
     return (
-      <div className="ecos-kanban__column-card_empty">
-        <InfoText text={text} noIndents />
+      <div className="ecos-kanban__card_empty">
+        <InfoText text={text} noIndents type={'primary'} />
       </div>
     );
   };
