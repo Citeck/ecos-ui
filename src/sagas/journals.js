@@ -643,7 +643,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
-    yield put(onJournalSettingsSelect(w(selectedId)));
+    yield put(openSelectedJournal(w(selectedId)));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
