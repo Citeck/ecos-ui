@@ -117,7 +117,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
           try {
             customCreateVariants = this.evaluate(component.customCreateVariantsJs, {}, 'value', true);
           } catch (e) {
-            console.error(e);
+            console.error("[SelectJournal fetchAsyncProperties] Can't fetch Custom create variants", e);
           }
         }
 
@@ -237,11 +237,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
               resolve(GqlDataSource.getColumnsStatic(columns));
             })
             .catch(err => {
-              console.error(err);
+              console.warn("[SelectJournal fetchAsyncProperties] Can't fetch Columns & Fields", err);
               columnsInfoPromise.then(columns => resolve(GqlDataSource.getColumnsStatic(columns)));
             });
         } catch (e) {
-          console.warn(`[SelectJournal fetchAsyncProperties] Can't fetch create variants: ${e.message}`);
+          console.warn("[SelectJournal fetchAsyncProperties] Can't fetch Create variants", e);
           return resolve([]);
         }
       } else {
