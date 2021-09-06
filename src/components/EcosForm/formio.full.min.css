@@ -4647,7 +4647,6 @@ td > .form-group {
   position: fixed;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  z-index: 10000;
   top: 0;
   right: 0;
   bottom: 0;
