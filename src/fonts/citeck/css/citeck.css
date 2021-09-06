@@ -1,18 +1,19 @@
 @font-face {
   font-family: 'citeck';
-  src: url('../font/citeck.eot?11584531');
-  src: url('../font/citeck.eot?11584531#iefix') format('embedded-opentype'), url('../font/citeck.woff2?11584531') format('woff2'),
-    url('../font/citeck.woff?11584531') format('woff'), url('../font/citeck.ttf?11584531') format('truetype'),
-    url('../font/citeck.svg?11584531#citeck') format('svg');
+  src: url('../font/citeck.eot?82128139');
+  src: url('../font/citeck.eot?82128139#iefix') format('embedded-opentype'), url('../font/citeck.woff2?82128139') format('woff2'),
+    url('../font/citeck.woff?82128139') format('woff'), url('../font/citeck.ttf?82128139') format('truetype'),
+    url('../font/citeck.svg?82128139#citeck') format('svg');
   font-weight: normal;
   font-style: normal;
-} /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
 /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
 /*
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'citeck';
-    src: url('../font/citeck.svg?11584531#citeck') format('svg');
+    src: url('../font/citeck.svg?82128139#citeck') format('svg');
   }
 }
 */
@@ -316,6 +317,9 @@
 .icon-filter-clean:before {
   content: '\e858';
 } /* '' */
+.icon-kanban:before {
+  content: '\e859';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */

@@ -262,6 +262,9 @@
 .icon-filter-clean:before {
   content: '\e858';
 } /* '' */
+.icon-kanban:before {
+  content: '\e859';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */
