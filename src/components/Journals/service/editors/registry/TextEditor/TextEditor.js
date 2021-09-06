@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 
 import { Input } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
@@ -30,7 +31,7 @@ export default class TextEditor extends BaseEditor {
           sendDate(true);
         }
 
-        if (typeof onKeyDown === 'function') {
+        if (isFunction(onKeyDown)) {
           e.persist();
           onKeyDown(e);
         }

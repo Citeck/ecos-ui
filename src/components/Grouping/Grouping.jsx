@@ -76,10 +76,7 @@ class AggregationListItem extends Component {
 export default class Grouping extends Component {
   onGrouping = state => {
     const { valueField, aggregation } = this.props;
-    const columns = state.second.map(c => ({
-      ...c,
-      formatter: c.type === 'assoc' || c.type === 'options' ? 'StrAndDispFormatter' : c.formatter
-    }));
+    const columns = state.second;
     const groupBy = columns.map(col => col[valueField]).join('&');
 
     trigger.call(this, 'onGrouping', {

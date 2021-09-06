@@ -86,7 +86,7 @@ import { hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
-import { JournalUrlParams } from '../constants';
+import { JournalUrlParams, SourcesId } from '../constants';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -327,10 +327,8 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     journalSetting = { ..._journalSetting, ...journalSetting, [JOURNAL_SETTING_ID_FIELD]: journalSettingId };
     journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
 
-    const predicate = journalSetting.predicate;
-
     yield put(setJournalSetting(w(journalSetting)));
-    yield put(initJournalSettingData(w({ journalSetting, predicate })));
+    yield put(initJournalSettingData(w({ journalSetting })));
 
     return journalSetting;
   } catch (e) {
@@ -645,6 +643,7 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
     yield call(PageService.changeUrlLink, url, { updateUrl: true });
+    yield put(openSelectedJournal(w(selectedId)));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
@@ -892,21 +891,23 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     if (id === 'event-lines-stat') {
       //todo: move to journal config
       let eventTypeId = row['groupBy__type'];
+
       if (eventTypeId) {
-        eventTypeId = eventTypeId.replace('emodel/type@line-', '');
+        eventTypeId = eventTypeId.replace(`${SourcesId.TYPE}@line-`, '');
         id = 'event-lines-' + eventTypeId;
         NotificationManager.info('', t('notification.journal-will-be-opened-soon'), 1000);
         PageService.changeUrlLink('/v2/journals?journalId=' + id, { updateUrl: true });
+
         return;
       } else {
-        console.error("Target journal can't be resolved", row);
+        console.error("[journals sagaGoToJournalsPage] Target journal can't be resolved", row);
       }
     } else {
       const journalType = (getFirst(criteria) || {}).value || predicate.val;
 
       if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
-        const journalConfig = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
-        id = journalConfig.id;
+        const config = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
+        id = config.id;
       }
 
       if (groupBy.length) {
@@ -942,6 +943,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     const gridData = yield getGridData(api, { ...params }, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
 
+    yield put(setPredicate(w(predicateValue)));
     yield put(setSelectedRecords(w([])));
     yield put(setSelectAllRecordsVisible(w(false)));
     yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
@@ -949,7 +951,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     yield put(setPreviewFileName(w('')));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
   } catch (e) {
-    logger.error('[journals sagaGoToJournalsPage saga error', e);
+    logger.error('[journals sagaGoToJournalsPage saga error]', e);
   }
 }
 
