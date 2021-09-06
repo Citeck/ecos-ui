@@ -323,6 +323,10 @@ class Grid extends Component {
 
     options.rowEvents = {
       onMouseEnter: e => {
+        if (this.state.isScrolling) {
+          return;
+        }
+
         const tr = e.currentTarget;
 
         if (props.changeTrOptionsByRowClick) {
@@ -334,6 +338,10 @@ class Grid extends Component {
         trigger.call(this, 'onMouseEnter', e);
       },
       onMouseLeave: e => {
+        if (this.state.isScrolling) {
+          return;
+        }
+
         if (props.changeTrOptionsByRowClick) {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
@@ -488,9 +496,9 @@ class Grid extends Component {
 
     this._tr = tr;
 
-    if (!isScrolling) {
-      trigger.call(this, 'onChangeTrOptions', { row, ...style });
-    }
+    // if (!isScrolling) {
+    // }
+    trigger.call(this, 'onChangeTrOptions', { row, ...style });
   };
 
   setEditable = () => {
