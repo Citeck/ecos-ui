@@ -12,6 +12,7 @@ import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/url
 import { t } from '../helpers/export/util';
 import { wrapArgs } from '../helpers/redux';
 import {
+  applyFilter,
   getBoardConfig,
   getBoardData,
   getBoardList,
@@ -40,6 +41,8 @@ import JournalsService from '../components/Journals/service/journalsService';
 import RecordActions from '../components/Records/actions/recordActions';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 import KanbanConverter from '../dto/kanban';
+import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { setJournalSetting, setPredicate } from '../actions/journals';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -137,12 +140,7 @@ function* sagaGetData({ api, logger }, { payload }) {
 
     const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(formProps.formFields);
 
-    params.attributes = attributes;
-    params.attributes.cardId = '.id';
-    params.attributes.cardTitle = '.disp';
-    params.attributes.cardSubtitle = 'ufrm:firRegNumber'; //todo ??
-    params.attributes.cardActors = 'actors[]?json![]'; //todo ??
-    params.attributes.cardComments = 'comments[]?json![]'; //todo ??
+    params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
     const result = yield (boardConfig.columns || []).map(function*(column, i) {
@@ -181,7 +179,7 @@ function* sagaGetData({ api, logger }, { payload }) {
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardData saga] error', e.message);
+    logger.error('[kanban/sagaGetData saga] error', e.message);
   }
 }
 
@@ -225,6 +223,7 @@ function* sagaGetNextPage({ api, logger }, { payload }) {
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
     const pagination = yield select(selectPagination, stateId);
+
     pagination.skipCount = pagination.page * pagination.maxItems;
     pagination.page += 1;
 
@@ -268,6 +267,25 @@ function* sagaMoveCard({ api, logger }, { payload }) {
   }
 }
 
+function* sagaApplyFilter({ api, logger }, { payload }) {
+  try {
+    const { settings, stateId } = payload;
+    const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
+    const { formProps, boardConfig } = yield select(selectKanban, stateId);
+    const pagination = DEFAULT_PAGINATION;
+    const w = wrapArgs(stateId);
+    const journalSetting = cloneDeep(_journalSetting);
+    journalSetting.predicate = settings.predicate;
+
+    yield put(setPredicate(w(settings.predicate)));
+    yield put(setJournalSetting(w(journalSetting)));
+    yield put(setPagination({ stateId, pagination }));
+    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+  } catch (e) {
+    logger.error('[kanban/sagaApplyFilter saga] error', e);
+  }
+}
+
 function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
@@ -276,6 +294,7 @@ function* docStatusSaga(ea) {
   yield takeEvery(getNextPage().type, sagaGetNextPage, ea);
   yield takeEvery(runAction().type, sagaRunAction, ea);
   yield takeEvery(moveCard().type, sagaMoveCard, ea);
+  yield takeEvery(applyFilter().type, sagaApplyFilter, ea);
 }
 
 export default docStatusSaga;

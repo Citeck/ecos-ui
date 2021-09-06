@@ -37,6 +37,7 @@ export const Labels = {
   KB_CARD_NO_TITLE: 'kanban.label.no-name',
   KB_DND_MOVE_HERE: 'kanban.label.dnd.move-here',
   KB_DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
+  KB_BOARD_LIST: 'kanban.label.board-list',
 
   V_JOURNAL: 'journals.view.label.journal',
   V_PREVIEW: 'journals.view.label.journal-preview',

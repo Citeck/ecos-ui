@@ -1,5 +1,6 @@
 import { handleActions } from 'redux-actions';
 import {
+  applyFilter,
   getBoardConfig,
   getNextPage,
   setBoardConfig,
@@ -22,6 +23,7 @@ export const initialState = {
   boardList: undefined,
   formProps: null,
   totalCount: 0,
+  dataCards: [],
   resolvedActions: [],
   pagination: DEFAULT_PAGINATION
 };
@@ -29,12 +31,13 @@ export const initialState = {
 export default handleActions(
   {
     [getBoardConfig]: (state, { payload }) => {
-      const { stateId } = payload;
-      return updateState(state, stateId, { isFirstLoading: true, isLoading: true }, initialState);
+      return updateState(state, payload.stateId, { isFirstLoading: true, isLoading: true }, initialState);
+    },
+    [applyFilter]: (state, { payload }) => {
+      return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
     },
     [getNextPage]: (state, { payload }) => {
-      const { stateId } = payload;
-      return updateState(state, stateId, { isLoading: true }, initialState);
+      return updateState(state, payload.stateId, { isLoading: true }, initialState);
     },
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;

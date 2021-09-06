@@ -842,7 +842,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { settings } = action.payload;
     const { columns, groupBy, sortBy, predicate, grouping } = settings;
-    const predicates = predicate ? [predicate] : [];
+    const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
@@ -851,17 +851,12 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
 
     yield put(setColumnsSetup(w({ columns, sortBy })));
     yield put(setGrouping(w(grouping)));
-    yield put(
-      setGrid(
-        w({
-          columns: grouping.groupBy.length ? grouping.columns : columns
-        })
-      )
-    );
+    const newCols = grouping.groupBy.length ? grouping.columns : columns;
+    yield put(setGrid(w({ columns: newCols })));
     yield put(
       reloadGrid(
         w({
-          columns: grouping.groupBy.length ? grouping.columns : columns,
+          columns: newCols,
           groupBy,
           sortBy,
           predicates,

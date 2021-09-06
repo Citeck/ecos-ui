@@ -199,6 +199,18 @@ export const selectJournalPageProps = createSelector(
   })
 );
 
+export const selectKanbanJournalProps = createSelector(
+  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsData],
+  (ownState, journalSetting, settingsFiltersData, settingsData) => ({
+    journalConfig: ownState.journalConfig,
+    grid: ownState.grid,
+    isFilterOn: !isEqual(settingsFiltersData.predicate, settingsData.originGridSettings.predicate),
+    journalSetting,
+    settingsFiltersData,
+    settingsData
+  })
+);
+
 export const selectCommonJournalPageProps = createSelector(
   [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled],
   (ownState, urlParams, isDocLibEnabled, isKanbanEnabled) => ({

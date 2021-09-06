@@ -80,19 +80,16 @@ class KanbanView extends React.Component {
   LeftBarChild = () => {
     const { boardList } = this.props;
 
-    if (boardList.length < 2) {
-      return null;
-    }
-
     return (
       <Dropdown
-        hideSelected
         isButton
+        isStatic
         source={boardList}
         value={this.getSelectedBoard()}
         valueField={'id'}
         titleField={'name'}
         onChange={this.handleChangeBoard}
+        controlLabel={t(Labels.KB_BOARD_LIST)}
         controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
       />
     );

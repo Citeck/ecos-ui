@@ -24,4 +24,14 @@ export default class KanbanConverter {
     const att = '_status';
     return column.id === 'EMPTY' ? { t: 'not-empty', att } : { t: 'eq', att, val: [column.id] };
   }
+
+  static getCardAttributes() {
+    return {
+      cardId: '.id',
+      cardTitle: '.disp',
+      cardSubtitle: 'ufrm:firRegNumber', //todo ??
+      cardActors: 'actors[]?json![]', //todo ??
+      cardComments: 'comments[]?json![]' //todo ??
+    };
+  }
 }

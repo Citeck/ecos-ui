@@ -13,7 +13,17 @@
   &__dropdown {
     max-width: 300px;
     border: 1px solid $color-gray-5 !important;
-    color: $text-color-gray;
+
+    & .ecos-btn__i {
+      font-size: $font-size-standard;
+      color: $text-color-gray;
+    }
+
+    & .ecos-dropdown__toggle-label {
+      color: $text-color-gray;
+      font-size: $font-size-standard;
+      padding: 0 5px 0 0;
+    }
   }
 
   &__loader {
@@ -42,7 +52,7 @@
   &__head {
     display: flex;
     flex-direction: row;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
 
   &__body {
@@ -62,6 +72,7 @@
         $c_owner: $color-gray-5;
 
         overflow: hidden;
+        border-style: dotted;
         border-color: $c_other;
         background: rgba($c_other, 0.1);
 
@@ -116,9 +127,10 @@
     width: calc(100% / var(--count-col) - 20px);
     min-width: 250px;
     max-width: 280px;
+    box-sizing: border-box;
 
     &:not(:first-child) {
-      margin-left: 20px;
+      margin-left: 11px;
     }
 
     &-head {
@@ -136,6 +148,7 @@
 
       &-caption {
         font-weight: $font-weight-semi-bold;
+        font-size: $font-size-large;
         //text-transform: uppercase;
         padding-right: 15px;
         @extend %ellipsis;
@@ -208,14 +221,14 @@
     }
 
     &-bottom {
-      padding-top: 15px;
+      padding-top: 16px;
     }
 
     &-label {
       display: flex;
       flex-direction: column;
       min-width: 0;
-      padding-bottom: 14px;
+      padding-bottom: 13px;
 
       &_main {
         font-weight: $font-weight-normal;
@@ -250,6 +263,10 @@
       &-list {
         display: inline-flex;
         align-items: center;
+
+        & > :nth-child(n) {
+          margin-left: 13px;
+        }
       }
 
       &-drag {

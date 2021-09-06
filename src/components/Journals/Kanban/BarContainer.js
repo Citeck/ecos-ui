@@ -1,27 +1,36 @@
 import { connect } from 'react-redux';
 import CommonBar from '../CommonBar';
+import { applyFilter } from '../../../actions/kanban';
+import { selectKanbanJournalProps } from '../../../selectors/journals';
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
+  const ownProps = selectKanbanJournalProps(state, props.stateId);
   return {
+    ...ownProps,
     noPagination: true,
     noCreateBtn: true,
-    journalConfig: {},
-    grid: {},
-    isFilterOn: {},
-    settingsData: {},
-    settingsFiltersData: {},
-    settingsColumnsData: {},
-    settingsGroupingData: {}
+    settingsColumnsData: null,
+    settingsGroupingData: null
   };
 }
 
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps(dispatch, props) {
+  const stateId = props.stateId;
+
   return {
-    applySettings: _ => _,
-    resetFiltering: _ => _,
-    reloadGrid: _ => _,
-    clearSearch: _ => _,
-    runSearch: _ => _
+    applySettings: ({ settings }) => dispatch(applyFilter({ settings, stateId })),
+    resetFiltering: (...data) => {
+      console.log({ data });
+    },
+    reloadGrid: (...data) => {
+      console.log({ data });
+    },
+    clearSearch: (...data) => {
+      console.log({ data });
+    },
+    runSearch: (...data) => {
+      console.log({ data });
+    }
   };
 }
 

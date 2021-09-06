@@ -185,7 +185,7 @@ class EcosForm extends React.Component {
         let enTranslate = {};
 
         // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
-        const translateKeys = Object.keys(formData.i18n) || [];
+        const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
         const translations = translateKeys.reduce((result, key) => {
           const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
 

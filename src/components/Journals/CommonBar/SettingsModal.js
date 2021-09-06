@@ -66,10 +66,10 @@ class SettingsModal extends Component {
     return {
       ...journalSetting,
       sortBy,
-      groupBy: grouping.groupBy,
+      groupBy: get(grouping, 'groupBy'),
       columns,
       predicate,
-      title: title || journalSetting.title,
+      title: title || get(journalSetting, 'title'),
       grouping
     };
   };
@@ -152,8 +152,10 @@ class SettingsModal extends Component {
                   needUpdate={isReset || needUpdate}
                   setPredicate={this.handleSetPredicate}
                 />
-                <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />
-                <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
+                {this.props.columnsData && <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />}
+                {this.props.groupingData && (
+                  <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
+                )}
               </Scrollbars>
             )}
           </EcosModalHeight>
