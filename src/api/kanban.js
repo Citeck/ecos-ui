@@ -3,7 +3,7 @@ import { SourcesId } from '../constants';
 
 export class KanbanApi {
   getBoardList({ journalId }) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('boardRefs[]{id:?id,name}');
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('boardRefs[]{id:?id,name}![]');
   }
 
   getBoardConfig({ boardId = '' }) {

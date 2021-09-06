@@ -12,6 +12,8 @@
 
   &__dropdown {
     max-width: 300px;
+    border: 1px solid $color-gray-5 !important;
+    color: $text-color-gray;
   }
 
   &__loader {
@@ -19,8 +21,18 @@
     width: 10%;
   }
 
-  &__scroll_v {
-    @extend %v-scroll;
+  &__scroll {
+    &_v {
+      @extend %v-scroll;
+    }
+
+    &_end {
+      border-top: 2px solid $color-blue-light2;
+      padding-top: 20px;
+      text-align: center;
+      color: $color-blue-light2;
+      font-weight: $font-weight-bold;
+    }
   }
 
   &__page-separator {
@@ -124,10 +136,9 @@
 
       &-caption {
         font-weight: $font-weight-semi-bold;
-        text-transform: uppercase;
+        //text-transform: uppercase;
         padding-right: 15px;
         @extend %ellipsis;
-        //flex: 1;
       }
     }
 
@@ -162,10 +173,6 @@
       margin-bottom: 28px;
     }
 
-    & > :not(:last-child) {
-      border-bottom: 2px solid $color-gray-1;
-    }
-
     &_empty {
       background: $color-blue-light5;
       border-radius: $border-radius-large;
@@ -185,10 +192,10 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      border-bottom: 2px solid $color-gray-4;
     }
 
     &-body {
-      padding: 10px 0;
       transition: max-height ease-out 0.5s, padding ease-out 0.5s;
       max-height: 200px;
       min-height: 0;
@@ -197,8 +204,6 @@
       &_hidden {
         overflow: hidden;
         max-height: 0;
-        padding: 0;
-        border: none !important;
       }
     }
 
@@ -213,10 +218,12 @@
       padding-bottom: 14px;
 
       &_main {
-        @extend %ellipsis;
-
         font-weight: $font-weight-normal;
         font-size: $font-size-extra-large;
+
+        &-with-sub {
+          @extend %ellipsis;
+        }
       }
 
       &_secondary {

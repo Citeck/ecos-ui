@@ -140,7 +140,7 @@ class Kanban extends React.Component {
               {columns.map(this.renderColumn)}
             </DragDropContext>
           </div>
-          {this.isNoMore() && <InfoText noIndents text={t(Labels.KB_COL_NO_MORE_CARDS)} />}
+          {this.isNoMore() && <div className="ecos-kanban__scroll_end">{t(Labels.KB_COL_NO_MORE_CARDS)}</div>}
           {(isLoading || isFirstLoading) && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </Scrollbars>
       </div>

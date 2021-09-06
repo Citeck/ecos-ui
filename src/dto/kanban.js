@@ -19,4 +19,9 @@ export default class KanbanConverter {
 
     return target;
   }
+
+  static preparePredicate(column) {
+    const att = '_status';
+    return column.id === 'EMPTY' ? { t: 'not-empty', att } : { t: 'eq', att, val: [column.id] };
+  }
 }

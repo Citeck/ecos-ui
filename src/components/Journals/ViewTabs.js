@@ -99,8 +99,7 @@ class ViewTabs extends React.Component {
           <Tooltip off={isMobile} target="ecos-journal-view-kanban" text={t(Labels.V_KANBAN)} uncontrolled>
             <IcoBtn
               id="ecos-journal-view-kanban"
-              icon="icon-list"
-              // icon="i-leftmenu-workflows"
+              icon="icon-kanban"
               className={classNames(common, 'ecos-journal__view-btn_kanban', {
                 [available]: isKanbanMode,
                 [disable]: !isKanbanMode

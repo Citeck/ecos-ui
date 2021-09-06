@@ -63,14 +63,6 @@ function* sagaGetBoardConfig({ api, logger }, { payload }) {
     const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
     const boardConfig = KanbanConverter.prepareConfig(config);
 
-    //todo уточнение
-
-    // const emptyCol = boardConfig.columns.find(col => col.id === 'EMPTY');
-    //
-    // if(!emptyCol) {
-    //   boardConfig.columns.push({"t": "not-empty", "att":"_status" })
-    // }
-
     yield put(setBoardConfig({ boardConfig, stateId }));
 
     return boardConfig;
@@ -118,6 +110,10 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
     }
 
     const pagination = yield select(selectPagination, stateId);
+    //todo need?
+    if (isEmpty(boardConfig.actions)) {
+      boardConfig.actions = [...journalConfig.actions];
+    }
 
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
@@ -131,18 +127,22 @@ function* sagaGetData({ api, logger }, { payload }) {
     const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
+    const _journalConfig = cloneDeep(journalConfig);
 
     delete params.columns;
     delete params.groupBy;
     delete params.groupActions;
     delete params.attributes;
-    delete journalConfig.columns;
+    delete _journalConfig.columns;
 
     const { attributes, inputByKey } = EcosFormUtils.preProcessingAttrs(formProps.formFields);
 
     params.attributes = attributes;
     params.attributes.cardId = '.id';
     params.attributes.cardTitle = '.disp';
+    params.attributes.cardSubtitle = 'ufrm:firRegNumber'; //todo ??
+    params.attributes.cardActors = 'actors[]?json![]'; //todo ??
+    params.attributes.cardComments = 'comments[]?json![]'; //todo ??
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
     const result = yield (boardConfig.columns || []).map(function*(column, i) {
@@ -150,9 +150,9 @@ function* sagaGetData({ api, logger }, { payload }) {
         return yield {};
       }
 
-      const colPredicate = column.id === 'EMPTY' ? { t: 'not-empty', att: '_status' } : { t: 'eq', att: '_status', val: [column.id] };
+      const colPredicate = KanbanConverter.preparePredicate(column);
       const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, colPredicate] });
-      return yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
+      return yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
     });
 
     const dataCards = [];
@@ -191,8 +191,6 @@ function* sagaGetActions({ api, logger }, { payload }) {
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
 
     const resolvedActions = yield (boardConfig.columns || []).map(function*(column, i) {
-      //todo test ui action
-      boardConfig.actions.push('uiserv/action@edit');
       const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
       return { ...get(prevResolvedActions, [i], {}), ...newResolvedActions.forRecord };
     });

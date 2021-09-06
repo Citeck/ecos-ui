@@ -4,7 +4,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import classNames from 'classnames';
 
 import { extractLabel } from '../../../helpers/util';
-import { Icon } from '../../common';
+import { Icon, Tooltip } from '../../common';
 import { DropdownOuter } from '../../common/form';
 import { Labels } from '../constants';
 import { FormWrapper } from '../../common/dialogs';
@@ -29,13 +29,20 @@ class Card extends React.PureComponent {
 
   renderHeaderCard = provided => {
     const { readOnly, actions, data } = this.props;
+    const target = `card-title_${data.id}`.replace(/[:@/]/gim, '');
 
     return (
       <div className="ecos-kanban__card-head">
         <div className="ecos-kanban__card-label">
-          <div className="ecos-kanban__card-label_main">{extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}</div>
-          <div className="ecos-kanban__card-label_secondary">№ 000003</div>
-          {/*todo number*/}
+          <Tooltip target={target} text={data.cardTitle} uncontrolled off={!data.cardTitle}>
+            <div
+              id={target}
+              className={classNames('ecos-kanban__card-label_main', { 'ecos-kanban__card-label_main-with-sub': data.cardSubtitle })}
+            >
+              {extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}
+            </div>
+          </Tooltip>
+          {data.cardSubtitle && <div className="ecos-kanban__card-label_secondary">{data.cardSubtitle}</div>}
         </div>
         <div className="ecos-kanban__card-action-list">
           {!isEmpty(actions) && (

@@ -80,6 +80,10 @@ class KanbanView extends React.Component {
   LeftBarChild = () => {
     const { boardList } = this.props;
 
+    if (boardList.length < 2) {
+      return null;
+    }
+
     return (
       <Dropdown
         hideSelected
