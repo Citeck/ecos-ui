@@ -496,9 +496,9 @@ class Grid extends Component {
 
     this._tr = tr;
 
-    // if (!isScrolling) {
-    // }
-    trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    if (!isScrolling) {
+      trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    }
   };
 
   setEditable = () => {
