@@ -54,7 +54,6 @@ class Grid extends Component {
   #columnsSizes = {};
   #isAllSelected = false;
   #gridRef = null;
-  #bootstrapProps = new Map();
 
   constructor(props) {
     super(props);
