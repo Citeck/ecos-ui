@@ -204,7 +204,6 @@ export const selectKanbanJournalProps = createSelector(
   (ownState, journalSetting, settingsFiltersData, settingsData) => ({
     journalConfig: ownState.journalConfig,
     grid: ownState.grid,
-    isFilterOn: !isEqual(settingsFiltersData.predicate, settingsData.originGridSettings.predicate),
     journalSetting,
     settingsFiltersData,
     settingsData

@@ -1054,7 +1054,7 @@ function* sagaResetFiltering({ logger, w, stateId }) {
     } = yield select(selectSettingsData, stateId);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
-    const predicates = predicate ? [predicate] : [];
+    const predicates = beArray(predicate);
 
     yield put(setPredicate(w(predicate)));
     yield put(setJournalSetting(w({ predicate })));

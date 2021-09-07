@@ -67,6 +67,7 @@ export const selectColumnProps = createSelector(
     actions,
     formProps: board.formProps,
     isLoading: board.isLoading,
-    isFirstLoading: board.isFirstLoading
+    isFirstLoading: board.isFirstLoading,
+    isFiltered: board.isFiltered
   })
 );

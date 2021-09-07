@@ -2,12 +2,16 @@ import { connect } from 'react-redux';
 import CommonBar from '../CommonBar';
 import { applyFilter } from '../../../actions/kanban';
 import { selectKanbanJournalProps } from '../../../selectors/journals';
+import { selectKanban } from '../../../selectors/kanban';
 import { Labels } from '../constants';
 
 function mapStateToProps(state, props) {
-  const ownProps = selectKanbanJournalProps(state, props.stateId);
+  const journalProps = selectKanbanJournalProps(state, props.stateId);
+  const kanbanProps = selectKanban(state, props.stateId);
+
   return {
-    ...ownProps,
+    ...journalProps,
+    isFilterOn: kanbanProps.isFiltered,
     noPagination: true,
     noCreateBtn: true,
     settingsColumnsData: null,

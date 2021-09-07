@@ -17,12 +17,13 @@ class Column extends React.PureComponent {
   };
 
   renderInfo = () => {
-    const { records, isFirstLoading, error } = this.props;
+    const { records, isFirstLoading, isFiltered, isLoading, error } = this.props;
     let text;
+    const loading = isFirstLoading || (isLoading && isFiltered);
 
     if (error) {
       text = error;
-    } else if (isFirstLoading) {
+    } else if (loading) {
       text = ' ';
     } else if (isEmpty(records)) {
       text = t(Labels.Kanban.COL_NO_CARD);
@@ -33,7 +34,7 @@ class Column extends React.PureComponent {
     }
 
     return (
-      <div className={classNames('ecos-kanban__card_empty', { 'ecos-kanban__card_loading': isFirstLoading })}>
+      <div className={classNames('ecos-kanban__card_empty', { 'ecos-kanban__card_loading': loading })}>
         <InfoText text={text} noIndents type={'primary'} />
       </div>
     );

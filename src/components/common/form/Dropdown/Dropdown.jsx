@@ -16,7 +16,11 @@ class MenuItem extends React.PureComponent {
   };
 
   render() {
-    return <li onClick={this.onClick}>{this.props.children}</li>;
+    return (
+      <li className={classNames({ selected: this.props.selected })} onClick={this.onClick}>
+        {this.props.children}
+      </li>
+    );
   }
 }
 
@@ -214,16 +218,17 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItem = (item, i) => {
-    const { CustomItem, titleField } = this.props;
+    const { CustomItem, titleField, valueField, value } = this.props;
 
     if (CustomItem) {
       return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
     }
 
     const text = getPropByStringKey(item, titleField);
+    const selected = item[valueField] === value;
 
     return (
-      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
+      <MenuItem selected={selected} key={this.getKey(item, i)} onClick={this.onChange} item={item}>
         {getTextByLocale(text)}
       </MenuItem>
     );

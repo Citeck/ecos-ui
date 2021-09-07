@@ -25,6 +25,12 @@
       font-size: $font-size-standard;
       padding: 0 5px 0 0;
     }
+
+    &-menu {
+      & .selected {
+        font-weight: $font-weight-bold;
+      }
+    }
   }
 
   &__loader {
@@ -149,7 +155,7 @@
 
       &-caption {
         font-weight: $font-weight-semi-bold;
-        font-size: $font-size-large;
+        font-size: 18px;
         //text-transform: uppercase;
         padding-right: 15px;
         @extend %ellipsis;
@@ -237,7 +243,7 @@
 
       &_main {
         font-weight: $font-weight-normal;
-        font-size: $font-size-extra-large;
+        font-size: 16px;
 
         &-with-sub {
           @extend %ellipsis;

@@ -3,6 +3,7 @@ import {
   applyFilter,
   getBoardConfig,
   getNextPage,
+  resetFilter,
   selectBoardId,
   setBoardConfig,
   setBoardList,
@@ -20,6 +21,7 @@ import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 export const initialState = {
   isLoading: true,
   isFirstLoading: true,
+  isFiltered: false,
   boardConfig: undefined,
   boardList: undefined,
   formProps: null,
@@ -39,7 +41,10 @@ export default handleActions(
       return updateState(state, payload.stateId, { ...initialState, boardList }, initialState);
     },
     [applyFilter]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
+      return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFiltered: true }, initialState);
+    },
+    [resetFilter]: (state, { payload }) => {
+      return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFiltered: true }, initialState);
     },
     [getNextPage]: (state, { payload }) => {
       return updateState(state, payload.stateId, { isLoading: true }, initialState);

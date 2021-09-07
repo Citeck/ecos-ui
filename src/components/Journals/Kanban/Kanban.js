@@ -48,8 +48,8 @@ class Kanban extends React.Component {
     }
   }
 
-  getHeight() {
-    return this.props.maxHeight - 100;
+  getHeight(changes = 0) {
+    return this.props.maxHeight - 100 + changes;
   }
 
   isNoMore = () => {
@@ -60,7 +60,7 @@ class Kanban extends React.Component {
 
   handleScrollFrame = (scroll = {}) => {
     if (!this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
-      this.props.getNextPage();
+      // this.props.getNextPage();
     }
   };
 
@@ -135,7 +135,11 @@ class Kanban extends React.Component {
           onScrollFrame={this.handleScrollFrame}
           ref={this.refScroll}
         >
-          <div className={classNames('ecos-kanban__body', { 'ecos-kanban__body_dragging': isDragging })} ref={this.refBody}>
+          <div
+            className={classNames('ecos-kanban__body', { 'ecos-kanban__body_dragging': isDragging })}
+            ref={this.refBody}
+            style={{ minHeight: `${this.getHeight(-50)}px` }}
+          >
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
               {columns.map(this.renderColumn)}
             </DragDropContext>

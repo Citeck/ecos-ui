@@ -91,6 +91,7 @@ class KanbanView extends React.Component {
         onChange={this.handleChangeBoard}
         controlLabel={t(Labels.Kanban.BOARD_LIST)}
         controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
+        menuClassName="ecos-kanban__dropdown-menu"
       />
     );
   };

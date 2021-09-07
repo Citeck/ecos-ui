@@ -18,6 +18,7 @@ import {
   getBoardList,
   getNextPage,
   moveCard,
+  resetFilter,
   runAction,
   selectBoardId,
   setBoardConfig,
@@ -30,7 +31,7 @@ import {
   setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
-import { selectJournalData } from '../selectors/journals';
+import { selectGridPaginationMaxItems, selectJournalData, selectSettingsData } from '../selectors/journals';
 import { selectKanban, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
 import PageService from '../services/PageService';
@@ -42,7 +43,8 @@ import RecordActions from '../components/Records/actions/recordActions';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 import KanbanConverter from '../dto/kanban';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
-import { setJournalSetting, setPredicate } from '../actions/journals';
+import { reloadGrid, setJournalSetting, setPredicate } from '../actions/journals';
+import { beArray } from '../helpers/util';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -113,10 +115,6 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
     }
 
     const pagination = yield select(selectPagination, stateId);
-    //todo need?
-    if (isEmpty(boardConfig.actions)) {
-      boardConfig.actions = [...journalConfig.actions];
-    }
 
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
@@ -287,6 +285,22 @@ function* sagaApplyFilter({ api, logger }, { payload }) {
   }
 }
 
+function* sagaResetFilter({ logger, w, stateId }) {
+  try {
+    const {
+      originGridSettings: { predicate }
+    } = yield select(selectSettingsData, stateId);
+    const pagination = DEFAULT_PAGINATION;
+    const predicates = beArray(predicate);
+
+    yield put(setPredicate(w(predicate)));
+    yield put(setJournalSetting(w({ predicate })));
+    //todo
+  } catch (e) {
+    logger.error('[kanban/sagaResetFilter saga error', e);
+  }
+}
+
 function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
@@ -296,6 +310,7 @@ function* docStatusSaga(ea) {
   yield takeEvery(runAction().type, sagaRunAction, ea);
   yield takeEvery(moveCard().type, sagaMoveCard, ea);
   yield takeEvery(applyFilter().type, sagaApplyFilter, ea);
+  yield takeEvery(resetFilter().type, sagaResetFilter, ea);
 }
 
 export default docStatusSaga;
