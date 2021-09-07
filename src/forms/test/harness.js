@@ -192,10 +192,15 @@ const Harness = {
     assert(element, `${query} not found`);
     assert.equal(element.innerHTML.trim(), content);
   },
-  testAttribute(component, query, attribute, value) {
+  testAttribute(component, query, attribute, value, onlyCheckAvailability = false) {
     const element = component.element.querySelector(query);
     assert(element, `${query} not found`);
-    assert.equal(element.getAttribute(attribute), value);
+
+    if (onlyCheckAvailability) {
+      assert.equal(element.hasAttribute(attribute), value);
+    } else {
+      assert.equal(element.getAttribute(attribute), value);
+    }
   },
   testHasClass(component, query, className) {
     const element = component.element.querySelector(query);

@@ -40,7 +40,7 @@ class ActionsDashlet extends BaseWidget {
       ...this.state,
       isSmallMode: false
     };
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'caseStatus', 'idocs:documentStatus'])];
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, '_status?str', 'idocs:documentStatus'])];
   }
 
   onResize = width => {
