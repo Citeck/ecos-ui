@@ -33,7 +33,7 @@ class Column extends React.PureComponent {
     }
 
     return (
-      <div className="ecos-kanban__card_empty">
+      <div className={classNames('ecos-kanban__card_empty', { 'ecos-kanban__card_loading': isFirstLoading })}>
         <InfoText text={text} noIndents type={'primary'} />
       </div>
     );

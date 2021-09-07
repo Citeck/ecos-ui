@@ -1,5 +1,6 @@
 @import '../../../styles/constants';
-@import '../../../styles/loaderStripes';
+@import '../../../styles/animateStripes';
+@import '../../../styles/animatePulse';
 
 .ecos-kanban {
   $kanban: &;
@@ -194,6 +195,10 @@
       align-items: center;
       justify-content: center;
       padding: 19px 0;
+    }
+
+    &_loading {
+      @extend %animationPulse;
     }
 
     &-list {
