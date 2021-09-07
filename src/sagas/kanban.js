@@ -267,16 +267,19 @@ function* sagaMoveCard({ api, logger }, { payload }) {
 
 function* sagaApplyFilter({ api, logger }, { payload }) {
   try {
-    const { settings, stateId } = payload;
+    const {
+      settings: { predicate },
+      stateId
+    } = payload;
     const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const pagination = DEFAULT_PAGINATION;
     const w = wrapArgs(stateId);
     const journalSetting = cloneDeep(_journalSetting);
-    journalSetting.predicate = settings.predicate;
+    journalSetting.predicate = predicate;
 
-    yield put(setPredicate(w(settings.predicate)));
-    yield put(setJournalSetting(w(journalSetting)));
+    yield put(setPredicate(w(predicate)));
+    yield put(setJournalSetting(w({ predicate })));
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
@@ -295,6 +298,7 @@ function* sagaResetFilter({ logger, w, stateId }) {
 
     yield put(setPredicate(w(predicate)));
     yield put(setJournalSetting(w({ predicate })));
+    yield put(setPagination({ stateId, pagination }));
     //todo
   } catch (e) {
     logger.error('[kanban/sagaResetFilter saga error', e);

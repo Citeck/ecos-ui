@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import CommonBar from '../CommonBar';
-import { applyFilter } from '../../../actions/kanban';
+import { applyFilter, resetFilter } from '../../../actions/kanban';
 import { selectKanbanJournalProps } from '../../../selectors/journals';
 import { selectKanban } from '../../../selectors/kanban';
 import { Labels } from '../constants';
@@ -25,9 +25,7 @@ function mapDispatchToProps(dispatch, props) {
 
   return {
     applySettings: ({ settings }) => dispatch(applyFilter({ settings, stateId })),
-    resetFiltering: (...data) => {
-      console.log(1, { data });
-    },
+    resetFiltering: () => dispatch(resetFilter({ stateId })),
     reloadGrid: (...data) => {
       console.log(2, { data });
     },

@@ -43,8 +43,10 @@
     &_v {
       @extend %v-scroll;
     }
+
     &_h {
       @extend %h-scroll;
+      bottom: 4px;
     }
   }
 
@@ -163,6 +165,11 @@
         //text-transform: uppercase;
         padding-right: 15px;
         @extend %ellipsis;
+      }
+
+      & .ecos-title-page-loader {
+        justify-content: space-between;
+        width: 100%;
       }
     }
 

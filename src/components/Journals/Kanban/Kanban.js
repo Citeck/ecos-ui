@@ -38,7 +38,7 @@ class Kanban extends React.Component {
 
     if (!isEqualWith(prevProps.dataCards, this.props.dataCards, isEqual) && !!height) {
       if (this.getHeight() > height && !this.isNoMore()) {
-        // this.props.getNextPage();
+        // this.props.getNextPage();//todo
       }
     }
   }
@@ -55,7 +55,7 @@ class Kanban extends React.Component {
 
   handleScrollFrame = (scroll = {}) => {
     if (!this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
-      // this.props.getNextPage();
+      // this.props.getNextPage();//todo
     }
   };
 
@@ -110,24 +110,24 @@ class Kanban extends React.Component {
           ref={this.refScroll}
         >
           <div className="ecos-kanban__head">
-            {cols.map((data, index) => {
-              return (
-                <HeaderColumn data={data} index={index} isReady={!isFirstLoading} totalCount={get(dataCards, [index, 'totalCount'])} />
-              );
-            })}
+            {cols.map((data, index) => (
+              <HeaderColumn data={data} index={index} isReady={!isFirstLoading} totalCount={get(dataCards, [index, 'totalCount'])} />
+            ))}
           </div>
           <div
             className={classNames('ecos-kanban__body', {
               'ecos-kanban__body_dragging': isDragging,
               'ecos-kanban__body_end': this.isNoMore()
             })}
+            style={{ minHeight: this.getHeight(-80) }}
             ref={this.refBody}
           >
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
               {columns.map(this.renderColumn)}
             </DragDropContext>
           </div>
-          {isLoading && !isFirstLoading && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
+          {/*todo*/}
+          {/*{isLoading && !isFirstLoading && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}*/}
         </Scrollbars>
       </div>
     );
