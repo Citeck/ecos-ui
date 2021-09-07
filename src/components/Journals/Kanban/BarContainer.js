@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import CommonBar from '../CommonBar';
 import { applyFilter } from '../../../actions/kanban';
 import { selectKanbanJournalProps } from '../../../selectors/journals';
+import { Labels } from '../constants';
 
 function mapStateToProps(state, props) {
   const ownProps = selectKanbanJournalProps(state, props.stateId);
@@ -10,7 +11,8 @@ function mapStateToProps(state, props) {
     noPagination: true,
     noCreateBtn: true,
     settingsColumnsData: null,
-    settingsGroupingData: null
+    settingsGroupingData: null,
+    nameBtnSettings: Labels.Kanban.BTN_SETTINGS
   };
 }
 
@@ -20,16 +22,16 @@ function mapDispatchToProps(dispatch, props) {
   return {
     applySettings: ({ settings }) => dispatch(applyFilter({ settings, stateId })),
     resetFiltering: (...data) => {
-      console.log({ data });
+      console.log(1, { data });
     },
     reloadGrid: (...data) => {
-      console.log({ data });
+      console.log(2, { data });
     },
     clearSearch: (...data) => {
-      console.log({ data });
+      console.log(3, { data });
     },
     runSearch: (...data) => {
-      console.log({ data });
+      console.log(4, { data });
     }
   };
 }

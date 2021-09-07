@@ -102,7 +102,7 @@ class Kanban extends React.Component {
           <TitlePageLoader isReady={!isFirstLoading} withBadge>
             <Tooltip target={`head_${data.id}`} text={extractLabel(data.name)} uncontrolled>
               <div className="ecos-kanban__column-head-caption" id={`head_${data.id}`}>
-                {extractLabel(data.name) || t(Labels.KB_CARD_NO_TITLE)}
+                {extractLabel(data.name) || t(Labels.Kanban.CARD_NO_TITLE)}
               </div>
             </Tooltip>
             {!!totalCount && <Badge text={totalCount} light state={'primary'} />}
@@ -140,7 +140,7 @@ class Kanban extends React.Component {
               {columns.map(this.renderColumn)}
             </DragDropContext>
           </div>
-          {this.isNoMore() && <div className="ecos-kanban__scroll_end">{t(Labels.KB_COL_NO_MORE_CARDS)}</div>}
+          {this.isNoMore() && <div className="ecos-kanban__scroll_end">{t(Labels.Kanban.COL_NO_MORE_CARDS)}</div>}
           {isLoading && !isFirstLoading && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </Scrollbars>
       </div>

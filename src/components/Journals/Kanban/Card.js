@@ -39,7 +39,7 @@ class Card extends React.PureComponent {
               id={target}
               className={classNames('ecos-kanban__card-label_main', { 'ecos-kanban__card-label_main-with-sub': data.cardSubtitle })}
             >
-              {extractLabel(data.cardTitle || Labels.KB_CARD_NO_TITLE)}
+              {extractLabel(data.cardTitle || Labels.Kanban.CARD_NO_TITLE)}
             </div>
           </Tooltip>
           {data.cardSubtitle && <div className="ecos-kanban__card-label_secondary">{data.cardSubtitle}</div>}

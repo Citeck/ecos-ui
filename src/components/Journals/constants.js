@@ -27,22 +27,30 @@ export const JOURNAL_VIEW_MODE = {
 };
 
 export const Labels = {
-  J_SHOW_MENU: 'journals.action.show-menu',
-  J_SHOW_MENU_SM: 'journals.action.show-menu_sm',
-  DL_SHOW_MENU: 'journals.action.show-folder-tree',
-  DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm',
-  KB_BAR_TOTAL: 'kanban.label.big-total',
-  KB_COL_NO_CARD: 'kanban.label.no-card',
-  KB_COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
-  KB_CARD_NO_TITLE: 'kanban.label.no-name',
-  KB_DND_MOVE_HERE: 'kanban.label.dnd.move-here',
-  KB_DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
-  KB_BOARD_LIST: 'kanban.label.board-list',
-
-  V_JOURNAL: 'journals.view.label.journal',
-  V_PREVIEW: 'journals.view.label.journal-preview',
-  V_DOCLIB: 'journals.view.label.document-library',
-  V_KANBAN: 'journals.view.label.kanban'
+  Journal: {
+    SHOW_MENU: 'journals.action.show-menu',
+    SHOW_MENU_SM: 'journals.action.show-menu_sm'
+  },
+  DocLib: {
+    SHOW_MENU: 'journals.action.show-folder-tree',
+    SHOW_MENU_SM: 'journals.action.show-folder-tree_sm'
+  },
+  Kanban: {
+    BAR_TOTAL: 'kanban.label.big-total',
+    COL_NO_CARD: 'kanban.label.no-card',
+    COL_NO_MORE_CARDS: 'kanban.label.no-more-cards',
+    CARD_NO_TITLE: 'kanban.label.no-name',
+    DND_MOVE_HERE: 'kanban.label.dnd.move-here',
+    DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
+    BOARD_LIST: 'kanban.label.board-list',
+    BTN_SETTINGS: 'kanban.label.btn-settings'
+  },
+  Views: {
+    JOURNAL: 'journals.view.label.journal',
+    PREVIEW: 'journals.view.label.journal-preview',
+    DOC_LIB: 'journals.view.label.document-library',
+    KANBAN: 'journals.view.label.kanban'
+  }
 };
 
 export const isTable = vm => vm === JOURNAL_VIEW_MODE.TABLE;

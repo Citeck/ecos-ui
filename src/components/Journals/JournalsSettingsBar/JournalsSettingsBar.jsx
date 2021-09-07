@@ -34,6 +34,8 @@ const JournalsSettingsBar = ({
   leftChild,
   rightChild,
 
+  nameBtnSettings,
+
   onRefresh,
   onSearch,
   onToggleSettings,
@@ -88,7 +90,7 @@ const JournalsSettingsBar = ({
       {renderCreateMenu()}
 
       {!isMobile && (
-        <Tooltip off={isMobile} target="ecos-journal-settings-bar-settings" text={t(Labels.BTN_SETTINGS)} uncontrolled>
+        <Tooltip off={isMobile} target="ecos-journal-settings-bar-settings" text={t(nameBtnSettings || Labels.BTN_SETTINGS)} uncontrolled>
           <IcoBtn
             id="ecos-journal-settings-bar-settings"
             icon={'icon-settings'}

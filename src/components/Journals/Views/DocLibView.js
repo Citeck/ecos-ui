@@ -81,7 +81,7 @@ class DocLibView extends React.Component {
     return (
       <div hidden={!isDocLib(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__doc-lib', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          <Header title={folderTitle} labelBtnMenu={isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU)} />
+          <Header title={folderTitle} labelBtnMenu={isMobile ? t(Labels.DocLib.SHOW_MENU_SM) : t(Labels.DocLib.SHOW_MENU)} />
           <DocLibBreadcrumbs stateId={stateId} />
           <DocLibSettingsBar stateId={stateId} />
           <DocLibGroupActions stateId={stateId} />

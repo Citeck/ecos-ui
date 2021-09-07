@@ -61,10 +61,10 @@ const defaultDisplayElements = {
 };
 
 const ViewLabels = {
-  [JVM.PREVIEW]: Labels.V_PREVIEW,
-  [JVM.TABLE]: Labels.V_JOURNAL,
-  [JVM.DOC_LIB]: Labels.V_DOCLIB,
-  [JVM.KANBAN]: Labels.V_KANBAN
+  [JVM.PREVIEW]: Labels.Views.PREVIEW,
+  [JVM.TABLE]: Labels.Views.JOURNAL,
+  [JVM.DOC_LIB]: Labels.Views.DOC_LIB,
+  [JVM.KANBAN]: Labels.Views.KANBAN
 };
 
 class Journals extends React.Component {
@@ -293,7 +293,7 @@ class Journals extends React.Component {
         <div onClick={this.handleDisplayConfigPopup}>
           <JournalsHead
             title={props.title}
-            labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.J_SHOW_MENU_SM) : t(Labels.J_SHOW_MENU))}
+            labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
             isOpenMenu={menuOpen}
             isMobile={isMobile}
             hasBtnMenu={this.displayElements.menu}

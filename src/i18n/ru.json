@@ -314,6 +314,7 @@
   "kanban.label.no-card": "Нет карточек",
   "kanban.label.no-name": "Нет названия",
   "kanban.label.board-list": "Список досок",
+  "kanban.label.btn-settings": "Фильтрация",
   "kanban.label.dnd.move-here": "Пеместить в эту колонку",
   "kanban.label.dnd.cant-move-here": "Карточка уже в этой колонке",
   "kanban.label.no-more-cards": "Больше нет карточек",

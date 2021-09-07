@@ -74,7 +74,7 @@ class KanbanView extends React.Component {
 
   RightBarChild = () => {
     const { totalCount: count } = this.props;
-    return <span className="ecos-pagination__text">{t(Labels.KB_BAR_TOTAL, { count })}</span>;
+    return <span className="ecos-pagination__text">{t(Labels.Kanban.BAR_TOTAL, { count })}</span>;
   };
 
   LeftBarChild = () => {
@@ -89,7 +89,7 @@ class KanbanView extends React.Component {
         valueField={'id'}
         titleField={'name'}
         onChange={this.handleChangeBoard}
-        controlLabel={t(Labels.KB_BOARD_LIST)}
+        controlLabel={t(Labels.Kanban.BOARD_LIST)}
         controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
       />
     );

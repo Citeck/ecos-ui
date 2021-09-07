@@ -102,6 +102,7 @@ export default class Bar extends Component {
       settingsColumnsData = {},
       settingsGroupingData = {},
       selectedRecords = [],
+      nameBtnSettings,
       leftChild,
       rightChild
     } = this.props;
@@ -137,6 +138,7 @@ export default class Bar extends Component {
           isCreateLoading={isCreateLoading}
           isLoading={isLoading}
           isShowResetFilter={isFilterOn}
+          nameBtnSettings={nameBtnSettings}
           onRefresh={this.handleRefresh}
           onSearch={this.handleSearch}
           onToggleSettings={this.handleToggleSettings}

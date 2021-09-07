@@ -314,6 +314,7 @@
   "kanban.label.no-card": "No Card",
   "kanban.label.no-name": "No Name",
   "kanban.label.board-list": "Board List",
+  "kanban.label.btn-settings": "Filter",
   "kanban.label.dnd.move-here": "Move to this column",
   "kanban.label.dnd.cant-move-here": "The card is already in this column",
   "kanban.label.no-more-cards": "No more cards",
