@@ -259,7 +259,7 @@ function* sagaMoveCard({ api, logger }, { payload }) {
     dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
 
-    //todo open
+    //todo open / test special board
     // yield call(api.kanban.moveRecord, { recordRef: cardRef, columnId: toColumnRef });
     yield put(setDataCards({ stateId, dataCards: dataCards }));
   } catch (e) {
@@ -281,6 +281,7 @@ function* sagaApplyFilter({ api, logger }, { payload }) {
     yield put(setJournalSetting(w(journalSetting)));
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaApplyFilter saga] error', e);
   }

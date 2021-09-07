@@ -3,6 +3,7 @@ import {
   applyFilter,
   getBoardConfig,
   getNextPage,
+  selectBoardId,
   setBoardConfig,
   setBoardList,
   setDataCards,
@@ -13,7 +14,7 @@ import {
   setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
-import { updateState } from '../helpers/redux';
+import { getCurrentStateById, updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const initialState = {
@@ -32,6 +33,10 @@ export default handleActions(
   {
     [getBoardConfig]: (state, { payload }) => {
       return updateState(state, payload.stateId, { isFirstLoading: true, isLoading: true }, initialState);
+    },
+    [selectBoardId]: (state, { payload }) => {
+      const { boardList } = getCurrentStateById(state, payload.stateId, initialState);
+      return updateState(state, payload.stateId, { ...initialState, boardList }, initialState);
     },
     [applyFilter]: (state, { payload }) => {
       return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
