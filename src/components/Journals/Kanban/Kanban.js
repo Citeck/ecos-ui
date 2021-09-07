@@ -11,7 +11,7 @@ import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { InfoText, PointsLoader, Tooltip } from '../../common';
+import { PointsLoader, Tooltip } from '../../common';
 import { Badge } from '../../common/form';
 import TitlePageLoader from '../../common/TitlePageLoader';
 import { Labels } from '../constants';

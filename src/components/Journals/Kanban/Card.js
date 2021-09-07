@@ -11,7 +11,7 @@ import { FormWrapper } from '../../common/dialogs';
 
 class Card extends React.PureComponent {
   state = {
-    setStateOpener: new Set()
+    openerSet: new Set()
   };
 
   handleAction = action => {
@@ -27,7 +27,7 @@ class Card extends React.PureComponent {
     }
   };
 
-  renderHeaderCard = provided => {
+  renderHeader = provided => {
     const { readOnly, actions, data } = this.props;
     const target = `card-title_${data.id}`.replace(/[:@/]/gim, '');
 
@@ -74,9 +74,26 @@ class Card extends React.PureComponent {
     );
   };
 
+  renderBottom = () => {
+    const { data } = this.props;
+    const { openerSet } = this.state;
+
+    return (
+      <div className="ecos-kanban__card-bottom">
+        <Icon
+          className={classNames('ecos-kanban__card-opener', {
+            'icon-small-down': openerSet.has(data.cardId),
+            'icon-small-up': !openerSet.has(data.cardId)
+          })}
+          onClick={() => this.handleOpenCard(data.cardId)}
+        />
+      </div>
+    );
+  };
+
   handleOpenCard = cardId => {
-    const { setStateOpener } = this.state;
-    const newSet = new Set([...setStateOpener]);
+    const { openerSet } = this.state;
+    const newSet = new Set([...openerSet]);
 
     if (newSet.has(cardId)) {
       newSet.delete(cardId);
@@ -84,12 +101,12 @@ class Card extends React.PureComponent {
       newSet.add(cardId);
     }
 
-    this.setState({ setStateOpener: newSet });
+    this.setState({ openerSet: newSet });
   };
 
   render() {
     const { data, cardIndex, formProps, readOnly } = this.props;
-    const { setStateOpener } = this.state;
+    const { openerSet } = this.state;
 
     return (
       <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
@@ -98,10 +115,8 @@ class Card extends React.PureComponent {
           return (
             <div ref={provided.innerRef} {...provided.draggableProps}>
               <div className={classNames('ecos-kanban__card', { 'ecos-kanban__card_dragging': snapshot.isDragging })}>
-                {this.renderHeaderCard(provided)}
-                <div
-                  className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': !setStateOpener.has(data.cardId) })}
-                >
+                {this.renderHeader(provided)}
+                <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
                   <FormWrapper
                     className="ecos-kanban__card-form"
                     isVisible
@@ -115,15 +130,6 @@ class Card extends React.PureComponent {
                         hidePanels: true
                       }
                     }}
-                  />
-                </div>
-                <div className="ecos-kanban__card-bottom">
-                  <Icon
-                    className={classNames('ecos-kanban__card-opener', {
-                      'icon-small-down': !setStateOpener.has(data.cardId),
-                      'icon-small-up': setStateOpener.has(data.cardId)
-                    })}
-                    onClick={() => this.handleOpenCard(data.cardId)}
                   />
                 </div>
               </div>
