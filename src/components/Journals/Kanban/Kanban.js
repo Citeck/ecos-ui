@@ -6,15 +6,10 @@ import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
-
-import { extractLabel } from '../../../helpers/util';
-import { t } from '../../../helpers/export/util';
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { PointsLoader, Tooltip } from '../../common';
-import { Badge } from '../../common/form';
-import TitlePageLoader from '../../common/TitlePageLoader';
-import { Labels } from '../constants';
+import { PointsLoader } from '../../common';
+import HeaderColumn from './HeaderColumn';
 import Column from './Column';
 
 import './style.scss';
@@ -49,7 +44,7 @@ class Kanban extends React.Component {
   }
 
   getHeight(changes = 0) {
-    return this.props.maxHeight - 100 + changes;
+    return this.props.maxHeight - 40 + changes;
   }
 
   isNoMore = () => {
@@ -92,26 +87,6 @@ class Kanban extends React.Component {
     }
   };
 
-  renderHeaderColumn = (data, index) => {
-    const { dataCards = [], isFirstLoading } = this.props;
-    const totalCount = get(dataCards, [index, 'totalCount']);
-
-    return (
-      <div className="ecos-kanban__column" key={`head_${data.id}`}>
-        <div className="ecos-kanban__column-head">
-          <TitlePageLoader isReady={!isFirstLoading} withBadge>
-            <Tooltip target={`head_${data.id}`} text={extractLabel(data.name)} uncontrolled>
-              <div className="ecos-kanban__column-head-caption" id={`head_${data.id}`}>
-                {extractLabel(data.name) || t(Labels.Kanban.CARD_NO_TITLE)}
-              </div>
-            </Tooltip>
-            {!!totalCount && <Badge text={totalCount} light state={'primary'} />}
-          </TitlePageLoader>
-        </div>
-      </div>
-    );
-  };
-
   renderColumn = (data, index) => {
     const { stateId } = this.props;
 
@@ -120,31 +95,38 @@ class Kanban extends React.Component {
 
   render() {
     const { isDragging } = this.state;
-    const { columns = [], isLoading, isFirstLoading } = this.props;
+    const { columns = [], dataCards = [], isLoading, isFirstLoading } = this.props;
     const cols = columns || Array(3).map((_, id) => ({ id }));
 
     return (
       <div className="ecos-kanban" style={{ '--count-col': cols.length }}>
-        <div className="ecos-kanban__head">{cols.map(this.renderHeaderColumn)}</div>
         <Scrollbars
           autoHeight
           autoHeightMin={this.getHeight()}
           autoHeightMax={this.getHeight()}
           renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
-          renderTrackHorizontal={() => <div hidden />}
+          renderTrackHorizontal={props => <div {...props} className="ecos-kanban__scroll_h" />}
           onScrollFrame={this.handleScrollFrame}
           ref={this.refScroll}
         >
+          <div className="ecos-kanban__head">
+            {cols.map((data, index) => {
+              return (
+                <HeaderColumn data={data} index={index} isReady={!isFirstLoading} totalCount={get(dataCards, [index, 'totalCount'])} />
+              );
+            })}
+          </div>
           <div
-            className={classNames('ecos-kanban__body', { 'ecos-kanban__body_dragging': isDragging })}
+            className={classNames('ecos-kanban__body', {
+              'ecos-kanban__body_dragging': isDragging,
+              'ecos-kanban__body_end': this.isNoMore()
+            })}
             ref={this.refBody}
-            style={{ minHeight: `${this.getHeight(-50)}px` }}
           >
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
               {columns.map(this.renderColumn)}
             </DragDropContext>
           </div>
-          {this.isNoMore() && <div className="ecos-kanban__scroll_end">{t(Labels.Kanban.COL_NO_MORE_CARDS)}</div>}
           {isLoading && !isFirstLoading && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </Scrollbars>
       </div>
