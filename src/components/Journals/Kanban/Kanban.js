@@ -6,6 +6,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
+
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { PointsLoader } from '../../common';
@@ -35,10 +36,20 @@ class Kanban extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const height = get(this.refBody, 'current.clientHeight');
+    const { page, dataCards, isLoading } = this.props;
+    const elmScroll = this.refScroll.current;
 
-    if (!isEqualWith(prevProps.dataCards, this.props.dataCards, isEqual) && !!height) {
+    if (isLoading) {
+      return;
+    }
+
+    if (elmScroll && page > 1 && !isEqualWith(prevProps.dataCards, dataCards, isEqual)) {
+      elmScroll.scrollTop(elmScroll.getScrollTop() + 50);
+    }
+
+    if (!isEqualWith(prevProps.dataCards, dataCards, isEqual) && !!height) {
       if (this.getHeight() > height && !this.isNoMore()) {
-        // this.props.getNextPage();//todo
+        this.props.getNextPage();
       }
     }
   }
@@ -50,12 +61,12 @@ class Kanban extends React.Component {
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
 
-    return totalCount !== 0 && totalCount === dataCards.reduce((count, card) => card.records.length + count, 0);
+    return totalCount !== 0 && totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
   };
 
   handleScrollFrame = (scroll = {}) => {
-    if (!this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
-      // this.props.getNextPage();//todo
+    if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+      this.props.getNextPage();
     }
   };
 
@@ -95,7 +106,7 @@ class Kanban extends React.Component {
 
   render() {
     const { isDragging } = this.state;
-    const { columns = [], dataCards = [], isLoading, isFirstLoading } = this.props;
+    const { columns = [], dataCards = [], isLoading, isFirstLoading, page } = this.props;
     const cols = columns || Array(3).map((_, id) => ({ id }));
 
     return (
@@ -111,7 +122,12 @@ class Kanban extends React.Component {
         >
           <div className="ecos-kanban__head">
             {cols.map((data, index) => (
-              <HeaderColumn data={data} index={index} isReady={!isFirstLoading} totalCount={get(dataCards, [index, 'totalCount'])} />
+              <HeaderColumn
+                key={`head_${data.id}`}
+                isReady={!isFirstLoading}
+                data={data}
+                totalCount={get(dataCards, [index, 'totalCount'], '⭯')}
+              />
             ))}
           </div>
           <div
@@ -126,9 +142,8 @@ class Kanban extends React.Component {
               {columns.map(this.renderColumn)}
             </DragDropContext>
           </div>
-          {/*todo*/}
-          {/*{isLoading && !isFirstLoading && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}*/}
         </Scrollbars>
+        {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
       </div>
     );
   }

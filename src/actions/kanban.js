@@ -21,4 +21,5 @@ export const resetFilter = createAction(prefix + 'RESET_FILTER');
 
 export const selectBoardId = createAction(prefix + 'SELECT_BOARD_ID');
 export const setLoading = createAction(prefix + 'SET_LOADING');
+export const setIsFiltered = createAction(prefix + 'SET_IS_FILTERED');
 export const setPagination = createAction(prefix + 'SET_PAGINATION');

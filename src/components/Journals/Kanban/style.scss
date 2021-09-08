@@ -35,8 +35,11 @@
   }
 
   &__loader {
-    padding: 10px;
     width: 10%;
+    position: absolute;
+    bottom: 10px;
+    height: auto;
+    left: 45%;
   }
 
   &__scroll {
@@ -161,7 +164,7 @@
 
       &-caption {
         font-weight: $font-weight-semi-bold;
-        font-size: 18px;
+        font-size: 16px;
         //text-transform: uppercase;
         padding-right: 15px;
         @extend %ellipsis;
@@ -173,19 +176,22 @@
       }
     }
 
-    &:last-child {
-      & :nth-child(10n)::after {
-        counter-increment: count-page;
-        content: '— ' counter(count-page) ' —';
-        color: $color-gray-5;
-        display: block;
-        position: absolute;
-        font-size: $font-size-large;
-        left: 0;
-        text-align: center;
-        width: 100%;
-      }
+    & :nth-child(11n) {
+      padding-top: 10px;
+      border-top: 1px $color-gray-7 dotted;
     }
+
+    //& :nth-child(10n)::after {
+    //  counter-increment: count-page;
+    //  content: '— ' counter(count-page) ' —';
+    //  color: $color-gray-5;
+    //  display: block;
+    //  position: absolute;
+    //  font-size: $font-size-large;
+    //  left: 0;
+    //  text-align: center;
+    //  width: 100%;
+    //}
   }
 
   &__card {
@@ -251,6 +257,7 @@
       flex-direction: column;
       min-width: 0;
       padding-bottom: 13px;
+      word-break: break-word;
 
       &_main {
         font-weight: $font-weight-normal;
@@ -258,6 +265,11 @@
 
         &-with-sub {
           @extend %ellipsis;
+        }
+
+        &:hover {
+          color: $color-blue-dark;
+          cursor: pointer;
         }
       }
 

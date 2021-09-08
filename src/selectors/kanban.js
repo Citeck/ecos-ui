@@ -51,7 +51,8 @@ export const selectKanbanProps = createSelector(
     resolvedActions: data.resolvedActions,
     totalCount: data.totalCount,
     isLoading: data.isLoading,
-    isFirstLoading: data.isFirstLoading
+    isFirstLoading: data.isFirstLoading,
+    page: data.pagination.page
   })
 );
 

@@ -26,12 +26,13 @@ import {
   setDataCards,
   setFormProps,
   setIsEnabled,
+  setIsFiltered,
   setLoading,
   setPagination,
   setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
-import { selectGridPaginationMaxItems, selectJournalData, selectSettingsData } from '../selectors/journals';
+import { selectJournalData, selectSettingsData } from '../selectors/journals';
 import { selectKanban, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
 import PageService from '../services/PageService';
@@ -43,8 +44,7 @@ import RecordActions from '../components/Records/actions/recordActions';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 import KanbanConverter from '../dto/kanban';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
-import { reloadGrid, setJournalSetting, setPredicate } from '../actions/journals';
-import { beArray } from '../helpers/util';
+import { setJournalSetting, setPredicate } from '../actions/journals';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -227,7 +227,6 @@ function* sagaGetNextPage({ api, logger }, { payload }) {
 
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
-
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaGetNextPage saga] error', e);
@@ -288,18 +287,15 @@ function* sagaApplyFilter({ api, logger }, { payload }) {
   }
 }
 
-function* sagaResetFilter({ logger, w, stateId }) {
+function* sagaResetFilter({ api, logger }, { payload }) {
   try {
+    const { stateId } = payload;
     const {
       originGridSettings: { predicate }
     } = yield select(selectSettingsData, stateId);
-    const pagination = DEFAULT_PAGINATION;
-    const predicates = beArray(predicate);
 
-    yield put(setPredicate(w(predicate)));
-    yield put(setJournalSetting(w({ predicate })));
-    yield put(setPagination({ stateId, pagination }));
-    //todo
+    yield sagaApplyFilter({ api, logger }, { payload: { stateId, settings: { predicate } } });
+    yield put(setIsFiltered({ stateId, isFiltered: false }));
   } catch (e) {
     logger.error('[kanban/sagaResetFilter saga error', e);
   }

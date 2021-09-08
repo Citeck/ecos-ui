@@ -4,6 +4,7 @@ import { Draggable } from 'react-beautiful-dnd';
 import classNames from 'classnames';
 
 import { extractLabel } from '../../../helpers/util';
+import ViewAction from '../../Records/actions/handler/executor/ViewAction';
 import { Icon, Tooltip } from '../../common';
 import { DropdownOuter } from '../../common/form';
 import { Labels } from '../constants';
@@ -17,6 +18,11 @@ class Card extends React.PureComponent {
   handleAction = action => {
     const { data } = this.props;
     this.props.onClickAction(data.cardId, action);
+  };
+
+  handleHeaderClick = () => {
+    const { data } = this.props;
+    this.props.onClickAction(data.cardId, { type: ViewAction.ACTION_ID });
   };
 
   changeTransform = (provided, snapshot) => {
@@ -34,10 +40,11 @@ class Card extends React.PureComponent {
     return (
       <div className="ecos-kanban__card-head">
         <div className="ecos-kanban__card-label">
-          <Tooltip target={target} text={data.cardTitle} uncontrolled off={!data.cardTitle}>
+          <Tooltip target={target} text={data.cardTitle} uncontrolled off={!data.cardTitle || !data.cardSubtitle}>
             <div
               id={target}
               className={classNames('ecos-kanban__card-label_main', { 'ecos-kanban__card-label_main-with-sub': data.cardSubtitle })}
+              onClick={this.handleHeaderClick}
             >
               {extractLabel(data.cardTitle || Labels.Kanban.CARD_NO_TITLE)}
             </div>

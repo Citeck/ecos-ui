@@ -10,6 +10,7 @@ import {
   setDataCards,
   setFormProps,
   setIsEnabled,
+  setIsFiltered,
   setLoading,
   setPagination,
   setResolvedActions,
@@ -44,7 +45,7 @@ export default handleActions(
       return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFiltered: true }, initialState);
     },
     [resetFilter]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFiltered: true }, initialState);
+      return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
     },
     [getNextPage]: (state, { payload }) => {
       return updateState(state, payload.stateId, { isLoading: true }, initialState);
@@ -56,6 +57,10 @@ export default handleActions(
     [setLoading]: (state, { payload }) => {
       const { stateId, isLoading } = payload;
       return updateState(state, stateId, { isLoading }, initialState);
+    },
+    [setIsFiltered]: (state, { payload }) => {
+      const { stateId, isFiltered } = payload;
+      return updateState(state, stateId, { isFiltered }, initialState);
     },
     [setFormProps]: (state, { payload }) => {
       const { stateId, formProps } = payload;
