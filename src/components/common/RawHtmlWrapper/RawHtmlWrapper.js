@@ -11,7 +11,8 @@ export default class RawHtmlWrapper extends Component {
     }
 
     this.state = {
-      props: props.props
+      props: props.props,
+      component: props.component
     };
   }
 
@@ -22,12 +23,11 @@ export default class RawHtmlWrapper extends Component {
   }
 
   setProps(props) {
-    this.setState({
-      props: {
-        ...this.state.props,
-        ...props
-      }
-    });
+    this.setState(state => ({ props: { ...state.props, ...props } }));
+  }
+
+  setComponent(component) {
+    this.setState({ component });
   }
 
   resolveComponent = component => {
@@ -49,12 +49,12 @@ export default class RawHtmlWrapper extends Component {
     };
 
     // detect functional component
-    const componentRender = get(this, 'props.component.prototype.render');
+    const componentRender = get(this, 'state.component.prototype.render');
     if (!componentRender) {
       self.resolveComponent(this);
-      return <this.props.component {...props} />;
+      return <this.state.component {...props} />;
     }
 
-    return <this.props.component {...props} ref={self.resolveComponent} />;
+    return <this.state.component {...props} ref={self.resolveComponent} />;
   }
 }

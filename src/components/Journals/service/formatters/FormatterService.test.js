@@ -25,6 +25,33 @@ describe('FormatterService', () => {
       expect(spy).toHaveBeenCalled();
       expect(mount(result).text()).toBe('OK');
     });
+    it('ScriptFormatter with various props', () => {
+      const props = {
+        cell: 'abc',
+        row: {
+          rowAtt: 'def'
+        },
+        fnArgs: {
+          customArg: 'ghi'
+        }
+      };
+      const resultWithFuncInConfig = FormatterService.format(props, {
+        type: FORMATTER_TYPE_SCRIPT,
+        config: {
+          fn: function({ cell, row, customArg }) {
+            return cell + '-' + row.rowAtt + '-' + customArg;
+          }
+        }
+      });
+      expect(mount(resultWithFuncInConfig).text()).toBe('abc-def-ghi');
+      const resultWithScriptAsText = FormatterService.format(props, {
+        type: FORMATTER_TYPE_SCRIPT,
+        config: {
+          fn: 'return cell + "-" + row.rowAtt + "-" + customArg'
+        }
+      });
+      expect(mount(resultWithScriptAsText).text()).toBe('abc-def-ghi');
+    });
     it('should replace placeholders in the config fields', () => {
       const result = FormatterService.format(
         {

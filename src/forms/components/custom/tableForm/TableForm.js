@@ -1,9 +1,7 @@
-import React from 'react';
 import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
-import { Loader } from '../../../../components/common';
 import TableForm from '../../../../components/common/form/TableForm';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -11,6 +9,7 @@ import Records from '../../../../components/Records';
 import JournalsService from '../../../../components/Journals/service';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { TableTypes } from './constants';
+import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
 
 const Labels = {
   MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
@@ -26,7 +25,6 @@ export default class TableFormComponent extends BaseReactComponent {
   _displayElementsValue = {};
   _nonSelectableRows = [];
   _createVariants = [];
-  _visibleRender = false;
 
   #journalConfig;
 
@@ -84,14 +82,11 @@ export default class TableFormComponent extends BaseReactComponent {
     };
   }
 
-  _needUpdate = false;
-
   get defaultSchema() {
     return TableFormComponent.schema();
   }
 
   checkConditions(data) {
-    const isVisible = _.cloneDeep(this.visible);
     const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
@@ -137,11 +132,6 @@ export default class TableFormComponent extends BaseReactComponent {
       });
     }
 
-    if ((!isVisible && this.visible) || this._needUpdate) {
-      this._needUpdate = false;
-      this.redraw();
-    }
-
     return result;
   }
 
@@ -150,15 +140,11 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    this._visibleRender = this.visible;
-
-    return this.visible ? TableForm : () => <Loader blur />;
+    return TableForm;
   }
 
-  setReactValue(component, value) {
-    this.setReactProps({
-      defaultValue: value
-    });
+  setReactValue(component, defaultValue) {
+    this.setReactProps({ defaultValue });
   }
 
   getValueFormKey(value) {
@@ -431,7 +417,7 @@ export default class TableFormComponent extends BaseReactComponent {
               }
 
               if (formatters.hasOwnProperty(col.attribute)) {
-                col.newFormatter = formatters[col.attribute];
+                col.newFormatter = this._convertLegacyFormatterData(formatters[col.attribute]);
               }
             }
 
@@ -448,6 +434,27 @@ export default class TableFormComponent extends BaseReactComponent {
       }
     });
   };
+
+  _convertLegacyFormatterData(formatter) {
+    const { type, name, params, config } = formatter;
+    const newFormatter = { type, config };
+
+    if (!type) {
+      newFormatter.type = this._getFormatterTypeByName(name);
+    }
+
+    if (!config) {
+      newFormatter.config = params || {};
+    }
+
+    return newFormatter;
+  }
+
+  _getFormatterTypeByName(formatterName) {
+    const formatter = formatterRegistry.getFormatter(formatterName);
+
+    return _.get(formatter, 'constructor.TYPE', 'default');
+  }
 
   _fetchActions = records => {
     if (!this.component.isUsedJournalActions || !this.#journalConfig) {

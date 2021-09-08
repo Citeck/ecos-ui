@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
@@ -71,7 +72,7 @@ const HeightCalculation = props => {
   );
 };
 
-class JournalsDashletGrid extends React.Component {
+class JournalsDashletGrid extends Component {
   selectedRow = {};
   scrollPosition = {};
 
@@ -87,13 +88,12 @@ class JournalsDashletGrid extends React.Component {
 
   handleSetInlineTools = this.props.setGridInlineToolSettings;
 
-  setSelectedRecords = e => {
-    const props = this.props;
-    props.setSelectedRecords(e.selected);
-    props.setSelectAllRecordsVisible(e.all);
+  setSelectedRecords = data => {
+    this.props.setSelectedRecords(data.selected);
+    this.props.setSelectAllRecordsVisible(data.all);
 
-    if (!e.all) {
-      props.setSelectAllRecords(false);
+    if (!data.all) {
+      this.props.setSelectAllRecords(false);
     }
   };
 
@@ -221,7 +221,9 @@ class JournalsDashletGrid extends React.Component {
       journalConfig,
       selectorContainer,
       viewColumns,
-      onOpenSettings
+      onOpenSettings,
+      query,
+      isGrouped
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -233,7 +235,11 @@ class JournalsDashletGrid extends React.Component {
       editable = false;
     }
 
-    const filters = ParserPredicate.getFlatFilters(predicate);
+    let filters = ParserPredicate.getFlatFilters(predicate);
+
+    if (isGrouped && isEmpty(filters)) {
+      filters = ParserPredicate.getFlatFilters(query);
+    }
 
     return (
       <>

@@ -10,7 +10,8 @@ import Tooltip from 'tooltip.js';
 import { getInputMask } from 'formiojs/utils/utils';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
-import { getMLValue, getCurrentLocale, getTextByLocale, t } from '../../../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../../../helpers/util';
+import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
 
@@ -31,6 +32,7 @@ const originalCreateDescription = Base.prototype.createDescription;
 const originalSetupValueElement = Base.prototype.setupValueElement;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
+const originalCreateModal = Base.prototype.createModal;
 // Methods <<<
 
 // >>> PropertyDescriptors
@@ -152,6 +154,7 @@ Object.defineProperty(Base.prototype, 'name', {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-208
 const emptyCalculateValue = Symbol('empty calculate value');
+
 const customIsEqual = (val1, val2) => {
   if (typeof val1 === 'number' || typeof val2 === 'number') {
     return parseFloat(val1) === parseFloat(val2);
@@ -791,5 +794,15 @@ Object.defineProperty(Base.prototype, 'originalComponent', {
     this._originalComponent = extendingOfComponent(value);
   }
 });
+
+Base.prototype.createModal = function(...params) {
+  const modal = originalCreateModal.call(this, ...params);
+  modal.classList.add('ecosZIndexAnchor');
+
+  ZIndex.calcZ();
+  ZIndex.setZ(modal);
+
+  return modal;
+};
 
 export default Base;

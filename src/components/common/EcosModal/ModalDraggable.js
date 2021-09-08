@@ -41,6 +41,7 @@ const propTypes = {
   modalClassName: PropTypes.string,
   backdropClassName: PropTypes.string,
   contentClassName: PropTypes.string,
+  containerClassName: PropTypes.string,
   external: PropTypes.node,
   fade: PropTypes.bool,
   cssModule: PropTypes.object,
@@ -238,18 +239,24 @@ class Modal extends React.Component {
     } catch (err) {
       this._triggeringElement = null;
     }
+
+    const { zIndex, cssModule, containerClassName = '' } = this.props;
+
     this._element = document.createElement('div');
     this._element.setAttribute('tabindex', '-1');
     this._element.style.position = 'absolute';
-    this._element.style.zIndex = this.props.zIndex;
+    this._element.style.zIndex = zIndex;
+    this._element.classList.add(...containerClassName.split(' '));
     this._originalBodyPadding = getOriginalBodyPadding();
 
     conditionallyUpdateScrollbar();
 
     document.body.appendChild(this._element);
+
     if (Modal.openCount === 0) {
-      document.body.className = classNames(document.body.className, mapToCssModules('modal-open', this.props.cssModule));
+      document.body.className = classNames(document.body.className, mapToCssModules('modal-open', cssModule));
     }
+
     Modal.openCount += 1;
   }
 
@@ -278,27 +285,28 @@ class Modal extends React.Component {
   renderModalDialog() {
     const attributes = omit(this.props, propsToOmit);
     const dialogBaseClass = 'modal-dialog';
+    const { contentClassName, size, className, children, centered, cssModule, scrollable, getDialogRef, draggableProps } = this.props;
 
     return (
       <div
         {...attributes}
         className={mapToCssModules(
-          classNames(dialogBaseClass, this.props.className, {
-            [`modal-${this.props.size}`]: this.props.size,
-            [`${dialogBaseClass}-centered`]: this.props.centered,
-            [`${dialogBaseClass}-scrollable`]: this.props.scrollable
+          classNames(dialogBaseClass, className, {
+            [`modal-${size}`]: size,
+            [`${dialogBaseClass}-centered`]: centered,
+            [`${dialogBaseClass}-scrollable`]: scrollable
           }),
-          this.props.cssModule
+          cssModule
         )}
         role="document"
         ref={c => {
           this._dialog = c;
-          typeof this.props.getDialogRef === 'function' && this.props.getDialogRef(c);
+          typeof getDialogRef === 'function' && getDialogRef(c);
         }}
       >
-        <Draggable {...this.props.draggableProps}>
-          <div className={mapToCssModules(classNames('modal-content', this.props.contentClassName), this.props.cssModule)}>
-            {this.props.children}
+        <Draggable {...draggableProps}>
+          <div className={mapToCssModules(classNames('modal-content', contentClassName), cssModule)}>
+            {children}
 
             {this.renderLoading()}
           </div>

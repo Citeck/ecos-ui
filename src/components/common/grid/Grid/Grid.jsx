@@ -8,9 +8,11 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
+import isFunction from 'lodash/isFunction';
 
 import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
@@ -74,8 +76,13 @@ class Grid extends Component {
 
     this.state = {
       tableHeight: 0,
+      isScrolling: false,
       selected: props.selected || []
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return !nextState.isScrolling;
   }
 
   componentDidMount() {
@@ -102,7 +109,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns } = this.props;
+    const { resizableColumns, selected } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -112,8 +119,8 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
-    if (isEmpty(prevProps.selected) && !isEmpty(this.props.selected)) {
-      this.setState({ selected: this.props.selected });
+    if (!isEqualWith(prevProps.selected, selected, isEqual) && !isEqualWith(this.state.selected, selected, isEqual)) {
+      this.setState({ selected });
     }
 
     this.setColumnsSizes();
@@ -265,13 +272,9 @@ class Grid extends Component {
     }
   };
 
-  onSelect = (all, selected = this._selected) => {
-    this.setState({ selected });
-
-    trigger.call(this, 'onSelect', {
-      selected: [...new Set(selected)],
-      all
-    });
+  onSelect = (all, newSelected = this._selected) => {
+    const selected = [...new Set(newSelected)];
+    this.setState({ selected }, () => this.props.onSelect({ selected, all }));
   };
 
   getBootstrapTableProps(props, extra) {
@@ -320,6 +323,10 @@ class Grid extends Component {
 
     options.rowEvents = {
       onMouseEnter: e => {
+        if (this.state.isScrolling) {
+          return;
+        }
+
         const tr = e.currentTarget;
 
         if (props.changeTrOptionsByRowClick) {
@@ -331,6 +338,10 @@ class Grid extends Component {
         trigger.call(this, 'onMouseEnter', e);
       },
       onMouseLeave: e => {
+        if (this.state.isScrolling) {
+          return;
+        }
+
         if (props.changeTrOptionsByRowClick) {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
@@ -464,6 +475,7 @@ class Grid extends Component {
 
   getTrOptions = tr => {
     const { selectorContainer, data } = this.props;
+    const { isScrolling } = this.state;
     const row = data[tr.rowIndex - 1];
     const elGrid = tr.closest('.ecos-grid');
     const elContainer = tr.closest(selectorContainer);
@@ -484,7 +496,9 @@ class Grid extends Component {
 
     this._tr = tr;
 
-    trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    if (!isScrolling) {
+      trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    }
   };
 
   setEditable = () => {
@@ -855,8 +869,12 @@ class Grid extends Component {
     trigger.call(this, 'onSort', e);
   };
 
-  onFilter = predicates => {
-    trigger.call(this, 'onFilter', predicates);
+  onFilter = (predicates, type) => {
+    const { onFilter } = this.props;
+
+    if (isFunction(onFilter)) {
+      onFilter(predicates, type);
+    }
   };
 
   onEdit = (oldValue, newValue, row, column) => {
@@ -871,6 +889,8 @@ class Grid extends Component {
   };
 
   onScrollStart = e => {
+    this.setState({ isScrolling: true });
+
     this.triggerCloseFilterEvent(document.body);
     trigger.call(this, 'onScrollStart', e);
   };
@@ -890,6 +910,8 @@ class Grid extends Component {
   };
 
   onScrollStop = e => {
+    this.setState({ isScrolling: false });
+
     trigger.call(this, 'onScrollStop', e);
   };
 
@@ -1062,14 +1084,12 @@ class Grid extends Component {
       'noHeader',
       'resizableColumns'
     ]);
-
     const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
       'rowClassName',
       'resizableColumns',
       'columns',
       'rowEvents'
     ]);
-
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
 
     return (
@@ -1186,7 +1206,8 @@ Grid.defaultProps = {
   sortable: true,
   resizableColumns: true,
   nonSelectable: [],
-  selected: []
+  selected: [],
+  onSelect: _ => _
 };
 
 export default Grid;

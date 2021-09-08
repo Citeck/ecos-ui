@@ -1,9 +1,10 @@
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import ecosFetch from '../helpers/ecosFetch';
-import { getOutputFormat } from '../helpers/util';
-import { DataFormatTypes, EmodelTypes } from '../constants';
+import { EmodelTypes } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
+import { baseColumnsConfig } from '../constants/docAssociations';
 import Records from '../components/Records';
 import journalsService from '../components/Journals/service/journalsService';
 import { DocumentsApi } from './documents';
@@ -20,16 +21,14 @@ export class DocAssociationsApi extends DocumentsApi {
    */
   getAllowedAssociations = recordRef => {
     return Records.get(recordRef)
-      .load('_etype?id')
+      .load('_type?id')
       .then(type => {
         if (!type) {
           return [];
         }
+
         return Records.get(type)
-          .load('assocsFull[]?json')
-          .then(associations => {
-            return Promise.all(associations.map(association => this.getColumnConfiguration(association)));
-          })
+          .load('assocsFull[]{id,attribute,direction,name,target?id,journals[]{id:?id,label:name}}')
           .catch(e => {
             console.error(e);
             return [];
@@ -37,55 +36,25 @@ export class DocAssociationsApi extends DocumentsApi {
       });
   };
 
-  getColumnConfiguration(association) {
-    const baseColumnsConfig = {
-      columns: [
-        {
-          attribute: '.disp',
-          label: { ru: 'Заголовок', en: 'Name' },
-          name: 'displayName',
-          type: 'text',
-          attributes: {},
-          newFormatter: {
-            type: 'сardDetailsLink'
-          }
-        },
-        {
-          attribute: 'created',
-          label: { ru: 'Дата создания', en: 'Create time' },
-          name: 'created',
-          type: 'datetime',
-          attributes: {},
-          newFormatter: {
-            type: 'script',
-            config: {
-              fn: 'return cell ? vars.formatDate(cell) : "";',
-              vars: {
-                formatDate: cell => getOutputFormat(DataFormatTypes.DATETIME, cell)
-              }
-            }
-          }
-        }
-      ]
-    };
+  async getColumnConfiguration(association) {
+    const baseConfig = cloneDeep(baseColumnsConfig);
+    baseConfig.columns = await journalsService.resolveColumns(baseColumnsConfig.columns);
 
     if (association.target === EmodelTypes.BASE) {
       return new Promise(async resolve => {
-        let columns = await journalsService.resolveColumns(baseColumnsConfig.columns);
-
         resolve({
           ...association,
-          columnsConfig: { ...baseColumnsConfig, columns }
+          columnsConfig: baseConfig
         });
       });
     }
 
     return journalsService.getJournalConfigByType(association.target).then(async columnsConfig => {
-      const config = isEmpty(columnsConfig) ? baseColumnsConfig : columnsConfig;
+      const config = isEmpty(columnsConfig) ? baseConfig : columnsConfig;
 
       return {
         ...association,
-        columnsConfig: { ...config }
+        columnsConfig: config
       };
     });
   }

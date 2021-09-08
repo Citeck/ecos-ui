@@ -106,7 +106,7 @@ export class AppApi extends CommonApi {
   }
 
   isForceOldUserDashboardEnabled() {
-    return Records.get(`${SourcesId.CONFIG}@force-old-user-dashboard-enabled`)
+    return Records.get(`${SourcesId.ECOS_CONFIG}@force-old-user-dashboard-enabled`)
       .load('.bool')
       .then(res => res === true)
       .catch(() => false);

@@ -24,6 +24,8 @@ const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
 
+export const isDevEnv = () => process.env.NODE_ENV === 'development';
+
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',
@@ -555,16 +557,22 @@ export function getSearchParams(searchString = window.location.search) {
   return queryString.parse(searchString);
 }
 
-export function getOutputFormat(format, value) {
+export function getOutputFormat(format, value, settings = {}) {
   if (!format || !value) {
     return value || '';
   }
 
   switch (format) {
-    case DataFormatTypes.DATE:
-      return moment(value).format('DD.MM.YYYY');
-    case DataFormatTypes.DATETIME:
-      return moment(value).format('DD.MM.YYYY, hh:mm');
+    case DataFormatTypes.DATE: {
+      const inMoment = settings.isLocal ? moment(value).local() : moment(value);
+
+      return inMoment.format(settings.dateFormat || 'DD.MM.YYYY');
+    }
+    case DataFormatTypes.DATETIME: {
+      const inMoment = settings.isLocal ? moment(value).local() : moment(value);
+
+      return inMoment.format(settings.dateFormat || 'DD.MM.YYYY, hh:mm');
+    }
     default:
       return value;
   }
@@ -1127,6 +1135,45 @@ export function strSplice(string, start, deleteCount, ...addString) {
   }
 
   return string;
+}
+
+/*
+ * Ex Measurer component for Dashlet and JournalsDashlet
+ */
+export function getDOMElementMeasurer(element) {
+  if (!element) {
+    return {};
+  }
+
+  const XXS = 376;
+  const XS = 476;
+  const SM = 576;
+  const MD = 768;
+  const LG = 992;
+  const XL = 1200;
+
+  const xxxs = w => w < XXS;
+  const xxs = w => w >= XXS && w < XS;
+  const xs = w => w >= XS && w < SM;
+  const sm = w => w >= SM && w < MD;
+  const md = w => w >= MD && w < LG;
+  const lg = w => w >= LG && w < XL;
+  const xl = w => w >= XL;
+
+  const width = element.offsetWidth;
+  const measurer = {};
+
+  measurer.width = width;
+
+  measurer.xxxs = xxxs(width);
+  measurer.xxs = xxs(width);
+  measurer.xs = xs(width);
+  measurer.sm = sm(width);
+  measurer.md = md(width);
+  measurer.lg = lg(width);
+  measurer.xl = xl(width);
+
+  return measurer;
 }
 
 export function beArray(data) {

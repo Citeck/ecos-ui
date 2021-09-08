@@ -76,7 +76,7 @@ describe('ScriptFormatter', () => {
       expect(newFormatter.type).toBe('html');
       expect(newFormatter.config.html).toBe('<div>Test</div>');
     });
-    it('should return undefined in other cases', () => {
+    it('should return null in other cases', () => {
       const returnVariants = [null, undefined];
 
       returnVariants.forEach(item => {
@@ -86,7 +86,7 @@ describe('ScriptFormatter', () => {
           }
         });
 
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
 
       const result = scriptFormatterInstance.format({
@@ -95,7 +95,7 @@ describe('ScriptFormatter', () => {
         }
       });
 
-      expect(result).toBeUndefined();
+      expect(result).toBeNull();
     });
     it('should throw Error if config.script is not specified', () => {
       const format = () => {
