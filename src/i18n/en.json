@@ -319,6 +319,7 @@
   "kanban.label.dnd.cant-move-here": "The card is already in this column",
   "kanban.label.no-more-cards": "No more cards",
   "kanban.error.form-not-found": "Form card has not found",
+  "kanban.error.card-not-moved": "Card hasn't moved",
 
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",

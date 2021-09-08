@@ -256,10 +256,10 @@ function* sagaMoveCard({ api, logger }, { payload }) {
     dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
 
-    //todo open / test special board
-    // yield call(api.kanban.moveRecord, { recordRef: cardRef, columnId: toColumnRef });
+    yield call(api.kanban.moveRecord, { recordRef: cardRef, columnId: toColumnRef });
     yield put(setDataCards({ stateId, dataCards: dataCards }));
   } catch (e) {
+    NotificationManager.error(t('kanban.error.card-not-moved'), t('error'));
     logger.error('[kanban/sagaRunAction saga] error', e);
   }
 }

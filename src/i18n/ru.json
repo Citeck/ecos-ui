@@ -319,6 +319,7 @@
   "kanban.label.dnd.cant-move-here": "Карточка уже в этой колонке",
   "kanban.label.no-more-cards": "Больше нет карточек",
   "kanban.error.form-not-found": "Форма карточки не найдена",
+  "kanban.error.card-not-moved": "Карточка не перемещена",
 
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",
