@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
 
+import ZIndex from '../../../../services/ZIndex';
 import ClickOutside from '../../../ClickOutside';
 import Dropdown from './Dropdown';
 
@@ -20,6 +21,7 @@ export default class DropdownOuter extends Dropdown {
 
   static defaultProps = {
     className: '',
+    outClassName: 'ecos-dropdown-outer-tooltip',
     trigger: 'click',
     modifiers: {
       flip: {
@@ -37,6 +39,16 @@ export default class DropdownOuter extends Dropdown {
     };
 
     this.dropdownOuterRef = React.createRef();
+  }
+
+  componentDidUpdate() {
+    const { outClassName } = this.props;
+    const { dropdownOpen } = this.state;
+
+    if (dropdownOpen) {
+      ZIndex.calcZ();
+      ZIndex.setZ(outClassName);
+    }
   }
 
   render() {
@@ -61,6 +73,7 @@ export default class DropdownOuter extends Dropdown {
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
           placement="bottom-start"
           modifiers={modifiers}
+          popperClassName="ecosZIndexAnchor"
         >
           <ClickOutside
             className={this.cssDropdownMenu}
