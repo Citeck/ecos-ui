@@ -126,10 +126,8 @@ export default class BaseReactComponent extends BaseComponent {
 
   setReactProps(props) {
     if (this.#react.resolve) {
-      this.#react.waitingProps = {
-        ...(this.#react.waitingProps || {}),
-        props
-      };
+      this.#react.waitingProps = { ...(this.#react.waitingProps || {}), ...props };
+
       this.#react.wrapper.then(w => {
         w.setProps(this.#react.waitingProps);
         this.#react.waitingProps = {};
@@ -178,8 +176,8 @@ export default class BaseReactComponent extends BaseComponent {
           this.#react.container
         );
 
-        if (!firstBuild && this.#react.innerComponent.setProps && !isEqual(this.#react.innerComponent.props, props)) {
-          this.#react.innerComponent.setProps(props);
+        if (!firstBuild && !isEqual(this.#react.innerComponent.props, props)) {
+          this.setReactProps(props);
         }
       };
 

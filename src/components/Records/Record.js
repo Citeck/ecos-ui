@@ -165,7 +165,7 @@ export default class Record {
     }
     return this.load(
       {
-        modified: 'cm:modified?str', //todo: change att to _modified?str
+        modified: '_modified?str',
         pendingUpdate: 'pendingUpdate?bool'
       },
       true

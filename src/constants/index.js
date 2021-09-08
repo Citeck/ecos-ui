@@ -194,3 +194,5 @@ export const DateFormats = {
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
+
+export const _LOCALHOST_ = 'http://localhost:3000';

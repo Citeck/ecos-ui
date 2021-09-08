@@ -235,7 +235,6 @@ export default class EcosFormModal extends React.Component {
           isOpen={isModalOpen}
           hideModal={this.handleCancel}
           customButtons={[this.renderConstructorButton()]}
-          zIndex={9000}
         >
           {this.renderContentBefore()}
           <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} initiator={{ type: 'modal' }} {...formProps} />

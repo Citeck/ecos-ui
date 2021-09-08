@@ -23,6 +23,8 @@ const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
 
+export const isDevEnv = () => process.env.NODE_ENV === 'development';
+
 export function setCookie(name, value, options = {}) {
   options = {
     path: '/',

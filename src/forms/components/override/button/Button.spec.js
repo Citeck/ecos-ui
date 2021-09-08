@@ -32,6 +32,20 @@ describe('Button Component', () => {
     });
   });
 
+  it('Loader should be displayed', done => {
+    Harness.testCreate(ButtonComponent, comp1).then(component => {
+      component.loading = true;
+      Harness.testAttribute(component, 'button', 'disabled', true, true);
+      Harness.testElement(component, '.glyphicon-refresh', true);
+
+      component.loading = false;
+      Harness.testAttribute(component, 'button', 'disabled', false, true);
+      Harness.testElement(component, '.glyphicon-refresh', false);
+
+      done();
+    });
+  });
+
   it('POST to URL button should pass URL and headers', done => {
     const formJson = {
       type: 'form',

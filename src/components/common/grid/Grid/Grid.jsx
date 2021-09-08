@@ -8,6 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -103,7 +104,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns } = this.props;
+    const { resizableColumns, selected } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -113,8 +114,8 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
-    if (isEmpty(prevProps.selected) && !isEmpty(this.props.selected)) {
-      this.setState({ selected: this.props.selected });
+    if (!isEqualWith(prevProps.selected, selected, isEqual) && !isEqualWith(this.state.selected, selected, isEqual)) {
+      this.setState({ selected });
     }
 
     this.setColumnsSizes();
@@ -266,13 +267,9 @@ class Grid extends Component {
     }
   };
 
-  onSelect = (all, selected = this._selected) => {
-    this.setState({ selected });
-
-    trigger.call(this, 'onSelect', {
-      selected: [...new Set(selected)],
-      all
-    });
+  onSelect = (all, newSelected = this._selected) => {
+    const selected = [...new Set(newSelected)];
+    this.setState({ selected }, () => this.props.onSelect({ selected, all }));
   };
 
   getBootstrapTableProps(props, extra) {
@@ -1191,7 +1188,8 @@ Grid.defaultProps = {
   sortable: true,
   resizableColumns: true,
   nonSelectable: [],
-  selected: []
+  selected: [],
+  onSelect: _ => _
 };
 
 export default Grid;

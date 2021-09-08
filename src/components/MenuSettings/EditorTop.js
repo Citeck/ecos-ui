@@ -14,7 +14,7 @@ const Names = {
   MENU_TO: 'selectedItems'
 };
 
-class EditorLeftMenu extends React.Component {
+class EditorTop extends React.Component {
   static propTypes = {
     availableItems: PropTypes.array,
     selectedItems: PropTypes.array,
@@ -149,4 +149,4 @@ class EditorLeftMenu extends React.Component {
   }
 }
 
-export default EditorLeftMenu;
+export default EditorTop;

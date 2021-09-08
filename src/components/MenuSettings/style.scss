@@ -193,9 +193,9 @@
       margin-bottom: 0;
     }
 
-    &__menu-dropdown {
+    &__menu-dropdown.ecos-base-tooltip {
       .tooltip {
-        z-index: 9999;
+        z-index: 10001;
         min-width: 120px;
       }
     }
