@@ -17,9 +17,9 @@ class Column extends React.PureComponent {
   };
 
   renderInfo = () => {
-    const { records, isFirstLoading, isFiltered, isLoading, error } = this.props;
+    const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error } = this.props;
     let text;
-    const loading = isFirstLoading || (isLoading && isFiltered);
+    const loading = isFirstLoading || (isLoading && isFiltered) || isLoadingCol;
 
     if (error) {
       text = error;
@@ -64,7 +64,7 @@ class Column extends React.PureComponent {
     const { records = [], data, readOnly, isLoadingCol } = this.props;
 
     return (
-      <Droppable droppableId={data.id} isDropDisabled={readOnly}>
+      <Droppable droppableId={data.id} isDropDisabled={readOnly || isLoadingCol}>
         {(provided, { draggingFromThisWith, draggingOverWith, isDraggingOver }) => (
           <div
             data-tip={draggingFromThisWith === draggingOverWith ? t(Labels.Kanban.DND_NOT_MOVE_HERE) : t(Labels.Kanban.DND_MOVE_HERE)}
