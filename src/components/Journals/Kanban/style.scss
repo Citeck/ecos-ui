@@ -134,6 +134,7 @@
   }
 
   &__column {
+    position: relative;
     flex: auto;
     word-break: break-all;
     padding: 2px;
@@ -174,6 +175,10 @@
         justify-content: space-between;
         width: 100%;
       }
+    }
+
+    &-loader {
+      border-radius: $border-radius-large;
     }
 
     & :nth-child(11n) {

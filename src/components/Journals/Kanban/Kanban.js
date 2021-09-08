@@ -76,7 +76,6 @@ class Kanban extends React.Component {
 
   handleDragEnd = result => {
     this.toggleScroll(false);
-    const cardRef = get(result, 'draggableId');
     const cardIndex = get(result, 'source.index');
     const fromColumnRef = get(result, 'source.droppableId');
     const toColumnRef = get(result, 'destination.droppableId');
@@ -85,7 +84,7 @@ class Kanban extends React.Component {
       return;
     }
 
-    this.props.moveCard({ cardIndex, cardRef, fromColumnRef, toColumnRef });
+    this.props.moveCard({ cardIndex, fromColumnRef, toColumnRef });
   };
 
   toggleScroll = flag => {

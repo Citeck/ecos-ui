@@ -7,7 +7,7 @@ import { Droppable } from 'react-beautiful-dnd';
 import { t } from '../../../helpers/export/util';
 import { selectColumnProps } from '../../../selectors/kanban';
 import { runAction } from '../../../actions/kanban';
-import { InfoText } from '../../common';
+import { InfoText, Loader } from '../../common';
 import { Labels } from '../constants';
 import Card from './Card';
 
@@ -61,7 +61,7 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [], data, readOnly } = this.props;
+    const { records = [], data, readOnly, isLoadingCol } = this.props;
 
     return (
       <Droppable droppableId={data.id} isDropDisabled={readOnly}>
@@ -70,11 +70,13 @@ class Column extends React.PureComponent {
             data-tip={draggingFromThisWith === draggingOverWith ? t(Labels.Kanban.DND_NOT_MOVE_HERE) : t(Labels.Kanban.DND_MOVE_HERE)}
             className={classNames('ecos-kanban__column', {
               'ecos-kanban__column_dragging-over': isDraggingOver,
+              'ecos-kanban__column_loading': isLoadingCol,
               'ecos-kanban__column_dragging-over-owner': isDraggingOver && draggingFromThisWith === draggingOverWith
             })}
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
+            {isLoadingCol && <Loader className="ecos-kanban__column-loader" blur />}
             {records.map(this.renderContentCard)}
             {this.renderInfo()}
           </div>

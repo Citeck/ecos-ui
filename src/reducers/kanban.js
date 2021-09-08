@@ -12,6 +12,7 @@ import {
   setIsEnabled,
   setIsFiltered,
   setLoading,
+  setLoadingColumns,
   setPagination,
   setResolvedActions,
   setTotalCount
@@ -21,6 +22,7 @@ import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const initialState = {
   isLoading: true,
+  isLoadingColumns: [],
   isFirstLoading: true,
   isFiltered: false,
   boardConfig: undefined,
@@ -89,6 +91,10 @@ export default handleActions(
     [setResolvedActions]: (state, { payload }) => {
       const { stateId, resolvedActions } = payload;
       return updateState(state, stateId, { resolvedActions }, initialState);
+    },
+    [setLoadingColumns]: (state, { payload }) => {
+      const { stateId, isLoadingColumns } = payload;
+      return updateState(state, stateId, { isLoadingColumns }, initialState);
     }
   },
   {}

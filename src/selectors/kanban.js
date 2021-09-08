@@ -58,14 +58,16 @@ export const selectKanbanProps = createSelector(
 
 export const selectColumnData = (state, key, index) => get(state, ['kanban', key, 'dataCards', index]) || {};
 export const selectCardActions = (state, key, index) => get(state, ['kanban', key, 'resolvedActions', index]) || {};
+export const selectIsLoadingCol = (state, key, index) => get(state, ['kanban', key, 'isLoadingColumns'], []).includes(index) || false;
 export const selectColumnProps = createSelector(
-  [selectKanban, selectColumnData, selectCardActions],
-  (board, column, actions) => ({
-    columns: get(board, 'boardConfig.columns'),
+  [selectKanban, selectColumnData, selectCardActions, selectIsLoadingCol],
+  (board, column, actions, isLoadingCol) => ({
     readOnly: get(board, 'boardConfig.readOnly'),
     records: column.records,
     error: column.error,
     actions,
+    column,
+    isLoadingCol,
     formProps: board.formProps,
     isLoading: board.isLoading,
     isFirstLoading: board.isFirstLoading,

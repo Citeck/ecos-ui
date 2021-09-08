@@ -28,6 +28,7 @@ import {
   setIsEnabled,
   setIsFiltered,
   setLoading,
+  setLoadingColumns,
   setPagination,
   setResolvedActions,
   setTotalCount
@@ -245,22 +246,26 @@ function* sagaRunAction({ api, logger }, { payload }) {
 
 function* sagaMoveCard({ api, logger }, { payload }) {
   try {
-    const { stateId, cardIndex, fromColumnRef, toColumnRef, cardRef } = payload;
+    const { stateId, cardIndex, fromColumnRef, toColumnRef } = payload;
     const { dataCards: prevDataCards, boardConfig } = yield select(selectKanban, stateId);
     const dataCards = cloneDeep(prevDataCards);
     const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
     const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
 
+    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnIndex, toColumnIndex] }));
+
     dataCards[toColumnIndex].records.unshift(dataCards[fromColumnIndex].records[cardIndex]);
     dataCards[toColumnIndex].totalCount += 1;
-    dataCards[fromColumnIndex].records.splice(cardIndex, 1);
+    const card = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
 
-    yield call(api.kanban.moveRecord, { recordRef: cardRef, columnId: toColumnRef });
+    yield call(api.kanban.moveRecord, { recordRef: card.id, columnId: toColumnRef });
     yield put(setDataCards({ stateId, dataCards: dataCards }));
   } catch (e) {
     NotificationManager.error(t('kanban.error.card-not-moved'), t('error'));
     logger.error('[kanban/sagaRunAction saga] error', e);
+  } finally {
+    yield put(setLoadingColumns({ stateId: payload.stateId, isLoadingColumns: [] }));
   }
 }
 
