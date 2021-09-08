@@ -179,6 +179,8 @@
 
     &-loader {
       border-radius: $border-radius-large;
+      align-items: flex-start;
+      padding-top: 50%;
     }
 
     & :nth-child(11n) {
