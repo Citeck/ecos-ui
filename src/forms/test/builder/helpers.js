@@ -18,7 +18,13 @@ export const basicSectionTest = Component => {
   };
 
   describe(`${Component.name} Builder`, () => {
+    let spies = [];
+
     beforeEach(done => {
+      spies = [];
+      spies.push(jest.spyOn(console, 'error').mockImplementation(() => {}));
+      spies.push(jest.spyOn(console, 'warn').mockImplementation(() => {}));
+
       Harness.builderBefore(() => {}, {
         editForm: {
           events: new EventEmitter({
@@ -32,7 +38,11 @@ export const basicSectionTest = Component => {
 
       done();
     });
-    afterEach(() => Harness.builderAfter());
+
+    afterEach(() => {
+      Harness.builderAfter();
+      spies.forEach(spy => spy.mockRestore());
+    });
 
     it('The first tab in the builder must be "Basic"', done => {
       const builder = Harness.buildComponent(type);
