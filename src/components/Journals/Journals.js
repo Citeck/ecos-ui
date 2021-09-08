@@ -170,7 +170,7 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl, onJournalSettingsSelect } = this.props;
+    const { _url, urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
     const {
       journalId: stateJournalId,
       showPreview: stateShowPreview,
@@ -205,12 +205,7 @@ class Journals extends React.Component {
       getJournalsData();
     }
 
-    const isSameSettingId = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.JOURNAL_SETTING_ID] });
     const isSameSearchParam = equalsQueryUrls({ urls: [_url, prevProps._url], compareBy: [JUP.SEARCH] });
-
-    if (isActiveChanged && !isSameSettingId) {
-      onJournalSettingsSelect(get(getSearchParams(), JUP.JOURNAL_SETTING_ID) || '');
-    }
 
     if ((isActivePage && stateIsForceUpdate) || (isActiveChanged && !isSameSearchParam)) {
       newState = merge(newState, { isForceUpdate: false });

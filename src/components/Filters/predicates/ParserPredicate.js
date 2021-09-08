@@ -59,27 +59,30 @@ export default class ParserPredicate {
   }
 
   static getRowPredicates({ row, columns, groupBy }) {
-    const val = [];
-    let _columns = [];
+    const values = [];
+    let filteredColumns = [];
 
     if (groupBy.length) {
       const _groupBy = groupBy[0].split('&');
-      _columns = columns.filter(c => _groupBy.find(g => g === c.attribute));
+      filteredColumns = columns.filter(c => _groupBy.find(g => g === c.attribute));
     }
 
     for (const key in row) {
-      const value = row[key];
-      const column = _columns.find(c => c.attribute === key && c.visible && c.default && c.searchable) || {};
+      if (!row.hasOwnProperty(key)) {
+        continue;
+      }
+
+      const val = get(row, [key, 'value']) || get(row, [key]);
+      const column = filteredColumns.find(c => c.attribute === key) || {};
       const type = column.type;
       const predicate = EQUAL_PREDICATES_MAP[type];
 
       if (predicate) {
-        const getter = get(column, 'formatExtraData.formatter.getFilterValue');
-        val.push(new Predicate({ att: key, t: predicate, val: getter ? column.formatExtraData.formatter.getFilterValue(value) : value }));
+        values.push(new Predicate({ att: key, t: predicate, val }));
       }
     }
 
-    return val;
+    return values;
   }
 
   static getDefaultPredicates(columns, extra) {
