@@ -76,8 +76,13 @@ class Grid extends Component {
 
     this.state = {
       tableHeight: 0,
+      isScrolling: false,
       selected: props.selected || []
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    return !nextState.isScrolling;
   }
 
   componentDidMount() {
@@ -318,6 +323,10 @@ class Grid extends Component {
 
     options.rowEvents = {
       onMouseEnter: e => {
+        if (this.state.isScrolling) {
+          return;
+        }
+
         const tr = e.currentTarget;
 
         if (props.changeTrOptionsByRowClick) {
@@ -329,6 +338,10 @@ class Grid extends Component {
         trigger.call(this, 'onMouseEnter', e);
       },
       onMouseLeave: e => {
+        if (this.state.isScrolling) {
+          return;
+        }
+
         if (props.changeTrOptionsByRowClick) {
           this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
@@ -462,6 +475,7 @@ class Grid extends Component {
 
   getTrOptions = tr => {
     const { selectorContainer, data } = this.props;
+    const { isScrolling } = this.state;
     const row = data[tr.rowIndex - 1];
     const elGrid = tr.closest('.ecos-grid');
     const elContainer = tr.closest(selectorContainer);
@@ -482,7 +496,9 @@ class Grid extends Component {
 
     this._tr = tr;
 
-    trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    if (!isScrolling) {
+      trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    }
   };
 
   setEditable = () => {
@@ -873,6 +889,8 @@ class Grid extends Component {
   };
 
   onScrollStart = e => {
+    this.setState({ isScrolling: true });
+
     this.triggerCloseFilterEvent(document.body);
     trigger.call(this, 'onScrollStart', e);
   };
@@ -892,6 +910,8 @@ class Grid extends Component {
   };
 
   onScrollStop = e => {
+    this.setState({ isScrolling: false });
+
     trigger.call(this, 'onScrollStop', e);
   };
 
@@ -1064,14 +1084,12 @@ class Grid extends Component {
       'noHeader',
       'resizableColumns'
     ]);
-
     const { rowClassName, resizableColumns, ...extraProps } = pick(this.props, [
       'rowClassName',
       'resizableColumns',
       'columns',
       'rowEvents'
     ]);
-
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
 
     return (
