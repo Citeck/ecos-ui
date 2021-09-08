@@ -157,7 +157,8 @@ export const disabledComponents = Object.freeze([
   'editgrid',
   'nested',
   'form',
-  'unknown'
+  'unknown',
+  'includeForm'
 ]);
 
 export const prepareComponentBuilderInfo = builderInfo => {
