@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
+import debounce from 'lodash/debounce';
+
 import CommonBar from '../CommonBar';
-import { applyFilter, resetFilter, runSearchCard } from '../../../actions/kanban';
+import { applyFilter, reloadBoardData, resetFilter, runSearchCard } from '../../../actions/kanban';
 import { selectKanbanJournalProps } from '../../../selectors/journals';
 import { selectKanban } from '../../../selectors/kanban';
 import { Labels } from '../constants';
@@ -27,12 +29,8 @@ function mapDispatchToProps(dispatch, props) {
     applySettings: ({ settings }) => dispatch(applyFilter({ settings, stateId })),
     resetFiltering: () => dispatch(resetFilter({ stateId })),
     runSearch: text => dispatch(runSearchCard({ text, stateId })),
-    reloadGrid: (...data) => {
-      console.log(2, { data });
-    },
-    clearSearch: (...data) => {
-      console.log(3, { data });
-    }
+    reloadGrid: debounce(() => dispatch(reloadBoardData({ stateId })), 300),
+    clearSearch: _ => _
   };
 }
 

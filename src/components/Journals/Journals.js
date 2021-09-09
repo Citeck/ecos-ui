@@ -113,8 +113,18 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId } = this.props;
+    const { _url, isActivePage, stateId, viewMode } = this.props;
     const { journalId } = this.state;
+
+    const isEqualView = equalsQueryUrls({
+      urls: [_url, prevProps._url],
+      compareBy: [JUP.VIEW_MODE]
+    });
+
+    if (!isEqualView && viewMode && prevProps.viewMode === viewMode) {
+      this.componentDidMount();
+      return;
+    }
 
     if (journalId && journalId !== prevState.journalId) {
       this.props.getTypeRef(journalId);

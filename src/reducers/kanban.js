@@ -2,7 +2,7 @@ import { handleActions } from 'redux-actions';
 import {
   applyFilter,
   getBoardConfig,
-  getNextPage,
+  reloadBoardData,
   resetFilter,
   selectBoardId,
   setBoardConfig,
@@ -49,8 +49,8 @@ export default handleActions(
     [resetFilter]: (state, { payload }) => {
       return updateState(state, payload.stateId, { dataCards: [], isLoading: true }, initialState);
     },
-    [getNextPage]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { isLoading: true }, initialState);
+    [reloadBoardData]: (state, { payload }) => {
+      return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true }, initialState);
     },
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;

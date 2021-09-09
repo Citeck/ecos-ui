@@ -296,9 +296,7 @@
     }
 
     &-form {
-      &:empty {
-        min-height: 5px;
-      }
+      min-height: 5px;
 
       & > div:empty {
         @extend %animationStripes;

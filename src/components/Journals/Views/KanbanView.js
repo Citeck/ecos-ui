@@ -7,10 +7,10 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
-import { getBoardData, selectBoardId } from '../../../actions/kanban';
+import { getBoardData, reloadBoardData, selectBoardId } from '../../../actions/kanban';
 import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
-import { KanbanUrlParams as KUP } from '../../../constants';
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP } from '../../../constants';
 import { t } from '../../../helpers/export/util';
 import { Dropdown } from '../../common/form';
 import { isKanban, Labels } from '../constants';
@@ -34,6 +34,7 @@ function mapDispatchToProps(dispatch, props) {
 
   return {
     getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
+    reloadBoardData: () => dispatch(reloadBoardData({ stateId })),
     selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId }))
   };
 }
@@ -56,6 +57,10 @@ class KanbanView extends React.Component {
       urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID])
     ) {
       this.setState({ isClose: false }, () => this.props.getBoardData(this.getSelectedBoard()));
+    }
+
+    if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
+      this.props.reloadBoardData();
     }
   }
 
@@ -114,7 +119,8 @@ class KanbanView extends React.Component {
       bodyForwardedRef,
       bodyTopForwardedRef,
       bodyClassName,
-      maxHeight
+      maxHeight,
+      urlParams
     } = this.props;
     const { name } = boardConfig || {};
 
@@ -122,7 +128,7 @@ class KanbanView extends React.Component {
       <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Header title={name} />
-          <Bar stateId={stateId} leftChild={<this.LeftBarChild />} rightChild={<this.RightBarChild />} />
+          <Bar urlParams={urlParams} stateId={stateId} leftChild={<this.LeftBarChild />} rightChild={<this.RightBarChild />} />
         </div>
         {!isEnabled && !isLoading && <UnavailableView />}
         <Kanban stateId={stateId} maxHeight={maxHeight} />

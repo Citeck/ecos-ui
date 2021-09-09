@@ -23,7 +23,7 @@ class Column extends React.PureComponent {
     const loading = isFirstLoading || (isLoading && isFiltered) || isLoadingCol;
 
     if (error) {
-      text = error;
+      text = t(Labels.Kanban.ERROR_FETCH_DATA);
     } else if (loading) {
       text = ' ';
     } else if (isEmpty(records)) {

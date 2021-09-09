@@ -37,16 +37,10 @@ class Kanban extends React.Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const height = get(this.refBody, 'current.clientHeight');
-    const { page, dataCards, isLoading } = this.props;
-    const elmScroll = this.refScroll.current;
+    const { dataCards, isLoading, isFirstLoading } = this.props;
 
-    if (isLoading) {
+    if (isLoading || isFirstLoading) {
       return;
-    }
-
-    if (elmScroll && page > 1 && !isEqualWith(prevProps.dataCards, dataCards, isEqual)) {
-      console.log('+++', elmScroll.getScrollTop());
-      elmScroll.scrollTop(elmScroll.getScrollTop() + 100);
     }
 
     if (!isEqualWith(prevProps.dataCards, dataCards, isEqual) && !!height) {

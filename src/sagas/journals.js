@@ -1001,14 +1001,10 @@ function* getSearchPredicate({ logger, stateId, grid }) {
 function* sagaSearch({ logger, w, stateId }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
-    const searchText = get(payload, 'text', '');
+    const searchText = get(payload, 'text') || undefined;
 
-    if (searchText && get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
+    if (get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
       set(urlData, ['query', JournalUrlParams.SEARCH], searchText);
-    }
-
-    if (searchText === '' && has(urlData, ['query', JournalUrlParams.SEARCH])) {
-      delete urlData.query[JournalUrlParams.SEARCH];
     }
 
     if (!isEqual(getSearchParams(), urlData.query)) {

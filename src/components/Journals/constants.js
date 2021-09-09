@@ -43,7 +43,8 @@ export const Labels = {
     DND_MOVE_HERE: 'kanban.label.dnd.move-here',
     DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
     BOARD_LIST: 'kanban.label.board-list',
-    BTN_SETTINGS: 'kanban.label.btn-settings'
+    BTN_SETTINGS: 'kanban.label.btn-settings',
+    ERROR_FETCH_DATA: 'kanban.error.get-column-data'
   },
   Views: {
     JOURNAL: 'journals.view.label.journal',
