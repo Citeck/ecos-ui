@@ -9,6 +9,7 @@ import { DragDropContext } from 'react-beautiful-dnd';
 
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
+import { isExistValue } from '../../../helpers/util';
 import { PointsLoader } from '../../common';
 import HeaderColumn from './HeaderColumn';
 import Column from './Column';
@@ -44,7 +45,8 @@ class Kanban extends React.Component {
     }
 
     if (elmScroll && page > 1 && !isEqualWith(prevProps.dataCards, dataCards, isEqual)) {
-      elmScroll.scrollTop(elmScroll.getScrollTop() + 50);
+      console.log('+++', elmScroll.getScrollTop());
+      elmScroll.scrollTop(elmScroll.getScrollTop() + 100);
     }
 
     if (!isEqualWith(prevProps.dataCards, dataCards, isEqual) && !!height) {
@@ -80,7 +82,7 @@ class Kanban extends React.Component {
     const fromColumnRef = get(result, 'source.droppableId');
     const toColumnRef = get(result, 'destination.droppableId');
 
-    if (fromColumnRef === toColumnRef) {
+    if (fromColumnRef === toColumnRef || !isExistValue(toColumnRef)) {
       return;
     }
 

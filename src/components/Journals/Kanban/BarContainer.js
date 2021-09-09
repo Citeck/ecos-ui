@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import CommonBar from '../CommonBar';
-import { applyFilter, resetFilter } from '../../../actions/kanban';
+import { applyFilter, resetFilter, runSearchCard } from '../../../actions/kanban';
 import { selectKanbanJournalProps } from '../../../selectors/journals';
 import { selectKanban } from '../../../selectors/kanban';
 import { Labels } from '../constants';
@@ -26,14 +26,12 @@ function mapDispatchToProps(dispatch, props) {
   return {
     applySettings: ({ settings }) => dispatch(applyFilter({ settings, stateId })),
     resetFiltering: () => dispatch(resetFilter({ stateId })),
+    runSearch: text => dispatch(runSearchCard({ text, stateId })),
     reloadGrid: (...data) => {
       console.log(2, { data });
     },
     clearSearch: (...data) => {
       console.log(3, { data });
-    },
-    runSearch: (...data) => {
-      console.log(4, { data });
     }
   };
 }

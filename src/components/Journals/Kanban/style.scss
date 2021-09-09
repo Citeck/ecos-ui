@@ -30,6 +30,7 @@
     &-menu {
       & .selected {
         font-weight: $font-weight-bold;
+        pointer-events: none;
       }
     }
   }
@@ -111,19 +112,24 @@
             color: $c_over;
           }
 
-          &-owner {
-            border-color: $c_owner;
-            background: rgba($c_owner, 0.1);
-            cursor: no-drop;
-
-            &::before {
-              color: $c_owner;
-            }
-          }
-
           & #{$col}-card:not(#{$col}-card_dragging) {
             opacity: 0.5;
           }
+        }
+
+        &_owner,
+        &_disabled {
+          border-color: $c_owner;
+          background: rgba($c_owner, 0.1);
+          cursor: no-drop;
+
+          &::before {
+            color: $c_owner;
+          }
+        }
+
+        &_disabled {
+          opacity: 0.3;
         }
       }
     }

@@ -20,6 +20,7 @@ import {
   moveCard,
   resetFilter,
   runAction,
+  runSearchCard,
   selectBoardId,
   setBoardConfig,
   setBoardList,
@@ -245,23 +246,34 @@ function* sagaRunAction({ api, logger }, { payload }) {
 }
 
 function* sagaMoveCard({ api, logger }, { payload }) {
+  let rollbackCards = [];
   try {
     const { stateId, cardIndex, fromColumnRef, toColumnRef } = payload;
     const { dataCards: prevDataCards, boardConfig } = yield select(selectKanban, stateId);
+
     const dataCards = cloneDeep(prevDataCards);
+    rollbackCards = cloneDeep(prevDataCards);
+
     const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
     const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
 
     yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnIndex, toColumnIndex] }));
 
-    dataCards[toColumnIndex].records.unshift(dataCards[fromColumnIndex].records[cardIndex]);
-    dataCards[toColumnIndex].totalCount += 1;
-    const card = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
+    const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
 
-    yield call(api.kanban.moveRecord, { recordRef: card.id, columnId: toColumnRef });
-    yield put(setDataCards({ stateId, dataCards: dataCards }));
+    const card = get(deleted, [0], {});
+    dataCards[toColumnIndex].records.unshift(card);
+    dataCards[toColumnIndex].totalCount += 1;
+
+    yield put(setDataCards({ stateId, dataCards }));
+    const result = yield call(api.kanban.moveRecord, { recordRef: card.id, columnId: toColumnRef });
+
+    if (get(result, 'id') !== card.id) {
+      throw new Error('Incorrect move result');
+    }
   } catch (e) {
+    yield put(setDataCards({ stateId: payload.stateId, dataCards: rollbackCards }));
     NotificationManager.error(t('kanban.error.card-not-moved'), t('error'));
     logger.error('[kanban/sagaRunAction saga] error', e);
   } finally {
@@ -306,6 +318,13 @@ function* sagaResetFilter({ api, logger }, { payload }) {
   }
 }
 
+function* sagaRunSearchCard({ api, logger }, { payload }) {
+  try {
+  } catch (e) {
+    logger.error('[kanban/sagaRunSearchCard saga error', e);
+  }
+}
+
 function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
@@ -316,6 +335,7 @@ function* docStatusSaga(ea) {
   yield takeEvery(moveCard().type, sagaMoveCard, ea);
   yield takeEvery(applyFilter().type, sagaApplyFilter, ea);
   yield takeEvery(resetFilter().type, sagaResetFilter, ea);
+  yield takeEvery(runSearchCard().type, sagaRunSearchCard, ea);
 }
 
 export default docStatusSaga;

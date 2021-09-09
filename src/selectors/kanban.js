@@ -4,7 +4,9 @@ import cloneDeep from 'lodash/cloneDeep';
 import { initialState } from '../reducers/kanban';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
-export const selectKanban = (state, key) => get(state, ['kanban', key]) || { ...initialState };
+const prefix = 'kanban';
+
+export const selectKanban = (state, key) => get(state, [prefix, key]) || { ...initialState };
 
 export const selectBoardList = createSelector(
   selectKanban,
@@ -56,17 +58,19 @@ export const selectKanbanProps = createSelector(
   })
 );
 
-export const selectColumnData = (state, key, index) => get(state, ['kanban', key, 'dataCards', index]) || {};
-export const selectCardActions = (state, key, index) => get(state, ['kanban', key, 'resolvedActions', index]) || {};
-export const selectIsLoadingCol = (state, key, index) => get(state, ['kanban', key, 'isLoadingColumns'], []).includes(index) || false;
+export const selectColumnData = (state, key, index) => get(state, [prefix, key, 'dataCards', index]) || {};
+export const selectCardActions = (state, key, index) => get(state, [prefix, key, 'resolvedActions', index]) || {};
+export const selectIsLoadingCol = (state, key, index) => get(state, [prefix, key, 'isLoadingColumns'], []).includes(index) || false;
+export const selectColumnInfo = (state, key, index) => get(state, [prefix, key, 'boardConfig', 'columns', index], []) || {};
+
 export const selectColumnProps = createSelector(
-  [selectKanban, selectColumnData, selectCardActions, selectIsLoadingCol],
-  (board, column, actions, isLoadingCol) => ({
+  [selectKanban, selectColumnData, selectColumnInfo, selectCardActions, selectIsLoadingCol],
+  (board, columnData, columnInfo, actions, isLoadingCol) => ({
     readOnly: get(board, 'boardConfig.readOnly'),
-    records: column.records,
-    error: column.error,
+    records: columnData.records,
+    error: columnData.error,
     actions,
-    column,
+    columnInfo,
     isLoadingCol,
     formProps: board.formProps,
     isLoading: board.isLoading,

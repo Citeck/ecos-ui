@@ -9,6 +9,7 @@ import { selectColumnProps } from '../../../selectors/kanban';
 import { runAction } from '../../../actions/kanban';
 import { InfoText, Loader } from '../../common';
 import { Labels } from '../constants';
+import { isDropDisabled } from './utils';
 import Card from './Card';
 
 class Column extends React.PureComponent {
@@ -61,17 +62,19 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [], data, readOnly, isLoadingCol } = this.props;
+    const { records = [], data, readOnly, isLoadingCol, columnInfo } = this.props;
+    const dropDisabled = isDropDisabled({ readOnly, isLoadingCol, columnInfo });
 
     return (
-      <Droppable droppableId={data.id} isDropDisabled={readOnly || isLoadingCol}>
+      <Droppable droppableId={data.id} isDropDisabled={dropDisabled}>
         {(provided, { draggingFromThisWith, draggingOverWith, isDraggingOver }) => (
           <div
             data-tip={draggingFromThisWith === draggingOverWith ? t(Labels.Kanban.DND_NOT_MOVE_HERE) : t(Labels.Kanban.DND_MOVE_HERE)}
             className={classNames('ecos-kanban__column', {
               'ecos-kanban__column_dragging-over': isDraggingOver,
               'ecos-kanban__column_loading': isLoadingCol,
-              'ecos-kanban__column_dragging-over-owner': isDraggingOver && draggingFromThisWith === draggingOverWith
+              'ecos-kanban__column_disabled': dropDisabled,
+              'ecos-kanban__column_owner': isDraggingOver && draggingFromThisWith === draggingOverWith
             })}
             {...provided.droppableProps}
             ref={provided.innerRef}
