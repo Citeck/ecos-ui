@@ -12,7 +12,8 @@ export const MenuTypes = {
 
 export const ConfigTypes = {
   LEFT: 'left',
-  CREATE: 'create'
+  CREATE: 'create',
+  USER: 'user'
 };
 
 export const MenuTypesView = [
@@ -49,7 +50,13 @@ export const MenuSettings = {
     HEADER_DIVIDER: 'HEADER-DIVIDER',
     CREATE_IN_SECTION: 'CREATE_IN_SECTION',
     EDIT_RECORD: 'EDIT_RECORD',
-    START_WORKFLOW: 'START_WORKFLOW'
+    START_WORKFLOW: 'START_WORKFLOW',
+    USER_PROFILE: 'USER-PROFILE',
+    USER_STATUS: 'USER-STATUS',
+    USER_CHANGE_PASSWORD: 'USER-CHANGE-PASSWORD',
+    USER_FEEDBACK: 'USER-FEEDBACK',
+    USER_SEND_PROBLEM_REPORT: 'USER-SEND-PROBLEM-REPORT',
+    USER_LOGOUT: 'USER-LOGOUT'
   }
 };
 
@@ -85,5 +92,36 @@ export const CreateOptions = {
   START_WORKFLOW: {
     key: MenuSettings.ItemTypes.START_WORKFLOW,
     label: 'menu-item.type.start-workflow'
+  }
+};
+
+export const UserOptions = {
+  USER_PROFILE: {
+    key: MenuSettings.ItemTypes.USER_PROFILE,
+    label: 'menu-item.type.user-profile'
+  },
+  USER_STATUS: {
+    key: MenuSettings.ItemTypes.USER_STATUS,
+    label: 'menu-item.type.user-status'
+  },
+  USER_CHANGE_PASSWORD: {
+    key: MenuSettings.ItemTypes.USER_CHANGE_PASSWORD,
+    label: 'menu-item.type.user-change-password'
+  },
+  USER_FEEDBACK: {
+    key: MenuSettings.ItemTypes.USER_FEEDBACK,
+    label: 'menu-item.type.user-feedback'
+  },
+  USER_SEND_PROBLEM_REPORT: {
+    key: MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT,
+    label: 'menu-item.type.user-send-problem-report'
+  },
+  USER_LOGOUT: {
+    key: MenuSettings.ItemTypes.USER_LOGOUT,
+    label: 'menu-item.type.user-logout'
+  },
+  ARBITRARY: {
+    key: MenuSettings.ItemTypes.ARBITRARY,
+    label: 'menu-item.type.arbitrary'
   }
 };

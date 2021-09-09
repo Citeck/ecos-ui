@@ -7,7 +7,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes } from '../constants/menu';
+import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserOptions } from '../constants/menu';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter2();
@@ -191,21 +191,34 @@ export default class MenuSettingsService {
     // CreateOptions.EDIT_RECORD,// todo for next revision, see task comment https://citeck.atlassian.net/browse/ECOSUI-959?focusedCommentId=97045
   ];
 
+  static userMenuCreateOptions = [
+    UserOptions.USER_PROFILE,
+    UserOptions.USER_STATUS,
+    UserOptions.USER_CHANGE_PASSWORD,
+    UserOptions.USER_FEEDBACK,
+    UserOptions.USER_SEND_PROBLEM_REPORT,
+    UserOptions.USER_LOGOUT,
+    UserOptions.ARBITRARY
+  ];
+
   static getCreateOptionsByType(configType) {
-    if (configType === ConfigTypes.LEFT) {
-      return MenuSettingsService.leftMenuCreateOptions;
+    switch (configType) {
+      case ConfigTypes.LEFT:
+        return MenuSettingsService.leftMenuCreateOptions;
+      case ConfigTypes.CREATE:
+        return MenuSettingsService.createMenuCreateOptions;
+      case ConfigTypes.USER:
+        return MenuSettingsService.userMenuCreateOptions;
+      default:
+        return [];
     }
-
-    if (configType === ConfigTypes.CREATE) {
-      return MenuSettingsService.createMenuCreateOptions;
-    }
-
-    return [];
   }
 
   static getAvailableCreateOptions = (item, params) => {
     const { configType, level } = params || {};
     const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(configType));
+
+    console.warn({ array, params });
 
     array.forEach(type => {
       type.id = type.id || type.label;

@@ -46,6 +46,10 @@ export default class BaseEditorMenu extends React.Component {
     }
   }
 
+  getCreateOptions = (item, level) => {
+    return MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
+  };
+
   convertItemProps = item => {
     return MenuSettingsService.convertItemForTree(item);
   };
@@ -229,7 +233,7 @@ export default class BaseEditorMenu extends React.Component {
     const id = get(item, 'id') || uniqueId(this.configType);
 
     if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
-      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
+      const createOptions = this.getCreateOptions(item, level);
 
       !disabledEdit &&
         createOptions.length &&
