@@ -9,6 +9,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import { JournalUrlParams, KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
+import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { wrapArgs } from '../helpers/redux';
 import {
@@ -132,10 +133,8 @@ function* sagaGetData({ api, logger }, { payload }) {
     const params = getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
     const urlProps = getSearchParams();
-    const searchPredicate = ParserPredicate.getSearchPredicates({
-      text: urlProps[JournalUrlParams.SEARCH],
-      columns: journalSetting.columns
-    });
+    const searchText = urlProps[JournalUrlParams.SEARCH];
+
     const _journalConfig = cloneDeep(journalConfig);
 
     delete params.columns;
@@ -149,6 +148,12 @@ function* sagaGetData({ api, logger }, { payload }) {
     params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+    const searchPredicate = isExistValue(searchText)
+      ? ParserPredicate.getSearchPredicates({
+          text: searchText,
+          columns: journalSetting.columns
+        })
+      : [];
     const result = yield (boardConfig.columns || []).map(function*(column, i) {
       if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
         return yield {};
