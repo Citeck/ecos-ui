@@ -22,6 +22,7 @@ const Labels = {
 
 const JournalsSettingsBar = ({
   stateId,
+  targetId,
   grid,
   journalConfig,
   searchText,
@@ -44,6 +45,7 @@ const JournalsSettingsBar = ({
 }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
+  const target = str => `${targetId}-${str}`;
 
   const renderCreateMenu = () => {
     const createVariants = get(journalConfig, 'meta.createVariants') || [];
@@ -54,9 +56,9 @@ const JournalsSettingsBar = ({
 
     if (createVariants.length === 1) {
       return (
-        <Tooltip off={isMobile} target="ecos-journal-settings-bar-create" text={t(Labels.BTN_CREATE)} uncontrolled>
+        <Tooltip off={isMobile} target={target('create')} text={t(Labels.BTN_CREATE)} uncontrolled>
           <IcoBtn
-            id="ecos-journal-settings-bar-create"
+            id={target('create')}
             loading={isCreateLoading}
             colorLoader="light-blue"
             icon="icon-small-plus"
@@ -90,9 +92,9 @@ const JournalsSettingsBar = ({
       {renderCreateMenu()}
 
       {!isMobile && (
-        <Tooltip off={isMobile} target="ecos-journal-settings-bar-settings" text={t(nameBtnSettings || Labels.BTN_SETTINGS)} uncontrolled>
+        <Tooltip off={isMobile} target={target('settings')} text={t(nameBtnSettings || Labels.BTN_SETTINGS)} uncontrolled>
           <IcoBtn
-            id="ecos-journal-settings-bar-settings"
+            id={target('settings')}
             icon={'icon-settings'}
             className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
             onClick={onToggleSettings}
@@ -127,9 +129,9 @@ const JournalsSettingsBar = ({
         </IcoBtn>
       </Export>
 
-      <Tooltip off={isMobile} target="ecos-journal-settings-bar-update" text={t(Labels.BTN_UPDATE)} uncontrolled>
+      <Tooltip off={isMobile} target={target('update')} text={t(Labels.BTN_UPDATE)} uncontrolled>
         <IcoBtn
-          id="ecos-journal-settings-bar-update"
+          id={target('update')}
           icon={'icon-reload'}
           className={classNames('ecos-journal__settings-bar-update', step, {
             [grey]: !isMobile,
@@ -140,9 +142,9 @@ const JournalsSettingsBar = ({
       </Tooltip>
 
       {isShowResetFilter && (
-        <Tooltip off={isMobile} target="ecos-journal-settings-bar-reset-filter" text={t(Labels.BTN_FILTER_DEL)} uncontrolled>
+        <Tooltip off={isMobile} target={target('reset-filter')} text={t(Labels.BTN_FILTER_DEL)} uncontrolled>
           <IcoBtn
-            id="ecos-journal-settings-bar-reset-filter"
+            id={target('reset-filter')}
             icon={'icon-filter-clean'}
             className={classNames('ecos-journal__settings-bar-reset-filter', step, {
               [grey]: !isMobile,

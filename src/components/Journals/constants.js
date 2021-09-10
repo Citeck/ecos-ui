@@ -61,6 +61,8 @@ export const isKanban = vm => vm === JOURNAL_VIEW_MODE.KANBAN;
 export const isTableOrPreview = vm => isTable(vm) || isPreview(vm);
 export const isUnknownView = vm => !Object.values(JOURNAL_VIEW_MODE).includes(vm);
 
+export const relatedViews = [JOURNAL_VIEW_MODE.TABLE, JOURNAL_VIEW_MODE.KANBAN];
+
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
 
 export const COMPLEX_FILTER_LIMIT = 1;

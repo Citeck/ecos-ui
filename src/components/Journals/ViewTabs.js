@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
+import uniqueId from 'lodash/uniqueId';
 
 import { toggleViewMode } from '../../actions/journals';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
@@ -34,6 +35,8 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 class ViewTabs extends React.Component {
+  targetId = uniqueId('ecos-journal-view-');
+
   onToggleViewMode = viewMode => {
     const urlViewMode = get(getSearchParams(), JournalUrlParams.VIEW_MODE);
     const urlShowPreview = get(getSearchParams(), JournalUrlParams.SHOW_PREVIEW);
@@ -66,14 +69,15 @@ class ViewTabs extends React.Component {
     const isTableMode = isTable(viewMode);
     const isDocLibMode = isDocLib(viewMode);
     const isKanbanMode = isKanban(viewMode);
+    const target = str => `${this.targetId}-${str}`;
 
     return (
       <div className="ecos-journal__view-tabs">
         {!isMobile && (
           <>
-            <Tooltip off={isMobile} target="ecos-journal-view-table" text={t(Labels.Views.JOURNAL)} uncontrolled>
+            <Tooltip off={isMobile} target={target(JVM.TABLE)} text={t(Labels.Views.JOURNAL)} uncontrolled>
               <IcoBtn
-                id="ecos-journal-view-table"
+                id={target(JVM.TABLE)}
                 icon="icon-list"
                 className={classNames(common, {
                   [available]: isTableMode,
@@ -82,9 +86,9 @@ class ViewTabs extends React.Component {
                 onClick={() => this.onToggleViewMode(JVM.TABLE)}
               />
             </Tooltip>
-            <Tooltip off={isMobile} target="ecos-journal-view-preview" text={t(Labels.Views.PREVIEW)} uncontrolled>
+            <Tooltip off={isMobile} target={target(JVM.PREVIEW)} text={t(Labels.Views.PREVIEW)} uncontrolled>
               <IcoBtn
-                id="ecos-journal-view-preview"
+                id={target(JVM.PREVIEW)}
                 icon="icon-columns"
                 className={classNames(common, {
                   [available]: isPreviewMode,
@@ -96,9 +100,9 @@ class ViewTabs extends React.Component {
           </>
         )}
         {isKanbanEnabled && (
-          <Tooltip off={isMobile} target="ecos-journal-view-kanban" text={t(Labels.Views.KANBAN)} uncontrolled>
+          <Tooltip off={isMobile} target={target(JVM.KANBAN)} text={t(Labels.Views.KANBAN)} uncontrolled>
             <IcoBtn
-              id="ecos-journal-view-kanban"
+              id={target(JVM.KANBAN)}
               icon="icon-kanban"
               className={classNames(common, 'ecos-journal__view-btn_kanban', {
                 [available]: isKanbanMode,
@@ -109,9 +113,9 @@ class ViewTabs extends React.Component {
           </Tooltip>
         )}
         {isDocLibEnabled && (
-          <Tooltip off={isMobile} target="ecos-journal-view-doc-lib" text={t(Labels.Views.DOC_LIB)} uncontrolled>
+          <Tooltip off={isMobile} target={target(JVM.DOC_LIB)} text={t(Labels.Views.DOC_LIB)} uncontrolled>
             <IcoBtn
-              id="ecos-journal-view-doc-lib"
+              id={target(JVM.DOC_LIB)}
               icon="icon-folder"
               className={classNames(common, {
                 [available]: isDocLibMode,

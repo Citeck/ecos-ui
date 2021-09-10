@@ -66,7 +66,8 @@ import {
   selectJournalData,
   selectNewVersionDashletConfig,
   selectSettingsData,
-  selectUrl
+  selectUrl,
+  selectWasChangedSettings
 } from '../selectors/journals';
 import JournalsService from '../components/Journals/service';
 import EditorService from '../components/Journals/service/editors/EditorService';
@@ -296,9 +297,12 @@ export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
   try {
     const { journalSetting: _journalSetting = {} } = yield select(selectJournalData, stateId);
-    let journalSetting;
+    const wasChangedSettings = yield select(selectWasChangedSettings, stateId);
+    let journalSetting = null;
 
-    if (sharedSettings) {
+    if (wasChangedSettings) {
+      journalSetting = {};
+    } else if (sharedSettings) {
       journalSetting = sharedSettings;
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;
@@ -418,7 +422,7 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
   }
 }
 
-function* getGridData(api, params, stateId) {
+export function* getGridData(api, params, stateId) {
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
@@ -548,6 +552,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
 
     const journalData = yield select(selectJournalData, stateId);
     const { grid, selectAllRecords } = journalData;
+
     const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
     const params = { ...grid, ...payload, searchPredicate };
     const gridData = yield getGridData(api, params, stateId);

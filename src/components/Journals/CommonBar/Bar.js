@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 
 import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import { JournalUrlParams as JUP } from '../../../constants';
@@ -8,6 +9,8 @@ import JournalsSettingsBar from '../JournalsSettingsBar';
 import SettingsModal from './SettingsModal';
 
 export default class Bar extends Component {
+  targetId = uniqueId('ecos-journal-settings-bar-');
+
   state = {
     isReset: false,
     settingsVisible: false,
@@ -129,6 +132,7 @@ export default class Bar extends Component {
           leftChild={leftChild}
           rightChild={rightChild}
           stateId={stateId}
+          targetId={this.targetId}
           grid={grid}
           journalConfig={journalConfig}
           searchText={searchText}

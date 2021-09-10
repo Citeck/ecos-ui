@@ -63,7 +63,7 @@ class TableView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, stateId, journalId, urlParams = {} } = this.props;
+    const { isActivePage, viewMode, stateId, journalId, urlParams = {}, wasChangedSettings } = this.props;
 
     if (!journalId || !isActivePage || !isTableOrPreview(viewMode)) {
       return;
@@ -71,6 +71,10 @@ class TableView extends React.Component {
 
     if (prevProps.journalId !== journalId || (stateId && prevProps.stateId !== stateId) || this.state.isClose) {
       this.setState({ isClose: false }, () => this.props.getJournalsData());
+    }
+
+    if (!isTableOrPreview(prevProps.viewMode) && !!wasChangedSettings) {
+      this.props.getJournalsData();
     }
 
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {

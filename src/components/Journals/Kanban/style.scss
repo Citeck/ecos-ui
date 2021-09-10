@@ -230,7 +230,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 19px 0;
+      word-break: break-word;
+      text-align: center;
+      padding: 19px;
     }
 
     &_loading {
