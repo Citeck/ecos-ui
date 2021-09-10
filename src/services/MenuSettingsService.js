@@ -96,7 +96,9 @@ export default class MenuSettingsService {
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
-      hasIcon: [ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
+      hasIcon:
+        configType === ConfigTypes.USER ||
+        ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
       hideableLabel: [ConfigTypes.LEFT].includes(configType) && [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
     };
@@ -192,12 +194,48 @@ export default class MenuSettingsService {
   ];
 
   static userMenuCreateOptions = [
-    UserOptions.USER_PROFILE,
-    UserOptions.USER_STATUS,
-    UserOptions.USER_CHANGE_PASSWORD,
-    UserOptions.USER_FEEDBACK,
-    UserOptions.USER_SEND_PROBLEM_REPORT,
-    UserOptions.USER_LOGOUT,
+    {
+      ...UserOptions.USER_PROFILE,
+      default: {
+        label: { ru: 'Мой профиль', en: 'Profile' },
+        icon: { type: 'icon', value: 'icon-user-normal' }
+      }
+    },
+    {
+      ...UserOptions.USER_STATUS,
+      default: {
+        label: { ru: 'Сменить статус', en: 'Change status' },
+        icon: { type: 'icon', value: 'icon-user-normal' }
+      }
+    },
+    {
+      ...UserOptions.USER_CHANGE_PASSWORD,
+      default: {
+        label: { ru: 'Изменить пароль', en: 'Change password' },
+        icon: { type: 'icon', value: 'icon-edit' }
+      }
+    },
+    {
+      ...UserOptions.USER_FEEDBACK,
+      default: {
+        label: { ru: 'Обратная связь', en: 'Feedback' },
+        icon: { type: 'icon', value: 'icon-notify' }
+      }
+    },
+    {
+      ...UserOptions.USER_SEND_PROBLEM_REPORT,
+      default: {
+        label: { ru: 'Сообщить о проблеме', en: 'Report an issue' },
+        icon: { type: 'icon', value: 'icon-alert' }
+      }
+    },
+    {
+      ...UserOptions.USER_LOGOUT,
+      default: {
+        label: { ru: 'Выйти', en: 'Log out' },
+        icon: { type: 'icon', value: 'icon-exit' }
+      }
+    },
     UserOptions.ARBITRARY
   ];
 
@@ -217,8 +255,6 @@ export default class MenuSettingsService {
   static getAvailableCreateOptions = (item, params) => {
     const { configType, level } = params || {};
     const array = cloneDeep(MenuSettingsService.getCreateOptionsByType(configType));
-
-    console.warn({ array, params });
 
     array.forEach(type => {
       type.id = type.id || type.label;

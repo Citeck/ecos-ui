@@ -186,8 +186,6 @@ class Settings extends React.Component {
   };
 
   renderMenuUserConfigTab = key => {
-    console.warn(key);
-
     return (
       <div
         className={classNames(`ecos-menu-settings__tab-content tab--${key}`, {
