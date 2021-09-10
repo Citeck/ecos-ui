@@ -47,7 +47,7 @@ import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
-import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
+import { getGridParams, getJournalConfig, getJournalSettingFully, getSearchPredicate } from './journals';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -131,6 +131,11 @@ function* sagaGetData({ api, logger }, { payload }) {
     const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
+    const urlProps = getSearchParams();
+    const searchPredicate = ParserPredicate.getSearchPredicates({
+      text: urlProps[JournalUrlParams.SEARCH],
+      columns: journalSetting.columns
+    });
     const _journalConfig = cloneDeep(journalConfig);
 
     delete params.columns;
@@ -150,7 +155,12 @@ function* sagaGetData({ api, logger }, { payload }) {
       }
 
       const colPredicate = KanbanConverter.preparePredicate(column);
-      const settings = JournalsConverter.getSettingsForDataLoaderServer({ ...params, predicates: [...predicates, colPredicate] });
+      const settings = JournalsConverter.getSettingsForDataLoaderServer({
+        ...params,
+        predicates: [...predicates, colPredicate],
+        searchPredicate
+      });
+
       return yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
     });
 

@@ -16,6 +16,8 @@ export default class Bar extends Component {
 
   getSearchText() {
     const { isActivePage, urlParams } = this.props;
+    console.log('000');
+    console.log(urlParams);
     return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
   }
 
@@ -107,6 +109,7 @@ export default class Bar extends Component {
       rightChild
     } = this.props;
     const { settingsVisible, isReset, isCreateLoading } = this.state;
+    const searchText = this.getSearchText();
 
     return (
       <>
@@ -130,7 +133,7 @@ export default class Bar extends Component {
           stateId={stateId}
           grid={grid}
           journalConfig={journalConfig}
-          searchText={this.getSearchText()}
+          searchText={searchText}
           selectedRecords={selectedRecords}
           viewMode={viewMode}
           isMobile={isMobile}

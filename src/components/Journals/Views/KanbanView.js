@@ -17,13 +17,14 @@ import { isKanban, Labels } from '../constants';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
+import { getSearchParams } from '../../../helpers/urls';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
   const ownProps = selectKanbanPageProps(state, props.stateId);
 
   return {
-    urlParams: queryString.parse(window.location.search),
+    urlParams: getSearchParams(),
     viewMode,
     ...ownProps
   };
@@ -120,7 +121,8 @@ class KanbanView extends React.Component {
       bodyTopForwardedRef,
       bodyClassName,
       maxHeight,
-      urlParams
+      urlParams,
+      isActivePage
     } = this.props;
     const { name } = boardConfig || {};
 
@@ -128,7 +130,13 @@ class KanbanView extends React.Component {
       <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Header title={name} />
-          <Bar urlParams={urlParams} stateId={stateId} leftChild={<this.LeftBarChild />} rightChild={<this.RightBarChild />} />
+          <Bar
+            urlParams={urlParams}
+            isActivePage={isActivePage}
+            stateId={stateId}
+            leftChild={<this.LeftBarChild />}
+            rightChild={<this.RightBarChild />}
+          />
         </div>
         {!isEnabled && !isLoading && <UnavailableView />}
         <Kanban stateId={stateId} maxHeight={maxHeight} />

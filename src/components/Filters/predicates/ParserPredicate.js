@@ -29,7 +29,7 @@ export default class ParserPredicate {
   static getSearchPredicates({ text, columns, groupBy }) {
     const val = [];
 
-    if (groupBy.length) {
+    if (groupBy && groupBy.length) {
       groupBy = groupBy[0].split('&');
       columns = columns.filter(c => groupBy.filter(g => g === c.attribute)[0]);
     }
