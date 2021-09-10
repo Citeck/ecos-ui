@@ -148,12 +148,14 @@ function* sagaGetData({ api, logger }, { payload }) {
     params.attributes = { ...attributes, ...KanbanConverter.getCardAttributes() };
 
     const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(params.predicates));
+
     const searchPredicate = isExistValue(searchText)
       ? ParserPredicate.getSearchPredicates({
           text: searchText,
           columns: journalSetting.columns
         })
       : [];
+
     const result = yield (boardConfig.columns || []).map(function*(column, i) {
       if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
         return yield {};
@@ -192,7 +194,6 @@ function* sagaGetData({ api, logger }, { payload }) {
     const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
     yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
-
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
   } catch (e) {
