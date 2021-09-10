@@ -16,8 +16,6 @@ export default class Bar extends Component {
 
   getSearchText() {
     const { isActivePage, urlParams } = this.props;
-    console.log('000');
-    console.log(urlParams);
     return !isActivePage ? '' : get(getSearchParams(), JUP.SEARCH, get(urlParams, JUP.SEARCH, ''));
   }
 
