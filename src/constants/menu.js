@@ -125,3 +125,45 @@ export const UserOptions = {
     label: 'menu-item.type.arbitrary'
   }
 };
+
+export const UserMenu = {
+  USER_PROFILE: {
+    label: { ru: 'Мой профиль', en: 'Profile' },
+    icon: { type: 'icon', value: 'icon-user-normal' },
+    type: MenuSettings.ItemTypes.USER_PROFILE
+  },
+  USER_STATUS: {
+    label: { ru: 'Сменить статус', en: 'Change status' },
+    icon: { type: 'icon', value: 'icon-user-normal' },
+    type: MenuSettings.ItemTypes.USER_STATUS
+  },
+  USER_CHANGE_PASSWORD: {
+    label: { ru: 'Изменить пароль', en: 'Change password' },
+    icon: { type: 'icon', value: 'icon-edit' },
+    type: MenuSettings.ItemTypes.USER_CHANGE_PASSWORD
+  },
+  USER_FEEDBACK: {
+    label: { ru: 'Обратная связь', en: 'Feedback' },
+    icon: { type: 'icon', value: 'icon-notify' },
+    type: MenuSettings.ItemTypes.USER_FEEDBACK
+  },
+  USER_SEND_PROBLEM_REPORT: {
+    label: { ru: 'Сообщить о проблеме', en: 'Report an issue' },
+    icon: { type: 'icon', value: 'icon-alert' },
+    type: MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT
+  },
+  USER_LOGOUT: {
+    label: { ru: 'Выйти', en: 'Log out' },
+    icon: { type: 'icon', value: 'icon-exit' },
+    type: MenuSettings.ItemTypes.USER_LOGOUT
+  }
+};
+
+export const DefaultUserMenu = [
+  UserMenu.USER_PROFILE,
+  UserMenu.USER_STATUS,
+  UserMenu.USER_CHANGE_PASSWORD,
+  UserMenu.USER_FEEDBACK,
+  UserMenu.USER_SEND_PROBLEM_REPORT,
+  UserMenu.USER_LOGOUT
+];

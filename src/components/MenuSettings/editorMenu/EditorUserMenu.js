@@ -15,14 +15,14 @@ class EditorUserMenu extends BaseEditorMenu {
 
     return options.filter(item => item.key === MenuSettings.ItemTypes.ARBITRARY || !types.includes(item.key));
   }
+
+  renderToggleOpenButton = () => null;
 }
 
 const mapStateToProps = state => ({
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
   items: get(state, 'menuSettings.userMenuItems', []),
   fontIcons: get(state, 'menuSettings.fontIcons', [])
-  // lastAddedItems: get(state, 'menuSettings.user.lastAddedCreateItems', []),
-  // availableSections: get(state, 'menuSettings.user.availableSections', [])
 });
 const mapDispatchToProps = dispatch => ({
   setMenuItems: items => dispatch(setUserMenuItems(items))

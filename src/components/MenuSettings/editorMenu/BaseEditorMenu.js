@@ -295,6 +295,16 @@ export default class BaseEditorMenu extends React.Component {
     return components;
   };
 
+  renderToggleOpenButton = () => {
+    const { openAllMenuItems } = this.state;
+
+    return (
+      <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
+        {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
+      </Btn>
+    );
+  };
+
   render() {
     const { openAllMenuItems } = this.state;
     const { items, disabledEdit } = this.props;
@@ -304,9 +314,7 @@ export default class BaseEditorMenu extends React.Component {
         <div className="ecos-menu-settings-editor-items__header">
           {this.renderExtraComponents({})}
           <div className="ecos--flex-space" />
-          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
-            {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
-          </Btn>
+          {this.renderToggleOpenButton()}
         </div>
         <div className="ecos-menu-settings-editor-items__tree-field" onScroll={this.handleScrollTree}>
           <Tree

@@ -7,7 +7,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserOptions } from '../constants/menu';
+import { ConfigTypes, CreateOptions, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter2();
@@ -196,45 +196,27 @@ export default class MenuSettingsService {
   static userMenuCreateOptions = [
     {
       ...UserOptions.USER_PROFILE,
-      default: {
-        label: { ru: 'Мой профиль', en: 'Profile' },
-        icon: { type: 'icon', value: 'icon-user-normal' }
-      }
+      default: UserMenu.USER_PROFILE
     },
     {
       ...UserOptions.USER_STATUS,
-      default: {
-        label: { ru: 'Сменить статус', en: 'Change status' },
-        icon: { type: 'icon', value: 'icon-user-normal' }
-      }
+      default: UserMenu.USER_STATUS
     },
     {
       ...UserOptions.USER_CHANGE_PASSWORD,
-      default: {
-        label: { ru: 'Изменить пароль', en: 'Change password' },
-        icon: { type: 'icon', value: 'icon-edit' }
-      }
+      default: UserMenu.USER_CHANGE_PASSWORD
     },
     {
       ...UserOptions.USER_FEEDBACK,
-      default: {
-        label: { ru: 'Обратная связь', en: 'Feedback' },
-        icon: { type: 'icon', value: 'icon-notify' }
-      }
+      default: UserMenu.USER_FEEDBACK
     },
     {
       ...UserOptions.USER_SEND_PROBLEM_REPORT,
-      default: {
-        label: { ru: 'Сообщить о проблеме', en: 'Report an issue' },
-        icon: { type: 'icon', value: 'icon-alert' }
-      }
+      default: UserMenu.USER_SEND_PROBLEM_REPORT
     },
     {
       ...UserOptions.USER_LOGOUT,
-      default: {
-        label: { ru: 'Выйти', en: 'Log out' },
-        icon: { type: 'icon', value: 'icon-exit' }
-      }
+      default: UserMenu.USER_LOGOUT
     },
     UserOptions.ARBITRARY
   ];

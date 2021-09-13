@@ -255,7 +255,8 @@
 
     &--item {
       &-container {
-        z-index: 9999;
+        //z-index: 9999;
+        z-index: map-get($z-index, draggable-tree-item);
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
@@ -305,7 +306,8 @@
 
     &--item {
       &-container {
-        z-index: 9999;
+        //z-index: 9999;
+        z-index: map-get($z-index, draggable-tree-item);
       }
     }
   }

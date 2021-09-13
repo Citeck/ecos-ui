@@ -188,6 +188,7 @@ class Settings extends React.Component {
   renderMenuUserConfigTab = key => {
     return (
       <div
+        key={key}
         className={classNames(`ecos-menu-settings__tab-content tab--${key}`, {
           'd-none': this.activeTabId !== key
         })}
