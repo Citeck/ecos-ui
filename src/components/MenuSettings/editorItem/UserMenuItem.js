@@ -76,8 +76,6 @@ class UserMenuItem extends Base {
     this.data.label = label;
     this.data.allowedFor = allowedNames;
 
-    console.warn('handleApply => ', { self: this });
-
     if (isFunction(onSave)) {
       onSave(this.data);
     }
