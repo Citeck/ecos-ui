@@ -16,7 +16,8 @@ import {
   setLoading,
   setMenuIcons,
   setOpenMenuSettings,
-  setOriginalConfig
+  setOriginalConfig,
+  setUserMenuItems
 } from '../actions/menuSettings';
 import MenuConverter from '../dto/menu';
 
@@ -26,6 +27,7 @@ const initialState = {
   leftItems: [],
   availableSections: [],
   createItems: [],
+  userMenuItems: [],
   authorities: [],
   groupPriority: [],
   isLoading: false,
@@ -78,6 +80,11 @@ export default handleActions(
     [setLastAddedLeftItems]: (state, { payload }) => ({
       ...state,
       lastAddedLeftItems: payload
+    }),
+    [setUserMenuItems]: (state, { payload }) => ({
+      ...state,
+      userMenuItems: treeSetDndIndex(payload),
+      isLoading: false
     }),
     [addJournalMenuItems]: state => ({
       ...state,

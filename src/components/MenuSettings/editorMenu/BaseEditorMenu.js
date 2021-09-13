@@ -2,6 +2,7 @@ import React from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import uniqueId from 'lodash/uniqueId';
+import isFunction from 'lodash/isFunction';
 import classNames from 'classnames';
 
 import { extractLabel, t } from '../../../helpers/util';
@@ -46,9 +47,9 @@ export default class BaseEditorMenu extends React.Component {
     }
   }
 
-  getCreateOptions = (item, level) => {
+  getCreateOptions(item, level) {
     return MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
-  };
+  }
 
   convertItemProps = item => {
     return MenuSettingsService.convertItemForTree(item);
@@ -87,7 +88,11 @@ export default class BaseEditorMenu extends React.Component {
       DialogManager.showRemoveDialog({
         title: '',
         text: t(Labels.MSG_DELETE_ITEM, { name: extractLabel(item.label) }),
-        onDelete: () => setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, configType: this.configType }).items)
+        onDelete: () => {
+          if (isFunction(setMenuItems)) {
+            setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, configType: this.configType }).items);
+          }
+        }
       });
       return;
     }
@@ -99,7 +104,9 @@ export default class BaseEditorMenu extends React.Component {
       return;
     }
 
-    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level, configType: this.configType }).items);
+    if (isFunction(setMenuItems)) {
+      setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level, configType: this.configType }).items);
+    }
   };
 
   handleClickIcon = item => {
@@ -114,7 +121,9 @@ export default class BaseEditorMenu extends React.Component {
     const { items: original, setMenuItems } = this.props;
     const sorted = treeMoveItem({ fromId, toId, original, key: 'dndIdx' });
 
-    setMenuItems(sorted);
+    if (isFunction(setMenuItems)) {
+      setMenuItems(sorted);
+    }
   };
 
   handleScrollTree = event => {
@@ -158,8 +167,15 @@ export default class BaseEditorMenu extends React.Component {
         level: editItemInfo.level,
         configType: this.configType
       });
-      setMenuItems(result.items);
-      setLastAddedItems(result.newItems);
+
+      if (isFunction(setMenuItems)) {
+        setMenuItems(result.items);
+      }
+
+      if (isFunction(setLastAddedItems)) {
+        setLastAddedItems(result.newItems);
+      }
+
       handleHideModal();
     };
 

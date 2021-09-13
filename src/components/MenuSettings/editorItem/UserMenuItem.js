@@ -2,6 +2,7 @@ import React from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import Base from './Base';
 import { t } from '../../../helpers/export/util';
@@ -27,12 +28,12 @@ class UserMenuItem extends Base {
   componentDidMount() {
     super.componentDidMount();
 
-    const { label } = this.props.item || {};
+    const { label, allowedFor: allowedNames } = this.props.item || {};
 
     this.#unmounted = false;
 
+    this.setState({ label, allowedNames });
     this.getAuthoritiesInfoByName();
-    this.setState({ label });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -64,6 +65,29 @@ class UserMenuItem extends Base {
 
   setLabel = label => {
     this.setState({ label });
+  };
+
+  handleApply() {
+    super.handleApply();
+
+    const { onSave } = this.props;
+    const { label, allowedNames } = this.state;
+
+    this.data.label = label;
+    this.data.allowedFor = allowedNames;
+
+    console.warn('handleApply => ', { self: this });
+
+    if (isFunction(onSave)) {
+      onSave(this.data);
+    }
+  }
+
+  handleSelectAllowed = (allowedRefs, items) => {
+    this.setState({
+      allowedRefs,
+      allowedNames: (items || []).map(item => get(item, 'attributes.fullName'))
+    });
   };
 
   render() {
