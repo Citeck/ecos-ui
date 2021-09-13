@@ -896,7 +896,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         console.error("[journals sagaGoToJournalsPage] Target journal can't be resolved", row);
       }
     } else {
-      const journalType = (criteria[0] || {}).value || predicate.val;
+      const journalType = get(criteria, [0, 'value']) || predicate.val;
 
       if (journalType && journalConfig.groupBy && journalConfig.groupBy.length) {
         const config = yield call(JournalsService.getJournalConfig, `alf_${encodeURI(journalType)}`);
@@ -937,6 +937,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     const editingRules = yield getGridEditingRules(api, gridData);
 
     yield put(setPredicate(w(predicateValue)));
+    yield put(setJournalSetting(w({ predicate: predicateValue })));
     yield put(setSelectedRecords(w([])));
     yield put(setSelectAllRecordsVisible(w(false)));
     yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
