@@ -9,9 +9,13 @@
     margin: 1px !important;
     width: auto !important;
   }
-}
 
-.icon_small {
-  font-size: 14px;
-  line-height: 14px;
+  &_btn {
+    cursor: pointer;
+  }
+
+  &_small {
+    font-size: 14px;
+    line-height: 14px;
+  }
 }
