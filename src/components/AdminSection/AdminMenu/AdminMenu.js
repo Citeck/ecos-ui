@@ -46,7 +46,7 @@ const AdminMenu = React.memo(
           onClick={() => toggleMenu(true)}
           icon="icon-small-arrow-left"
           className={classNames(
-            'ecos-admin-menu__btn-opener ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standart ecos-btn_r_biggest',
+            'ecos-admin-menu__btn-opener ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest',
             { 'ecos-admin-menu__btn-opener_hidden': isOpen }
           )}
         >
