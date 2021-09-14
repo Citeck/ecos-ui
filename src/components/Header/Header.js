@@ -47,9 +47,18 @@ class Header extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.menuId && this.props.menuId) {
-      this.recordMenu = Records.get(`${SourcesId.RESOLVED_MENU}@${this.props.menuId}`);
+    const { menuId } = this.props;
+
+    if (prevProps.menuId && menuId) {
+      let record = menuId.replace(SourcesId.MENU, SourcesId.RESOLVED_MENU);
+
+      if (record.indexOf(SourcesId.RESOLVED_MENU) !== 0) {
+        record = `${SourcesId.RESOLVED_MENU}@${record}`;
+      }
+
+      this.recordMenu = Records.get(record);
       this.updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
+        console.warn('UPDATE');
         this.props.fetchCreateCaseWidgetData();
       });
     }
