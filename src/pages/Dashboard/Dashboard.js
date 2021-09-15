@@ -30,6 +30,7 @@ import Layout from '../../components/Layout';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import TopMenu from '../../components/Layout/TopMenu';
 import Records from '../../components/Records';
+import RecordUpdater from '../../components/Records/RecordUpdater';
 import DashboardService from '../../services/dashboard';
 import PageTabList from '../../services/pageTabs/PageTabList';
 import { selectDashboardByKey, selectDashboardConfig, selectDashboardConfigVersion } from '../../selectors/dashboard';
@@ -95,6 +96,8 @@ class Dashboard extends Component {
     this.state.config = props.config || [];
     this.instanceRecord = Records.get(this.getPathInfo().recordRef);
     this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
+
+    this.recordUpdater = new RecordUpdater(this.instanceRecord);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -188,6 +191,7 @@ class Dashboard extends Component {
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.watcher);
     this.showWarningMessage.cancel();
+    this.recordUpdater.dispose();
   }
 
   showWarningMessage = debounce(() => {
