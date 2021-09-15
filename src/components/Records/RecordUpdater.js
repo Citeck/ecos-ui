@@ -6,7 +6,12 @@ const ATT_TO_CHECK = '_modified';
 export default class RecordUpdater {
   constructor(record, config = {}) {
     this._record = Records.get(record);
-    this._modified = this._record.load(ATT_TO_CHECK);
+    this._config = config || {};
+    this.init();
+  }
+
+  async init() {
+    this._modified = await this._record.load(ATT_TO_CHECK);
 
     const minModifiedMsForUpdating = getCurrentTime() - 600000; //10 min
     if (!this._modified || Date.parse(this._modified) < minModifiedMsForUpdating) {
@@ -17,12 +22,12 @@ export default class RecordUpdater {
       this.startChecking();
     });
 
-    this._updatesCount = config.updatesCount || 10;
-    this._periodMs = config.periodMs || 1000;
-    this._initialDelayMs = config.initialDelayMs || 3000;
+    this._updatesCount = this._config.updatesCount || 10;
+    this._periodMs = this._config.periodMs || 1000;
+    this._initialDelayMs = this._config.initialDelayMs || 2000;
 
     this._repeater = new ActionRepeater({
-      periodMs: config.periodMs,
+      periodMs: this._config.periodMs,
       action: () => this.checkRecord()
     });
     this.startChecking();
