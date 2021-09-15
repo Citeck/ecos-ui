@@ -1,5 +1,5 @@
 import ActionsExecutor from '../ActionsExecutor';
-import { PROXY_URI } from '../../../../../constants/alfresco';
+import { PREFIX_ALFRESCO, PROXY_URI } from '../../../../../constants/alfresco';
 import { debounce } from '../../../../../helpers/util';
 
 import { CommonApi } from '../../../../../api/common';
@@ -36,7 +36,7 @@ export default class DownloadZipAction extends ActionsExecutor {
   };
 
   async execForRecords(records, action, context) {
-    const nodeRef = await this.createZip(records.map(r => r.id.replace('alfresco/@', '')));
+    const nodeRef = await this.createZip(records.map(r => r.id.replace(PREFIX_ALFRESCO, '')));
 
     if (nodeRef) {
       const result = recordActions.execForRecord(nodeRef, {
