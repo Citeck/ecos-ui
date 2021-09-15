@@ -42,6 +42,7 @@ export const Labels = {
     CARD_NO_TITLE: 'kanban.label.no-name',
     DND_MOVE_HERE: 'kanban.label.dnd.move-here',
     DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
+    DND_ALREADY_HERE: 'kanban.label.dnd.already-here',
     BOARD_LIST: 'kanban.label.board-list',
     BTN_SETTINGS: 'kanban.label.btn-settings',
     ERROR_FETCH_DATA: 'kanban.error.get-column-data'

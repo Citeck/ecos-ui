@@ -82,7 +82,7 @@
         $col: &;
         $c_other: $primary;
         $c_over: $success;
-        $c_owner: $color-gray-5;
+        $c_disabled: $color-gray-5;
 
         overflow: hidden;
         border-style: dotted;
@@ -107,29 +107,46 @@
             position: absolute;
             text-align: center;
             width: 100%;
-            font-weight: $font-weight-bold;
-
+            font-weight: $font-weight-semi-bold;
             color: $c_over;
           }
 
-          & #{$col}-card:not(#{$col}-card_dragging) {
+          & #{$kanban}__card:not(#{$kanban}__card_dragging) {
             opacity: 0.5;
           }
         }
 
+        &_empty :nth-child(n) {
+          visibility: hidden;
+        }
+
         &_owner,
         &_disabled {
-          border-color: $c_owner;
-          background: rgba($c_owner, 0.1);
-          cursor: no-drop;
+          border-color: $c_disabled;
+          background: rgba($c_disabled, 0.1);
 
           &::before {
-            color: $c_owner;
+            color: $c_disabled;
           }
         }
 
         &_disabled {
-          opacity: 0.3;
+          cursor: no-drop;
+
+          & #{$kanban}__card-info-dnd {
+            max-height: none;
+            height: auto;
+            padding: 5px;
+            transition: padding ease-out 0.5s;
+
+            .ecos-info-text {
+              color: $c_disabled;
+            }
+          }
+
+          & #{$kanban}__card:not(#{$kanban}__card_dragging) {
+            opacity: 0.8;
+          }
         }
       }
     }
@@ -223,7 +240,7 @@
       margin-bottom: 28px;
     }
 
-    &_empty {
+    &-info {
       background: $color-blue-light5;
       border-radius: $border-radius-large;
       flex: auto;
@@ -233,10 +250,18 @@
       word-break: break-word;
       text-align: center;
       padding: 19px;
-    }
 
-    &_loading {
-      @extend %animationPulse;
+      &_loading {
+        @extend %animationPulse;
+      }
+
+      &_dnd {
+        max-height: 0;
+        height: 0;
+        padding: 0;
+        overflow: hidden;
+        background: transparent;
+      }
     }
 
     &-list {

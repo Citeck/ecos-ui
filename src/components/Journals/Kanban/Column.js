@@ -5,8 +5,8 @@ import isEmpty from 'lodash/isEmpty';
 import { Droppable } from 'react-beautiful-dnd';
 
 import { t } from '../../../helpers/export/util';
-import { selectColumnProps } from '../../../selectors/kanban';
 import { runAction } from '../../../actions/kanban';
+import { selectColumnProps } from '../../../selectors/kanban';
 import { InfoText, Loader } from '../../common';
 import { Labels } from '../constants';
 import { isDropDisabled } from './utils';
@@ -17,15 +17,34 @@ class Column extends React.PureComponent {
     this.props.runAction(...data);
   };
 
+  isColumnDropDisabled() {
+    const { readOnly, isLoadingCol, columnInfo } = this.props;
+    return isDropDisabled({ readOnly, isLoadingCol, columnInfo });
+  }
+
+  getColumnDragTip = flags => {
+    const sameDest = flags.draggingFromThisWith === flags.draggingOverWith;
+
+    switch (true) {
+      case sameDest:
+        return t(Labels.Kanban.DND_ALREADY_HERE);
+      case !sameDest:
+        return t(Labels.Kanban.DND_MOVE_HERE);
+    }
+  };
+
   renderInfo = () => {
     const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error } = this.props;
     let text;
     const loading = isFirstLoading || (isLoading && isFiltered) || isLoadingCol;
+    const dropDisabled = this.isColumnDropDisabled();
 
     if (error) {
       text = t(Labels.Kanban.ERROR_FETCH_DATA);
     } else if (loading) {
       text = ' ';
+    } else if (dropDisabled) {
+      text = t(Labels.Kanban.DND_NOT_MOVE_HERE);
     } else if (isEmpty(records)) {
       text = t(Labels.Kanban.COL_NO_CARD);
     }
@@ -35,7 +54,12 @@ class Column extends React.PureComponent {
     }
 
     return (
-      <div className={classNames('ecos-kanban__card_empty', { 'ecos-kanban__card_loading': loading })}>
+      <div
+        className={classNames('ecos-kanban__card-info', {
+          'ecos-kanban__card-info_loading': loading,
+          'ecos-kanban__card-info_dnd': dropDisabled
+        })}
+      >
         <InfoText text={text} noIndents type={'primary'} />
       </div>
     );
@@ -62,26 +86,27 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [], data, readOnly, isLoadingCol, columnInfo } = this.props;
-    const dropDisabled = isDropDisabled({ readOnly, isLoadingCol, columnInfo });
+    const { records = [], data, isLoadingCol } = this.props;
+    const dropDisabled = this.isColumnDropDisabled();
 
     return (
       <Droppable droppableId={data.id} isDropDisabled={dropDisabled}>
         {(provided, { draggingFromThisWith, draggingOverWith, isDraggingOver }) => (
           <div
-            data-tip={draggingFromThisWith === draggingOverWith ? t(Labels.Kanban.DND_NOT_MOVE_HERE) : t(Labels.Kanban.DND_MOVE_HERE)}
+            data-tip={this.getColumnDragTip({ draggingFromThisWith, draggingOverWith, dropDisabled })}
             className={classNames('ecos-kanban__column', {
               'ecos-kanban__column_dragging-over': isDraggingOver,
               'ecos-kanban__column_loading': isLoadingCol,
               'ecos-kanban__column_disabled': dropDisabled,
-              'ecos-kanban__column_owner': isDraggingOver && draggingFromThisWith === draggingOverWith
+              'ecos-kanban__column_owner': isDraggingOver && draggingFromThisWith === draggingOverWith,
+              'ecos-kanban__column_empty': isEmpty(records)
             })}
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
             {isLoadingCol && <Loader className="ecos-kanban__column-loader" blur />}
-            {records.map(this.renderContentCard)}
             {this.renderInfo()}
+            {records.map(this.renderContentCard)}
           </div>
         )}
       </Droppable>
