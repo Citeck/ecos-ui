@@ -153,6 +153,23 @@ export class MenuApi extends CommonApi {
       .catch(console.error);
   };
 
+  /**
+   * Getting the configuration of the custom menu (in the header, on the right)
+   *
+   * @param user
+   * @param version
+   * @returns {*|RecordsComponent}
+   */
+  getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: { version, user }
+      },
+      'subMenu.user?json'
+    );
+  };
+
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
     const record = Records.get(`${SourcesId.CONFIG}@menu-config`);
 

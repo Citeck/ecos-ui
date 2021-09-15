@@ -1,5 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import set from 'lodash/set';
 
 import {
   fetchCreateCaseWidgetData,
@@ -45,6 +46,16 @@ function* fetchUserMenu({ api, logger }) {
     const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
     const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalIDP));
+
+    const config = yield call(api.menu.getUserCustomMenuConfig, userName);
+
+    const items = config.items.map(item => {
+      set(item, 'config.isAvailable', isAvailable);
+
+      return item;
+    });
+
+    console.warn({ config, menuItems, items });
 
     yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
