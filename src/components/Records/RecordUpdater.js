@@ -4,7 +4,7 @@ const getCurrentTime = () => new Date().getTime();
 const ATT_TO_CHECK = '_modified';
 
 export default class RecordUpdater {
-  constructor(record, config) {
+  constructor(record, config = {}) {
     this._record = Records.get(record);
     this._modified = this._record.load(ATT_TO_CHECK);
 
