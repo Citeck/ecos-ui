@@ -29,7 +29,7 @@ const Search = () => {
   return (
     <div className="select-orgstruct__search">
       <div className="select-orgstruct__search-wrapper">
-        <span className="icon icon-search select-orgstruct__search-icon" onClick={onSearchIconClick} />
+        <Icon className="icon icon-search select-orgstruct__search-icon" onClick={onSearchIconClick} />
         <Input
           getInputRef={el => (inputRef.current = el.current)}
           placeholder={t(Labels.PLACEHOLDER)}
