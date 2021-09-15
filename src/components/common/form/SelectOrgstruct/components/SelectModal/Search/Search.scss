@@ -11,7 +11,7 @@
       margin-right: 10px;
     }
 
-    &-input {
+    &-input.ecos-input {
       padding-left: 40px;
     }
 
@@ -20,6 +20,7 @@
       line-height: 40px;
       left: 12px;
       color: $color-gray-5;
+      z-index: 1;
     }
 
     &-cleaner {
