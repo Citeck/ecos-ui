@@ -27,7 +27,7 @@ export default class RecordUpdater {
     this._initialDelayMs = this._config.initialDelayMs || 2000;
 
     this._repeater = new ActionRepeater({
-      periodMs: this._config.periodMs,
+      periodMs: this._periodMs,
       action: () => this.checkRecord()
     });
     this.startChecking();
