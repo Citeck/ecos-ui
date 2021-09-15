@@ -30,6 +30,8 @@ class Column extends React.PureComponent {
         return t(Labels.Kanban.DND_ALREADY_HERE);
       case !sameDest:
         return t(Labels.Kanban.DND_MOVE_HERE);
+      default:
+        return '';
     }
   };
 

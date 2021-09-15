@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
@@ -12,12 +11,12 @@ import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { JournalUrlParams as JUP, KanbanUrlParams as KUP } from '../../../constants';
 import { t } from '../../../helpers/export/util';
+import { getSearchParams } from '../../../helpers/urls';
 import { Dropdown } from '../../common/form';
 import { isKanban, Labels } from '../constants';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
-import { getSearchParams } from '../../../helpers/urls';
 
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);

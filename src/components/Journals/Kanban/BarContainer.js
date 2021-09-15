@@ -1,19 +1,24 @@
 import { connect } from 'react-redux';
 import debounce from 'lodash/debounce';
+import get from 'lodash/get';
 
 import CommonBar from '../CommonBar';
 import { applyFilter, reloadBoardData, resetFilter, runSearchCard } from '../../../actions/kanban';
 import { selectKanbanJournalProps } from '../../../selectors/journals';
 import { selectKanban } from '../../../selectors/kanban';
+import { getSearchParams } from '../../../helpers/urls';
+import { JournalUrlParams } from '../../../constants';
 import { Labels } from '../constants';
 
 function mapStateToProps(state, props) {
   const journalProps = selectKanbanJournalProps(state, props.stateId);
   const kanbanProps = selectKanban(state, props.stateId);
+  const search = get(getSearchParams(), [JournalUrlParams.SEARCH]);
 
   return {
     ...journalProps,
-    isFilterOn: kanbanProps.isFiltered,
+    grid: { ...journalProps.grid, search },
+    isFilterOn: kanbanProps.isFiltered || journalProps.isFilterOn,
     noPagination: true,
     noCreateBtn: true,
     settingsColumnsData: null,

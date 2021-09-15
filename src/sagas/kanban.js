@@ -48,7 +48,7 @@ import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
-import { getGridParams, getJournalConfig, getJournalSettingFully, getSearchPredicate } from './journals';
+import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 
 function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -237,8 +237,9 @@ function* sagaSelectBoard({ api, logger }, { payload }) {
 
 function* sagaGetNextPage({ api, logger }, { payload }) {
   try {
-    yield put(setLoading({ stateId, isLoading: true }));
     const { stateId } = payload;
+    yield put(setLoading({ stateId, isLoading: true }));
+
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
     const pagination = yield select(selectPagination, stateId);

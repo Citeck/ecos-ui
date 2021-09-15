@@ -3,7 +3,6 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import getFirst from 'lodash/first';
 import set from 'lodash/set';
-import has from 'lodash/has';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';

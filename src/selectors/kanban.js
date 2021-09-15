@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+
 import { initialState } from '../reducers/kanban';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 

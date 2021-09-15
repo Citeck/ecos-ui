@@ -8,7 +8,7 @@ import { defaultState, emptyJournalConfig } from '../reducers/journals';
 import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { getId } from '../helpers/util';
+import { beArray, getId } from '../helpers/util';
 import { selectIsDocLibEnabled } from './docLib';
 import { selectIsKanbanEnabled } from './kanban';
 
@@ -230,14 +230,23 @@ export const selectJournalPageProps = createSelector(
   })
 );
 
+export const selectKanbanExportGrid = createSelector(
+  selectJournalSettings,
+  settings => ({
+    columns: settings.columns,
+    predicates: beArray(settings.predicate)
+  })
+);
+
 export const selectKanbanJournalProps = createSelector(
-  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsData],
-  (ownState, journalSetting, settingsFiltersData, settingsData) => ({
+  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsData, selectIsFilterOn, selectKanbanExportGrid],
+  (ownState, journalSetting, settingsFiltersData, settingsData, isFilterOn, grid) => ({
     journalConfig: ownState.journalConfig,
-    grid: ownState.grid,
     journalSetting,
     settingsFiltersData,
-    settingsData
+    settingsData,
+    isFilterOn,
+    grid
   })
 );
 
