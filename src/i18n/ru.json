@@ -321,7 +321,7 @@
   "kanban.label.btn-settings": "Фильтрация",
   "kanban.label.dnd.move-here": "Пеместить в эту колонку",
   "kanban.label.dnd.cant-move-here": "Карточку нельзя переместить в эту колонку",
-  "kanban.label.dnd.already-here": "Карточка из этой колонке",
+  "kanban.label.dnd.already-here": "Карточка из этой колонки",
   "kanban.label.no-more-cards": "Больше нет карточек",
   "kanban.error.form-not-found": "Форма карточки не найдена",
   "kanban.error.card-not-moved": "Карточка не перемещена",

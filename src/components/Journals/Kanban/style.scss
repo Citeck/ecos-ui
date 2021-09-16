@@ -6,12 +6,18 @@
   @return red($hex), green($hex), blue($hex);
 }
 
+%show-card-info-temp {
+  height: 100px;
+  padding: 5px;
+  opacity: 1;
+}
+
 .ecos-kanban {
   $kanban: &;
 
   :root {
     --count-col: 1;
-    --color-info: #{HexToRGB($primary)};
+    --color-info: #{HexToRGB($color-blue-light)};
     --color-column: #{HexToRGB($primary)};
   }
 
@@ -100,27 +106,14 @@
         &_dragging-over:not(#{$kanban}__column_owner) {
           --color-column: #{HexToRGB($success)};
 
-          padding-top: 100px;
-          position: relative;
-
-          &::before {
-            content: attr(data-tip);
-            display: block;
-            padding: 5px;
-            top: 0;
-            position: absolute;
-            text-align: center;
-            width: 100%;
-            font-weight: $font-weight-semi-bold;
+          & #{$kanban}__card-info_temp {
+            --color-info: #{HexToRGB($success)};
+            @extend %show-card-info-temp;
           }
 
           & #{$kanban}__card:not(#{$kanban}__card_dragging) {
             opacity: 0.5;
           }
-        }
-
-        &_empty :nth-child(n) {
-          visibility: hidden;
         }
 
         &_owner,
@@ -129,10 +122,7 @@
 
           & #{$kanban}__card-info_temp {
             --color-info: #{HexToRGB($color-gray-5)};
-
-            height: 100px;
-            padding: 5px;
-            opacity: 1;
+            @extend %show-card-info-temp;
           }
         }
 
@@ -221,7 +211,7 @@
     }
 
     &-info {
-      --color-info: #{HexToRGB($primary)};
+      --color-info: #{HexToRGB($color-blue-light)};
 
       color: rgba(var(--color-info), 1);
       background: rgba(var(--color-info), 0.15);

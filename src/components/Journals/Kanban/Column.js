@@ -7,7 +7,7 @@ import { Droppable } from 'react-beautiful-dnd';
 import { t } from '../../../helpers/export/util';
 import { runAction } from '../../../actions/kanban';
 import { selectColumnProps } from '../../../selectors/kanban';
-import { InfoText, Loader } from '../../common';
+import { Loader } from '../../common';
 import { Labels } from '../constants';
 import { isDropDisabled } from './utils';
 import Card from './Card';
@@ -24,7 +24,7 @@ class Column extends React.PureComponent {
 
   renderInfo = flags => {
     const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error } = this.props;
-    const loading = isFirstLoading || (isLoading && isFiltered) || isLoadingCol;
+    const loading = isFirstLoading || (isLoading && isFiltered);
     const dropDisabled = this.getIsColumnDropDisabled();
 
     let text = '';
@@ -41,14 +41,16 @@ class Column extends React.PureComponent {
         temp = true;
         text = t(Labels.Kanban.DND_NOT_MOVE_HERE);
         break;
-      case isEmpty(records):
-        text = t(Labels.Kanban.COL_NO_CARD);
-        break;
       case flags.isColumnOwner:
         temp = true;
         text = t(Labels.Kanban.DND_ALREADY_HERE);
         break;
-      case true:
+      case flags.isDraggingOver:
+        temp = true;
+        text = t(Labels.Kanban.DND_MOVE_HERE);
+        break;
+      case isEmpty(records):
+        text = t(Labels.Kanban.COL_NO_CARD);
         break;
       default:
         break;
@@ -57,7 +59,7 @@ class Column extends React.PureComponent {
     return (
       <div
         className={classNames('ecos-kanban__card-info', {
-          'ecos-kanban__card-info_hidden': !text,
+          'ecos-kanban__card-info_hidden': !text || isLoadingCol,
           'ecos-kanban__card-info_error': !!error,
           'ecos-kanban__card-info_loading': loading,
           'ecos-kanban__card-info_temp': temp
@@ -99,7 +101,6 @@ class Column extends React.PureComponent {
 
           return (
             <div
-              data-tip={!isColumnOwner && t(Labels.Kanban.DND_MOVE_HERE)}
               className={classNames('ecos-kanban__column', {
                 'ecos-kanban__column_dragging-over': isDraggingOver,
                 'ecos-kanban__column_loading': isLoadingCol,
@@ -111,7 +112,7 @@ class Column extends React.PureComponent {
               ref={provided.innerRef}
             >
               {isLoadingCol && <Loader className="ecos-kanban__column-loader" blur />}
-              {this.renderInfo({ isColumnOwner })}
+              {this.renderInfo({ isColumnOwner, isDraggingOver })}
               {records.map(this.renderContentCard)}
             </div>
           );
