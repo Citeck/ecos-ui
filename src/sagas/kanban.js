@@ -50,7 +50,7 @@ import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 
-function* sagaGetBoardList({ api, logger }, { payload }) {
+export function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
     const { journalId, stateId } = payload;
     const boardList = yield call(api.kanban.getBoardList, { journalId });
@@ -66,7 +66,7 @@ function* sagaGetBoardList({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetBoardConfig({ api, logger }, { payload }) {
+export function* sagaGetBoardConfig({ api, logger }, { payload }) {
   try {
     const { boardId, stateId } = payload;
     const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
@@ -80,7 +80,7 @@ function* sagaGetBoardConfig({ api, logger }, { payload }) {
   }
 }
 
-function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
+export function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
   try {
     if (!formId) {
       throw new Error('No form ID ' + formId);
@@ -105,7 +105,7 @@ function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }) {
   }
 }
 
-function* sagaGetBoardData({ api, logger }, { payload }) {
+export function* sagaGetBoardData({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api, logger }, { payload });
@@ -127,7 +127,7 @@ function* sagaGetBoardData({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetData({ api, logger }, { payload }) {
+export function* sagaGetData({ api, logger }, { payload }) {
   try {
     const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
@@ -201,7 +201,7 @@ function* sagaGetData({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetActions({ api, logger }, { payload }) {
+export function* sagaGetActions({ api, logger }, { payload }) {
   try {
     const { boardConfig = {}, newRecordRefs = [], stateId } = payload;
     const { resolvedActions: prevResolvedActions = [] } = yield select(selectKanban, stateId);
@@ -217,7 +217,7 @@ function* sagaGetActions({ api, logger }, { payload }) {
   }
 }
 
-function* sagaSelectBoard({ api, logger }, { payload }) {
+export function* sagaSelectBoard({ api, logger }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
     const { boardId, stateId } = payload;
@@ -235,7 +235,7 @@ function* sagaSelectBoard({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetNextPage({ api, logger }, { payload }) {
+export function* sagaGetNextPage({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
     yield put(setLoading({ stateId, isLoading: true }));
@@ -255,7 +255,7 @@ function* sagaGetNextPage({ api, logger }, { payload }) {
   }
 }
 
-function* sagaRunAction({ api, logger }, { payload }) {
+export function* sagaRunAction({ api, logger }, { payload }) {
   try {
     const { recordRef, action } = payload;
 
@@ -265,7 +265,7 @@ function* sagaRunAction({ api, logger }, { payload }) {
   }
 }
 
-function* sagaMoveCard({ api, logger }, { payload }) {
+export function* sagaMoveCard({ api, logger }, { payload }) {
   let rollbackCards = [];
   try {
     const { stateId, cardIndex, fromColumnRef, toColumnRef } = payload;
@@ -301,7 +301,7 @@ function* sagaMoveCard({ api, logger }, { payload }) {
   }
 }
 
-function* sagaApplyFilter({ api, logger }, { payload }) {
+export function* sagaApplyFilter({ api, logger }, { payload }) {
   try {
     const {
       settings: { predicate },
@@ -324,7 +324,7 @@ function* sagaApplyFilter({ api, logger }, { payload }) {
   }
 }
 
-function* sagaResetFilter({ api, logger }, { payload }) {
+export function* sagaResetFilter({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
     const settings = yield select(selectSettingsData, stateId);
@@ -337,7 +337,7 @@ function* sagaResetFilter({ api, logger }, { payload }) {
   }
 }
 
-function* sagaRunSearchCard({ api, logger }, { payload }) {
+export function* sagaRunSearchCard({ api, logger }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
     const { text } = payload;
@@ -355,7 +355,7 @@ function* sagaRunSearchCard({ api, logger }, { payload }) {
   }
 }
 
-function* sagaReloadBoardData({ api, logger }, { payload }) {
+export function* sagaReloadBoardData({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
     yield put(setLoading({ stateId, isLoading: true }));
@@ -369,7 +369,7 @@ function* sagaReloadBoardData({ api, logger }, { payload }) {
   }
 }
 
-function* docStatusSaga(ea) {
+export function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
   yield takeEvery(getBoardData().type, sagaGetBoardData, ea);
