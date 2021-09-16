@@ -23,7 +23,7 @@ class Column extends React.PureComponent {
   }
 
   renderInfo = flags => {
-    const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error } = this.props;
+    const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error, isDragging } = this.props;
     const loading = isFirstLoading || (isLoading && isFiltered);
     const dropDisabled = this.getIsColumnDropDisabled();
 
@@ -49,7 +49,7 @@ class Column extends React.PureComponent {
         temp = true;
         text = t(Labels.Kanban.DND_MOVE_HERE);
         break;
-      case isEmpty(records):
+      case !isDragging && isEmpty(records):
         text = t(Labels.Kanban.COL_NO_CARD);
         break;
       default:

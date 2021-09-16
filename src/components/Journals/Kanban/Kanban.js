@@ -136,7 +136,7 @@ class Kanban extends React.Component {
               'ecos-kanban__body_dragging': isDragging,
               'ecos-kanban__body_end': this.isNoMore()
             })}
-            style={{ minHeight: this.getHeight(-60) }}
+            style={{ minHeight: this.getHeight(-70) }}
             ref={this.refBody}
           >
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
