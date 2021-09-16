@@ -54,11 +54,6 @@ function* fetchUserMenu({ api, logger }) {
     }
 
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable });
-    //   .map(item => {
-    //   set(item, 'config.isAvailable', isAvailable);
-    //
-    //   return item;
-    // });
 
     yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());

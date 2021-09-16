@@ -1,5 +1,6 @@
 import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
+import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId, TMP_ICON_EMPTY } from '../constants';
 
@@ -7,7 +8,7 @@ export function getIconObjectWeb(data) {
   let icon = { value: TMP_ICON_EMPTY };
 
   if (isString(data)) {
-    if (!data.includes('@')) {
+    if (!isEmpty(data) && !data.includes('@')) {
       icon.value = data;
 
       return icon;
