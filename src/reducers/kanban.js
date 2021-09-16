@@ -37,11 +37,7 @@ export const initialState = {
 export default handleActions(
   {
     [getBoardConfig]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { isFirstLoading: true, isLoading: true }, initialState);
-    },
-    [selectBoardId]: (state, { payload }) => {
-      const { boardList } = getCurrentStateById(state, payload.stateId, initialState);
-      return updateState(state, payload.stateId, { ...initialState, boardList }, initialState);
+      return updateState(state, payload.stateId, { boardConfig: undefined, isFirstLoading: true, isLoading: true }, initialState);
     },
     [applyFilter]: (state, { payload }) => {
       return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFiltered: true }, initialState);
