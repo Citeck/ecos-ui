@@ -97,7 +97,7 @@ export default class MenuSettingsService {
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
       hasIcon:
-        configType === ConfigTypes.USER ||
+        (configType === ConfigTypes.USER && ![ms.ItemTypes.USER_STATUS].includes(item.type)) ||
         ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
       hideableLabel: [ConfigTypes.LEFT].includes(configType) && [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)

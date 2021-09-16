@@ -242,7 +242,7 @@
           padding-left: 9px;
         }
 
-        .icon {
+        .icon:not(.icon_on):not(.icon_off) {
           color: $color-gray-5;
 
           &:before {

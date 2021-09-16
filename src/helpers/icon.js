@@ -7,6 +7,12 @@ export function getIconObjectWeb(data) {
   let icon = { value: TMP_ICON_EMPTY };
 
   if (isString(data)) {
+    if (!data.includes('@')) {
+      icon.value = data;
+
+      return icon;
+    }
+
     const [_source, _value] = data.split('@');
 
     if (_source && _value && _value !== 'null') {

@@ -134,7 +134,7 @@ export const UserMenu = {
   },
   USER_STATUS: {
     label: { ru: 'Сменить статус', en: 'Change status' },
-    icon: { type: 'icon', value: 'icon-user-normal' },
+    // icon: { type: 'icon', value: 'icon-user-normal' },
     type: MenuSettings.ItemTypes.USER_STATUS
   },
   USER_CHANGE_PASSWORD: {

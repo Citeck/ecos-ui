@@ -45,9 +45,19 @@ class UserMenu extends React.Component {
 
   renderMenuItem = (item, key) => {
     const icon = extractIcon(item.icon);
+    const extraProps = {};
+
+    if (item.info) {
+      extraProps.title = extractLabel(item.info);
+    }
 
     return (
-      <button key={item.id || key} className="ecos-header-user__menu-item" onClick={() => MenuService.getUserMenuCallback(item)}>
+      <button
+        key={item.id || key}
+        className="ecos-header-user__menu-item"
+        onClick={() => MenuService.getUserMenuCallback(item)}
+        {...extraProps}
+      >
         {icon && <Icon className={icon} />}
         <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
       </button>

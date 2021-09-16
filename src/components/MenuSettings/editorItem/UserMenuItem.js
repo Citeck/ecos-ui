@@ -11,6 +11,7 @@ import { MLText, SelectOrgstruct } from '../../common/form';
 import { Field } from '../Field';
 import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
 import { MenuApi } from '../../../api/menu';
+import { MenuSettings } from '../../../constants/menu';
 
 class UserMenuItem extends Base {
   #unmounted = false;
@@ -43,11 +44,12 @@ class UserMenuItem extends Base {
   }
 
   get permissions() {
+    const { item } = this.props;
     const permission = super.permissions;
 
     return {
       ...permission,
-      hasIcon: true
+      hasIcon: item.type !== MenuSettings.ItemTypes.USER_STATUS
     };
   }
 

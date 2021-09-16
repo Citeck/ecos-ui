@@ -9,6 +9,14 @@
     margin: 1px !important;
     width: auto !important;
   }
+
+  &_on {
+    color: $color-green1;
+  }
+
+  &_off {
+    color: $color-red-1;
+  }
 }
 
 .icon_small {
