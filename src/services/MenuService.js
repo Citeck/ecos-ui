@@ -1,20 +1,20 @@
-import { getSearchParams, SearchKeys } from '../helpers/urls';
-import { MenuSettings } from '../constants/menu';
 import get from 'lodash/get';
-import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../constants/pageTabs';
+import isEmpty from 'lodash/isEmpty';
+
 import { AppApi } from '../api/app';
 import DialogManager from '../components/common/dialogs/Manager';
-import { t } from '../helpers/export/util';
-import formDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import { getCurrentUserName } from '../helpers/util';
-import ecosFetch from '../helpers/ecosFetch';
+import { MenuSettings } from '../constants/menu';
 import { PROXY_URI } from '../constants/alfresco';
-import isEmpty from 'lodash/isEmpty';
 import RecordActions from '../components/Records/actions/recordActions';
 import { ActionTypes } from '../components/Records/actions';
+import { t } from '../helpers/export/util';
+import ecosFetch from '../helpers/ecosFetch';
+import { getCurrentUserName } from '../helpers/util';
 import { DEFAULT_FEEDBACK_URL, DEFAULT_REPORT_ISSUE_URL } from '../helpers/menu';
+import formDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
+import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
 
 export default class MenuService {
   static getSiteMenuLink = async function(menuItem, dashboard) {
@@ -41,24 +41,19 @@ export default class MenuService {
 
   static getUserMenuCallback = item => {
     const config = get(item, 'config', {});
-    let targetUrl = null;
-    let attributes = {};
-    let ignoreTabHandler = true;
-
-    console.warn({ item });
 
     switch (item.type) {
       case MenuSettings.ItemTypes.ARBITRARY: {
-        targetUrl = get(config, 'url', null);
+        const targetUrl = get(config, 'url', null);
+        const options = {};
 
         if (targetUrl && targetUrl.includes('http')) {
-          attributes.target = '_blank';
-          attributes.rel = 'noopener noreferrer';
+          options.openNewBrowserTab = true;
         } else {
-          ignoreTabHandler = false;
+          options.openNewTab = true;
         }
 
-        break;
+        return changeUrl(targetUrl, options);
       }
       case MenuSettings.ItemTypes.USER_LOGOUT: {
         return AppApi.doLogOut();
@@ -113,6 +108,11 @@ export default class MenuService {
           window.open(url || DEFAULT_FEEDBACK_URL);
         })();
       }
+      case MenuSettings.ItemTypes.USER_PROFILE: {
+        const targetUrl = createProfileUrl(encodeURIComponent(getCurrentUserName()));
+
+        return changeUrl(targetUrl, { openNewTab: true });
+      }
       case MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT: {
         return (async function() {
           const url = await Records.get(`${SourcesId.CONFIG}@custom-report-issue-url`)
@@ -126,14 +126,5 @@ export default class MenuService {
       default:
         break;
     }
-
-    if (ignoreTabHandler) {
-      attributes[IGNORE_TABS_HANDLER_ATTR_NAME] = true;
-    }
-
-    return {
-      targetUrl,
-      attributes
-    };
   };
 }

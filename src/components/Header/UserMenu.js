@@ -6,7 +6,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { extractLabel, t } from '../../helpers/util';
 import { Avatar, EcosDropdownMenu, Icon, Tooltip } from '../common';
-import { IcoBtn, TwoIcoBtn } from '../common/btns';
+import { IcoBtn } from '../common/btns';
 import MenuService from '../../services/MenuService';
 import { extractIcon } from '../../helpers/icon';
 
@@ -43,6 +43,17 @@ class UserMenu extends React.Component {
     }));
   };
 
+  renderMenuItem = (item, key) => {
+    const icon = extractIcon(item.icon);
+
+    return (
+      <button key={item.id || key} className="ecos-header-user__menu-item" onClick={() => MenuService.getUserMenuCallback(item)}>
+        {icon && <Icon className={icon} />}
+        <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
+      </button>
+    );
+  };
+
   render() {
     const { dropdownOpen } = this.state;
     const { isLoading, userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
@@ -70,17 +81,7 @@ class UserMenu extends React.Component {
               items={items}
               emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
               mode="custom"
-              renderItem={(item, key) => {
-                const icon = extractIcon(item.icon);
-                console.warn({ item, key });
-
-                return (
-                  <button className="ecos-header-user__menu-item" onClick={() => MenuService.getUserMenuCallback(item)}>
-                    {icon && <Icon className={icon} />}
-                    <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
-                  </button>
-                );
-              }}
+              renderItem={this.renderMenuItem}
             />
           </DropdownMenu>
         </Dropdown>

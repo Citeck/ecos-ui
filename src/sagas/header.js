@@ -1,6 +1,8 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import {
   fetchCreateCaseWidgetData,
@@ -19,13 +21,14 @@ import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 
-import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
+import { makeSiteMenu } from '../helpers/menu';
 import { hasInString } from '../helpers/util';
 import { URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
+import { DefaultUserMenu } from '../constants/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -43,11 +46,12 @@ function* fetchCreateCaseWidget({ api, logger }) {
 function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
-    const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const isExternalIDP = yield call(api.app.getIsExternalIDP);
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable, isExternalIDP));
-
+    const { userName, isDeputyAvailable: isAvailable } = userData || {};
     const config = yield call(api.menu.getUserCustomMenuConfig, userName);
+
+    if (isEmpty(config.items)) {
+      set(config, 'items', cloneDeep(DefaultUserMenu));
+    }
 
     const items = config.items.map(item => {
       set(item, 'config.isAvailable', isAvailable);
@@ -55,10 +59,7 @@ function* fetchUserMenu({ api, logger }) {
       return item;
     });
 
-    console.warn({ config, menuItems, items });
-
     yield put(setUserMenuItems(items));
-    // yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
   } catch (e) {
     logger.error('[fetchUserMenu saga] error', e.message);

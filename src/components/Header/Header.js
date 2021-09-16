@@ -36,6 +36,9 @@ const mapStateToProps = state => ({
 });
 
 class Header extends React.Component {
+  #userMenuUpdateWatcher;
+  #updateWatcher;
+
   state = {
     widthHeader: 0
   };
@@ -57,15 +60,19 @@ class Header extends React.Component {
       }
 
       this.recordMenu = Records.get(record);
-      this.updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
-        console.warn('UPDATE');
+
+      this.#updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
         this.props.fetchCreateCaseWidgetData();
+      });
+      this.#userMenuUpdateWatcher = this.recordMenu.watch('subMenu.user?json', () => {
+        this.props.fetchUserMenuData();
       });
     }
   }
 
   componentWillUnmount() {
-    this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
+    this.recordMenu && this.#updateWatcher && this.recordMenu.unwatch(this.#updateWatcher);
+    this.recordMenu && this.#userMenuUpdateWatcher && this.recordMenu.unwatch(this.#userMenuUpdateWatcher);
   }
 
   get menuWidth() {
