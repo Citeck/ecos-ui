@@ -312,8 +312,7 @@
 
     &--item {
       &-container {
-        z-index: 9999;
-        //z-index: map-get($z-index, draggable-tree-item);
+        z-index: map-get($z-index, draggable-tree-item);
       }
     }
   }
