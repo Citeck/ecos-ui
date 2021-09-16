@@ -1,5 +1,3 @@
-const EMPTY_CLIENT_CACHE_TIMEOUT = 14400000; // 1000 * 60 * 60 * 4 = 4 Hours
-
 export default class ClientInfoService {
   constructor() {
     this._clientInfoBySourceId = {};
@@ -23,23 +21,29 @@ export default class ClientInfoService {
       return infoFromCache;
     }
 
+    const appName = sourceId.substring(0, appDelimIdx);
+    const localSourceId = sourceId.substring(appDelimIdx + 1);
+
     const sessionCacheKey = 'rc-client-' + sourceId;
     const sessionCachedInfo = sessionStorage.getItem(sessionCacheKey);
     if (sessionCachedInfo) {
       const info = JSON.parse(sessionCachedInfo);
-      if (!info.until || !info.data || new Date().getTime() > info.until) {
+      if (!info.data) {
         sessionStorage.removeItem(sessionCacheKey);
       } else {
         this._clientInfoBySourceId[sourceId] = info.data;
+        // update client info in background
+        this.requestClientInfo(sourceId, appName, localSourceId, sessionCacheKey);
         return info.data;
       }
     }
 
-    this._clientInfoBySourceId[sourceId] = new Promise((resolve, reject) => {
-      const appName = sourceId.substring(0, appDelimIdx);
-      const localSourceId = sourceId.substring(appDelimIdx + 1);
+    this._clientInfoBySourceId[sourceId] = this.requestClientInfo(sourceId, appName, localSourceId, sessionCacheKey);
+  }
 
-      return this._records
+  requestClientInfo(sourceId, appName, localSourceId, sessionCacheKey) {
+    return new Promise((resolve, reject) => {
+      this._records
         .get(appName + '/src@' + localSourceId)
         .load('client{type,config?json}')
         .then(clientInfo => {
@@ -48,9 +52,7 @@ export default class ClientInfoService {
             sessionStorage.setItem(
               sessionCacheKey,
               JSON.stringify({
-                data: clientInfo,
-                // Records source without custom client can be cached to avoid unnecessary requests.
-                until: new Date().getTime() + EMPTY_CLIENT_CACHE_TIMEOUT + (Math.random() - 0.5) * 60000
+                data: clientInfo
               })
             );
           }

@@ -4496,11 +4496,21 @@ td > .form-group {
 .loader-wrapper {
   z-index: 1000;
   background-color: rgba(0, 0, 0, 0.1);
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+
+  /* because the forms use css-class "row" for negative margins */
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.modal .loader-wrapper {
+  position: fixed;
+  margin-right: 0;
+  margin-left: 0;
 }
 
 .loader {

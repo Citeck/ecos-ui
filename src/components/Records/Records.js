@@ -241,11 +241,10 @@ class RecordsComponent {
         }
 
         if (attsToLoad.length) {
-          records.push(
-            Object.assign(recordLoadedAtts, {
-              id: recordAtts.id
-            })
-          );
+          if (!recordLoadedAtts.hasOwnProperty('id')) {
+            recordLoadedAtts['id'] = recordAtts.id;
+          }
+          records.push(recordLoadedAtts);
         } else {
           records.push(recordAtts.id);
         }

@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
 import { Attributes, Permissions } from '../../../../constants';
-import { t } from '../../../../helpers/util';
+import { beArray, t } from '../../../../helpers/util';
 import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
@@ -88,14 +88,12 @@ export default class SelectJournal extends Component {
 
   componentDidMount() {
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
-    let initValue;
+    const initValue = beArray(defaultValue);
 
     this.checkJournalId();
 
-    if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-      initValue = [...defaultValue];
-    } else if (!multiple && !!defaultValue) {
-      initValue = Array.isArray(defaultValue) ? defaultValue : [defaultValue];
+    if (!multiple) {
+      initValue.splice(1);
     }
 
     if (initValue) {
@@ -132,7 +130,7 @@ export default class SelectJournal extends Component {
     if (multiple && Array.isArray(value) && value.length > 0) {
       newValue = [...value];
     } else if (!multiple && !!value) {
-      newValue = Array.isArray(value) ? value : [value];
+      newValue = beArray(value);
     }
 
     this.setValue(newValue, shouldTriggerOnChange);
@@ -477,26 +475,19 @@ export default class SelectJournal extends Component {
         }
         return Records.get(r).load('.disp');
       })
-    ).then(dispNames => {
-      let result = [];
-      for (let i = 0; i < selectedRows.length; i++) {
-        result.push({
-          id: selectedRows[i].id || selectedRows[i],
-          disp: dispNames[i] || selectedRows[i]
-        });
-      }
-      return result;
-    });
+    ).then(dispNames =>
+      selectedRows.map((row, index) => {
+        const id = get(row, 'id') || row;
+        const disp = get(dispNames, [index]) || id;
+        return { id, disp };
+      })
+    );
   };
 
   setValue = (selected, shouldTriggerOnChange = true) => {
     const { onChange, multiple } = this.props;
 
-    if (!selected) {
-      selected = [];
-    } else if (!Array.isArray(selected)) {
-      selected = [selected];
-    }
+    selected = beArray(selected);
 
     return this.fetchDisplayNames(selected)
       .then(this.fillCanEdit)
