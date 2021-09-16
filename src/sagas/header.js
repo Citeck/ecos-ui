@@ -57,7 +57,8 @@ function* fetchUserMenu({ api, logger }) {
 
     console.warn({ config, menuItems, items });
 
-    yield put(setUserMenuItems(menuItems));
+    yield put(setUserMenuItems(items));
+    // yield put(setUserMenuItems(menuItems));
     yield put(getAppUserThumbnail());
   } catch (e) {
     logger.error('[fetchUserMenu saga] error', e.message);

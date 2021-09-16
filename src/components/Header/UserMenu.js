@@ -4,9 +4,11 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { t } from '../../helpers/util';
-import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
-import { IcoBtn } from '../common/btns';
+import { extractLabel, t } from '../../helpers/util';
+import { Avatar, EcosDropdownMenu, Icon, Tooltip } from '../common';
+import { IcoBtn, TwoIcoBtn } from '../common/btns';
+import MenuService from '../../services/MenuService';
+import { extractIcon } from '../../helpers/icon';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -64,7 +66,22 @@ class UserMenu extends React.Component {
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-            <EcosDropdownMenu items={items} emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)} />
+            <EcosDropdownMenu
+              items={items}
+              emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
+              mode="custom"
+              renderItem={(item, key) => {
+                const icon = extractIcon(item.icon);
+                console.warn({ item, key });
+
+                return (
+                  <button className="ecos-header-user__menu-item" onClick={() => MenuService.getUserMenuCallback(item)}>
+                    {icon && <Icon className={icon} />}
+                    <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
+                  </button>
+                );
+              }}
+            />
           </DropdownMenu>
         </Dropdown>
       </>

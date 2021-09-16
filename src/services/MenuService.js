@@ -45,6 +45,8 @@ export default class MenuService {
     let attributes = {};
     let ignoreTabHandler = true;
 
+    console.warn({ item });
+
     switch (item.type) {
       case MenuSettings.ItemTypes.ARBITRARY: {
         targetUrl = get(config, 'url', null);

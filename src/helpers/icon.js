@@ -30,3 +30,9 @@ export function getIconRef(icon) {
 
   return icon;
 }
+
+export function extractIcon(icon) {
+  const data = getIconObjectWeb(icon);
+
+  return data.value;
+}

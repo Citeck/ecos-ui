@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import './Icon.scss';
-import PropTypes from 'prop-types';
 
 export default class Icon extends Component {
   static propTypes = {
