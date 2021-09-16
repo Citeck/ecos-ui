@@ -66,12 +66,18 @@ class Kanban extends React.Component {
     }
   };
 
-  handleDragStart = result => {
-    this.toggleScroll(true);
+  handleDragStart = () => {
+    const isDragging = true;
+
+    this.setState({ isDragging });
+    this.toggleScroll(isDragging);
   };
 
   handleDragEnd = result => {
-    this.toggleScroll(false);
+    const isDragging = false;
+
+    this.setState({ isDragging });
+    this.toggleScroll(isDragging);
     const cardIndex = get(result, 'source.index');
     const fromColumnRef = get(result, 'source.droppableId');
     const toColumnRef = get(result, 'destination.droppableId');
@@ -84,7 +90,6 @@ class Kanban extends React.Component {
   };
 
   toggleScroll = flag => {
-    this.setState({ isDragging: flag });
     const elmScrollView = get(this.refScroll, 'current.view');
 
     if (elmScrollView) {
@@ -94,9 +99,10 @@ class Kanban extends React.Component {
   };
 
   renderColumn = (data, index) => {
+    const { isDragging } = this.state;
     const { stateId } = this.props;
 
-    return <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} />;
+    return <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} isDragging={isDragging} />;
   };
 
   render() {
