@@ -13,7 +13,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
 import { getCurrentLocale, t } from './export/util';
-import { PREFIX_ALFRESCO } from '../constants/alfresco';
 
 export { getCookie, getCurrentLocale, t } from './export/util';
 
@@ -642,8 +641,7 @@ export function removeItemFromArray(array = [], item = '', byKey = '') {
 
 export function isNodeRef(str) {
   return (
-    typeof str === 'string' &&
-    (str.indexOf('workspace://SpacesStore/') === 0 || str.indexOf(`${PREFIX_ALFRESCO}workspace://SpacesStore/`) === 0)
+    typeof str === 'string' && (str.indexOf('workspace://SpacesStore/') === 0 || str.indexOf('alfresco/@workspace://SpacesStore/') === 0)
   );
 }
 

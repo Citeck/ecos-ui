@@ -5,7 +5,7 @@ import pick from 'lodash/pick';
 import omit from 'lodash/omit';
 
 import { JournalUrlParams, SourcesId, URL } from '../constants';
-import { PREFIX_ALFRESCO, PROXY_URI } from '../constants/alfresco';
+import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
@@ -83,7 +83,7 @@ export const createThumbnailUrl = (nodeRef, extra) => {
 };
 
 export function createPrintUrl({ record, config }) {
-  const nodeRef = record.id.replace(PREFIX_ALFRESCO, '');
+  const nodeRef = record.id.replace('alfresco/@', '');
   const params = {
     nodeRef,
     print: true,

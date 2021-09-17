@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
 import moment from 'moment';
 
-import { PREFIX_ALFRESCO, PROXY_URI } from '../../../constants/alfresco';
+import { PROXY_URI } from '../../../constants/alfresco';
 import { savePagePosition, updateModels } from '../../../actions/bpmn';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, ViewTypes } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
@@ -76,7 +76,7 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const dt = moment(item.created).calendar();
-      const itemNodeRef = item.id.replace(PREFIX_ALFRESCO, '');
+      const itemNodeRef = item.id.replace('alfresco/@', '');
       const recordId = itemNodeRef.replace('workspace://SpacesStore/', '');
       const editLink = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
       const viewLink = `/v2/dashboard?recordRef=${item.id}`;

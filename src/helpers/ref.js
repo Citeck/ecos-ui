@@ -1,5 +1,4 @@
 import isEmpty from 'lodash/isEmpty';
-import { PREFIX_ALFRESCO } from '../constants/alfresco';
 
 export const getRefWithAlfrescoPrefix = recordRef => {
   if (isEmpty(recordRef)) {
@@ -7,7 +6,7 @@ export const getRefWithAlfrescoPrefix = recordRef => {
   }
 
   if (recordRef.indexOf('workspace://') === 0) {
-    return `${PREFIX_ALFRESCO}${recordRef}`;
+    return `alfresco/@${recordRef}`;
   }
 
   return recordRef;
@@ -18,7 +17,7 @@ export const getRefExceptAlfrescoPrefix = recordRef => {
     return recordRef;
   }
 
-  recordRef.replace(PREFIX_ALFRESCO, '');
+  recordRef.replace('alfresco/@', '');
 
   return recordRef;
 };

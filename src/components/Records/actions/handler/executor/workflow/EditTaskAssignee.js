@@ -2,7 +2,6 @@ import ActionsExecutor from '../../ActionsExecutor';
 import { TasksApi } from '../../../../../../api/tasks';
 import WidgetService from '../../../../../../services/WidgetService';
 import { notifyFailure, notifySuccess } from '../../../util/actionUtils';
-import { PREFIX_ALFRESCO } from '../../../../../../constants/alfresco';
 
 export default class EditTaskAssignee extends ActionsExecutor {
   static ACTION_ID = 'edit-task-assignee';
@@ -17,8 +16,8 @@ export default class EditTaskAssignee extends ActionsExecutor {
 
     const _assignPromise = owner => {
       // Temporary fix for https://citeck.atlassian.net/browse/ECOSUI-976
-      if (owner && owner.indexOf(PREFIX_ALFRESCO) === 0) {
-        owner = owner.slice(owner.indexOf(PREFIX_ALFRESCO) + PREFIX_ALFRESCO.length);
+      if (owner && owner.indexOf('alfresco/@') === 0) {
+        owner = owner.slice(owner.indexOf('alfresco/@') + 'alfresco/@'.length);
       }
 
       return owner === false

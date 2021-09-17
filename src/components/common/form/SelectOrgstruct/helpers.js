@@ -1,5 +1,4 @@
 import { AUTHORITY_TYPE_USER } from './constants';
-import { PREFIX_ALFRESCO } from '../../../../constants/alfresco';
 
 export function handleResponse(result) {
   return result.map(item => ({
@@ -24,7 +23,7 @@ export function prepareSelected(selectedItem) {
 
 export function converterUserList(source) {
   return source.map(item => ({
-    id: item.id.replace(PREFIX_ALFRESCO, ''),
+    id: item.id,
     label: item.fullName,
     extraLabel: item.userName,
     attributes: item

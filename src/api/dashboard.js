@@ -11,7 +11,6 @@ import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
 import DashboardService from '../services/dashboard';
-import { PREFIX_ALFRESCO } from '../constants/alfresco';
 
 const defaultAttr = {
   config: 'config?json',
@@ -139,7 +138,7 @@ export class DashboardApi {
     let recType;
 
     if (recordRef) {
-      recType = await Records.get(recordRef.replace(PREFIX_ALFRESCO, '')).load('_etype?id', true);
+      recType = await Records.get(recordRef.replace('alfresco/@', '')).load('_etype?id', true);
     }
 
     if (!recType) {
