@@ -185,7 +185,7 @@ export const selectIsFilterOn = createSelector(
 
 export const selectWasChangedSettings = createSelector(
   selectState,
-  ownState => ownState.wasChangedSettingsOn.some(item => isTable(item))
+  ownState => get(ownState, 'wasChangedSettingsOn', []).some(item => isTable(item))
 );
 
 export const selectJournalPageProps = createSelector(

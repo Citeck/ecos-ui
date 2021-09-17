@@ -3,54 +3,24 @@ import { NotificationManager } from 'react-notifications';
 
 import { setBoardConfig, setBoardList, setFormProps, setIsEnabled } from '../../actions/kanban';
 import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
-import { sagaFormProps, sagaGetBoardConfig, sagaGetBoardList } from '../kanban';
+import { sagaGetBoardConfig, sagaGetBoardData } from '../kanban';
+import * as kanban from '../kanban';
+import * as journals from '../journals';
+import * as journalSelectors from '../../selectors/journals';
+import KanbanApi from '../__mocks__/kanbanApi';
+import data from '../__mocks__/kanbanData';
+import JournalsService from '../../components/Journals/service/journalsService';
+import JournalApi from '../__mocks__/journalApi';
+import { initJournalSettingData, setJournalConfig, setJournalSetting } from '../../actions/journals';
 
 const journalId = 'journalId',
   stateId = 'stateId',
   boardId = 'boardId',
   formId = 'formId';
 
-const data = Object.freeze({
-  boardList: [{ id: 'id1', name: 'name1' }, { id: 'id2', name: 'name2' }],
-  boardConfig: {
-    id: 'identifier',
-    name: { ru: 'Русское имя', en: 'English name' },
-    readOnly: true,
-    typeRef: 'emodel/type@some-type',
-    journalRef: 'uiserv/journal@some-journal',
-    cardFormRef: 'uiserv/form@some-form',
-    actions: ['uiserv/action@some-action'],
-    columns: [
-      {
-        id: 'some-id',
-        name: { ru: 'Русское имя', en: 'English name' }
-      }
-    ]
-  },
-  formConfig: {
-    i18n: {},
-    formDefinition: {
-      components: [
-        {
-          label: {
-            ru: 'id'
-          },
-          key: 'id',
-          refreshOn: [],
-          type: 'hidden',
-          input: true
-        }
-      ]
-    }
-  },
-  formFields: {}
-});
-
 const api = {
-  kanban: {
-    getBoardList: ({ journalId }) => (journalId ? data.boardList : null),
-    getBoardConfig: () => data.boardConfig
-  }
+  kanban: new KanbanApi(),
+  journals: new JournalApi()
 };
 
 const logger = { error: jest.fn() };
@@ -64,13 +34,15 @@ const spyGetFormById = jest
   .mockImplementation((formId, props) => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
 const spyGetFormInputs = jest.spyOn(EcosFormUtils, 'getFormInputs').mockImplementation(() => data.formFields);
 const spyError = jest.spyOn(NotificationManager, 'error').mockResolvedValue(null);
+const spyGetJournalConfig = jest.spyOn(JournalsService, 'getJournalConfig').mockResolvedValue(data.journalConfig);
 
-async function wrapRunSaga(sagaFun, payload) {
+async function wrapRunSaga(sagaFun, payload, state) {
   const dispatched = [];
 
   await runSaga(
     {
-      dispatch: action => dispatched.push(action)
+      dispatch: action => dispatched.push(action),
+      getState: () => state
     },
     sagaFun,
     { api, logger },
@@ -82,7 +54,7 @@ async function wrapRunSaga(sagaFun, payload) {
 
 describe('kanban sagas tests', () => {
   it('sagaGetBoardList > there are _boards', async () => {
-    const dispatched = await wrapRunSaga(sagaGetBoardList, { journalId, stateId });
+    const dispatched = await wrapRunSaga(kanban.sagaGetBoardList, { journalId, stateId });
     const [first, second] = dispatched;
 
     expect(dispatched.length).toEqual(2);
@@ -93,7 +65,7 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaGetBoardList > there are _no boards', async () => {
-    const dispatched = await wrapRunSaga(sagaGetBoardList, { stateId });
+    const dispatched = await wrapRunSaga(kanban.sagaGetBoardList, { stateId });
     const [first] = dispatched;
 
     expect(dispatched.length).toEqual(1);
@@ -111,7 +83,7 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaFormProps > there is _form', async () => {
-    const dispatched = await wrapRunSaga(sagaFormProps, { formId, stateId });
+    const dispatched = await wrapRunSaga(kanban.sagaFormProps, { formId, stateId });
     const [first] = dispatched;
 
     expect(spyGetFormById).toHaveBeenCalledTimes(1);
@@ -120,11 +92,11 @@ describe('kanban sagas tests', () => {
 
     expect(dispatched.length).toEqual(1);
     expect(first.type).toEqual(setFormProps().type);
-    expect(first.payload.formProps).toEqual({ ...data.formConfig, formFields: data.formFields });
+    expect(first.payload.formProps).toEqual(data.formProps);
   });
 
   it('sagaFormProps > there is _no form', async () => {
-    const dispatched = await wrapRunSaga(sagaFormProps, { stateId });
+    const dispatched = await wrapRunSaga(kanban.sagaFormProps, { stateId });
     const [first] = dispatched;
 
     expect(spyGetFormById).not.toHaveBeenCalled();
@@ -137,7 +109,7 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaFormProps > there is _no form _definition', async () => {
-    const dispatched = await wrapRunSaga(sagaFormProps, { formId: 'no-def', stateId });
+    const dispatched = await wrapRunSaga(kanban.sagaFormProps, { formId: 'no-def', stateId });
     const [first] = dispatched;
 
     expect(spyGetFormById).toHaveBeenCalledTimes(1);
@@ -148,4 +120,33 @@ describe('kanban sagas tests', () => {
     expect(first.type).toEqual(setFormProps().type);
     expect(first.payload.formProps).toEqual({});
   });
+
+  it('sagaGetBoardData > there is _journal config', async () => {
+    const dispatched = await wrapRunSaga(
+      sagaGetBoardData,
+      { stateId },
+      {
+        journals: {
+          [stateId]: {
+            journalConfig: {},
+            journalSetting: {}
+          }
+        }
+      }
+    );
+    console.log(dispatched);
+    const [a, b, c, d, e, f] = dispatched;
+
+    expect(dispatched.length).toEqual(5);
+    expect(spyGetJournalConfig).toHaveBeenCalledTimes(1);
+    expect(a.type).toEqual(setBoardConfig().type);
+    expect(b.type).toEqual(setFormProps().type);
+    expect(c.type).toEqual(setJournalConfig().type);
+    expect(d.type).toEqual(setJournalSetting().type);
+    expect(e.type).toEqual(initJournalSettingData().type);
+  });
+
+  // it('sagaGetBoardData > there is _no journal config', async () => {
+
+  // });
 });
