@@ -26,7 +26,6 @@ const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
 const originalSetInputMask = Base.prototype.setInputMask;
 const originalCreateLabel = Base.prototype.createLabel;
-const originalCreateViewOnlyLabel = Base.prototype.createViewOnlyLabel;
 const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
 const originalSetupValueElement = Base.prototype.setupValueElement;
@@ -645,9 +644,17 @@ Base.prototype.createLabel = function(container) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Base.prototype.createViewOnlyLabel = function(container) {
-  originalCreateViewOnlyLabel.call(this, container);
-
   if (this.labelIsHidden()) {
+    return;
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1400
+  if (!this.labelElement) {
+    this.labelElement = this.ce('dt');
+    this.labelElement.appendChild(this.text(this.component.label));
+    this.createTooltip(this.labelElement);
+    container.appendChild(this.labelElement);
+
     return;
   }
 
