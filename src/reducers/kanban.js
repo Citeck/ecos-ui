@@ -4,7 +4,6 @@ import {
   getBoardConfig,
   reloadBoardData,
   resetFilter,
-  selectBoardId,
   setBoardConfig,
   setBoardList,
   setDataCards,
@@ -17,7 +16,7 @@ import {
   setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
-import { getCurrentStateById, updateState } from '../helpers/redux';
+import { updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 export const initialState = {

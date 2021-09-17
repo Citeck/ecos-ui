@@ -112,7 +112,7 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
     const formProps = yield sagaFormProps({ api, logger }, { payload: { formId: boardConfig.cardFormRef, stateId } });
     let { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
 
-    if (isEmpty(journalConfig) || isEqual(journalConfig, emptyJournalConfig)) {
+    if (!!boardConfig.journalRef && (isEmpty(journalConfig) || isEqual(journalConfig, emptyJournalConfig))) {
       const w = wrapArgs(stateId);
       journalConfig = yield getJournalConfig({ api, w, force: true }, boardConfig.journalRef);
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);

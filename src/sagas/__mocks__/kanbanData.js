@@ -10,7 +10,11 @@ const data = Object.freeze({
     actions: ['uiserv/action@some-action'],
     columns: [
       {
-        id: 'some-id',
+        id: 'some-id-1',
+        name: { ru: 'Русское имя', en: 'English name' }
+      },
+      {
+        id: 'some-id-2',
         name: { ru: 'Русское имя', en: 'English name' }
       }
     ]
@@ -33,9 +37,22 @@ const data = Object.freeze({
   },
   formFields: [],
   formProps: {},
-  journalConfig: { id: 'journalId' },
+  journalConfig: { id: 'journalId', sourceId: 'sourceId', meta: { createVariants: [], actions: [] } },
   journalSetting: { journalId: 'journalId' },
-  journalData: {}
+  journalData: {
+    records: [
+      {
+        id: 'ab5b8a',
+        attributes: {}
+      },
+      {
+        id: 'ab5b8a11',
+        attributes: {}
+      }
+    ],
+    totalCount: 2
+  },
+  journalActions: { forRecord: {} }
 });
 
 data.formProps.i18n = data.formConfig.i18n;
