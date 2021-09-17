@@ -31,10 +31,11 @@ const data = Object.freeze({
       ]
     }
   },
-  formFields: {},
+  formFields: [],
   formProps: {},
   journalConfig: { id: 'journalId' },
-  journalSetting: { journalId: 'journalId' }
+  journalSetting: { journalId: 'journalId' },
+  journalData: {}
 });
 
 data.formProps.i18n = data.formConfig.i18n;

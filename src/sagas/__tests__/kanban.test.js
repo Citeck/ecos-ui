@@ -35,6 +35,7 @@ const spyGetFormById = jest
 const spyGetFormInputs = jest.spyOn(EcosFormUtils, 'getFormInputs').mockImplementation(() => data.formFields);
 const spyError = jest.spyOn(NotificationManager, 'error').mockResolvedValue(null);
 const spyGetJournalConfig = jest.spyOn(JournalsService, 'getJournalConfig').mockResolvedValue(data.journalConfig);
+const spyGetJournalData = jest.spyOn(JournalsService, 'getJournalData').mockResolvedValue(data.journalData);
 
 async function wrapRunSaga(sagaFun, payload, state) {
   const dispatched = [];
@@ -135,7 +136,7 @@ describe('kanban sagas tests', () => {
       }
     );
     console.log(dispatched);
-    const [a, b, c, d, e, f] = dispatched;
+    const [a, b, c, d, e] = dispatched;
 
     expect(dispatched.length).toEqual(5);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(1);
