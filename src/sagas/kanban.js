@@ -269,7 +269,11 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
   let rollbackCards = [];
   try {
     const { stateId, cardIndex, fromColumnRef, toColumnRef } = payload;
-    const { dataCards: prevDataCards, boardConfig } = yield select(selectKanban, stateId);
+    const { dataCards: prevDataCards = [], boardConfig = {} } = yield select(selectKanban, stateId);
+
+    if (!boardConfig || isEmpty(boardConfig.columns)) {
+      throw new Error('No columns in config?!');
+    }
 
     const dataCards = cloneDeep(prevDataCards);
     rollbackCards = cloneDeep(prevDataCards);
