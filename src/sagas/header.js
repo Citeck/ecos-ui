@@ -1,5 +1,8 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import {
   fetchCreateCaseWidgetData,
@@ -18,13 +21,15 @@ import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 
-import { makeSiteMenu, makeUserMenuItems } from '../helpers/menu';
+import { makeSiteMenu } from '../helpers/menu';
 import { hasInString } from '../helpers/util';
-import { URL } from '../constants';
+import { SourcesId, URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
+import { DefaultUserMenu } from '../constants/menu';
+import { getIconObjectWeb } from '../helpers/icon';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -46,13 +51,31 @@ function* fetchCreateCaseWidget({ api, logger }) {
   }
 }
 
-function* fetchUserMenu({ logger }) {
+function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
-    const { userName, isDeputyAvailable: isAvailable, isMutable } = userData || {};
-    const menuItems = yield call(() => makeUserMenuItems(userName, isAvailable, isMutable));
+    const { userName, isDeputyAvailable: isAvailable } = userData || {};
+    const config = yield call(api.menu.getUserCustomMenuConfig, userName);
 
-    yield put(setUserMenuItems(menuItems));
+    if (isEmpty(config.items)) {
+      set(config, 'items', cloneDeep(DefaultUserMenu));
+    }
+
+    const items = MenuConverter.getUserMenuItems(config.items, { isAvailable });
+
+    yield Promise.all(
+      items.map(async item => {
+        if (item.icon.indexOf(SourcesId.ICON) === 0) {
+          item.icon = await api.customIcon.getIconInfo(item.icon);
+
+          return;
+        }
+
+        item.icon = getIconObjectWeb(item.icon);
+      })
+    );
+
+    yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());
   } catch (e) {
     logger.error('[fetchUserMenu saga] error', e.message);

@@ -7,7 +7,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { isExistValue, packInLabel, t } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
 import { treeFindFirstItem, treeGetPathItem, treeRemoveItem } from '../helpers/arrayOfObjects';
-import { ConfigTypes, MenuSettings as ms, MenuTypes } from '../constants/menu';
+import { ConfigTypes, MenuSettings as ms, MenuTypes, UserMenu, UserOptions } from '../constants/menu';
 
 export default class MenuSettingsService {
   static emitter = new EventEmitter2();
@@ -96,7 +96,9 @@ export default class MenuSettingsService {
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
-      hasIcon: [ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level),
+      hasIcon:
+        (configType === ConfigTypes.USER && ![ms.ItemTypes.USER_STATUS].includes(item.type)) ||
+        ([ConfigTypes.LEFT].includes(configType) && ![ms.ItemTypes.HEADER_DIVIDER].includes(item.type) && [1].includes(level)),
       hasUrl: [ms.ItemTypes.ARBITRARY].includes(item.type),
       hideableLabel: [ConfigTypes.LEFT].includes(configType) && [ms.ItemTypes.SECTION].includes(item.type) && [0].includes(level)
     };
@@ -226,16 +228,45 @@ export default class MenuSettingsService {
     }
   ];
 
+  static userMenuCreateOptions = [
+    {
+      ...UserOptions.USER_PROFILE,
+      default: UserMenu.USER_PROFILE
+    },
+    {
+      ...UserOptions.USER_STATUS,
+      default: UserMenu.USER_STATUS
+    },
+    {
+      ...UserOptions.USER_CHANGE_PASSWORD,
+      default: UserMenu.USER_CHANGE_PASSWORD
+    },
+    {
+      ...UserOptions.USER_FEEDBACK,
+      default: UserMenu.USER_FEEDBACK
+    },
+    {
+      ...UserOptions.USER_SEND_PROBLEM_REPORT,
+      default: UserMenu.USER_SEND_PROBLEM_REPORT
+    },
+    {
+      ...UserOptions.USER_LOGOUT,
+      default: UserMenu.USER_LOGOUT
+    },
+    UserOptions.ARBITRARY
+  ];
+
   static getCreateOptionsByType(configType) {
-    if (configType === ConfigTypes.LEFT) {
-      return MenuSettingsService.leftMenuCreateOptions;
+    switch (configType) {
+      case ConfigTypes.LEFT:
+        return MenuSettingsService.leftMenuCreateOptions;
+      case ConfigTypes.CREATE:
+        return MenuSettingsService.createMenuCreateOptions;
+      case ConfigTypes.USER:
+        return MenuSettingsService.userMenuCreateOptions;
+      default:
+        return [];
     }
-
-    if (configType === ConfigTypes.CREATE) {
-      return MenuSettingsService.createMenuCreateOptions;
-    }
-
-    return [];
   }
 
   static getAvailableCreateOptions = (item, params) => {

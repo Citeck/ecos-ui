@@ -1,6 +1,8 @@
 @import '../../../../styles/constants';
 
 .icon {
+  $i: &;
+
   display: inline-block;
   font-size: 20px;
   line-height: 20px;
@@ -9,9 +11,21 @@
     margin: 1px !important;
     width: auto !important;
   }
-}
 
-.icon_small {
-  font-size: 14px;
-  line-height: 14px;
+  &#{$i}_btn {
+    cursor: pointer;
+  }
+
+  &#{$i}_on {
+    color: $color-green1;
+  }
+
+  &#{$i}_off {
+    color: $color-red-1;
+  }
+
+  &#{$i}_small {
+    font-size: 14px;
+    line-height: 14px;
+  }
 }

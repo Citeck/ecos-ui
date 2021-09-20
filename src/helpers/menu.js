@@ -9,8 +9,8 @@ import { documentScrollTop } from './util';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
 
-const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
-const DEFAULT_REPORT_ISSUE_URL =
+export const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
+export const DEFAULT_REPORT_ISSUE_URL =
   'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
 
 export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalAuthentication) => {
