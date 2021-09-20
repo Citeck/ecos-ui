@@ -23,12 +23,13 @@ import { setLeftMenuEditable } from '../actions/app';
 
 import { makeSiteMenu } from '../helpers/menu';
 import { hasInString } from '../helpers/util';
-import { URL } from '../constants';
+import { SourcesId, URL } from '../constants';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
 import { DefaultUserMenu } from '../constants/menu';
+import { getIconObjectWeb } from '../helpers/icon';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -54,6 +55,18 @@ function* fetchUserMenu({ api, logger }) {
     }
 
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable });
+
+    yield Promise.all(
+      items.map(async item => {
+        if (item.icon.indexOf(SourcesId.ICON) === 0) {
+          item.icon = await api.customIcon.getIconInfo(item.icon);
+
+          return;
+        }
+
+        item.icon = getIconObjectWeb(item.icon);
+      })
+    );
 
     yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());

@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { extractLabel, t } from '../../helpers/util';
-import { Avatar, EcosDropdownMenu, Icon, Tooltip } from '../common';
+import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
 import MenuService from '../../services/MenuService';
-import { extractIcon } from '../../helpers/icon';
+import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
+import EcosIcon from '../common/EcosIcon';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -58,7 +59,7 @@ class UserMenu extends React.Component {
         onClick={() => MenuService.getUserMenuCallback(item)}
         {...extraProps}
       >
-        {icon && <Icon className={icon} />}
+        {icon && <EcosIcon data={getIconObjectWeb(item.icon)} />}
         <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
       </button>
     );
