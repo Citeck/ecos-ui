@@ -368,6 +368,8 @@ describe('kanban sagas tests', () => {
     expect(_dataCards.type).toEqual(setDataCards().type);
     expect(_dataCards.payload.dataCards).toEqual([]);
 
+    expect(spyError).toHaveBeenCalled();
+
     expect(dispatched).toHaveLength(2);
   });
 
@@ -394,6 +396,8 @@ describe('kanban sagas tests', () => {
     expect(_loadingColumns.payload.isLoadingColumns).toEqual([]);
     expect(_dataCards.type).toEqual(setDataCards().type);
     expect(_dataCards.payload.dataCards).toEqual([]);
+
+    expect(spyError).not.toHaveBeenCalled();
 
     expect(dispatched).toHaveLength(2);
   });
