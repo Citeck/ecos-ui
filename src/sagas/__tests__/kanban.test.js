@@ -8,13 +8,14 @@ import {
   setDataCards,
   setFormProps,
   setIsEnabled,
+  setIsFiltered,
   setLoading,
   setLoadingColumns,
   setPagination,
   setResolvedActions,
   setTotalCount
 } from '../../actions/kanban';
-import { initJournalSettingData, setJournalConfig, setJournalSetting } from '../../actions/journals';
+import { initJournalSettingData, setJournalConfig, setJournalSetting, setPredicate } from '../../actions/journals';
 import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
 import JournalsService from '../../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
@@ -374,31 +375,107 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaMoveCard > there is _some data', async () => {
+    const dataCards = [data.journalData];
+    expect(dataCards).toHaveLength(1);
+    expect(get(dataCards, '[0].records')).toHaveLength(2);
+
     const dispatched = await wrapRunSaga(
       kanban.sagaMoveCard,
       {
         cardIndex: 0,
-        fromColumnRef: 0,
-        toColumnRef: 1
+        fromColumnRef: 'some-id-1',
+        toColumnRef: 'some-id-2'
       },
       {
         kanban: {
           [stateId]: {
-            dataCards: [data.journalData, {}],
+            dataCards,
             boardConfig: data.boardConfig
           }
         }
       }
     );
-    const [_loadingColumns, _dataCards] = dispatched;
+    const [_firstLoadingColumns, _dataCards, _lastLoadingColumns] = dispatched;
 
-    expect(_loadingColumns.type).toEqual(setLoadingColumns().type);
-    expect(_loadingColumns.payload.isLoadingColumns).toEqual([]);
+    expect(_firstLoadingColumns.type).toEqual(setLoadingColumns().type);
+    expect(_firstLoadingColumns.payload.isLoadingColumns).toEqual([0, 1]);
     expect(_dataCards.type).toEqual(setDataCards().type);
-    expect(_dataCards.payload.dataCards).toEqual([]);
+    expect(get(_dataCards, 'payload.dataCards')).toHaveLength(2);
+    expect(get(_dataCards, 'payload.dataCards[0].records')).toHaveLength(1);
+    expect(get(_dataCards, 'payload.dataCards[1].records')).toHaveLength(1);
+    expect(get(_dataCards, 'payload.dataCards[0].records[0].id')).toEqual('2');
+    expect(get(_dataCards, 'payload.dataCards[1].records[0].id')).toEqual('1');
+    expect(_lastLoadingColumns.payload.isLoadingColumns).toEqual([]);
 
     expect(spyError).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(2);
+    expect(dispatched).toHaveLength(3);
+  });
+
+  it('sagaApplyFilter', async () => {
+    const dispatched = await wrapRunSaga(
+      kanban.sagaApplyFilter,
+      {
+        settings: { predicate: { a: 1 } }
+      },
+      {
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting
+          }
+        },
+        kanban: {
+          [stateId]: {
+            boardConfig: data.boardConfig,
+            formProps: data.formProps,
+            pagination: { page: 1000 }
+          }
+        }
+      }
+    );
+    const [_predicate, _journalSetting, _pagination, , , , _loading] = dispatched;
+
+    expect(_predicate.type).toEqual(setPredicate().type);
+    expect(_journalSetting.type).toEqual(setJournalSetting().type);
+    expect(_pagination.type).toEqual(setPagination().type);
+    expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
+    expect(_loading.type).toEqual(setLoading().type);
+
+    expect(dispatched).toHaveLength(7);
+  });
+
+  it('sagaResetFilter', async () => {
+    const dispatched = await wrapRunSaga(
+      kanban.sagaResetFilter,
+      {},
+      {
+        journals: {
+          [stateId]: {
+            journalConfig: data.journalConfig,
+            journalSetting: data.journalSetting,
+            originGridSettings: { predicate: { b: 1 } }
+          }
+        },
+        kanban: {
+          [stateId]: {
+            boardConfig: data.boardConfig,
+            formProps: data.formProps,
+            pagination: { page: 1000 }
+          }
+        }
+      }
+    );
+    const [_predicate, _journalSetting, _pagination, , , , , _isFiltered] = dispatched;
+
+    expect(_predicate.type).toEqual(setPredicate().type);
+    expect(_predicate.payload._args).toEqual({ b: 1 });
+    expect(_journalSetting.type).toEqual(setJournalSetting().type);
+    expect(_pagination.type).toEqual(setPagination().type);
+    expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
+    expect(_isFiltered.type).toEqual(setIsFiltered().type);
+    expect(_isFiltered.payload.isFiltered).toEqual(false);
+
+    expect(dispatched).toHaveLength(8);
   });
 });

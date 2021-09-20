@@ -286,14 +286,21 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
 
+    if (isEmpty(get(dataCards, [toColumnIndex, 'records']))) {
+      set(dataCards, [toColumnIndex, 'records'], []);
+      set(dataCards, [toColumnIndex, 'totalCount'], 0);
+    }
+
     const card = get(deleted, [0], {});
+    const recordRef = card.id || card.cardId;
+
     dataCards[toColumnIndex].records.unshift(card);
     dataCards[toColumnIndex].totalCount += 1;
 
     yield put(setDataCards({ stateId, dataCards }));
-    const result = yield call(api.kanban.moveRecord, { recordRef: card.id, columnId: toColumnRef });
+    const result = yield call(api.kanban.moveRecord, { recordRef, columnId: toColumnRef });
 
-    if (get(result, 'id') !== card.id) {
+    if (get(result, 'id') !== recordRef) {
       throw new Error('Incorrect move result');
     }
   } catch (e) {
@@ -332,7 +339,7 @@ export function* sagaResetFilter({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
     const settings = yield select(selectSettingsData, stateId);
-    const predicate = settings.originGridSettings.predicate;
+    const predicate = get(settings, 'originGridSettings.predicate', {});
 
     yield sagaApplyFilter({ api, logger }, { payload: { stateId, settings: { predicate } } });
     yield put(setIsFiltered({ stateId, isFiltered: false }));

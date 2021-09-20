@@ -37,7 +37,7 @@ class Column extends React.PureComponent {
       case loading:
         text = ' ';
         break;
-      case dropDisabled:
+      case dropDisabled && !isEmpty(records):
         temp = true;
         text = t(Labels.Kanban.DND_NOT_MOVE_HERE);
         break;

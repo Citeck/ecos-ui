@@ -111,7 +111,7 @@ class Kanban extends React.Component {
     const cols = columns || Array(3).map((_, id) => ({ id }));
 
     return (
-      <div className="ecos-kanban" style={{ '--count-col': cols.length }}>
+      <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
         <Scrollbars
           autoHeight
           autoHeightMin={this.getHeight()}

@@ -42,11 +42,11 @@ const data = Object.freeze({
   journalData: {
     records: [
       {
-        id: 'ab5b8a',
+        id: '1',
         attributes: {}
       },
       {
-        id: 'ab5b8a11',
+        id: '2',
         attributes: {}
       }
     ],
