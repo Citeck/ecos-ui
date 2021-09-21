@@ -540,4 +540,21 @@ Base.prototype.createWidget = function() {
   return widget;
 };
 
+Base.prototype.createViewOnlyLabel = function(container) {
+  if (this.labelIsHidden()) {
+    return;
+  }
+
+  if (!this.labelElement) {
+    this.labelElement = this.ce('dt');
+    this.labelElement.appendChild(this.text(this.component.label));
+    this.createTooltip(this.labelElement);
+    container.appendChild(this.labelElement);
+
+    return;
+  }
+
+  this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
+};
+
 export default Base;
