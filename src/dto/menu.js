@@ -73,7 +73,7 @@ export default class MenuConverter {
 
   static getUserMenuItems(source = [], config) {
     return cloneDeep(source).map(item => {
-      Object.keys(config).map(key => set(item, ['config', key], config[key]));
+      Object.keys(config).forEach(key => set(item, ['config', key], config[key]));
 
       if (item.type === MenuSettings.ItemTypes.USER_STATUS) {
         const availability = 'make-' + (config.isAvailable === false ? '' : 'not') + 'available';

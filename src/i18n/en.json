@@ -1337,6 +1337,8 @@
   "menu-settings.editor-group-priority.title": "Group priority",
   "menu-settings.error-boundary.title": "Error",
   "menu-settings.error-boundary.msg": "Try reopen the settings. If the error reappears, contact your administrator",
+  "menu-editor.user.empty.msg": "The user menu is not configured or all items are hidden. In order to comfortably interact with the site, the basic user menu will be displayed:\n{{items}}",
+
   "menu-settings.error.no-id-config": "User menu ID is absent",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",

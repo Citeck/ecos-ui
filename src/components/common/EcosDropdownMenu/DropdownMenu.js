@@ -23,7 +23,7 @@ const MenuModes = {
 export default class EcosDropdownMenu extends React.Component {
   static propTypes = {
     items: PropTypes.array,
-    mode: PropTypes.oneOf(Object.keys(MenuModes).map(key => MenuModes[key])),
+    mode: PropTypes.oneOf(Object.values(MenuModes)),
     setGroup: PropTypes.shape({
       showGroupName: PropTypes.bool,
       showSeparator: PropTypes.bool,
