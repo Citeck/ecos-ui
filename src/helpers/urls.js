@@ -405,7 +405,7 @@ export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = [
 
 export const getUrlWithoutOrigin = (location = window.location) => {
   const pathname = get(location, 'pathname', window.location.pathname);
-  const search = get(location, 'search', window.location.search);
+  const search = get(location, 'search', window.location.search || '');
 
   return `${pathname}${search}`;
 };
