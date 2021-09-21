@@ -81,6 +81,30 @@ class Card extends React.PureComponent {
     );
   };
 
+  renderBody = () => {
+    const { data, formProps } = this.props;
+    const { openerSet } = this.state;
+
+    return (
+      <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
+        <FormWrapper
+          className="ecos-kanban__card-form"
+          isVisible
+          {...formProps}
+          formData={data}
+          formOptions={{
+            readOnly: true,
+            viewAsHtml: true,
+            fullWidthColumns: true,
+            viewAsHtmlConfig: {
+              hidePanels: true
+            }
+          }}
+        />
+      </div>
+    );
+  };
+
   renderBottom = () => {
     const { data } = this.props;
     const { openerSet } = this.state;
@@ -112,8 +136,7 @@ class Card extends React.PureComponent {
   };
 
   render() {
-    const { data, cardIndex, formProps, readOnly } = this.props;
-    const { openerSet } = this.state;
+    const { data, cardIndex, readOnly } = this.props;
 
     return (
       <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
@@ -123,22 +146,7 @@ class Card extends React.PureComponent {
             <div ref={provided.innerRef} {...provided.draggableProps}>
               <div className={classNames('ecos-kanban__card', { 'ecos-kanban__card_dragging': snapshot.isDragging })}>
                 {this.renderHeader(provided)}
-                <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
-                  <FormWrapper
-                    className="ecos-kanban__card-form"
-                    isVisible
-                    {...formProps}
-                    formData={data}
-                    formOptions={{
-                      readOnly: true,
-                      viewAsHtml: true,
-                      fullWidthColumns: true,
-                      viewAsHtmlConfig: {
-                        hidePanels: true
-                      }
-                    }}
-                  />
-                </div>
+                {this.renderBody()}
               </div>
             </div>
           );

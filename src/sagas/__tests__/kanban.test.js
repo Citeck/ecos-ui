@@ -51,13 +51,9 @@ const spyGetFormById = jest
   .mockImplementation(formId => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
 const spyGetFormInputs = jest.spyOn(EcosFormUtils, 'getFormInputs').mockReturnValue(data.formFields);
 const spyGetJournalConfig = jest.spyOn(JournalsService, 'getJournalConfig').mockResolvedValue(data.journalConfig);
-const spyGetJournalData = jest.spyOn(JournalsService, 'getJournalData').mockImplementation(d => {
-  if (d.id === 'set-data-cards') {
-    return data.journalData;
-  }
-
-  return {};
-});
+const spyGetJournalData = jest
+  .spyOn(JournalsService, 'getJournalData')
+  .mockImplementation(d => (d.id === 'set-data-cards' ? data.journalData : {}));
 const spyGetRecordActions = jest.spyOn(JournalsService, 'getRecordActions').mockResolvedValue(data.journalActions);
 const spyChangeUrlLink = jest.spyOn(PageService, 'changeUrlLink').mockResolvedValue(data.journalActions);
 
