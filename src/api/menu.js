@@ -200,6 +200,7 @@ export class MenuApi extends CommonApi {
     return Records.queryOne(
       {
         sourceId: SourcesId.RESOLVED_MENU,
+        // sourceId: SourcesId.MENU,
         query: { version, user }
       },
       'subMenu.user?json'

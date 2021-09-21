@@ -1,9 +1,18 @@
+import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import { Alert } from 'reactstrap';
 
 import BaseEditorMenu from './BaseEditorMenu';
-import { ConfigTypes, MenuSettings } from '../../../constants/menu';
+import { ConfigTypes, DefaultUserMenu, MenuSettings } from '../../../constants/menu';
 import { setUserMenuItems } from '../../../actions/menuSettings';
+import { extractLabel } from '../../../helpers/util';
+import { t } from '../../../helpers/export/util';
+
+const Labels = {
+  EMPTY_MESSAGE: 'menu-editor.user.empty.msg'
+};
 
 class EditorUserMenu extends BaseEditorMenu {
   configType = ConfigTypes.USER;
@@ -17,6 +26,18 @@ class EditorUserMenu extends BaseEditorMenu {
   }
 
   renderToggleOpenButton = () => null;
+
+  renderDescription() {
+    const { items } = this.props;
+
+    if (!isEmpty(items.filter(item => !item.hidden))) {
+      return null;
+    }
+
+    return (
+      <Alert color="info ws-bs">{t(Labels.EMPTY_MESSAGE, { items: DefaultUserMenu.map(i => extractLabel(i.label)).join(', ') })}</Alert>
+    );
+  }
 }
 
 const mapStateToProps = state => ({

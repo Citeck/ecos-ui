@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import isString from 'lodash/isString';
 
 import {
   fetchCreateCaseWidgetData,
@@ -65,8 +66,10 @@ function* fetchUserMenu({ api, logger }) {
 
     yield Promise.all(
       items.map(async item => {
-        if (item.icon.indexOf(SourcesId.ICON) === 0) {
-          item.icon = await api.customIcon.getIconInfo(item.icon);
+        const icon = get(item, 'icon');
+
+        if (isString(icon) && icon.indexOf(SourcesId.ICON) === 0) {
+          item.icon = await api.customIcon.getIconInfo(icon);
 
           return;
         }

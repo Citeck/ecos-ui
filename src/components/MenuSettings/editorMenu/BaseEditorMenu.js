@@ -63,6 +63,10 @@ export default class BaseEditorMenu extends React.Component {
     return MenuSettingsService.getActiveActions(item);
   };
 
+  get treeEmptyMessage() {
+    return '';
+  }
+
   toggleOpenAll = () => {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
   };
@@ -305,6 +309,10 @@ export default class BaseEditorMenu extends React.Component {
     );
   };
 
+  renderDescription() {
+    return null;
+  }
+
   render() {
     const { openAllMenuItems } = this.state;
     const { items, disabledEdit } = this.props;
@@ -316,6 +324,9 @@ export default class BaseEditorMenu extends React.Component {
           <div className="ecos--flex-space" />
           {this.renderToggleOpenButton()}
         </div>
+
+        {this.renderDescription()}
+
         <div className="ecos-menu-settings-editor-items__tree-field" onScroll={this.handleScrollTree}>
           <Tree
             data={items}
@@ -326,6 +337,7 @@ export default class BaseEditorMenu extends React.Component {
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
             convertItemProps={this.convertItemProps}
+            emptyMessage={this.treeEmptyMessage}
             onClickAction={this.handleActionItem}
             onClickIcon={this.handleClickIcon}
             renderExtraComponents={this.renderExtraComponents}

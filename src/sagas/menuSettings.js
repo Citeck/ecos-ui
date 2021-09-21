@@ -3,10 +3,9 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { t } from '../helpers/util';
-import { ConfigTypes, DefaultUserMenu, MenuSettings as ms } from '../constants/menu';
+import { ConfigTypes, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import {
@@ -38,15 +37,9 @@ function* fetchSettingsConfig({ api, logger }) {
     }
 
     const config = yield call(api.menu.getMenuSettingsConfig, { id });
-    let userMenuConfig = get(config, 'menu.user.items') || [];
-
-    if (isEmpty(userMenuConfig)) {
-      userMenuConfig = cloneDeep(DefaultUserMenu);
-    }
-
     const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || [], { configType: ConfigTypes.LEFT });
     const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || [], { configType: ConfigTypes.CREATE });
-    const userMenuItems = MenuConverter.getMenuItemsWeb(userMenuConfig, { configType: ConfigTypes.USER });
+    const userMenuItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.user.items') || [], { configType: ConfigTypes.USER });
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
