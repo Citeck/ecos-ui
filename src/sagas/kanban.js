@@ -193,9 +193,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     const totalCount = dataCards.reduce((count, col) => count + get(col, 'totalCount', 0), 0);
 
-    yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
+    yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
     logger.error('[kanban/sagaGetData saga] error', e.message);
   }

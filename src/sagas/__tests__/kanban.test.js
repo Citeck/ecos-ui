@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import last from 'lodash/last';
 import { runSaga } from 'redux-saga';
 import { NotificationManager } from 'react-notifications';
 
@@ -162,17 +163,8 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const [
-      _boardConfig,
-      _formProps,
-      _journalConfig,
-      _journalSetting,
-      _initJournalSettingData,
-      _resolvedActions,
-      _dataCards,
-      _totalCount,
-      _loading
-    ] = dispatched;
+    const [_boardConfig, _formProps, _journalConfig, _journalSetting, _initJournalSettingData] = dispatched;
+    const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
     const colsLen = get(_boardConfig, 'payload.boardConfig.columns.length');
@@ -180,23 +172,12 @@ describe('kanban sagas tests', () => {
     expect(_journalConfig.type).toEqual(setJournalConfig().type);
     expect(_journalSetting.type).toEqual(setJournalSetting().type);
     expect(_initJournalSettingData.type).toEqual(initJournalSettingData().type);
-    expect(_resolvedActions.type).toEqual(setResolvedActions().type);
-    expect(_resolvedActions.payload.resolvedActions).toHaveLength(colsLen);
-    expect(_dataCards.type).toEqual(setDataCards().type);
-    expect(get(_dataCards, 'payload.dataCards')).toHaveLength(colsLen);
-    expect(get(_dataCards, 'payload.dataCards[0].records')).toEqual([]);
-    expect(get(_dataCards, 'payload.dataCards[0].error')).toBeUndefined();
-    expect(_totalCount.type).toEqual(setTotalCount().type);
-    expect(_totalCount.payload.totalCount).toEqual(0);
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(1);
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
-    expect(spyGetRecordActions).toHaveBeenCalledTimes(colsLen);
-
-    expect(dispatched).toHaveLength(9);
   });
 
   it('sagaGetBoardData > there is _journal config', async () => {
@@ -212,63 +193,41 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const [_boardConfig, _formProps, _resolvedActions, _dataCards, _totalCount, _loading] = dispatched;
+    const [_boardConfig, _formProps] = dispatched;
+    const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
     const colsLen = get(_boardConfig, 'payload.boardConfig.columns.length');
     expect(_formProps.type).toEqual(setFormProps().type);
-    expect(_resolvedActions.type).toEqual(setResolvedActions().type);
-    expect(_resolvedActions.payload.resolvedActions).toHaveLength(colsLen);
-    expect(_dataCards.type).toEqual(setDataCards().type);
-    expect(get(_dataCards, 'payload.dataCards')).toHaveLength(colsLen);
-    expect(get(_dataCards, 'payload.dataCards[0].records')).toEqual(data.journalData.records);
-    expect(get(_dataCards, 'payload.dataCards[0].error')).toBeUndefined();
-    expect(_totalCount.type).toEqual(setTotalCount().type);
-    expect(_totalCount.payload.totalCount).toEqual(4);
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).not.toHaveBeenCalled();
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
-    expect(spyGetRecordActions).toHaveBeenCalledTimes(colsLen);
-
-    expect(dispatched).toHaveLength(6);
   });
 
   it('sagaGetBoardData > there is _board config', async () => {
     const dispatched = await wrapRunSaga(kanban.sagaGetBoardData, { boardId: null });
 
-    const [_boardConfig, _formProps, _resolvedActions, _dataCards, _totalCount, _loading] = dispatched;
+    const [_boardConfig, _formProps] = dispatched;
+    const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
     expect(_boardConfig.payload.boardConfig).toEqual({});
     expect(_formProps.type).toEqual(setFormProps().type);
-    expect(_resolvedActions.type).toEqual(setResolvedActions().type);
-    expect(_resolvedActions.payload.resolvedActions).toHaveLength(0);
-    expect(_dataCards.type).toEqual(setDataCards().type);
-    expect(get(_dataCards, 'payload.dataCards')).toHaveLength(0);
-    expect(get(_dataCards, 'payload.dataCards[0].records')).toBeUndefined();
-    expect(get(_dataCards, 'payload.dataCards[0].error')).toBeUndefined();
-    expect(_totalCount.type).toEqual(setTotalCount().type);
-    expect(_totalCount.payload.totalCount).toEqual(0);
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
     expect(spyGetFormInputs).not.toHaveBeenCalled();
     expect(spyGetJournalConfig).not.toHaveBeenCalled();
     expect(spyGetJournalData).not.toHaveBeenCalled();
-    expect(spyGetRecordActions).not.toHaveBeenCalled();
-
-    expect(dispatched).toHaveLength(6);
   });
 
   it('sagaGetData > there is _no any data', async () => {
     const dispatched = await wrapRunSaga(kanban.sagaGetData, {});
-    const [_resolvedActions, _dataCards, _totalCount] = dispatched;
+    const [_dataCards, _totalCount] = dispatched;
 
-    expect(_resolvedActions.type).toEqual(setResolvedActions().type);
-    expect(_resolvedActions.payload.resolvedActions).toHaveLength(0);
     expect(_dataCards.type).toEqual(setDataCards().type);
     expect(get(_dataCards, 'payload.dataCards')).toHaveLength(0);
     expect(get(_dataCards, 'payload.dataCards[0].records')).toBeUndefined();
@@ -277,27 +236,19 @@ describe('kanban sagas tests', () => {
     expect(_totalCount.payload.totalCount).toEqual(0);
 
     expect(spyGetJournalData).not.toHaveBeenCalled();
-    expect(spyGetRecordActions).not.toHaveBeenCalled();
-
-    expect(dispatched).toHaveLength(3);
   });
 
   it('sagaGetData > there is _some data', async () => {
     const dispatched = await wrapRunSaga(kanban.sagaGetData, { ...data, journalConfig: { ...data.journalConfig, id: 'set-data-cards' } });
-    const [_resolvedActions, _dataCards, _totalCount] = dispatched;
+    const [_dataCards, _totalCount] = dispatched;
     const colsLen = data.boardConfig.columns.length;
 
-    expect(_resolvedActions.type).toEqual(setResolvedActions().type);
-    expect(_resolvedActions.payload.resolvedActions).toHaveLength(colsLen);
     expect(_dataCards.type).toEqual(setDataCards().type);
     expect(get(_dataCards, 'payload.dataCards')).toHaveLength(colsLen);
     expect(_totalCount.type).toEqual(setTotalCount().type);
     expect(_totalCount.payload.totalCount).toEqual(colsLen * data.journalData.totalCount);
 
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
-    expect(spyGetRecordActions).toHaveBeenCalledTimes(colsLen);
-
-    expect(dispatched).toHaveLength(3);
   });
 
   it('sagaGetActions > there is _no data', async () => {
@@ -344,15 +295,14 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_firstLoading, _pagination, , , , _lastLoading] = dispatched;
+    const [_firstLoading, _pagination] = dispatched;
+    const _lastLoading = last(dispatched);
 
     expect(_firstLoading.type).toEqual(setLoading().type);
     expect(_firstLoading.payload.isLoading).toBeTruthy();
     expect(_pagination.type).toEqual(setPagination().type);
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page + 1);
     expect(_lastLoading.payload.isLoading).toBeFalsy();
-
-    expect(dispatched).toHaveLength(6);
   });
 
   it('sagaRunAction', async () => {
@@ -436,15 +386,14 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_predicate, _journalSetting, _pagination, , , , _loading] = dispatched;
+    const [_predicate, _journalSetting, _pagination] = dispatched;
+    const _loading = last(dispatched);
 
     expect(_predicate.type).toEqual(setPredicate().type);
     expect(_journalSetting.type).toEqual(setJournalSetting().type);
     expect(_pagination.type).toEqual(setPagination().type);
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
     expect(_loading.type).toEqual(setLoading().type);
-
-    expect(dispatched).toHaveLength(7);
   });
 
   it('sagaResetFilter', async () => {
@@ -468,7 +417,8 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_predicate, _journalSetting, _pagination, , , , , _isFiltered] = dispatched;
+    const [_predicate, _journalSetting, _pagination] = dispatched;
+    const _isFiltered = last(dispatched);
 
     expect(_predicate.type).toEqual(setPredicate().type);
     expect(_predicate.payload._args).toEqual({ b: 1 });
@@ -477,8 +427,6 @@ describe('kanban sagas tests', () => {
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
     expect(_isFiltered.type).toEqual(setIsFiltered().type);
     expect(_isFiltered.payload.isFiltered).toEqual(false);
-
-    expect(dispatched).toHaveLength(8);
   });
 
   it('sagaRunSearchCard > _no text', async () => {
