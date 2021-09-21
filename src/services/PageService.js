@@ -148,19 +148,20 @@ export default class PageService {
   });
 
   /**
-   *
-   * @param link - string
-   * @param params
-   *    link - string,
-   *    updateUrl - bool,
-   *    openNewTab - bool,
-   *    openNewBrowserTab - bool,
-   *    reopenBrowserTab - bool,
-   *    closeActiveTab - bool,
-   *    openInBackground - bool,
-   *    pushHistory - bool,
-   *    replaceHistory - bool // default true, if updateUrl is true
-   *    rerenderPage - bool, needed to replace link in the router and start rerendering page
+   * Change Link
+   * @param link {string}
+   * @param params {Object}
+   * @description for params:
+   *    link {string},
+   *    updateUrl {boolean},
+   *    openNewTab {boolean},
+   *    openNewBrowserTab {boolean},
+   *    reopenBrowserTab {boolean},
+   *    closeActiveTab {boolean},
+   *    openInBackground {boolean},
+   *    pushHistory {boolean},
+   *    replaceHistory {boolean} - default true, if updateUrl is true
+   *    rerenderPage {boolean} - needed to replace link in the router and start rerendering page
    */
   static changeUrlLink = (link = '', params = {}) => {
     if (PageService.eventIsDispatched) {

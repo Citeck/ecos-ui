@@ -228,7 +228,7 @@ export function* sagaSelectBoard({ api, logger }, { payload }) {
 
     if (!isEqual(getSearchParams(), urlData.query)) {
       yield put(setLoading({ stateId, isLoading: true }));
-      yield call(PageService.changeUrlLink, decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+      yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
   } catch (e) {
     logger.error('[kanban/sagaSelectBoard saga] error', e);
@@ -359,7 +359,7 @@ export function* sagaRunSearchCard({ api, logger }, { payload }) {
     }
 
     if (!isEqual(getSearchParams(), urlData.query)) {
-      yield call(PageService.changeUrlLink, decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+      yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
   } catch (e) {
     logger.error('[kanban/sagaRunSearchCard saga error', e);

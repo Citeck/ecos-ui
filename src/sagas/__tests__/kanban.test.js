@@ -20,6 +20,7 @@ import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
 import JournalsService from '../../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
 import RecordActions from '../../components/Records/actions/recordActions';
+import PageService from '../../services/PageService';
 import KanbanApi from '../__mocks__/kanbanApi';
 import data from '../__mocks__/kanbanData';
 import JournalApi from '../__mocks__/journalApi';
@@ -55,6 +56,7 @@ const spyGetJournalData = jest.spyOn(JournalsService, 'getJournalData').mockImpl
   return {};
 });
 const spyGetRecordActions = jest.spyOn(JournalsService, 'getRecordActions').mockResolvedValue(data.journalActions);
+const spyChangeUrlLink = jest.spyOn(PageService, 'changeUrlLink').mockResolvedValue(data.journalActions);
 
 async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
   const dispatched = [];
@@ -478,4 +480,19 @@ describe('kanban sagas tests', () => {
 
     expect(dispatched).toHaveLength(8);
   });
+
+  it('sagaRunSearchCard > _no text', async () => {
+    delete window.location;
+    window.location = { pathname: `/test` };
+
+    const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard);
+
+    expect(spyChangeUrlLink).not.toHaveBeenCalled();
+    expect(dispatched).toHaveLength(0);
+  });
+
+  //todo sagaRunSearchCard 2
+  //expect(spyGetRecordActions).toHaveBeenCalledTimes(1);
+  //todo sagaSelectBoard
+  //todo sagaReloadBoardData
 });

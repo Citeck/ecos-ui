@@ -214,11 +214,16 @@ export const getSearchParams = (params = window.location.search, options) => {
   return queryString.parse(params, options);
 };
 
-export const decodeLink = link => {
+/**
+ * Decode without exception
+ * @param str {string}
+ * @returns {string}
+ */
+export const decodeLink = str => {
   try {
-    return decodeURIComponent(link);
+    return decodeURIComponent(str);
   } catch (e) {
-    return link;
+    return str;
   }
 };
 
