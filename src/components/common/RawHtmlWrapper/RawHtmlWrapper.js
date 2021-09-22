@@ -42,7 +42,7 @@ export default class RawHtmlWrapper extends Component {
   };
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !isEqual(nextState.props, this.state.props) || !isEqual(nextState.props, nextProps.props);
+    return !isEqual(nextState.props, this.state.props);
   }
 
   render() {
