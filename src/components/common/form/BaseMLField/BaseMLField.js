@@ -162,7 +162,7 @@ class BaseMLField extends Component {
         }
       }
     }
-    console.log(values);
+
     if (!isEmpty(values[currentLocale])) {
       return currentLocale;
     }

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { UncontrolledTooltip } from 'reactstrap';
+import isFunction from 'lodash/isFunction';
 
 import { IcoBtn } from '../../common/btns';
 
@@ -7,6 +8,18 @@ import './style.scss';
 
 function DropdownActions({ htmlId, list, ...ddProps }) {
   const _id = `action-dropdown-${htmlId}`;
+
+  const handleItemOnClick = useCallback((event, item, index) => {
+    if (isFunction(item.onClick)) {
+      item.onClick(event);
+      return;
+    }
+
+    if (ddProps && isFunction(ddProps.onClick)) {
+      ddProps.onClick(item, index);
+      return;
+    }
+  }, []);
 
   return (
     <>
@@ -34,7 +47,7 @@ function DropdownActions({ htmlId, list, ...ddProps }) {
             <IcoBtn
               key={item.id}
               icon={item.icon}
-              onClick={item.onClick || (() => ddProps.onClick(item, index))}
+              onClick={e => handleItemOnClick(e, item, index)}
               className="ecos-dropdowm-actions__btn ecos-dropdowm-actions__btn_with-text ecos-btn_grey6 ecos-btn_r_0"
             >
               {item.text}

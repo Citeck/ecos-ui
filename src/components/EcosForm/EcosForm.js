@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -75,6 +76,7 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
+    const alfConstants = get(window, 'Alfresco.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const self = this;
@@ -88,7 +90,6 @@ class EcosForm extends React.Component {
     };
 
     let formLoadingPromise;
-    let alfConstants = get(window, 'Alfresco.constants') || {};
     let proxyUri = PROXY_URI || '/';
 
     if (formId) {
@@ -298,6 +299,7 @@ class EcosForm extends React.Component {
 
   _evalOptionsInitAttributes(inputs, options) {
     const typeRef = options.typeRef;
+
     if (!typeRef) {
       return {};
     }
@@ -348,9 +350,9 @@ class EcosForm extends React.Component {
   }
 
   fireEvent(event, data) {
-    let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+    const handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
 
-    if (this.props[handlerName]) {
+    if (isFunction(this.props[handlerName])) {
       this.props[handlerName](data);
     }
   }
