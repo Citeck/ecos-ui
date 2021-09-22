@@ -22,16 +22,6 @@ export default class RawHtmlWrapper extends Component {
     }
   }
 
-  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1401
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { props: newProps } = this.props;
-    const { props } = this.state;
-
-    if (!isEqual(props, newProps)) {
-      this.setProps(newProps);
-    }
-  }
-
   setProps(props) {
     this.setState({
       props: {

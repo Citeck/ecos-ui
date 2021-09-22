@@ -391,6 +391,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     this.refreshElementHasValueClasses();
 
+    if (changed) {
+      _.set(this.reactComponent, 'waitingProps.defaultValue', value);
+    }
+
+    this.setReactProps(_.get(this.reactComponent, 'wrapper.props.props', {}));
+
     return changed;
   }
 

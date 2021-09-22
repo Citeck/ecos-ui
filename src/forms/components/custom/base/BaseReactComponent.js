@@ -14,6 +14,10 @@ export default class BaseReactComponent extends BaseComponent {
   #react = {};
   #viewOnlyPrev = {};
 
+  get reactComponent() {
+    return this.#react;
+  }
+
   build() {
     if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
       super.clear();
@@ -97,10 +101,8 @@ export default class BaseReactComponent extends BaseComponent {
 
   setReactProps(props) {
     if (this.#react.resolve) {
-      this.#react.waitingProps = {
-        ...(this.#react.waitingProps || {}),
-        props
-      };
+      this.#react.waitingProps = { ...(this.#react.waitingProps || {}), ...props };
+
       this.#react.wrapper.then(w => {
         w.setProps(this.#react.waitingProps);
         this.#react.waitingProps = {};
