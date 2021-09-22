@@ -3,8 +3,8 @@ import get from 'lodash/get';
 import unset from 'lodash/unset';
 import set from 'lodash/set';
 
-import Base from '../base/Base';
 import { t } from '../../../../helpers/util';
+import Base from '../base/Base';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
@@ -85,23 +85,21 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   get dataValue() {
-    let Value;
-
     if (!this.key) {
-      Value = this.emptyValue;
+      return this.emptyValue;
     }
 
     if (!this.hasValue()) {
       this.dataValue = this.component.multiple ? [] : this.emptyValue;
     }
 
-    Value = get(this.data, this.key);
+    const value = get(this.data, this.key);
 
     if (this.isRadioCheckbox) {
-      set(this.data, this.component.key, Value === this.component.value);
+      set(this.data, this.component.key, value === this.component.value);
     }
 
-    return Value;
+    return value;
   }
 
   get defaultSchema() {
@@ -222,24 +220,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       return;
     }
 
-    let value;
-
-    switch (`${state}`) {
-      case 'null':
-        value = null;
-        this.removeClass(this.element, 'checkbox-checked');
-        this.removeClass(this.element, 'checkbox-checked_cross');
-        break;
-      case 'true':
-        value = true;
-        this.removeClass(this.element, 'checkbox-checked_cross');
-        this.addClass(this.element, 'checkbox-checked');
-        break;
-      case 'false':
-      default:
-        value = false;
-        this.addClass(this.element, 'checkbox-checked checkbox-checked_cross');
-    }
+    const value = this.setElementState(state);
 
     if (needUpdate && this.#beforeState === undefined && this.#beforeState !== state) {
       this.dataValue = state;
@@ -252,7 +233,9 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       this.input.value = value;
     }
 
-    this.labelSpan && this.labelSpan.setAttribute('title', value);
+    if (this.labelSpan) {
+      this.labelSpan.setAttribute('title', value);
+    }
   }
 
   setupValueElement(element) {
@@ -261,7 +244,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       return;
     }
 
-    let value = this.getValue();
+    const value = this.getValue();
     element.innerHTML = value ? t('boolean.yes') : t('boolean.no');
   }
 
@@ -317,38 +300,32 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
         }
       }
 
-      switch (newValue) {
-        case true:
-          this.addClass(this.element, 'checkbox-checked');
-          this.removeClass(this.element, 'checkbox-cross-checked');
-          break;
-        case false:
-          this.addClass(this.element, 'checkbox-checked checkbox-checked_cross');
-          break;
-        case null:
-        default:
-          this.removeClass(this.element, 'checkbox-checked');
-          this.removeClass(this.element, 'checkbox-checked_cross');
-      }
+      this.setElementState(newValue);
 
       const changed = newValue !== undefined ? this.hasChanged(newValue, this.dataValue) : false;
 
+      this.#beforeState = newValue;
+      this.dataValue = newValue;
+      this.updateOnChange(flags, changed);
+
       if (this.viewOnly) {
-        this.updateViewOnlyValue(newValue);
+        this.updateViewOnlyValue();
       }
 
-      this.#beforeState = newValue;
-      this.input.checked = newValue;
-      this.input.value = newValue;
-      this.dataValue = newValue;
-      this.labelSpan.setAttribute('title', newValue);
-      this.updateOnChange(flags, changed);
+      if (this.input) {
+        this.input.checked = newValue;
+        this.input.value = newValue;
+      }
+
+      if (this.labelSpan) {
+        this.labelSpan.setAttribute('title', newValue);
+      }
 
       return changed;
     }
 
     if (this.isRadioCheckbox) {
-      if (value === undefined && this.input.checked) {
+      if (value === undefined && get(this.input, 'checked')) {
         // Force all siblings elements in radio group to unchecked
         this.getRadioGroupItems()
           .filter(c => c !== this && c.input.checked)
@@ -358,7 +335,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       } else {
         value = this.getRadioGroupValue();
       }
-    } else if (flags && flags.modified && this.input.checked && value === undefined) {
+    } else if (flags && flags.modified && get(this.input, 'checked') && value === undefined) {
       value = true;
     }
 
@@ -369,7 +346,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       return changed;
     }
 
-    if (this.input.checked) {
+    if (get(this.input, 'checked')) {
       this.input.setAttribute('checked', true);
       this.addClass(this.element, 'checkbox-checked');
     } else {
@@ -378,5 +355,24 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     }
 
     return changed;
+  }
+
+  setElementState(state) {
+    switch (`${state}`) {
+      case 'null':
+        this.removeClass(this.element, 'checkbox-checked');
+        this.removeClass(this.element, 'checkbox-checked_cross');
+        return null;
+      case 'true':
+        this.addClass(this.element, 'checkbox-checked');
+        this.removeClass(this.element, 'checkbox-checked_cross');
+        return true;
+      case 'false':
+        this.addClass(this.element, 'checkbox-checked');
+        this.addClass(this.element, 'checkbox-checked_cross');
+        return false;
+      default:
+        return this.setElementState(this.hasThreeStates ? null : false);
+    }
   }
 }

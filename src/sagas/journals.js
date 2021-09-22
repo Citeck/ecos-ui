@@ -952,6 +952,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     const editingRules = yield getGridEditingRules(api, gridData);
 
     yield put(setPredicate(w(predicateValue)));
+    yield put(setJournalSetting(w({ predicate: predicateValue })));
     yield put(setSelectedRecords(w([])));
     yield put(setSelectAllRecordsVisible(w(false)));
     yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
