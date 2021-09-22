@@ -1,6 +1,6 @@
+import React, { Component } from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import React, { Component } from 'react';
 
 export default class RawHtmlWrapper extends Component {
   constructor(props) {
@@ -19,6 +19,16 @@ export default class RawHtmlWrapper extends Component {
   componentDidMount() {
     if (this.props.onMounted) {
       this.props.onMounted();
+    }
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1401
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { props: newProps } = this.props;
+    const { props } = this.state;
+
+    if (!isEqual(props, newProps)) {
+      this.setProps(newProps);
     }
   }
 
@@ -42,12 +52,11 @@ export default class RawHtmlWrapper extends Component {
   };
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !isEqual(nextState.props, this.state.props);
+    return !isEqual(nextState.props, this.state.props) || !isEqual(nextState.props, nextProps.props);
   }
 
   render() {
     let self = this;
-
     let props = {
       ...this.state.props,
       setWrapperProps: p => this.setProps(p)
@@ -55,8 +64,10 @@ export default class RawHtmlWrapper extends Component {
 
     // detect functional component
     const componentRender = get(this, 'state.component.prototype.render');
+
     if (!componentRender) {
       self.resolveComponent(this);
+
       return <this.state.component {...props} />;
     }
 
