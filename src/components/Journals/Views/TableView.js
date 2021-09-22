@@ -154,7 +154,7 @@ class TableView extends React.Component {
     return (
       <div hidden={!isTableOrPreview(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          <Header title={get(journalConfig, 'meta.title', '')} />
+          <Header title={get(journalConfig, 'meta.title', '')} config={journalConfig} />
 
           <Bar {...this.props} rightChild={<this.RightBarChild hasPageSize={false} />} />
 

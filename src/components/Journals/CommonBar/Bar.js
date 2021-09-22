@@ -7,8 +7,9 @@ import { JournalUrlParams as JUP } from '../../../constants';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsSettingsBar from '../JournalsSettingsBar';
 import SettingsModal from './SettingsModal';
+import PropTypes from 'prop-types';
 
-export default class Bar extends Component {
+class Bar extends Component {
   targetId = uniqueId('ecos-journal-settings-bar-');
 
   state = {
@@ -154,3 +155,40 @@ export default class Bar extends Component {
     );
   }
 }
+
+Bar.propTypes = {
+  leftChild: PropTypes.element,
+  rightChild: PropTypes.element,
+
+  stateId: PropTypes.string,
+  urlParams: PropTypes.object,
+  viewMode: PropTypes.string,
+  isActivePage: PropTypes.bool,
+  isMobile: PropTypes.bool,
+  isDocLibEnabled: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  isFilterOn: PropTypes.bool,
+  noCreateBtn: PropTypes.bool,
+  nameBtnSettings: PropTypes.string,
+  journalConfig: PropTypes.object,
+  grid: PropTypes.object,
+  settingsData: PropTypes.object,
+  settingsFiltersData: PropTypes.object,
+  settingsColumnsData: PropTypes.object,
+  settingsGroupingData: PropTypes.object,
+  selectedRecords: PropTypes.array,
+
+  onRefresh: PropTypes.func,
+  onSearch: PropTypes.func,
+  onToggleSettings: PropTypes.func,
+  onAddRecord: PropTypes.func,
+  onResetFilter: PropTypes.func,
+
+  applySettings: PropTypes.func,
+  createJournalSetting: PropTypes.func,
+  saveJournalSetting: PropTypes.func,
+  reloadGrid: PropTypes.func,
+  runSearch: PropTypes.func
+};
+
+export default Bar;

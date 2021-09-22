@@ -247,11 +247,11 @@ class Journals extends React.Component {
     this.setHeight(height);
   };
 
-  handleDisplayConfigPopup = event => {
+  handleDisplayConfigPopup = (event, props) => {
     if (event.ctrlKey && event.shiftKey) {
-      const { journalConfig } = this.props;
+      const { config } = props;
       event.stopPropagation();
-      !!journalConfig && showModalJson(journalConfig, 'Journal Config');
+      !!config && showModalJson(config, 'Config');
     }
   };
 
@@ -298,7 +298,7 @@ class Journals extends React.Component {
       const { isMobile } = this.props;
 
       return (
-        <div onClick={this.handleDisplayConfigPopup}>
+        <div onClick={e => this.handleDisplayConfigPopup(e, props)}>
           <JournalsHead
             title={props.title}
             labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
