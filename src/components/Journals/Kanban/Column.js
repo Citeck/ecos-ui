@@ -22,52 +22,60 @@ class Column extends React.PureComponent {
     return isDropDisabled({ readOnly, isLoadingCol, columnInfo });
   }
 
-  renderInfo = flags => {
-    const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error, isDragging } = this.props;
+  renderStatuses = flags => {
+    const { records, isFirstLoading, isFiltered, isLoading, isLoadingCol, error, isDragging, readOnly } = this.props;
+
+    if (isLoadingCol) {
+      return null;
+    }
+
     const loading = isFirstLoading || (isLoading && isFiltered);
     const dropDisabled = this.getIsColumnDropDisabled();
 
-    let text = '';
-    let temp = false;
+    const statuses = [
+      {
+        text: t(Labels.Kanban.COL_NO_CARD),
+        isAvailable: !loading && !error && !isDragging && isEmpty(records)
+      },
+      {
+        text: t(Labels.Kanban.ERROR_FETCH_DATA),
+        isAlert: !!error,
+        isAvailable: !!error
+      },
+      {
+        text: ' ',
+        isAvailable: loading
+      },
+      {
+        text: t(Labels.Kanban.DND_ALREADY_HERE),
+        isFloat: true,
+        isAvailable: !readOnly && !dropDisabled && flags.isColumnOwner
+      },
+      {
+        text: t(Labels.Kanban.DND_MOVE_HERE),
+        isFloat: true,
+        isAvailable: !readOnly && !dropDisabled && !flags.isColumnOwner
+      },
+      {
+        text: t(Labels.Kanban.DND_NOT_MOVE_HERE),
+        isFloat: true,
+        isAvailable: !readOnly && dropDisabled
+      }
+    ];
 
-    switch (true) {
-      case !!error:
-        text = t(Labels.Kanban.ERROR_FETCH_DATA);
-        break;
-      case loading:
-        text = ' ';
-        break;
-      case dropDisabled && !isEmpty(records):
-        temp = true;
-        text = t(Labels.Kanban.DND_NOT_MOVE_HERE);
-        break;
-      case flags.isColumnOwner:
-        temp = true;
-        text = t(Labels.Kanban.DND_ALREADY_HERE);
-        break;
-      case flags.isDraggingOver:
-        temp = true;
-        text = t(Labels.Kanban.DND_MOVE_HERE);
-        break;
-      case !isDragging && isEmpty(records):
-        text = t(Labels.Kanban.COL_NO_CARD);
-        break;
-      default:
-        break;
-    }
-
-    return (
-      <div
-        className={classNames('ecos-kanban__card-info', {
-          'ecos-kanban__card-info_hidden': !text || isLoadingCol,
-          'ecos-kanban__card-info_error': !!error,
-          'ecos-kanban__card-info_loading': loading,
-          'ecos-kanban__card-info_temp': temp
-        })}
-      >
-        {text}
-      </div>
-    );
+    return statuses
+      .filter(status => status.isAvailable)
+      .map(status => (
+        <div
+          className={classNames('ecos-kanban__card-info', {
+            'ecos-kanban__card-info_alert': status.isAlert,
+            'ecos-kanban__card-info_loading': loading,
+            'ecos-kanban__card-info_float': status.isFloat
+          })}
+        >
+          {status.text}
+        </div>
+      ));
   };
 
   renderContentCard = (record, index) => {
@@ -112,7 +120,7 @@ class Column extends React.PureComponent {
               ref={provided.innerRef}
             >
               {isLoadingCol && <Loader className="ecos-kanban__column-loader" blur />}
-              {this.renderInfo({ isColumnOwner, isDraggingOver })}
+              {this.renderStatuses({ isColumnOwner, isDraggingOver })}
               {records.map(this.renderContentCard)}
             </div>
           );

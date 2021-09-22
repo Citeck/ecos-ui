@@ -70,14 +70,13 @@ class Kanban extends React.Component {
     const isDragging = true;
 
     this.setState({ isDragging });
-    this.toggleScroll(isDragging);
   };
 
   handleDragEnd = result => {
     const isDragging = false;
 
     this.setState({ isDragging });
-    this.toggleScroll(isDragging);
+
     const cardIndex = get(result, 'source.index');
     const fromColumnRef = get(result, 'source.droppableId');
     const toColumnRef = get(result, 'destination.droppableId');
@@ -87,15 +86,6 @@ class Kanban extends React.Component {
     }
 
     this.props.moveCard({ cardIndex, fromColumnRef, toColumnRef });
-  };
-
-  toggleScroll = flag => {
-    const elmScrollView = get(this.refScroll, 'current.view');
-
-    if (elmScrollView) {
-      elmScrollView.style.overflow = flag ? 'hidden' : 'scroll';
-      elmScrollView.style.paddingRight = flag ? '6px' : '0';
-    }
   };
 
   renderColumn = (data, index) => {
@@ -109,6 +99,12 @@ class Kanban extends React.Component {
     const { isDragging } = this.state;
     const { columns = [], dataCards = [], isLoading, isFirstLoading, page } = this.props;
     const cols = columns || Array(3).map((_, id) => ({ id }));
+    const bodyStyle = { minHeight: this.getHeight(-70) };
+
+    if (isDragging) {
+      bodyStyle.height = bodyStyle.minHeight;
+      bodyStyle.overflow = 'hidden';
+    }
 
     return (
       <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
@@ -136,7 +132,7 @@ class Kanban extends React.Component {
               'ecos-kanban__body_dragging': isDragging,
               'ecos-kanban__body_end': this.isNoMore()
             })}
-            style={{ minHeight: this.getHeight(-70) }}
+            style={bodyStyle}
             ref={this.refBody}
           >
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>

@@ -6,7 +6,7 @@
   @return red($hex), green($hex), blue($hex);
 }
 
-%show-card-info-temp {
+%show-card-info-float {
   height: 100px;
   padding: 5px;
   opacity: 1;
@@ -105,9 +105,9 @@
         &_dragging-over:not(#{$kanban}__column_owner) {
           --color-column: #{HexToRGB($success)};
 
-          & #{$kanban}__card-info_temp {
+          & #{$kanban}__card-info_float {
             --color-info: #{HexToRGB($success)};
-            @extend %show-card-info-temp;
+            @extend %show-card-info-float;
           }
 
           & #{$kanban}__card:not(#{$kanban}__card_dragging) {
@@ -119,9 +119,9 @@
         &_disabled {
           --color-column: #{HexToRGB($color-gray-5)};
 
-          & #{$kanban}__card-info_temp {
+          & #{$kanban}__card-info_float {
             --color-info: #{HexToRGB($color-gray-5)};
-            @extend %show-card-info-temp;
+            @extend %show-card-info-float;
           }
         }
 
@@ -232,11 +232,11 @@
         @extend %animationPulse;
       }
 
-      &_error {
+      &_alert {
         --color-info: #{HexToRGB($danger)};
       }
 
-      &_temp {
+      &_float {
         background: transparent;
         align-items: flex-start;
         transition: height 0.5s ease-out;
