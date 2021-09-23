@@ -5,8 +5,13 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+
 import { Avatar, DropdownMenu as Menu, Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
+import MenuService from '../../services/MenuService';
+import { extractLabel, t } from '../../helpers/util';
+import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
+import EcosIcon from '../common/EcosIcon';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -14,6 +19,11 @@ const mapStateToProps = state => ({
   items: state.header.userMenu.items,
   theme: state.view.theme
 });
+
+const Labels = {
+  EMPTY: 'header.menu.msg.empty-list',
+  LOADING: 'header.menu.msg.loading'
+};
 
 class UserMenu extends React.Component {
   static propTypes = {
@@ -35,9 +45,30 @@ class UserMenu extends React.Component {
     }));
   };
 
+  renderMenuItem = (item, key) => {
+    const icon = extractIcon(item.icon);
+    const extraProps = {};
+
+    if (item.info) {
+      extraProps.title = extractLabel(item.info);
+    }
+
+    return (
+      <button
+        key={item.id || key}
+        className="ecos-header-user__menu-item"
+        onClick={() => MenuService.getUserMenuCallback(item)}
+        {...extraProps}
+      >
+        {icon && <EcosIcon data={getIconObjectWeb(item.icon)} />}
+        <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
+      </button>
+    );
+  };
+
   render() {
     const { dropdownOpen } = this.state;
-    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
+    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const disabled = !(!isEmpty(items) && isArray(items));
     const mob = isMobile || medium;
@@ -64,7 +95,12 @@ class UserMenu extends React.Component {
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-            <Menu items={items} />
+            <Menu
+              items={items}
+              emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
+              mode="custom"
+              renderItem={this.renderMenuItem}
+            />
           </DropdownMenu>
         </Dropdown>
       </>

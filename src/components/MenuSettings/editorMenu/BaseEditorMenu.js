@@ -2,6 +2,7 @@ import React from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import uniqueId from 'lodash/uniqueId';
+import isFunction from 'lodash/isFunction';
 import classNames from 'classnames';
 
 import { extractLabel, t } from '../../../helpers/util';
@@ -46,6 +47,10 @@ export default class BaseEditorMenu extends React.Component {
     }
   }
 
+  getCreateOptions(item, level) {
+    return MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
+  }
+
   convertItemProps = item => {
     return MenuSettingsService.convertItemForTree(item);
   };
@@ -57,6 +62,10 @@ export default class BaseEditorMenu extends React.Component {
 
     return MenuSettingsService.getActiveActions(item);
   };
+
+  get treeEmptyMessage() {
+    return '';
+  }
 
   toggleOpenAll = () => {
     this.setState(({ openAllMenuItems }) => ({ openAllMenuItems: !openAllMenuItems }));
@@ -83,7 +92,11 @@ export default class BaseEditorMenu extends React.Component {
       DialogManager.showRemoveDialog({
         title: '',
         text: t(Labels.MSG_DELETE_ITEM, { name: extractLabel(item.label) }),
-        onDelete: () => setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, configType: this.configType }).items)
+        onDelete: () => {
+          if (isFunction(setMenuItems)) {
+            setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, configType: this.configType }).items);
+          }
+        }
       });
       return;
     }
@@ -95,7 +108,9 @@ export default class BaseEditorMenu extends React.Component {
       return;
     }
 
-    setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level, configType: this.configType }).items);
+    if (isFunction(setMenuItems)) {
+      setMenuItems(MenuSettingsService.processAction({ action, id: item.id, items, level, configType: this.configType }).items);
+    }
   };
 
   handleClickIcon = item => {
@@ -110,7 +125,9 @@ export default class BaseEditorMenu extends React.Component {
     const { items: original, setMenuItems } = this.props;
     const sorted = treeMoveItem({ fromId, toId, original, key: 'dndIdx' });
 
-    setMenuItems(sorted);
+    if (isFunction(setMenuItems)) {
+      setMenuItems(sorted);
+    }
   };
 
   handleScrollTree = event => {
@@ -154,8 +171,15 @@ export default class BaseEditorMenu extends React.Component {
         level: editItemInfo.level,
         configType: this.configType
       });
-      setMenuItems(result.items);
-      setLastAddedItems(result.newItems);
+
+      if (isFunction(setMenuItems)) {
+        setMenuItems(result.items);
+      }
+
+      if (isFunction(setLastAddedItems)) {
+        setLastAddedItems(result.newItems);
+      }
+
       handleHideModal();
     };
 
@@ -229,7 +253,7 @@ export default class BaseEditorMenu extends React.Component {
     const id = get(item, 'id') || uniqueId(this.configType);
 
     if (!item || (!item.hidden && !MenuSettingsService.isChildless(item))) {
-      const createOptions = MenuSettingsService.getAvailableCreateOptions(item, { level, configType: this.configType });
+      const createOptions = this.getCreateOptions(item, level);
 
       !disabledEdit &&
         createOptions.length &&
@@ -275,6 +299,20 @@ export default class BaseEditorMenu extends React.Component {
     return components;
   };
 
+  renderToggleOpenButton = () => {
+    const { openAllMenuItems } = this.state;
+
+    return (
+      <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
+        {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
+      </Btn>
+    );
+  };
+
+  renderDescription() {
+    return null;
+  }
+
   render() {
     const { openAllMenuItems } = this.state;
     const { items, disabledEdit } = this.props;
@@ -284,10 +322,11 @@ export default class BaseEditorMenu extends React.Component {
         <div className="ecos-menu-settings-editor-items__header">
           {this.renderExtraComponents({})}
           <div className="ecos--flex-space" />
-          <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={this.toggleOpenAll}>
-            {t(openAllMenuItems ? Labels.BTN_COLLAPSE_ALL : Labels.BTN_EXPAND_ALL)}
-          </Btn>
+          {this.renderToggleOpenButton()}
         </div>
+
+        {this.renderDescription()}
+
         <div className="ecos-menu-settings-editor-items__tree-field" onScroll={this.handleScrollTree}>
           <Tree
             data={items}
@@ -298,6 +337,7 @@ export default class BaseEditorMenu extends React.Component {
             onDragEnd={this.handleDragEnd}
             getActions={this.getAvailableActions}
             convertItemProps={this.convertItemProps}
+            emptyMessage={this.treeEmptyMessage}
             onClickAction={this.handleActionItem}
             onClickIcon={this.handleClickIcon}
             renderExtraComponents={this.renderExtraComponents}

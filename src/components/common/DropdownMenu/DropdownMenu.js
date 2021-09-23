@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
 import Loader from '../Loader/Loader';
 import DropdownMenuCascade from './DropdownMenuCascade';
@@ -14,13 +15,14 @@ import '../form/Dropdown/Dropdown.scss';
 const MenuModes = {
   GROUP: 'group',
   CASCADE: 'cascade',
-  LIST: 'list'
+  LIST: 'list',
+  CUSTOM: 'custom'
 };
 
 export default class DropdownMenu extends React.Component {
   static propTypes = {
     items: PropTypes.array,
-    mode: PropTypes.oneOf([MenuModes.CASCADE, MenuModes.GROUP, MenuModes.LIST]),
+    mode: PropTypes.oneOf(Object.values(MenuModes)),
     setGroup: PropTypes.shape({
       showGroupName: PropTypes.bool,
       showSeparator: PropTypes.bool
@@ -77,6 +79,15 @@ export default class DropdownMenu extends React.Component {
         const { showGroupName, showSeparator } = setGroup;
 
         return <DropdownMenuGroup groups={menu} showGroupName={showGroupName} showSeparator={showSeparator} />;
+      }
+      case MenuModes.CUSTOM: {
+        const { renderItem } = someProps;
+
+        if (!isFunction(renderItem)) {
+          return null;
+        }
+
+        return menu.map(renderItem);
       }
       case MenuModes.LIST:
       default:

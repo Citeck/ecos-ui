@@ -11,6 +11,7 @@ import Divider from './Divider';
 import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
 import LinkCreateCase from './LinkCreateCase';
+import UserMenuItem from './UserMenuItem';
 
 import '../style.scss';
 
@@ -43,6 +44,22 @@ export default class EditorItem extends React.Component {
 
         return (
           <SelectJournal onChange={onSave} onCancel={onClose} journalId={journalId} renderView={() => null} isSelectModalOpen multiple />
+        );
+      }
+      case MS.ItemTypes.USER_LOGOUT:
+      case MS.ItemTypes.USER_SEND_PROBLEM_REPORT:
+      case MS.ItemTypes.USER_FEEDBACK:
+      case MS.ItemTypes.USER_CHANGE_PASSWORD:
+      case MS.ItemTypes.USER_STATUS:
+      case MS.ItemTypes.USER_PROFILE: {
+        return (
+          <UserMenuItem
+            {...this.props}
+            item={{
+              ...get(this.props, 'item', {}),
+              ...get(this.props, 'type.default', {})
+            }}
+          />
         );
       }
       default:

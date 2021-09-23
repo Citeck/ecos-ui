@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import set from 'lodash/set';
 
 import { CreateMenuTypes, MenuSettings, MenuTypes } from '../constants/menu';
 import { HandleControlTypes } from '../helpers/handleControl';
@@ -124,6 +125,21 @@ export default class MenuConverter {
         })
         .filter(item => !item.hidden);
     })(source);
+  }
+
+  static getUserMenuItems(source = [], config) {
+    return cloneDeep(source).map(item => {
+      Object.keys(config).forEach(key => set(item, ['config', key], config[key]));
+
+      if (item.type === MenuSettings.ItemTypes.USER_STATUS) {
+        const availability = 'make-' + (config.isAvailable === false ? '' : 'not') + 'available';
+
+        set(item, 'info', `header.${availability}.label`);
+        set(item, 'icon', config.isAvailable ? 'icon-user-online icon_on' : 'icon-user-away icon_off');
+      }
+
+      return item;
+    });
   }
 
   static prepareCreateVariants(createVariants) {
