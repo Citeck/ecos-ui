@@ -62,7 +62,7 @@ const JournalsSettingsBar = ({
             loading={isCreateLoading}
             colorLoader="light-blue"
             icon="icon-small-plus"
-            className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
+            className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content ${step}`}
             onClick={() => onAddRecord(createVariants[0])}
           />
         </Tooltip>
@@ -96,7 +96,7 @@ const JournalsSettingsBar = ({
           <IcoBtn
             id={target('settings')}
             icon={'icon-settings'}
-            className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
+            className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', step)}
             onClick={onToggleSettings}
             loading={isLoading}
           />

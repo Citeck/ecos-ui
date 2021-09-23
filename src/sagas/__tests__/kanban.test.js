@@ -201,12 +201,14 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const [_boardConfig, _formProps] = dispatched;
+    const [_boardConfig, _formProps, _pagination] = dispatched;
     const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
     const colsLen = get(_boardConfig, 'payload.boardConfig.columns.length');
     expect(_formProps.type).toEqual(setFormProps().type);
+    expect(_pagination.type).toEqual(setPagination().type);
+    expect(_pagination.payload.pagination).toEqual(DEFAULT_PAGINATION);
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 

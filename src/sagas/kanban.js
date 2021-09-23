@@ -118,8 +118,8 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
-    const pagination = yield select(selectPagination, stateId);
-
+    const pagination = DEFAULT_PAGINATION;
+    yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {

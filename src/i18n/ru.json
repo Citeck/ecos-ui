@@ -315,6 +315,7 @@
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
 
   "kanban.label.big-total": "Всего: {{count}}",
+  "kanban.label.no-columns": "Колонки не настроены",
   "kanban.label.no-card": "Нет карточек",
   "kanban.label.no-name": "Нет названия",
   "kanban.label.board-list": "Список досок",

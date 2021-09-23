@@ -46,6 +46,10 @@
     }
   }
 
+  &__info {
+    width: 100%;
+  }
+
   &__loader {
     width: 10%;
     position: absolute;
@@ -199,7 +203,7 @@
 
     background: $color-white;
     border-radius: $border-radius-large;
-    padding: 15px;
+    padding: 20px 16px;
     margin-bottom: 8px;
     opacity: 1;
     transition: opacity ease-out 0.5s;

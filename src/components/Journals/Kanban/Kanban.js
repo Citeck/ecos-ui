@@ -4,13 +4,15 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
 
 import { getNextPage, moveCard } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { isExistValue } from '../../../helpers/util';
-import { PointsLoader } from '../../common';
+import { isExistValue, t } from '../../../helpers/util';
+import { InfoText, Loader, PointsLoader } from '../../common';
+import { Labels } from '../constants';
 import HeaderColumn from './HeaderColumn';
 import Column from './Column';
 
@@ -98,7 +100,6 @@ class Kanban extends React.Component {
   render() {
     const { isDragging } = this.state;
     const { columns = [], dataCards = [], isLoading, isFirstLoading, page } = this.props;
-    const cols = columns || Array(3).map((_, id) => ({ id }));
     const bodyStyle = { minHeight: this.getHeight(-70) };
 
     if (isDragging) {
@@ -107,7 +108,7 @@ class Kanban extends React.Component {
     }
 
     return (
-      <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
+      <div className="ecos-kanban" style={{ '--count-col': columns.length || 1 }}>
         <Scrollbars
           autoHeight
           autoHeightMin={this.getHeight()}
@@ -118,7 +119,7 @@ class Kanban extends React.Component {
           ref={this.refScroll}
         >
           <div className="ecos-kanban__head">
-            {cols.map((data, index) => (
+            {columns.map((data, index) => (
               <HeaderColumn
                 key={`head_${data.id}`}
                 isReady={!isFirstLoading}
@@ -135,6 +136,8 @@ class Kanban extends React.Component {
             style={bodyStyle}
             ref={this.refBody}
           >
+            {isLoading && isEmpty(columns) && <Loader />}
+            {!isLoading && isEmpty(columns) && <InfoText className="ecos-kanban__info" text={t(Labels.Kanban.NO_COLUMNS)} />}
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
               {columns.map(this.renderColumn)}
             </DragDropContext>
