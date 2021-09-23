@@ -331,6 +331,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1401
   updateLabel() {
+    if (this.viewOnly) {
+      return;
+    }
+
     const isLabelHidden = this.labelIsHidden();
     let className = 'control-label';
     let style = '';
