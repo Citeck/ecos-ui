@@ -1,6 +1,6 @@
+import React, { Component } from 'react';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
-import React, { Component } from 'react';
 
 export default class RawHtmlWrapper extends Component {
   constructor(props) {
@@ -47,7 +47,6 @@ export default class RawHtmlWrapper extends Component {
 
   render() {
     let self = this;
-
     let props = {
       ...this.state.props,
       setWrapperProps: p => this.setProps(p)
@@ -55,8 +54,10 @@ export default class RawHtmlWrapper extends Component {
 
     // detect functional component
     const componentRender = get(this, 'state.component.prototype.render');
+
     if (!componentRender) {
       self.resolveComponent(this);
+
       return <this.state.component {...props} />;
     }
 
