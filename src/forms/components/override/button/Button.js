@@ -15,13 +15,39 @@ export default class ButtonComponent extends FormIOButtonComponent {
     );
   }
 
+  _loading = false;
+
   get defaultSchema() {
     return ButtonComponent.schema();
   }
 
+  set disabled(disabled) {
+    if (!disabled && this.shouldDisable) {
+      return;
+    }
+
+    super.disabled = disabled;
+
+    this._disabled = disabled;
+    this.setDisabled(this.buttonElement, disabled);
+  }
+
+  get disabled() {
+    return this._disabled;
+  }
+
   set loading(loading) {
-    this.buttonElement.disabled = loading;
+    this._loading = loading;
+
+    if ((loading && !this.disabled) || (!loading && !this.disabled)) {
+      this.setDisabled(this.buttonElement, loading);
+    }
+
     super.loading = loading;
+  }
+
+  get loading() {
+    return this._loading;
   }
 
   build() {
@@ -51,9 +77,11 @@ export default class ButtonComponent extends FormIOButtonComponent {
     this.addEventListener(this.buttonElement, 'click', event => {
       this.triggerReCaptcha();
       this.dataValue = true;
+
       if (this.component.action !== 'submit' && this.component.showValidations) {
         this.emit('checkValidity', this.data);
       }
+
       switch (this.component.action) {
         case 'saveState':
         case 'submit':
