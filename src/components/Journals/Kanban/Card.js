@@ -82,8 +82,12 @@ class Card extends React.PureComponent {
   };
 
   renderBody = () => {
-    const { data, formProps } = this.props;
+    const { data, formProps, cardFormRef } = this.props;
     const { openerSet } = this.state;
+
+    if (!cardFormRef) {
+      return null;
+    }
 
     return (
       <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
