@@ -68,7 +68,6 @@ export const selectColumnProps = createSelector(
   [selectKanban, selectColumnData, selectColumnInfo, selectCardActions, selectIsLoadingCol],
   (board, columnData, columnInfo, actions, isLoadingCol) => ({
     readOnly: get(board, 'boardConfig.readOnly'),
-    cardFormRef: get(board, 'boardConfig.cardFormRef'),
     records: columnData.records,
     error: columnData.error,
     actions,

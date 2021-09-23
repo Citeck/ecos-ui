@@ -1,7 +1,10 @@
 import React from 'react';
-import isEmpty from 'lodash/isEmpty';
-import { Draggable } from 'react-beautiful-dnd';
 import classNames from 'classnames';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import debounce from 'lodash/debounce';
+import { Draggable } from 'react-beautiful-dnd';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { extractLabel } from '../../../helpers/util';
 import ViewAction from '../../Records/actions/handler/executor/ViewAction';
@@ -12,7 +15,8 @@ import { FormWrapper } from '../../common/dialogs';
 
 class Card extends React.PureComponent {
   state = {
-    openerSet: new Set()
+    openerSet: new Set(),
+    noForm: true
   };
 
   handleAction = action => {
@@ -23,6 +27,10 @@ class Card extends React.PureComponent {
   handleHeaderClick = () => {
     const { data } = this.props;
     this.props.onClickAction(data.cardId, { type: ViewAction.ACTION_ID });
+  };
+
+  handleDetectHeight = (w, h) => {
+    this.setState({ noForm: !h });
   };
 
   changeTransform = (provided, snapshot) => {
@@ -82,12 +90,8 @@ class Card extends React.PureComponent {
   };
 
   renderBody = () => {
-    const { data, formProps, cardFormRef } = this.props;
+    const { data, formProps } = this.props;
     const { openerSet } = this.state;
-
-    if (!cardFormRef) {
-      return null;
-    }
 
     return (
       <div className={classNames('ecos-kanban__card-body', { 'ecos-kanban__card-body_hidden': openerSet.has(data.cardId) })}>
@@ -105,6 +109,7 @@ class Card extends React.PureComponent {
             }
           }}
         />
+        <ReactResizeDetector handleHeight onResize={debounce(this.handleDetectHeight, 400)} />
       </div>
     );
   };
@@ -141,6 +146,7 @@ class Card extends React.PureComponent {
 
   render() {
     const { data, cardIndex, readOnly } = this.props;
+    const { noForm } = this.state;
 
     return (
       <Draggable draggableId={data.cardId} index={cardIndex} isDragDisabled={readOnly}>
@@ -148,7 +154,12 @@ class Card extends React.PureComponent {
           this.changeTransform(provided, snapshot);
           return (
             <div ref={provided.innerRef} {...provided.draggableProps}>
-              <div className={classNames('ecos-kanban__card', { 'ecos-kanban__card_dragging': snapshot.isDragging })}>
+              <div
+                className={classNames('ecos-kanban__card', {
+                  'ecos-kanban__card_dragging': snapshot.isDragging,
+                  'ecos-kanban__card_no-form': noForm
+                })}
+              >
                 {this.renderHeader(provided)}
                 {this.renderBody()}
               </div>

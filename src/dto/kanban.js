@@ -28,10 +28,8 @@ export default class KanbanConverter {
   static getCardAttributes() {
     return {
       cardId: '.id',
-      cardTitle: '.disp'
-      // cardSubtitle: '',
-      // cardActors: '',
-      // cardComments: ''
+      cardTitle: '.disp',
+      cardSubtitle: 'cardSubtitle'
     };
   }
 }

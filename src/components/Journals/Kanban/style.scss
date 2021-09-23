@@ -195,6 +195,8 @@
   }
 
   &__card {
+    $card: &;
+
     background: $color-white;
     border-radius: $border-radius-large;
     padding: 15px;
@@ -255,16 +257,11 @@
     &-head {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px solid $color-gray-4;
-
-      &:last-child {
-        border-bottom: none;
-        margin-bottom: -8px;
-      }
+      align-items: center;
     }
 
     &-body {
+      border-top: 2px solid $color-gray-4;
       transition: max-height ease-out 0.5s, padding ease-out 0.5s;
       max-height: 200px;
       min-height: 0;
@@ -311,7 +308,7 @@
     }
 
     &-form {
-      min-height: 5px;
+      min-height: 0;
 
       & > div:empty {
         @extend %animationStripes;
@@ -353,6 +350,18 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+    }
+
+    &_no-form {
+      #{$card} {
+        &-body {
+          border-top: none;
+        }
+
+        &-label {
+          padding-bottom: 0;
+        }
+      }
     }
   }
 }
