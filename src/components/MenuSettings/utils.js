@@ -13,6 +13,7 @@ export const Labels = {
   TAB_LEFT_MENU: 'menu-settings.tabs.menu-config',
   TAB_GLOBAL: 'menu-settings.tabs.global-config',
   TAB_CREATE_MENU: 'menu-settings.tabs.menu-create-config',
+  TAB_USER_MENU: 'menu-settings.tabs.menu-user-config',
   DEFAULT: 'menu-settings.text.default',
   //editor ownership
   FIELD_FOR_ALL_USERS: 'menu-settings.label.for-all',

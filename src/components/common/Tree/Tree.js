@@ -22,6 +22,7 @@ class Tree extends Component {
     data: PropTypes.arrayOf(PropTypes.shape(ItemInterface)),
     groupBy: PropTypes.string,
     prefixClassName: PropTypes.string,
+    emptyMessage: PropTypes.string,
     selectable: PropTypes.bool,
     draggable: PropTypes.bool,
     dragLvlTo: PropTypes.number,
@@ -41,6 +42,7 @@ class Tree extends Component {
     data: [],
     groupBy: '',
     prefixClassName: '',
+    emptyMessage: '',
     moveInLevel: true,
     moveInParent: false,
     onToggleSelect: () => null,
@@ -93,7 +95,9 @@ class Tree extends Component {
   };
 
   renderEmpty() {
-    return <div className="ecos-tree__empty">{t(Labels.EMPTY)}</div>;
+    const { emptyMessage } = this.props;
+
+    return <div className="ecos-tree__empty">{t(emptyMessage || Labels.EMPTY)}</div>;
   }
 
   renderTree(data) {

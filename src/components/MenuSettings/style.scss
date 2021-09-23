@@ -25,9 +25,16 @@
 .ecos-menu-settings {
   $root: &;
 
+  &__modal {
+    .ecos-loader,
+    .modal-loading {
+      z-index: calc(#{map-get($z-index, draggable-tree-item)} + 10);
+    }
+  }
+
   &__loader {
     border-radius: $border-radius-large;
-    z-index: 10000;
+    z-index: calc(#{map-get($z-index, draggable-tree-item)} + 10);
   }
 
   &__error {
@@ -255,7 +262,7 @@
 
     &--item {
       &-container {
-        z-index: 9999;
+        z-index: map-get($z-index, draggable-tree-item);
 
         & .ecos-tree__action#{$editor}__action_no-hide {
           display: inline-block;
@@ -305,7 +312,7 @@
 
     &--item {
       &-container {
-        z-index: 9999;
+        z-index: map-get($z-index, draggable-tree-item);
       }
     }
   }

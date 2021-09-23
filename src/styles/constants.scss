@@ -126,7 +126,8 @@ $scroll-border-radius: 3px;
 $scroll-z-index: 30;
 
 $z-index: (
-  document-widget-resizer: auto
+  document-widget-resizer: auto,
+  draggable-tree-item: 10000
 );
 
 %v-scroll {
