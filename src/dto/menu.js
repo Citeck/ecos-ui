@@ -1,5 +1,7 @@
 import get from 'lodash/get';
 import replace from 'lodash/replace';
+import cloneDeep from 'lodash/cloneDeep';
+import set from 'lodash/set';
 
 import { SourcesId } from '../constants';
 import { MenuSettings, MenuTypes } from '../constants/menu';
@@ -67,6 +69,21 @@ export default class MenuConverter {
         })
         .filter(item => !item.hidden);
     })(source, 0);
+  }
+
+  static getUserMenuItems(source = [], config) {
+    return cloneDeep(source).map(item => {
+      Object.keys(config).forEach(key => set(item, ['config', key], config[key]));
+
+      if (item.type === MenuSettings.ItemTypes.USER_STATUS) {
+        const availability = 'make-' + (config.isAvailable === false ? '' : 'not') + 'available';
+
+        set(item, 'info', `header.${availability}.label`);
+        set(item, 'icon', config.isAvailable ? 'icon-user-online icon_on' : 'icon-user-away icon_off');
+      }
+
+      return item;
+    });
   }
 
   static prepareCreateVariants(createVariants) {

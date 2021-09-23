@@ -4,9 +4,12 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { t } from '../../helpers/util';
+import { extractLabel, t } from '../../helpers/util';
 import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
+import MenuService from '../../services/MenuService';
+import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
+import EcosIcon from '../common/EcosIcon';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -41,6 +44,27 @@ class UserMenu extends React.Component {
     }));
   };
 
+  renderMenuItem = (item, key) => {
+    const icon = extractIcon(item.icon);
+    const extraProps = {};
+
+    if (item.info) {
+      extraProps.title = extractLabel(item.info);
+    }
+
+    return (
+      <button
+        key={item.id || key}
+        className="ecos-header-user__menu-item"
+        onClick={() => MenuService.getUserMenuCallback(item)}
+        {...extraProps}
+      >
+        {icon && <EcosIcon data={getIconObjectWeb(item.icon)} />}
+        <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
+      </button>
+    );
+  };
+
   render() {
     const { dropdownOpen } = this.state;
     const { isLoading, userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
@@ -64,7 +88,12 @@ class UserMenu extends React.Component {
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-            <EcosDropdownMenu items={items} emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)} />
+            <EcosDropdownMenu
+              items={items}
+              emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
+              mode="custom"
+              renderItem={this.renderMenuItem}
+            />
           </DropdownMenu>
         </Dropdown>
       </>
