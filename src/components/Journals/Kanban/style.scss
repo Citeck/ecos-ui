@@ -80,7 +80,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: #e8edef;
+    background: $color-gray-4;
   }
 
   &__body {
@@ -192,8 +192,8 @@
       padding-top: 50%;
     }
 
-    & :nth-child(11n) {
-      padding-top: 10px;
+    & :not(#{$kanban}__card-info):nth-child(11n) {
+      padding-top: 14px;
       border-top: 1px $color-gray-7 dotted;
     }
   }
@@ -204,7 +204,7 @@
     background: $color-white;
     border-radius: $border-radius-large;
     padding: 20px 16px;
-    margin-bottom: 8px;
+    margin-bottom: 14px;
     opacity: 1;
     transition: opacity ease-out 0.5s;
     display: flex;
@@ -221,7 +221,7 @@
       color: rgba(var(--color-info), 1);
       background: rgba(var(--color-info), 0.15);
       border-radius: $border-radius-large;
-      font-weight: $font-weight-semi-bold;
+      font-weight: $font-weight-bold;
       flex: auto;
       display: flex;
       align-items: center;
@@ -262,6 +262,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding-bottom: 18px;
     }
 
     &-body {
@@ -285,7 +286,6 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
-      padding-bottom: 13px;
       word-break: break-word;
 
       &_main {
@@ -358,6 +358,10 @@
 
     &_no-form {
       #{$card} {
+        &-head {
+          padding-bottom: 0;
+        }
+
         &-body {
           border-top: none;
         }
