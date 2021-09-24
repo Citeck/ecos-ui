@@ -62,7 +62,7 @@ export function* sagaGetBoardList({ api, logger }, { payload }) {
       yield put(setBoardList({ boardList: KanbanConverter.prepareList(boardList), stateId }));
     }
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardList saga] error', e.message);
+    logger.error('[kanban/sagaGetBoardList saga] error', e);
   }
 }
 
@@ -76,7 +76,7 @@ export function* sagaGetBoardConfig({ api, logger }, { payload }) {
 
     return boardConfig;
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardConfig saga] error', e.message);
+    logger.error('[kanban/sagaGetBoardConfig saga] error', e);
   }
 }
 
@@ -101,7 +101,7 @@ export function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
     NotificationManager.error(t('kanban.error.form-not-found'), t('error'));
-    logger.error('[kanban/sagaFormProps saga] error', e.message);
+    logger.error('[kanban/sagaFormProps saga] error', e);
   }
 }
 
@@ -123,7 +123,7 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
-    logger.error('[kanban/sagaGetBoardData saga] error', e.message);
+    logger.error('[kanban/sagaGetBoardData saga] error', e);
   }
 }
 
@@ -158,7 +158,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     const result = yield (boardConfig.columns || []).map(function*(column, i) {
       if (get(prevDataCards, [i, 'records', 'length'], 0) === get(prevDataCards, [i, 'totalCount'])) {
-        return yield {};
+        return {};
       }
 
       const colPredicate = KanbanConverter.preparePredicate(column);
@@ -197,7 +197,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
     yield put(setTotalCount({ stateId, totalCount }));
     yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
-    logger.error('[kanban/sagaGetData saga] error', e.message);
+    logger.error('[kanban/sagaGetData saga] error', e);
   }
 }
 

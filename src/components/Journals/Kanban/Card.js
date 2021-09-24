@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import { Draggable } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
@@ -18,14 +19,21 @@ class Card extends React.PureComponent {
     noForm: true
   };
 
-  handleAction = action => {
+  get target() {
     const { data } = this.props;
-    this.props.onClickAction(data.cardId, action);
+    return `card-title_${data.id}`.replace(/[:@/]/gim, '');
+  }
+
+  handleAction = action => {
+    const { data, onClickAction } = this.props;
+
+    if (isFunction(onClickAction)) {
+      onClickAction(data.cardId, action);
+    }
   };
 
   handleHeaderClick = () => {
-    const { data } = this.props;
-    this.props.onClickAction(data.cardId, { type: ViewAction.ACTION_ID });
+    this.handleAction({ type: ViewAction.ACTION_ID });
   };
 
   handleDetectHeight = (w, h) => {
@@ -42,14 +50,13 @@ class Card extends React.PureComponent {
 
   renderHeader = provided => {
     const { readOnly, actions, data } = this.props;
-    const target = `card-title_${data.id}`.replace(/[:@/]/gim, '');
 
     return (
       <div className="ecos-kanban__card-head">
         <div className="ecos-kanban__card-label">
-          <Tooltip target={target} text={data.cardTitle} uncontrolled off={!data.cardTitle || !data.cardSubtitle}>
+          <Tooltip target={this.target} text={data.cardTitle} uncontrolled off={!data.cardTitle || !data.cardSubtitle}>
             <div
-              id={target}
+              id={this.target}
               className={classNames('ecos-kanban__card-label_main', { 'ecos-kanban__card-label_main-with-sub': data.cardSubtitle })}
               onClick={this.handleHeaderClick}
             >
