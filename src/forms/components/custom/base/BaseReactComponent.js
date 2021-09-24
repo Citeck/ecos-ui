@@ -22,6 +22,10 @@ export default class BaseReactComponent extends BaseComponent {
   #react = {};
   #viewOnlyPrev = {};
 
+  get reactComponent() {
+    return this.#react;
+  }
+
   build() {
     if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
       super.clear();

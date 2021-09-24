@@ -258,7 +258,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
         ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
         : null;
       const queryData = component.queryData ? this.evaluate(component.queryData, {}, 'value', true) : null;
-
       const reactComponentProps = {
         columns: columns.length ? trimFields(columns) : undefined,
         defaultValue: this.dataValue,
@@ -321,6 +320,68 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
   }
 
+  redraw(shouldRedrawInBuilder) {
+    super.redraw(shouldRedrawInBuilder);
+
+    this.updateLabel();
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1401
+  updateLabel() {
+    if (this.viewOnly) {
+      return;
+    }
+
+    const isLabelHidden = this.labelIsHidden();
+    let className = 'control-label';
+    let style = '';
+
+    if (!isLabelHidden) {
+      const { labelPosition } = this.component;
+
+      if (labelPosition === 'bottom') {
+        className += ' control-label--bottom';
+      } else if (labelPosition && labelPosition !== 'top') {
+        const labelWidth = this.getLabelWidth();
+        const labelMargin = this.getLabelMargin();
+
+        // Label is on the left or right.
+        if (this.labelOnTheLeft(labelPosition)) {
+          style += `float: left; width: ${labelWidth}%; margin-right: ${labelMargin}%; `;
+        } else if (this.labelOnTheRight(labelPosition)) {
+          style += `float: right; width: ${labelWidth}%; margin-left: ${labelMargin}%; `;
+        }
+
+        if (this.rightAlignedLabel(labelPosition)) {
+          style += 'text-align: right; ';
+        }
+      }
+    } else {
+      this.addClass(this.element, 'formio-component-label-hidden');
+      className += ' control-label--hidden';
+    }
+
+    if (this.hasInput && this.component.validate && this.component.validate.required) {
+      className += ' field-required';
+    }
+
+    const labelElement = this.ce('label', {
+      class: className,
+      style
+    });
+
+    if (!isLabelHidden) {
+      if (this.info.attr.id) {
+        labelElement.setAttribute('for', this.info.attr.id);
+      }
+
+      labelElement.appendChild(this.text(this.component.label));
+      this.createTooltip(labelElement);
+    }
+
+    this.element.replaceChild(labelElement, this.element.firstChild);
+  }
+
   viewOnlyBuild() {
     super.viewOnlyBuild();
     this.refreshElementHasValueClasses();
@@ -330,6 +391,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
     const changed = super.updateValue(flags, value);
 
     this.refreshElementHasValueClasses();
+
+    if (changed) {
+      _.set(this.reactComponent, 'waitingProps.defaultValue', value);
+    }
+
+    this.setReactProps(_.get(this.reactComponent, 'wrapper.props.props', {}));
 
     return changed;
   }
