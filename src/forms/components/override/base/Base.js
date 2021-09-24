@@ -545,16 +545,18 @@ Base.prototype.createViewOnlyLabel = function(container) {
     return;
   }
 
-  if (!this.labelElement) {
-    this.labelElement = this.ce('dt');
-    this.labelElement.appendChild(this.text(this.component.label));
-    this.createTooltip(this.labelElement);
-    container.appendChild(this.labelElement);
+  const labelElement = this.ce('dt');
 
-    return;
+  labelElement.appendChild(this.text(this.label));
+  this.createTooltip(labelElement);
+
+  if (this.labelElement && container.firstChild) {
+    container.replaceChild(labelElement, container.firstChild);
+  } else {
+    container.appendChild(labelElement);
   }
 
-  this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
+  this.labelElement = labelElement;
 };
 
 export default Base;

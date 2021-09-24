@@ -23,6 +23,10 @@
   }
 
   .formio-disabled-input {
+    &.formio-component.formio-component-button > .btn {
+      cursor: not-allowed;
+    }
+
     .form-control {
       border-color: $color-gray-6;
       background-color: $color-gray-4;
