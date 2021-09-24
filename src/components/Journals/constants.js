@@ -23,7 +23,7 @@ export const JOURNAL_VIEW_MODE = {
   TABLE: 'table',
   PREVIEW: 'table-preview',
   DOC_LIB: 'document-library',
-  KANBAN: 'board'
+  KANBAN: 'kanban'
 };
 
 export const Labels = {

@@ -978,9 +978,7 @@ function* getSearchPredicate({ logger, stateId, grid }) {
     const { groupBy = [], search } = gridData;
     let { columns = [] } = gridData;
 
-    columns = columns.filter(item => {
-      return ![COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(item.type);
-    });
+    columns = ParserPredicate.getAvailableSearchColumns(columns);
 
     if (fullSearch) {
       predicate = JSON.parse(fullSearch);

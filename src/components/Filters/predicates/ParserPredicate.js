@@ -7,6 +7,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import { isExistValue } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import {
+  COLUMN_DATA_TYPE_DATE,
+  COLUMN_DATA_TYPE_DATETIME,
   datePredicateVariables,
   EQUAL_PREDICATES_MAP,
   filterPredicates,
@@ -56,6 +58,10 @@ export default class ParserPredicate {
           ]
         }
       : null;
+  }
+
+  static getAvailableSearchColumns(columns) {
+    return columns.filter(item => ![COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(item.type));
   }
 
   static getRowPredicates({ row, columns, groupBy }) {

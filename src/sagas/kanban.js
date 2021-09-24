@@ -152,7 +152,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
     const searchPredicate = isExistValue(searchText)
       ? ParserPredicate.getSearchPredicates({
           text: searchText,
-          columns: journalSetting.columns
+          columns: ParserPredicate.getAvailableSearchColumns(journalSetting.columns)
         })
       : [];
 
