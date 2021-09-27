@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
 
 import { t, trigger } from '../../../helpers/util';
 import Columns from '../../common/templates/Columns/Columns';
@@ -51,8 +52,10 @@ export default class Filter extends Component {
   };
 
   handleChangeValue = debounce(() => {
-    trigger.call(this, 'onChangeValue', { val: this.state.value, index: this.props.index });
-    this.setState({ isInput: false });
+    const { index, onChangeValue } = this.props;
+    const { value: val } = this.state;
+
+    isFunction(onChangeValue) && onChangeValue({ val, index });
   }, 350);
 
   changePredicate = predicate => {

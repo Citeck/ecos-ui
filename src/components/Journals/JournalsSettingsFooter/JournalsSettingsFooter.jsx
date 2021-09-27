@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
@@ -15,14 +16,14 @@ import {
   saveJournalSetting,
   setJournalSetting
 } from '../../../actions/journals';
-import { closest, t, trigger } from '../../../helpers/util';
+import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { DEFAULT_JOURNALS_PAGINATION, JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 import './JournalsSettingsFooter.scss';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const newState = get(state, ['journals', props.stateId]) || {};
 
   return {
     predicate: newState.predicate,
@@ -49,7 +50,7 @@ class JournalsSettingsFooter extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { dialogOpen: false };
+    this.state = { dialogOpen: false, disabledApply: false };
     this.settingName = '';
   }
 
@@ -72,10 +73,12 @@ class JournalsSettingsFooter extends Component {
   onKeydown = e => {
     if (e.key === 'Enter') {
       const inputRef = this.settingTitleInputRef || {};
-      if (e.target === inputRef.current) {
+      const target = e.target;
+
+      if (target === inputRef.current) {
         this.createSetting();
-      } else if (closest(e.target, this.props.parentClass)) {
-        this.applySetting();
+      } else if (target && target.closest(`.${this.props.parentClass}`)) {
+        debounce(this.applySetting, 360)();
       }
     }
   };
@@ -90,20 +93,26 @@ class JournalsSettingsFooter extends Component {
 
   saveSetting = () => {
     const journalSetting = this.getSetting();
-    this.props.saveJournalSetting(journalSetting[[JOURNAL_SETTING_ID_FIELD]], this.getSetting());
+    this.props.saveJournalSetting(journalSetting[JOURNAL_SETTING_ID_FIELD], this.getSetting());
     trigger.call(this, 'onSave');
   };
 
   applySetting = () => {
+    if (this.state.disabledApply) {
+      return;
+    }
+
     const { setJournalSetting, reloadGrid, maxItems } = this.props;
     const journalSetting = this.getSetting();
     const { columns, groupBy, sortBy, predicate } = journalSetting;
     const predicates = predicate ? [predicate] : [];
     const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
 
-    setJournalSetting(journalSetting);
-    reloadGrid({ columns, groupBy, sortBy, predicates, pagination });
-    trigger.call(this, 'onApply');
+    this.setState({ disabledApply: true }, () => {
+      setJournalSetting(journalSetting);
+      reloadGrid({ columns, groupBy, sortBy, predicates, pagination });
+      trigger.call(this, 'onApply');
+    });
   };
 
   resetSettings = () => {
@@ -114,7 +123,7 @@ class JournalsSettingsFooter extends Component {
   };
 
   getSetting = title => {
-    let { journalSetting, grouping, columnsSetup, predicate } = this.props;
+    const { journalSetting, grouping, columnsSetup, predicate } = this.props;
 
     return {
       ...journalSetting,
@@ -156,6 +165,7 @@ class JournalsSettingsFooter extends Component {
 
   render() {
     const { journalSetting } = this.props;
+    const { disabledApply } = this.state;
 
     return (
       <>
@@ -173,7 +183,7 @@ class JournalsSettingsFooter extends Component {
               <Btn className="ecos-btn_x-step_10 ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
                 {t('journals.action.reset')}
               </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
+              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting} disabled={disabledApply}>
                 {t('journals.action.apply')}
               </Btn>
             </>
