@@ -1,3 +1,4 @@
+import React from 'react';
 import get from 'lodash/get';
 
 import DefaultGqlFormatter from './DefaultGqlFormatter';
@@ -28,6 +29,6 @@ export default class LocaleFormatter extends DefaultGqlFormatter {
   render() {
     const { value } = this.state;
 
-    return value;
+    return <this.PopperWrapper text={value} />;
   }
 }

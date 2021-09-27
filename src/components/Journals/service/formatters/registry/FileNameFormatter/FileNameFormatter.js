@@ -5,8 +5,9 @@ import FileIcon from '../../../../../common/FileIcon';
 import { detectFormat } from '../../../../../common/FileIcon/helpers';
 
 import BaseFormatter from '../BaseFormatter';
-import './FileNameFormatter.scss';
 import { URL } from '../../../../../../constants';
+
+import './FileNameFormatter.scss';
 
 export default class FileNameFormatter extends BaseFormatter {
   static TYPE = 'filename';

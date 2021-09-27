@@ -1,3 +1,5 @@
+import { mount } from 'enzyme';
+
 import FormatterService from './FormatterService';
 import formatterRegistry from './registry';
 
@@ -21,7 +23,7 @@ describe('FormatterService', () => {
         }
       );
       expect(spy).toHaveBeenCalled();
-      expect(result).toBe('OK');
+      expect(mount(result).text()).toBe('OK');
     });
     it('ScriptFormatter with various props', () => {
       const props = {
@@ -41,14 +43,14 @@ describe('FormatterService', () => {
           }
         }
       });
-      expect(resultWithFuncInConfig).toBe('abc-def-ghi');
+      expect(mount(resultWithFuncInConfig).text()).toBe('abc-def-ghi');
       const resultWithScriptAsText = FormatterService.format(props, {
         type: FORMATTER_TYPE_SCRIPT,
         config: {
           fn: 'return cell + "-" + row.rowAtt + "-" + customArg'
         }
       });
-      expect(resultWithScriptAsText).toBe('abc-def-ghi');
+      expect(mount(resultWithScriptAsText).text()).toBe('abc-def-ghi');
     });
     it('should replace placeholders in the config fields', () => {
       const result = FormatterService.format(
@@ -69,7 +71,7 @@ describe('FormatterService', () => {
           }
         }
       );
-      expect(result).toBe(15);
+      expect(mount(result).text()).toBe('15');
     });
     it('should display error message when formatter type is empty', () => {
       expect(FormatterService.format({}, {})).toBe(FormatterService.errorMessage);

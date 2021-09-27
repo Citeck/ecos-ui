@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+
 import DefaultGqlFormatter from '../DefaultGqlFormatter';
 import { t } from '../../../../../../helpers/util';
 
@@ -21,10 +22,14 @@ export default class WorkflowPriorityFormatter extends DefaultGqlFormatter {
     const { cell } = this.props;
     const priority = WorkflowPriorityFormatter.getDisplayText(cell);
 
-    return priority ? (
-      <span className={`workflow-priority-formatter workflow-priority-formatter_${Codes[cell]}`}>{priority}</span>
-    ) : (
-      <Fragment>{this.value(cell)}</Fragment>
-    );
+    if (priority) {
+      return (
+        <this.PopperWrapper text={priority}>
+          <span className={`workflow-priority-formatter workflow-priority-formatter_${Codes[cell]}`}>{priority}</span>
+        </this.PopperWrapper>
+      );
+    }
+
+    return <this.PopperWrapper text={this.value(cell)} />;
   }
 }
