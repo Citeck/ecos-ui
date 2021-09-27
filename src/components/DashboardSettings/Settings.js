@@ -7,6 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
 import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
+import last from 'lodash/last';
 import { Col, Container, Row } from 'reactstrap';
 
 import { decodeLink, getSearchParams, getSortedUrlParams, SearchKeys } from '../../helpers/urls';
@@ -19,7 +20,7 @@ import DashboardService from '../../services/dashboard';
 import { removeItems } from '../../helpers/ls';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 
-import { Layouts, LayoutTypes } from '../../constants/layout';
+import { DefaultWidgetsByLayout, Layouts, LayoutTypes } from '../../constants/layout';
 import { DashboardTypes, DeviceTabs } from '../../constants/dashboard';
 import DashboardSettingsConverter from '../../dto/dashboardSettings';
 import PageService from '../../services/PageService';
@@ -466,6 +467,8 @@ class Settings extends Component {
     const state = {};
 
     const setData = ({ tabs, activeTabKey, removedTab }) => {
+      const lastItem = last(tabs) || {};
+
       if (isMob) {
         if (!isEmpty(tabs)) {
           state.mobileTabs = tabs;
@@ -473,6 +476,15 @@ class Settings extends Component {
 
         if (!isEmpty(activeTabKey)) {
           state.mobileActiveLayoutTabId = activeTabKey;
+        }
+
+        if (lastItem.isNew) {
+          const { mobileSelectedWidgets } = this.state;
+
+          state.mobileSelectedWidgets = {
+            ...mobileSelectedWidgets,
+            [lastItem.idLayout]: DefaultWidgetsByLayout[LayoutTypes.MOBILE]
+          };
         }
       } else {
         if (!isEmpty(tabs)) {
@@ -500,7 +512,22 @@ class Settings extends Component {
           state.selectedWidgets = selectedWidgets;
           state.removedWidgets = removedWidgets;
         }
+
+        if (lastItem.isNew) {
+          const { selectedWidgets, selectedLayout } = this.state;
+
+          state.selectedWidgets = {
+            ...selectedWidgets,
+            [lastItem.idLayout]: DefaultWidgetsByLayout[LayoutTypes.TWO_COLUMNS_BS]
+          };
+
+          state.selectedLayout = {
+            ...selectedLayout,
+            [lastItem.idLayout]: LayoutTypes.TWO_COLUMNS_BS
+          };
+        }
       }
+
       this.setState(state);
     };
 
