@@ -90,8 +90,6 @@ class Tree extends Component {
 
   handleBeforeSortStart = ({ node }) => {
     this.toggleClass(node, this.draggingClassNames);
-    // node.classList.toggle(this.draggingClassNames);
-
     this.setState({ draggableNode: node });
   };
 
@@ -99,9 +97,8 @@ class Tree extends Component {
     const { draggableNode } = this.state;
 
     event.stopPropagation();
-    this.toggleClass(draggableNode, this.draggingClassNames);
-    // draggableNode.classList.toggle(this.draggingClassNames);
 
+    this.toggleClass(draggableNode, this.draggingClassNames);
     this.setState({ draggableNode: null });
     this.props.onDragEnd(oldIndex, newIndex);
   };
@@ -167,9 +164,6 @@ class Tree extends Component {
         onSortEnd={this.handleSortEnd}
         updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle
-        // onSortMove={() => {
-        //   debugger;
-        // }}
       >
         {treeElement}
       </SortableContainer>
