@@ -79,7 +79,6 @@ import {
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
 import { ActionTypes } from '../components/Records/actions';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import { beArray, hasInString, t } from '../helpers/util';
