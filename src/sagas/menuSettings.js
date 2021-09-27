@@ -52,7 +52,7 @@ function* fetchSettingsConfig({ api, logger }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
-    logger.error('[menu-settings / fetchSettingsConfig]', e.message);
+    logger.error('[menu-settings / fetchSettingsConfig]', e);
   }
 }
 
@@ -86,7 +86,7 @@ function* runSaveMenuConfig({ api, logger }, action) {
     return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-config'), t('error'));
-    logger.error('[menu-settings / runSaveMenuSettings]', e.message);
+    logger.error('[menu-settings / runSaveMenuSettings]', e);
     return false;
   }
 }
@@ -104,7 +104,7 @@ function* runSaveGlobalSettings({ api, logger }, action) {
     return true;
   } catch (e) {
     NotificationManager.error(t('menu-settings.error.save-group-priority'), t('error'));
-    logger.error('[menu-settings / runSaveGlobalSettings]', e.message);
+    logger.error('[menu-settings / runSaveGlobalSettings]', e);
     return false;
   }
 }
@@ -149,20 +149,20 @@ function* runAddJournalMenuItems({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.set-items-from-journal'), t('error'));
-    logger.error('[menu-settings / runAddJournalMenuItems]', e.message);
+    logger.error('[menu-settings / runAddJournalMenuItems]', e);
   }
 }
 
 function* fetchGroupPriority({ api, logger }) {
   try {
-    const authorities = yield select(state => state.menuSettings.authorities);
+    const authorities = yield select(state => state.menuSettings.authorities || []);
     const groupPriority = yield call(api.menu.getFullGroupPriority, { authorities });
 
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb(groupPriority)));
   } catch (e) {
     yield put(setGroupPriority(MenuConverter.getGroupPriorityConfigWeb([])));
     NotificationManager.error(t('menu-settings.error.get-group-priority'), t('error'));
-    logger.error('[menu-settings / fetchGroupPriority]', e.message);
+    logger.error('[menu-settings / fetchGroupPriority]', e);
   }
 }
 
@@ -176,7 +176,7 @@ function* fetchAuthorityInfoByRefs({ api, logger }, { payload = [] }) {
       yield put(setAuthorities(authorities));
     }
   } catch (e) {
-    logger.error('[menu-settings / fetchAuthorityInfoByRefs]', e.message);
+    logger.error('[menu-settings / fetchAuthorityInfoByRefs]', e);
   }
 }
 
