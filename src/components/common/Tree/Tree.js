@@ -76,8 +76,21 @@ class Tree extends Component {
       }));
   }
 
+  get draggingClassNames() {
+    return 'ecos-tree_dragged ecos-tree__item_dragging';
+  }
+
+  toggleClass(node, className) {
+    const classes = className.split(' ');
+
+    classes.forEach(item => {
+      node.classList.toggle(item);
+    });
+  }
+
   handleBeforeSortStart = ({ node }) => {
-    node.classList.toggle('ecos-tree__item_dragging');
+    this.toggleClass(node, this.draggingClassNames);
+    // node.classList.toggle(this.draggingClassNames);
 
     this.setState({ draggableNode: node });
   };
@@ -86,7 +99,8 @@ class Tree extends Component {
     const { draggableNode } = this.state;
 
     event.stopPropagation();
-    draggableNode.classList.toggle('ecos-tree__item_dragging');
+    this.toggleClass(draggableNode, this.draggingClassNames);
+    // draggableNode.classList.toggle(this.draggingClassNames);
 
     this.setState({ draggableNode: null });
     this.props.onDragEnd(oldIndex, newIndex);
@@ -153,6 +167,9 @@ class Tree extends Component {
         onSortEnd={this.handleSortEnd}
         updateBeforeSortStart={this.handleBeforeSortStart}
         useDragHandle
+        // onSortMove={() => {
+        //   debugger;
+        // }}
       >
         {treeElement}
       </SortableContainer>
