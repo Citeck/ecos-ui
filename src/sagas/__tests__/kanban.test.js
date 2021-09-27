@@ -27,7 +27,6 @@ import KanbanApi from '../__mocks__/kanbanApi';
 import data from '../__mocks__/kanbanData';
 import JournalApi from '../__mocks__/journalApi';
 import * as kanban from '../kanban';
-import { sagaReloadBoardData } from '../kanban';
 
 const journalId = 'journalId',
   stateId = 'stateId',
@@ -40,6 +39,11 @@ const api = {
 };
 
 const logger = { error: jest.fn() };
+
+beforeEach(() => {
+  delete window.location;
+  window.location = {};
+});
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -293,7 +297,6 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaSelectBoard > there is _boardId', async () => {
-    delete window.location;
     window.location = { pathname: '/test' };
 
     const dispatched = await wrapRunSaga(kanban.sagaSelectBoard, { text: boardId });
@@ -469,7 +472,6 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaRunSearchCard > there is _no text & was no', async () => {
-    delete window.location;
     window.location = { pathname: '/test' };
 
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard);
@@ -481,7 +483,6 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaRunSearchCard > there is _new text & was no', async () => {
-    delete window.location;
     window.location = { pathname: '/test' };
 
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard, { text: 'test' });
@@ -494,7 +495,6 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaRunSearchCard > there is _same text & was', async () => {
-    delete window.location;
     window.location = { pathname: '/test', search: '?search=test' };
 
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard, { text: 'test' });
@@ -504,7 +504,6 @@ describe('kanban sagas tests', () => {
   });
 
   it('sagaRunSearchCard > there is _clean text & was', async () => {
-    delete window.location;
     window.location = { pathname: '/test', search: '?search=test' };
 
     const dispatched = await wrapRunSaga(kanban.sagaRunSearchCard);
