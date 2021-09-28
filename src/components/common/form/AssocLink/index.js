@@ -17,7 +17,7 @@ export const AssocLink = ({ className, label, asText, link, extraData, paramsLin
 
   if (asText) {
     return (
-      <div className="assoc-container">
+      <div className="assoc-container" title={label}>
         <span className={classNames('assoc-value', className)}>{label}</span>
         {extraData && <span className="assoc-extra-data">({extraData})</span>}
       </div>
