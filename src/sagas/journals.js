@@ -171,7 +171,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
     const { recordRef } = action.payload;
 
     if (customJournalMode && customJournal) {
-      let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
+      const resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
 
       yield put(setEditorMode(w(false)));
       yield put(setDashletConfig(w(config)));
@@ -193,7 +193,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
       yield put(setEditorMode(w(isEmpty(journalsListIds))));
       yield put(setDashletConfig(w(config)));
       if (customJournalMode && customJournal) {
-        let resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
+        const resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
         yield put(initJournal(w({ journalId: resolvedCustomJournal })));
       } else {
         yield put(initJournal(w({ journalId: lsJournalId || get(journalsListIds, '0', journalId), journalSettingId })));

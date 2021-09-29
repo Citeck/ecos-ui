@@ -45,7 +45,7 @@ const getKey = ({ tabId = '', stateId, id }) =>
   (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
 
 const mapStateToProps = (state, ownProps) => {
-  const newState = state.journals[getKey(ownProps)] || {};
+  const newState = get(state, ['journals', getKey(ownProps)], {});
 
   return {
     stateId: getKey(ownProps),
@@ -53,7 +53,7 @@ const mapStateToProps = (state, ownProps) => {
     journalConfig: newState.journalConfig,
     config: selectDashletConfig(state, getKey(ownProps)),
     configJournalId: selectDashletConfigJournalId(state, getKey(ownProps)),
-    isMobile: (state.view || {}).isMobile === true,
+    isMobile: get(state, 'view.isMobile') === true,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
     selectAllRecords: newState.selectAllRecords,

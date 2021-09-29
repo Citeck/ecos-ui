@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isUndefined from 'lodash/isUndefined';
 
 import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -50,7 +51,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
-    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config }))),
+    setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config, recordRef: ownProps.recordRef }))),
     setSettingItem: id => dispatch(setSettingItem(w(id))),
     setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
@@ -173,13 +174,13 @@ class JournalsDashletEditor extends Component {
     return false;
   }
 
-  cancel = () => {
+  handleCancel = () => {
     const { config, setEditorMode } = this.props;
 
     config && setEditorMode(false);
   };
 
-  save = () => {
+  handleSave = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig } = this.props;
     const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
     const generalConfig = this.props.generalConfig || {};
@@ -187,14 +188,14 @@ class JournalsDashletEditor extends Component {
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
-      if (generalConfig.onlyLinked !== undefined && newConfig.onlyLinked === undefined) {
+      if (!isUndefined(generalConfig.onlyLinked) && isUndefined(newConfig.onlyLinked)) {
         newConfig.onlyLinked = generalConfig.onlyLinked;
       } else {
-        newConfig.onlyLinked = newConfig.onlyLinked === undefined ? true : newConfig.onlyLinked;
+        newConfig.onlyLinked = isUndefined(newConfig.onlyLinked) ? true : newConfig.onlyLinked;
       }
     }
 
-    if (newConfig.customJournalMode === undefined) {
+    if (isUndefined(newConfig.customJournalMode)) {
       newConfig.customJournalMode = false;
     }
 
@@ -219,7 +220,7 @@ class JournalsDashletEditor extends Component {
     checkConfig(newConfig);
   };
 
-  clear = () => {
+  handleClear = () => {
     const { config, initConfig, setDashletConfig } = this.props;
 
     setDashletConfig(initConfig);
@@ -298,21 +299,21 @@ class JournalsDashletEditor extends Component {
               </Field>
             </>
           )}
-          <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
-            <Checkbox checked={isCustomJournalMode === undefined ? false : isCustomJournalMode} onChange={this.setCustomJournalMode} />
+          <Field label={t(Labels.CUSTOM_MODE_FIELD)}>
+            <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onChange={this.setCustomJournalMode} />
           </Field>
           {recordRef ? (
-            <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
-              <Checkbox checked={config.onlyLinked === undefined ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
+            <Field label={t(Labels.ONLY_LINKED_FIELD)}>
+              <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
             </Field>
           ) : null}
         </div>
 
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>
-          <Btn onClick={this.clear}>{t(Labels.RESET_BTN)}</Btn>
+          <Btn onClick={this.handleClear}>{t(Labels.RESET_BTN)}</Btn>
           <div className="ecos-journal-dashlet-editor__actions-diver" />
-          {configJournalId && <Btn onClick={this.cancel}>{t(Labels.CANCEL_BTN)}</Btn>}
-          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.save} disabled={this.isDisabled}>
+          {configJournalId && <Btn onClick={this.handleCancel}>{t(Labels.CANCEL_BTN)}</Btn>}
+          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleSave} disabled={this.isDisabled}>
             {t(Labels.SAVE_BTN)}
           </Btn>
         </div>
