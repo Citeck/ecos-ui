@@ -1,6 +1,7 @@
 const express = require('express');
 const compression = require('compression');
 const morgan = require('morgan');
+const favicon = require('serve-favicon')
 const path = require('path');
 const proxy = require('http-proxy-middleware');
 const fs = require('fs');
@@ -13,6 +14,8 @@ app.use(compression());
 
 // Setup logger
 app.use(morgan('combined'));
+
+app.use(favicon(path.join(__dirname, './public', '/favicon.ico')));
 
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
