@@ -9,7 +9,7 @@ import isEqual from 'lodash/isEqual';
 
 import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
-
+import SelectJournal from '../../common/form/SelectJournal';
 import {
   checkConfig,
   getDashletEditorData,
@@ -21,13 +21,11 @@ import {
   setOnlyLinked,
   setSettingItem
 } from '../../../actions/journals';
-
+import { selectDashletConfig, selectDashletConfigJournalId, selectNewVersionDashletConfig } from '../../../selectors/journals';
+import DashboardService from '../../../services/dashboard';
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
-import DashboardService from '../../../services/dashboard';
-import SelectJournal from '../../common/form/SelectJournal';
-import { selectDashletConfig, selectDashletConfigJournalId, selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 import './JournalsDashletEditor.scss';
 
@@ -257,16 +255,14 @@ class JournalsDashletEditor extends Component {
   };
 
   render() {
-    const { className, measurer, recordRef, journalSettings, configJournalId } = this.props;
+    const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
     const { customJournal, isCustomJournalMode } = this.state;
     const config = this.props.config || {};
     const isSmall = measurer && (measurer.xxs || measurer.xxxs);
-    const checkSmall = isSmall => className => (isSmall ? className : '');
-    const ifSmall = checkSmall(isSmall);
 
     return (
-      <div className={classNames('ecos-journal-dashlet-editor', className)}>
-        <div className={classNames('ecos-journal-dashlet-editor__body', ifSmall('ecos-journal-dashlet-editor__body_small'))}>
+      <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
+        <div className={classNames('ecos-journal-dashlet-editor__body', { 'ecos-journal-dashlet-editor__body_small': isSmall })}>
           <Caption middle className="ecos-journal-dashlet-editor__caption">
             {t(Labels.SETTING_TITLE)}
           </Caption>
