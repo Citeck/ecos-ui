@@ -314,6 +314,20 @@
   "document-library.uploading-file.message.error": "Не удалось загрузить файл \"{{file}}\"",
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
 
+  "kanban.label.big-total": "Всего: {{count}}",
+  "kanban.label.no-columns": "Колонки не настроены",
+  "kanban.label.no-card": "Нет карточек",
+  "kanban.label.no-name": "Нет названия",
+  "kanban.label.board-list": "Список досок",
+  "kanban.label.btn-settings": "Фильтрация",
+  "kanban.label.dnd.move-here": "Пеместить в эту колонку",
+  "kanban.label.dnd.cant-move-here": "Карточку нельзя переместить в эту колонку",
+  "kanban.label.dnd.already-here": "Карточка из этой колонки",
+  "kanban.label.no-more-cards": "Больше нет карточек",
+  "kanban.error.form-not-found": "Форма карточки не найдена",
+  "kanban.error.card-not-moved": "Карточка не перемещена",
+  "kanban.error.get-column-data": "Не удалось получить карточки для столбца",
+
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",
   "type-permissions.empty-roles.title": "Роли не настроены",
@@ -767,6 +781,10 @@
   "journals.bar.btn.export": "Экспорт",
   "journals.bar.btn.update": "Обновить данные",
   "journals.bar.btn.filter-del": "Сбросить фильтры",
+  "journals.view.label.journal": "Журнал",
+  "journals.view.label.journal-preview": "Предпросмотр",
+  "journals.view.label.document-library": "Библиотека документов",
+  "journals.view.label.kanban": "Канбан",
 
   "journals.formatter.action.execution-error": "Действие не может быть выполнено",
 

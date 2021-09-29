@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 
+import { extractLabel } from '../../../helpers/util';
 import { Caption } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import TitlePageLoader from '../../common/TitlePageLoader';
@@ -12,7 +13,7 @@ const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, lab
     <div className="journals-head">
       <TitlePageLoader isReady={!!title}>
         <Caption normal className={classNames('journals-head__caption', { 'journals-head__caption_small': isMobile })}>
-          {title}
+          {extractLabel(title)}
           {!isMobile && hasBtnEdit && (
             <IcoBtn
               icon="icon-settings"

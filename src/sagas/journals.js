@@ -3,7 +3,6 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import getFirst from 'lodash/first';
 import set from 'lodash/set';
-import has from 'lodash/has';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -66,7 +65,8 @@ import {
   selectJournalData,
   selectNewVersionDashletConfig,
   selectSettingsData,
-  selectUrl
+  selectUrl,
+  selectWasChangedSettings
 } from '../selectors/journals';
 import JournalsService from '../components/Journals/service';
 import EditorService from '../components/Journals/service/editors/EditorService';
@@ -79,10 +79,9 @@ import {
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
 import { ActionTypes } from '../components/Records/actions';
-import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
-import { hasInString, t } from '../helpers/util';
+import { beArray, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -112,15 +111,11 @@ function getDefaultJournalSetting(journalConfig) {
   };
 }
 
-function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
+export function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = DEFAULT_PAGINATION }) {
   const { createVariants, actions: journalActions, groupActions } = get(journalConfig, 'meta', {});
   const { sourceId, id: journalId } = journalConfig;
-  const { sortBy, groupBy, columns, predicate: journalSettingPredicate } = journalSetting;
-  const predicates = isArray(journalSettingPredicate)
-    ? journalSettingPredicate
-    : isEmpty(journalSettingPredicate)
-    ? []
-    : [journalSettingPredicate];
+  const { sortBy = [], groupBy = [], columns = [], predicate: journalSettingPredicate } = journalSetting;
+  const predicates = beArray(journalSettingPredicate);
 
   return {
     groupActions: groupActions || [],
@@ -263,7 +258,7 @@ function* getJournalSettings(api, journalId, w) {
   return settings;
 }
 
-function* getJournalConfig({ api, w, force }, journalId) {
+export function* getJournalConfig({ api, w, force }, journalId) {
   const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
   yield put(setJournalConfig(w(journalConfig)));
   return journalConfig;
@@ -284,12 +279,28 @@ function* getColumns({ stateId }) {
   return columns;
 }
 
+export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
+  const url = yield select(selectUrl, stateId);
+  const { journalSettingId = '', userConfigId } = url;
+
+  const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
+
+  if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
+    sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
+  }
+
+  return yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+}
+
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
   try {
     const { journalSetting: _journalSetting = {} } = yield select(selectJournalData, stateId);
-    let journalSetting;
+    const wasChangedSettings = yield select(selectWasChangedSettings, stateId);
+    let journalSetting = null;
 
-    if (sharedSettings) {
+    if (wasChangedSettings) {
+      journalSetting = {};
+    } else if (sharedSettings) {
       journalSetting = sharedSettings;
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;
@@ -409,7 +420,7 @@ function* sagaRestoreJournalSettingData({ api, logger, stateId, w }, action) {
   }
 }
 
-function* getGridData(api, params, stateId) {
+export function* getGridData(api, params, stateId) {
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
@@ -539,6 +550,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
 
     const journalData = yield select(selectJournalData, stateId);
     const { grid, selectAllRecords } = journalData;
+
     const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
     const params = { ...grid, ...payload, searchPredicate };
     const gridData = yield getGridData(api, params, stateId);
@@ -832,7 +844,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { settings } = action.payload;
     const { columns, groupBy, sortBy, predicate, grouping } = settings;
-    const predicates = predicate ? [predicate] : [];
+    const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
@@ -841,17 +853,12 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
 
     yield put(setColumnsSetup(w({ columns, sortBy })));
     yield put(setGrouping(w(grouping)));
-    yield put(
-      setGrid(
-        w({
-          columns: grouping.groupBy.length ? grouping.columns : columns
-        })
-      )
-    );
+    const newCols = grouping.groupBy.length ? grouping.columns : columns;
+    yield put(setGrid(w({ columns: newCols })));
     yield put(
       reloadGrid(
         w({
-          columns: grouping.groupBy.length ? grouping.columns : columns,
+          columns: newCols,
           groupBy,
           sortBy,
           predicates,
@@ -970,9 +977,7 @@ function* getSearchPredicate({ logger, stateId, grid }) {
     const { groupBy = [], search } = gridData;
     let { columns = [] } = gridData;
 
-    columns = columns.filter(item => {
-      return ![COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(item.type);
-    });
+    columns = ParserPredicate.getAvailableSearchColumns(columns);
 
     if (fullSearch) {
       predicate = JSON.parse(fullSearch);
@@ -998,14 +1003,10 @@ function* getSearchPredicate({ logger, stateId, grid }) {
 function* sagaSearch({ logger, w, stateId }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
-    const searchText = get(payload, 'text', '');
+    const searchText = get(payload, 'text') || undefined;
 
-    if (searchText && get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
+    if (get(urlData, ['query', JournalUrlParams.SEARCH]) !== searchText) {
       set(urlData, ['query', JournalUrlParams.SEARCH], searchText);
-    }
-
-    if (searchText === '' && has(urlData, ['query', JournalUrlParams.SEARCH])) {
-      delete urlData.query[JournalUrlParams.SEARCH];
     }
 
     if (!isEqual(getSearchParams(), urlData.query)) {
@@ -1053,7 +1054,7 @@ function* sagaResetFiltering({ logger, w, stateId }) {
     } = yield select(selectSettingsData, stateId);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
-    const predicates = predicate ? [predicate] : [];
+    const predicates = beArray(predicate);
 
     yield put(setPredicate(w(predicate)));
     yield put(setJournalSetting(w({ predicate })));

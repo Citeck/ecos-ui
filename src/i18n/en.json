@@ -314,6 +314,20 @@
   "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
 
+  "kanban.label.big-total": "Total: {{count}}",
+  "kanban.label.no-columns": "Columns not configured",
+  "kanban.label.no-card": "No Card",
+  "kanban.label.no-name": "No Name",
+  "kanban.label.board-list": "Board List",
+  "kanban.label.btn-settings": "Filter",
+  "kanban.label.dnd.move-here": "Move to this column",
+  "kanban.label.dnd.cant-move-here": "The card cannot be moved to this column",
+  "kanban.label.dnd.already-here": "The card is from this column",
+  "kanban.label.no-more-cards": "No more cards",
+  "kanban.error.form-not-found": "Form card has not found",
+  "kanban.error.card-not-moved": "Card hasn't moved",
+  "kanban.error.get-column-data": "Error getting cards for the column",
+
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",
   "type-permissions.empty-roles.title": "Roles is empty",
@@ -767,6 +781,10 @@
   "journals.bar.btn.export": "Export",
   "journals.bar.btn.update": "Update data",
   "journals.bar.btn.filter-del": "Reset filtration",
+  "journals.view.label.journal": "Journal",
+  "journals.view.label.journal-preview": "Preview",
+  "journals.view.label.document-library": "Document library",
+  "journals.view.label.kanban": "Kanban",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 

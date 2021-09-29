@@ -13,39 +13,16 @@ export default class TwoIcoBtn extends Component {
     className: ''
   };
 
-  renderFirstIcon = () => {
-    const {
-      icons: [first]
-    } = this.props;
-
-    if (!first) {
-      return null;
-    }
-
-    return <i className={classNames('ecos-btn__i', first)} />;
-  };
-
-  renderSecondIcon = () => {
-    const {
-      icons: [, second]
-    } = this.props;
-
-    if (!second) {
-      return null;
-    }
-
-    return <i className={classNames('ecos-btn__i', second)} />;
-  };
-
   render() {
     const { className, icons, children, ...props } = this.props;
     const cssClasses = classNames('ecos-btn ecos-btn_mi', className);
+    const [first, second] = icons;
 
     return (
       <button {...props} className={cssClasses}>
-        {this.renderFirstIcon()}
+        {first && <i className={classNames('ecos-btn__i', first)} />}
         {children}
-        {this.renderSecondIcon()}
+        {second && <i className={classNames('ecos-btn__i', second)} />}
       </button>
     );
   }

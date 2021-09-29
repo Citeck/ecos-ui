@@ -120,7 +120,7 @@ class JournalsSettingsFooter extends Component {
   };
 
   render() {
-    const { canSave } = this.props;
+    const { canSave, noCreateBtn } = this.props;
 
     return (
       <>
@@ -128,9 +128,11 @@ class JournalsSettingsFooter extends Component {
           className="ecos-journal__settings-footer"
           cols={[
             <>
-              <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
-                {t('journals.action.create-template')}
-              </Btn>
+              {!noCreateBtn && (
+                <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
+                  {t('journals.action.create-template')}
+                </Btn>
+              )}
               {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
             </>,
 

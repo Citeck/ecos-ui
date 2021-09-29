@@ -59,6 +59,8 @@ export const SourcesId = {
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
   RESOLVED_JOURNAL: 'uiserv/rjournal',
+  BOARD: 'uiserv/board',
+  RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
@@ -174,6 +176,11 @@ export const JournalUrlParams = {
 export const DocLibUrlParams = {
   FOLDER_ID: 'folderId',
   SEARCH: 'dlSearch'
+};
+
+export const KanbanUrlParams = {
+  BOARD_ID: 'boardId',
+  SEARCH: 'kbSearch'
 };
 
 export const SYSTEM_LIST = 'global-system';

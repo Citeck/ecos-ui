@@ -24,7 +24,7 @@
   &__input {
     outline: none !important;
     border: none !important;
-    font-weight: bold !important;
+    font-weight: $font-weight-semi-bold !important;
     font-size: $font-size-standard !important;
     width: calc(100% - 40px) !important;
     transition: width 0.5s;

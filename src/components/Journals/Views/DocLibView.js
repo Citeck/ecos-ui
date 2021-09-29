@@ -8,7 +8,7 @@ import { selectViewMode } from '../../../selectors/journals';
 import { selectDocLibPageProps } from '../../../selectors/docLib';
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { isDocLib } from '../constants';
+import { isDocLib, Labels } from '../constants';
 import DocLibBreadcrumbs from '../DocLib/DocLibBreadcrumbs/DocLibBreadcrumbsContainer';
 import DocLibSettingsBar from '../DocLib/DocLibSettingsBar/DocLibSettingsBarContainer';
 import DocLibGroupActions from '../DocLib/DocLibGroupActions/DocLibGroupActionsContainer';
@@ -33,11 +33,6 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     initDocLib: () => dispatch(initDocLib(w({})))
   };
-};
-
-const Labels = {
-  DL_SHOW_MENU: 'journals.action.show-folder-tree',
-  DL_SHOW_MENU_SM: 'journals.action.show-folder-tree_sm'
 };
 
 class DocLibView extends React.Component {
@@ -78,23 +73,15 @@ class DocLibView extends React.Component {
       bodyForwardedRef,
       bodyTopForwardedRef,
       footerForwardedRef,
-      pageTabsIsShow,
       bodyClassName,
       Header,
       UnavailableView
     } = this.props;
 
     return (
-      <div
-        hidden={!isDocLib(viewMode)}
-        ref={bodyForwardedRef}
-        className={classNames('ecos-journal__body', bodyClassName, {
-          'ecos-journal__body_with-tabs': pageTabsIsShow,
-          'ecos-journal__body_mobile': isMobile
-        })}
-      >
+      <div hidden={!isDocLib(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__doc-lib', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          <Header title={folderTitle} labelBtnMenu={isMobile ? t(Labels.DL_SHOW_MENU_SM) : t(Labels.DL_SHOW_MENU)} />
+          <Header title={folderTitle} labelBtnMenu={isMobile ? t(Labels.DocLib.SHOW_MENU_SM) : t(Labels.DocLib.SHOW_MENU)} />
           <DocLibBreadcrumbs stateId={stateId} />
           <DocLibSettingsBar stateId={stateId} />
           <DocLibGroupActions stateId={stateId} />

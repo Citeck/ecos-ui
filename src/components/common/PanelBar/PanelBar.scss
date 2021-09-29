@@ -4,6 +4,10 @@
   background: $color-white;
   border-radius: $border-radius-extra-large;
 
+  &:last-child {
+    height: 100%;
+  }
+
   &_open {
     .panel-bar__header-label::before {
       transform: rotate(225deg);

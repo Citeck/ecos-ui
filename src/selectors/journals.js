@@ -5,11 +5,12 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { defaultState, emptyJournalConfig } from '../reducers/journals';
-import { DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { getId } from '../helpers/util';
+import { beArray, getId } from '../helpers/util';
 import { selectIsDocLibEnabled } from './docLib';
+import { selectIsKanbanEnabled } from './kanban';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
@@ -177,9 +178,39 @@ export const selectGridPaginationMaxItems = createSelector(
   ownProps => get(ownProps, 'grid.pagination.maxItems', DEFAULT_PAGINATION.maxItems)
 );
 
+export const selectIsFilterOn = createSelector(
+  [selectSettingsFilters, selectSettingsData],
+  (settingsFiltersData, settingsData) => !isEqual(settingsFiltersData.predicate, settingsData.originGridSettings.predicate)
+);
+
+export const selectWasChangedSettings = createSelector(
+  selectState,
+  ownState => get(ownState, 'wasChangedSettingsOn', []).some(item => isTable(item))
+);
+
 export const selectJournalPageProps = createSelector(
-  [selectState, selectJournalSettings, selectUrl, selectSettingsFilters, selectSettingsColumns, selectSettingsGrouping, selectSettingsData],
-  (ownState, journalSetting, urlParams, settingsFiltersData, settingsColumnsData, settingsGroupingData, settingsData) => ({
+  [
+    selectState,
+    selectJournalSettings,
+    selectUrl,
+    selectSettingsFilters,
+    selectSettingsColumns,
+    selectSettingsGrouping,
+    selectSettingsData,
+    selectIsFilterOn,
+    selectWasChangedSettings
+  ],
+  (
+    ownState,
+    journalSetting,
+    urlParams,
+    settingsFiltersData,
+    settingsColumnsData,
+    settingsGroupingData,
+    settingsData,
+    isFilterOn,
+    wasChangedSettings
+  ) => ({
     journalConfig: ownState.journalConfig,
     predicate: ownState.predicate,
     gridPredicates: get(ownState, 'grid.predicates', []),
@@ -188,7 +219,8 @@ export const selectJournalPageProps = createSelector(
     selectAllRecords: ownState.selectAllRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     isLoading: ownState.loading,
-    isFilterOn: !isEqual(settingsFiltersData.predicate, settingsData.originGridSettings.predicate),
+    wasChangedSettings,
+    isFilterOn,
     urlParams,
     journalSetting,
     settingsFiltersData,
@@ -198,11 +230,32 @@ export const selectJournalPageProps = createSelector(
   })
 );
 
+export const selectKanbanExportGrid = createSelector(
+  selectJournalSettings,
+  settings => ({
+    columns: settings.columns,
+    predicates: beArray(settings.predicate)
+  })
+);
+
+export const selectKanbanJournalProps = createSelector(
+  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsData, selectIsFilterOn, selectKanbanExportGrid],
+  (ownState, journalSetting, settingsFiltersData, settingsData, isFilterOn, grid) => ({
+    journalConfig: ownState.journalConfig,
+    journalSetting,
+    settingsFiltersData,
+    settingsData,
+    isFilterOn,
+    grid
+  })
+);
+
 export const selectCommonJournalPageProps = createSelector(
-  [selectState, selectUrl, selectIsDocLibEnabled],
-  (ownState, urlParams, isDocLibEnabled) => ({
+  [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled],
+  (ownState, urlParams, isDocLibEnabled, isKanbanEnabled) => ({
     viewMode: ownState.viewMode,
     urlParams,
-    isDocLibEnabled
+    isDocLibEnabled,
+    isKanbanEnabled
   })
 );

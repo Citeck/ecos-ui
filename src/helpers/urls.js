@@ -214,11 +214,16 @@ export const getSearchParams = (params = window.location.search, options) => {
   return queryString.parse(params, options);
 };
 
-export const decodeLink = link => {
+/**
+ * Decode without exception
+ * @param str {string}
+ * @returns {string}
+ */
+export const decodeLink = str => {
   try {
-    return decodeURIComponent(link);
+    return decodeURIComponent(str);
   } catch (e) {
-    return link;
+    return str;
   }
 };
 
@@ -400,7 +405,7 @@ export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = [
 
 export const getUrlWithoutOrigin = (location = window.location) => {
   const pathname = get(location, 'pathname', window.location.pathname);
-  const search = get(location, 'search', window.location.search);
+  const search = get(location, 'search', window.location.search || '');
 
   return `${pathname}${search}`;
 };

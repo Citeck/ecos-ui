@@ -2,6 +2,7 @@ import { handleActions } from 'redux-actions';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   initState,
@@ -37,13 +38,14 @@ import {
   toggleViewMode
 } from '../actions/journals';
 import { t } from '../helpers/util';
-import { handleAction, handleState, updateState } from '../helpers/redux';
+import { handleAction, handleState, updateState, getCurrentStateById } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
   JOURNAL_DASHLET_CONFIG_VERSION,
   JOURNAL_SETTING_DATA_FIELD,
-  JOURNAL_SETTING_ID_FIELD
+  JOURNAL_SETTING_ID_FIELD,
+  relatedViews
 } from '../components/Journals/constants';
 
 export const emptyJournalConfig = Object.freeze({
@@ -54,6 +56,7 @@ export const defaultState = {
   loading: true,
   editorMode: false,
   viewMode: undefined,
+  wasChangedSettingsOn: [],
 
   url: {},
 
@@ -233,16 +236,23 @@ export default handleActions(
     [setJournalSetting]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
+      const curState = getCurrentStateById(state, stateId, defaultState);
+
+      const wasChangedSettingsOn = [];
+
+      if (!isEqual(curState.journalSetting, defaultState.journalSetting) && !isEmpty(curState.journalSetting)) {
+        wasChangedSettingsOn.push(...relatedViews.filter(item => item !== curState.viewMode));
+      }
+
+      const newJournalSetting = { ...curState.journalSetting, ...action.payload };
 
       return stateId
         ? {
             ...state,
             [stateId]: {
-              ...(state[stateId] || {}),
-              journalSetting: {
-                ...(state[stateId] || {}).journalSetting,
-                ...action.payload
-              }
+              ...curState,
+              wasChangedSettingsOn,
+              journalSetting: newJournalSetting
             }
           }
         : {

@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -75,6 +76,7 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
+    const alfConstants = get(window, 'Alfresco.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const self = this;
@@ -88,7 +90,6 @@ class EcosForm extends React.Component {
     };
 
     let formLoadingPromise;
-    let alfConstants = (window.Alfresco || {}).constants || {};
     let proxyUri = PROXY_URI || '/';
 
     if (formId) {
@@ -185,7 +186,8 @@ class EcosForm extends React.Component {
         let enTranslate = {};
 
         // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
-        const translations = Object.keys(formData.i18n).reduce((result, key) => {
+        const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
+        const translations = translateKeys.reduce((result, key) => {
           const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
 
           if (key === language) {
@@ -280,14 +282,10 @@ class EcosForm extends React.Component {
               self.props.onReady(form);
             }
 
-            self._containerHeightTimerId = window.setTimeout(() => {
-              self.toggleContainerHeight();
-            }, 500);
+            self._containerHeightTimerId = window.setTimeout(() => self.toggleContainerHeight(), 500);
 
             if (self.props.onReadyToSubmit) {
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => {
-                self.props.onReadyToSubmit(form, state);
-              });
+              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => self.props.onReadyToSubmit(form, state));
             }
           });
         });
@@ -297,6 +295,7 @@ class EcosForm extends React.Component {
 
   _evalOptionsInitAttributes(inputs, options) {
     const typeRef = options.typeRef;
+
     if (!typeRef) {
       return {};
     }
@@ -347,9 +346,9 @@ class EcosForm extends React.Component {
   }
 
   fireEvent(event, data) {
-    let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+    const handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
 
-    if (this.props[handlerName]) {
+    if (isFunction(this.props[handlerName])) {
       this.props[handlerName](data);
     }
   }

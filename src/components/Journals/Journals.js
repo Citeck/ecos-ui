@@ -11,6 +11,7 @@ import merge from 'lodash/merge';
 
 import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journals';
 import { getTypeRef } from '../../actions/docLib';
+import { getBoardList } from '../../actions/kanban';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, t } from '../../helpers/util';
@@ -19,10 +20,10 @@ import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions';
 
-import { JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM } from './constants';
+import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
-import { DocLibView, TableView } from './Views';
+import { DocLibView, TableView, KanbanView } from './Views';
 
 import './style.scss';
 
@@ -45,7 +46,8 @@ const mapDispatchToProps = (dispatch, props) => {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
-    getTypeRef: journalId => dispatch(getTypeRef(w({ journalId })))
+    getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
+    getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId }))
   };
 };
 
@@ -58,10 +60,11 @@ const defaultDisplayElements = {
   editJournal: true
 };
 
-const Labels = {
-  [JVM.PREVIEW]: 'doc-preview.preview',
-  [JVM.TABLE]: 'journal.title',
-  [JVM.DOC_LIB]: 'document-library.title'
+const ViewLabels = {
+  [JVM.PREVIEW]: Labels.Views.PREVIEW,
+  [JVM.TABLE]: Labels.Views.JOURNAL,
+  [JVM.DOC_LIB]: Labels.Views.DOC_LIB,
+  [JVM.KANBAN]: Labels.Views.KANBAN
 };
 
 class Journals extends React.Component {
@@ -101,7 +104,7 @@ class Journals extends React.Component {
       viewMode = JVM.PREVIEW;
     }
 
-    if (!viewMode) {
+    if (isUnknownView(viewMode)) {
       viewMode = JVM.TABLE;
     }
 
@@ -110,11 +113,22 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId } = this.props;
+    const { _url, isActivePage, stateId, viewMode } = this.props;
     const { journalId } = this.state;
+
+    const isEqualView = equalsQueryUrls({
+      urls: [_url, prevProps._url],
+      compareBy: [JUP.VIEW_MODE]
+    });
+
+    if (!isEqualView && viewMode && prevProps.viewMode === viewMode) {
+      this.componentDidMount();
+      return;
+    }
 
     if (journalId && journalId !== prevState.journalId) {
       this.props.getTypeRef(journalId);
+      this.props.getBoardList(journalId);
     }
 
     const isEqualQuery = equalsQueryUrls({
@@ -143,25 +157,29 @@ class Journals extends React.Component {
     return {
       ...defaultDisplayElements,
       ...(this.props.displayElements || {}),
-      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin && get(this.props, 'journalConfig.id')
+      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin && get(this.props, 'journalConfig.id'),
+      menu: !isKanban(this.props.viewMode)
     };
   }
 
   get commonProps() {
-    const { bodyClassName, stateId, isActivePage } = this.props;
+    const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile } = this.props;
     const { journalId } = this.state;
 
     return {
       stateId,
       journalId,
-      bodyClassName,
       isActivePage,
       Header: this.Header,
       UnavailableView: this.UnavailableView,
       displayElements: this.displayElements,
       bodyForwardedRef: this.setJournalBodyRef,
       bodyTopForwardedRef: this.setJournalBodyTopRef,
-      footerForwardedRef: this.setJournalFooterRef
+      footerForwardedRef: this.setJournalFooterRef,
+      bodyClassName: classNames('ecos-journal__body', bodyClassName, {
+        'ecos-journal__body_with-tabs': pageTabsIsShow,
+        'ecos-journal__body_mobile': isMobile
+      })
     };
   }
 
@@ -229,11 +247,11 @@ class Journals extends React.Component {
     this.setHeight(height);
   };
 
-  handleDisplayConfigPopup = event => {
+  handleDisplayConfigPopup = (event, props) => {
     if (event.ctrlKey && event.shiftKey) {
-      const { journalConfig } = this.props;
+      const { config } = props;
       event.stopPropagation();
-      !!journalConfig && showModalJson(journalConfig, 'Journal Config');
+      !!config && showModalJson(config, 'Config');
     }
   };
 
@@ -280,10 +298,10 @@ class Journals extends React.Component {
       const { isMobile } = this.props;
 
       return (
-        <div onClick={this.handleDisplayConfigPopup}>
+        <div onClick={e => this.handleDisplayConfigPopup(e, props)}>
           <JournalsHead
             title={props.title}
-            labelBtnMenu={props.labelBtnMenu}
+            labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
             isOpenMenu={menuOpen}
             isMobile={isMobile}
             hasBtnMenu={this.displayElements.menu}
@@ -321,7 +339,7 @@ class Journals extends React.Component {
 
   UnavailableView = () => {
     const { viewMode } = this.props;
-    const name = t(Labels[viewMode]);
+    const name = t(ViewLabels[viewMode]);
 
     return (
       <div className="alert alert-secondary" role="alert">
@@ -345,6 +363,7 @@ class Journals extends React.Component {
         >
           <TableView {...this.commonProps} {...this.tableProps} />
           <DocLibView {...this.commonProps} />
+          <KanbanView {...this.commonProps} maxHeight={this.getJournalContentMaxHeight()} />
           <this.RightMenu />
         </div>
       </ReactResizeDetector>

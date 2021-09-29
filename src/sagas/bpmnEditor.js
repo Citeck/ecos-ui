@@ -98,7 +98,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
 
-    NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
+    NotificationManager.error(t('model-editor.error.form-not-found'), t('error'));
     logger.error('[bpmnEditor/fetchFormProps saga] error', e.message);
   }
 }
