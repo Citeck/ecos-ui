@@ -299,14 +299,14 @@ class JournalsDashletEditor extends Component {
               </Field>
             </>
           )}
-          <Field label={t(Labels.CUSTOM_MODE_FIELD)}>
+          <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
             <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onChange={this.setCustomJournalMode} />
           </Field>
-          {recordRef ? (
-            <Field label={t(Labels.ONLY_LINKED_FIELD)}>
+          {!!recordRef && (
+            <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
               <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
             </Field>
-          ) : null}
+          )}
         </div>
 
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>

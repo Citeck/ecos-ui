@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
@@ -149,14 +150,14 @@ class JournalsDashlet extends BaseWidget {
 
     const { config: prevConfig } = prevProps;
     const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
-    const { journalId } = this.state;
+    const { journalId, runUpdate } = this.state;
 
-    if (!isEqual(config, prevConfig) && !!onSave) {
-      setDashletConfigByParams(id, config, null, journalId);
+    if (!isEqual(config, prevConfig) && isFunction(onSave)) {
+      setDashletConfigByParams(id, config, this.recordRef, journalId);
       !isActiveLayout && this.setState({ runUpdate: true });
     }
 
-    if (isActiveLayout && this.state.runUpdate) {
+    if (isActiveLayout && runUpdate) {
       this.setState({ runUpdate: false });
       reloadGrid();
     }
@@ -254,7 +255,7 @@ class JournalsDashlet extends BaseWidget {
   handleSaveConfig = (...params) => {
     const { onSave } = this.props;
 
-    if (typeof onSave === 'function') {
+    if (isFunction(onSave)) {
       onSave(...params);
     }
 
