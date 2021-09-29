@@ -52,13 +52,13 @@ class ActionsList extends React.Component {
 
   renderVariant = (action, variant, postfix) => {
     const { isLoading, isActiveLayout } = this.props;
-    const id = `variant-${variant.type}-${postfix}`;
+    const targetId = prepareTooltipId(`variant-${variant.type}-${postfix}`);
     const variantAction = Object.assign({}, action, variant);
 
     return (
-      <Tooltip showAsNeeded uncontrolled key={id} target={id} text={variant.name} off={!isActiveLayout}>
+      <Tooltip showAsNeeded uncontrolled key={targetId} target={targetId} text={variant.name} off={!isActiveLayout}>
         <div
-          id={id}
+          id={targetId}
           className={classNames('ecos-actions-list__item-variants__item', {
             'ecos-actions-list__item-variants__item_disabled': isLoading
           })}
