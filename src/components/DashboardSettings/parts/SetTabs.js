@@ -78,6 +78,7 @@ class SetTabs extends React.Component {
     newTab.isNew = true;
 
     setData && setData({ tabs: [...tabs, newTab] });
+
     this.doScrollEnd();
   };
 
