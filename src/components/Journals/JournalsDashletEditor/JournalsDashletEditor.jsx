@@ -7,6 +7,7 @@ import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
 
 import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -83,8 +84,7 @@ class JournalsDashletEditor extends Component {
     config: PropTypes.object,
     generalConfig: PropTypes.object,
     journalSettings: PropTypes.array,
-    onSave: PropTypes.func,
-    setJournalsItem: PropTypes.func
+    onSave: PropTypes.func
   };
 
   #defaultState = Object.freeze({
@@ -131,7 +131,7 @@ class JournalsDashletEditor extends Component {
       getDashletEditorData(config);
     }
 
-    if (editorMode && onSave && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+    if (editorMode && isFunction(onSave) && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
       this.setState({ ...this.#defaultState });
@@ -181,7 +181,7 @@ class JournalsDashletEditor extends Component {
   };
 
   handleSave = () => {
-    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
     const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
@@ -191,7 +191,7 @@ class JournalsDashletEditor extends Component {
       if (!isUndefined(generalConfig.onlyLinked) && isUndefined(newConfig.onlyLinked)) {
         newConfig.onlyLinked = generalConfig.onlyLinked;
       } else {
-        newConfig.onlyLinked = isUndefined(newConfig.onlyLinked) ? true : newConfig.onlyLinked;
+        newConfig.onlyLinked = isUndefined(newConfig.onlyLinked) || newConfig.onlyLinked;
       }
     }
 
@@ -204,15 +204,20 @@ class JournalsDashletEditor extends Component {
     newConfig.customJournalMode = isCustomJournalMode;
     newConfig.customJournal = customJournal;
 
+    if (isEqual(config, newConfig)) {
+      setEditorMode(false);
+      return;
+    }
+
     newConfig = {
       ...generalConfig,
       version: JOURNAL_DASHLET_CONFIG_VERSION,
       [JOURNAL_DASHLET_CONFIG_VERSION]: newConfig
     };
 
-    if (onSave) {
+    if (isFunction(onSave)) {
       onSave(id, { config: newConfig });
-    } else {
+    } else if (isFunction(saveDashlet)) {
       saveDashlet(newConfig, id);
     }
 
@@ -259,7 +264,7 @@ class JournalsDashletEditor extends Component {
     const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
     const { customJournal, isCustomJournalMode } = this.state;
     const config = this.props.config || {};
-    const isSmall = measurer && (measurer.xxs || measurer.xxxs);
+    const isSmall = measurer && measurer.width && (measurer.xxs || measurer.xxxs);
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
