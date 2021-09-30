@@ -90,8 +90,11 @@ class JournalsDashletEditor extends Component {
   #defaultState = Object.freeze({
     selectedJournals: [],
     customJournal: '',
-    isCustomJournalMode: false
+    isCustomJournalMode: false,
+    wasChanged: false
   });
+
+  #originalConfig = null;
 
   state = { ...this.#defaultState };
 
@@ -99,6 +102,8 @@ class JournalsDashletEditor extends Component {
     const { config, getDashletEditorData } = this.props;
 
     if (!isEmpty(config)) {
+      this.#originalConfig = config;
+
       if (isEmpty(this.state.selectedJournals) && !isEmpty(config.journalsListIds)) {
         this.setState({ selectedJournals: config.journalsListIds });
       }
@@ -138,6 +143,10 @@ class JournalsDashletEditor extends Component {
     }
 
     if (!isEmpty(config)) {
+      if (isEmpty(prevConfig)) {
+        this.#originalConfig = config;
+      }
+
       if (!isEqual(prevConfig.journalsListIds, config.journalsListIds) && !isEmpty(config.journalsListIds)) {
         this.setState({ selectedJournals: config.journalsListIds });
       }
@@ -204,7 +213,7 @@ class JournalsDashletEditor extends Component {
     newConfig.customJournalMode = isCustomJournalMode;
     newConfig.customJournal = customJournal;
 
-    if (isEqual(config, newConfig)) {
+    if (isEqual(this.#originalConfig, newConfig)) {
       setEditorMode(false);
       return;
     }
@@ -240,15 +249,15 @@ class JournalsDashletEditor extends Component {
     this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
-  setOnlyLinked = ({ checked }) => {
+  setOnlyLinked = checked => {
     this.props.setOnlyLinked(checked);
   };
 
-  setCustomJournal = ({ target: { value = '' } }) => {
-    this.setState({ customJournal: value });
+  setCustomJournal = e => {
+    this.setState({ customJournal: get(e, 'target.value', '') });
   };
 
-  setCustomJournalMode = ({ checked }) => {
+  setCustomJournalMode = checked => {
     this.setState({
       customJournal: '',
       isCustomJournalMode: checked,
@@ -262,7 +271,7 @@ class JournalsDashletEditor extends Component {
 
   render() {
     const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
-    const { customJournal, isCustomJournalMode } = this.state;
+    const { customJournal, isCustomJournalMode, selectedJournals } = this.state;
     const config = this.props.config || {};
     const isSmall = measurer && !!measurer.width && (measurer.xxs || measurer.xxxs);
 
@@ -282,7 +291,7 @@ class JournalsDashletEditor extends Component {
               <Field label={t(Labels.NAME_FIELD)} isSmall={isSmall} labelPosition="top">
                 <SelectJournal
                   journalId={'ecos-journals'}
-                  defaultValue={this.state.selectedJournals}
+                  defaultValue={selectedJournals}
                   multiple
                   hideCreateButton
                   isSelectedValueAsText
@@ -305,11 +314,11 @@ class JournalsDashletEditor extends Component {
             </>
           )}
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
-            <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onChange={this.setCustomJournalMode} />
+            <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
           {!!recordRef && (
             <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
-              <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
+              <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onClick={this.setOnlyLinked} />
             </Field>
           )}
         </div>

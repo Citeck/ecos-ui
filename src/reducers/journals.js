@@ -6,11 +6,10 @@ import isEqual from 'lodash/isEqual';
 import {
   initState,
   onJournalSelect,
+  resetState,
   runSearch,
   setCheckLoading,
   setColumnsSetup,
-  setCustomJournal,
-  setCustomJournalMode,
   setDashletConfig,
   setEditorMode,
   setGrid,
@@ -23,8 +22,8 @@ import {
   setJournalsItem,
   setLoading,
   setOnlyLinked,
-  setPredicate,
   setOriginGridSettings,
+  setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setRecordRef,
@@ -216,6 +215,14 @@ export default handleActions(
         [id]: { ...cloneDeep(defaultState), ...(state[id] || {}) }
       };
     },
+    [resetState]: (state, action) => {
+      const id = action.payload;
+
+      return {
+        ...state,
+        [id]: { ...cloneDeep(defaultState) }
+      };
+    },
     [setUrl]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -362,23 +369,6 @@ export default handleActions(
             config: updateConfig(state.config, { journalSettingId: action.payload })
           };
     },
-    [setCustomJournal]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig((state[stateId] || {}).config, { customJournal: action.payload })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, { customJournal: action.payload })
-          };
-    },
     [setOnlyLinked]: (state, action) => {
       const stateId = action.payload.stateId;
       const config = get(state, [stateId, 'config'], {});
@@ -396,25 +386,6 @@ export default handleActions(
         : {
             ...state,
             config: updateConfig(state.config, { onlyLinked: action.payload })
-          };
-    },
-    [setCustomJournalMode]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const config = get(state, [stateId, 'config'], {});
-
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig(config, { customJournalMode: action.payload })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, { customJournalMode: action.payload })
           };
     },
     [setEditorMode]: (state, action) => {

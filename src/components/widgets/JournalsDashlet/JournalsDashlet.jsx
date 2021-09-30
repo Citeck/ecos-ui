@@ -19,6 +19,7 @@ import {
   getDashletConfig,
   initState,
   reloadGrid,
+  resetState,
   setDashletConfigByParams,
   setEditorMode,
   setRecordRef,
@@ -69,6 +70,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     initState: () => dispatch(initState(getKey(ownProps))),
+    resetState: () => dispatch(resetState(getKey(ownProps))),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
@@ -245,6 +247,7 @@ class JournalsDashlet extends BaseWidget {
   handleSaveConfig = (...params) => {
     const { onSave } = this.props;
 
+    this.props.resetState();
     isFunction(onSave) && onSave(...params);
     this.handleChangeSelectedJournal('');
   };
