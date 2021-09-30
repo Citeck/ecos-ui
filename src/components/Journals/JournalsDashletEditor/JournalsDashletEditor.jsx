@@ -264,7 +264,7 @@ class JournalsDashletEditor extends Component {
     const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
     const { customJournal, isCustomJournalMode } = this.state;
     const config = this.props.config || {};
-    const isSmall = measurer && measurer.width && (measurer.xxs || measurer.xxxs);
+    const isSmall = measurer && !!measurer.width && (measurer.xxs || measurer.xxxs);
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
