@@ -70,10 +70,7 @@ export default class ButtonComponent extends FormIOButtonComponent {
   }
 
   bindEvents() {
-    let onChange = null;
-
     this.removeEventListener(this.buttonElement, 'click');
-    // this.off('change');
 
     this.addEventListener(this.buttonElement, 'click', event => {
       this.triggerReCaptcha();
@@ -180,40 +177,10 @@ export default class ButtonComponent extends FormIOButtonComponent {
       }
     });
 
-    if (this.component.action === 'submit') {
-      // const message = this.ce('div');
-      // this.off('submitDone');
-      // this.on('submitDone', () => {
-      //   this.loading = false;
-      //   this.disabled = false;
-      //   this.empty(message);
-      //   this.addClass(this.buttonElement, 'btn-success submit-success');
-      //   this.removeClass(this.buttonElement, 'btn-danger submit-fail');
-      //   this.addClass(message, 'has-success');
-      //   this.removeClass(message, 'has-error');
-      //   this.append(message);
-      // }, true);
-      // onChange = (value, isValid) => {
-      //   this.removeClass(this.buttonElement, 'btn-success submit-success');
-      //   this.removeClass(this.buttonElement, 'btn-danger submit-fail');
-      //   if (isValid && this.hasError) {
-      //     this.hasError = false;
-      //     this.empty(message);
-      //     this.removeChild(message);
-      //     this.removeClass(message, 'has-success');
-      //     this.removeClass(message, 'has-error');
-      //   }
-      // };
-    }
-
     this.on(
       'change',
       value => {
-        // this.loading = false;
         this.disabled = this.options.readOnly || (this.component.disableOnFormInvalid && !value.isValid);
-        // if (onChange) {
-        //   onChange(value, value.isValid);
-        // }
       },
       true
     );
