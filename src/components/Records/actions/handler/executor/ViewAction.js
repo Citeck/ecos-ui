@@ -3,6 +3,7 @@ import { ActionModes, SourcesId } from '../../../../../constants';
 import Records from '../../../Records';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
+import isString from 'lodash/isString';
 
 export default class ViewAction extends ActionsExecutor {
   static ACTION_ID = 'view';
@@ -52,7 +53,7 @@ export default class ViewAction extends ActionsExecutor {
 }
 
 const goToTaskView = async (task, params) => {
-  let taskRecord = Records.get(task);
+  let taskRecord = Records.get(task.replace('alfresco/workflow-tasks@', ''));
 
   await taskRecord.load('wfm:document?id').then(docId => {
     if (docId) {
