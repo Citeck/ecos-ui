@@ -288,5 +288,5 @@ export default class SelectOrgstructComponent extends BaseComponent {
     } else {
       this._getAuthorityRef(value, setValueImpl);
     }
-  }, 0); // Cause: https://citeck.atlassian.net/browse/ECOSUI-1429
+  }, 100); // Cause: https://citeck.atlassian.net/browse/ECOSUI-1429
 }
