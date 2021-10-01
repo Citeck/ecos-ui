@@ -27,6 +27,10 @@ export default class ButtonComponent extends FormIOButtonComponent {
   }
 
   set disabled(disabled) {
+    if (disabled && (this.component.disableOnInvalid && !this.shouldDisable)) {
+      disabled = false;
+    }
+
     super.disabled = disabled;
   }
 
