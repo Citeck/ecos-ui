@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
+import debounce from 'lodash/debounce';
 
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
@@ -240,7 +241,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this._getAuthorityRef(authority, callback);
   }
 
-  setValue(value, flags) {
+  setValue = debounce((value, flags) => {
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
       isEqual(value, this.emptyValue) &&
@@ -287,5 +288,5 @@ export default class SelectOrgstructComponent extends BaseComponent {
     } else {
       this._getAuthorityRef(value, setValueImpl);
     }
-  }
+  }, 100); // Cause: https://citeck.atlassian.net/browse/ECOSUI-1429
 }
