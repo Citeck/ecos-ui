@@ -18,6 +18,7 @@ export default function(...extend) {
             weight: 49,
             defaultValue: false
           },
+          // Cause: https://citeck.atlassian.net/browse/ECOSUI-1426
           {
             type: 'checkbox',
             key: 'disableOnInvalid',
