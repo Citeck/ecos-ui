@@ -11,11 +11,6 @@ export const getDashletEditorData = createAction(prefix + 'GET_DASHLET_EDITOR_DA
 export const setEditorMode = createAction(prefix + 'SET_EDITOR_MODE');
 export const initJournal = createAction(prefix + 'INIT_JOURNAL');
 
-export const setJournalsItem = createAction(prefix + 'SET_JOURNALS_ITEM');
-export const setSettingItem = createAction(prefix + 'SET_SETTING_ITEM');
-export const setOnlyLinked = createAction(prefix + 'SET_ONLY_LINKED');
-export const setCustomJournalMode = createAction(prefix + 'SET_CUSTOM_JOURNAL_MODE');
-export const setCustomJournal = createAction(prefix + 'SET_CUSTOM_JOURNAL');
 export const setSelectedJournals = createAction(prefix + 'SET_SELECTED_JOURNALS');
 
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
