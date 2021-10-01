@@ -19,6 +19,7 @@ import {
   getDashletConfig,
   initState,
   reloadGrid,
+  resetState,
   setDashletConfigByParams,
   setEditorMode,
   setRecordRef,
@@ -69,6 +70,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     initState: () => dispatch(initState(getKey(ownProps))),
+    resetState: () => dispatch(resetState(getKey(ownProps))),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
@@ -138,7 +140,7 @@ class JournalsDashlet extends BaseWidget {
 
     setRecordRef(this.recordRef);
 
-    if (onSave) {
+    if (isFunction(onSave)) {
       setDashletConfigByParams(id, config, this.recordRef, journalId);
     } else {
       getDashletConfig(id);
@@ -218,24 +220,14 @@ class JournalsDashlet extends BaseWidget {
     const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
 
     setSelectAllRecords(!selectAllRecords);
-
-    if (!selectAllRecords) {
-      setSelectedRecords([]);
-    }
+    !selectAllRecords && setSelectedRecords([]);
   };
 
   handleExecuteGroupAction(action) {
     const { selectAllRecords } = this.props;
+    const data = selectAllRecords ? get(this.props, 'grid.query') : get(this.props, 'selectedRecords', []);
 
-    if (!selectAllRecords) {
-      const records = get(this.props, 'selectedRecords', []);
-
-      this.props.execRecordsAction(records, action);
-    } else {
-      const query = get(this.props, 'grid.query');
-
-      this.props.execRecordsAction(query, action);
-    }
+    this.props.execRecordsAction(data, action);
   }
 
   goToJournalsPage = () => {
@@ -255,10 +247,8 @@ class JournalsDashlet extends BaseWidget {
   handleSaveConfig = (...params) => {
     const { onSave } = this.props;
 
-    if (isFunction(onSave)) {
-      onSave(...params);
-    }
-
+    this.props.resetState();
+    isFunction(onSave) && onSave(...params);
     this.handleChangeSelectedJournal('');
   };
 

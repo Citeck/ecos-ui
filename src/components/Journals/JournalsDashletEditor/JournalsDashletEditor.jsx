@@ -7,6 +7,7 @@ import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
 
 import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -83,15 +84,17 @@ class JournalsDashletEditor extends Component {
     config: PropTypes.object,
     generalConfig: PropTypes.object,
     journalSettings: PropTypes.array,
-    onSave: PropTypes.func,
-    setJournalsItem: PropTypes.func
+    onSave: PropTypes.func
   };
 
   #defaultState = Object.freeze({
     selectedJournals: [],
     customJournal: '',
-    isCustomJournalMode: false
+    isCustomJournalMode: false,
+    wasChanged: false
   });
+
+  #originalConfig = null;
 
   state = { ...this.#defaultState };
 
@@ -99,6 +102,8 @@ class JournalsDashletEditor extends Component {
     const { config, getDashletEditorData } = this.props;
 
     if (!isEmpty(config)) {
+      this.#originalConfig = config;
+
       if (isEmpty(this.state.selectedJournals) && !isEmpty(config.journalsListIds)) {
         this.setState({ selectedJournals: config.journalsListIds });
       }
@@ -131,13 +136,17 @@ class JournalsDashletEditor extends Component {
       getDashletEditorData(config);
     }
 
-    if (editorMode && onSave && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
+    if (editorMode && isFunction(onSave) && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
       this.setState({ ...this.#defaultState });
     }
 
     if (!isEmpty(config)) {
+      if (isEmpty(prevConfig)) {
+        this.#originalConfig = config;
+      }
+
       if (!isEqual(prevConfig.journalsListIds, config.journalsListIds) && !isEmpty(config.journalsListIds)) {
         this.setState({ selectedJournals: config.journalsListIds });
       }
@@ -181,7 +190,7 @@ class JournalsDashletEditor extends Component {
   };
 
   handleSave = () => {
-    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig } = this.props;
+    const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
     const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
@@ -191,7 +200,7 @@ class JournalsDashletEditor extends Component {
       if (!isUndefined(generalConfig.onlyLinked) && isUndefined(newConfig.onlyLinked)) {
         newConfig.onlyLinked = generalConfig.onlyLinked;
       } else {
-        newConfig.onlyLinked = isUndefined(newConfig.onlyLinked) ? true : newConfig.onlyLinked;
+        newConfig.onlyLinked = isUndefined(newConfig.onlyLinked) || newConfig.onlyLinked;
       }
     }
 
@@ -204,15 +213,20 @@ class JournalsDashletEditor extends Component {
     newConfig.customJournalMode = isCustomJournalMode;
     newConfig.customJournal = customJournal;
 
+    if (isEqual(this.#originalConfig, newConfig)) {
+      setEditorMode(false);
+      return;
+    }
+
     newConfig = {
       ...generalConfig,
       version: JOURNAL_DASHLET_CONFIG_VERSION,
       [JOURNAL_DASHLET_CONFIG_VERSION]: newConfig
     };
 
-    if (onSave) {
+    if (isFunction(onSave)) {
       onSave(id, { config: newConfig });
-    } else {
+    } else if (isFunction(saveDashlet)) {
       saveDashlet(newConfig, id);
     }
 
@@ -235,15 +249,15 @@ class JournalsDashletEditor extends Component {
     this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
-  setOnlyLinked = ({ checked }) => {
+  setOnlyLinked = checked => {
     this.props.setOnlyLinked(checked);
   };
 
-  setCustomJournal = ({ target: { value = '' } }) => {
-    this.setState({ customJournal: value });
+  setCustomJournal = e => {
+    this.setState({ customJournal: get(e, 'target.value', '') });
   };
 
-  setCustomJournalMode = ({ checked }) => {
+  setCustomJournalMode = checked => {
     this.setState({
       customJournal: '',
       isCustomJournalMode: checked,
@@ -257,9 +271,9 @@ class JournalsDashletEditor extends Component {
 
   render() {
     const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
-    const { customJournal, isCustomJournalMode } = this.state;
+    const { customJournal, isCustomJournalMode, selectedJournals } = this.state;
     const config = this.props.config || {};
-    const isSmall = measurer && (measurer.xxs || measurer.xxxs);
+    const isSmall = measurer && !!measurer.width && (measurer.xxs || measurer.xxxs);
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
@@ -277,7 +291,7 @@ class JournalsDashletEditor extends Component {
               <Field label={t(Labels.NAME_FIELD)} isSmall={isSmall} labelPosition="top">
                 <SelectJournal
                   journalId={'ecos-journals'}
-                  defaultValue={this.state.selectedJournals}
+                  defaultValue={selectedJournals}
                   multiple
                   hideCreateButton
                   isSelectedValueAsText
@@ -300,11 +314,11 @@ class JournalsDashletEditor extends Component {
             </>
           )}
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
-            <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onChange={this.setCustomJournalMode} />
+            <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
           {!!recordRef && (
             <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
-              <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onChange={this.setOnlyLinked} />
+              <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onClick={this.setOnlyLinked} />
             </Field>
           )}
         </div>
