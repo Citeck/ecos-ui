@@ -2,19 +2,20 @@ import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
-import TableForm from '../../../../components/common/form/TableForm';
-import DialogManager from '../../../../components/common/dialogs/Manager';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
 import JournalsService from '../../../../components/Journals/service';
+import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
+import DialogManager from '../../../../components/common/dialogs/Manager';
+import TableForm from '../../../../components/common/form/TableForm';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { TableTypes } from './constants';
-import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
 
 const Labels = {
   MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
   MSG_NO_J_CONFIG: 'ecos-table-form.error.no-journal-config',
   MSG_ERR_SOURCE: 'ecos-table-form.error.source',
+  MSG_ERR_CUSTOM_TABLE: 'ecos-table-form.error.fail-to-resolve-custom-table',
   MSG_NO_HANDLER: 'ecos-table-form.error.no-response-handler',
   MSG_FAIL_IMPORT: 'ecos-table-form.error.failure-to-import',
   DIALOG_TITLE: 'ecos-table-form.error-dialog.title'
@@ -82,8 +83,28 @@ export default class TableFormComponent extends BaseReactComponent {
     };
   }
 
+  static optimizeSchema(comp) {
+    return _.omit(
+      {
+        ...comp,
+        source: _.omitBy(comp.source, (value, key) => {
+          const saveAtts = ['type'];
+          if (saveAtts.includes(key)) {
+            return false;
+          }
+          return key !== comp.source.type;
+        })
+      },
+      ['displayColumnsAsyncData']
+    );
+  }
+
   get defaultSchema() {
     return TableFormComponent.schema();
+  }
+
+  get emptyValue() {
+    return [];
   }
 
   checkConditions(data) {
@@ -133,10 +154,6 @@ export default class TableFormComponent extends BaseReactComponent {
     }
 
     return result;
-  }
-
-  get emptyValue() {
-    return [];
   }
 
   getComponentToRender() {
@@ -397,8 +414,8 @@ export default class TableFormComponent extends BaseReactComponent {
               inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
             }
 
-            const result = await Promise.all([columnsInfoPromise, inputsPromise]).catch(err => {
-              console.error(err);
+            const result = await Promise.all([columnsInfoPromise, inputsPromise]).catch(error => {
+              console.error('[TableForm] Fail columns', error);
               return [columns, {}];
             });
 
@@ -425,8 +442,8 @@ export default class TableFormComponent extends BaseReactComponent {
 
             resolve({ columns: resolvedColumns });
           } catch (error) {
-            console.error(error);
-            return resolve({ error: new Error(`Can't fetch create variants: ${error.message}`) });
+            console.error('[TableForm] Fail resolve custom table', error);
+            return resolve({ error: new Error(t(Labels.MSG_ERR_CUSTOM_TABLE)) });
           }
           break;
         default:
@@ -570,7 +587,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
       this.updateValue({}, newValue);
     } catch (e) {
-      console.error('TableForm error. Failure to upload file: ', e.message);
+      console.error('[TableForm] Failure to upload file', e);
       this.showErrorMessage(t(Labels.MSG_FAIL_IMPORT));
     }
   };
@@ -581,20 +598,4 @@ export default class TableFormComponent extends BaseReactComponent {
       text
     });
   };
-
-  static optimizeSchema(comp) {
-    return _.omit(
-      {
-        ...comp,
-        source: _.omitBy(comp.source, (value, key) => {
-          const saveAtts = ['type'];
-          if (saveAtts.includes(key)) {
-            return false;
-          }
-          return key !== comp.source.type;
-        })
-      },
-      ['displayColumnsAsyncData']
-    );
-  }
 }

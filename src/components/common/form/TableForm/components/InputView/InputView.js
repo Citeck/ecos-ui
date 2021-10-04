@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
 
 import { t } from '../../../../../../helpers/util';
 import Grid from '../../../../grid/Grid';
@@ -106,8 +107,8 @@ const List = React.memo(
   },
   (prevProps, nextProps) => {
     return (
-      isEqual(nextProps.columns, prevProps.columns) &&
-      isEqual(nextProps.gridRows, prevProps.gridRows) &&
+      isEqualWith(nextProps.columns, prevProps.columns, isEqual) &&
+      isEqualWith(nextProps.gridRows, prevProps.gridRows, isEqual) &&
       isEqual(nextProps.selectedRows, prevProps.selectedRows) &&
       isEqual(nextProps.nonSelectableRows, prevProps.nonSelectableRows) &&
       nextProps.isSelectableRows === prevProps.isSelectableRows
