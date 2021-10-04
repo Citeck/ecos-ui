@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
 import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 
@@ -19,9 +20,7 @@ import {
   setDashletConfig,
   setDashletConfigByParams,
   setEditorMode,
-  setLoading,
-  setOnlyLinked,
-  setSettingItem
+  setLoading
 } from '../../../actions/journals';
 import { selectDashletConfig, selectDashletConfigJournalId, selectNewVersionDashletConfig } from '../../../selectors/journals';
 import DashboardService from '../../../services/dashboard';
@@ -53,8 +52,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
     getDashletEditorData: config => dispatch(getDashletEditorData(w(config))),
     setDashletConfigByParams: (id, config) => dispatch(setDashletConfigByParams(w({ id, config, recordRef: ownProps.recordRef }))),
-    setSettingItem: id => dispatch(setSettingItem(w(id))),
-    setOnlyLinked: onlyLinked => dispatch(setOnlyLinked(w(onlyLinked))),
     setDashletConfig: config => dispatch(setDashletConfig(w(config))),
     saveDashlet: (config, id) => dispatch(saveDashlet(w({ config, id }))),
     checkConfig: config => dispatch(checkConfig(w(config))),
@@ -87,38 +84,29 @@ class JournalsDashletEditor extends Component {
     onSave: PropTypes.func
   };
 
-  #defaultState = Object.freeze({
-    selectedJournals: [],
+  #defaultStateConfig = Object.freeze({
     customJournal: '',
+    selectedJournals: [],
+    journalSettingId: '',
     isCustomJournalMode: false,
-    wasChanged: false
+    isOnlyLinked: true
   });
 
-  #originalConfig = null;
+  #dataInit = false;
 
-  state = { ...this.#defaultState };
+  state = { ...this.#defaultStateConfig };
 
   componentDidMount() {
     const { config, getDashletEditorData } = this.props;
 
-    if (!isEmpty(config)) {
-      this.#originalConfig = config;
-
-      if (isEmpty(this.state.selectedJournals) && !isEmpty(config.journalsListIds)) {
-        this.setState({ selectedJournals: config.journalsListIds });
-      }
-
-      this.setState({ isCustomJournalMode: config.customJournalMode });
-
-      if (config.customJournalMode && config.customJournal) {
-        this.setState({ customJournal: config.customJournal });
-      }
-    }
-
     getDashletEditorData(config);
+
+    if (!isEmpty(config)) {
+      this.setFirstStateConfig();
+    }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const prevConfig = prevProps.config || {};
     const prevResultDashboard = prevProps.resultDashboard || {};
     const {
@@ -139,34 +127,16 @@ class JournalsDashletEditor extends Component {
     if (editorMode && isFunction(onSave) && prevResultDashboard.status !== resultDashboard.status && resultDashboard.status) {
       setDashletConfigByParams(id, config);
       setEditorMode(false);
-      this.setState({ ...this.#defaultState });
+      this.setState({ ...this.#defaultStateConfig });
     }
 
-    if (!isEmpty(config)) {
-      if (isEmpty(prevConfig)) {
-        this.#originalConfig = config;
-      }
-
-      if (!isEqual(prevConfig.journalsListIds, config.journalsListIds) && !isEmpty(config.journalsListIds)) {
-        this.setState({ selectedJournals: config.journalsListIds });
-      }
-
-      if (
-        config.customJournalMode &&
-        isEqual(this.state.customJournal, prevState.customJournal) &&
-        !isEqual(config.customJournal, this.state.customJournal)
-      ) {
-        this.setState({ customJournal: config.customJournal });
-      }
-
-      if (prevConfig.customJournalMode !== config.customJournalMode) {
-        this.setState({ isCustomJournalMode: config.customJournalMode });
-      }
-
-      if (!prevConfig.editorMode && config.editorMode && config.customJournalMode && config.customJournal) {
-        this.setState({ customJournal: config.customJournal });
-      }
+    if (!isEqual(prevConfig, config)) {
+      this.setFirstStateConfig();
     }
+  }
+
+  componentWillUnmount() {
+    this.setState({ ...this.#defaultStateConfig });
   }
 
   get isDisabled() {
@@ -183,6 +153,38 @@ class JournalsDashletEditor extends Component {
     return false;
   }
 
+  setFirstStateConfig() {
+    const newState = {};
+    const config = this.props.config;
+
+    if (!isEmpty(config) && !this.#dataInit) {
+      if (!isUndefined(config.journalsListIds) && !isEqual(config.journalsListIds, this.state.selectedJournals)) {
+        newState.selectedJournals = config.journalsListIds;
+      }
+
+      if (!isUndefined(config.journalSettingId) && !isEqualWith(config.journalSettingId, this.state.journalSettingId, isEqual)) {
+        newState.journalSettingId = config.journalSettingId;
+      }
+
+      if (!isUndefined(config.customJournal) && !isEqual(config.customJournal, this.state.customJournal)) {
+        newState.customJournal = config.customJournal;
+      }
+
+      if (!isUndefined(config.customJournalMode) && !isEqual(config.customJournalMode, this.state.isCustomJournalMode)) {
+        newState.isCustomJournalMode = config.customJournalMode;
+      }
+
+      if (!isUndefined(config.onlyLinked) && !isEqual(config.onlyLinked, this.state.isOnlyLinked)) {
+        newState.isOnlyLinked = config.onlyLinked;
+      }
+    }
+
+    if (!isEmpty(newState)) {
+      this.#dataInit = true;
+      this.setState(newState);
+    }
+  }
+
   handleCancel = () => {
     const { config, setEditorMode } = this.props;
 
@@ -191,29 +193,22 @@ class JournalsDashletEditor extends Component {
 
   handleSave = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
-    const { selectedJournals, isCustomJournalMode, customJournal } = this.state;
+    const { selectedJournals, isCustomJournalMode, customJournal, journalSettingId, isOnlyLinked } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
-      if (!isUndefined(generalConfig.onlyLinked) && isUndefined(newConfig.onlyLinked)) {
-        newConfig.onlyLinked = generalConfig.onlyLinked;
-      } else {
-        newConfig.onlyLinked = isUndefined(newConfig.onlyLinked) || newConfig.onlyLinked;
-      }
-    }
-
-    if (isUndefined(newConfig.customJournalMode)) {
-      newConfig.customJournalMode = false;
+      newConfig.onlyLinked = isOnlyLinked;
     }
 
     newConfig.journalsListIds = selectedJournals;
+    newConfig.journalSettingId = journalSettingId;
     newConfig.journalId = journalId.substr(journalId.indexOf('@') + 1);
     newConfig.customJournalMode = isCustomJournalMode;
     newConfig.customJournal = customJournal;
 
-    if (isEqual(this.#originalConfig, newConfig)) {
+    if (isEqual(config, newConfig)) {
       setEditorMode(false);
       return;
     }
@@ -246,21 +241,21 @@ class JournalsDashletEditor extends Component {
   };
 
   setSettingItem = item => {
-    this.props.setSettingItem(item[JOURNAL_SETTING_ID_FIELD]);
+    this.setState({ journalSettingId: item[JOURNAL_SETTING_ID_FIELD] });
   };
 
-  setOnlyLinked = checked => {
-    this.props.setOnlyLinked(checked);
+  setOnlyLinked = isOnlyLinked => {
+    this.setState({ isOnlyLinked });
   };
 
   setCustomJournal = e => {
     this.setState({ customJournal: get(e, 'target.value', '') });
   };
 
-  setCustomJournalMode = checked => {
+  setCustomJournalMode = isCustomJournalMode => {
     this.setState({
       customJournal: '',
-      isCustomJournalMode: checked,
+      isCustomJournalMode,
       selectedJournals: []
     });
   };
@@ -271,8 +266,7 @@ class JournalsDashletEditor extends Component {
 
   render() {
     const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
-    const { customJournal, isCustomJournalMode, selectedJournals } = this.state;
-    const config = this.props.config || {};
+    const { customJournal, selectedJournals, journalSettingId, isCustomJournalMode, isOnlyLinked } = this.state;
     const isSmall = measurer && !!measurer.width && (measurer.xxs || measurer.xxxs);
 
     return (
@@ -308,17 +302,17 @@ class JournalsDashletEditor extends Component {
                   getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
                   getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
                   onChange={this.setSettingItem}
-                  value={getSelectedValue(journalSettings, JOURNAL_SETTING_ID_FIELD, config.journalSettingId)}
+                  value={getSelectedValue(journalSettings, JOURNAL_SETTING_ID_FIELD, journalSettingId)}
                 />
               </Field>
             </>
           )}
           <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
-            <Checkbox checked={isUndefined(isCustomJournalMode) ? false : isCustomJournalMode} onClick={this.setCustomJournalMode} />
+            <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
           {!!recordRef && (
             <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
-              <Checkbox checked={isUndefined(config.onlyLinked) ? true : config.onlyLinked} onClick={this.setOnlyLinked} />
+              <Checkbox checked={isOnlyLinked} onClick={this.setOnlyLinked} />
             </Field>
           )}
         </div>

@@ -245,9 +245,9 @@ class JournalsDashlet extends BaseWidget {
   };
 
   handleSaveConfig = (...params) => {
-    const { onSave } = this.props;
+    const { onSave, resetState } = this.props;
 
-    this.props.resetState();
+    resetState();
     isFunction(onSave) && onSave(...params);
     this.handleChangeSelectedJournal('');
   };
