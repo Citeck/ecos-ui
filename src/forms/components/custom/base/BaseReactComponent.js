@@ -132,10 +132,11 @@ export default class BaseReactComponent extends BaseComponent {
     if (this.#react.resolve) {
       this.#react.waitingProps = { ...(this.#react.waitingProps || {}), ...props };
 
-      this.#react.wrapper.then(w => {
-        w.setProps(this.#react.waitingProps);
-        this.#react.waitingProps = {};
-      });
+      this.#react.wrapper &&
+        this.#react.wrapper.then(w => {
+          w.setProps(this.#react.waitingProps);
+          this.#react.waitingProps = {};
+        });
     } else {
       // is this checking required?
       if (this.#react.wrapper) {
