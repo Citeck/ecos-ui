@@ -56,8 +56,8 @@ export default class EditorItem extends React.Component {
           <UserMenuItem
             {...this.props}
             item={{
-              ...get(this.props, 'item', {}),
-              ...get(this.props, 'type.default', {})
+              ...get(this.props, 'type.default', {}),
+              ...get(this.props, 'item', {})
             }}
           />
         );
