@@ -108,11 +108,6 @@ export default class TableFormComponent extends BaseReactComponent {
     return [];
   }
 
-  refresh(...params) {
-    this.#needRefreshComp = true;
-    super.refresh(...params);
-  }
-
   checkConditions(data) {
     const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
@@ -520,8 +515,6 @@ export default class TableFormComponent extends BaseReactComponent {
 
       const placeholder = this.t(component.placeholder);
       const customStringForConcatWithStaticTitle = this.t(component.customStringForConcatWithStaticTitle);
-      const refreshGrid = this.#needRefreshComp;
-      this.#needRefreshComp = false;
 
       return {
         columns,
@@ -555,8 +548,7 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         computed: {
           valueFormKey: value => this.getValueFormKey(value)
-        },
-        refreshGrid
+        }
       };
     };
 

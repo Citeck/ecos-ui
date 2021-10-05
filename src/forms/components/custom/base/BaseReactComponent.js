@@ -21,6 +21,7 @@ export default class BaseReactComponent extends BaseComponent {
 
   #react = {};
   #viewOnlyPrev = {};
+  #refreshOnValuePrev = {};
 
   get reactComponent() {
     return this.#react;
@@ -46,10 +47,14 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   build() {
-    if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
+    if (
+      !isEqual(this.#viewOnlyPrev, this.viewOnly) ||
+      (!isEmpty(this.refreshOnValue) && !isEqual(this.#refreshOnValuePrev, this.refreshOnValue))
+    ) {
       super.clear();
       this.#react = {};
       this.#viewOnlyPrev = this.viewOnly;
+      this.#refreshOnValuePrev = this.refreshOnValue;
     }
 
     const firstBuild = isEmpty(this.#react);
