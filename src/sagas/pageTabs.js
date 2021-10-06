@@ -27,10 +27,11 @@ import { getCurrentUserName } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
+import PageTab from '../services/pageTabs/PageTab';
 
 function* sagaInitTabs({ api, logger }) {
   try {
-    const location = yield select(state => state.router.location);
+    const location = yield select(state => get(state, 'router.location') || {});
     const activeUrl = location.pathname + location.search;
     const isAuthorized = yield select(selectIsAuthenticated);
     const displayState = yield call(api.pageTabs.getShowStatus);
@@ -46,7 +47,7 @@ function* sagaInitTabs({ api, logger }) {
 
     PageTabList.init({ activeUrl, keyStorage: api.pageTabs.lsKey, displayState });
 
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
     yield put(initTabsComplete());
 
     yield PageTabList.tabs.map(function*(tab) {
@@ -54,9 +55,9 @@ function* sagaInitTabs({ api, logger }) {
       PageTabList.changeOne({ tab, updates });
     });
 
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
   } catch (e) {
-    logger.error('[pageTabs sagaInitTabs saga error', e.message);
+    logger.error('[pageTabs] sagaInitTabs saga error', e);
   }
 }
 
@@ -76,7 +77,29 @@ function* sagaGetTabs({ api, logger }, action) {
 
     yield put(initTabs());
   } catch (e) {
-    logger.error('[pageTabs sagaGetTabs saga error', e.message);
+    logger.error('[pageTabs] sagaGetTabs saga error', e);
+  }
+}
+
+function* preSetTabs(tabs = PageTabList.storeList) {
+  try {
+    const validTabs = tabs.reduce((previousValue = [], currentValue = {}) => {
+      const foundIndex = previousValue.findIndex(tab => PageTab.equals(currentValue, tab));
+
+      if (~foundIndex) {
+        if (currentValue.isActive) {
+          previousValue[foundIndex] = currentValue;
+        }
+      } else {
+        previousValue.push(currentValue);
+      }
+
+      return previousValue;
+    }, []);
+
+    yield put(setTabs(validTabs));
+  } catch (e) {
+    console.error('[pageTabs] preSetTabs]', e);
   }
 }
 
@@ -84,7 +107,7 @@ function sagaSetDisplayState({ api, logger }, { payload }) {
   try {
     PageTabList.displayState = payload;
   } catch (e) {
-    logger.error('[pageTabs sagaSetDisplayState saga error', e.message);
+    logger.error('[pageTabs] sagaSetDisplayState saga error', e);
   }
 }
 
@@ -93,9 +116,9 @@ function* sagaMoveTabs({ api, logger }, action) {
     const { indexFrom, indexTo } = action.payload;
 
     PageTabList.move(indexFrom, indexTo);
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
   } catch (e) {
-    logger.error('[pageTabs sagaMoveTabs saga error', e.message);
+    logger.error('[pageTabs] sagaMoveTabs saga error', e);
   }
 }
 
@@ -118,12 +141,12 @@ function* sagaSetOneTab({ api, logger }, { payload }) {
       yield put(push(tab.link));
     }
 
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
     const data = yield* getTitle(tab);
 
     yield put(changeTab({ data, tab }));
   } catch (e) {
-    logger.error('[pageTabs sagaSetTab saga error', e.message);
+    logger.error('[pageTabs] sagaSetTab saga error', e);
   }
 }
 
@@ -137,7 +160,7 @@ function* sagaDeleteTab({ api, logger }, action) {
     deletedTab && PageService.extractWhereLinkOpen({ subsidiaryLink: deletedTab.link });
     yield put(changeTab({ tab, updates }));
   } catch (e) {
-    logger.error('[pageTabs sagaDeleteTab saga error', e.message);
+    logger.error('[pageTabs] sagaDeleteTab saga error', e);
   }
 }
 
@@ -156,9 +179,9 @@ function* sagaCloseTabs({ api, logger }, { payload }) {
       PageService.changeUrlLink(tab.link, { openNewTab: true });
     }
 
-    yield put(setTabs(PageTabList.tabs, { reopen: true }));
+    yield* preSetTabs();
   } catch (e) {
-    logger.error('[pageTabs sagaCloseTabs saga error', e.message);
+    logger.error('[pageTabs] sagaCloseTabs saga error', e);
   }
 }
 
@@ -179,9 +202,9 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
       yield put(push(tab.link));
     }
 
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
   } catch (e) {
-    logger.error('[pageTabs sagaChangeTabData saga error', e.message);
+    logger.error('[pageTabs] sagaChangeTabData saga error', e);
   }
 }
 
@@ -207,17 +230,17 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
 
     PageTabList.changeOne({ tab, updates: { ...updatingPayload, ...updates } });
 
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
   } catch (e) {
-    logger.error('[pageTabs sagaUpdateTabData saga error', e.message);
+    logger.error('[pageTabs] sagaUpdateTabData saga error', e);
   }
 }
 
 function* sagaUpdateTabs({ api, logger }, { payload }) {
   try {
-    yield put(setTabs(PageTabList.storeList));
+    yield* preSetTabs();
   } catch (e) {
-    logger.error('[pageTabs sagaUpdateTabs saga error', e.message);
+    logger.error('[pageTabs] sagaUpdateTabs saga error', e);
   }
 }
 
@@ -233,7 +256,7 @@ function* getTitle(tab) {
       isLoading: false
     };
   } catch (e) {
-    console.error('[pageTabs getTitle]', e);
+    console.error('[pageTabs] getTitle]', e);
     return {
       title: TITLE.NO_NAME,
       isLoading: false
