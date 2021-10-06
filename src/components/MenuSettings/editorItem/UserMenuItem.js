@@ -15,15 +15,18 @@ import { MenuSettings } from '../../../constants/menu';
 
 class UserMenuItem extends Base {
   #unmounted = false;
+  #defaultState = {
+    label: {},
+    allowedRefs: [],
+    allowedNames: [],
+    isFetching: false
+  };
 
   type = 'user-menu-item';
 
   state = {
     ...super.state,
-    label: {},
-    allowedRefs: [],
-    allowedNames: [],
-    isFetching: false
+    ...this.#defaultState
   };
 
   componentDidMount() {
@@ -41,6 +44,10 @@ class UserMenuItem extends Base {
     if (!isEqual(prevProps.item, this.props.item) && !isEmpty(get(this.props, 'item.allowedFor'))) {
       this.getAuthoritiesInfoByName();
     }
+  }
+
+  componentWillUnmount() {
+    this.setState({ ...this.#defaultState });
   }
 
   get permissions() {
