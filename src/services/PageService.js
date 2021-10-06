@@ -38,6 +38,10 @@ export default class PageService {
     const found = queryString.parseUrl(_link).url.split('/v2/');
     let type = get(found, '[1]', '');
 
+    if (!type) {
+      return PageTypes.DASHBOARD;
+    }
+
     if (type.indexOf(PageTypes.TIMESHEET) === 0) {
       return PageTypes.TIMESHEET;
     }
@@ -107,7 +111,7 @@ export default class PageService {
           recordRef = PageService.getRef(link);
         }
 
-        return recordRef ? pageApi.getRecordTitle(recordRef).then(title => convertTitle(title)) : staticTitle(TITLE.HOMEPAGE);
+        return recordRef ? pageApi.getRecordTitle(recordRef).then(convertTitle) : staticTitle(TITLE.HOMEPAGE);
       }
     },
     [PageTypes.JOURNALS]: {
