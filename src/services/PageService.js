@@ -54,8 +54,6 @@ export default class PageService {
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
-      case PageTypes.SETTINGS:
-        return urlProps.query.dashboardId || '';
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
@@ -75,7 +73,6 @@ export default class PageService {
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
-      case PageTypes.SETTINGS:
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
