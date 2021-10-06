@@ -27,7 +27,6 @@ import { getCurrentUserName } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
-import PageTab from '../services/pageTabs/PageTab';
 
 function* sagaInitTabs({ api, logger }) {
   try {
