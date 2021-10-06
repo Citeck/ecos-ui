@@ -10,7 +10,7 @@ import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(TableFormContext);
-  const { placeholder, viewOnly, isSelectableRows, nonSelectableRows, selectedRows, noColHeaders, refreshGrid } = context.controlProps;
+  const { placeholder, viewOnly, isSelectableRows, nonSelectableRows, selectedRows, noColHeaders } = context.controlProps;
   const { gridRows, columns, error, setInlineToolsOffsets, onSelectGridItem } = context;
   const wrapperRef = useRef(null);
 
@@ -28,10 +28,6 @@ const InputView = () => {
       }
     };
   }, [wrapperRef.current, setInlineToolsOffsets]);
-
-  if (refreshGrid) {
-    return <PointsLoader color={'light-blue'} />;
-  }
 
   return (
     <div className="ecos-table-form__input-view">
