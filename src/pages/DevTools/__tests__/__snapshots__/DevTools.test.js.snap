@@ -262,7 +262,7 @@ ShallowWrapper {
     "props": Object {
       "children": <Tabs
         activeTabKey=""
-        className="ecos-tabs_mt-10"
+        className=""
         hasHint={false}
         hasHover={false}
         items={
@@ -308,7 +308,7 @@ ShallowWrapper {
       "nodeType": "function",
       "props": Object {
         "activeTabKey": "",
-        "className": "ecos-tabs_mt-10",
+        "className": "",
         "hasHint": false,
         "hasHover": false,
         "items": Array [
@@ -357,7 +357,7 @@ ShallowWrapper {
       "props": Object {
         "children": <Tabs
           activeTabKey=""
-          className="ecos-tabs_mt-10"
+          className=""
           hasHint={false}
           hasHover={false}
           items={
@@ -403,7 +403,7 @@ ShallowWrapper {
         "nodeType": "function",
         "props": Object {
           "activeTabKey": "",
-          "className": "ecos-tabs_mt-10",
+          "className": "",
           "hasHint": false,
           "hasHover": false,
           "items": Array [

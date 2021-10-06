@@ -3,16 +3,16 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
 
+import { usePrevious } from '../../hooks';
 import { t } from '../../helpers/util';
 import { SectionTypes } from '../../constants/adminSection';
 import pageTabList from '../../services/pageTabs/PageTabList';
+import DevTools from '../../pages/DevTools';
 import { Caption } from '../common/form';
 import BPMNDesigner from '../BPMNDesigner';
 import { JournalSettings } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
-import { usePrevious } from '../../hooks';
-import DevTools from '../../pages/DevTools';
 
 import './style.scss';
 
@@ -28,6 +28,7 @@ const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOp
     }
   };
   const isHidden = type => !isActivePage || activeSection.type !== type;
+  const isFluid = () => ![SectionTypes.DEV_TOOLS].includes(activeSection.type);
 
   useEffect(() => {
     if (wrapperRef.current) {
@@ -49,7 +50,7 @@ const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOp
   return (
     <div className="ecos-admin-section__container" ref={wrapperRef}>
       <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
-        <Container fluid className="p-0">
+        <Container fluid={isFluid()} className="p-0">
           <Row className="ecos-admin-section__header m-0 px-0">
             <Col className="m-0 p-0">
               <Caption normal>{t(activeSection.label)}</Caption>

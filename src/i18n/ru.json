@@ -404,6 +404,7 @@
   "ecos-table-form.error.no-journal-id": "Конфигурация \"ID журнала\" обязательна!",
   "ecos-table-form.error.no-journal-config": "Конфигурация журнала не получена",
   "ecos-table-form.error.source": "Неверный тип источника",
+  "ecos-table-form.error.fail-to-resolve-custom-table": "Данные не сформированы",
 
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",

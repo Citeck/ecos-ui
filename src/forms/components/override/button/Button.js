@@ -9,19 +9,47 @@ export default class ButtonComponent extends FormIOButtonComponent {
   static schema(...extend) {
     return FormIOButtonComponent.schema(
       {
-        removeIndents: false
+        removeIndents: false,
+        disableOnFormInvalid: false
       },
       ...extend
     );
   }
 
+  _loading = false;
+
   get defaultSchema() {
     return ButtonComponent.schema();
   }
 
+  get shouldDisable() {
+    return super.shouldDisable || (this.component.disableOnFormInvalid && !this.root.isValid(this.data, true));
+  }
+
+  set disabled(disabled) {
+    if (disabled && (this.component.disableOnInvalid && !this.shouldDisable)) {
+      disabled = false;
+    }
+
+    super.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._disabled;
+  }
+
   set loading(loading) {
-    this.buttonElement.disabled = loading;
+    this._loading = loading;
+
+    if ((loading && !this.disabled) || (!loading && !this.disabled)) {
+      this.setDisabled(this.buttonElement, loading);
+    }
+
     super.loading = loading;
+  }
+
+  get loading() {
+    return this._loading;
   }
 
   build() {
@@ -51,9 +79,11 @@ export default class ButtonComponent extends FormIOButtonComponent {
     this.addEventListener(this.buttonElement, 'click', event => {
       this.triggerReCaptcha();
       this.dataValue = true;
+
       if (this.component.action !== 'submit' && this.component.showValidations) {
         this.emit('checkValidity', this.data);
       }
+
       switch (this.component.action) {
         case 'saveState':
         case 'submit':
@@ -150,5 +180,13 @@ export default class ButtonComponent extends FormIOButtonComponent {
           break;
       }
     });
+
+    this.on(
+      'change',
+      value => {
+        this.disabled = this.options.readOnly || (this.component.disableOnFormInvalid && !value.isValid);
+      },
+      true
+    );
   }
 }

@@ -26,7 +26,6 @@ const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
 const originalSetInputMask = Base.prototype.setInputMask;
 const originalCreateLabel = Base.prototype.createLabel;
-const originalCreateViewOnlyLabel = Base.prototype.createViewOnlyLabel;
 const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
 const originalSetupValueElement = Base.prototype.setupValueElement;
@@ -645,13 +644,22 @@ Base.prototype.createLabel = function(container) {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829
 Base.prototype.createViewOnlyLabel = function(container) {
-  originalCreateViewOnlyLabel.call(this, container);
-
   if (this.labelIsHidden()) {
     return;
   }
 
-  this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
+  const labelElement = this.ce('dt');
+
+  labelElement.appendChild(this.text(this.label));
+  this.createTooltip(labelElement);
+
+  if (this.labelElement && container.firstChild) {
+    container.replaceChild(labelElement, container.firstChild);
+  } else {
+    container.appendChild(labelElement);
+  }
+
+  this.labelElement = labelElement;
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829

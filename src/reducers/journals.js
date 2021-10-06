@@ -6,11 +6,10 @@ import isEqual from 'lodash/isEqual';
 import {
   initState,
   onJournalSelect,
+  resetState,
   runSearch,
   setCheckLoading,
   setColumnsSetup,
-  setCustomJournal,
-  setCustomJournalMode,
   setDashletConfig,
   setEditorMode,
   setGrid,
@@ -20,11 +19,9 @@ import {
   setJournalExistStatus,
   setJournalSetting,
   setJournalSettings,
-  setJournalsItem,
   setLoading,
-  setOnlyLinked,
-  setPredicate,
   setOriginGridSettings,
+  setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setRecordRef,
@@ -32,7 +29,6 @@ import {
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
-  setSettingItem,
   setUrl
 } from '../actions/journals';
 import {
@@ -70,7 +66,6 @@ import { handleAction, handleState } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
-  JOURNAL_DASHLET_CONFIG_VERSION,
   JOURNAL_SETTING_DATA_FIELD,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
@@ -195,13 +190,6 @@ export const defaultState = {
 };
 
 const initialState = {};
-const updateConfig = (config, data = {}) => ({
-  ...config,
-  [JOURNAL_DASHLET_CONFIG_VERSION]: {
-    ...get(config, [JOURNAL_DASHLET_CONFIG_VERSION], {}),
-    ...data
-  }
-});
 
 Object.freeze(initialState);
 Object.freeze(defaultState);
@@ -214,6 +202,14 @@ export default handleActions(
       return {
         ...state,
         [id]: { ...cloneDeep(defaultState), ...(state[id] || {}) }
+      };
+    },
+    [resetState]: (state, action) => {
+      const id = action.payload;
+
+      return {
+        ...state,
+        [id]: { ...cloneDeep(defaultState) }
       };
     },
     [setUrl]: (state, action) => {
@@ -319,103 +315,6 @@ export default handleActions(
         inlineToolSettings: action.payload,
         previewFileName: get(action.payload, ['row', 'cm:title'], '')
       });
-    },
-    [setJournalsItem]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig((state[stateId] || {}).config, {
-                journalId: action.payload.nodeRef,
-                journalType: action.payload.type
-              })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, {
-              journalId: action.payload.nodeRef,
-              journalType: action.payload.type
-            })
-          };
-    },
-    [setSettingItem]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const config = get(state, [stateId, 'config'], {});
-
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig(config, { journalSettingId: action.payload })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, { journalSettingId: action.payload })
-          };
-    },
-    [setCustomJournal]: (state, action) => {
-      const stateId = action.payload.stateId;
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig((state[stateId] || {}).config, { customJournal: action.payload })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, { customJournal: action.payload })
-          };
-    },
-    [setOnlyLinked]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const config = get(state, [stateId, 'config'], {});
-
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig(config, { onlyLinked: action.payload })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, { onlyLinked: action.payload })
-          };
-    },
-    [setCustomJournalMode]: (state, action) => {
-      const stateId = action.payload.stateId;
-      const config = get(state, [stateId, 'config'], {});
-
-      action = handleAction(action);
-
-      return stateId
-        ? {
-            ...state,
-            [stateId]: {
-              ...(state[stateId] || {}),
-              config: updateConfig(config, { customJournalMode: action.payload })
-            }
-          }
-        : {
-            ...state,
-            config: updateConfig(state.config, { customJournalMode: action.payload })
-          };
     },
     [setEditorMode]: (state, action) => {
       const stateId = action.payload.stateId;

@@ -25,6 +25,21 @@ export const MinColumnWidths = {
   AUTO: 'auto'
 };
 
+export const DefaultWidgetsByLayout = {
+  [LayoutTypes.TWO_COLUMNS_BS]: [[], []],
+  [LayoutTypes.TWO_COLUMNS_SB]: [[], []],
+  [LayoutTypes.THREE_COLUMNS_CB]: [[], [], []],
+  [LayoutTypes.FOUR_COLUMNS]: [[], [], [], []],
+  [LayoutTypes.ONE_COLUMN]: [[]],
+  [LayoutTypes.TWO_COLUMNS_BS_FOOTER]: [[], [], []],
+  [LayoutTypes.TWO_COLUMNS_SB_FOOTER]: [[], [], []],
+  [LayoutTypes.THREE_COLUMNS_CB_FOOTER]: [[], [], [], []],
+  [LayoutTypes.FOUR_COLUMNS_FOOTER]: [[], [], [], [], []],
+  [LayoutTypes.CLASSIC_SITE]: [[], [], [], [], []],
+  [LayoutTypes.ADAPTIVE]: [[]],
+  [LayoutTypes.MOBILE]: [[]]
+};
+
 export const Layouts = [
   {
     position: 0,
