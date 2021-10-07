@@ -178,6 +178,7 @@ class JournalsService {
     result.searchableByText = column.searchableByText !== false;
     result.sortable = column.sortable === true;
     result.type = COLUMN_TYPE_NEW_TO_LEGACY_MAPPING[column.type] || DEFAULT_TYPE;
+    result.newType = column.type;
     result.visible = column.hidden !== true;
     result.editable = column.editable !== false;
 
