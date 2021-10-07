@@ -581,6 +581,7 @@
   "header.make-notavailable.label": "Change status to \"I'm absent\"",
   "modal.make-notavailable.start.label": "Beginning of absence",
   "modal.make-notavailable.end.label": "End of absence",
+  "modal.make-notavailable.end.error.big-date": "The start date cannot be greater than the end date",
   "modal.make-notavailable.auto-answer.label": "Auto answer",
   "header.reportIssue.label": "Report an issue",
   "header.user-menu.my-profile": "My Profile",
