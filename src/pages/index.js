@@ -5,7 +5,6 @@ import Footer from './Footer';
 
 const AdminPage = lazy(() => import('./AdminPage'));
 const DashboardPage = lazy(() => import('./Dashboard'));
-const DashboardSettingsPage = lazy(() => import('./DashboardSettings'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
 const CMMNEditorPage = lazy(() => import('./ModelEditor/CMMNEditor'));
 const BPMNEditorPage = lazy(() => import('./ModelEditor/BPMNEditor'));
@@ -26,9 +25,6 @@ export default ({ pageKey, withoutFooter, ...props }) => {
     case Pages.BPMN:
     case Pages.DEV_TOOLS:
       Page = AdminPage;
-      break;
-    case Pages.DASHBOARD_SETTINGS:
-      Page = DashboardSettingsPage;
       break;
     case Pages.DASHBOARD:
       Page = DashboardPage;

@@ -37,6 +37,7 @@ import iconSelect from './iconSelect';
 import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import customEvent from './customEvent';
+import kanban from './kanban';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -77,6 +78,7 @@ export default function* rootSaga(extraArguments) {
     iconSelect(extraArguments),
     adminSection(extraArguments),
     cmmnEditor(extraArguments),
-    customEvent(extraArguments)
+    customEvent(extraArguments),
+    kanban(extraArguments)
   ]);
 }

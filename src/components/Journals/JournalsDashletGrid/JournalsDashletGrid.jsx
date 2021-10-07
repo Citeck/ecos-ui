@@ -22,24 +22,15 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectJournalData, selectViewColumns } from '../../../selectors/journals';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
+import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
 
 const mapStateToProps = (state, props) => {
-  const newState = selectJournalData(state, props.stateId);
-  const viewColumns = selectViewColumns(state, props.stateId);
+  const ownState = selectJournalDashletGridProps(state, props.stateId);
 
   return {
-    loading: newState.loading,
-    grid: newState.grid,
-    isMobile: (state.view || {}).isMobile === true,
-    predicate: newState.predicate,
-    query: get(newState, 'grid.query.query'),
-    isGrouped: !isEmpty(get(newState, 'grid.grouping.columns')),
-    journalConfig: newState.journalConfig,
-    selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    viewColumns
+    isMobile: !!get(state, 'view.isMobile'),
+    ...ownState
   };
 };
 
@@ -69,6 +60,7 @@ const HeightCalculation = props => {
   }
 
   let rowsNumber = total > maxItems ? maxItems : total;
+
   if (rowsNumber < 1) {
     rowsNumber = 1;
   }
@@ -107,10 +99,8 @@ class JournalsDashletGrid extends Component {
 
   reloadGrid(options) {
     options = options || {};
-    const {
-      predicate,
-      grid: { columns, groupBy, sortBy }
-    } = this.props;
+    const { predicate, grid } = this.props;
+    const { columns, groupBy, sortBy } = grid || {};
     const predicates = predicate ? [predicate] : [];
     const currentOptions = { columns, groupBy, sortBy, predicates };
 
@@ -119,11 +109,8 @@ class JournalsDashletGrid extends Component {
   }
 
   onFilter = ([filter]) => {
-    const {
-      setPredicate = _ => _,
-      setJournalSetting = _ => _,
-      grid: { pagination: pager, predicates }
-    } = this.props;
+    const { setPredicate, setJournalSetting, grid } = this.props;
+    const { pagination: pager, predicates } = grid || {};
     const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
     const filterIdx = currentFilters.findIndex(item => item.att === filter.att);
 
@@ -134,8 +121,8 @@ class JournalsDashletGrid extends Component {
     }
 
     const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
-    const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
-    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
+    const { maxItems } = pager || DEFAULT_PAGINATION;
+    const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
     setPredicate(newPredicate);
     setJournalSetting({ predicate: newPredicate });
@@ -143,16 +130,15 @@ class JournalsDashletGrid extends Component {
   };
 
   onSort = e => {
-    const {
-      setColumnsSetup,
-      grid: { columns }
-    } = this.props;
+    const { setColumnsSetup, grid } = this.props;
+    const { columns } = grid || {};
     const sortBy = [
       {
         attribute: e.column.attribute,
         ascending: !e.ascending
       }
     ];
+
     setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
   };
@@ -167,13 +153,11 @@ class JournalsDashletGrid extends Component {
   };
 
   getCurrentRowInlineActions() {
+    const { execRecordsAction, grid } = this.props;
     const {
-      execRecordsAction,
-      grid: {
-        groupBy = [],
-        actions: { forRecord = {} }
-      }
-    } = this.props;
+      groupBy = [],
+      actions: { forRecord = {} }
+    } = grid || {};
 
     if (groupBy.length) {
       return [
@@ -228,26 +212,22 @@ class JournalsDashletGrid extends Component {
       className,
       loading,
       isWidget,
-      grid: {
-        data,
-        sortBy,
-        pagination: { maxItems = 0 },
-        groupBy,
-        total = 0,
-        editingRules
-      },
+      grid,
       doInlineToolsOnRowClick = false,
       minHeight,
       maxHeight,
       autoHeight,
       predicate,
-      journalConfig: { params = {} },
+      journalConfig,
       selectorContainer,
       viewColumns,
       onOpenSettings,
       query,
       isGrouped
     } = this.props;
+
+    const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
+    const { params = {} } = journalConfig || {};
 
     let editable = true;
 
@@ -266,12 +246,12 @@ class JournalsDashletGrid extends Component {
         <div className="ecos-journal-dashlet__grid">
           {!isWidget && loading && <Loader blur />}
 
-          <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
+          <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={get(pagination, 'maxItems', 0)}>
             <Grid
               data={data}
               columns={viewColumns}
               className={className}
-              gridWrapperClassName={'ecos-journal-dashlet__grid-wrapper'}
+              gridWrapperClassName="ecos-journal-dashlet__grid-wrapper"
               hTrackClassName="ecos-journal-dashlet__grid-track ecos-journal-dashlet__grid-track_h"
               freezeCheckboxes
               filterable

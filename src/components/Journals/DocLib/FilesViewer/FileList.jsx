@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import uniq from 'lodash/uniq';
+import get from 'lodash/get';
 
-import FilesViewer from '../../../FilesViewer';
 import { NODE_TYPES } from '../../../../constants/docLib';
+import FilesViewer from '../../../FilesViewer';
 
-const FileList = ({ isMobile, items, selected, lastClicked, openFolder, setSelected, setLastClicked, onDrop }) => {
+const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder, setSelected, setLastClicked, onDrop }) => {
   const _onDoubleClick = (item, e) => {
     if (item.type === NODE_TYPES.DIR && typeof openFolder === 'function') {
       openFolder(item.id);
@@ -43,7 +44,7 @@ const FileList = ({ isMobile, items, selected, lastClicked, openFolder, setSelec
 
         const newSelected = [];
         for (let i = from; i <= to; i++) {
-          newSelected.push(items[i].id);
+          newSelected.push(get(items, [i, 'id']));
         }
 
         setSelected(uniq([...selected, ...newSelected]));

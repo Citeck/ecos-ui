@@ -7,14 +7,14 @@ import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { SourcesId } from '../constants';
-import { CONFIG_VERSION, DashboardTypes } from '../constants/dashboard';
+import { CONFIG_VERSION } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
 import { t } from '../helpers/util';
-import pageTabList from './pageTabs/PageTabList';
-import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import { Loader } from '../components/common';
-import { getStore } from '../store';
+import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import { ParserPredicate } from '../components/Filters/predicates';
+import { getStore } from '../store';
+import PageTabList from './pageTabs/PageTabList';
 
 const separatorId = '@';
 
@@ -26,7 +26,7 @@ export default class DashboardService {
   };
 
   static get key() {
-    return pageTabList.activeTabId || null;
+    return PageTabList.activeTabId || null;
   }
 
   static get newIdLayout() {
@@ -244,36 +244,25 @@ export default class DashboardService {
   }
 
   static openEditModal(props = {}) {
-    const DashboardSettingsModal = lazy(() => import('../components/DashboardSettings/DashboardSettingsModal'));
+    const Settings = lazy(() => import('../components/DashboardSettings/Settings'));
     const store = getStore();
     const modalRef = React.createRef();
     let { title, ...otherProps } = props;
 
-    switch (get(this, 'props.identification.type', '')) {
-      case DashboardTypes.USER:
-        title = t('dashboard-settings.page-title');
-        break;
-      case DashboardTypes.CASE_DETAILS:
-        title = t('dashboard-settings.card-settings');
-        break;
-      default:
-        title = t('dashboard-settings.page-display-settings');
-        break;
-    }
-
     const dialog = DialogManager.showCustomDialog({
       isVisible: true,
-      title: props.title || title,
+      title,
       className: 'ecos-dashboard-settings-modal-wrapper ecos-modal_width-lg',
       isTopDivider: true,
-      reactstrapProps: { ref: modalRef },
+      isBigHeader: true,
+      reactstrapProps: { ref: modalRef, backdrop: 'static' },
       onHide: () => dialog.setVisible(false),
       body: (
         <Provider store={store}>
           <Suspense fallback={<Loader type="points" />}>
-            <DashboardSettingsModal
+            <Settings
               modalRef={modalRef}
-              tabId={pageTabList.activeTabId}
+              tabId={PageTabList.activeTabId}
               onSetDialogProps={props => dialog.updateProps(props)}
               onSave={() => dialog.setVisible(false)}
               onClose={() => dialog.setVisible(false)}

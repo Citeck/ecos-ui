@@ -14,7 +14,8 @@ const mapStateToProps = (state, { stateId }) => {
   return {
     isReady,
     pagination,
-    total
+    total,
+    isMobile: state.view.isMobile
   };
 };
 

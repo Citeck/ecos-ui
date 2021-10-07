@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../helpers/util';
-import { ConfigTypes, MenuSettings as ms } from '../constants/menu';
+import { ConfigTypes, GROUP_EVERYONE, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/menu';
 import MenuSettingsService from '../services/MenuSettingsService';
 import {
@@ -17,12 +17,14 @@ import {
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
+  setIsForAll,
   setLastAddedCreateItems,
   setLastAddedLeftItems,
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
-  setOriginalConfig
+  setOriginalConfig,
+  setUserMenuItems
 } from '../actions/menuSettings';
 import { selectMenuByType } from '../selectors/menu';
 
@@ -38,17 +40,21 @@ function* fetchSettingsConfig({ api, logger }) {
     const config = yield call(api.menu.getMenuSettingsConfig, { id });
     const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || [], { configType: ConfigTypes.LEFT });
     const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || [], { configType: ConfigTypes.CREATE });
+    const userMenuItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.user.items') || [], { configType: ConfigTypes.USER });
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
     const prefix = get(_font, 'preferences.fontPref.prefix') || '';
     const font = icons.map(item => ({ value: `${prefix}${get(item, 'properties.name')}`, type: 'icon' }));
+    const authorities = config.authorities.filter(item => item.name !== GROUP_EVERYONE);
 
     yield put(setOriginalConfig(config));
     yield put(setLeftMenuItems(leftItems));
     yield put(setCreateMenuItems(createItems));
-    yield put(setAuthorities(config.authorities));
+    yield put(setUserMenuItems(userMenuItems));
+    yield put(setAuthorities(authorities));
     yield put(setMenuIcons({ font }));
+    yield put(setIsForAll(!authorities.length));
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('menu-settings.error.get-config'), t('error'));
@@ -74,14 +80,17 @@ function* runSaveMenuConfig({ api, logger }, action) {
     const result = yield select(state => state.menuSettings.originalConfig);
     const leftItems = yield select(state => state.menuSettings.leftItems);
     const createItems = yield select(state => state.menuSettings.createItems);
+    const userMenuItems = yield select(state => state.menuSettings.userMenuItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
     const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
     const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
+    const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
     const subMenu = {};
 
     set(subMenu, 'left.items', newLeftItems);
     set(subMenu, 'create.items', newCreateItems);
+    set(subMenu, 'user.items', newUserMenuItems);
 
     return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });
   } catch (e) {

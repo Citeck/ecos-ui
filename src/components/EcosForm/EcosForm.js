@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -75,6 +76,7 @@ class EcosForm extends React.Component {
   }
 
   initForm(newFormDefinition = this.state.formDefinition) {
+    const alfConstants = get(window, 'Alfresco.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const self = this;
@@ -83,11 +85,11 @@ class EcosForm extends React.Component {
       definition: 'definition?json',
       customModule: 'customModule',
       title: 'title',
-      i18n: 'i18n?json'
+      i18n: 'i18n?json',
+      formId: '?localId'
     };
 
     let formLoadingPromise;
-    let alfConstants = (window.Alfresco || {}).constants || {};
     let proxyUri = PROXY_URI || '/';
 
     if (formId) {
@@ -137,7 +139,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      self.setState({ originalFormDefinition, formDefinition });
+      self.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
@@ -180,9 +182,34 @@ class EcosForm extends React.Component {
         const i18n = options.i18n || {};
         const language = options.language || getCurrentLocale();
         const defaultI18N = i18n[language] || {};
-        const formI18N = (formData.i18n || {})[language] || {};
+        let currentLangTranslate = {};
+        let enTranslate = {};
 
-        i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
+        // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
+        const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
+        const translations = translateKeys.reduce((result, key) => {
+          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
+
+          if (key === language) {
+            currentLangTranslate = translate;
+          }
+
+          if (key === 'en') {
+            enTranslate = translate;
+          }
+
+          return {
+            ...result,
+            ...translate
+          };
+        }, {});
+
+        i18n[language] = {
+          ...translations,
+          ...enTranslate,
+          ...currentLangTranslate
+        };
+
         options.theme = EcosFormUtils.getThemeName();
         options.language = language;
         options.i18n = i18n;
@@ -250,21 +277,15 @@ class EcosForm extends React.Component {
             }
           });
 
-          self.setState({ formId: formData.id });
-
           form.formReady.then(() => {
             if (self.props.onReady) {
               self.props.onReady(form);
             }
 
-            self._containerHeightTimerId = window.setTimeout(() => {
-              self.toggleContainerHeight();
-            }, 500);
+            self._containerHeightTimerId = window.setTimeout(() => self.toggleContainerHeight(), 500);
 
             if (self.props.onReadyToSubmit) {
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => {
-                self.props.onReadyToSubmit(form, state);
-              });
+              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => self.props.onReadyToSubmit(form, state));
             }
           });
         });
@@ -274,6 +295,7 @@ class EcosForm extends React.Component {
 
   _evalOptionsInitAttributes(inputs, options) {
     const typeRef = options.typeRef;
+
     if (!typeRef) {
       return {};
     }
@@ -324,9 +346,9 @@ class EcosForm extends React.Component {
   }
 
   fireEvent(event, data) {
-    let handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
+    const handlerName = 'on' + event.charAt(0).toUpperCase() + event.slice(1);
 
-    if (this.props[handlerName]) {
+    if (isFunction(this.props[handlerName])) {
       this.props[handlerName](data);
     }
   }
@@ -341,15 +363,18 @@ class EcosForm extends React.Component {
     onToggleLoader(state);
   };
 
-  onShowFormBuilder = callback => {
+  onShowFormBuilder = async callback => {
     if (this._formBuilderModal.current) {
-      const { originalFormDefinition, formId } = this.state;
+      const { formId } = this.state;
+      const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
-      this._formBuilderModal.current.show(originalFormDefinition, form => {
+      this._formBuilderModal.current.show(definitionToEdit, form => {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
-          this.initForm(form);
-          this.props.onFormSubmitDone();
-          typeof callback === 'function' && callback(form);
+          EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+            this.initForm(newFormDef);
+            this.props.onFormSubmitDone();
+            typeof callback === 'function' && callback(newFormDef);
+          });
         });
       });
     }

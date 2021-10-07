@@ -5,8 +5,11 @@
   display: flex;
   position: relative;
   width: 100%;
-  margin-bottom: 12px;
-  height: 40px;
+  flex-wrap: wrap;
+
+  & > :nth-child(n) {
+    margin-bottom: 12px;
+  }
 
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
@@ -50,6 +53,7 @@
   align-items: center;
   justify-content: flex-end;
   flex: auto;
+  white-space: nowrap;
 }
 
 .ecos-journal__settings-bar_right-btn {

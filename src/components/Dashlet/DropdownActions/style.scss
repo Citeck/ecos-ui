@@ -1,0 +1,51 @@
+@import 'src/styles/constants';
+
+.ecos-dropdowm-actions {
+  &__btn {
+    &.ecos-btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 10px 15px;
+
+      & .ecos-btn__i {
+        color: $color-gray-5;
+        margin-right: 10px;
+        font-size: 20px;
+      }
+
+      & .ecos-btn__text {
+        vertical-align: text-top;
+      }
+
+      &:hover {
+        background: $color-gray-4;
+      }
+
+      &:first-of-type {
+        border-top-left-radius: $border-radius-standard;
+        border-top-right-radius: $border-radius-standard;
+      }
+
+      &:last-of-type {
+        border-bottom-left-radius: $border-radius-standard;
+        border-bottom-right-radius: $border-radius-standard;
+      }
+    }
+  }
+
+  & .show {
+    padding: 0;
+    margin-top: -5px;
+  }
+
+  & &-inner {
+    padding: 0;
+    border-radius: $border-radius-standard;
+    max-width: none;
+  }
+
+  & &-arrow.arrow {
+    display: none;
+  }
+}

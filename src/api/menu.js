@@ -156,6 +156,23 @@ export class MenuApi extends CommonApi {
       .catch(console.error);
   };
 
+  /**
+   * Getting the configuration of the custom menu (in the header, on the right)
+   *
+   * @param user
+   * @param version
+   * @returns {*|RecordsComponent}
+   */
+  getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: { version, user }
+      },
+      'subMenu.user?json'
+    );
+  };
+
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
     const record = Records.get(`${SourcesId.CONFIG}@menu-config`);
 
@@ -191,15 +208,13 @@ export class MenuApi extends CommonApi {
     );
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
-    const filterAuthorities = lodashGet(config, 'authorities');
+    const updUserMenuItems = await fetchExtraItemInfo(lodashGet(config, 'menu.user.items') || [], { label: '.disp' });
+    const updAuthorities = await this.getAuthoritiesInfoByName(lodashGet(config, 'authorities') || []);
 
-    !filterAuthorities.length && filterAuthorities.push(GROUP_EVERYONE);
     setSectionTitles(updCreateItems, updLeftItems);
-
-    const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
-
     lodashSet(config, 'menu.left.items', updLeftItems);
     lodashSet(config, 'menu.create.items', updCreateItems);
+    lodashSet(config, 'menu.user.items', updUserMenuItems);
     lodashSet(config, 'authorities', updAuthorities);
 
     return config;

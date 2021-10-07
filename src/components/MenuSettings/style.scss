@@ -25,6 +25,13 @@
 .ecos-menu-settings {
   $root: &;
 
+  &__modal {
+    .ecos-loader,
+    .modal-loading {
+      z-index: calc(#{map-get($z-index, draggable-tree-item)} + 10);
+    }
+  }
+
   &__loader {
     border-radius: $border-radius-large;
     z-index: calc(#{map-get($z-index, draggable-tree-item)} + 10);
@@ -282,6 +289,10 @@
   }
 
   &-ownership {
+    &__field-for-all {
+      margin-bottom: 15px;
+      width: 100%;
+    }
   }
 
   &-group-priority {

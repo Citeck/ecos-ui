@@ -16,6 +16,26 @@
     display: block;
   }
 
+  &__view {
+    &-tabs {
+      &-btn {
+        margin-left: 15px;
+
+        &_disabled {
+          pointer-events: none;
+          cursor: default;
+        }
+      }
+
+      &_mobile &-btn {
+        margin-left: 10px;
+      }
+    }
+
+    &-btn {
+    }
+  }
+
   &__pagination {
     &_mobile {
       margin-right: 0;
@@ -68,7 +88,7 @@
     min-width: 780px;
   }
 
-  &-group {
+  &-top {
     display: grid;
 
     &:empty {
@@ -111,6 +131,7 @@
 
     &#{$root}_expanded {
       width: 100%;
+
       &-document-library {
         width: 100%;
       }

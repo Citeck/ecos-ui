@@ -23,6 +23,7 @@ import TextField from './override/textfield';
 import Url from './override/url';
 import Hidden from './override/hidden';
 import DataGrid from './override/datagrid';
+import EditGrid from './override/editgrid';
 
 import AsyncData from './custom/asyncData';
 import DataGridAssoc from './custom/datagridAssoc';
@@ -79,6 +80,7 @@ const components = {
   hidden: Hidden,
   importButton: ImportButton,
   datagrid: DataGrid,
+  editgrid: EditGrid,
   includeForm: IncludeForm
 };
 

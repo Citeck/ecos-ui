@@ -10,6 +10,7 @@ import notification from './notification';
 import user from './user';
 import view from './view';
 import journals from './journals';
+import documentLibrary from './documentLibrary';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
 import comments from './comments';
@@ -40,6 +41,7 @@ import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
 import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
+import kanban from './kanban';
 
 const reducers = {
   app,
@@ -51,6 +53,7 @@ const reducers = {
   user,
   view,
   journals,
+  documentLibrary,
   pageTabs,
   tasks,
   comments,
@@ -80,7 +83,8 @@ const reducers = {
   docConstructor,
   iconSelect,
   adminSection,
-  cmmnEditor
+  cmmnEditor,
+  kanban
 };
 
 export default history =>

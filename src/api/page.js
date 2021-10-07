@@ -1,9 +1,10 @@
 import Records from '../components/Records';
 import { CommonApi } from './common';
+import { SourcesId } from '../constants';
 
 export class PageApi extends CommonApi {
   getJournalTitle = journalId => {
-    return Records.get('uiserv/rjournal@' + journalId)
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
       .load('.disp')
       .then(res => res || '')
       .catch(() => '');

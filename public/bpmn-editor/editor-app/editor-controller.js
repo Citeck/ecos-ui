@@ -404,8 +404,8 @@ angular.module('flowableModeler')
       name: 'cm:title',
       description: 'cm:description',
       model: 'ecosbpm:jsonModel?json',
-      lastUpdated: 'cm:modified',
-      lastUpdatedBy: 'cm:modifier',
+      lastUpdated: '_modified',
+      lastUpdatedBy: '_modifier',
     }
   }).then(function (response) {
     // console.log(response);

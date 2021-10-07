@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'citeck';
-  src: url('../font/citeck.eot?56594606');
-  src: url('../font/citeck.eot?56594606#iefix') format('embedded-opentype'), url('../font/citeck.woff2?56594606') format('woff2'),
-    url('../font/citeck.woff?56594606') format('woff'), url('../font/citeck.ttf?56594606') format('truetype'),
-    url('../font/citeck.svg?56594606#citeck') format('svg');
+  src: url('../font/citeck.eot?82128139');
+  src: url('../font/citeck.eot?82128139#iefix') format('embedded-opentype'), url('../font/citeck.woff2?82128139') format('woff2'),
+    url('../font/citeck.woff?82128139') format('woff'), url('../font/citeck.ttf?82128139') format('truetype'),
+    url('../font/citeck.svg?82128139#citeck') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,11 +13,10 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'citeck';
-    src: url('../font/citeck.svg?56594606#citeck') format('svg');
+    src: url('../font/citeck.svg?82128139#citeck') format('svg');
   }
 }
 */
-
 [class^='icon-']:before,
 [class*=' icon-']:before {
   font-family: 'citeck';
@@ -297,6 +296,9 @@
 .icon-folder:before {
   content: '\e850';
 } /* '' */
+.icon-bug:before {
+  content: '\e851';
+} /* '' */
 .icon-restore:before {
   content: '\e853';
 } /* '' */
@@ -309,6 +311,15 @@
 .icon-undo:before {
   content: '\e856';
 } /* '' */
+.icon-code-json:before {
+  content: '\e857';
+} /* '' */
+.icon-filter-clean:before {
+  content: '\e858';
+} /* '' */
+.icon-kanban:before {
+  content: '\e859';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */
@@ -318,9 +329,3 @@
 .icon-hamburger-menu:before {
   content: '\e88e';
 } /* '' */
-.icon-bug:before {
-  content: '\e851';
-} /* '' */
-.icon-code-json:before {
-  content: '\e857';
-} /* '' */

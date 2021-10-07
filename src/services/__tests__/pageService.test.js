@@ -29,10 +29,6 @@ describe('Page Service', () => {
       PageTypes.JOURNALS
     ],
     ['/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', PageTypes.DASHBOARD],
-    [
-      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
-      PageTypes.SETTINGS
-    ],
     ['/v2/admin', PageTypes.ADMIN_PAGE],
     ['/v2/timesheet', PageTypes.TIMESHEET],
     ['/v2/cmmn-editor', PageTypes.CMMN_EDITOR]
@@ -51,10 +47,6 @@ describe('Page Service', () => {
     [
       '/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72'
-    ],
-    [
-      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
-      '034cbe25-098c-48be-ac21-d69e5c7abc79'
     ],
     ['/v2/admin', ''],
     ['/v2/timesheet', ''],
@@ -79,10 +71,6 @@ describe('Page Service', () => {
       '/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
       'dashboard-workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72'
     ],
-    [
-      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
-      'dashboard/settings-034cbe25-098c-48be-ac21-d69e5c7abc79'
-    ],
     ['/v2/admin', 'admin-'],
     ['/v2/timesheet', 'timesheet-'],
     ['/v2/dashboard', 'test-type-', 'test-type'],
@@ -100,10 +88,6 @@ describe('Page Service', () => {
       `page-tabs.journal \"${TITLE}\"`
     ],
     ['/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', TITLE],
-    [
-      '/v2/dashboard/settings?dashboardId=034cbe25-098c-48be-ac21-d69e5c7abc79&recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72',
-      `page-tabs.dashboard-settings \"${TITLE}\"`
-    ],
     ['/v2/admin?type=BPM', 'page-tabs.bpmn-designer'],
     ['/v2/timesheet', 'page-tabs.timesheet'],
     ['/v2/cmmn-editor?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', `page-tabs.cmmn-editor \"${TITLE}\"`]

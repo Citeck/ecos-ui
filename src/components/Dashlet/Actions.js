@@ -5,6 +5,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 import DashletActionService from '../../services/DashletActionService';
+import DropdownActions from './DropdownActions/DropdownActions';
 
 const BtnAction = ({ id, text, icon, onClick, component }) => {
   if (component) {
@@ -31,47 +32,6 @@ const BtnAction = ({ id, text, icon, onClick, component }) => {
           {text}
         </UncontrolledTooltip>
       )}
-    </>
-  );
-};
-
-const DropdownActions = ({ list, dashletId }) => {
-  const id = `action-dropdown-${dashletId}`;
-
-  return (
-    <>
-      <IcoBtn
-        id={id}
-        icon="icon-custom-more-big-pressed"
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-      />
-      <UncontrolledTooltip
-        target={id}
-        trigger="hover"
-        delay={50}
-        autohide={false}
-        placement="bottom-end"
-        className="ecos-base-tooltip ecos-base-tooltip_opaque header-action-dropmenu"
-        innerClassName="ecos-base-tooltip-inner header-action-dropmenu-inner"
-        arrowClassName="ecos-base-tooltip-arrow header-action-dropmenu-arrow"
-      >
-        {list.map(({ id, text, icon, onClick, component }) =>
-          component ? (
-            <React.Fragment key={id}>
-              {component} {!!text && text}
-            </React.Fragment>
-          ) : (
-            <IcoBtn
-              key={id}
-              icon={icon}
-              onClick={onClick}
-              className="header-action-dropmenu__btn header-action-dropmenu__btn_with-text ecos-btn_grey6 ecos-btn_r_0"
-            >
-              {text}
-            </IcoBtn>
-          )
-        )}
-      </UncontrolledTooltip>
     </>
   );
 };
@@ -179,7 +139,7 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable,
       return null;
     }
 
-    return <DropdownActions list={dropActions} dashletId={dashletId} />;
+    return <DropdownActions list={dropActions} htmlId={dashletId} />;
   };
 
   return (

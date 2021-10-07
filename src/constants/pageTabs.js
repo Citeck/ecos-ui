@@ -23,7 +23,6 @@ export const TITLE = {
   [URL.BPMN_EDITOR]: 'page-tabs.bpmn-editor',
   [URL.CMMN_EDITOR]: 'page-tabs.cmmn-editor',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
-  [URL.DASHBOARD_SETTINGS]: 'page-tabs.dashboard-settings',
   [URL.DEV_TOOLS]: 'page-tabs.dev-tools',
   [URL.TIMESHEET]: 'page-tabs.timesheet',
   [URL.TIMESHEET_SUBORDINATES]: 'page-tabs.timesheet',

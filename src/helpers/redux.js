@@ -75,7 +75,7 @@ export function startLoading(initialState) {
   };
 }
 
-export const updateState = (state, stateId, newData = {}, initialState) => ({
+export const updateState = (state = {}, stateId, newData = {}, initialState) => ({
   ...state,
   [stateId]: {
     ...getCurrentStateById(state, stateId, initialState),

@@ -13,7 +13,13 @@ export const Labels = {
   TAB_LEFT_MENU: 'menu-settings.tabs.menu-config',
   TAB_GLOBAL: 'menu-settings.tabs.global-config',
   TAB_CREATE_MENU: 'menu-settings.tabs.menu-create-config',
+  TAB_USER_MENU: 'menu-settings.tabs.menu-user-config',
   DEFAULT: 'menu-settings.text.default',
+  //editor ownership
+  FIELD_FOR_ALL_USERS: 'menu-settings.label.for-all',
+  DIALOG_FOR_ALL_TITLE: 'menu-settings.dialog.for-all.title',
+  DIALOG_FOR_ALL_TEXT: 'menu-settings.dialog.for-all.text',
+  DIALOG_ORG_STRUCT_TEXT: 'menu-settings.dialog.org-struct.text',
   //editor menu
   BTN_ADD: 'menu-settings.editor-items.dropdown.add',
   TIP_NO_ITEMS: 'menu-settings.editor-items.none',

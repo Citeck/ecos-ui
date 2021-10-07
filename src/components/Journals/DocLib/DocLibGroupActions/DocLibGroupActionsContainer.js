@@ -12,7 +12,8 @@ const mapStateToProps = (state, { stateId }) => {
 
   return {
     total: fileViewer.total,
-    groupActions
+    groupActions,
+    isMobile: state.view.isMobile
   };
 };
 

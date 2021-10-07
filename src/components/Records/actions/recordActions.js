@@ -4,7 +4,7 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
 
-import { extractLabel, getModule, t } from '../../../helpers/util';
+import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
@@ -338,7 +338,7 @@ class RecordActions {
    * @return {RecordsActionsRes}
    */
   async getActionsForRecords(records, actions, context = {}) {
-    const recordInst = Records.get(records);
+    const recordInst = beArray(Records.get(records));
     const recordRefs = recordInst.map(rec => rec.id);
     const resolvedActions = await actionsApi.getActionsForRecords(recordRefs, actions);
 

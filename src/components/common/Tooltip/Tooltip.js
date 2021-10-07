@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
+
 import { isClosestHidden } from '../../../helpers/util';
+import ZIndex from '../../../services/ZIndex';
 
 import './style.scss';
 
@@ -51,6 +53,7 @@ class Tooltip extends Component {
     className: PropTypes.string,
     innerClassName: PropTypes.string,
     arrowClassName: PropTypes.string,
+    popperClassName: PropTypes.string,
     onToggle: PropTypes.func
   };
 
@@ -95,6 +98,9 @@ class Tooltip extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.stealthCheck();
+
+    ZIndex.calcZ();
+    ZIndex.setZ('ecos-base-tooltip');
   }
 
   stealthCheck = () => {
@@ -127,6 +133,7 @@ class Tooltip extends Component {
       className,
       innerClassName,
       arrowClassName,
+      popperClassName,
       trigger,
       uncontrolled,
       autohide,
@@ -153,6 +160,7 @@ class Tooltip extends Component {
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
+      popperClassName: classNames('ecos-base-tooltip-popper', 'ecosZIndexAnchor', popperClassName),
       toggle: this.onToggle
     };
   };

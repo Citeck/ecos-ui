@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
+
 import { TableFormContext } from '../../TableFormContext';
 import CreateVariants from '../CreateVariants';
 import ImportButton from '../ImportButton';

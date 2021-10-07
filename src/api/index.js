@@ -31,6 +31,7 @@ import { CustomIconApi } from './customIcon';
 import { AdminSectionApi } from './adminSection';
 import { DevToolsApi } from './devTools';
 import CmmnApi from './cmmn';
+import { KanbanApi } from './kanban';
 
 export function configureAPI() {
   const api = {};
@@ -68,6 +69,7 @@ export function configureAPI() {
   api.customIcon = new CustomIconApi();
   api.cmmn = new CmmnApi();
   api.devTools = new DevToolsApi();
+  api.kanban = new KanbanApi();
 
   const setNotAuthCallback = function(cb) {
     for (let key in api) {

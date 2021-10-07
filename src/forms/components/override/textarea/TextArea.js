@@ -174,6 +174,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       setTimeout(() => this.acePlaceholder(), 100);
       this.editorReadyResolve(this.editor);
 
+      if (this.options.readOnly || this.component.disabled) {
+        this.addClass(this.editor.container, 'ace_editor-disabled');
+        this.editor.setReadOnly(true);
+      }
+
       return this.editor;
     });
   }

@@ -14,7 +14,6 @@ const pageApi = new PageApi();
 export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
-  SETTINGS: 'dashboard/settings',
   ADMIN_PAGE: 'admin',
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
@@ -59,8 +58,6 @@ export default class PageService {
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
-      case PageTypes.SETTINGS:
-        return urlProps.query.dashboardId || '';
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
@@ -80,7 +77,6 @@ export default class PageService {
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
-      case PageTypes.SETTINGS:
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
@@ -125,17 +121,6 @@ export default class PageService {
         return prom.then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
       }
     },
-    [PageTypes.SETTINGS]: {
-      getTitle: ({ recordRef, journalId }) => {
-        const promise = journalId
-          ? pageApi.getJournalTitle(journalId)
-          : recordRef
-          ? pageApi.getRecordTitle(recordRef)
-          : staticTitle(TITLE.HOMEPAGE);
-
-        return promise.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
-      }
-    },
     [PageTypes.TIMESHEET]: {
       getTitle: () => staticTitle(TITLE.TIMESHEET)
     },
@@ -164,19 +149,20 @@ export default class PageService {
   });
 
   /**
-   *
-   * @param link - string
-   * @param params
-   *    link - string,
-   *    updateUrl - bool,
-   *    openNewTab - bool,
-   *    openNewBrowserTab - bool,
-   *    reopenBrowserTab - bool,
-   *    closeActiveTab - bool,
-   *    openInBackground - bool,
-   *    pushHistory - bool,
-   *    replaceHistory - bool // default true, if updateUrl is true
-   *    rerenderPage - bool, needed to replace link in the router and start rerendering page
+   * Change Link
+   * @param link {string}
+   * @param params {Object}
+   * @description for params:
+   *    link {string},
+   *    updateUrl {boolean},
+   *    openNewTab {boolean},
+   *    openNewBrowserTab {boolean},
+   *    reopenBrowserTab {boolean},
+   *    closeActiveTab {boolean},
+   *    openInBackground {boolean},
+   *    pushHistory {boolean},
+   *    replaceHistory {boolean} - default true, if updateUrl is true
+   *    rerenderPage {boolean} - needed to replace link in the router and start rerendering page
    */
   static changeUrlLink = (link = '', params = {}) => {
     if (PageService.eventIsDispatched) {

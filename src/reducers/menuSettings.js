@@ -10,12 +10,14 @@ import {
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
+  setIsForAll,
   setLastAddedLeftItems,
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
   setOpenMenuSettings,
-  setOriginalConfig
+  setOriginalConfig,
+  setUserMenuItems
 } from '../actions/menuSettings';
 import MenuConverter from '../dto/menu';
 
@@ -25,6 +27,7 @@ const initialState = {
   leftItems: [],
   availableSections: [],
   createItems: [],
+  userMenuItems: [],
   authorities: [],
   groupPriority: [],
   isLoading: false,
@@ -32,7 +35,8 @@ const initialState = {
   isOpenMenuSettings: false,
   lastAddedLeftItems: [],
   lastAddedCreateItems: [],
-  fontIcons: []
+  fontIcons: [],
+  isForAll: false
 };
 
 Object.freeze(initialState);
@@ -77,6 +81,11 @@ export default handleActions(
       ...state,
       lastAddedLeftItems: payload
     }),
+    [setUserMenuItems]: (state, { payload }) => ({
+      ...state,
+      userMenuItems: treeSetDndIndex(payload),
+      isLoading: false
+    }),
     [addJournalMenuItems]: state => ({
       ...state,
       isLoading: true
@@ -84,6 +93,10 @@ export default handleActions(
     [setAuthorities]: (state, { payload }) => ({
       ...state,
       authorities: payload
+    }),
+    [setIsForAll]: (state, { payload }) => ({
+      ...state,
+      isForAll: payload
     }),
     [setMenuIcons]: (state, { payload }) => ({
       ...state,

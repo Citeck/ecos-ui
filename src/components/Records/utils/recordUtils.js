@@ -4,6 +4,7 @@ import queryString from 'query-string';
 
 import Records from '../Records';
 import { SOURCE_DELIMITER } from '../constants';
+import _ from 'lodash';
 
 export async function replaceAttributeValues(data, record) {
   if (!data) {
@@ -98,4 +99,29 @@ export async function replaceAttrValuesForRecord(data, record) {
 export function getSourceId(recordRef) {
   const hasDelimiter = typeof recordRef === 'string' && recordRef.includes(SOURCE_DELIMITER);
   return hasDelimiter ? recordRef.split(SOURCE_DELIMITER)[0] : '';
+}
+
+export function prepareAttsToLoad(attributes, attsToLoad, attsAliases) {
+  if (!attributes) {
+    return;
+  }
+  if (_.isString(attributes)) {
+    attsToLoad.push(attributes);
+    attsAliases.push(attributes);
+  } else if (_.isArray(attributes)) {
+    for (let att of attributes) {
+      attsToLoad.push(att);
+      attsAliases.push(att);
+    }
+  } else if (_.isObject(attributes)) {
+    for (let attAlias in attributes) {
+      if (!attributes.hasOwnProperty(attAlias)) {
+        continue;
+      }
+      attsAliases.push(attAlias);
+      attsToLoad.push(attributes[attAlias]);
+    }
+  } else {
+    throw new Error('Unknown attributes type: ' + JSON.stringify(attributes));
+  }
 }

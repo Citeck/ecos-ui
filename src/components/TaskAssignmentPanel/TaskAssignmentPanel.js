@@ -188,7 +188,7 @@ class TaskAssignmentPanel extends Component {
         key={keyBtn}
         loading={isLoading}
         className={classNames('task-assign-panel__item', className, {
-          'ecos-btn_narrow-t_standart': narrow,
+          'ecos-btn_narrow-t_standard': narrow,
           [settings.className]: !className
         })}
         onClick={() => this.handleClickButton(settings.sentData)}

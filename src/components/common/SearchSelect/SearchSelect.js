@@ -191,7 +191,7 @@ export default class SearchSelect extends React.Component {
 
     return !isEmpty(formattedSearchResult) ? (
       <li className="ecos-input-search__show-all">
-        <Btn className="ecos-input-search__show-all-btn ecos-btn_narrow-t_standart" onClick={this.openFullSearch}>
+        <Btn className="ecos-input-search__show-all-btn ecos-btn_narrow-t_standard" onClick={this.openFullSearch}>
           {t('search.show-more-results')}
         </Btn>
       </li>

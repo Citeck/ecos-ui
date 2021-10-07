@@ -8,13 +8,12 @@ import './Panel.scss';
 
 class Panel extends Component {
   render() {
-    const { className, headClassName, bodyClassName, header, children, style, noHeader } = this.props;
-    const cssClasses = classNames('ecos-panel', className);
+    const { className, headClassName, bodyClassName, header, children, style, noHeader, noChild } = this.props;
 
     return (
-      <Well className={cssClasses} style={style}>
+      <Well className={classNames('ecos-panel', className)} style={style}>
         {!noHeader && <div className={classNames('ecos-panel__head', headClassName)}>{header}</div>}
-        <div className={classNames('ecos-panel__body', bodyClassName)}>{children}</div>
+        {!noChild && <div className={classNames('ecos-panel__body', bodyClassName)}>{children}</div>}
       </Well>
     );
   }

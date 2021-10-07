@@ -104,7 +104,7 @@ export default class Export extends Component {
     const reportColumns = columns.filter(c => c.default).map(({ attribute, text }) => ({ attribute, title: text }));
     const mainPredicate = get(config, 'predicate', {});
     const gridPredicate = get(grid, 'predicates[0]', {});
-    const searchPredicate = get(grid, 'searchPredicate[0]', {});
+    const searchPredicate = get(grid, 'searchPredicate[0]') || this.getSearchPredicate(grid);
     const predicates = [mainPredicate, searchPredicate, gridPredicate];
     const predicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
     const sortBy = get(grid, 'sortBy') || [{ attribute: 'cm:created', order: 'desc' }];
@@ -128,10 +128,11 @@ export default class Export extends Component {
   };
 
   getSelectionFilter = () => {
-    const { columns } = this.props.journalConfig || {};
-    const { groupBy, sortBy, pagination, predicates, search } = this.props.grid || {};
+    const { journalConfig, grid } = this.props;
+    const { columns } = journalConfig || {};
+    const { groupBy, sortBy, pagination, predicates, search } = grid || {};
 
-    return { columns, groupBy, sortBy, pagination, predicate: predicates[0], search };
+    return { columns, groupBy, sortBy, pagination, predicate: get(predicates, [0], {}), search };
   };
 
   getSelectionUrl = () => {

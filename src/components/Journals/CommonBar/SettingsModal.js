@@ -6,19 +6,19 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../helpers/export/util';
-import { Well } from '../common/form';
-import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
-import JournalsFilters from './JournalsFilters/JournalsFilters';
-import JournalsColumnsSetup from './JournalsColumnsSetup/JournalsColumnsSetup';
-import JournalsGrouping from './JournalsGrouping/JournalsGrouping';
-import JournalsSettingsFooter from './JournalsSettingsFooter/JournalsSettingsFooter';
-import EcosModal from '../common/EcosModal';
-import { JOURNAL_SETTING_ID_FIELD } from './constants';
+import { t } from '../../../helpers/export/util';
+import { Well } from '../../common/form';
+import EcosModalHeight from '../../common/EcosModal/EcosModalHeight';
+import JournalsFilters from '../JournalsFilters/JournalsFilters';
+import JournalsColumnsSetup from '../JournalsColumnsSetup/JournalsColumnsSetup';
+import JournalsGrouping from '../JournalsGrouping/JournalsGrouping';
+import JournalsSettingsFooter from '../JournalsSettingsFooter/JournalsSettingsFooter';
+import EcosModal from '../../common/EcosModal';
+import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 class SettingsModal extends Component {
   static propTypes = {
-    journalSetting: PropTypes.array,
+    journalSetting: PropTypes.object,
     columnsSetup: PropTypes.object,
     grouping: PropTypes.object,
     originGridSettings: PropTypes.object,
@@ -30,6 +30,7 @@ class SettingsModal extends Component {
     onClose: PropTypes.func,
     onApply: PropTypes.func,
     onCreate: PropTypes.func,
+    noCreateBtn: PropTypes.bool,
     onSave: PropTypes.func
   };
 
@@ -65,10 +66,10 @@ class SettingsModal extends Component {
     return {
       ...journalSetting,
       sortBy,
-      groupBy: grouping.groupBy,
+      groupBy: get(grouping, 'groupBy'),
       columns,
       predicate,
-      title: title || journalSetting.title,
+      title: title || get(journalSetting, 'title'),
       grouping
     };
   };
@@ -130,7 +131,7 @@ class SettingsModal extends Component {
   };
 
   render() {
-    const { filtersData, journalSetting, isOpen, isReset, onClose } = this.props;
+    const { filtersData, journalSetting, isOpen, isReset, onClose, noCreateBtn } = this.props;
     const { predicate, needUpdate, columns, sortBy, grouping } = this.state;
 
     return (
@@ -151,15 +152,18 @@ class SettingsModal extends Component {
                   needUpdate={isReset || needUpdate}
                   setPredicate={this.handleSetPredicate}
                 />
-                <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />
-                <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
+                {this.props.columnsData && <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />}
+                {this.props.groupingData && (
+                  <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
+                )}
               </Scrollbars>
             )}
           </EcosModalHeight>
 
           <JournalsSettingsFooter
             parentClass="ecos-journal__settings"
-            canSave={!isEmpty(journalSetting[JOURNAL_SETTING_ID_FIELD])}
+            noCreateBtn={noCreateBtn}
+            canSave={!noCreateBtn && !isEmpty(get(journalSetting, JOURNAL_SETTING_ID_FIELD))}
             onApply={this.handleApply}
             onCreate={this.handleCreate}
             onReset={this.handleReset}
