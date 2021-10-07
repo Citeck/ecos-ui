@@ -550,8 +550,8 @@ class Grid extends Component {
         this._selected = selected !== keyValue ? [keyValue] : [];
         this.onSelect(false);
       },
-      selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
-      selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
+      selectionHeaderRenderer: props => <SelectorHeader {...props} />,
+      selectionRenderer: props => <Selector {...props} />
     };
   }
 
@@ -625,8 +625,8 @@ class Grid extends Component {
 
         this.onSelect(isSelect);
       },
-      selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
-      selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
+      selectionHeaderRenderer: props => <SelectorHeader {...props} />,
+      selectionRenderer: props => <Selector {...props} />
     };
   }
 
