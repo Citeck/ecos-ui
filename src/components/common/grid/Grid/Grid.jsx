@@ -12,10 +12,12 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
-import Checkbox from '../../form/Checkbox/Checkbox';
+
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { ErrorCell } from '../ErrorCell';
+import SelectorHeader from './SelectorHeader';
+import Selector from './Selector';
 
 import './Grid.scss';
 
@@ -28,19 +30,6 @@ const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 const ECOS_GRID_CHECKBOX_DIVIDER_CLASS = 'ecos-grid__checkbox-divider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
-
-const Selector = ({ mode, ...rest }) => (
-  <div className="ecos-grid__checkbox">
-    <Checkbox checked={rest.checked} disabled={rest.disabled} />
-  </div>
-);
-
-const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <div className="ecos-grid__checkbox">
-    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} /> : null}
-    <div className={ECOS_GRID_CHECKBOX_DIVIDER_CLASS} />
-  </div>
-);
 
 const MIN_TH_WIDTH = 60;
 const MAX_START_TH_WIDTH = 500;

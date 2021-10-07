@@ -3,6 +3,7 @@ import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
@@ -100,7 +101,7 @@ export default class Dropdown extends Component {
         dropdownOpen: !this.state.dropdownOpen
       },
       () => {
-        if (typeof this.props.getStateOpen == 'function') {
+        if (isFunction(this.props.getStateOpen)) {
           this.props.getStateOpen(this.state.dropdownOpen);
         }
       }
@@ -175,10 +176,7 @@ export default class Dropdown extends Component {
   onChange = selected => {
     const { onChange } = this.props;
 
-    if (typeof onChange === 'function') {
-      onChange(selected);
-    }
-
+    isFunction(onChange) && onChange(selected);
     this.toggle();
   };
 
@@ -189,7 +187,7 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const { valueField, source, value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
+    const { valueField, source = [], value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div>{children}</div>;
 
