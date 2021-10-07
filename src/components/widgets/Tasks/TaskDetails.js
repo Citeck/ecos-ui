@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
 import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
 import { getOutputFormat, t } from '../../../helpers/util';
@@ -61,16 +62,31 @@ class TaskDetails extends React.Component {
     }
   ];
 
+  #formRef = null;
+
   state = {
     runUpdateForm: false,
     _dateUpdateDashlet: undefined
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.runUpdate && !prevProps.runUpdate && this.state.runUpdateForm) {
-      this.setState({ _dateUpdateDashlet: Date.now(), runUpdateForm: false });
+    if (this.props.runUpdate && !prevProps.runUpdate) {
+      if (this.state.runUpdateForm) {
+        this.setState({ runUpdateForm: false, _dateUpdateDashlet: Date.now() });
+        return;
+      }
+
+      if (this.#formRef && isFunction(this.#formRef.onReload)) {
+        this.#formRef.onReload(true);
+      }
     }
   }
+
+  setFormRef = ref => {
+    if (ref) {
+      this.#formRef = ref;
+    }
+  };
 
   onSubmitForm = () => {
     this.props.onSubmitForm();
@@ -156,6 +172,7 @@ class TaskDetails extends React.Component {
         </div>
         <div className="ecos-task-ins__eform">
           <EcosForm
+            ref={this.setFormRef}
             record={details.id}
             formKey={details.formKey}
             onSubmit={this.onSubmitForm}

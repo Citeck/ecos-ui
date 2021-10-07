@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
@@ -46,8 +47,8 @@ export const TableFormContextProvider = props => {
   const isInstantClone = isBoolean(get(settingElements, 'isInstantClone')) ? settingElements.isInstantClone : false;
 
   const onChangeHandler = rows => {
-    typeof onChange === 'function' && onChange(rows.map(item => item.id));
-    typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+    isFunction(onChange) && onChange(rows.map(item => item.id));
+    isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
   };
 
   useEffect(() => {
@@ -87,8 +88,8 @@ export const TableFormContextProvider = props => {
       });
 
       Promise.all(
-        initValue.map(async r => {
-          const record = Records.get(r);
+        initValue.map(async rec => {
+          const record = Records.get(rec);
           const fetchedAtts = {};
           let result = {};
           let currentAttIndex = 0;
@@ -125,12 +126,12 @@ export const TableFormContextProvider = props => {
             currentAttIndex++;
           }
 
-          return { ...fetchedAtts, id: r };
+          return { ...fetchedAtts, id: rec };
         })
       )
         .then(result => {
           setGridRows(result);
-          typeof triggerEventOnTableChange === 'function' && triggerEventOnTableChange();
+          isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
         })
         .catch(e => {
           console.error(e);
@@ -321,9 +322,7 @@ export const TableFormContextProvider = props => {
           }
         },
 
-        onSelectGridItem: value => {
-          typeof onSelectRows === 'function' && onSelectRows(value.selected);
-        }
+        onSelectGridItem: value => isFunction(onSelectRows) && onSelectRows(value.selected)
       }}
     >
       {props.children}

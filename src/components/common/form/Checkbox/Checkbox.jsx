@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 
 import './Checkbox.scss';
 
@@ -11,7 +12,9 @@ export default class Checkbox extends Component {
     disabled: PropTypes.bool,
     title: PropTypes.string,
     className: PropTypes.string,
-    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
+    children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    onChange: PropTypes.func,
+    onClick: PropTypes.func
   };
 
   static defaultProps = {
@@ -33,20 +36,20 @@ export default class Checkbox extends Component {
 
   toggle = () => {
     const { disabled, onClick } = this.props;
-    const { checked } = this.state;
+    const checked = !this.state.checked;
 
     if (disabled) {
       return false;
     }
 
-    if (typeof onClick === 'function') {
-      onClick(!checked);
+    if (isFunction(onClick)) {
+      onClick(checked);
     }
 
-    this.change({ checked: !checked });
+    this.change({ checked });
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
     const { checked, indeterminate, disabled } = this.props;
 
     if (checked !== prevProps.checked || indeterminate !== prevProps.indeterminate || disabled !== prevProps.disabled) {
@@ -57,11 +60,7 @@ export default class Checkbox extends Component {
   change(state) {
     const { onChange } = this.props;
 
-    this.setState(state);
-
-    if (typeof onChange === 'function') {
-      onChange(state);
-    }
+    this.setState(state, () => isFunction(onChange) && onChange(state));
   }
 
   renderIcons() {

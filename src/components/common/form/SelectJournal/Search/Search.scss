@@ -2,14 +2,16 @@
 
 .select-journal__search {
   position: relative;
+  z-index: 1;
 }
 
-.select-journal__search-input {
+.select-journal__search-input.ecos-input {
   padding-left: 40px;
 }
 
 .icon.select-journal__search-icon {
   position: absolute;
+  z-index: inherit;
   line-height: 40px;
   left: 12px;
   color: $color-gray-5;

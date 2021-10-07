@@ -79,11 +79,13 @@
             border-radius: 0;
 
             &:last-child {
-              border-radius: 0 0 $border-radius-standard $border-radius-standard;
+              border-bottom-left-radius: $border-radius-standard;
+              border-bottom-right-radius: $border-radius-standard;
             }
 
             &:first-child {
-              border-radius: $border-radius-standard $border-radius-standard 0 0;
+              border-top-left-radius: $border-radius-standard;
+              border-top-right-radius: $border-radius-standard;
 
               &::after {
                 background: $color-blue-light;

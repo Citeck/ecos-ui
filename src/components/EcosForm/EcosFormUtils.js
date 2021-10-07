@@ -437,7 +437,9 @@ export default class EcosFormUtils {
       if (!variants) {
         return [];
       }
+
       let hasFormPromises = variants.map(v => EcosFormUtils.getForm(v.recordRef, v.formKey, 'formKey'));
+
       return Promise.all(hasFormPromises).then(hasForms => {
         return variants.filter((v, idx) => {
           let formKey = hasForms[idx];
