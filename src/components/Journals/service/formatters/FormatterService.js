@@ -2,6 +2,7 @@ import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
 import size from 'lodash/size';
 import isPlainObject from 'lodash/isPlainObject';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../../helpers/export/util';
 import { replacePlaceholders, valueOrNull } from '../util';
@@ -74,7 +75,7 @@ class FormatterService {
 
     const fmtInstance = formatterRegistry.getFormatter(type);
 
-    if (!fmtInstance || typeof fmtInstance.format !== 'function') {
+    if (!fmtInstance || !isFunction(fmtInstance.format)) {
       console.error('[FormattersService.format] invalid formatter with type: ' + type, fmtInstance);
       return FormatterService.errorMessage;
     }

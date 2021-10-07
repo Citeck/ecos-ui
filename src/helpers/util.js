@@ -120,13 +120,7 @@ export function getSelectedValue(source, field, value, selectedField) {
 
   const selected = source.filter(option => option[field] === value);
 
-  if (isEmpty(selectedField)) {
-    return selected;
-  }
-
-  return selected.map(item => {
-    return item[selectedField];
-  });
+  return isEmpty(selectedField) ? selected : selected.map(item => item[selectedField]);
 }
 
 /**

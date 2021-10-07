@@ -39,7 +39,7 @@ const Tabs = () => {
 
   return (
     <div className="dev-tools-page__tabs">
-      <EcosTabs items={tabs} narrow className={'ecos-tabs_mt-10'} />
+      <EcosTabs items={tabs} narrow />
     </div>
   );
 };

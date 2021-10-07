@@ -2,19 +2,20 @@ import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
-import TableForm from '../../../../components/common/form/TableForm';
-import DialogManager from '../../../../components/common/dialogs/Manager';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records';
 import JournalsService from '../../../../components/Journals/service';
+import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
+import DialogManager from '../../../../components/common/dialogs/Manager';
+import TableForm from '../../../../components/common/form/TableForm';
 import BaseReactComponent from '../base/BaseReactComponent';
 import { TableTypes } from './constants';
-import formatterRegistry from '../../../../components/Journals/service/formatters/registry';
 
 const Labels = {
   MSG_NO_J_ID: 'ecos-table-form.error.no-journal-id',
   MSG_NO_J_CONFIG: 'ecos-table-form.error.no-journal-config',
   MSG_ERR_SOURCE: 'ecos-table-form.error.source',
+  MSG_ERR_CUSTOM_TABLE: 'ecos-table-form.error.fail-to-resolve-custom-table',
   MSG_NO_HANDLER: 'ecos-table-form.error.no-response-handler',
   MSG_FAIL_IMPORT: 'ecos-table-form.error.failure-to-import',
   DIALOG_TITLE: 'ecos-table-form.error-dialog.title'
@@ -27,6 +28,7 @@ export default class TableFormComponent extends BaseReactComponent {
   _createVariants = [];
 
   #journalConfig;
+  #needRefreshComp = false;
 
   static schema(...extend) {
     return BaseReactComponent.schema(
@@ -82,8 +84,28 @@ export default class TableFormComponent extends BaseReactComponent {
     };
   }
 
+  static optimizeSchema(comp) {
+    return _.omit(
+      {
+        ...comp,
+        source: _.omitBy(comp.source, (value, key) => {
+          const saveAtts = ['type'];
+          if (saveAtts.includes(key)) {
+            return false;
+          }
+          return key !== comp.source.type;
+        })
+      },
+      ['displayColumnsAsyncData']
+    );
+  }
+
   get defaultSchema() {
     return TableFormComponent.schema();
+  }
+
+  get emptyValue() {
+    return [];
   }
 
   checkConditions(data) {
@@ -133,10 +155,6 @@ export default class TableFormComponent extends BaseReactComponent {
     }
 
     return result;
-  }
-
-  get emptyValue() {
-    return [];
   }
 
   getComponentToRender() {
@@ -236,6 +254,7 @@ export default class TableFormComponent extends BaseReactComponent {
     }
 
     let createVariantsPromise = Promise.resolve(null);
+
     if (customCreateVariants) {
       let fetchCustomCreateVariantsPromise = Promise.resolve([]);
 
@@ -275,6 +294,10 @@ export default class TableFormComponent extends BaseReactComponent {
       }
 
       const attribute = this.getAttributeToEdit();
+      const _catch = (e, msg, val) => {
+        console.error(`[TableForm] ${msg}`, e);
+        return val;
+      };
 
       switch (source.type) {
         case TableTypes.JOURNAL:
@@ -308,7 +331,7 @@ export default class TableFormComponent extends BaseReactComponent {
           break;
         case TableTypes.CUSTOM:
           const record = this.getRecord();
-          const columns = (_.get(source, 'custom.columns') || []).map(item => {
+          const columns = (_.get(source, 'custom.columns') || []).map((item = {}) => {
             const col = { ...item };
 
             if (item.formatter) {
@@ -322,19 +345,18 @@ export default class TableFormComponent extends BaseReactComponent {
           let createVariantsPromise = Promise.resolve([]);
 
           if (customCreateVariants) {
-            createVariantsPromise = customCreateVariants;
+            createVariantsPromise = Promise.resolve(customCreateVariants);
           } else if (attribute) {
             createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
           }
 
           try {
-            const createVariants = await createVariantsPromise;
+            const createVariants = await createVariantsPromise.catch(e => _catch(e, 'Create variants', []));
             this._createVariants = createVariants;
-
             const columnsMap = {};
             const formatters = {};
 
-            columns.forEach(item => {
+            columns.forEach((item = {}) => {
               const key = `.edge(n:"${item.name}"){title,type,multiple}`;
 
               columnsMap[key] = item;
@@ -348,37 +370,41 @@ export default class TableFormComponent extends BaseReactComponent {
             let inputsPromise;
             let spareCreateVariants = [];
 
-            if (!Array.isArray(createVariants) || createVariants.length < 1) {
+            if (!_.get(createVariants, 'length', 0)) {
               if (customCreateVariants && attribute) {
-                spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute);
+                spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute).catch(e =>
+                  _catch(e, 'Spare create variants', [])
+                );
               }
             }
 
-            if (createVariants.length < 1 && spareCreateVariants.length < 1) {
+            if (!_.get(createVariants, 'length', 0) && !_.get(spareCreateVariants, 'length', 0)) {
               columnsInfoPromise = Promise.resolve(
-                columns.map(item => ({
+                columns.map((item = {}) => ({
                   default: true,
                   type: item.type,
                   text: item.title ? this.t(item.title) : '',
                   multiple: item.multiple,
-                  attribute: item.name
+                  attribute: item.name,
+                  dataField: item.name
                 }))
               );
               inputsPromise = Promise.resolve({});
             } else {
-              const firstCreateVariant = _.get(createVariants, '[0]', _.get(spareCreateVariants, '[0]'));
+              const firstCreateVariant = _.head(createVariants) || _.head(spareCreateVariants);
               const cvRecordRef = firstCreateVariant.recordRef;
 
               columnsInfoPromise = Records.get(cvRecordRef)
                 .load(Object.keys(columnsMap))
                 .then(loadedAtt => {
-                  let cols = [];
+                  const cols = [];
+
                   for (let keyCol in columnsMap) {
                     if (!columnsMap.hasOwnProperty(keyCol)) {
                       continue;
                     }
 
-                    const originalColumn = columnsMap[keyCol];
+                    const originalColumn = columnsMap[keyCol] || {};
                     const isManualAttributes = originalColumn.setAttributesManually;
                     const dataAtt = _.get(loadedAtt, [keyCol]) || {};
 
@@ -387,26 +413,25 @@ export default class TableFormComponent extends BaseReactComponent {
                       type: isManualAttributes && originalColumn.type ? originalColumn.type : dataAtt.type,
                       text: isManualAttributes && originalColumn.title ? this.t(originalColumn.title) : dataAtt.title,
                       multiple: isManualAttributes ? originalColumn.multiple : dataAtt.multiple,
-                      attribute: originalColumn.name
+                      attribute: originalColumn.name,
+                      dataField: originalColumn.name
                     });
                   }
 
                   return cols;
-                });
+                })
+                .catch(e => _catch(e, 'Column Info by create variant', []));
 
               inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
             }
 
-            const result = await Promise.all([columnsInfoPromise, inputsPromise]).catch(err => {
-              console.error(err);
-              return [columns, {}];
-            });
-
-            const [updColumns = [], inputs = {}] = result;
+            const result = await Promise.all([columnsInfoPromise, inputsPromise]).catch(() => [columns, {}]);
+            const updColumns = _.get(result, [0]) || [];
+            const inputs = _.get(result, [1]) || {};
 
             for (let col of updColumns) {
-              let input = inputs[col.attribute] || {};
-              let computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
+              const input = _.get(inputs, [col.attribute]) || {};
+              const computedDispName = _.get(input, 'component.computed.valueDisplayName', '');
 
               if (computedDispName) {
                 //todo Is this filter required?
@@ -421,12 +446,14 @@ export default class TableFormComponent extends BaseReactComponent {
               }
             }
 
-            const resolvedColumns = await JournalsService.resolveColumns(updColumns);
+            const resolvedColumns = await JournalsService.resolveColumns(updColumns).catch(e =>
+              _catch(e, 'JournalsService.resolveColumns', [])
+            );
 
             resolve({ columns: resolvedColumns });
           } catch (error) {
-            console.error(error);
-            return resolve({ error: new Error(`Can't fetch create variants: ${error.message}`) });
+            _catch(error, 'Fail resolve custom table');
+            return resolve({ error: new Error(t(Labels.MSG_ERR_CUSTOM_TABLE)) });
           }
           break;
         default:
@@ -471,8 +498,8 @@ export default class TableFormComponent extends BaseReactComponent {
 
     let resolveProps = props => {
       const { columns = [], error, journalActions } = props || {};
-
       let triggerEventOnTableChange = null;
+
       if (component.eventName) {
         triggerEventOnTableChange = () => {
           this.emit(this.interpolate(component.eventName), this.data);
@@ -570,7 +597,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
       this.updateValue({}, newValue);
     } catch (e) {
-      console.error('TableForm error. Failure to upload file: ', e.message);
+      console.error('[TableForm] Failure to upload file', e);
       this.showErrorMessage(t(Labels.MSG_FAIL_IMPORT));
     }
   };
@@ -581,20 +608,4 @@ export default class TableFormComponent extends BaseReactComponent {
       text
     });
   };
-
-  static optimizeSchema(comp) {
-    return _.omit(
-      {
-        ...comp,
-        source: _.omitBy(comp.source, (value, key) => {
-          const saveAtts = ['type'];
-          if (saveAtts.includes(key)) {
-            return false;
-          }
-          return key !== comp.source.type;
-        })
-      },
-      ['displayColumnsAsyncData']
-    );
-  }
 }

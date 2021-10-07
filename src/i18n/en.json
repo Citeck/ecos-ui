@@ -418,6 +418,7 @@
   "ecos-table-form.error.no-journal-id": "The \"journal ID\" config is required!",
   "ecos-table-form.error.no-journal-config": "Journal config hasn't gotten",
   "ecos-table-form.error.source": "Invalid source type",
+  "ecos-table-form.error.fail-to-resolve-custom-table": "Data not formed",
 
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",

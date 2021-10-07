@@ -282,7 +282,8 @@
     margin: auto;
   }
 
-  & &__action {
+  & &__action,
+  .ecos-tree_dragged &__action {
     padding: 0 5px;
     font-size: $font-size-large;
     color: $color-gray-6;
