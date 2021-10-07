@@ -151,7 +151,7 @@ class JournalsDashlet extends BaseWidget {
       !isActiveLayout && this.setState({ runUpdate: true });
     }
 
-    if (isActiveLayout && this.state.runUpdate) {
+    if (isActiveLayout && runUpdate) {
       this.setState({ runUpdate: false }, () => reloadGrid());
     }
   }

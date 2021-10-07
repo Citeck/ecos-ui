@@ -3,7 +3,6 @@ import { ActionModes, SourcesId } from '../../../../../constants';
 import Records from '../../../Records';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
-import isString from 'lodash/isString';
 
 export default class ViewAction extends ActionsExecutor {
   static ACTION_ID = 'view';
@@ -68,9 +67,7 @@ const goToTaskView = async (task, params) => {
         const taskRecordId = `${SourcesId.TASK}@${taskId}`;
         await Records.get(taskRecordId)
           .load('workflow?id')
-          .then(workflowId => {
-            goToCardDetailsPage(workflowId || taskRecordId, params);
-          });
+          .then(workflowId => goToCardDetailsPage(workflowId || taskRecordId, params));
       });
     }
   });
