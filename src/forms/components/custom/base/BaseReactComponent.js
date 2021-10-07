@@ -6,8 +6,8 @@ import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
-import BaseComponent from './BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
+import BaseComponent from './BaseComponent';
 
 export default class BaseReactComponent extends BaseComponent {
   static schema(...extend) {
@@ -21,16 +21,40 @@ export default class BaseReactComponent extends BaseComponent {
 
   #react = {};
   #viewOnlyPrev = {};
+  #refreshOnValuePrev = {};
 
   get reactComponent() {
     return this.#react;
   }
 
+  get isShowElement() {
+    if (this.options.builder) {
+      return true;
+    }
+
+    return !Boolean(this.component.hidden) && this.checkConditions();
+  }
+
+  get htmlAttributes() {
+    return {
+      ...pick(get(this, 'info.attr', {}), ['id', 'name', 'type']),
+      disabled: this.disabled
+    };
+  }
+
+  get emptyValue() {
+    return this.component.multiple ? [] : '';
+  }
+
   build() {
-    if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
+    if (
+      !isEqual(this.#viewOnlyPrev, this.viewOnly) ||
+      (!isEmpty(this.refreshOnValue) && !isEqual(this.#refreshOnValuePrev, this.refreshOnValue))
+    ) {
       super.clear();
       this.#react = {};
       this.#viewOnlyPrev = this.viewOnly;
+      this.#refreshOnValuePrev = this.refreshOnValue;
     }
 
     const firstBuild = isEmpty(this.#react);
@@ -42,10 +66,10 @@ export default class BaseReactComponent extends BaseComponent {
       return component;
     });
 
-    this.#react.innerPromise = new Promise(innerResolve => (this.#react.innerResolve = innerResolve)).then(comp => {
+    this.#react.innerPromise = new Promise(innerResolve => (this.#react.innerResolve = innerResolve)).then(component => {
       this.#react.innerResolve = null;
 
-      return comp;
+      return component;
     });
 
     if (this.viewOnly) {
@@ -88,21 +112,6 @@ export default class BaseReactComponent extends BaseComponent {
     }
   }
 
-  get isShowElement() {
-    if (this.options.builder) {
-      return true;
-    }
-
-    return !Boolean(this.component.hidden) && this.checkConditions();
-  }
-
-  get htmlAttributes() {
-    return {
-      ...pick(get(this, 'info.attr', {}), ['id', 'name', 'type']),
-      disabled: this.disabled
-    };
-  }
-
   embedReactContainer(container, tag) {
     if (!this.#react.container) {
       this.#react.container = this.ce(tag);
@@ -132,10 +141,11 @@ export default class BaseReactComponent extends BaseComponent {
     if (this.#react.resolve) {
       this.#react.waitingProps = { ...(this.#react.waitingProps || {}), ...props };
 
-      this.#react.wrapper.then(w => {
-        w.setProps(this.#react.waitingProps);
-        this.#react.waitingProps = {};
-      });
+      this.#react.wrapper &&
+        this.#react.wrapper.then(w => {
+          w.setProps(this.#react.waitingProps);
+          this.#react.waitingProps = {};
+        });
     } else {
       // is this checking required?
       if (this.#react.wrapper) {
@@ -156,7 +166,7 @@ export default class BaseReactComponent extends BaseComponent {
     const component = this.component.unreadable ? UnreadableLabel : this.getComponentToRender();
 
     if (this.#react.resolve) {
-      const doRender = props => {
+      const doRender = (props = {}) => {
         const updateLoadingState = () => {
           if (this.#react.isMounted && this.#react.innerComponent && this.#react.innerResolve) {
             this.#react.innerResolve(this.#react.innerComponent);
@@ -205,10 +215,6 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   clear() {}
-
-  get emptyValue() {
-    return this.component.multiple ? [] : '';
-  }
 
   /**
    * Check if a component is eligible for multiple validation (Cause: https://citeck.atlassian.net/browse/ECOSCOM-2489)

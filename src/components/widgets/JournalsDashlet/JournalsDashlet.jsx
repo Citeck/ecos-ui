@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 
@@ -18,6 +19,7 @@ import {
   getDashletConfig,
   initState,
   reloadGrid,
+  resetState,
   setDashletConfigByParams,
   setEditorMode,
   setRecordRef,
@@ -60,6 +62,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     initState: () => dispatch(initState(getKey(ownProps))),
+    resetState: () => dispatch(resetState(getKey(ownProps))),
     getDashletConfig: id => dispatch(getDashletConfig(w(id))),
     setRecordRef: recordRef => dispatch(setRecordRef(w(recordRef))),
     setEditorMode: visible => dispatch(setEditorMode(w(visible))),
@@ -87,6 +90,7 @@ class JournalsDashlet extends BaseWidget {
   _toolbarRef = null;
   _footerRef = null;
   _groupActionsRef = null;
+  _editorRef = null;
 
   static propTypes = {
     id: PropTypes.string,
@@ -128,7 +132,7 @@ class JournalsDashlet extends BaseWidget {
 
     setRecordRef(this.recordRef);
 
-    if (onSave) {
+    if (isFunction(onSave)) {
       setDashletConfigByParams(id, config, this.recordRef, journalId);
     } else {
       getDashletConfig(id);
@@ -140,14 +144,14 @@ class JournalsDashlet extends BaseWidget {
 
     const { config: prevConfig } = prevProps;
     const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
-    const { journalId } = this.state;
+    const { journalId, runUpdate } = this.state;
 
-    if (!isEqual(config, prevConfig) && !!onSave) {
-      setDashletConfigByParams(id, config, null, journalId);
+    if (!isEqual(config, prevConfig) && isFunction(onSave)) {
+      setDashletConfigByParams(id, config, this.recordRef, journalId);
       !isActiveLayout && this.setState({ runUpdate: true });
     }
 
-    if (isActiveLayout && this.state.runUpdate) {
+    if (isActiveLayout && runUpdate) {
       this.setState({ runUpdate: false }, () => reloadGrid());
     }
   }
@@ -170,6 +174,12 @@ class JournalsDashlet extends BaseWidget {
 
   setGroupActionsRef = ref => !!ref && (this._groupActionsRef = ref);
 
+  setEditorRef = ref => {
+    if (ref) {
+      this._editorRef = ref;
+    }
+  };
+
   handleResize = width => !!width && this.setState({ width });
 
   showEditor = () => this.props.setEditorMode(true);
@@ -185,24 +195,14 @@ class JournalsDashlet extends BaseWidget {
     const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
 
     setSelectAllRecords(!selectAllRecords);
-
-    if (!selectAllRecords) {
-      setSelectedRecords([]);
-    }
+    !selectAllRecords && setSelectedRecords([]);
   };
 
   handleExecuteGroupAction(action) {
     const { selectAllRecords } = this.props;
+    const data = selectAllRecords ? get(this.props, 'grid.query') : get(this.props, 'selectedRecords', []);
 
-    if (!selectAllRecords) {
-      const records = get(this.props, 'selectedRecords', []);
-
-      this.props.execRecordsAction(records, action);
-    } else {
-      const query = get(this.props, 'grid.query');
-
-      this.props.execRecordsAction(query, action);
-    }
+    this.props.execRecordsAction(data, action);
   }
 
   goToJournalsPage = () => {
@@ -218,12 +218,10 @@ class JournalsDashlet extends BaseWidget {
   };
 
   handleSaveConfig = (...params) => {
-    const { onSave } = this.props;
+    const { onSave, resetState } = this.props;
 
-    if (typeof onSave === 'function') {
-      onSave(...params);
-    }
-
+    resetState();
+    isFunction(onSave) && onSave(...params);
     this.handleChangeSelectedJournal('');
   };
 
@@ -250,7 +248,17 @@ class JournalsDashlet extends BaseWidget {
       return null;
     }
 
-    return <JournalsDashletEditor id={id} stateId={stateId} recordRef={this.recordRef} config={config} onSave={this.handleSaveConfig} />;
+    return (
+      <JournalsDashletEditor
+        id={id}
+        stateId={stateId}
+        recordRef={this.recordRef}
+        config={config}
+        onSave={this.handleSaveConfig}
+        measurer={getDOMElementMeasurer(this._editorRef)}
+        forwardRef={this.setEditorRef}
+      />
+    );
   }
 
   renderJournal() {

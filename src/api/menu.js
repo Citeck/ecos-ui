@@ -1,19 +1,26 @@
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import isFunction from 'lodash/isFunction';
+import last from 'lodash/last';
+import head from 'lodash/head';
 
 import { generateSearchTerm, getCurrentUserName, isNodeRef } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
-import { PROXY_URI, CITECK_URI, UISERV_API } from '../constants/alfresco';
+import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import { GROUP_EVERYONE, MENU_VERSION, MenuSettings as ms } from '../constants/menu';
 import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
 
+const $4H = 14400000;
+const SITE = 'site';
+const GLOBAL = 'global';
+
 const postProcessMenuItemChildren = items => {
   if (items && items.length) {
-    return Promise.all(items.map(i => postProcessMenuConfig(i)));
+    return Promise.all(items.map(postProcessMenuConfig));
   }
   return Promise.resolve(items);
 };
@@ -27,7 +34,7 @@ const postProcessMenuConfig = item => {
   const journalUiType = type === ActionTypes.JOURNAL_LINK && journalRef ? 'react' : '';
   const siteUiType = type === ActionTypes.SITE_LINK && siteName ? MenuApi.getSiteUiType(siteName) : '';
 
-  return Promise.all([items, journalUiType, siteUiType]).then(itemsAndUIType => {
+  return Promise.all([items, journalUiType, siteUiType]).then((itemsAndUIType = []) => {
     item.items = itemsAndUIType[0];
 
     if (itemsAndUIType[1] || itemsAndUIType[2]) {
@@ -48,14 +55,12 @@ export class MenuApi extends CommonApi {
       let tokens = listId.split('-');
 
       if (tokens.length > 1) {
-        if (tokens[0] === 'site') {
-          siteId = listId.substring('site-'.length, listId.length - tokens[tokens.length - 1].length - 1);
-
-          listId = tokens[tokens.length - 1];
-        } else if (tokens[0] === 'global') {
+        if (head(tokens) === SITE) {
+          siteId = listId.substring(`${SITE}-`.length, listId.length - last(tokens).length - 1);
+          listId = last(tokens);
+        } else if (head(tokens) === GLOBAL) {
           siteId = null;
-
-          listId = listId.substring('global-'.length);
+          listId = listId.substring(`${GLOBAL}-`.length);
         }
       }
     } else {
@@ -63,9 +68,9 @@ export class MenuApi extends CommonApi {
     }
 
     if (siteId) {
-      listId = 'site-' + siteId + '-' + listId;
+      listId = `${SITE}-${siteId}-${listId}`;
     } else {
-      listId = 'global-' + listId;
+      listId = `${GLOBAL}-${listId}`;
     }
 
     return `${URL.JOURNAL}?journalId=${journalRef}&journalSettingId=&journalsListId=${listId}`;
@@ -76,7 +81,7 @@ export class MenuApi extends CommonApi {
 
     return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version } }, 'subMenu.create?json').then(res =>
       fetchExtraItemInfo(lodashGet(res, 'items') || [], item =>
-        lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json' }
+        lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json![]' }
       )
     );
   };
@@ -98,7 +103,7 @@ export class MenuApi extends CommonApi {
 
   getSlideMenuItems = () => {
     const username = getCurrentUserName();
-    const cacheKey = Records.get(SourcesId.META + '@')
+    const cacheKey = Records.get(`${SourcesId.META}@`)
       .load('attributes.menu-cache-key')
       .catch(() => '0');
 
@@ -107,7 +112,7 @@ export class MenuApi extends CommonApi {
         this.getJsonWithSessionCache({
           url: `${UISERV_API}usermenu?username=${username}`,
           cacheKey: key,
-          timeout: 14400000, //4h
+          timeout: $4H,
           postProcess: menu => postProcessMenuConfig(menu)
         })
       )
@@ -129,22 +134,20 @@ export class MenuApi extends CommonApi {
     return fetchExtraItemInfo(lodashGet(config, 'left.items') || [], {
       label: '.disp',
       journalId: 'id',
-      createVariants: 'inhCreateVariants[]?json'
+      createVariants: 'inhCreateVariants[]?json![]'
     });
   };
 
   getMenuItemIconUrl = iconName => {
     return this.getJsonWithSessionCache({
       url: `${CITECK_URI}menu/icon?iconName=${iconName}`,
-      timeout: 14400000, //4h
+      timeout: $4H,
       onError: () => null
     });
   };
 
   getJournalTotalCount = journalId => {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
-      .load('totalCount?num')
-      .then(res => res || 0);
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('totalCount?num!0');
   };
 
   getMenuConfig = (disabledCache = false) => {
@@ -177,13 +180,11 @@ export class MenuApi extends CommonApi {
     record.att('title', title);
     record.att('description', description);
 
-    return record.save().then(resp => resp);
+    return record.save();
   };
 
   checkSiteDashboardEnable = () => {
-    return Records.get(`${SourcesId.CONFIG}@site-dashboard-enable`)
-      .load('value?bool')
-      .then(resp => resp);
+    return Records.get(`${SourcesId.CONFIG}@site-dashboard-enable`).load('value?bool');
   };
 
   getUserMenuConfig = async () => {
@@ -200,7 +201,7 @@ export class MenuApi extends CommonApi {
       {
         id: 'id',
         version: 'version',
-        authorities: 'authorities[]?str',
+        authorities: 'authorities[]?str![]',
         menu: 'subMenu?json'
       },
       true
@@ -251,7 +252,7 @@ export class MenuApi extends CommonApi {
   };
 
   getGroupPriority = () => {
-    return Records.get(`${SourcesId.CONFIG}@menu-group-priority`).load('value?json');
+    return Records.get(`${SourcesId.CONFIG}@menu-group-priority`).load('value[]?json![]');
   };
 
   getFullGroupPriority = async ({ authorities }) => {
@@ -262,10 +263,12 @@ export class MenuApi extends CommonApi {
         language: 'authorities'
       },
       { name: '.str' }
-    ).then(res => res.records.map(r => r.name));
+    )
+      .then(res => lodashGet(res, 'records', []).map(r => r.name))
+      .catch(_ => []);
 
     const groupPriority = await this.getGroupPriority();
-    const setAuthorities = (groupPriority || []).map(item => item.id);
+    const setAuthorities = groupPriority.map(item => item.id);
     const mergeAuthorities = Array.from(new Set([...setAuthorities, ...serverAuthorities, ...localAuthorities]));
     const filteredAuthorities = mergeAuthorities.filter(id => id !== GROUP_EVERYONE && id.includes(AUTHORITY_TYPE_GROUP));
 
@@ -300,14 +303,14 @@ export class MenuApi extends CommonApi {
   };
 }
 
-async function fetchExtraItemInfo(data, attributes) {
+async function fetchExtraItemInfo(data = [], attributes) {
   const { JOURNAL, LINK_CREATE_CASE, EDIT_RECORD, START_WORKFLOW } = ms.ItemTypes;
 
   return Promise.all(
     data.map(async item => {
       const target = { ...item };
       const iconRef = lodashGet(item, 'icon');
-      let attrs = typeof attributes === 'function' ? attributes(item) : attributes;
+      let attrs = isFunction(attributes) ? attributes(item) : attributes;
       let ref = lodashGet(item, 'config.recordRef') || lodashGet(item, 'config.sectionId') || lodashGet(item, 'config.processDef');
 
       if (attrs && ref && [JOURNAL, EDIT_RECORD, START_WORKFLOW].includes(item.type)) {
@@ -349,7 +352,7 @@ async function fetchExtraItemInfo(data, attributes) {
   );
 }
 
-async function fetchExtraGroupItemInfo(data) {
+async function fetchExtraGroupItemInfo(data = []) {
   return Promise.all(
     data.map(async item => {
       const target = { ...item };

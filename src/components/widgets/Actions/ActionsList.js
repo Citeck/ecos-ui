@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual';
 import uniqueId from 'lodash/uniqueId';
 
 import { InfoText, Loader, Separator, Tooltip } from '../../common/index';
-import { t } from '../../../helpers/util';
+import { prepareTooltipId, t } from '../../../helpers/util';
 
 class ActionsList extends React.Component {
   countList = uniqueId('list-');
@@ -52,13 +52,13 @@ class ActionsList extends React.Component {
 
   renderVariant = (action, variant, postfix) => {
     const { isLoading, isActiveLayout } = this.props;
-    const id = `variant-${variant.type}-${postfix}`;
+    const targetId = prepareTooltipId(`variant-${variant.type}-${postfix}`);
     const variantAction = Object.assign({}, action, variant);
 
     return (
-      <Tooltip showAsNeeded uncontrolled key={id} target={id} text={variant.name} off={!isActiveLayout}>
+      <Tooltip showAsNeeded uncontrolled key={targetId} target={targetId} text={variant.name} off={!isActiveLayout}>
         <div
-          id={id}
+          id={targetId}
           className={classNames('ecos-actions-list__item-variants__item', {
             'ecos-actions-list__item-variants__item_disabled': isLoading
           })}
@@ -80,11 +80,11 @@ class ActionsList extends React.Component {
         {this.getPureList().map((action = {}, index) => {
           const hasVariants = !isEmpty(action.variants);
           const weight = JSON.stringify(action).length;
-          const id = `action-${this.countList}-${action.id}-${action.type}-${weight}`;
+          const targetId = prepareTooltipId(`action-${this.countList}-${action.id}-${action.type}-${weight}`);
 
           return (
             <div
-              key={id}
+              key={targetId}
               className={classNames(
                 'ecos-actions-list__item',
                 { 'ecos-actions-list__item_group': hasVariants },
@@ -93,14 +93,14 @@ class ActionsList extends React.Component {
               )}
               onClick={() => (hasVariants ? null : this.onClick(action))}
             >
-              <Tooltip showAsNeeded uncontrolled target={id} text={action.name} off={!isActiveLayout}>
-                <div id={id} className="ecos-actions-list__item-title">
+              <Tooltip showAsNeeded uncontrolled target={targetId} text={action.name} off={!isActiveLayout}>
+                <div id={targetId} className="ecos-actions-list__item-title">
                   {action.name}
                 </div>
               </Tooltip>
               {hasVariants && (
                 <div className="ecos-actions-list__item-variants">
-                  {action.variants.map((variant, position) => this.renderVariant(action || {}, variant || {}, `${id}-${position}`))}
+                  {action.variants.map((variant, position) => this.renderVariant(action || {}, variant || {}, `${targetId}-${position}`))}
                 </div>
               )}
               {isMobile && index < list.length - 1 && !hasVariants && <Separator noIndents />}

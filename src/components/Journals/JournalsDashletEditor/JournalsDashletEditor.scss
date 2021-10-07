@@ -20,21 +20,18 @@
 
   &-diver {
     flex: auto;
-    height: 10px;
   }
 
-  .ecos-btn:last-child {
-    margin-left: 10px;
+  .ecos-btn:not(:last-child) {
+    margin-right: 10px;
   }
 
   &_small {
-    .ecos-btn:first-child,
-    #{$actions}-diver {
-      width: 100%;
+    flex-direction: column;
 
-      & ~ .ecos-btn {
-        flex: 1;
-      }
+    .ecos-btn:not(:last-child) {
+      margin-right: 0;
+      margin-bottom: 10px;
     }
   }
 }

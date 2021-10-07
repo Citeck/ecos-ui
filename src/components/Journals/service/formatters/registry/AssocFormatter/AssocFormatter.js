@@ -30,7 +30,9 @@ export default class AssocFormatter extends BaseFormatter {
     const link = createDocumentUrl(value);
     const handler = e => {
       e.preventDefault();
-      PageService.changeUrlLink(link, { openNewTab: !config.openInBackground });
+      const { openInBackground, openNewBrowserTab } = config;
+
+      PageService.changeUrlLink(link, { openNewTab: !openInBackground, openInBackground, openNewBrowserTab });
     };
 
     return (
