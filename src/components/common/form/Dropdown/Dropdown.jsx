@@ -8,18 +8,9 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
 import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
+import MenuItem from './MenuItem';
 
 import './Dropdown.scss';
-
-class MenuItem extends React.PureComponent {
-  onClick = () => {
-    this.props.onClick(this.props.item);
-  };
-
-  render() {
-    return <li onClick={this.onClick}>{this.props.children}</li>;
-  }
-}
 
 export default class Dropdown extends Component {
   static propTypes = {
@@ -97,14 +88,8 @@ export default class Dropdown extends Component {
 
   toggle = () => {
     this.setState(
-      {
-        dropdownOpen: !this.state.dropdownOpen
-      },
-      () => {
-        if (isFunction(this.props.getStateOpen)) {
-          this.props.getStateOpen(this.state.dropdownOpen);
-        }
-      }
+      { dropdownOpen: !this.state.dropdownOpen },
+      () => isFunction(this.props.getStateOpen) && this.props.getStateOpen(this.state.dropdownOpen)
     );
   };
 

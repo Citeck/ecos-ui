@@ -1,32 +1,51 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { Tooltip } from 'reactstrap';
+import uniqueId from 'lodash/uniqueId';
 
-import { Checkbox, DropdownOuter } from '../../form';
+import { t } from '../../../../helpers/util';
+import { Checkbox } from '../../form';
 import { Icon } from '../../';
+import { SELECTOR_MENU } from '../util';
 
-const source = [
-  {
-    title: 'all',
-    id: '1'
-  },
-  {
-    title: 'allall',
-    id: '2'
-  },
-  {
-    title: 'allalallalll',
-    id: '3'
-  }
-];
+import '../../Tooltip/style.scss';
+import './Grid.scss';
 
-const SelectorHeader = ({ indeterminate, ...rest }) => {
+const SelectorHeader = ({ indeterminate, mode, checked, disabled }) => {
+  const [target] = useState(uniqueId('SelectorHeader-'));
+  const [isOpen, setOpen] = useState(false);
+  const handleToggleOpener = useCallback(
+    e => {
+      e.stopPropagation();
+      setOpen(!isOpen);
+    },
+    [isOpen]
+  );
+
+  const handleClickItem = useCallback(e => {
+    e.stopPropagation();
+  }, []);
+
   return (
     <div className="ecos-grid__checkbox">
-      {rest.mode === 'checkbox' && (
+      {mode === 'checkbox' && (
         <>
-          <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} />
-          <DropdownOuter className="ecos-grid__checkbox-dropdown" source={source} titleField="title" isStatic onChange={_ => _}>
-            <Icon className="icon-small-down ecos-grid__checkbox-menu" />
-          </DropdownOuter>
+          <Checkbox indeterminate={indeterminate} checked={checked} disabled={disabled} />
+          <Tooltip
+            target={target}
+            isOpen={isOpen}
+            placement="bottom"
+            className="ecos-base-tooltip"
+            arrowClassName="ecos-grid__checkbox-menu-arrow"
+            innerClassName="ecos-base-tooltip-inner ecos-grid__checkbox-menu-inner"
+            popperClassName="ecos-base-tooltip-popper"
+          >
+            {SELECTOR_MENU.map(item => (
+              <div key={target + item.id} className="ecos-base-tooltip-item ecos-grid__checkbox-menu-item" onClick={handleClickItem}>
+                {t(item.title)}
+              </div>
+            ))}
+          </Tooltip>
+          <Icon className="icon-small-down ecos-grid__checkbox-menu-opener" id={target} onClick={handleToggleOpener} />
         </>
       )}
       <div className="ecos-grid__checkbox-divider" />

@@ -159,10 +159,23 @@ $header-height: 52px;
   width: 70px;
   background: $color-white;
 
-  & &-menu {
-    font-size: 14px;
-    color: $color-gray-5;
-    padding-left: 8px;
+  &-menu {
+    &-arrow {
+      &:before {
+        display: none;
+      }
+    }
+
+    &-inner.ecos-base-tooltip-inner {
+      max-width: unset;
+      padding: 0;
+    }
+
+    &-opener.icon {
+      font-size: 14px;
+      color: $color-gray-5;
+      padding-left: 8px;
+    }
   }
 
   &-divider {

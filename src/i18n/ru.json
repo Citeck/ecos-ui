@@ -541,8 +541,10 @@
   "grid.tools.group-actions": "Ещё действия",
   "grid.tools.group-actions-mobile": "Ещё",
   "grid.tools.move-to": "Переместить в...",
-  "grid.tools.select-all": "Выбрать все",
   "grid.tools.zip": "Скачать как Zip",
+  "grid.tools.select-all": "Выбрать все",
+  "grid.tools.select-all-page": "Выбрать все на странице",
+  "grid.tools.remove-selection": "Снять выделение",
 
   "grouping.how": "Как группировать",
   "grouping.show": "Посмотреть принцип действия группировки",

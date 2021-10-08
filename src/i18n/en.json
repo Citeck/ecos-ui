@@ -542,8 +542,10 @@
   "grid.tools.group-actions": "More actions",
   "grid.tools.group-actions-mobile": "More",
   "grid.tools.move-to": "Move to...",
-  "grid.tools.select-all": "Select all",
   "grid.tools.zip": "Download Zip",
+  "grid.tools.select-all": "Select all",
+  "grid.tools.select-all-page": "Select all page",
+  "grid.tools.remove-selection": "Remove selection",
 
   "grouping.how": "How to group",
   "grouping.show": "View the principle of grouping",
