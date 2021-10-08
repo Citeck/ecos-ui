@@ -1,88 +1,55 @@
 import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/util';
 import { Search } from '../../common';
-import { IcoBtn, TwoIcoBtn } from '../../common/btns';
-import { Dropdown } from '../../common/form';
+import { IcoBtn } from '../../common/btns';
 import Export from '../../Export/Export';
-import { getCreateVariantKeyField } from '../service/util';
 import JournalsDashletPagination from '../JournalsDashletPagination';
+import CreateMenu from './CreateMenu';
+import GroupActions from './GroupActions';
 
 import './JournalsSettingsBar.scss';
 
 const JournalsSettingsBar = ({
   stateId,
-  showPreview,
-  toggleSettings,
-  togglePreview,
-  showGrid,
-  refresh,
-  onSearch,
-  journalConfig,
-  addRecord,
   grid,
-  isMobile,
+  journalConfig,
   searchText,
   selectedRecords,
-  createIsLoading
+
+  isMobile,
+
+  createIsLoading,
+  showGrid,
+  showPreview,
+  togglePreview,
+
+  onRefresh,
+  onSearch,
+  onToggleSettings,
+  onAddRecord
 }) => {
   const blue = 'ecos-btn_i ecos-btn_blue2 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const step = classNames('ecos-journal__settings-bar_step', { 'ecos-journal__settings-bar_step-mobile': isMobile });
-
-  const renderCreateMenu = () => {
-    const createVariants = get(journalConfig, 'meta.createVariants') || [];
-
-    if (isMobile || !createVariants || !createVariants.length) {
-      return null;
-    }
-
-    if (createVariants.length === 1) {
-      return (
-        <IcoBtn
-          loading={createIsLoading}
-          colorLoader="light-blue"
-          icon="icon-small-plus"
-          className={`ecos-journal__add-record ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ${step}`}
-          onClick={() => addRecord(createVariants[0])}
-        />
-      );
-    }
-
-    const keyFields = getCreateVariantKeyField(createVariants[0]);
-
-    return (
-      <Dropdown
-        hasEmpty
-        isButton
-        className={step}
-        source={createVariants}
-        keyFields={keyFields}
-        valueField="destination"
-        titleField="title"
-        onChange={addRecord}
-      >
-        <TwoIcoBtn
-          icons={['icon-small-plus', 'icon-small-down']}
-          className="ecos-journal__add-record ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
-          title={t('journals.create-record-btn')}
-        />
-      </Dropdown>
-    );
-  };
+  const createVariants = get(journalConfig, 'meta.createVariants') || [];
+  const noCreateMenu = isMobile || isEmpty(createVariants);
 
   return (
     <div className={classNames('ecos-journal__settings-bar', { 'ecos-journal__settings-bar_mobile': isMobile })}>
-      {renderCreateMenu()}
+      {noCreateMenu && (
+        <CreateMenu className={step} createIsLoading={createIsLoading} createVariants={createVariants} onAddRecord={onAddRecord} />
+      )}
 
       {!isMobile && (
         <IcoBtn
           title={t('journals.settings')}
           icon={'icon-settings'}
-          className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
-          onClick={toggleSettings}
+          className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
+          onClick={onToggleSettings}
         />
       )}
 
@@ -93,6 +60,8 @@ const JournalsSettingsBar = ({
         text={searchText}
         cleaner
       />
+
+      <GroupActions stateId={stateId} />
 
       <Export
         journalConfig={journalConfig}
@@ -119,7 +88,7 @@ const JournalsSettingsBar = ({
           [grey]: !isMobile,
           'ecos-btn_i ecos-btn_white': isMobile
         })}
-        onClick={refresh}
+        onClick={onRefresh}
       />
 
       <div className="ecos-journal__settings-bar_right">

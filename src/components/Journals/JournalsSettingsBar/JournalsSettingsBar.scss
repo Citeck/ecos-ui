@@ -56,3 +56,13 @@
   position: relative;
   top: -1px;
 }
+
+.group-actions {
+  &__dropdown {
+    margin-right: 15px;
+  }
+
+  &__control.ecos-btn {
+    font-size: 14px;
+  }
+}

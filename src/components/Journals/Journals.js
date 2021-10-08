@@ -464,12 +464,12 @@ class Journals extends Component {
                 journalConfig={journalConfig}
                 stateId={stateId}
                 showPreview={showPreview}
-                toggleSettings={this.toggleSettings}
+                onToggleSettings={this.toggleSettings}
                 togglePreview={this.togglePreview}
                 showGrid={this.showGrid}
-                refresh={reloadGrid}
+                onRefresh={reloadGrid}
                 onSearch={this.onSearch}
-                addRecord={this.addRecord}
+                onAddRecord={this.addRecord}
                 isMobile={isMobile}
                 searchText={this.getSearch()}
                 selectedRecords={selectedRecords}
