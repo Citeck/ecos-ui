@@ -13,7 +13,7 @@ import { t } from '../helpers/export/util';
 import ecosFetch from '../helpers/ecosFetch';
 import { getCurrentUserName } from '../helpers/util';
 import { DEFAULT_FEEDBACK_URL, DEFAULT_REPORT_ISSUE_URL } from '../helpers/menu';
-import formDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
+import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
 
 export default class MenuService {
@@ -70,7 +70,7 @@ export default class MenuService {
           reactstrapProps: {
             backdrop: true
           },
-          formDefinition: formDefinitionUserStatus,
+          formDefinition: getFormDefinitionUserStatus(),
           onSubmit: async submission => {
             const userRef = await Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`).load('nodeRef?str');
             const result = await ecosFetch(`${PROXY_URI}citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent`, {
