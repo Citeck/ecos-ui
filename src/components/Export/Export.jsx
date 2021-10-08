@@ -10,13 +10,14 @@ import queryString from 'query-string';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
-import { ALFRESCO, PROXY_URI } from '../../constants/alfresco';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 import { PREDICATE_AND } from '../Records/predicates/predicates';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
+
+import recordActions from '../Records/actions/recordActions';
 
 import './Export.scss';
 
@@ -56,13 +57,6 @@ export default class Export extends Component {
     ];
   }
 
-  get isShow() {
-    const sourceId = get(this.props, 'journalConfig.sourceId') || '';
-    const [first, second] = sourceId.split('/');
-
-    return !second || first === ALFRESCO;
-  }
-
   getStateOpen = isOpen => {
     this.setState({ isOpen });
   };
@@ -74,12 +68,22 @@ export default class Export extends Component {
 
       this.textInput.current.value = JSON.stringify(query);
 
-      const form = this.form.current;
+      const recordsQuery = {
+        sourceId: journalConfig.sourceId,
+        query: query.predicate,
+        language: 'predicate',
+        sortBy: query.sortBy
+      };
+      const action = {
+        type: 'records-export',
+        config: {
+          exportType: query.reportType,
+          columns: query.reportColumns,
+          download: item.download
+        }
+      };
 
-      form.action = `${PROXY_URI}report/predicate-report?download=${item.download}`;
-      form.target = item.target;
-
-      form.submit();
+      recordActions.execForQuery(recordsQuery, action);
     } else if (typeof item.click === 'function') {
       item.click();
     }
@@ -99,32 +103,29 @@ export default class Export extends Component {
     set(config, 'meta.createVariants', get(config, 'meta.createVariants') || []);
 
     const reportTitle = get(config, 'meta.createVariants[0].title') || get(config, 'meta.title');
-    const criteria = get(config, 'meta.criteria') || [];
     const columns = get(grid, 'columns') || config.columns || [];
-    const reportColumns = columns.filter(c => c.default).map(({ attribute, text }) => ({ attribute, title: text }));
+    const reportColumns = columns
+      .filter(c => c.default)
+      .map(({ attribute, text, newType, newFormatter }) => ({
+        attribute,
+        name: text,
+        type: newType,
+        formatter: newFormatter
+      }));
     const mainPredicate = get(config, 'predicate', {});
     const gridPredicate = get(grid, 'predicates[0]', {});
     const searchPredicate = get(grid, 'searchPredicate[0]', {});
     const predicates = [mainPredicate, searchPredicate, gridPredicate];
     const predicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
-    const sortBy = get(grid, 'sortBy') || [{ attribute: 'cm:created', order: 'desc' }];
+    const sortBy = get(grid, 'sortBy') || [{ attribute: '_created', ascending: false }];
 
-    const query = {
+    return {
       sortBy,
       predicate: get(predicate, '[0]', null),
       reportType,
       reportTitle,
-      reportColumns,
-      reportFilename: `${reportTitle}.${reportType}`
+      reportColumns
     };
-
-    criteria.forEach((criterion = {}, idx) => {
-      query['field_' + idx] = criterion.field;
-      query['predicate_' + idx] = criterion.predicate;
-      query['value_' + idx] = criterion.value;
-    });
-
-    return query;
   };
 
   getSelectionFilter = () => {
@@ -166,7 +167,7 @@ export default class Export extends Component {
     const { isOpen } = this.state;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
 
-    return this.isShow ? (
+    return (
       <div {...attributes} className={classNames('ecos-btn-export', className)}>
         <Dropdown
           source={this.dropdownSource}
@@ -190,6 +191,6 @@ export default class Export extends Component {
           <input ref={this.textInput} type="hidden" name="jsondata" value="" />
         </form>
       </div>
-    ) : null;
+    );
   }
 }

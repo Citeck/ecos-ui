@@ -42,6 +42,9 @@ export class RecordActionsApi extends CommonApi {
     if (query) {
       postBody.query = query.query;
       postBody.language = query.language;
+      postBody.sortBy = query.sortBy;
+      postBody.sourceId = query.sourceId;
+      postBody.consistency = query.consistency;
     }
 
     return this.postJson(`${PROXY_URI}api/journals/group-action`, postBody).catch(error => ({ error }));
