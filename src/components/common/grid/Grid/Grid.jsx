@@ -561,7 +561,7 @@ class Grid extends Component {
   };
 
   createMultiSelectionCheckboxes(props) {
-    const selected = props.selectedAll ? this.getSelectedPageItems() : this.state.selected || [];
+    const selected = props.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
 
     return {
       mode: SELECTOR_MODE.CHECKBOX,
@@ -1045,7 +1045,7 @@ Grid.propTypes = {
   multiSelectable: PropTypes.bool,
   singleSelectable: PropTypes.bool,
   freezeCheckboxes: PropTypes.bool,
-  selectedAll: PropTypes.bool,
+  selectAll: PropTypes.bool,
   fixedHeader: PropTypes.bool,
   noHeader: PropTypes.bool,
   noTopBorder: PropTypes.bool,

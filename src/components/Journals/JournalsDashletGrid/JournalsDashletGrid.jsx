@@ -262,7 +262,7 @@ class JournalsDashletGrid extends Component {
               onScrolling={this.onScrolling}
               onEdit={saveRecords}
               selected={selectedRecords}
-              selectedAll={selectAllRecords}
+              selectAll={selectAllRecords}
               minHeight={minHeight}
               maxHeight={maxHeight}
               autoHeight={autoHeight}
