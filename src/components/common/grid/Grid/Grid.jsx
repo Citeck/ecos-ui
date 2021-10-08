@@ -10,6 +10,7 @@ import head from 'lodash/head';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import find from 'lodash/find';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
@@ -516,9 +517,10 @@ class Grid extends Component {
     const isSortable = sortable && isFunction(onSort);
 
     column.headerFormatter = (column, colIndex) => {
-      const filter = (filters || []).find(filter => filter.att === column.dataField) || {};
+      const filter = find(filters, filter => filter.att === column.dataField) || {};
       const filterValue = filter.val || '';
-      const ascending = ((sortBy || []).find(sort => sort.attribute === column.dataField) || {}).ascending;
+      const sort = find(sortBy, sort => sort.attribute === column.dataField) || {};
+      const ascending = sort.ascending;
 
       return (
         <HeaderFormatter
@@ -616,7 +618,7 @@ class Grid extends Component {
         return false;
       }
 
-      const found = records.find(record => record[keyField] === id);
+      const found = find(records, record => record[keyField] === id);
 
       return onPage && found;
     });
