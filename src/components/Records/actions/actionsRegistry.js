@@ -27,6 +27,7 @@ class ActionsRegistry {
         this.#registry[alias] = handler;
       }
     }
+    handler.setActionsRegistry(this);
   }
 }
 

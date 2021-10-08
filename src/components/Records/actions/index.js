@@ -38,6 +38,7 @@ import MutateAction from './handler/executor/MutateAction';
 import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAction';
 import DebugFormAction from './handler/executor/DebugFormAction';
 import EditJsonAction from './handler/executor/EditJsonAction';
+import RecordsExport from './handler/executor/RecordsExport';
 
 export { default } from './recordActions';
 
@@ -79,6 +80,7 @@ actionsRegistry.register(new EditTypePermissionsAction());
 actionsRegistry.register(new EditPasswordAction());
 actionsRegistry.register(new DebugFormAction());
 actionsRegistry.register(new EditJsonAction());
+actionsRegistry.register(new RecordsExport());
 
 // Executors - Case
 

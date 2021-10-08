@@ -44,4 +44,8 @@ export default class ActionsHandler {
   getAliases() {
     return [];
   }
+
+  setActionsRegistry(actionsRegistry) {
+    this._actionsRegistry = actionsRegistry;
+  }
 }
