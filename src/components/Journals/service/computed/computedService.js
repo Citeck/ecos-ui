@@ -19,6 +19,10 @@ class ComputedService {
           config = replacePlaceholders(config, parameters);
         }
         let resolver = computedResolversRegistry.getResolver(it.type);
+        if (resolver == null) {
+          console.error("Computed resolver with id '" + it.type + "' doesn't found", it);
+          return null;
+        }
         return resolver
           .resolve(config || {})
           .catch(e => {
