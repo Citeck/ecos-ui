@@ -1,14 +1,19 @@
 export const SELECTOR_MENU = [
   {
     title: 'grid.tools.select-all',
-    id: 1
+    id: 'all'
   },
   {
     title: 'grid.tools.select-all-page',
-    id: 2
+    id: 'page'
   },
   {
     title: 'grid.tools.remove-selection',
-    id: 3
+    id: 'none'
   }
 ];
+
+export const SELECTOR_MODE = {
+  CHECKBOX: 'checkbox',
+  RADIO: 'radio'
+};

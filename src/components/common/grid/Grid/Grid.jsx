@@ -12,8 +12,9 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
-
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
+import { SELECTOR_MODE } from '../util';
+
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { ErrorCell } from '../ErrorCell';
 import SelectorHeader from './SelectorHeader';
@@ -539,7 +540,7 @@ class Grid extends Component {
     this._selected = props.selected || [];
 
     return {
-      mode: 'radio',
+      mode: SELECTOR_MODE.RADIO,
       classes: 'ecos-grid__tr_selected',
       selected: this._selected,
       nonSelectable: props.nonSelectable || [],
@@ -564,7 +565,7 @@ class Grid extends Component {
     }
 
     return {
-      mode: 'checkbox',
+      mode: SELECTOR_MODE.CHECKBOX,
       classes: 'ecos-grid__tr_selected',
       selected,
       nonSelectable: props.nonSelectable || [],
@@ -584,51 +585,57 @@ class Grid extends Component {
 
         this.onSelect(false);
       },
-      onSelectAll: (isSelect, rows) => {
-        const { nonSelectable, data, selected } = this.props;
-
-        if (!isSelect && !isEmpty(nonSelectable) && isEqual(this._selected, nonSelectable)) {
-          this._selected = data.map(row => row[this._keyField]);
-          this.#isAllSelected = true;
-          this.onSelect(true);
-
-          return;
-        }
-
-        if (!isSelect && rows.length !== data.length) {
-          if (isEqual(rows.map(i => i[this._keyField]), selected)) {
-            this._selected = selected;
-            this.#isAllSelected = false;
-            this.onSelect(true);
-
-            return;
-          }
-
-          this._selected = data
-            .map(row => row[this._keyField])
-            .filter(item => (nonSelectable.includes(item) && selected.includes(item)) || !nonSelectable.includes(item));
-          this.#isAllSelected = true;
-          this.onSelect(true);
-
-          return;
-        }
-
-        if (!isSelect && !this.#isAllSelected) {
-          rows = data;
-        }
-
-        this.#isAllSelected = isSelect;
-
-        this._selected = isSelect
-          ? [...this._selected, ...rows.map(row => row[this._keyField])]
-          : this.getSelectedByPage(this.props.data, false);
-
-        this.onSelect(isSelect);
-      },
-      selectionHeaderRenderer: props => <SelectorHeader {...props} />,
+      onSelectAll: this.handleSelectAllCheckboxes,
+      selectionHeaderRenderer: props => <SelectorHeader {...props} hasMenu onClickMenu={this.handleClickMenuCheckbox} />,
       selectionRenderer: props => <Selector {...props} />
     };
   }
+
+  handleSelectAllCheckboxes = (isSelect, rows) => {
+    const { nonSelectable, data, selected } = this.props;
+
+    if (!isSelect && !isEmpty(nonSelectable) && isEqual(this._selected, nonSelectable)) {
+      this._selected = data.map(row => row[this._keyField]);
+      this.#isAllSelected = true;
+      this.onSelect(true);
+
+      return;
+    }
+
+    if (!isSelect && rows.length !== data.length) {
+      if (isEqual(rows.map(i => i[this._keyField]), selected)) {
+        this._selected = selected;
+        this.#isAllSelected = false;
+        this.onSelect(true);
+
+        return;
+      }
+
+      this._selected = data
+        .map(row => row[this._keyField])
+        .filter(item => (nonSelectable.includes(item) && selected.includes(item)) || !nonSelectable.includes(item));
+      this.#isAllSelected = true;
+      this.onSelect(true);
+
+      return;
+    }
+
+    if (!isSelect && !this.#isAllSelected) {
+      rows = data;
+    }
+
+    this.#isAllSelected = isSelect;
+
+    this._selected = isSelect
+      ? [...this._selected, ...rows.map(row => row[this._keyField])]
+      : this.getSelectedByPage(this.props.data, false);
+
+    this.onSelect(isSelect);
+  };
+
+  handleClickMenuCheckbox = option => {
+    console.log(option.id);
+  };
 
   toolsVisible = () => {
     return this._selected.length && this.getSelectedByPage(this.props.data, true).length;

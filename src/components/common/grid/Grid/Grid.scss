@@ -156,8 +156,12 @@ $header-height: 52px;
   align-items: center;
   height: 100%;
   padding-left: 13px;
-  width: 70px;
+  width: 50px;
   background: $color-white;
+
+  &_has-menu {
+    width: 70px;
+  }
 
   &-menu {
     &-arrow {
