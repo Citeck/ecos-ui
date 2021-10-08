@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { Loader } from '../../common';
@@ -32,7 +33,8 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords
+    selectAllRecords: newState.selectAllRecords,
+    selectAllRecordsVisible: newState.selectAllRecordsVisible
   };
 };
 
@@ -86,14 +88,12 @@ class JournalsDashletGrid extends Component {
     }
   }
 
-  setSelectedRecords = e => {
-    const props = this.props;
-    props.setSelectedRecords(e.selected);
-    props.setSelectAllRecordsVisible(e.all);
+  setSelectedRecords = ({ selected, all: allPage, allPossible }) => {
+    const { setSelectedRecords, setSelectAllRecordsVisible, setSelectAllRecords, selectAllRecordsVisible } = this.props;
 
-    if (!e.all) {
-      props.setSelectAllRecords(false);
-    }
+    setSelectedRecords(selected);
+    setSelectAllRecords(allPage);
+    !isNil(allPossible) && setSelectAllRecordsVisible(allPossible);
   };
 
   reloadGrid(options) {
@@ -262,7 +262,7 @@ class JournalsDashletGrid extends Component {
               onScrolling={this.onScrolling}
               onEdit={saveRecords}
               selected={selectedRecords}
-              selectAll={selectAllRecords}
+              selectedAll={selectAllRecords}
               minHeight={minHeight}
               maxHeight={maxHeight}
               autoHeight={autoHeight}

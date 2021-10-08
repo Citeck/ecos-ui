@@ -14,6 +14,7 @@ import './Grid.scss';
 const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onClickMenu }) => {
   const [target] = useState(uniqueId('SelectorHeader-'));
   const [isOpen, setOpen] = useState(false);
+
   const handleToggleOpener = useCallback(
     e => {
       e.stopPropagation();

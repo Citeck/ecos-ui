@@ -1,15 +1,21 @@
+export const SELECTOR_MENU_KEY = {
+  ALL: 'all',
+  PAGE: 'page',
+  NONE: 'none'
+};
+
 export const SELECTOR_MENU = [
   {
     title: 'grid.tools.select-all',
-    id: 'all'
+    id: SELECTOR_MENU_KEY.ALL
   },
   {
     title: 'grid.tools.select-all-page',
-    id: 'page'
+    id: SELECTOR_MENU_KEY.PAGE
   },
   {
     title: 'grid.tools.remove-selection',
-    id: 'none'
+    id: SELECTOR_MENU_KEY.NONE
   }
 ];
 
