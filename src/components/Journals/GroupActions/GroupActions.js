@@ -48,19 +48,8 @@ const GroupActions = React.memo(
     const queryActions = get(grid, 'actions.forQuery.actions', {});
     const selected = selectAllRecordsVisible ? total : selectedRecords.length;
 
-    const handleExecuteRecAction = useCallback(
-      action => {
-        execRecordsAction(selectedRecords, action);
-      },
-      [selectedRecords]
-    );
-
-    const handleExecuteQueryAction = useCallback(
-      action => {
-        execRecordsAction(grid.query, action);
-      },
-      [grid]
-    );
+    const handleExecuteRecAction = useCallback(action => execRecordsAction(selectedRecords, action), [selectedRecords]);
+    const handleExecuteQueryAction = useCallback(action => execRecordsAction(grid.query, action), [grid]);
 
     return (
       <>
@@ -71,7 +60,10 @@ const GroupActions = React.memo(
             titleField={'pluralName'}
             keyFields={['id', 'formRef', 'pluralName']}
             source={recordsActions}
-            className={classNames('ecos-group-actions__dropdown', { 'ecos-group-actions__dropdown_disabled': isEmpty(selectedRecords) })}
+            className="ecos-group-actions__dropdown"
+            menuClassName={classNames('ecos-group-actions__dropdown-menu', {
+              'ecos-group-actions__dropdown-menu_disabled': isEmpty(selectedRecords)
+            })}
             getStateOpen={setOpenRecActions}
             onChange={handleExecuteRecAction}
           >
@@ -95,6 +87,7 @@ const GroupActions = React.memo(
             controlLabel={t(Labels.RESULT)}
             className="ecos-group-actions__dropdown"
             controlClassName="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+            menuClassName="ecos-group-actions__dropdown-menu"
             onChange={handleExecuteQueryAction}
           />
         )}

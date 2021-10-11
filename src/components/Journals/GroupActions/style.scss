@@ -7,11 +7,10 @@
     margin-right: 15px;
     max-width: 300px;
 
-    &_disabled {
-      cursor: default;
-      pointer-events: none;
-
-      #{$root}__control {
+    &-menu {
+      &_disabled li {
+        cursor: default;
+        pointer-events: none;
         color: $color-gray-5;
       }
     }
