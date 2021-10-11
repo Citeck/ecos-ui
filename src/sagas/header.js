@@ -56,7 +56,7 @@ function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
-    const config = yield call(api.menu.getUserCustomMenuConfig, userName);
+    const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
 
     if (isEmpty(config.items)) {
       set(config, 'items', cloneDeep(DefaultUserMenu));

@@ -116,7 +116,7 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  idMenu: get(state, 'menu.id'),
+  idMenu: get(state, 'menu.id', ''),
   versionMenu: get(state, 'menu.version'),
   isOpen: get(state, 'slideMenu.isOpen'),
   isReady: get(state, 'slideMenu.isReady'),
