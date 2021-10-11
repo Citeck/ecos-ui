@@ -1,0 +1,28 @@
+@import '../../../styles/constants';
+
+.ecos-group-actions {
+  $root: &;
+
+  &__dropdown {
+    margin-right: 15px;
+    max-width: 300px;
+
+    &_disabled {
+      cursor: default;
+      pointer-events: none;
+
+      #{$root}__control {
+        color: $color-gray-5;
+      }
+    }
+  }
+
+  &__control.ecos-btn {
+    overflow: hidden;
+    width: 100%;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    padding: 0 15px;
+    transition: color 0.5s;
+  }
+}

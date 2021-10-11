@@ -26,9 +26,9 @@ export const selectJournalData = selectState;
 export const selectGroupActionsProps = createSelector(
   selectJournalData,
   ownState => ({
-    grid: ownState.grid,
+    grid: ownState.grid || {},
     columnsSetup: ownState.columnsSetup,
-    selectedRecords: ownState.selectedRecords,
+    selectedRecords: ownState.selectedRecords || [],
     selectAllRecords: ownState.selectAllRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible
   })

@@ -9,7 +9,7 @@ import { IcoBtn } from '../../common/btns';
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 import CreateMenu from './CreateMenu';
-import GroupActions from './GroupActions';
+import GroupActions from '../GroupActions';
 
 import './JournalsSettingsBar.scss';
 

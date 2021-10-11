@@ -10,9 +10,10 @@ import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import FormManager from '../../EcosForm/FormManager';
-import JournalsDashletPagination from '../JournalsDashletPagination';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
+import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import GroupActions from '../GroupActions';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -134,6 +135,10 @@ class JournalsDashletToolbar extends Component {
             <TwoIcoBtn icons={['icon-settings', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
           </Dropdown>
         )}
+
+        <div className="ecos-journal-dashlet__group-actions">
+          <GroupActions stateId={stateId} />
+        </div>
 
         {!isSmall && (
           <Export

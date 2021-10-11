@@ -261,18 +261,6 @@ class JournalsDashlet extends BaseWidget {
           <JournalsDashletToolbar forwardRef={this.setToolbarRef} stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
 
-        <JournalsGroupActionsTools
-          forwardedRef={this.setGroupActionsRef}
-          className="ecos-journal-dashlet__group-actions"
-          isMobile={isMobile}
-          selectAllRecordsVisible={selectAllRecordsVisible}
-          selectAllRecords={selectAllRecords}
-          grid={grid}
-          selectedRecords={selectedRecords}
-          onExecuteAction={this.handleExecuteGroupAction.bind(this)}
-          onSelectAll={this.handleSelectAllRecords}
-        />
-
         <JournalsDashletGrid
           stateId={stateId}
           isWidget
