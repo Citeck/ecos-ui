@@ -9,7 +9,7 @@ import { t } from '../../../helpers/export/util';
 import { Tools } from '../../common/grid';
 
 import './JournalsTools.scss';
-
+//todo delete
 export default React.memo(function JournalsGroupActionsTools(props) {
   const {
     isMobile,

@@ -50,7 +50,7 @@ const GroupActions = React.memo(
 
     const handleExecuteRecAction = useCallback(action => execRecordsAction(selectedRecords, action), [selectedRecords]);
     const handleExecuteQueryAction = useCallback(action => execRecordsAction(grid.query, action), [grid]);
-
+    //todo объединение дропов при установке конфига
     return (
       <>
         {!isEmpty(recordsActions) && (
@@ -67,6 +67,7 @@ const GroupActions = React.memo(
             getStateOpen={setOpenRecActions}
             onChange={handleExecuteRecAction}
           >
+            {/*todo tooltip if big*/}
             <IcoBtn
               className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
               invert

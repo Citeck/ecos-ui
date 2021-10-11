@@ -660,6 +660,8 @@
   "journal.task.statistics.task_type.title": "Task type",
   "journal.title": "Journal",
   "journal.cell.no-label": "(Missing Label)",
+  "journal.group-actions.selected-records": "Selected records: {{selected}} out of {{total}}",
+  "journal.group-actions.filter-result": "Filter Result",
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
   "journals.action.apply": "Apply",

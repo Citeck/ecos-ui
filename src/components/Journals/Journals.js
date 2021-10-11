@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 
 import EcosModal from '../common/EcosModal/EcosModal';
@@ -42,8 +41,6 @@ const mapStateToProps = (state, props) => {
     gridPredicates: get(newState, 'grid.predicates', []),
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible,
     isLoading: newState.loading,
     urlParams: newState.url,
     _url: window.location.href
@@ -161,20 +158,6 @@ class Journals extends Component {
       window.clearTimeout(this._toggleMenuTimerId);
       this._toggleMenuTimerId = null;
     }
-  }
-
-  get isOpenGroupActions() {
-    const { grid, selectedRecords, selectAllRecords } = this.props;
-
-    if (isEmpty(selectedRecords) && !selectAllRecords) {
-      return false;
-    }
-
-    const forRecords = get(grid, 'actions.forRecords', {});
-    const forQuery = get(grid, 'actions.forQuery', {});
-    const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
-
-    return !isEmpty(groupActions);
   }
 
   setJournalRef = ref => {
@@ -376,18 +359,7 @@ class Journals extends Component {
   };
 
   render() {
-    const {
-      stateId,
-      journalConfig,
-      pageTabsIsShow,
-      grid,
-      isMobile,
-      isActivePage,
-      selectedRecords,
-      selectAllRecordsVisible,
-      selectAllRecords,
-      reloadGrid
-    } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset, createIsLoading } = this.state;
 
     if (!journalConfig) {

@@ -6,7 +6,7 @@ import Export from '../../Export/Export';
 import { t } from '../../../helpers/util';
 
 import './JournalsTools.scss';
-
+//todo delete
 const JournalsTools = ({ journalConfig, addRecord, onSearch, selectedRecords }) => {
   return (
     <div className="ecos-journal__tools'">
