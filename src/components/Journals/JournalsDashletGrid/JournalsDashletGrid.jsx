@@ -33,8 +33,7 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible
+    selectAllRecords: newState.selectAllRecords
   };
 };
 
@@ -89,7 +88,7 @@ class JournalsDashletGrid extends Component {
   }
 
   setSelectedRecords = ({ selected, all: allPage, allPossible }) => {
-    const { setSelectedRecords, setSelectAllRecordsVisible, setSelectAllRecords, selectAllRecordsVisible } = this.props;
+    const { setSelectedRecords, setSelectAllRecordsVisible, setSelectAllRecords } = this.props;
 
     setSelectedRecords(selected);
     setSelectAllRecords(allPage);

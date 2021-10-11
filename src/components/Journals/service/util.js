@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 export const COMPUTED_ATT_PREFIX = '$computed.';
 
-export function getCreateVariantKeyField(createVariant) {
+export function getCreateVariantKeyField(createVariant = {}) {
   return Object.keys(createVariant).filter(key => !!createVariant[key] && typeof createVariant[key] === 'string');
 }
 

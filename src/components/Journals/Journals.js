@@ -10,16 +10,7 @@ import debounce from 'lodash/debounce';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
-import {
-  execRecordsAction,
-  getJournalsData,
-  reloadGrid,
-  restoreJournalSettingData,
-  runSearch,
-  setSelectAllRecords,
-  setSelectedRecords,
-  setUrl
-} from '../../actions/journals';
+import { getJournalsData, reloadGrid, restoreJournalSettingData, runSearch, setUrl } from '../../actions/journals';
 import { JournalUrlParams } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
@@ -36,7 +27,6 @@ import JournalsMenu from './JournalsMenu';
 import JournalsSettingsBar from './JournalsSettingsBar';
 import JournalsHead from './JournalsHead';
 import JournalsContent from './JournalsContent';
-import { JournalsGroupActionsTools } from './JournalsTools';
 
 import './Journals.scss';
 
@@ -64,9 +54,6 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
-    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
@@ -355,30 +342,6 @@ class Journals extends Component {
     this.setState({ height });
   }, 500);
 
-  onSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
-
-    setSelectAllRecords(!selectAllRecords);
-
-    if (!selectAllRecords) {
-      setSelectedRecords([]);
-    }
-  };
-
-  onExecuteGroupAction(action) {
-    const { selectAllRecords } = this.props;
-
-    if (!selectAllRecords) {
-      const records = get(this.props, 'selectedRecords', []);
-
-      this.props.execRecordsAction(records, action);
-    } else {
-      const query = get(this.props, 'grid.query');
-
-      this.props.execRecordsAction(query, action);
-    }
-  }
-
   getJournalContentMaxHeight = () => {
     const { footerRef } = this.props;
     const journalMinHeight = 175;
@@ -474,17 +437,6 @@ class Journals extends Component {
                 searchText={this.getSearch()}
                 selectedRecords={selectedRecords}
                 createIsLoading={createIsLoading}
-              />
-
-              <JournalsGroupActionsTools
-                isMobile={isMobile}
-                selectAllRecordsVisible={selectAllRecordsVisible}
-                selectAllRecords={selectAllRecords}
-                grid={grid}
-                selectedRecords={selectedRecords}
-                onExecuteAction={this.onExecuteGroupAction.bind(this)}
-                onGoTo={this.onGoTo}
-                onSelectAll={this.onSelectAllRecords}
               />
             </div>
 

@@ -22,3 +22,14 @@ export const selectJournalUiType = createSelector(
 export const selectUrl = (state, id) => get(state, ['journals', id, 'url']) || {};
 
 export const selectJournalData = selectState;
+
+export const selectGroupActionsProps = createSelector(
+  selectJournalData,
+  ownState => ({
+    grid: ownState.grid,
+    columnsSetup: ownState.columnsSetup,
+    selectedRecords: ownState.selectedRecords,
+    selectAllRecords: ownState.selectAllRecords,
+    selectAllRecordsVisible: ownState.selectAllRecordsVisible
+  })
+);
