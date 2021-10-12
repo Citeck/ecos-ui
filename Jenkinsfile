@@ -40,10 +40,20 @@ timestamps {
 
       buildTools.notifyBuildStarted(repoUrl, project_version, env)
 
-      if ((env.BRANCH_NAME != "master") && (env.BRANCH_NAME != "master1") && (!package_props.version.contains('snapshot')))  {
-        echo "Assembly of release artifacts is allowed only from the master branch!"
-        //currentBuild.result = 'FAILURE'
-        //return
+      if (env.BRANCH_NAME ==~ /master(-\d)?/ && (!project_version.contains('snapshot'))) {
+        def tag = sh "git describe --exact-match --tags"
+        def buildShouldBeStopped = true
+        if (tag.contains("no tag")) {
+          echo "You should add tag with version to build release from non-master branch"
+        } else if (tag != project_version) {
+          echo "Release tag doesn't match version. Tag: " + tag + " Version: " + project_version
+        } else {
+          buildShouldBeStopped = false
+        }
+        if (buildShouldBeStopped) {
+          currentBuild.result = 'NOT_BUILD'
+          return
+        }
       }
 
       stage('Assembling and publishing project artifacts') {
