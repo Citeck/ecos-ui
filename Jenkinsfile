@@ -40,7 +40,7 @@ timestamps {
 
       buildTools.notifyBuildStarted(repoUrl, project_version, env)
 
-      if (env.BRANCH_NAME ==~ /master(-\d)?/ && (!project_version.contains('snapshot'))) {
+      if (!(env.BRANCH_NAME ==~ /master(-\d)?/) && (!project_version.contains('snapshot'))) {
         def tag = sh "git describe --exact-match --tags"
         def buildShouldBeStopped = true
         if (tag.contains("no tag")) {
