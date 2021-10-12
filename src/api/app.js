@@ -187,6 +187,12 @@ export class AppApi extends CommonApi {
       .catch(() => false);
   };
 
+  getSeparatedDropdownActionsForAll() {
+    return Records.get(`${SourcesId.CONFIG}@separate-journal-action-dropdown-for-all`)
+      .load('value?bool!false', true)
+      .catch(() => false);
+  }
+
   static doLogOut = async () => {
     const shareDoLogout = `${URL_SERVICECONTEXT}dologout`;
 

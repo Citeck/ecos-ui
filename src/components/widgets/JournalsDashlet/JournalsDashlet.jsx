@@ -29,7 +29,6 @@ import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
-import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
@@ -147,10 +146,6 @@ class JournalsDashlet extends BaseWidget {
     return get(this._toolbarRef, 'offsetHeight', 0);
   }
 
-  get groupActionsHeight() {
-    return get(this._groupActionsRef, 'offsetHeight', 0);
-  }
-
   get footerHeight() {
     return get(this._footerRef, 'offsetHeight', 0);
   }
@@ -252,8 +247,7 @@ class JournalsDashlet extends BaseWidget {
       return null;
     }
 
-    const { grid, isMobile, selectedRecords, selectAllRecords, selectAllRecordsVisible } = this.props;
-    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight + this.groupActionsHeight;
+    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
 
     return (
       <>

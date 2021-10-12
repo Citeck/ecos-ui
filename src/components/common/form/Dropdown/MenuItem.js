@@ -9,6 +9,10 @@ export default class MenuItem extends React.PureComponent {
   };
 
   render() {
-    return <li onClick={this.onClick}>{this.props.children}</li>;
+    return (
+      <li className={this.props.className} onClick={this.onClick}>
+        {this.props.children}
+      </li>
+    );
   }
 }

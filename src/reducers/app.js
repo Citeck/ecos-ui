@@ -8,6 +8,7 @@ import {
   setDashboardEditable,
   setFooter,
   setHomeLink,
+  setJournalSeparatedDropdownActionsForAll,
   setLeftMenuEditable,
   setRedirectToNewUi
 } from '../actions/app';
@@ -74,6 +75,12 @@ export default handleActions(
       return {
         ...state,
         homeLink: action.payload
+      };
+    },
+    [setJournalSeparatedDropdownActionsForAll]: (state, action) => {
+      return {
+        ...state,
+        journalSeparatedDropdownActionsForAll: action.payload
       };
     }
   },

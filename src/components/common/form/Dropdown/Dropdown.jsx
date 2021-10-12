@@ -19,6 +19,7 @@ export default class Dropdown extends Component {
     keyFields: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
     className: PropTypes.string,
     menuClassName: PropTypes.string,
+    itemClassName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     toggleClassName: PropTypes.string,
     controlClassName: PropTypes.string,
     controlLabel: PropTypes.string,
@@ -197,16 +198,17 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItem = (item, i) => {
-    const { CustomItem, titleField } = this.props;
+    const { CustomItem, titleField, itemClassName } = this.props;
 
     if (CustomItem) {
       return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
     }
 
     const text = getPropByStringKey(item, titleField);
+    const className = isFunction(itemClassName) ? itemClassName(item) : itemClassName;
 
     return (
-      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
+      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item} className={className}>
         {getTextByLocale(text)}
       </MenuItem>
     );
