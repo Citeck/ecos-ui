@@ -41,7 +41,12 @@ timestamps {
       buildTools.notifyBuildStarted(repoUrl, project_version, env)
 
       if (!(env.BRANCH_NAME ==~ /master(-\d)?/) && (!project_version.contains('snapshot'))) {
-        def tag = sh "git describe --exact-match --tags"
+        def tag = ""
+        try {
+          sh "git describe --exact-match --tags"
+        } catch (Exception e) {
+          // no tag
+        }
         def buildShouldBeStopped = true
         if (tag.contains("no tag")) {
           echo "You should add tag with version to build release from non-master branch"
