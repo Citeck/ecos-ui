@@ -23,11 +23,18 @@ class Sidebar extends React.Component {
   };
 
   componentDidMount() {
-    this.props.getSiteDashboardEnable();
+    const { getSiteDashboardEnable, idMenu } = this.props;
+    let record = idMenu.replace(SourcesId.RESOLVED_MENU, SourcesId.MENU);
+
+    if (record.indexOf(SourcesId.MENU) !== 0) {
+      record = `${SourcesId.MENU}@${record}`;
+    }
+
+    getSiteDashboardEnable();
     this.fetchItems();
 
     this.slideMenuToggle = document.getElementById('slide-menu-toggle');
-    this.recordMenu = Records.get(`${SourcesId.MENU}@${this.props.idMenu}`);
+    this.recordMenu = Records.get(record);
     this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
       this.fetchItems(true);
     });
@@ -103,7 +110,7 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  idMenu: get(state, 'menu.id'),
+  idMenu: get(state, 'menu.id', ''),
   versionMenu: get(state, 'menu.version'),
   isOpen: get(state, 'slideMenu.isOpen'),
   isReady: get(state, 'slideMenu.isReady'),

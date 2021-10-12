@@ -612,9 +612,12 @@
   "header.site-menu.go-home-page": "Открыть домашнюю страницу",
   "header.site-menu.menu-settings": "Настроить меню",
   "header.site-menu.page-settings": "Настроить страницу",
+
   "modal.make-notavailable.start.label": "Начало отсутствия",
   "modal.make-notavailable.end.label": "Окончание отсутствия",
   "modal.make-notavailable.auto-answer.label": "Автоответ",
+  "modal.make-notavailable.end.error.big-date": "Дата начала не может быть больше даты окончания",
+
   "hints.disabled": "Подсказки выключены",
   "hints.enabled": "Подсказки включены",
 
@@ -1268,6 +1271,7 @@
   "menu-settings.tabs.menu-config": "Настройки выбранной конфигурации",
   "menu-settings.tabs.global-config": "Глобальные настройки",
   "menu-settings.tabs.menu-create-config": "Меню \"Создать\"",
+  "menu-settings.tabs.menu-user-config": "Пользовательское меню",
   "menu-settings.text.default": "По умолчанию",
   "menu-settings.desc.global-config": "Данные настройки относятся ко всему сайту.\n\nСписок групп соответствует значениям групп, указанных во всех конфигурациях меню.\nПриоритет группы обратно пропорционален уровню иерархии группы в Оргструктуре или уровню функциональной иерархии. Чем специфичнее и уже группа пользователей, тем выше у нее приоритет.\nГруппы администраторов, как правило, размещаются на первом месте. Пользователь имеет наивысший приоритет.",
   "menu-settings.desc.editor-group-priority": "Для изменения приоритета используйте drag-and-drop.",
@@ -1321,6 +1325,8 @@
   "menu-settings.editor-group-priority.title": "Приоритет групп",
   "menu-settings.error-boundary.title": "Ошибка",
   "menu-settings.error-boundary.msg": "Попробуйте закрыть и открыть настройки повторно. Если ошибка повторится, обратитесь к администратору",
+  "menu-editor.user.empty.msg": "Меню пользователя не настроено или все пункты скрыты. Для того, чтобы комфортно взаимодействовать с сайтом, будет отображаться базовое меню пользователя:\n{{items}}",
+
   "menu-settings.error.no-id-config": "Идентификатор пользовательского меню отсутствует",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
@@ -1341,6 +1347,12 @@
   "menu-item.type.header-divider": "Разделяющий заголовок",
   "menu-item.type.create-in-section": "Варианты создания из раздела",
   "menu-item.type.edit-record": "Редактирование записи",
+  "menu-item.type.user-profile": "Профиль пользователя",
+  "menu-item.type.user-status": "Сменить статус",
+  "menu-item.type.user-change-password": "Изменить пароль",
+  "menu-item.type.user-feedback": "Обратная связь",
+  "menu-item.type.user-send-problem-report": "Сообщить о проблеме",
+  "menu-item.type.user-logout": "Выйти",
   "menu-item.type.start-workflow": "Запустить бизнес-процесс",
 
   "icon-select.title": "Выбор иконки",

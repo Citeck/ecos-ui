@@ -22,7 +22,8 @@ import {
   setLeftMenuItems,
   setLoading,
   setMenuIcons,
-  setOriginalConfig
+  setOriginalConfig,
+  setUserMenuItems
 } from '../actions/menuSettings';
 import { selectMenuByType } from '../selectors/menu';
 
@@ -38,6 +39,7 @@ function* fetchSettingsConfig({ api, logger }) {
     const config = yield call(api.menu.getMenuSettingsConfig, { id });
     const leftItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.left.items') || [], { configType: ConfigTypes.LEFT });
     const createItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.create.items') || [], { configType: ConfigTypes.CREATE });
+    const userMenuItems = MenuConverter.getMenuItemsWeb(get(config, 'menu.user.items') || [], { configType: ConfigTypes.USER });
 
     const _font = yield import('../fonts/citeck-leftmenu/selection.json');
     const icons = get(_font, 'icons') || [];
@@ -48,6 +50,7 @@ function* fetchSettingsConfig({ api, logger }) {
     yield put(setLeftMenuItems(leftItems));
     yield put(setCreateMenuItems(createItems));
     yield put(setAuthorities(config.authorities));
+    yield put(setUserMenuItems(userMenuItems));
     yield put(setMenuIcons({ font }));
   } catch (e) {
     yield put(setLoading(false));
@@ -74,14 +77,17 @@ function* runSaveMenuConfig({ api, logger }, action) {
     const result = yield select(state => state.menuSettings.originalConfig);
     const leftItems = yield select(state => state.menuSettings.leftItems);
     const createItems = yield select(state => state.menuSettings.createItems);
+    const userMenuItems = yield select(state => state.menuSettings.userMenuItems);
     const authoritiesInfo = yield select(state => state.menuSettings.authorities);
     const authorities = authoritiesInfo.map(item => item.name);
     const newLeftItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.left.items'), items: leftItems });
     const newCreateItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.create.items'), items: createItems });
+    const newUserMenuItems = MenuConverter.getMenuItemsServer({ originalItems: get(result, 'menu.user.items'), items: userMenuItems });
     const subMenu = {};
 
     set(subMenu, 'left.items', newLeftItems);
     set(subMenu, 'create.items', newCreateItems);
+    set(subMenu, 'user.items', newUserMenuItems);
 
     return yield call(api.menu.saveMenuSettingsConfig, { id, subMenu, authorities, version: result.version });
   } catch (e) {

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
 import Loader from '../Loader/Loader';
@@ -15,13 +16,14 @@ import '../form/Dropdown/Dropdown.scss';
 const MenuModes = {
   GROUP: 'group',
   CASCADE: 'cascade',
-  LIST: 'list'
+  LIST: 'list',
+  CUSTOM: 'custom'
 };
 
 export default class EcosDropdownMenu extends React.Component {
   static propTypes = {
     items: PropTypes.array,
-    mode: PropTypes.oneOf([MenuModes.CASCADE, MenuModes.GROUP, MenuModes.LIST]),
+    mode: PropTypes.oneOf(Object.values(MenuModes)),
     setGroup: PropTypes.shape({
       showGroupName: PropTypes.bool,
       showSeparator: PropTypes.bool,
@@ -32,7 +34,8 @@ export default class EcosDropdownMenu extends React.Component {
     }),
     isLoading: PropTypes.bool,
     emptyMessage: PropTypes.string,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    renderItem: PropTypes.func
   };
 
   static defaultProps = {
@@ -75,6 +78,15 @@ export default class EcosDropdownMenu extends React.Component {
         return <DropdownMenuCascade groups={menu} onClick={onClick} modifiers={modifiers} />;
       case MenuModes.GROUP: {
         return <DropdownMenuGroup groups={menu} onClick={onClick} {...setGroup} />;
+      }
+      case MenuModes.CUSTOM: {
+        const { renderItem } = someProps;
+
+        if (!isFunction(renderItem)) {
+          return null;
+        }
+
+        return menu.map(renderItem);
       }
       case MenuModes.LIST:
       default:
