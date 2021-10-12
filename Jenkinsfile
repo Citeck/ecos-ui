@@ -43,7 +43,7 @@ timestamps {
       if (!(env.BRANCH_NAME ==~ /master(-\d)?/) && (!project_version.contains('snapshot'))) {
         def tag = ""
         try {
-          sh "git describe --exact-match --tags"
+          tag = sh(script: "git describe --exact-match --tags", returnStdout: true).trim()
         } catch (Exception e) {
           // no tag
         }
