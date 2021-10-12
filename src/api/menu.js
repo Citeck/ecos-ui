@@ -79,11 +79,27 @@ export class MenuApi extends CommonApi {
   getMainMenuCreateVariants = (version = MENU_VERSION) => {
     const user = getCurrentUserName();
 
-    return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version } }, 'subMenu.create?json').then(res =>
-      fetchExtraItemInfo(lodashGet(res, 'items') || [], item =>
-        lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json![]' }
+    return Records.queryOne({ sourceId: SourcesId.RESOLVED_MENU, query: { user, version } }, 'subMenu.create?json')
+      .then(res =>
+        fetchExtraItemInfo(lodashGet(res, 'items') || [], item =>
+          lodashGet(item, 'config.variant') ? undefined : { createVariants: 'inhCreateVariants[]?json' }
+        )
       )
-    );
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
+  };
+
+  getCustomCreateVariants = () => {
+    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
+      .load('value[]?json', true)
+      .then(res => lodashGet(res, '[0]', []))
+      .then(res => (Array.isArray(res) ? res : []))
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
   };
 
   getLiveSearchDocuments = (terms, startIndex) => {
@@ -153,7 +169,30 @@ export class MenuApi extends CommonApi {
   getMenuConfig = (disabledCache = false) => {
     return Records.get(`${SourcesId.CONFIG}@menu-config`)
       .load('value?json', disabledCache)
-      .catch(console.error);
+      .catch(e => {
+        console.error(e);
+        return {};
+      });
+  };
+
+  /**
+   * Getting the configuration of the custom menu (in the header, on the right)
+   *
+   * @param user
+   * @param version
+   * @returns {*|RecordsComponent}
+   */
+  getUserCustomMenuConfig = (user = getCurrentUserName(), version = 1) => {
+    return Records.queryOne(
+      {
+        sourceId: SourcesId.RESOLVED_MENU,
+        query: { version, user }
+      },
+      'subMenu.user?json'
+    ).catch(e => {
+      console.error(e);
+      return {};
+    });
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
@@ -172,9 +211,11 @@ export class MenuApi extends CommonApi {
 
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
-    const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`).load('.str');
+    const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`)
+      .load('.str')
+      .catch(e => console.error(e));
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
-    const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id');
+    const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id').catch(e => console.error(e));
 
     return { version, configVersion, id };
   };
@@ -191,6 +232,7 @@ export class MenuApi extends CommonApi {
     );
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
+    const updUserMenuItems = await fetchExtraItemInfo(lodashGet(config, 'menu.user.items') || [], { label: '.disp' });
     const filterAuthorities = lodashGet(config, 'authorities');
 
     !filterAuthorities.length && filterAuthorities.push(GROUP_EVERYONE);
@@ -201,6 +243,7 @@ export class MenuApi extends CommonApi {
     lodashSet(config, 'menu.left.items', updLeftItems);
     lodashSet(config, 'menu.create.items', updCreateItems);
     lodashSet(config, 'authorities', updAuthorities);
+    lodashSet(config, 'menu.user.items', updUserMenuItems);
 
     return config;
   };

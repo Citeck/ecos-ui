@@ -612,9 +612,12 @@
   "header.site-menu.go-home-page": "Go home",
   "header.site-menu.menu-settings": "Menu settings",
   "header.site-menu.page-settings": "Page settings",
+
   "modal.make-notavailable.start.label": "Beginning of absence",
   "modal.make-notavailable.end.label": "End of absence",
   "modal.make-notavailable.auto-answer.label": "Auto answer",
+  "modal.make-notavailable.end.error.big-date": "The start date cannot be greater than the end date",
+
   "hints.disabled": "Hints is disabled",
   "hints.enabled": "Hints is enabled",
 
@@ -1268,6 +1271,7 @@
   "menu-settings.tabs.menu-config": "Selected configuration settings",
   "menu-settings.tabs.global-config": "Global settings",
   "menu-settings.tabs.menu-create-config": "Menu \"Create\"",
+  "menu-settings.tabs.menu-user-config": "User menu",
   "menu-settings.text.default": "Default",
   "menu-settings.desc.global-config": "These settings apply to the entire site.\n\nThe group list corresponds to values are specified in all menu configurations.\nGroup priority is inversely proportional to the level of the group's hierarchy in the Organizational Chart or the level of the functional hierarchy.The more specific group, than priority is higher.\nAdministrator groups are usually placed first. User has the highest priority.",
   "menu-settings.desc.editor-group-priority": "Use drag-and-drop to change priority.",
@@ -1321,6 +1325,8 @@
   "menu-settings.editor-group-priority.title": "Group priority",
   "menu-settings.error-boundary.title": "Error",
   "menu-settings.error-boundary.msg": "Try reopen the settings. If the error reappears, contact your administrator",
+  "menu-editor.user.empty.msg": "The user menu is not configured or all items are hidden. In order to comfortably interact with the site, the basic user menu will be displayed:\n{{items}}",
+
   "menu-settings.error.no-id-config": "User menu ID is absent",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
@@ -1341,6 +1347,12 @@
   "menu-item.type.header-divider": "Header Divider",
   "menu-item.type.create-in-section": "Create in section options",
   "menu-item.type.edit-record": "Editing a record",
+  "menu-item.type.user-profile": "User profile",
+  "menu-item.type.user-status": "Change status",
+  "menu-item.type.user-change-password": "Change password",
+  "menu-item.type.user-feedback": "Feedback",
+  "menu-item.type.user-send-problem-report": "Report a problem",
+  "menu-item.type.user-logout": "Log out",
   "menu-item.type.start-workflow": "Start workflow",
 
   "icon-select.title": "Select Icon",

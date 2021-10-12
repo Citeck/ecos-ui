@@ -819,6 +819,7 @@ export function objectCompare(obj1, obj2, params = {}) {
 
 export function getMLValue(text) {
   let displayText = text || '';
+
   if (!isObject(text)) {
     return displayText;
   }

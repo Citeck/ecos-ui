@@ -204,6 +204,53 @@
         @extend %ellipsis;
       }
     }
+
+    &__menu {
+      &-item {
+        display: flex;
+        width: 100%;
+        border: unset;
+        padding: 10px 15px;
+        background: $color-white;
+        color: $text-color-dark;
+        cursor: pointer;
+        font-size: $font-size-standard;
+        font-weight: 600;
+
+        &:first-child {
+          border-top-left-radius: $border-radius-standard;
+          border-top-right-radius: $border-radius-standard;
+        }
+
+        &:last-child {
+          border-bottom-left-radius: $border-radius-standard;
+          border-bottom-right-radius: $border-radius-standard;
+        }
+
+        &:focus,
+        &:focus-visible {
+          outline: none;
+        }
+
+        &:hover {
+          background: $color-gray-4;
+        }
+
+        &-label {
+          @extend %ellipsis;
+
+          padding-left: 9px;
+        }
+
+        .icon:not(.icon_on):not(.icon_off) {
+          color: $color-gray-5;
+
+          &:before {
+            font-size: $font-size-extra-large;
+          }
+        }
+      }
+    }
   }
 
   &-lang {

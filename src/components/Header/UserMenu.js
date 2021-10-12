@@ -4,8 +4,10 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
-import { t } from '../../helpers/util';
-import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
+import { extractLabel, t } from '../../helpers/util';
+import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
+import MenuService from '../../services/MenuService';
+import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
 import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
@@ -41,9 +43,30 @@ class UserMenu extends React.Component {
     }));
   };
 
+  renderMenuItem = (item, key) => {
+    const icon = extractIcon(item.icon);
+    const extraProps = {};
+
+    if (item.info) {
+      extraProps.title = extractLabel(item.info);
+    }
+
+    return (
+      <button
+        key={item.id || key}
+        className="ecos-header-user__menu-item"
+        onClick={() => MenuService.getUserMenuCallback(item)}
+        {...extraProps}
+      >
+        {icon && <EcosIcon data={getIconObjectWeb(item.icon)} />}
+        <span className="ecos-header-user__menu-item-label">{extractLabel(item.label)}</span>
+      </button>
+    );
+  };
+
   render() {
     const { dropdownOpen } = this.state;
-    const { isLoading, userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
+    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames('ecos-header-user__btn', 'ecos-btn_tight', 'ecos-btn_r_6', 'ecos-btn_blue-classic', {
@@ -64,7 +87,12 @@ class UserMenu extends React.Component {
             </Tooltip>
           </DropdownToggle>
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
-            <EcosDropdownMenu items={items} emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)} />
+            <EcosDropdownMenu
+              items={items}
+              mode={'custom'}
+              emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
+              renderItem={this.renderMenuItem}
+            />
           </DropdownMenu>
         </Dropdown>
       </>

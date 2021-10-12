@@ -292,7 +292,8 @@ const dialogsById = {
     };
 
     if (showDefaultButtons && formProps.formDefinition) {
-      let definition = formProps.formDefinition;
+      const definition = formProps.formDefinition;
+
       if (definition.components) {
         formProps.formDefinition = {
           ...formProps.formDefinition,
@@ -301,14 +302,13 @@ const dialogsById = {
             {
               label: 'Columns',
               columns: [
-                { xs: 0, sm: 12, md: 4, lg: 0, xl: 0, index: 0 },
                 {
                   xs: 0,
                   sm: 12,
                   md: 4,
                   lg: 0,
                   xl: 0,
-                  index: 1,
+                  index: 0,
                   components: [
                     {
                       label: t('btn.cancel.label'),
@@ -319,6 +319,7 @@ const dialogsById = {
                     }
                   ]
                 },
+                { xs: 0, sm: 12, md: 4, lg: 0, xl: 0, index: 1 },
                 {
                   xs: 0,
                   sm: 12,

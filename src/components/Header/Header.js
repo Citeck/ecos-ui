@@ -36,6 +36,9 @@ const mapStateToProps = state => ({
 });
 
 class Header extends React.Component {
+  #userMenuUpdateWatcher;
+  #createMenuUpdateWatcher;
+
   state = {
     widthHeader: 0
   };
@@ -47,16 +50,30 @@ class Header extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.menuId && this.props.menuId) {
-      this.recordMenu = Records.get(`${SourcesId.RESOLVED_MENU}@${this.props.menuId}`);
-      this.updateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
+    const { menuId } = this.props;
+
+    if (prevProps.menuId && menuId) {
+      let record = menuId.replace(SourcesId.MENU, SourcesId.RESOLVED_MENU);
+
+      if (record.indexOf(SourcesId.RESOLVED_MENU) !== 0) {
+        record = `${SourcesId.RESOLVED_MENU}@${record}`;
+      }
+
+      this.recordMenu = Records.get(record);
+
+      this.#createMenuUpdateWatcher = this.recordMenu.watch('subMenu.create?json', () => {
         this.props.fetchCreateCaseWidgetData();
+      });
+
+      this.#userMenuUpdateWatcher = this.recordMenu.watch('subMenu.user?json', () => {
+        this.props.fetchUserMenuData();
       });
     }
   }
 
   componentWillUnmount() {
-    this.recordMenu && this.updateWatcher && this.recordMenu.unwatch(this.updateWatcher);
+    this.recordMenu && this.#createMenuUpdateWatcher && this.recordMenu.unwatch(this.#createMenuUpdateWatcher);
+    this.recordMenu && this.#userMenuUpdateWatcher && this.recordMenu.unwatch(this.#userMenuUpdateWatcher);
   }
 
   get menuWidth() {

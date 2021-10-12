@@ -1,87 +1,10 @@
 import isEmpty from 'lodash/isEmpty';
 
-import { SourcesId, URL } from '../constants';
+import { URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
-import Records from '../components/Records';
 import MenuSettingsService from '../services/MenuSettingsService';
 import DashboardService from '../services/dashboard';
-import { HandleControlTypes } from './handleControl';
-import { createProfileUrl } from './urls';
 import { documentScrollTop } from './util';
-
-const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
-const DEFAULT_REPORT_ISSUE_URL =
-  'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
-
-export const makeUserMenuItems = async (userName, isAvailable, isMutable, isExternalIDP) => {
-  const customFeedbackUrlPromise = Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
-    .load('value?str')
-    .then(value => value || DEFAULT_FEEDBACK_URL)
-    .catch(() => DEFAULT_FEEDBACK_URL);
-  const customReportIssueUrlPromise = Records.get(`${SourcesId.CONFIG}@custom-report-issue-url`)
-    .load('value?str', true)
-    .then(value => value || DEFAULT_REPORT_ISSUE_URL)
-    .catch(() => DEFAULT_REPORT_ISSUE_URL);
-
-  const urls = await Promise.all([customFeedbackUrlPromise, customReportIssueUrlPromise]);
-  const availability = 'make-' + (isAvailable === false ? '' : 'not') + 'available';
-  const userMenuItems = [];
-
-  userMenuItems.push(
-    {
-      id: 'HEADER_USER_MENU_MY_PROFILE',
-      label: 'header.user-menu.my-profile',
-      targetUrl: createProfileUrl(encodeURIComponent(userName))
-    },
-    {
-      id: 'HEADER_USER_MENU_AVAILABILITY',
-      label: 'header.' + availability + '.label',
-      control: {
-        type: HandleControlTypes.ECOS_EDIT_AVAILABILITY,
-        payload: { isAvailable }
-      }
-    },
-    {
-      id: 'HEADER_USER_MENU_EDIT_PASSWORD',
-      label: 'header.user-menu.edit-password',
-      control: {
-        type: HandleControlTypes.ECOS_EDIT_PASSWORD
-      }
-    }
-  );
-
-  const customFeedbackUrl = urls[0] || DEFAULT_FEEDBACK_URL;
-  const customReportIssueUrl = urls[1] || DEFAULT_REPORT_ISSUE_URL;
-
-  userMenuItems.push(
-    {
-      id: 'HEADER_USER_MENU_FEEDBACK',
-      label: 'header.feedback.label',
-      targetUrl: customFeedbackUrl,
-      targetUrlType: 'FULL_PATH',
-      target: '_blank'
-    },
-    {
-      id: 'HEADER_USER_MENU_REPORTISSUE',
-      label: 'header.reportIssue.label',
-      targetUrl: customReportIssueUrl,
-      targetUrlType: 'FULL_PATH',
-      target: '_blank'
-    }
-  );
-
-  if (!isExternalIDP) {
-    userMenuItems.push({
-      id: 'HEADER_USER_MENU_LOGOUT',
-      label: 'header.logout.label',
-      control: {
-        type: HandleControlTypes.ALF_DOLOGOUT
-      }
-    });
-  }
-
-  return userMenuItems;
-};
 
 export function processMenuItemsFromOldMenu(oldMenuItems) {
   let siteMenuItems = [];
@@ -186,26 +109,19 @@ export function getIconClassMenu(id, specialClass) {
       return 'icon-edit';
     case 'HEADER_USER_MENU_AVAILABILITY':
       return specialClass || '';
-    case 'HEADER_USER_MENU_PASSWORD':
-      return '';
     case 'HEADER_USER_MENU_FEEDBACK':
       return 'icon-notify';
     case 'HEADER_USER_MENU_REPORTISSUE':
       return 'icon-alert';
     case 'HEADER_USER_MENU_LOGOUT':
       return 'icon-exit';
+    case 'HEADER_USER_MENU_PASSWORD':
     case 'HEADER_SITE_INVITE':
-      return '';
     case 'HEADER_CUSTOMIZE_SITE_DASHBOARD':
-      return '';
     case 'HEADER_EDIT_SITE_DETAILS':
-      return '';
     case 'HEADER_CUSTOMIZE_SITE':
-      return '';
     case 'HEADER_LEAVE_SITE':
-      return '';
     case 'HEADER_SITE_JOURNALS':
-      return '';
     default:
       return '';
   }
