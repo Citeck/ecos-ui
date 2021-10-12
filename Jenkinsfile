@@ -47,15 +47,15 @@ timestamps {
         } catch (Exception e) {
           // no tag
         }
-        def buildShouldBeStopped = true
+        def buildStopMsg = ""
         if (tag == "") {
-          echo "You should add tag with version to build release from non-master branch. Version: " + project_version
+          buildStopMsg = "You should add tag with version to build release from non-master branch. Version: " + project_version
         } else if (tag != project_version) {
-          echo "Release tag doesn't match version. Tag: " + tag + " Version: " + project_version
-        } else {
-          buildShouldBeStopped = false
+          buildStopMsg = "Release tag doesn't match version. Tag: " + tag + " Version: " + project_version
         }
-        if (buildShouldBeStopped) {
+        if (buildStopMsg != "") {
+          echo buildStopMsg
+          buildTools.notifyBuildWarning(repoUrl, buildStopMsg, env)
           currentBuild.result = 'NOT_BUILT'
           return
         }
