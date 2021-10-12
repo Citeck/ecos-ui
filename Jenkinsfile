@@ -48,8 +48,8 @@ timestamps {
           // no tag
         }
         def buildShouldBeStopped = true
-        if (tag.contains("no tag")) {
-          echo "You should add tag with version to build release from non-master branch"
+        if (tag == "") {
+          echo "You should add tag with version to build release from non-master branch. Version: " + project_version
         } else if (tag != project_version) {
           echo "Release tag doesn't match version. Tag: " + tag + " Version: " + project_version
         } else {
