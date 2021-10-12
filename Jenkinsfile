@@ -56,7 +56,7 @@ timestamps {
           buildShouldBeStopped = false
         }
         if (buildShouldBeStopped) {
-          currentBuild.result = 'NOT_BUILD'
+          currentBuild.result = 'NOT_BUILT'
           return
         }
       }
