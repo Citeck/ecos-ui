@@ -77,7 +77,6 @@ timestamps {
           }
 
           sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
-
         }
       }
 
@@ -86,6 +85,10 @@ timestamps {
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
           string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase())
         ]
+      }
+
+      stage('Clean') {
+        sh "yarn clean"
       }
 
     } catch (Exception e) {
