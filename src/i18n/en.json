@@ -663,8 +663,6 @@
   "journal.group-actions.selected-records": "Selected records: {{data}}",
   "journal.group-actions.selected-records.label_short": "Selected: {{data}}",
   "journal.group-actions.selected-records.label-count": "{{selected}} out of {{total}}",
-  "journal.group-actions.selected-records.tooltip": "Actions are not available for the entire selection or for more than 100 records. ",
-  "journal.group-actions.selected-records.tooltip-result": "Consider actions in \"{{list}}\"",
   "journal.group-actions.filter-result": "Filter Result",
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",

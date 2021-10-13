@@ -17,6 +17,11 @@
         }
       }
     }
+
+    &-extra {
+      padding: 0 15px;
+      display: flex;
+    }
   }
 
   &__create-btn {
@@ -55,7 +60,9 @@
 
       &:hover {
         background-color: $color-gray-1;
-        color: $text-color-dark;
+        & > :nth-child(n) {
+          color: $text-color-dark;
+        }
       }
     }
   }

@@ -187,8 +187,8 @@ export class AppApi extends CommonApi {
       .catch(() => false);
   };
 
-  getSeparatedDropdownActionsForAll() {
-    return Records.get(`${SourcesId.CONFIG}@separate-journal-action-dropdown-for-all`)
+  getSeparateActionListForQuery() {
+    return Records.get(`${SourcesId.CONFIG}@separate-action-list-for-query`)
       .load('value?bool!false', true)
       .catch(() => false);
   }

@@ -8,9 +8,9 @@ import {
   setDashboardEditable,
   setFooter,
   setHomeLink,
-  setJournalSeparatedDropdownActionsForAll,
   setLeftMenuEditable,
-  setRedirectToNewUi
+  setRedirectToNewUi,
+  setSeparateActionListForQuery
 } from '../actions/app';
 
 const initialState = {
@@ -77,10 +77,10 @@ export default handleActions(
         homeLink: action.payload
       };
     },
-    [setJournalSeparatedDropdownActionsForAll]: (state, action) => {
+    [setSeparateActionListForQuery]: (state, action) => {
       return {
         ...state,
-        journalSeparatedDropdownActionsForAll: action.payload
+        isSeparateActionListForQuery: action.payload
       };
     }
   },

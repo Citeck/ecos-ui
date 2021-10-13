@@ -8,6 +8,7 @@ import set from 'lodash/set';
 import get from 'lodash/get';
 import head from 'lodash/head';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import find from 'lodash/find';
@@ -88,7 +89,7 @@ class Grid extends Component {
       this._tableDom = this.#gridRef.querySelector('table');
     }
 
-    if (isEmpty(prevProps.selected) && !isEmpty(this.props.selected)) {
+    if (!isEqual(prevProps.selected, this.props.selected)) {
       this.setState({ selected: this.props.selected });
     }
 
@@ -957,7 +958,7 @@ class Grid extends Component {
     if (isEmpty(columns)) {
       return null;
     }
-
+    console.log(this.props.selected);
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
 

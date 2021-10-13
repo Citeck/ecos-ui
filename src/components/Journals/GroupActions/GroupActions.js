@@ -5,10 +5,11 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import uniqueId from 'lodash/uniqueId';
+import isNil from 'lodash/isNil';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { execRecordsAction, setSelectAllRecords, setSelectedRecords } from '../../../actions/journals';
+import { execRecordsAction } from '../../../actions/journals';
 import { selectGroupActionsProps } from '../../../selectors/journals';
 import { DropdownOuter } from '../../common/form';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -20,8 +21,6 @@ const Labels = {
   SELECTED: 'journal.group-actions.selected-records.label',
   SELECTED_SHORT: 'journal.group-actions.selected-records.label_short',
   SELECTED_COUNT: 'journal.group-actions.selected-records.label-count',
-  SELECTED_TIP: 'journal.group-actions.selected-records.tooltip',
-  SELECTED_TIP_RESULT: 'journal.group-actions.selected-records.tooltip-result',
   RESULT: 'journal.group-actions.filter-result'
 };
 
@@ -34,12 +33,11 @@ const GroupActions = React.memo(
   props => {
     const [isOpenRecActions, setOpenRecActions] = useState(false);
     const [isOpenQueryActions, setOpenQueryActions] = useState(false);
-    const [targetRecActions] = useState(uniqueId('group-actions-rec-'));
-    const [tooltipRecActions, setTooltipRecActions] = useState('');
+    const [targetPrefix] = useState(uniqueId('group-actions-'));
     const [recordsActions, setRecordsActions] = useState([]);
     const [queryActions, setQueryActions] = useState([]);
 
-    const { isMobile, grid, selectAllRecordsVisible, selectedRecords, execRecordsAction, separatedDropdownActionsForAll } = props;
+    const { isMobile, grid, selectAllRecordsVisible, selectedRecords, execRecordsAction, isSeparateActionListForQuery } = props;
 
     const total = get(grid, 'total', 0);
     const selectedLen = selectedRecords.length;
@@ -48,34 +46,22 @@ const GroupActions = React.memo(
     const labelRecActions = t(isMobile ? Labels.SELECTED_SHORT : Labels.SELECTED, { data: labelRecActionsCount });
 
     useEffect(() => {
-      const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _handler: TYPE_ACT.RECORDS }));
-      const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _handler: TYPE_ACT.QUERY }));
+      const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
+      const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.QUERY }));
 
-      if (!separatedDropdownActionsForAll) {
+      if (!isSeparateActionListForQuery) {
         recordsActions.push(...queryActions);
-        queryActions.length = 0;
       }
 
       setRecordsActions(recordsActions);
       setQueryActions(queryActions);
-    }, [grid, separatedDropdownActionsForAll]);
-
-    useEffect(() => {
-      let tooltipRecActions = labelRecActionsCount;
-
-      if (selectAllRecordsVisible && separatedDropdownActionsForAll) {
-        tooltipRecActions = t(Labels.SELECTED_TIP);
-        !isEmpty(queryActions) && (tooltipRecActions += t(Labels.SELECTED_TIP_RESULT, { list: t(Labels.RESULT) }));
-      }
-
-      setTooltipRecActions(tooltipRecActions);
-    }, [selectAllRecordsVisible, separatedDropdownActionsForAll]);
+    }, [grid, isSeparateActionListForQuery]);
 
     const handleExecuteAction = useCallback(
       action => {
-        if (action._handler === TYPE_ACT.QUERY) {
+        if (action._typeAct === TYPE_ACT.QUERY) {
           execRecordsAction(grid.query, action);
-        } else if (action._handler === TYPE_ACT.RECORDS) {
+        } else if (action._typeAct === TYPE_ACT.RECORDS) {
           execRecordsAction(selectedRecords, action);
         }
       },
@@ -84,10 +70,10 @@ const GroupActions = React.memo(
 
     const getItemClassName = useCallback(
       action => {
-        const disabled = action._handler === TYPE_ACT.RECORDS && (selectAllRecordsVisible || !selectedLen);
+        const disabled = action._typeAct === TYPE_ACT.RECORDS && (selectAllRecordsVisible || !selectedLen);
         return classNames('ecos-group-actions__dropdown-item', {
           'ecos-group-actions__dropdown-item_disabled': disabled,
-          'ecos-group-actions__dropdown-item_query': action._handler === TYPE_ACT.QUERY
+          'ecos-group-actions__dropdown-item_query': action._typeAct === TYPE_ACT.QUERY
         });
       },
       [selectAllRecordsVisible, !!selectedLen]
@@ -102,7 +88,7 @@ const GroupActions = React.memo(
             isStatic
             valueField={'id'}
             titleField={'pluralName'}
-            keyFields={['id', 'formRef', 'pluralName']}
+            keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
             source={recordsActions}
             className="ecos-group-actions__dropdown"
             menuClassName="ecos-group-actions__dropdown-menu"
@@ -110,25 +96,30 @@ const GroupActions = React.memo(
             onChange={handleExecuteAction}
             itemClassName={getItemClassName}
           >
-            <Tooltip uncontrolled showAsNeeded target={targetRecActions} text={labelRecActions} contentComponent={tooltipRecActions}>
+            <Tooltip
+              uncontrolled
+              showAsNeeded
+              target={targetPrefix + '-rec'}
+              text={labelRecActions}
+              contentComponent={labelRecActionsCount}
+            >
               <IcoBtn
                 invert
                 className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
                 icon={iconOpener(isOpenRecActions)}
-                id={targetRecActions}
+                id={targetPrefix + '-rec'}
               >
                 {labelRecActions}
               </IcoBtn>
             </Tooltip>
           </DropdownOuter>
         )}
-
-        {separatedDropdownActionsForAll && !isEmpty(queryActions) && (
+        {isSeparateActionListForQuery && !isEmpty(queryActions) && (
           <DropdownOuter
             isStatic
             valueField={'id'}
             titleField={'pluralName'}
-            keyFields={['id', 'formRef', 'pluralName']}
+            keyFields={['pluralName', '_typeAct']}
             source={queryActions}
             className="ecos-group-actions__dropdown"
             controlClassName="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
@@ -142,7 +133,7 @@ const GroupActions = React.memo(
                 'ecos-group-actions__control_mobile': isMobile
               })}
               icons={[classNames({ 'icon-filter icon_semantic': isMobile }), iconOpener(isOpenQueryActions)]}
-              id={targetRecActions}
+              id={targetPrefix}
             >
               {!isMobile && t(Labels.RESULT)}
             </TwoIcoBtn>
@@ -162,8 +153,8 @@ const mapStateToProps = (state, props) => {
   const ownState = selectGroupActionsProps(state, props.stateId);
 
   return {
-    isMobile: get(state, 'view.isMobile'),
-    separatedDropdownActionsForAll: get(state, 'app.journalSeparatedDropdownActionsForAll', false),
+    isMobile: isNil(props.isMobile) ? get(state, 'view.isMobile') : props.isMobile,
+    isSeparateActionListForQuery: get(state, 'app.isSeparateActionListForQuery', false),
     ...ownState
   };
 };
@@ -172,8 +163,6 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
   };
 };

@@ -9,7 +9,7 @@ import {
   getAppEdition,
   getDashboardEditable,
   getFooter,
-  getJournalSeparatedDropdownActionsForAll,
+  getSeparateActionListForQuery,
   initAppFailure,
   initAppRequest,
   initAppSettings,
@@ -18,9 +18,9 @@ import {
   setDashboardEditable,
   setFooter,
   setHomeLink,
-  setJournalSeparatedDropdownActionsForAll,
   setLeftMenuEditable,
-  setRedirectToNewUi
+  setRedirectToNewUi,
+  setSeparateActionListForQuery
 } from '../actions/app';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
@@ -83,7 +83,7 @@ export function* fetchAppSettings({ api, fakeApi, logger }, { payload }) {
     yield put(getDashboardEditable());
     yield put(getAppEdition());
     yield put(getFooter());
-    yield put(getJournalSeparatedDropdownActionsForAll());
+    yield put(getSeparateActionListForQuery());
   } catch (e) {
     logger.error('[app saga] fetchAppSettings error', e);
   }
@@ -169,12 +169,12 @@ function* sagaBackFromHistory({ api, logger }) {
   }
 }
 
-function* fetchGetSeparatedDropdownActionsForAll({ api, logger }) {
+function* fetchGetSeparateActionListForQuery({ api, logger }) {
   try {
-    const flag = yield call(api.app.getSeparatedDropdownActionsForAll);
-    yield put(setJournalSeparatedDropdownActionsForAll(flag));
+    const flag = yield call(api.app.getSeparateActionListForQuery);
+    yield put(setSeparateActionListForQuery(flag));
   } catch (e) {
-    logger.error('[app saga] fetchGetSeparatedDropdownActionsForAll error', e);
+    logger.error('[app saga] fetchGetSeparateActionListForQuery error', e);
   }
 }
 
@@ -188,7 +188,7 @@ function* appSaga(ea) {
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
   yield takeEvery(validateUserFailure().type, sagaRedirectToLoginPage, ea);
-  yield takeEvery(getJournalSeparatedDropdownActionsForAll().type, fetchGetSeparatedDropdownActionsForAll, ea);
+  yield takeEvery(getSeparateActionListForQuery().type, fetchGetSeparateActionListForQuery, ea);
 }
 
 export default appSaga;
