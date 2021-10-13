@@ -8,51 +8,76 @@
   margin-bottom: 12px;
   height: 40px;
 
+  & > :nth-child(n):not(#{$root}-right-side) {
+    margin-right: 15px;
+  }
+
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
+    min-width: 40px;
   }
 
   &-update {
     min-width: 40px;
   }
 
-  &-export,
-  &-update {
+  &-search ~ :nth-child(n) {
     transition: all 0.4s;
   }
 
-  &_mobile &-search {
-    &.search_expanded {
-      & ~ #{$root}-export,
-      & ~ #{$root}-update {
-        transform: scale(0);
-        width: 0;
-        min-width: 0;
-        margin: 0;
-        opacity: 0;
+  &-right-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: auto;
+
+    &:empty {
+      display: none;
+    }
+
+    & > :nth-child(n):not(:last-child) {
+      margin-right: 15px;
+    }
+  }
+
+  &-extra {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+
+    &:empty {
+      display: none;
+    }
+
+    &_mobile {
+      & > :nth-child(n):not(:last-child) {
+        margin-right: 10px;
       }
     }
   }
-}
 
-.ecos-journal__settings-bar_step {
-  &:not(:last-child) {
-    margin-right: 15px;
+  &_mobile {
+    & > #{$root}-search {
+      &.search_expanded {
+        width: 100%;
+
+        & ~ :nth-child(n) {
+          transform: scale(0);
+          width: 0;
+          min-width: 0;
+          margin: 0;
+          opacity: 0;
+        }
+      }
+    }
+
+    & > :nth-child(n):not(#{$root}-right-side) {
+      margin-right: 10px;
+
+      &.search_expanded {
+        margin-right: 0;
+      }
+    }
   }
-
-  &-mobile:not(:last-child) {
-    margin-right: 10px;
-  }
-}
-
-.ecos-journal__settings-bar_right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex: auto;
-}
-
-.ecos-journal__settings-bar_right-btn {
-  position: relative;
-  top: -1px;
 }

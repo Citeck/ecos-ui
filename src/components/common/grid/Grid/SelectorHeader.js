@@ -44,7 +44,7 @@ const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onCli
                 arrowClassName="ecos-grid__checkbox-menu-arrow"
                 innerClassName="ecos-base-tooltip-inner ecos-grid__checkbox-menu-inner"
                 popperClassName="ecos-base-tooltip-popper"
-                delay={0}
+                fade={false}
               >
                 {SELECTOR_MENU.map(item => (
                   <div

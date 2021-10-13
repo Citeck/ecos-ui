@@ -660,6 +660,7 @@
   "journal.title": "Журнал",
   "journal.cell.no-label": "(Нет наименования)",
   "journal.group-actions.selected-records.label": "Выбранные заявки: {{data}}",
+  "journal.group-actions.selected-records.label_short": "Выбрано: {{data}}",
   "journal.group-actions.selected-records.label-count": "{{selected}} из {{total}}",
   "journal.group-actions.selected-records.tooltip": "Действия не доступны для всей выборки или больше 100 записей. ",
   "journal.group-actions.selected-records.tooltip-result": "Рассмотрите действия в \"{{list}}\"",

@@ -15,7 +15,7 @@ class Tooltip extends Component {
   static propTypes = {
     target: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node, PropTypes.string]),
     autohide: PropTypes.bool,
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,

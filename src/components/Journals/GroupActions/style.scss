@@ -17,7 +17,7 @@
     }
 
     &-item {
-      &:not(&_all) + &_all {
+      &:not(&_query) + &_query {
         border-top: $color-gray-2 2px solid;
       }
     }
@@ -29,5 +29,14 @@
     text-overflow: ellipsis;
     font-size: 14px;
     padding: 0 15px;
+
+    & .icon_semantic {
+      font-size: 17px;
+      color: $color-gray-5;
+    }
+  }
+
+  &__control_mobile.ecos-btn {
+    padding: 0 10px;
   }
 }

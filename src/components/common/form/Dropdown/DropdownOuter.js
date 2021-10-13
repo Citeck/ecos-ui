@@ -61,6 +61,7 @@ export default class DropdownOuter extends Dropdown {
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
           placement="bottom-start"
           modifiers={modifiers}
+          fade={false}
         >
           <ClickOutside
             className={this.cssDropdownMenu}
