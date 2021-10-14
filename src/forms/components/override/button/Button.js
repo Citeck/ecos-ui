@@ -9,7 +9,8 @@ export default class ButtonComponent extends FormIOButtonComponent {
   static schema(...extend) {
     return FormIOButtonComponent.schema(
       {
-        removeIndents: false
+        removeIndents: false,
+        disableOnFormInvalid: false
       },
       ...extend
     );
@@ -22,10 +23,14 @@ export default class ButtonComponent extends FormIOButtonComponent {
   }
 
   get shouldDisable() {
-    return super.shouldDisable || (this.component.disableOnInvalid && !this.root.isValid(this.data, true));
+    return super.shouldDisable || (this.component.disableOnFormInvalid && !this.root.isValid(this.data, true));
   }
 
   set disabled(disabled) {
+    if (disabled && (this.component.disableOnInvalid && !this.shouldDisable)) {
+      disabled = false;
+    }
+
     super.disabled = disabled;
   }
 
@@ -175,5 +180,13 @@ export default class ButtonComponent extends FormIOButtonComponent {
           break;
       }
     });
+
+    this.on(
+      'change',
+      value => {
+        this.disabled = this.options.readOnly || (this.component.disableOnFormInvalid && !value.isValid);
+      },
+      true
+    );
   }
 }

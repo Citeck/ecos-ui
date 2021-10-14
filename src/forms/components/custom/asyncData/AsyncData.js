@@ -171,7 +171,6 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   _updateValue(forceUpdate) {
-    // console.log('_updateValue', this.key)
     let comp = this.component;
     let type = _.get(comp, 'source.type', '');
     let self = this;
@@ -431,8 +430,8 @@ export default class AsyncDataComponent extends BaseComponent {
     return super.destroy();
   }
 
-  build() {
-    super.build();
+  build(state) {
+    super.build(state);
 
     this._recordWatchers = {};
     this.activeAsyncActionsCounter = 0;
