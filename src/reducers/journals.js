@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
 import {
+  deselectAllRecords,
   initState,
   runSearch,
   setColumnsSetup,
@@ -21,12 +22,12 @@ import {
   setJournalsList,
   setJournalsListItem,
   setOnlyLinked,
-  setPredicate,
   setOriginGridSettings,
+  setPredicate,
   setPreviewFileName,
   setPreviewUrl,
   setRecordRef,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords,
   setSettingItem,
@@ -109,7 +110,7 @@ export const defaultState = {
   },
 
   selectedRecords: [],
-  selectAllRecords: false,
+  selectAllPageRecords: false,
   selectAllRecordsVisible: false,
 
   inlineToolSettings: DEFAULT_INLINE_TOOL_SETTINGS,
@@ -444,17 +445,22 @@ export default handleActions(
 
       return handleState(state, stateId, { selectedRecords: action.payload });
     },
-    [setSelectAllRecords]: (state, action) => {
+    [setSelectAllPageRecords]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, { selectAllRecords: action.payload });
+      return handleState(state, stateId, { selectAllPageRecords: action.payload });
     },
     [setSelectAllRecordsVisible]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
       return handleState(state, stateId, { selectAllRecordsVisible: action.payload });
+    },
+    [deselectAllRecords]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, { selectAllRecordsVisible: false, selectAllPageRecords: false, selectedRecords: [] });
     },
     [setLoading]: (state, action) => {
       const stateId = action.payload.stateId;

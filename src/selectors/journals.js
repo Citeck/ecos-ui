@@ -29,7 +29,7 @@ export const selectGroupActionsProps = createSelector(
     grid: ownState.grid || {},
     columnsSetup: ownState.columnsSetup,
     selectedRecords: ownState.selectedRecords || [],
-    selectAllRecords: ownState.selectAllRecords,
+    selectAllPageRecords: ownState.selectAllPageRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible
   })
 );

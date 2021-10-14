@@ -19,7 +19,7 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setRecordRef,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectedRecords
 } from '../../../actions/journals';
 
@@ -47,7 +47,7 @@ const mapStateToProps = (state, ownProps) => {
     isMobile: state.view.isMobile,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
+    selectAllPageRecords: newState.selectAllPageRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible
   };
 };
@@ -63,7 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setDashletConfigByParams: (id, config, recordRef) => dispatch(setDashletConfigByParams(w({ id, config, recordRef }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
   };
 };
@@ -95,7 +95,7 @@ class JournalsDashlet extends BaseWidget {
     isMobile: PropTypes.bool,
     journalConfig: PropTypes.object,
     selectedRecords: PropTypes.array,
-    selectAllRecords: PropTypes.bool,
+    selectAllPageRecords: PropTypes.bool,
     selectAllRecordsVisible: PropTypes.bool
   };
 
@@ -184,19 +184,19 @@ class JournalsDashlet extends BaseWidget {
   }
 
   handleSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
+    const { setSelectAllPageRecords, selectAllPageRecords, setSelectedRecords } = this.props;
 
-    setSelectAllRecords(!selectAllRecords);
+    setSelectAllPageRecords(!selectAllPageRecords);
 
-    if (!selectAllRecords) {
+    if (!selectAllPageRecords) {
       setSelectedRecords([]);
     }
   };
 
   handleExecuteGroupAction(action) {
-    const { selectAllRecords } = this.props;
+    const { selectAllPageRecords } = this.props;
 
-    if (!selectAllRecords) {
+    if (!selectAllPageRecords) {
       const records = get(this.props, 'selectedRecords', []);
 
       this.props.execRecordsAction(records, action);

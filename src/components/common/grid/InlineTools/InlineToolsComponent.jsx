@@ -52,7 +52,7 @@ class InlineTools extends Component {
       className,
       inlineToolSettings: { actions = [], row = {}, ...style },
       selectedRecords,
-      selectAllRecords,
+      selectAllPageRecords,
       actionsProps,
       withTooltip
     } = this.props;
@@ -61,7 +61,7 @@ class InlineTools extends Component {
       return null;
     }
 
-    const selected = selectedRecords.includes(row.id) || selectAllRecords;
+    const selected = selectedRecords.includes(row.id) || selectAllPageRecords;
 
     return (
       <div style={style} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>

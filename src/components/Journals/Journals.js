@@ -9,7 +9,7 @@ import debounce from 'lodash/debounce';
 import EcosModal from '../common/EcosModal/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
-import { getJournalsData, reloadGrid, restoreJournalSettingData, runSearch, setUrl } from '../../actions/journals';
+import { deselectAllRecords, getJournalsData, reloadGrid, restoreJournalSettingData, runSearch, setUrl } from '../../actions/journals';
 import { JournalUrlParams } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
@@ -53,6 +53,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
+    deselectAllRecords: () => dispatch(deselectAllRecords(w())),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams)))
@@ -114,7 +115,7 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, reloadGrid, setUrl } = this.props;
+    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, setUrl } = this.props;
     const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
     const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
@@ -138,7 +139,7 @@ class Journals extends Component {
 
     if (isActivePage && this.state.isForceUpdate) {
       this.setState({ isForceUpdate: false });
-      reloadGrid();
+      this.handleReloadJournal();
     }
 
     if (_isActivePage && !isActivePage && isLoading) {
@@ -358,8 +359,13 @@ class Journals extends Component {
     return height < journalMinHeight ? journalMinHeight : height;
   };
 
+  handleReloadJournal = () => {
+    this.props.deselectAllRecords();
+    this.props.reloadGrid();
+  };
+
   render() {
-    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords, reloadGrid } = this.props;
+    const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords } = this.props;
     const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset, createIsLoading } = this.state;
 
     if (!journalConfig) {
@@ -402,7 +408,7 @@ class Journals extends Component {
                 onToggleSettings={this.toggleSettings}
                 togglePreview={this.togglePreview}
                 showGrid={this.showGrid}
-                onRefresh={reloadGrid}
+                onRefresh={this.handleReloadJournal}
                 onSearch={this.onSearch}
                 onAddRecord={this.addRecord}
                 isMobile={isMobile}

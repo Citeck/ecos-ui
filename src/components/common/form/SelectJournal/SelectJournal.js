@@ -847,8 +847,6 @@ export default class SelectJournal extends Component {
                 {...gridData}
                 singleSelectable={!multiple}
                 multiSelectable={multiple}
-                selectAllRecords={null}
-                selectAllRecordsVisible={null}
                 className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
                 scrollable={false}
                 onSelect={this.onSelectGridItem}

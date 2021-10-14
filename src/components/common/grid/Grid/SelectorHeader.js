@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import { Tooltip } from 'reactstrap';
@@ -6,12 +7,12 @@ import { Tooltip } from 'reactstrap';
 import { t } from '../../../../helpers/util';
 import { Checkbox } from '../../form';
 import { Icon } from '../../';
-import { SELECTOR_MENU, SELECTOR_MODE } from '../util';
+import { SELECTOR_MENU } from '../util';
 
 import '../../Tooltip/style.scss';
 import './Grid.scss';
 
-const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onClickMenu }) => {
+const SelectorHeader = ({ latent, indeterminate, mode, checked, disabled, hasMenu, onClickMenu }) => {
   const [target] = useState(uniqueId('SelectorHeader-'));
   const [isOpen, setOpen] = useState(false);
 
@@ -31,9 +32,9 @@ const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onCli
 
   return (
     <div className={classNames('ecos-grid__checkbox', { 'ecos-grid__checkbox_has-menu': hasMenu })}>
-      {mode === SELECTOR_MODE.CHECKBOX && (
+      {mode === BootstrapTableConst.ROW_SELECT_MULTIPLE && (
         <>
-          <Checkbox indeterminate={indeterminate} checked={checked} disabled={disabled} />
+          <Checkbox latent={latent} indeterminate={indeterminate} checked={checked} disabled={disabled} />
           {hasMenu && (
             <>
               <Tooltip

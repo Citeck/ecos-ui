@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
+import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
@@ -65,6 +66,12 @@ class Grid extends Component {
     };
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (!isEqual(props.selected, state.selected)) {
+      return { selected: props.selected };
+    }
+  }
+
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
@@ -87,10 +94,6 @@ class Grid extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
-    }
-
-    if (!isEqual(prevProps.selected, this.props.selected)) {
-      this.setState({ selected: this.props.selected });
     }
 
     this.setColumnsSizes();
@@ -242,8 +245,9 @@ class Grid extends Component {
     }
   };
 
-  onSelect = (allPage, selected, allPossible) => {
+  onSelect = (allPage, newSelected, allPossible) => {
     const { onSelect } = this.props;
+    const selected = [...new Set(newSelected)];
 
     this.setState(
       { selected },
@@ -547,7 +551,7 @@ class Grid extends Component {
     const { selected } = this.state;
 
     return {
-      mode: SELECTOR_MODE.RADIO,
+      mode: BootstrapTableConst.ROW_SELECT_SINGLE,
       classes: 'ecos-grid__tr_selected',
       selected,
       nonSelectable: props.nonSelectable || [],
@@ -567,7 +571,7 @@ class Grid extends Component {
     const selected = props.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
 
     return {
-      mode: SELECTOR_MODE.CHECKBOX,
+      mode: BootstrapTableConst.ROW_SELECT_MULTIPLE,
       classes: 'ecos-grid__tr_selected',
       selected,
       nonSelectable: props.nonSelectable || [],
@@ -586,8 +590,11 @@ class Grid extends Component {
     this.onSelect(false, newSelected);
   };
 
-  handleSelectAllCheckbox = isSelect => {
-    const items = isSelect ? this.getSelectedPageItems() : [];
+  handleSelectAllCheckbox = (isSelect, rows) => {
+    const { selected } = this.state;
+    const page = this.getSelectedPageItems();
+    const ids = rows.map(row => row.id);
+    const items = isSelect ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
     this.onSelect(isSelect, items);
   };
@@ -958,7 +965,7 @@ class Grid extends Component {
     if (isEmpty(columns)) {
       return null;
     }
-    console.log(this.props.selected);
+
     const bootProps = this.setBootstrapTableProps(otherProps, { columns: cloneDeep(columns), rowEvents: cloneDeep(rowEvents) });
     const toolsVisible = this.toolsVisible();
 
