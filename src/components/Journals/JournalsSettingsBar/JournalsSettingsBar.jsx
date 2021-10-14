@@ -40,7 +40,7 @@ const JournalsSettingsBar = ({
   return (
     <>
       <div className={classNames('ecos-journal__settings-bar', { 'ecos-journal__settings-bar_mobile': isMobile })}>
-        {noCreateMenu && <CreateMenu createIsLoading={createIsLoading} createVariants={createVariants} onAddRecord={onAddRecord} />}
+        {!noCreateMenu && <CreateMenu createIsLoading={createIsLoading} createVariants={createVariants} onAddRecord={onAddRecord} />}
 
         {!isMobile && (
           <IcoBtn
