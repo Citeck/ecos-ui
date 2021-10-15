@@ -189,7 +189,7 @@ export class AppApi extends CommonApi {
 
   getSeparateActionListForQuery() {
     return Records.get(`${SourcesId.CONFIG}@separate-action-list-for-query`)
-      .load('value?bool!false', true)
+      .load('value?bool!false')
       .catch(() => false);
   }
 
