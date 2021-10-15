@@ -3,7 +3,6 @@ import { ActionModes, SourcesId } from '../../../../../constants';
 import Records from '../../../Records';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
-import isString from 'lodash/isString';
 
 export default class ViewAction extends ActionsExecutor {
   static ACTION_ID = 'view';
