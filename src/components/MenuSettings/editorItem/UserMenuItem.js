@@ -1,8 +1,8 @@
 import React from 'react';
 import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import merge from 'lodash/merge';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { MenuApi } from '../../../api/menu';
 import { t } from '../../../helpers/export/util';
@@ -31,19 +31,19 @@ class UserMenuItem extends Base {
 
   componentDidMount() {
     super.componentDidMount();
-
-    const { label, allowedFor: allowedNames } = this.props.item || {};
+    const { item = {}, type = {} } = this.props || {};
+    const data = cloneDeep(type.default);
+    const { label, allowedFor: allowedNames, icon } = merge(data, item);
 
     this.#unmounted = false;
 
-    this.setState({ label, allowedNames });
+    this.setState({
+      label,
+      allowedNames,
+      icon,
+      defaultIcon: type.default.icon
+    });
     this.getAuthoritiesInfoByName();
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!isEqual(prevProps.item, this.props.item) && !isEmpty(get(this.props, 'item.allowedFor'))) {
-      this.getAuthoritiesInfoByName();
-    }
   }
 
   componentWillUnmount() {
