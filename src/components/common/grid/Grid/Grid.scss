@@ -48,8 +48,6 @@ $header-height: 52px;
     tbody > tr > td:nth-child(1),
     thead > tr > th:nth-child(1) {
       padding: 0;
-      width: 54px;
-      max-width: 54px;
     }
   }
 
@@ -156,11 +154,37 @@ $header-height: 52px;
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
   height: 100%;
-  min-width: $header-height;
-  width: 100%;
+  padding-left: 13px;
+  width: 50px;
   background: $color-white;
+
+  &_has-menu {
+    width: 70px;
+  }
+
+  &_block {
+    width: 100%;
+  }
+
+  &-menu {
+    &-arrow {
+      &:before {
+        display: none;
+      }
+    }
+
+    &-inner.ecos-base-tooltip-inner {
+      max-width: unset;
+      padding: 0;
+    }
+
+    &-opener.icon {
+      font-size: 14px;
+      color: $color-gray-5;
+      padding-left: 8px;
+    }
+  }
 
   &-divider {
     position: absolute;

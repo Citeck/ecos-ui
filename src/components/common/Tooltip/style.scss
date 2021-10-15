@@ -21,6 +21,10 @@
     font-size: 14px;
     line-height: 22px;
     font-family: $font-family;
+
+    &_no-indents {
+      padding: 0;
+    }
   }
 
   &-arrow {
@@ -32,6 +36,30 @@
       height: $size;
       background: $color-white;
       transform: rotate(45deg);
+    }
+  }
+
+  &-item {
+    height: 40px;
+    padding: 10px 15px;
+    background: $color-white;
+    cursor: pointer;
+    text-align: left;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-standard;
+
+    &:hover {
+      background: $color-gray-4;
+    }
+
+    &:first-child {
+      border-top-right-radius: 8px;
+      border-top-left-radius: 8px;
+    }
+
+    &:last-child {
+      border-bottom-right-radius: 8px;
+      border-bottom-left-radius: 8px;
     }
   }
 

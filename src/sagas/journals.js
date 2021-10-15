@@ -47,13 +47,14 @@ import {
   setJournalSetting,
   setJournalSettings,
   setJournalsList,
+  setOriginGridSettings,
   setPredicate,
   setPreviewFileName,
   setPreviewUrl,
+  setSelectAllPageRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords,
-  setUrl,
-  setOriginGridSettings
+  setUrl
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import {
@@ -517,18 +518,27 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     yield put(setLoading(w(true)));
 
     const journalData = yield select(selectJournalData, stateId);
-    const { grid, selectAllRecords } = journalData;
+    const { grid, selectAllPageRecords, selectAllRecordsVisible, selectedRecords } = journalData;
     const searchPredicate = yield getSearchPredicate({ logger, stateId });
     const params = { ...grid, ...(action.payload || {}), searchPredicate: get(action, 'payload.searchPredicate', searchPredicate) };
     const gridData = yield getGridData(api, params, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
+    const pageRecords = get(gridData, 'data', []).map(item => item.id);
 
-    let selectedRecords = [];
-    if (!!selectAllRecords) {
-      selectedRecords = get(gridData, 'data', []).map(item => item.id);
+    let _selectedRecords = [];
+    let _selectAllPageRecords = false;
+
+    if (selectAllRecordsVisible) {
+      _selectAllPageRecords = true;
+      _selectedRecords = pageRecords;
+    } else if (pageRecords.every(rec => selectedRecords.includes(rec))) {
+      _selectAllPageRecords = true;
+    } else if (isArray(selectedRecords)) {
+      _selectedRecords = selectedRecords;
     }
 
-    yield put(setSelectedRecords(w(selectedRecords)));
+    yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
+    yield put(setSelectedRecords(w(_selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
     yield put(setLoading(w(false)));
   } catch (e) {

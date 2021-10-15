@@ -20,9 +20,9 @@ export default class TwoIcoBtn extends Component {
 
     return (
       <button {...props} className={cssClasses}>
-        <i className={classNames('ecos-btn__i', first)} />
+        {first && <i className={classNames('ecos-btn__i', first)} />}
         {children}
-        <i className={classNames('ecos-btn__i', second)} />
+        {second && <i className={classNames('ecos-btn__i', second)} />}
       </button>
     );
   }

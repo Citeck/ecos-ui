@@ -28,8 +28,9 @@ export const execRecordsAction = createAction(prefix + 'EXEC_RECORDS_ACTION');
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
-export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
+export const setSelectAllPageRecords = createAction(prefix + 'SET_SELECT_ALL_PAGE_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
+export const deselectAllRecords = createAction(prefix + 'DESELECT_ALL_RECORDS');
 export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_TOOL_SETTINGS');
 
 export const getJournalsData = createAction(prefix + 'GET_JOURNALS_DATA');

@@ -19,7 +19,7 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setRecordRef,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectedRecords
 } from '../../../actions/journals';
 
@@ -29,7 +29,6 @@ import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
-import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
@@ -48,7 +47,7 @@ const mapStateToProps = (state, ownProps) => {
     isMobile: state.view.isMobile,
     grid: newState.grid,
     selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
+    selectAllPageRecords: newState.selectAllPageRecords,
     selectAllRecordsVisible: newState.selectAllRecordsVisible
   };
 };
@@ -64,7 +63,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     reloadGrid: options => dispatch(reloadGrid(w(options))),
     setDashletConfigByParams: (id, config, recordRef) => dispatch(setDashletConfigByParams(w({ id, config, recordRef }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
   };
 };
@@ -96,7 +95,7 @@ class JournalsDashlet extends BaseWidget {
     isMobile: PropTypes.bool,
     journalConfig: PropTypes.object,
     selectedRecords: PropTypes.array,
-    selectAllRecords: PropTypes.bool,
+    selectAllPageRecords: PropTypes.bool,
     selectAllRecordsVisible: PropTypes.bool
   };
 
@@ -147,10 +146,6 @@ class JournalsDashlet extends BaseWidget {
     return get(this._toolbarRef, 'offsetHeight', 0);
   }
 
-  get groupActionsHeight() {
-    return get(this._groupActionsRef, 'offsetHeight', 0);
-  }
-
   get footerHeight() {
     return get(this._footerRef, 'offsetHeight', 0);
   }
@@ -189,19 +184,19 @@ class JournalsDashlet extends BaseWidget {
   }
 
   handleSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
+    const { setSelectAllPageRecords, selectAllPageRecords, setSelectedRecords } = this.props;
 
-    setSelectAllRecords(!selectAllRecords);
+    setSelectAllPageRecords(!selectAllPageRecords);
 
-    if (!selectAllRecords) {
+    if (!selectAllPageRecords) {
       setSelectedRecords([]);
     }
   };
 
   handleExecuteGroupAction(action) {
-    const { selectAllRecords } = this.props;
+    const { selectAllPageRecords } = this.props;
 
-    if (!selectAllRecords) {
+    if (!selectAllPageRecords) {
       const records = get(this.props, 'selectedRecords', []);
 
       this.props.execRecordsAction(records, action);
@@ -252,26 +247,13 @@ class JournalsDashlet extends BaseWidget {
       return null;
     }
 
-    const { grid, isMobile, selectedRecords, selectAllRecords, selectAllRecordsVisible } = this.props;
-    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight + this.groupActionsHeight;
+    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
 
     return (
       <>
         <Measurer>
           <JournalsDashletToolbar forwardRef={this.setToolbarRef} stateId={stateId} isSmall={width < MIN_WIDTH_DASHLET_LARGE} />
         </Measurer>
-
-        <JournalsGroupActionsTools
-          forwardedRef={this.setGroupActionsRef}
-          className="ecos-journal-dashlet__group-actions"
-          isMobile={isMobile}
-          selectAllRecordsVisible={selectAllRecordsVisible}
-          selectAllRecords={selectAllRecords}
-          grid={grid}
-          selectedRecords={selectedRecords}
-          onExecuteAction={this.handleExecuteGroupAction.bind(this)}
-          onSelectAll={this.handleSelectAllRecords}
-        />
 
         <JournalsDashletGrid
           stateId={stateId}

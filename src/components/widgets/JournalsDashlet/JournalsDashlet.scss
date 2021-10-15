@@ -17,6 +17,11 @@
         }
       }
     }
+
+    &-extra {
+      padding: 0 15px;
+      display: flex;
+    }
   }
 
   &__create-btn {
@@ -43,9 +48,22 @@
   }
 
   &__group-actions {
-    margin-bottom: 0;
-    border-top: 1px $color-gray-4 solid;
-    border-bottom: 1px $color-gray-4 solid;
-    border-radius: 0;
+    display: flex;
+
+    & > :nth-child(n) {
+      margin-right: 10px;
+    }
+
+    .ecos-group-actions__control {
+      color: $text-color-dark;
+      background: $color-gray-4;
+
+      &:hover {
+        background-color: $color-gray-1;
+        & > :nth-child(n) {
+          color: $text-color-dark;
+        }
+      }
+    }
   }
 }

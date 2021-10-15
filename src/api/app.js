@@ -187,6 +187,12 @@ export class AppApi extends CommonApi {
       .catch(() => false);
   };
 
+  getSeparateActionListForQuery() {
+    return Records.get(`${SourcesId.CONFIG}@separate-action-list-for-query`)
+      .load('value?bool!false')
+      .catch(() => false);
+  }
+
   static doLogOut = async () => {
     const shareDoLogout = `${URL_SERVICECONTEXT}dologout`;
 
