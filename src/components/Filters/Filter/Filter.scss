@@ -63,3 +63,16 @@
     margin: 0 !important;
   }
 }
+
+.select__menu-list {
+  .select__option {
+    color: $text-color-dark;
+    font-weight: $font-weight-semi-bold;
+
+    &--is-selected,
+    &--is-focused,
+    &:hover {
+      background-color: $color-gray-1;
+    }
+  }
+}

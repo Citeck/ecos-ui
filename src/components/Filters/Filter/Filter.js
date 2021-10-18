@@ -7,6 +7,7 @@ import omit from 'lodash/omit';
 import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/util';
+import ZIndex from '../../../services/ZIndex';
 import Columns from '../../common/templates/Columns/Columns';
 import { IcoBtn } from '../../common/btns';
 import { Label, Select } from '../../common/form';
@@ -44,6 +45,8 @@ export default class Filter extends Component {
       value: get(props, 'filter.predicate.val', ''),
       hasDataEntry: false
     };
+
+    this.selectZIndex = ZIndex.calcZ();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -241,13 +244,15 @@ export default class Filter extends Component {
 
     return (
       <Select
-        className={this.selectorClassNames}
+        className={classNames(this.selectorClassNames, 'ecosZIndexAnchor')}
         placeholder={t('journals.default')}
         options={predicates}
         getOptionLabel={option => option.label}
         getOptionValue={option => option.value}
         value={this.selectedPredicate}
         onChange={this.onChangePredicate}
+        styles={{ menuPortal: base => ({ ...base, zIndex: this.selectZIndex }) }}
+        menuPortalTarget={document.body}
       />
     );
   }

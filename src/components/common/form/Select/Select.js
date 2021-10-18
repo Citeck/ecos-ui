@@ -6,7 +6,7 @@ import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 
-import { t } from '../../../../helpers/util';
+import { t } from '../../../../helpers/export/util';
 
 import './Select.scss';
 
@@ -51,7 +51,7 @@ export default class Select extends Component {
 
   render() {
     const { loadOptions, ...props } = this.props;
-    const SelectComponent = !loadOptions ? ReactSelect : AsyncSelect;
+    const SelectComponent = loadOptions ? AsyncSelect : ReactSelect;
 
     return (
       <SelectComponent
