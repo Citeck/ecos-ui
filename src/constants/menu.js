@@ -4,6 +4,10 @@ export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';
 
 export const MENU_VERSION = 1;
 
+export const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
+export const DEFAULT_REPORT_ISSUE_URL =
+  'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
+
 export const MenuTypes = {
   LEFT: 'LEFT',
   TOP: 'TOP',
@@ -50,13 +54,13 @@ export const MenuSettings = {
     HEADER_DIVIDER: 'HEADER-DIVIDER',
     CREATE_IN_SECTION: 'CREATE_IN_SECTION',
     EDIT_RECORD: 'EDIT_RECORD',
-    START_WORKFLOW: 'START_WORKFLOW',
     USER_PROFILE: 'USER-PROFILE',
     USER_STATUS: 'USER-STATUS',
     USER_CHANGE_PASSWORD: 'USER-CHANGE-PASSWORD',
     USER_FEEDBACK: 'USER-FEEDBACK',
     USER_SEND_PROBLEM_REPORT: 'USER-SEND-PROBLEM-REPORT',
-    USER_LOGOUT: 'USER-LOGOUT'
+    USER_LOGOUT: 'USER-LOGOUT',
+    START_WORKFLOW: 'START_WORKFLOW'
   }
 };
 

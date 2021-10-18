@@ -7,6 +7,7 @@ import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { DEFAULT_EIS, SourcesId, URL } from '../constants';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { DEFAULT_FEEDBACK_URL, DEFAULT_REPORT_ISSUE_URL } from '../constants/menu';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
@@ -211,5 +212,19 @@ export class AppApi extends CommonApi {
       .postJson(`${PROXY_URI}api/availability/make-available`, { isAvailable })
       .then(window.location.reload)
       .catch(() => '');
+  };
+
+  static getCustomFeedbackUrl = () => {
+    return Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
+      .load('value?str')
+      .then(value => value || DEFAULT_FEEDBACK_URL)
+      .catch(() => DEFAULT_FEEDBACK_URL);
+  };
+
+  static getCustomReportIssueUrl = () => {
+    return Records.get(`${SourcesId.CONFIG}@custom-report-issue-url`)
+      .load('value?str', true)
+      .then(value => value || DEFAULT_REPORT_ISSUE_URL)
+      .catch(() => DEFAULT_REPORT_ISSUE_URL);
   };
 }

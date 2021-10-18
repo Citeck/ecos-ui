@@ -1,6 +1,6 @@
-import { t } from '../util';
+import { t } from '../export/util';
 
-export default {
+const getForm = () => ({
   display: 'form',
   components: [
     {
@@ -36,7 +36,7 @@ export default {
       },
       validate: {
         required: true,
-        custom: "valid = moment(data.dateTime2).isBefore(value) ? true : 'Дата начала не может быть больше даты окончания';"
+        custom: `valid = moment(data.absenceBeginning).isBefore(value) ? true : '${t('modal.make-notavailable.end.error.big-date')}';`
       }
     },
     {
@@ -46,4 +46,6 @@ export default {
       labelPosition: 'left-left'
     }
   ]
-};
+});
+
+export default getForm;

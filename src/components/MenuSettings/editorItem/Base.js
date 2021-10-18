@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { MenuSettings as MS } from '../../../constants/menu';
@@ -16,11 +17,9 @@ import { Field } from '../Field';
 
 import '../style.scss';
 
-const defaultIcon = { value: TMP_ICON_EMPTY, type: 'icon' };
-
 class Base extends React.Component {
   state = {
-    icon: defaultIcon,
+    defaultIcon: { value: TMP_ICON_EMPTY, type: 'icon' },
     isOpenSelectIcon: false,
     isLoading: false
   };
@@ -37,7 +36,8 @@ class Base extends React.Component {
   }
 
   componentDidMount() {
-    const { icon } = this.props.item || {};
+    const { defaultIcon } = this.state;
+    const { icon = defaultIcon } = this.props.item || {};
     this.setState({ icon });
 
     if (!this.type) {
@@ -84,7 +84,7 @@ class Base extends React.Component {
   }
 
   wrapperModal = React.memo((props, context) => {
-    const { icon = defaultIcon, isOpenSelectIcon, isLoading } = this.state;
+    const { defaultIcon = {}, icon = defaultIcon, isOpenSelectIcon, isLoading } = this.state;
     const { item, fontIcons, onClose } = this.props;
     const { hasIcon } = this.permissions;
 
@@ -100,9 +100,9 @@ class Base extends React.Component {
         {hasIcon && (
           <Field label={t(Labels.FIELD_ICON_LABEL)} description={t(Labels.FIELD_ICON_DESC)}>
             <div className="ecos-menu-editor-item__field-icon">
-              <EcosIcon data={icon} />
+              <EcosIcon data={icon} defaultVal={defaultIcon.value} />
               <div className="ecos--flex-space" />
-              {icon !== defaultIcon && (
+              {!isEqual(icon, defaultIcon) && (
                 <Btn className="ecos-btn_hover_light-blue2 ecos-btn_sq_sm" onClick={() => this.handleApplyIcon(defaultIcon)}>
                   {t(Labels.FIELD_ICON_BTN_CANCEL)}
                 </Btn>

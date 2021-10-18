@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
-import isEqual from 'lodash/isEqual';
 
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 import UnreadableLabel from '../../UnreadableLabel';
@@ -19,13 +19,9 @@ export default class BaseReactComponent extends BaseComponent {
     );
   }
 
-  #react = {};
+  react = {};
   #viewOnlyPrev = {};
   #refreshOnValuePrev = {};
-
-  get reactComponent() {
-    return this.#react;
-  }
 
   get isShowElement() {
     if (this.options.builder) {
@@ -52,22 +48,22 @@ export default class BaseReactComponent extends BaseComponent {
       (!isEmpty(this.refreshOnValue) && !isEqual(this.#refreshOnValuePrev, this.refreshOnValue))
     ) {
       super.clear();
-      this.#react = {};
+      this.react = {};
       this.#viewOnlyPrev = this.viewOnly;
       this.#refreshOnValuePrev = this.refreshOnValue;
     }
 
-    const firstBuild = isEmpty(this.#react);
+    const firstBuild = isEmpty(this.react);
 
-    this.#react.wrapper = new Promise(resolveComponent => (this.#react.resolve = resolveComponent)).then(component => {
-      this.#react.wrapper = component;
-      this.#react.resolve = null;
+    this.react.wrapper = new Promise(resolveComponent => (this.react.resolve = resolveComponent)).then(component => {
+      this.react.wrapper = component;
+      this.react.resolve = null;
 
       return component;
     });
 
-    this.#react.innerPromise = new Promise(innerResolve => (this.#react.innerResolve = innerResolve)).then(component => {
-      this.#react.innerResolve = null;
+    this.react.innerPromise = new Promise(innerResolve => (this.react.innerResolve = innerResolve)).then(component => {
+      this.react.innerResolve = null;
 
       return component;
     });
@@ -113,9 +109,9 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   embedReactContainer(container, tag) {
-    if (!this.#react.container) {
-      this.#react.container = this.ce(tag);
-      container.appendChild(this.#react.container);
+    if (!this.react.container) {
+      this.react.container = this.ce(tag);
+      container.appendChild(this.react.container);
     }
   }
 
@@ -126,7 +122,7 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   updateReactComponent(updateFunc) {
-    this.#react.innerPromise.then(comp => {
+    this.react.innerPromise.then(comp => {
       if (typeof updateFunc === 'function') {
         updateFunc(comp);
       }
@@ -134,23 +130,19 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   replaceReactComponent(component) {
-    this.#react.wrapper.setComponent(component);
+    this.react.wrapper.setComponent(component);
   }
 
   setReactProps(props) {
-    if (this.#react.resolve) {
-      this.#react.waitingProps = { ...(this.#react.waitingProps || {}), ...props };
-
-      this.#react.wrapper &&
-        this.#react.wrapper.then(w => {
-          w.setProps(this.#react.waitingProps);
-          this.#react.waitingProps = {};
+    if (this.react.resolve) {
+      this.react.waitingProps = { ...(this.react.waitingProps || {}), ...props };
+      this.react.wrapper &&
+        this.react.wrapper.then(w => {
+          w.setProps(this.react.waitingProps);
+          this.react.waitingProps = {};
         });
-    } else {
-      // is this checking required?
-      if (this.#react.wrapper) {
-        this.#react.wrapper.setProps(props);
-      }
+    } else if (this.react.wrapper) {
+      this.react.wrapper.setProps(props);
     }
   }
 
@@ -165,32 +157,32 @@ export default class BaseReactComponent extends BaseComponent {
   renderReactComponent(firstBuild = true) {
     const component = this.component.unreadable ? UnreadableLabel : this.getComponentToRender();
 
-    if (this.#react.resolve) {
+    if (this.react.resolve) {
       const doRender = (props = {}) => {
         const updateLoadingState = () => {
-          if (this.#react.isMounted && this.#react.innerComponent && this.#react.innerResolve) {
-            this.#react.innerResolve(this.#react.innerComponent);
+          if (this.react.isMounted && this.react.innerComponent && this.react.innerResolve) {
+            this.react.innerResolve(this.react.innerComponent);
           }
         };
 
         ReactDOM.render(
           <RawHtmlWrapper
             onMounted={() => {
-              this.#react.isMounted = true;
+              this.react.isMounted = true;
               updateLoadingState();
             }}
             onComponentLoaded={comp => {
-              this.#react.innerComponent = comp;
+              this.react.innerComponent = comp;
               updateLoadingState();
             }}
             component={component}
-            ref={this.#react.resolve}
+            ref={this.react.resolve}
             props={props}
           />,
-          this.#react.container
+          this.react.container
         );
 
-        if (!firstBuild && !isEqual(this.#react.innerComponent.props, props)) {
+        if (!firstBuild && !isEqual(this.react.innerComponent.props, props)) {
           this.setReactProps(props);
         }
       };
@@ -206,9 +198,9 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   destroy() {
-    if (this.#react.container) {
-      ReactDOM.unmountComponentAtNode(this.#react.container);
-      this.#react.wrapper = null;
+    if (this.react.container) {
+      ReactDOM.unmountComponentAtNode(this.react.container);
+      this.react.wrapper = null;
     }
 
     return super.destroy();

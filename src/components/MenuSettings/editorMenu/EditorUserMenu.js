@@ -4,11 +4,11 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import { Alert } from 'reactstrap';
 
-import BaseEditorMenu from './BaseEditorMenu';
 import { ConfigTypes, DefaultUserMenu, MenuSettings } from '../../../constants/menu';
 import { setUserMenuItems } from '../../../actions/menuSettings';
 import { extractLabel } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
+import BaseEditorMenu from './BaseEditorMenu';
 
 const Labels = {
   EMPTY_MESSAGE: 'menu-editor.user.empty.msg'
@@ -45,6 +45,7 @@ const mapStateToProps = state => ({
   items: get(state, 'menuSettings.userMenuItems', []),
   fontIcons: get(state, 'menuSettings.fontIcons', [])
 });
+
 const mapDispatchToProps = dispatch => ({
   setMenuItems: items => dispatch(setUserMenuItems(items))
 });

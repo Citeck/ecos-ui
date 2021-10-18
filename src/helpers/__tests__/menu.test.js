@@ -4,20 +4,17 @@ import {
   getPositionAdjustment,
   getSpecialClassByState,
   makeSiteMenu,
-  makeUserMenuItems,
   processMenuItemsFromOldMenu
 } from '../menu';
 import {
   iconsByMenuId,
   makeSiteMenuFromConfig,
-  makeUserMenuConfigs,
   menuWidth,
   menuWidthBySelector,
   oldToNewMenu,
   positionAdjustmentsByType,
   specialClassByState
 } from '../__mocks__/menu.mock';
-import { NEW_VERSION_PREFIX } from '../export/urls';
 import { BASE_LEFT_MENU_ID } from '../../constants/menu';
 
 function check(data, method, manyProperties = false) {
@@ -68,66 +65,6 @@ function asyncCheck(data, method, manyProperties = false) {
 }
 
 describe('Menu helpers', () => {
-  describe('Method makeUserMenuItems (async)', () => {
-    const data = [
-      {
-        title: 'User menu with logout link (5 items, user - admin)',
-        input: makeUserMenuConfigs[0][0],
-        output: makeUserMenuConfigs[0][1]
-      },
-      {
-        title: 'User menu without logout link (4 items, user - test-user)',
-        input: makeUserMenuConfigs[1][0],
-        output: makeUserMenuConfigs[1][1]
-      }
-    ];
-
-    delete window.location;
-    window.location = { pathname: `${NEW_VERSION_PREFIX}/test-page` };
-
-    let spyFetch;
-
-    beforeEach(() => {
-      spyFetch = jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
-        const body = JSON.parse(request.body);
-
-        const resolvedRecords = body.records.map(rec => {
-          switch (rec) {
-            case 'uiserv/config@custom-feedback-url':
-              return {
-                id: 'uiserv/config@custom-feedback-url',
-                attributes: {
-                  'value?str': 'https://www.citeck.ru/feedback'
-                }
-              };
-            case 'uiserv/config@custom-report-issue-url':
-              return {
-                id: 'uiserv/config@custom-feedback-url',
-                attributes: {
-                  'value?str':
-                    'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.'
-                }
-              };
-          }
-        });
-
-        return Promise.resolve({
-          ok: true,
-          json: () =>
-            Promise.resolve({
-              records: resolvedRecords
-            })
-        });
-      });
-    });
-
-    afterEach(() => {
-      spyFetch.mockReset();
-    });
-
-    asyncCheck(data, makeUserMenuItems, true);
-  });
-
   describe('Method processMenuItemsFromOldMenu', () => {
     const data = [
       {

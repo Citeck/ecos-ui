@@ -630,9 +630,12 @@
   "header.site-menu.go-home-page": "Открыть домашнюю страницу",
   "header.site-menu.menu-settings": "Настроить меню",
   "header.site-menu.page-settings": "Настроить страницу",
+
   "modal.make-notavailable.start.label": "Начало отсутствия",
   "modal.make-notavailable.end.label": "Окончание отсутствия",
   "modal.make-notavailable.auto-answer.label": "Автоответ",
+  "modal.make-notavailable.end.error.big-date": "Дата начала не может быть больше даты окончания",
+
   "hints.disabled": "Подсказки выключены",
   "hints.enabled": "Подсказки включены",
 
@@ -1346,8 +1349,8 @@
   "menu-settings.editor-item.field.create-variant.title": "Способ создания",
   "menu-settings.editor-item.field.data-type.title": "Тип данных",
   "menu-settings.editor-item.field.process-def.title": "Процесс",
-  "menu-settings.editor-item.title.add": "Создать: {{type}}",
-  "menu-settings.editor-item.title.edit": "Редактировать: {{type}} \"{{name}}\"",
+  "menu-settings.editor-item.title.add": "Создать {{type}}",
+  "menu-settings.editor-item.title.edit": "{{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Отмена",
   "menu-settings.editor-item.btn.add": "Добавить",
   "menu-settings.editor-item.btn.edit": "Сохранить",
