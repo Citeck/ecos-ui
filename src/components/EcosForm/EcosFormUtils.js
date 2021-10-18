@@ -176,6 +176,16 @@ export default class EcosFormUtils {
       });
   }
 
+  static getButtonComponents(form) {
+    const components = [];
+    EcosFormUtils.forEachComponent(form, component => {
+      if (component.type === 'button') {
+        components.push(component);
+      }
+    });
+    return components;
+  }
+
   static editRecord(config) {
     const recordRef = config.recordRef,
       fallback = config.fallback,

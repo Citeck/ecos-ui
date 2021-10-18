@@ -8,6 +8,7 @@ import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -394,9 +395,27 @@ class EcosForm extends React.Component {
         sRecord.att('_state', submission.state);
       }
       const { typeRef = '' } = form.options;
+      const formInfo = {};
       if (typeRef) {
+        //_formOptions is deprecated
         sRecord.att('_formOptions', { typeRef });
+        formInfo['typeRef'] = typeRef;
       }
+      let btnComponents = EcosFormUtils.getButtonComponents(form);
+      for (let buttonComponent of btnComponents) {
+        if (submission.data[buttonComponent.key] === true) {
+          let label = buttonComponent.component.label;
+          if (isString(label)) {
+            // en - locale by default
+            label = { en: label };
+          }
+          formInfo['submitName'] = label;
+        }
+      }
+      if (this.state.formId) {
+        formInfo['formId'] = this.state.formId;
+      }
+      sRecord.att('_formInfo', formInfo);
 
       for (const key in submission.data) {
         if (submission.data.hasOwnProperty(key)) {
