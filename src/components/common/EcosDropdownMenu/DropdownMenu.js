@@ -34,7 +34,8 @@ export default class EcosDropdownMenu extends React.Component {
     }),
     isLoading: PropTypes.bool,
     emptyMessage: PropTypes.string,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    renderItem: PropTypes.func
   };
 
   static defaultProps = {

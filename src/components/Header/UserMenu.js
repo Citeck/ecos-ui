@@ -5,11 +5,10 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { extractLabel, t } from '../../helpers/util';
-import { Avatar, EcosDropdownMenu, Tooltip } from '../common';
-import { IcoBtn } from '../common/btns';
-import MenuService from '../../services/MenuService';
 import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
-import EcosIcon from '../common/EcosIcon';
+import MenuService from '../../services/MenuService';
+import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
+import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -67,7 +66,7 @@ class UserMenu extends React.Component {
 
   render() {
     const { dropdownOpen } = this.state;
-    const { isLoading, userFullName, items, isMobile, widthParent, userPhotoUrl, theme } = this.props;
+    const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const mob = isMobile || medium;
     const classNameIcoBtn = classNames('ecos-header-user__btn', 'ecos-btn_tight', 'ecos-btn_r_6', 'ecos-btn_blue-classic', {
@@ -90,8 +89,8 @@ class UserMenu extends React.Component {
           <DropdownMenu className="ecos-header-user__menu ecos-dropdown__menu ecos-dropdown__menu_right ecos-dropdown__menu_links">
             <EcosDropdownMenu
               items={items}
+              mode={'custom'}
               emptyMessage={isLoading ? t(Labels.LOADING) : t(Labels.EMPTY)}
-              mode="custom"
               renderItem={this.renderMenuItem}
             />
           </DropdownMenu>

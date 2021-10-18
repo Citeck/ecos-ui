@@ -11,7 +11,7 @@ import './style.scss';
 
 const menuApi = new MenuApi();
 
-function EcosIcon({ code, className, data, title, family, onClick, id }) {
+function EcosIcon({ code, className, data, title, family, onClick, id, defaultVal }) {
   const [remoteData, setRemoteData] = useState({});
   const { type, value, url } = remoteData || {};
   const commonClass = classNames('ecos-icon', className, { 'ecos-icon_button': onClick });
@@ -43,7 +43,7 @@ function EcosIcon({ code, className, data, title, family, onClick, id }) {
     );
   }
 
-  return <Icon className={classNames(commonClass, { [TMP_ICON_EMPTY]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
+  return <Icon className={classNames(commonClass, { [defaultVal]: !value, fa: type === 'fa', [value]: !!value })} {...commonProps} />;
 }
 
 EcosIcon.propTypes = {
@@ -61,7 +61,8 @@ EcosIcon.propTypes = {
 EcosIcon.defaultProps = {
   className: '',
   code: '',
-  title: ''
+  title: '',
+  defaultVal: TMP_ICON_EMPTY
 };
 
 export default React.memo(EcosIcon);

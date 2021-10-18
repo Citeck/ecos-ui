@@ -40,10 +40,25 @@ timestamps {
 
       buildTools.notifyBuildStarted(repoUrl, project_version, env)
 
-      if ((env.BRANCH_NAME != "master") && (env.BRANCH_NAME != "master-1") && (!package_props.version.contains('snapshot')))  {
-        echo "Assembly of release artifacts is allowed only from the master branch!"
-        currentBuild.result = 'FAILURE'
-        return
+      if (!(env.BRANCH_NAME ==~ /master(-\d)?/) && (!project_version.contains('snapshot'))) {
+        def tag = ""
+        try {
+          tag = sh(script: "git describe --exact-match --tags", returnStdout: true).trim()
+        } catch (Exception e) {
+          // no tag
+        }
+        def buildStopMsg = ""
+        if (tag == "") {
+          buildStopMsg = "You should add tag with version to build release from non-master branch. Version: " + project_version
+        } else if (tag != project_version) {
+          buildStopMsg = "Release tag doesn't match version. Tag: " + tag + " Version: " + project_version
+        }
+        if (buildStopMsg != "") {
+          echo buildStopMsg
+          buildTools.notifyBuildWarning(repoUrl, buildStopMsg, env)
+          currentBuild.result = 'NOT_BUILT'
+          return
+        }
       }
 
       stage('Assembling and publishing project artifacts') {
@@ -62,7 +77,6 @@ timestamps {
           }
 
           sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
-
         }
       }
 
@@ -71,6 +85,10 @@ timestamps {
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
           string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase())
         ]
+      }
+
+      stage('Clean') {
+        sh "yarn clean"
       }
 
     } catch (Exception e) {

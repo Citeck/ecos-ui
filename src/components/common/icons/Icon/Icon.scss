@@ -28,4 +28,9 @@
   &#{$i}_off {
     color: $color-red-1;
   }
+
+  &#{$i}_small {
+    font-size: 14px;
+    line-height: 14px;
+  }
 }

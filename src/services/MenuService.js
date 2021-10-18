@@ -12,8 +12,7 @@ import { ActionTypes } from '../components/Records/actions';
 import { t } from '../helpers/export/util';
 import ecosFetch from '../helpers/ecosFetch';
 import { getCurrentUserName } from '../helpers/util';
-import { DEFAULT_FEEDBACK_URL, DEFAULT_REPORT_ISSUE_URL } from '../helpers/menu';
-import formDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
+import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
 
 export default class MenuService {
@@ -70,7 +69,7 @@ export default class MenuService {
           reactstrapProps: {
             backdrop: true
           },
-          formDefinition: formDefinitionUserStatus,
+          formDefinition: getFormDefinitionUserStatus(),
           onSubmit: async submission => {
             const userRef = await Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`).load('nodeRef?str');
             const result = await ecosFetch(`${PROXY_URI}citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent`, {
@@ -100,12 +99,8 @@ export default class MenuService {
       }
       case MenuSettings.ItemTypes.USER_FEEDBACK: {
         return (async function() {
-          const url = await Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
-            .load('value?str')
-            .then(value => value || DEFAULT_FEEDBACK_URL)
-            .catch(() => DEFAULT_FEEDBACK_URL);
-
-          window.open(url || DEFAULT_FEEDBACK_URL);
+          const url = await AppApi.getCustomFeedbackUrl();
+          window.open(url);
         })();
       }
       case MenuSettings.ItemTypes.USER_PROFILE: {
@@ -115,12 +110,8 @@ export default class MenuService {
       }
       case MenuSettings.ItemTypes.USER_SEND_PROBLEM_REPORT: {
         return (async function() {
-          const url = await Records.get(`${SourcesId.CONFIG}@custom-report-issue-url`)
-            .load('value?str', true)
-            .then(value => value || DEFAULT_REPORT_ISSUE_URL)
-            .catch(() => DEFAULT_REPORT_ISSUE_URL);
-
-          window.open(url || DEFAULT_REPORT_ISSUE_URL);
+          const url = await AppApi.getCustomReportIssueUrl();
+          window.open(url);
         })();
       }
       default:

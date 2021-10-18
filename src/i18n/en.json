@@ -630,9 +630,12 @@
   "header.site-menu.go-home-page": "Go home",
   "header.site-menu.menu-settings": "Menu settings",
   "header.site-menu.page-settings": "Page settings",
+
   "modal.make-notavailable.start.label": "Beginning of absence",
   "modal.make-notavailable.end.label": "End of absence",
   "modal.make-notavailable.auto-answer.label": "Auto answer",
+  "modal.make-notavailable.end.error.big-date": "The start date cannot be greater than the end date",
+
   "hints.disabled": "Hints is disabled",
   "hints.enabled": "Hints is enabled",
 
@@ -1346,8 +1349,8 @@
   "menu-settings.editor-item.field.create-variant.title": "Create method",
   "menu-settings.editor-item.field.data-type.title": "Data type",
   "menu-settings.editor-item.field.process-def.title": "Process",
-  "menu-settings.editor-item.title.add": "Create: {{type}}",
-  "menu-settings.editor-item.title.edit": "Edit: {{type}} \"{{name}}\"",
+  "menu-settings.editor-item.title.add": "Create {{type}}",
+  "menu-settings.editor-item.title.edit": "{{type}} \"{{name}}\"",
   "menu-settings.editor-item.btn.cancel": "Cancel",
   "menu-settings.editor-item.btn.add": "Add",
   "menu-settings.editor-item.btn.edit": "Save",

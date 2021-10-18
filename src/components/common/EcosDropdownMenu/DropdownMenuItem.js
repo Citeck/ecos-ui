@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import get from 'lodash/get';
 
-import { t } from '../../../helpers/util';
+import { extractLabel } from '../../../helpers/util';
 import { getIconClassMenu, getSpecialClassByState } from '../../../helpers/menu';
 import handleControl from '../../../helpers/handleControl';
 import { getSearchParams, isNewVersionPage, SearchKeys } from '../../../helpers/urls';
@@ -23,7 +23,7 @@ class DropdownMenuItem extends React.Component {
       id: PropTypes.string,
       img: PropTypes.string,
       targetUrl: PropTypes.string,
-      label: PropTypes.string,
+      label: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
       target: PropTypes.string,
       control: PropTypes.object
     }).isRequired,
@@ -77,6 +77,11 @@ class DropdownMenuItem extends React.Component {
     return link;
   }
 
+  get label() {
+    const label = get(this.props, 'data.label');
+    return extractLabel(label);
+  }
+
   handlerClick = event => {
     if (this.url) {
       return;
@@ -107,14 +112,14 @@ class DropdownMenuItem extends React.Component {
 
   renderImg() {
     const { data } = this.props;
-    const { img, label } = data;
+    const { img } = data;
 
-    return <img className="ecos-dropdown-menu__img" src={img} alt={label} />;
+    return <img className="ecos-dropdown-menu__img" src={get(this.props, 'data.img')} alt={this.label} />;
   }
 
   render() {
     const { data, iconRight } = this.props;
-    const { id, img, label, target, disabled } = data;
+    const { id, img, target, disabled } = data;
     const extra = {};
 
     if (!isNewVersionPage(this.url)) {
@@ -126,7 +131,7 @@ class DropdownMenuItem extends React.Component {
         <a href={this.url} target={target} id={id} onClick={this.handlerClick} {...extra} disabled={disabled}>
           {this.iconLeft && <i className={this.iconLeft} />}
           {img && this.renderImg()}
-          {label && t(label)}
+          {this.label}
           {iconRight && <i className={iconRight} />}
         </a>
       </li>

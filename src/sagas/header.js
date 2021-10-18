@@ -21,16 +21,15 @@ import { setDashboardIdentification } from '../actions/dashboard';
 import { getAppUserThumbnail, validateUserSuccess } from '../actions/user';
 import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
-
+import { selectIdentificationForView } from '../selectors/dashboard';
 import { makeSiteMenu } from '../helpers/menu';
 import { hasInString } from '../helpers/util';
+import { getIconObjectWeb } from '../helpers/icon';
 import { SourcesId, URL } from '../constants';
-import { selectIdentificationForView } from '../selectors/dashboard';
+import { DefaultUserMenu } from '../constants/menu';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import MenuConverter from '../dto/menu';
-import { DefaultUserMenu } from '../constants/menu';
-import { getIconObjectWeb } from '../helpers/icon';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -49,13 +48,14 @@ function* fetchUserMenu({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
     const { userName, isDeputyAvailable: isAvailable } = userData || {};
-    const config = yield call(api.menu.getUserCustomMenuConfig, userName);
+    const isExternalIDP = yield call(api.app.getIsExternalIDP);
+    const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
 
     if (isEmpty(config.items)) {
       set(config, 'items', cloneDeep(DefaultUserMenu));
     }
 
-    const items = MenuConverter.getUserMenuItems(config.items, { isAvailable });
+    const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 
     yield Promise.all(
       items.map(async item => {

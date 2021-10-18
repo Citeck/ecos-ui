@@ -72,18 +72,26 @@ export default class MenuConverter {
   }
 
   static getUserMenuItems(source = [], config) {
-    return cloneDeep(source).map(item => {
-      Object.keys(config).forEach(key => set(item, ['config', key], config[key]));
+    return cloneDeep(source)
+      .map(item => {
+        Object.keys(config).forEach(key => set(item, ['config', key], config[key]));
 
-      if (item.type === MenuSettings.ItemTypes.USER_STATUS) {
-        const availability = 'make-' + (config.isAvailable === false ? '' : 'not') + 'available';
+        if (item.type === MenuSettings.ItemTypes.USER_STATUS) {
+          const availability = 'make-' + (config.isAvailable === false ? '' : 'not') + 'available';
 
-        set(item, 'info', `header.${availability}.label`);
-        set(item, 'icon', config.isAvailable ? 'icon-user-online icon_on' : 'icon-user-away icon_off');
-      }
+          set(item, 'info', `header.${availability}.label`);
+          set(item, 'icon', config.isAvailable ? 'icon-user-online icon_on' : 'icon-user-away icon_off');
+        }
 
-      return item;
-    });
+        return item;
+      })
+      .filter(item => {
+        if (item.type === MenuSettings.ItemTypes.USER_LOGOUT && config.isExternalIDP) {
+          return false;
+        }
+
+        return true;
+      });
   }
 
   static prepareCreateVariants(createVariants) {
