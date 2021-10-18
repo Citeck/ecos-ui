@@ -549,7 +549,7 @@ class Grid extends Component {
 
   setHeaderFormatter = (column, filterable, sortable) => {
     const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
-    const isFilterable = filterable && typeof onFilter === 'function';
+    const isFilterable = filterable && column.searchable && column.searchableByText && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
     column.headerFormatter = (column, colIndex) => {
