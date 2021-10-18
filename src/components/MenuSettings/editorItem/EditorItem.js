@@ -56,15 +56,7 @@ export default class EditorItem extends React.Component {
       case MS.ItemTypes.USER_CHANGE_PASSWORD:
       case MS.ItemTypes.USER_STATUS:
       case MS.ItemTypes.USER_PROFILE: {
-        return (
-          <UserMenuItem
-            {...this.props}
-            item={{
-              ...get(this.props, 'type.default', {}),
-              ...get(this.props, 'item', {})
-            }}
-          />
-        );
+        return <UserMenuItem {...this.props} />;
       }
       default:
         console.warn('unknown type menu item ', get(this, 'props.type'));
