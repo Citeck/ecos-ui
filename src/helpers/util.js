@@ -4,6 +4,7 @@ import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 import isEqual from 'lodash/isEqual';
+import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
@@ -124,7 +125,7 @@ export function getSelectedValue(source, field, value, selectedField) {
 }
 
 /**
- * @deprecated use this.props.[handler]
+ * @deprecated use this.props[handler]
  * @param name - handler name from props
  * @param data
  */
@@ -372,7 +373,7 @@ export function getScrollbarWidth() {
   return scrollbarWidth;
 }
 
-/** @deprecated. use lodash/cloneDeep instead */
+/** @deprecated use lodash/cloneDeep instead */
 export function deepClone(data, defaultValue) {
   if (defaultValue === undefined) {
     defaultValue = cloneDeep(data);
@@ -498,8 +499,9 @@ export function isExistIndex(idx) {
   return !(idx === null || idx === undefined || idx === -1);
 }
 
+/** @deprecated use lodash/isNil instead */
 export function isExistValue(value) {
-  return value !== null && value !== undefined;
+  return !isNil(value);
 }
 
 export function isLastItem(array, idx) {
@@ -538,7 +540,7 @@ export function num2str(n = 0, textForms = []) {
   return textForms[2];
 }
 
-/** @deprecated. use lodash/isEqual or lodash/isEqualWith instead */
+/** @deprecated use lodash/isEqual or lodash/isEqualWith instead */
 export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   if (!byField) {
     return isEqual(arr1, arr2);

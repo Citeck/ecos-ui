@@ -1,19 +1,18 @@
 import _ from 'lodash';
 
-import { isExistValue } from '../../../helpers/util';
 import { Predicates } from '../../Records/predicates';
 import { MapBooleanValues } from '../utils/maps';
 
 export const convertValueByType = (type, value) => {
   switch (type) {
     case Predicates.COLUMN_DATA_TYPE_INT:
-      const int = parseInt(value);
-      return Number.isNaN(int) ? null : int;
+      const int = Number(value);
+      return _.isNil(value) || Number.isNaN(int) ? null : parseInt(String(int));
     case Predicates.COLUMN_DATA_TYPE_LONG:
     case Predicates.COLUMN_DATA_TYPE_FLOAT:
     case Predicates.COLUMN_DATA_TYPE_DOUBLE:
-      const float = parseFloat(value);
-      return Number.isNaN(float) ? null : float;
+      const float = Number(value);
+      return _.isNil(value) || Number.isNaN(float) ? null : float;
     case Predicates.COLUMN_DATA_TYPE_BOOLEAN:
       const found = _.find(MapBooleanValues, o => (o.strict ? o.input === _.lowerCase(value) : o.input.includes(_.lowerCase(value))));
       return found ? found.output : null;
@@ -32,11 +31,11 @@ export function convertAttributeValues(predicate, columns) {
       current.forEach(item => convert(item));
     } else if (_.isArray(current.val)) {
       current.val.forEach(item => {
-        if (item.val !== undefined) {
+        if (!_.isUndefined(item.val)) {
           convert(item);
         }
       });
-      current.val = current.val.filter(v => v.val === undefined || isExistValue(v.val));
+      current.val = current.val.filter(v => !_.isNull(v.val));
     } else if (_.isObject(current)) {
       const col = columns && columns.find(item => item.attribute === current.att);
       const type = _.get(col, 'type');
