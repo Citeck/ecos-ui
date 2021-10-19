@@ -241,7 +241,15 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this._getAuthorityRef(authority, callback);
   }
 
-  setValue = debounce((value, flags) => {
+  setValue(value, flags) {
+    if (isEqual(value, this.dataValue)) {
+      return;
+    }
+
+    this.#waitingSetValue(value, flags);
+  }
+
+  #waitingSetValue = debounce((value, flags) => {
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
       isEqual(value, this.emptyValue) &&
@@ -254,10 +262,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
       } else {
         value = Formio.getUser();
       }
-    }
-
-    if (isEqual(value, this.dataValue)) {
-      return null;
     }
 
     let self = this;
