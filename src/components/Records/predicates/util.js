@@ -7,12 +7,12 @@ export const convertValueByType = (type, value) => {
   switch (type) {
     case Predicates.COLUMN_DATA_TYPE_INT:
       const int = Number(value);
-      return Number.isNaN(int) ? null : parseInt(String(int));
+      return _.isNil(value) || Number.isNaN(int) ? null : parseInt(String(int));
     case Predicates.COLUMN_DATA_TYPE_LONG:
     case Predicates.COLUMN_DATA_TYPE_FLOAT:
     case Predicates.COLUMN_DATA_TYPE_DOUBLE:
       const float = Number(value);
-      return Number.isNaN(float) ? null : float;
+      return _.isNil(value) || Number.isNaN(float) ? null : float;
     case Predicates.COLUMN_DATA_TYPE_BOOLEAN:
       const found = _.find(MapBooleanValues, o => (o.strict ? o.input === _.lowerCase(value) : o.input.includes(_.lowerCase(value))));
       return found ? found.output : null;
