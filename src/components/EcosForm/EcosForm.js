@@ -409,6 +409,13 @@ class EcosForm extends React.Component {
             // en - locale by default
             label = { en: label };
           }
+          const locales = Object.keys(label);
+          if (locales.length === 1 && locales[0] === 'en') {
+            const translatedValue = buttonComponent.options.i18next.translator.translate(label['en']);
+            if (translatedValue) {
+              label = { en: translatedValue };
+            }
+          }
           formInfo['submitName'] = label;
         }
       }
