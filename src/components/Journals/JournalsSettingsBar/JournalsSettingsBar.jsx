@@ -84,7 +84,7 @@ const JournalsSettingsBar = ({
         <IcoBtn
           title={t('journals.settings')}
           icon={'icon-settings'}
-          className={classNames('ecos-btn_i', 'ecos-btn_white', 'ecos-btn_hover_blue2', step, 'ecos-btn_size-by-content')}
+          className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', step)}
           onClick={toggleSettings}
           loading={isLoading}
         />
@@ -107,10 +107,11 @@ const JournalsSettingsBar = ({
         <IcoBtn
           invert
           icon={isMobile ? 'icon-download' : 'icon-small-down'}
-          className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6', {
+          className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_r_6', {
             'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
             'ecos-btn_i ecos-btn_white': isMobile
           })}
+          loading={isLoading}
         >
           {!isMobile && t('button.export')}
         </IcoBtn>
