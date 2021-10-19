@@ -87,9 +87,9 @@ class Settings extends React.Component {
   };
 
   handleApply = () => {
-    const { authorities } = this.props;
+    const { authorities, isForAll } = this.props;
 
-    if (isEmpty(authorities)) {
+    if (isEmpty(authorities) && !isForAll) {
       DialogManager.confirmDialog({
         title: Labels.DIALOG_FOR_ALL_TITLE,
         text: Labels.DIALOG_ORG_STRUCT_TEXT,
@@ -276,7 +276,8 @@ const mapStateToProps = state => ({
   disabledEdit: get(state, 'menuSettings.disabledEdit'),
   isLoading: get(state, 'menuSettings.isLoading'),
   editedId: get(state, 'menuSettings.editedId'),
-  authorities: get(state, 'menuSettings.authorities') || []
+  authorities: get(state, 'menuSettings.authorities') || [],
+  isForAll: get(state, 'menuSettings.isForAll')
 });
 
 const mapDispatchToProps = dispatch => ({
