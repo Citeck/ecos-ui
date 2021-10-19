@@ -201,7 +201,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
     this.refreshElementHasValueClasses();
 
-    if (!_.isEmpty(value)) {
+    if (changed && !_.isEmpty(value) && this.#journalConfig) {
       this._fetchActions(value).then(journalActions => this.setReactProps({ journalActions }));
     }
 
