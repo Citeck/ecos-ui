@@ -60,7 +60,11 @@ export default class Checkbox extends Component {
   change(state) {
     const { onChange } = this.props;
 
-    this.setState(state, () => isFunction(onChange) && onChange(state));
+    this.setState(state);
+
+    if (isFunction(onChange)) {
+      onChange(state);
+    }
   }
 
   renderIcons() {
