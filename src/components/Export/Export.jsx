@@ -15,6 +15,7 @@ import { decodeLink } from '../../helpers/urls';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
 import { PREDICATE_AND } from '../Records/predicates/predicates';
+import { convertAttributeValues } from '../Records/predicates/util';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
 
 import recordActions from '../Records/actions/recordActions';
@@ -116,7 +117,8 @@ export default class Export extends Component {
     const gridPredicate = get(grid, 'predicates[0]', {});
     const searchPredicate = get(grid, 'searchPredicate[0]', {});
     const predicates = [mainPredicate, searchPredicate, gridPredicate];
-    const predicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
+    const cleanPredicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
+    const predicate = convertAttributeValues(cleanPredicate, columns);
     const sortBy = get(grid, 'sortBy') || [{ attribute: '_created', ascending: false }];
 
     return {

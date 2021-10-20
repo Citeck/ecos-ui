@@ -463,7 +463,8 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
 
   if (!isEmpty(searchPredicate)) {
-    gridData = yield getGridData(api, { ...params, searchPredicate }, stateId);
+    params.searchPredicate = searchPredicate;
+    gridData = yield getGridData(api, params, stateId);
   }
 
   const editingRules = yield getGridEditingRules(api, gridData);
