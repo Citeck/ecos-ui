@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
+import debounce from 'lodash/debounce';
 
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
@@ -247,6 +248,14 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
+    if (isEqual(value, this.dataValue)) {
+      return;
+    }
+
+    this.#waitingSetValue(value, flags);
+  }
+
+  #waitingSetValue = debounce((value, flags) => {
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
       isEqual(value, this.emptyValue) &&
@@ -259,10 +268,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
       } else {
         value = Formio.getUser();
       }
-    }
-
-    if (isEqual(value, this.dataValue)) {
-      return null;
     }
 
     let self = this;
@@ -293,5 +298,5 @@ export default class SelectOrgstructComponent extends BaseComponent {
     } else {
       this._getAuthorityRef(value, setValueImpl);
     }
-  }
+  }, 100); // Cause: https://citeck.atlassian.net/browse/ECOSUI-1429
 }

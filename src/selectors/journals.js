@@ -216,7 +216,7 @@ export const selectJournalPageProps = createSelector(
     gridPredicates: get(ownState, 'grid.predicates', []),
     grid: ownState.grid,
     selectedRecords: ownState.selectedRecords,
-    selectAllRecords: ownState.selectAllRecords,
+    selectAllPageRecords: ownState.selectAllPageRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     isLoading: ownState.loading,
     wasChangedSettings,
@@ -257,5 +257,16 @@ export const selectCommonJournalPageProps = createSelector(
     urlParams,
     isDocLibEnabled,
     isKanbanEnabled
+  })
+);
+
+export const selectGroupActionsProps = createSelector(
+  selectJournalData,
+  ownState => ({
+    grid: ownState.grid || {},
+    columnsSetup: ownState.columnsSetup,
+    selectedRecords: ownState.selectedRecords || [],
+    selectAllPageRecords: ownState.selectAllPageRecords,
+    selectAllRecordsVisible: ownState.selectAllRecordsVisible
   })
 );

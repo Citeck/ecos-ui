@@ -19,6 +19,9 @@ export const setLeftMenuEditable = createAction(prefix + 'SET_LEFT_MENU_EDITABLE
 export const getFooter = createAction(prefix + 'GET_FOOTER');
 export const setFooter = createAction(prefix + 'SET_FOOTER');
 
+export const getSeparateActionListForQuery = createAction(prefix + 'GET_SEPARATE_ACTION_LIST_FOR_QUERY');
+export const setSeparateActionListForQuery = createAction(prefix + 'SET_SEPARATE_ACTION_LIST_FOR_QUERY');
+
 export const setRedirectToNewUi = createAction(prefix + 'SET_REDIRECT_TO_NEW_UI');
 export const setHomeLink = createAction(prefix + 'SET_HOME_LINK');
 

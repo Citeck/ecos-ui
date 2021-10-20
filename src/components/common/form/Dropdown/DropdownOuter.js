@@ -75,6 +75,7 @@ export default class DropdownOuter extends Dropdown {
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
           placement={placement}
           modifiers={modifiers}
+          fade={false}
           popperClassName="ecosZIndexAnchor"
         >
           <ClickOutside

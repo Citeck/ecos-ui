@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import omit from 'lodash/omit';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
@@ -86,9 +87,9 @@ export default class Filter extends Component {
   handleChangeValue = debounce(
     withoutValue => {
       const { value: val } = this.state;
-      const { index } = this.props;
+      const { index, onChangeValue } = this.props;
 
-      this.props.onChangeValue({ val, index, withoutValue });
+      isFunction(onChangeValue) && onChangeValue({ val, index, withoutValue });
       this.setState({ isInput: false });
     },
     350,

@@ -98,7 +98,7 @@ export function closest(node = null, selector) {
   return null;
 }
 
-export function getPropByStringKey(obj, strKey) {
+export function getPropByStringKey(obj = {}, strKey = '') {
   const keys = strKey.split('.');
   let res;
 

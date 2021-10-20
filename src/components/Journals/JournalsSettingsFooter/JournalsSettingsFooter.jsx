@@ -1,19 +1,34 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
+import isFunction from 'lodash/isFunction';
 
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import { Input } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
-import { closest, t } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 
 import './JournalsSettingsFooter.scss';
+
+const Labels = {
+  Template: {
+    CREATE: 'journals.action.create-template',
+    APPLY: 'journals.action.apply-template',
+    DW_TITLE: 'journals.action.dialog-msg',
+    DW_CANCEL: 'journals.action.cancel',
+    DW_SAVE: 'journals.action.save'
+  },
+
+  RESET: 'journals.action.reset',
+  APPLY: 'journals.action.apply'
+};
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { dialogOpen: false };
+    this.state = { dialogOpen: false, disabledApply: false };
     this.settingName = '';
   }
 
@@ -36,11 +51,12 @@ class JournalsSettingsFooter extends Component {
   onKeydown = e => {
     if (e.key === 'Enter') {
       const inputRef = this.settingTitleInputRef || {};
+      const target = e.target;
 
-      if (e.target === inputRef.current) {
+      if (target === inputRef.current) {
         this.createSetting();
-      } else if (closest(e.target, this.props.parentClass)) {
-        this.applySetting();
+      } else if (target && target.closest(`.${this.props.parentClass}`)) {
+        debounce(this.applySetting, 360)();
       }
     }
   };
@@ -48,7 +64,7 @@ class JournalsSettingsFooter extends Component {
   createSetting = () => {
     const { onCreate } = this.props;
 
-    if (typeof onCreate === 'function' && this.settingName) {
+    if (isFunction(onCreate) && this.settingName) {
       onCreate(this.settingName);
       this.closeDialog();
     }
@@ -56,26 +72,23 @@ class JournalsSettingsFooter extends Component {
 
   saveSetting = () => {
     const { onSave } = this.props;
-
-    if (typeof onSave === 'function') {
-      onSave();
-    }
+    isFunction(onSave) && onSave();
   };
 
   applySetting = () => {
-    const { onApply } = this.props;
-
-    if (typeof onApply === 'function') {
-      onApply();
+    if (this.state.disabledApply) {
+      return;
     }
+
+    this.setState({ disabledApply: true }, () => {
+      const { onApply } = this.props;
+      isFunction(onApply) && onApply();
+    });
   };
 
   resetSettings = () => {
     const { onReset } = this.props;
-
-    if (typeof onReset === 'function') {
-      onReset();
-    }
+    isFunction(onReset) && onReset();
   };
 
   getSetting = title => {
@@ -121,6 +134,7 @@ class JournalsSettingsFooter extends Component {
 
   render() {
     const { canSave, noCreateBtn } = this.props;
+    const { disabledApply } = this.state;
 
     return (
       <>
@@ -130,18 +144,22 @@ class JournalsSettingsFooter extends Component {
             <>
               {!noCreateBtn && (
                 <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
-                  {t('journals.action.create-template')}
+                  {t(Labels.Template.CREATE)}
                 </Btn>
               )}
-              {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
+              {canSave && <Btn onClick={this.saveSetting}>{t(Labels.Template.APPLY)}</Btn>}
             </>,
-
             <>
               <Btn className="ecos-btn_x-step_10 ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
-                {t('journals.action.reset')}
+                {t(Labels.RESET)}
               </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
-                {t('journals.action.apply')}
+              <Btn
+                className="ecos-btn_blue ecos-btn_hover_light-blue"
+                onClick={this.applySetting}
+                disabled={disabledApply}
+                loading={disabledApply}
+              >
+                {t(Labels.APPLY)}
               </Btn>
             </>
           ]}
@@ -149,20 +167,20 @@ class JournalsSettingsFooter extends Component {
         />
 
         <EcosModal
-          title={t('journals.action.dialog-msg')}
+          title={t(Labels.Template.DW_TITLE)}
           isOpen={this.state.dialogOpen}
           hideModal={this.closeDialog}
-          className={'journal__dialog ecos-modal_width-sm'}
+          className="journal__dialog ecos-modal_width-sm"
           onCalculateBounds={this.onDialogCalculateBounds}
         >
-          <div className={'journal__dialog-panel'}>
+          <div className="journal__dialog-panel">
             <Input type="text" onChange={this.onChangeSettingName} getInputRef={this.getSettingTitleInputRef} />
           </div>
 
           <div className="journal__dialog-buttons">
-            <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
-            <Btn onClick={this.createSetting} className={'ecos-btn_blue'}>
-              {t('journals.action.save')}
+            <Btn onClick={this.closeDialog}>{t(Labels.Template.DW_CANCEL)}</Btn>
+            <Btn onClick={this.createSetting} className="ecos-btn_blue">
+              {t(Labels.Template.DW_SAVE)}
             </Btn>
           </div>
         </EcosModal>

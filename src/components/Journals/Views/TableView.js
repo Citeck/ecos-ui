@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import {
   applyJournalSetting,
   createJournalSetting,
+  deselectAllRecords,
   execRecordsAction,
   getJournalsData,
   reloadGrid,
@@ -14,16 +15,15 @@ import {
   saveJournalSetting,
   selectJournalSettings,
   setGrid,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectedRecords,
   setUrl
 } from '../../../actions/journals';
 import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
-import { JournalUrlParams as JUP } from '../../../constants';
+import { JournalUrlParams as JUP, SourcesId } from '../../../constants';
 import { wrapArgs } from '../../../helpers/redux';
 import { isPreview, isTableOrPreview } from '../constants';
 import Bar from '../CommonBar';
-import { JournalsGroupActionsTools } from '../JournalsTools';
 import JournalsContent from '../JournalsContent';
 import JournalsDashletPagination from '../JournalsDashletPagination';
 
@@ -51,7 +51,8 @@ function mapDispatchToProps(dispatch, props) {
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
+    deselectAllRecords: () => dispatch(deselectAllRecords(w())),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     selectJournalSettings: id => dispatch(selectJournalSettings(w(id)))
   };
@@ -86,30 +87,6 @@ class TableView extends React.Component {
     this.setState({ isClose: true });
   }
 
-  handleSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
-
-    setSelectAllRecords(!selectAllRecords);
-
-    if (!selectAllRecords) {
-      setSelectedRecords([]);
-    }
-  };
-
-  handleExecuteGroupAction = action => {
-    const { selectAllRecords } = this.props;
-
-    if (!selectAllRecords) {
-      const records = get(this.props, 'selectedRecords', []);
-
-      this.props.execRecordsAction(records, action);
-    } else {
-      const query = get(this.props, 'grid.query');
-
-      this.props.execRecordsAction(query, action);
-    }
-  };
-
   RightBarChild = ({ hasPageSize }) => {
     const { stateId, isMobile } = this.props;
 
@@ -143,10 +120,6 @@ class TableView extends React.Component {
       displayElements = {},
 
       journalConfig,
-      grid,
-      selectedRecords,
-      selectAllRecordsVisible,
-      selectAllRecords,
 
       getJournalContentMaxHeight
     } = this.props;
@@ -154,21 +127,12 @@ class TableView extends React.Component {
     return (
       <div hidden={!isTableOrPreview(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
-          <Header title={get(journalConfig, 'meta.title', '')} config={journalConfig} />
-
+          <Header
+            title={get(journalConfig, 'meta.title', '')}
+            config={journalConfig}
+            configRec={journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`}
+          />
           <Bar {...this.props} rightChild={<this.RightBarChild hasPageSize={false} />} />
-
-          {displayElements.groupActions && (
-            <JournalsGroupActionsTools
-              isMobile={isMobile}
-              selectAllRecordsVisible={selectAllRecordsVisible}
-              selectAllRecords={selectAllRecords}
-              grid={grid}
-              selectedRecords={selectedRecords}
-              onExecuteAction={this.handleExecuteGroupAction}
-              onSelectAll={this.handleSelectAllRecords}
-            />
-          )}
         </div>
 
         <JournalsContent
