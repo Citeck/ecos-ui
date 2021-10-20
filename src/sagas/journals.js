@@ -58,8 +58,7 @@ import {
   setSelectedRecords,
   setUrl
 } from '../actions/journals';
-import JournalsService from '../components/Journals/service';
-import EditorService from '../components/Journals/service/editors/EditorService';
+import JournalsService, { PresetsServiceApi, EditorService } from '../components/Journals/service';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_JOURNALS_PAGINATION,
@@ -249,6 +248,7 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
 
 function* getJournalSettings(api, journalId, w) {
   const settings = yield call(api.journals.getJournalSettings, journalId);
+  // const settings = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], journalId);
 
   yield put(setJournalSettings(w(settings)));
 
@@ -291,6 +291,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       }
 
       if (journalSettingId) {
+        // journalSetting = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], journalSettingId);
         journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
 
         if (get(journalSetting, 'error')) {
@@ -765,10 +766,10 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    const { id: journalSettingId } = action.payload;
+    const { id: journalSettingId, settings } = action.payload;
 
     yield call(api.journals.saveJournalSetting, action.payload);
-
+    // yield call([PresetsServiceApi, PresetsServiceApi.savePreset], {id, ...settings});
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
@@ -779,7 +780,9 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
   try {
+    const { journalId, settings } = action.payload;
     const journalSettingId = yield call(api.journals.createJournalSetting, action.payload);
+    // const journalSettingId = yield call([PresetsServiceApi, PresetsServiceApi.savePreset], {...settings});
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     yield getJournalSettings(api, journalConfig.id, w);
@@ -792,7 +795,7 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
 function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { journalConfig } = yield select(selectJournalData, stateId);
-
+    // yield call([PresetsServiceApi, PresetsServiceApi.deletePreset], action.payload);
     yield call(api.journals.deleteJournalSetting, action.payload);
     yield getJournalSettings(api, journalConfig.id, w);
     yield put(openSelectedJournalSettings(''));
@@ -807,6 +810,7 @@ function* sagaRenameJournalSetting({ api, logger, stateId, w }, action) {
 
     const { journalConfig } = yield select(selectJournalData, stateId);
     const journalSetting = yield call(api.journals.getJournalSetting, journalSettingId);
+    // const journalSetting = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], journalSettingId);
 
     if (get(journalSetting, 'error')) {
       NotificationManager.error(t('journal.error.fail-get-settings-template'));
@@ -816,6 +820,7 @@ function* sagaRenameJournalSetting({ api, logger, stateId, w }, action) {
     journalSetting.title = title;
 
     yield call(api.journals.saveJournalSetting, { id: journalSettingId, settings: journalSetting });
+    // yield call([PresetsServiceApi, PresetsServiceApi.savePreset], { id: journalSettingId, ...journalSetting });
     yield getJournalSettings(api, journalConfig.id, w);
   } catch (e) {
     logger.error('[journals sagaRenameJournalSetting saga error', e.message);

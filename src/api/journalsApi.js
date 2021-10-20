@@ -8,7 +8,7 @@ import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
 /**
- * @description Now only Settings, Storage and special functions are actual here, other ↩
+ * @description Settings, Storage and special functions are actual here, other ↩
  * @see src/components/Journals/service
  */
 export class JournalsApi extends RecordService {
@@ -49,16 +49,6 @@ export class JournalsApi extends RecordService {
     return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
-  /** @todo replace to using Journals/service ? */
-  getTreeGridData = () => {
-    const dataSource = new TreeDataSource();
-
-    return dataSource.load().then(function({ data, total }) {
-      const columns = dataSource.getColumns();
-      return { data, total, columns, isTree: true };
-    });
-  };
-
   getDashletConfig = id => {
     return this.getJson(`${CITECK_URI}dashlet/config?key=${id}`).catch(() => null);
   };
@@ -67,6 +57,7 @@ export class JournalsApi extends RecordService {
     return this.postJson(`${CITECK_URI}dashlet/config?key=${id}`, config);
   };
 
+  //todo delete-------
   getJournalSettings = journalType => {
     return this.getJson(`${UISERV_API}journalprefs/list?journalId=${journalType}`);
   };
@@ -89,10 +80,7 @@ export class JournalsApi extends RecordService {
   deleteJournalSetting = id => {
     return this.deleteJson(`${UISERV_API}journalprefs/id/${id}`, true);
   };
-
-  getNodeContent = nodeRef => {
-    return this.getJson(`${CITECK_URI}node-content?nodeRef=${nodeRef}`);
-  };
+  //todo -------
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
@@ -143,5 +131,16 @@ export class JournalsApi extends RecordService {
 
   getJournalsByIds = (ids, attrs = '?json') => {
     return Records.get(ids).load(attrs);
+  };
+
+  /** @todo replace or delete
+   * @deprecated use it? */
+  getTreeGridData = () => {
+    const dataSource = new TreeDataSource();
+
+    return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
+      return { data, total, columns, isTree: true };
+    });
   };
 }
