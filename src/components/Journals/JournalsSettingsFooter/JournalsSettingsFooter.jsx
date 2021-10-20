@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-
-import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
-import { Input } from '../../common/form';
 import Columns from '../../common/templates/Columns/Columns';
 import { closest, t } from '../../../helpers/util';
 
 import './JournalsSettingsFooter.scss';
+import EditorPreset from '../EditorPreset';
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
@@ -146,24 +144,7 @@ class JournalsSettingsFooter extends Component {
           cfgs={[{}, { className: 'columns_right' }]}
         />
 
-        <EcosModal
-          title={t('journals.action.dialog-msg')}
-          isOpen={this.state.dialogOpen}
-          hideModal={this.closeDialog}
-          className={'journal__dialog ecos-modal_width-sm'}
-          onCalculateBounds={this.onDialogCalculateBounds}
-        >
-          <div className={'journal__dialog-panel'}>
-            <Input type="text" onChange={this.onChangeSettingName} getInputRef={this.getSettingTitleInputRef} />
-          </div>
-
-          <div className="journal__dialog-buttons">
-            <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
-            <Btn onClick={this.createSetting} className={'ecos-btn_blue'}>
-              {t('journals.action.save')}
-            </Btn>
-          </div>
-        </EcosModal>
+        {this.state.dialogOpen && <EditorPreset onClose={this.closeDialog} data={{ name: 'name' }} />}
       </>
     );
   }
