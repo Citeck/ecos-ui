@@ -538,6 +538,7 @@
   "record-action.edit-journal-preset.name": "Редактировать шаблон настроек журнала",
   "record-action.edit-journal-preset.msg.saved-success": "Шаблон сохранен",
   "record-action.edit-journal-preset.msg.saved-error": "Шаблон не сохранен",
+  "record-action.edit-journal-preset.msg.deleted-success": "Шаблон удален",
 
   "records-actions.actions": "Действия",
   "records-actions.create": "Создать",

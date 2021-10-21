@@ -1,9 +1,9 @@
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 
 import ActionsExecutor from '../ActionsExecutor';
 import dialogManager from '../../../../common/dialogs/Manager/DialogManager';
 import Records from '../../../Records';
-import { isExistValue } from '../../../../../helpers/util';
 
 export default class DeleteAction extends ActionsExecutor {
   static ACTION_ID = 'delete';
@@ -14,7 +14,7 @@ export default class DeleteAction extends ActionsExecutor {
 
   async execForRecords(records, action, context) {
     const withoutConfirm = get(action, 'config.withoutConfirm', false);
-    const isWaitResponse = isExistValue(get(action, 'config.isWaitResponse')) ? action.config.isWaitResponse : true;
+    const isWaitResponse = isNil(get(action, 'config.isWaitResponse')) ? true : action.config.isWaitResponse;
     let dialogTitle, dialogText;
 
     if (records.length === 1) {
@@ -28,16 +28,12 @@ export default class DeleteAction extends ActionsExecutor {
     if (withoutConfirm) {
       return new Promise(resolve => {
         Records.remove(records)
-          .then(() => {
-            resolve(true);
-          })
+          .then(() => resolve(true))
           .catch(e => {
             dialogManager.showInfoDialog({
               title: 'record-action.delete.dialog.title.error',
               text: e.message || 'record-action.delete.dialog.msg.error',
-              onClose: () => {
-                resolve(false);
-              }
+              onClose: () => resolve(false)
             });
             console.error(e);
           });

@@ -799,10 +799,7 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
     const { journalConfig } = yield select(selectJournalData, stateId);
 
     const executor = ActionsRegistry.getHandler(ActionTypes.EDIT_JOURNAL_PRESET);
-    const actionResult = yield call([executor, executor.execForRecord], undefined, {
-      type: ActionTypes.EDIT_JOURNAL_PRESET,
-      config: { data }
-    });
+    const actionResult = yield call([executor, executor.execForRecord], undefined, { config: { data } });
 
     if (actionResult && actionResult.id) {
       yield put(openSelectedJournalSettings(w(actionResult.id)));
@@ -817,8 +814,14 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
   try {
+    const executor = ActionsRegistry.getHandler(ActionTypes.DELETE);
+    const actionResult = yield call([executor, executor.execForRecord], action.payload, { config: { withoutConfirm: true } });
+
+    if (actionResult) {
+      NotificationManager.success(t('record-action.edit-journal-preset.msg.deleted-success'));
+    }
+
     const { journalConfig } = yield select(selectJournalData, stateId);
-    yield call([PresetsServiceApi, PresetsServiceApi.deletePreset], { id: action.payload });
     yield getJournalSettings(api, journalConfig.id, w);
     yield put(openSelectedJournalSettings(''));
   } catch (e) {
