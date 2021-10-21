@@ -207,7 +207,7 @@ export default class HeaderFormatter extends Component {
   };
 
   handleClickOutside = e => {
-    if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container')) {
+    if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container') || closest(e.target, 'select__option', true)) {
       return;
     }
 
