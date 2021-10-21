@@ -29,9 +29,12 @@ class PresetsServiceApi {
   }
 
   async savePreset({ id, name, authority, journalId, settings }) {
+    console.log({ id, name, authority, journalId, settings });
     const record = Records.get(id);
 
-    record.att('name?json', name);
+    //todo
+    // record.att('name?json', name);
+    record.att('name', 'name');
     record.att('authority', authority);
     record.att('journalId', journalId);
     record.att('settings?json', settings);

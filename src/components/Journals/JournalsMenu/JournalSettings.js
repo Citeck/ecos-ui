@@ -4,10 +4,10 @@ import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
+import { deleteJournalSetting, editJournalSetting, openSelectedJournalSettings } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { Labels } from './constants';
 import ListItem from './ListItem';
 
@@ -20,8 +20,8 @@ class JournalSettings extends React.Component {
     this.props.deleteJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
-  onEdit = options => {
-    this.props.renameJournalSetting(options);
+  onEdit = item => {
+    this.props.editJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
   get selected() {
@@ -39,14 +39,7 @@ class JournalSettings extends React.Component {
 
   renderItem = React.memo(
     ({ item, selected }) => (
-      <ListItem
-        onClick={this.onSelect}
-        onDelete={this.onDelete}
-        onEdit={this.onEdit}
-        item={item}
-        selected={selected}
-        titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
-      />
+      <ListItem onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} selected={selected} />
     ),
     (prevProps, nextProps) => isEqual(prevProps.item, nextProps.item) && prevProps.selected === nextProps.selected
   );
@@ -83,7 +76,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
-    renameJournalSetting: options => dispatch(renameJournalSetting(w(options))),
+    editJournalSetting: options => dispatch(editJournalSetting(w(options))),
     openSelectedJournalSettings: journalSettingId => dispatch(openSelectedJournalSettings(w(journalSettingId)))
   };
 };
