@@ -6,22 +6,26 @@ class PresetsServiceApi {
     return Records.query(
       {
         sourceId: SourcesId.PRESETS,
-        query: {
-          journalId
-        }
+        query: { journalId }
       },
       {
         authority: 'authority',
         journalId: 'journalId',
-        displayName: '?disp',
+        title: '?disp',
         settings: 'settings?json',
         editable: 'permissions._has.Write?bool!false'
       }
-    );
+    ).then(result => result.records);
   }
 
   async getPreset({ id }) {
-    return Records.get(id).load('?json');
+    return Records.get(`${SourcesId.PRESETS}@${id}`).load({
+      authority: 'authority',
+      journalId: 'journalId',
+      title: '?disp',
+      settings: 'settings?json',
+      editable: 'permissions._has.Write?bool!false'
+    });
   }
 
   async savePreset({ id, name, authority, journalId, settings }) {

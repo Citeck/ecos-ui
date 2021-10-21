@@ -9,7 +9,7 @@ import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { Labels } from './constants';
-import ListItem from './JournalsMenuListItem';
+import ListItem from './ListItem';
 
 class JournalSettings extends React.Component {
   onSelect = setting => {
@@ -20,7 +20,7 @@ class JournalSettings extends React.Component {
     this.props.deleteJournalSetting(item[JOURNAL_SETTING_ID_FIELD]);
   };
 
-  onRename = options => {
+  onEdit = options => {
     this.props.renameJournalSetting(options);
   };
 
@@ -42,8 +42,7 @@ class JournalSettings extends React.Component {
       <ListItem
         onClick={this.onSelect}
         onDelete={this.onDelete}
-        onApply={this.onRename}
-        removable
+        onEdit={this.onEdit}
         item={item}
         selected={selected}
         titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}

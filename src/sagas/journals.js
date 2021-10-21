@@ -7,6 +7,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
 import { NotificationManager } from 'react-notifications';
 
@@ -64,11 +65,13 @@ import {
   DEFAULT_JOURNALS_PAGINATION,
   DEFAULT_PAGINATION,
   JOURNAL_DASHLET_CONFIG_VERSION,
+  JOURNAL_SETTING_DATA_FIELD,
   JOURNAL_SETTING_ID_FIELD
 } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
 import { ActionTypes } from '../components/Records/actions';
+import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../components/Records/predicates/predicates';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
@@ -247,10 +250,22 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
 }
 
 function* getJournalSettings(api, journalId, w) {
-  const settings = yield call(api.journals.getJournalSettings, journalId);
-  // const settings = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], journalId);
+  const settings = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], { journalId });
 
-  yield put(setJournalSettings(w(settings)));
+  yield put(
+    setJournalSettings(
+      w(
+        settings.map(item => {
+          const { id, ...data } = item;
+
+          return {
+            [JOURNAL_SETTING_ID_FIELD]: id,
+            [JOURNAL_SETTING_DATA_FIELD]: data
+          };
+        })
+      )
+    )
+  );
 
   return settings;
 }
