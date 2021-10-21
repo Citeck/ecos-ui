@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isFunction from 'lodash/isFunction';
 
 import { Btn } from '../../common/btns';
 import Columns from '../../common/templates/Columns/Columns';
 import { closest, t } from '../../../helpers/util';
-import EditorPreset from '../EditorPreset';
 
 import './JournalsSettingsFooter.scss';
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
     super(props);
-
-    this.state = { dialogOpen: false };
-    this.settingName = '';
+    this.state = { presetCreating: false };
   }
 
   componentDidMount() {
@@ -34,11 +32,7 @@ class JournalsSettingsFooter extends Component {
 
   onKeydown = e => {
     if (e.key === 'Enter') {
-      const inputRef = this.settingTitleInputRef || {};
-
-      if (e.target === inputRef.current) {
-        this.createSetting();
-      } else if (closest(e.target, this.props.parentClass)) {
+      if (closest(e.target, this.props.parentClass)) {
         this.applySetting();
       }
     }
@@ -46,80 +40,28 @@ class JournalsSettingsFooter extends Component {
 
   createSetting = () => {
     const { onCreate } = this.props;
-
-    if (typeof onCreate === 'function' && this.settingName) {
-      onCreate(this.settingName);
-      this.closeDialog();
-    }
+    this.setState({ presetCreating: true });
+    isFunction(onCreate) && onCreate();
   };
 
   saveSetting = () => {
     const { onSave } = this.props;
-
-    if (typeof onSave === 'function') {
-      onSave();
-    }
+    isFunction(onSave) && onSave();
   };
 
   applySetting = () => {
     const { onApply } = this.props;
-
-    if (typeof onApply === 'function') {
-      onApply();
-    }
+    isFunction(onApply) && onApply();
   };
 
   resetSettings = () => {
     const { onReset } = this.props;
-
-    if (typeof onReset === 'function') {
-      onReset();
-    }
-  };
-
-  getSetting = title => {
-    const { journalSetting, grouping, columnsSetup, predicate } = this.props;
-
-    return {
-      ...journalSetting,
-      sortBy: columnsSetup.sortBy,
-      groupBy: grouping.groupBy,
-      columns: grouping.groupBy.length ? grouping.columns : columnsSetup.columns,
-      predicate: predicate,
-      title: title || journalSetting.title
-    };
-  };
-
-  closeDialog = () => {
-    this.setState({ dialogOpen: false });
-    this.clearSettingName();
-  };
-
-  openDialog = () => {
-    this.setState({ dialogOpen: true });
-  };
-
-  clearSettingName = () => {
-    this.settingName = '';
-  };
-
-  onChangeSettingName = e => {
-    this.settingName = e.target.value;
-  };
-
-  onDialogCalculateBounds = () => {
-    const ref = this.settingTitleInputRef;
-    if (ref && ref.current) {
-      ref.current.focus();
-    }
-  };
-
-  getSettingTitleInputRef = ref => {
-    this.settingTitleInputRef = ref;
+    isFunction(onReset) && onReset();
   };
 
   render() {
     const { canSave } = this.props;
+    const { presetCreating } = this.state;
 
     return (
       <>
@@ -127,7 +69,7 @@ class JournalsSettingsFooter extends Component {
           className="ecos-journal__settings-footer"
           cols={[
             <>
-              <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
+              <Btn className="ecos-btn_x-step_10" onClick={this.createSetting} disabled={presetCreating}>
                 {t('journals.action.create-template')}
               </Btn>
               {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
@@ -144,8 +86,6 @@ class JournalsSettingsFooter extends Component {
           ]}
           cfgs={[{}, { className: 'columns_right' }]}
         />
-
-        {this.state.dialogOpen && <EditorPreset onClose={this.closeDialog} data={{ name: 'name' }} />}
       </>
     );
   }

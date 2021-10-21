@@ -535,6 +535,10 @@
   "record-action.name.edit-password": "Изменить пароль",
   "record-action.name.open-submit-form": "Открыть и рассмотреть",
 
+  "record-action.edit-journal-preset.name": "Редактировать шаблон настроек журнала",
+  "record-action.edit-journal-preset.msg.saved-success": "Шаблон сохранен",
+  "record-action.edit-journal-preset.msg.saved-error": "Шаблон не сохранен",
+
   "records-actions.actions": "Действия",
   "records-actions.create": "Создать",
   "records-actions.download": "Скачать",
@@ -726,7 +730,6 @@
   "journals.action.delete-filter-msg": "Удаление фильтра",
   "journals.action.delete-records-msg": "Удаление записей",
   "journals.action.delete-tpl-msg": "Удаление шаблона",
-  "journals.action.dialog-msg": "Введите название шаблона",
   "journals.action.edit-dashlet": "Настройки виджета",
   "journals.action.hide-menu": "Скрыть меню",
   "journals.action.hide-menu_sm": "Скрыть",
@@ -758,9 +761,16 @@
   "journals.list.name": "Список журналов",
   "journals.name": "Журналы",
   "journals.settings": "Настройки",
-  "journals.tpl.defaults": "Шаблоны настроек",
   "journals.menu.journal-list.title": "Журналы",
   "journals.menu.journal-list.empty": "Список пуст",
+  "journal.presets.menu.title": "Шаблоны настроек",
+  "journal.presets.modal.title.create": "Создание шаблона",
+  "journal.presets.modal.title.edit": "Редактирование шаблона",
+  "journal.presets.modal.field.name": "Название",
+  "journal.presets.modal.field.authority": "Доступно для",
+  "journal.presets.modal.btn.cancel": "Отмена",
+  "journal.presets.modal.btn.save": "Сохранить",
+  "journal.presets.action.btn.save": "Сохранить",
 
   "journals.formatter.action.execution-error": "Действие не может быть выполнено",
 

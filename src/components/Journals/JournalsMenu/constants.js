@@ -4,7 +4,7 @@ export const Labels = {
   HIDE_MENU_sm: 'journals.action.hide-menu_sm',
   EMPTY_LIST: 'journals.menu.journal-list.empty',
   JOURNALS_TITLE: 'journals.menu.journal-list.title',
-  TEMPLATES_TITLE: 'journals.tpl.defaults',
+  TEMPLATES_TITLE: 'journal.presets.menu.title',
   TEMPLATE_CANCEL: 'journals.action.cancel-rename-tpl-msg',
   TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
   TEMPLATE_REMOVE: 'journals.action.delete-tpl-msg',

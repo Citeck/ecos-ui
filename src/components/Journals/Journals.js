@@ -90,7 +90,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
-    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
+    createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting(w({ journalId, settings, callback }))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings })))
   };
 };
@@ -330,8 +330,7 @@ class Journals extends React.Component {
       createJournalSetting
     } = this.props;
 
-    createJournalSetting(id, settings);
-    this.toggleSettings();
+    createJournalSetting(id, settings, this.toggleSettings);
   };
 
   applySettings = (isChangedPredicates, settings) => {

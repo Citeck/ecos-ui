@@ -15,6 +15,7 @@ import JournalsGrouping from './JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from './JournalsSettingsFooter/JournalsSettingsFooter';
 import EcosModal from '../common/EcosModal';
 import { JOURNAL_SETTING_ID_FIELD } from './constants';
+import isFunction from 'lodash/isFunction';
 
 class SettingsModal extends Component {
   static propTypes = {
@@ -58,7 +59,7 @@ class SettingsModal extends Component {
     }
   }
 
-  getSetting = title => {
+  getSetting = () => {
     const { journalSetting } = this.props;
     const { predicate, columns, sortBy, grouping } = this.state;
 
@@ -68,7 +69,6 @@ class SettingsModal extends Component {
       groupBy: grouping.groupBy,
       columns,
       predicate,
-      title: title || journalSetting.title,
       grouping
     };
   };
@@ -91,23 +91,20 @@ class SettingsModal extends Component {
     const { filtersData, onApply } = this.props;
     const { predicate } = this.state;
 
-    if (typeof onApply === 'function') {
+    if (isFunction(onApply)) {
       onApply(!isEqual(predicate, get(filtersData, 'predicate')), this.getSetting());
     }
   };
 
-  handleCreate = settingsName => {
+  handleCreate = () => {
     const { onCreate } = this.props;
-
-    if (typeof onCreate === 'function') {
-      onCreate(this.getSetting(settingsName));
-    }
+    isFunction(onCreate) && onCreate(this.getSetting());
   };
 
   handleSave = () => {
     const { onSave } = this.props;
 
-    if (typeof onSave === 'function') {
+    if (isFunction(onSave)) {
       const settings = this.getSetting();
 
       onSave(settings[[JOURNAL_SETTING_ID_FIELD]], settings);

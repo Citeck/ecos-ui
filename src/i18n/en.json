@@ -726,7 +726,6 @@
   "journals.action.delete-filter-msg": "Delete filter",
   "journals.action.delete-records-msg": "Delete records",
   "journals.action.delete-tpl-msg": "Delete template",
-  "journals.action.dialog-msg": "Enter template name",
   "journals.action.edit-dashlet": "Setting widget",
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
@@ -758,7 +757,7 @@
   "journals.list.name": "Journals list",
   "journals.name": "Journals",
   "journals.settings": "Settings",
-  "journals.tpl.defaults": "Settings template",
+  "journal.presets.menu.title": "Settings template",
   "journals.menu.journal-list.title": "Journals",
   "journals.menu.journal-list.empty": "List is empty",
 

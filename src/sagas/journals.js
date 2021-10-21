@@ -780,13 +780,21 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
 
 function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    const { journalId, settings } = action.payload;
-    const journalSettingId = yield call(api.journals.createJournalSetting, action.payload);
-    // const journalSettingId = yield call([PresetsServiceApi, PresetsServiceApi.savePreset], {...settings});
+    const { callback, ...data } = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
 
+    const executor = ActionsRegistry.getHandler(ActionTypes.EDIT_JOURNAL_PRESET);
+    const actionResult = yield call([executor, executor.execForRecord], undefined, {
+      type: ActionTypes.EDIT_JOURNAL_PRESET,
+      config: { data }
+    });
+
+    if (actionResult && actionResult.id) {
+      yield put(openSelectedJournalSettings(w(actionResult.id)));
+    }
+
     yield getJournalSettings(api, journalConfig.id, w);
-    yield put(openSelectedJournalSettings(w(journalSettingId)));
+    isFunction(callback) && callback(actionResult);
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e.message);
   }
