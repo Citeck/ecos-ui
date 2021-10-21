@@ -5,10 +5,11 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 
 import {
+  deselectAllRecords,
   initState,
-  selectJournal,
   resetState,
   runSearch,
+  selectJournal,
   setCheckLoading,
   setColumnsSetup,
   setDashletConfig,
@@ -26,7 +27,7 @@ import {
   setPreviewFileName,
   setPreviewUrl,
   setRecordRef,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
@@ -34,7 +35,7 @@ import {
   toggleViewMode
 } from '../actions/journals';
 import { t } from '../helpers/util';
-import { handleAction, handleState, updateState, getCurrentStateById } from '../helpers/redux';
+import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
 import {
   DEFAULT_INLINE_TOOL_SETTINGS,
   DEFAULT_PAGINATION,
@@ -114,7 +115,7 @@ export const defaultState = {
   },
 
   selectedRecords: [],
-  selectAllRecords: false,
+  selectAllPageRecords: false,
   selectAllRecordsVisible: false,
 
   inlineToolSettings: DEFAULT_INLINE_TOOL_SETTINGS,
@@ -323,17 +324,22 @@ export default handleActions(
 
       return handleState(state, stateId, { selectedRecords: action.payload });
     },
-    [setSelectAllRecords]: (state, action) => {
+    [setSelectAllPageRecords]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, { selectAllRecords: action.payload });
+      return handleState(state, stateId, { selectAllPageRecords: action.payload });
     },
     [setSelectAllRecordsVisible]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
       return handleState(state, stateId, { selectAllRecordsVisible: action.payload });
+    },
+    [deselectAllRecords]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, { selectAllRecordsVisible: false, selectAllPageRecords: false, selectedRecords: [] });
     },
     [setLoading]: (state, action) => {
       const stateId = action.payload.stateId;

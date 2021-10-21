@@ -600,10 +600,12 @@
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",
   "grid.tools.group-actions": "More actions",
-  "grid.tools.group-actions-mobile": "More",
+
   "grid.tools.move-to": "Move to...",
-  "grid.tools.select-all": "Select all",
   "grid.tools.zip": "Download Zip",
+  "grid.tools.select-all": "Select all",
+  "grid.tools.select-all-page": "Select all page",
+  "grid.tools.remove-selection": "Remove selection",
 
   "grouping.how": "How to group",
   "grouping.show": "View the principle of grouping",
@@ -732,7 +734,10 @@
   "journal.cell.no-label": "(Missing Label)",
   "journal.error.fail-get-settings-template": "Settings template not received",
   "journal.generated-field.editor.not-exist": "Editor doesn't exist",
-
+  "journal.group-actions.selected-records.label": "Selected records: {{data}}",
+  "journal.group-actions.selected-records.label_short": "Selected: {{data}}",
+  "journal.group-actions.selected-records.label-count": "{{selected}} out of {{total}}",
+  "journal.group-actions.filter-result": "Filter Result",
   "journals-selector.assocs-load-error": "Connection loading error",
   "journals-selector.create-button.label": "Add Connection",
   "journals.action.apply": "Apply",

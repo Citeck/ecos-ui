@@ -1,7 +1,7 @@
 const data = Object.freeze({
   boardList: [{ id: 'id1', name: 'name1' }, { id: 'id2', name: 'name2' }],
   boardConfig: {
-    id: 'identifier',
+    id: 'boardId',
     name: { ru: 'Русское имя', en: 'English name' },
     readOnly: true,
     typeRef: 'emodel/type@some-type',

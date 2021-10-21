@@ -501,6 +501,10 @@ button {
     &:hover {
       background-color: $color-blue-dark;
       color: $color-white;
+
+      & .ecos-btn__i {
+        color: $color-white;
+      }
     }
   }
 

@@ -1,0 +1,42 @@
+@import '../../../styles/constants';
+
+.ecos-group-actions {
+  $root: &;
+
+  &__dropdown {
+    margin-right: 15px;
+    max-width: 300px;
+    transition: width;
+
+    &-menu &-item {
+      &_disabled {
+        cursor: default;
+        pointer-events: none;
+        color: $color-gray-5;
+      }
+    }
+
+    &-item {
+      &:not(&_query) + &_query {
+        border-top: $color-gray-2 2px solid;
+      }
+    }
+  }
+
+  &__control.ecos-btn {
+    overflow: hidden;
+    width: 100%;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    padding: 0 15px;
+
+    & .icon_semantic {
+      font-size: 17px;
+      color: $color-gray-5;
+    }
+  }
+
+  &__control_mobile.ecos-btn {
+    padding: 0 10px;
+  }
+}

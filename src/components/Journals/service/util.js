@@ -17,7 +17,7 @@ export const COLUMN_TYPE_NEW_TO_LEGACY_MAPPING = {
 };
 
 export function getCreateVariantKeyField(createVariant) {
-  return Object.keys(createVariant).filter(key => !!createVariant[key] && typeof createVariant[key] === 'string');
+  return Object.keys(createVariant || {}).filter(key => !!createVariant[key] && typeof createVariant[key] === 'string');
 }
 
 export function valueOrNull(value) {

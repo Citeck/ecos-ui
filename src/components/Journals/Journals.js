@@ -13,7 +13,7 @@ import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journal
 import { getTypeRef } from '../../actions/docLib';
 import { getBoardList } from '../../actions/kanban';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
-import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
+import { DocLibUrlParams as DLUP, JournalUrlParams as JUP } from '../../constants';
 import { animateScrollTo, getBool, getScrollbarWidth, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -23,7 +23,7 @@ import { ActionTypes } from '../Records/actions';
 import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
-import { DocLibView, TableView, KanbanView } from './Views';
+import { DocLibView, KanbanView, TableView } from './Views';
 
 import './style.scss';
 
@@ -153,11 +153,11 @@ class Journals extends React.Component {
     }
   }
 
-  get displayElements() {
+  getDisplayElements() {
     return {
       ...defaultDisplayElements,
       ...(this.props.displayElements || {}),
-      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin && get(this.props, 'journalConfig.id'),
+      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin,
       menu: !isKanban(this.props.viewMode)
     };
   }
@@ -172,7 +172,7 @@ class Journals extends React.Component {
       isActivePage,
       Header: this.Header,
       UnavailableView: this.UnavailableView,
-      displayElements: this.displayElements,
+      displayElements: this.getDisplayElements(),
       bodyForwardedRef: this.setJournalBodyRef,
       bodyTopForwardedRef: this.setJournalBodyTopRef,
       footerForwardedRef: this.setJournalFooterRef,
@@ -184,8 +184,7 @@ class Journals extends React.Component {
   }
 
   get tableProps() {
-    const { selectAllRecordsVisible, selectAllRecords } = this.props;
-    return { selectAllRecordsVisible, selectAllRecords, getJournalContentMaxHeight: this.getJournalContentMaxHeight };
+    return { getJournalContentMaxHeight: this.getJournalContentMaxHeight };
   }
 
   setJournalRef = ref => !!ref && (this._journalRef = ref);
@@ -200,11 +199,10 @@ class Journals extends React.Component {
 
   setHeight = debounce(height => this.setState({ height }), 500);
 
-  handleEditJournal = throttle(
-    () => this.props.execJournalAction(`${SourcesId.JOURNAL}@${this.props.journalConfig.id}`, { type: ActionTypes.EDIT }),
-    300,
-    { leading: false, trailing: true }
-  );
+  handleEditJournal = throttle(configRec => this.props.execJournalAction(configRec, { type: ActionTypes.EDIT }), 300, {
+    leading: false,
+    trailing: true
+  });
 
   handleToggleMenu = () => {
     if (this._toggleMenuTimerId) {
@@ -293,7 +291,9 @@ class Journals extends React.Component {
   };
 
   Header = props => {
-    if (this.displayElements.header) {
+    const displayElements = this.getDisplayElements();
+
+    if (displayElements.header) {
       const { menuOpen } = this.state;
       const { isMobile } = this.props;
 
@@ -304,10 +304,10 @@ class Journals extends React.Component {
             labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
             isOpenMenu={menuOpen}
             isMobile={isMobile}
-            hasBtnMenu={this.displayElements.menu}
-            hasBtnEdit={this.displayElements.editJournal}
+            hasBtnMenu={displayElements.menu}
+            hasBtnEdit={displayElements.editJournal && !!props.configRec}
             onToggleMenu={this.handleToggleMenu}
-            onEditJournal={this.handleEditJournal}
+            onEditJournal={() => this.handleEditJournal(props.configRec)}
           />
         </div>
       );
@@ -317,7 +317,9 @@ class Journals extends React.Component {
   };
 
   RightMenu = () => {
-    if (this.displayElements.menu) {
+    const displayElements = this.getDisplayElements();
+
+    if (displayElements.menu) {
       const { stateId, isActivePage } = this.props;
       const { menuOpen, menuOpenAnimate, height } = this.state;
 
@@ -383,9 +385,7 @@ Journals.propTypes = {
     settings: PropTypes.bool,
     pagination: PropTypes.bool,
     groupActions: PropTypes.bool
-  }),
-  selectAllRecordsVisible: PropTypes.bool,
-  selectAllRecords: PropTypes.bool
+  })
 };
 
 Journals.defaultProps = {

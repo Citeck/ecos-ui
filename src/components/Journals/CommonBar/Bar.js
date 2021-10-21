@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
+import isFunction from 'lodash/isFunction';
 
 import { getSearchParams, goToCardDetailsPage, removeUrlSearchParams } from '../../../helpers/urls';
 import { JournalUrlParams as JUP } from '../../../constants';
@@ -30,13 +31,13 @@ class Bar extends Component {
   handleApplySettings = (isChangedPredicates, settings) => {
     const { clearSearch, applySettings } = this.props;
 
-    applySettings({ settings });
+    isFunction(applySettings) && applySettings({ settings });
 
     if (isChangedPredicates) {
       const url = removeUrlSearchParams(window.location.href, JUP.SEARCH);
 
       window.history.replaceState({ path: url }, '', url);
-      clearSearch();
+      isFunction(clearSearch) && clearSearch();
     }
 
     this.handleToggleSettings();
@@ -48,7 +49,7 @@ class Bar extends Component {
       createJournalSetting
     } = this.props;
 
-    createJournalSetting(id, settings);
+    isFunction(createJournalSetting) && createJournalSetting(id, settings);
     this.handleToggleSettings();
   };
 
@@ -59,15 +60,19 @@ class Bar extends Component {
   };
 
   handleRefresh = () => {
-    this.props.reloadGrid();
+    const { deselectAllRecords, reloadGrid } = this.props;
+    isFunction(deselectAllRecords) && deselectAllRecords();
+    isFunction(reloadGrid) && reloadGrid();
   };
 
   handleSearch = text => {
-    if (text === get(this.props, ['urlParams', JUP.SEARCH], '')) {
+    const { urlParams, runSearch } = this.props;
+
+    if (text === get(urlParams, [JUP.SEARCH], '')) {
       return;
     }
 
-    this.props.runSearch(text);
+    isFunction(runSearch) && runSearch();
   };
 
   handleAddRecord = createVariant => {
@@ -87,7 +92,8 @@ class Bar extends Component {
   };
 
   handleResetFilter = () => {
-    this.props.resetFiltering();
+    const { resetFiltering } = this.props;
+    isFunction(resetFiltering) && resetFiltering();
   };
 
   render() {
@@ -177,12 +183,6 @@ Bar.propTypes = {
   settingsColumnsData: PropTypes.object,
   settingsGroupingData: PropTypes.object,
   selectedRecords: PropTypes.array,
-
-  onRefresh: PropTypes.func,
-  onSearch: PropTypes.func,
-  onToggleSettings: PropTypes.func,
-  onAddRecord: PropTypes.func,
-  onResetFilter: PropTypes.func,
 
   applySettings: PropTypes.func,
   createJournalSetting: PropTypes.func,

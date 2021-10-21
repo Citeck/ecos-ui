@@ -71,6 +71,7 @@ export function* sagaGetBoardConfig({ api, logger }, { payload }) {
     const { boardId, stateId } = payload;
     const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
     const boardConfig = KanbanConverter.prepareConfig(config);
+    config && boardId && (boardConfig.id = boardId);
 
     yield put(setBoardConfig({ boardConfig, stateId }));
 

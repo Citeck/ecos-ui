@@ -9,7 +9,7 @@ import get from 'lodash/get';
 import { getBoardData, reloadBoardData, selectBoardId } from '../../../actions/kanban';
 import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
-import { JournalUrlParams as JUP, KanbanUrlParams as KUP } from '../../../constants';
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { t } from '../../../helpers/export/util';
 import { getSearchParams } from '../../../helpers/urls';
 import { Dropdown } from '../../common/form';
@@ -123,12 +123,12 @@ class KanbanView extends React.Component {
       urlParams,
       isActivePage
     } = this.props;
-    const { name } = boardConfig || {};
+    const { name, id } = boardConfig || {};
 
     return (
       <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
-          <Header title={name} config={boardConfig} />
+          <Header title={name} config={boardConfig} configRec={id && `${SourcesId.BOARD}@${id}`} />
           <Bar
             urlParams={urlParams}
             isActivePage={isActivePage}
