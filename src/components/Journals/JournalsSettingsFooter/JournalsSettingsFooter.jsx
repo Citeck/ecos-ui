@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
 import { Btn } from '../../common/btns';
 import Columns from '../../common/templates/Columns/Columns';
 import { closest, t } from '../../../helpers/util';
+import EditorPreset from '../EditorPreset';
 
 import './JournalsSettingsFooter.scss';
-import EditorPreset from '../EditorPreset';
 
 class JournalsSettingsFooter extends Component {
   constructor(props) {
