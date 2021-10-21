@@ -123,4 +123,34 @@ export default class JournalsConverter {
           id: getId()
         };
   }
+
+  static filterColumnsByConfig(columns, configColumns) {
+    if (isEmpty(columns) || !Array.isArray(columns) || isEmpty(configColumns) || !Array.isArray(configColumns)) {
+      return columns;
+    }
+
+    const configColumnsIds = (configColumns || []).map(item => item.attribute || item.name || item.schema);
+
+    return columns.filter(item => configColumnsIds.includes(item.attribute || item.name || item.schema));
+  }
+
+  static filterPredicatesByConfigColumns(predicate, configColumns) {
+    if (Array.isArray(predicate)) {
+      predicate.forEach(item => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
+
+      return predicate;
+    }
+
+    const configColumnsIds = (configColumns || []).map(item => item.attribute || item.name || item.schema);
+
+    if (Array.isArray(predicate.val) && !predicate.att) {
+      predicate.val = predicate.val.filter(item => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
+    }
+
+    if (predicate.att) {
+      return configColumnsIds.includes(predicate.att);
+    }
+
+    return predicate;
+  }
 }
