@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import logger from '../../../../../../services/logger';
 import { t } from '../../../../../../helpers/export/util';
@@ -14,8 +14,23 @@ export default class SelectEditor extends BaseEditor {
     return ({ value, attribute, recordRef, multiple, onUpdate }) => {
       const [options, setOptions] = useState([]);
       const [isLoading, setLoading] = useState(false);
+      const [selected, setSelected] = useState([]);
+
+      const onSelectUpdate = useCallback(
+        value => {
+          if (Array.isArray(value)) {
+            onUpdate(value.map(v => v.value), { options });
+          } else {
+            onUpdate(value.value, { options });
+          }
+
+          setSelected(value);
+        },
+        [options]
+      );
 
       useEffect(() => {
+        const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
         let propOptions = config.options;
 
         if (config.options && typeof config.options === 'string') {
@@ -28,6 +43,7 @@ export default class SelectEditor extends BaseEditor {
         }
 
         setOptions(propOptions);
+        setSelected(selected);
       }, []);
 
       useEffect(() => {
@@ -54,50 +70,48 @@ export default class SelectEditor extends BaseEditor {
         }
       }, [options]);
 
-      const onSelectUpdate = value => {
-        if (Array.isArray(value)) {
-          onUpdate(value.map(v => v.value), { options });
-        } else {
-          onUpdate(value.value, { options });
-        }
-      };
+      useEffect(() => {
+        const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
 
-      const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
+        setSelected(selected);
+      }, [value, options]);
 
       if (isLoading) {
         return <div className="text-dark">{t('ecos-ui.select.loading-message')}</div>;
-      } else if (!options || !options.length) {
-        return <div className="text-dark">{t('ecos-ui.select.no-options-message')}</div>;
-      } else {
-        return (
-          <Select
-            isMulti={multiple}
-            autoFocus={scope === EditorScope.CELL}
-            onChange={onSelectUpdate}
-            className="select_narrow select_width_full"
-            getOptionLabel={option => option.label || option}
-            getOptionValue={option => option.value || option}
-            options={[{ value: null, label: t('react-select.select-value.label') }, ...options]}
-            value={selected}
-            styles={{
-              menu: css => ({
-                ...css,
-                zIndex: 11,
-                width: 'auto',
-                minWidth: '100%'
-              }),
-              dropdownIndicator: css => ({
-                ...css,
-                padding: '0 !important'
-              }),
-              valueContainer: css => ({
-                ...css,
-                paddingLeft: '3px !important'
-              })
-            }}
-          />
-        );
       }
+
+      if (!options || !options.length) {
+        return <div className="text-dark">{t('ecos-ui.select.no-options-message')}</div>;
+      }
+
+      return (
+        <Select
+          isMulti={multiple}
+          autoFocus={scope === EditorScope.CELL}
+          onChange={onSelectUpdate}
+          className="select_narrow select_width_full"
+          getOptionLabel={option => option.label || option}
+          getOptionValue={option => option.value || option}
+          options={[{ value: null, label: t('react-select.select-value.label') }, ...options]}
+          value={selected}
+          styles={{
+            menu: css => ({
+              ...css,
+              zIndex: 11,
+              width: 'auto',
+              minWidth: '100%'
+            }),
+            dropdownIndicator: css => ({
+              ...css,
+              padding: '0 !important'
+            }),
+            valueContainer: css => ({
+              ...css,
+              paddingLeft: '3px !important'
+            })
+          }}
+        />
+      );
     };
   }
 
