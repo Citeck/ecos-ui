@@ -91,7 +91,7 @@ export function closest(node = null, selector, checkSelf = false) {
     if (className && className.indexOf(selector) !== -1) {
       return parent;
     } else {
-      return closest(parent, selector, checkSelf);
+      return closest(parent, selector);
     }
   }
 
