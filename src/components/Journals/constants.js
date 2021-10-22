@@ -41,10 +41,10 @@ export const Labels = {
     BTN_SAVE: 'journal.presets.modal.btn.save',
     //list
     TEMPLATES_TITLE: 'journal.presets.menu.title',
-    TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
-    TEMPLATE_REMOVE: 'journals.action.delete-tpl-msg',
-    TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
-    TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
+    TEMPLATE_RENAME: 'journal.presets.action.rename',
+    TEMPLATE_REMOVE: 'journal.presets.action.delete',
+    TEMPLATE_REMOVE_TITLE: 'journal.presets.action.delete',
+    TEMPLATE_REMOVE_TEXT: 'journal.presets.action.delete.msg'
   }
 };
 

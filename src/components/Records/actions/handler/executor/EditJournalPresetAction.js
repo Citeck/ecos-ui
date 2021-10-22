@@ -20,7 +20,9 @@ export default class EditJournalPresetAction extends ActionsExecutor {
       const data = get(action, 'config.data') || {};
       const rec = Records.get(record);
       const isEditing = rec.id.split('@').length > 1;
-      const title = isEditing ? 'journal.presets.modal.title.edit' : 'journal.presets.modal.title.create';
+      const title = isEditing
+        ? 'record-action.edit-journal-preset.modal.title.edit'
+        : 'record-action.edit-journal-preset.modal.title.create';
 
       if (!data.authority) {
         data.authority = authUserData.userName;

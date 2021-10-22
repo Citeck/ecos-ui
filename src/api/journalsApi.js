@@ -1,4 +1,4 @@
-import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
