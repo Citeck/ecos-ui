@@ -1,3 +1,5 @@
+import { t } from '../../../helpers/export/util';
+
 export const Labels = {
   HIDE_MENU: 'journals.action.hide-menu',
   HIDE_FOLDER_TREE: 'journals.action.hide-folder-tree',
@@ -10,4 +12,9 @@ export const Labels = {
   TEMPLATE_REMOVE: 'journals.action.delete-tpl-msg',
   TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
   TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
+};
+
+export const DEFAULT_PRESET = {
+  id: '',
+  displayName: t('journals.default')
 };

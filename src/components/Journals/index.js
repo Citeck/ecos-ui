@@ -1,3 +1,3 @@
 export { default as Journals } from './Journals';
 export { default as JournalsDashlet } from '../widgets/JournalsDashlet/JournalsDashlet';
-export { default as JournalSettings } from './JournalsMenu/JournalSettings';
+export { default as JournalSettings } from './Presets/Presets';

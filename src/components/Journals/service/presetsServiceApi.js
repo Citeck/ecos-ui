@@ -1,6 +1,16 @@
 import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
 
+class ID {
+  static includes(id) {
+    return id.includes(SourcesId.PRESETS);
+  }
+
+  static getFull(id) {
+    return ID.includes(id) ? id : `${SourcesId.PRESETS}@${id}`;
+  }
+}
+
 class PresetsServiceApi {
   async getJournalPresets({ journalId }) {
     return Records.query(
@@ -11,7 +21,7 @@ class PresetsServiceApi {
       {
         authority: 'authority',
         journalId: 'journalId',
-        title: '?disp',
+        displayName: '?disp',
         settings: 'settings?json',
         editable: 'permissions._has.Write?bool!false'
       }
@@ -19,22 +29,20 @@ class PresetsServiceApi {
   }
 
   async getPreset({ id }) {
-    return Records.get(`${SourcesId.PRESETS}@${id}`).load({
+    return Records.get(ID.getFull(id)).load({
       authority: 'authority',
       journalId: 'journalId',
-      title: '?disp',
+      name: 'name?json',
+      displayName: '?disp',
       settings: 'settings?json',
       editable: 'permissions._has.Write?bool!false'
     });
   }
 
   async savePreset({ id, name, authority, journalId, settings }) {
-    console.log({ id, name, authority, journalId, settings });
-    const record = Records.get(id);
+    const record = Records.get(ID.getFull(id));
 
-    //todo
-    // record.att('name?json', name);
-    record.att('name', 'name');
+    record.att('name', name);
     record.att('authority', authority);
     record.att('journalId', journalId);
     record.att('settings?json', settings);
@@ -43,7 +51,7 @@ class PresetsServiceApi {
   }
 
   async deletePreset({ id }) {
-    return Records.remove([id]);
+    return Records.remove([ID.getFull(id)]);
   }
 }
 

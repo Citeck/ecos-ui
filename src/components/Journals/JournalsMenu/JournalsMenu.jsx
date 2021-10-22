@@ -8,8 +8,8 @@ import { getScrollbarWidth, t } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
 import { JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
+import Presets from '../Presets/Presets';
 import { Labels } from './constants';
-import JournalSettings from './JournalSettings';
 
 import './JournalsMenu.scss';
 
@@ -97,7 +97,7 @@ class JournalsMenu extends React.Component {
           </IcoBtn>
         </div>
 
-        {!isDocLibMode && <JournalSettings stateId={stateId} />}
+        {!isDocLibMode && <Presets stateId={stateId} />}
 
         {isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
       </div>

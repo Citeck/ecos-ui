@@ -4,22 +4,21 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { t } from '../../helpers/export/util';
 import { Well } from '../common/form';
+import EcosModal from '../common/EcosModal';
 import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import JournalsFilters from './JournalsFilters/JournalsFilters';
 import JournalsColumnsSetup from './JournalsColumnsSetup/JournalsColumnsSetup';
 import JournalsGrouping from './JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from './JournalsSettingsFooter/JournalsSettingsFooter';
-import EcosModal from '../common/EcosModal';
-import { JOURNAL_SETTING_ID_FIELD } from './constants';
-import isFunction from 'lodash/isFunction';
 
 class SettingsModal extends Component {
   static propTypes = {
-    journalSetting: PropTypes.array,
+    journalSetting: PropTypes.object,
     columnsSetup: PropTypes.object,
     grouping: PropTypes.object,
     originGridSettings: PropTypes.object,
@@ -105,9 +104,9 @@ class SettingsModal extends Component {
     const { onSave } = this.props;
 
     if (isFunction(onSave)) {
-      const settings = this.getSetting();
+      const setting = this.getSetting();
 
-      onSave(settings[[JOURNAL_SETTING_ID_FIELD]], settings);
+      onSave(setting.id, setting);
     }
   };
 
@@ -156,7 +155,7 @@ class SettingsModal extends Component {
 
           <JournalsSettingsFooter
             parentClass="ecos-journal__settings"
-            canSave={!isEmpty(journalSetting[JOURNAL_SETTING_ID_FIELD])}
+            canSave={!isEmpty(journalSetting.id)}
             onApply={this.handleApply}
             onCreate={this.handleCreate}
             onReset={this.handleReset}

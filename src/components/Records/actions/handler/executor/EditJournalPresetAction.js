@@ -18,7 +18,7 @@ export default class EditJournalPresetAction extends ActionsExecutor {
     return new Promise(async resolve => {
       const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PEOPLE}@${getCurrentUserName()}`);
       const data = get(action, 'config.data') || {};
-      const id = get(action, 'config.id');
+      const rec = Records.get(record);
 
       if (!data.authority) {
         data.authority = authUserData.userName;
@@ -27,10 +27,9 @@ export default class EditJournalPresetAction extends ActionsExecutor {
       const authorityRef = await Records.get(`${SourcesId.A_AUTHORITY}@${data.authority}`).load('nodeRef');
 
       const onClose = () => modal.destroy();
-
       const onSave = async newData => {
         const authority = await Records.get(newData.authorityRef).load('cm:authorityName!cm:userName');
-        const preset = await PresetsServiceApi.savePreset({ id, ...data, ...newData, authority });
+        const preset = await PresetsServiceApi.savePreset({ id: rec.id, ...data, ...newData, authority });
 
         if (preset && preset.id) {
           notifySuccess('record-action.edit-journal-preset.msg.saved-success');

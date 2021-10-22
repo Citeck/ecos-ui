@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/export/util';
+import { isFilledLabelWeak } from '../../../helpers/util';
 import { MLText, SelectOrgstruct } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
@@ -34,6 +35,8 @@ const PresetEditor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
     onSave({ name, authorityRef });
   }, [name, authorityRef]);
 
+  const isInvalid = !(isFilledLabelWeak(name) && authorityRef);
+
   return (
     <div className="journal-journal-preset-editor">
       <div className="journal-preset-editor__field">
@@ -59,7 +62,7 @@ const PresetEditor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
 
       <div className="journal-preset-editor__buttons">
         <Btn onClick={onClose}>{t(Labels.BTN_CLOSE)}</Btn>
-        <Btn onClick={handleSave} className="ecos-btn_blue" disabled={isSaving}>
+        <Btn onClick={handleSave} className="ecos-btn_blue" disabled={isSaving || isInvalid}>
           {t(Labels.BTN_SAVE)}
         </Btn>
       </div>
@@ -69,7 +72,7 @@ const PresetEditor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
 
 PresetEditor.propTypes = {
   data: PropTypes.shape({
-    name: PropTypes.string,
+    name: PropTypes.object,
     authority: PropTypes.string
   }),
 

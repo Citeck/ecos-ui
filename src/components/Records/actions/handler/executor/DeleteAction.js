@@ -1,9 +1,9 @@
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 
-import ActionsExecutor from '../ActionsExecutor';
 import dialogManager from '../../../../common/dialogs/Manager/DialogManager';
 import Records from '../../../Records';
+import ActionsExecutor from '../ActionsExecutor';
 
 export default class DeleteAction extends ActionsExecutor {
   static ACTION_ID = 'delete';

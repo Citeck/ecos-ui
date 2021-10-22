@@ -9,7 +9,7 @@ import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { SelectOrgstruct } from '../components/common/form';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
 import { PasswordEditor } from '../components/Password';
-import PresetEditor, { Labels as PresetLabels } from '../components/Journals/PresetEditor';
+import PresetEditor, { Labels as PresetLabels } from '../components/Journals/Presets/PresetEditor';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {

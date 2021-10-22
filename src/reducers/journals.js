@@ -61,14 +61,8 @@ import {
   unfoldSidebarItem,
   updateSidebarItem
 } from '../actions/docLib';
-import { t } from '../helpers/util';
 import { handleAction, handleState } from '../helpers/redux';
-import {
-  DEFAULT_INLINE_TOOL_SETTINGS,
-  DEFAULT_PAGINATION,
-  JOURNAL_SETTING_DATA_FIELD,
-  JOURNAL_SETTING_ID_FIELD
-} from '../components/Journals/constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../components/Journals/constants';
 import { DEFAULT_DOCLIB_PAGINATION } from '../constants/docLib';
 
 export const emptyJournalConfig = Object.freeze({
@@ -273,16 +267,7 @@ export default handleActions(
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, {
-        journalSettings: [
-          {
-            [JOURNAL_SETTING_ID_FIELD]: '',
-            [JOURNAL_SETTING_DATA_FIELD]: { title: t('journals.default') },
-            notRemovable: true
-          },
-          ...Array.from(action.payload)
-        ]
-      });
+      return handleState(state, stateId, { journalSettings: Array.from(action.payload) });
     },
     [setJournalSetting]: (state, action) => {
       const stateId = action.payload.stateId;
