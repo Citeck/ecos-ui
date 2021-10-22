@@ -41,6 +41,11 @@ export const selectDashletConfig = createSelector(
   ownProps => get(ownProps, 'config', null)
 );
 
+export const selectJournalConfig = createSelector(
+  selectState,
+  ownProps => get(ownProps, 'journalConfig', null)
+);
+
 export const selectIsNotExistsJournal = createSelector(
   selectState,
   ownProps => {
