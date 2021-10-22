@@ -206,7 +206,7 @@ export class AppApi extends CommonApi {
       .catch(() => DEF_LOGOUT);
 
     if (url) {
-      await ecosFetch(url, { method: 'POST', mode: 'no-cors' });
+      await ecosFetch(url, { method: 'POST' });
       window.location.reload();
     } else {
       NotificationManager.warning(t('page.error.logout.no-url'));
