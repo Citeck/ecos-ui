@@ -4,7 +4,7 @@ import get from 'lodash/get';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, editJournalSetting, openSelectedJournalSettings } from '../../../actions/journals';
+import { deleteJournalSetting, editJournalSetting, openSelectedPreset } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
 import { Labels } from '../constants';
@@ -12,7 +12,7 @@ import ListItem from './ListItem';
 
 class List extends React.Component {
   onSelect = setting => {
-    this.props.openSelectedJournalSettings(setting.id);
+    this.props.openSelectedPreset(setting.id);
   };
 
   onDelete = item => {
@@ -70,7 +70,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
     editJournalSetting: id => dispatch(editJournalSetting(w(id))),
-    openSelectedJournalSettings: id => dispatch(openSelectedJournalSettings(w(id)))
+    openSelectedPreset: id => dispatch(openSelectedPreset(w(id)))
   };
 };
 

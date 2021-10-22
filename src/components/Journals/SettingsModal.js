@@ -59,11 +59,9 @@ class SettingsModal extends Component {
   }
 
   getSetting = () => {
-    const { journalSetting } = this.props;
     const { predicate, columns, sortBy, grouping } = this.state;
 
     return {
-      ...journalSetting,
       sortBy,
       groupBy: grouping.groupBy,
       columns,

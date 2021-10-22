@@ -5,7 +5,7 @@ import isEqual from 'lodash/isEqual';
 
 import {
   initState,
-  onJournalSelect,
+  selectJournal,
   resetState,
   runSearch,
   setCheckLoading,
@@ -390,7 +390,7 @@ export default handleActions(
         }
       });
     },
-    [onJournalSelect]: (state, action) => {
+    [selectJournal]: (state, action) => {
       const stateId = action.payload.stateId;
 
       return handleState(state, stateId, {

@@ -13,7 +13,7 @@ import {
   createJournalSetting,
   execRecordsAction,
   getJournalsData,
-  onJournalSettingsSelect,
+  selectPreset,
   reloadGrid,
   restoreJournalSettingData,
   runSearch,
@@ -88,7 +88,7 @@ const mapDispatchToProps = (dispatch, props) => {
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
     restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
+    selectPreset: id => dispatch(selectPreset(w(id))),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting(w({ journalId, settings, callback }))),
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings })))

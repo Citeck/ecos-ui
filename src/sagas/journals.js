@@ -25,10 +25,10 @@ import {
   initJournal,
   initJournalSettingData,
   initPreview,
-  onJournalSelect,
-  onJournalSettingsSelect,
+  selectJournal,
+  selectPreset,
   openSelectedJournal,
-  openSelectedJournalSettings,
+  openSelectedPreset,
   reloadGrid,
   reloadTreeGrid,
   resetJournalSettingData,
@@ -93,11 +93,10 @@ const getDefaultSortBy = config => {
 };
 
 function getDefaultJournalSetting(journalConfig) {
-  const { groupBy, title } = get(journalConfig, 'meta', {});
+  const { groupBy } = get(journalConfig, 'meta', {});
   const columns = get(journalConfig, 'columns', []);
 
   return {
-    title,
     sortBy: getDefaultSortBy(journalConfig).map(sort => ({ ...sort })),
     groupBy: groupBy ? Array.from(groupBy) : [],
     columns: columns.map(col => ({ ...col })),
@@ -289,11 +288,13 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       }
 
       if (journalSettingId) {
-        journalSetting = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
+        const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
 
-        if (isEmpty(journalSetting)) {
+        if (isEmpty(preset)) {
           NotificationManager.error(t('journal.error.fail-get-settings-template'));
           journalSetting = null;
+        } else {
+          journalSetting = { ...preset.settings };
         }
 
         if (!journalSetting) {
@@ -614,7 +615,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
+function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
   try {
     const selectedId = action.payload;
     const query = getSearchParams();
@@ -634,25 +635,24 @@ function* sagaOpenSelectedJournalSettings({ api, logger, stateId, w }, action) {
 
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
 
-    yield call(PageService.changeUrlLink, url, { updateUrl: true });
-    yield put(onJournalSettingsSelect(w(selectedId)));
+    yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
+    yield put(selectPreset(w(selectedId)));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
 }
 
-function* sagaOnJournalSettingsSelect({ api, logger, stateId, w }, action) {
+function* sagaSelectPreset({ api, logger, stateId, w }, action) {
   try {
-    yield put(setLoading(w(true)));
-
     const journalSettingId = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
 
+    yield put(setLoading(w(true)));
     yield call(api.journals.setLsJournalSettingId, journalConfig.id, journalSettingId);
     yield loadGrid(api, { journalSettingId, journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaOnJournalSettingsSelect saga error', e);
+    logger.error('[journals sagaSelectPreset saga error', e);
   }
 }
 
@@ -684,7 +684,7 @@ function* sagaOpenSelectedJournal({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
+function* sagaSelectJournal({ api, logger, stateId, w }, action) {
   try {
     const journalId = action.payload;
 
@@ -696,7 +696,7 @@ function* sagaOnJournalSelect({ api, logger, stateId, w }, action) {
     yield loadGrid(api, { journalConfig, stateId }, w);
     yield put(setLoading(w(false)));
   } catch (e) {
-    logger.error('[journals sagaOnJournalSelect saga error', e);
+    logger.error('[journals sagaSelectJournal saga error', e);
   }
 }
 
@@ -784,7 +784,7 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
     const actionResult = yield call([executor, executor.execForRecord], `${SourcesId.PRESETS}@`, { config: { data } });
 
     if (actionResult && actionResult.id) {
-      yield put(openSelectedJournalSettings(w(actionResult.id)));
+      yield put(openSelectedPreset(w(actionResult.id)));
     }
 
     yield getJournalSettings(api, journalConfig.id, w);
@@ -805,7 +805,7 @@ function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
 
     const { journalConfig } = yield select(selectJournalData, stateId);
     yield getJournalSettings(api, journalConfig.id, w);
-    yield put(openSelectedJournalSettings(''));
+    yield put(openSelectedPreset(''));
   } catch (e) {
     logger.error('[journals sagaDeleteJournalSetting saga error', e);
   }
@@ -1057,10 +1057,11 @@ function* saga(ea) {
   yield takeEvery(editJournalSetting().type, wrapSaga, { ...ea, saga: sagaEditJournalSetting });
   yield takeEvery(applyJournalSetting().type, wrapSaga, { ...ea, saga: sagaApplyJournalSetting });
 
-  yield takeEvery(onJournalSettingsSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSettingsSelect });
-  yield takeEvery(onJournalSelect().type, wrapSaga, { ...ea, saga: sagaOnJournalSelect });
+  yield takeEvery(selectJournal().type, wrapSaga, { ...ea, saga: sagaSelectJournal });
   yield takeEvery(openSelectedJournal().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournal });
-  yield takeEvery(openSelectedJournalSettings().type, wrapSaga, { ...ea, saga: sagaOpenSelectedJournalSettings });
+  yield takeEvery(selectPreset().type, wrapSaga, { ...ea, saga: sagaSelectPreset });
+  yield takeEvery(openSelectedPreset().type, wrapSaga, { ...ea, saga: sagaOpenSelectedPreset });
+
   yield takeEvery(initJournalSettingData().type, wrapSaga, { ...ea, saga: sagaInitJournalSettingData });
   yield takeEvery(resetJournalSettingData().type, wrapSaga, { ...ea, saga: sagaResetJournalSettingData });
   yield takeEvery(restoreJournalSettingData().type, wrapSaga, { ...ea, saga: sagaRestoreJournalSettingData });
