@@ -44,7 +44,6 @@ export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
 export const initJournalSettingData = createAction(prefix + 'INIT_JOURNAL_SETTING_DATA');
 export const resetJournalSettingData = createAction(prefix + 'RESET_JOURNAL_SETTING_DATA');
-export const restoreJournalSettingData = createAction(prefix + 'RESTORE_JOURNAL_SETTING_DATA');
 
 export const selectJournal = createAction(prefix + 'SELECT_JOURNAL');
 export const openSelectedJournal = createAction(prefix + 'OPEN_SELECTED_JOURNAL');

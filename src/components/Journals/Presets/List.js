@@ -23,19 +23,21 @@ class List extends React.Component {
     this.props.editJournalSetting(item.id);
   };
 
-  get renderList() {
-    const { journalSetting = {}, journalSettings = [] } = this.props;
-    const defaultItem = { id: '', displayName: t(Labels.Preset.DEFAULT) };
+  get defaultItem() {
+    return { id: '', displayName: t(Labels.Preset.DEFAULT) };
+  }
 
-    return [defaultItem, ...journalSettings].map(item => (
-      <ListItem
-        onClick={this.onSelect}
-        onDelete={this.onDelete}
-        onEdit={this.onEdit}
-        item={item}
-        selected={item.id === journalSetting.id}
-      />
+  get renderList() {
+    const { journalSettings = [] } = this.props;
+
+    return [this.defaultItem, ...journalSettings].map(item => (
+      <ListItem onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />
     ));
+  }
+
+  get selectedIndex() {
+    const { journalSetting, journalSettings = [] } = this.props;
+    return [this.defaultItem, ...journalSettings].findIndex(item => item.id === (journalSetting.id || ''));
   }
 
   render() {
@@ -47,6 +49,7 @@ class List extends React.Component {
           classNameList="ecos-list-group_mode_journal"
           list={this.renderList}
           emptyText={t(Labels.Menu.EMPTY_LIST)}
+          selected={this.selectedIndex}
         >
           {t(Labels.Preset.TEMPLATES_TITLE)}
         </CollapsibleList>

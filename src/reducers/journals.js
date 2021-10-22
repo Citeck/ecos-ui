@@ -123,7 +123,6 @@ export const defaultState = {
   },
 
   journalSetting: {
-    title: '',
     sortBy: [],
     groupBy: [],
     columns: [],

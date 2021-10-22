@@ -9,6 +9,10 @@ class ID {
   static getFull(id) {
     return ID.includes(id) ? id : `${SourcesId.PRESETS}@${id}`;
   }
+
+  static empty(id) {
+    return id.split('@').length < 2;
+  }
 }
 
 class PresetsServiceApi {
@@ -45,6 +49,18 @@ class PresetsServiceApi {
     record.att('name', name);
     record.att('authority', authority);
     record.att('journalId', journalId);
+    record.att('settings?json', settings);
+
+    return record.save();
+  }
+
+  async saveSettings({ id, settings }) {
+    if (ID.empty(id)) {
+      return;
+    }
+
+    const record = Records.get(ID.getFull(id));
+
     record.att('settings?json', settings);
 
     return record.save();

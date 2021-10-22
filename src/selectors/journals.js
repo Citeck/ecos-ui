@@ -12,7 +12,7 @@ import { getId } from '../helpers/util';
 
 const selectState = (state, key) => get(state, ['journals', key], { ...defaultState }) || {};
 
-export const selectJournalSettings = createSelector(
+export const selectJournalSetting = createSelector(
   selectState,
   ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
 );
