@@ -7,10 +7,10 @@ import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, editJournalSetting, openSelectedJournalSettings } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
-import { DEFAULT_PRESET, Labels } from '../JournalsMenu/constants';
-import PresetItem from './PresetItem';
+import { Labels } from '../constants';
+import ListItem from './ListItem';
 
-class Presets extends React.Component {
+class List extends React.Component {
   onSelect = setting => {
     this.props.openSelectedJournalSettings(setting.id);
   };
@@ -25,9 +25,10 @@ class Presets extends React.Component {
 
   get renderList() {
     const { journalSetting = {}, journalSettings = [] } = this.props;
+    const defaultItem = { id: '', displayName: t(Labels.Preset.DEFAULT) };
 
-    return [DEFAULT_PRESET, ...journalSettings].map(item => (
-      <PresetItem
+    return [defaultItem, ...journalSettings].map(item => (
+      <ListItem
         onClick={this.onSelect}
         onDelete={this.onDelete}
         onEdit={this.onEdit}
@@ -45,9 +46,9 @@ class Presets extends React.Component {
           className="ecos-journal-menu__collapsible-list"
           classNameList="ecos-list-group_mode_journal"
           list={this.renderList}
-          emptyText={t(Labels.EMPTY_LIST)}
+          emptyText={t(Labels.Menu.EMPTY_LIST)}
         >
-          {t(Labels.TEMPLATES_TITLE)}
+          {t(Labels.Preset.TEMPLATES_TITLE)}
         </CollapsibleList>
       </Well>
     );
@@ -76,4 +77,4 @@ const mapDispatchToProps = (dispatch, props) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Presets);
+)(List);

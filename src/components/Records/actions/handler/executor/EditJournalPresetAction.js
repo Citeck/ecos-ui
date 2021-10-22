@@ -19,6 +19,8 @@ export default class EditJournalPresetAction extends ActionsExecutor {
       const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PEOPLE}@${getCurrentUserName()}`);
       const data = get(action, 'config.data') || {};
       const rec = Records.get(record);
+      const isEditing = rec.id.split('@').length > 1;
+      const title = isEditing ? 'journal.presets.modal.title.edit' : 'journal.presets.modal.title.create';
 
       if (!data.authority) {
         data.authority = authUserData.userName;
@@ -41,7 +43,7 @@ export default class EditJournalPresetAction extends ActionsExecutor {
         onClose();
       };
 
-      const modal = WidgetService.openEditorJournalPreset({ onSave, onClose, isAdmin: authUserData.isAdmin, authorityRef, data });
+      const modal = WidgetService.openEditorJournalPreset({ onSave, onClose, title, isAdmin: authUserData.isAdmin, authorityRef, data });
     });
   }
 

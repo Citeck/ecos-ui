@@ -6,19 +6,11 @@ import { isFilledLabelWeak } from '../../../helpers/util';
 import { MLText, SelectOrgstruct } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { GroupTypes } from '../../common/form/SelectOrgstruct/constants';
+import { Labels } from '../constants';
 
 import './style.scss';
 
-export const Labels = {
-  TITLE_CREATE: 'journal.presets.modal.title.create',
-  TITLE_EDIT: 'journal.presets.modal.title.edit',
-  FIELD_NAME: 'journal.presets.modal.field.name',
-  FIELD_AUTH: 'journal.presets.modal.field.authority',
-  BTN_CLOSE: 'journal.presets.modal.btn.cancel',
-  BTN_SAVE: 'journal.presets.modal.btn.save'
-};
-
-const PresetEditor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
+const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
   const [name, setName] = useState({});
   const [authorityRef, setAuthorityRef] = useState('');
   const [isSaving, setSaving] = useState(false);
@@ -40,14 +32,14 @@ const PresetEditor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
   return (
     <div className="journal-journal-preset-editor">
       <div className="journal-preset-editor__field">
-        <div className="journal-preset-editor__label journal-preset-editor__label_required">{t(Labels.FIELD_NAME)}</div>
+        <div className="journal-preset-editor__label journal-preset-editor__label_required">{t(Labels.Preset.FIELD_NAME)}</div>
         <div className="journal-preset-editor__control">
           <MLText onChange={handleChangeName} value={name} />
         </div>
       </div>
 
       <div className="journal-preset-editor__field">
-        <div className="journal-preset-editor__label journal-preset-editor__label_required">{t(Labels.FIELD_AUTH)}</div>
+        <div className="journal-preset-editor__label journal-preset-editor__label_required">{t(Labels.Preset.FIELD_AUTH)}</div>
         <div className="journal-preset-editor__control">
           <SelectOrgstruct
             defaultValue={authorityRef}
@@ -61,16 +53,16 @@ const PresetEditor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
       </div>
 
       <div className="journal-preset-editor__buttons">
-        <Btn onClick={onClose}>{t(Labels.BTN_CLOSE)}</Btn>
+        <Btn onClick={onClose}>{t(Labels.Preset.BTN_CLOSE)}</Btn>
         <Btn onClick={handleSave} className="ecos-btn_blue" disabled={isSaving || isInvalid}>
-          {t(Labels.BTN_SAVE)}
+          {t(Labels.Preset.BTN_SAVE)}
         </Btn>
       </div>
     </div>
   );
 };
 
-PresetEditor.propTypes = {
+Editor.propTypes = {
   data: PropTypes.shape({
     name: PropTypes.object,
     authority: PropTypes.string
@@ -80,4 +72,4 @@ PresetEditor.propTypes = {
   onSave: PropTypes.func
 };
 
-export default PresetEditor;
+export default Editor;

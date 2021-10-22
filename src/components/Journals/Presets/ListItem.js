@@ -3,9 +3,9 @@ import React from 'react';
 import { t } from '../../../helpers/util';
 import DialogManager from '../../common/dialogs/Manager';
 import { IcoBtn } from '../../common/btns';
-import { Labels } from '../JournalsMenu/constants';
+import { Labels } from '../constants';
 
-export default class PresetItem extends React.PureComponent {
+export default class ListItem extends React.PureComponent {
   onClick = () => {
     const { onClick, item } = this.props;
     onClick(item);
@@ -22,8 +22,8 @@ export default class PresetItem extends React.PureComponent {
     const { item, onDelete } = this.props;
 
     DialogManager.showRemoveDialog({
-      title: t(Labels.TEMPLATE_REMOVE_TITLE),
-      text: t(t(Labels.TEMPLATE_REMOVE_TEXT, { name: item.displayName })),
+      title: t(Labels.Preset.TEMPLATE_REMOVE_TITLE),
+      text: t(t(Labels.Preset.TEMPLATE_REMOVE_TEXT, { name: item.displayName })),
       onDelete: () => onDelete(item)
     });
   };
@@ -37,13 +37,13 @@ export default class PresetItem extends React.PureComponent {
         {item.editable && (
           <div className="ecos-journal-menu__list-item-actions">
             <IcoBtn
-              title={t(Labels.TEMPLATE_RENAME)}
+              title={t(Labels.Preset.TEMPLATE_RENAME)}
               icon={'icon-edit'}
               className="ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__list-item-btn ecos-journal-menu__list-item-btn_edit"
               onClick={this.handleEdit}
             />
             <IcoBtn
-              title={t(Labels.TEMPLATE_REMOVE)}
+              title={t(Labels.Preset.TEMPLATE_REMOVE)}
               icon={'icon-delete'}
               className="ecos-btn_color_blue-light2 ecos-btn_hover_t_white ecos-btn_transparent ecos-journal-menu__list-item-btn ecos-journal-menu__list-item-btn_delete"
               onClick={this.handleDelete}

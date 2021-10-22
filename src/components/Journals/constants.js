@@ -29,6 +29,29 @@ export const JOURNAL_VIEW_MODE = {
   DOC_LIB: 'document-library'
 };
 
+export const Labels = {
+  Menu: {
+    HIDE_MENU: 'journals.action.hide-menu',
+    HIDE_FOLDER_TREE: 'journals.action.hide-folder-tree',
+    HIDE_MENU_sm: 'journals.action.hide-menu_sm',
+    EMPTY_LIST: 'journals.menu.journal-list.empty'
+  },
+  Preset: {
+    //editor
+    FIELD_NAME: 'journal.presets.modal.field.name',
+    FIELD_AUTH: 'journal.presets.modal.field.authority',
+    BTN_CLOSE: 'journal.presets.modal.btn.cancel',
+    BTN_SAVE: 'journal.presets.modal.btn.save',
+    //list
+    DEFAULT: 'journal.presets.default',
+    TEMPLATES_TITLE: 'journal.presets.menu.title',
+    TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
+    TEMPLATE_REMOVE: 'journals.action.delete-tpl-msg',
+    TEMPLATE_REMOVE_TITLE: 'journals.action.delete-tpl-msg',
+    TEMPLATE_REMOVE_TEXT: 'journals.action.remove-tpl-msg'
+  }
+};
+
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
 
 export const COMPLEX_FILTER_LIMIT = 1;
