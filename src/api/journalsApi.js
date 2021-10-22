@@ -57,31 +57,6 @@ export class JournalsApi extends RecordService {
     return this.postJson(`${CITECK_URI}dashlet/config?key=${id}`, config);
   };
 
-  //todo delete-------
-  getJournalSettings = journalType => {
-    return this.getJson(`${UISERV_API}journalprefs/list?journalId=${journalType}`);
-  };
-
-  getJournalSetting = id => {
-    return this.getJson(`${UISERV_API}journalprefs?id=${id}`).catch(error => {
-      console.error(error);
-      return { error };
-    });
-  };
-
-  saveJournalSetting = ({ id, settings }) => {
-    return this.putJson(`${UISERV_API}journalprefs?id=${id}`, settings, true);
-  };
-
-  createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${UISERV_API}journalprefs?journalId=${journalId}`, settings, true).catch(() => null);
-  };
-
-  deleteJournalSetting = id => {
-    return this.deleteJson(`${UISERV_API}journalprefs/id/${id}`, true);
-  };
-  //todo -------
-
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
 
   getStatus = nodeRef => {
