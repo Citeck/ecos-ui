@@ -718,7 +718,6 @@
   "journal.not-exists.warning": "The set journal does not exist, check the settings (ID: {{configJournalId}})",
   "journal.no-config-columns.warning": "The journal {{journalName}} doesn't set columns, check the journal settings (ID: {{configJournalId}})",
   "journal.cell.no-label": "(Missing Label)",
-  "journal.error.fail-get-settings-template": "Settings template not received",
   "journal.generated-field.editor.not-exist": "Editor doesn't exist",
 
   "journals-selector.assocs-load-error": "Connection loading error",
@@ -726,7 +725,6 @@
   "journals.action.apply": "Apply",
   "journals.action.apply-template": "Save changes",
   "journals.action.cancel": "Cancel",
-  "journals.action.cancel-rename-tpl-msg": "Cancel rename template",
   "journals.action.create-template": "Create template",
   "journals.action.delete": "Delete",
   "journals.action.delete-filter-group-msg": "Delete filter group",
@@ -773,6 +771,7 @@
   "journal.presets.action.rename": "Rename template",
   "journal.presets.action.delete": "Delete template",
   "journal.presets.action.delete.msg": "Remove template \"{{name}}\"?",
+  "journal.presets.error.get-one": "Settings template not received",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 

@@ -304,7 +304,7 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
         const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
 
         if (isEmpty(preset)) {
-          NotificationManager.error(t('journal.error.fail-get-settings-template'));
+          NotificationManager.error(t('journal.presets.error.get-one'));
           journalSetting = null;
         } else {
           journalSetting = { ...preset.settings };
@@ -846,7 +846,7 @@ function* sagaEditJournalSetting({ api, logger, stateId, w }, action) {
     yield call([executor, executor.execForRecord], recordId, { config: { data } });
     yield getJournalSettings(api, journalConfig.id, w, stateId);
   } catch (e) {
-    NotificationManager.error(t('journal.error.fail-get-settings-template'));
+    NotificationManager.error(t('journal.presets.error.get-one'));
     logger.error('[journals sagaEditJournalSetting saga error', e);
   }
 }

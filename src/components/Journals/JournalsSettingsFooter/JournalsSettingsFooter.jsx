@@ -4,6 +4,7 @@ import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/export/util';
 import { Btn } from '../../common/btns';
+import { Labels } from '../constants';
 
 import './JournalsSettingsFooter.scss';
 
@@ -61,14 +62,14 @@ class JournalsSettingsFooter extends Component {
 
     return (
       <div className="ecos-journal__settings-footer">
-        <Btn onClick={this.createSetting}>{t('journals.action.create-template')}</Btn>
-        {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
+        <Btn onClick={this.createSetting}>{t(Labels.Settings.CREATE_PRESET)}</Btn>
+        {canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
         <div className="ecos-journal__settings-footer-space" />
         <Btn className="ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
-          {t('journals.action.reset')}
+          {t(Labels.Settings.RESET)}
         </Btn>
         <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.applySetting}>
-          {t('journals.action.apply')}
+          {t(Labels.Settings.APPLY)}
         </Btn>
       </div>
     );

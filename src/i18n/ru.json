@@ -718,7 +718,6 @@
   "journal.not-exists.warning": "Указанного журнала не существует, проверьте настройки (ID: {{configJournalId}})",
   "journal.no-config-columns.warning": "Для журнала {{journalName}} не заданы колонки, проверьте настройки журнала (ID: {{configJournalId}})",
   "journal.cell.no-label": "(Нет наименования)",
-  "journal.error.fail-get-settings-template": "Шаблон настроек не получен",
   "journal.generated-field.editor.not-exist": "Редактора не существует",
 
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
@@ -726,7 +725,6 @@
   "journals.action.apply": "Применить",
   "journals.action.apply-template": "Сохр. изменения",
   "journals.action.cancel": "Отмена",
-  "journals.action.cancel-rename-tpl-msg": "Отменить переименование шаблона",
   "journals.action.create-template": "Создать шаблон",
   "journals.action.delete": "Удалить",
   "journals.action.delete-filter-group-msg": "Удаление группы фильтров",
@@ -773,6 +771,7 @@
   "journal.presets.action.rename": "Переименовать шаблон",
   "journal.presets.action.delete": "Удаление шаблона",
   "journal.presets.action.delete.msg": "Удалить шаблон \"{{name}}\"?",
+  "journal.presets.error.get-one": "Шаблон настроек не получен",
 
   "journals.formatter.action.execution-error": "Действие не может быть выполнено",
 

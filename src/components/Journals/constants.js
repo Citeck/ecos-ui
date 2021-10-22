@@ -33,6 +33,12 @@ export const Labels = {
     HIDE_MENU_sm: 'journals.action.hide-menu_sm',
     EMPTY_LIST: 'journals.menu.journal-list.empty'
   },
+  Settings: {
+    CREATE_PRESET: 'journals.action.create-template',
+    APPLY_PRESET: 'journals.action.apply-template',
+    RESET: 'journals.action.reset',
+    APPLY: 'journals.action.apply'
+  },
   Preset: {
     //editor
     FIELD_NAME: 'journal.presets.modal.field.name',
