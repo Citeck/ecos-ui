@@ -136,8 +136,7 @@ function getGridParams({ journalConfig = {}, journalSetting = {}, pagination = D
 function* sagaGetDashletEditorData({ api, logger, stateId, w }, action) {
   try {
     const config = action.payload || {};
-
-    yield getJournalSettings(api, config.journalType, w);
+    yield getJournalSettings(api, config.journalId, w);
   } catch (e) {
     logger.error('[journals sagaGetDashletEditorData saga error', e);
   }
