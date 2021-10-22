@@ -2,15 +2,15 @@ import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
 
 class ID {
-  static includes(id) {
+  static includes(id = '') {
     return id.includes(SourcesId.PRESETS);
   }
 
-  static getFull(id) {
+  static getFull(id = '') {
     return ID.includes(id) ? id : `${SourcesId.PRESETS}@${id}`;
   }
 
-  static empty(id) {
+  static empty(id = '') {
     return id.split('@').length < 2;
   }
 }

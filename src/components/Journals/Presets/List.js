@@ -23,21 +23,15 @@ class List extends React.Component {
     this.props.editJournalSetting(item.id);
   };
 
-  get defaultItem() {
-    return { id: '', displayName: t(Labels.Preset.DEFAULT) };
-  }
-
   get renderList() {
     const { journalSettings = [] } = this.props;
 
-    return [this.defaultItem, ...journalSettings].map(item => (
-      <ListItem onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />
-    ));
+    return journalSettings.map(item => <ListItem onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />);
   }
 
   get selectedIndex() {
     const { journalSetting, journalSettings = [] } = this.props;
-    return [this.defaultItem, ...journalSettings].findIndex(item => item.id === (journalSetting.id || ''));
+    return journalSettings.findIndex(item => item.id === (journalSetting.id || ''));
   }
 
   render() {

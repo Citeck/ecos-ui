@@ -1,6 +1,3 @@
-export const JOURNAL_SETTING_ID_FIELD = 'fileId';
-export const JOURNAL_SETTING_DATA_FIELD = 'data';
-
 export const DEFAULT_PAGINATION = {
   skipCount: 0,
   maxItems: 10,
@@ -43,7 +40,6 @@ export const Labels = {
     BTN_CLOSE: 'journal.presets.modal.btn.cancel',
     BTN_SAVE: 'journal.presets.modal.btn.save',
     //list
-    DEFAULT: 'journal.presets.default',
     TEMPLATES_TITLE: 'journal.presets.menu.title',
     TEMPLATE_RENAME: 'journals.action.rename-tpl-msg',
     TEMPLATE_REMOVE: 'journals.action.delete-tpl-msg',

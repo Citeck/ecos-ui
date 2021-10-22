@@ -26,7 +26,7 @@ import { selectDashletConfig, selectDashletConfigJournalId, selectNewVersionDash
 import DashboardService from '../../../services/dashboard';
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { JOURNAL_DASHLET_CONFIG_VERSION, JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
 
 import './JournalsDashletEditor.scss';
 
@@ -241,7 +241,7 @@ class JournalsDashletEditor extends Component {
   };
 
   setSettingItem = item => {
-    this.setState({ journalSettingId: item[JOURNAL_SETTING_ID_FIELD] });
+    this.setState({ journalSettingId: item.id });
   };
 
   setOnlyLinked = isOnlyLinked => {
@@ -299,10 +299,10 @@ class JournalsDashletEditor extends Component {
                   className="ecos-journal-dashlet-editor__select"
                   placeholder={t(Labels.SETTING_FIELD_PLACEHOLDER)}
                   options={journalSettings}
-                  getOptionLabel={option => option[JOURNAL_SETTING_DATA_FIELD].title}
-                  getOptionValue={option => option[JOURNAL_SETTING_ID_FIELD]}
+                  getOptionLabel={option => option.displayName}
+                  getOptionValue={option => option.id}
                   onChange={this.setSettingItem}
-                  value={getSelectedValue(journalSettings, JOURNAL_SETTING_ID_FIELD, journalSettingId)}
+                  value={getSelectedValue(journalSettings, 'id', journalSettingId)}
                 />
               </Field>
             </>

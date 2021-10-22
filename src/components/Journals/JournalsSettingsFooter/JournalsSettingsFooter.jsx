@@ -2,18 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import isFunction from 'lodash/isFunction';
 
+import { t } from '../../../helpers/export/util';
 import { Btn } from '../../common/btns';
-import Columns from '../../common/templates/Columns/Columns';
-import { closest, t } from '../../../helpers/util';
 
 import './JournalsSettingsFooter.scss';
 
 class JournalsSettingsFooter extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { presetCreating: false };
-  }
-
   componentDidMount() {
     this.createKeydownEvents();
   }
@@ -31,21 +25,23 @@ class JournalsSettingsFooter extends Component {
   }
 
   onKeydown = e => {
-    if (e.key === 'Enter') {
-      if (closest(e.target, this.props.parentClass)) {
-        this.applySetting();
-      }
+    const { key, target } = e;
+    const selector = `.${this.props.parentClass}`;
+
+    if (key === 'Enter' && target && (target.closest(selector) || target.querySelector(selector))) {
+      this.applySetting();
     }
   };
 
-  createSetting = () => {
+  createSetting = e => {
     const { onCreate } = this.props;
-    this.setState({ presetCreating: true });
+    e.currentTarget.blur();
     isFunction(onCreate) && onCreate();
   };
 
-  saveSetting = () => {
+  saveSetting = e => {
     const { onSave } = this.props;
+    e.currentTarget.blur();
     isFunction(onSave) && onSave();
   };
 
@@ -54,39 +50,27 @@ class JournalsSettingsFooter extends Component {
     isFunction(onApply) && onApply();
   };
 
-  resetSettings = () => {
+  resetSettings = e => {
     const { onReset } = this.props;
+    e.currentTarget.blur();
     isFunction(onReset) && onReset();
   };
 
   render() {
     const { canSave } = this.props;
-    const { presetCreating } = this.state;
 
     return (
-      <>
-        <Columns
-          className="ecos-journal__settings-footer"
-          cols={[
-            <>
-              <Btn className="ecos-btn_x-step_10" onClick={this.createSetting} disabled={presetCreating}>
-                {t('journals.action.create-template')}
-              </Btn>
-              {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
-            </>,
-
-            <>
-              <Btn className="ecos-btn_x-step_10 ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
-                {t('journals.action.reset')}
-              </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
-                {t('journals.action.apply')}
-              </Btn>
-            </>
-          ]}
-          cfgs={[{}, { className: 'columns_right' }]}
-        />
-      </>
+      <div className="ecos-journal__settings-footer">
+        <Btn onClick={this.createSetting}>{t('journals.action.create-template')}</Btn>
+        {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
+        <div className="ecos-journal__settings-footer-space" />
+        <Btn className="ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
+          {t('journals.action.reset')}
+        </Btn>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.applySetting}>
+          {t('journals.action.apply')}
+        </Btn>
+      </div>
     );
   }
 }
