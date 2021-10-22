@@ -40,7 +40,12 @@ const ecosFetch = function(url, options = {}) {
     params.mode = mode;
   }
 
-  return fetch(url, params);
+  return fetch(url, params).then(resp => {
+    if (resp.status === 401) {
+      window.location.reload();
+    }
+    return resp;
+  });
 };
 
 export default ecosFetch;
