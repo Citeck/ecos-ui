@@ -257,7 +257,7 @@ function* getJournalSettings(api, journalId, w, stateId) {
 
   if (isArray(settings)) {
     settings.forEach(preset => {
-      set(preset, 'settings.columns', JournalsConverter.filterColumnsByConfig(get(setting, 'data.columns'), journalConfig.columns));
+      set(preset, 'settings.columns', JournalsConverter.filterColumnsByConfig(get(preset, 'columns'), journalConfig.columns));
     });
   }
 
