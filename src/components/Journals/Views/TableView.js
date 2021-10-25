@@ -45,7 +45,7 @@ function mapDispatchToProps(dispatch, props) {
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     resetFiltering: () => dispatch(resetFiltering(w())),
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
-    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
+    createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting(w({ journalId, settings, callback }))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
