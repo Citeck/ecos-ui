@@ -72,7 +72,7 @@ class Bar extends Component {
       return;
     }
 
-    isFunction(runSearch) && runSearch();
+    isFunction(runSearch) && runSearch(text);
   };
 
   handleAddRecord = createVariant => {
