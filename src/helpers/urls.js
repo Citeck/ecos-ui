@@ -47,7 +47,7 @@ export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './e
 export const OLD_LINKS = false;
 
 export const changeUrl = (url, opts = {}) => {
-  if (isNewVersionSharePage()) {
+  if (isNewVersionSharePage() || !isNewVersionPage()) {
     window.open(url, opts.openNewTab === true ? '_blank' : '_self');
   } else {
     PageService.changeUrlLink(url, opts);
