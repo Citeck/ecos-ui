@@ -24,11 +24,6 @@
   &__collapsible-list {
     height: 100%;
 
-    .panel-bar {
-      display: grid;
-      height: 100%;
-    }
-
     .collapsible-list__collapse {
       overflow: auto;
     }
@@ -110,7 +105,7 @@
 
   &-title {
     @extend %ellipsis;
-    max-width: 200px;
+    width: 100%;
     display: inline-block;
   }
 

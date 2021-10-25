@@ -33,7 +33,9 @@ export default class ListItem extends React.PureComponent {
 
     return (
       <div className="ecos-journal-menu__list-item" onClick={this.onClick}>
-        <div className="ecos-journal-menu__list-item-title">{item.displayName}</div>
+        <div className="ecos-journal-menu__list-item-title" title={item.displayName}>
+          {item.displayName}
+        </div>
         {item.editable && (
           <div className="ecos-journal-menu__list-item-actions">
             <IcoBtn
