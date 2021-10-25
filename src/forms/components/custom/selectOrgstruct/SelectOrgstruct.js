@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
@@ -242,7 +243,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
-    if (isEqual(value, this.dataValue)) {
+    if (isEqual(value, this.dataValue) && !isEmpty(value)) {
       return;
     }
 
