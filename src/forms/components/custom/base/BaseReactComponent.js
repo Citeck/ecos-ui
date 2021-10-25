@@ -71,7 +71,19 @@ export default class BaseReactComponent extends BaseComponent {
       this.createInlineEditSaveAndCancelButtons();
       this.attachRefreshOn();
       this.attachLogic();
+    } else {
+      this.updateDescription();
     }
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
+  updateDescription() {
+    if (!this.description) {
+      this.createDescription(this.element);
+      return;
+    }
+
+    this.description.replaceChild(this.text(this.component.description), this.description.childNodes[0]);
   }
 
   embedReactContainer(container, tag) {
