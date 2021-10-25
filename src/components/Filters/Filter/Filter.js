@@ -253,6 +253,8 @@ export default class Filter extends Component {
         onChange={this.onChangePredicate}
         styles={{ menuPortal: base => ({ ...base, zIndex: this.selectZIndex }) }}
         menuPortalTarget={document.body}
+        menuPlacement="auto"
+        closeMenuOnScroll={e => true}
       />
     );
   }
