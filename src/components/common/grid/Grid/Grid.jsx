@@ -16,7 +16,7 @@ import find from 'lodash/find';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
-import { SELECTOR_MENU_KEY, SELECTOR_MODE } from '../util';
+import { SELECTOR_MENU_KEY } from '../util';
 
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { ErrorCell } from '../ErrorCell';
@@ -70,6 +70,8 @@ class Grid extends Component {
     if (!isEqual(props.selected, state.selected)) {
       return { selected: props.selected };
     }
+
+    return null;
   }
 
   componentDidMount() {
@@ -593,8 +595,7 @@ class Grid extends Component {
   handleSelectAllCheckbox = (isSelect, rows) => {
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
-    const ids = rows.map(row => row.id);
-    const items = isSelect ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+    const items = isSelect ? [...selected, ...page] : [];
 
     this.onSelect(isSelect, items);
   };

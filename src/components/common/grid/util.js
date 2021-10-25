@@ -18,8 +18,3 @@ export const SELECTOR_MENU = [
     id: SELECTOR_MENU_KEY.NONE
   }
 ];
-
-export const SELECTOR_MODE = {
-  CHECKBOX: 'checkbox',
-  RADIO: 'radio'
-};
