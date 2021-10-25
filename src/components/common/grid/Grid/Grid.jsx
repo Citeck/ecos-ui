@@ -16,7 +16,7 @@ import find from 'lodash/find';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
-import { SELECTOR_MENU_KEY, SELECTOR_MODE } from '../util';
+import { SELECTOR_MENU_KEY } from '../util';
 
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { ErrorCell } from '../ErrorCell';
