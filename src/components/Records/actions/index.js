@@ -39,6 +39,7 @@ import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAct
 import DebugFormAction from './handler/executor/DebugFormAction';
 import EditJsonAction from './handler/executor/EditJsonAction';
 import RecordsExport from './handler/executor/RecordsExport';
+import EditJournalPresetAction from './handler/executor/EditJournalPresetAction';
 
 export { default } from './recordActions';
 
@@ -51,7 +52,8 @@ export const ActionTypes = {
   CANCEL_WORKFLOW: CancelBusinessProcessAction.ACTION_ID,
   DELETE: DeleteAction.ACTION_ID,
   SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID,
-  EDIT_PASSWORD: EditPasswordAction.ACTION_ID
+  EDIT_PASSWORD: EditPasswordAction.ACTION_ID,
+  EDIT_JOURNAL_PRESET: EditJournalPresetAction.ACTION_ID
 };
 
 // Executors - Common
@@ -81,6 +83,7 @@ actionsRegistry.register(new EditPasswordAction());
 actionsRegistry.register(new DebugFormAction());
 actionsRegistry.register(new EditJsonAction());
 actionsRegistry.register(new RecordsExport());
+actionsRegistry.register(new EditJournalPresetAction());
 
 // Executors - Case
 

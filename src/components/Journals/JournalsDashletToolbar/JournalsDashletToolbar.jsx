@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
-import { onJournalSelect, onJournalSettingsSelect } from '../../../actions/journals';
+import { selectJournal, selectPreset } from '../../../actions/journals';
+import { selectNewVersionDashletConfig } from '../../../selectors/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
@@ -11,12 +13,10 @@ import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
 import { getCreateVariantKeyField } from '../service/util';
-import { selectNewVersionDashletConfig } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const newState = get(state, ['journals', props.stateId]) || {};
 
   return {
     journals: newState.journals,
@@ -33,32 +33,27 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    onJournalSelect: journalId => dispatch(onJournalSelect(w(journalId))),
-    onJournalSettingsSelect: journalSettingId => dispatch(onJournalSettingsSelect(w(journalSettingId)))
+    selectJournal: journalId => dispatch(selectJournal(w(journalId))),
+    selectPreset: journalSettingId => dispatch(selectPreset(w(journalSettingId)))
   };
 };
 
 class JournalsDashletToolbar extends Component {
   addRecord = createVariant => {
     FormManager.createRecordByVariant(createVariant, {
-      onSubmit: record => {
-        goToCardDetailsPage(record.id);
-      }
+      onSubmit: record => goToCardDetailsPage(record.id)
     });
   };
 
   onChangeJournal = journal => {
-    const { onChangeSelectedJournal, onJournalSelect } = this.props;
+    const { onChangeSelectedJournal, selectJournal } = this.props;
 
-    onJournalSelect(journal.id);
-
-    if (typeof onChangeSelectedJournal === 'function') {
-      onChangeSelectedJournal(journal.id);
-    }
+    selectJournal(journal.id);
+    isFunction(onChangeSelectedJournal) && onChangeSelectedJournal(journal.id);
   };
 
   onChangeJournalSetting = setting => {
-    this.props.onJournalSettingsSelect(setting[JOURNAL_SETTING_ID_FIELD]);
+    this.props.selectPreset(setting.id);
   };
 
   renderCreateMenu = () => {
@@ -112,6 +107,7 @@ class JournalsDashletToolbar extends Component {
       lsJournalId
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
+    const isWide = !isSmall;
 
     return (
       <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
@@ -133,20 +129,13 @@ class JournalsDashletToolbar extends Component {
           </Dropdown>
         )}
 
-        {!isSmall && (
-          <Dropdown
-            source={journalSettings}
-            value={0}
-            valueField={JOURNAL_SETTING_ID_FIELD}
-            titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
-            isButton
-            onChange={this.onChangeJournalSetting}
-          >
+        {isWide && (
+          <Dropdown source={journalSettings} valueField={'id'} titleField={'displayName'} onChange={this.onChangeJournalSetting} isButton>
             <TwoIcoBtn icons={['icon-settings', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
           </Dropdown>
         )}
 
-        {!isSmall && (
+        {isWide && (
           <Export
             className="ecos-journal-dashlet__action-export"
             journalConfig={journalConfig}
@@ -156,7 +145,7 @@ class JournalsDashletToolbar extends Component {
           />
         )}
 
-        {!isSmall && (
+        {isWide && (
           <div className="ecos-journal-dashlet__actions">
             {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
           </div>

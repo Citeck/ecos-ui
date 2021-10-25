@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import EcosModal from './EcosModal';
 
@@ -52,6 +53,7 @@ class ModalWrapper extends React.Component {
         className={classNames.join(' ')}
         classNameBody={this.props.classNameBody}
         reactstrapProps={this.props.reactstrapProps}
+        size={this.props.size}
       >
         {this.props.children}
       </EcosModal>
@@ -99,10 +101,11 @@ class Modal {
         onHideModal={this.onHideModal}
         getInstance={el => (this.modal = el)}
         reactstrapProps={config.reactstrapProps}
+        size={config.size}
       >
-        {typeof contentBefore === 'function' ? contentBefore() : contentBefore}
+        {isFunction(contentBefore) ? contentBefore() : contentBefore}
         {node}
-        {typeof contentAfter === 'function' ? contentAfter() : contentAfter}
+        {isFunction(contentAfter) ? contentAfter() : contentAfter}
       </ModalWrapper>,
       this.el,
       callback

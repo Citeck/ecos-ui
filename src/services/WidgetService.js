@@ -9,6 +9,7 @@ import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { SelectOrgstruct } from '../components/common/form';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
 import { PasswordEditor } from '../components/Password';
+import { PresetEditor } from '../components/Journals/Presets';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -100,5 +101,22 @@ export default class WidgetService {
           document.body.removeChild(container);
         })
     };
+  }
+
+  static openEditorJournalPreset(params = {}) {
+    const modal = new Modal();
+
+    modal.open(
+      <PresetEditor
+        isAdmin={params.isAdmin}
+        authorityRef={params.authorityRef}
+        data={params.data || {}}
+        onClose={params.onClose}
+        onSave={params.onSave}
+      />,
+      { title: t(params.title), size: 'md' }
+    );
+
+    return modal;
   }
 }

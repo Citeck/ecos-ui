@@ -1,4 +1,4 @@
-import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { CITECK_URI, PROXY_URI } from '../constants/alfresco';
 import { debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
@@ -8,7 +8,7 @@ import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
 
 /**
- * @description Now only Settings, Storage and special functions are actual here, other ↩
+ * @description Settings, Storage and special functions are actual here, other ↩
  * @see src/components/Journals/service
  */
 export class JournalsApi extends RecordService {
@@ -49,49 +49,12 @@ export class JournalsApi extends RecordService {
     return this.mutate({ record: { id, attributes } }).catch(() => null);
   };
 
-  /** @todo replace to using Journals/service ? */
-  getTreeGridData = () => {
-    const dataSource = new TreeDataSource();
-
-    return dataSource.load().then(function({ data, total }) {
-      const columns = dataSource.getColumns();
-      return { data, total, columns, isTree: true };
-    });
-  };
-
   getDashletConfig = id => {
     return this.getJson(`${CITECK_URI}dashlet/config?key=${id}`).catch(() => null);
   };
 
   saveDashletConfig = (config, id) => {
     return this.postJson(`${CITECK_URI}dashlet/config?key=${id}`, config);
-  };
-
-  getJournalSettings = journalType => {
-    return this.getJson(`${UISERV_API}journalprefs/list?journalId=${journalType}`);
-  };
-
-  getJournalSetting = id => {
-    return this.getJson(`${UISERV_API}journalprefs?id=${id}`).catch(error => {
-      console.error(error);
-      return { error };
-    });
-  };
-
-  saveJournalSetting = ({ id, settings }) => {
-    return this.putJson(`${UISERV_API}journalprefs?id=${id}`, settings, true);
-  };
-
-  createJournalSetting = ({ journalId, settings }) => {
-    return this.postJson(`${UISERV_API}journalprefs?journalId=${journalId}`, settings, true).catch(() => null);
-  };
-
-  deleteJournalSetting = id => {
-    return this.deleteJson(`${UISERV_API}journalprefs/id/${id}`, true);
-  };
-
-  getNodeContent = nodeRef => {
-    return this.getJson(`${CITECK_URI}node-content?nodeRef=${nodeRef}`);
   };
 
   getPreviewUrl = DocPreviewApi.getPreviewLinkByRecord;
@@ -143,5 +106,16 @@ export class JournalsApi extends RecordService {
 
   getJournalsByIds = (ids, attrs = '?json') => {
     return Records.get(ids).load(attrs);
+  };
+
+  /** @todo replace or delete
+   * @deprecated use it? */
+  getTreeGridData = () => {
+    const dataSource = new TreeDataSource();
+
+    return dataSource.load().then(function({ data, total }) {
+      const columns = dataSource.getColumns();
+      return { data, total, columns, isTree: true };
+    });
   };
 }

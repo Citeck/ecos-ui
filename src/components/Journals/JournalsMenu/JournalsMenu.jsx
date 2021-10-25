@@ -8,8 +8,8 @@ import { getScrollbarWidth, t } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
 import { JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
-import { Labels } from './constants';
-import JournalSettings from './JournalSettings';
+import { PresetList } from '../Presets';
+import { Labels } from '../constants';
 
 import './JournalsMenu.scss';
 
@@ -91,13 +91,13 @@ class JournalsMenu extends React.Component {
             onClick={this.onClose}
             icon="icon-small-arrow-right"
             invert
-            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest"
+            className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
           >
-            {isMobile ? t(Labels.HIDE_MENU_sm) : isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
+            {isMobile ? t(Labels.Menu.HIDE_MENU_sm) : isDocLibMode ? t(Labels.Menu.HIDE_FOLDER_TREE) : t(Labels.Menu.HIDE_MENU)}
           </IcoBtn>
         </div>
 
-        {!isDocLibMode && <JournalSettings stateId={stateId} />}
+        {!isDocLibMode && <PresetList stateId={stateId} />}
 
         {isDocLibMode && <FoldersTree stateId={stateId} isMobile={isMobile} closeMenu={this.onClose} />}
       </div>

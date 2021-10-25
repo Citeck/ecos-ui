@@ -1,22 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isFunction from 'lodash/isFunction';
 
-import { EcosModal } from '../../common';
+import { t } from '../../../helpers/export/util';
 import { Btn } from '../../common/btns';
-import { Input } from '../../common/form';
-import Columns from '../../common/templates/Columns/Columns';
-import { closest, t } from '../../../helpers/util';
+import { Labels } from '../constants';
 
 import './JournalsSettingsFooter.scss';
 
 class JournalsSettingsFooter extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { dialogOpen: false };
-    this.settingName = '';
-  }
-
   componentDidMount() {
     this.createKeydownEvents();
   }
@@ -34,137 +26,52 @@ class JournalsSettingsFooter extends Component {
   }
 
   onKeydown = e => {
-    if (e.key === 'Enter') {
-      const inputRef = this.settingTitleInputRef || {};
+    const { key, target } = e;
+    const selector = `.${this.props.parentClass}`;
 
-      if (e.target === inputRef.current) {
-        this.createSetting();
-      } else if (closest(e.target, this.props.parentClass)) {
-        this.applySetting();
-      }
+    if (key === 'Enter' && target && (target.closest(selector) || target.querySelector(selector))) {
+      this.applySetting();
     }
   };
 
-  createSetting = () => {
+  createSetting = e => {
     const { onCreate } = this.props;
-
-    if (typeof onCreate === 'function' && this.settingName) {
-      onCreate(this.settingName);
-      this.closeDialog();
-    }
+    e.currentTarget.blur();
+    isFunction(onCreate) && onCreate();
   };
 
-  saveSetting = () => {
+  saveSetting = e => {
     const { onSave } = this.props;
-
-    if (typeof onSave === 'function') {
-      onSave();
-    }
+    e.currentTarget.blur();
+    isFunction(onSave) && onSave();
   };
 
   applySetting = () => {
     const { onApply } = this.props;
-
-    if (typeof onApply === 'function') {
-      onApply();
-    }
+    isFunction(onApply) && onApply();
   };
 
-  resetSettings = () => {
+  resetSettings = e => {
     const { onReset } = this.props;
-
-    if (typeof onReset === 'function') {
-      onReset();
-    }
-  };
-
-  getSetting = title => {
-    const { journalSetting, grouping, columnsSetup, predicate } = this.props;
-
-    return {
-      ...journalSetting,
-      sortBy: columnsSetup.sortBy,
-      groupBy: grouping.groupBy,
-      columns: grouping.groupBy.length ? grouping.columns : columnsSetup.columns,
-      predicate: predicate,
-      title: title || journalSetting.title
-    };
-  };
-
-  closeDialog = () => {
-    this.setState({ dialogOpen: false });
-    this.clearSettingName();
-  };
-
-  openDialog = () => {
-    this.setState({ dialogOpen: true });
-  };
-
-  clearSettingName = () => {
-    this.settingName = '';
-  };
-
-  onChangeSettingName = e => {
-    this.settingName = e.target.value;
-  };
-
-  onDialogCalculateBounds = () => {
-    const ref = this.settingTitleInputRef;
-    if (ref && ref.current) {
-      ref.current.focus();
-    }
-  };
-
-  getSettingTitleInputRef = ref => {
-    this.settingTitleInputRef = ref;
+    e.currentTarget.blur();
+    isFunction(onReset) && onReset();
   };
 
   render() {
     const { canSave } = this.props;
 
     return (
-      <>
-        <Columns
-          className="ecos-journal__settings-footer"
-          cols={[
-            <>
-              <Btn className="ecos-btn_x-step_10" onClick={this.openDialog}>
-                {t('journals.action.create-template')}
-              </Btn>
-              {canSave && <Btn onClick={this.saveSetting}>{t('journals.action.apply-template')}</Btn>}
-            </>,
-
-            <>
-              <Btn className="ecos-btn_x-step_10 ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
-                {t('journals.action.reset')}
-              </Btn>
-              <Btn className={'ecos-btn_blue ecos-btn_hover_light-blue'} onClick={this.applySetting}>
-                {t('journals.action.apply')}
-              </Btn>
-            </>
-          ]}
-          cfgs={[{}, { className: 'columns_right' }]}
-        />
-
-        <EcosModal
-          title={t('journals.action.dialog-msg')}
-          isOpen={this.state.dialogOpen}
-          hideModal={this.closeDialog}
-          className={'journal__dialog ecos-modal_width-sm'}
-          onCalculateBounds={this.onDialogCalculateBounds}
-        >
-          <div className={'journal__dialog-panel'}>
-            <Input type="text" onChange={this.onChangeSettingName} getInputRef={this.getSettingTitleInputRef} />
-          </div>
-
-          <div className="journal__dialog-buttons">
-            <Btn onClick={this.closeDialog}>{t('journals.action.cancel')}</Btn>
-            <Btn onClick={this.createSetting} className={'ecos-btn_blue'}>
-              {t('journals.action.save')}
-            </Btn>
-          </div>
-        </EcosModal>
-      </>
+      <div className="ecos-journal__settings-footer">
+        <Btn onClick={this.createSetting}>{t(Labels.Settings.CREATE_PRESET)}</Btn>
+        {canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
+        <div className="ecos-journal__settings-footer-space" />
+        <Btn className="ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
+          {t(Labels.Settings.RESET)}
+        </Btn>
+        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.applySetting}>
+          {t(Labels.Settings.APPLY)}
+        </Btn>
+      </div>
     );
   }
 }

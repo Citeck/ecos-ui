@@ -13,9 +13,8 @@ import {
   createJournalSetting,
   execRecordsAction,
   getJournalsData,
-  onJournalSettingsSelect,
+  selectPreset,
   reloadGrid,
-  restoreJournalSettingData,
   runSearch,
   saveJournalSetting,
   setGrid,
@@ -86,12 +85,11 @@ const mapDispatchToProps = (dispatch, props) => {
     reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
-    restoreJournalSettingData: setting => dispatch(restoreJournalSettingData(w(setting))),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    onJournalSettingsSelect: id => dispatch(onJournalSettingsSelect(w(id))),
+    selectPreset: id => dispatch(selectPreset(w(id))),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
-    createJournalSetting: (journalId, settings) => dispatch(createJournalSetting(w({ journalId, settings }))),
-    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings })))
+    createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting(w({ journalId, settings, callback }))),
+    saveJournalSetting: settings => dispatch(saveJournalSetting(w({ settings })))
   };
 };
 
@@ -321,7 +319,7 @@ class Journals extends React.Component {
   saveSettings = (id, settings) => {
     const { saveJournalSetting } = this.props;
 
-    saveJournalSetting(id, settings);
+    saveJournalSetting(settings);
   };
 
   createSettings = settings => {
@@ -330,8 +328,7 @@ class Journals extends React.Component {
       createJournalSetting
     } = this.props;
 
-    createJournalSetting(id, settings);
-    this.toggleSettings();
+    createJournalSetting(id, settings, this.toggleSettings);
   };
 
   applySettings = (isChangedPredicates, settings) => {

@@ -1,6 +1,3 @@
-export const JOURNAL_SETTING_ID_FIELD = 'fileId';
-export const JOURNAL_SETTING_DATA_FIELD = 'data';
-
 export const DEFAULT_PAGINATION = {
   skipCount: 0,
   maxItems: 10,
@@ -27,6 +24,34 @@ export const JOURNAL_MIN_HEIGHT = 300;
 
 export const JOURNAL_VIEW_MODE = {
   DOC_LIB: 'document-library'
+};
+
+export const Labels = {
+  Menu: {
+    HIDE_MENU: 'journals.action.hide-menu',
+    HIDE_FOLDER_TREE: 'journals.action.hide-folder-tree',
+    HIDE_MENU_sm: 'journals.action.hide-menu_sm',
+    EMPTY_LIST: 'journals.menu.journal-list.empty'
+  },
+  Settings: {
+    CREATE_PRESET: 'journals.action.create-template',
+    APPLY_PRESET: 'journals.action.apply-template',
+    RESET: 'journals.action.reset',
+    APPLY: 'journals.action.apply'
+  },
+  Preset: {
+    //editor
+    FIELD_NAME: 'journal.presets.modal.field.name',
+    FIELD_AUTH: 'journal.presets.modal.field.authority',
+    BTN_CLOSE: 'journal.presets.modal.btn.cancel',
+    BTN_SAVE: 'journal.presets.modal.btn.save',
+    //list
+    TEMPLATES_TITLE: 'journal.presets.menu.title',
+    TEMPLATE_RENAME: 'journal.presets.action.rename',
+    TEMPLATE_REMOVE: 'journal.presets.action.delete',
+    TEMPLATE_REMOVE_TITLE: 'journal.presets.action.delete',
+    TEMPLATE_REMOVE_TEXT: 'journal.presets.action.delete.msg'
+  }
 };
 
 export const JOURNAL_DASHLET_CONFIG_VERSION = 'v2';
