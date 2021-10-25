@@ -10,13 +10,13 @@ export default class FiltersCondition extends Component {
     super(props);
 
     this.state = {
-      condition: (props.conditions || []).filter(c => Boolean() !== (c.value === props.condition))[0] || {}
+      condition: this.getInitCondition(props)
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (!isEqual(prevProps.condition, this.props.condition) && !isEqual(this.props.condition && this.state.condition.value)) {
-      const condition = (this.props.conditions || []).filter(c => Boolean() !== (c.value === this.props.condition))[0] || {};
+    if (!isEqual(prevProps.condition, this.props.condition) && !isEqual(this.props.condition, this.state.condition.value)) {
+      const condition = this.getInitCondition();
 
       this.setState({ condition });
     }
@@ -26,7 +26,7 @@ export default class FiltersCondition extends Component {
     this.saveData.cancel();
   }
 
-  onClick = () => {
+  handleClick = () => {
     const { index, onClick } = this.props;
     const condition = this.getCondition(true);
 
@@ -36,11 +36,15 @@ export default class FiltersCondition extends Component {
 
   saveData = debounce(callback => callback(), 450);
 
+  getInitCondition = (props = this.props) => {
+    return (props.conditions || []).find(c => Boolean() !== (c.value === props.condition)) || {};
+  };
+
   getCondition = change => {
     const { conditions } = this.props;
     const { condition } = this.state;
 
-    return conditions.filter(c => Boolean(change) !== (c.value === condition.value))[0] || {};
+    return conditions.find(c => Boolean(change) !== (c.value === condition.value)) || {};
   };
 
   render() {
@@ -48,7 +52,10 @@ export default class FiltersCondition extends Component {
     const { condition } = this.state;
 
     return (
-      <span onClick={this.onClick} className={classNames('ecos-filters-condition', cross && 'ecos-filters-condition_cross', className)}>
+      <span
+        onClick={this.handleClick}
+        className={classNames('ecos-filters-condition', { 'ecos-filters-condition_cross': cross }, className)}
+      >
         {condition.label}
       </span>
     );

@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import logger from '../../../../../../services/logger';
+import ZIndex from '../../../../../../services/ZIndex';
 import { t } from '../../../../../../helpers/export/util';
 import Records from '../../../../../Records';
 import { Select } from '../../../../../common/form';
@@ -94,12 +95,19 @@ export default class SelectEditor extends BaseEditor {
           getOptionValue={option => option.value || option}
           options={[{ value: null, label: t('react-select.select-value.label') }, ...options]}
           value={selected}
+          menuPortalTarget={document.body}
+          menuPlacement="auto"
+          closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
           styles={{
             menu: css => ({
               ...css,
               zIndex: 11,
               width: 'auto',
               minWidth: '100%'
+            }),
+            menuPortal: base => ({
+              ...base,
+              zIndex: ZIndex.calcZ()
             }),
             dropdownIndicator: css => ({
               ...css,

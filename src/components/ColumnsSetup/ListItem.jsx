@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { t } from '../../helpers/export/util';
+import ZIndex from '../../services/ZIndex';
 import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox';
 import Label from '../common/form/Label';
@@ -58,6 +59,10 @@ export default class ListItem extends Component {
             className={'select_narrow select_width_full'}
             placeholder={t('journals.default')}
             value={this.getSelected(column, sortBy)}
+            styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+            menuPortalTarget={document.body}
+            menuPlacement="auto"
+            closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
           />
         ]}
       />
