@@ -67,6 +67,7 @@ import {
   selectJournalData,
   selectJournalSetting,
   selectNewVersionDashletConfig,
+  selectSettingsData,
   selectUrl,
   selectWasChangedSettings
 } from '../selectors/journals';

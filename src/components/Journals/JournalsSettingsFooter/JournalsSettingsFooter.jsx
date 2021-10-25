@@ -74,8 +74,8 @@ class JournalsSettingsFooter extends Component {
 
     return (
       <div className="ecos-journal__settings-footer">
-        <Btn onClick={this.createSetting}>{t(Labels.Settings.CREATE_PRESET)}</Btn>
-        {canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
+        {!noCreateBtn && <Btn onClick={this.createSetting}>{t(Labels.Settings.CREATE_PRESET)}</Btn>}
+        {!noCreateBtn && canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
         <div className="ecos-journal__settings-footer-space" />
         <Btn className="ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
           {t(Labels.Settings.RESET)}

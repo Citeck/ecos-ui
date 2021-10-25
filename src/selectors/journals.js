@@ -196,7 +196,7 @@ export const selectWasChangedSettings = createSelector(
 export const selectJournalPageProps = createSelector(
   [
     selectState,
-    selectJournalSettings,
+    selectJournalSetting,
     selectUrl,
     selectSettingsFilters,
     selectSettingsColumns,
@@ -236,7 +236,7 @@ export const selectJournalPageProps = createSelector(
 );
 
 export const selectKanbanExportGrid = createSelector(
-  selectJournalSettings,
+  selectJournalSetting,
   settings => ({
     columns: settings.columns,
     predicates: beArray(settings.predicate)
@@ -244,7 +244,7 @@ export const selectKanbanExportGrid = createSelector(
 );
 
 export const selectKanbanJournalProps = createSelector(
-  [selectState, selectJournalSettings, selectSettingsFilters, selectSettingsData, selectIsFilterOn, selectKanbanExportGrid],
+  [selectState, selectJournalSetting, selectSettingsFilters, selectSettingsData, selectIsFilterOn, selectKanbanExportGrid],
   (ownState, journalSetting, settingsFiltersData, settingsData, isFilterOn, grid) => ({
     journalConfig: ownState.journalConfig,
     journalSetting,

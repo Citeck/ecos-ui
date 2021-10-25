@@ -13,7 +13,7 @@ import {
   resetFiltering,
   runSearch,
   saveJournalSetting,
-  selectJournalSettings,
+  selectPreset,
   setGrid,
   setSelectAllPageRecords,
   setSelectedRecords,
@@ -55,7 +55,7 @@ function mapDispatchToProps(dispatch, props) {
     setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     deselectAllRecords: () => dispatch(deselectAllRecords(w())),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
-    selectJournalSettings: id => dispatch(selectJournalSettings(w(id)))
+    selectPreset: id => dispatch(selectPreset(w(id)))
   };
 }
 
