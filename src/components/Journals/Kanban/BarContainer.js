@@ -24,7 +24,8 @@ function mapStateToProps(state, props) {
     noCreateBtn: true,
     settingsColumnsData: null,
     settingsGroupingData: null,
-    nameBtnSettings: Labels.Kanban.BTN_SETTINGS
+    nameBtnSettings: Labels.Kanban.BTN_SETTINGS,
+    isMobile: get(state, 'view.isMobile')
   };
 }
 

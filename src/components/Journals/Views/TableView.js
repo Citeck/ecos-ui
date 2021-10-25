@@ -33,7 +33,8 @@ function mapStateToProps(state, props) {
 
   return {
     ...commonProps,
-    ...journalProps
+    ...journalProps,
+    isMobile: get(state, 'view.isMobile')
   };
 }
 
