@@ -102,6 +102,7 @@ class Bar extends Component {
       isDocLibEnabled,
       isLoading,
       isFilterOn,
+      noGroupActions,
       noCreateBtn,
       journalConfig = {},
       grid = {},
@@ -148,6 +149,7 @@ class Bar extends Component {
           isCreateLoading={isCreateLoading}
           isLoading={isLoading}
           isShowResetFilter={isFilterOn}
+          noGroupActions={noGroupActions}
           nameBtnSettings={nameBtnSettings}
           onRefresh={this.handleRefresh}
           onSearch={this.handleSearch}
@@ -173,6 +175,7 @@ Bar.propTypes = {
   isLoading: PropTypes.bool,
   isFilterOn: PropTypes.bool,
   noCreateBtn: PropTypes.bool,
+  noGroupActions: PropTypes.bool,
   nameBtnSettings: PropTypes.string,
   journalConfig: PropTypes.object,
   grid: PropTypes.object,

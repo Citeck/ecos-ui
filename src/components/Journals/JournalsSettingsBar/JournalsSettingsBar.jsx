@@ -33,6 +33,8 @@ const JournalsSettingsBar = ({
   isCreateLoading,
   isLoading,
   isShowResetFilter,
+  noGroupActions,
+
   leftChild,
   rightChild,
 
@@ -74,7 +76,7 @@ const JournalsSettingsBar = ({
           cleaner
         />
 
-        {!isMobile && <GroupActions stateId={stateId} />}
+        {!isMobile && !noGroupActions && <GroupActions stateId={stateId} />}
 
         <Export journalConfig={journalConfig} grid={grid} className="ecos-journal__settings-bar-export" selectedItems={selectedRecords}>
           <IcoBtn
