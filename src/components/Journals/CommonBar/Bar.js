@@ -168,7 +168,7 @@ Bar.propTypes = {
   urlParams: PropTypes.object,
   viewMode: PropTypes.string,
   isActivePage: PropTypes.bool,
-  isMobile: PropTypes.bool,
+  isMobile: PropTypes.bool.isRequired,
   isDocLibEnabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   isFilterOn: PropTypes.bool,

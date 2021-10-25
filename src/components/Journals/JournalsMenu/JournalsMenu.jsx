@@ -7,10 +7,9 @@ import get from 'lodash/get';
 import { getScrollbarWidth, t } from '../../../helpers/util';
 import { selectViewMode } from '../../../selectors/journals';
 import { IcoBtn } from '../../common/btns';
-import { isDocLib, JOURNAL_VIEW_MODE } from '../constants';
+import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
 import { PresetList } from '../Presets';
-import { Labels } from '../constants';
 
 import './JournalsMenu.scss';
 
@@ -53,6 +52,19 @@ class JournalsMenu extends React.Component {
     height -= getScrollbarWidth();
 
     return height < 300 ? 300 : height;
+  };
+
+  getBtnLabel = () => {
+    const { isMobile } = this.props;
+
+    switch (true) {
+      case isMobile:
+        return t(Labels.Menu.HIDE_MENU_sm);
+      case this.isDocLibMode:
+        return t(Labels.Menu.HIDE_FOLDER_TREE);
+      default:
+        return t(Labels.Menu.HIDE_MENU);
+    }
   };
 
   setRef = ref => {
@@ -109,7 +121,7 @@ class JournalsMenu extends React.Component {
               invert
               className="ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
             >
-              {isMobile ? t(Labels.HIDE_MENU_sm) : this.isDocLibMode ? t(Labels.HIDE_FOLDER_TREE) : t(Labels.HIDE_MENU)}
+              {this.getBtnLabel()}
             </IcoBtn>
           </div>
           {this.renderByViewMode()}
