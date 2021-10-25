@@ -10,7 +10,7 @@ import { Tooltip } from 'reactstrap';
 import { closest, getId, isExistValue } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
-import { Icon, Tooltip as EcosTooltip } from '../../../../';
+import { Icon, Popper } from '../../../../';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
@@ -207,7 +207,7 @@ export default class HeaderFormatter extends Component {
   };
 
   handleClickOutside = e => {
-    if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container')) {
+    if (closest(e.target, 'modal') || closest(e.target, 'date-editor-container') || closest(e.target, 'select__option', true)) {
       return;
     }
 
@@ -334,11 +334,12 @@ export default class HeaderFormatter extends Component {
         })}
       >
         <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
-          <EcosTooltip target={this.tooltipTextId} text={column.text} placement="bottom" trigger="hover" uncontrolled autohide showAsNeeded>
+          <Popper showAsNeeded popupClassName="formatter-popper" text={column.text}>
             <span id={this.tooltipTextId} className="ecos-th__content-text">
               {column.text}
             </span>
-          </EcosTooltip>
+          </Popper>
+
           {this.renderActions()}
         </div>
         {this.renderFilter()}

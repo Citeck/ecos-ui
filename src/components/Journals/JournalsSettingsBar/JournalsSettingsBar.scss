@@ -28,6 +28,10 @@
     transition: all 0.4s, opacity 0.2s;
   }
 
+  &-export-btn.ecos-btn {
+    min-width: 70px;
+  }
+
   &-right-side {
     display: flex;
     align-items: center;

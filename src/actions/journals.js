@@ -34,7 +34,7 @@ export const getJournalsData = createAction(prefix + 'GET_JOURNALS_DATA');
 export const saveJournalSetting = createAction(prefix + 'SAVE_JOURNAL_SETTING');
 export const createJournalSetting = createAction(prefix + 'CREATE_JOURNAL_SETTING');
 export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTING');
-export const renameJournalSetting = createAction(prefix + 'RENAME_JOURNAL_SETTING');
+export const editJournalSetting = createAction(prefix + 'EDIT_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
 export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
@@ -47,12 +47,12 @@ export const setColumnsSetup = createAction(prefix + 'SET_COLUMNS_SETUP');
 export const setGrouping = createAction(prefix + 'SET_GROUPING');
 export const initJournalSettingData = createAction(prefix + 'INIT_JOURNAL_SETTING_DATA');
 export const resetJournalSettingData = createAction(prefix + 'RESET_JOURNAL_SETTING_DATA');
-export const restoreJournalSettingData = createAction(prefix + 'RESTORE_JOURNAL_SETTING_DATA');
 
-export const openSelectedJournalSettings = createAction(prefix + 'OPEN_SELECTED_JOURNAL_SETTINGS');
-export const selectJournalSettings = createAction(prefix + 'SELECT_JOURNAL_SETTINGS');
-export const openSelectedJournal = createAction(prefix + 'OPEN_SELECTED_JOURNAL');
 export const selectJournal = createAction(prefix + 'SELECT_JOURNAL');
+export const openSelectedJournal = createAction(prefix + 'OPEN_SELECTED_JOURNAL');
+
+export const selectPreset = createAction(prefix + 'SELECT_PRESET');
+export const openSelectedPreset = createAction(prefix + 'OPEN_SELECTED_PRESET');
 
 export const initPreview = createAction(prefix + 'INIT_PREVIEW');
 export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');

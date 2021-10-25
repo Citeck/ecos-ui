@@ -28,7 +28,7 @@ const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, lab
           <IcoBtn
             onClick={onToggleMenu}
             icon="icon-small-arrow-left"
-            className="ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest"
+            className={'ecos-btn_light-blue ecos-btn_hover_dark-blue ecos-btn_narrow-t_standard ecos-btn_r_biggest'}
           >
             {labelBtnMenu}
           </IcoBtn>

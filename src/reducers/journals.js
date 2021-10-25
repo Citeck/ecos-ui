@@ -34,15 +34,9 @@ import {
   setUrl,
   toggleViewMode
 } from '../actions/journals';
-import { t } from '../helpers/util';
+import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
-import {
-  DEFAULT_INLINE_TOOL_SETTINGS,
-  DEFAULT_PAGINATION,
-  JOURNAL_SETTING_DATA_FIELD,
-  JOURNAL_SETTING_ID_FIELD,
-  relatedViews
-} from '../components/Journals/constants';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, relatedViews } from '../components/Journals/constants';
 
 export const emptyJournalConfig = Object.freeze({
   meta: { createVariants: [] }
@@ -104,7 +98,6 @@ export const defaultState = {
   },
 
   journalSetting: {
-    title: '',
     sortBy: [],
     groupBy: [],
     columns: [],
@@ -218,17 +211,9 @@ export default handleActions(
     [setJournalSettings]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
-
-      return handleState(state, stateId, {
-        journalSettings: [
-          {
-            [JOURNAL_SETTING_ID_FIELD]: '',
-            [JOURNAL_SETTING_DATA_FIELD]: { title: t('journals.default') },
-            notRemovable: true
-          },
-          ...Array.from(action.payload)
-        ]
-      });
+      const journalSettings = [{ id: '', displayName: t('journal.presets.default') }];
+      Array.isArray(action.payload) && journalSettings.push(...action.payload);
+      return handleState(state, stateId, { journalSettings });
     },
     [setJournalSetting]: (state, action) => {
       const stateId = action.payload.stateId;

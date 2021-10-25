@@ -16,7 +16,7 @@ const selectState = (state, key) => get(state, ['journals', key], { ...defaultSt
 
 export const selectJournalData = selectState;
 
-export const selectJournalSettings = createSelector(
+export const selectJournalSetting = createSelector(
   selectState,
   ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
 );
@@ -44,6 +44,11 @@ export const selectNewVersionDashletConfig = createSelector(
 export const selectDashletConfig = createSelector(
   selectState,
   ownProps => get(ownProps, 'config', null)
+);
+
+export const selectJournalConfig = createSelector(
+  selectState,
+  ownProps => get(ownProps, 'journalConfig', null)
 );
 
 export const selectIsNotExistsJournal = createSelector(

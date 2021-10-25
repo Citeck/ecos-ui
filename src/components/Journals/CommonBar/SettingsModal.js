@@ -4,17 +4,17 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { t } from '../../../helpers/export/util';
 import { Well } from '../../common/form';
+import EcosModal from '../../common/EcosModal';
 import EcosModalHeight from '../../common/EcosModal/EcosModalHeight';
 import JournalsFilters from '../JournalsFilters/JournalsFilters';
 import JournalsColumnsSetup from '../JournalsColumnsSetup/JournalsColumnsSetup';
 import JournalsGrouping from '../JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from '../JournalsSettingsFooter/JournalsSettingsFooter';
-import EcosModal from '../../common/EcosModal';
-import { JOURNAL_SETTING_ID_FIELD } from '../constants';
 
 class SettingsModal extends Component {
   static propTypes = {
@@ -59,17 +59,14 @@ class SettingsModal extends Component {
     }
   }
 
-  getSetting = title => {
-    const { journalSetting } = this.props;
+  getSetting = () => {
     const { predicate, columns, sortBy, grouping } = this.state;
 
     return {
-      ...journalSetting,
       sortBy,
       groupBy: get(grouping, 'groupBy'),
       columns,
       predicate,
-      title: title || get(journalSetting, 'title'),
       grouping
     };
   };
@@ -92,26 +89,23 @@ class SettingsModal extends Component {
     const { filtersData, onApply } = this.props;
     const { predicate } = this.state;
 
-    if (typeof onApply === 'function') {
+    if (isFunction(onApply)) {
       onApply(!isEqual(predicate, get(filtersData, 'predicate')), this.getSetting());
     }
   };
 
-  handleCreate = settingsName => {
+  handleCreate = () => {
     const { onCreate } = this.props;
-
-    if (typeof onCreate === 'function') {
-      onCreate(this.getSetting(settingsName));
-    }
+    isFunction(onCreate) && onCreate(this.getSetting());
   };
 
   handleSave = () => {
     const { onSave } = this.props;
 
-    if (typeof onSave === 'function') {
-      const settings = this.getSetting();
+    if (isFunction(onSave)) {
+      const setting = this.getSetting();
 
-      onSave(settings[[JOURNAL_SETTING_ID_FIELD]], settings);
+      onSave(setting.id, setting);
     }
   };
 
@@ -163,7 +157,7 @@ class SettingsModal extends Component {
           <JournalsSettingsFooter
             parentClass="ecos-journal__settings"
             noCreateBtn={noCreateBtn}
-            canSave={!noCreateBtn && !isEmpty(get(journalSetting, JOURNAL_SETTING_ID_FIELD))}
+            canSave={!noCreateBtn && !isEmpty(journalSetting.id)}
             onApply={this.handleApply}
             onCreate={this.handleCreate}
             onReset={this.handleReset}

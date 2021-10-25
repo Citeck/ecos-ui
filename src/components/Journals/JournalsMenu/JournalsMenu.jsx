@@ -9,8 +9,8 @@ import { selectViewMode } from '../../../selectors/journals';
 import { IcoBtn } from '../../common/btns';
 import { isDocLib, JOURNAL_VIEW_MODE } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
-import { Labels } from './constants';
-import JournalSettings from './JournalSettings';
+import { PresetList } from '../Presets';
+import { Labels } from '../constants';
 
 import './JournalsMenu.scss';
 
@@ -73,7 +73,7 @@ class JournalsMenu extends React.Component {
         return <FoldersTree stateId={stateId} closeMenu={this.onClose} />;
       case JOURNAL_VIEW_MODE.TABLE:
       default:
-        return <JournalSettings stateId={stateId} />;
+        return <PresetList stateId={stateId} />;
     }
   };
 

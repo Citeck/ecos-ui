@@ -78,7 +78,9 @@ export const SourcesId = {
   REPORT: 'reports-data',
   TASK: 'wftask',
   WORKFLOW: 'workflow',
-  BPMN_DEF: 'eproc/bpmn-def'
+  BPMN_DEF: 'eproc/bpmn-def',
+  ACTION: 'uiserv/action',
+  PRESETS: 'uiserv/journal-settings'
 };
 
 export const EmodelTypes = {
