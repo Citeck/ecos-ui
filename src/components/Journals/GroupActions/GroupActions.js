@@ -128,7 +128,6 @@ const GroupActions = React.memo(
             getStateOpen={setOpenQueryActions}
           >
             <TwoIcoBtn
-              invert
               className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
                 'ecos-group-actions__control_mobile': isMobile
               })}
