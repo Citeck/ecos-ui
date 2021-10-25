@@ -56,7 +56,7 @@ export default class ListItem extends Component {
             getOptionLabel={option => option.title}
             getOptionValue={option => option.value}
             onChange={this.handleChangeSortBy}
-            className={'select_narrow select_width_full'}
+            className="select_narrow select_width_full ecosZIndexAnchor"
             placeholder={t('journals.default')}
             value={this.getSelected(column, sortBy)}
             styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}

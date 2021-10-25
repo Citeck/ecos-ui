@@ -184,7 +184,7 @@ export default class FiltersGroup extends Component {
             <div className="ecos-filters-group__tools-label">{t('filter-list.filter-group-add')}</div>
 
             <Select
-              className={classNames('ecos-filters-group__select select_narrow', {
+              className={classNames('ecos-filters-group__select select_narrow ecosZIndexAnchor', {
                 'ecos-select_blue': first,
                 'ecos-select_grey': !first
               })}
@@ -201,7 +201,7 @@ export default class FiltersGroup extends Component {
 
             {first && (
               <Select
-                className="ecos-filters-group__select select_narrow ecos-select_blue"
+                className="ecos-filters-group__select select_narrow ecos-select_blue ecosZIndexAnchor"
                 placeholder={t('filter-list.condition-group')}
                 options={groupConditions}
                 getOptionLabel={option => option.label}
