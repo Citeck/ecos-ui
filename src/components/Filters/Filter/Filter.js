@@ -254,7 +254,7 @@ export default class Filter extends Component {
         styles={{ menuPortal: base => ({ ...base, zIndex: this.selectZIndex }) }}
         menuPortalTarget={document.body}
         menuPlacement="auto"
-        closeMenuOnScroll={e => true}
+        closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
       />
     );
   }

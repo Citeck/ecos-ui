@@ -1,6 +1,9 @@
 @import '../../../styles/constants';
 
 .ecos-filters-group {
+  border-radius: $border-radius-standard;
+  border: 2px solid $color-gray;
+
   &__head {
     position: relative;
   }
@@ -10,8 +13,17 @@
     align-items: center;
     padding: 13px 20px 10px 20px;
 
-    &_step {
+    & :not(:last-child) {
       margin-right: 10px;
+    }
+
+    &-label {
+      color: $text-color-gray;
+      font-weight: $font-weight-semi-bold;
+    }
+
+    &-space {
+      flex: auto;
     }
   }
 
@@ -31,11 +43,6 @@
 
   &__empty {
     height: 40px;
-  }
-
-  &__delete-btn {
-    position: absolute;
-    right: 0;
   }
 
   &__droppable {
