@@ -596,7 +596,8 @@ class Grid extends Component {
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
     const ids = rows.map(row => row.id);
-    const newSelected = allPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
     this.onSelect({ allPage, newSelected, newExcluded: [] });
   };
