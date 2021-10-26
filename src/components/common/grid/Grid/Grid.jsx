@@ -592,12 +592,14 @@ class Grid extends Component {
     this.onSelect(false, newSelected);
   };
 
-  handleSelectAllCheckbox = (isSelect, rows) => {
+  handleSelectAllCheckbox = (allPage, rows) => {
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
-    const items = isSelect ? [...selected, ...page] : [];
+    const ids = rows.map(row => row.id);
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
-    this.onSelect(isSelect, items);
+    this.onSelect(allPage, newSelected);
   };
 
   handleClickMenuCheckbox = option => {
