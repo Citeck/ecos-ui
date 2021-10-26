@@ -661,7 +661,7 @@
   "journal.title": "Journal",
   "journal.cell.no-label": "(Missing Label)",
   "journal.table.no-columns": "No columns specified. Check your journal or template settings",
-  "journal.group-actions.selected-records": "Selected records: {{data}}",
+  "journal.group-actions.selected-records.label": "Selected records: {{data}}",
   "journal.group-actions.selected-records.label_short": "Selected: {{data}}",
   "journal.group-actions.selected-records.label-count": "{{selected}} out of {{total}}",
   "journal.group-actions.filter-result": "Filter Result",
