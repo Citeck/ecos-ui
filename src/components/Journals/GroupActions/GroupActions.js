@@ -37,11 +37,19 @@ const GroupActions = React.memo(
     const [recordsActions, setRecordsActions] = useState([]);
     const [queryActions, setQueryActions] = useState([]);
 
-    const { isMobile, grid, selectAllRecordsVisible, selectedRecords, execRecordsAction, isSeparateActionListForQuery } = props;
+    const {
+      isMobile,
+      grid,
+      selectAllRecordsVisible,
+      selectedRecords,
+      execRecordsAction,
+      isSeparateActionListForQuery,
+      excludedRecords
+    } = props;
 
     const total = get(grid, 'total', 0);
     const selectedLen = selectedRecords.length;
-    const selected = selectAllRecordsVisible ? total : selectedLen;
+    const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
     const labelRecActions = t(isMobile ? Labels.SELECTED_SHORT : Labels.SELECTED, { data: labelRecActionsCount });
 
