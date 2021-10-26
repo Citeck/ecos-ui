@@ -1,31 +1,21 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 
-import { getId, t, trigger } from '../../../helpers/util';
+import { getId, t } from '../../../helpers/util';
 import { IcoBtn } from '../../common/btns';
-import { Label, Select, Well } from '../../common/form';
+import { Select, Well } from '../../common/form';
 import { getPredicate, PREDICATE_LIST_WITH_CLEARED_VALUES } from '../../Records/predicates/predicates';
+import ZIndex from '../../../services/ZIndex';
 import { ParserPredicate } from '../predicates';
 import { Filter, FiltersCondition } from '../';
+import ListItem from './ListItem';
 
 import './FiltersGroup.scss';
-
-const ListItem = ({ cssItemClasses, provided, item, children }) => {
-  return (
-    <li
-      className={cssItemClasses}
-      ref={provided.innerRef}
-      {...provided.draggableProps}
-      {...provided.dragHandleProps}
-      style={{ ...provided.draggableProps.style }}
-    >
-      {item || children}
-    </li>
-  );
-};
 
 export default class FiltersGroup extends Component {
   #filters = new Map();
@@ -36,7 +26,7 @@ export default class FiltersGroup extends Component {
   }
 
   get cloneFilters() {
-    return cloneDeep(this.props.group.filters);
+    return cloneDeep(get(this.props, 'group.filters', []));
   }
 
   getFilters = (filters, params) => {
@@ -54,15 +44,15 @@ export default class FiltersGroup extends Component {
             sourceId={sourceId}
             metaRecord={metaRecord}
             needUpdate={needUpdate}
-            onChangeValue={this.onChangeFilterValue}
-            onChangePredicate={this.onChangeFilterPredicate}
-            onDelete={this.deleteFilter}
+            onChangeValue={this.handleChangeFilterValue}
+            onChangePredicate={this.handleChangeFilterPredicate}
+            onDelete={this.handleDeleteFilter}
           >
             {idx > 0 && (
               <FiltersCondition
                 index={idx}
                 cross
-                onClick={this.changeFilterCondition}
+                onClick={this.handleChangeFilterCondition}
                 condition={filter.getCondition()}
                 conditions={groupConditions}
               />
@@ -76,16 +66,16 @@ export default class FiltersGroup extends Component {
     });
   };
 
-  onChangeFilterValue = ({ val, index }) => {
-    const groupIndex = this.props.index;
+  handleChangeFilterValue = ({ val, index }) => {
+    const { index: groupIndex, onChangeFilter } = this.props;
     const filter = this.cloneFilters[index];
 
     filter.predicate.setVal(val);
-    this.props.onChangeFilter({ filter, index, groupIndex });
+    onChangeFilter({ filter, index, groupIndex });
   };
 
-  onChangeFilterPredicate = ({ predicate, index }) => {
-    const groupIndex = this.props.index;
+  handleChangeFilterPredicate = ({ predicate, index }) => {
+    const { index: groupIndex, onChangeFilter } = this.props;
     const filter = this.cloneFilters[index];
     const predicateData = getPredicate(predicate);
 
@@ -94,40 +84,47 @@ export default class FiltersGroup extends Component {
     }
     filter.predicate.setT(predicate);
 
-    this.props.onChangeFilter({ filter, index, groupIndex });
+    onChangeFilter({ filter, index, groupIndex });
   };
 
-  deleteFilter = index => {
-    trigger.call(this, 'onDeleteFilter', { index, groupIndex: this.props.index });
+  handleDeleteFilter = index => {
+    const { index: groupIndex, onDeleteFilter } = this.props;
+    onDeleteFilter({ index, groupIndex });
   };
 
-  deleteGroup = () => {
-    trigger.call(this, 'onDeleteGroup', this.props.index);
+  handleDeleteGroup = () => {
+    const { index, onDeleteGroup } = this.props;
+    onDeleteGroup(index);
   };
 
-  addFilter = column => {
+  handleAddFilter = column => {
+    const { index, columns, onAddFilter } = this.props;
     const filter = ParserPredicate.createFilter({
       att: column.attribute,
-      columns: cloneDeep(this.props.columns),
+      columns: cloneDeep(columns),
       column: cloneDeep(column)
     });
-    trigger.call(this, 'onAddFilter', { filter, groupIndex: this.props.index });
+
+    onAddFilter({ filter, groupIndex: index });
   };
 
-  changeFilterCondition = ({ condition, index }) => {
-    trigger.call(this, 'onChangeFilterCondition', { condition, index, groupIndex: this.props.index });
+  handleChangeFilterCondition = ({ condition, index }) => {
+    const { index: groupIndex, onChangeFilterCondition } = this.props;
+    onChangeFilterCondition({ condition, index, groupIndex });
   };
 
-  changeGroupFilterCondition = ({ condition }) => {
-    trigger.call(this, 'onChangeGroupFilterCondition', { condition, groupIndex: this.props.index });
+  handleChangeGroupFilterCondition = ({ condition }) => {
+    const { index: groupIndex, onChangeGroupFilterCondition } = this.props;
+    onChangeGroupFilterCondition({ condition, groupIndex });
   };
 
-  addGroup = condition => {
-    trigger.call(this, 'onAddGroup', condition);
+  handleAddGroup = condition => {
+    const { onAddGroup } = this.props;
+    onAddGroup(condition);
   };
 
   createDraggableContainer = () => {
-    let div = document.createElement('div');
+    const div = document.createElement('div');
     document.body.appendChild(div);
     return div;
   };
@@ -151,15 +148,15 @@ export default class FiltersGroup extends Component {
         sourceId={sourceId}
         metaRecord={metaRecord}
         needUpdate={needUpdate}
-        onChangeValue={this.onChangeFilterValue}
-        onChangePredicate={this.onChangeFilterPredicate}
-        onDelete={this.deleteFilter}
+        onChangeValue={this.handleChangeFilterValue}
+        onChangePredicate={this.handleChangeFilterPredicate}
+        onDelete={this.handleDeleteFilter}
       >
         {idx > 0 && (
           <FiltersCondition
             index={idx}
             cross
-            onClick={this.changeFilterCondition}
+            onClick={this.handleChangeFilterCondition}
             condition={filter.getCondition()}
             conditions={groupConditions}
           />
@@ -174,18 +171,20 @@ export default class FiltersGroup extends Component {
     const droppableId = `${droppableIdPrefix}${index}`;
 
     return (
-      <Well className={classNames('ecos-well_full ecos-well_border ecos-well_radius_6 ecos-filters-group', className)}>
-        <div className={'ecos-filters-group__head'}>
+      <Well className={classNames('ecos-filters-group', className)}>
+        <div className="ecos-filters-group__head">
           {!first && (
-            <FiltersCondition onClick={this.changeGroupFilterCondition} condition={group.getCondition()} conditions={groupConditions} />
+            <FiltersCondition
+              onClick={this.handleChangeGroupFilterCondition}
+              condition={group.getCondition()}
+              conditions={groupConditions}
+            />
           )}
-          <div className={'ecos-filters-group__tools'}>
-            <Label className={'ecos-filters-group__tools_step label_clear label_nowrap label_middle-grey'}>
-              {t('filter-list.filter-group-add')}
-            </Label>
+          <div className="ecos-filters-group__tools">
+            <div className="ecos-filters-group__tools-label">{t('filter-list.filter-group-add')}</div>
 
             <Select
-              className={classNames('ecos-filters-group__select ecos-filters-group__tools_step select_narrow', {
+              className={classNames('ecos-filters-group__select select_narrow ecosZIndexAnchor', {
                 'ecos-select_blue': first,
                 'ecos-select_grey': !first
               })}
@@ -193,28 +192,33 @@ export default class FiltersGroup extends Component {
               options={columns}
               getOptionLabel={option => option.text}
               getOptionValue={option => option.attribute}
-              onChange={this.addFilter}
+              onChange={this.handleAddFilter}
+              styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+              menuPortalTarget={document.body}
+              menuPlacement="auto"
+              closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
             />
 
             {first && (
               <Select
-                className={'ecos-filters-group__select select_narrow ecos-select_blue'}
+                className="ecos-filters-group__select select_narrow ecos-select_blue ecosZIndexAnchor"
                 placeholder={t('filter-list.condition-group')}
                 options={groupConditions}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
-                onChange={this.addGroup}
+                onChange={this.handleAddGroup}
+                styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+                menuPortalTarget={document.body}
+                menuPlacement="auto"
+                closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
               />
             )}
-
+            <div className="ecos-filters-group__tools-space" />
             {!first && (
               <IcoBtn
                 icon={'icon-delete'}
-                className={
-                  'ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ' +
-                  'ecos-btn_hover_t_red ecos-btn_x-step_10 ecos-filters-group__delete-btn'
-                }
-                onClick={this.deleteGroup}
+                className="ecos-btn_i ecos-btn_grey4 ecos-btn_width_auto ecos-btn_extra-narrow ecos-btn_full-height ecos-btn_hover_t_red"
+                onClick={this.handleDeleteGroup}
               />
             )}
           </div>
@@ -275,3 +279,27 @@ export default class FiltersGroup extends Component {
     );
   }
 }
+
+FiltersGroup.propTypes = {
+  onChangeFilter: PropTypes.func,
+  onDeleteFilter: PropTypes.func,
+  onAddFilter: PropTypes.func,
+
+  onDeleteGroup: PropTypes.func,
+  onAddGroup: PropTypes.func,
+
+  onChangeFilterCondition: PropTypes.func,
+  onChangeGroupFilterCondition: PropTypes.func
+};
+
+FiltersGroup.defaultProps = {
+  onChangeFilter: () => undefined,
+  onDeleteFilter: () => undefined,
+  onAddFilter: () => undefined,
+
+  onDeleteGroup: () => undefined,
+  onAddGroup: () => undefined,
+
+  onChangeFilterCondition: () => undefined,
+  onChangeGroupFilterCondition: () => undefined
+};
