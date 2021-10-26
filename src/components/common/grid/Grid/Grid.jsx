@@ -77,7 +77,8 @@ class Grid extends Component {
     this.state = {
       tableHeight: 0,
       isScrolling: false,
-      selected: props.selected || []
+      selected: props.selected || [],
+      needClearTooltips: false
     };
   }
 
@@ -549,6 +550,7 @@ class Grid extends Component {
 
   setHeaderFormatter = (column, filterable, sortable) => {
     const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
+    const { needClearTooltips } = this.state;
     const isFilterable = filterable && column.searchable && column.searchableByText && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
@@ -560,6 +562,7 @@ class Grid extends Component {
 
       return (
         <HeaderFormatter
+          forceCloseLabelTooltip={needClearTooltips}
           isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
@@ -822,6 +825,7 @@ class Grid extends Component {
     }
 
     this._resizingTh = null;
+    this.setState({ needClearTooltips: true }, () => this.setState({ needClearTooltips: false }));
   };
 
   triggerCloseFilterEvent = e => {
