@@ -62,7 +62,7 @@ const AdminMenu = React.memo(
               onClick={() => toggleMenu(false)}
               icon="icon-small-arrow-right"
               invert
-              className="ecos-admin-menu__btn-closer ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standart ecos-btn_r_biggest"
+              className="ecos-admin-menu__btn-closer ecos-btn_grey5 ecos-btn_hover_grey ecos-btn_narrow-t_standard ecos-btn_r_biggest"
             >
               {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
             </IcoBtn>

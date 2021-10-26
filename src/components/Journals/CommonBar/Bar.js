@@ -49,14 +49,12 @@ class Bar extends Component {
       createJournalSetting
     } = this.props;
 
-    isFunction(createJournalSetting) && createJournalSetting(id, settings);
-    this.handleToggleSettings();
+    isFunction(createJournalSetting) && createJournalSetting(id, settings, this.handleToggleSettings);
   };
 
   handleSaveSettings = (id, settings) => {
     const { saveJournalSetting } = this.props;
-
-    saveJournalSetting(id, settings);
+    isFunction(saveJournalSetting) && saveJournalSetting(id, settings);
   };
 
   handleRefresh = () => {
@@ -104,6 +102,7 @@ class Bar extends Component {
       isDocLibEnabled,
       isLoading,
       isFilterOn,
+      noGroupActions,
       noCreateBtn,
       journalConfig = {},
       grid = {},
@@ -150,6 +149,7 @@ class Bar extends Component {
           isCreateLoading={isCreateLoading}
           isLoading={isLoading}
           isShowResetFilter={isFilterOn}
+          noGroupActions={noGroupActions}
           nameBtnSettings={nameBtnSettings}
           onRefresh={this.handleRefresh}
           onSearch={this.handleSearch}
@@ -170,11 +170,12 @@ Bar.propTypes = {
   urlParams: PropTypes.object,
   viewMode: PropTypes.string,
   isActivePage: PropTypes.bool,
-  isMobile: PropTypes.bool,
+  isMobile: PropTypes.bool.isRequired,
   isDocLibEnabled: PropTypes.bool,
   isLoading: PropTypes.bool,
   isFilterOn: PropTypes.bool,
   noCreateBtn: PropTypes.bool,
+  noGroupActions: PropTypes.bool,
   nameBtnSettings: PropTypes.string,
   journalConfig: PropTypes.object,
   grid: PropTypes.object,

@@ -24,11 +24,6 @@
   &__collapsible-list {
     height: 100%;
 
-    .panel-bar {
-      display: grid;
-      height: 100%;
-    }
-
     .collapsible-list__collapse {
       overflow: auto;
     }
@@ -104,22 +99,36 @@
 }
 
 .ecos-journal-menu__list-item {
-  $item: &;
-
+  height: 40px;
   padding: 13px 15px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  position: relative;
 
-  &_hover {
-    padding: 13px 15px;
-
-    &#{$item}_actions {
-      padding-right: 60px;
-    }
+  &-title {
+    @extend %ellipsis;
+    width: 100%;
+    display: inline-block;
   }
 
-  &-input {
-    padding-right: 58px;
+  &-actions {
+    display: none;
+  }
+
+  &:hover &-actions {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: linear-gradient(to right, rgba(#7396cd, 0), #7396cd 20%);
+    padding-left: 10px;
+  }
+
+  &-btn.ecos-btn {
+    width: auto;
+    height: auto;
+    padding: 0;
+
+    &:not(:last-child) {
+      padding-right: 5px;
+    }
   }
 }

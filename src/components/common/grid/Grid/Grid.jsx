@@ -75,6 +75,8 @@ class Grid extends Component {
     if (!isEqual(props.selected, state.selected)) {
       return { selected: props.selected };
     }
+
+    return null;
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {

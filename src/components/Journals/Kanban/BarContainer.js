@@ -20,7 +20,7 @@ function mapStateToProps(state, props) {
     grid: { ...journalProps.grid, search },
     isFilterOn: kanbanProps.isFiltered || journalProps.isFilterOn,
     isLoading: kanbanProps.isLoading,
-    noPagination: true,
+    noGroupActions: true,
     noCreateBtn: true,
     settingsColumnsData: null,
     settingsGroupingData: null,

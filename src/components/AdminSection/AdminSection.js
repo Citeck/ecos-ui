@@ -10,7 +10,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import DevTools from '../../pages/DevTools';
 import { Caption } from '../common/form';
 import BPMNDesigner from '../BPMNDesigner';
-import { JournalSettings } from '../Journals';
+import { JournalPresets } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
 
@@ -71,7 +71,7 @@ const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOp
           </Row>
         </Container>
       </div>
-      <AdminMenu>{!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalSettings stateId={journalStateId} />}</AdminMenu>
+      <AdminMenu>{!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalPresets stateId={journalStateId} />}</AdminMenu>
     </div>
   );
 });

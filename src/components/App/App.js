@@ -154,7 +154,7 @@ class App extends Component {
   }
 
   renderRedirectOldRoots = () => {
-    return Object.keys(RELOCATED_URL).map(key => <Redirect from={key} to={RELOCATED_URL[key]} />);
+    return Object.keys(RELOCATED_URL).map(key => <Redirect key={key} from={key} to={RELOCATED_URL[key]} />);
   };
 
   renderCachedRouter = React.memo(props => {

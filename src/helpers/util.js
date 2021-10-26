@@ -78,12 +78,12 @@ export const debounce = (func, ms = 0) => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
-export function closest(node = null, selector) {
+export function closest(node = null, selector, checkSelf = false) {
   if (!node) {
     return null;
   }
 
-  const parent = node.parentElement;
+  const parent = checkSelf ? node : node.parentElement;
 
   if (parent) {
     const className = parent.className;

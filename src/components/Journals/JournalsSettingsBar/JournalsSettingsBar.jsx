@@ -33,6 +33,8 @@ const JournalsSettingsBar = ({
   isCreateLoading,
   isLoading,
   isShowResetFilter,
+  noGroupActions,
+
   leftChild,
   rightChild,
 
@@ -74,16 +76,17 @@ const JournalsSettingsBar = ({
           cleaner
         />
 
-        {!isMobile && <GroupActions stateId={stateId} />}
+        {!isMobile && !noGroupActions && <GroupActions stateId={stateId} />}
 
         <Export journalConfig={journalConfig} grid={grid} className="ecos-journal__settings-bar-export" selectedItems={selectedRecords}>
           <IcoBtn
             invert
             icon={isMobile ? 'icon-download' : 'icon-small-down'}
-            className={classNames('ecos-btn_hover_blue2 ecos-btn_r_6', {
+            className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_r_6', {
               'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
               'ecos-btn_i ecos-btn_white': isMobile
             })}
+            loading={isLoading}
           >
             {!isMobile && t(Labels.BTN_EXPORT)}
           </IcoBtn>
