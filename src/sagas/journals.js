@@ -518,7 +518,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, action) {
     yield put(setLoading(w(true)));
 
     const journalData = yield select(selectJournalData, stateId);
-    const { grid, selectAllPageRecords, selectAllRecordsVisible, selectedRecords } = journalData;
+    const { grid, selectAllRecordsVisible, selectedRecords } = journalData;
     const searchPredicate = yield getSearchPredicate({ logger, stateId });
     const params = { ...grid, ...(action.payload || {}), searchPredicate: get(action, 'payload.searchPredicate', searchPredicate) };
     const gridData = yield getGridData(api, params, stateId);
