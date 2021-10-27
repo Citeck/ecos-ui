@@ -2,6 +2,7 @@ import React from 'react';
 
 import { t } from '../../../../../../helpers/export/util';
 import { getBool } from '../../../../../../helpers/util';
+import ZIndex from '../../../../../../services/ZIndex';
 import { Checkbox, Select } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import BaseEditor from '../BaseEditor';
@@ -33,7 +34,11 @@ export default class BooleanEditor extends BaseEditor {
             autoFocus={scope === EditorScope.CELL}
             onChange={item => onUpdate(item.value)}
             isSearchable={false}
-            className="select_narrow select_width_full"
+            className="select_narrow select_width_full ecosZIndexAnchor"
+            menuPortalTarget={document.body}
+            menuPlacement="auto"
+            closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+            styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
           />
         );
       }
