@@ -298,18 +298,17 @@ class Journals extends React.Component {
       const { isMobile } = this.props;
 
       return (
-        <div onClick={e => this.handleDisplayConfigPopup(e, props)}>
-          <JournalsHead
-            title={props.title}
-            labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
-            isOpenMenu={menuOpen}
-            isMobile={isMobile}
-            hasBtnMenu={displayElements.menu}
-            hasBtnEdit={displayElements.editJournal && !!props.configRec}
-            onToggleMenu={this.handleToggleMenu}
-            onEditJournal={() => this.handleEditJournal(props.configRec)}
-          />
-        </div>
+        <JournalsHead
+          title={props.title}
+          labelBtnMenu={props.labelBtnMenu || (isMobile ? t(Labels.Journal.SHOW_MENU_SM) : t(Labels.Journal.SHOW_MENU))}
+          isOpenMenu={menuOpen}
+          isMobile={isMobile}
+          hasBtnMenu={displayElements.menu}
+          hasBtnEdit={displayElements.editJournal && !!props.configRec}
+          onToggleMenu={this.handleToggleMenu}
+          onEditJournal={() => this.handleEditJournal(props.configRec)}
+          onClick={e => this.handleDisplayConfigPopup(e, props)}
+        />
       );
     }
 

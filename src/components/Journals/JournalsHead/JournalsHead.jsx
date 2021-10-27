@@ -8,21 +8,22 @@ import TitlePageLoader from '../../common/TitlePageLoader';
 
 import './JournalsHead.scss';
 
-const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, labelBtnMenu, onToggleMenu, onEditJournal }) => {
+const JournalsHead = ({ isOpenMenu, title, isMobile, hasBtnMenu, hasBtnEdit, labelBtnMenu, onToggleMenu, onEditJournal, onClick }) => {
   return (
-    <div className="journals-head">
+    <div className="journals-head" onClick={onClick}>
       <TitlePageLoader isReady={!!title}>
         <Caption normal className={classNames('journals-head__caption', { 'journals-head__caption_small': isMobile })}>
           {extractLabel(title)}
-          {!isMobile && hasBtnEdit && (
-            <IcoBtn
-              icon="icon-settings"
-              className="journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-              onClick={onEditJournal}
-            />
-          )}
         </Caption>
       </TitlePageLoader>
+      {!isMobile && hasBtnEdit && (
+        <IcoBtn
+          icon="icon-settings"
+          className="journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+          onClick={onEditJournal}
+        />
+      )}
+      <div className="journals-head__space" />
       {hasBtnMenu && (
         <div className={classNames('journals-head__menu-btn', { 'journals-head__menu-btn_hidden': isOpenMenu })}>
           <IcoBtn
