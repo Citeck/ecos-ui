@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
-import set from 'lodash/set';
 import uniqueId from 'lodash/uniqueId';
-import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
@@ -69,13 +67,12 @@ const GroupActions = React.memo(
 
     const handleExecuteAction = useCallback(
       action => {
-        const _action = cloneDeep(action);
-        set(_action, 'config.excludedRecords', excludedRecords);
+        const context = { excludedRecords };
 
         if (action._typeAct === TYPE_ACT.QUERY) {
-          execRecordsAction(grid.query, _action);
+          execRecordsAction(grid.query, action, context);
         } else if (action._typeAct === TYPE_ACT.RECORDS) {
-          execRecordsAction(selectedRecords, _action);
+          execRecordsAction(selectedRecords, action, context);
         }
       },
       [grid, selectedRecords, excludedRecords]
