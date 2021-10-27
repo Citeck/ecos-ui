@@ -81,6 +81,11 @@
     &:hover {
       background: $color-gray-4;
     }
+
+    &--is-selected {
+      background-color: rgba(0, 126, 255, 0.04);
+      color: #333;
+    }
   }
 }
 
