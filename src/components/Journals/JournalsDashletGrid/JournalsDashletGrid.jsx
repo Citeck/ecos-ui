@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import isEmpty from 'lodash/isEmpty';
 
 import { ParserPredicate } from '../../Filters/predicates';
-import { Loader } from '../../common';
+import { InfoText, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
 import { t, trigger } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -259,7 +260,7 @@ class JournalsDashletGrid extends Component {
       <>
         <div className="ecos-journal-dashlet__grid">
           {loading && <Loader blur />}
-
+          {!loading && isEmpty(columns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               data={data}
