@@ -72,7 +72,7 @@ const GroupActions = React.memo(
         if (action._typeAct === TYPE_ACT.QUERY) {
           execRecordsAction(grid.query, action, context);
         } else if (action._typeAct === TYPE_ACT.RECORDS) {
-          execRecordsAction(selectedRecords, action, context);
+          execRecordsAction(selectedRecords, action);
         }
       },
       [grid, selectedRecords, excludedRecords]
