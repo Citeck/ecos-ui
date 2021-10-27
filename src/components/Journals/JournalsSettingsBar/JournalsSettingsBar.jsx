@@ -78,18 +78,23 @@ const JournalsSettingsBar = ({
 
         {!isMobile && !noGroupActions && <GroupActions stateId={stateId} />}
 
-        <Export journalConfig={journalConfig} grid={grid} className="ecos-journal__settings-bar-export" selectedItems={selectedRecords}>
-          <IcoBtn
-            invert
-            icon={isMobile ? 'icon-download' : 'icon-small-down'}
-            className={classNames('ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_r_6', {
-              'ecos-btn_drop-down ecos-btn_grey3': !isMobile,
-              'ecos-btn_i ecos-btn_white': isMobile
-            })}
-            loading={isLoading}
-          >
-            {!isMobile && t(Labels.BTN_EXPORT)}
-          </IcoBtn>
+        <Export
+          journalConfig={journalConfig}
+          grid={grid}
+          className="ecos-journal__settings-bar-export"
+          classNameBtn="ecos-btn_i ecos-btn_white"
+          selectedItems={selectedRecords}
+        >
+          {!isMobile && (
+            <IcoBtn
+              invert
+              icon="icon-small-down"
+              className="ecos-journal__settings-bar-export-btn ecos-btn_hover_blue2 ecos-btn_drop-down ecos-btn_grey3"
+              loading={isLoading}
+            >
+              {t(Labels.BTN_EXPORT)}
+            </IcoBtn>
+          )}
         </Export>
 
         <Tooltip off={isMobile} target={target('update')} text={t(Labels.BTN_UPDATE)} uncontrolled>

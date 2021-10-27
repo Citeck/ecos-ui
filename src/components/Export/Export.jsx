@@ -27,6 +27,7 @@ const api = new UserConfigApi();
 export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
+    classNameBtn: PropTypes.string,
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
@@ -166,7 +167,7 @@ export default class Export extends Component {
   };
 
   render() {
-    const { right, className, children, ...props } = this.props;
+    const { right, className, children, classNameBtn, ...props } = this.props;
     const { isOpen } = this.state;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
 
@@ -185,7 +186,7 @@ export default class Export extends Component {
           {children || (
             <TwoIcoBtn
               icons={['icon-download', isOpen ? 'icon-small-up' : 'icon-small-down']}
-              className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
+              className={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn)}
             />
           )}
         </Dropdown>
