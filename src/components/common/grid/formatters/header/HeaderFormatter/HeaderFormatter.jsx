@@ -10,7 +10,7 @@ import { Tooltip } from 'reactstrap';
 import { closest, getId, isExistValue } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
-import { Icon, Popper } from '../../../../';
+import { Icon, Tooltip as EcosTooltip } from '../../../../';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 
@@ -28,7 +28,11 @@ export default class HeaderFormatter extends Component {
     this.thRef = React.createRef();
     this._id = getId();
     this.fetchValue = false;
-    this.state = { open: false, predicate: {} };
+    this.state = {
+      open: false,
+      predicate: {},
+      isOpenLabelTooltip: false
+    };
   }
 
   componentDidMount() {
@@ -38,6 +42,10 @@ export default class HeaderFormatter extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.filterValue !== this.props.filterValue) {
       this._setFilterValue();
+    }
+
+    if (!prevProps.forceCloseLabelTooltip && this.props.forceCloseLabelTooltip && this.state.isOpenLabelTooltip) {
+      this.setState({ isOpenLabelTooltip: false });
     }
   }
 
@@ -217,11 +225,15 @@ export default class HeaderFormatter extends Component {
   handleOpenSettings = () => {
     const { onOpenSettings } = this.props;
 
-    if (typeof onOpenSettings === 'function') {
+    if (isFunction(onOpenSettings)) {
       onOpenSettings();
 
       this.state.open && this.onToggle();
     }
+  };
+
+  handleToggleLabelTooltip = () => {
+    this.setState(state => ({ isOpenLabelTooltip: !state.isOpenLabelTooltip }));
   };
 
   renderFilter = () => {
@@ -320,6 +332,7 @@ export default class HeaderFormatter extends Component {
 
   render() {
     const { column = {}, sortable } = this.props;
+    const { isOpenLabelTooltip } = this.state;
 
     this.id = `filter-${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
     this.tooltipId = `tooltip-${this.id}`;
@@ -334,11 +347,19 @@ export default class HeaderFormatter extends Component {
         })}
       >
         <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
-          <Popper showAsNeeded popupClassName="formatter-popper" text={column.text}>
+          <EcosTooltip
+            target={this.tooltipTextId}
+            text={column.text}
+            placement="bottom"
+            trigger="hover"
+            showAsNeeded
+            isOpen={isOpenLabelTooltip}
+            onToggle={this.handleToggleLabelTooltip}
+          >
             <span id={this.tooltipTextId} className="ecos-th__content-text">
               {column.text}
             </span>
-          </Popper>
+          </EcosTooltip>
 
           {this.renderActions()}
         </div>
@@ -364,6 +385,7 @@ HeaderFormatter.propTypes = {
   onDividerMouseDown: PropTypes.func,
 
   isComplexFilter: PropTypes.bool,
+  forceCloseLabelTooltip: PropTypes.bool,
   predicate: PropTypes.object,
   onOpenSettings: PropTypes.func
 };

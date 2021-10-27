@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+
 import { isClosestHidden } from '../../../helpers/util';
 
 import './style.scss';
@@ -69,7 +71,7 @@ class Tooltip extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
-    if (typeof props.onToggle === 'function' && props.isOpen !== state.isOpen && !props.uncontrolled) {
+    if (isFunction(props.onToggle) && props.isOpen !== state.isOpen && !props.uncontrolled) {
       newState.isOpen = props.isOpen;
     }
 
@@ -105,10 +107,10 @@ class Tooltip extends Component {
     }
   };
 
-  onToggle = () => {
+  onToggle = (...data) => {
     const { onToggle, uncontrolled } = this.props;
 
-    if (typeof onToggle === 'function' && !uncontrolled) {
+    if (isFunction(onToggle) && !uncontrolled) {
       onToggle.call(this);
     } else {
       this.setState(state => ({ isOpen: !state.isOpen }));
