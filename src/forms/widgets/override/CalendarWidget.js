@@ -17,33 +17,39 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     return CalendarWidget.defaultSettings;
   }
 
+  setValue(value) {
+    super.setValue(value);
+  }
+
   attach(input) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
     this.settings.disableMobile = 'true';
 
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1508
+    this.settings.static = 'true';
+    this.settings.onValueUpdate = () => {
+      const format = convertFormatToMoment(this.settings.format);
+      const value = this.calendar._input.value;
+      const currentLocale = moment.locale();
+
+      moment.locale('en');
+
+      const dateInMoment = moment(value, format);
+
+      if (dateInMoment.format(format) !== value) {
+        this.calendar.setDate(this.calendar._input.value, true, this.settings.altFormat);
+      }
+
+      moment.locale(currentLocale);
+
+      this.calendar.close();
+    };
+
     super.attach(input);
 
     // Bug: https://github.com/flatpickr/flatpickr/issues/2047
-
     if (this._input) {
       this.setInputMask(this.calendar._input, convertFormatToMask(this.settings.format));
-
-      this.removeEventListener(this.calendar._input, 'blur');
-      this.addEventListener(this.calendar._input, 'blur', () => {
-        const format = convertFormatToMoment(this.settings.format);
-        const value = this.calendar._input.value;
-        const currentLocale = moment.locale();
-
-        moment.locale('en');
-
-        const dateInMoment = moment(value, format);
-
-        if (dateInMoment.format(format) !== value) {
-          this.calendar.setDate(this.calendar._input.value, true, this.settings.altFormat);
-        }
-
-        moment.locale(currentLocale);
-      });
     }
   }
 }
