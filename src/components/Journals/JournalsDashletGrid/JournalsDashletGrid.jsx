@@ -4,7 +4,6 @@ import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import isEmpty from 'lodash/isEmpty';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { InfoText, Loader } from '../../common';
@@ -59,7 +58,7 @@ const mapDispatchToProps = (dispatch, props) => {
 const HeightCalculation = props => {
   const { minHeight, maxHeight, children, total, maxItems } = props;
 
-  if (minHeight !== undefined) {
+  if (!isNil(minHeight)) {
     return <div style={{ minHeight, maxHeight }}>{children}</div>;
   }
 
@@ -236,6 +235,7 @@ class JournalsDashletGrid extends Component {
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
     const { params = {} } = journalConfig || {};
+    const maxItems = get(pagination, 'maxItems', 0);
 
     let editable = true;
 
