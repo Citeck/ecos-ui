@@ -149,11 +149,8 @@ button {
 
     .ecos-btn__text {
       display: inline-block;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
       flex: auto;
-      //width: 85%;
+      @extend %ellipsis;
     }
   }
 

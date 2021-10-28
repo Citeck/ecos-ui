@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isNil from 'lodash/isNil';
 
 import { Popper } from '../../index';
-import { isExistValue } from '../../../../helpers/util';
 
 import './style.scss';
 
@@ -41,6 +41,11 @@ class Badge extends React.Component {
 
   render() {
     const { className, state, text, size, style, outline, light } = this.props;
+
+    if (isNil(text)) {
+      return null;
+    }
+
     const classes = classNames(
       'ecos-badge',
       `ecos-badge_${state}`,
@@ -49,11 +54,11 @@ class Badge extends React.Component {
       className
     );
 
-    return isExistValue(text) ? (
+    return (
       <span className={classes} style={style}>
         {this.content}
       </span>
-    ) : null;
+    );
   }
 }
 

@@ -320,7 +320,7 @@
   "kanban.label.no-name": "Нет названия",
   "kanban.label.board-list": "Список досок",
   "kanban.label.btn-settings": "Фильтрация",
-  "kanban.label.dnd.move-here": "Пеместить в эту колонку",
+  "kanban.label.dnd.move-here": "Переместить в эту колонку",
   "kanban.label.dnd.cant-move-here": "Карточку нельзя переместить в эту колонку",
   "kanban.label.dnd.already-here": "Карточка из этой колонки",
   "kanban.label.no-more-cards": "Больше нет карточек",

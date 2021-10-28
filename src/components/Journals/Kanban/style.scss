@@ -23,9 +23,18 @@
 
   counter-set: count-page 1;
 
+  & .formio-form_view-mode dt,
+  & .formio-form_view-mode dd {
+    word-break: break-word;
+  }
+
   &__dropdown {
-    max-width: 300px;
+    max-width: 200px;
     border: 1px solid $color-gray-5 !important;
+
+    &.ecos-btn {
+      padding: 9px 15px;
+    }
 
     & .ecos-btn__i {
       font-size: $font-size-standard;
@@ -39,6 +48,9 @@
     }
 
     &-menu {
+      min-width: 200px;
+      max-width: 400px;
+
       & .selected {
         font-weight: $font-weight-bold;
         pointer-events: none;
@@ -87,6 +99,7 @@
     display: inline-flex;
     position: relative;
     width: 100%;
+    margin-left: -1px;
 
     &_dragging {
       overflow: hidden;
@@ -176,7 +189,17 @@
       &-caption {
         font-weight: $font-weight-semi-bold;
         font-size: 16px;
-        padding-right: 15px;
+        padding-right: 5px;
+        flex: 1;
+        @extend %ellipsis;
+      }
+
+      &-badge {
+        min-width: 30px;
+        max-width: 80px;
+        font-weight: $font-weight-semi-bold;
+        font-size: 16px;
+        padding: 0 6px;
         @extend %ellipsis;
       }
 
@@ -261,14 +284,14 @@
     &-head {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       padding-bottom: 18px;
     }
 
     &-body {
       border-top: 2px solid $color-gray-4;
       transition: max-height ease-out 0.5s, padding ease-out 0.5s;
-      max-height: 200px;
+      max-height: 500px;
       min-height: 0;
       overflow: auto;
 
@@ -324,6 +347,7 @@
       &-list {
         display: inline-flex;
         align-items: center;
+        margin-top: -3px;
 
         & > :nth-child(n) {
           margin-left: 13px;
