@@ -14,13 +14,13 @@ import { getTypeRef } from '../../actions/docLib';
 import { getBoardList } from '../../actions/kanban';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP } from '../../constants';
-import { animateScrollTo, getBool, getScrollbarWidth, t } from '../../helpers/util';
+import { animateScrollTo, getBool, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions';
 
-import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
 import { DocLibView, KanbanView, TableView } from './Views';
@@ -69,7 +69,6 @@ const ViewLabels = {
 
 class Journals extends React.Component {
   _journalRef = null;
-  _journalBodyRef = null;
   _journalBodyTopRef = null;
   _journalFooterRef = null;
   _journalMenuRef = null;
@@ -153,6 +152,10 @@ class Journals extends React.Component {
     }
   }
 
+  get minHeight() {
+    return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
+  }
+
   getDisplayElements() {
     return {
       ...defaultDisplayElements,
@@ -162,7 +165,7 @@ class Journals extends React.Component {
     };
   }
 
-  get commonProps() {
+  getCommonProps() {
     const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile } = this.props;
     const { journalId } = this.state;
 
@@ -173,7 +176,8 @@ class Journals extends React.Component {
       Header: this.Header,
       UnavailableView: this.UnavailableView,
       displayElements: this.getDisplayElements(),
-      bodyForwardedRef: this.setJournalBodyRef,
+      minHeight: this.minHeight,
+      getMaxHeight: this.getJournalContentMaxHeight,
       bodyTopForwardedRef: this.setJournalBodyTopRef,
       footerForwardedRef: this.setJournalFooterRef,
       bodyClassName: classNames('ecos-journal__body', bodyClassName, {
@@ -183,13 +187,7 @@ class Journals extends React.Component {
     };
   }
 
-  get tableProps() {
-    return { getJournalContentMaxHeight: this.getJournalContentMaxHeight };
-  }
-
   setJournalRef = ref => !!ref && (this._journalRef = ref);
-
-  setJournalBodyRef = ref => !!ref && (this._journalBodyRef = ref);
 
   setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
 
@@ -254,40 +252,12 @@ class Journals extends React.Component {
   };
 
   getJournalContentMaxHeight = () => {
-    const { additionalHeights, footerRef } = this.props;
-    const journalMinHeight = 175;
-    let height = document.body.offsetHeight;
+    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+    const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
+    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight', 0);
+    const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
 
-    height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
-    height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
-
-    if (this._journalBodyTopRef) {
-      height -= get(this._journalBodyTopRef, 'offsetHeight', 0);
-    }
-
-    if (this._journalFooterRef) {
-      height -= get(this._journalFooterRef, 'offsetHeight', 0);
-      height -= 15; // for indent under pagination
-    }
-
-    if (footerRef) {
-      height -= get(footerRef, 'offsetHeight', 0);
-    }
-
-    if (this._journalBodyRef) {
-      const styles = window.getComputedStyle(this._journalBodyRef, null);
-
-      height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
-      height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
-    }
-
-    height -= getScrollbarWidth();
-
-    if (!Number.isNaN(additionalHeights)) {
-      height += additionalHeights;
-    }
-
-    return height < journalMinHeight ? journalMinHeight : height;
+    return height < this.minHeight ? this.minHeight : height;
   };
 
   Header = props => {
@@ -352,6 +322,7 @@ class Journals extends React.Component {
   render() {
     const { isMobile, className } = this.props;
     const { height } = this.state;
+    const commonProps = this.getCommonProps();
 
     return (
       <ReactResizeDetector handleHeight onResize={this.handleResize}>
@@ -359,12 +330,12 @@ class Journals extends React.Component {
           ref={this.setJournalRef}
           className={classNames('ecos-journal', className, {
             'ecos-journal_mobile': isMobile,
-            'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
+            'ecos-journal_scroll': height <= commonProps.minHeight
           })}
         >
-          <TableView {...this.commonProps} {...this.tableProps} />
-          <DocLibView {...this.commonProps} />
-          <KanbanView {...this.commonProps} maxHeight={this.getJournalContentMaxHeight()} />
+          <TableView {...commonProps} />
+          <DocLibView {...commonProps} />
+          <KanbanView {...commonProps} />
           <this.RightMenu />
         </div>
       </ReactResizeDetector>

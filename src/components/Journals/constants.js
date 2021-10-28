@@ -15,6 +15,7 @@ export const DEFAULT_INLINE_TOOL_SETTINGS = {
 };
 
 export const JOURNAL_MIN_HEIGHT = 300;
+export const JOURNAL_MIN_HEIGHT_MOB = 450;
 
 export const JOURNAL_VIEW_MODE = {
   TABLE: 'table',

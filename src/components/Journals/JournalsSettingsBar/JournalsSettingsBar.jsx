@@ -124,8 +124,7 @@ const JournalsSettingsBar = ({
         )}
 
         {leftChild}
-
-        <div className="ecos-journal__settings-bar_right">
+        <div className="ecos-journal__settings-bar-right-side">
           {rightChild}
           <ViewTabs stateId={stateId} />
         </div>

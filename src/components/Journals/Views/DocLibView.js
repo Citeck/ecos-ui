@@ -63,24 +63,11 @@ class DocLibView extends React.Component {
       return null;
     }
 
-    const {
-      viewMode,
-      folderTitle,
-      stateId,
-      isMobile,
-      isEnabled,
-      isLoading,
-      bodyForwardedRef,
-      bodyTopForwardedRef,
-      footerForwardedRef,
-      bodyClassName,
-      Header,
-      UnavailableView
-    } = this.props;
+    const { viewMode, folderTitle, stateId, isMobile, isEnabled, isLoading, bodyClassName, Header, UnavailableView } = this.props;
 
     return (
-      <div hidden={!isDocLib(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__doc-lib', bodyClassName)}>
-        <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
+      <div hidden={!isDocLib(viewMode)} className={classNames('ecos-journal-view__doc-lib', bodyClassName)}>
+        <div className="ecos-journal__body-top">
           <Header title={folderTitle} labelBtnMenu={isMobile ? t(Labels.DocLib.SHOW_MENU_SM) : t(Labels.DocLib.SHOW_MENU)} />
           <DocLibBreadcrumbs stateId={stateId} />
           <DocLibSettingsBar stateId={stateId} />
@@ -90,7 +77,7 @@ class DocLibView extends React.Component {
         {!isEnabled && !isLoading && <UnavailableView />}
         {(isEnabled || isLoading) && <FilesViewer stateId={stateId} />}
 
-        <div className="ecos-journal__footer" ref={footerForwardedRef}>
+        <div className="ecos-journal__footer">
           <DocLibPagination stateId={stateId} hasPageSize />
         </div>
       </div>

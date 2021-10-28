@@ -252,6 +252,7 @@ class JournalsDashlet extends BaseWidget {
     }
 
     const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
+    const isSmall = width < MIN_WIDTH_DASHLET_LARGE;
 
     return (
       <>
@@ -260,7 +261,7 @@ class JournalsDashlet extends BaseWidget {
           lsJournalId={journalId}
           forwardRef={this.setToolbarRef}
           stateId={stateId}
-          isSmall={width < MIN_WIDTH_DASHLET_LARGE}
+          isSmall={isSmall}
           onChangeSelectedJournal={this.handleChangeSelectedJournal}
         />
 
@@ -271,7 +272,7 @@ class JournalsDashlet extends BaseWidget {
           selectorContainer={'.ecos-layout'}
         />
 
-        <JournalsDashletFooter forwardRef={this.setFooterRef} stateId={stateId} isWidget />
+        <JournalsDashletFooter forwardRef={this.setFooterRef} stateId={stateId} isSmall={isSmall} isWidget />
       </>
     );
   }
