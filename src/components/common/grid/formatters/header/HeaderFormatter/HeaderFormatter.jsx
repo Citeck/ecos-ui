@@ -5,6 +5,7 @@ import debounce from 'lodash/debounce';
 import replace from 'lodash/replace';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
 import { Tooltip } from 'reactstrap';
 
 import { closest, getId, isExistValue } from '../../../../../../helpers/util';
@@ -76,7 +77,13 @@ export default class HeaderFormatter extends Component {
     const { predicate } = this.props;
     const { text, open } = this.state;
 
-    return text || open || (predicate.needValue === false && predicate.t) || ParserPredicate.predicatesWithoutValue.includes(predicate.t);
+    return (
+      (!isUndefined(predicate.val) && predicate.val !== '') ||
+      text ||
+      open ||
+      (predicate.needValue === false && predicate.t) ||
+      ParserPredicate.predicatesWithoutValue.includes(predicate.t)
+    );
   }
 
   get indentation() {
@@ -93,20 +100,20 @@ export default class HeaderFormatter extends Component {
     e && e.stopPropagation();
   };
 
-  onChange = e => {
-    const text = e.target.value;
-
-    this.setState({ text });
-  };
-
-  onKeyDown = e => {
-    const { column } = this.props;
-    const { text, first } = this.state;
-
-    if (e.key === 'Enter' && text !== first) {
-      this.triggerPendingChange(text, column.dataField, column.type);
-    }
-  };
+  // onChange = e => {
+  //   const text = e.target.value;
+  //
+  //   this.setState({ text });
+  // };
+  //
+  // onKeyDown = e => {
+  //   const { column } = this.props;
+  //   const { text, first } = this.state;
+  //
+  //   if (e.key === 'Enter' && text !== first) {
+  //     this.triggerPendingChange(text, column.dataField, column.type);
+  //   }
+  // };
 
   onClear = () => {
     const { column } = this.props;
@@ -265,7 +272,7 @@ export default class HeaderFormatter extends Component {
             },
             predicate: {
               ...predicate,
-              val: text
+              val: get(predicate, 'val', text)
             }
           }}
           onChangeValue={this.handleChangeFilterValue}
