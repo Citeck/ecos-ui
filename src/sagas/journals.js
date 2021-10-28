@@ -571,7 +571,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     const editingRules = yield getGridEditingRules(api, gridData);
     const pageRecords = get(gridData, 'data', []).map(item => item.id);
 
-    let _selectedRecords = [];
+    let _selectedRecords = isArray(selectedRecords) ? selectedRecords : [];
     let _selectAllPageRecords = false;
 
     if (selectAllRecordsVisible) {
@@ -579,8 +579,6 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
       _selectedRecords = pageRecords;
     } else if (pageRecords.every(rec => selectedRecords.includes(rec))) {
       _selectAllPageRecords = true;
-    } else if (isArray(selectedRecords)) {
-      _selectedRecords = selectedRecords;
     }
 
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));

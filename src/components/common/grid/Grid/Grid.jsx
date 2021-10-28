@@ -8,17 +8,21 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import head from 'lodash/head';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
-import isFunction from 'lodash/isFunction';
 import find from 'lodash/find';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
+import isObject from 'lodash/isObject';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { SELECTOR_MENU_KEY } from '../util';
 import ErrorCell from '../ErrorCell';
@@ -27,7 +31,6 @@ import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
 
 import './Grid.scss';
-import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 
 const CUSTOM_NESTED_DELIMITER = '|';
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
@@ -297,7 +300,7 @@ class Grid extends Component {
           column = this.setWidth(column);
         }
 
-        if (!isNil(column.default)) {
+        if (!isUndefined(column.default)) {
           column.hidden = !column.default;
         }
 
@@ -396,12 +399,13 @@ class Grid extends Component {
         return items;
       }
       return items.map(item => {
-        if (typeof item.dataField === 'string' && item.dataField.includes('.')) {
+        if (isString(item.dataField) && item.dataField.includes('.')) {
           return {
             ...item,
             dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER)
           };
         }
+
         return item;
       });
     };
@@ -420,14 +424,14 @@ class Grid extends Component {
     /**
      * If there is an editing rule for the entire row
      */
-    if (typeof rowRules === 'boolean') {
+    if (isBoolean(rowRules)) {
       return !!rowRules;
     }
 
     /**
      * Validating a rule for a single cell
      */
-    if (typeof rowRules === 'object') {
+    if (isObject(rowRules)) {
       return !!get(rowRules, column.dataField);
     }
 
@@ -629,13 +633,14 @@ class Grid extends Component {
     this.onSelect(false, newSelected);
   };
 
-  handleSelectAllCheckbox = (isSelect, rows) => {
+  handleSelectAllCheckbox = (allPage, rows) => {
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
     const ids = rows.map(row => row.id);
-    const items = isSelect ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
-    this.onSelect(isSelect, items);
+    this.onSelect(allPage, newSelected);
   };
 
   handleClickMenuCheckbox = option => {
