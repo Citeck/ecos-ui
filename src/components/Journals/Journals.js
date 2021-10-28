@@ -62,6 +62,8 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class Journals extends Component {
   _journalRef = null;
+  _journalBodyTopRef = null;
+  _journalFooterRef = null;
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
 
@@ -158,17 +160,13 @@ class Journals extends Component {
     }
   }
 
-  setJournalRef = ref => {
-    if (ref) {
-      this._journalRef = ref;
-    }
-  };
+  setJournalRef = ref => !!ref && (this._journalRef = ref);
 
-  setJournalMenuRef = ref => {
-    if (ref) {
-      this._journalMenuRef = ref;
-    }
-  };
+  setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
+
+  setJournalFooterRef = ref => !!ref && (this._journalFooterRef = ref);
+
+  setJournalMenuRef = ref => !!ref && (this._journalMenuRef = ref);
 
   onForceUpdate = debounce(() => {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
@@ -305,10 +303,9 @@ class Journals extends Component {
 
   getJournalContentMaxHeight = () => {
     const min = this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
-    const head = document.querySelector('.anchorEcosStartContent');
-    const headH = head && get(head.getBoundingClientRect(), 'bottom', 0);
-    const jFooterH = get(document.querySelector('.anchorEcosEndContent'), 'offsetHeight', 0);
-    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight', 0);
+    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+    const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
+    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const height = document.body.offsetHeight - headH - jFooterH - footerH;
 
     return height < min ? min : height;
@@ -352,7 +349,7 @@ class Journals extends Component {
               'ecos-journal__body_with-preview': showPreview
             })}
           >
-            <div className="ecos-journal__body-group">
+            <div className="ecos-journal__body-group" ref={this.setJournalBodyTopRef}>
               <JournalsHead toggleMenu={this.toggleMenu} title={get(meta, 'title')} menuOpen={menuOpen} isMobile={isMobile} />
 
               <JournalsSettingsBar
@@ -407,7 +404,7 @@ class Journals extends Component {
                 />
               </Well>
             </EcosModal>
-            <div className="anchorEcosStartContent" />
+
             <JournalsContent
               stateId={stateId}
               showPreview={showPreview && !isMobile}
@@ -415,7 +412,8 @@ class Journals extends Component {
               minHeight={minH}
               isActivePage={isActivePage}
             />
-            <div className="ecos-journal__footer anchorEcosEndContent">
+
+            <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
               <JournalsDashletPagination
                 stateId={stateId}
                 hasPageSize
