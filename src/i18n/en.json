@@ -742,7 +742,7 @@
   "page-tabs.context-menu.close-left": "Close tabs to the left",
   "page-tabs.context-menu.close-right": "Close tabs to the right",
   "page-tabs.context-menu.close-all": "Close all tabs",
-  "pagination.from": "from",
+  "pagination.from": "out of",
   "predicate.and": "And",
   "predicate.any": "Any",
   "predicate.aspect-equals": "Equals",

@@ -18,11 +18,17 @@
   }
 
   &-update {
-    min-width: 40px;
+    max-width: 40px;
   }
 
-  &-search ~ :nth-child(n) {
-    transition: all 0.4s;
+  &-search {
+    &:not(.search_collapsed) {
+      width: 200px;
+    }
+
+    & ~ :nth-child(n) {
+      transition: all 0.4s;
+    }
   }
 
   &-right-side {
@@ -49,12 +55,6 @@
     &:empty {
       display: none;
     }
-
-    &_mobile {
-      & > :nth-child(n):not(:last-child) {
-        margin-right: 10px;
-      }
-    }
   }
 
   &_mobile {
@@ -72,12 +72,20 @@
       }
     }
 
-    & > :nth-child(n):not(#{$root}-right-side) {
-      margin-right: 10px;
+    &.search_expanded {
+      margin-right: 0;
+    }
+  }
+}
 
-      &.search_expanded {
-        margin-right: 0;
-      }
+@media (max-width: 1370px) {
+  .ecos-journal__settings-bar {
+    $root: &;
+
+    & > :nth-child(n):not(#{$root}-right-side),
+    &-right-side > :nth-child(n):not(:last-child),
+    &-extra > :nth-child(n):not(:last-child) {
+      margin-right: 10px;
     }
   }
 }

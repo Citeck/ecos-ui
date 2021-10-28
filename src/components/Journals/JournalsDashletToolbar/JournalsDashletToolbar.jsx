@@ -153,9 +153,9 @@ class JournalsDashletToolbar extends Component {
             />
           )}
 
-          {!isSmall && (
+          {(measurer.xl || measurer.lg) && (
             <div className="ecos-journal-dashlet__actions">
-              {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
+              <JournalsDashletPagination stateId={stateId} />
             </div>
           )}
         </div>
