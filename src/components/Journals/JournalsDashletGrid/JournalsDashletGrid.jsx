@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
 import { ParserPredicate } from '../../Filters/predicates';
-import { Loader } from '../../common';
+import { InfoText, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
 import { t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
@@ -58,7 +58,7 @@ const mapDispatchToProps = (dispatch, props) => {
 const HeightCalculation = props => {
   const { minHeight, maxHeight, children, total, maxItems } = props;
 
-  if (minHeight !== undefined) {
+  if (!isNil(minHeight)) {
     return <div style={{ minHeight, maxHeight }}>{children}</div>;
   }
 
@@ -235,6 +235,7 @@ class JournalsDashletGrid extends Component {
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
     const { params = {} } = journalConfig || {};
+    const maxItems = get(pagination, 'maxItems', 0);
 
     let editable = true;
 
@@ -252,8 +253,8 @@ class JournalsDashletGrid extends Component {
       <>
         <div className="ecos-journal-dashlet__grid">
           {!isWidget && loading && <Loader blur />}
-
-          <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={get(pagination, 'maxItems', 0)}>
+          {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
+          <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               data={data}
               columns={viewColumns}

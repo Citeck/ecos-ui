@@ -99,6 +99,8 @@ export default class BaseReactComponent extends BaseComponent {
       this.createInlineEditSaveAndCancelButtons();
       this.attachRefreshOn();
       this.attachLogic();
+    } else {
+      this.updateDescription();
     }
 
     this.showElement(this.isShowElement);
@@ -106,6 +108,16 @@ export default class BaseReactComponent extends BaseComponent {
     if (!this.isShowElement && this.component.clearOnHide) {
       this.dataValue = this.emptyValue;
     }
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
+  updateDescription() {
+    if (!this.description) {
+      this.createDescription(this.element);
+      return;
+    }
+
+    this.description.replaceChild(this.text(this.component.description), this.description.childNodes[0]);
   }
 
   embedReactContainer(container, tag) {

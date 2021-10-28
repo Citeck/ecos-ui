@@ -739,6 +739,7 @@
   "journal.not-exists.warning": "The set journal does not exist, check the settings (ID: {{configJournalId}})",
   "journal.no-config-columns.warning": "The journal {{journalName}} doesn't set columns, check the journal settings (ID: {{configJournalId}})",
   "journal.cell.no-label": "(Missing Label)",
+  "journal.table.no-columns": "No columns specified. Check your journal or template settings",
   "journal.generated-field.editor.not-exist": "Editor doesn't exist",
   "journal.group-actions.selected-records.label": "Selected records: {{data}}",
   "journal.group-actions.selected-records.label_short": "Selected: {{data}}",

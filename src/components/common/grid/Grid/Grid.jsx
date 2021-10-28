@@ -8,17 +8,23 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import head from 'lodash/head';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
-import isFunction from 'lodash/isFunction';
 import find from 'lodash/find';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isNil from 'lodash/isNil';
+import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
+import isObject from 'lodash/isObject';
+import isElement from 'lodash/isElement';
 
-import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
+import { getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { SELECTOR_MENU_KEY } from '../util';
 import ErrorCell from '../ErrorCell';
@@ -27,16 +33,12 @@ import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
 
 import './Grid.scss';
-import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 
 const CUSTOM_NESTED_DELIMITER = '|';
 const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
-const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
-
-const ECOS_GRID_CHECKBOX_DIVIDER_CLASS = 'ecos-grid__checkbox-divider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
@@ -93,8 +95,7 @@ class Grid extends Component {
     if (current) {
       this._shadowHeadNode = head(current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW));
       this._shadowLeftNode = head(current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW));
-      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
-
+      this._firstHeaderCellNode = current.querySelector('thead > tr > th:first-child .ecos-grid__checkbox-divider');
       this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 1);
     }
 
@@ -297,7 +298,7 @@ class Grid extends Component {
           column = this.setWidth(column);
         }
 
-        if (!isNil(column.default)) {
+        if (!isUndefined(column.default)) {
           column.hidden = !column.default;
         }
 
@@ -396,12 +397,13 @@ class Grid extends Component {
         return items;
       }
       return items.map(item => {
-        if (typeof item.dataField === 'string' && item.dataField.includes('.')) {
+        if (isString(item.dataField) && item.dataField.includes('.')) {
           return {
             ...item,
             dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER)
           };
         }
+
         return item;
       });
     };
@@ -420,14 +422,14 @@ class Grid extends Component {
     /**
      * If there is an editing rule for the entire row
      */
-    if (typeof rowRules === 'boolean') {
+    if (isBoolean(rowRules)) {
       return !!rowRules;
     }
 
     /**
      * Validating a rule for a single cell
      */
-    if (typeof rowRules === 'object') {
+    if (isObject(rowRules)) {
       return !!get(rowRules, column.dataField);
     }
 
@@ -456,7 +458,7 @@ class Grid extends Component {
 
   getCheckboxGridTrClassList = tr => {
     const rowIndex = tr.rowIndex;
-    const parent = closest(tr, REACT_BOOTSTRAP_TABLE_CLASS);
+    const parent = isElement(tr) ? tr.closest('.react-bootstrap-table') : null;
     let node;
     let classList = null;
 
@@ -629,13 +631,14 @@ class Grid extends Component {
     this.onSelect(false, newSelected);
   };
 
-  handleSelectAllCheckbox = (isSelect, rows) => {
+  handleSelectAllCheckbox = (allPage, rows) => {
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
     const ids = rows.map(row => row.id);
-    const items = isSelect ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
-    this.onSelect(isSelect, items);
+    this.onSelect(allPage, newSelected);
   };
 
   handleClickMenuCheckbox = option => {
@@ -737,7 +740,7 @@ class Grid extends Component {
 
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
-    this._tableDom = closest(options.th, 'table');
+    this._tableDom = isElement(options.th) ? options.th.closest('table') : null;
 
     this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
 
@@ -929,11 +932,11 @@ class Grid extends Component {
     }
 
     const target = e.target;
-    const tr = closest(target, ECOS_GRID_ROW_CLASS);
+    const tr = isElement(target) ? target.closest(`.${ECOS_GRID_ROW_CLASS}`) : null;
 
     trigger.call(this, 'onRowDragEnter', e);
 
-    if (tr === null) {
+    if (isNil(tr)) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
       this._dragTr = null;
 
@@ -958,6 +961,7 @@ class Grid extends Component {
 
     e.stopPropagation();
     e.preventDefault();
+
     return false;
   };
 

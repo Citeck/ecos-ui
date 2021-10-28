@@ -3,13 +3,14 @@ import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
-import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
@@ -57,6 +58,12 @@ export const utcAsLocal = jsonDate =>
 
 export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
 
+/**
+ * @deprecated use lodash/debounce
+ * @param {Function} func
+ * @param {Number} ms
+ * @returns {function(...[*]): Promise<unknown>}
+ */
 export const debounce = (func, ms = 0) => {
   let timer = null;
   let resolves = [];
@@ -78,6 +85,14 @@ export const debounce = (func, ms = 0) => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
+/**
+ * @deprecated use Element.closest()
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+ * @param {Element} node
+ * @param {String} selector
+ * @param {Boolean} checkSelf
+ * @returns {HTMLElement|null|*}
+ */
 export function closest(node = null, selector, checkSelf = false) {
   if (!node) {
     return null;
@@ -125,7 +140,7 @@ export function getSelectedValue(source, field, value, selectedField) {
 }
 
 /**
- * @deprecated use this.props[handler]
+ * @deprecated use lodash/isFunction + this.props[handler]
  * @param name - handler name from props
  * @param data
  */
@@ -284,7 +299,7 @@ export function formatFileSize(fileSize, decimalPlaces) {
 // TODO use moment.js in future
 export function getRelativeTime(from, to) {
   const originalFrom = from;
-  if (typeof from === 'string') {
+  if (isString(from)) {
     from = new Date(from);
   }
 
@@ -295,9 +310,9 @@ export function getRelativeTime(from, to) {
     };
   }
 
-  if (typeof to === 'undefined') {
+  if (isNil(to)) {
     to = new Date();
-  } else if (typeof to === 'string') {
+  } else if (isString(to)) {
     to = new Date(to);
   }
 
@@ -307,7 +322,7 @@ export function getRelativeTime(from, to) {
   const fnTime = (...args) => {
     let locale = getCurrentLocale();
     let formatted = '';
-    if (typeof from.toLocaleString === 'function') {
+    if (isFunction(from.toLocaleString)) {
       formatted = from.toLocaleString(locale);
     } else {
       formatted = from.toString();
