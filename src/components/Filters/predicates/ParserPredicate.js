@@ -5,7 +5,6 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { isExistValue } from '../../../helpers/util';
-import { t } from '../../../helpers/export/util';
 import {
   datePredicateVariables,
   EQUAL_PREDICATES_MAP,
@@ -338,11 +337,6 @@ export default class ParserPredicate {
       isArray(arr) &&
         arr.forEach(item => {
           if (!isArray(item.val) && (!!item.val || item.val === false || item.val === 0 || ParserPredicate.isWithoutValue(item))) {
-            if (typeof item.val === 'boolean') {
-              out.push({ ...item, val: t(item.val ? 'boolean.yes' : 'boolean.no') });
-              return;
-            }
-
             out.push(item);
           } else if (isArray(item.val)) {
             if (item.val.every(v => typeof v === 'string')) {
