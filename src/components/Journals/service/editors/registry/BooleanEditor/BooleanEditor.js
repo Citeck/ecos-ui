@@ -40,6 +40,10 @@ export default class BooleanEditor extends BaseEditor {
       const mode = config.mode || Modes.select;
       const _value = getBool(value);
 
+      if (mode === Modes.checkbox) {
+        return <Checkbox className="p-1" checked={_value} onChange={e => onUpdate(e.checked)} />;
+      }
+
       useEffect(() => {
         const selected = BooleanEditor.options.find(opt => get(opt, 'value', opt) === value) || null;
 
@@ -56,10 +60,6 @@ export default class BooleanEditor extends BaseEditor {
         },
         [value]
       );
-
-      if (mode === Modes.checkbox) {
-        return <Checkbox className="p-1" checked={_value} onChange={e => onUpdate(e.checked)} />;
-      }
 
       return (
         <Select

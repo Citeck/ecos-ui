@@ -92,21 +92,6 @@ export default class HeaderFormatter extends Component {
     e && e.stopPropagation();
   };
 
-  // onChange = e => {
-  //   const text = e.target.value;
-  //
-  //   this.setState({ text });
-  // };
-  //
-  // onKeyDown = e => {
-  //   const { column } = this.props;
-  //   const { text, first } = this.state;
-  //
-  //   if (e.key === 'Enter' && text !== first) {
-  //     this.triggerPendingChange(text, column.dataField, column.type);
-  //   }
-  // };
-
   onClear = () => {
     const { column } = this.props;
 
