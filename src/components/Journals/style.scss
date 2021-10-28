@@ -18,21 +18,20 @@
 
   &__view {
     &-tabs {
+      &:empty {
+        display: none;
+      }
+
       &-btn {
-        margin-left: 15px;
+        &:not(:last-child) {
+          margin-right: 15px;
+        }
 
         &_disabled {
           pointer-events: none;
           cursor: default;
         }
       }
-
-      &_mobile &-btn {
-        margin-left: 10px;
-      }
-    }
-
-    &-btn {
     }
   }
 

@@ -134,7 +134,7 @@ class TableView extends React.Component {
             config={journalConfig}
             configRec={journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`}
           />
-          <Bar {...this.props} rightChild={isMobile && <this.RightBarChild noData />} />
+          <Bar {...this.props} rightChild={isMobile ? <this.RightBarChild noData /> : null} />
         </div>
 
         <JournalsContent

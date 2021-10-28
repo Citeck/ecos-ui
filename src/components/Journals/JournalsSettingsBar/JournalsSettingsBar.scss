@@ -36,6 +36,8 @@
 
   &-export-btn.ecos-btn {
     min-width: 70px;
+    background: $color-white;
+    color: $color-gray-5;
   }
 
   &-right-side {
@@ -93,9 +95,9 @@
   .ecos-journal__settings-bar {
     $root: &;
 
-    & > :nth-child(n):not(#{$root}-right-side),
-    &-right-side > :nth-child(n):not(:last-child),
-    &-extra > :nth-child(n):not(:last-child) {
+    & > :nth-child(n):not(#{$root}-right-side):not(:last-child),
+    & &-right-side :nth-child(n):not(:last-child),
+    & &-extra > :nth-child(n):not(:last-child) {
       margin-right: 10px;
     }
   }
