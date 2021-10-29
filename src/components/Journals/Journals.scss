@@ -31,6 +31,7 @@
           border-radius: 50%;
           padding: 0;
         }
+
         &:disabled {
           background: $color-gray-6;
         }
@@ -64,7 +65,7 @@
   }
 
   &-group {
-    display: grid;
+    padding-bottom: 12px;
   }
 }
 
@@ -80,6 +81,7 @@
   &_expanded {
     width: 273px;
     max-width: 273px;
+    z-index: 1;
   }
 
   &_close {
