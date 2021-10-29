@@ -306,7 +306,7 @@ class Journals extends Component {
     const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
-    const height = document.body.offsetHeight - headH - jFooterH - footerH;
+    const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
 
     return height < min ? min : height;
   };
