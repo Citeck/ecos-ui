@@ -43,10 +43,6 @@ export default class HeaderFormatter extends Component {
     if (prevProps.filterValue !== this.props.filterValue) {
       this._setFilterValue();
     }
-
-    if (!prevProps.forceCloseLabelTooltip && this.props.forceCloseLabelTooltip && this.state.isOpenLabelTooltip) {
-      this.setState({ isOpenLabelTooltip: false });
-    }
   }
 
   componentWillUnmount() {
@@ -385,7 +381,6 @@ HeaderFormatter.propTypes = {
   onDividerMouseDown: PropTypes.func,
 
   isComplexFilter: PropTypes.bool,
-  forceCloseLabelTooltip: PropTypes.bool,
   predicate: PropTypes.object,
   onOpenSettings: PropTypes.func
 };
