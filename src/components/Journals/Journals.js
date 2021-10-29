@@ -156,16 +156,16 @@ class Journals extends React.Component {
     return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
   }
 
-  getDisplayElements() {
+  getDisplayElements = () => {
     return {
       ...defaultDisplayElements,
       ...(this.props.displayElements || {}),
       editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin,
       menu: !isKanban(this.props.viewMode)
     };
-  }
+  };
 
-  getCommonProps() {
+  getCommonProps = () => {
     const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile } = this.props;
     const { journalId } = this.state;
 
@@ -185,7 +185,16 @@ class Journals extends React.Component {
         'ecos-journal__body_mobile': isMobile
       })
     };
-  }
+  };
+
+  getJournalContentMaxHeight = () => {
+    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+    const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
+    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
+    const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
+
+    return Math.max(height, this.minHeight);
+  };
 
   setJournalRef = ref => !!ref && (this._journalRef = ref);
 
@@ -249,15 +258,6 @@ class Journals extends React.Component {
       event.stopPropagation();
       !!config && showModalJson(config, 'Config');
     }
-  };
-
-  getJournalContentMaxHeight = () => {
-    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
-    const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
-    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
-    const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
-
-    return Math.max(height, this.minHeight);
   };
 
   Header = props => {
