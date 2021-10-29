@@ -160,6 +160,10 @@ class Journals extends Component {
     }
   }
 
+  get minHeight() {
+    return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
+  }
+
   setJournalRef = ref => !!ref && (this._journalRef = ref);
 
   setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
@@ -302,13 +306,12 @@ class Journals extends Component {
   setHeight = debounce(height => this.setState({ height }), 500);
 
   getJournalContentMaxHeight = () => {
-    const min = this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
     const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const height = document.body.offsetHeight - headH - jFooterH - footerH;
 
-    return height < min ? min : height;
+    return Math.max(height, this.minHeight);
   };
 
   handleReloadJournal = () => {
@@ -331,7 +334,6 @@ class Journals extends Component {
     }
 
     const visibleColumns = columns.filter(c => c.visible);
-    const minH = isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
 
     return (
       <ReactResizeDetector handleHeight onResize={this.onResize}>
@@ -339,7 +341,7 @@ class Journals extends Component {
           ref={this.setJournalRef}
           className={classNames('ecos-journal', {
             'ecos-journal_mobile': isMobile,
-            'ecos-journal_scroll': height <= minH
+            'ecos-journal_scroll': height <= this.minHeight
           })}
         >
           <div
@@ -409,7 +411,7 @@ class Journals extends Component {
               stateId={stateId}
               showPreview={showPreview && !isMobile}
               maxHeight={this.getJournalContentMaxHeight()}
-              minHeight={minH}
+              minHeight={this.minHeight}
               isActivePage={isActivePage}
             />
 
