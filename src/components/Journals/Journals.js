@@ -257,7 +257,7 @@ class Journals extends React.Component {
     const footerH = get(document.querySelector('.app-footer'), 'offsetHeight', 0);
     const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
 
-    return height < this.minHeight ? this.minHeight : height;
+    return Math.max(height, this.minHeight);
   };
 
   Header = props => {
