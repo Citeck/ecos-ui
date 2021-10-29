@@ -254,7 +254,7 @@ class Journals extends React.Component {
   getJournalContentMaxHeight = () => {
     const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
     const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
-    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight', 0);
+    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
     const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
 
     return Math.max(height, this.minHeight);
