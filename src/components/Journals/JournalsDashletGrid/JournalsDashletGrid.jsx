@@ -241,7 +241,7 @@ class JournalsDashletGrid extends Component {
       maxHeight,
       autoHeight,
       predicate,
-      journalConfig: { params = {}, meta = {} }, //journalConfig.meta.metaRecord
+      journalConfig: { params = {}, meta = {} },
       selectorContainer,
       viewColumns,
       onOpenSettings,
