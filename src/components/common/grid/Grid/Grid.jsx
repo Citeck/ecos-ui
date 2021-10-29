@@ -6,15 +6,18 @@ import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import isEqualWith from 'lodash/isEqualWith';
+import head from 'lodash/head';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isNil from 'lodash/isNil';
+import isEqualWith from 'lodash/isEqualWith';
 import isFunction from 'lodash/isFunction';
+import isElement from 'lodash/isElement';
 
-import { closest, getId, isExistValue, isInViewport, t, trigger } from '../../../../helpers/util';
+import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import Checkbox from '../../form/Checkbox/Checkbox';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
@@ -28,7 +31,6 @@ const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
-const REACT_BOOTSTRAP_TABLE_CLASS = 'react-bootstrap-table';
 
 const ECOS_GRID_CHECKBOX_DIVIDER_CLASS = 'ecos-grid__checkbox-divider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
@@ -294,7 +296,7 @@ class Grid extends Component {
           column = this.setWidth(column);
         }
 
-        if (isExistValue(column.default)) {
+        if (!isNil(column.default)) {
           column.hidden = !column.default;
         }
 
@@ -453,25 +455,12 @@ class Grid extends Component {
   };
 
   getCheckboxGridTrClassList = tr => {
-    const rowIndex = tr.rowIndex;
-    const parent = closest(tr, REACT_BOOTSTRAP_TABLE_CLASS);
-    let node;
-    let classList = null;
+    const index = tr.rowIndex;
+    const parent = isElement(tr) && tr.closest('.react-bootstrap-table');
+    const foundTr = isFunction(get(parent, 'nextSibling.getElementsByTagName')) && parent.nextSibling.getElementsByTagName('tr');
+    const node = get(foundTr, [index]) && head(foundTr[index].getElementsByClassName('ecos-grid__checkbox'));
 
-    if (
-      parent &&
-      parent.nextSibling &&
-      parent.nextSibling.getElementsByTagName('tr') &&
-      parent.nextSibling.getElementsByTagName('tr').item(rowIndex) &&
-      (node = parent.nextSibling
-        .getElementsByTagName('tr')
-        .item(rowIndex)
-        .getElementsByClassName('ecos-grid__checkbox')[0])
-    ) {
-      classList = node.classList;
-    }
-
-    return classList;
+    return get(node, 'classList', null);
   };
 
   getTrOptions = tr => {
@@ -598,8 +587,8 @@ class Grid extends Component {
         this._selected = selected !== keyValue ? [keyValue] : [];
         this.onSelect(false);
       },
-      selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
-      selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
+      selectionHeaderRenderer: SelectorHeader,
+      selectionRenderer: Selector
     };
   }
 
@@ -673,8 +662,8 @@ class Grid extends Component {
 
         this.onSelect(isSelect);
       },
-      selectionHeaderRenderer: ({ indeterminate, ...rest }) => SelectorHeader({ indeterminate, ...rest }),
-      selectionRenderer: ({ mode, ...rest }) => Selector({ mode, ...rest })
+      selectionHeaderRenderer: SelectorHeader,
+      selectionRenderer: Selector
     };
   }
 
