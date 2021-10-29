@@ -69,7 +69,7 @@ export default class BooleanEditor extends BaseEditor {
           autoFocus={scope === EditorScope.CELL}
           onChange={onSelect}
           isSearchable={false}
-          className="select_narrow select_width_full"
+          className="select_narrow select_width_full ecosZIndexAnchor"
           menuPortalTarget={document.body}
           menuPlacement="auto"
           closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
