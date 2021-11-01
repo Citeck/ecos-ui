@@ -548,7 +548,7 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, recordRef } = this.props;
     const isFilterable = filterable && typeof onFilter === 'function';
     const isSortable = sortable && typeof onSort === 'function';
 
@@ -560,6 +560,7 @@ class Grid extends Component {
 
       return (
         <HeaderFormatter
+          recordRef={recordRef}
           isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
@@ -1157,6 +1158,7 @@ Grid.propTypes = {
   hTrackClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
+  recordRef: PropTypes.string,
 
   filterable: PropTypes.bool,
   editable: PropTypes.bool,
