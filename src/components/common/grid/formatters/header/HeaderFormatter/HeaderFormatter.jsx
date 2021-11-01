@@ -369,7 +369,6 @@ export default class HeaderFormatter extends Component {
 
 HeaderFormatter.propTypes = {
   filterable: PropTypes.bool,
-  closeFilterEvent: PropTypes.string,
   filterValue: PropTypes.string,
   onFilter: PropTypes.func,
 

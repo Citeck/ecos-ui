@@ -28,7 +28,6 @@ import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 
 import './Grid.scss';
 
-const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
@@ -92,7 +91,6 @@ class Grid extends Component {
   }
 
   componentDidMount() {
-    this.createCloseFilterEvent();
     this.createKeydownEvents();
     this.createDragEvents();
 
@@ -134,7 +132,6 @@ class Grid extends Component {
   }
 
   componentWillUnmount() {
-    this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
@@ -535,7 +532,6 @@ class Grid extends Component {
           isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
-          closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={isSortable}
@@ -665,18 +661,6 @@ class Grid extends Component {
     });
   };
 
-  createCloseFilterEvent = () => {
-    this.closeFilterEvent = document.createEvent('Event');
-    this.closeFilterEvent.initEvent(CLOSE_FILTER_EVENT, true, true);
-    document.addEventListener('mousedown', this.triggerCloseFilterEvent, false);
-    window.addEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
-  };
-
-  removeCloseFilterEvent = () => {
-    document.removeEventListener('mousedown', this.triggerCloseFilterEvent, false);
-    window.removeEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
-  };
-
   createColumnResizeEvents = () => {
     document.addEventListener('mousemove', this.resizeColumn);
     document.addEventListener('mouseup', this.clearResizingColumn);
@@ -761,10 +745,6 @@ class Grid extends Component {
     this._resizingTh = null;
   };
 
-  triggerCloseFilterEvent = e => {
-    (e && e.target).dispatchEvent(this.closeFilterEvent);
-  };
-
   inlineTools = () => {
     const { inlineTools } = this.props;
 
@@ -827,8 +807,6 @@ class Grid extends Component {
 
   onScrollStart = e => {
     this.setState({ isScrolling: true });
-
-    this.triggerCloseFilterEvent(document.body);
     trigger.call(this, 'onScrollStart', e);
   };
 
