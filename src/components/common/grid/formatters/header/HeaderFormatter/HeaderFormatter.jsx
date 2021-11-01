@@ -151,8 +151,7 @@ export default class HeaderFormatter extends Component {
       onDividerMouseDown({
         e: e,
         th: current.parentElement,
-        colIndex,
-        minW: this.indentation ? this.indentation + 20 : undefined
+        colIndex
       });
     }
   };
@@ -283,12 +282,11 @@ export default class HeaderFormatter extends Component {
     }
 
     const { open } = this.state;
-    const filterIcon = document.getElementById(this.id);
+    const filterIcon = document.getElementById(this.tooltipFilterId);
 
     return (
       <Tooltip
-        id={this.tooltipId}
-        target={this.id}
+        target={this.tooltipFilterId}
         isOpen={open}
         trigger={'click'}
         placement="top"
@@ -324,7 +322,7 @@ export default class HeaderFormatter extends Component {
         )}
         {filterable && (
           <Icon
-            id={this.id}
+            id={this.tooltipFilterId}
             className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-small-filter', {
               'ecos-th__action-icon_active': this.activeFilter
             })}
@@ -339,9 +337,10 @@ export default class HeaderFormatter extends Component {
     const { column = {}, sortable } = this.props;
     const { isOpenLabelTooltip } = this.state;
 
-    this.id = `filter-${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
-    this.tooltipId = `tooltip-${this.id}`;
-    this.tooltipTextId = `tooltip-text-${this.id}`;
+    const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
+    this.tooltipFilterId = `filter-${id}`;
+    this.tooltipLabelId = `label-${id}`;
+    this.tooltipTextId = `text-${id}`;
 
     return (
       <div
@@ -352,9 +351,10 @@ export default class HeaderFormatter extends Component {
         })}
         style={{ minWidth: this.minWidth }}
       >
-        <div className="ecos-th__content" onClick={this.onSort}>
+        <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
           <EcosTooltip
-            target={this.tooltipTextId}
+            target={this.tooltipLabelId}
+            elementId={this.tooltipTextId}
             text={column.text}
             placement="bottom"
             trigger="hover"
@@ -362,11 +362,10 @@ export default class HeaderFormatter extends Component {
             isOpen={isOpenLabelTooltip}
             onToggle={this.handleToggleLabelTooltip}
           >
-            <span id={this.tooltipTextId} className="ecos-th__content-text">
+            <span className="ecos-th__content-text" id={this.tooltipTextId}>
               {column.text}
             </span>
           </EcosTooltip>
-
           {this.renderActions()}
         </div>
         {this.renderFilter()}

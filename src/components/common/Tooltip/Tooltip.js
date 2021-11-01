@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 
 import { isClosestHidden } from '../../../helpers/util';
 
@@ -180,7 +181,7 @@ class Tooltip extends Component {
 
       context.font = styles.getPropertyValue('font');
 
-      if (width && height) {
+      if (!isNil(width) && !isNil(height)) {
         needTooltip = context.measureText(text).width > width - (paddingLeft + paddingRight);
       }
 

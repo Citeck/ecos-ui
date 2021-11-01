@@ -32,13 +32,8 @@
       border-radius: 6px;
       background: $color-gray-4;
 
-      &-text {
-        padding-right: 7px;
-      }
-
       #{$th}__actions {
         background: $color-gray-4;
-        right: 7px;
       }
     }
   }
@@ -71,7 +66,6 @@
     right: 0;
     bottom: 0;
     cursor: col-resize;
-    margin: 0 2px;
   }
 }
 

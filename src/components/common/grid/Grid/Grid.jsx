@@ -713,19 +713,13 @@ class Grid extends Component {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
-    this._optionMinWidth = options.minW;
   };
 
   resizeColumn = e => {
     const th = this._resizingTh;
 
     if (th && this._tableDom) {
-      let width = this._startResizingThOffset + e.pageX;
-
-      if (this._optionMinWidth && width < this._optionMinWidth) {
-        width = this._optionMinWidth;
-      }
-
+      const width = this._startResizingThOffset + e.pageX;
       const tHead = head(this._tableDom.rows);
 
       if (isElement(tHead)) {
