@@ -116,17 +116,17 @@ class KanbanView extends React.Component {
       isLoading,
       isEnabled,
       viewMode,
-      bodyForwardedRef,
       bodyTopForwardedRef,
       bodyClassName,
-      maxHeight,
+      getMaxHeight,
       urlParams,
       isActivePage
     } = this.props;
     const { name, id } = boardConfig || {};
+    const maxHeight = getMaxHeight();
 
     return (
-      <div hidden={!isKanban(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
+      <div hidden={!isKanban(viewMode)} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Header title={name} config={boardConfig} configRec={id && `${SourcesId.BOARD}@${id}`} />
           <Bar

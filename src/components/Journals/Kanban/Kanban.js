@@ -53,7 +53,7 @@ class Kanban extends React.Component {
   }
 
   getHeight(changes = 0) {
-    return this.props.maxHeight - 15 + changes;
+    return this.props.maxHeight + changes;
   }
 
   isNoMore = () => {

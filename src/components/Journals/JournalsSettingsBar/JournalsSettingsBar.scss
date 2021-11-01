@@ -21,15 +21,22 @@
   }
 
   &-update {
-    min-width: 40px;
+    max-width: 40px;
   }
 
-  &-search ~ :nth-child(n) {
-    transition: all 0.4s, opacity 0.2s;
+  &-search {
+    &:not(.search_collapsed) {
+      width: 200px;
+    }
+
+    & ~ :nth-child(n) {
+      transition: all 0.4s, opacity 0.2s;
+    }
   }
 
   &-export-btn.ecos-btn {
     min-width: 70px;
+    background: $color-white;
   }
 
   &-right-side {
@@ -56,12 +63,6 @@
     &:empty {
       display: none;
     }
-
-    &_mobile {
-      & > :nth-child(n):not(:last-child) {
-        margin-right: 10px;
-      }
-    }
   }
 
   &_mobile {
@@ -83,25 +84,20 @@
       }
     }
 
-    & > :nth-child(n):not(#{$root}-right-side) {
-      margin-right: 10px;
-
-      &.search_expanded {
-        margin-right: 0;
-      }
+    &.search_expanded {
+      margin-right: 0;
     }
   }
+}
 
-  .ecos-journal__settings-bar_right {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex: auto;
-    white-space: nowrap;
-  }
+@media (max-width: 1370px) {
+  .ecos-journal__settings-bar {
+    $root: &;
 
-  .ecos-journal__settings-bar_right-btn {
-    position: relative;
-    top: -1px;
+    & > :nth-child(n):not(#{$root}-right-side):not(:last-child),
+    & &-right-side :nth-child(n):not(:last-child),
+    & &-extra > :nth-child(n):not(:last-child) {
+      margin-right: 10px;
+    }
   }
 }

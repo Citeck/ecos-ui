@@ -82,7 +82,7 @@ const JournalsSettingsBar = ({
           journalConfig={journalConfig}
           grid={grid}
           className="ecos-journal__settings-bar-export"
-          classNameBtn="ecos-btn_i ecos-btn_white"
+          classNameBtn="ecos-btn_i ecos-journal__settings-bar-export-btn"
           selectedItems={selectedRecords}
         >
           {!isMobile && (
@@ -124,8 +124,7 @@ const JournalsSettingsBar = ({
         )}
 
         {leftChild}
-
-        <div className="ecos-journal__settings-bar_right">
+        <div className="ecos-journal__settings-bar-right-side">
           {rightChild}
           <ViewTabs stateId={stateId} />
         </div>

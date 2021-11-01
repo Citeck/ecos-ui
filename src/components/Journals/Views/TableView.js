@@ -88,13 +88,14 @@ class TableView extends React.Component {
     this.setState({ isClose: true });
   }
 
-  RightBarChild = ({ hasPageSize }) => {
+  RightBarChild = ({ hasPageSize, noData }) => {
     const { stateId, isMobile } = this.props;
 
     return (
       <JournalsDashletPagination
         stateId={stateId}
         hasPageSize={hasPageSize}
+        noData={noData}
         className={classNames('ecos-journal__pagination', { 'ecos-journal__pagination_mobile': isMobile })}
       />
     );
@@ -113,33 +114,34 @@ class TableView extends React.Component {
       viewMode,
       stateId,
       isMobile,
-      bodyForwardedRef,
       bodyTopForwardedRef,
       footerForwardedRef,
       bodyClassName,
+      minHeight,
+      getMaxHeight,
       isActivePage,
       displayElements = {},
 
-      journalConfig,
-
-      getJournalContentMaxHeight
+      journalConfig
     } = this.props;
+    const maxHeight = getMaxHeight();
 
     return (
-      <div hidden={!isTableOrPreview(viewMode)} ref={bodyForwardedRef} className={classNames('ecos-journal-view__table', bodyClassName)}>
+      <div hidden={!isTableOrPreview(viewMode)} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
           <Header
             title={get(journalConfig, 'meta.title', '')}
             config={journalConfig}
             configRec={journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`}
           />
-          <Bar {...this.props} rightChild={<this.RightBarChild hasPageSize={false} />} />
+          <Bar {...this.props} rightChild={isMobile ? <this.RightBarChild noData /> : null} />
         </div>
 
         <JournalsContent
           stateId={stateId}
           showPreview={isPreview(viewMode) && !isMobile}
-          maxHeight={getJournalContentMaxHeight()}
+          maxHeight={maxHeight}
+          minHeight={minHeight}
           isActivePage={isActivePage}
           onOpenSettings={this.handleToggleSettings}
         />
