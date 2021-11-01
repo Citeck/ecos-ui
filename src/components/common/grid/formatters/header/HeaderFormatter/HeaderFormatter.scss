@@ -51,18 +51,16 @@
     display: flex;
     position: relative;
     align-items: center;
+    width: 100%;
     @extend %ellipsis;
 
     &-text {
-      min-width: 0;
+      flex: 1;
     }
   }
 
   &__actions {
     display: inline-flex;
-    position: absolute;
-    right: 0;
-    background: $color-white;
   }
 
   &__divider {
@@ -73,6 +71,7 @@
     right: 0;
     bottom: 0;
     cursor: col-resize;
+    margin: 0 2px;
   }
 }
 

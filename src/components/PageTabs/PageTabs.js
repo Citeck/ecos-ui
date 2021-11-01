@@ -13,14 +13,14 @@ import { withRouter } from 'react-router-dom';
 
 import {
   changeTab,
+  closeTabs,
   deleteTab,
   initTabs,
   moveTabs,
   setDisplayState,
   setTab,
   updateTab,
-  updateTabsFromStorage,
-  closeTabs
+  updateTabsFromStorage
 } from '../../actions/pageTabs';
 import { animateScrollTo, getScrollbarWidth, isDevEnv, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
@@ -294,10 +294,8 @@ class PageTabs extends React.Component {
         this.handleCloseTab(tab);
         break;
       case ContextMenuTypes.GO_SOURCE_HOST:
-        window.open(
-          `${isDevEnv() ? process.env.REACT_APP_SHARE_PROXY_URL : _LOCALHOST_}${window.location.pathname}${window.location.search}`,
-          '_blank'
-        );
+        const host = isDevEnv() ? process.env.REACT_APP_SHARE_PROXY_URL : _LOCALHOST_;
+        window.open(`${host}${window.location.pathname}${window.location.search}`, '_blank');
         break;
       default:
         console.error(`PageTabs:ContextMenuItem: Unknown type ${type}`);

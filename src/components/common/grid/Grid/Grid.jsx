@@ -7,6 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import head from 'lodash/head';
+import last from 'lodash/last';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -49,8 +50,11 @@ const SelectorHeader = ({ indeterminate, ...rest }) => (
   </div>
 );
 
-const MIN_TH_WIDTH = 60;
 const MAX_START_TH_WIDTH = 500;
+
+function cssNum(v) {
+  return `${v}px`;
+}
 
 class Grid extends Component {
   #columnsSizes = {};
@@ -163,58 +167,37 @@ class Grid extends Component {
     this.#gridRef = ref;
   };
 
-  /**
-   * Fixes loss of column sizes when redrawing a component
-   */
   setColumnsSizes = () => {
-    if (!this._tableDom) {
+    if (!this._tableDom || !Object.keys(this.#columnsSizes).length) {
       return;
     }
 
-    if (!Object.keys(this.#columnsSizes).length) {
-      return;
-    }
+    const tHead = head(this._tableDom.rows);
 
-    const rows = this._tableDom.rows;
-
-    for (let i = 0; i < rows.length; i++) {
-      for (let j = 0, row = rows[i]; j < row.cells.length; j++) {
-        let cell = row.cells[j];
-
-        if (!cell) {
-          continue;
-        }
-
-        let { width = 0 } = get(this.#columnsSizes, `[${j}]`, {});
-
-        if (!width) {
-          continue;
-        }
-
-        cell.style.width = `${width}px`;
-      }
-    }
+    tHead &&
+      tHead.cells.forEach((cell, i) => {
+        const width = cell && !!get(this.#columnsSizes, [i, 'width']);
+        width && (cell.style.width = cssNum(width));
+      });
   };
 
   setDefaultWidth = () => {
-    !this._startResizingThOffset &&
-      this._ref.current &&
-      this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
-        if (cellEl) {
-          const td = cellEl.closest('td');
-          const table = cellEl.closest('table');
-          const container = table.parentElement;
-          const checkbox = table.querySelector('.ecos-grid__checkbox');
-          const cellLen = table.rows[0].cells.length - (checkbox ? 1 : 0);
-          const proratedSizeCell = (container.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
-          const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
-          const max = clearedSizeCell > MAX_START_TH_WIDTH ? clearedSizeCell : MAX_START_TH_WIDTH;
+    if (!this._startResizingThOffset && this._ref.current) {
+      const table = this._ref.current.querySelector('.react-bootstrap-table > table');
+      const thCells = table && head(table.rows).cells;
 
-          if (cellLen > 1 && table.clientWidth > container.clientWidth && td.clientWidth > max) {
-            td.style.width = `${max}px`;
-          }
+      if (!isEmpty(thCells)) {
+        const checkbox = table.querySelector('.ecos-grid__checkbox');
+        const cellLen = thCells.length - (checkbox ? 1 : 0);
+        const proratedSizeCell = (table.parentElement.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
+        const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
+        const max = Math.max(clearedSizeCell, MAX_START_TH_WIDTH);
+
+        if (cellLen > 1 && table.clientWidth > table.parentElement.clientWidth) {
+          thCells.forEach(cell => cell.clientWidth > max && (cell.style.width = cssNum(max)));
         }
-      });
+      }
+    }
   };
 
   checkScrollPosition() {
@@ -704,26 +687,6 @@ class Grid extends Component {
     document.removeEventListener('mouseup', this.clearResizingColumn);
   };
 
-  fixAllThWidth = () => {
-    if (!this._tableDom) {
-      return;
-    }
-
-    const allTh = this._tableDom.querySelectorAll('th');
-
-    if (allTh.length < 3) {
-      return;
-    }
-
-    for (let i = 0; i < allTh.length - 1; i++) {
-      const th = allTh[i];
-      const thStyles = window.getComputedStyle(th);
-
-      th.style['width'] = thStyles['width'];
-      th.style['min-width'] = thStyles['width'];
-    }
-  };
-
   getElementPaddings = (element = null) => {
     const paddings = {
       top: 0,
@@ -749,43 +712,34 @@ class Grid extends Component {
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
     this._tableDom = closest(options.th, 'table');
-
-    this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
-
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
     this._optionMinWidth = options.minW;
   };
 
   resizeColumn = e => {
-    let th = this._resizingTh;
+    const th = this._resizingTh;
 
     if (th && this._tableDom) {
       let width = this._startResizingThOffset + e.pageX;
-
-      if (width < MIN_TH_WIDTH) {
-        width = MIN_TH_WIDTH; //  - left - right;
-      }
 
       if (this._optionMinWidth && width < this._optionMinWidth) {
         width = this._optionMinWidth;
       }
 
-      const rows = this._tableDom.rows;
+      const tHead = head(this._tableDom.rows);
 
-      for (let i = 0; i < rows.length; i++) {
-        const resizeCol = rows[i].cells[th.cellIndex];
-        const lastCol = rows[i].cells[rows[i].cells.length - 1];
-        const curWidth = resizeCol.style.width;
-
-        if (!resizeCol) {
-          continue;
-        }
+      if (isElement(tHead)) {
+        const cells = tHead.cells;
+        const resizeCol = get(cells, [th.cellIndex]);
+        const lastCol = last(cells);
+        const resizeWidth = resizeCol.style.width;
+        const lastWidth = lastCol.style.width;
 
         resizeCol.style.removeProperty('min-width');
-        resizeCol.style.width = `${width}px`;
+        resizeCol.style.width = cssNum(width);
 
-        if (lastCol) {
-          lastCol.style.width = `${parseFloat(lastCol.style.width) + (parseFloat(curWidth) - width)}px`;
+        if (isElement(lastCol)) {
+          lastCol.style.width = cssNum(parseFloat(lastWidth) + (parseFloat(resizeWidth) - width));
         }
       }
     }
@@ -793,7 +747,7 @@ class Grid extends Component {
 
   clearResizingColumn = e => {
     if (this._resizingTh && this._tableDom) {
-      const cells = this._tableDom.rows[0].cells;
+      const cells = head(this._tableDom.rows).cells;
       const columnsSizes = {};
 
       for (let i = 0; i < cells.length; i++) {
@@ -814,7 +768,7 @@ class Grid extends Component {
   };
 
   triggerCloseFilterEvent = e => {
-    (e.target || e).dispatchEvent(this.closeFilterEvent);
+    (e && e.target).dispatchEvent(this.closeFilterEvent);
   };
 
   inlineTools = () => {

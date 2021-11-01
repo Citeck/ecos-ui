@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'reactstrap';
 import debounce from 'lodash/debounce';
 import replace from 'lodash/replace';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import { Tooltip } from 'reactstrap';
+import isNil from 'lodash/isNil';
+import isElement from 'lodash/isElement';
 
-import { closest, getId, isExistValue } from '../../../../../../helpers/util';
+import { closest, getId } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
@@ -75,11 +77,18 @@ export default class HeaderFormatter extends Component {
     return text || open || (predicate.needValue === false && predicate.t) || ParserPredicate.predicatesWithoutValue.includes(predicate.t);
   }
 
-  get indentation() {
-    const { filterable, sortable } = this.props;
-    const actions = [filterable, sortable].filter(act => act);
+  get minWidth() {
+    const current = this.thRef.current;
+    let min = 0;
 
-    return actions.length * 30;
+    if (isElement(current)) {
+      const indentation = parseFloat(get(window.getComputedStyle(current), 'paddingRight', 0)) * 2;
+      const actionsW = get(current.querySelector('.ecos-th__actions'), 'offsetWidth', 0);
+
+      min = indentation + actionsW;
+    }
+
+    return `${Math.max(min, 10)}px`;
   }
 
   onToggle = e => {
@@ -307,7 +316,7 @@ export default class HeaderFormatter extends Component {
         {sortable && (
           <Icon
             className={classNames('ecos-th__order ecos-th__action-icon', {
-              'ecos-th__action-icon_active': isExistValue(ascending),
+              'ecos-th__action-icon_active': !isNil(ascending),
               'icon-small-up': ascending,
               'icon-small-down': !ascending
             })}
@@ -341,8 +350,9 @@ export default class HeaderFormatter extends Component {
           'ecos-th_filtered': this.activeFilter,
           'ecos-th_sortable': sortable
         })}
+        style={{ minWidth: this.minWidth }}
       >
-        <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
+        <div className="ecos-th__content" onClick={this.onSort}>
           <EcosTooltip
             target={this.tooltipTextId}
             text={column.text}
