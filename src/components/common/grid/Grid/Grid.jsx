@@ -75,6 +75,7 @@ class Grid extends Component {
     this._optionMinWidth = null;
 
     this.state = {
+      needCellUpdate: false,
       tableHeight: 0,
       isScrolling: false,
       selected: props.selected || [],
@@ -110,7 +111,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns, selected } = this.props;
+    const { resizableColumns, selected, columns } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -122,6 +123,10 @@ class Grid extends Component {
 
     if (!isEqualWith(prevProps.selected, selected, isEqual) && !isEqualWith(this.state.selected, selected, isEqual)) {
       this.setState({ selected });
+    }
+
+    if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
+      this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
     }
 
     this.setColumnsSizes();
@@ -279,6 +284,7 @@ class Grid extends Component {
   };
 
   getBootstrapTableProps(props, extra) {
+    const { needCellUpdate } = this.state;
     const options = {
       keyField: this._keyField,
       bootstrap4: true,
@@ -374,17 +380,28 @@ class Grid extends Component {
       if (!Array.isArray(items)) {
         return items;
       }
+
       return items.map(item => {
         const newItem = {};
         const fields = Object.keys(item);
+
         fields.forEach(field => {
           const hasDot = field.includes('.');
+
           if (hasDot) {
             newItem[field.replace(/\./g, CUSTOM_NESTED_DELIMITER)] = item[field];
           } else {
             newItem[field] = item[field];
           }
         });
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-1519
+        if (needCellUpdate) {
+          newItem._needUpdateCell = true;
+        } else {
+          delete newItem._needUpdateCell;
+        }
+
         return newItem;
       });
     };
