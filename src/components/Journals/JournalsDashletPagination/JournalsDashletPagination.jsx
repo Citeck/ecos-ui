@@ -29,7 +29,6 @@ class JournalsDashletPagination extends Component {
   static propTypes = {
     className: PropTypes.string,
     grid: PropTypes.object,
-    hasPageSize: PropTypes.bool,
     isWidget: PropTypes.bool,
     reloadGrid: PropTypes.func
   };
@@ -45,9 +44,8 @@ class JournalsDashletPagination extends Component {
   render() {
     const {
       grid: { total, pagination, groupBy },
-      hasPageSize,
       className,
-      loading
+      ...props
     } = this.props;
 
     const cssClasses = classNames('ecos-journal-dashlet__pagination', className);
@@ -57,15 +55,7 @@ class JournalsDashletPagination extends Component {
     }
 
     return (
-      <Pagination
-        className={cssClasses}
-        total={total}
-        sizes={PAGINATION_SIZES}
-        hasPageSize={hasPageSize}
-        loading={loading}
-        onChange={this.changePage}
-        {...pagination}
-      />
+      <Pagination className={cssClasses} total={total} sizes={PAGINATION_SIZES} onChange={this.changePage} {...pagination} {...props} />
     );
   }
 }

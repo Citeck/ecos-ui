@@ -8,8 +8,8 @@ import { Search } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import Export from '../../Export/Export';
 import JournalsDashletPagination from '../JournalsDashletPagination';
-import CreateMenu from './CreateMenu';
 import GroupActions from '../GroupActions';
+import CreateMenu from './CreateMenu';
 
 import './JournalsSettingsBar.scss';
 
@@ -85,12 +85,9 @@ const JournalsSettingsBar = ({
         />
 
         <div className="ecos-journal__settings-bar-right-side">
-          <JournalsDashletPagination
-            stateId={stateId}
-            className={classNames('ecos-journal__pagination', {
-              'ecos-journal__pagination_mobile': isMobile
-            })}
-          />
+          {isMobile && (
+            <JournalsDashletPagination stateId={stateId} noData className="ecos-journal__pagination ecos-journal__pagination_mobile" />
+          )}
           {!isMobile && (
             <>
               <IcoBtn

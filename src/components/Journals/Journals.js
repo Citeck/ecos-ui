@@ -11,12 +11,12 @@ import EcosModalHeight from '../common/EcosModal/EcosModalHeight';
 import { Well } from '../common/form';
 import { deselectAllRecords, getJournalsData, reloadGrid, restoreJournalSettingData, runSearch, setUrl } from '../../actions/journals';
 import { JournalUrlParams } from '../../constants';
-import { animateScrollTo, getBool, getScrollbarWidth, objectCompare, t } from '../../helpers/util';
+import { animateScrollTo, getBool, objectCompare, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams, goToCardDetailsPage, removeUrlSearchParams, updateCurrentUrl } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import FormManager from '../EcosForm/FormManager';
 
-import { JOURNAL_MIN_HEIGHT } from './constants';
+import { JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB } from './constants';
 import JournalsDashletPagination from './JournalsDashletPagination';
 import JournalsGrouping from './JournalsGrouping';
 import JournalsFilters from './JournalsFilters';
@@ -62,8 +62,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
 class Journals extends Component {
   _journalRef = null;
-  _journalBodyRef = null;
-  _beforeJournalBlockRef = null;
+  _journalBodyTopRef = null;
   _journalFooterRef = null;
   _journalMenuRef = null;
   _toggleMenuTimerId = null;
@@ -161,35 +160,17 @@ class Journals extends Component {
     }
   }
 
-  setJournalRef = ref => {
-    if (ref) {
-      this._journalRef = ref;
-    }
-  };
+  get minHeight() {
+    return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
+  }
 
-  setJournalBodyRef = ref => {
-    if (ref) {
-      this._journalBodyRef = ref;
-    }
-  };
+  setJournalRef = ref => !!ref && (this._journalRef = ref);
 
-  setJournalBodyGroupRef = ref => {
-    if (ref) {
-      this._beforeJournalBlockRef = ref;
-    }
-  };
+  setJournalBodyTopRef = ref => !!ref && (this._journalBodyTopRef = ref);
 
-  setJournalFooterRef = ref => {
-    if (ref) {
-      this._journalFooterRef = ref;
-    }
-  };
+  setJournalFooterRef = ref => !!ref && (this._journalFooterRef = ref);
 
-  setJournalMenuRef = ref => {
-    if (ref) {
-      this._journalMenuRef = ref;
-    }
-  };
+  setJournalMenuRef = ref => !!ref && (this._journalMenuRef = ref);
 
   onForceUpdate = debounce(() => {
     this.setState({ isForceUpdate: true }, () => this.setState({ isForceUpdate: false }));
@@ -322,41 +303,15 @@ class Journals extends Component {
     this.setHeight(height);
   };
 
-  setHeight = debounce(height => {
-    this.setState({ height });
-  }, 500);
+  setHeight = debounce(height => this.setState({ height }), 500);
 
   getJournalContentMaxHeight = () => {
-    const { footerRef } = this.props;
-    const journalMinHeight = 175;
-    let height = document.body.offsetHeight;
+    const headH = (this._journalBodyTopRef && get(this._journalBodyTopRef.getBoundingClientRect(), 'bottom')) || 0;
+    const jFooterH = (this._journalFooterRef && get(this._journalFooterRef, 'offsetHeight')) || 0;
+    const footerH = get(document.querySelector('.app-footer'), 'offsetHeight') || 0;
+    const height = document.documentElement.clientHeight - headH - jFooterH - footerH;
 
-    height -= get(document.querySelector('#alf-hd'), 'offsetHeight', 0);
-    height -= get(document.querySelector('.page-tab'), 'offsetHeight', 0);
-
-    if (this._beforeJournalBlockRef) {
-      height -= get(this._beforeJournalBlockRef, 'offsetHeight', 0);
-    }
-
-    if (this._journalFooterRef) {
-      height -= get(this._journalFooterRef, 'offsetHeight', 0);
-      height -= 15; // for indent under pagination
-    }
-
-    if (footerRef) {
-      height -= get(footerRef, 'offsetHeight', 0);
-    }
-
-    if (this._journalBodyRef) {
-      const styles = window.getComputedStyle(this._journalBodyRef, null);
-
-      height -= parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
-      height -= parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
-    }
-
-    height -= getScrollbarWidth();
-
-    return height < journalMinHeight ? journalMinHeight : height;
+    return Math.max(height, this.minHeight);
   };
 
   handleReloadJournal = () => {
@@ -386,18 +341,17 @@ class Journals extends Component {
           ref={this.setJournalRef}
           className={classNames('ecos-journal', {
             'ecos-journal_mobile': isMobile,
-            'ecos-journal_scroll': height <= JOURNAL_MIN_HEIGHT
+            'ecos-journal_scroll': height <= this.minHeight
           })}
         >
           <div
-            ref={this.setJournalBodyRef}
             className={classNames('ecos-journal__body', {
               'ecos-journal__body_with-tabs': pageTabsIsShow,
               'ecos-journal__body_mobile': isMobile,
               'ecos-journal__body_with-preview': showPreview
             })}
           >
-            <div className="ecos-journal__body-group" ref={this.setJournalBodyGroupRef}>
+            <div className="ecos-journal__body-group" ref={this.setJournalBodyTopRef}>
               <JournalsHead toggleMenu={this.toggleMenu} title={get(meta, 'title')} menuOpen={menuOpen} isMobile={isMobile} />
 
               <JournalsSettingsBar
@@ -457,6 +411,7 @@ class Journals extends Component {
               stateId={stateId}
               showPreview={showPreview && !isMobile}
               maxHeight={this.getJournalContentMaxHeight()}
+              minHeight={this.minHeight}
               isActivePage={isActivePage}
             />
 
