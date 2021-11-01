@@ -47,10 +47,10 @@
     position: relative;
     align-items: center;
     width: 100%;
-    @extend %ellipsis;
 
     &-text {
       flex: 1;
+      @extend %ellipsis;
     }
   }
 

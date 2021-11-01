@@ -736,11 +736,11 @@ export default class SelectJournal extends Component {
             scrollable={false}
             onRowDoubleClick={this.onRowDoubleClick}
           />
-
-          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
         </div>
 
         <div className="select-journal-select-modal__buttons">
+          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
+          <div className="select-journal-select-modal__buttons-space" />
           <Btn className="select-journal-select-modal__buttons-cancel" onClick={this.onCancelSelect}>
             {t(Labels.CANCEL_BUTTON)}
           </Btn>
