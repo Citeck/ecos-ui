@@ -161,6 +161,7 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = row || {};
   }
 
+  //todo: rethink. this solution is costly
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
     this.handleSetInlineTools({ actions: this.getCurrentRowInlineActions(), ...options });
