@@ -488,21 +488,26 @@ class Grid extends Component {
   };
 
   initFormatter = ({ editable, className }) => {
-    return (cell, row, rowIndex, formatExtraData) => {
-      formatExtraData = formatExtraData || {};
+    return (cell, row, rowIndex, formatExtraData = {}) => {
+      const { error } = row;
       const Formatter = formatExtraData.formatter;
-      const errorAttribute = row.error;
+
+      let content = cell;
+
+      if (Formatter) {
+        content = <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} />;
+      }
 
       return (
         <ErrorCell data={cell}>
           <div
             className={classNames('ecos-grid__td', {
               'ecos-grid__td_editable': editable,
-              'ecos-grid__td_error': errorAttribute && row[errorAttribute] === cell,
+              'ecos-grid__td_error': error && row[error] === cell,
               [className]: !!className
             })}
           >
-            {Formatter ? <Formatter row={row} cell={cell} rowIndex={rowIndex} {...formatExtraData} /> : cell}
+            {content}
           </div>
         </ErrorCell>
       );

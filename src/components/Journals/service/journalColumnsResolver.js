@@ -92,7 +92,10 @@ class JournalColumnsResolver {
     };
 
     if (!column.schema || column.schema === column.attribute) {
-      const formatterOptions = updColumn.formatter || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
+      const formatterOptions =
+        updColumn.formatter ||
+        (f => f && { name: f.type, params: f.config })(updColumn.newFormatter) ||
+        Mapper.getFormatterOptions(cloneDeep(updColumn), index);
       const formatterData = this._getFormatter(formatterOptions);
       const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 
