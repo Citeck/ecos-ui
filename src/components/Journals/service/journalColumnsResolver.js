@@ -1,5 +1,6 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { getTextByLocale, t } from '../../../helpers/util';
@@ -91,11 +92,15 @@ class JournalColumnsResolver {
       default: defaultValue
     };
 
+    const newFormatter = () => {
+      const f = updColumn.newFormatter;
+      if (f && !isEmpty(f.type)) {
+        return { name: f.type, params: f.config };
+      }
+    };
+
     if (!column.schema || column.schema === column.attribute) {
-      const formatterOptions =
-        updColumn.formatter ||
-        (f => f && { name: f.type, params: f.config })(updColumn.newFormatter) ||
-        Mapper.getFormatterOptions(cloneDeep(updColumn), index);
+      const formatterOptions = updColumn.formatter || newFormatter() || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
       const formatterData = this._getFormatter(formatterOptions);
       const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 
