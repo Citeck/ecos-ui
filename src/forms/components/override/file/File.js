@@ -2,12 +2,12 @@ import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isBoolean from 'lodash/isBoolean';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
 import recordActions, { ActionTypes } from '../../../../components/Records/actions';
-
 import Records from '../../../../components/Records';
 import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
@@ -34,6 +34,17 @@ export default class FileComponent extends FormIOFileComponent {
       },
       ...extend
     );
+  }
+
+  constructor(...params) {
+    super(...params);
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
+    this.on('change', () => {
+      if (!isEqual(this.dataValue, this.defaultValue)) {
+        this._runCustomValidation();
+      }
+    });
   }
 
   get defaultSchema() {
@@ -339,10 +350,25 @@ export default class FileComponent extends FormIOFileComponent {
     if (!isEmpty(value) && !Array.isArray(value)) {
       value = [value];
     }
+
     super.setValue(value);
 
     if (!isEmpty(value) && this.isDisabledSaveButton) {
       this.toggleDisableSaveButton(false);
     }
   }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
+  setCustomValidity = debounce((message, dirty) => {
+    super.setCustomValidity(message, dirty);
+  }, 150);
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
+  _runCustomValidation = () => {
+    if (get(this.component, 'validateOn') !== 'change') {
+      return;
+    }
+
+    this.checkValidity(null, true);
+  };
 }
