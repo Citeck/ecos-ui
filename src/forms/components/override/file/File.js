@@ -42,7 +42,7 @@ export default class FileComponent extends FormIOFileComponent {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
     this.on('change', () => {
       if (!isEqual(this.dataValue, this.defaultValue)) {
-        this._runCustomValidation();
+        this._runForciblyValidation();
       }
     });
   }
@@ -364,7 +364,7 @@ export default class FileComponent extends FormIOFileComponent {
   }, 150);
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
-  _runCustomValidation = () => {
+  _runForciblyValidation = () => {
     if (get(this.component, 'validateOn') !== 'change') {
       return;
     }
