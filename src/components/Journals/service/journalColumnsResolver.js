@@ -92,15 +92,11 @@ class JournalColumnsResolver {
       default: defaultValue
     };
 
-    const newFormatter = () => {
-      const f = updColumn.newFormatter;
-      if (f && !isEmpty(f.type)) {
-        return { name: f.type, params: f.config };
-      }
-    };
+    const getFormatter = f => (f && !isEmpty(f.type) ? { name: f.type, params: f.config || {} } : null);
 
     if (!column.schema || column.schema === column.attribute) {
-      const formatterOptions = updColumn.formatter || newFormatter() || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
+      const formatterOptions =
+        updColumn.formatter || getFormatter(updColumn.newFormatter) || Mapper.getFormatterOptions(cloneDeep(updColumn), index);
       const formatterData = this._getFormatter(formatterOptions);
       const formatAttSchema = formatterData.formatter.getQueryString(attribute);
 
