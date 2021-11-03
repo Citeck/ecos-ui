@@ -16,6 +16,7 @@ import BaseWidget from '../BaseWidget';
 import './style.scss';
 import RecordActions from '../../Records/actions/recordActions';
 import { ActionTypes } from '../../Records/actions';
+import { ALFRESCO } from '../../../constants/alfresco';
 
 const Labels = {
   TITLE: 'user-profile-widget.title',
@@ -128,8 +129,14 @@ class UserProfileDashlet extends BaseWidget {
 const mapStateToProps = (state, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
-  const isCurrentUser = state.user.id === record;
   const profile = get(state, ['userProfile', stateId], {}) || {};
+  let userId = state.user.id;
+
+  if (userId.indexOf(ALFRESCO) === 0 && record.indexOf(ALFRESCO) === -1) {
+    userId = userId.slice(ALFRESCO.length + 1);
+  }
+
+  const isCurrentUser = userId === record;
 
   return {
     isLoading: profile.isLoading,
