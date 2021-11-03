@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'reactstrap';
 import debounce from 'lodash/debounce';
 import replace from 'lodash/replace';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
-import { Tooltip } from 'reactstrap';
+import isElement from 'lodash/isElement';
 
-import { closest, getId, isExistValue } from '../../../../../../helpers/util';
+import { closest, getId } from '../../../../../../helpers/util';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
@@ -43,10 +45,6 @@ export default class HeaderFormatter extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.filterValue !== this.props.filterValue) {
       this._setFilterValue();
-    }
-
-    if (!prevProps.forceCloseLabelTooltip && this.props.forceCloseLabelTooltip && this.state.isOpenLabelTooltip) {
-      this.setState({ isOpenLabelTooltip: false });
     }
   }
 
@@ -86,11 +84,18 @@ export default class HeaderFormatter extends Component {
     );
   }
 
-  get indentation() {
-    const { filterable, sortable } = this.props;
-    const actions = [filterable, sortable].filter(act => act);
+  get minWidth() {
+    const current = this.thRef.current;
+    let min = 0;
 
-    return actions.length * 30;
+    if (isElement(current)) {
+      const indentation = parseFloat(get(window.getComputedStyle(current), 'paddingRight', 0)) * 2;
+      const actionsW = get(current.querySelector('.ecos-th__actions'), 'offsetWidth', 0);
+
+      min = indentation + actionsW;
+    }
+
+    return `${Math.max(min, 10)}px`;
   }
 
   onToggle = e => {
@@ -138,8 +143,7 @@ export default class HeaderFormatter extends Component {
       onDividerMouseDown({
         e: e,
         th: current.parentElement,
-        colIndex,
-        minW: this.indentation ? this.indentation + 20 : undefined
+        colIndex
       });
     }
   };
@@ -270,12 +274,11 @@ export default class HeaderFormatter extends Component {
     }
 
     const { open } = this.state;
-    const filterIcon = document.getElementById(this.id);
+    const filterIcon = document.getElementById(this.tooltipFilterId);
 
     return (
       <Tooltip
-        id={this.tooltipId}
-        target={this.id}
+        target={this.tooltipFilterId}
         isOpen={open}
         trigger={'click'}
         placement="top"
@@ -303,7 +306,7 @@ export default class HeaderFormatter extends Component {
         {sortable && (
           <Icon
             className={classNames('ecos-th__order ecos-th__action-icon', {
-              'ecos-th__action-icon_active': isExistValue(ascending),
+              'ecos-th__action-icon_active': !isNil(ascending),
               'icon-small-up': ascending,
               'icon-small-down': !ascending
             })}
@@ -311,7 +314,7 @@ export default class HeaderFormatter extends Component {
         )}
         {filterable && (
           <Icon
-            id={this.id}
+            id={this.tooltipFilterId}
             className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-small-filter', {
               'ecos-th__action-icon_active': this.activeFilter
             })}
@@ -326,9 +329,10 @@ export default class HeaderFormatter extends Component {
     const { column = {}, sortable } = this.props;
     const { isOpenLabelTooltip } = this.state;
 
-    this.id = `filter-${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
-    this.tooltipId = `tooltip-${this.id}`;
-    this.tooltipTextId = `tooltip-text-${this.id}`;
+    const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
+    this.tooltipFilterId = `filter-${id}`;
+    this.tooltipLabelId = `label-${id}`;
+    this.tooltipTextId = `text-${id}`;
 
     return (
       <div
@@ -337,10 +341,12 @@ export default class HeaderFormatter extends Component {
           'ecos-th_filtered': this.activeFilter,
           'ecos-th_sortable': sortable
         })}
+        style={{ minWidth: this.minWidth }}
       >
-        <div className="ecos-th__content" onClick={this.onSort} style={{ paddingRight: this.indentation }}>
+        <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
           <EcosTooltip
-            target={this.tooltipTextId}
+            target={this.tooltipLabelId}
+            elementId={this.tooltipTextId}
             text={column.text}
             placement="bottom"
             trigger="hover"
@@ -348,11 +354,10 @@ export default class HeaderFormatter extends Component {
             isOpen={isOpenLabelTooltip}
             onToggle={this.handleToggleLabelTooltip}
           >
-            <span id={this.tooltipTextId} className="ecos-th__content-text">
+            <span className="ecos-th__content-text" id={this.tooltipTextId}>
               {column.text}
             </span>
           </EcosTooltip>
-
           {this.renderActions()}
         </div>
         {this.renderFilter()}
@@ -364,7 +369,6 @@ export default class HeaderFormatter extends Component {
 
 HeaderFormatter.propTypes = {
   filterable: PropTypes.bool,
-  closeFilterEvent: PropTypes.string,
   filterValue: PropTypes.string,
   onFilter: PropTypes.func,
 
@@ -377,7 +381,6 @@ HeaderFormatter.propTypes = {
   onDividerMouseDown: PropTypes.func,
 
   isComplexFilter: PropTypes.bool,
-  forceCloseLabelTooltip: PropTypes.bool,
   predicate: PropTypes.object,
   onOpenSettings: PropTypes.func
 };

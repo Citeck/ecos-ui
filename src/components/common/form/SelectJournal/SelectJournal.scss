@@ -17,10 +17,17 @@
 .select-journal-select-modal__buttons {
   margin-top: 15px;
   display: flex;
-  justify-content: flex-end;
 
-  button {
-    margin-left: 15px;
+  &-space {
+    flex: auto;
+  }
+
+  & > :nth-child(n) {
+    &:not(:last-child) {
+      margin-right: 15px;
+    }
+
+    min-width: 100px;
   }
 }
 
@@ -37,6 +44,7 @@
 
 .select-journal-collapse-panel__controls-left {
   display: flex;
+
   button {
     margin-right: 15px;
   }
@@ -51,9 +59,6 @@
 }
 
 .select-journal__pagination {
-  position: absolute;
-  bottom: -40px;
-  left: 15px;
 }
 
 .select-journal__grid {

@@ -60,7 +60,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
 };
-
+//todo rethink this solution without empty grid and especially cloneElement for grid
 const HeightCalculation = props => {
   const { minHeight, maxHeight, children, total, maxItems } = props;
 
@@ -161,6 +161,7 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = row || {};
   }
 
+  //todo: rethink. this solution is costly
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
     this.handleSetInlineTools({ actions: this.getCurrentRowInlineActions(), ...options });

@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 
 import { isClosestHidden } from '../../../helpers/util';
+import ZIndex from '../../../services/ZIndex';
 
 import './style.scss';
 
@@ -97,6 +99,11 @@ class Tooltip extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.stealthCheck();
+
+    if (this.state.isOpen) {
+      ZIndex.calcZ();
+      ZIndex.setZ('ecos-base-tooltip');
+    }
   }
 
   stealthCheck = () => {
@@ -155,6 +162,7 @@ class Tooltip extends Component {
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
+      popperClassName: 'ecosZIndexAnchor',
       toggle: this.onToggle
     };
   };
@@ -180,7 +188,7 @@ class Tooltip extends Component {
 
       context.font = styles.getPropertyValue('font');
 
-      if (width && height) {
+      if (!isNil(width) && !isNil(height)) {
         needTooltip = context.measureText(text).width > width - (paddingLeft + paddingRight);
       }
 
