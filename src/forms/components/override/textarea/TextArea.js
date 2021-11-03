@@ -146,26 +146,33 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addAce(element, settings, props) {
-    window.require(['/js/lib/ace/1.4.1/ace.js'], () => {
-      const mode = this.component.as || 'javascript';
-      this.editor = window.ace.edit(element);
+    window.require(
+      ['/js/lib/ace/1.4.1/ace.js'],
+      () => {
+        const mode = this.component.as || 'javascript';
+        this.editor = window.ace.edit(element);
 
-      if (props.rows) {
-        const height = (this.editor.getOption('fontSize') + 2) * props.rows;
-        this.input.style.height = height + 'px';
+        if (props.rows) {
+          const height = (this.editor.getOption('fontSize') + 2) * props.rows;
+          this.input.style.height = height + 'px';
+        }
+
+        this.editor.setOptions(settings);
+        this.editor.on('change', () => this.updateEditorValue(this.editor.getValue()));
+        this.editor.getSession().setTabSize(2);
+        this.editor.getSession().setMode(`ace/mode/${mode}`);
+        this.editor.on('input', () => this.acePlaceholder());
+
+        setTimeout(() => this.acePlaceholder(), 100);
+        this.editorReadyResolve(this.editor);
+
+        return this.editor;
+      },
+      error => {
+        console.error('TextAreaComponent.addAce | cant load Ace editor', error);
+        return {};
       }
-
-      this.editor.setOptions(settings);
-      this.editor.on('change', () => this.updateEditorValue(this.editor.getValue()));
-      this.editor.getSession().setTabSize(2);
-      this.editor.getSession().setMode(`ace/mode/${mode}`);
-      this.editor.on('input', () => this.acePlaceholder());
-
-      setTimeout(() => this.acePlaceholder(), 100);
-      this.editorReadyResolve(this.editor);
-
-      return this.editor;
-    });
+    );
   }
 
   enableWysiwyg() {
