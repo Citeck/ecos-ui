@@ -280,7 +280,8 @@ class Grid extends Component {
     if (Array.isArray(extra.columns)) {
       options.columns = extra.columns.map(column => {
         if (column.width) {
-          column = this.setWidth(column);
+          set(column, 'headerStyle.width', column.width);
+          get(column, 'style.width') && delete column.style.width;
         }
 
         if (!isNil(column.default)) {
@@ -524,15 +525,6 @@ class Grid extends Component {
         </ErrorCell>
       );
     };
-  };
-
-  setWidth = column => {
-    column.style = {
-      ...column.style,
-      width: column.width
-    };
-
-    return column;
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
@@ -1015,7 +1007,7 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable } = this.props;
 
     if (isEmpty(columns)) {
       return null;
@@ -1030,7 +1022,8 @@ class Grid extends Component {
         className={classNames('ecos-grid', {
           'ecos-grid_no-header': noHeader,
           'ecos-grid_freeze': this.fixedHeader,
-          'ecos-grid_checkable': this.hasCheckboxes,
+          'ecos-grid_selectable': this.hasCheckboxes,
+          'ecos-grid_selectable_multi': multiSelectable,
           'ecos-grid_no-top-border': noTopBorder,
           [className]: !!className
         })}
