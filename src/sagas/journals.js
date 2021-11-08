@@ -689,7 +689,7 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaSelectPreset({ api, logger, stateId, w, ...extra }, action) {
+function* sagaSelectPreset({ api, logger, stateId, w }, action) {
   try {
     const journalSettingId = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
