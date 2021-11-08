@@ -21,8 +21,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
     this.settings.disableMobile = 'true';
 
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1508
-    this.settings.static = 'true';
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1456
     this.settings.onValueUpdate = () => {
       const format = convertFormatToMoment(this.settings.format);
       const value = this.calendar._input.value;
@@ -37,8 +36,6 @@ export default class CalendarWidget extends FormIOCalendarWidget {
       }
 
       moment.locale(currentLocale);
-
-      this.calendar.close();
     };
 
     super.attach(input);
@@ -46,6 +43,14 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     // Bug: https://github.com/flatpickr/flatpickr/issues/2047
     if (this._input) {
       this.setInputMask(this.calendar._input, convertFormatToMask(this.settings.format));
+
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1535
+      this.removeEventListener(this.calendar._input, 'keydown');
+      this.addEventListener(this.calendar._input, 'keydown', event => {
+        if (event.keyCode === 13) {
+          this.calendar.close();
+        }
+      });
     }
   }
 }
