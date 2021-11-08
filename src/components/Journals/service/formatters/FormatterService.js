@@ -1,5 +1,6 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
+import head from 'lodash/head';
 import size from 'lodash/size';
 import isPlainObject from 'lodash/isPlainObject';
 import isFunction from 'lodash/isFunction';
@@ -86,18 +87,16 @@ class FormatterService {
       format: FormatterService.format
     };
 
+    const setCell = data => FormatterService._formatSingleValueCellImpl(data, formatProps, fmtInstance);
+
     if (Array.isArray(cell)) {
       if (cell.length === 1) {
-        return FormatterService._formatSingleValueCellImpl(cell[0], formatProps, fmtInstance);
+        return setCell(head(cell));
       }
 
-      let idx = 0;
-
-      return cell.map(elem => {
-        return <div key={idx++}>{FormatterService._formatSingleValueCellImpl(elem, formatProps, fmtInstance)}</div>;
-      });
+      return cell.map((elem, i) => <div key={i}>{setCell(elem)}</div>);
     } else {
-      return FormatterService._formatSingleValueCellImpl(cell, formatProps, fmtInstance);
+      return setCell(cell, formatProps, fmtInstance);
     }
   }
 
@@ -105,7 +104,9 @@ class FormatterService {
     if (cell == null) {
       return '';
     }
+
     let cellValue = cell;
+
     if (fmtInstance.getSupportedCellType() === CellType.VALUE_WITH_DISP) {
       if (!isPlainObject(cellValue)) {
         cellValue = { value: cellValue, disp: cellValue };
@@ -120,7 +121,9 @@ class FormatterService {
         cellValue = cellValue.value;
       }
     }
+
     formatProps.cell = cellValue;
+
     try {
       return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
     } catch (e) {
