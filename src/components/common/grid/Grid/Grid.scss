@@ -45,9 +45,17 @@ $header-height: 52px;
   }
 
   &_selectable {
-    tbody > tr > td:nth-child(1),
-    thead > tr > th:nth-child(1) {
+    tbody > tr > td:first-child,
+    thead > tr > th:first-child {
       padding: 0;
+    }
+
+    thead > tr > th:first-child {
+      width: $header-height;
+    }
+
+    &.ecos-grid_selectable_multi thead > tr > th:first-child {
+      width: 70px;
     }
   }
 
@@ -173,9 +181,6 @@ $header-height: 52px;
   padding-left: 13px;
   background: $color-white;
 
-  &_has-menu {
-  }
-
   &_block {
     width: 100%;
   }
@@ -235,13 +240,6 @@ $header-height: 52px;
 
     thead > tr > th:first-child {
       z-index: 5;
-      width: $header-height;
-    }
-  }
-
-  &.ecos-grid_selectable.ecos-grid_selectable_multi {
-    thead > tr > th:first-child {
-      width: 70px;
     }
   }
 
@@ -257,7 +255,7 @@ $header-height: 52px;
         background: $color-white;
       }
 
-      &:nth-child(1) {
+      &:first-child {
         z-index: 26;
         background: $color-white;
       }
