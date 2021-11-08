@@ -66,6 +66,7 @@ import {
   selectJournalConfig,
   selectJournalData,
   selectJournalSetting,
+  selectJournalSettings,
   selectNewVersionDashletConfig,
   selectSettingsData,
   selectUrl,
@@ -616,13 +617,13 @@ function* sagaSaveDashlet({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaInitJournal({ api, logger, stateId, w }, action) {
+function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
   try {
     yield put(setLoading(w(true)));
 
-    const { journalId, journalSettingId, userConfigId, customJournal, customJournalMode, force } = action.payload;
+    const { journalId, userConfigId, customJournal, customJournalMode, force } = payload;
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
-
+    let { journalSettingId } = payload;
     let { journalConfig } = yield select(selectJournalData, stateId);
 
     const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
@@ -634,6 +635,13 @@ function* sagaInitJournal({ api, logger, stateId, w }, action) {
       journalConfig = yield getJournalConfig({ api, w, force }, id);
 
       yield getJournalSettings(api, journalConfig.id, w, stateId);
+
+      const settings = yield select(selectJournalSettings, stateId);
+      const selectedPreset = settings.find(setting => setting.id === stateId);
+
+      if (isEmpty(selectedPreset)) {
+        journalSettingId = get(settings, '0.id', '');
+      }
     }
 
     yield loadGrid(
@@ -681,7 +689,7 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaSelectPreset({ api, logger, stateId, w }, action) {
+function* sagaSelectPreset({ api, logger, stateId, w, ...extra }, action) {
   try {
     const journalSettingId = action.payload;
     const { journalConfig } = yield select(selectJournalData, stateId);
@@ -830,18 +838,26 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaDeleteJournalSetting({ api, logger, stateId, w }, action) {
+function* sagaDeleteJournalSetting({ api, logger, stateId, w }, { payload }) {
   try {
     const { journalConfig } = yield select(selectJournalData, stateId);
     const executor = ActionsRegistry.getHandler(ActionTypes.DELETE);
-    const actionResult = yield call([executor, executor.execForRecord], action.payload, { config: { withoutConfirm: true } });
+    const actionResult = yield call([executor, executor.execForRecord], payload, { config: { withoutConfirm: true } });
 
     if (actionResult) {
       NotificationManager.success(t('record-action.edit-journal-preset.msg.deleted-success'));
     }
 
-    yield getJournalSettings(api, journalConfig.id, w, stateId);
-    yield put(openSelectedPreset(''));
+    const settings = yield select(selectJournalSettings, stateId);
+    const selectedPreset = settings.find(setting => setting.id === stateId);
+    let presetId = stateId;
+
+    if (isEmpty(selectedPreset)) {
+      presetId = get(settings, '0.id', '');
+    }
+
+    yield getJournalSettings(api, journalConfig.id, w, payload || stateId);
+    yield put(openSelectedPreset(w(presetId)));
   } catch (e) {
     logger.error('[journals sagaDeleteJournalSetting saga error', e);
   }
