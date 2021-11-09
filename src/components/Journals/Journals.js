@@ -13,12 +13,13 @@ import {
   createJournalSetting,
   execRecordsAction,
   getJournalsData,
-  selectPreset,
   reloadGrid,
   runSearch,
   saveJournalSetting,
+  selectPreset,
   setGrid,
   setSelectAllRecords,
+  setSelectAllRecordsVisible,
   setSelectedRecords,
   setUrl
 } from '../../actions/journals';
@@ -80,6 +81,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setSelectAllRecordsVisible: need => dispatch(setSelectAllRecordsVisible(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
@@ -224,15 +226,15 @@ class Journals extends React.Component {
   }
 
   get isOpenGroupActions() {
-    const { grid, selectedRecords, selectAllRecords } = this.props;
+    const { grid, selectedRecords, selectAllRecordsVisible } = this.props;
 
-    if (isEmpty(selectedRecords) && !selectAllRecords) {
+    if (isEmpty(selectedRecords) && !selectAllRecordsVisible) {
       return false;
     }
 
     const forRecords = get(grid, 'actions.forRecords', {});
     const forQuery = get(grid, 'actions.forQuery', {});
-    const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
+    const groupActions = (selectAllRecordsVisible ? forQuery.actions : forRecords.actions) || [];
 
     return !isEmpty(groupActions);
   }
@@ -425,27 +427,28 @@ class Journals extends React.Component {
   }, 500);
 
   onSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
+    const { setSelectAllRecordsVisible, setSelectAllRecords, selectAllRecordsVisible, setSelectedRecords, grid } = this.props;
+    const newAllVisible = !selectAllRecordsVisible;
+    const selected = newAllVisible ? grid.data.map(item => item.id) : [];
 
-    setSelectAllRecords(!selectAllRecords);
+    setSelectAllRecordsVisible(newAllVisible);
+    setSelectAllRecords(newAllVisible);
+    setSelectedRecords(selected);
+  };
 
-    if (!selectAllRecords) {
-      setSelectedRecords([]);
-    }
+  onResetAllRecords = () => {
+    const { setSelectAllRecordsVisible, setSelectAllRecords, setSelectedRecords } = this.props;
+
+    setSelectAllRecordsVisible(false);
+    setSelectAllRecords(false);
+    setSelectedRecords([]);
   };
 
   onExecuteGroupAction = action => {
-    const { selectAllRecords } = this.props;
+    const { selectAllRecordsVisible } = this.props;
 
-    if (!selectAllRecords) {
-      const records = get(this.props, 'selectedRecords', []);
-
-      this.props.execRecordsAction(records, action);
-    } else {
-      const query = get(this.props, 'grid.query');
-
-      this.props.execRecordsAction(query, action);
-    }
+    const data = selectAllRecordsVisible ? get(this.props, 'grid.query') : get(this.props, 'selectedRecords', []);
+    this.props.execRecordsAction(data, action);
   };
 
   getJournalContentMaxHeight = () => {
@@ -595,13 +598,14 @@ class Journals extends React.Component {
       return (
         <JournalsGroupActionsTools
           isMobile={isMobile}
+          grid={grid}
           selectAllRecordsVisible={selectAllRecordsVisible}
           selectAllRecords={selectAllRecords}
-          grid={grid}
           selectedRecords={selectedRecords}
           onExecuteAction={this.onExecuteGroupAction}
           onGoTo={this.onGoTo}
           onSelectAll={this.onSelectAllRecords}
+          onResetAll={this.onResetAllRecords}
         />
       );
     }

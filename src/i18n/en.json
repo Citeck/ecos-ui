@@ -591,6 +591,9 @@
   "grid.tools.group-actions": "More actions",
   "grid.tools.group-actions-mobile": "More",
   "grid.tools.move-to": "Move to...",
+  "grid.tools.selected": "Selected: {{count}}",
+  "grid.tools.selected-all": "Selected all",
+  "grid.tools.reset-all": "Reset all",
   "grid.tools.select-all": "Select all",
   "grid.tools.zip": "Download Zip",
 

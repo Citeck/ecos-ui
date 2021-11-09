@@ -96,13 +96,11 @@ class JournalsDashletGrid extends Component {
 
   handleSetInlineTools = this.props.setGridInlineToolSettings;
 
-  setSelectedRecords = data => {
-    this.props.setSelectedRecords(data.selected);
-    this.props.setSelectAllRecordsVisible(data.all);
+  setSelectedRecords = ({ selected, all: allPage }) => {
+    const { setSelectedRecords, setSelectAllRecords } = this.props;
 
-    if (!data.all) {
-      this.props.setSelectAllRecords(false);
-    }
+    setSelectedRecords(selected);
+    setSelectAllRecords(allPage);
   };
 
   reloadGrid(options) {

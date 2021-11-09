@@ -14,17 +14,17 @@ export default React.memo(function JournalsGroupActionsTools(props) {
   const {
     isMobile,
     selectAllRecordsVisible,
-    selectAllRecords,
     grid,
     selectedRecords,
     onExecuteAction,
     className,
     onGoTo,
     onSelectAll,
+    onResetAll,
     forwardedRef
   } = props;
 
-  if (isEmpty(selectedRecords) && !selectAllRecords) {
+  if (isEmpty(selectedRecords)) {
     return;
   }
 
@@ -34,7 +34,7 @@ export default React.memo(function JournalsGroupActionsTools(props) {
 
   const forRecordsInlineActions = [];
   const forRecordsDropDownActions = [];
-  const groupActions = (selectAllRecords ? forQuery.actions : forRecords.actions) || [];
+  const groupActions = (selectAllRecordsVisible ? forQuery.actions : forRecords.actions) || [];
 
   if (isEmpty(groupActions)) {
     return;
@@ -60,7 +60,7 @@ export default React.memo(function JournalsGroupActionsTools(props) {
   if (forRecordsDropDownActions.length) {
     tools.push(
       <DropdownOuter
-        className="ecos-journal__tool-group-dropdown grid-tools__item_left_5"
+        className="ecos-journal__tool-group-dropdown"
         source={forRecordsDropDownActions}
         valueField={'id'}
         titleField={'pluralName'}
@@ -82,13 +82,15 @@ export default React.memo(function JournalsGroupActionsTools(props) {
 
   return (
     <Tools
-      forwardedRef={forwardedRef}
-      onSelectAll={onSelectAll}
-      selectAllVisible={selectAllRecordsVisible}
-      selectAll={selectAllRecords}
-      total={total}
       className={classNames('ecos-journal-group-actions', 'grid-tools_r_12', className)}
+      forwardedRef={forwardedRef}
+      selectAllVisible={selectAllRecordsVisible}
+      selectedRecords={selectedRecords}
+      total={total}
       tools={tools}
+      isMobile={isMobile}
+      onSelectAll={onSelectAll}
+      onResetAll={onResetAll}
     />
   );
 });
