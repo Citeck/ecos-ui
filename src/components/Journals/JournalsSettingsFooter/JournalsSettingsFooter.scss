@@ -1,3 +1,5 @@
+@import '../../../styles/constants';
+
 .ecos-journals-columns-setup__toolbar {
   margin-left: 21px;
   margin-right: 21px;
@@ -6,4 +8,10 @@
 
 .ecos-journals-columns-setup__panel-bar {
   margin-top: 21px;
+}
+
+.ecos-journal__settings-footer-action_reset.ecos-btn {
+  &:focus {
+    background-color: $color-gray-4;
+  }
 }

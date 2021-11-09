@@ -51,7 +51,7 @@ const GroupActions = React.memo(
     const selectedLen = selectedRecords.length;
     const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
-    const labelRecActions = t(isMobile ? Labels.SELECTED_SHORT : Labels.SELECTED, { data: labelRecActionsCount });
+    const labelRecActions = t(Labels.SELECTED_SHORT, { data: labelRecActionsCount });
 
     useEffect(() => {
       const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
