@@ -257,6 +257,8 @@
   "dev-tools.error.failure-to-fetch-data": "Failure to fetch data",
   "dev-tools.build.alfresco.panel-title": "Alfresco modules",
   "dev-tools.build.system.panel-title": "System modules",
+  "dev-tools.columns.version": "Version",
+  "dev-tools.columns.build-date": "Build Date",
   "dev-tools.settings.forceEnableNewForms": "Force new forms",
   "dev-tools.settings.enableLoggerForNewForms": "Enable logger for new forms",
   "dev-tools.settings.enableRecordsApiDebug": "Enable debug for Records API",

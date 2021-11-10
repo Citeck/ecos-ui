@@ -20,6 +20,10 @@ export const selectJournalSetting = createSelector(
   selectState,
   ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
 );
+export const selectJournalSettings = createSelector(
+  selectState,
+  ownState => get(ownState, 'journalSettings', [])
+);
 
 export const selectJournals = createSelector(
   selectState,
