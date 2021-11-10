@@ -555,7 +555,7 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const isSortable = sortable && isFunction(onSort);
 
@@ -565,9 +565,11 @@ class Grid extends Component {
       const filterValue = filterPredicate.val || '';
       const sort = find(sortBy, sort => sort.attribute === column.dataField) || {};
       const ascending = sort.ascending;
+      const originPredicate = originPredicates.find(predicate => predicate.att === column.dataField) || {};
 
       return (
         <HeaderFormatter
+          originPredicate={originPredicate}
           isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
@@ -1155,6 +1157,7 @@ Grid.propTypes = {
   columns: PropTypes.array,
   data: PropTypes.array,
   filters: PropTypes.array,
+  originPredicates: PropTypes.array,
   sortBy: PropTypes.array,
   selected: PropTypes.array,
   nonSelectable: PropTypes.array,

@@ -108,7 +108,7 @@ export default class HeaderFormatter extends Component {
   };
 
   triggerPendingChange = debounce((text, dataField, type) => {
-    const { column, onFilter } = this.props;
+    const { column, onFilter, originPredicate } = this.props;
     const { predicate } = this.state;
 
     this.onToggle();
@@ -118,7 +118,7 @@ export default class HeaderFormatter extends Component {
         [
           {
             att: dataField,
-            t: get(predicate, 't', ''),
+            t: get(predicate, 't', '') || get(originPredicate, 't', ''),
             val: text.trim()
           }
         ],
@@ -365,5 +365,6 @@ HeaderFormatter.propTypes = {
 
   isComplexFilter: PropTypes.bool,
   predicate: PropTypes.object,
+  originPredicate: PropTypes.object,
   onOpenSettings: PropTypes.func
 };
