@@ -16,6 +16,7 @@ import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
+import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
