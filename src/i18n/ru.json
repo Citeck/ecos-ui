@@ -257,6 +257,8 @@
   "dev-tools.error.failure-to-fetch-data": "Не удалось загрузить данные",
   "dev-tools.build.alfresco.panel-title": "Модули Alfresco",
   "dev-tools.build.system.panel-title": "Модули системы",
+  "dev-tools.columns.version": "Версия",
+  "dev-tools.columns.build-date": "Дата сборки",
   "dev-tools.settings.forceEnableNewForms": "Принудительно включить новые формы",
   "dev-tools.settings.enableLoggerForNewForms": "Включить логгер для новых форм",
   "dev-tools.settings.enableRecordsApiDebug": "Включить дебаг для Records API",
