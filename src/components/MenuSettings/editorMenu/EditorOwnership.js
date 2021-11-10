@@ -4,7 +4,7 @@ import get from 'lodash/get';
 
 import { MenuTypes } from '../../../constants/menu';
 import { getAuthorityInfoByRefs, setIsForAll } from '../../../actions/menuSettings';
-import { Checkbox, SelectOrgstruct } from '../../common/form';
+import { ControlledCheckbox, SelectOrgstruct } from '../../common/form';
 import { GroupTypes, ViewModes } from '../../common/form/SelectOrgstruct/constants';
 import { t } from '../../../helpers/export/util';
 import { Labels } from '../utils';
@@ -47,14 +47,14 @@ class EditorOwnership extends React.Component {
 
     return (
       <div className="ecos-menu-settings-ownership">
-        <Checkbox
-          checked={isForAll}
-          onClick={this.handleToggleForAll}
+        <ControlledCheckbox
           className="ecos-menu-settings-ownership__field-for-all"
+          checked={isForAll}
           disabled={isThinking}
+          onClick={this.handleToggleForAll}
         >
           {t(Labels.FIELD_FOR_ALL_USERS)}
-        </Checkbox>
+        </ControlledCheckbox>
         <SelectOrgstruct
           defaultValue={authorityRefs}
           multiple
