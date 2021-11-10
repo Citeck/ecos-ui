@@ -284,7 +284,7 @@ class Grid extends Component {
           get(column, 'style.width') && delete column.style.width;
         }
 
-        if (!isNil(column.default)) {
+        if (!isUndefined(column.default)) {
           column.hidden = !column.default;
         }
 
@@ -580,6 +580,12 @@ class Grid extends Component {
     this.onSelect(false, newValue !== prevValue ? [newValue] : []);
   };
 
+  handleSelectRadio = row => {
+    const prevValue = head(this.state.selected);
+    const newValue = row[this.props.keyField];
+    this.onSelect(false, newValue !== prevValue ? [newValue] : []);
+  };
+
   createMultiSelectionCheckboxes(props) {
     const selected = props.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
 
@@ -619,6 +625,24 @@ class Grid extends Component {
     const allPossible = option.id === SELECTOR_MENU_KEY.ALL;
 
     this.onSelect(allPage, items, allPossible);
+  };
+
+  handleSelectCheckbox = (row, isSelect) => {
+    const keyValue = row[this.props.keyField];
+    const selected = this.state.selected;
+    const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
+
+    this.onSelect(false, newSelected);
+  };
+
+  handleSelectAllCheckbox = (allPage, rows) => {
+    const { selected } = this.state;
+    const page = this.getSelectedPageItems();
+    const ids = rows.map(row => row.id);
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+
+    this.onSelect(allPage, newSelected);
   };
 
   toolsVisible = () => {
@@ -776,7 +800,7 @@ class Grid extends Component {
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
       trigger.call(this, 'onEdit', {
-        id: row[this._keyField],
+        id: row[this.props.keyField],
         attributes: {
           [column.attribute]: newValue
         }
@@ -1103,8 +1127,7 @@ Grid.defaultProps = {
   resizableColumns: true,
   keyField: 'id',
   nonSelectable: [],
-  selected: [],
-  onSelect: _ => _
+  selected: []
 };
 
 export default Grid;
