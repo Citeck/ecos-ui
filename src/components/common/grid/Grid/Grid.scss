@@ -45,17 +45,16 @@ $header-height: 52px;
   }
 
   &_selectable {
-    tbody > tr > td:first-child,
-    thead > tr > th:first-child {
+    tbody > tr > td:first-child {
       padding: 0;
     }
 
     thead > tr > th:first-child {
       width: $header-height;
-    }
 
-    &.ecos-grid_selectable_multi thead > tr > th:first-child {
-      width: 70px;
+      .ecos-grid__checkbox-menu-opener {
+        padding-right: 10px;
+      }
     }
   }
 
