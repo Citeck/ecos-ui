@@ -13,6 +13,7 @@
 
   &_disabled {
     cursor: not-allowed;
+    pointer-events: none;
   }
 
   &__text {
@@ -42,6 +43,10 @@
 
     &_blue {
       color: $color-blue-dark;
+
+      &:hover {
+        color: $color-blue-light;
+      }
     }
 
     &_white {
