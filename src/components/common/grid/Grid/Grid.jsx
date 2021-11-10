@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
+import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
@@ -11,11 +12,15 @@ import last from 'lodash/last';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
+import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
-import isEqualWith from 'lodash/isEqualWith';
+import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
+import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
@@ -57,16 +62,14 @@ function cssNum(v) {
 
 class Grid extends Component {
   #columnsSizes = {};
-  #isAllSelected = false;
   #gridRef = null;
 
   constructor(props) {
     super(props);
-    this._selected = [];
+
     this._id = getId();
     this._resizingTh = null;
     this._startResizingThOffset = 0;
-    this._keyField = props.keyField || 'id';
     this._scrollValues = {};
     this._tr = null;
     this._dragTr = null;
@@ -76,7 +79,6 @@ class Grid extends Component {
     this._shadowHeadNode = null;
     this._shadowLeftNode = null;
     this._firstHeaderCellNode = null;
-    this._inlineActionsNode = null;
     this._optionMinWidth = null;
 
     this.state = {
@@ -85,6 +87,14 @@ class Grid extends Component {
       isScrolling: false,
       selected: props.selected || []
     };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (!isEqual(props.selected, state.selected)) {
+      return { selected: props.selected };
+    }
+
+    return null;
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -98,11 +108,9 @@ class Grid extends Component {
     const current = this._ref.current;
 
     if (current) {
-      this._shadowHeadNode = current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW)[0];
-      this._shadowLeftNode = current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW)[0];
-      this._firstHeaderCellNode = current.querySelector(`thead > tr > th:first-child .${ECOS_GRID_CHECKBOX_DIVIDER_CLASS}`);
-      this._inlineActionsNode = current.querySelector('.ecos-inline-tools-actions');
-
+      this._shadowHeadNode = head(current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW));
+      this._shadowLeftNode = head(current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW));
+      this._firstHeaderCellNode = current.querySelector('thead > tr > th:first-child .ecos-grid__checkbox-divider');
       this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 1);
     }
 
@@ -114,7 +122,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns, selected, columns } = this.props;
+    const { resizableColumns, columns } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -122,10 +130,6 @@ class Grid extends Component {
 
     if (prevProps.resizableColumns !== resizableColumns) {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
-    }
-
-    if (!isEqualWith(prevProps.selected, selected, isEqual) && !isEqualWith(this.state.selected, selected, isEqual)) {
-      this.setState({ selected });
     }
 
     if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
@@ -162,7 +166,7 @@ class Grid extends Component {
 
     const { forwardedRef } = this.props;
 
-    if (typeof forwardedRef === 'function') {
+    if (isFunction(forwardedRef)) {
       forwardedRef(ref);
     }
 
@@ -259,15 +263,25 @@ class Grid extends Component {
     }
   };
 
-  onSelect = (all, newSelected = this._selected) => {
+  onSelect = (allPage, newSelected) => {
+    const { onSelect } = this.props;
     const selected = [...new Set(newSelected)];
-    this.setState({ selected }, () => this.props.onSelect({ selected, all }));
+
+    this.setState(
+      { selected },
+      () =>
+        isFunction(onSelect) &&
+        onSelect({
+          selected,
+          all: allPage
+        })
+    );
   };
 
   getBootstrapTableProps(props, extra) {
     const { needCellUpdate } = this.state;
     const options = {
-      keyField: this._keyField,
+      keyField: props.keyField,
       bootstrap4: true,
       bordered: false,
       scrollable: true,
@@ -281,7 +295,7 @@ class Grid extends Component {
           column = this.setWidth(column);
         }
 
-        if (!isNil(column.default)) {
+        if (!isUndefined(column.default)) {
           column.hidden = !column.default;
         }
 
@@ -392,12 +406,13 @@ class Grid extends Component {
         return items;
       }
       return items.map(item => {
-        if (typeof item.dataField === 'string' && item.dataField.includes('.')) {
+        if (isString(item.dataField) && item.dataField.includes('.')) {
           return {
             ...item,
             dataField: item.dataField.replace(/\./g, CUSTOM_NESTED_DELIMITER)
           };
         }
+
         return item;
       });
     };
@@ -416,14 +431,14 @@ class Grid extends Component {
     /**
      * If there is an editing rule for the entire row
      */
-    if (typeof rowRules === 'boolean') {
+    if (isBoolean(rowRules)) {
       return !!rowRules;
     }
 
     /**
      * Validating a rule for a single cell
      */
-    if (typeof rowRules === 'object') {
+    if (isObject(rowRules)) {
       return !!get(rowRules, column.dataField);
     }
 
@@ -566,115 +581,80 @@ class Grid extends Component {
   };
 
   createSingleSelectionCheckboxes(props) {
-    this._selected = props.selected || [];
-
-    return {
-      mode: 'radio',
-      classes: 'ecos-grid__tr_selected',
-      selected: this._selected,
-      nonSelectable: props.nonSelectable || [],
-      onSelect: row => {
-        const selected = this._selected[0];
-        const keyValue = row[this._keyField];
-
-        this._selected = selected !== keyValue ? [keyValue] : [];
-        this.onSelect(false);
-      },
-      selectionHeaderRenderer: SelectorHeader,
-      selectionRenderer: Selector
-    };
-  }
-
-  createMultiSelectionCheckboxes(props) {
     const { selected } = this.state;
-    this._selected = props.selectAll ? props.data.map(row => row[this._keyField]) : selected || [];
-
-    if (!isEmpty(props.data) && !isEmpty(this._selected) && props.data.length === selected.length) {
-      this.#isAllSelected = true;
-    }
 
     return {
-      mode: 'checkbox',
+      mode: BootstrapTableConst.ROW_SELECT_SINGLE,
       classes: 'ecos-grid__tr_selected',
       selected,
       nonSelectable: props.nonSelectable || [],
-      onSelect: (row, isSelect) => {
-        const selected = this._selected;
-        const keyValue = row[this._keyField];
-
-        this._selected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
-
-        if (!isSelect) {
-          this.#isAllSelected = false;
-        }
-
-        if (!isEmpty(this._selected) && this._selected.length === this.props.data.length) {
-          this.#isAllSelected = true;
-        }
-
-        this.onSelect(false);
-      },
-      onSelectAll: (isSelect, rows) => {
-        const { nonSelectable, data, selected } = this.props;
-
-        if (!isSelect && !isEmpty(nonSelectable) && isEqual(this._selected, nonSelectable)) {
-          this._selected = data.map(row => row[this._keyField]);
-          this.#isAllSelected = true;
-          this.onSelect(true);
-
-          return;
-        }
-
-        if (!isSelect && rows.length !== data.length) {
-          if (isEqual(rows.map(i => i[this._keyField]), selected)) {
-            this._selected = data.map(row => row[this._keyField]).filter(i => !nonSelectable.includes(i));
-            this.#isAllSelected = true;
-            this.onSelect(true);
-
-            return;
-          }
-
-          this._selected = data
-            .map(row => row[this._keyField])
-            .filter(item => (nonSelectable.includes(item) && selected.includes(item)) || !nonSelectable.includes(item));
-          this.#isAllSelected = true;
-          this.onSelect(true);
-
-          return;
-        }
-
-        if (!isSelect && !this.#isAllSelected) {
-          rows = data;
-        }
-
-        this.#isAllSelected = isSelect;
-
-        this._selected = isSelect
-          ? [...this._selected, ...rows.map(i => i[this._keyField])]
-          : this.getSelectedByPage(this.props.data, false);
-
-        this.onSelect(isSelect);
-      },
+      onSelect: this.handleSelectRadio,
       selectionHeaderRenderer: SelectorHeader,
       selectionRenderer: Selector
     };
   }
 
+  handleSelectRadio = row => {
+    const prevValue = head(this.state.selected);
+    const newValue = row[this.props.keyField];
+    this.onSelect(false, newValue !== prevValue ? [newValue] : []);
+  };
+
+  createMultiSelectionCheckboxes(props) {
+    const selected = props.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
+
+    return {
+      mode: BootstrapTableConst.ROW_SELECT_MULTIPLE,
+      classes: 'ecos-grid__tr_selected',
+      selected,
+      nonSelectable: props.nonSelectable || [],
+      onSelect: this.handleSelectCheckbox,
+      onSelectAll: this.handleSelectAllCheckbox,
+      selectionHeaderRenderer: SelectorHeader,
+      selectionRenderer: Selector
+    };
+  }
+
+  handleSelectCheckbox = (row, isSelect) => {
+    const keyValue = row[this.props.keyField];
+    const selected = this.state.selected;
+    const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
+
+    this.onSelect(false, newSelected);
+  };
+
+  handleSelectAllCheckbox = (allPage, rows) => {
+    const { selected } = this.state;
+    const page = this.getSelectedPageItems();
+    const ids = rows.map(row => row.id);
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+
+    this.onSelect(allPage, newSelected);
+  };
+
   toolsVisible = () => {
-    return this._selected.length && this.getSelectedByPage(this.props.data, true).length;
+    return !isEmpty(this.getSelectedByPage(this.props.data, true));
+  };
+
+  getSelectedPageItems = () => {
+    const { nonSelectable, keyField, data = [] } = this.props;
+
+    return data.filter(item => Array.isArray(nonSelectable) && !nonSelectable.includes(item[keyField])).map(item => item[keyField]);
   };
 
   getSelectedByPage = (records, onPage) => {
-    const { nonSelectable } = this.props;
+    const { nonSelectable, keyField } = this.props;
+    const { selected } = this.state;
 
-    return this._selected.filter(id => {
+    return selected.filter(id => {
       if (Array.isArray(nonSelectable) && nonSelectable.includes(id)) {
-        return true;
+        return false;
       }
 
-      const length = records.filter(record => record[this._keyField] === id).length;
+      const found = find(records, record => record[keyField] === id);
 
-      return onPage ? length : !length;
+      return onPage && found;
     });
   };
 
@@ -775,9 +755,7 @@ class Grid extends Component {
   tools = selected => {
     const { tools } = this.props;
 
-    if (typeof tools === 'function') {
-      return tools(selected);
-    }
+    isFunction(tools) && tools(selected);
 
     return null;
   };
@@ -814,7 +792,7 @@ class Grid extends Component {
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
       trigger.call(this, 'onEdit', {
-        id: row[this._keyField],
+        id: row[this.props.keyField],
         attributes: {
           [column.attribute]: newValue
         }
@@ -862,7 +840,7 @@ class Grid extends Component {
   };
 
   checkDropPermission = tr => {
-    if (this.props.onCheckDropPermission && typeof this.props.onCheckDropPermission === 'function') {
+    if (isFunction(this.props.onCheckDropPermission)) {
       const item = this.props.data[tr.rowIndex - 1];
 
       if (!item) {
@@ -893,7 +871,7 @@ class Grid extends Component {
 
     trigger.call(this, 'onRowDragEnter', e);
 
-    if (tr === null) {
+    if (isNil(tr)) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
       this._dragTr = null;
 
@@ -918,6 +896,7 @@ class Grid extends Component {
 
     e.stopPropagation();
     e.preventDefault();
+
     return false;
   };
 
@@ -1137,9 +1116,9 @@ Grid.defaultProps = {
   scrollable: true,
   sortable: true,
   resizableColumns: true,
+  keyField: 'id',
   nonSelectable: [],
-  selected: [],
-  onSelect: _ => _
+  selected: []
 };
 
 export default Grid;

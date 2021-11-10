@@ -591,6 +591,9 @@
   "grid.tools.group-actions": "Ещё действия",
   "grid.tools.group-actions-mobile": "Ещё",
   "grid.tools.move-to": "Переместить в...",
+  "grid.tools.selected": "Выбрано: {{count}}",
+  "grid.tools.selected-all": "Выбраны все",
+  "grid.tools.reset-all": "Сбросить все",
   "grid.tools.select-all": "Выбрать все",
   "grid.tools.zip": "Скачать как Zip",
 
