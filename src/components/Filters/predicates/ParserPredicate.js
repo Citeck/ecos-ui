@@ -3,8 +3,9 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isString from 'lodash/isString';
+import isNil from 'lodash/isNil';
 
-import { isExistValue } from '../../../helpers/util';
 import {
   COLUMN_DATA_TYPE_DATE,
   COLUMN_DATA_TYPE_DATETIME,
@@ -138,7 +139,7 @@ export default class ParserPredicate {
     }
 
     return val.filter(v => {
-      if (!isExistValue(v)) {
+      if (isNil(v)) {
         return false;
       }
 
@@ -332,7 +333,7 @@ export default class ParserPredicate {
   static getFlatFilters(predicates) {
     const out = [];
 
-    if (!predicates) {
+    if (isEmpty(predicates)) {
       return out;
     }
 
@@ -360,9 +361,12 @@ export default class ParserPredicate {
     return out;
   }
 
-  static setNewPredicates(predicates, newPredicate) {
-    predicates = cloneDeep(predicates);
-
+  static setNewPredicates(_predicates, _newPredicate, setUnknown) {
+    const predicates = cloneDeep(_predicates);
+    const newPredicate = cloneDeep(_newPredicate);
+    const existed = ParserPredicate.getFlatFilters(_predicates);
+    let thisLvl = false;
+    console.log(_predicates, existed);
     if (!predicates) {
       return [];
     }
@@ -386,17 +390,23 @@ export default class ParserPredicate {
 
     const forEach = arr => {
       arr.forEach(item => {
-        if (typeof item === 'string') {
+        if (isString(item)) {
           return;
         }
 
-        if (isArray(item.val) && !item.val.some(i => typeof i === 'string')) {
+        if (isArray(item.val) && !item.val.some(i => isString(i))) {
           forEach(item.val);
 
           return;
         }
 
-        if (item.att === newPredicate.att) {
+        thisLvl = !thisLvl && !!existed.find(ex => isEqual(ex.att, item.att));
+
+        if (thisLvl && setUnknown) {
+          console.log('123');
+        }
+
+        if (isEqual(item.att, newPredicate.att)) {
           if (isEqual(newPredicate, item)) {
             delete newPredicate.att;
             return;
@@ -405,7 +415,7 @@ export default class ParserPredicate {
           if (isEqual(item.att, newPredicate.att) && (!isEqual(item.val, newPredicate.val) || !isEqual(item.t, newPredicate.t))) {
             item.val = newPredicate.val;
 
-            if (isExistValue(newPredicate.t)) {
+            if (!isNil(newPredicate.t)) {
               item.t = newPredicate.t;
             }
 
