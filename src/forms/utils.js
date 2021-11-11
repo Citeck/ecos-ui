@@ -69,7 +69,11 @@ export const runTransform = (config, tabs) => {
 
   const tabsByKey = tabs || [
     { key: 'display', components: cloneDeep(BaseEditDisplay) },
-    { key: 'data', components: cloneDeep(BaseEditData) },
+    {
+      key: 'data',
+      components: cloneDeep(BaseEditData)
+      // components: BaseEditData
+    },
     { key: 'logic', components: cloneDeep(BaseEditLogic) },
     { key: 'api', components: cloneDeep(BaseEditApi) },
     { key: 'validation', components: cloneDeep(BaseEditValidation) },
@@ -77,6 +81,24 @@ export const runTransform = (config, tabs) => {
   ];
 
   return { config: advancedConfig, tabsByKey: processEditFormConfig(advancedConfig, tabsByKey) };
+};
+
+const _removeDuplicateComponents = (components = []) => {
+  if (!Array.isArray(components)) {
+    return components;
+  }
+
+  return [
+    ...new Set(
+      components.map(component => {
+        if (Array.isArray(component.components)) {
+          component.components = _removeDuplicateComponents(component.components);
+        }
+
+        return component;
+      })
+    )
+  ];
 };
 
 const _expandEditForm = component => {
@@ -113,7 +135,7 @@ const _expandEditForm = component => {
       key: `${item.key}-reworked`
     }));
 
-    return originEditForm([
+    const res = originEditForm([
       ...extend,
       editFormSectionBasic,
       ...removed,
@@ -132,6 +154,10 @@ const _expandEditForm = component => {
         ]
       }
     ]);
+
+    _removeDuplicateComponents(get(res, 'components.0.components', []));
+
+    return res;
   };
 
   return component;
