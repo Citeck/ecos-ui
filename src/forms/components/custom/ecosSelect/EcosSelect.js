@@ -87,8 +87,6 @@ export default class SelectComponent extends BaseComponent {
         true
       );
     }
-
-    console.warn('component => ', this.component);
   }
 
   createViewOnlyValue(container) {
