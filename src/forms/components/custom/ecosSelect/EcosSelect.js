@@ -87,6 +87,8 @@ export default class SelectComponent extends BaseComponent {
         true
       );
     }
+
+    console.warn('component => ', this.component);
   }
 
   createViewOnlyValue(container) {
@@ -1205,7 +1207,7 @@ export default class SelectComponent extends BaseComponent {
   static optimizeSchema(comp) {
     return {
       ...comp,
-      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc && key !== 'headers')
     };
   }
 }
