@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 
 import { ControlledCheckbox } from '../index';
@@ -36,7 +35,15 @@ export default class Checkbox extends Component {
     };
   }
 
-  toggle = () => {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { checked, indeterminate, disabled } = this.props;
+
+    if (checked !== prevProps.checked || indeterminate !== prevProps.indeterminate || disabled !== prevProps.disabled) {
+      this.handleChange({ checked, indeterminate });
+    }
+  }
+
+  handleClick = () => {
     const { disabled, onClick } = this.props;
     const checked = !this.state.checked;
 
@@ -44,68 +51,18 @@ export default class Checkbox extends Component {
       return false;
     }
 
-    if (isFunction(onClick)) {
-      onClick(checked);
-    }
+    isFunction(onClick) && onClick(checked);
 
-    this.change({ checked });
+    this.handleChange({ checked });
   };
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { checked, indeterminate, disabled } = this.props;
-
-    if (checked !== prevProps.checked || indeterminate !== prevProps.indeterminate || disabled !== prevProps.disabled) {
-      this.change({ checked, indeterminate });
-    }
-  }
-
-  change(state) {
+  handleChange = state => {
     const { onChange } = this.props;
 
     this.setState(state);
 
-    if (isFunction(onChange)) {
-      onChange(state);
-    }
-  }
-
-  renderIcons() {
-    const { disabled } = this.props;
-    const { checked, indeterminate } = this.state;
-    const icons = [
-      <i
-        key="unchecked"
-        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_unchecked icon-custom-checkbox-outline-unchecked', {
-          'ecos-checkbox__icon_hover_blue': !disabled
-        })}
-      />
-    ];
-
-    if (!disabled && !checked && !indeterminate) {
-      return icons;
-    }
-
-    icons.push(
-      <i
-        key="dark"
-        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked icon-custom-checkbox-filled-unchecked', {
-          'ecos-checkbox__icon_blue': !disabled,
-          'ecos-checkbox__icon_disabled': disabled
-        })}
-      />
-    );
-    icons.push(
-      <i
-        key="check-status"
-        className={classNames('ecos-checkbox__icon ecos-checkbox__icon_checked ecos-checkbox__icon_white', {
-          'icon-custom-checkbox-minus': indeterminate,
-          'icon-custom-checkbox-check': !indeterminate && checked
-        })}
-      />
-    );
-
-    return icons;
-  }
+    isFunction(onChange) && onChange(state);
+  };
 
   render() {
     const { className, disabled, children, title } = this.props;
@@ -118,7 +75,7 @@ export default class Checkbox extends Component {
         disabled={disabled}
         checked={checked}
         indeterminate={indeterminate}
-        onClick={this.toggle}
+        onClick={this.handleClick}
       >
         {children}
       </ControlledCheckbox>
