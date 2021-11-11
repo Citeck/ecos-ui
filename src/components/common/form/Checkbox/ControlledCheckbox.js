@@ -10,13 +10,15 @@ export default class ControlledCheckbox extends Component {
     checked: PropTypes.bool,
     indeterminate: PropTypes.bool,
     disabled: PropTypes.bool,
+    title: PropTypes.string,
     className: PropTypes.string,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     onClick: PropTypes.func
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    title: ''
   };
 
   handleClick = () => {
@@ -32,14 +34,15 @@ export default class ControlledCheckbox extends Component {
       <i
         className={classNames(
           'ecos-checkbox__icon',
-          !checked &&
+          { 'ecos-checkbox__icon_disabled': disabled },
+          !indeterminate &&
+            !checked &&
             classNames('ecos-checkbox__icon_unchecked icon-custom-checkbox-outline-unchecked', {
               'ecos-checkbox__icon_hover_blue': !disabled
             }),
-          !!checked &&
+          (indeterminate || checked) &&
             classNames('ecos-checkbox__icon_checked', {
               'ecos-checkbox__icon_blue': !disabled,
-              'ecos-checkbox__icon_disabled': disabled,
               'icon-custom-checkbox-filled-indeterminate': indeterminate,
               'icon-custom-checkbox-filled-checked': !indeterminate
             })
@@ -49,10 +52,14 @@ export default class ControlledCheckbox extends Component {
   }
 
   render() {
-    const { className, disabled, children } = this.props;
+    const { className, disabled, children, title } = this.props;
 
     return (
-      <span className={classNames('ecos-checkbox', className, { 'ecos-checkbox_disabled': disabled })} onClick={this.handleClick}>
+      <span
+        className={classNames('ecos-checkbox', className, { 'ecos-checkbox_disabled': disabled })}
+        onClick={this.handleClick}
+        title={title}
+      >
         {this.renderIcon()}
         {!!children && <span className="ecos-checkbox__text">{children}</span>}
       </span>
