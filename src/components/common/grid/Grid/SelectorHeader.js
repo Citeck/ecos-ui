@@ -16,6 +16,8 @@ const SelectorHeader = ({ latent, indeterminate, mode, checked, disabled, hasMen
   const [target] = useState(uniqueId('SelectorHeader-'));
   const [isOpen, setOpen] = useState(false);
 
+  const selectable = mode === BootstrapTableConst.ROW_SELECT_MULTIPLE;
+
   const handleToggleOpener = useCallback(
     e => {
       e.stopPropagation();
@@ -30,9 +32,16 @@ const SelectorHeader = ({ latent, indeterminate, mode, checked, disabled, hasMen
     setOpen(false);
   }, []);
 
+  const handleClick = e => {
+    if (!selectable) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div className={classNames('ecos-grid__checkbox', { 'ecos-grid__checkbox_has-menu': hasMenu })}>
-      {mode === BootstrapTableConst.ROW_SELECT_MULTIPLE && (
+    <div className={classNames('ecos-grid__checkbox', { 'ecos-grid__checkbox_has-menu': hasMenu })} onClick={handleClick}>
+      {selectable && (
         <>
           <Checkbox latent={latent} indeterminate={indeterminate} checked={checked} disabled={disabled} />
           {hasMenu && (
