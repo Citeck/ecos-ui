@@ -116,7 +116,7 @@ class JournalsDashletGrid extends Component {
     this.props.reloadGrid({ ...currentOptions, ...options });
   }
 
-  onFilterQuick = (_predicates, _type) => {
+  onFilterInline = (_predicates, _type) => {
     const [filter] = _predicates;
     const { setPredicate, setJournalSetting, grid } = this.props;
     const { pagination: pager, predicates } = grid || {};
@@ -265,7 +265,7 @@ class JournalsDashletGrid extends Component {
               filters={filters}
               inlineTools={this.inlineTools}
               onSort={this.onSort}
-              onFilter={this.onFilterQuick}
+              onFilter={this.onFilterInline}
               onSelect={this.setSelectedRecords}
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}

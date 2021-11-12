@@ -362,8 +362,8 @@ export default class ParserPredicate {
   }
 
   static setNewPredicates(_predicates, _newPredicate, addUnknown) {
-    const predicates = cloneDeep(_predicates);
     const newPredicate = cloneDeep(_newPredicate);
+    let predicates = cloneDeep(_predicates);
     let wasSet = false;
 
     if (!predicates) {
@@ -421,29 +421,29 @@ export default class ParserPredicate {
     })(predicates.val || []);
 
     if (!wasSet && addUnknown) {
-      ParserPredicate.addNewPredicate(predicates, _newPredicate);
+      predicates = ParserPredicate.addNewPredicate(predicates, _newPredicate);
     }
 
     return predicates;
   }
 
-  /**
-   * method modifies your array
-   */
-  static addNewPredicate(predicates, predicate) {
+  static addNewPredicate(_predicates, predicate) {
+    const predicates = cloneDeep(_predicates);
     const val = new Predicate(predicate);
 
-    (function forI(arr) {
+    (function forEach(arr) {
       arr.forEach(item => {
         if (isArray(item.val)) {
           if (!item.val.length || item.val.every(v => Predicate.isEndVal(v.val))) {
             item.val.push(val);
           } else {
-            forI(item.val);
+            forEach(item.val);
           }
         }
       });
     })(predicates.val || []);
+
+    return predicates;
   }
 
   static setPredicateValue(predicates, newPredicate) {
