@@ -361,12 +361,11 @@ export default class ParserPredicate {
     return out;
   }
 
-  static setNewPredicates(_predicates, _newPredicate, setUnknown) {
+  static setNewPredicates(_predicates, _newPredicate, addUnknown) {
     const predicates = cloneDeep(_predicates);
     const newPredicate = cloneDeep(_newPredicate);
-    const existed = ParserPredicate.getFlatFilters(_predicates);
-    let thisLvl = false;
-    console.log(_predicates, existed);
+    let wasSet = false;
+
     if (!predicates) {
       return [];
     }
@@ -388,7 +387,7 @@ export default class ParserPredicate {
       return newPredicates;
     }
 
-    const forEach = arr => {
+    (function forEach(arr) {
       arr.forEach(item => {
         if (isString(item)) {
           return;
@@ -400,13 +399,9 @@ export default class ParserPredicate {
           return;
         }
 
-        thisLvl = !thisLvl && !!existed.find(ex => isEqual(ex.att, item.att));
-
-        if (thisLvl && setUnknown) {
-          console.log('123');
-        }
-
         if (isEqual(item.att, newPredicate.att)) {
+          wasSet = true;
+
           if (isEqual(newPredicate, item)) {
             delete newPredicate.att;
             return;
@@ -423,11 +418,32 @@ export default class ParserPredicate {
           }
         }
       });
-    };
+    })(predicates.val || []);
 
-    forEach(predicates.val || []);
+    if (!wasSet && addUnknown) {
+      ParserPredicate.addNewPredicate(predicates, _newPredicate);
+    }
 
     return predicates;
+  }
+
+  /**
+   * method modifies your array
+   */
+  static addNewPredicate(predicates, predicate) {
+    const val = new Predicate(predicate);
+
+    (function forI(arr) {
+      arr.forEach(item => {
+        if (isArray(item.val)) {
+          if (!item.val.length || item.val.every(v => Predicate.isEndVal(v.val))) {
+            item.val.push(val);
+          } else {
+            forI(item.val);
+          }
+        }
+      });
+    })(predicates.val || []);
   }
 
   static setPredicateValue(predicates, newPredicate) {

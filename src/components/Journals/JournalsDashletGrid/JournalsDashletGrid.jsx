@@ -4,7 +4,6 @@ import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
-import merge from 'lodash/merge';
 import first from 'lodash/first';
 
 import { ParserPredicate } from '../../Filters/predicates';
@@ -117,31 +116,17 @@ class JournalsDashletGrid extends Component {
     this.props.reloadGrid({ ...currentOptions, ...options });
   }
 
-  onFilter = (_predicates, _type) => {
-    console.log(_predicates, _type);
+  onFilterQuick = (_predicates, _type) => {
     const [filter] = _predicates;
     const { setPredicate, setJournalSetting, grid } = this.props;
     const { pagination: pager, predicates } = grid || {};
-    // const currentFilters = ParserPredicate.getFlatFilters(predicates);
-    // console.log({currentFilters});
-    // const filterIdx = currentFilters.findIndex(item => isEqual(item.att, filter.att));
-    //
-    // if (filterIdx !== -1) {
-    //   currentFilters[filterIdx] = filter;
-    // } else {
-    //   currentFilters.push(filter);
-    // }
-
-    let r = ParserPredicate.getDefaultPredicates(grid.columns);
-    merge(r, _predicates);
-    console.log(r);
-    const newPredicate = ParserPredicate.setNewPredicates(first(predicates), filter, true);
+    const newPredicates = ParserPredicate.setNewPredicates(first(predicates), filter, true);
     const { maxItems } = pager || DEFAULT_PAGINATION;
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
-    setPredicate(newPredicate);
-    setJournalSetting({ predicate: newPredicate });
-    this.reloadGrid({ predicates: [newPredicate], pagination });
+    setPredicate(newPredicates);
+    setJournalSetting({ predicate: newPredicates });
+    this.reloadGrid({ predicates: [newPredicates], pagination });
   };
 
   onSort = e => {
@@ -280,7 +265,7 @@ class JournalsDashletGrid extends Component {
               filters={filters}
               inlineTools={this.inlineTools}
               onSort={this.onSort}
-              onFilter={this.onFilter}
+              onFilter={this.onFilterQuick}
               onSelect={this.setSelectedRecords}
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
