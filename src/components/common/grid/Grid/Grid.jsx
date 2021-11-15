@@ -792,10 +792,7 @@ class Grid extends Component {
 
   onFilter = (predicates, type) => {
     const { onFilter } = this.props;
-
-    if (isFunction(onFilter)) {
-      onFilter(predicates, type);
-    }
+    isFunction(onFilter) && onFilter(predicates, type);
   };
 
   onEdit = (oldValue, newValue, row, column) => {

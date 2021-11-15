@@ -78,14 +78,8 @@ class InlineFilter extends Filter {
     const { onFilter, onToggle } = this.props;
 
     e.stopPropagation();
-
-    if (isFunction(onFilter)) {
-      onFilter(this.selectedPredicate);
-    }
-
-    if (isFunction(onToggle)) {
-      onToggle();
-    }
+    isFunction(onFilter) && onFilter(this.selectedPredicate);
+    isFunction(onToggle) && onToggle();
   };
 
   onChangePredicate = predicate => {

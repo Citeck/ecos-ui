@@ -5,7 +5,7 @@ export { default as Select } from './Select';
 export { default as Textarea, MLTextarea } from './Textarea';
 export { default as Caption } from './Caption';
 export { default as Field } from './Field';
-export { default as Well } from './Well';
+export { default as Well, default as Wall } from './Well';
 export { default as Dropdown } from './Dropdown';
 export { DropdownOuter } from './Dropdown';
 export { default as Radio } from './Radio';

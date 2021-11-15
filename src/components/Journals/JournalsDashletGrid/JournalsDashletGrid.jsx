@@ -4,6 +4,7 @@ import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import first from 'lodash/first';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { InfoText, Loader } from '../../common';
@@ -115,25 +116,17 @@ class JournalsDashletGrid extends Component {
     this.props.reloadGrid({ ...currentOptions, ...options });
   }
 
-  onFilter = ([filter]) => {
+  onFilterInline = (_predicates, _type) => {
+    const [filter] = _predicates;
     const { setPredicate, setJournalSetting, grid } = this.props;
     const { pagination: pager, predicates } = grid || {};
-    const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
-    const filterIdx = currentFilters.findIndex(item => item.att === filter.att);
-
-    if (filterIdx !== -1) {
-      currentFilters[filterIdx] = filter;
-    } else {
-      currentFilters.push(filter);
-    }
-
-    const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
+    const newPredicates = ParserPredicate.setNewPredicates(first(predicates), filter, true);
     const { maxItems } = pager || DEFAULT_PAGINATION;
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
-    setPredicate(newPredicate);
-    setJournalSetting({ predicate: newPredicate });
-    this.reloadGrid({ predicates: [newPredicate], pagination });
+    setPredicate(newPredicates);
+    setJournalSetting({ predicate: newPredicates });
+    this.reloadGrid({ predicates: [newPredicates], pagination });
   };
 
   onSort = e => {
@@ -272,7 +265,7 @@ class JournalsDashletGrid extends Component {
               filters={filters}
               inlineTools={this.inlineTools}
               onSort={this.onSort}
-              onFilter={this.onFilter}
+              onFilter={this.onFilterInline}
               onSelect={this.setSelectedRecords}
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
