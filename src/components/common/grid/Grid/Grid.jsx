@@ -565,7 +565,7 @@ class Grid extends Component {
       const filterValue = filterPredicate.val || '';
       const sort = find(sortBy, sort => sort.attribute === column.dataField) || {};
       const ascending = sort.ascending;
-      const originPredicate = originPredicates.find(predicate => predicate.att === column.dataField) || {};
+      const originPredicate = find(originPredicates, predicate => predicate.att === column.dataField) || {};
 
       return (
         <HeaderFormatter
