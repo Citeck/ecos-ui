@@ -11,6 +11,14 @@
   height: 50px;
   padding-left: 15px;
   background: $color-white;
+
+  &__selected-count {
+    font-weight: $font-weight-semi-bold;
+  }
+
+  & > :nth-child(n) {
+    margin-right: 15px;
+  }
 }
 
 .grid-tools__item {

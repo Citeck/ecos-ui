@@ -70,7 +70,7 @@ export default class Record {
     }
 
     const isPersistedAssocValue = value => {
-      return value && typeof value === 'string' && value.includes('workspace://') && !value.includes('alias');
+      return _.isString(value) && value.includes('workspace://') && !value.includes('alias');
     };
 
     let recId = this.id;
