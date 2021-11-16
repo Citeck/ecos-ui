@@ -27,12 +27,14 @@ import {
 } from '../../../actions/journals';
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
+import { selectOriginGridPredicates } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
 
   return {
     isMobile: !!get(state, 'view.isMobile'),
+    originPredicates: selectOriginGridPredicates(state, props.stateId),
     ...ownState
   };
 };
@@ -224,7 +226,8 @@ class JournalsDashletGrid extends Component {
       viewColumns,
       onOpenSettings,
       query,
-      isGrouped
+      isGrouped,
+      originPredicates
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -250,6 +253,7 @@ class JournalsDashletGrid extends Component {
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
+              originPredicates={originPredicates}
               data={data}
               columns={viewColumns}
               className={className}
@@ -293,6 +297,7 @@ JournalsDashletGrid.propTypes = {
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
   selectorContainer: PropTypes.string,
+  originPredicates: PropTypes.array,
   minHeight: PropTypes.any,
   maxHeight: PropTypes.any,
   autoHeight: PropTypes.bool,

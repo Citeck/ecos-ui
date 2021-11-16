@@ -197,7 +197,7 @@ export default class ParserPredicate {
   }
 
   static getFilters(predicates, columns, condition) {
-    const { val, t } = predicates;
+    const { val = [], t } = predicates;
     let filters = [];
 
     for (let i = 0, length = val.length; i < length; i++) {
