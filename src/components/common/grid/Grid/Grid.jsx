@@ -22,6 +22,7 @@ import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatte
 import { ErrorCell } from '../ErrorCell';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
+import isNil from 'lodash/isNil';
 
 import './Grid.scss';
 
@@ -66,6 +67,18 @@ class Grid extends Component {
     };
   }
 
+  get hasCheckboxes() {
+    const { singleSelectable, multiSelectable } = this.props;
+
+    return singleSelectable || multiSelectable;
+  }
+
+  get fixedHeader() {
+    const { freezeCheckboxes, fixedHeader } = this.props;
+
+    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
+  }
+
   static getDerivedStateFromProps(props, state) {
     if (!isEqual(props.selected, state.selected)) {
       return { selected: props.selected };
@@ -108,18 +121,6 @@ class Grid extends Component {
     this.removeKeydownEvents();
     this.removeDragEvents();
     clearTimeout(this._timeoutDefaultWidth);
-  }
-
-  get hasCheckboxes() {
-    const { singleSelectable, multiSelectable } = this.props;
-
-    return singleSelectable || multiSelectable;
-  }
-
-  get fixedHeader() {
-    const { freezeCheckboxes, fixedHeader } = this.props;
-
-    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
 
   setGridRef = ref => {
@@ -247,20 +248,17 @@ class Grid extends Component {
     }
   };
 
-  onSelect = (allPage, newSelected, allPossible) => {
+  onSelect = ({ allPage, newSelected, allPossible, newExcluded }) => {
     const { onSelect } = this.props;
     const selected = [...new Set(newSelected)];
+    const excluded = [...new Set(newExcluded)];
+    const props = { selected };
 
-    this.setState(
-      { selected },
-      () =>
-        isFunction(onSelect) &&
-        onSelect({
-          selected,
-          all: allPage,
-          allPossible: !allPage ? allPage : allPossible
-        })
-    );
+    !isNil(allPage) && (props.all = allPage);
+    !isNil(allPossible) && (props.allPossible = allPossible);
+    !isNil(newExcluded) && (props.excluded = excluded);
+
+    this.setState({ selected }, () => isFunction(onSelect) && onSelect(props));
   };
 
   setBootstrapTableProps(props, extra) {
@@ -566,7 +564,9 @@ class Grid extends Component {
   handleSelectRadio = row => {
     const prevValue = head(this.state.selected);
     const newValue = row[this.props.keyField];
-    this.onSelect(false, newValue !== prevValue ? [newValue] : []);
+    const newSelected = newValue !== prevValue ? [newValue] : [];
+
+    this.onSelect({ allPage: false, newSelected });
   };
 
   createMultiSelectionCheckboxes(props) {
@@ -585,11 +585,13 @@ class Grid extends Component {
   }
 
   handleSelectCheckbox = (row, isSelect) => {
-    const keyValue = row[this.props.keyField];
+    const { keyField, excluded } = this.props;
+    const keyValue = row[keyField];
     const selected = this.state.selected;
     const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
+    const newExcluded = isSelect ? excluded.filter(x => x !== keyValue) : [...excluded, keyValue];
 
-    this.onSelect(false, newSelected);
+    this.onSelect({ allPage: false, newSelected, newExcluded });
   };
 
   handleSelectAllCheckbox = (allPage, rows) => {
@@ -599,15 +601,15 @@ class Grid extends Component {
     const isSelectedPage = allPage || (!allPage && rows.length < page.length);
     const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
-    this.onSelect(allPage, newSelected);
+    this.onSelect({ allPage, newSelected, newExcluded: [] });
   };
 
   handleClickMenuCheckbox = option => {
-    const items = option.id === SELECTOR_MENU_KEY.NONE ? [] : this.getSelectedPageItems();
+    const newSelected = option.id === SELECTOR_MENU_KEY.NONE ? [] : this.getSelectedPageItems();
     const allPage = option.id !== SELECTOR_MENU_KEY.NONE;
     const allPossible = option.id === SELECTOR_MENU_KEY.ALL;
 
-    this.onSelect(allPage, items, allPossible);
+    this.onSelect({ allPage, newSelected, allPossible, newExcluded: [] });
   };
 
   toolsVisible = () => {
@@ -1076,6 +1078,7 @@ Grid.propTypes = {
   filters: PropTypes.array,
   sortBy: PropTypes.array,
   selected: PropTypes.array,
+  excluded: PropTypes.array,
   nonSelectable: PropTypes.array,
   editingRules: PropTypes.object,
 
@@ -1100,6 +1103,7 @@ Grid.defaultProps = {
   sortable: true,
   nonSelectable: [],
   selected: [],
+  excluded: [],
   keyField: 'id'
 };
 

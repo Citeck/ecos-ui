@@ -17,6 +17,7 @@ import {
   reloadGrid,
   saveRecords,
   setColumnsSetup,
+  setExcludedRecords,
   setGridInlineToolSettings,
   setPredicate,
   setSelectAllPageRecords,
@@ -35,7 +36,9 @@ const mapStateToProps = (state, props) => {
     predicate: newState.predicate,
     journalConfig: newState.journalConfig,
     selectedRecords: newState.selectedRecords,
-    selectAllPageRecords: newState.selectAllPageRecords
+    excludedRecords: newState.excludedRecords,
+    selectAllPageRecords: newState.selectAllPageRecords,
+    selectAllRecordsVisible: newState.selectAllRecordsVisible
   };
 };
 
@@ -47,6 +50,7 @@ const mapDispatchToProps = (dispatch, props) => {
     saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
+    setExcludedRecords: records => dispatch(setExcludedRecords(w(records))),
     setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
     deselectAllRecords: visible => dispatch(deselectAllRecords(w())),
@@ -90,8 +94,15 @@ class JournalsDashletGrid extends Component {
     }
   }
 
-  setSelectedRecords = ({ selected, all: allPage, allPossible }) => {
-    const { setSelectedRecords, setSelectAllRecordsVisible, setSelectAllPageRecords, deselectAllRecords } = this.props;
+  setSelectedRecords = ({ selected, all: allPage, allPossible, excluded }) => {
+    const {
+      setSelectedRecords,
+      setExcludedRecords,
+      setSelectAllRecordsVisible,
+      setSelectAllPageRecords,
+      deselectAllRecords,
+      selectAllRecordsVisible
+    } = this.props;
 
     if (!selected.length) {
       deselectAllRecords();
@@ -101,6 +112,9 @@ class JournalsDashletGrid extends Component {
     setSelectedRecords(selected);
     setSelectAllPageRecords(allPage);
     !isNil(allPossible) && setSelectAllRecordsVisible(allPossible);
+
+    const _allPossible = isNil(allPossible) ? selectAllRecordsVisible : allPossible;
+    !isNil(excluded) && setExcludedRecords(_allPossible ? excluded : []);
   };
 
   reloadGrid(options) {
@@ -211,6 +225,7 @@ class JournalsDashletGrid extends Component {
   render() {
     const {
       selectedRecords,
+      excludedRecords,
       selectAllPageRecords,
       saveRecords,
       className,
@@ -269,6 +284,7 @@ class JournalsDashletGrid extends Component {
               onScrolling={this.onScrolling}
               onEdit={saveRecords}
               selected={selectedRecords}
+              excluded={excludedRecords}
               selectAll={selectAllPageRecords}
               minHeight={minHeight}
               maxHeight={maxHeight}
