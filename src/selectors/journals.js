@@ -20,6 +20,10 @@ export const selectJournalSetting = createSelector(
   selectState,
   ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
 );
+export const selectJournalSettings = createSelector(
+  selectState,
+  ownState => get(ownState, 'journalSettings', [])
+);
 
 export const selectJournals = createSelector(
   selectState,
@@ -147,6 +151,15 @@ export const selectSettingsData = createSelector(
     })
 );
 
+export const selectOriginGridPredicates = createSelector(
+  selectState,
+  ownProps => {
+    const predicates = get(ownProps, 'originGridSettings.predicate', {}) || {};
+
+    return (ParserPredicate.getFilters(predicates) || []).map(item => item.predicate);
+  }
+);
+
 export const selectSettingsFilters = createSelector(
   selectState,
   ownProps =>
@@ -185,7 +198,12 @@ export const selectGridPaginationMaxItems = createSelector(
 
 export const selectIsFilterOn = createSelector(
   [selectSettingsFilters, selectSettingsData],
-  (settingsFiltersData, settingsData) => !isEqual(settingsFiltersData.predicate, settingsData.originGridSettings.predicate)
+  (settingsFiltersData, settingsData) => {
+    const settingsPredicate = JSON.parse(JSON.stringify(settingsFiltersData.predicate));
+    const originPredicate = JSON.parse(JSON.stringify(settingsData.originGridSettings.predicate));
+
+    return !isEqual(settingsPredicate, originPredicate);
+  }
 );
 
 export const selectWasChangedSettings = createSelector(

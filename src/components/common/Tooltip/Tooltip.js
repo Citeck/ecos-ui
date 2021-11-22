@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip as RTooltip } from 'reactstrap';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 
 import { isClosestHidden } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
@@ -72,7 +74,7 @@ class Tooltip extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
-    if (typeof props.onToggle === 'function' && props.isOpen !== state.isOpen && !props.uncontrolled) {
+    if (isFunction(props.onToggle) && props.isOpen !== state.isOpen && !props.uncontrolled) {
       newState.isOpen = props.isOpen;
     }
 
@@ -99,8 +101,10 @@ class Tooltip extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.stealthCheck();
 
-    ZIndex.calcZ();
-    ZIndex.setZ('ecos-base-tooltip');
+    if (this.state.isOpen) {
+      ZIndex.calcZ();
+      ZIndex.setZ('ecos-base-tooltip');
+    }
   }
 
   stealthCheck = () => {
@@ -111,10 +115,10 @@ class Tooltip extends Component {
     }
   };
 
-  onToggle = () => {
+  onToggle = (...data) => {
     const { onToggle, uncontrolled } = this.props;
 
-    if (typeof onToggle === 'function' && !uncontrolled) {
+    if (isFunction(onToggle) && !uncontrolled) {
       onToggle.call(this);
     } else {
       this.setState(state => ({ isOpen: !state.isOpen }));
@@ -186,7 +190,7 @@ class Tooltip extends Component {
 
       context.font = styles.getPropertyValue('font');
 
-      if (width && height) {
+      if (!isNil(width) && !isNil(height)) {
         needTooltip = context.measureText(text).width > width - (paddingLeft + paddingRight);
       }
 

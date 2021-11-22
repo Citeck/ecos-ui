@@ -3,9 +3,9 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isString from 'lodash/isString';
+import isNil from 'lodash/isNil';
 
-import { isExistValue } from '../../../helpers/util';
-import { t } from '../../../helpers/export/util';
 import {
   COLUMN_DATA_TYPE_DATE,
   COLUMN_DATA_TYPE_DATETIME,
@@ -139,7 +139,7 @@ export default class ParserPredicate {
     }
 
     return val.filter(v => {
-      if (!isExistValue(v)) {
+      if (isNil(v)) {
         return false;
       }
 
@@ -197,7 +197,7 @@ export default class ParserPredicate {
   }
 
   static getFilters(predicates, columns, condition) {
-    const { val, t } = predicates;
+    const { val = [], t } = predicates;
     let filters = [];
 
     for (let i = 0, length = val.length; i < length; i++) {
@@ -333,7 +333,7 @@ export default class ParserPredicate {
   static getFlatFilters(predicates) {
     const out = [];
 
-    if (!predicates) {
+    if (isEmpty(predicates)) {
       return out;
     }
 
@@ -344,11 +344,6 @@ export default class ParserPredicate {
       isArray(arr) &&
         arr.forEach(item => {
           if (!isArray(item.val) && (!!item.val || item.val === false || item.val === 0 || ParserPredicate.isWithoutValue(item))) {
-            if (typeof item.val === 'boolean') {
-              out.push({ ...item, val: t(item.val ? 'boolean.yes' : 'boolean.no') });
-              return;
-            }
-
             out.push(item);
           } else if (isArray(item.val)) {
             if (item.val.every(v => typeof v === 'string')) {
@@ -366,8 +361,10 @@ export default class ParserPredicate {
     return out;
   }
 
-  static setNewPredicates(predicates, newPredicate) {
-    predicates = cloneDeep(predicates);
+  static setNewPredicates(_predicates, _newPredicate, addUnknown) {
+    const newPredicate = cloneDeep(_newPredicate);
+    let predicates = cloneDeep(_predicates);
+    let wasSet = false;
 
     if (!predicates) {
       return [];
@@ -390,19 +387,21 @@ export default class ParserPredicate {
       return newPredicates;
     }
 
-    const forEach = arr => {
+    (function forEach(arr) {
       arr.forEach(item => {
-        if (typeof item === 'string') {
+        if (isString(item)) {
           return;
         }
 
-        if (isArray(item.val) && !item.val.some(i => typeof i === 'string')) {
+        if (isArray(item.val) && !item.val.some(i => isString(i))) {
           forEach(item.val);
 
           return;
         }
 
-        if (item.att === newPredicate.att) {
+        if (isEqual(item.att, newPredicate.att)) {
+          wasSet = true;
+
           if (isEqual(newPredicate, item)) {
             delete newPredicate.att;
             return;
@@ -411,7 +410,7 @@ export default class ParserPredicate {
           if (isEqual(item.att, newPredicate.att) && (!isEqual(item.val, newPredicate.val) || !isEqual(item.t, newPredicate.t))) {
             item.val = newPredicate.val;
 
-            if (isExistValue(newPredicate.t)) {
+            if (!isNil(newPredicate.t)) {
               item.t = newPredicate.t;
             }
 
@@ -419,9 +418,30 @@ export default class ParserPredicate {
           }
         }
       });
-    };
+    })(predicates.val || []);
 
-    forEach(predicates.val || []);
+    if (!wasSet && addUnknown) {
+      predicates = ParserPredicate.addNewPredicate(predicates, _newPredicate);
+    }
+
+    return predicates;
+  }
+
+  static addNewPredicate(_predicates, predicate) {
+    const predicates = cloneDeep(_predicates);
+    const val = new Predicate(predicate);
+
+    (function forEach(arr) {
+      arr.forEach(item => {
+        if (isArray(item.val)) {
+          if (!item.val.length || item.val.every(v => Predicate.isEndVal(v.val))) {
+            item.val.push(val);
+          } else {
+            forEach(item.val);
+          }
+        }
+      });
+    })(predicates.val || []);
 
     return predicates;
   }

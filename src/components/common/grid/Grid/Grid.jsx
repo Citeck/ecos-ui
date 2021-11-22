@@ -8,6 +8,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import set from 'lodash/set';
 import get from 'lodash/get';
 import head from 'lodash/head';
+import last from 'lodash/last';
 import cloneDeep from 'lodash/cloneDeep';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -35,15 +36,17 @@ import Selector from './Selector';
 import './Grid.scss';
 
 const CUSTOM_NESTED_DELIMITER = '|';
-const CLOSE_FILTER_EVENT = 'closeFilterEvent';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
-const MIN_TH_WIDTH = 60;
 const MAX_START_TH_WIDTH = 500;
+
+function cssNum(v) {
+  return `${v}px`;
+}
 
 class Grid extends Component {
   #columnsSizes = {};
@@ -67,6 +70,7 @@ class Grid extends Component {
     this._optionMinWidth = null;
 
     this.state = {
+      needCellUpdate: false,
       tableHeight: 0,
       isScrolling: false,
       selected: props.selected || []
@@ -86,7 +90,6 @@ class Grid extends Component {
   }
 
   componentDidMount() {
-    this.createCloseFilterEvent();
     this.createKeydownEvents();
     this.createDragEvents();
 
@@ -107,7 +110,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns } = this.props;
+    const { resizableColumns, columns } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -117,12 +120,15 @@ class Grid extends Component {
       resizableColumns ? this.createColumnResizeEvents() : this.removeColumnResizeEvents();
     }
 
+    if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
+      this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
+    }
+
     this.setColumnsSizes();
     this.checkScrollPosition();
   }
 
   componentWillUnmount() {
-    this.removeCloseFilterEvent();
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
@@ -155,58 +161,37 @@ class Grid extends Component {
     this.#gridRef = ref;
   };
 
-  /**
-   * Fixes loss of column sizes when redrawing a component
-   */
   setColumnsSizes = () => {
-    if (!this._tableDom) {
+    if (!this._tableDom || !Object.keys(this.#columnsSizes).length) {
       return;
     }
 
-    if (!Object.keys(this.#columnsSizes).length) {
-      return;
-    }
+    const tHead = head(this._tableDom.rows);
 
-    const rows = this._tableDom.rows;
-
-    for (let i = 0; i < rows.length; i++) {
-      for (let j = 0, row = rows[i]; j < row.cells.length; j++) {
-        let cell = row.cells[j];
-
-        if (!cell) {
-          continue;
-        }
-
-        let { width = 0 } = get(this.#columnsSizes, `[${j}]`, {});
-
-        if (!width) {
-          continue;
-        }
-
-        cell.style.width = `${width}px`;
-      }
-    }
+    tHead &&
+      tHead.cells.forEach((cell, i) => {
+        const width = cell && !!get(this.#columnsSizes, [i, 'width']);
+        width && (cell.style.width = cssNum(width));
+      });
   };
 
   setDefaultWidth = () => {
-    !this._startResizingThOffset &&
-      this._ref.current &&
-      this._ref.current.querySelectorAll('.ecos-grid__td').forEach(cellEl => {
-        if (cellEl) {
-          const td = cellEl.closest('td');
-          const table = cellEl.closest('table');
-          const container = table.parentElement;
-          const checkbox = table.querySelector('.ecos-grid__checkbox');
-          const cellLen = get(table, 'rows[0].cells.length') - (checkbox ? 1 : 0);
-          const proratedSizeCell = (container.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
-          const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
-          const max = clearedSizeCell > MAX_START_TH_WIDTH ? clearedSizeCell : MAX_START_TH_WIDTH;
+    if (!this._startResizingThOffset && this._ref.current) {
+      const table = this._ref.current.querySelector('.react-bootstrap-table > table');
+      const thCells = table && head(table.rows).cells;
 
-          if (cellLen > 1 && table.clientWidth > container.clientWidth && td.clientWidth > max) {
-            td.style.width = `${max}px`;
-          }
+      if (!isEmpty(thCells)) {
+        const checkbox = table.querySelector('.ecos-grid__checkbox');
+        const cellLen = thCells.length - (checkbox ? 1 : 0);
+        const proratedSizeCell = (table.parentElement.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
+        const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
+        const max = Math.max(clearedSizeCell, MAX_START_TH_WIDTH);
+
+        if (cellLen > 1 && table.clientWidth > table.parentElement.clientWidth) {
+          thCells.forEach(cell => cell.clientWidth > max && (cell.style.width = cssNum(max)));
         }
-      });
+      }
+    }
   };
 
   checkScrollPosition() {
@@ -283,6 +268,7 @@ class Grid extends Component {
   };
 
   getBootstrapTableProps(props, extra) {
+    const { needCellUpdate } = this.state;
     const options = {
       keyField: props.keyField,
       bootstrap4: true,
@@ -295,7 +281,8 @@ class Grid extends Component {
     if (Array.isArray(extra.columns)) {
       options.columns = extra.columns.map(column => {
         if (column.width) {
-          column = this.setWidth(column);
+          set(column, 'headerStyle.width', column.width);
+          get(column, 'style.width') && delete column.style.width;
         }
 
         if (!isUndefined(column.default)) {
@@ -377,17 +364,28 @@ class Grid extends Component {
       if (!Array.isArray(items)) {
         return items;
       }
+
       return items.map(item => {
         const newItem = {};
         const fields = Object.keys(item);
+
         fields.forEach(field => {
           const hasDot = field.includes('.');
+
           if (hasDot) {
             newItem[field.replace(/\./g, CUSTOM_NESTED_DELIMITER)] = item[field];
           } else {
             newItem[field] = item[field];
           }
         });
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-1519
+        if (needCellUpdate) {
+          newItem._needUpdateCell = true;
+        } else {
+          delete newItem._needUpdateCell;
+        }
+
         return newItem;
       });
     };
@@ -457,27 +455,12 @@ class Grid extends Component {
   };
 
   getCheckboxGridTrClassList = tr => {
-    const rowIndex = tr.rowIndex;
-    const parent = isElement(tr) ? tr.closest('.react-bootstrap-table') : null;
-    let node;
-    let classList = null;
+    const index = tr.rowIndex;
+    const parent = isElement(tr) && tr.closest('.react-bootstrap-table');
+    const foundTr = isFunction(get(parent, 'nextSibling.getElementsByTagName')) && parent.nextSibling.getElementsByTagName('tr');
+    const node = get(foundTr, [index]) && head(foundTr[index].getElementsByClassName('ecos-grid__checkbox'));
 
-    if (
-      parent &&
-      parent.nextSibling &&
-      parent.nextSibling.getElementsByTagName('tr') &&
-      parent.nextSibling.getElementsByTagName('tr').item(rowIndex) &&
-      (node = head(
-        parent.nextSibling
-          .getElementsByTagName('tr')
-          .item(rowIndex)
-          .getElementsByClassName('ecos-grid__checkbox')
-      ))
-    ) {
-      classList = node.classList;
-    }
-
-    return classList;
+    return get(node, 'classList', null);
   };
 
   getTrOptions = tr => {
@@ -545,17 +528,8 @@ class Grid extends Component {
     };
   };
 
-  setWidth = column => {
-    column.style = {
-      ...column.style,
-      width: column.width
-    };
-
-    return column;
-  };
-
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const isSortable = sortable && isFunction(onSort);
 
@@ -565,13 +539,14 @@ class Grid extends Component {
       const filterValue = filterPredicate.val || '';
       const sort = find(sortBy, sort => sort.attribute === column.dataField) || {};
       const ascending = sort.ascending;
+      const originPredicate = find(originPredicates, predicate => predicate.att === column.dataField) || {};
 
       return (
         <HeaderFormatter
+          originPredicate={originPredicate}
           isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
-          closeFilterEvent={CLOSE_FILTER_EVENT}
           filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={isSortable}
@@ -601,6 +576,12 @@ class Grid extends Component {
       selectionRenderer: props => <Selector {...props} />
     };
   }
+
+  handleSelectRadio = row => {
+    const prevValue = head(this.state.selected);
+    const newValue = row[this.props.keyField];
+    this.onSelect(false, newValue !== prevValue ? [newValue] : []);
+  };
 
   handleSelectRadio = row => {
     const prevValue = head(this.state.selected);
@@ -649,6 +630,24 @@ class Grid extends Component {
     this.onSelect(allPage, items, allPossible);
   };
 
+  handleSelectCheckbox = (row, isSelect) => {
+    const keyValue = row[this.props.keyField];
+    const selected = this.state.selected;
+    const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
+
+    this.onSelect(false, newSelected);
+  };
+
+  handleSelectAllCheckbox = (allPage, rows) => {
+    const { selected } = this.state;
+    const page = this.getSelectedPageItems();
+    const ids = rows.map(row => row.id);
+    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
+    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+
+    this.onSelect(allPage, newSelected);
+  };
+
   toolsVisible = () => {
     return !isEmpty(this.getSelectedByPage(this.props.data, true));
   };
@@ -674,18 +673,6 @@ class Grid extends Component {
     });
   };
 
-  createCloseFilterEvent = () => {
-    this.closeFilterEvent = document.createEvent('Event');
-    this.closeFilterEvent.initEvent(CLOSE_FILTER_EVENT, true, true);
-    document.addEventListener('mousedown', this.triggerCloseFilterEvent, false);
-    window.addEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
-  };
-
-  removeCloseFilterEvent = () => {
-    document.removeEventListener('mousedown', this.triggerCloseFilterEvent, false);
-    window.removeEventListener('DOMMouseScroll', this.triggerCloseFilterEvent, false);
-  };
-
   createColumnResizeEvents = () => {
     document.addEventListener('mousemove', this.resizeColumn);
     document.addEventListener('mouseup', this.clearResizingColumn);
@@ -694,26 +681,6 @@ class Grid extends Component {
   removeColumnResizeEvents = () => {
     document.removeEventListener('mousemove', this.resizeColumn);
     document.removeEventListener('mouseup', this.clearResizingColumn);
-  };
-
-  fixAllThWidth = () => {
-    if (!this._tableDom) {
-      return;
-    }
-
-    const allTh = this._tableDom.querySelectorAll('th');
-
-    if (allTh.length < 3) {
-      return;
-    }
-
-    for (let i = 0; i < allTh.length - 1; i++) {
-      const th = allTh[i];
-      const thStyles = window.getComputedStyle(th);
-
-      th.style['width'] = thStyles['width'];
-      th.style['min-width'] = thStyles['width'];
-    }
   };
 
   getElementPaddings = (element = null) => {
@@ -741,43 +708,28 @@ class Grid extends Component {
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
     this._tableDom = isElement(options.th) ? options.th.closest('table') : null;
-
-    this.fixAllThWidth(); // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3196
-
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
-    this._optionMinWidth = options.minW;
   };
 
   resizeColumn = e => {
-    let th = this._resizingTh;
+    const th = this._resizingTh;
 
     if (th && this._tableDom) {
-      let width = this._startResizingThOffset + e.pageX;
+      const width = this._startResizingThOffset + e.pageX;
+      const tHead = head(this._tableDom.rows);
 
-      if (width < MIN_TH_WIDTH) {
-        width = MIN_TH_WIDTH; //  - left - right;
-      }
-
-      if (this._optionMinWidth && width < this._optionMinWidth) {
-        width = this._optionMinWidth;
-      }
-
-      const rows = this._tableDom.rows;
-
-      for (let i = 0; i < rows.length; i++) {
-        const resizeCol = rows[i].cells[th.cellIndex];
-        const lastCol = rows[i].cells[rows[i].cells.length - 1];
-        const curWidth = resizeCol.style.width;
-
-        if (!resizeCol) {
-          continue;
-        }
+      if (isElement(tHead)) {
+        const cells = tHead.cells;
+        const resizeCol = get(cells, [th.cellIndex]);
+        const lastCol = last(cells);
+        const resizeWidth = resizeCol.style.width;
+        const lastWidth = lastCol.style.width;
 
         resizeCol.style.removeProperty('min-width');
-        resizeCol.style.width = `${width}px`;
+        resizeCol.style.width = cssNum(width);
 
-        if (lastCol) {
-          lastCol.style.width = `${parseFloat(lastCol.style.width) + (parseFloat(curWidth) - width)}px`;
+        if (isElement(lastCol)) {
+          lastCol.style.width = cssNum(parseFloat(lastWidth) + (parseFloat(resizeWidth) - width));
         }
       }
     }
@@ -785,7 +737,7 @@ class Grid extends Component {
 
   clearResizingColumn = e => {
     if (this._resizingTh && this._tableDom) {
-      const cells = get(this._tableDom, 'rows[0].cells');
+      const cells = head(this._tableDom.rows).cells;
       const columnsSizes = {};
 
       for (let i = 0; i < cells.length; i++) {
@@ -803,10 +755,6 @@ class Grid extends Component {
     }
 
     this._resizingTh = null;
-  };
-
-  triggerCloseFilterEvent = e => {
-    (e.target || e).dispatchEvent(this.closeFilterEvent);
   };
 
   inlineTools = () => {
@@ -846,16 +794,13 @@ class Grid extends Component {
 
   onFilter = (predicates, type) => {
     const { onFilter } = this.props;
-
-    if (isFunction(onFilter)) {
-      onFilter(predicates, type);
-    }
+    isFunction(onFilter) && onFilter(predicates, type);
   };
 
   onEdit = (oldValue, newValue, row, column) => {
     if (oldValue !== newValue) {
       trigger.call(this, 'onEdit', {
-        id: row[this._keyField],
+        id: row[this.props.keyField],
         attributes: {
           [column.attribute]: newValue
         }
@@ -865,8 +810,6 @@ class Grid extends Component {
 
   onScrollStart = e => {
     this.setState({ isScrolling: true });
-
-    this.triggerCloseFilterEvent(document.body);
     trigger.call(this, 'onScrollStart', e);
   };
 
@@ -1088,7 +1031,7 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable } = this.props;
 
     if (isEmpty(columns)) {
       return null;
@@ -1103,7 +1046,8 @@ class Grid extends Component {
         className={classNames('ecos-grid', {
           'ecos-grid_no-header': noHeader,
           'ecos-grid_freeze': this.fixedHeader,
-          'ecos-grid_checkable': this.hasCheckboxes,
+          'ecos-grid_selectable': this.hasCheckboxes,
+          'ecos-grid_selectable_multi': multiSelectable,
           'ecos-grid_no-top-border': noTopBorder,
           [className]: !!className
         })}
@@ -1155,6 +1099,7 @@ Grid.propTypes = {
   columns: PropTypes.array,
   data: PropTypes.array,
   filters: PropTypes.array,
+  originPredicates: PropTypes.array,
   sortBy: PropTypes.array,
   selected: PropTypes.array,
   nonSelectable: PropTypes.array,
@@ -1183,8 +1128,7 @@ Grid.defaultProps = {
   resizableColumns: true,
   keyField: 'id',
   nonSelectable: [],
-  selected: [],
-  onSelect: _ => _
+  selected: []
 };
 
 export default Grid;

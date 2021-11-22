@@ -12,9 +12,11 @@ import { SELECTOR_MENU } from '../util';
 import '../../Tooltip/style.scss';
 import './Grid.scss';
 
-const SelectorHeader = ({ latent, indeterminate, mode, checked, disabled, hasMenu, onClickMenu }) => {
+const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onClickMenu }) => {
   const [target] = useState(uniqueId('SelectorHeader-'));
   const [isOpen, setOpen] = useState(false);
+
+  const selectable = mode === BootstrapTableConst.ROW_SELECT_MULTIPLE;
 
   const handleToggleOpener = useCallback(
     e => {
@@ -30,11 +32,18 @@ const SelectorHeader = ({ latent, indeterminate, mode, checked, disabled, hasMen
     setOpen(false);
   }, []);
 
+  const handleClick = e => {
+    if (!selectable) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div className={classNames('ecos-grid__checkbox', { 'ecos-grid__checkbox_has-menu': hasMenu })}>
-      {mode === BootstrapTableConst.ROW_SELECT_MULTIPLE && (
+    <div className={classNames('ecos-grid__checkbox', { 'ecos-grid__checkbox_has-menu': hasMenu })} onClick={handleClick}>
+      {selectable && (
         <>
-          <Checkbox latent={latent} indeterminate={indeterminate} checked={checked} disabled={disabled} />
+          <Checkbox indeterminate={indeterminate} checked={checked} disabled={disabled} />
           {hasMenu && (
             <>
               <Tooltip

@@ -4,6 +4,7 @@ import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import first from 'lodash/first';
 
 import { ParserPredicate } from '../../Filters/predicates';
 import { InfoText, Loader } from '../../common';
@@ -26,12 +27,14 @@ import {
 } from '../../../actions/journals';
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
+import { selectOriginGridPredicates } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
 
   return {
     isMobile: !!get(state, 'view.isMobile'),
+    originPredicates: selectOriginGridPredicates(state, props.stateId),
     ...ownState
   };
 };
@@ -54,7 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
     setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
   };
 };
-
+//todo rethink this solution without empty grid and especially cloneElement for grid
 const HeightCalculation = props => {
   const { minHeight, maxHeight, children, total, maxItems } = props;
 
@@ -115,25 +118,17 @@ class JournalsDashletGrid extends Component {
     this.props.reloadGrid({ ...currentOptions, ...options });
   }
 
-  onFilter = ([filter]) => {
+  onFilterInline = (_predicates, _type) => {
+    const [filter] = _predicates;
     const { setPredicate, setJournalSetting, grid } = this.props;
     const { pagination: pager, predicates } = grid || {};
-    const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
-    const filterIdx = currentFilters.findIndex(item => item.att === filter.att);
-
-    if (filterIdx !== -1) {
-      currentFilters[filterIdx] = filter;
-    } else {
-      currentFilters.push(filter);
-    }
-
-    const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
+    const newPredicates = ParserPredicate.setNewPredicates(first(predicates), filter, true);
     const { maxItems } = pager || DEFAULT_PAGINATION;
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
-    setPredicate(newPredicate);
-    setJournalSetting({ predicate: newPredicate });
-    this.reloadGrid({ predicates: [newPredicate], pagination });
+    setPredicate(newPredicates);
+    setJournalSetting({ predicate: newPredicates });
+    this.reloadGrid({ predicates: [newPredicates], pagination });
   };
 
   onSort = e => {
@@ -154,6 +149,7 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = row || {};
   }
 
+  //todo: rethink. this solution is costly
   showGridInlineToolSettings = options => {
     this.setSelectedRow(options.row);
     this.handleSetInlineTools({ actions: this.getCurrentRowInlineActions(), ...options });
@@ -230,7 +226,8 @@ class JournalsDashletGrid extends Component {
       viewColumns,
       onOpenSettings,
       query,
-      isGrouped
+      isGrouped,
+      originPredicates
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -256,6 +253,7 @@ class JournalsDashletGrid extends Component {
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
+              originPredicates={originPredicates}
               data={data}
               columns={viewColumns}
               className={className}
@@ -271,7 +269,7 @@ class JournalsDashletGrid extends Component {
               filters={filters}
               inlineTools={this.inlineTools}
               onSort={this.onSort}
-              onFilter={this.onFilter}
+              onFilter={this.onFilterInline}
               onSelect={this.setSelectedRecords}
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
@@ -299,6 +297,7 @@ JournalsDashletGrid.propTypes = {
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
   selectorContainer: PropTypes.string,
+  originPredicates: PropTypes.array,
   minHeight: PropTypes.any,
   maxHeight: PropTypes.any,
   autoHeight: PropTypes.bool,

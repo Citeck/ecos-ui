@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import merge from 'lodash/merge';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 
 import { Attributes, Permissions } from '../../../../constants';
 import { beArray, t } from '../../../../helpers/util';
@@ -587,32 +588,27 @@ export default class SelectJournal extends Component {
 
   onCreateFormSubmit = (record, form, alias) => {
     const { multiple } = this.props;
+    const { gridData, pagination } = this.state;
 
-    this.setState(state => {
-      const prevSelected = state.gridData.selected || [];
-      const newSkipCount = Math.floor(state.gridData.total / state.pagination.maxItems) * state.pagination.maxItems;
-      const newPageNum = Math.ceil((state.gridData.total + 1) / state.pagination.maxItems);
+    const prevSelected = gridData.selected || [];
+    const newSkipCount = Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems;
+    const newPageNum = Math.ceil((gridData.total + 1) / pagination.maxItems);
 
-      return {
-        gridData: {
-          ...state.gridData,
-          selected: multiple ? [...prevSelected, record.id] : [record.id],
-          inMemoryData: [
-            ...state.gridData.inMemoryData,
-            {
-              id: record.id,
-              ...alias.getRawAttributes()
-            }
-          ]
-        },
+    alias.toJsonAsync(true).then(res => {
+      const newData = cloneDeep(this.state);
+      const aliasAttrs = alias.getRawAttributes();
+      const resolvedAttrs = cloneDeep(res.attributes);
+      const selected = multiple ? [...prevSelected, record.id] : [record.id];
+      const inMemoryData = [{ id: record.id, ...aliasAttrs, ...resolvedAttrs }];
+
+      merge(newData, {
+        gridData: { selected, inMemoryData },
         filterPredicate: [],
-        pagination: {
-          ...state.pagination,
-          skipCount: newSkipCount,
-          page: newPageNum
-        }
-      };
-    }, this.refreshGridData);
+        pagination: { skipCount: newSkipCount, page: newPageNum }
+      });
+
+      this.setState(newData, this.refreshGridData);
+    });
   };
 
   onValueEdit = record => {
@@ -736,11 +732,11 @@ export default class SelectJournal extends Component {
             scrollable={false}
             onRowDoubleClick={this.onRowDoubleClick}
           />
-
-          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
         </div>
 
         <div className="select-journal-select-modal__buttons">
+          <Pagination className="select-journal__pagination" total={gridData.total} {...pagination} onChange={this.onChangePage} />
+          <div className="select-journal-select-modal__buttons-space" />
           <Btn className="select-journal-select-modal__buttons-cancel" onClick={this.onCancelSelect}>
             {t(Labels.CANCEL_BUTTON)}
           </Btn>

@@ -32,13 +32,8 @@
       border-radius: 6px;
       background: $color-gray-4;
 
-      &-text {
-        padding-right: 7px;
-      }
-
       #{$th}__actions {
         background: $color-gray-4;
-        right: 7px;
       }
     }
   }
@@ -51,18 +46,16 @@
     display: flex;
     position: relative;
     align-items: center;
-    @extend %ellipsis;
+    width: 100%;
 
     &-text {
-      min-width: 0;
+      flex: 1;
+      @extend %ellipsis;
     }
   }
 
   &__actions {
     display: inline-flex;
-    position: absolute;
-    right: 0;
-    background: $color-white;
   }
 
   &__divider {
