@@ -21,7 +21,7 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config = {}, cell, row, fnArgs, rowIndex: index } = props;
+    const { config = {}, cell, row, fnArgs, elemIndex: index = 0 } = props;
     const script = config.fn;
 
     if (!script) {

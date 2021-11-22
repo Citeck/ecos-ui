@@ -87,17 +87,17 @@ class FormatterService {
       format: FormatterService.format
     };
 
-    const setCell = data => FormatterService._formatSingleValueCellImpl(data, formatProps, fmtInstance);
+    const setCell = (data, elemIndex) => FormatterService._formatSingleValueCellImpl(data, { ...formatProps, elemIndex }, fmtInstance);
 
     if (Array.isArray(cell)) {
       if (cell.length === 1) {
         return setCell(head(cell));
       }
 
-      return cell.map((elem, i) => <div key={i}>{setCell(elem)}</div>);
-    } else {
-      return setCell(cell, formatProps, fmtInstance);
+      return cell.map((elem, i) => <div key={i}>{setCell(elem, i)}</div>);
     }
+
+    return setCell(cell);
   }
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
