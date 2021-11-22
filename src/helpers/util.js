@@ -1203,7 +1203,7 @@ export function beArray(data) {
  * @param array - enumeration of props
  * @returns {*} first found by condition
  */
-export function getNotEmpty(...array) {
+export function getFirstNotNil(...array) {
   return array.find(val => !isNil(val));
 }
 

@@ -5,7 +5,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import debounce from 'lodash/debounce';
 import isNil from 'lodash/isNil';
 
-import { getNotEmpty } from '../../../helpers/util';
+import { getFirstNotNil } from '../../../helpers/util';
 import { Events, popupEmitter } from './emitter';
 
 import './style.scss';
@@ -39,7 +39,7 @@ export default class Popper extends Component {
   get needPopper() {
     const { text, contentComponent } = this.props;
 
-    return !isNil(getNotEmpty(text, contentComponent));
+    return !isNil(getFirstNotNil(text, contentComponent));
   }
 
   get canShowPopover() {
@@ -90,7 +90,7 @@ export default class Popper extends Component {
     const { text, contentComponent, icon, popupClassName } = this.props;
     const element = icon ? this.#iconRef : this.#textRef;
 
-    popupEmitter.emit(Events.SHOW, element, this.getDisp(getNotEmpty(contentComponent, text)), popupClassName);
+    popupEmitter.emit(Events.SHOW, element, this.getDisp(getFirstNotNil(contentComponent, text)), popupClassName);
   };
 
   handleResize = debounce(() => this.checkNeedShowPopper(), 350);
@@ -106,7 +106,7 @@ export default class Popper extends Component {
 
     return (
       <div ref={this.setTextRef} className="ecos-popper__text" {...extraProps}>
-        {this.getDisp(getNotEmpty(children, text, contentComponent))}
+        {this.getDisp(getFirstNotNil(children, text, contentComponent))}
       </div>
     );
   };
