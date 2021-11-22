@@ -1,6 +1,5 @@
 import React from 'react';
 import cloneDeep from 'lodash/cloneDeep';
-import head from 'lodash/head';
 import size from 'lodash/size';
 import isPlainObject from 'lodash/isPlainObject';
 import isFunction from 'lodash/isFunction';
@@ -87,17 +86,18 @@ class FormatterService {
       format: FormatterService.format
     };
 
-    const setCell = (data, elemIndex) => FormatterService._formatSingleValueCellImpl(data, { ...formatProps, elemIndex }, fmtInstance);
+    const formatSingleValue = (data, valueIndex = 0) =>
+      FormatterService._formatSingleValueCellImpl(data, { ...formatProps, valueIndex }, fmtInstance);
 
     if (Array.isArray(cell)) {
       if (cell.length === 1) {
-        return setCell(head(cell));
+        return formatSingleValue(cell[0]);
       }
 
-      return cell.map((elem, i) => <div key={i}>{setCell(elem, i)}</div>);
+      return cell.map((elem, i) => <div key={i}>{formatSingleValue(elem, i)}</div>);
     }
 
-    return setCell(cell);
+    return formatSingleValue(cell);
   }
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
