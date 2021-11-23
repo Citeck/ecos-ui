@@ -32,7 +32,6 @@ import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
-import isNil from 'lodash/isNil';
 
 import './Grid.scss';
 
@@ -45,9 +44,7 @@ const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
 const MAX_START_TH_WIDTH = 500;
 
-function cssNum(v) {
-  return `${v}px`;
-}
+const cssNum = v => `${v}px`;
 
 class Grid extends Component {
   #columnsSizes = {};
