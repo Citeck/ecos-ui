@@ -27,10 +27,6 @@ class CacheSwitch extends Switch {
     }
   };
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return nextProps.isCurrent;
-  }
-
   render() {
     const { children, which, isCurrent } = this.props;
     const { location, match: contextMatch } = this.getContext();
