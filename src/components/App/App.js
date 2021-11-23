@@ -165,7 +165,9 @@ class App extends Component {
       needUseFullPath: true,
       when: 'always',
       isCurrent,
-      tabLink: tab.link
+      tabLink: tab.link,
+      _tab: tab,
+      _active: pageTabList.activeTab
     };
     const basePageProps = {
       tabId: tab.id,

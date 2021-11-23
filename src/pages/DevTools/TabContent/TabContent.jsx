@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Well from '../../../components/common/form/Well';
+import Wall from '../../../components/common/form/Well';
 
 import { useContext } from '../DevToolsContext';
 import { TABS } from '../constants';
@@ -30,9 +30,9 @@ const TabContent = () => {
   }
 
   return (
-    <Well className="dev-tools-page__tab-content">
+    <Wall className="dev-tools-page__tab-content">
       <TabComponent />
-    </Well>
+    </Wall>
   );
 };
 

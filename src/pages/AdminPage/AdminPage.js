@@ -10,7 +10,8 @@ import AdminSection from '../../components/AdminSection';
 import './style.scss';
 
 const mapStateToProps = state => ({
-  isAccessible: state.adminSection.isAccessible
+  isAccessible: state.adminSection.isAccessible,
+  isInitiated: state.adminSection.isInitiated
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -20,7 +21,9 @@ const mapDispatchToProps = dispatch => ({
 
 class AdminPage extends React.Component {
   componentDidMount() {
-    this.props.initAdminSection();
+    if (!this.props.isInitiated) {
+      this.props.initAdminSection();
+    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
