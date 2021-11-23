@@ -14,6 +14,7 @@ import {
   setColumnsSetup,
   setDashletConfig,
   setEditorMode,
+  setExcludedRecords,
   setGrid,
   setGridInlineToolSettings,
   setGrouping,
@@ -108,6 +109,7 @@ export const defaultState = {
   },
 
   selectedRecords: [],
+  excludedRecords: [],
   selectAllPageRecords: false,
   selectAllRecordsVisible: false,
 
@@ -309,6 +311,12 @@ export default handleActions(
 
       return handleState(state, stateId, { selectedRecords: action.payload });
     },
+    [setExcludedRecords]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { excludedRecords: action.payload });
+    },
     [setSelectAllPageRecords]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -324,7 +332,12 @@ export default handleActions(
     [deselectAllRecords]: (state, action) => {
       const stateId = action.payload.stateId;
 
-      return handleState(state, stateId, { selectAllRecordsVisible: false, selectAllPageRecords: false, selectedRecords: [] });
+      return handleState(state, stateId, {
+        selectAllRecordsVisible: false,
+        selectAllPageRecords: false,
+        selectedRecords: [],
+        excludedRecords: []
+      });
     },
     [setLoading]: (state, action) => {
       const stateId = action.payload.stateId;

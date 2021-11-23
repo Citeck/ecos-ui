@@ -1,5 +1,7 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
+import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { getTextByLocale, t } from '../../../helpers/util';
 import EditorService from '../service/editors/EditorService';

@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import uniqueId from 'lodash/uniqueId';
 import isNil from 'lodash/isNil';
 
 import { t } from '../../../helpers/export/util';
@@ -37,11 +37,19 @@ const GroupActions = React.memo(
     const [recordsActions, setRecordsActions] = useState([]);
     const [queryActions, setQueryActions] = useState([]);
 
-    const { isMobile, grid, selectAllRecordsVisible, selectedRecords, execRecordsAction, isSeparateActionListForQuery } = props;
+    const {
+      isMobile,
+      grid,
+      selectAllRecordsVisible,
+      selectedRecords,
+      execRecordsAction,
+      isSeparateActionListForQuery,
+      excludedRecords
+    } = props;
 
     const total = get(grid, 'total', 0);
     const selectedLen = selectedRecords.length;
-    const selected = selectAllRecordsVisible ? total : selectedLen;
+    const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
     const labelRecActions = t(Labels.SELECTED_SHORT, { data: labelRecActionsCount });
 
@@ -59,13 +67,15 @@ const GroupActions = React.memo(
 
     const handleExecuteAction = useCallback(
       action => {
+        const context = { excludedRecords };
+
         if (action._typeAct === TYPE_ACT.QUERY) {
-          execRecordsAction(grid.query, action);
+          execRecordsAction(grid.query, action, context);
         } else if (action._typeAct === TYPE_ACT.RECORDS) {
           execRecordsAction(selectedRecords, action);
         }
       },
-      [grid, selectedRecords]
+      [grid, selectedRecords, excludedRecords]
     );
 
     const getItemClassName = useCallback(
