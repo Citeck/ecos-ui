@@ -247,11 +247,12 @@ export default class HeaderFormatter extends Component {
     );
 
     if (!isComplexFilter) {
-      const { column, predicate } = this.props;
+      const { column, predicate, recordRef } = this.props;
       const { text } = this.state;
 
       tooltipBody = (
         <InlineFilter
+          recordRef={recordRef}
           filter={{
             meta: {
               column,
@@ -368,6 +369,7 @@ export default class HeaderFormatter extends Component {
 HeaderFormatter.propTypes = {
   filterable: PropTypes.bool,
   filterValue: PropTypes.any, //depends on field's type
+  recordRef: PropTypes.string,
   onFilter: PropTypes.func,
 
   ascending: PropTypes.bool,

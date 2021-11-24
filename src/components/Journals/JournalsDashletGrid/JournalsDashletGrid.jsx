@@ -244,7 +244,7 @@ class JournalsDashletGrid extends Component {
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
-    const { params = {} } = journalConfig || {};
+    const { params = {}, meta = {} } = journalConfig || {};
     const maxItems = get(pagination, 'maxItems', 0);
 
     let editable = true;
@@ -266,6 +266,7 @@ class JournalsDashletGrid extends Component {
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
+              recordRef={meta.metaRecord}
               originPredicates={originPredicates}
               data={data}
               columns={viewColumns}
