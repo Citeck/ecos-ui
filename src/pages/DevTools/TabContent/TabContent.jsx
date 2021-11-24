@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Wall from '../../../components/common/form/Well';
-
+import { Wall } from '../../../components/common/form';
 import { useContext } from '../DevToolsContext';
 import { TABS } from '../constants';
 import BuildTab from '../Build';
