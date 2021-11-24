@@ -10,7 +10,7 @@ import ActionsExecutor from '../ActionsExecutor';
 
 const actionsApi = new RecordActionsApi();
 
-const executeAction = async ({ groupAction, selected = [], resolved, query = null }) => {
+const executeAction = async ({ groupAction, selected = [], excludedRecords, resolved, query = null }) => {
   const { params } = groupAction;
   let exAction;
 
@@ -19,10 +19,11 @@ const executeAction = async ({ groupAction, selected = [], resolved, query = nul
 
     exAction = (await actionFunction(selected, params)) || [];
   } else {
-    exAction = await actionsApi.executeServerGroupAction({ action: groupAction, query, nodes: selected });
+    exAction = await actionsApi.executeServerGroupAction({ action: groupAction, query, nodes: selected, excludedRecords });
   }
 
   if (exAction.error) {
+    console.warn({ exAction, groupAction, selected, excludedRecords, resolved, query });
     return { error: get(exAction, 'error.message') || '-' };
   }
 
@@ -111,12 +112,14 @@ export default class ServerGroupAction extends ActionsExecutor {
   }
 
   async execForQuery(query, action, context) {
+    const excludedRecords = get(context, 'excludedRecords');
     let groupAction = cloneDeep(action.config);
+
     groupAction.type = 'filtered';
     groupAction = await showFormIfRequired(groupAction);
 
     const notify = notifyStart('', 0);
-    const result = await executeAction({ groupAction, query });
+    const result = await executeAction({ groupAction, query, excludedRecords });
 
     removeNotify(notify);
 

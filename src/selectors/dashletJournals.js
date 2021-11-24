@@ -34,7 +34,10 @@ export const selectJournalDashletGridProps = createSelector(
     predicate: ownState.predicate,
     journalConfig: ownState.journalConfig,
     selectedRecords: ownState.selectedRecords,
+    excludedRecords: ownState.excludedRecords,
     selectAllRecords: ownState.selectAllRecords,
+    selectAllPageRecords: ownState.selectAllPageRecords,
+    selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     query: get(ownState, 'grid.query.query'),
     isGrouped: !isEmpty(get(ownState, 'grid.grouping.columns')),
     viewColumns

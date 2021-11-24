@@ -25,6 +25,7 @@ export const execRecordsAction = createAction(prefix + 'EXEC_RECORDS_ACTION');
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
+export const setExcludedRecords = createAction(prefix + 'SET_EXCLUDED_RECORDS');
 export const setSelectAllPageRecords = createAction(prefix + 'SET_SELECT_ALL_PAGE_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
 export const deselectAllRecords = createAction(prefix + 'DESELECT_ALL_RECORDS');

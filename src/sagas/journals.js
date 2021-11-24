@@ -565,7 +565,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setLoading(w(true)));
 
     const journalData = yield select(selectJournalData, stateId);
-    const { grid, selectAllRecordsVisible, selectedRecords } = journalData;
+    const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
     const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
     const params = { ...grid, ...payload, searchPredicate };
     const gridData = yield getGridData(api, params, stateId);
@@ -576,9 +576,10 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     let _selectAllPageRecords = false;
 
     if (selectAllRecordsVisible) {
-      _selectAllPageRecords = true;
-      _selectedRecords = pageRecords;
-    } else if (pageRecords.every(rec => selectedRecords.includes(rec))) {
+      _selectedRecords = pageRecords.filter(rec => !excludedRecords.includes(rec));
+    }
+
+    if (pageRecords.every(rec => _selectedRecords.includes(rec))) {
       _selectAllPageRecords = true;
     }
 
