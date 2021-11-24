@@ -1188,8 +1188,23 @@ export function getDOMElementMeasurer(element) {
   return measurer;
 }
 
+/**
+ * Return value, which isn't array, like array ex: 1 > [1] , [5] > [5]
+ * @param data
+ * @returns []
+ */
 export function beArray(data) {
   return isArray(data) ? data : isEmpty(data) ? [] : [data];
+}
+
+/**
+ * Check all values by null/undefined and return one real, including false, 0, ''
+ * ex: (null, false) > false ; (false, 123) > 123 ; (undefined, 0) > 0
+ * @param array - enumeration of props
+ * @returns {*} first found by condition
+ */
+export function getFirstNotNil(...array) {
+  return array.find(val => !isNil(val));
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

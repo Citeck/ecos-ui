@@ -86,26 +86,27 @@ class FormatterService {
       format: FormatterService.format
     };
 
+    const formatSingleValue = (data, valueIndex = 0) =>
+      FormatterService._formatSingleValueCellImpl(data, { ...formatProps, valueIndex }, fmtInstance);
+
     if (Array.isArray(cell)) {
       if (cell.length === 1) {
-        return FormatterService._formatSingleValueCellImpl(cell[0], formatProps, fmtInstance);
+        return formatSingleValue(cell[0]);
       }
 
-      let idx = 0;
-
-      return cell.map(elem => {
-        return <div key={idx++}>{FormatterService._formatSingleValueCellImpl(elem, formatProps, fmtInstance)}</div>;
-      });
-    } else {
-      return FormatterService._formatSingleValueCellImpl(cell, formatProps, fmtInstance);
+      return cell.map((elem, i) => <div key={i}>{formatSingleValue(elem, i)}</div>);
     }
+
+    return formatSingleValue(cell);
   }
 
   static _formatSingleValueCellImpl(cell, formatProps, fmtInstance) {
     if (cell == null) {
       return '';
     }
+
     let cellValue = cell;
+
     if (fmtInstance.getSupportedCellType() === CellType.VALUE_WITH_DISP) {
       if (!isPlainObject(cellValue)) {
         cellValue = { value: cellValue, disp: cellValue };
@@ -120,7 +121,9 @@ class FormatterService {
         cellValue = cellValue.value;
       }
     }
+
     formatProps.cell = cellValue;
+
     try {
       return <FormatterService.PopperWrapper contentComponent={fmtInstance.format(formatProps)} />;
     } catch (e) {

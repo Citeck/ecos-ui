@@ -21,7 +21,7 @@ export default class ScriptFormatter extends BaseFormatter {
    * @return {React.ReactNode}
    */
   format(props) {
-    const { config = {}, cell, row, fnArgs } = props;
+    const { config = {}, cell, row, fnArgs, valueIndex: index } = props;
     const script = config.fn;
 
     if (!script) {
@@ -39,7 +39,7 @@ export default class ScriptFormatter extends BaseFormatter {
     const vars = config.vars || {};
     let result;
 
-    const args = { ...(fnArgs || {}), Records, _, t, vars, cell, row };
+    const args = { ...(fnArgs || {}), Records, _, t, vars, cell, row, index };
 
     if (_.isString(script)) {
       const entries = Object.entries(args);
