@@ -12,7 +12,7 @@ import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
-  userPhotoUrl: state.user.thumbnail,
+  userPhotoUrl: state.user.avatar ? `${state.user.avatar}&width=150` : '',
   items: state.header.userMenu.items,
   isLoading: state.header.userMenu.isLoading,
   theme: state.view.theme
