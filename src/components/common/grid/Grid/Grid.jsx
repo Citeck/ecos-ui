@@ -575,12 +575,6 @@ class Grid extends Component {
   handleSelectRadio = row => {
     const prevValue = head(this.state.selected);
     const newValue = row[this.props.keyField];
-    this.onSelect(false, newValue !== prevValue ? [newValue] : []);
-  };
-
-  handleSelectRadio = row => {
-    const prevValue = head(this.state.selected);
-    const newValue = row[this.props.keyField];
     const newSelected = newValue !== prevValue ? [newValue] : [];
 
     this.onSelect({ allPage: false, newSelected });
@@ -603,8 +597,8 @@ class Grid extends Component {
 
   handleSelectCheckbox = (row, isSelect) => {
     const { keyField, excluded } = this.props;
+    const { selected } = this.state;
     const keyValue = row[keyField];
-    const selected = this.state.selected;
     const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
     const newExcluded = isSelect ? excluded.filter(x => x !== keyValue) : [...excluded, keyValue];
 
@@ -627,24 +621,6 @@ class Grid extends Component {
     const allPossible = option.id === SELECTOR_MENU_KEY.ALL;
 
     this.onSelect({ allPage, newSelected, allPossible, newExcluded: [] });
-  };
-
-  handleSelectCheckbox = (row, isSelect) => {
-    const keyValue = row[this.props.keyField];
-    const selected = this.state.selected;
-    const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
-
-    this.onSelect(false, newSelected);
-  };
-
-  handleSelectAllCheckbox = (allPage, rows) => {
-    const { selected } = this.state;
-    const page = this.getSelectedPageItems();
-    const ids = rows.map(row => row.id);
-    const isSelectedPage = allPage || (!allPage && rows.length < page.length);
-    const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
-
-    this.onSelect(allPage, newSelected);
   };
 
   toolsVisible = () => {
