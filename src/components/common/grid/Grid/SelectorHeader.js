@@ -2,12 +2,14 @@ import React, { useCallback, useState } from 'react';
 import BootstrapTableConst from 'react-bootstrap-table-next/lib/src/const';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import set from 'lodash/set';
 import { Tooltip } from 'reactstrap';
 
 import { t } from '../../../../helpers/util';
 import { Checkbox } from '../../form';
 import { Icon } from '../../';
 import { SELECTOR_MENU } from '../util';
+import ZIndex from '../../../../services/ZIndex';
 
 import '../../Tooltip/style.scss';
 import './Grid.scss';
@@ -55,6 +57,18 @@ const SelectorHeader = ({ indeterminate, mode, checked, disabled, hasMenu, onCli
                 innerClassName="ecos-base-tooltip-inner ecos-grid__checkbox-menu-inner"
                 popperClassName="ecos-base-tooltip-popper"
                 fade={false}
+                modifiers={{
+                  computeStyles: {
+                    name: 'computeStyles',
+                    enabled: true,
+                    phase: 'write',
+                    fn: instance => {
+                      set(instance, 'styles.zIndex', ZIndex.topZ);
+
+                      return instance;
+                    }
+                  }
+                }}
               >
                 {SELECTOR_MENU.map(item => (
                   <div
