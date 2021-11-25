@@ -252,7 +252,6 @@ export default class SelectJournal extends Component {
           journalConfig,
           isJournalConfigFetched: true,
           isSelectModalOpen: state.isSelectModalOpen && this.isEmptyJournalConfig(journalConfig) ? false : state.isSelectModalOpen
-          // isCollapsePanelOpen: Array.isArray(presetFilterPredicates) && presetFilterPredicates.length > 0
         }),
         resolve
       );
