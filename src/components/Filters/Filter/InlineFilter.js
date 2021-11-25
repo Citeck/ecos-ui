@@ -24,6 +24,7 @@ class InlineFilter extends Filter {
 
   static propTypes = {
     ...Filter.propTypes,
+    recordRef: PropTypes.string,
     onToggle: PropTypes.func,
     onFilter: PropTypes.func
   };
@@ -60,10 +61,12 @@ class InlineFilter extends Filter {
   }
 
   get valueControlProps() {
+    const { recordRef } = this.props;
     const predicate = this.selectedPredicate;
 
     return {
       ...super.valueControlProps,
+      metaRecord: recordRef,
       onKeyDown: this.onKeyDown,
       predicate,
       value: this.state.value

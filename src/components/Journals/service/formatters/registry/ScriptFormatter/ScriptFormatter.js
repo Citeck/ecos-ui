@@ -43,8 +43,11 @@ export default class ScriptFormatter extends BaseFormatter {
 
     if (_.isString(script)) {
       const entries = Object.entries(args);
+      const fnArgNames = entries.map(e => e[0]);
+      const fnArgValues = entries.map(e => e[1]);
+
       // eslint-disable-next-line
-      result = new Function(...entries.map(e => e[0]), script)(...entries.map(e => e[1]));
+      result = new Function(...fnArgNames, script)(...fnArgValues);
     } else if (_.isFunction(script)) {
       result = script(args);
     } else {
