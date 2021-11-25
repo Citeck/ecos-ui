@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
@@ -18,7 +18,7 @@ export default class BooleanEditor extends BaseEditor {
     {
       value: null,
       get label() {
-        return t('react-select.default-value.label');
+        return t('react-select.select-value.label');
       }
     },
     {
