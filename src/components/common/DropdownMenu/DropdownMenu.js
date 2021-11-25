@@ -7,10 +7,10 @@ import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
 import { deepClone } from '../../../helpers/util';
+import ZIndex from '../../../services/ZIndex';
 
 import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
-import ZIndex from '../../../services/ZIndex';
 
 const MenuModes = {
   GROUP: 'group',
