@@ -12,11 +12,11 @@ import { Avatar, BtnUpload } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-
-import './style.scss';
 import RecordActions from '../../Records/actions/recordActions';
 import { ActionTypes } from '../../Records/actions';
 import { ALFRESCO } from '../../../constants/alfresco';
+
+import './style.scss';
 
 const Labels = {
   TITLE: 'user-profile-widget.title',
