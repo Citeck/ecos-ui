@@ -14,7 +14,9 @@ const BuildTab = () => {
   const { state, getBuildInfo } = context;
   const { alfresco, system } = state;
 
-  useEffect(() => getBuildInfo(), []);
+  useEffect(() => {
+    getBuildInfo();
+  }, []);
 
   const columns = [
     { dataField: 'label', text: 'ID' },

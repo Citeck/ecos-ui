@@ -3,6 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'adminSection/';
 
 export const initAdminSection = createAction(prefix + 'INIT_ADMIN_SECTION');
+export const setAdminSectionInitStatus = createAction(prefix + 'SET_ADMIN_SECTION_INIT_STATUS');
 export const fetchGroupSectionList = createAction(prefix + 'GET_GROUP_SECTION_LIST');
 export const setGroupSectionList = createAction(prefix + 'SET_GROUP_SECTION_LIST');
 export const setActiveSection = createAction(prefix + 'SET_ACTIVE_SECTION');

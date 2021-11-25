@@ -32,7 +32,7 @@ import Tab from './Tab';
 import { _LOCALHOST_ } from '../../constants';
 import { MIN_CONTEXT_WIDTH, PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { replaceHistoryLink } from '../../helpers/urls';
-import { updateTabEmitter } from '../../services/pageTabs/PageTabList';
+import pageTabList, { updateTabEmitter } from '../../services/pageTabs/PageTabList';
 import DialogManager from '../common/dialogs/Manager';
 import CopyToClipboard from '../../helpers/copyToClipboard';
 
@@ -568,16 +568,15 @@ class PageTabs extends React.Component {
 
   renderTabPanes = React.memo(props => {
     const { tabs, ContentComponent, url } = props;
-    const activeTabId = get(tabs.find(tab => tab.isActive), 'id', null);
 
-    return tabs.map(tab =>
-      React.createElement(ContentComponent, {
+    return tabs.map(tab => {
+      return React.createElement(ContentComponent, {
         tab,
         url,
-        isActive: activeTabId === tab.id,
+        isActive: pageTabList.activeTab.id === tab.id,
         key: tab.id
-      })
-    );
+      });
+    });
   });
 
   renderContextMenu() {
@@ -646,7 +645,6 @@ class PageTabs extends React.Component {
 
     return ReactDOM.createPortal(
       <ClickOutside
-        // type="click"
         className="page-tab__context-menu"
         handleClickOutside={this.handleCloseContextMenu}
         key="tab-context-menu"
