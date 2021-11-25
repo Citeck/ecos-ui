@@ -10,6 +10,7 @@ import { deepClone } from '../../../helpers/util';
 
 import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
+import ZIndex from '../../../services/ZIndex';
 
 const MenuModes = {
   GROUP: 'group',
@@ -90,6 +91,7 @@ export default class DropdownMenu extends React.Component {
         className={classNames('ecos-dropdown-menu', {
           'ecos-dropdown-menu_loading': this.props.isLoading
         })}
+        style={{ zIndex: ZIndex.calcZ() }}
       >
         {this.renderMode()}
       </div>
