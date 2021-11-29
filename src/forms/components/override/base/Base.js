@@ -348,33 +348,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       this.ce('span', { class: 'icon icon-small-close' })
     );
 
-    // const switchToViewOnlyMode = () => {
-    //   if (typeof this.cleanAfterInlineEditMode === 'function') {
-    //     this.cleanAfterInlineEditMode();
-    //   }
-    //
-    //   this.options.readOnly = true;
-    //   this.options.viewAsHtml = true;
-    //   this._isInlineEditingMode = false;
-    //   this.element.classList.remove(INLINE_EDITING_CLASSNAME);
-    //
-    //   this.redraw();
-    //   this._removeEventListeners();
-    //
-    //   delete this._valueBeforeEdit;
-    // };
-    //
-    // const rollBack = () => {
-    //   if (this.hasOwnProperty('_valueBeforeEdit')) {
-    //     if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
-    //       // this.dataValue = this._valueBeforeEdit;
-    //       this.setValue(this._valueBeforeEdit);
-    //     }
-    //   }
-    //
-    //   this.switchToViewOnlyMode();
-    // };
-
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
 
