@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 
 import { popupEmitter, Events } from './emitter';
+import ZIndex from '../../../services/ZIndex';
 
 export const PopupContainer = () => {
   const [referenceElement, setReferenceElement] = useState(null);
@@ -53,7 +54,11 @@ export const PopupContainer = () => {
   return (
     <div
       ref={setPopperElement}
-      style={{ ...styles.popper, display: text ? 'unset' : 'none' }}
+      style={{
+        ...styles.popper,
+        display: text ? 'unset' : 'none',
+        zIndex: ZIndex.calcZ()
+      }}
       {...attributes.popper}
       className={classNames('ecos-popup-manager', get(attributes, 'popper.className', ''))}
     >

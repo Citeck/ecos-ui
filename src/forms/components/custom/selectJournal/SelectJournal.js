@@ -18,6 +18,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         type: 'selectJournal',
         customPredicateJs: '',
         queryData: null,
+        queryDataJs: '',
         presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
@@ -257,7 +258,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
       const presetFilterPredicates = component.presetFilterPredicatesJs
         ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
         : null;
-      const queryData = component.queryData ? this.evaluate(component.queryData, {}, 'value', true) : null;
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1549
+      const queryData = component.queryDataJs ? this.evaluate(component.queryDataJs, {}, 'value', true) : component.queryData || null;
+
       const reactComponentProps = {
         columns: columns.length ? trimFields(columns) : undefined,
         defaultValue: this.dataValue,
