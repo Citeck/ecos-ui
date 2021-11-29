@@ -39,6 +39,7 @@ const JournalViewer = React.memo(({ hidden, isActivePage, initStateJournal, upSt
       {!hidden && initialized && stateId && (
         <ErrorBoundary>
           <Journals
+            withForceUpdate
             isActivePage={isActivePage && !hidden}
             stateId={stateId}
             displayElements={{ menu: false, header: false }}

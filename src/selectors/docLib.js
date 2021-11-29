@@ -1,5 +1,6 @@
 import { createSelector } from 'reselect';
 import get from 'lodash/get';
+
 import { defaultState } from '../reducers/documentLibrary';
 
 export const selectDocLib = (state, key) => get(state, ['documentLibrary', key]) || { ...defaultState };

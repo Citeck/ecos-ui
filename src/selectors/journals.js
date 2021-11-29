@@ -199,8 +199,8 @@ export const selectGridPaginationMaxItems = createSelector(
 export const selectIsFilterOn = createSelector(
   [selectSettingsFilters, selectSettingsData],
   (settingsFiltersData, settingsData) => {
-    const settingsPredicate = JSON.parse(JSON.stringify(settingsFiltersData.predicate));
-    const originPredicate = JSON.parse(JSON.stringify(settingsData.originGridSettings.predicate));
+    const settingsPredicate = JSON.parse(JSON.stringify(get(settingsFiltersData, 'predicate', '')));
+    const originPredicate = JSON.parse(JSON.stringify(get(settingsData, 'originGridSettings.predicate', '')));
 
     return !isEqual(settingsPredicate, originPredicate);
   }
