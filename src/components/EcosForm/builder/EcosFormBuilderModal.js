@@ -3,6 +3,12 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import EcosFormBuilder from './EcosFormBuilder';
 import EcosModal from '../../common/EcosModal';
+import DialogManager from '../../common/dialogs/Manager';
+import { t } from '../../../helpers/export/util';
+
+const Labels = {
+  CLOSE_CONFIRM_DESCRIPTION: 'ecos-form.builder.confirm-close.description'
+};
 
 export default class EcosFormBuilderModal extends React.Component {
   constructor(props) {
@@ -29,8 +35,13 @@ export default class EcosFormBuilderModal extends React.Component {
   }
 
   toggleVisibility() {
-    this.setState({
-      isModalOpen: !this.state.isModalOpen
+    DialogManager.confirmDialog({
+      text: t(Labels.CLOSE_CONFIRM_DESCRIPTION),
+      onYes: () => {
+        this.setState(state => ({
+          isModalOpen: !state.isModalOpen
+        }));
+      }
     });
   }
 
