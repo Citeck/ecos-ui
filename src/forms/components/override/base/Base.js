@@ -5,7 +5,10 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import Base from 'formiojs/components/base/Base';
+import { flattenComponents } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
 import { getInputMask } from 'formiojs/utils/utils';
 
@@ -369,6 +372,11 @@ Base.prototype.createInlineEditButton = function(container) {
       const currentValue = this.getValue();
       this._valueBeforeEdit = isObject(currentValue) ? clone(currentValue) : currentValue;
 
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1538
+      if (isEmpty(this._cachedData)) {
+        this._cachedData = cloneDeep(this.data);
+      }
+
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
@@ -431,33 +439,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       this.ce('span', { class: 'icon icon-small-close' })
     );
 
-    const switchToViewOnlyMode = () => {
-      if (typeof this.cleanAfterInlineEditMode === 'function') {
-        this.cleanAfterInlineEditMode();
-      }
-
-      this.options.readOnly = true;
-      this.options.viewAsHtml = true;
-      this._isInlineEditingMode = false;
-      this.element.classList.remove(INLINE_EDITING_CLASSNAME);
-
-      this.redraw();
-      this._removeEventListeners();
-
-      delete this._valueBeforeEdit;
-    };
-
-    const rollBack = () => {
-      if (this.hasOwnProperty('_valueBeforeEdit')) {
-        if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
-          // this.dataValue = this._valueBeforeEdit;
-          this.setValue(this._valueBeforeEdit);
-        }
-      }
-
-      switchToViewOnlyMode();
-    };
-
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
 
@@ -477,20 +458,38 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       return form
         .submit()
         .then(() => {
-          switchToViewOnlyMode();
+          this.switchToViewOnlyMode();
           form.showErrors('', true);
-          if (typeof this.options.onInlineEditSave === 'function') {
+
+          if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
           }
         })
         .catch(e => {
           form.showErrors(e, true);
-          rollBack();
+          this.inlineEditRollback();
         });
     };
 
     const onCancelButtonClick = () => {
-      rollBack();
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1538
+      if (!isEmpty(this._cachedData)) {
+        this.root.setValue({ data: this._cachedData });
+        this.root.onChange();
+        this._cachedData = {};
+
+        const components = flattenComponents(this.root.components);
+
+        for (const key in components) {
+          if (components.hasOwnProperty(key)) {
+            const component = components[key];
+
+            component.inlineEditRollback.call(component);
+          }
+        }
+      }
+
+      this.inlineEditRollback();
       this.setCustomValidity('');
     };
 
@@ -811,6 +810,35 @@ Base.prototype.createModal = function(...params) {
   ZIndex.setZ(modal);
 
   return modal;
+};
+
+Base.prototype.inlineEditRollback = function() {
+  if (this.hasOwnProperty('_valueBeforeEdit')) {
+    if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
+      this.setValue(this._valueBeforeEdit);
+    }
+  }
+
+  this.switchToViewOnlyMode();
+};
+
+Base.prototype.switchToViewOnlyMode = function() {
+  if (isFunction(this.cleanAfterInlineEditMode)) {
+    this.cleanAfterInlineEditMode();
+  }
+
+  this.options.readOnly = true;
+  this.options.viewAsHtml = true;
+  this._isInlineEditingMode = false;
+  this.element.classList.remove(INLINE_EDITING_CLASSNAME);
+
+  this.redraw();
+
+  if (isFunction(this._removeEventListeners)) {
+    this._removeEventListeners.call(this);
+  }
+
+  delete this._valueBeforeEdit;
 };
 
 export default Base;

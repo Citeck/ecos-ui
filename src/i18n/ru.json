@@ -1463,5 +1463,6 @@
   "ecos-form.import-button.confirm.default-description": "Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?",
   "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
   "ecos-form.import-button.failed-uploading.title": "Ошибка",
-  "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\""
+  "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\"",
+  "ecos-form.builder.confirm-close.description": "Вы действительно хотите закрыть конструктор форм?\nВсе несохранённые данные будут утеряны."
 }

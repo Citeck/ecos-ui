@@ -172,6 +172,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         this.editor.getSession().setMode(`ace/mode/${mode}`);
         this.editor.on('input', () => this.acePlaceholder());
 
+        setTimeout(() => this.editor.clearSelection(), 0);
         setTimeout(() => this.acePlaceholder(), 100);
         this.editorReadyResolve(this.editor);
 

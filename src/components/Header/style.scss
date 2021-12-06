@@ -329,3 +329,11 @@
     }
   }
 }
+
+#fullPage {
+  overflow: auto;
+
+  #alf-hd {
+    overflow: initial;
+  }
+}
