@@ -40,7 +40,7 @@ const FilesViewer = ({
 
   if (hasError) {
     content = t('document-library.failure-to-fetch-data');
-  } else if (!isReady) {
+  } else if (!isReady && !items.length) {
     content = <Loader blur rounded style={{ position: 'relative', margin: '0.5em 0' }} />;
   } else {
     const isGroupActionsReady = get(groupActions, 'isReady', false);
@@ -76,7 +76,7 @@ const FilesViewer = ({
 
   return (
     <Well className="ecos-doclib__fileviewer-well">
-      {isLoading && <Loader blur rounded />}
+      {(isLoading || !isReady) && <Loader blur rounded />}
       {content}
     </Well>
   );
