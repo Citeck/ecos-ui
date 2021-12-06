@@ -79,14 +79,6 @@ class Grid extends Component {
     return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (!isEqual(props.selected, state.selected)) {
-      return { selected: props.selected };
-    }
-
-    return null;
-  }
-
   componentDidMount() {
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
@@ -107,8 +99,14 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { selected } = this.props;
+
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
+    }
+
+    if (isEmpty(prevProps.selected) && !isEmpty(selected) && !isEqual(selected, this.state.selected)) {
+      this.setState({ selected });
     }
 
     this.setColumnsSizes();
@@ -595,11 +593,18 @@ class Grid extends Component {
   };
 
   handleSelectAllCheckbox = (allPage, rows) => {
+    const { nonSelectable } = this.props;
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
     const ids = rows.map(row => row.id);
     const isSelectedPage = allPage || (!allPage && rows.length < page.length);
     const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
+
+    (nonSelectable || []).forEach(item => {
+      if (selected.includes(item)) {
+        newSelected.push(item);
+      }
+    });
 
     this.onSelect({ allPage, newSelected, newExcluded: [] });
   };
