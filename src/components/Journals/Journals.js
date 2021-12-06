@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import merge from 'lodash/merge';
@@ -97,6 +98,7 @@ class Journals extends React.Component {
 
   componentDidMount() {
     const showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
+    const searchParams = getSearchParams();
     let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
 
     if (showPreview && !viewMode) {
@@ -108,7 +110,10 @@ class Journals extends React.Component {
     }
 
     this.props.toggleViewMode(viewMode);
-    this.props.setUrl(getSearchParams());
+
+    if (!isEqual(searchParams, this.props.urlParams)) {
+      this.props.setUrl(searchParams);
+    }
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -166,13 +171,14 @@ class Journals extends React.Component {
   };
 
   getCommonProps = () => {
-    const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile } = this.props;
+    const { bodyClassName, stateId, isActivePage, pageTabsIsShow, isMobile, withForceUpdate } = this.props;
     const { journalId } = this.state;
 
     return {
       stateId,
       journalId,
       isActivePage,
+      withForceUpdate,
       Header: this.Header,
       UnavailableView: this.UnavailableView,
       displayElements: this.getDisplayElements(),
@@ -355,7 +361,8 @@ Journals.propTypes = {
     settings: PropTypes.bool,
     pagination: PropTypes.bool,
     groupActions: PropTypes.bool
-  })
+  }),
+  withForceUpdate: PropTypes.bool
 };
 
 Journals.defaultProps = {
