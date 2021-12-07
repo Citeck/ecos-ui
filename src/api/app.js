@@ -1,5 +1,6 @@
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
+import get from 'lodash/get';
 
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch from '../helpers/ecosFetch';
@@ -10,6 +11,7 @@ import { CITECK_URI, MICRO_URI, PROXY_URI, URL_SERVICECONTEXT } from '../constan
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
+import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 
 export class AppApi extends CommonApi {
   getEcosConfig = configName => {
@@ -77,6 +79,18 @@ export class AppApi extends CommonApi {
   };
 
   static getDictionaryLocal(lang) {
+    let isExist;
+
+    try {
+      isExist = require.resolve(`../i18n/${lang}`);
+    } catch (e) {
+      isExist = false;
+    }
+
+    if (!isExist) {
+      lang = get(allowedLanguages, '0.id', LANGUAGE_EN);
+    }
+
     return import(`../i18n/${lang}`)
       .then(module => module.default)
       .catch(e => {
