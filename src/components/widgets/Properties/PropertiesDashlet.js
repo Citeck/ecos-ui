@@ -15,6 +15,7 @@ import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
 
 import './style.scss';
+import { PropertiesApi } from '../../../api/properties';
 
 const Labels = {
   WIDGET_TITLE: 'properties-widget.title',
@@ -62,7 +63,8 @@ class PropertiesDashlet extends BaseWidget {
       canEditRecord: false,
       isShowSetting: false,
       wasLastModifiedWithInlineEditor: false,
-      title: ''
+      title: '',
+      isDraft: false
     };
   }
 
@@ -116,11 +118,17 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   checkPermissions = () => {
-    EcosFormUtils.hasWritePermission(this.props.record, true)
+    const { record } = this.props;
+
+    EcosFormUtils.hasWritePermission(record, true)
       .then(canEditRecord => {
         this.setState({ canEditRecord });
       })
       .catch(console.error);
+
+    PropertiesApi.isDraftStatus(record).then(isDraft => {
+      this.setState({ isDraft });
+    });
   };
 
   onInlineEditSave = () => {
@@ -204,7 +212,7 @@ class PropertiesDashlet extends BaseWidget {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const { isSmallMode, isEditProps, formIsChanged, isCollapsed, isShowSetting, title: titleForm, previousHeight } = this.state;
+    const { isSmallMode, isEditProps, formIsChanged, isCollapsed, isShowSetting, title: titleForm, previousHeight, isDraft } = this.state;
     const { formId = '', titleAsFormName } = config || {};
 
     return (
@@ -238,6 +246,7 @@ class PropertiesDashlet extends BaseWidget {
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}
           scrollProps={this.scrollbarProps}
+          isDraft={isDraft}
         />
         {isShowSetting && (
           <PropertiesSettings
