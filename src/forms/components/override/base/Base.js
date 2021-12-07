@@ -360,7 +360,8 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      if (!this.checkValidity(this.data, true)) {
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1559
+      if (!this.root.checkValidity(this.data, true)) {
         return;
       }
 
