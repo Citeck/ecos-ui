@@ -35,7 +35,7 @@ export default class LanguageSwitcher extends React.Component {
   componentDidMount() {
     const { items } = this.props;
     const currentLang = getCurrentLocale();
-    let language = items.find(item => item.id === currentLang);
+    let language = get(items.find(item => item.id === currentLang), 'id');
 
     if (!language) {
       language = get(allowedLanguages, '0.id', currentLang);
@@ -60,7 +60,7 @@ export default class LanguageSwitcher extends React.Component {
       'ecos-btn_blue-classic'
     );
 
-    const currentLanguage = items.find(item => item.id === language) || get(allowedLanguages, '0.id', LANGUAGE_EN);
+    const currentLanguage = items.find(item => item.id === language) || get(allowedLanguages, '0');
 
     if (!currentLanguage) {
       return null;
