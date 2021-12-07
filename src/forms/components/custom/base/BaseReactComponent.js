@@ -117,7 +117,8 @@ export default class BaseReactComponent extends BaseComponent {
       return;
     }
 
-    this.description.replaceChild(this.text(this.component.description), this.description.childNodes[0]);
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1558
+    this.description.innerHTML = this.t(this.component.description);
   }
 
   embedReactContainer(container, tag) {

@@ -9,6 +9,7 @@ import Loader from '../Loader/Loader';
 import DropdownMenuCascade from './DropdownMenuCascade';
 import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
+import ZIndex from '../../../services/ZIndex';
 
 import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
@@ -100,6 +101,7 @@ export default class EcosDropdownMenu extends React.Component {
         className={classNames('ecos-dropdown-menu', {
           'ecos-dropdown-menu_loading': this.props.isLoading
         })}
+        style={{ zIndex: ZIndex.calcZ() }}
       >
         {this.renderMode()}
       </div>
