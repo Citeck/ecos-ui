@@ -69,11 +69,14 @@ export default class TableFormComponent extends BaseReactComponent {
     };
   }
 
+  _needUpdate = false;
+
   get defaultSchema() {
     return TableFormComponent.schema();
   }
 
   checkConditions(data) {
+    const isVisible = _.cloneDeep(this.visible);
     const result = super.checkConditions(data);
     const { displayElementsJS, nonSelectableRowsJS, selectedRowsJS, customCreateVariantsJs } = this.component;
 
@@ -117,6 +120,11 @@ export default class TableFormComponent extends BaseReactComponent {
           this.setReactProps({ createVariants });
         }
       });
+    }
+
+    if ((!isVisible && this.visible) || this._needUpdate) {
+      this._needUpdate = false;
+      this.redraw();
     }
 
     return result;

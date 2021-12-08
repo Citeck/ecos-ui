@@ -204,8 +204,7 @@ class EcosForm extends React.Component {
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
-          const form = formAndCustom[0];
-          const customModule = formAndCustom[1];
+          const [form, customModule] = formAndCustom;
           const HANDLER_PREFIX = 'onForm';
 
           self._form = form;

@@ -356,20 +356,31 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       }
 
       const form = get(this, 'root');
+
       if (form.changing) {
         return;
       }
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1559
-      if (!this.root.checkValidity(this.data, true)) {
-        return;
+      const submitAttributes = [];
+
+      if (this.options.saveDraft) {
+        submitAttributes.push(false);
+        submitAttributes.push({ state: 'draft' });
+      } else {
+        if (!this.root.checkValidity(this.data, true)) {
+          return;
+        }
       }
 
       return form
-        .submit()
+        .submit(...submitAttributes)
         .then(() => {
           this.switchToViewOnlyMode();
-          form.showErrors('', true);
+
+          if (!this.options.saveDraft) {
+            form.showErrors('', true);
+          }
 
           if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
@@ -446,7 +457,7 @@ Base.prototype.build = function(state) {
 Base.prototype.checkValidity = function(data, dirty, rowData) {
   const validity = originalCheckValidity.call(this, data, dirty, rowData);
 
-  if (this._inlineEditSaveButton) {
+  if (this._inlineEditSaveButton && !this.options.saveDraft) {
     const saveButtonClassList = this._inlineEditSaveButton.classList;
     if (validity && saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
       saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);

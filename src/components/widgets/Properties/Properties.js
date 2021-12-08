@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -23,7 +23,8 @@ class Properties extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onInlineEditSave: PropTypes.func,
-    scrollProps: PropTypes.object
+    scrollProps: PropTypes.object,
+    isDraft: PropTypes.bool
   };
 
   static defaultProps = {
@@ -99,7 +100,7 @@ class Properties extends React.Component {
   };
 
   renderForm() {
-    const { record, isSmallMode, onUpdate, formId, onInlineEditSave } = this.props;
+    const { record, isSmallMode, formId, isDraft, onUpdate, onInlineEditSave } = this.props;
     const { isReadySubmit, loaded, isLoading } = this.state;
     const isShow = isReadySubmit;
     const isLoaded = loaded && !isLoading;
@@ -119,6 +120,7 @@ class Properties extends React.Component {
               hidePanels: isSmallMode
             },
             formMode: FORM_MODE_EDIT,
+            saveDraft: isDraft,
             onInlineEditSave
           }}
           onFormSubmitDone={onUpdate}
