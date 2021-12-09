@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import chunk from 'lodash/chunk';
 
 import { extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
@@ -513,9 +514,22 @@ class RecordActions {
    * @param {Object} context
    */
   async execForRecords(records, action, context = {}) {
+    // const byChunks = action.execForRecordsBatchSize && action.execForRecordsBatchSize > 0;
+    const byChunks = window.execForRecordsBatchSize && window.execForRecordsBatchSize > 0;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
-    const resultOptions = { title: getActionResultTitle(action), withConfirm: false };
+    const statusesByRecords = records.reduce((result, current) => {
+      return {
+        ...result,
+        [current]: ''
+      };
+    }, {});
+    const resultOptions = {
+      title: getActionResultTitle(action),
+      withConfirm: false,
+      withoutLoader: byChunks,
+      statusesByRecords
+    };
 
     const execution = await (async function() {
       if (!records || !records.length) {
@@ -587,8 +601,41 @@ class RecordActions {
         ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
         : allowedRecords;
 
-      const result = handler.execForRecords(filteredRecords, action, execContext);
-      const actResult = await RecordActions._wrapResultIfRequired(result);
+      let actResult;
+
+      if (byChunks) {
+        const chunks = await Promise.all(
+          chunk(filteredRecords, window.execForRecordsBatchSize).map(async (item, index) => {
+            let result = await handler.execForRecords(item, action, execContext);
+
+            if (result == null) {
+              return false;
+            }
+
+            await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
+              ...resultOptions,
+              withoutLoader: true,
+              forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
+            });
+
+            return result;
+          })
+        );
+
+        actResult = chunks.reduce((res, cur) => {
+          return {
+            ...res,
+            ...cur,
+            data: {
+              results: [...get(res, 'data.results', []), ...get(cur, 'data.results', [])]
+            }
+          };
+        }, {});
+      } else {
+        const result = handler.execForRecords(filteredRecords, action, execContext);
+
+        actResult = await RecordActions._wrapResultIfRequired(result);
+      }
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
         actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];

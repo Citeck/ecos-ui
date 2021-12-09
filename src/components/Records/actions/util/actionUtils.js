@@ -2,6 +2,7 @@ import React from 'react';
 import { NotificationManager } from 'react-notifications';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import difference from 'lodash/difference';
@@ -247,18 +248,35 @@ export async function prepareBatchEditAction(groupActionData) {
 }
 
 export const DetailActionResult = {
-  showPreviewRecords: async (records = [], options) => {
-    DetailActionResult.options = { ...(DetailActionResult.options || {}), ...options, isLoading: true };
+  showPreviewRecords: async (records = [], options = {}) => {
+    DetailActionResult.options = { ...(DetailActionResult.options || {}), ...options, isLoading: !options.withoutLoader };
     const res = results => ({ type: ResultTypes.RESULTS, data: { results } });
 
-    const prepRecords = records.map(id => setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(Labels.STARTED)));
+    const prepRecords = records.map(id => {
+      if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
+        // set(options, ['statusesByRecords', id], t(Labels.STARTED));
+        options.statusesByRecords[id] = t(Labels.STARTED);
+
+        return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(Labels.STARTED));
+      }
+
+      return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(get(options, ['statusesByRecords', id])));
+    });
     showDetailActionResult(res(prepRecords), DetailActionResult.options);
 
     const previewRecords = await Promise.all(
       records.map(id =>
         Records.get(id)
           .load('.disp')
-          .then(disp => setDisplayDataRecord({ id, disp }, t(Labels.IN_PROGRESS)))
+          .then(disp => {
+            if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
+              set(options, ['statusesByRecords', id], t(Labels.IN_PROGRESS));
+
+              return setDisplayDataRecord({ id, disp }, t(Labels.IN_PROGRESS));
+            }
+
+            return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])));
+          })
       )
     );
 
@@ -290,7 +308,17 @@ export const DetailActionResult = {
           name && (r.disp = name.disp);
         });
       }
-      res.data.results = res.data.results.map(r => setDisplayDataRecord(r, packedActionStatus(r.status), r.message));
+
+      res.data.results = res.data.results.map(r => {
+        const id = getRef(r);
+        let status = packedActionStatus(r.status);
+
+        if (!isEmpty(options.forRecords)) {
+          status = options.forRecords.includes(id) ? packedActionStatus(r.status) : get(options, ['statusesByRecords', id]);
+        }
+
+        return setDisplayDataRecord(r, status, r.message);
+      });
     }
 
     return new Promise(resolve => showDetailActionResult(res, { ...DetailActionResult.options, callback: resolve }));
