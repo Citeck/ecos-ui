@@ -34,7 +34,7 @@ export default class EcosFormBuilderModal extends React.Component {
     });
   }
 
-  toggleVisibility() {
+  toggleVisibility = () => {
     DialogManager.confirmDialog({
       text: t(Labels.CLOSE_CONFIRM_DESCRIPTION),
       onYes: () => {
@@ -43,7 +43,7 @@ export default class EcosFormBuilderModal extends React.Component {
         }));
       }
     });
-  }
+  };
 
   onSubmit(form) {
     if (this.state.onSubmit) {
