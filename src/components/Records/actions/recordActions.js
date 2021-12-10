@@ -13,7 +13,7 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, notifyFailure, getRef } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -513,9 +513,9 @@ class RecordActions {
    * @param {RecActionWithCtx} action
    * @param {Object} context
    */
-  async execForRecords(records, action, context = {}) {
-    // const byChunks = action.execForRecordsBatchSize && action.execForRecordsBatchSize > 0;
-    const byChunks = window.execForRecordsBatchSize && window.execForRecordsBatchSize > 0;
+  async execForRecords(records, action = {}, context = {}) {
+    const byBatch = action.execForRecordsBatchSize && action.execForRecordsBatchSize > 0;
+    const byAsyncChunks = window.execForRecordsParallelBatchesCount && window.execForRecordsParallelBatchesCount > 1;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
     const statusesByRecords = records.reduce((result, current) => {
@@ -527,7 +527,7 @@ class RecordActions {
     const resultOptions = {
       title: getActionResultTitle(action),
       withConfirm: false,
-      withoutLoader: byChunks,
+      withoutLoader: byBatch || byAsyncChunks,
       statusesByRecords
     };
 
@@ -603,34 +603,69 @@ class RecordActions {
 
       let actResult;
 
-      if (byChunks) {
-        const chunks = await Promise.all(
-          chunk(filteredRecords, window.execForRecordsBatchSize).map(async (item, index) => {
-            let result = await handler.execForRecords(item, action, execContext);
+      if (byBatch) {
+        const chunks = chunk(filteredRecords, action.execForRecordsBatchSize);
 
-            if (result == null) {
-              return false;
-            }
+        // TODO: draft for ECOSUI-1567
+        // if (byAsyncChunks) {
+        //   const chunks = await Promise.all(
+        //     chunk(filteredRecords, window.execForRecordsParallelBatchesCount).map(async (item, index) => {
+        //       const result = await handler.execForRecords(item, action, execContext);
+        //
+        //       if (result == null) {
+        //         return false;
+        //       }
+        //
+        //       await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
+        //         ...resultOptions,
+        //         withoutLoader: true,
+        //         forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
+        //       });
+        //
+        //       return result;
+        //     })
+        //   );
+        //
+        //   actResult = chunks.reduce((res, cur) => {
+        //     return {
+        //       ...res,
+        //       ...cur,
+        //       data: {
+        //         results: [...get(res, 'data.results', []), ...get(cur, 'data.results', [])]
+        //       }
+        //     };
+        //   }, {});
+        // }
 
-            await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
-              ...resultOptions,
-              withoutLoader: true,
-              forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
-            });
+        for (let i = 0; i < chunks.length; i++) {
+          const result = await handler.execForRecords(chunks[i], action, execContext);
 
-            return result;
-          })
-        );
+          await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
+            ...resultOptions,
+            withoutLoader: true,
+            forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
+          });
 
-        actResult = chunks.reduce((res, cur) => {
-          return {
-            ...res,
-            ...cur,
+          actResult = {
+            ...(actResult || {}),
+            ...(result || {}),
             data: {
-              results: [...get(res, 'data.results', []), ...get(cur, 'data.results', [])]
+              results: [...get(actResult, 'data.results', []), ...get(result, 'data.results', [])]
             }
           };
-        }, {});
+
+          await DetailActionResult.setStatus(allowedRecords.map(r => r.id), {
+            ...resultOptions,
+            withoutLoader: true,
+            forRecords: get(result, 'data.results', []).map(item => item.nodeRef),
+            statuses: get(result, 'data.results', []).reduce((result, current) => {
+              return {
+                ...result,
+                [getRef(current)]: current.status
+              };
+            }, {})
+          });
+        }
       } else {
         const result = handler.execForRecords(filteredRecords, action, execContext);
 

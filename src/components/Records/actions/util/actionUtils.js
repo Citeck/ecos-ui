@@ -31,7 +31,7 @@ const Labels = {
   BTN_CONFIRM: 'btn.confirm.label'
 };
 
-function getRef(record) {
+export function getRef(record) {
   return isNodeRef(record) ? record : record.id || record.recordRef || record.nodeRef;
 }
 
@@ -248,14 +248,38 @@ export async function prepareBatchEditAction(groupActionData) {
 }
 
 export const DetailActionResult = {
+  setStatus: async (records = [], options = {}) => {
+    const res = results => ({ type: ResultTypes.RESULTS, data: { results } });
+
+    const previewRecords = await Promise.all(
+      records.map(id =>
+        Records.get(id)
+          .load('.disp')
+          .then(disp => {
+            if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
+              const status = packedActionStatus(get(options, ['statuses', id]));
+
+              set(options, ['statusesByRecords', id], t(status));
+
+              return setDisplayDataRecord({ id, disp }, t(status));
+            }
+
+            return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])));
+          })
+      )
+    );
+
+    return showDetailActionResult(res(previewRecords), DetailActionResult.options);
+  },
+
   showPreviewRecords: async (records = [], options = {}) => {
     DetailActionResult.options = { ...(DetailActionResult.options || {}), ...options, isLoading: !options.withoutLoader };
     const res = results => ({ type: ResultTypes.RESULTS, data: { results } });
 
     const prepRecords = records.map(id => {
       if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
-        // set(options, ['statusesByRecords', id], t(Labels.STARTED));
-        options.statusesByRecords[id] = t(Labels.STARTED);
+        set(options, ['statusesByRecords', id], t(Labels.STARTED));
+        // options.statusesByRecords[id] = t(Labels.STARTED);
 
         return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(Labels.STARTED));
       }
