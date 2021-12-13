@@ -279,7 +279,6 @@ export const DetailActionResult = {
     const prepRecords = records.map(id => {
       if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
         set(options, ['statusesByRecords', id], t(Labels.STARTED));
-        // options.statusesByRecords[id] = t(Labels.STARTED);
 
         return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(Labels.STARTED));
       }
