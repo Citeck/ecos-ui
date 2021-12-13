@@ -1196,11 +1196,4 @@ export default class SelectComponent extends BaseComponent {
       this.triggerRedraw();
     }
   }
-
-  static optimizeSchema(comp) {
-    return {
-      ...comp,
-      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
-    };
-  }
 }
