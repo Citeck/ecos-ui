@@ -864,8 +864,6 @@ export default class SelectComponent extends BaseComponent {
   /* eslint-enable max-statements */
 
   update() {
-    console.warn({ self: this });
-
     if (this.component.dataSrc === 'custom') {
       this.updateCustomItems();
     }
