@@ -864,6 +864,8 @@ export default class SelectComponent extends BaseComponent {
   /* eslint-enable max-statements */
 
   update() {
+    console.warn({ self: this });
+
     if (this.component.dataSrc === 'custom') {
       this.updateCustomItems();
     }
@@ -1195,5 +1197,18 @@ export default class SelectComponent extends BaseComponent {
 
       this.triggerRedraw();
     }
+  }
+
+  static optimizeSchema(schema) {
+    const comp = _.cloneDeep(schema);
+
+    if (_.isEmpty(comp.dataSrc)) {
+      _.set(comp, 'dataSrc', _.get(SelectComponent.schema(), 'dataSrc'));
+    }
+
+    return {
+      ...comp,
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+    };
   }
 }
