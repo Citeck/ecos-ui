@@ -4,7 +4,7 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
 
-import { extractLabel, getModule, t } from '../../../helpers/util';
+import { extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
@@ -66,7 +66,8 @@ const ACTION_CONTEXT_KEY = '__act_ctx__';
 const Labels = {
   RECORDS_NOT_ALLOWED_TITLE: 'records-actions.dialog.all-records-not-allowed.title',
   RECORDS_NOT_ALLOWED_TEXT: 'records-actions.dialog.all-records-not-allowed.text',
-  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed'
+  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed',
+  MESSAGE_BACKGROUND_MODE: 'records-actions.background-mode.message'
 };
 
 export const DEFAULT_MODEL = {
@@ -587,7 +588,13 @@ class RecordActions {
         ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
         : allowedRecords;
 
-      const result = handler.execForRecords(filteredRecords, action, execContext);
+      const result = handler.execForRecords(filteredRecords, action, execContext).catch(error => {
+        let message = get(error, 'timeoutErrorMessage');
+
+        message = message ? getMLValue(message) : Labels.MESSAGE_BACKGROUND_MODE;
+
+        DialogManager.showInfoDialog({ text: t(message) });
+      });
       const actResult = await RecordActions._wrapResultIfRequired(result);
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
