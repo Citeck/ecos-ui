@@ -589,16 +589,16 @@ class RecordActions {
         : allowedRecords;
 
       const result = handler.execForRecords(filteredRecords, action, execContext).catch(error => {
-        let message = get(error, 'timeoutErrorMessage');
-
-        message = message ? getMLValue(message) : Labels.MESSAGE_BACKGROUND_MODE;
-
-        DialogManager.showInfoDialog({ text: t(message) });
+        RecordActions._showTimeoutMessageDialog(error);
       });
       const actResult = await RecordActions._wrapResultIfRequired(result);
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
-        actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        if (get(actResult, 'error')) {
+          RecordActions._showTimeoutMessageDialog(actResult);
+        } else {
+          actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        }
       }
 
       RecordActions._updateRecords(allowedRecords, true);
@@ -609,6 +609,14 @@ class RecordActions {
     isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
 
     return execution;
+  }
+
+  static _showTimeoutMessageDialog(data) {
+    let message = get(data, 'timeoutErrorMessage');
+
+    message = message ? getMLValue(message) : Labels.MESSAGE_BACKGROUND_MODE;
+
+    DialogManager.showInfoDialog({ text: t(message) });
   }
 
   async _getActionAllowedInfoForRecords(records, action, context) {
