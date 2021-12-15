@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import chunk from 'lodash/chunk';
 
 import { extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
@@ -12,7 +13,7 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, notifyFailure, getRef } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -512,10 +513,23 @@ class RecordActions {
    * @param {RecActionWithCtx} action
    * @param {Object} context
    */
-  async execForRecords(records, action, context = {}) {
+  async execForRecords(records, action = {}, context = {}) {
+    const byBatch = action.execForRecordsBatchSize && action.execForRecordsBatchSize > 0;
+    const byAsyncChunks = window.execForRecordsParallelBatchesCount && window.execForRecordsParallelBatchesCount > 1;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
-    const resultOptions = { title: getActionResultTitle(action), withConfirm: false };
+    const statusesByRecords = records.reduce((result, current) => {
+      return {
+        ...result,
+        [current]: ''
+      };
+    }, {});
+    const resultOptions = {
+      title: getActionResultTitle(action),
+      withConfirm: false,
+      withoutLoader: byBatch || byAsyncChunks,
+      statusesByRecords
+    };
 
     const execution = await (async function() {
       if (!records || !records.length) {
@@ -587,8 +601,76 @@ class RecordActions {
         ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
         : allowedRecords;
 
-      const result = handler.execForRecords(filteredRecords, action, execContext);
-      const actResult = await RecordActions._wrapResultIfRequired(result);
+      let actResult;
+
+      if (byBatch) {
+        const chunks = chunk(filteredRecords, action.execForRecordsBatchSize);
+
+        // TODO: draft for ECOSUI-1567
+        // if (byAsyncChunks) {
+        //   const chunks = await Promise.all(
+        //     chunk(filteredRecords, window.execForRecordsParallelBatchesCount).map(async (item, index) => {
+        //       const result = await handler.execForRecords(item, action, execContext);
+        //
+        //       if (result == null) {
+        //         return false;
+        //       }
+        //
+        //       await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
+        //         ...resultOptions,
+        //         withoutLoader: true,
+        //         forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
+        //       });
+        //
+        //       return result;
+        //     })
+        //   );
+        //
+        //   actResult = chunks.reduce((res, cur) => {
+        //     return {
+        //       ...res,
+        //       ...cur,
+        //       data: {
+        //         results: [...get(res, 'data.results', []), ...get(cur, 'data.results', [])]
+        //       }
+        //     };
+        //   }, {});
+        // }
+
+        for (let i = 0; i < chunks.length; i++) {
+          const result = await handler.execForRecords(chunks[i], action, execContext);
+
+          await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
+            ...resultOptions,
+            withoutLoader: true,
+            forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
+          });
+
+          actResult = {
+            ...(actResult || {}),
+            ...(result || {}),
+            data: {
+              results: [...get(actResult, 'data.results', []), ...get(result, 'data.results', [])]
+            }
+          };
+
+          await DetailActionResult.setStatus(allowedRecords.map(r => r.id), {
+            ...resultOptions,
+            withoutLoader: true,
+            forRecords: get(result, 'data.results', []).map(item => item.nodeRef),
+            statuses: get(result, 'data.results', []).reduce((result, current) => {
+              return {
+                ...result,
+                [getRef(current)]: current.status
+              };
+            }, {})
+          });
+        }
+      } else {
+        const result = handler.execForRecords(filteredRecords, action, execContext);
+
+        actResult = await RecordActions._wrapResultIfRequired(result);
+      }
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
         actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
