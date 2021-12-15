@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import get from 'lodash/get';
+
 import { EcosDropdownMenu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
@@ -31,9 +33,15 @@ export default class LanguageSwitcher extends React.Component {
   };
 
   componentDidMount() {
-    this.setState({
-      language: getCurrentLocale()
-    });
+    const { items } = this.props;
+    const currentLang = getCurrentLocale();
+    let language = get(items.find(item => item.id === currentLang), 'id');
+
+    if (!language) {
+      language = get(allowedLanguages, '0.id', currentLang);
+    }
+
+    this.setState({ language });
   }
 
   render() {
@@ -52,7 +60,8 @@ export default class LanguageSwitcher extends React.Component {
       'ecos-btn_blue-classic'
     );
 
-    const currentLanguage = items.find(item => item.id === language);
+    const currentLanguage = items.find(item => item.id === language) || get(allowedLanguages, '0');
+
     if (!currentLanguage) {
       return null;
     }

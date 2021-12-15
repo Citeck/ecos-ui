@@ -3,6 +3,7 @@ import lodashSet from 'lodash/set';
 
 import { getCurrentLocale } from '../helpers/util';
 import { AppApi } from '../api/app';
+import { LANGUAGE_EN } from '../constants/lang';
 
 export function i18nInit({ debug = false }) {
   const lng = getCurrentLocale();
@@ -26,6 +27,7 @@ export function i18nInit({ debug = false }) {
 
       i18next
         .init({
+          fallbackLng: LANGUAGE_EN,
           lng,
           debug,
           keySeparator: false,
