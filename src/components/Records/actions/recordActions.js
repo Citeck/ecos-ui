@@ -264,7 +264,7 @@ class RecordActions {
 
         if (Array.isArray(get(response, 'results'))) {
           result.results = response.results;
-          result.preProcessedRecords = result.results.map(res => res.recordRef);
+          result.preProcessedRecords = result.results.map(res => getRef(res));
         }
 
         if (!isEmpty(get(response, 'config'))) {
@@ -518,12 +518,13 @@ class RecordActions {
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
-    const statusesByRecords = records.reduce((result, current) => {
-      return {
+    const statusesByRecords = records.reduce(
+      (result, current) => ({
         ...result,
         [current]: ''
-      };
-    }, {});
+      }),
+      {}
+    );
     const resultOptions = {
       title: getActionResultTitle(action),
       withConfirm: false,
@@ -556,7 +557,7 @@ class RecordActions {
         RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
-      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => r.id), resultOptions);
+      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
       const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
@@ -586,32 +587,45 @@ class RecordActions {
           return false;
         }
 
-        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), resultOptions);
+        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
       }
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
-      const preResult = await RecordActions._preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
-
-      if (preResult.configMerged) {
-        action.config = preResult.config;
-      }
-
-      const filteredRecords = preResult.preProcessedRecords
-        ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
-        : allowedRecords;
-
+      let preResult;
       let actResult;
 
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1562
       if (byBatch) {
+        const chunks = chunk(allowedRecords, execForRecordsBatchSize);
         const executeChunks = async chunks => {
-          for (let i = 0; i < chunks.length; i++) {
-            const result = await handler.execForRecords(chunks[i], action, execContext);
+          let results = {};
 
-            await DetailActionResult.showPreviewRecords(allowedRecords.map(r => r.id), {
+          for (let i = 0; i < chunks.length; i++) {
+            const preResult = await RecordActions._preProcessAction({ records: chunks[i], action, context }, 'execForRecords');
+
+            if (preResult.configMerged) {
+              action.config = preResult.config;
+            }
+
+            if (!isEmpty(preResult.preProcessedRecords)) {
+              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+                ...resultOptions,
+                withoutLoader: true,
+                forRecords: get(preResult, 'results', []).map(item => getRef(item))
+              });
+            }
+
+            const filteredRecords = preResult.preProcessedRecords
+              ? chunks[i].filter(rec => !preResult.preProcessedRecords.includes(rec.id))
+              : chunks[i];
+
+            const result = await handler.execForRecords(filteredRecords, action, execContext);
+
+            await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
               ...resultOptions,
               withoutLoader: true,
-              forRecords: get(result, 'data.results', []).map(item => item.nodeRef)
+              forRecords: get(result, 'data.results', []).map(item => getRef(item))
             });
 
             actResult = {
@@ -622,29 +636,54 @@ class RecordActions {
               }
             };
 
-            await DetailActionResult.setStatus(allowedRecords.map(r => r.id), {
+            await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
               ...resultOptions,
               withoutLoader: true,
-              forRecords: get(result, 'data.results', []).map(item => item.nodeRef),
-              statuses: get(result, 'data.results', []).reduce((result, current) => {
-                return {
+              forRecords: get(result, 'data.results', []).map(item => getRef(item)),
+              statuses: get(result, 'data.results', []).reduce(
+                (result, current) => ({
                   ...result,
                   [getRef(current)]: current.status
-                };
-              }, {})
+                }),
+                {}
+              )
             });
-          }
-        };
-        const chunks = chunk(filteredRecords, execForRecordsBatchSize);
 
+            results = {
+              ...results,
+              ...preResult
+            };
+          }
+
+          return results;
+        };
+
+        // Cause: https://citeck.atlassian.net/browse/ECOSUI-1567
         if (execForRecordsParallelBatchesCount && execForRecordsParallelBatchesCount > 1) {
           const parallelChunks = chunk(chunks, execForRecordsParallelBatchesCount);
 
-          await Promise.all(parallelChunks.map(item => executeChunks(item)));
+          const results = await Promise.all(parallelChunks.map(item => executeChunks(item)));
+
+          preResult = results.reduce(
+            (result, current) => ({
+              ...result,
+              ...current
+            }),
+            {}
+          );
         } else {
-          await executeChunks(chunks);
+          preResult = await executeChunks(chunks);
         }
       } else {
+        preResult = await RecordActions._preProcessAction({ records: allowedRecords, action, context }, 'execForRecords');
+
+        if (preResult.configMerged) {
+          action.config = preResult.config;
+        }
+
+        const filteredRecords = preResult.preProcessedRecords
+          ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
+          : allowedRecords;
         const result = handler.execForRecords(filteredRecords, action, execContext);
 
         actResult = await RecordActions._wrapResultIfRequired(result);
