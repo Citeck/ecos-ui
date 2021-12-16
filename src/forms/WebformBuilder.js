@@ -340,11 +340,6 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   });
 
   this.addEventListener(saveButton, 'click', event => {
-    console.warn({
-      self: this,
-      component
-    });
-
     if (!this.editForm.checkValidity(this.editForm.data, true)) {
       return;
     }
