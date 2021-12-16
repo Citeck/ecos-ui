@@ -621,33 +621,67 @@ class RecordActions {
               : chunks[i];
 
             const result = await handler.execForRecords(filteredRecords, action, execContext);
+            const error = get(result, 'error');
 
-            await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
-              ...resultOptions,
-              withoutLoader: true,
-              forRecords: get(result, 'data.results', []).map(item => getRef(item))
-            });
+            // Cause: https://citeck.atlassian.net/browse/ECOSUI-1578
+            if (error) {
+              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+                ...resultOptions,
+                withoutLoader: true,
+                forRecords: filteredRecords.map(item => getRef(item)),
+                statuses: filteredRecords.reduce(
+                  (result, current) => ({
+                    ...result,
+                    [getRef(current)]: 'ERROR'
+                  }),
+                  {}
+                )
+              });
 
-            actResult = {
-              ...(actResult || {}),
-              ...(result || {}),
-              data: {
-                results: [...get(actResult, 'data.results', []), ...get(result, 'data.results', [])]
-              }
-            };
+              delete result.error;
 
-            await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
-              ...resultOptions,
-              withoutLoader: true,
-              forRecords: get(result, 'data.results', []).map(item => getRef(item)),
-              statuses: get(result, 'data.results', []).reduce(
-                (result, current) => ({
-                  ...result,
-                  [getRef(current)]: current.status
-                }),
-                {}
-              )
-            });
+              actResult = {
+                ...(actResult || {}),
+                ...(result || {}),
+                data: {
+                  results: [
+                    ...get(actResult, 'data.results', []),
+                    ...filteredRecords.map(item => ({
+                      message: error,
+                      status: 'ERROR',
+                      nodeRef: getRef(item)
+                    }))
+                  ]
+                }
+              };
+            } else {
+              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+                ...resultOptions,
+                withoutLoader: true,
+                forRecords: get(result, 'data.results', []).map(item => getRef(item))
+              });
+
+              actResult = {
+                ...(actResult || {}),
+                ...(result || {}),
+                data: {
+                  results: [...get(actResult, 'data.results', []), ...get(result, 'data.results', [])]
+                }
+              };
+
+              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+                ...resultOptions,
+                withoutLoader: true,
+                forRecords: get(result, 'data.results', []).map(item => getRef(item)),
+                statuses: get(result, 'data.results', []).reduce(
+                  (result, current) => ({
+                    ...result,
+                    [getRef(current)]: current.status
+                  }),
+                  {}
+                )
+              });
+            }
 
             results = {
               ...results,
@@ -661,7 +695,6 @@ class RecordActions {
         // Cause: https://citeck.atlassian.net/browse/ECOSUI-1567
         if (execForRecordsParallelBatchesCount && execForRecordsParallelBatchesCount > 1) {
           const parallelChunks = chunk(chunks, execForRecordsParallelBatchesCount);
-
           const results = await Promise.all(parallelChunks.map(item => executeChunks(item)));
 
           preResult = results.reduce(
