@@ -514,8 +514,7 @@ class RecordActions {
    * @param {Object} context
    */
   async execForRecords(records, action = {}, context = {}) {
-    // const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
-    const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = window;
+    const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
