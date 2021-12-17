@@ -636,7 +636,7 @@ class RecordActions {
 
               actResult = {
                 ...(actResult || {}),
-                type: get(actResult, 'data.type', ResultTypes.RESULTS),
+                type: get(actResult, 'type', ResultTypes.RESULTS),
                 data: {
                   results: [...get(actResult, 'data.results', []), ...preResult.results]
                 }
@@ -668,7 +668,7 @@ class RecordActions {
               actResult = {
                 ...(actResult || {}),
                 ...(result || {}),
-                type: get(actResult, 'data.type', ResultTypes.RESULTS),
+                type: get(result, 'type', get(actResult, 'type', ResultTypes.RESULTS)),
                 data: {
                   results: [
                     ...get(actResult, 'data.results', []),
