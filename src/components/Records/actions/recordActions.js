@@ -13,7 +13,7 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, notifyFailure, getRef } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, notifyFailure, getRef, ResultTypes } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -620,6 +620,31 @@ class RecordActions {
               ? chunks[i].filter(rec => !preResult.preProcessedRecords.includes(rec.id))
               : chunks[i];
 
+            if (!isEmpty(preResult.preProcessedRecords) && isEmpty(filteredRecords)) {
+              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+                ...resultOptions,
+                withoutLoader: true,
+                forRecords: preResult.preProcessedRecords,
+                statuses: preResult.results.reduce(
+                  (result, current) => ({
+                    ...result,
+                    [getRef(current)]: 'ERROR'
+                  }),
+                  {}
+                )
+              });
+
+              actResult = {
+                ...(actResult || {}),
+                type: get(actResult, 'type', ResultTypes.RESULTS),
+                data: {
+                  results: [...get(actResult, 'data.results', []), ...preResult.results]
+                }
+              };
+
+              continue;
+            }
+
             const result = await handler.execForRecords(filteredRecords, action, execContext);
             const error = get(result, 'error');
 
@@ -643,6 +668,7 @@ class RecordActions {
               actResult = {
                 ...(actResult || {}),
                 ...(result || {}),
+                type: get(result, 'type', get(actResult, 'type', ResultTypes.RESULTS)),
                 data: {
                   results: [
                     ...get(actResult, 'data.results', []),
