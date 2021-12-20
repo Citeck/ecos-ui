@@ -32,7 +32,8 @@ import {
   setSelectAllRecordsVisible,
   setSelectedRecords,
   setSettingItem,
-  setUrl
+  setUrl,
+  openSelectedJournal
 } from '../actions/journals';
 import { setLoading } from '../actions/loader';
 import { t } from '../helpers/util';
@@ -486,6 +487,11 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { recordRef: action.payload });
+    },
+    [openSelectedJournal]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, { selectAllPageRecords: false });
     },
     [runSearch]: (state, action) => {
       const stateId = action.payload.stateId;
