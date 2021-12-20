@@ -10,6 +10,8 @@ import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
+import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
 import uuidV4 from 'uuid/v4';
 
 import { AppEditions } from '../../constants';
@@ -513,8 +515,11 @@ export default class EcosFormUtils {
 
       const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
 
-      if (typeof currentComponent.optimizeSchema === 'function') {
-        comp = currentComponent.optimizeSchema(comp);
+      if (isFunction(currentComponent.optimizeSchema)) {
+        comp = currentComponent.optimizeSchema({
+          ...currentComponentDefaultSchema,
+          ...comp
+        });
       }
 
       objectAtts.forEach(att => {

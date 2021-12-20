@@ -1197,13 +1197,7 @@ export default class SelectComponent extends BaseComponent {
     }
   }
 
-  static optimizeSchema(schema) {
-    const comp = _.cloneDeep(schema);
-
-    if (_.isEmpty(comp.dataSrc)) {
-      _.set(comp, 'dataSrc', _.get(SelectComponent.schema(), 'dataSrc'));
-    }
-
+  static optimizeSchema(comp) {
     return {
       ...comp,
       data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
