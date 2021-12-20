@@ -23,7 +23,10 @@ const executeAction = async ({ groupAction, selected = [], resolved, query = nul
   }
 
   if (exAction.error) {
-    return { error: get(exAction, 'error.message') || '-' };
+    return {
+      error: get(exAction, 'error.message') || '-',
+      code: get(exAction, 'error.response.status')
+    };
   }
 
   const result = prepareResult(exAction.results || exAction);
@@ -80,11 +83,12 @@ export default class ServerGroupAction extends ActionsExecutor {
   static ACTION_ID = 'server-group-action';
 
   async execForRecords(records, action, context) {
-    let result;
     const selectedRecords = records.map(r => r.id);
     const groupAction = cloneDeep(action.config);
-    groupAction.type = 'selected';
     let groupActionWithData;
+    let result;
+
+    groupAction.type = 'selected';
 
     if (isExistValue(groupAction.formKey)) {
       groupActionWithData = await showFormIfRequired(groupAction);

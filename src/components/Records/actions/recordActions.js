@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
 import chunk from 'lodash/chunk';
 
-import { extractLabel, getModule, t } from '../../../helpers/util';
+import { extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
@@ -67,7 +67,8 @@ const ACTION_CONTEXT_KEY = '__act_ctx__';
 const Labels = {
   RECORDS_NOT_ALLOWED_TITLE: 'records-actions.dialog.all-records-not-allowed.title',
   RECORDS_NOT_ALLOWED_TEXT: 'records-actions.dialog.all-records-not-allowed.text',
-  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed'
+  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed',
+  MESSAGE_BACKGROUND_MODE: 'records-actions.background-mode.message'
 };
 
 export const DEFAULT_MODEL = {
@@ -516,6 +517,7 @@ class RecordActions {
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
+    let withTimeoutError = false;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
     const statusesByRecords = records.reduce(
@@ -538,6 +540,7 @@ class RecordActions {
       }
 
       const handler = RecordActions._getActionsExecutor(action);
+
       if (handler == null) {
         return false;
       }
@@ -648,6 +651,10 @@ class RecordActions {
             const result = await handler.execForRecords(filteredRecords, action, execContext);
             const error = get(result, 'error');
 
+            if (get(result, 'code') === 504) {
+              withTimeoutError = true;
+            }
+
             // Cause: https://citeck.atlassian.net/browse/ECOSUI-1578
             if (error) {
               await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
@@ -743,13 +750,19 @@ class RecordActions {
         const filteredRecords = preResult.preProcessedRecords
           ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
           : allowedRecords;
-        const result = handler.execForRecords(filteredRecords, action, execContext);
+        const result = handler.execForRecords(filteredRecords, action, execContext).catch(error => {
+          RecordActions._showTimeoutMessageDialog(error);
+        });
 
         actResult = await RecordActions._wrapResultIfRequired(result);
       }
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
-        actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        if (get(actResult, 'error')) {
+          RecordActions._showTimeoutMessageDialog(actResult);
+        } else {
+          actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        }
       }
 
       RecordActions._updateRecords(allowedRecords, true);
@@ -759,7 +772,19 @@ class RecordActions {
 
     isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
 
+    if (withTimeoutError) {
+      RecordActions._showTimeoutMessageDialog();
+    }
+
     return execution;
+  }
+
+  static _showTimeoutMessageDialog(data) {
+    let message = get(data, 'timeoutErrorMessage');
+
+    message = message ? getMLValue(message) : Labels.MESSAGE_BACKGROUND_MODE;
+
+    DialogManager.showInfoDialog({ text: t(message) });
   }
 
   async _getActionAllowedInfoForRecords(records, action, context) {

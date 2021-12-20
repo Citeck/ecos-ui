@@ -552,6 +552,7 @@
   "records-actions.dialog.all-records-not-allowed.title": "Действие нельзя выполнить",
   "records-actions.dialog.all-records-not-allowed.text": "Данное действие над выбранными строками недоступно",
   "records-actions.confirm-not-allowed": "Действие разрешено не для всех строк. Продолжить?",
+  "records-actions.background-mode.message": "Обработка продолжается в фоновом режиме.\nПосле закрытия окна - сможете следить за выполнением операции в журнале.",
   "records-actions.notify.title": "Виджет Действия",
   "records-actions.error.execute-action": "Ошибка выполнения действия",
   "records-actions.error.get-actions": "Действия не получены",
