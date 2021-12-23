@@ -84,6 +84,11 @@ export default class ButtonComponent extends FormIOButtonComponent {
         this.emit('checkValidity', this.data);
       }
 
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1581
+      if (get(this.root, 'constructor.name') === 'WebformBuilder') {
+        return;
+      }
+
       switch (this.component.action) {
         case 'saveState':
         case 'submit':
