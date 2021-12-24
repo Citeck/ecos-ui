@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -84,7 +85,8 @@ class EcosForm extends React.Component {
       definition: 'definition?json',
       customModule: 'customModule',
       title: 'title',
-      i18n: 'i18n?json'
+      i18n: 'i18n?json',
+      width: 'width'
     };
 
     let formLoadingPromise;
@@ -99,9 +101,7 @@ class EcosForm extends React.Component {
 
     options.recordId = recordId;
     options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
-    options.formSubmitDonePromise = new Promise(resolve => {
-      this._formSubmitDoneResolve = resolve;
-    });
+    options.formSubmitDonePromise = new Promise(resolve => (this._formSubmitDoneResolve = resolve));
 
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
@@ -116,13 +116,17 @@ class EcosForm extends React.Component {
     };
 
     formLoadingPromise.then(formData => {
-      if (formData && formData.title) {
-        getTitle && getTitle(formData.title);
-      }
+      isFunction(getTitle) && !!get(formData, 'title') && getTitle(formData.title);
 
       if (!formData || !formData.definition) {
         onFormLoadingFailure();
         return null;
+      }
+      const modal = this._formContainer.current.closest('.ecos-modal');
+
+      if (modal && formData.width && formData.width !== 'default') {
+        modal.classList.remove('ecos-modal_width-lg');
+        modal.classList.add(`ecos-modal_width-${formData.width}`);
       }
 
       const customModulePromise = new Promise(function(resolve) {
@@ -185,11 +189,7 @@ class EcosForm extends React.Component {
           wildcard: false,
           maxListeners: 0,
           loadLimit: 200,
-          onOverload: () => {
-            if (self._form) {
-              self._form.showErrors('Infinite loop detected');
-            }
-          }
+          onOverload: () => !!self._form && self._form.showErrors('Infinite loop detected')
         });
         options.initiator = initiator;
 
@@ -305,12 +305,7 @@ class EcosForm extends React.Component {
 
   toggleLoader = state => {
     const { onToggleLoader } = this.props;
-
-    if (typeof onToggleLoader !== 'function') {
-      return;
-    }
-
-    onToggleLoader(state);
+    isFunction(onToggleLoader) && onToggleLoader(state);
   };
 
   onShowFormBuilder = callback => {
@@ -321,7 +316,7 @@ class EcosForm extends React.Component {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
           this.initForm(form);
           this.props.onFormSubmitDone();
-          typeof callback === 'function' && callback(form);
+          isFunction(callback) && callback(form);
         });
       });
     }
@@ -480,6 +475,7 @@ EcosForm.propTypes = {
   options: PropTypes.object,
   formKey: PropTypes.string,
   formId: PropTypes.string,
+  getTitle: PropTypes.func,
   onSubmit: PropTypes.func,
   onReady: PropTypes.func, // Form ready, but not rendered yet
   onReadyToSubmit: PropTypes.func,
