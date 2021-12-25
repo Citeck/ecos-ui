@@ -855,8 +855,10 @@ export default class SelectComponent extends BaseComponent {
       }
       this.update();
     });
+
     if (placeholderValue && this.choices._isSelectOneElement) {
-      this.addEventListener(input, 'removeItem', () => {
+      this.addEventListener(input, 'removeItem', (...data) => {
+        console.warn({ input, data });
         const items = this.choices._store.activeItems;
         if (!items.length) {
           this.choices._addItem(placeholderValue, placeholderValue, 0, -1, null, true, null);
@@ -868,6 +870,13 @@ export default class SelectComponent extends BaseComponent {
     if (this.addValueOptions()) {
       this.restoreValue();
     }
+
+    this.addEventListener(input, 'change', () => {
+      if (_.get(this.choices, '_store.activeItems', []).length === 0) {
+        this.deleteValue();
+        this.refresh('');
+      }
+    });
 
     // Force the disabled state with getters and setters.
     this.disabled = this.disabled;
