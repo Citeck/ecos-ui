@@ -503,7 +503,7 @@ export default class EcosFormUtils {
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1569
-  static _checkAndAddingDefaultFields(component = {}, defaultSchema = {}, ignoredFields = []) {
+  static _checkAndAddDefaultFields(component = {}, defaultSchema = {}, ignoredFields = []) {
     const componentSchema = cloneDeep(component);
 
     Object.keys(defaultSchema).forEach(key => {
@@ -532,7 +532,7 @@ export default class EcosFormUtils {
       const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
 
       if (isFunction(currentComponent.optimizeSchema)) {
-        comp = currentComponent.optimizeSchema(EcosFormUtils._checkAndAddingDefaultFields(comp, currentComponentDefaultSchema, objectAtts));
+        comp = currentComponent.optimizeSchema(EcosFormUtils._checkAndAddDefaultFields(comp, currentComponentDefaultSchema, objectAtts));
       }
 
       objectAtts.forEach(att => {
