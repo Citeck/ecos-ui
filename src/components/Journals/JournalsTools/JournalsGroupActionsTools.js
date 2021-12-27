@@ -36,10 +36,6 @@ export default React.memo(function JournalsGroupActionsTools(props) {
   const forRecordsDropDownActions = [];
   const groupActions = (selectAllRecordsVisible ? forQuery.actions : forRecords.actions) || [];
 
-  if (isEmpty(groupActions)) {
-    return;
-  }
-
   for (let action of groupActions) {
     if (action.icon) {
       forRecordsInlineActions.push(action);
