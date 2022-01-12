@@ -6,6 +6,12 @@ import Records from '../../../../components/Records';
 
 let ajaxGetCache = {};
 
+const UT = {
+  ANY: 'any-change',
+  ONCE: 'once',
+  EVENT: 'event'
+};
+
 export default class AsyncDataComponent extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
@@ -71,12 +77,50 @@ export default class AsyncDataComponent extends BaseComponent {
     };
   }
 
-  isReadyToSubmit() {
-    return this.activeAsyncActionsCounter === 0;
+  static optimizeSchema(comp) {
+    const defaultSchema = AsyncDataComponent.schema();
+    return {
+      ...comp,
+      source: _.omitBy(comp.source, (value, key) => {
+        if (['type', 'forceLoad'].includes(key)) {
+          return false;
+        }
+        return key !== comp.source.type;
+      }),
+      update: _.omitBy(comp.update, (value, key) => _.isEqual(defaultSchema.update[key], value))
+    };
   }
+
+  updatedOnce = false;
 
   get defaultSchema() {
     return AsyncDataComponent.schema();
+  }
+
+  get visible() {
+    return false;
+  }
+
+  get shouldExecute() {
+    const executionCondition = _.get(this.component, 'executionCondition');
+
+    if (executionCondition) {
+      return this.evaluate(executionCondition, {}, 'value', true);
+    }
+
+    return true;
+  }
+
+  get emptyValue() {
+    return {};
+  }
+
+  get updateType() {
+    return _.get(this.component, 'update.type', '');
+  }
+
+  isReadyToSubmit() {
+    return this.activeAsyncActionsCounter === 0;
   }
 
   elementInfo() {
@@ -87,43 +131,20 @@ export default class AsyncDataComponent extends BaseComponent {
     return info;
   }
 
-  updatedOnce = false;
-
   checkConditions(data) {
-    let result = super.checkConditions(data);
+    const result = super.checkConditions(data);
 
-    let comp = this.component;
-
-    const updateType = _.get(comp, 'update.type', '');
-
-    if (updateType === 'any-change') {
-      if (this.shouldExecute) {
+    if (this.shouldExecute) {
+      if (this.updateType === UT.ANY) {
         this._updateValue(false);
       }
-      return result;
-    } else if (updateType === 'once' && !this.updatedOnce) {
-      if (this.shouldExecute) {
+      if (this.updateType === UT.ONCE && !this.updatedOnce) {
         this.updatedOnce = true;
         this._updateValue(false);
       }
-      return result;
     }
 
     return result;
-  }
-
-  get visible() {
-    return false;
-  }
-
-  get shouldExecute() {
-    let comp = this.component;
-
-    if (comp.executionCondition) {
-      return this.evaluate(comp.executionCondition, {}, 'value', true);
-    }
-
-    return true;
   }
 
   _loadAtts(recordId, attributes) {
@@ -171,9 +192,9 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   _updateValue(forceUpdate) {
-    let comp = this.component;
-    let type = _.get(comp, 'source.type', '');
-    let self = this;
+    const comp = this.component;
+    const type = _.get(comp, 'source.type', '');
+    const self = this;
 
     switch (type) {
       case 'record':
@@ -194,9 +215,9 @@ export default class AsyncDataComponent extends BaseComponent {
 
         break;
       case 'recordsScript':
-        let recordsScriptConfig = _.get(comp, 'source.recordsScript', {});
-
+        const recordsScriptConfig = _.get(comp, 'source.recordsScript', {});
         let records = this.evaluate(recordsScriptConfig.script, {}, 'value', true);
+
         if (records) {
           if (_.isArray(records)) {
             records = records.map(rec => (rec.id ? rec.id : rec));
@@ -340,15 +361,13 @@ export default class AsyncDataComponent extends BaseComponent {
         break;
 
       case 'custom':
-        let customConfig = _.get(comp, 'source.custom', {});
-        let syncData = this.evaluate(customConfig.syncData, {}, 'value', true);
+        const customConfig = _.get(comp, 'source.custom') || {};
+        const syncData = this.evaluate(customConfig.syncData, {}, 'value', true);
 
         this._evalAsyncValue(
           'computedCustomData',
           syncData,
-          data => {
-            return this.evaluate(customConfig.asyncData, { data: data }, 'value', true);
-          },
+          data => this.evaluate(customConfig.asyncData, { data }, 'value', true),
           null,
           forceUpdate
         );
@@ -360,57 +379,52 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   _evalAsyncValue(dataField, data, action, defaultValue, forceUpdate) {
-    let self = this;
-    let comp = this.component;
-
     if (data === null) {
       return;
     }
 
-    let currentValue = this[dataField];
+    const comp = this.component;
+    const currentValue = this[dataField];
     const { ignoreValuesEqualityChecking } = comp;
+
     if (ignoreValuesEqualityChecking || forceUpdate || !_.isEqual(currentValue, data)) {
       this[dataField] = data;
 
-      this.activeAsyncActionsCounter++;
+      const setValue = value => _.isEqual(data, this[dataField]) && this.setValue(value);
+      const decrement = () => this.activeAsyncActionsCounter--;
 
-      const setValue = value => {
-        if (data === self[dataField]) {
-          self.setValue(value);
+      const actionImpl = () => {
+        this.activeAsyncActionsCounter++;
 
-          //fix submit before all values calculated
-          setTimeout(() => {
-            self.activeAsyncActionsCounter--;
-          }, 200);
-        } else {
-          self.activeAsyncActionsCounter--;
-        }
-      };
+        if (_.isEqual(data, this[dataField])) {
+          try {
+            const result = action.call(this, data);
 
-      let actionImpl = () => {
-        if (data === self[dataField]) {
-          let result = action.call(self, data);
-          if (result) {
-            if (result.then) {
-              result
-                .then(data => {
-                  setValue(data);
-                })
-                .catch(e => {
-                  console.warn(e);
-                  setValue(defaultValue);
-                });
-            } else {
+            if (result) {
+              if (result.then) {
+                result
+                  .then(setValue)
+                  .catch(e => {
+                    console.warn(e);
+                    setValue(defaultValue);
+                  })
+                  .finally(decrement);
+                return;
+              }
+
               setValue(result);
             }
+          } catch (e) {
+            console.warn(e);
+            setValue(defaultValue);
           }
-        } else {
-          self.activeAsyncActionsCounter--;
         }
+
+        decrement();
       };
 
       if (forceUpdate) {
-        actionImpl.call(this);
+        actionImpl();
       } else {
         setTimeout(actionImpl, comp.update.rate);
       }
@@ -418,7 +432,7 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   destroy() {
-    let watchers = this._recordWatchers || {};
+    const watchers = this._recordWatchers || {};
 
     for (let id in watchers) {
       if (watchers.hasOwnProperty(id)) {
@@ -443,8 +457,7 @@ export default class AsyncDataComponent extends BaseComponent {
       this.element.classList.remove('form-group');
     }
 
-    const updateType = _.get(this.component, 'update.type', '');
-    if (updateType === 'event') {
+    if (this.updateType === UT.EVENT) {
       this.on(
         this.component.update.event,
         () => {
@@ -455,7 +468,7 @@ export default class AsyncDataComponent extends BaseComponent {
         },
         true
       );
-    } else if (updateType === 'once' && !this.updatedOnce && this.shouldExecute) {
+    } else if (this.updateType === UT.ONCE && !this.updatedOnce && this.shouldExecute) {
       this.updatedOnce = true;
       this._updateValue(false);
     }
@@ -486,23 +499,22 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   createLabel() {}
+
   createErrorElement() {}
 
-  get emptyValue() {
-    return {};
-  }
-
   setValue(value, flags) {
-    const component = this.component;
-    const { ignoreValuesEqualityChecking } = component;
+    const { ignoreValuesEqualityChecking } = this.component;
+
     if (ignoreValuesEqualityChecking || !_.isEqual(this.dataValue, value)) {
       flags = this.getFlags.apply(this, arguments);
       this.dataValue = value;
       this.updateValue(flags);
       this.triggerChange(flags);
       this.triggerEventOnChange();
+
       return true;
     }
+
     return false;
   }
 
@@ -517,25 +529,10 @@ export default class AsyncDataComponent extends BaseComponent {
       this.events.emit(this.interpolate(component.eventName), this.data);
       this.emit('customEvent', {
         type: this.interpolate(component.eventName),
-        component: this.component,
+        component,
         data: this.data,
         event: null
       });
     }
   };
-
-  static optimizeSchema(comp) {
-    const defaultSchema = AsyncDataComponent.schema();
-    return {
-      ...comp,
-      source: _.omitBy(comp.source, (value, key) => {
-        const saveAtts = ['type', 'forceLoad'];
-        if (saveAtts.includes(key)) {
-          return false;
-        }
-        return key !== comp.source.type;
-      }),
-      update: _.omitBy(comp.update, (value, key) => _.isEqual(defaultSchema.update[key], value))
-    };
-  }
 }
