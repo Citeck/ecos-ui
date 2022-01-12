@@ -8,7 +8,7 @@ import { DropdownMenu as Menu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
 import { COOKIE_KEY_LOCALE, COOKIE_KEY_LOCALE_MAX_AGE } from '../../constants/alfresco';
-import { allowedLanguages, LANGUAGE_EN } from '../../constants/lang';
+import { allowedLanguages } from '../../constants/lang';
 
 export default class LanguageSwitcher extends React.Component {
   static defaultProps = {

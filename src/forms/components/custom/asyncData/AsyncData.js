@@ -1,16 +1,16 @@
-import _ from 'lodash';
+import omitBy from 'lodash/omitBy';
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isArray from 'lodash/isArray';
+import isNil from 'lodash/isNil';
 import Formio from 'formiojs/Formio';
-import BaseComponent from '../base/BaseComponent';
+
 import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
+import BaseComponent from '../base/BaseComponent';
+import { SourceTypes, UpdateTypes } from './const';
 
 let ajaxGetCache = {};
-
-const UT = {
-  ANY: 'any-change',
-  ONCE: 'once',
-  EVENT: 'event'
-};
 
 export default class AsyncDataComponent extends BaseComponent {
   static schema(...extend) {
@@ -81,13 +81,13 @@ export default class AsyncDataComponent extends BaseComponent {
     const defaultSchema = AsyncDataComponent.schema();
     return {
       ...comp,
-      source: _.omitBy(comp.source, (value, key) => {
+      source: omitBy(comp.source, (value, key) => {
         if (['type', 'forceLoad'].includes(key)) {
           return false;
         }
         return key !== comp.source.type;
       }),
-      update: _.omitBy(comp.update, (value, key) => _.isEqual(defaultSchema.update[key], value))
+      update: omitBy(comp.update, (value, key) => isEqual(defaultSchema.update[key], value))
     };
   }
 
@@ -102,7 +102,7 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   get shouldExecute() {
-    const executionCondition = _.get(this.component, 'executionCondition');
+    const executionCondition = get(this.component, 'executionCondition');
 
     if (executionCondition) {
       return this.evaluate(executionCondition, {}, 'value', true);
@@ -116,7 +116,7 @@ export default class AsyncDataComponent extends BaseComponent {
   }
 
   get updateType() {
-    return _.get(this.component, 'update.type', '');
+    return get(this.component, 'update.type', '');
   }
 
   isReadyToSubmit() {
@@ -135,10 +135,10 @@ export default class AsyncDataComponent extends BaseComponent {
     const result = super.checkConditions(data);
 
     if (this.shouldExecute) {
-      if (this.updateType === UT.ANY) {
+      if (this.updateType === UpdateTypes.anyChange) {
         this._updateValue(false);
       }
-      if (this.updateType === UT.ONCE && !this.updatedOnce) {
+      if (this.updateType === UpdateTypes.once && !this.updatedOnce) {
         this.updatedOnce = true;
         this._updateValue(false);
       }
@@ -157,7 +157,7 @@ export default class AsyncDataComponent extends BaseComponent {
     const callback = () => this._updateValue();
 
     let attributesMap;
-    if (_.isArray(attributes)) {
+    if (isArray(attributes)) {
       attributesMap = {};
       for (let att of attributes) {
         attributesMap[att] = att;
@@ -187,18 +187,17 @@ export default class AsyncDataComponent extends BaseComponent {
       }
     }
 
-    const force = _.get(this.component, 'source.forceLoad', false);
+    const force = get(this.component, 'source.forceLoad', false);
     return record.load(attributes, force);
   }
 
   _updateValue(forceUpdate) {
     const comp = this.component;
-    const type = _.get(comp, 'source.type', '');
-    const self = this;
+    const type = get(comp, 'source.type', '');
 
     switch (type) {
-      case 'record':
-        let recordId = _.get(comp, 'source.record.id', '');
+      case SourceTypes.record:
+        let recordId = get(comp, 'source.record.id', '');
         if (recordId) {
           recordId = this.interpolate(recordId, { item: this.rootValue });
         }
@@ -206,20 +205,18 @@ export default class AsyncDataComponent extends BaseComponent {
         this._evalAsyncValue(
           'evaluatedRecordId',
           recordId,
-          id => {
-            return this._loadAtts(id, comp.source.record.attributes);
-          },
+          id => this._loadAtts(id, get(comp, 'source.record.attributes')),
           {},
           forceUpdate
         );
 
         break;
-      case 'recordsScript':
-        const recordsScriptConfig = _.get(comp, 'source.recordsScript', {});
+      case SourceTypes.recordsScript:
+        const recordsScriptConfig = get(comp, 'source.recordsScript') || {};
         let records = this.evaluate(recordsScriptConfig.script, {}, 'value', true);
 
         if (records) {
-          if (_.isArray(records)) {
+          if (isArray(records)) {
             records = records.map(rec => (rec.id ? rec.id : rec));
           } else {
             records = records.id ? records.id : records;
@@ -235,7 +232,7 @@ export default class AsyncDataComponent extends BaseComponent {
               if (!records) {
                 return {};
               }
-              if (_.isArray(records)) {
+              if (isArray(records)) {
                 return Promise.all(records.map(id => this._loadAtts(id, recordsScriptConfig.attributes)));
               } else {
                 return this._loadAtts(records, recordsScriptConfig.attributes);
@@ -252,8 +249,8 @@ export default class AsyncDataComponent extends BaseComponent {
         }
 
         break;
-      case 'recordsArray':
-        let recordIds = _.get(comp, 'source.recordsArray.id', '');
+      case SourceTypes.recordsArray:
+        let recordIds = get(comp, 'source.recordsArray.id', '');
         if (recordIds) {
           recordIds = this.interpolate(recordIds, { item: this.rootValue });
         }
@@ -273,9 +270,8 @@ export default class AsyncDataComponent extends BaseComponent {
         );
 
         break;
-      case 'recordsQuery':
-        let recQueryConfig = _.get(comp, 'source.recordsQuery', {});
-
+      case SourceTypes.recordsQuery:
+        const recQueryConfig = get(comp, 'source.recordsQuery', {});
         let query = this.evaluate(recQueryConfig.query, {}, 'value', true);
 
         this._evalAsyncValue(
@@ -295,8 +291,8 @@ export default class AsyncDataComponent extends BaseComponent {
         );
 
         break;
-      case 'ajax':
-        let ajaxConfig = _.get(comp, 'source.ajax', {});
+      case SourceTypes.ajax:
+        const ajaxConfig = get(comp, 'source.ajax') || {};
         let reqData = this.evaluate(ajaxConfig.data, {}, 'value', true);
 
         this._evalAsyncValue(
@@ -331,18 +327,18 @@ export default class AsyncDataComponent extends BaseComponent {
 
             const resultMapping = response => {
               if (ajaxConfig.mapping) {
-                return self.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
+                return this.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
               } else {
                 return response;
               }
             };
 
             if (ajaxConfig.method === 'GET') {
-              let valueFromCache = ajaxGetCache[url];
+              const valueFromCache = ajaxGetCache[url];
               if (valueFromCache) {
                 return valueFromCache.then(resultMapping);
               } else {
-                let value = fetchData(url, null, 'GET');
+                const value = fetchData(url, null, 'GET');
                 ajaxGetCache[url] = value;
                 if (Object.keys(ajaxGetCache).length > 100) {
                   //avoid memory leak
@@ -360,8 +356,8 @@ export default class AsyncDataComponent extends BaseComponent {
 
         break;
 
-      case 'custom':
-        const customConfig = _.get(comp, 'source.custom') || {};
+      case SourceTypes.custom:
+        const customConfig = get(comp, 'source.custom') || {};
         const syncData = this.evaluate(customConfig.syncData, {}, 'value', true);
 
         this._evalAsyncValue(
@@ -387,20 +383,21 @@ export default class AsyncDataComponent extends BaseComponent {
     const currentValue = this[dataField];
     const { ignoreValuesEqualityChecking } = comp;
 
-    if (ignoreValuesEqualityChecking || forceUpdate || !_.isEqual(currentValue, data)) {
+    if (ignoreValuesEqualityChecking || forceUpdate || !isEqual(currentValue, data)) {
       this[dataField] = data;
 
-      const setValue = value => _.isEqual(data, this[dataField]) && this.setValue(value);
+      const setValue = value => isEqual(data, this[dataField]) && this.setValue(value);
+
       const decrement = () => this.activeAsyncActionsCounter--;
 
       const actionImpl = () => {
         this.activeAsyncActionsCounter++;
 
-        if (_.isEqual(data, this[dataField])) {
+        if (isEqual(data, this[dataField])) {
           try {
             const result = action.call(this, data);
 
-            if (result) {
+            if (!isNil(result)) {
               if (result.then) {
                 result
                   .then(setValue)
@@ -457,24 +454,24 @@ export default class AsyncDataComponent extends BaseComponent {
       this.element.classList.remove('form-group');
     }
 
-    if (this.updateType === UT.EVENT) {
+    if (this.updateType === UpdateTypes.event) {
       this.on(
         this.component.update.event,
         () => {
           if (this.shouldExecute) {
-            const isForceUpdate = _.get(this.component, 'update.force', false);
+            const isForceUpdate = get(this.component, 'update.force', false);
             this._updateValue(isForceUpdate);
           }
         },
         true
       );
-    } else if (this.updateType === UT.ONCE && !this.updatedOnce && this.shouldExecute) {
+    } else if (this.updateType === UpdateTypes.once && !this.updatedOnce && this.shouldExecute) {
       this.updatedOnce = true;
       this._updateValue(false);
     }
 
-    const refreshOn = _.get(this.component, 'refreshOn', []);
-    if (Array.isArray(refreshOn) && refreshOn.length > 0) {
+    const refreshOn = get(this.component, 'refreshOn', []);
+    if (isArray(refreshOn) && refreshOn.length > 0) {
       this.on(
         'componentChange',
         event => {
@@ -505,7 +502,7 @@ export default class AsyncDataComponent extends BaseComponent {
   setValue(value, flags) {
     const { ignoreValuesEqualityChecking } = this.component;
 
-    if (ignoreValuesEqualityChecking || !_.isEqual(this.dataValue, value)) {
+    if (ignoreValuesEqualityChecking || !isEqual(this.dataValue, value)) {
       flags = this.getFlags.apply(this, arguments);
       this.dataValue = value;
       this.updateValue(flags);
