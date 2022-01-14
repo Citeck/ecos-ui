@@ -804,7 +804,7 @@ export default class EcosFormUtils {
     }
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
-    const isForceUpdate = !recordId.includes('-alias-');
+    const force = !recordId.includes('-alias-');
     let inputByKey = {};
     let attributes = {};
 
@@ -824,7 +824,7 @@ export default class EcosFormUtils {
     }
 
     return Records.get(recordId)
-      .load(attributes, isForceUpdate)
+      .load(attributes, force)
       .then(recordData => {
         let rootScope = {};
 
