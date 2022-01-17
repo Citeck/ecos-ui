@@ -803,8 +803,11 @@ export default class EcosFormUtils {
       return Promise.resolve({});
     }
 
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
+    const force = !recordId.includes('-alias-');
     let inputByKey = {};
     let attributes = {};
+
     for (let input of inputs) {
       let key = input.component.key;
       if (!key) {
@@ -821,7 +824,7 @@ export default class EcosFormUtils {
     }
 
     return Records.get(recordId)
-      .load(attributes, true)
+      .load(attributes, force)
       .then(recordData => {
         let rootScope = {};
 
