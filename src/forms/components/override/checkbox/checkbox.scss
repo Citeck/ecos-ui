@@ -186,12 +186,12 @@
 
             &.form-check-label__span {
               &:before {
-                position: absolute;
+                position: relative;
                 z-index: 5;
                 content: $citeck-icon-close;
 
                 font-family: $font-family-citeck;
-                margin-right: 10px;
+                margin-right: 12px;
                 font-size: 16px;
                 line-height: 100%;
                 left: 0;
