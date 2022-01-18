@@ -268,6 +268,7 @@ export class DashboardApi {
   }
 
   isRedirectOld(recordRef) {
+    return false;
     return Records.get(recordRef)
       .load('_etype?id')
       .then(type => Records.get(type).load('inhAttributes.uiType?str'))

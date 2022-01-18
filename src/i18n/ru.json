@@ -353,6 +353,7 @@
   "ecos-form.error.no-form": "Нет формы",
   "ecos-form.error.form-is-not-available": "Форма недоступна",
   "ecos-form.success.clone-record": "Запись склонирована",
+  "ecos-form.infinite-loop": "Данные полей зацикливаются",
 
   "ecos-forms.datepicker.time-input-label": "Время",
   "ecos-table-form.create-button": "Создать",

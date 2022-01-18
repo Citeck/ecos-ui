@@ -1,9 +1,11 @@
+import Formio from 'formiojs/Formio';
 import omitBy from 'lodash/omitBy';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
+import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
-import Formio from 'formiojs/Formio';
 
 import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
@@ -191,7 +193,7 @@ export default class AsyncDataComponent extends BaseComponent {
     return record.load(attributes, force);
   }
 
-  _updateValue(forceUpdate) {
+  _updateValue = debounce(forceUpdate => {
     const comp = this.component;
     const type = get(comp, 'source.type', '');
 
@@ -219,7 +221,7 @@ export default class AsyncDataComponent extends BaseComponent {
           if (isArray(records)) {
             records = records.map(rec => (rec.id ? rec.id : rec));
           } else {
-            records = records.id ? records.id : records;
+            records = records.id || records;
           }
         } else {
           records = null;
@@ -234,9 +236,8 @@ export default class AsyncDataComponent extends BaseComponent {
               }
               if (isArray(records)) {
                 return Promise.all(records.map(id => this._loadAtts(id, recordsScriptConfig.attributes)));
-              } else {
-                return this._loadAtts(records, recordsScriptConfig.attributes);
               }
+              return this._loadAtts(records, recordsScriptConfig.attributes);
             },
             {},
             forceUpdate
@@ -258,13 +259,7 @@ export default class AsyncDataComponent extends BaseComponent {
         this._evalAsyncValue(
           'evaluatedRecordIds',
           recordIds,
-          ids => {
-            if (!ids) {
-              return [];
-            }
-
-            return Promise.all(ids.split(',').map(id => this._loadAtts(id, comp.source.recordsArray.attributes)));
-          },
+          ids => (ids ? Promise.all(ids.split(',').map(id => this._loadAtts(id, comp.source.recordsArray.attributes))) : []),
           {},
           forceUpdate
         );
@@ -278,13 +273,11 @@ export default class AsyncDataComponent extends BaseComponent {
           'evaluatedRecordsQuery',
           query,
           query => {
-            let attributes = recQueryConfig.attributes || {};
-
+            const attributes = recQueryConfig.attributes || {};
             if (recQueryConfig.isSingle) {
               return Records.queryOne(query, attributes);
-            } else {
-              return Records.query(query, attributes);
             }
+            return Records.query(query, attributes);
           },
           {},
           forceUpdate
@@ -315,40 +308,30 @@ export default class AsyncDataComponent extends BaseComponent {
               url = baseUrl + url;
             }
 
-            const fetchData = (url, body, method) => {
-              return ecosFetch(url, {
-                method,
-                headers: { 'Content-type': 'application/json;charset=UTF-8' },
-                body
-              }).then(response => {
-                return response.json();
-              });
-            };
+            const fetchData = (url, body, method) =>
+              ecosFetch(url, { method, body, headers: { 'Content-type': 'application/json;charset=UTF-8' } }).then(response =>
+                response.json()
+              );
 
-            const resultMapping = response => {
-              if (ajaxConfig.mapping) {
-                return this.evaluate(ajaxConfig.mapping, { data: response }, 'value', true);
-              } else {
-                return response;
-              }
-            };
+            const resultMapping = data => (ajaxConfig.mapping ? this.evaluate(ajaxConfig.mapping, { data }, 'value', true) : data);
 
             if (ajaxConfig.method === 'GET') {
               const valueFromCache = ajaxGetCache[url];
+
               if (valueFromCache) {
                 return valueFromCache.then(resultMapping);
-              } else {
-                const value = fetchData(url, null, 'GET');
-                ajaxGetCache[url] = value;
-                if (Object.keys(ajaxGetCache).length > 100) {
-                  //avoid memory leak
-                  ajaxGetCache = {};
-                }
-                return value.then(resultMapping);
               }
-            } else {
-              return fetchData(url, body, ajaxConfig.method).then(resultMapping);
+
+              const value = fetchData(url, null, 'GET');
+              ajaxGetCache[url] = value;
+              if (Object.keys(ajaxGetCache).length > 100) {
+                //avoid memory leak
+                ajaxGetCache = {};
+              }
+              return value.then(resultMapping);
             }
+
+            return fetchData(url, body, ajaxConfig.method).then(resultMapping);
           },
           null,
           forceUpdate
@@ -372,7 +355,7 @@ export default class AsyncDataComponent extends BaseComponent {
       default:
         console.error('Unknown source type: ' + type);
     }
-  }
+  }, 200);
 
   _evalAsyncValue(dataField, data, action, defaultValue, forceUpdate) {
     if (data === null) {
@@ -475,7 +458,7 @@ export default class AsyncDataComponent extends BaseComponent {
       this.on(
         'componentChange',
         event => {
-          // console.log('changed event', event)
+          //console.log(event.instance.component.key, 'changed event', event)
           if (
             event &&
             event.component &&
@@ -521,13 +504,15 @@ export default class AsyncDataComponent extends BaseComponent {
 
   triggerEventOnChange = () => {
     const component = this.component;
+    const data = cloneDeep(this.data);
+
     if (component.eventName) {
-      this.emit(this.interpolate(component.eventName), this.data);
-      this.events.emit(this.interpolate(component.eventName), this.data);
+      this.emit(this.interpolate(component.eventName), data);
+      this.events.emit(this.interpolate(component.eventName), data);
       this.emit('customEvent', {
         type: this.interpolate(component.eventName),
         component,
-        data: this.data,
+        data,
         event: null
       });
     }
