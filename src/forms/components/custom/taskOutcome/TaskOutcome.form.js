@@ -1,4 +1,4 @@
-import baseEditForm from 'formiojs/components/base/Base.form';
+import baseEditForm from '../../override/base/Base.form';
 
 import TaskOutcomeEditDisplay from './editForm/TaskOutcome.edit.display';
 

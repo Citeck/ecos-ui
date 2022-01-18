@@ -135,6 +135,15 @@ export default {
         conditional: { show: '', when: null, eq: '' }
       },
       {
+        type: 'textfield',
+        key: 'disabledRequiredEmpty',
+        label: 'Disabled Required Empty field',
+        defaultValue: '',
+        validate: { required: true },
+        disabled: true,
+        optionalWhenDisabled: true
+      },
+      {
         type: 'button',
         theme: 'primary',
         disableOnInvalid: false,
@@ -180,7 +189,7 @@ export default {
   },
   tests: {
     'Test valid submission'(form, done) {
-      Harness.testElements(form, 'input[type="text"]', 3);
+      Harness.testElements(form, 'input[type="text"]', 4);
       Harness.testSubmission(form, {
         data: {
           firstName: 'Joe',
@@ -189,6 +198,7 @@ export default {
           password: '123test',
           verifyPassword: '123test',
           date: Harness.getDate(),
+          disabledRequiredEmpty: '',
           submit: false
         }
       });
@@ -200,6 +210,7 @@ export default {
         {
           data: {
             date: Harness.getDate(),
+            disabledRequiredEmpty: '',
             firstName: 'test',
             lastName: 'test2',
             email: 'bademail',
@@ -214,6 +225,25 @@ export default {
             message: 'Email must be a valid email.'
           }
         ],
+        done
+      );
+    },
+    'Test required disabled empty field with active option: optionalWhenDisabled'(form, done) {
+      Harness.testErrors(
+        form,
+        {
+          data: {
+            firstName: 'Joe',
+            lastName: 'Smith',
+            email: 'test@example.com',
+            password: '123test',
+            verifyPassword: '123test',
+            date: Harness.getDate(),
+            disabledRequiredEmpty: '',
+            submit: false
+          }
+        },
+        [],
         done
       );
     }
