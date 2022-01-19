@@ -1,5 +1,7 @@
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import Base from './override/base';
 import Button from './override/button';
@@ -36,7 +38,7 @@ import TableForm from './custom/tableForm';
 import TaskOutcome from './custom/taskOutcome/index';
 import ImportButton from './custom/importButton';
 
-Components.setComponents({
+const components = {
   ...DefaultComponents,
   asyncData: AsyncData,
   base: Base,
@@ -72,6 +74,36 @@ Components.setComponents({
   url: Url,
   hidden: Hidden,
   importButton: ImportButton
-});
+};
+
+for (const key in components) {
+  const component = components[key];
+  const originEditForm = component.editForm;
+
+  component.editForm = function(...extend) {
+    const result = originEditForm(...extend);
+    const components = get(result, 'components.0.components');
+
+    if (!isEmpty(components)) {
+      components.forEach(item => {
+        item.components = item.components.sort((prev, next) => {
+          if (prev.weight > next.weight) {
+            return 1;
+          }
+
+          if (prev.weight < next.weight) {
+            return -1;
+          }
+
+          return 0;
+        });
+      });
+    }
+
+    return result;
+  };
+}
+
+Components.setComponents(components);
 
 export { Components };
