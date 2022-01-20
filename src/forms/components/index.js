@@ -86,17 +86,7 @@ for (const key in components) {
 
     if (!isEmpty(components)) {
       components.forEach(item => {
-        item.components = item.components.sort((prev, next) => {
-          if (prev.weight > next.weight) {
-            return 1;
-          }
-
-          if (prev.weight < next.weight) {
-            return -1;
-          }
-
-          return 0;
-        });
+        item.components = item.components.sort((prev, next) => prev.weight - next.weight);
       });
     }
 
