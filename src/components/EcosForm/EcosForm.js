@@ -79,7 +79,6 @@ class EcosForm extends React.Component {
   initForm(newFormDefinition = this.state.formDefinition) {
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
-    const self = this;
     const options = cloneDeep(propsOptions);
     const attributes = {
       definition: 'definition?json',
@@ -111,8 +110,8 @@ class EcosForm extends React.Component {
     }
 
     const onFormLoadingFailure = () => {
-      self.setState({ error: new Error(t('ecos-form.empty-form-data')) });
-      self.props.onReady && self.props.onReady();
+      this.setState({ error: new Error(t('ecos-form.empty-form-data')) });
+      isFunction(this.props.onReady) && this.props.onReady();
     };
 
     formLoadingPromise.then(formData => {
@@ -131,9 +130,7 @@ class EcosForm extends React.Component {
 
       const customModulePromise = new Promise(function(resolve) {
         if (formData.customModule) {
-          window.require([formData.customModule], function(Module) {
-            resolve(new Module.default({ recordId }));
-          });
+          window.require([formData.customModule], Module => resolve(new Module.default({ recordId })));
         } else {
           resolve({});
         }
@@ -142,7 +139,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      self.setState({ originalFormDefinition, formDefinition });
+      this.setState({ originalFormDefinition, formDefinition, formId: formData.id });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
@@ -189,7 +186,7 @@ class EcosForm extends React.Component {
           wildcard: false,
           maxListeners: 0,
           loadLimit: 200,
-          onOverload: () => !!self._form && self._form.showErrors('Infinite loop detected')
+          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.infinite-loop'))
         });
         options.initiator = initiator;
 
@@ -199,67 +196,48 @@ class EcosForm extends React.Component {
           return;
         }
 
-        self._recoverComponentsProperties(formDefinition);
+        this._recoverComponentsProperties(formDefinition);
 
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+          const data = { ...(this.props.attributes || {}), ...recordData.submission };
           const [form, customModule] = formAndCustom;
           const HANDLER_PREFIX = 'onForm';
 
-          self._form = form;
           form.ecos = { custom: customModule };
+          form.setValue({ data });
+          form.on('submit', submission => this.submitForm(form, submission));
 
-          if (customModule.init) {
-            customModule.init({ form });
-          }
-
-          form.submission = {
-            data: {
-              ...(self.props.attributes || {}),
-              ...recordData.submission
-            }
-          };
-
-          form.on('submit', submission => {
-            self.submitForm(form, submission);
-          });
-
-          const events = Object.keys(self.props)
+          Object.keys(this.props)
             .filter(key => key.startsWith(HANDLER_PREFIX))
             .map(prop => {
               const str = prop.replace(HANDLER_PREFIX, '');
-              return { prop, event: strSplice(str, 0, 1, str[0].toLowerCase()) };
+              const event = strSplice(str, 0, 1, str[0].toLowerCase());
+              return { prop, event };
+            })
+            .forEach(o => {
+              if (o.event !== 'submit') {
+                form.on(o.event, () => {
+                  const fun = this.props[o.prop];
+                  isFunction(fun) && fun.apply(form, arguments);
+                });
+              } else {
+                console.warn('Please use onSubmit handler instead of onFormSubmit');
+              }
             });
 
-          events.forEach(o => {
-            if (o.event !== 'submit') {
-              form.on(o.event, () => {
-                const fun = self.props[o.prop];
-                typeof fun === 'function' && fun.apply(form, arguments);
-              });
-            } else {
-              console.warn('Please use onSubmit handler instead of onFormSubmit');
-            }
-          });
-
-          self.setState({ formId: formData.id });
-
           form.formReady.then(() => {
-            if (self.props.onReady) {
-              self.props.onReady(form);
-            }
+            isFunction(this.props.onReady) && this.props.onReady(form);
 
-            self._containerHeightTimerId = window.setTimeout(() => {
-              self.toggleContainerHeight();
-            }, 500);
+            this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
 
-            if (self.props.onReadyToSubmit) {
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => {
-                self.props.onReadyToSubmit(form, state);
-              });
-            }
+            isFunction(this.props.onReadyToSubmit) &&
+              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
           });
+
+          this._form = form;
+          isFunction(customModule.init) && customModule.init({ form });
         });
       });
     }, onFormLoadingFailure);
