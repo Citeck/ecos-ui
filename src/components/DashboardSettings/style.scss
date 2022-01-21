@@ -335,10 +335,6 @@
     &-container {
       width: 100%;
       box-sizing: border-box;
-
-      & > div {
-        transition: height 500ms ease;
-      }
     }
 
     &-item {
