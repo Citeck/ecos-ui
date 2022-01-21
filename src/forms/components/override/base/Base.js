@@ -455,6 +455,10 @@ Base.prototype.build = function(state) {
 };
 
 Base.prototype.checkValidity = function(data, dirty, rowData) {
+  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue)) {
+    return true;
+  }
+
   const validity = originalCheckValidity.call(this, data, dirty, rowData);
 
   if (this._inlineEditSaveButton && !this.options.saveDraft) {

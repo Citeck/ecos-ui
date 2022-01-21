@@ -1,5 +1,4 @@
-import baseEditForm from 'formiojs/components/base/Base.form';
-
+import baseEditForm from '../../override/base/Base.form';
 import SelectActionEditData from './editForm/SelectAction.edit.data';
 import SelectActionEditDisplay from './editForm/SelectAction.edit.display';
 
