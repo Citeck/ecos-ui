@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import classNames from 'classnames';
 
 import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
@@ -17,6 +18,7 @@ import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
+import { FitnesseClassNames, ActionTypes } from './index';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -177,10 +179,35 @@ class RecordActions {
       resAction.name = t(resAction.name);
       resAction.pluralName = t(resAction.pluralName);
 
+      RecordActions._expandActionConfig(resAction);
+
       result.push(resAction);
     }
     return result;
   }
+
+  static _expandActionConfig = action => {
+    switch (action.type) {
+      case ActionTypes.VIEW:
+        action.className = classNames(action.className, FitnesseClassNames.VIEW);
+        break;
+      case ActionTypes.PREVIEW:
+        action.className = classNames(action.className, FitnesseClassNames.PREVIEW);
+        break;
+      case ActionTypes.EDIT:
+        action.className = classNames(action.className, FitnesseClassNames.EDIT);
+        break;
+      case ActionTypes.DELETE:
+        action.className = classNames(action.className, FitnesseClassNames.DELETE);
+        break;
+      case 'clone':
+        action.className = classNames(action.className, FitnesseClassNames.CLONE);
+        break;
+      default:
+    }
+
+    return action;
+  };
 
   static _getConfirmData = action => {
     const title = extractLabel(get(action, 'confirm.title'));

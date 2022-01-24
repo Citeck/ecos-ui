@@ -53,7 +53,16 @@ export const ActionTypes = {
   DELETE: DeleteAction.ACTION_ID,
   SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID,
   EDIT_PASSWORD: EditPasswordAction.ACTION_ID,
-  EDIT_JOURNAL_PRESET: EditJournalPresetAction.ACTION_ID
+  EDIT_JOURNAL_PRESET: EditJournalPresetAction.ACTION_ID,
+  PREVIEW: PreviewModalAction.ACTION_ID
+};
+
+export const FitnesseClassNames = {
+  VIEW: 'fitnesse-inline-tools-actions-btn__on',
+  PREVIEW: 'fitnesse-inline-tools-actions-btn__preview',
+  EDIT: 'fitnesse-inline-tools-actions-btn__edit',
+  CLONE: 'fitnesse-inline-tools-actions-btn__clone',
+  DELETE: 'fitnesse-inline-tools-actions-btn__delete'
 };
 
 // Executors - Common

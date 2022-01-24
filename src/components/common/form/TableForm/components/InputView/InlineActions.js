@@ -4,6 +4,7 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
+import { FitnesseClassNames } from '../../../../../Records/actions';
 import { t } from '../../../../../../helpers/export/util';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
@@ -46,6 +47,7 @@ const InlineActions = () => {
           key: 'view',
           icon: 'icon-eye-show',
           name: t('ecos-table-form.view.btn'),
+          className: FitnesseClassNames.VIEW,
           onClick: () => showViewOnlyForm(inlineToolsOffsets.rowId)
         });
 
@@ -54,6 +56,7 @@ const InlineActions = () => {
           key: 'preview',
           icon: 'icon-eye-show',
           name: t('ecos-table-form.preview.btn'),
+          className: FitnesseClassNames.PREVIEW,
           onClick: () => showPreview(inlineToolsOffsets.rowId)
         });
 
@@ -61,6 +64,7 @@ const InlineActions = () => {
         actions.push({
           key: 'edit',
           icon: 'icon-edit',
+          className: FitnesseClassNames.EDIT,
           onClick: () => showEditForm(inlineToolsOffsets.rowId)
         });
 
@@ -68,6 +72,7 @@ const InlineActions = () => {
         actions.push({
           key: 'clone',
           icon: 'icon-copy',
+          className: FitnesseClassNames.CLONE,
           onClick: () => runCloneRecord(inlineToolsOffsets.rowId)
         });
 
@@ -75,6 +80,7 @@ const InlineActions = () => {
         actions.push({
           key: 'delete',
           icon: 'icon-delete',
+          className: FitnesseClassNames.DELETE,
           onClick: () => {
             setInlineToolsOffsets({ height: 0, top: 0, row: {} });
             deleteSelectedItem(inlineToolsOffsets.rowId);
