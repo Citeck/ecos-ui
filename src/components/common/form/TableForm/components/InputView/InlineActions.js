@@ -4,8 +4,8 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
-import { FitnesseClassNames } from '../../../../../Records/actions';
 import { t } from '../../../../../../helpers/export/util';
+import { getFitnesseClassName } from '../../../../../../helpers/tools';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
 import { TableFormContext } from '../../TableFormContext';
@@ -47,7 +47,7 @@ const InlineActions = () => {
           key: 'view',
           icon: 'icon-eye-show',
           name: t('ecos-table-form.view.btn'),
-          className: FitnesseClassNames.VIEW,
+          className: getFitnesseClassName('view'),
           onClick: () => showViewOnlyForm(inlineToolsOffsets.rowId)
         });
 
@@ -56,7 +56,7 @@ const InlineActions = () => {
           key: 'preview',
           icon: 'icon-eye-show',
           name: t('ecos-table-form.preview.btn'),
-          className: FitnesseClassNames.PREVIEW,
+          className: getFitnesseClassName('preview'),
           onClick: () => showPreview(inlineToolsOffsets.rowId)
         });
 
@@ -64,7 +64,7 @@ const InlineActions = () => {
         actions.push({
           key: 'edit',
           icon: 'icon-edit',
-          className: FitnesseClassNames.EDIT,
+          className: getFitnesseClassName('edit'),
           onClick: () => showEditForm(inlineToolsOffsets.rowId)
         });
 
@@ -72,7 +72,7 @@ const InlineActions = () => {
         actions.push({
           key: 'clone',
           icon: 'icon-copy',
-          className: FitnesseClassNames.CLONE,
+          className: getFitnesseClassName('clone'),
           onClick: () => runCloneRecord(inlineToolsOffsets.rowId)
         });
 
@@ -80,7 +80,7 @@ const InlineActions = () => {
         actions.push({
           key: 'delete',
           icon: 'icon-delete',
-          className: FitnesseClassNames.DELETE,
+          className: getFitnesseClassName('delete'),
           onClick: () => {
             setInlineToolsOffsets({ height: 0, top: 0, row: {} });
             deleteSelectedItem(inlineToolsOffsets.rowId);

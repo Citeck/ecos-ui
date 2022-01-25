@@ -3,22 +3,21 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
-import classNames from 'classnames';
 
 import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
+import { getFitnesseClassName } from '../../../helpers/tools';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
 
+import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import { FitnesseClassNames, ActionTypes } from './index';
 
 /**
  * @typedef {Boolean} RecordsActionBoolResult
@@ -187,24 +186,7 @@ class RecordActions {
   }
 
   static _expandActionConfig = action => {
-    switch (action.type) {
-      case ActionTypes.VIEW:
-        action.className = classNames(action.className, FitnesseClassNames.VIEW);
-        break;
-      case ActionTypes.PREVIEW:
-        action.className = classNames(action.className, FitnesseClassNames.PREVIEW);
-        break;
-      case ActionTypes.EDIT:
-        action.className = classNames(action.className, FitnesseClassNames.EDIT);
-        break;
-      case ActionTypes.DELETE:
-        action.className = classNames(action.className, FitnesseClassNames.DELETE);
-        break;
-      case 'clone':
-        action.className = classNames(action.className, FitnesseClassNames.CLONE);
-        break;
-      default:
-    }
+    action.className = getFitnesseClassName(action.type);
 
     return action;
   };

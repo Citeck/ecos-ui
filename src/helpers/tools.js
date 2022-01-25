@@ -1,6 +1,7 @@
-import DialogManager from '../components/common/dialogs/Manager';
 import JSONPretty from 'react-json-pretty';
 import React from 'react';
+
+import DialogManager from '../components/common/dialogs/Manager';
 
 export function showModalJson(data, title = 'Configuration') {
   DialogManager.showCustomDialog({
@@ -12,4 +13,14 @@ export function showModalJson(data, title = 'Configuration') {
       </div>
     )
   });
+}
+
+export function getFitnesseClassName(actionId) {
+  const classNames = [`fitnesse-inline-tools-actions-btn__${actionId}`];
+
+  if (actionId === 'view') {
+    classNames.push('fitnesse-inline-tools-actions-btn__on');
+  }
+
+  return classNames.join(' ');
 }
