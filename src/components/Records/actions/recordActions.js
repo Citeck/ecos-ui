@@ -186,7 +186,7 @@ class RecordActions {
   }
 
   static _expandActionConfig = action => {
-    action.className = getFitnesseClassName(action.type);
+    action.className = getFitnesseClassName(action.id);
 
     return action;
   };
