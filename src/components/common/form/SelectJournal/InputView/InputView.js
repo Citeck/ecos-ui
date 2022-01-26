@@ -185,6 +185,7 @@ class InputView extends Component {
       isCompact,
       editValue,
       placeholder,
+      viewOnly,
       deleteValue,
       selectedRows,
       hideEditRowButton,
@@ -197,7 +198,11 @@ class InputView extends Component {
     }
 
     if (!selectedRows.length) {
-      return <p className="select-journal__value-not-selected">{placeholder ? placeholder : t('select-journal.placeholder')}</p>;
+      return (
+        <p className={classNames('select-journal__value-not-selected', { 'select-journal__value-not-selected_view-only': viewOnly })}>
+          {placeholder ? placeholder : t('select-journal.placeholder')}
+        </p>
+      );
     }
 
     if (viewMode === 'table') {
