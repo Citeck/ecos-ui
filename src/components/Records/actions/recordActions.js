@@ -6,14 +6,15 @@ import isBoolean from 'lodash/isBoolean';
 
 import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
+import { getFitnesseClassName } from '../../../helpers/tools';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
 
+import { DetailActionResult, getActionResultTitle, notifyFailure } from './util/actionUtils';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
@@ -177,10 +178,18 @@ class RecordActions {
       resAction.name = t(resAction.name);
       resAction.pluralName = t(resAction.pluralName);
 
+      RecordActions._expandActionConfig(resAction);
+
       result.push(resAction);
     }
     return result;
   }
+
+  static _expandActionConfig = action => {
+    action.className = getFitnesseClassName(action.id);
+
+    return action;
+  };
 
   static _getConfirmData = action => {
     const title = extractLabel(get(action, 'confirm.title'));
