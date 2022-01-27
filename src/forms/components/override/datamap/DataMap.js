@@ -14,7 +14,6 @@ export default class DataMapComponent extends FormIODataMapComponent {
       ...extend
     );
   }
-
   get defaultSchema() {
     return DataMapComponent.schema();
   }
@@ -43,5 +42,18 @@ export default class DataMapComponent extends FormIODataMapComponent {
     }
 
     return optimizedComponent;
+  }
+
+  buildRow(value, key, state) {
+    const tr = super.buildRow(value, key, state);
+    const lastChild = tr.lastChild;
+    const flexBoxCentering = ' d-flex justify-content-center align-items-center';
+
+    if (this.hasRemoveButtons()) {
+      lastChild.className += flexBoxCentering;
+      lastChild.firstChild.className += `${flexBoxCentering} mw-100`;
+    }
+
+    return tr;
   }
 }

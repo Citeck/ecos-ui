@@ -127,7 +127,6 @@ export default class EcosModal extends Component {
   render() {
     const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size } = this.props;
     const { isOpen, level, draggableState, zIndexCalc } = this.state;
-
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const modalClassName = classNames('ecos-modal', className, {
       'ecos-modal_draggable': draggableState !== null,
