@@ -22,7 +22,15 @@
 
 .select-journal__value-not-selected {
   line-height: 36px;
+  border: solid $color-gray-4;
+  border-width: 2px 0 2px 0;
   margin-bottom: 15px;
+
+  &_view-only {
+    border: none;
+    line-height: inherit;
+    margin: 0;
+  }
 }
 
 .select-journal__values-list {
