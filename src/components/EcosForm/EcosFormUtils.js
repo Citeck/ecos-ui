@@ -907,11 +907,12 @@ export default class EcosFormUtils {
     if (!recordId) {
       return Promise.resolve({});
     }
-
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
+    const force = !recordId.includes('-alias-');
     const { inputByKey, attributes } = EcosFormUtils.preProcessingAttrs(inputs);
 
     return Records.get(recordId)
-      .load(attributes, true)
+      .load(attributes, force)
       .then(recordData => {
         const submission = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey, ownerId });
 

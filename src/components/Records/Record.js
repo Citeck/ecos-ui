@@ -318,7 +318,9 @@ export default class Record {
 
     let clientData = null;
 
-    if (!this.isVirtual()) {
+    let baseRecordId = this.getBaseRecord().id;
+    // base record with '@' at the end mean that record is not exists yet and will be created on save
+    if (!this.isVirtual() && baseRecordId.indexOf('@') < baseRecordId.length - 1) {
       const sourceIdDelimIdx = this.id.indexOf('@');
       let clientSourceId = null;
       if (sourceIdDelimIdx !== -1) {
