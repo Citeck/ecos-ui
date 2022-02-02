@@ -122,13 +122,13 @@ export default class Pagination extends Component {
           <>
             <IcoBtn
               icon={'icon-small-left'}
-              className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
+              className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-left"
               disabled={page <= 1}
               onClick={this.handleClickPrev}
             />
             <IcoBtn
               icon={'icon-small-right'}
-              className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue"
+              className="ecos-pagination__arrow ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_hover_t-light-blue fitnesse-ecos-pagination__arrow-right"
               disabled={page >= this.maxPage}
               onClick={this.handleClickNext}
             />

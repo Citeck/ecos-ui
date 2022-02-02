@@ -274,7 +274,7 @@ export default class Filter extends Component {
     return (
       <IcoBtn
         icon={this.deleteActionIcon}
-        className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
+        className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10', 'fitnesse-ecos-inline-filter__actions-delete')}
         onClick={this.onDeletePredicate}
       />
     );

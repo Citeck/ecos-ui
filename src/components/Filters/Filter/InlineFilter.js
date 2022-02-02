@@ -36,7 +36,7 @@ class InlineFilter extends Filter {
   }
 
   get valueClassNames() {
-    return classNames(super.valueClassNames, 'ecos-inline-filter__value');
+    return classNames(super.valueClassNames, 'ecos-inline-filter__value', 'fitnesse-ecos-inline-filter__value');
   }
 
   get selectorClassNames() {

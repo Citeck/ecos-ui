@@ -93,7 +93,7 @@ export default class ColumnsSetup extends Component {
         <div className={'columns-setup__content'}>
           <DndList
             noScroll
-            classNameItem={'columns-setup__item'}
+            classNameItem="columns-setup__item fitnesse-columns-setup__item"
             draggableClassName={'ecos-dnd-list__item_draggable'}
             sortBy={sortBy}
             data={visible}

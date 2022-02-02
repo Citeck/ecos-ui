@@ -12,7 +12,7 @@ const JournalsColumnsSetup = props => {
   return (
     <PanelBar
       header={t('journals.columns-setup.header')}
-      className={'ecos-journals-columns-setup__panel-bar'}
+      className="ecos-journals-columns-setup__panel-bar fitnesse-ecos-journals-columns-setup__panel-bar"
       css={{ headerClassName: 'panel-bar__header_upper' }}
       open={false}
     >
