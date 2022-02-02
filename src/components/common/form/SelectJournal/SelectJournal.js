@@ -773,6 +773,7 @@ export default class SelectJournal extends Component {
       isCompact,
       multiple,
       placeholder,
+      viewOnly,
       error,
       selectedRows,
       editValue: this.onValueEdit,

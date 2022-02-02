@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
+import split from 'lodash/split';
 
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
@@ -20,6 +20,8 @@ import BaseComponent from '../base/BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
 
 let authorityRefsByName = {};
+
+const _array = str => split(str, ',').map(item => item.trim());
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -59,6 +61,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
   get defaultSchema() {
     return SelectOrgstructComponent.schema();
+  }
+
+  get emptyValue() {
+    return this.component.multiple ? [] : '';
   }
 
   /**
@@ -118,92 +124,67 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.attachLogic();
   }
 
-  renderReactComponent(config = {}) {
-    let self = this;
-    let component = this.component;
-    let allowedAuthorityType = this.component.allowedAuthorityType || '';
-    let allowedGroupType = this.component.allowedGroupType || '';
-    let rootGroupName = this.component.rootGroupName || ROOT_GROUP_NAME;
-    let allowedGroupSubType = this.component.allowedGroupSubType || '';
-    let userSearchExtraFieldsStr = this.component.userSearchExtraFields || '';
-    const excludeAuthoritiesByName = this.component.excludeAuthoritiesByName;
-    const excludeAuthoritiesByType = this.component.excludeAuthoritiesByType;
-    const isIncludedAdminGroup = this.component.isIncludedAdminGroup;
+  renderReactComponent = (config = {}) => {
+    const comp = this.component;
+    const allowedAuthorityType = comp.allowedAuthorityType || '';
+    const allowedGroupType = comp.allowedGroupType || '';
+    const allowedGroupSubType = (comp.allowedGroupSubType || '').trim();
+    const userSearchExtraFieldsStr = comp.userSearchExtraFields || '';
 
-    allowedGroupSubType = allowedGroupSubType.trim();
+    const allowedAuthorityTypes = _array(allowedAuthorityType);
+    const allowedGroupTypes = _array(allowedGroupType);
+    const allowedGroupSubTypes = _array(allowedGroupSubType);
+    const userSearchExtraFields = _array(userSearchExtraFieldsStr);
+    const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType);
 
-    const allowedAuthorityTypes = allowedAuthorityType.split(',').map(item => item.trim());
-    const allowedGroupTypes = allowedGroupType.split(',').map(item => item.trim());
-    const allowedGroupSubTypes = allowedGroupSubType.length > 0 ? allowedGroupSubType.split(',').map(item => item.trim()) : [];
-    const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
-    const onChange = this.onValueChange.bind(this);
-
-    const excludedAuthoritiesByType =
-      excludeAuthoritiesByType.length > 0 ? excludeAuthoritiesByType.split(',').map(item => item.trim()) : [];
-
-    let renderControl = function() {
-      if (component.unreadable) {
-        ReactDOM.render(<UnreadableLabel />, self.reactContainer);
+    let renderControl = () => {
+      if (comp.unreadable) {
+        ReactDOM.render(<UnreadableLabel />, this.reactContainer);
         return;
       }
 
       ReactDOM.render(
         <SelectOrgstruct
-          defaultValue={self.dataValue}
-          isCompact={component.isCompact}
-          multiple={component.multiple}
-          placeholder={component.placeholder}
-          disabled={component.disabled}
+          defaultValue={this.dataValue}
+          isCompact={comp.isCompact}
+          multiple={comp.multiple}
+          placeholder={comp.placeholder}
+          disabled={comp.disabled}
           allowedAuthorityTypes={allowedAuthorityTypes}
           allowedGroupTypes={allowedGroupTypes}
-          rootGroupName={rootGroupName}
+          rootGroupName={comp.rootGroupName || ROOT_GROUP_NAME}
           allowedGroupSubTypes={allowedGroupSubTypes}
-          excludeAuthoritiesByName={excludeAuthoritiesByName}
-          excludeAuthoritiesByType={excludedAuthoritiesByType}
+          excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
+          excludeAuthoritiesByType={excludeAuthoritiesByType}
           userSearchExtraFields={userSearchExtraFields}
-          onChange={onChange}
-          viewOnly={self.viewOnly}
-          hideTabSwitcher={component.hideTabSwitcher}
-          defaultTab={component.defaultTab}
-          dataType={component.dataType}
-          modalTitle={component.modalTitle ? self.t(component.modalTitle) : null}
-          isSelectedValueAsText={component.isSelectedValueAsText}
-          isIncludedAdminGroup={isIncludedAdminGroup}
-          onError={err => {
-            // this.setCustomValidity(err, false);
-          }}
+          viewOnly={this.viewOnly}
+          hideTabSwitcher={comp.hideTabSwitcher}
+          defaultTab={comp.defaultTab}
+          dataType={comp.dataType}
+          modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
+          isSelectedValueAsText={comp.isSelectedValueAsText}
+          isIncludedAdminGroup={comp.isIncludedAdminGroup}
+          onChange={this.onValueChange}
+          onError={console.error}
         />,
-        self.reactContainer
+        this.reactContainer
       );
     };
 
     renderControl();
-  }
+  };
 
-  refreshDOM() {
-    if (this.reactContainer) {
-      this.renderReactComponent();
-    }
-  }
+  refreshDOM = () => {
+    this.reactContainer && this.renderReactComponent();
+  };
 
-  onValueChange(value) {
-    this.dataValue = value;
-    this.setPristine(false);
-    this.triggerChange();
+  onValueChange = value => {
+    this.updateValue({}, value);
     this.refreshDOM();
-  }
+  };
 
-  get emptyValue() {
-    return this.component.multiple ? [] : '';
-  }
-
-  getValue() {
-    return this.dataValue;
-  }
-
-  _getAuthorityRef(authority, callback) {
+  _getAuthorityRef = (authority, callback) => {
     this._requestedAuthority = authority;
-    let self = this;
 
     if (!authority) {
       callback(authority);
@@ -221,7 +202,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
         cacheValue.then(record => {
           if (isNodeRef(record)) {
             authorityRefsByName[authority] = record;
-            if (self._requestedAuthority === authority) {
+            if (this._requestedAuthority === authority) {
               callback(record);
             }
           } else {
@@ -246,6 +227,10 @@ export default class SelectOrgstructComponent extends BaseComponent {
     authorityRefsByName[authority] = Records.queryOne(query);
 
     this._getAuthorityRef(authority, callback);
+  };
+
+  getValue() {
+    return this.dataValue;
   }
 
   setValue(value, flags) {
@@ -253,10 +238,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
       return;
     }
 
-    this.#waitingSetValue(value, flags);
-  }
-
-  #waitingSetValue = debounce((value, flags) => {
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
       isEqual(value, this.emptyValue) &&
@@ -264,40 +245,20 @@ export default class SelectOrgstructComponent extends BaseComponent {
       !this.viewOnly &&
       this.options.formMode === 'CREATE'
     ) {
-      if (Array.isArray(value)) {
-        value = [Formio.getUser()];
-      } else {
-        value = Formio.getUser();
-      }
+      value = Array.isArray(value) ? [Formio.getUser()] : Formio.getUser();
     }
 
-    let self = this;
-
-    let setValueImpl = function(value) {
-      if (self.reactContainer && value !== self.dataValue) {
-        ReactDOM.unmountComponentAtNode(self.reactContainer);
-      }
-
-      self.dataValue = value || self.component.defaultValue || self.emptyValue;
-      self.refreshDOM();
-
-      return self.updateValue(flags);
+    const setValueImpl = v => {
+      const val = v || this.component.defaultValue || this.emptyValue;
+      this.updateValue(flags, val);
+      this.refreshDOM();
     };
 
     if (Array.isArray(value)) {
-      let promises = [];
-      for (let auth of value) {
-        promises.push(
-          new Promise(resolve => {
-            this._getAuthorityRef(auth, resolve);
-          })
-        );
-      }
-      Promise.all(promises).then(values => {
-        setValueImpl(values);
-      });
+      const promises = value.map(auth => new Promise(resolve => this._getAuthorityRef(auth, resolve)));
+      Promise.all(promises).then(setValueImpl);
     } else {
       this._getAuthorityRef(value, setValueImpl);
     }
-  }, 100); // Cause: https://citeck.atlassian.net/browse/ECOSUI-1429
+  }
 }

@@ -1,5 +1,6 @@
-import baseEditForm from 'formiojs/components/base/Base.form';
 import PanelEditDisplay from 'formiojs/components/panel/editForm/Panel.edit.display';
+
+import baseEditForm from '../base/Base.form';
 
 export default function(...extend) {
   return baseEditForm(

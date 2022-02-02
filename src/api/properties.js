@@ -1,8 +1,11 @@
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import { RecordService } from './recordService';
 
-export class PropertiesApi extends RecordService {
+export class PropertiesApi {
+  static isDraftStatus = async record => {
+    return Records.get(record).load('invariants:isDraft?bool', true);
+  };
+
   getFormList = async function({ record }) {
     const typeRef = await Records.get(record).load('_etype?id');
 
