@@ -23,7 +23,7 @@ class JournalsSettingsFooter extends Component {
   }
 
   createKeydownEvents() {
-    document.addEventListener('keydown', this.onKeydown);
+    document.addEventListener('keydown', this.onKeydown, { capture: true });
   }
 
   removeKeydownEvents() {
