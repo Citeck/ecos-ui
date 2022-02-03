@@ -455,7 +455,7 @@ Base.prototype.build = function(state) {
 };
 
 Base.prototype.checkValidity = function(data, dirty, rowData) {
-  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue)) {
+  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue) && this.component.disabled) {
     return true;
   }
 
