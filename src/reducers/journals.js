@@ -32,8 +32,9 @@ import {
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
+  toggleViewMode,
   setUrl,
-  toggleViewMode
+  openSelectedJournal
 } from '../actions/journals';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
@@ -350,6 +351,11 @@ export default handleActions(
       action = handleAction(action);
 
       return handleState(state, stateId, { recordRef: action.payload });
+    },
+    [openSelectedJournal]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, { selectAllPageRecords: false });
     },
     [runSearch]: (state, action) => {
       const stateId = action.payload.stateId;

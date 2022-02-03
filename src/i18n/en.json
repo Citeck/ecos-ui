@@ -400,6 +400,7 @@
   "ecos-form.error.no-form": "No form",
   "ecos-form.error.form-is-not-available": "Form is not available",
   "ecos-form.success.clone-record": "Record has cloned",
+  "ecos-form.infinite-loop": "Data fields are looping",
 
   "ecos-forms.datepicker.time-label": "Time",
   "ecos-forms.datepicker.month-prev-label": "Previous Month",

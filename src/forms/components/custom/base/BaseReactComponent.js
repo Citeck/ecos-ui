@@ -147,15 +147,19 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   setReactProps(props) {
-    if (this.react.resolve) {
+    if (!isEmpty(this.react.resolve)) {
       this.react.waitingProps = { ...(this.react.waitingProps || {}), ...props };
-      this.react.wrapper &&
+
+      !isEmpty(this.react.wrapper) &&
         this.react.wrapper.then(w => {
           w.setProps(this.react.waitingProps);
           this.react.waitingProps = {};
         });
-    } else if (this.react.wrapper) {
-      this.react.wrapper.setProps(props);
+    } else {
+      // is this checking required?
+      if (!isEmpty(this.react.wrapper)) {
+        this.react.wrapper.setProps(props);
+      }
     }
   }
 

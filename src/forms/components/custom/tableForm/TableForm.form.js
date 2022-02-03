@@ -1,4 +1,4 @@
-import baseEditForm from 'formiojs/components/base/Base.form';
+import baseEditForm from '../../override/base/Base.form';
 import TableFormEditDisplay from './editForm/TableForm.edit.display';
 import TableFormEditData from './editForm/TableForm.edit.data';
 import TableFormEditConditional from './editForm/TableForm.edit.conditional';

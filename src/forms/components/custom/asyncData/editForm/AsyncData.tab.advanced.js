@@ -1,3 +1,5 @@
+import { UpdateTypes } from '../const';
+
 export default [
   {
     type: 'select',
@@ -5,13 +7,13 @@ export default [
     label: 'Update on:',
     key: 'update.type',
     dataSrc: 'values',
-    defaultValue: 'disabled',
+    defaultValue: UpdateTypes.disabled,
     data: {
       values: [
-        { label: 'Any change', value: 'any-change' },
-        { label: 'Event', value: 'event' },
-        { label: 'Once', value: 'once' },
-        { label: 'Disabled', value: 'disabled' }
+        { label: 'Any change', value: UpdateTypes.anyChange },
+        { label: 'Event', value: UpdateTypes.event },
+        { label: 'Once', value: UpdateTypes.once },
+        { label: 'Disabled', value: UpdateTypes.disabled }
       ]
     }
   },
@@ -27,7 +29,7 @@ export default [
     },
     conditional: {
       json: {
-        and: [{ '==': [{ var: 'data.update.type' }, 'event'] }]
+        and: [{ '==': [{ var: 'data.update.type' }, UpdateTypes.event] }]
       }
     }
   },
@@ -41,7 +43,7 @@ export default [
     description: 'Should check when subscribe to event from TableForm',
     conditional: {
       json: {
-        and: [{ '==': [{ var: 'data.update.type' }, 'event'] }]
+        and: [{ '==': [{ var: 'data.update.type' }, UpdateTypes.event] }]
       }
     }
   },
@@ -57,7 +59,7 @@ export default [
     },
     conditional: {
       json: {
-        and: [{ '==': [{ var: 'data.update.type' }, 'any-change'] }]
+        and: [{ '==': [{ var: 'data.update.type' }, UpdateTypes.anyChange] }]
       }
     }
   },

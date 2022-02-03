@@ -11,6 +11,8 @@ import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
 import uuidV4 from 'uuid/v4';
 
 import { AppEditions, SourcesId } from '../../constants';
@@ -567,6 +569,22 @@ export default class EcosFormUtils {
     return modifiedRoot;
   }
 
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1569
+  static _checkAndAddDefaultFields(component = {}, defaultSchema = {}, ignoredFields = []) {
+    const componentSchema = cloneDeep(component);
+
+    Object.keys(defaultSchema).forEach(key => {
+      const componentData = componentSchema[key];
+      const defaultData = defaultSchema[key];
+
+      if (isUndefined(componentData) && !isEmpty(defaultData) && !ignoredFields.includes(key)) {
+        componentSchema[key] = defaultData;
+      }
+    });
+
+    return componentSchema;
+  }
+
   static optimizeFormSchema(form) {
     const objectAtts = ['conditional', 'validate', 'widget'];
     const leaveAtts = ['key', 'type', 'input'];
@@ -580,8 +598,8 @@ export default class EcosFormUtils {
 
       const currentComponentDefaultSchema = currentComponent ? currentComponent.schema() : {};
 
-      if (typeof currentComponent.optimizeSchema === 'function') {
-        comp = currentComponent.optimizeSchema(comp);
+      if (isFunction(currentComponent.optimizeSchema)) {
+        comp = currentComponent.optimizeSchema(EcosFormUtils._checkAndAddDefaultFields(comp, currentComponentDefaultSchema, objectAtts));
       }
 
       objectAtts.forEach(att => {
