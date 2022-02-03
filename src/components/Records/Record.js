@@ -318,9 +318,7 @@ export default class Record {
 
     let clientData = null;
 
-    let baseRecordId = this.getBaseRecord().id;
-    // base record with '@' at the end mean that record is not exists yet and will be created on save
-    if (!this.isVirtual() && baseRecordId.indexOf('@') < baseRecordId.length - 1) {
+    if (!this.isVirtual() && !this.isPendingCreate()) {
       const sourceIdDelimIdx = this.id.indexOf('@');
       let clientSourceId = null;
       if (sourceIdDelimIdx !== -1) {
@@ -639,6 +637,12 @@ export default class Record {
     }
     let baseRecord = this.getBaseRecord();
     return baseRecord.id !== this.id && baseRecord.isVirtual();
+  }
+
+  isPendingCreate() {
+    let baseRecordId = this.getBaseRecord().id;
+    // base record with '@' at the end mean that record is not exists yet and will be created on save
+    return baseRecordId.indexOf('@') === baseRecordId.length - 1;
   }
 
   _processAttField(name, value, isRead, getter, setter, toSave) {

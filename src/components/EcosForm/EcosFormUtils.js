@@ -832,8 +832,6 @@ export default class EcosFormUtils {
       return Promise.resolve({});
     }
 
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
-    const force = !recordId.includes('-alias-');
     let inputByKey = {};
     let attributes = {};
     for (let input of inputs) {
@@ -851,65 +849,66 @@ export default class EcosFormUtils {
       attributes[EDGE_PREFIX + path] = input.edgeSchema;
     }
 
-    return Records.get(recordId)
-      .load(attributes, force)
-      .then(recordData => {
-        let rootScope = {};
+    const recordInstance = Records.get(recordId);
+    const force = !recordInstance.isPendingCreate();
 
-        for (let attPath in recordData) {
-          if (!recordData.hasOwnProperty(attPath)) {
-            continue;
-          }
-          if (attPath.indexOf(EDGE_PREFIX) === 0) {
-            let input = inputByKey[attPath.substring(EDGE_PREFIX.length)];
-            input.edge = recordData[attPath];
-            continue;
-          }
-          let data = recordData[attPath];
-          if (data == null) {
-            continue;
-          }
-          let input = inputByKey[attPath];
-          let inputValue;
+    return recordInstance.load(attributes, force).then(recordData => {
+      let rootScope = {};
 
-          if (input && input.dataType === 'json-record') {
-            inputValue = EcosFormUtils.initJsonRecord(recordData[attPath], ownerId);
-          } else if (input && input.dataType === 'json' && input.component && input.component.type === 'tableForm') {
-            inputValue = EcosFormUtils.initJsonRecord(recordData[attPath], ownerId);
-          } else if (input && input.dataType === 'json' && input.component && input.component.type === 'textarea') {
-            let value = recordData[attPath];
-            inputValue = JSON.stringify(value || {}, null, 2);
-          } else if (input && input.component && input.component.type === 'file') {
-            inputValue = EcosFormUtils.removeEmptyValuesFromArray(recordData[attPath]);
-          } else if (
-            input &&
-            input.component &&
-            input.component.type === 'datetime' &&
-            input.component.enableDate &&
-            !input.component.enableTime &&
-            recordData[attPath]
-          ) {
-            const serverDate = new Date(recordData[attPath]);
-            serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
-            inputValue = serverDate.toISOString();
-          } else {
-            inputValue = recordData[attPath];
-          }
+      for (let attPath in recordData) {
+        if (!recordData.hasOwnProperty(attPath)) {
+          continue;
+        }
+        if (attPath.indexOf(EDGE_PREFIX) === 0) {
+          let input = inputByKey[attPath.substring(EDGE_PREFIX.length)];
+          input.edge = recordData[attPath];
+          continue;
+        }
+        let data = recordData[attPath];
+        if (data == null) {
+          continue;
+        }
+        let input = inputByKey[attPath];
+        let inputValue;
 
-          let atts = this.expandArrAttributePath(attPath, inputValue);
-
-          for (let att in atts) {
-            if (atts.hasOwnProperty(att)) {
-              lodashSet(rootScope, att, atts[att]);
-            }
-          }
+        if (input && input.dataType === 'json-record') {
+          inputValue = EcosFormUtils.initJsonRecord(recordData[attPath], ownerId);
+        } else if (input && input.dataType === 'json' && input.component && input.component.type === 'tableForm') {
+          inputValue = EcosFormUtils.initJsonRecord(recordData[attPath], ownerId);
+        } else if (input && input.dataType === 'json' && input.component && input.component.type === 'textarea') {
+          let value = recordData[attPath];
+          inputValue = JSON.stringify(value || {}, null, 2);
+        } else if (input && input.component && input.component.type === 'file') {
+          inputValue = EcosFormUtils.removeEmptyValuesFromArray(recordData[attPath]);
+        } else if (
+          input &&
+          input.component &&
+          input.component.type === 'datetime' &&
+          input.component.enableDate &&
+          !input.component.enableTime &&
+          recordData[attPath]
+        ) {
+          const serverDate = new Date(recordData[attPath]);
+          serverDate.setHours(serverDate.getHours() + serverDate.getTimezoneOffset() / 60);
+          inputValue = serverDate.toISOString();
+        } else {
+          inputValue = recordData[attPath];
         }
 
-        return {
-          inputs,
-          submission: rootScope
-        };
-      });
+        let atts = this.expandArrAttributePath(attPath, inputValue);
+
+        for (let att in atts) {
+          if (atts.hasOwnProperty(att)) {
+            lodashSet(rootScope, att, atts[att]);
+          }
+        }
+      }
+
+      return {
+        inputs,
+        submission: rootScope
+      };
+    });
   }
 
   static expandArrAttributePath(path, value) {
