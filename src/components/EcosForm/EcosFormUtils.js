@@ -925,20 +925,19 @@ export default class EcosFormUtils {
     if (!recordId) {
       return Promise.resolve({});
     }
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
-    const force = !recordId.includes('-alias-');
     const { inputByKey, attributes } = EcosFormUtils.preProcessingAttrs(inputs);
 
-    return Records.get(recordId)
-      .load(attributes, force)
-      .then(recordData => {
-        const submission = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey, ownerId });
+    const recordInstance = Records.get(recordId);
+    const force = !recordInstance.isPendingCreate();
 
-        return {
-          inputs,
-          submission
-        };
-      });
+    return recordInstance.load(attributes, force).then(recordData => {
+      const submission = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey, ownerId });
+
+      return {
+        inputs,
+        submission
+      };
+    });
   }
 
   static expandArrAttributePath(path, value) {
