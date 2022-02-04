@@ -13,9 +13,9 @@ import BaseWidget from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
+import { PropertiesApi } from '../../../api/properties';
 
 import './style.scss';
-import { PropertiesApi } from '../../../api/properties';
 
 const Labels = {
   WIDGET_TITLE: 'properties-widget.title',

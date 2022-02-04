@@ -96,6 +96,10 @@ class Journals extends React.Component {
     return newState;
   }
 
+  constructor(props) {
+    super(props);
+  }
+
   componentDidMount() {
     const showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
     const searchParams = getSearchParams();
