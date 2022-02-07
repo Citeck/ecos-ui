@@ -165,32 +165,17 @@ class Journals extends React.Component {
       window.clearTimeout(this._toggleMenuTimerId);
       this._toggleMenuTimerId = null;
     }
+
+    this.unmountJournalUpdateWatcher();
   }
 
   mountJournalUpdateWatcher() {
-    Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`).watch(['_modified'], this.journalUpdateHandler);
+    Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`).watch(['_modified'], this.handleUpdateJournal);
   }
 
-  journalUpdateHandler = () => {
-    const getTitle = get(PageService, ['pageTypes', PageTypes.JOURNALS, 'getTitle']);
-
-    if (!getTitle) {
-      return;
-    }
-
-    const { updateTab, tabId } = this.props;
-    const { journalId } = this.state;
-
-    getTitle({ journalId, force: true }).then(title => {
-      const tab = pageTabList.getTabById(tabId);
-
-      if (!tab) {
-        return;
-      }
-
-      updateTab({ ...tab, title });
-    });
-  };
+  unmountJournalUpdateWatcher() {
+    Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`).unwatch(['_modified']);
+  }
 
   get minHeight() {
     return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
@@ -246,6 +231,27 @@ class Journals extends React.Component {
   setJournalMenuRef = ref => !!ref && (this._journalMenuRef = ref);
 
   setHeight = debounce(height => this.setState({ height }), 500);
+
+  handleUpdateJournal = () => {
+    const getTitle = get(PageService, ['pageTypes', PageTypes.JOURNALS, 'getTitle']);
+
+    if (!getTitle) {
+      return;
+    }
+
+    const { updateTab, tabId } = this.props;
+    const { journalId } = this.state;
+
+    getTitle({ journalId, force: true }).then(title => {
+      const tab = pageTabList.getTabById(tabId);
+
+      if (!tab) {
+        return;
+      }
+
+      updateTab({ ...tab, title });
+    });
+  };
 
   handleEditJournal = throttle(configRec => this.props.execJournalAction(configRec, { type: ActionTypes.EDIT }), 300, {
     leading: false,
