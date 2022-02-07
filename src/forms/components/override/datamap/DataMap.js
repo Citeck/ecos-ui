@@ -46,13 +46,14 @@ export default class DataMapComponent extends FormIODataMapComponent {
 
   buildRow(value, key, state) {
     const tr = super.buildRow(value, key, state);
+
+    if (!this.hasRemoveButtons()) {
+      return tr;
+    }
     const lastChild = tr.lastChild;
     const flexBoxCentering = ' d-flex justify-content-center align-items-center';
-
-    if (this.hasRemoveButtons()) {
-      lastChild.className += flexBoxCentering;
-      lastChild.firstChild.className += `${flexBoxCentering} mw-100`;
-    }
+    lastChild.className += flexBoxCentering;
+    lastChild.firstChild.className += `${flexBoxCentering} mw-100`;
 
     return tr;
   }
