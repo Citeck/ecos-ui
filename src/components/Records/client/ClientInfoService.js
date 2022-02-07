@@ -24,21 +24,26 @@ export default class ClientInfoService {
     const appName = sourceId.substring(0, appDelimIdx);
     const localSourceId = sourceId.substring(appDelimIdx + 1);
 
-    const sessionCacheKey = 'rc-client-' + sourceId;
-    const sessionCachedInfo = sessionStorage.getItem(sessionCacheKey);
+    const cacheKey = 'rs-client-' + sourceId;
+    const sessionCachedInfo = localStorage.getItem(cacheKey);
     if (sessionCachedInfo) {
-      const info = JSON.parse(sessionCachedInfo);
+      let info = {};
+      try {
+        info = JSON.parse(sessionCachedInfo);
+      } catch (e) {
+        // do nothing
+      }
       if (!info.data) {
-        sessionStorage.removeItem(sessionCacheKey);
+        localStorage.removeItem(cacheKey);
       } else {
         this._clientInfoBySourceId[sourceId] = info.data;
         // update client info in background
-        this.requestClientInfo(sourceId, appName, localSourceId, sessionCacheKey);
+        this.requestClientInfo(sourceId, appName, localSourceId, cacheKey);
         return info.data;
       }
     }
 
-    this._clientInfoBySourceId[sourceId] = this.requestClientInfo(sourceId, appName, localSourceId, sessionCacheKey);
+    this._clientInfoBySourceId[sourceId] = this.requestClientInfo(sourceId, appName, localSourceId, cacheKey);
   }
 
   requestClientInfo(sourceId, appName, localSourceId, sessionCacheKey) {
@@ -49,7 +54,7 @@ export default class ClientInfoService {
         .then(clientInfo => {
           if (!clientInfo || !clientInfo.type) {
             clientInfo = {};
-            sessionStorage.setItem(
+            localStorage.setItem(
               sessionCacheKey,
               JSON.stringify({
                 data: clientInfo
