@@ -54,13 +54,13 @@ export default class ClientInfoService {
         .then(clientInfo => {
           if (!clientInfo || !clientInfo.type) {
             clientInfo = {};
-            localStorage.setItem(
-              sessionCacheKey,
-              JSON.stringify({
-                data: clientInfo
-              })
-            );
           }
+          localStorage.setItem(
+            sessionCacheKey,
+            JSON.stringify({
+              data: clientInfo
+            })
+          );
           this._clientInfoBySourceId[sourceId] = clientInfo;
           resolve(clientInfo);
         })
