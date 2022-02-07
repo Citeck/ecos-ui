@@ -170,11 +170,15 @@ class Journals extends React.Component {
   }
 
   mountJournalUpdateWatcher() {
-    Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`).watch(['_modified'], this.handleUpdateJournal);
+    this.journalRecord.watch(['_modified'], this.handleUpdateJournal);
   }
 
   unmountJournalUpdateWatcher() {
-    Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`).unwatch(['_modified']);
+    this.props.tabId && this.journalRecord.unwatch(['_modified']);
+  }
+
+  get journalRecord() {
+    return Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`);
   }
 
   get minHeight() {

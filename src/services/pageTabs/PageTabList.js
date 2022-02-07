@@ -322,7 +322,7 @@ class PageTabList {
 
   getTabById = tabId => {
     if (!tabId) {
-      return null;
+      return;
     }
 
     return find(this.#tabs, ['id', tabId]);
