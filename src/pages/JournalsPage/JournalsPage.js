@@ -35,12 +35,12 @@ class JournalsPage extends React.Component {
   }
 
   render() {
-    const { footerRef, isActivePage } = this.props;
+    const { footerRef, isActivePage, tabId } = this.props;
 
     return (
       <div className="ecos-journal-page">
         <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
-          <Journals stateId={this.stateId} isActivePage={isActivePage} footerRef={footerRef} />
+          <Journals tabId={tabId} stateId={this.stateId} isActivePage={isActivePage} footerRef={footerRef} />
         </ErrorBoundary>
       </div>
     );

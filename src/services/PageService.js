@@ -111,14 +111,12 @@ export default class PageService {
       }
     },
     [PageTypes.JOURNALS]: {
-      getTitle: ({ journalId } = {}, link) => {
+      getTitle: ({ journalId, force } = {}, link) => {
         if (!journalId) {
           journalId = PageService.getRef(link);
         }
 
-        const prom = pageApi.getJournalTitle(journalId);
-
-        return prom.then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
+        return pageApi.getJournalTitle(journalId, force).then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {

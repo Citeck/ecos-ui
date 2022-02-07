@@ -8,7 +8,7 @@ import { defaultState, emptyJournalConfig } from '../reducers/journals';
 import { DEFAULT_PAGINATION, isTable, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { ParserPredicate } from '../components/Filters/predicates';
-import { beArray, getId } from '../helpers/util';
+import { beArray, getId, getTextByLocale } from '../helpers/util';
 import { selectIsDocLibEnabled } from './docLib';
 import { selectIsKanbanEnabled } from './kanban';
 
@@ -277,6 +277,7 @@ export const selectCommonJournalPageProps = createSelector(
   [selectState, selectUrl, selectIsDocLibEnabled, selectIsKanbanEnabled],
   (ownState, urlParams, isDocLibEnabled, isKanbanEnabled) => ({
     viewMode: ownState.viewMode,
+    title: getTextByLocale(get(ownState, 'journalConfig.name')),
     urlParams,
     isDocLibEnabled,
     isKanbanEnabled

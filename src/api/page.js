@@ -3,9 +3,9 @@ import { CommonApi } from './common';
 import { SourcesId } from '../constants';
 
 export class PageApi extends CommonApi {
-  getJournalTitle = journalId => {
+  getJournalTitle = (journalId, force = false) => {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`)
-      .load('.disp')
+      .load('.disp', force)
       .then(res => res || '')
       .catch(() => '');
   };

@@ -1,6 +1,7 @@
 import isArray from 'lodash/isArray';
 import set from 'lodash/set';
 import get from 'lodash/get';
+import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import { EventEmitter2 } from 'eventemitter2';
@@ -317,6 +318,14 @@ class PageTabList {
     }
 
     return get(this.#tabs.find(tab => tab.id === tabId), 'isActive', false);
+  };
+
+  getTabById = tabId => {
+    if (!tabId) {
+      return null;
+    }
+
+    return find(this.#tabs, ['id', tabId]);
   };
 }
 

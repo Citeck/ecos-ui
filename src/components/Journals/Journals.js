@@ -14,7 +14,7 @@ import { execJournalAction, setUrl, toggleViewMode } from '../../actions/journal
 import { getTypeRef } from '../../actions/docLib';
 import { getBoardList } from '../../actions/kanban';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
-import { DocLibUrlParams as DLUP, JournalUrlParams as JUP } from '../../constants';
+import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
@@ -25,6 +25,11 @@ import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JO
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
 import { DocLibView, KanbanView, TableView } from './Views';
+
+import Records from '../Records';
+import PageService, { PageTypes } from '../../services/PageService';
+import pageTabList from '../../services/pageTabs/PageTabList';
+import { updateTab } from '../../actions/pageTabs';
 
 import './style.scss';
 
@@ -48,7 +53,8 @@ const mapDispatchToProps = (dispatch, props) => {
     toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode }))),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context }))),
     getTypeRef: journalId => dispatch(getTypeRef(w({ journalId }))),
-    getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId }))
+    getBoardList: journalId => dispatch(getBoardList({ journalId, stateId: props.stateId })),
+    updateTab: tab => dispatch(updateTab({ tab }))
   };
 };
 
@@ -117,7 +123,7 @@ class Journals extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { _url, isActivePage, stateId, viewMode } = this.props;
+    const { _url, isActivePage, stateId, viewMode, tabId } = this.props;
     const { journalId } = this.state;
 
     const isEqualView = equalsQueryUrls({
@@ -145,6 +151,10 @@ class Journals extends React.Component {
     if (isActiveChanged || prevProps.stateId !== stateId) {
       this.props.setUrl(getSearchParams());
     }
+
+    if (tabId && journalId && journalId !== prevState.journalId) {
+      this.mountJournalUpdateWatcher();
+    }
   }
 
   componentWillUnmount() {
@@ -156,6 +166,31 @@ class Journals extends React.Component {
       this._toggleMenuTimerId = null;
     }
   }
+
+  mountJournalUpdateWatcher() {
+    Records.get(`${SourcesId.JOURNAL}@${this.state.journalId}`).watch(['_modified'], this.journalUpdateHandler);
+  }
+
+  journalUpdateHandler = () => {
+    const getTitle = get(PageService, ['pageTypes', PageTypes.JOURNALS, 'getTitle']);
+
+    if (!getTitle) {
+      return;
+    }
+
+    const { updateTab, tabId } = this.props;
+    const { journalId } = this.state;
+
+    getTitle({ journalId, force: true }).then(title => {
+      const tab = pageTabList.getTabById(tabId);
+
+      if (!tab) {
+        return;
+      }
+
+      updateTab({ ...tab, title });
+    });
+  };
 
   get minHeight() {
     return this.props.isMobile ? JOURNAL_MIN_HEIGHT_MOB : JOURNAL_MIN_HEIGHT;
@@ -353,6 +388,7 @@ Journals.propTypes = {
   stateId: PropTypes.string,
   className: PropTypes.string,
   bodyClassName: PropTypes.string,
+  title: PropTypes.string,
   additionalHeights: PropTypes.number,
   isActivePage: PropTypes.bool,
   displayElements: PropTypes.shape({
@@ -362,10 +398,12 @@ Journals.propTypes = {
     pagination: PropTypes.bool,
     groupActions: PropTypes.bool
   }),
-  withForceUpdate: PropTypes.bool
+  withForceUpdate: PropTypes.bool,
+  tabId: PropTypes.string
 };
 
 Journals.defaultProps = {
+  title: '',
   className: '',
   bodyClassName: '',
   additionalHeights: 0,
