@@ -35,6 +35,15 @@ export default class RecordsClient {
   }
 
   /**
+   * Check that mutated record is persisted and mutation doesn't required for it.
+   * If this method return true then standard algorithm will be used to define persisted state of record
+   * @param {Object<String, Any>} config configuration returned from postProcessAtts
+   */
+  isPersisted(config) {
+    return true;
+  }
+
+  /**
    * Return client type
    */
   getType() {

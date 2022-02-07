@@ -62,6 +62,11 @@ export default class RecordsClientManager {
     return client.prepareMutation(attributes, config);
   }
 
+  isPersisted(mutClientData) {
+    const { client, config } = mutClientData;
+    return client.isPersisted(config);
+  }
+
   async _getClient(sourceId) {
     const clientInfo = await this._clientInfoService.getClientInfo(sourceId);
     if (!clientInfo || !clientInfo.type) {

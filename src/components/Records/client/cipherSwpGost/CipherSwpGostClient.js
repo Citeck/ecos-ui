@@ -38,6 +38,7 @@ export default class CipherSwpGostClient extends RecordsClient {
       }
     }
     const attsToEncryptIndexes = [];
+    const attsToEncryptNames = [];
     const assocAtts = [];
     for (let idx = 0; idx < attsToLoad.length; idx++) {
       let value = attsToLoad[idx];
@@ -45,6 +46,7 @@ export default class CipherSwpGostClient extends RecordsClient {
       if (encryptedAtt) {
         attsToLoad[idx] = encryptedAtt + '|hex()';
         attsToEncryptIndexes.push(idx);
+        attsToEncryptNames.push(encryptedAtt);
         if (value === encryptedAtt + ASSOC_DEFAULT_INNER_SCHEMA) {
           assocAtts.push(idx);
         }
@@ -60,13 +62,14 @@ export default class CipherSwpGostClient extends RecordsClient {
       },
       config: {
         attsToEncryptIndexes,
+        attsToEncryptNames,
         assocAtts
       }
     };
   }
 
   async postProcessAtts(loadedAtts, clientAtts, config) {
-    const { attsToEncryptIndexes } = config;
+    const { attsToEncryptIndexes, attsToEncryptNames } = config;
 
     const key = clientAtts[CIPHER_KEYS_ALIAS];
     if (!key || !key.certThumbprint || !key.wrappedKey) {
@@ -88,6 +91,8 @@ export default class CipherSwpGostClient extends RecordsClient {
 
     let symAlgAllowed = true;
 
+    let encryptedAttNameIdx = 0;
+    const decryptedAttsByName = {};
     for (let encryptedAttIdx of attsToEncryptIndexes) {
       let value = loadedAtts[encryptedAttIdx];
       if (symAlgAllowed) {
@@ -102,6 +107,7 @@ export default class CipherSwpGostClient extends RecordsClient {
         value = null;
       }
       loadedAtts[encryptedAttIdx] = value;
+      decryptedAttsByName[attsToEncryptNames[encryptedAttNameIdx++]] = value;
     }
 
     for (let assocAttIdx of config.assocAtts) {
@@ -119,13 +125,37 @@ export default class CipherSwpGostClient extends RecordsClient {
       mkey = null;
     }
 
-    return mkey ? { mkey: mkey.trim() } : null;
+    return mkey
+      ? {
+          mkey: mkey.trim(),
+          decryptedAttsByName
+        }
+      : null;
   }
 
   async prepareMutation(attributes, config) {
-    if (config.mkey) {
-      attributes.mkey = config.mkey;
+    if (!config.mkey) {
+      return;
     }
+    const simplifiedAttNames = {};
+    for (let attName in attributes) {
+      let qIdx = attName.indexOf('?');
+      if (qIdx > 0) {
+        simplifiedAttNames[attName.substring(0, qIdx)] = attName;
+      } else {
+        simplifiedAttNames[attName] = attName;
+      }
+    }
+    for (let decryptedAttKey in config.decryptedAttsByName) {
+      if (!simplifiedAttNames.hasOwnProperty(decryptedAttKey)) {
+        attributes[decryptedAttKey] = config.decryptedAttsByName[decryptedAttKey];
+      }
+    }
+    attributes.mkey = config.mkey;
+  }
+
+  isPersisted(config) {
+    return !config.mkey;
   }
 
   async _findCerts(thumbprint) {
@@ -199,7 +229,7 @@ export default class CipherSwpGostClient extends RecordsClient {
     const data = encryptedData.substring(16);
 
     try {
-      return window.cadesplugin.async_spawn(function*() {
+      return await window.cadesplugin.async_spawn(function*() {
         yield symAlg.propset_IV(iv);
         return yield symAlg.Decrypt(data, 1);
       });

@@ -8,6 +8,7 @@ import RecordWatcher from './RecordWatcher';
 
 import recordsClientManager from './client';
 import { prepareAttsToLoad } from './utils/recordUtils';
+import { SourcesId } from '../../constants';
 
 export const EVENT_CHANGE = 'change';
 
@@ -146,6 +147,10 @@ export default class Record {
 
   isPersisted() {
     const atts = this._attributes;
+
+    if (this._mutClientData && !recordsClientManager.isPersisted(this._mutClientData)) {
+      return false;
+    }
 
     for (let att in atts) {
       if (!atts.hasOwnProperty(att)) {
@@ -463,19 +468,32 @@ export default class Record {
         attributesToSave[attribute.getNewValueAttName()] = attribute.getValue();
       }
     }
-
     return attributesToSave;
   }
 
-  _getAssocAttributes() {
+  async _getChildAssocAttributes() {
     let attributes = [];
     for (let attName in this._attributes) {
-      if (!this._attributes.hasOwnProperty(attName)) {
+      if (!this._attributes.hasOwnProperty(attName) || !attName || attName[0] === '_') {
         continue;
       }
       let attribute = this._attributes[attName];
       if (attribute.getNewValueInnerAtt() === 'assoc') {
         attributes.push(attName);
+      }
+    }
+    const typeId = await this.getTypeId();
+    if (!typeId) {
+      return attributes;
+    }
+    const modelAtts = await this._records
+      .get(SourcesId.RESOLVED_TYPE + '@' + typeId)
+      .load('model.attributes[]{id,type,isChild:config.child?bool}');
+    if (modelAtts) {
+      for (let attDef of modelAtts) {
+        if (attDef.type === 'ASSOC' && attDef.isChild === true && attributes.indexOf(attDef.id) === -1) {
+          attributes.push(attDef.id);
+        }
       }
     }
     return attributes;
@@ -484,7 +502,8 @@ export default class Record {
   async _getLinkedRecordsToSave() {
     let self = this;
 
-    let result = this._getAssocAttributes().reduce((acc, att) => {
+    let assocAtts = await this._getChildAssocAttributes();
+    let result = assocAtts.reduce((acc, att) => {
       let value = self.att(att);
       if (!value) {
         return acc;
@@ -514,10 +533,10 @@ export default class Record {
     return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
+        if (record._mutClientData) {
+          await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
+        }
         if (!_.isEmpty(attributesToSave)) {
-          if (record._mutClientData) {
-            await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
-          }
           let baseId = record.getBaseRecord().id;
           requestRecords.push({
             id: baseId,
@@ -723,5 +742,26 @@ export default class Record {
     this._watchers.forEach(watcher => {
       watcher.callCallback();
     });
+  }
+
+  async getTypeId() {
+    const typeAtt = this._attributes['_type'];
+    if (typeAtt == null) {
+      return this.load('_type?id').then(typeRef => {
+        return this.__getTypeIdFromRef(typeRef);
+      });
+    }
+    return this.__getTypeIdFromRef(await typeAtt.getValue('id', false, true, false));
+  }
+
+  __getTypeIdFromRef(ref) {
+    if (!_.isString(ref) || ref == '') {
+      return '';
+    }
+    const localIdDelimIdx = ref.indexOf('@');
+    if (localIdDelimIdx === -1 || localIdDelimIdx === ref.length - 1) {
+      return ref;
+    }
+    return ref.substring(localIdDelimIdx + 1);
   }
 }
