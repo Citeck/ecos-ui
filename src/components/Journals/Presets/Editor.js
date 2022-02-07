@@ -34,7 +34,7 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
       <div className="journal-preset-editor__field">
         <div className="journal-preset-editor__label journal-preset-editor__label_required">{t(Labels.Preset.FIELD_NAME)}</div>
         <div className="journal-preset-editor__control">
-          <MLText onChange={handleChangeName} value={name} />
+          <MLText className="fitnesse-journal-preset-editor__name" onChange={handleChangeName} value={name} />
         </div>
       </div>
 
@@ -54,7 +54,7 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
 
       <div className="journal-preset-editor__buttons">
         <Btn onClick={onClose}>{t(Labels.Preset.BTN_CLOSE)}</Btn>
-        <Btn onClick={handleSave} className="ecos-btn_blue" disabled={isSaving || isInvalid}>
+        <Btn onClick={handleSave} className="ecos-btn_blue fitnesse-journal-preset-editor__buttons_save" disabled={isSaving || isInvalid}>
           {t(Labels.Preset.BTN_SAVE)}
         </Btn>
       </div>

@@ -96,7 +96,9 @@ class TableView extends React.Component {
         stateId={stateId}
         hasPageSize={hasPageSize}
         noData={noData}
-        className={classNames('ecos-journal__pagination', { 'ecos-journal__pagination_mobile': isMobile })}
+        className={classNames('ecos-journal__pagination', 'fitnesse-ecos-journal__pagination', {
+          'ecos-journal__pagination_mobile': isMobile
+        })}
       />
     );
   };

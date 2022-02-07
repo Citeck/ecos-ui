@@ -34,7 +34,7 @@ class RemoveDialog extends Component {
         <div className={footerCssClasses}>
           <Btn onClick={this.onCancel}>{cancelText || t('journals.action.cancel')}</Btn>
 
-          <Btn onClick={this.onDelete} className={'ecos-btn_red'}>
+          <Btn onClick={this.onDelete} className="ecos-btn_red fitnesse-ecos-remove-dialog__btn_confirm">
             {confirmText || t('journals.action.delete')}
           </Btn>
         </div>
