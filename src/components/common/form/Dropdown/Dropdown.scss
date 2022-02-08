@@ -91,6 +91,20 @@
   }
 
   &-outer {
+    &_disabled {
+      cursor: not-allowed;
+
+      > * {
+        pointer-events: none;
+      }
+
+      & button:disabled {
+        color: $color-gray-5;
+        background-color: $color-gray-4;
+        outline: $border-width-standard solid $color-gray-6;
+      }
+    }
+
     &__tooltip-inner {
       &.ecos-base-tooltip-inner {
         padding: 0;
