@@ -215,13 +215,13 @@ export default class Dropdown extends Component {
   };
 
   render() {
-    const { full, className, toggleClassName, direction } = this.props;
+    const { full, className, toggleClassName, direction, disabled } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames('ecos-dropdown', className, { 'ecos-dropdown_full-width': full });
     const cssDropdownToggle = classNames('ecos-dropdown__toggle', toggleClassName);
 
     return (
-      <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
+      <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction} disabled={disabled}>
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {this.renderToggle()}
         </DropdownToggle>

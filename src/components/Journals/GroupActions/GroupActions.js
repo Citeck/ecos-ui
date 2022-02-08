@@ -93,37 +93,32 @@ const GroupActions = React.memo(
 
     return (
       <>
-        {!isEmpty(recordsActions) && (
-          <DropdownOuter
-            isStatic
-            valueField={'id'}
-            titleField={'pluralName'}
-            keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
-            source={recordsActions}
-            className="ecos-group-actions__dropdown"
-            menuClassName="ecos-group-actions__dropdown-menu"
-            getStateOpen={setOpenRecActions}
-            onChange={handleExecuteAction}
-            itemClassName={getItemClassName}
-          >
-            <Tooltip
-              uncontrolled
-              showAsNeeded
-              target={targetPrefix + '-rec'}
-              text={labelRecActions}
-              contentComponent={labelRecActionsCount}
+        <DropdownOuter
+          isStatic
+          valueField="id"
+          titleField="pluralName"
+          keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
+          source={recordsActions}
+          className="ecos-group-actions__dropdown"
+          menuClassName="ecos-group-actions__dropdown-menu"
+          itemClassName={getItemClassName}
+          getStateOpen={setOpenRecActions}
+          disabled={isEmpty(recordsActions)}
+          onChange={handleExecuteAction}
+        >
+          <Tooltip uncontrolled showAsNeeded target={targetPrefix + '-rec'} text={labelRecActions} contentComponent={labelRecActionsCount}>
+            <IcoBtn
+              invert
+              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+              icon={iconOpener(isOpenRecActions)}
+              id={targetPrefix + '-rec'}
+              disabled={isEmpty(recordsActions)}
             >
-              <IcoBtn
-                invert
-                className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
-                icon={iconOpener(isOpenRecActions)}
-                id={targetPrefix + '-rec'}
-              >
-                {labelRecActions}
-              </IcoBtn>
-            </Tooltip>
-          </DropdownOuter>
-        )}
+              {labelRecActions}
+            </IcoBtn>
+          </Tooltip>
+        </DropdownOuter>
+
         {isSeparateActionListForQuery && !isEmpty(queryActions) && (
           <DropdownOuter
             isStatic
@@ -134,8 +129,8 @@ const GroupActions = React.memo(
             className="ecos-group-actions__dropdown"
             controlClassName="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
             menuClassName="ecos-group-actions__dropdown-menu"
-            onChange={handleExecuteAction}
             getStateOpen={setOpenQueryActions}
+            onChange={handleExecuteAction}
           >
             <TwoIcoBtn
               className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
