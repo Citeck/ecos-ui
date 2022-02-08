@@ -171,6 +171,8 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
+export { GroupActions };
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps
