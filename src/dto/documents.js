@@ -98,6 +98,7 @@ export default class DocumentsConverter {
 
       target.type = type;
       target.typeName = typeName;
+      target.id = target.id || get(target, documentFields.id, '');
 
       return target;
     });
@@ -460,9 +461,22 @@ export default class DocumentsConverter {
     for (let key in fieldFormatters) {
       const info = fieldFormatters[key];
       const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
+      const withoutFormatter = !Object.keys(columns[findIndex]).some(key => {
+        if (key === 'formatter') {
+          return get(columns, [findIndex, key, 'name']);
+        }
 
-      if (findIndex >= 0 && !columns[findIndex].formatter) {
-        columns[findIndex].formatter = info.formatter;
+        if (key === 'newFormatter') {
+          return get(columns, [findIndex, key, 'type']);
+        }
+
+        return false;
+      });
+
+      if (findIndex >= 0) {
+        if (withoutFormatter) {
+          columns[findIndex].formatter = info.formatter;
+        }
       }
     }
   }
