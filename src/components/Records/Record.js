@@ -755,7 +755,7 @@ export default class Record {
   }
 
   __getTypeIdFromRef(ref) {
-    if (!_.isString(ref) || ref == '') {
+    if (!_.isString(ref) || ref === '') {
       return '';
     }
     const localIdDelimIdx = ref.indexOf('@');

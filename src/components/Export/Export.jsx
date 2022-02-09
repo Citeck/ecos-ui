@@ -108,11 +108,12 @@ export default class Export extends Component {
     const columns = get(grid, 'columns') || config.columns || [];
     const reportColumns = columns
       .filter(c => c.default)
-      .map(({ attribute, text, newType, newFormatter }) => ({
+      .map(({ attribute, text, newType, newFormatter, multiple }) => ({
         attribute,
         name: text,
         type: newType,
-        formatter: newFormatter
+        formatter: newFormatter,
+        multiple: multiple
       }));
     const mainPredicate = get(config, 'predicate', {});
     const gridPredicate = get(grid, 'predicates[0]', {});
