@@ -115,9 +115,7 @@ class EcosForm extends React.Component {
       isFunction(this.props.onReady) && this.props.onReady();
     };
 
-    formLoadingPromise.then((formData, ...extra) => {
-      console.warn({ formData, extra });
-
+    formLoadingPromise.then(formData => {
       isFunction(getTitle) && !!get(formData, 'title') && getTitle(formData.title);
 
       if (!formData || !formData.definition) {
