@@ -334,20 +334,6 @@ class App extends Component {
       return null;
     }
 
-    // if (!this.props.isAuthenticated) {
-    //   if (EcosFormModal.countOpenedModals > 0) {
-    //     DialogManager.showRemoveDialog({
-    //       title: 'Ошибка доступа',
-    //       text: 'Сессия завершена, для продолжения работы авторизуйтесь',
-    //       cancelText: 'Остаться на странице',
-    //       confirmText: 'Перейти к авторизации',
-    //       onDelete: () => window.location.reload()
-    //     });
-    //   } else {
-    //     window.location.reload();
-    //   }
-    // }
-
     const appClassNames = classNames('app-container', { mobile: isMobile });
     const basePageClassNames = classNames('app-content ecos-base-page', { 'ecos-base-page_headless': this.isOnlyContent });
 

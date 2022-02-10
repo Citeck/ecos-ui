@@ -458,6 +458,10 @@
   "eform.modal.title.edit-locale": "Редактирование локализации",
   "eform.form-is-not-ready": "Форма не готова к отправке",
   "ecos.forms.include-form.label.form": "Форма: {{name}}",
+  "ecos.form.reload.confirm.title": "Ошибка доступа",
+  "ecos.form.reload.confirm.message": "Сессия завершена\nДля продолжения работы авторизуйтесь",
+  "ecos.form.reload.confirm.button-cancel": "Остаться на странице",
+  "ecos.form.reload.confirm.button-confirm": "Перейти к авторизации",
 
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",

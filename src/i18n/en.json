@@ -458,6 +458,10 @@
   "eform.modal.title.edit-locale": "Edit Locale",
   "eform.form-is-not-ready": "Form is not ready",
   "ecos.forms.include-form.label.form": "Form: {{name}}",
+  "ecos.form.reload.confirm.title": "Access error",
+  "ecos.form.reload.confirm.message": "Session ended\nLog in to continue working",
+  "ecos.form.reload.confirm.button-cancel": "Stay on the page",
+  "ecos.form.reload.confirm.button-confirm": "Go to authorization",
 
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",

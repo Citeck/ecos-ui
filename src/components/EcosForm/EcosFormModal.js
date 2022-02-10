@@ -18,8 +18,12 @@ import DialogManager from '../common/dialogs/Manager';
 
 import './EcosFormModal.scss';
 
-const LABELS = {
-  CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor'
+const Labels = {
+  CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor',
+  CONFIRM_RELOAD_TITLE: 'ecos.form.reload.confirm.title',
+  CONFIRM_RELOAD_MESSAGE: 'ecos.form.reload.confirm.message',
+  CONFIRM_RELOAD_BTN_CANCEL: 'ecos.form.reload.confirm.button-cancel',
+  CONFIRM_RELOAD_BTN_CONFIRM: 'ecos.form.reload.confirm.button-confirm'
 };
 
 export default class EcosFormModal extends React.Component {
@@ -151,10 +155,10 @@ export default class EcosFormModal extends React.Component {
     this.setState({ isAuthenticated: false });
 
     DialogManager.showRemoveDialog({
-      title: 'Ошибка доступа',
-      text: 'Сессия завершена, для продолжения работы авторизуйтесь',
-      cancelText: 'Остаться на странице',
-      confirmText: 'Перейти к авторизации',
+      title: t(Labels.CONFIRM_RELOAD_TITLE),
+      text: t(Labels.CONFIRM_RELOAD_MESSAGE),
+      cancelText: t(Labels.CONFIRM_RELOAD_BTN_CANCEL),
+      confirmText: t(Labels.CONFIRM_RELOAD_BTN_CONFIRM),
       onDelete: () => window.location.reload()
     });
   };
@@ -194,7 +198,7 @@ export default class EcosFormModal extends React.Component {
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
         >
-          {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+          {t(Labels.CONSTRUCTOR_BTN_TOOLTIP)}
         </UncontrolledTooltip>
       </React.Fragment>
     );
