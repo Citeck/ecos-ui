@@ -13,6 +13,8 @@ import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
+import { RESET_AUTH_STATE_EVENT, emitter } from '../../helpers/ecosFetch';
+import DialogManager from '../common/dialogs/Manager';
 
 import './EcosFormModal.scss';
 
@@ -21,12 +23,19 @@ const LABELS = {
 };
 
 export default class EcosFormModal extends React.Component {
+  static #countOpenedModals = 0;
+
+  static get countOpenedModals() {
+    return EcosFormModal.#countOpenedModals;
+  }
+
   _formRef = React.createRef();
 
   constructor(props) {
     super(props);
 
     this.state = {
+      isAuthenticated: true,
       isModalOpen: false,
       isConfigurableForm: false,
       addedListener: false
@@ -36,9 +45,15 @@ export default class EcosFormModal extends React.Component {
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.isModalOpen !== this.state.isModalOpen) {
       if (nextProps.isModalOpen && !nextState.addedListener) {
-        window.addEventListener('beforeunload', this._onbeforeunload);
+        emitter.on(RESET_AUTH_STATE_EVENT, this.handleReloadPage);
 
         this.setState({ addedListener: true });
+      }
+
+      EcosFormModal.#countOpenedModals += nextProps.isModalOpen ? 1 : -1;
+
+      if (EcosFormModal.#countOpenedModals < 0) {
+        EcosFormModal.#countOpenedModals = 0;
       }
 
       this.setState({ isModalOpen: nextProps.isModalOpen });
@@ -88,19 +103,24 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('beforeunload', this._onbeforeunload);
+    emitter.off(RESET_AUTH_STATE_EVENT, this.handleReloadPage);
 
     this.instanceRecord.unwatch(this.watcher);
   }
 
   handleCancel = () => {
     const { onCancelModal } = this.props;
+    const { isAuthenticated } = this.state;
 
     if (typeof onCancelModal === 'function') {
       onCancelModal();
     }
 
     this.setState({ isModalOpen: false });
+
+    if (!isAuthenticated) {
+      window.location.reload();
+    }
   };
 
   hide() {
@@ -115,8 +135,6 @@ export default class EcosFormModal extends React.Component {
         }
       });
     }
-
-    window.removeEventListener('beforeunload', this._onbeforeunload);
   }
 
   checkEditRights() {
@@ -125,14 +143,20 @@ export default class EcosFormModal extends React.Component {
     });
   }
 
-  _onbeforeunload = e => {
+  handleReloadPage = () => {
     if (!this.state.isModalOpen) {
       return;
     }
 
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#Examples
-    e.preventDefault();
-    e.returnValue = '';
+    this.setState({ isAuthenticated: false });
+
+    DialogManager.showRemoveDialog({
+      title: 'Ошибка доступа',
+      text: 'Сессия завершена, для продолжения работы авторизуйтесь',
+      cancelText: 'Остаться на странице',
+      confirmText: 'Перейти к авторизации',
+      onDelete: () => window.location.reload()
+    });
   };
 
   onClickShowFormBuilder = () => {
