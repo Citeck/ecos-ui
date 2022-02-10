@@ -49,6 +49,7 @@ export default class EcosFormModal extends React.Component {
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.isModalOpen !== this.state.isModalOpen) {
       if (nextProps.isModalOpen && !nextState.addedListener) {
+        window.addEventListener('beforeunload', this._onbeforeunload);
         emitter.on(RESET_AUTH_STATE_EVENT, this.handleReloadPage);
 
         this.setState({ addedListener: true });
@@ -107,6 +108,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('beforeunload', this._onbeforeunload);
     emitter.off(RESET_AUTH_STATE_EVENT, this.handleReloadPage);
 
     this.instanceRecord.unwatch(this.watcher);
@@ -139,6 +141,8 @@ export default class EcosFormModal extends React.Component {
         }
       });
     }
+
+    window.removeEventListener('beforeunload', this._onbeforeunload);
   }
 
   checkEditRights() {
@@ -146,6 +150,16 @@ export default class EcosFormModal extends React.Component {
       !!isConfigurableForm && this.setState({ isConfigurableForm });
     });
   }
+
+  _onbeforeunload = e => {
+    if (!this.state.isModalOpen || !this.state.isAuthenticated) {
+      return;
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#Examples
+    e.preventDefault();
+    e.returnValue = '';
+  };
 
   handleReloadPage = () => {
     if (!this.state.isModalOpen) {
