@@ -1,0 +1,9 @@
+@import '../../../styles/constants';
+
+.form-builder-modal {
+  &__tree-wrapper {
+    padding: 10px;
+    overflow: auto;
+    max-height: 40vh;
+  }
+}
