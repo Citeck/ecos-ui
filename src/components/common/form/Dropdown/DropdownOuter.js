@@ -15,7 +15,8 @@ export default class DropdownOuter extends Dropdown {
     trigger: PropTypes.string,
     boundariesElement: PropTypes.string,
     modifiers: PropTypes.object,
-    needClose: PropTypes.bool
+    needClose: PropTypes.bool,
+    disabled: PropTypes.bool
   };
 
   static defaultProps = {
@@ -40,13 +41,16 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className, outClassName = '', trigger, boundariesElement, modifiers } = this.props;
+    const { className, outClassName = '', trigger, boundariesElement, modifiers, disabled } = this.props;
     const { dropdownOpen, targetId } = this.state;
 
     return (
       <div
         id={targetId}
-        className={classNames('ecos-dropdown-outer', className, { 'ecos-dropdown-outer_open': dropdownOpen })}
+        className={classNames('ecos-dropdown-outer', className, {
+          'ecos-dropdown-outer_open': dropdownOpen,
+          'ecos-dropdown-outer_disabled': disabled
+        })}
         ref={this.dropdownOuterRef}
       >
         <div onClick={this.toggle}>{this.renderToggle()}</div>
