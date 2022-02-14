@@ -1289,5 +1289,6 @@
   "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
   "ecos-form.import-button.failed-uploading.title": "Error",
   "ecos-form.import-button.error.no-response-handler": "You must set \"Response handler\" setting",
-  "ecos-form.builder.confirm-close.description": "Are you sure you want to close the form designer?\nAll unsaved data will be lost."
+  "ecos-form.builder.confirm-close.description": "Are you sure you want to close the form designer?\nAll unsaved data will be lost.",
+  "ecos-form.builder.debugging.title": "Form debugging"
 }
