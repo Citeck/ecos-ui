@@ -17,6 +17,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
+import { LANGUAGE_EN } from '../../constants/lang';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -176,9 +177,33 @@ class EcosForm extends React.Component {
         const i18n = options.i18n || {};
         const language = options.language || getCurrentLocale();
         const defaultI18N = i18n[language] || {};
-        const formI18N = (formData.i18n || {})[language] || {};
+        let currentLangTranslate = {};
+        let enTranslate = {};
 
-        i18n[language] = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formI18N);
+        const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
+        const translations = translateKeys.reduce((result, key) => {
+          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
+
+          if (key === language) {
+            currentLangTranslate = translate;
+          }
+
+          if (key === LANGUAGE_EN) {
+            enTranslate = translate;
+          }
+
+          return {
+            ...result,
+            ...translate
+          };
+        }, {});
+
+        i18n[language] = {
+          ...translations,
+          ...enTranslate,
+          ...currentLangTranslate
+        };
+
         options.theme = EcosFormUtils.getThemeName();
         options.language = language;
         options.i18n = i18n;

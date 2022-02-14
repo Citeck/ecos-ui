@@ -12,6 +12,7 @@ import { flattenComponents } from 'formiojs/utils/utils';
 import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { t } from '../../../../helpers/export/util';
+import { extractLabel } from '../../../../helpers/util';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -526,7 +527,7 @@ Base.prototype.t = function(text, params) {
     return this.__t(text, params);
   }
 
-  return originalT.call(this, text, params);
+  return originalT.call(this, extractLabel(text), params);
 };
 
 Base.prototype.createWidget = function() {
