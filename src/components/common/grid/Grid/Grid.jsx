@@ -103,7 +103,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { selected } = this.props;
+    const { selected, isResetSettings } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -111,6 +111,10 @@ class Grid extends Component {
 
     if (isEmpty(prevProps.selected) && !isEmpty(selected) && !isEqual(selected, this.state.selected)) {
       this.setState({ selected });
+    }
+
+    if (!prevProps.isResetSettings && isResetSettings) {
+      this.#columnsSizes = {};
     }
 
     this.setColumnsSizes();
@@ -1079,6 +1083,7 @@ Grid.propTypes = {
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
   withDateFilter: PropTypes.bool,
+  isResetSettings: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 

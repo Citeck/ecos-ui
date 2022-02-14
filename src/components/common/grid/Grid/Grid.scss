@@ -49,6 +49,10 @@ $header-height: 52px;
     thead > tr > th:nth-child(1) {
       padding: 0;
     }
+
+    thead > tr > th:first-child {
+      width: $header-height;
+    }
   }
 
   &__v-scroll {

@@ -73,6 +73,7 @@ class Journals extends Component {
     this.state = {
       menuOpen: false,
       isReset: false,
+      isResetGridSettings: false,
       isForceUpdate: false,
       menuOpenAnimate: false,
       settingsVisible: false,
@@ -147,6 +148,10 @@ class Journals extends Component {
 
     if (isActivePage && showPreview !== this.state.showPreview) {
       updateCurrentUrl({ showPreview: this.state.showPreview });
+    }
+
+    if (isActivePage && journalId && journalId !== _journalId) {
+      this.setState({ isResetGridSettings: true }, () => this.setState({ isResetGridSettings: false }));
     }
   }
 
@@ -321,7 +326,7 @@ class Journals extends Component {
 
   render() {
     const { stateId, journalConfig, pageTabsIsShow, grid, isMobile, isActivePage, selectedRecords } = this.props;
-    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset, createIsLoading } = this.state;
+    const { menuOpen, menuOpenAnimate, settingsVisible, showPreview, height, isReset, createIsLoading, isResetGridSettings } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -413,6 +418,7 @@ class Journals extends Component {
               maxHeight={this.getJournalContentMaxHeight()}
               minHeight={this.minHeight}
               isActivePage={isActivePage}
+              isResetGridSettings={isResetGridSettings}
             />
 
             <div className="ecos-journal__footer" ref={this.setJournalFooterRef}>
