@@ -22,6 +22,7 @@ import {
 import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
 import { JournalUrlParams as JUP, SourcesId } from '../../../constants';
 import { wrapArgs } from '../../../helpers/redux';
+import { getTextByLocale } from '../../../helpers/util';
 import { isPreview, isTableOrPreview } from '../constants';
 import Bar from '../CommonBar';
 import JournalsContent from '../JournalsContent';
@@ -132,7 +133,7 @@ class TableView extends React.Component {
       <div hidden={!isTableOrPreview(viewMode)} className={classNames('ecos-journal-view__table', bodyClassName)}>
         <div className="ecos-journal__body-top" ref={bodyTopForwardedRef}>
           <Header
-            title={get(journalConfig, 'meta.title', '')}
+            title={get(journalConfig, 'meta.title', '') || getTextByLocale(get(journalConfig, 'name'))}
             config={journalConfig}
             configRec={journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`}
           />
