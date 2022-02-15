@@ -729,7 +729,8 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
-      viewMode
+      viewMode,
+      title
     } = this.props;
     const {
       isGridDataReady,
@@ -802,7 +803,7 @@ export default class SelectJournal extends Component {
 
         <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} presetFilterPredicates={presetFilterPredicates}>
           <EcosModal
-            title={selectModalTitle}
+            title={title || selectModalTitle}
             isOpen={isSelectModalOpen}
             hideModal={this.hideSelectModal}
             className={classNames('select-journal-select-modal', {
@@ -929,7 +930,8 @@ SelectJournal.propTypes = {
     attribute: PropTypes.string,
     ascending: PropTypes.bool
   }),
-  columns: PropTypes.array
+  columns: PropTypes.array,
+  title: PropTypes.string
 };
 
 SelectJournal.defaultProps = {
