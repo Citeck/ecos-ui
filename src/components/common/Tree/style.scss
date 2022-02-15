@@ -91,11 +91,15 @@
       }
 
       &-label {
-        @extend %ellipsis;
+        //@extend %ellipsis;
 
         font-weight: $font-weight-bold;
         font-size: $font-size-standard;
         color: $text-color-dark;
+
+        &-tooltip {
+          padding: 10px 12px;
+        }
       }
 
       &-custom-components > :nth-child(n),
