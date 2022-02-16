@@ -235,9 +235,11 @@ export const TableFormContextProvider = props => {
           setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
+          setRowPosition(rowPosition);
+          setRowPosition(null);
         },
 
-        showEditForm: (record, rowPosition) => {
+        showEditForm: (record, rowPosition = null) => {
           setIsViewOnlyForm(false);
           setRecord(record);
           setClonedRecord(null);
@@ -251,7 +253,7 @@ export const TableFormContextProvider = props => {
           setClonedRecord(record);
         },
 
-        showViewOnlyForm: (record, rowPosition) => {
+        showViewOnlyForm: (record, rowPosition = null) => {
           setIsViewOnlyForm(true);
           setCreateVariant(null);
           setRecord(record);
@@ -260,7 +262,7 @@ export const TableFormContextProvider = props => {
           setRowPosition(rowPosition);
         },
 
-        showPreview: (recordId, rowPosition) => {
+        showPreview: (recordId, rowPosition = null) => {
           WidgetService.openPreviewModal({ recordId });
           setRowPosition(rowPosition);
         },
@@ -304,6 +306,7 @@ export const TableFormContextProvider = props => {
         deleteSelectedItem: id => {
           const newGridRows = gridRows.filter(item => item.id !== id);
           setGridRows([...newGridRows]);
+          setRowPosition(null);
 
           onChangeHandler(newGridRows);
         },
