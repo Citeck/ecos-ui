@@ -480,7 +480,7 @@ class Grid extends Component {
 
     this._tr = tr;
 
-    trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    trigger.call(this, 'onChangeTrOptions', { row, position: tr.rowIndex - 1, ...style });
   };
 
   setEditable = () => {

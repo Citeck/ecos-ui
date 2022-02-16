@@ -37,6 +37,7 @@ export const TableFormContextProvider = props => {
   const [record, setRecord] = useState(null);
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
+  const [rowPosition, setRowPosition] = useState(0);
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
     top: 0,
@@ -220,6 +221,7 @@ export const TableFormContextProvider = props => {
         inlineToolsOffsets,
         createVariants,
         computed,
+        rowPosition,
 
         toggleModal: () => {
           setIsModalFormOpen(!isModalFormOpen);
@@ -235,29 +237,32 @@ export const TableFormContextProvider = props => {
           setIsModalFormOpen(true);
         },
 
-        showEditForm: record => {
+        showEditForm: (record, rowPosition) => {
           setIsViewOnlyForm(false);
           setRecord(record);
           setClonedRecord(null);
           setCreateVariant(null);
           setFormMode(FORM_MODE_EDIT);
           setIsModalFormOpen(true);
+          setRowPosition(rowPosition);
         },
 
         runCloneRecord: record => {
           setClonedRecord(record);
         },
 
-        showViewOnlyForm: record => {
+        showViewOnlyForm: (record, rowPosition) => {
           setIsViewOnlyForm(true);
           setCreateVariant(null);
           setRecord(record);
           setFormMode(FORM_MODE_VIEW);
           setIsModalFormOpen(true);
+          setRowPosition(rowPosition);
         },
 
-        showPreview: recordId => {
+        showPreview: (recordId, rowPosition) => {
           WidgetService.openPreviewModal({ recordId });
+          setRowPosition(rowPosition);
         },
 
         onCreateFormSubmit,
@@ -314,7 +319,8 @@ export const TableFormContextProvider = props => {
             setInlineToolsOffsets({
               height: offsets.height,
               top: offsets.top,
-              rowId: offsets.row.id || null
+              rowId: offsets.row.id || null,
+              position: offsets.position || 0
             });
           }
         },
