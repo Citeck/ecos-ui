@@ -1,24 +1,8 @@
 @import '../../../../styles/constants';
 
-// Cause: ECOSUI-1612. Review: ECOSUI-1640
-.formio-component-selectJournal {
-  .control-label {
-    margin-top: 2px;
-  }
-}
-
 .select-journal {
+  position: relative;
   display: flow-root;
-
-  // Cause: ECOSUI-1612. Review: ECOSUI-1640
-  &::before {
-    content: ' ';
-    background: $color-gray-4;
-    height: 2px;
-    width: 100%;
-    position: absolute;
-    left: 0;
-  }
 }
 
 .select-journal_compact {

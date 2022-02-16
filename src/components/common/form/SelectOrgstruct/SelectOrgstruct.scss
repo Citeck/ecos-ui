@@ -1,24 +1,7 @@
 @import '../../../../styles/constants';
 
-// Cause: ECOSUI-1612. Review: ECOSUI-1640
-.formio-component-selectOrgstruct {
-  .control-label {
-    margin-top: 2px;
-  }
-}
-
 .select-orgstruct {
   display: flow-root;
-
-  // Cause: ECOSUI-1612. Review: ECOSUI-1640
-  &::before {
-    content: ' ';
-    background: $color-gray-4;
-    height: 2px;
-    width: 100%;
-    position: absolute;
-    left: 0;
-  }
 
   &_view-only {
     margin-bottom: 0;

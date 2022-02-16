@@ -1,0 +1,31 @@
+@import '../../../styles/constants';
+
+.form-builder-modal {
+  top: 0;
+  left: 0;
+  margin: 10px auto !important;
+
+  .modal-content {
+    height: calc(100vh - 20px) !important;
+    min-height: 800px;
+  }
+
+  &__tree {
+    &-wrapper {
+      padding: 10px;
+      overflow: auto;
+      max-height: 55vh;
+      min-height: 400px;
+    }
+
+    &-label {
+      background: $color-yellow;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 18px;
+      color: $text-color-gray;
+      padding: 5px 12px;
+      cursor: pointer;
+    }
+  }
+}
