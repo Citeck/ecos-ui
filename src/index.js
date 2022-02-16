@@ -37,6 +37,7 @@ import './services/esign';
 import preval from 'preval.macro';
 import './services/EcosModules';
 import { Base64 } from 'js-base64';
+import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
 
 /* set moment locale */
 const currentLocale = getCurrentLocale();
@@ -50,10 +51,13 @@ setDefaultLocale(currentLocale);
 const { api, setNotAuthCallback } = configureAPI();
 const store = configureStore({ api, logger });
 const history = getHistory();
-
-setNotAuthCallback(() => {
+const setAuthStatus = () => {
   store.dispatch(setIsAuthenticated(false));
-});
+};
+
+setNotAuthCallback(setAuthStatus);
+
+emitter.on(RESET_AUTH_STATE_EVENT, setAuthStatus);
 
 window.requirejs.config({
   baseUrl: '/share/res', // leave it for now

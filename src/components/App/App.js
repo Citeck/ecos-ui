@@ -27,6 +27,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
+import EcosFormModal from '../EcosForm/EcosFormModal';
 
 import './App.scss';
 
@@ -57,6 +58,12 @@ class App extends Component {
   componentDidMount() {
     this.props.initAppSettings();
     UserLocalSettingsService.checkDashletsUpdatedDate();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.isAuthenticated && !this.props.isAuthenticated) {
+      EcosFormModal.countOpenedModals <= 0 && window.location.reload();
+    }
   }
 
   get isOnlyContent() {
@@ -359,7 +366,8 @@ const mapStateToProps = state => ({
   isMobile: get(state, ['view', 'isMobile']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
-  menuType: get(state, ['menu', 'type'])
+  menuType: get(state, ['menu', 'type']),
+  isAuthenticated: get(state, ['user', 'isAuthenticated'])
 });
 
 const mapDispatchToProps = dispatch => ({

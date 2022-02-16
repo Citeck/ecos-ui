@@ -13,20 +13,33 @@ import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
+import { RESET_AUTH_STATE_EVENT, emitter } from '../../helpers/ecosFetch';
+import DialogManager from '../common/dialogs/Manager';
 
 import './EcosFormModal.scss';
 
-const LABELS = {
-  CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor'
+const Labels = {
+  CONSTRUCTOR_BTN_TOOLTIP: 'eform.btn.tooltip.constructor',
+  CONFIRM_RELOAD_TITLE: 'ecos.form.reload.confirm.title',
+  CONFIRM_RELOAD_MESSAGE: 'ecos.form.reload.confirm.message',
+  CONFIRM_RELOAD_BTN_CANCEL: 'ecos.form.reload.confirm.button-cancel',
+  CONFIRM_RELOAD_BTN_CONFIRM: 'ecos.form.reload.confirm.button-confirm'
 };
 
 export default class EcosFormModal extends React.Component {
+  static #countOpenedModals = 0;
+
+  static get countOpenedModals() {
+    return EcosFormModal.#countOpenedModals;
+  }
+
   _formRef = React.createRef();
 
   constructor(props) {
     super(props);
 
     this.state = {
+      isAuthenticated: true,
       isModalOpen: false,
       isConfigurableForm: false,
       addedListener: false
@@ -37,8 +50,15 @@ export default class EcosFormModal extends React.Component {
     if (nextProps.isModalOpen !== this.state.isModalOpen) {
       if (nextProps.isModalOpen && !nextState.addedListener) {
         window.addEventListener('beforeunload', this._onbeforeunload);
+        emitter.on(RESET_AUTH_STATE_EVENT, this.handleReloadPage);
 
         this.setState({ addedListener: true });
+      }
+
+      EcosFormModal.#countOpenedModals += nextProps.isModalOpen ? 1 : -1;
+
+      if (EcosFormModal.#countOpenedModals < 0) {
+        EcosFormModal.#countOpenedModals = 0;
       }
 
       this.setState({ isModalOpen: nextProps.isModalOpen });
@@ -89,18 +109,24 @@ export default class EcosFormModal extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('beforeunload', this._onbeforeunload);
+    emitter.off(RESET_AUTH_STATE_EVENT, this.handleReloadPage);
 
     this.instanceRecord.unwatch(this.watcher);
   }
 
   handleCancel = () => {
     const { onCancelModal } = this.props;
+    const { isAuthenticated } = this.state;
 
     if (typeof onCancelModal === 'function') {
       onCancelModal();
     }
 
     this.setState({ isModalOpen: false });
+
+    if (!isAuthenticated) {
+      window.location.reload();
+    }
   };
 
   hide() {
@@ -126,13 +152,29 @@ export default class EcosFormModal extends React.Component {
   }
 
   _onbeforeunload = e => {
-    if (!this.state.isModalOpen) {
+    if (!this.state.isModalOpen || !this.state.isAuthenticated) {
       return;
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#Examples
     e.preventDefault();
     e.returnValue = '';
+  };
+
+  handleReloadPage = () => {
+    if (!this.state.isModalOpen) {
+      return;
+    }
+
+    this.setState({ isAuthenticated: false });
+
+    DialogManager.showRemoveDialog({
+      title: t(Labels.CONFIRM_RELOAD_TITLE),
+      text: t(Labels.CONFIRM_RELOAD_MESSAGE),
+      cancelText: t(Labels.CONFIRM_RELOAD_BTN_CANCEL),
+      confirmText: t(Labels.CONFIRM_RELOAD_BTN_CONFIRM),
+      onDelete: () => window.location.reload()
+    });
   };
 
   onClickShowFormBuilder = () => {
@@ -170,7 +212,7 @@ export default class EcosFormModal extends React.Component {
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
         >
-          {t(LABELS.CONSTRUCTOR_BTN_TOOLTIP)}
+          {t(Labels.CONSTRUCTOR_BTN_TOOLTIP)}
         </UncontrolledTooltip>
       </React.Fragment>
     );

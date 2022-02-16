@@ -3,7 +3,7 @@ import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 
 import ecosXhr from '../helpers/ecosXhr';
-import ecosFetch from '../helpers/ecosFetch';
+import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { DEFAULT_EIS, SourcesId, URL } from '../constants';
@@ -15,6 +15,16 @@ import { CommonApi } from './common';
 import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 
 export class AppApi extends CommonApi {
+  #isAuthenticated = true;
+
+  constructor() {
+    super();
+
+    emitter.on(RESET_AUTH_STATE_EVENT, () => {
+      this.#isAuthenticated = false;
+    });
+  }
+
   getEcosConfig = configName => {
     const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
     return this.getJson(url)
@@ -23,6 +33,10 @@ export class AppApi extends CommonApi {
   };
 
   touch = () => {
+    if (!this.#isAuthenticated) {
+      return Promise.resolve();
+    }
+
     const url = `${CITECK_URI}ecos/touch`;
     return this.getJson(url);
   };
