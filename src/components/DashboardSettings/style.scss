@@ -95,7 +95,8 @@
 
   &__bindings {
     &-owner {
-      display: flex;
+      display: inline-flex;
+
       align-items: center;
       margin-top: 25px;
     }
