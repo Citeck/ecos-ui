@@ -293,7 +293,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         onError: () => undefined,
         // Cause https://citeck.atlassian.net/browse/ECOSUI-208
         // If component has calculateValue, disable value reset when apply custom predicate
-        disableResetOnApplyCustomPredicate: !!component.calculateValue
+        disableResetOnApplyCustomPredicate: !!component.calculateValue,
+        title: component.modalTitle
       };
 
       if (component.customSourceId) {
