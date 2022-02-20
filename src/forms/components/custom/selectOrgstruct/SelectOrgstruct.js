@@ -130,8 +130,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
     const allowedGroupSubType = (comp.allowedGroupSubType || '').trim();
     const userSearchExtraFieldsStr = comp.userSearchExtraFields || '';
 
-    console.warn({ allowedGroupSubType });
-
     const allowedAuthorityTypes = _array(allowedAuthorityType);
     const allowedGroupTypes = _array(allowedGroupType);
     const allowedGroupSubTypes = allowedGroupSubType ? _array(allowedGroupSubType) : [];
