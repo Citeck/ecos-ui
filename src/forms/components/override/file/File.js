@@ -45,6 +45,21 @@ export default class FileComponent extends FormIOFileComponent {
         this._runForciblyValidation();
       }
     });
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1665
+    const _triggerChange = this.triggerChange;
+
+    this.triggerChange = (...args) => {
+      if (!isEmpty(this.dataValue)) {
+        this.root && this.root.checkValidity(this.data, true);
+
+        window.setTimeout(() => {
+          this.root && this.root.showErrors(null, false);
+        }, 0);
+      }
+
+      return _triggerChange(...args);
+    };
   }
 
   get defaultSchema() {
