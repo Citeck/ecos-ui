@@ -14,14 +14,14 @@ import BPMNDesigner from '../BPMNDesigner';
 import { JournalPresets } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
-
-import './style.scss';
 import { showModalJson } from '../../helpers/tools';
 import { IcoBtn } from '../common/btns';
 import { wrapArgs } from '../../helpers/redux';
 import { execJournalAction } from '../../actions/journals';
 import { SourcesId } from '../../constants';
 import { ActionTypes } from '../Records/actions';
+
+import './style.scss';
 
 class AdminSection extends React.PureComponent {
   _setWrapperRef;
@@ -76,6 +76,10 @@ class AdminSection extends React.PureComponent {
       const { journalStateId } = this.state;
       const journalId = get(this.props, ['journals', journalStateId, 'journalConfig', 'id'], {});
 
+      if (!journalId) {
+        return;
+      }
+
       execJournalAction(`${SourcesId.JOURNAL}@${journalId}`, { type: ActionTypes.EDIT });
     },
     300,
@@ -95,15 +99,17 @@ class AdminSection extends React.PureComponent {
           <Container fluid={this.isFluid()} className="p-0">
             <Row className="ecos-admin-section__header m-0 px-0">
               <Col className="m-0 p-0">
-                <Caption normal onClick={this.handleClickCaption}>
-                  {t(activeSection.label)}
-                </Caption>
+                <div className="m-0 px-0 d-flex align-items-baseline">
+                  <Caption normal onClick={this.handleClickCaption}>
+                    {t(activeSection.label)}
+                  </Caption>
 
-                <IcoBtn
-                  icon="icon-settings"
-                  className="journals-head__settings-btn ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-                  onClick={this.handleEditJournal}
-                />
+                  <IcoBtn
+                    icon="icon-settings"
+                    className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
+                    onClick={this.handleEditJournal}
+                  />
+                </div>
               </Col>
             </Row>
             <Row className="m-0 p-0">
