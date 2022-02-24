@@ -6,7 +6,7 @@ import './Caption.scss';
 
 class Caption extends Component {
   render() {
-    const { children, className, extra, large, middle, small, normal } = { ...this.props };
+    const { children, className, extra, large, middle, small, normal, ...props } = this.props;
     const classes = classNames(
       'ecos-caption',
       {
@@ -18,21 +18,34 @@ class Caption extends Component {
       },
       className
     );
+    let TagName = '';
 
     switch (true) {
       case extra:
-        return <h1 className={classes}>{children}</h1>;
+        TagName = 'h1';
+        break;
       case large:
-        return <h2 className={classes}>{children}</h2>;
+        TagName = 'h2';
+        break;
       case middle:
-        return <h3 className={classes}>{children}</h3>;
+        TagName = 'h3';
+        break;
       case small:
-        return <h4 className={classes}>{children}</h4>;
+        TagName = 'h4';
+        break;
       case normal:
-        return <h3 className={classes}>{children}</h3>;
+        TagName = 'h3';
+        break;
       default:
-        return <div className={classes}>{children}</div>;
+        TagName = 'div';
+        break;
     }
+
+    return (
+      <TagName className={classes} {...props}>
+        {children}
+      </TagName>
+    );
   }
 }
 
