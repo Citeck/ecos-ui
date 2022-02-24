@@ -34,7 +34,8 @@ import {
   setSelectedRecords,
   toggleViewMode,
   setUrl,
-  openSelectedJournal
+  openSelectedJournal,
+  setSearchText
 } from '../actions/journals';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
@@ -404,6 +405,21 @@ export default handleActions(
 
       return handleState(state, stateId, {
         isCheckLoading: Boolean(handledAction.payload)
+      });
+    },
+    [setSearchText]: (state, action) => {
+      const stateId = action.payload.stateId;
+
+      return handleState(state, stateId, {
+        grid: {
+          ...(state[stateId] || {}).grid,
+          search: action.payload.text,
+          pagination: {
+            ...(state[stateId] || {}).grid.pagination,
+            skipCount: 0,
+            page: 1
+          }
+        }
       });
     }
   },
