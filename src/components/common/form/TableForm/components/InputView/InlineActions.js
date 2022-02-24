@@ -31,7 +31,7 @@ const InlineActions = () => {
   };
 
   const onClickEdit = () => {
-    showEditForm(inlineToolsOffsets.rowId);
+    showEditForm(inlineToolsOffsets.rowId, inlineToolsOffsets.position);
   };
 
   const onClickClone = () => {
@@ -39,11 +39,11 @@ const InlineActions = () => {
   };
 
   const onClickView = () => {
-    showViewOnlyForm(inlineToolsOffsets.rowId);
+    showViewOnlyForm(inlineToolsOffsets.rowId, inlineToolsOffsets.position);
   };
 
   const onClickPreview = () => {
-    showPreview(inlineToolsOffsets.rowId);
+    showPreview(inlineToolsOffsets.rowId, inlineToolsOffsets.position);
   };
 
   const shouldShowViewButton = isBoolean(get(displayElements, 'view')) ? displayElements.view : true;
