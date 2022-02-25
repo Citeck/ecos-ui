@@ -86,6 +86,7 @@
   "bpmn-designer.view-mode.cards": "Cards",
   "bpmn-designer.view-mode.list": "List",
   "button.close-modal": "Close",
+  "button.ok": "OK",
   "button.export": "Export",
   "button.leave-site.cancel-label": "Cancel",
   "button.leave-site.confirm-label": "OK",
@@ -1298,5 +1299,7 @@
   "ecos-form.builder.debugging.tree.influence.label": "Influence Tree",
   "ecos-form.builder.debugging.tree.dependencies.info": "Tree depth shows dependency sequence: parent component depends on child, etc.",
   "ecos-form.builder.debugging.tree.influence.info": "Influence tree is a reverse dependency: deeper in the tree are dependent components",
-  "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder"
+  "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
+
+  "more-about-error.label": "More about the error:"
 }

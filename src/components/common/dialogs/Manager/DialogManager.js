@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import { Collapse, Card, CardBody } from 'reactstrap';
 
 import { isExistValue, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
@@ -17,6 +19,7 @@ const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
 const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
 const FORM_DIALOG_ID = 'DialogManager-form-dialog';
 const LOADER_DIALOG_ID = 'DialogManager-loader-dialog';
+const ERROR_DIALOG_ID = 'DialogManager-error-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -348,6 +351,50 @@ const dialogsById = {
       </EcosModal>
     );
   },
+  [ERROR_DIALOG_ID]: props => {
+    const [isOpenInfo, setOpenInfo] = useState(props.isOpenInfo || true);
+    const dialogProps = props.dialogProps || {};
+    const { onClose, title, text, modalClass } = dialogProps;
+    const dProps = {
+      ...dialogProps,
+      title: t(title || ''),
+      text: t(text || ''),
+      isOpen: props.isVisible
+    };
+
+    dProps.onClose = () => {
+      props.setVisible(false);
+      isFunction(onClose) && onClose();
+    };
+
+    dProps.onToggle = () => {
+      setOpenInfo(!isOpenInfo);
+    };
+
+    return (
+      <EcosModal
+        title={dProps.title}
+        isOpen={dProps.isOpen}
+        hideModal={dProps.onClose}
+        className={classNames('ecos-dialog ecos-dialog_info ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
+      >
+        <div className="ecos-dialog__body">
+          <p className="mb-1">{dProps.text}</p>
+          <p onClick={dProps.onToggle}>{t('more-about-error.label')}</p>
+          <Collapse isOpen={isOpenInfo}>
+            <Card>
+              <CardBody>{dProps.error}</CardBody>
+            </Card>
+          </Collapse>
+        </div>
+        <div className="ecos-dialog__buttons justify-content-center">
+          <Btn className="ecos-btn_blue" onClick={dProps.onClose}>
+            {t('button.ok')}
+          </Btn>
+        </div>
+      </EcosModal>
+    );
+  },
   [LOADER_DIALOG_ID]: props => {
     const { isVisible } = props;
     const { text } = props.dialogProps;
@@ -420,6 +467,10 @@ export default class DialogManager {
 
   static showFormDialog(props) {
     return showDialog(FORM_DIALOG_ID, props);
+  }
+
+  static showErrorDialog(props) {
+    return showDialog(ERROR_DIALOG_ID, props);
   }
 
   /**
