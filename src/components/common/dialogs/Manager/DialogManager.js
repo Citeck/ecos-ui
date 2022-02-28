@@ -352,7 +352,7 @@ const dialogsById = {
     );
   },
   [ERROR_DIALOG_ID]: props => {
-    const [isOpenInfo, setOpenInfo] = useState(props.isOpenInfo || true);
+    const [isOpenInfo, setOpenInfo] = useState(props.isOpenInfo);
     const dialogProps = props.dialogProps || {};
     const { onClose, title, text, modalClass } = dialogProps;
     const dProps = {
@@ -361,15 +361,27 @@ const dialogsById = {
       text: t(text || ''),
       isOpen: props.isVisible
     };
+    let { buttons } = dialogProps;
 
     dProps.onClose = () => {
       props.setVisible(false);
+      setOpenInfo(false);
       isFunction(onClose) && onClose();
     };
 
     dProps.onToggle = () => {
       setOpenInfo(!isOpenInfo);
     };
+
+    if (isEmpty(buttons)) {
+      buttons = [
+        {
+          className: 'ecos-btn_blue',
+          label: 'button.ok',
+          onClick: dProps.onClose
+        }
+      ];
+    }
 
     return (
       <EcosModal
@@ -379,18 +391,34 @@ const dialogsById = {
         className={classNames('ecos-dialog ecos-dialog_info ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
       >
         <div className="ecos-dialog__body">
-          <p className="mb-1">{dProps.text}</p>
-          <p onClick={dProps.onToggle}>{t('more-about-error.label')}</p>
-          <Collapse isOpen={isOpenInfo}>
-            <Card>
-              <CardBody>{dProps.error}</CardBody>
-            </Card>
-          </Collapse>
+          <p className={classNames('mb-1', dProps.descriptionClassNames)}>{dProps.text}</p>
+          {!isEmpty(dProps.error) && (
+            <>
+              <span className="ecos-dialog__pseudo-link mt-3" onClick={dProps.onToggle}>
+                {t('more-about-error.label')}
+              </span>
+              <Collapse isOpen={isOpenInfo}>
+                <Card className="mt-3">
+                  <CardBody className="ecos-dialog__body-error">
+                    <span dangerouslySetInnerHTML={{ __html: dProps.error }} />
+                  </CardBody>
+                </Card>
+              </Collapse>
+            </>
+          )}
         </div>
-        <div className="ecos-dialog__buttons justify-content-center">
-          <Btn className="ecos-btn_blue" onClick={dProps.onClose}>
-            {t('button.ok')}
-          </Btn>
+        <div className="ecos-dialog__buttons ecos-dialog__buttons_center">
+          {buttons.map(b => (
+            <Btn
+              className={b.className}
+              key={b.key || b.label}
+              onClick={() => {
+                isFunction(b.onClick) && b.onClick();
+              }}
+            >
+              {t(b.label)}
+            </Btn>
+          ))}
         </div>
       </EcosModal>
     );
