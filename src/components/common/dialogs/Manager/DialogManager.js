@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { isExistValue, t } from '../../../../helpers/util';
+import { isExistValue, objectByString, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
 import { RemoveDialog } from '../index';
@@ -352,8 +352,8 @@ const dialogsById = {
     );
   },
   [ERROR_DIALOG_ID]: props => {
-    const [isOpenInfo, setOpenInfo] = useState(props.isOpenInfo);
     const dialogProps = props.dialogProps || {};
+    const [isOpenInfo, setOpenInfo] = useState(dialogProps.isOpenInfo);
     const { onClose, title, text, modalClass } = dialogProps;
     const dProps = {
       ...dialogProps,
@@ -400,7 +400,7 @@ const dialogsById = {
               <Collapse isOpen={isOpenInfo}>
                 <Card className="mt-3">
                   <CardBody className="ecos-dialog__body-error">
-                    <span dangerouslySetInnerHTML={{ __html: dProps.error }} />
+                    <span dangerouslySetInnerHTML={{ __html: objectByString(dProps.error) }} />
                   </CardBody>
                 </Card>
               </Collapse>

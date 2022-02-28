@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 
 import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import { t } from '../helpers/util';
+import { objectByString, t } from '../helpers/util';
 
 class Esign {
   static #queryParams = {};
@@ -127,16 +126,7 @@ class Esign {
   };
 
   static formatErrorMessage = (error, action) => {
-    return Object.keys(error).reduce(
-      (res, key) => {
-        if (!isEmpty(error[key])) {
-          res += `<b>${key}: </b> ${JSON.stringify(error[key])}\n`;
-        }
-
-        return res;
-      },
-      action ? t(Labels.ACTION, { action }) : ''
-    );
+    return objectByString({ action: action ? t(Labels.ACTION, { action }) : '', ...error });
   };
 
   static signDocumentByNode = async (thumbprint, document) => {
