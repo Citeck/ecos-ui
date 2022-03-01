@@ -345,6 +345,16 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
+    // Helps to remove unnecessary updates, get rid of looping
+    if (_.isEmpty(items) && _.isEmpty(this.currentItems)) {
+      return;
+    }
+
+    // Reset the selected value if it is not in the list
+    if (this.dataValue && !_.find(items, ['value', this.dataValue])) {
+      this.setValue('');
+    }
+
     // Allow js processing (needed for form builder)
     if (this.component.onSetItems && typeof this.component.onSetItems === 'function') {
       const newItems = this.component.onSetItems(this, items);
@@ -857,9 +867,9 @@ export default class SelectComponent extends BaseComponent {
     });
 
     if (placeholderValue && this.choices._isSelectOneElement) {
-      this.addEventListener(input, 'removeItem', (...data) => {
-        console.warn({ input, data });
+      this.addEventListener(input, 'removeItem', () => {
         const items = this.choices._store.activeItems;
+
         if (!items.length) {
           this.choices._addItem(placeholderValue, placeholderValue, 0, -1, null, true, null);
         }
