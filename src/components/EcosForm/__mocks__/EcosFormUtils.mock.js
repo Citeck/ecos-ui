@@ -327,6 +327,118 @@ export const ecosSelectCaseOptimized = {
   ]
 };
 
+export const ecosSelectCaseWithoutDataSrc = {
+  components: [
+    {
+      label: 'Select',
+      tableView: true,
+      data: {
+        url: '/citeck/ecos/records/query',
+        json: '',
+        resource: '',
+        custom: ''
+      },
+      refreshOn: [],
+      key: 'select',
+      logic: [],
+      type: 'ecosSelect',
+      input: true,
+      tags: [],
+      defaultValue: '',
+      placeholder: '',
+      prefix: '',
+      customClass: '',
+      suffix: '',
+      multiple: false,
+      protected: false,
+      unique: false,
+      persistent: true,
+      hidden: false,
+      clearOnHide: true,
+      dataGridLabel: false,
+      labelPosition: 'top',
+      labelWidth: 30,
+      labelMargin: 3,
+      description: '',
+      errorLabel: '',
+      tooltip: '',
+      hideLabel: false,
+      tabindex: '',
+      disabled: false,
+      autofocus: false,
+      dbIndex: false,
+      customDefaultValue: '',
+      calculateValue: '',
+      allowCalculateOverride: false,
+      widget: null,
+      clearOnRefresh: false,
+      validateOn: 'change',
+      validate: {
+        required: false,
+        custom: '',
+        customPrivate: false,
+        customMessage: '',
+        json: ''
+      },
+      conditional: {
+        show: '',
+        when: '',
+        eq: '',
+        json: ''
+      },
+      alwaysEnabled: false,
+      attributes: {},
+      customConditional: '',
+      disableInlineEdit: false,
+      encrypted: false,
+      mask: false,
+      properties: {},
+      shortcut: '',
+      triggerChangeWhenCalculate: false,
+      limit: 100,
+      valueProperty: 'value',
+      filter: '',
+      searchEnabled: true,
+      searchField: '',
+      minSearch: 0,
+      readOnlyValue: false,
+      authenticate: false,
+      template: '<span>{{ item.label }}</span>',
+      selectFields: '',
+      searchThreshold: 0.3,
+      fuseOptions: {},
+      customOptions: {},
+      refreshEventName: '',
+      dataPreProcessingCode: '',
+      unavailableItems: {
+        isActive: false,
+        code: ''
+      },
+      lazyLoad: false,
+      selectValues: '',
+      disableLimit: false,
+      sort: '',
+      refreshOnEvent: false,
+      selectThreshold: 0.3,
+      id: 'e37op5ho'
+    }
+  ]
+};
+
+export const ecosSelectCaseWithoutDataSrcOptimized = {
+  components: [
+    {
+      data: {
+        url: '/citeck/ecos/records/query'
+      },
+      key: 'select',
+      type: 'ecosSelect',
+      input: true,
+      defaultValue: ''
+    }
+  ]
+};
+
 export const datetimeCase = {
   components: [
     {

@@ -1,5 +1,10 @@
 @import '../../../../styles/constants';
 
+.select-journal {
+  position: relative;
+  display: flow-root;
+}
+
 .select-journal_compact {
   margin-bottom: 0;
   overflow: hidden;

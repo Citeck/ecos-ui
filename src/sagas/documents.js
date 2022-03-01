@@ -144,6 +144,14 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     const _dynamicTypes = DocumentsConverter.getDynamicTypes({ types: combinedTypes, typeNames, countByTypes, availableTypes });
     const types = yield select(state => selectAvailableTypes(state, payload.key));
 
+    yield Promise.all(
+      _dynamicTypes.map(async item => {
+        item.columns = await journalsService.resolveColumns(item.columns);
+
+        return item;
+      })
+    );
+
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: _dynamicTypes }));
     yield put(setAvailableTypes({ key: payload.key, types }));
   } catch (e) {

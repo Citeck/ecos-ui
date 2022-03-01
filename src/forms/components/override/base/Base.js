@@ -12,6 +12,7 @@ import { flattenComponents } from 'formiojs/utils/utils';
 import Widgets from '../../../widgets';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { t } from '../../../../helpers/export/util';
+import { extractLabel } from '../../../../helpers/util';
 
 const originalCreateTooltip = Base.prototype.createTooltip;
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -455,6 +456,10 @@ Base.prototype.build = function(state) {
 };
 
 Base.prototype.checkValidity = function(data, dirty, rowData) {
+  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue) && this.component.disabled) {
+    return true;
+  }
+
   const validity = originalCheckValidity.call(this, data, dirty, rowData);
 
   if (this._inlineEditSaveButton && !this.options.saveDraft) {
@@ -522,7 +527,7 @@ Base.prototype.t = function(text, params) {
     return this.__t(text, params);
   }
 
-  return originalT.call(this, text, params);
+  return originalT.call(this, extractLabel(text), params);
 };
 
 Base.prototype.createWidget = function() {

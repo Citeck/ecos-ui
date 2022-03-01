@@ -245,7 +245,8 @@ class JournalsDashletGrid extends Component {
       autoHeight,
       predicate,
       journalConfig: { params = {} },
-      selectorContainer
+      selectorContainer,
+      isResetGridSettings
     } = this.props;
 
     let editable = true;
@@ -291,6 +292,7 @@ class JournalsDashletGrid extends Component {
               autoHeight={autoHeight}
               scrollPosition={this.scrollPosition}
               selectorContainer={selectorContainer}
+              isResetSettings={isResetGridSettings}
             />
           </HeightCalculation>
         </div>
@@ -309,6 +311,7 @@ JournalsDashletGrid.propTypes = {
   autoHeight: PropTypes.bool,
   doInlineToolsOnRowClick: PropTypes.bool,
   isWidget: PropTypes.bool,
+  isResetGridSettings: PropTypes.bool,
   onRowClick: PropTypes.func
 };
 

@@ -11,6 +11,8 @@ import {
   datetimeCaseOptimized,
   ecosSelectCase,
   ecosSelectCaseOptimized,
+  ecosSelectCaseWithoutDataSrc,
+  ecosSelectCaseWithoutDataSrcOptimized,
   emptyObjectsCase,
   emptyObjectsCaseOptimized,
   formReadyComponents,
@@ -47,6 +49,11 @@ describe('EcosFormUtils', () => {
         title: `optimize EcosSelect component`,
         input: ecosSelectCase,
         output: ecosSelectCaseOptimized
+      },
+      {
+        title: `leave "data.url" attribute when optimize EcosSelect component without dataSrc attribute`,
+        input: ecosSelectCaseWithoutDataSrc,
+        output: ecosSelectCaseWithoutDataSrcOptimized
       },
       {
         title: `optimize DateTime component`,

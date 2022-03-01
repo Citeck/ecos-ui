@@ -13,6 +13,7 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import find from 'lodash/find';
+import isNil from 'lodash/isNil';
 
 import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import { COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME } from '../../../Records/predicates/predicates';
@@ -22,7 +23,7 @@ import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatte
 import { ErrorCell } from '../ErrorCell';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
-import isNil from 'lodash/isNil';
+import pageTabList from '../../../../services/pageTabs/PageTabList';
 
 import './Grid.scss';
 
@@ -43,6 +44,7 @@ const MAX_START_TH_WIDTH = 500;
 class Grid extends Component {
   #columnsSizes = {};
   #gridRef = null;
+  #pageId = null;
 
   constructor(props) {
     super(props);
@@ -80,6 +82,8 @@ class Grid extends Component {
   }
 
   componentDidMount() {
+    this.#pageId = pageTabList.activeTabId;
+
     this.createCloseFilterEvent();
     this.createColumnResizeEvents();
     this.createKeydownEvents();
@@ -99,7 +103,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { selected } = this.props;
+    const { selected, isResetSettings } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -107,6 +111,10 @@ class Grid extends Component {
 
     if (isEmpty(prevProps.selected) && !isEmpty(selected) && !isEqual(selected, this.state.selected)) {
       this.setState({ selected });
+    }
+
+    if (!prevProps.isResetSettings && isResetSettings) {
+      this.#columnsSizes = {};
     }
 
     this.setColumnsSizes();
@@ -472,7 +480,7 @@ class Grid extends Component {
 
     this._tr = tr;
 
-    trigger.call(this, 'onChangeTrOptions', { row, ...style });
+    trigger.call(this, 'onChangeTrOptions', { row, position: tr.rowIndex - 1, ...style });
   };
 
   setEditable = () => {
@@ -983,7 +991,7 @@ class Grid extends Component {
     let scrollStyle = {};
     let scrollProps = {};
 
-    if (byContentHeight && this._scrollRef) {
+    if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
       maxHeight = this._scrollRef.getScrollHeight();
     }
 
@@ -1075,6 +1083,7 @@ Grid.propTypes = {
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
   withDateFilter: PropTypes.bool,
+  isResetSettings: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 

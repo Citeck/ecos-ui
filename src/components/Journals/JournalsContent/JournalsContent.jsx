@@ -53,7 +53,7 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, maxHeight, minHeight = 450 } = this.props;
+    const { stateId, showPreview, maxHeight, minHeight = 450, isResetGridSettings } = this.props;
     const { recordId } = this.state;
     const grid = (
       <Grid
@@ -63,6 +63,7 @@ class JournalsContent extends Component {
         maxHeight={maxHeight}
         autoHeight
         minHeight={minHeight}
+        isResetGridSettings={isResetGridSettings}
       />
     );
 

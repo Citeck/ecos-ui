@@ -353,6 +353,7 @@
   "ecos-form.error.no-form": "Нет формы",
   "ecos-form.error.form-is-not-available": "Форма недоступна",
   "ecos-form.success.clone-record": "Запись склонирована",
+  "ecos-form.infinite-loop": "Данные полей зацикливаются",
 
   "ecos-forms.datepicker.time-input-label": "Время",
   "ecos-table-form.create-button": "Создать",
@@ -1285,5 +1286,14 @@
   "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
   "ecos-form.import-button.failed-uploading.title": "Ошибка",
   "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\"",
-  "ecos-form.builder.confirm-close.description": "Вы действительно хотите закрыть конструктор форм?\nВсе несохранённые данные будут утеряны."
+  "ecos-form.builder.confirm-close.description": "Вы действительно хотите закрыть конструктор форм?\nВсе несохранённые данные будут утеряны.",
+  "ecos-form.builder.debugging.title": "Отладка формы",
+  "ecos-form.builder.debugging.dependencies-tab.title": "Зависимости компонентов",
+  "ecos-form.builder.debugging.alert.loop": "Обнаружена циклическая зависимость в компонентах ({{count}})",
+  "ecos-form.builder.debugging.alert.not-loop": "Циклических зависимостей не обнаружено",
+  "ecos-form.builder.debugging.tree.dependencies.label": "Дерево зависимостей",
+  "ecos-form.builder.debugging.tree.influence.label": "Дерево влияния",
+  "ecos-form.builder.debugging.tree.dependencies.info": "Глубина дерева демонстрирует последовательность зависимости: родительский компонент зависит от дочернего и т.д.",
+  "ecos-form.builder.debugging.tree.influence.info": "Дерево влияния представляет собой обратную зависимость: глубже в дереве зависимые компоненты",
+  "ecos-form.builder.debugging.fatal-error": "При построении дерева зависисмостей произошла фатальная ошибка. Попробуйте провести анализ формы и зависимостей компанентов в json-редакторе или в Form Builder"
 }

@@ -1,6 +1,8 @@
 @import '../../../../styles/constants';
 
 .select-orgstruct {
+  display: flow-root;
+
   &_view-only {
     margin-bottom: 0;
 
