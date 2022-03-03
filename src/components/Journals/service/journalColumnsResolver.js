@@ -138,7 +138,6 @@ class JournalColumnsResolver {
         attribute: column.attribute,
         ref: editorProps.ref,
         onUpdate: editorProps.onUpdate,
-        onKeyDown: editorProps.onKeyDown,
         onBlur: editorProps.onBlur,
         editor: column.newEditor,
         multiple: column.multiple,
