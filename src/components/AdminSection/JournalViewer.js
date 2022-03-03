@@ -28,8 +28,7 @@ const JournalViewer = React.memo(
     }, [isActivePage, hidden, initialized]);
 
     useEffect(() => {
-      const params = getSearchParams();
-      const { journalId } = params;
+      const { journalId } = getSearchParams();
       const _journalStateId = journalId ? prefixStateId + '-[' + journalId + ']' : undefined;
 
       if (isActivePage && !hidden && initialized && journalId && _journalStateId !== stateId) {
