@@ -96,7 +96,7 @@ export function* sagaRedirectToLoginPage({ api, logger }) {
     }
 
     if (!url) {
-      location.reload();
+      window.location.reload();
     }
   } catch (e) {
     logger.error('[sagaRedirectToLoginPage saga] error', e.message);
