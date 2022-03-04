@@ -1,4 +1,5 @@
 import FormIOColumnComponent from 'formiojs/components/columns/Column';
+import _ from 'lodash';
 
 export default class ColumnComponent extends FormIOColumnComponent {
   static schema(...extend) {
@@ -16,7 +17,8 @@ export default class ColumnComponent extends FormIOColumnComponent {
         pull: 0,
         clearOnHide: false,
         label: '',
-        hideOnChildrenHidden: false
+        hideOnChildrenHidden: false,
+        enabledOneColumnPanel: false //todo
       },
       ...extend
     );
@@ -41,20 +43,14 @@ export default class ColumnComponent extends FormIOColumnComponent {
     if (this.parent.component.inlineColumns) {
       return 'col-inline-block';
     }
-
-    if (this.viewOnly) {
-      if (
-        this.parent &&
-        this.parent.parent &&
-        this.parent.parent.component &&
-        this.parent.parent.component.type === 'panel' &&
-        this.parent.parent.component.title &&
-        !this.parent.parent.component.hideLabel
-      ) {
-        classList.push('col-12');
-
-        return classList.join(' ');
-      }
+    console.log(comp.enabledOneColumnPanel);
+    if (
+      this.viewOnly &&
+      (_.isUndefined(comp.enabledOneColumnPanel) || comp.enabledOneColumnPanel === true) &&
+      _.get(this.parent, 'parent.component.type') === 'panel'
+    ) {
+      classList.push('col-12');
+      return classList.join(' ');
     }
 
     // TODO check it

@@ -16,7 +16,8 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
         tableView: false,
         persistent: false,
         autoAdjust: false,
-        hideOnChildrenHidden: false
+        hideOnChildrenHidden: false,
+        enabledOneColumnPanel: false //todo
       },
       ...extend
     );
@@ -33,7 +34,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
     return ColumnsComponent.schema();
   }
 
-  // TODO delete when update formiojs to v4
+  // TODO delete when update formiojs to v4 xD
   get schema() {
     const superSchema = Object.getOwnPropertyDescriptor(NestedComponent.prototype, 'schema').get.call(this);
     const schema = _.omit(superSchema, 'components');
@@ -43,10 +44,12 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
 
     schema.columns = [];
     let lastIdx = 0;
+
     this.eachComponent((component, index) => {
       _.merge(component.component, _.omit(this.component.columns[index], 'components'));
       schema.columns.push({ ...component.schema, index: lastIdx++ });
     });
+    //todo one col
     for (let i = this.components.length; i < this.component.columns.length; i++) {
       schema.columns.push({ ...this.component.columns[i], index: lastIdx++ });
     }
