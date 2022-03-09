@@ -461,19 +461,20 @@ export default class DocumentsConverter {
     for (let key in fieldFormatters) {
       const info = fieldFormatters[key];
       const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
-      const withoutFormatter = !Object.keys(columns[findIndex]).some(key => {
-        if (key === 'formatter') {
-          return get(columns, [findIndex, key, 'name']);
-        }
-
-        if (key === 'newFormatter') {
-          return get(columns, [findIndex, key, 'type']);
-        }
-
-        return false;
-      });
 
       if (findIndex >= 0) {
+        const withoutFormatter = !Object.keys(columns[findIndex]).some(key => {
+          if (key === 'formatter') {
+            return get(columns, [findIndex, key, 'name']);
+          }
+
+          if (key === 'newFormatter') {
+            return get(columns, [findIndex, key, 'type']);
+          }
+
+          return false;
+        });
+
         if (withoutFormatter) {
           columns[findIndex].formatter = info.formatter;
         }
