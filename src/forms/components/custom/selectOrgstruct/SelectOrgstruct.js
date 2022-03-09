@@ -132,9 +132,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     const allowedAuthorityTypes = _array(allowedAuthorityType);
     const allowedGroupTypes = _array(allowedGroupType);
-    const allowedGroupSubTypes = _array(allowedGroupSubType);
-    const userSearchExtraFields = _array(userSearchExtraFieldsStr);
-    const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType);
+    const allowedGroupSubTypes = allowedGroupSubType ? _array(allowedGroupSubType) : [];
+    const userSearchExtraFields = userSearchExtraFieldsStr ? _array(userSearchExtraFieldsStr) : [];
+    const excludeAuthoritiesByType = comp.excludeAuthoritiesByType ? _array(comp.excludeAuthoritiesByType) : [];
 
     ReactDOM.render(
       <SelectOrgstruct
