@@ -6,9 +6,9 @@ import { Esign } from '../../services/esign';
 import EsignModal from './EsignModal';
 import { t } from '../../helpers/util';
 import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
+import DialogManager from '../common/dialogs/Manager';
 
 import './style.scss';
-import DialogManager from '../common/dialogs/Manager';
 
 class EsignComponent extends Component {
   static propTypes = {
