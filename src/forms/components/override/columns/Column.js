@@ -18,7 +18,7 @@ export default class ColumnComponent extends FormIOColumnComponent {
         clearOnHide: false,
         label: '',
         hideOnChildrenHidden: false,
-        enabledOneColumnPanel: false //todo
+        oneColumnPanelViewModeEnabled: false
       },
       ...extend
     );
@@ -43,12 +43,8 @@ export default class ColumnComponent extends FormIOColumnComponent {
     if (this.parent.component.inlineColumns) {
       return 'col-inline-block';
     }
-    console.log(comp.enabledOneColumnPanel);
-    if (
-      this.viewOnly &&
-      (_.isUndefined(comp.enabledOneColumnPanel) || comp.enabledOneColumnPanel === true) &&
-      _.get(this.parent, 'parent.component.type') === 'panel'
-    ) {
+    console.log('Col', comp.oneColumnPanelViewModeEnabled);
+    if (this.viewOnly && comp.oneColumnPanelViewModeEnabled === false && _.get(this.parent, 'parent.component.type') === 'panel') {
       classList.push('col-12');
       return classList.join(' ');
     }

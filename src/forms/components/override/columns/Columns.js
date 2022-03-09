@@ -17,7 +17,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
         persistent: false,
         autoAdjust: false,
         hideOnChildrenHidden: false,
-        enabledOneColumnPanel: false //todo
+        oneColumnPanelViewModeEnabled: false
       },
       ...extend
     );
@@ -49,37 +49,34 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
       _.merge(component.component, _.omit(this.component.columns[index], 'components'));
       schema.columns.push({ ...component.schema, index: lastIdx++ });
     });
-    //todo one col
+
     for (let i = this.components.length; i < this.component.columns.length; i++) {
       schema.columns.push({ ...this.component.columns[i], index: lastIdx++ });
     }
 
     if (columnsNewLength < schema.columns.length) {
       schema.columns = schema.columns
-        .filter(item => {
-          return saveIndices.some(index => item.index === index);
-        })
-        .map((item, index) => {
-          return { ...item, index };
-        });
+        .filter(item => saveIndices.some(index => item.index === index))
+        .map((item, index) => ({ ...item, index }));
     }
 
     return schema;
   }
 
   get className() {
-    const classList = ['row'];
-
-    if (this.options.fullWidthColumns) {
-      classList.push('m-0', 'p-0');
-      return `${classList.join(' ')} ${super.className}`;
-    }
-
     // exclude this.options.fullWidthColumns case
     if (this.component.inlineColumns) {
       return 'row-with-inline-blocks';
     }
 
-    return `${classList.join(' ')} ${super.className}`;
+    const classList = ['row'];
+
+    if (this.options.fullWidthColumns) {
+      classList.push('m-0', 'p-0');
+    }
+
+    classList.push(super.className);
+
+    return classList.join(' ');
   }
 }
