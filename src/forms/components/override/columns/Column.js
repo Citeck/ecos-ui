@@ -17,8 +17,7 @@ export default class ColumnComponent extends FormIOColumnComponent {
         pull: 0,
         clearOnHide: false,
         label: '',
-        hideOnChildrenHidden: false,
-        oneColumnPanelViewModeEnabled: false
+        hideOnChildrenHidden: false
       },
       ...extend
     );
@@ -29,6 +28,11 @@ export default class ColumnComponent extends FormIOColumnComponent {
   }
 
   get className() {
+    // exclude options.fullWidthColumns case / caused by ECOSENT-902
+    if (this.parent.component.inlineColumns) {
+      return 'col-inline-block';
+    }
+
     const comp = this.component;
     const options = this.options;
     const classList = [];
@@ -39,19 +43,18 @@ export default class ColumnComponent extends FormIOColumnComponent {
       return classList.join(' ');
     }
 
-    // exclude options.fullWidthColumns case
-    if (this.parent.component.inlineColumns) {
-      return 'col-inline-block';
-    }
-    console.log('Col', comp.oneColumnPanelViewModeEnabled);
-    if (this.viewOnly && comp.oneColumnPanelViewModeEnabled === false && _.get(this.parent, 'parent.component.type') === 'panel') {
+    const isOneColumnPanelViewModeEnabled = _.get(this, 'parent.component.oneColumnPanelViewModeEnabled', true);
+    const isPanelContainer = _.get(this, 'parent.parent.component.type') === 'panel';
+
+    if (this.viewOnly && isOneColumnPanelViewModeEnabled && isPanelContainer) {
       classList.push('col-12');
       return classList.join(' ');
     }
 
     // TODO check it
     if (!comp.xs && !comp.sm) {
-      classList.push('col', `col-sm-${comp.width ? comp.width : 6}`);
+      const width = `col-sm-${comp.width ? comp.width : 6}`;
+      classList.push('col', width);
     }
 
     const xs = comp.xs || comp.width;

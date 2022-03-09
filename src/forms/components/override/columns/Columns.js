@@ -17,7 +17,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
         persistent: false,
         autoAdjust: false,
         hideOnChildrenHidden: false,
-        oneColumnPanelViewModeEnabled: false
+        oneColumnPanelViewModeEnabled: undefined
       },
       ...extend
     );
@@ -34,7 +34,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
     return ColumnsComponent.schema();
   }
 
-  // TODO delete when update formiojs to v4 xD
+  // TODO delete when update formiojs to v4
   get schema() {
     const superSchema = Object.getOwnPropertyDescriptor(NestedComponent.prototype, 'schema').get.call(this);
     const schema = _.omit(superSchema, 'components');
@@ -46,7 +46,8 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
     let lastIdx = 0;
 
     this.eachComponent((component, index) => {
-      _.merge(component.component, _.omit(this.component.columns[index], 'components'));
+      const colProps = _.omit(this.component.columns[index], ['components']);
+      _.merge(component.component, colProps);
       schema.columns.push({ ...component.schema, index: lastIdx++ });
     });
 
@@ -64,7 +65,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
   }
 
   get className() {
-    // exclude this.options.fullWidthColumns case
+    // exclude this.options.fullWidthColumns case / caused by ECOSENT-902
     if (this.component.inlineColumns) {
       return 'row-with-inline-blocks';
     }
