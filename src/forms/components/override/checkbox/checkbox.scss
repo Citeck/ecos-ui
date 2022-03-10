@@ -1,83 +1,134 @@
 @import '../../../constants';
 
+%checkbox {
+  font-family: $font-family-citeck;
+  content: $citeck-icon-checkbox;
+  color: $color-gray-6;
+  font-weight: normal;
+  position: absolute;
+  font-size: 22px;
+}
+
+$states: (
+  'checked': $color-blue-dark,
+  'focus': $color-blue-light,
+  'disabled': $color-gray-4
+);
+
+$positions: (
+  'top': 'after',
+  'left-right': 'after',
+  'right-right': 'after',
+  'bottom': 'before',
+  'right-left': 'before',
+  'left-left': 'before'
+);
+
 .formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component-checkbox {
     padding-left: 0;
+    display: flex;
+
+    &.field-required {
+      &::after {
+        position: absolute;
+        margin-left: 1px;
+        margin-top: -3px;
+      }
+    }
+
+    .form-check-input {
+      position: absolute;
+      opacity: 0;
+      height: 0;
+      width: 0;
+      overflow: hidden;
+
+      @each $state, $color in $states {
+        &:#{$state} + .form-check-text {
+          &::before,
+          &::after {
+            color: $color;
+          }
+        }
+      }
+
+      &:disabled + .form-check-text {
+        color: $color-gray-5;
+      }
+    }
+
+    .form-check-text {
+      display: inline-block;
+      line-height: 18px;
+      position: relative;
+    }
 
     .form-check-label {
       line-height: 24px;
       font-size: 14px;
       cursor: pointer;
-      padding-left: 0;
 
-      .form-check-input:first-child {
-        position: absolute;
-        opacity: 0;
-        height: 0;
-        width: 0;
-        overflow: hidden;
+      &_top,
+      &_bottom {
+        margin: 0 auto;
+      }
 
-        + span {
+      &_right-right,
+      &_right-left {
+        margin-left: auto;
+        margin-right: 0;
+      }
+
+      &_right-right {
+        padding-right: 30px;
+      }
+
+      &_top .form-check-text::#{map-get($positions, 'top')} {
+        position: initial;
+        display: block;
+        margin-top: 10px;
+      }
+
+      &_bottom .form-check-text::#{map-get($positions, 'bottom')} {
+        position: initial;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      //box is on the Left
+      &_left-left,
+      &_right-left {
+        & .form-check-text {
           padding-left: 32px;
-          display: inline-block;
-          line-height: 18px;
-          position: relative;
 
-          &:before {
-            font-family: $font-family-citeck;
-            content: $citeck-icon-checkbox;
-            color: $color-gray-6;
-            margin-right: 10px;
-            font-size: 22px;
-            font-weight: normal;
+          &::#{map-get($positions, 'left-left')} {
             position: absolute;
-            left: 1px;
-          }
-        }
-
-        &:checked {
-          + span {
-            &:before {
-              content: $citeck-icon-checkbox-checked;
-              color: $color-blue-dark;
-            }
-          }
-        }
-
-        &:focus {
-          + span {
-            &:before {
-              color: $color-blue-light;
-            }
-          }
-        }
-
-        &:disabled {
-          + span {
-            color: $color-gray-5;
-
-            &:before {
-              content: $citeck-icon-checkbox-dark;
-              color: $color-gray-4;
-            }
-          }
-
-          &:checked {
-            + span {
-              &:before {
-                content: $citeck-icon-checkbox-checked;
-              }
-            }
+            left: 0;
           }
         }
       }
 
-      &.field-required {
-        &:after {
-          position: absolute;
-          margin-left: 1px;
-          margin-top: -3px;
+      //box is on the Right
+      &_left-right,
+      &_right-right {
+        & .form-check-text::#{map-get($positions, 'left-right')} {
+          padding-left: 10px;
+        }
+      }
+
+      &_has-tip .form-check-text::after {
+        padding-left: 25px;
+      }
+
+      @each $pos, $where in $positions {
+        &_#{$pos} .form-check-text::#{$where} {
+          @extend %checkbox;
+        }
+
+        &_#{$pos} .form-check-input:checked + .form-check-text::#{$where} {
+          content: $citeck-icon-checkbox-checked;
         }
       }
     }
