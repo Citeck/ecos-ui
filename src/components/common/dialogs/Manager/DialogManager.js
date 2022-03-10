@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { isExistValue, t } from '../../../../helpers/util';
+import { isExistValue, objectByString, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
 import { RemoveDialog } from '../index';
@@ -17,6 +19,7 @@ const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
 const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
 const FORM_DIALOG_ID = 'DialogManager-form-dialog';
 const LOADER_DIALOG_ID = 'DialogManager-loader-dialog';
+const ERROR_DIALOG_ID = 'DialogManager-error-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -348,6 +351,78 @@ const dialogsById = {
       </EcosModal>
     );
   },
+  [ERROR_DIALOG_ID]: props => {
+    const dialogProps = props.dialogProps || {};
+    const [isOpenInfo, setOpenInfo] = useState(dialogProps.isOpenInfo);
+    const { onClose, title, text, modalClass } = dialogProps;
+    const dProps = {
+      ...dialogProps,
+      title: t(title || ''),
+      text: t(text || ''),
+      isOpen: props.isVisible
+    };
+    let { buttons } = dialogProps;
+
+    dProps.onClose = () => {
+      props.setVisible(false);
+      setOpenInfo(false);
+      isFunction(onClose) && onClose();
+    };
+
+    dProps.onToggle = () => {
+      setOpenInfo(!isOpenInfo);
+    };
+
+    if (isEmpty(buttons)) {
+      buttons = [
+        {
+          className: 'ecos-btn_blue',
+          label: 'button.ok',
+          onClick: dProps.onClose
+        }
+      ];
+    }
+
+    return (
+      <EcosModal
+        title={dProps.title}
+        isOpen={dProps.isOpen}
+        hideModal={dProps.onClose}
+        className={classNames('ecos-dialog ecos-dialog_info ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
+      >
+        <div className="ecos-dialog__body">
+          <p className={classNames('mb-1', dProps.descriptionClassNames)}>{dProps.text}</p>
+          {!isEmpty(dProps.error) && (
+            <>
+              <span className="ecos-dialog__pseudo-link mt-3" onClick={dProps.onToggle}>
+                {t('more-about-error.label')}
+              </span>
+              <Collapse isOpen={isOpenInfo}>
+                <Card className="mt-3">
+                  <CardBody className="ecos-dialog__body-error">
+                    <span dangerouslySetInnerHTML={{ __html: objectByString(dProps.error) }} />
+                  </CardBody>
+                </Card>
+              </Collapse>
+            </>
+          )}
+        </div>
+        <div className="ecos-dialog__buttons ecos-dialog__buttons_center">
+          {buttons.map(b => (
+            <Btn
+              className={b.className}
+              key={b.key || b.label}
+              onClick={() => {
+                isFunction(b.onClick) && b.onClick();
+              }}
+            >
+              {t(b.label)}
+            </Btn>
+          ))}
+        </div>
+      </EcosModal>
+    );
+  },
   [LOADER_DIALOG_ID]: props => {
     const { isVisible } = props;
     const { text } = props.dialogProps;
@@ -420,6 +495,10 @@ export default class DialogManager {
 
   static showFormDialog(props) {
     return showDialog(FORM_DIALOG_ID, props);
+  }
+
+  static showErrorDialog(props) {
+    return showDialog(ERROR_DIALOG_ID, props);
   }
 
   /**

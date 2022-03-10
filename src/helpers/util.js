@@ -1023,5 +1023,24 @@ export function strSplice(string, start, deleteCount, ...addString) {
   return string;
 }
 
+/**
+ * Formats an object into a string without deep nesting, making the key bold
+ * @param object
+ * @returns {string|*}
+ */
+export function objectByString(object) {
+  if (isString(object)) {
+    return object;
+  }
+
+  return Object.keys(object).reduce((res, key) => {
+    if (!!object[key]) {
+      res += `<b>${key}: </b> ${JSON.stringify(object[key])}\n`;
+    }
+
+    return res;
+  }, '');
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
