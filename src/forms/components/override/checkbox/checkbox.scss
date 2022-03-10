@@ -30,14 +30,6 @@ $positions: (
     padding-left: 0;
     display: flex;
 
-    &.field-required {
-      &::after {
-        position: absolute;
-        margin-left: 1px;
-        margin-top: -3px;
-      }
-    }
-
     .form-check-input {
       position: absolute;
       opacity: 0;
@@ -114,7 +106,7 @@ $positions: (
       &_left-right,
       &_right-right {
         & .form-check-text::#{map-get($positions, 'left-right')} {
-          padding-left: 10px;
+          padding-left: 15px;
         }
       }
 
@@ -130,6 +122,14 @@ $positions: (
         &_#{$pos} .form-check-input:checked + .form-check-text::#{$where} {
           content: $citeck-icon-checkbox-checked;
         }
+      }
+
+      &.field-required::after {
+        top: 5px;
+      }
+
+      &_top.field-required::after {
+        top: -25px;
       }
     }
   }
