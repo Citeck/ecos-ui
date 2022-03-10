@@ -43,10 +43,13 @@ export default class ColumnComponent extends FormIOColumnComponent {
       return classList.join(' ');
     }
 
-    const isOneColumnPanelViewModeEnabled = _.get(this, 'parent.component.oneColumnPanelViewModeEnabled', true);
-    const isPanelContainer = _.get(this, 'parent.parent.component.type') === 'panel';
+    const isOneColumnViewModeOld =
+      _.get(this, 'parent.parent.component.type') === 'panel' &&
+      _.get(this, 'parent.parent.component.title') &&
+      !_.get(this, 'parent.parent.component.hideLabel');
+    const isOneColumnViewModeEnabled = _.get(this, 'parent.component.oneColumnInViewMode', isOneColumnViewModeOld);
 
-    if (this.viewOnly && isOneColumnPanelViewModeEnabled && isPanelContainer) {
+    if (this.viewOnly && isOneColumnViewModeEnabled) {
       classList.push('col-12');
       return classList.join(' ');
     }

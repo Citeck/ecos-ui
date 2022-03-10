@@ -76,7 +76,7 @@ export default [
     labelPosition: 'left-left',
     type: 'checkbox',
     input: true,
-    key: 'oneColumnPanelViewModeEnabled',
+    key: 'oneColumnInViewMode',
     weight: 162
   }
 ];

@@ -17,7 +17,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
         persistent: false,
         autoAdjust: false,
         hideOnChildrenHidden: false,
-        oneColumnPanelViewModeEnabled: undefined
+        oneColumnInViewMode: undefined
       },
       ...extend
     );
