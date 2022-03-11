@@ -78,7 +78,7 @@ export class OrgStructApi extends RecordService {
   //     .catch(() => []);
   // };
 
-  fetchGroup = async ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
+  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [] }) => {
     excludeAuthoritiesByName = excludeAuthoritiesByName
       .split(',')
       .map(item => item.trim())
@@ -88,10 +88,14 @@ export class OrgStructApi extends RecordService {
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
       items.filter(item => {
+        if (item.groupType === '') {
+          return true;
+        }
+
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
 
-    const groups = await Records.query(
+    const groups = Records.query(
       {
         sourceId: SourcesId.GROUP,
         query: {
@@ -119,7 +123,7 @@ export class OrgStructApi extends RecordService {
         }))
       );
 
-    const users = await Records.query(
+    const users = Records.query(
       {
         sourceId: SourcesId.PERSON,
         query: {
@@ -139,16 +143,16 @@ export class OrgStructApi extends RecordService {
         lastName: 'lastName',
         nodeRef: '?id'
       }
-    ).then(r => {
-      return get(r, 'records', []).map(record => ({
-        ...record,
-        authorityType: AUTHORITY_TYPE_USER
-      }));
-    });
+    )
+      .then(r => get(r, 'records', []))
+      .then(result =>
+        result.map(record => ({
+          ...record,
+          authorityType: AUTHORITY_TYPE_USER
+        }))
+      );
 
-    console.warn({ groups, users, groupName });
-
-    return [...groups, ...users];
+    return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
   };
 
   fetchAuthName = id => {
@@ -202,9 +206,9 @@ export class OrgStructApi extends RecordService {
 
     const queryVal = [
       {
-        t: 'eq',
-        att: 'TYPE',
-        val: 'cm:person'
+        t: 'contains',
+        a: 'authorityGroupsFull',
+        v: 'emodel/authority-group@_orgstruct_home_'
       }
     ];
 
@@ -231,7 +235,7 @@ export class OrgStructApi extends RecordService {
     }
 
     if (searchText) {
-      const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName'];
+      const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName', 'id', '_name'];
       const addExtraFields = (fields = []) => {
         searchFields.push(...fields.map(field => field.trim()));
       };
@@ -248,51 +252,87 @@ export class OrgStructApi extends RecordService {
       if (val.length < 2) {
         queryVal.push({
           t: 'or',
-          val: searchFields.map(att => ({
+          v: searchFields.map(a => ({
             t: 'contains',
-            att: att,
-            val: val[0]
+            a,
+            v: val[0]
           }))
         });
       } else {
         const firstLast = {
           t: 'and',
-          val: [
+          v: [
             {
               t: 'contains',
-              att: 'cm:firstName',
-              val: val[0]
+              a: 'cm:firstName',
+              v: val[0]
             },
             {
               t: 'contains',
-              att: 'cm:lastName',
-              val: val[1]
+              a: 'cm:lastName',
+              v: val[1]
             }
           ]
         };
 
         const lastFirst = {
           t: 'and',
-          val: [
+          v: [
             {
               t: 'contains',
-              att: 'cm:lastName',
-              val: val[0]
+              a: 'cm:lastName',
+              v: val[0]
             },
             {
               t: 'contains',
-              att: 'cm:firstName',
-              val: val[1]
+              a: 'cm:firstName',
+              v: val[1]
             }
           ]
         };
 
         queryVal.push({
           t: 'or',
-          val: [firstLast, lastFirst]
+          v: [firstLast, lastFirst]
         });
       }
     }
+
+    return Records.query(
+      {
+        sourceId: SourcesId.PERSON,
+        query: { t: 'and', v: queryVal },
+        page: {
+          maxItems: params.maxItems,
+          skipCount: params.page * params.maxItems
+        },
+        language: 'predicate'
+      },
+      {
+        displayName: '?disp',
+        fullName: 'authorityName',
+        email: 'email',
+        isPersonDisabled: 'personDisabled?bool',
+        // available: '',
+        firstName: 'firstName',
+        lastName: 'lastName',
+        nodeRef: '?id'
+      }
+    ).then(result => ({
+      items: converterUserList(result.records),
+      totalCount: result.totalCount
+    }));
+
+    // {
+    //   displayName: '?disp',
+    //     fullName: 'authorityName',
+    //   email: 'email',
+    //   isPersonDisabled: 'personDisabled?bool',
+    //   // available: '',
+    //   firstName: 'firstName',
+    //   lastName: 'lastName',
+    //   nodeRef: '?id'
+    // }
 
     return Records.query(
       {
