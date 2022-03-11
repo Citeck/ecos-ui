@@ -1,6 +1,7 @@
 import * as queryString from 'query-string';
+import get from 'lodash/get';
 
-import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
@@ -20,44 +21,134 @@ export class OrgStructApi extends RecordService {
     return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
+  // getUsers = (searchText = '') => {
+  //   if (searchText) {
+  //   }
+  //
+  //   return Records.query({
+  //     sourceId: 'emodel/person',
+  //     query: {
+  //       t: 'contains',
+  //       a: 'authorityGroupsAll',
+  //       v: 'emodel/authority-group@_orgstruct_home_'
+  //     },
+  //     language: 'predicate'
+  //   });
+  // };
+
+  // fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
+  //   excludeAuthoritiesByName = excludeAuthoritiesByName
+  //     .split(',')
+  //     .map(item => item.trim())
+  //     .join(',');
+  //
+  //   const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup });
+  //
+  //   if (this._loadedGroups[queryStr]) {
+  //     return Promise.resolve(this._loadedGroups[queryStr]);
+  //   }
+  //
+  //   const { groupName, searchText } = query;
+  //   const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
+  //
+  //   if (searchText) {
+  //     urlQuery.filter = searchText;
+  //     urlQuery.recurse = true;
+  //   }
+  //
+  //   const url = queryString.stringifyUrl({
+  //     url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
+  //     query: urlQuery
+  //   });
+  //
+  //   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
+  //   const filterByType = items =>
+  //     items.filter(item => {
+  //       return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
+  //     });
+  //
+  //   return this.getJson(url)
+  //     .then(filterByType)
+  //     .then(filtered => {
+  //       this._loadedGroups[queryStr] = filtered;
+  //
+  //       console.warn({ filtered });
+  //       return filtered;
+  //     })
+  //     .catch(() => []);
+  // };
+
+  fetchGroup = async ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
     excludeAuthoritiesByName = excludeAuthoritiesByName
       .split(',')
       .map(item => item.trim())
       .join(',');
 
-    const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup });
-
-    if (this._loadedGroups[queryStr]) {
-      return Promise.resolve(this._loadedGroups[queryStr]);
-    }
-
-    const { groupName, searchText } = query;
-    const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
-
-    if (searchText) {
-      urlQuery.filter = searchText;
-      urlQuery.recurse = true;
-    }
-
-    const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
-      query: urlQuery
-    });
-
+    const { groupName } = query;
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
       items.filter(item => {
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
 
-    return this.getJson(url)
+    const groups = await Records.query(
+      {
+        sourceId: SourcesId.GROUP,
+        query: {
+          t: 'contains',
+          a: 'authorityGroups',
+          v: `${SourcesId.GROUP}@${groupName}`
+        },
+        language: 'predicate'
+      },
+      {
+        displayName: '?disp',
+        fullName: 'authorityName',
+        groupSubType: 'groupSubType!""',
+        groupType: 'groupType!""',
+        nodeRef: '?id'
+      }
+    )
+      .then(r => get(r, 'records', []))
       .then(filterByType)
-      .then(filtered => {
-        this._loadedGroups[queryStr] = filtered;
-        return filtered;
-      })
-      .catch(() => []);
+      .then(records =>
+        records.map(record => ({
+          ...record,
+          shortName: get(record, 'fullName', '').replace('GROUP_', ''),
+          authorityType: AUTHORITY_TYPE_GROUP
+        }))
+      );
+
+    const users = await Records.query(
+      {
+        sourceId: SourcesId.PERSON,
+        query: {
+          t: 'contains',
+          a: 'authorityGroups',
+          v: `${SourcesId.GROUP}@${groupName}`
+        },
+        language: 'predicate'
+      },
+      {
+        displayName: '?disp',
+        fullName: 'authorityName',
+        email: 'email',
+        isPersonDisabled: 'personDisabled?bool',
+        // available: '',
+        firstName: 'firstName',
+        lastName: 'lastName',
+        nodeRef: '?id'
+      }
+    ).then(r => {
+      return get(r, 'records', []).map(record => ({
+        ...record,
+        authorityType: AUTHORITY_TYPE_USER
+      }));
+    });
+
+    console.warn({ groups, users, groupName });
+
+    return [...groups, ...users];
   };
 
   fetchAuthName = id => {

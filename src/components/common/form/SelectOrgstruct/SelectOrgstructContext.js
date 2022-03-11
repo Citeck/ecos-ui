@@ -446,6 +446,8 @@ export const SelectOrgstructProvider = props => {
               .then(handleResponse)
               .then(items => items.map(item => setSelectedItem(item, tabItems[TabTypes.SELECTED], { parentId: targetItem.id })))
               .then(newItems => {
+                console.warn({ newItems });
+
                 setTabItems({
                   ...tabItems,
                   [currentTab]: tabItems[currentTab]
