@@ -350,8 +350,20 @@ export default class SelectComponent extends BaseComponent {
       return;
     }
 
+    const isFound = _.find(items, item => {
+      if (_.isEmpty(item)) {
+        return false;
+      }
+
+      if (_.isString(item)) {
+        return item === this.dataValue;
+      }
+
+      return _.get(item, 'value') === this.dataValue;
+    });
+
     // Reset the selected value if it is not in the list
-    if (this.dataValue && !_.find(items, ['value', this.dataValue])) {
+    if (this.dataValue && !isFound) {
       this.setValue('');
     }
 
