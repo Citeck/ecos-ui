@@ -26,8 +26,8 @@ export function prepareSelected(selectedItem) {
 export function converterUserList(source) {
   return source.map(item => ({
     id: item.id,
-    label: item.fullName,
-    extraLabel: item.userName,
+    label: item.displayName,
+    extraLabel: item.fullName,
     attributes: item
   }));
 }
