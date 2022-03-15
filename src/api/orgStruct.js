@@ -4,38 +4,16 @@ import isEmpty from 'lodash/isEmpty';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
-import { getCurrentUserName, isNodeRef } from '../helpers/util';
+import { getCurrentUserName } from '../helpers/util';
 import { RecordService } from './recordService';
 
 export class OrgStructApi extends RecordService {
   getUsers = (searchText = '') => {
-    console.warn({ searchText });
-
-    let url = `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
-
-    if (searchText) {
-      url += `&filter=${searchText}`;
-    }
-
-    return this.getJson(url).catch(() => []);
+    return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then(result =>
+      get(result, 'items', []).map(item => get(item, 'attributes', {}))
+    );
   };
-
-  // getUsers = (searchText = '') => {
-  //   if (searchText) {
-  //   }
-  //
-  //   return Records.query({
-  //     sourceId: 'emodel/person',
-  //     query: {
-  //       t: 'contains',
-  //       a: 'authorityGroupsAll',
-  //       v: 'emodel/authority-group@_orgstruct_home_'
-  //     },
-  //     language: 'predicate'
-  //   });
-  // };
 
   fetchGroup = ({ query, excludeAuthoritiesByType = [], ...extra }) => {
     const { groupName, searchText } = query;
@@ -103,20 +81,26 @@ export class OrgStructApi extends RecordService {
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
   };
 
-  fetchAuthName = id => {
-    return Records.get(id).load('cm:authorityName!cm:userName');
-  };
-
   fetchAuthority = (dataType, value) => {
-    if (dataType === DataTypes.AUTHORITY && !isNodeRef(value)) {
-      return this.fetchAuthorityByName(value);
+    let recordRef = value;
+
+    if (dataType === DataTypes.AUTHORITY) {
+      recordRef = recordRef.replace(`${SourcesId.GROUP}@`, 'GROUP_');
+      recordRef = recordRef.replace(`${SourcesId.PERSON}@`, '');
     }
 
-    return this.fetchAuthorityByRef(value);
+    return this.fetchAuthorityByRef(recordRef);
   };
 
-  _prepareRecordRef = async recordRef => {
+  static prepareRecordRef = async recordRef => {
     const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
+
+    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
+      return {
+        recordRef,
+        authorityType
+      };
+    }
 
     if (recordRef.includes('workspace://SpacesStore')) {
       const attributes = await Records.get(recordRef).load({
@@ -144,18 +128,21 @@ export class OrgStructApi extends RecordService {
       };
     }
 
-    if (recordRef.includes('accountant')) {
+    if (recordRef.includes('GROUP_')) {
       return {
         recordRef: `${SourcesId.GROUP}@${recordRef.replace('GROUP_', '')}`,
         authorityType: AUTHORITY_TYPE_GROUP
       };
     }
 
-    return { recordRef, authorityType };
+    return {
+      recordRef: `${SourcesId.PERSON}@${recordRef}`,
+      authorityType
+    };
   };
 
   fetchAuthorityByRef = async nodeRef => {
-    const { recordRef, authorityType } = await this._prepareRecordRef(nodeRef);
+    const { recordRef, authorityType } = await OrgStructApi.prepareRecordRef(nodeRef);
 
     return Records.get(recordRef).load({
       displayName: '?disp',
@@ -166,11 +153,6 @@ export class OrgStructApi extends RecordService {
       nodeRef: '?id',
       authorityType: `authorityType!"${authorityType || ''}"`
     });
-  };
-
-  fetchAuthorityByName = async (authName = '') => {
-    const nodeRef = await Records.get(`${SourcesId.A_AUTHORITY}@${authName}`).load('nodeRef?str');
-    return this.fetchAuthorityByRef(nodeRef);
   };
 
   static async getGlobalSearchFields() {
