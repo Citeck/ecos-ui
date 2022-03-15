@@ -29,6 +29,15 @@
 
     min-width: 100px;
   }
+
+  .ecos-modal_mobile & {
+    flex-direction: column;
+    gap: 10px;
+
+    & > :nth-child(n) {
+      margin-right: unset;
+    }
+  }
 }
 
 .select-journal-collapse-panel {
@@ -40,6 +49,11 @@
 .select-journal-collapse-panel__controls {
   display: flex;
   justify-content: space-between;
+
+  .ecos-modal_mobile & {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 
 .select-journal-collapse-panel__controls-left {

@@ -9,7 +9,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 
 import { Attributes, Permissions } from '../../../../constants';
-import { beArray, t } from '../../../../helpers/util';
+import { beArray, isMobileDevice, t } from '../../../../helpers/util';
 import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
@@ -674,11 +674,17 @@ export default class SelectJournal extends Component {
   renderSelectModal() {
     const { multiple, hideCreateButton, searchField, isFullScreenWidthModal } = this.props;
     const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination } = this.state;
+    const extraProps = {};
 
     let selectModalTitle = t(Labels.DEFAULT_TITLE);
 
     if (get(journalConfig, 'meta.title')) {
       selectModalTitle += `: ${journalConfig.meta.title}`;
+    }
+
+    if (isMobileDevice()) {
+      extraProps.scrollable = true;
+      extraProps.autoHeight = true;
     }
 
     return (
@@ -730,6 +736,7 @@ export default class SelectJournal extends Component {
             className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
             scrollable={false}
             onRowDoubleClick={this.onRowDoubleClick}
+            {...extraProps}
           />
         </div>
 
