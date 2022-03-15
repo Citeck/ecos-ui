@@ -5,7 +5,7 @@ import { ModalBody, ModalHeader } from 'reactstrap';
 import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
 
-import { t, trigger } from '../../../helpers/util';
+import { isMobileDevice, t, trigger } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
 import Modal from './ModalDraggable';
 import { Icon } from '../';
@@ -130,7 +130,8 @@ export default class EcosModal extends Component {
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const modalClassName = classNames('ecos-modal', className, {
       'ecos-modal_draggable': draggableState !== null,
-      [`ecos-modal_level-${modalLevel}`]: !!modalLevel
+      [`ecos-modal_level-${modalLevel}`]: !!modalLevel,
+      'ecos-modal_mobile': isMobileDevice()
     });
 
     const draggableProps = {

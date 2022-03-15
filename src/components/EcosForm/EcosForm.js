@@ -140,7 +140,7 @@ class EcosForm extends React.Component {
       const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-      this.setState({ originalFormDefinition, formDefinition, formId: formData.id });
+      this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);

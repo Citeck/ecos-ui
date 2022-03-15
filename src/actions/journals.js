@@ -66,3 +66,5 @@ export const setUrl = createAction(prefix + 'SET_URL');
 export const initState = createAction(prefix + 'INIT_STATE');
 export const resetState = createAction(prefix + 'RESET_STATE');
 export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
+
+export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');
