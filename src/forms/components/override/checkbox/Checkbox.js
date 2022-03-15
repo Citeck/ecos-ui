@@ -6,7 +6,8 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
     return FormIOCheckBoxComponent.schema(
       {
-        defaultValue: false
+        defaultValue: false,
+        labelPosition: 'left-left'
       },
       ...extend
     );
@@ -79,5 +80,28 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     }
 
     return changed;
+  }
+
+  createLabel(...params) {
+    if (['right', 'left'].some(p => p === this.component.labelPosition)) {
+      this.component.labelPosition = this.defaultSchema.labelPosition;
+    }
+
+    super.createLabel(...params);
+
+    this.addClass(this.labelElement, 'form-check-label_' + this.component.labelPosition);
+
+    if (this.component.tooltip) {
+      this.addClass(this.labelElement, 'form-check-label_has-tip');
+    }
+
+    if (this.labelSpan) {
+      this.addClass(this.labelSpan, 'form-check-text');
+    }
+
+    if (this.labelOnTheTopOrLeft() && this.labelSpan) {
+      const child = this.labelElement.removeChild(this.labelSpan);
+      this.labelElement.appendChild(child);
+    }
   }
 }
