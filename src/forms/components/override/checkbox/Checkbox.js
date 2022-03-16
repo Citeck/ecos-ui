@@ -10,9 +10,9 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
     return FormIOCheckBoxComponent.schema(
       {
-        defaultValue: undefined,
         hasThreeStates: false,
-        labelPosition: 'right-left'
+        defaultValue: false,
+        labelPosition: 'left-left'
       },
       ...extend
     );
@@ -149,41 +149,6 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       class: className.join(' ')
     });
     this.element.component = this;
-  }
-
-  createLabel(container, input) {
-    const isLabelHidden = this.labelIsHidden();
-    const className = ['control-label', 'form-check-label'];
-
-    if (this.component.input && !this.options.inputsOnly && this.component.validate && this.component.validate.required) {
-      className.push('field-required');
-    }
-
-    this.labelElement = this.ce('label', {
-      class: className.join(' ')
-    });
-    this.addShortcut();
-
-    if (!isLabelHidden) {
-      // Create the SPAN around the textNode for better style hooks
-      this.labelSpan = this.ce('span');
-
-      if (this.info.attr.id) {
-        this.labelElement.setAttribute('for', this.info.attr.id);
-      }
-    }
-
-    this.addInput(input, this.labelElement);
-
-    if (!isLabelHidden) {
-      this.setInputLabelStyle(this.labelElement);
-      this.setInputStyle(input);
-      this.labelSpan.appendChild(this.text(this.addShortcutToLabel()));
-      this.labelElement.appendChild(this.labelSpan);
-    }
-
-    this.createTooltip(this.labelElement);
-    container.appendChild(this.labelElement);
   }
 
   getValueByString = data => {
@@ -373,6 +338,29 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
         return false;
       default:
         return this.setElementState(this.hasThreeStates ? null : false);
+    }
+  }
+
+  createLabel(...params) {
+    if (['right', 'left'].some(p => p === this.component.labelPosition)) {
+      this.component.labelPosition = this.defaultSchema.labelPosition;
+    }
+
+    super.createLabel(...params);
+
+    this.addClass(this.labelElement, 'form-check-label_' + this.component.labelPosition);
+
+    if (this.component.tooltip) {
+      this.addClass(this.labelElement, 'form-check-label_has-tip');
+    }
+
+    if (this.labelSpan) {
+      this.addClass(this.labelSpan, 'form-check-text');
+    }
+
+    if (this.labelOnTheTopOrLeft() && this.labelSpan) {
+      const child = this.labelElement.removeChild(this.labelSpan);
+      this.labelElement.appendChild(child);
     }
   }
 }

@@ -16,7 +16,8 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
         tableView: false,
         persistent: false,
         autoAdjust: false,
-        hideOnChildrenHidden: false
+        hideOnChildrenHidden: false,
+        oneColumnInViewMode: undefined
       },
       ...extend
     );
@@ -43,40 +44,40 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
 
     schema.columns = [];
     let lastIdx = 0;
+
     this.eachComponent((component, index) => {
-      _.merge(component.component, _.omit(this.component.columns[index], 'components'));
+      const colProps = _.omit(this.component.columns[index], ['components']);
+      _.merge(component.component, colProps);
       schema.columns.push({ ...component.schema, index: lastIdx++ });
     });
+
     for (let i = this.components.length; i < this.component.columns.length; i++) {
       schema.columns.push({ ...this.component.columns[i], index: lastIdx++ });
     }
 
     if (columnsNewLength < schema.columns.length) {
       schema.columns = schema.columns
-        .filter(item => {
-          return saveIndices.some(index => item.index === index);
-        })
-        .map((item, index) => {
-          return { ...item, index };
-        });
+        .filter(item => saveIndices.some(index => item.index === index))
+        .map((item, index) => ({ ...item, index }));
     }
 
     return schema;
   }
 
   get className() {
-    const classList = ['row'];
-
-    if (this.options.fullWidthColumns) {
-      classList.push('m-0', 'p-0');
-      return `${classList.join(' ')} ${super.className}`;
-    }
-
-    // exclude this.options.fullWidthColumns case
+    // exclude this.options.fullWidthColumns case / caused by ECOSENT-902
     if (this.component.inlineColumns) {
       return 'row-with-inline-blocks';
     }
 
-    return `${classList.join(' ')} ${super.className}`;
+    const classList = ['row'];
+
+    if (this.options.fullWidthColumns) {
+      classList.push('m-0', 'p-0');
+    }
+
+    classList.push(super.className);
+
+    return classList.join(' ');
   }
 }

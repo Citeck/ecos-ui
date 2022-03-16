@@ -18,6 +18,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
+import { LANGUAGE_EN } from '../../constants/lang';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -195,7 +196,7 @@ class EcosForm extends React.Component {
             currentLangTranslate = translate;
           }
 
-          if (key === 'en') {
+          if (key === LANGUAGE_EN) {
             enTranslate = translate;
           }
 

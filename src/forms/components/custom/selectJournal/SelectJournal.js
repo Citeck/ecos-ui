@@ -251,6 +251,23 @@ export default class SelectJournalComponent extends BaseReactComponent {
     });
   };
 
+  get modalTitle() {
+    let modalTitle = _.cloneDeep(this.component.modalTitle);
+
+    if (!modalTitle) {
+      return null;
+    }
+
+    if (modalTitle.includes('{{') && modalTitle.includes('}}')) {
+      const value = modalTitle.substring(modalTitle.indexOf('{{') + 2, modalTitle.lastIndexOf('}}'));
+      const title = this.t(_.get(this, value));
+
+      modalTitle = modalTitle.replace(`{{${value}}}`, title);
+    }
+
+    return this.t(modalTitle);
+  }
+
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
@@ -293,7 +310,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
         onError: () => undefined,
         // Cause https://citeck.atlassian.net/browse/ECOSUI-208
         // If component has calculateValue, disable value reset when apply custom predicate
-        disableResetOnApplyCustomPredicate: !!component.calculateValue
+        disableResetOnApplyCustomPredicate: !!component.calculateValue,
+        title: this.modalTitle
       };
 
       if (component.customSourceId) {

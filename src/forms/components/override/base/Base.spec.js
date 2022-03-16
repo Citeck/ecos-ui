@@ -2,6 +2,7 @@ import _merge from 'lodash/merge';
 
 import Harness from '../../../test/harness';
 import BaseComponent from './Base';
+import { extractLabel } from '../../../../helpers/util';
 
 import { comp1, comp2, comp3, multipleWithDraggableRows } from './fixtures';
 
@@ -62,7 +63,7 @@ describe('Base Component', () => {
           bad: {
             value: '',
             field: 'firstName',
-            error: 'required'
+            error: extractLabel('required')
           },
           good: {
             value: 'te'
@@ -86,7 +87,7 @@ describe('Base Component', () => {
           bad: {
             value: 't',
             field: 'firstName',
-            error: 'minLength'
+            error: extractLabel('minLength')
           },
           good: {
             value: 'te'
@@ -110,7 +111,7 @@ describe('Base Component', () => {
           bad: {
             value: 'testte',
             field: 'firstName',
-            error: 'maxLength'
+            error: extractLabel('maxLength')
           },
           good: {
             value: 'te'

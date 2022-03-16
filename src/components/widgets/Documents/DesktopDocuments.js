@@ -483,7 +483,7 @@ class DesktopDocuments extends BaseDocuments {
     let hasTooltip = false;
     let hasError = false;
 
-    if (type.type === selectedTypeForLoading.type) {
+    if (type.type === get(selectedTypeForLoading, 'type')) {
       if (uploadError) {
         label = t(Labels.ERROR_UPLOAD);
         hasTooltip = true;

@@ -1,180 +1,135 @@
 @import '../../../constants';
 
-%checkbox-place-icon {
+%checkbox {
   font-family: $font-family-citeck;
   content: $citeck-icon-checkbox;
   color: $color-gray-6;
-  font-size: 22px;
   font-weight: normal;
-  position: relative;
+  position: absolute;
+  font-size: 22px;
 }
 
-%checkbox {
-  &-checked {
-    content: $citeck-icon-checkbox-checked;
-    color: $color-blue-dark;
-  }
+$states: (
+  'checked': $color-blue-dark,
+  'focus': $color-blue-light,
+  'disabled': $color-gray-4
+);
 
-  &-focus {
-    color: $color-blue-light;
-  }
-
-  &-disabled {
-    content: $citeck-icon-checkbox-dark;
-    color: $color-gray-4;
-  }
-}
+$positions: (
+  'top': 'after',
+  'left-right': 'after',
+  'right-right': 'after',
+  'bottom': 'before',
+  'right-left': 'before',
+  'left-left': 'before'
+);
 
 .formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component-checkbox {
     padding-left: 0;
+    display: flex;
 
-    &_right {
-      display: flex;
-      align-content: stretch;
-      justify-content: flex-end;
-      align-items: center;
+    .form-check-input {
+      position: absolute;
+      opacity: 0;
+      height: 0;
+      width: 0;
+      overflow: hidden;
 
-      .form-check-label {
-        display: flex;
-        align-items: baseline;
-
-        &__span_position {
-          &-right-right {
-            & + i.glyphicon-question-sign {
-              margin-left: 7px;
-            }
-          }
-
-          &-left-right {
-            order: 2;
-
-            & + i.glyphicon-question-sign {
-              margin-right: 7px;
-            }
+      @each $state, $color in $states {
+        &:#{$state} + .form-check-text {
+          &::before,
+          &::after {
+            color: $color;
           }
         }
+      }
+
+      &:disabled + .form-check-text {
+        color: $color-gray-5;
       }
     }
 
-    input.form-check-input:first-child + span {
-      &.form-check-label {
-        &__span {
-          padding-left: 0;
-
-          &:before {
-            top: 2px;
-          }
-        }
-      }
+    .form-check-text {
+      display: inline-block;
+      line-height: 18px;
+      position: relative;
     }
 
     .form-check-label {
-      $label: &;
-
       line-height: 24px;
       font-size: 14px;
       cursor: pointer;
-      padding-left: 0;
 
-      .form-check-input:first-child {
-        position: absolute;
-        opacity: 0;
-        height: 0;
-        width: 0;
-        overflow: hidden;
+      &_top,
+      &_bottom {
+        margin: 0 auto;
+      }
 
-        + span {
+      &_right-right,
+      &_right-left {
+        margin-left: auto;
+        margin-right: 0;
+      }
+
+      &_right-right {
+        padding-right: 30px;
+      }
+
+      &_top .form-check-text::#{map-get($positions, 'top')} {
+        position: initial;
+        display: block;
+        margin-top: 10px;
+      }
+
+      &_bottom .form-check-text::#{map-get($positions, 'bottom')} {
+        position: initial;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      //box is on the Left
+      &_left-left,
+      &_right-left {
+        & .form-check-text {
           padding-left: 32px;
-          display: inline-block;
-          line-height: 18px;
-          position: relative;
 
-          &:before {
-            @extend %checkbox-place-icon;
-            margin-right: 10px;
-            left: 1px;
-          }
-        }
-
-        &:checked {
-          + span {
-            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-              &:before {
-                @extend %checkbox-checked;
-              }
-            }
-
-            &.form-check-label__span_position-left-right,
-            &.form-check-label__span_position-left-left {
-              &:after {
-                @extend %checkbox-checked;
-              }
-            }
-          }
-        }
-
-        &:focus {
-          + span {
-            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-              &:before {
-                @extend %checkbox-focus;
-              }
-            }
-
-            &.form-check-label__span_position-left-right,
-            &.form-check-label__span_position-left-left {
-              &:after {
-                @extend %checkbox-focus;
-              }
-            }
-          }
-        }
-
-        &:disabled {
-          + span {
-            color: $color-gray-5;
-
-            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-              &:before {
-                @extend %checkbox-disabled;
-              }
-            }
-
-            &.form-check-label__span_position-left-right,
-            &.form-check-label__span_position-left-left {
-              &:after {
-                @extend %checkbox-disabled;
-              }
-            }
-          }
-
-          &:checked {
-            + span {
-              &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-                &:before {
-                  content: $citeck-icon-checkbox-checked;
-                }
-              }
-
-              &.form-check-label__span_position-left-right,
-              &.form-check-label__span_position-left-left {
-                &:after {
-                  content: $citeck-icon-checkbox-checked;
-                }
-              }
-            }
+          &::#{map-get($positions, 'left-left')} {
+            position: absolute;
+            left: 0;
           }
         }
       }
 
-      &.field-required {
-        &:after {
-          position: absolute;
-          margin-left: 1px;
-          margin-top: -3px;
+      //box is on the Right
+      &_left-right,
+      &_right-right {
+        & .form-check-text::#{map-get($positions, 'left-right')} {
+          padding-left: 15px;
         }
+      }
+
+      &_has-tip .form-check-text::after {
+        padding-left: 25px;
+      }
+
+      @each $pos, $where in $positions {
+        &_#{$pos} .form-check-text::#{$where} {
+          @extend %checkbox;
+        }
+
+        &_#{$pos} .form-check-input:checked + .form-check-text::#{$where} {
+          content: $citeck-icon-checkbox-checked;
+        }
+      }
+
+      &.field-required::after {
+        top: 5px;
+      }
+
+      &_top.field-required::after {
+        top: -25px;
       }
     }
 
@@ -289,7 +244,7 @@
                   }
 
                   &:after {
-                    @extend %checkbox-place-icon;
+                    @extend %checkbox;
                     margin-left: 10px;
                     top: 2px;
                   }
@@ -306,7 +261,7 @@
                   }
 
                   &:after {
-                    @extend %checkbox-place-icon;
+                    @extend %checkbox;
                     margin-left: 10px;
                     top: 2px;
                   }

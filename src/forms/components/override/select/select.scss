@@ -91,11 +91,12 @@
           height: 100%;
           width: 25px;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: center;
           top: 0;
           margin-top: 0;
           margin-right: 30px;
+          padding-top: 9px;
 
           &:after {
             font-family: $font-family-citeck;

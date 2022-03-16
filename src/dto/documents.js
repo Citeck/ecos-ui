@@ -96,6 +96,7 @@ export default class DocumentsConverter {
       }
 
       target.type = type;
+      target.id = target.id || get(target, documentFields.id, '');
 
       return target;
     });
@@ -458,8 +459,23 @@ export default class DocumentsConverter {
       const info = fieldFormatters[key];
       const findIndex = columns.findIndex(col => col.schema && col.schema.includes(info.schema));
 
-      if (findIndex >= 0 && !columns[findIndex].formatter) {
-        columns[findIndex].newFormatter = info.formatter;
+      if (findIndex >= 0) {
+        const withoutFormatter = !Object.keys(columns[findIndex]).some(key => {
+          if (key === 'formatter') {
+            return get(columns, [findIndex, key, 'name']);
+          }
+
+          if (key === 'newFormatter') {
+            return get(columns, [findIndex, key, 'type']);
+          }
+
+          return false;
+        });
+
+        if (withoutFormatter) {
+          columns[findIndex].formatter = info.formatter;
+          columns[findIndex].newFormatter = info.formatter;
+        }
       }
     }
   }

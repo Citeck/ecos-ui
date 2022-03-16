@@ -672,8 +672,8 @@ export default class SelectJournal extends Component {
   };
 
   renderSelectModal() {
-    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal } = this.props;
-    const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination } = this.state;
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title } = this.props;
+    const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
     const extraProps = {};
 
     let selectModalTitle = t(Labels.DEFAULT_TITLE);
@@ -689,7 +689,7 @@ export default class SelectJournal extends Component {
 
     return (
       <EcosModal
-        title={selectModalTitle}
+        title={title || selectModalTitle}
         isOpen={isSelectModalOpen}
         hideModal={this.hideSelectModal}
         className={classNames('select-journal-select-modal', {
@@ -710,7 +710,12 @@ export default class SelectJournal extends Component {
               </IcoBtn>
 
               {!hideCreateButton && (
-                <CreateVariants items={get(journalConfig, 'meta.createVariants')} onCreateFormSubmit={this.onCreateFormSubmit} />
+                <CreateVariants
+                  items={get(journalConfig, 'meta.createVariants')}
+                  toggleCreateModal={this.toggleCreateModal}
+                  isCreateModalOpen={isCreateModalOpen}
+                  onCreateFormSubmit={this.onCreateFormSubmit}
+                />
               )}
             </div>
             <div className="select-journal-collapse-panel__controls-right">
@@ -860,7 +865,8 @@ SelectJournal.propTypes = {
     attribute: PropTypes.string,
     ascending: PropTypes.bool
   }),
-  columns: PropTypes.array
+  columns: PropTypes.array,
+  title: PropTypes.string
 };
 
 SelectJournal.defaultProps = {

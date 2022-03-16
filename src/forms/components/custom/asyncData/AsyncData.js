@@ -487,10 +487,21 @@ export default class AsyncDataComponent extends BaseComponent {
 
     if (ignoreValuesEqualityChecking || !isEqual(this.dataValue, value)) {
       flags = this.getFlags.apply(this, arguments);
+
       this.dataValue = value;
       this.updateValue(flags);
       this.triggerChange(flags);
-      this.triggerEventOnChange();
+      this.triggerEventOnChange(flags);
+
+      this.emit('change', {
+        changed: {
+          instance: this,
+          component: this.component,
+          value: this.dataValue,
+          flags
+        },
+        data: this.data
+      });
 
       return true;
     }
