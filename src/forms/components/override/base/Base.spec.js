@@ -63,7 +63,7 @@ describe('Base Component', () => {
           bad: {
             value: '',
             field: 'firstName',
-            error: extractLabel('required')
+            error: 'required'
           },
           good: {
             value: 'te'
@@ -87,7 +87,7 @@ describe('Base Component', () => {
           bad: {
             value: 't',
             field: 'firstName',
-            error: extractLabel('minLength')
+            error: 'minLength'
           },
           good: {
             value: 'te'
@@ -111,7 +111,7 @@ describe('Base Component', () => {
           bad: {
             value: 'testte',
             field: 'firstName',
-            error: extractLabel('maxLength')
+            error: 'maxLength'
           },
           good: {
             value: 'te'
