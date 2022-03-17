@@ -97,12 +97,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           return editor;
         });
       });
-    });
+    }).catch(err => console.warn(err));
   }
 
   addQuill(element, settings, onChange) {
-    settings = _.isEmpty(settings) ? this.wysiwygDefault : settings;
-
+    settings = _.merge(this.wysiwygDefault, settings);
     // Lazy load the quill css.
     Formio.requireLibrary(
       `quill-css-${settings.theme}`,
@@ -230,7 +229,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       (this.component.wysiwyg.hasOwnProperty('toolbarGroups') || this.component.wysiwyg.hasOwnProperty('toolbar'))
     ) {
       console.warn(
-        'The WYSIWYG settings are configured for CKEditor. For this renderer, you will need to use configurations for the Quill Editor. See https://quilljs.com/docs/configuration for more information.'
+        'The WYSIWYG settings are configured for CKEditor. For this renderer, ' +
+          'you will need to use configurations for the Quill Editor. ' +
+          'See https://quilljs.com/docs/configuration for more information.'
       );
       this.component.wysiwyg = this.wysiwygDefault;
       this.emit('componentEdit', this);
@@ -263,10 +264,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   refreshWysiwyg() {
-    this.editorReady = new Promise(resolve => {
-      this.editorReadyResolve = resolve;
-    });
-
+    this.editorReady = new Promise(resolve => (this.editorReadyResolve = resolve));
     this.enableWysiwyg();
     this.setWysiwygValue(this.dataValue);
     this.wysiwygRendered = true;
