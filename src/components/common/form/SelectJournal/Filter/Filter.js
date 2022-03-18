@@ -6,23 +6,25 @@ import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
 import EditorService from '../../../../Journals/service/editors/EditorService';
 import EditorScope from '../../../../Journals/service/editors/EditorScope';
+import { ALFRESCO } from '../../../../../constants/alfresco';
 
 import './Filter.scss';
 
 const Filter = React.memo(
-  ({ idx, text, item, predicates, selectedPredicate, predicateValue, onRemove, onChangePredicate, onChangePredicateValue }) => {
+  ({ idx, text, item, predicates, selectedPredicate, predicateValue, onRemove, onChangePredicate, onChangePredicateValue, ...extra }) => {
     const editorType = get(item, 'newEditor.type');
     const isShow = get(selectedPredicate, 'needValue', true);
-    const FilterValueComponent = React.memo(({ item, value, predicate, onUpdate }) =>
-      EditorService.getEditorControl({
+    const FilterValueComponent = React.memo(({ item, value, predicate, onUpdate, ...extra }) => {
+      return EditorService.getEditorControl({
         attribute: item.attribute,
         editor: item.newEditor,
         value,
         scope: EditorScope.FILTER,
         onUpdate,
+        recordRef: `${ALFRESCO}/@`,
         controlProps: { predicate }
-      })
-    );
+      });
+    });
 
     return (
       <li className="select-journal-filter">
