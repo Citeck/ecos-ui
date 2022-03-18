@@ -11,10 +11,10 @@ import { ALFRESCO } from '../../../../../constants/alfresco';
 import './Filter.scss';
 
 const Filter = React.memo(
-  ({ idx, text, item, predicates, selectedPredicate, predicateValue, onRemove, onChangePredicate, onChangePredicateValue, ...extra }) => {
+  ({ idx, text, item, predicates, selectedPredicate, predicateValue, onRemove, onChangePredicate, onChangePredicateValue }) => {
     const editorType = get(item, 'newEditor.type');
     const isShow = get(selectedPredicate, 'needValue', true);
-    const FilterValueComponent = React.memo(({ item, value, predicate, onUpdate, ...extra }) => {
+    const FilterValueComponent = React.memo(({ item, value, predicate, onUpdate }) => {
       return EditorService.getEditorControl({
         attribute: item.attribute,
         editor: item.newEditor,
