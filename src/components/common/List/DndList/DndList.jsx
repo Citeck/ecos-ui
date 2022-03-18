@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
+import isEqual from 'lodash/isEqual';
 
 import { getId } from '../../../../helpers/util';
 import ListItem from '../../../ColumnsSetup/ListItem';
@@ -39,7 +40,7 @@ export default class DndList extends Component {
   componentDidUpdate(prevProps) {
     const { data } = this.props;
 
-    if (data !== prevProps.data) {
+    if (!isEqual(data, prevProps.data)) {
       this.setState({ data });
     }
   }

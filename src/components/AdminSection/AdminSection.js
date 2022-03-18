@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
 import get from 'lodash/get';
+import throttle from 'lodash/throttle';
 
 import { t } from '../../helpers/util';
 import { SectionTypes } from '../../constants/adminSection';
@@ -13,6 +14,12 @@ import BPMNDesigner from '../BPMNDesigner';
 import { JournalPresets } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
+import { showModalJson } from '../../helpers/tools';
+import { IcoBtn } from '../common/btns';
+import { wrapArgs } from '../../helpers/redux';
+import { execJournalAction } from '../../actions/journals';
+import { SourcesId } from '../../constants';
+import { ActionTypes } from '../Records/actions';
 
 import './style.scss';
 
@@ -55,6 +62,33 @@ class AdminSection extends React.PureComponent {
     this.setState({ journalStateId: stateId });
   };
 
+  handleClickCaption = event => {
+    if (event.ctrlKey && event.shiftKey) {
+      const { journalStateId } = this.state;
+
+      showModalJson(get(this.props, ['journals', journalStateId, 'journalConfig'], {}), 'Config');
+    }
+  };
+
+  handleEditJournal = throttle(
+    () => {
+      const { execJournalAction } = this.props;
+      const { journalStateId } = this.state;
+      const journalId = get(this.props, ['journals', journalStateId, 'journalConfig', 'id'], {});
+
+      if (!journalId) {
+        return;
+      }
+
+      execJournalAction(`${SourcesId.JOURNAL}@${journalId}`, { type: ActionTypes.EDIT });
+    },
+    300,
+    {
+      leading: false,
+      trailing: true
+    }
+  );
+
   render() {
     const { activeSection, tabId, isActivePage, isOpenMenu } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
@@ -65,7 +99,17 @@ class AdminSection extends React.PureComponent {
           <Container fluid={this.isFluid()} className="p-0">
             <Row className="ecos-admin-section__header m-0 px-0">
               <Col className="m-0 p-0">
-                <Caption normal>{t(activeSection.label)}</Caption>
+                <div className="m-0 px-0 d-flex align-items-baseline">
+                  <Caption normal onClick={this.handleClickCaption}>
+                    {t(activeSection.label)}
+                  </Caption>
+
+                  <IcoBtn
+                    icon="icon-settings"
+                    className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
+                    onClick={this.handleEditJournal}
+                  />
+                </div>
               </Col>
             </Row>
             <Row className="m-0 p-0">
@@ -93,7 +137,18 @@ const mapStateToProps = (state, props) => ({
   isOpenMenu: state.adminSection.isOpenMenu,
   activeSection: state.adminSection.activeSection || {},
   groupSectionList: state.adminSection.groupSectionList,
-  isActivePage: pageTabList.isActiveTab(props.tabId)
+  isActivePage: pageTabList.isActiveTab(props.tabId),
+  journals: state.journals
 });
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
 
-export default connect(mapStateToProps)(AdminSection);
+  return {
+    execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context })))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AdminSection);
