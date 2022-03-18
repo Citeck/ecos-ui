@@ -1,7 +1,13 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  DataTypes,
+  ITEMS_PER_PAGE,
+  ROOT_GROUP_NAME
+} from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
@@ -9,11 +15,43 @@ import { getCurrentUserName } from '../helpers/util';
 import { RecordService } from './recordService';
 
 export class OrgStructApi extends RecordService {
+  get groupAttributes() {
+    return {
+      displayName: '?disp',
+      fullName: 'authorityName',
+      groupSubType: 'groupSubType!""',
+      groupType: 'groupType!""',
+      nodeRef: '?id',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
+    };
+  }
+
+  static get userAttributes() {
+    return {
+      displayName: '?disp',
+      fullName: 'authorityName',
+      email: 'email',
+      isPersonDisabled: 'personDisabled?bool',
+      firstName: 'firstName',
+      lastName: 'lastName',
+      nodeRef: '?id',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`
+    };
+  }
+
   getUsers = (searchText = '') => {
     return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then(result =>
       get(result, 'items', []).map(item => get(item, 'attributes', {}))
     );
   };
+
+  _prepareGroups = groups =>
+    (groups || []).map(group => ({
+      ...group,
+      groupType: (group.groupType || '').toUpperCase(),
+      groupSubType: (group.groupSubType || '').toUpperCase(),
+      shortName: (group.fullName || '').replace('GROUP_', '')
+    }));
 
   fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
@@ -36,10 +74,6 @@ export class OrgStructApi extends RecordService {
         ];
     const extraQueryVal = [];
 
-    // TODO: need filter by isIncludedAdminGroup?
-    if (isIncludedAdminGroup) {
-    }
-
     if (excludeAuthoritiesByName) {
       excludeAuthoritiesByName.split(',').forEach(name => {
         extraQueryVal.push({
@@ -59,25 +93,27 @@ export class OrgStructApi extends RecordService {
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
-      {
-        displayName: '?disp',
-        fullName: 'authorityName',
-        groupSubType: 'groupSubType!""',
-        groupType: 'groupType!""',
-        nodeRef: '?id',
-        authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
-      }
+      { ...this.groupAttributes }
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
-      .then(records =>
-        records.map(record => ({
-          ...record,
-          groupType: (record.groupType || '').toUpperCase(),
-          groupSubType: (record.groupSubType || '').toUpperCase(),
-          shortName: (record.fullName || '').replace('GROUP_', '')
-        }))
-      );
+      .then(this._prepareGroups)
+      .then(records => {
+        if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
+          records.unshift({
+            id: 'emodel/authority-group@ALFRESCO_ADMINISTRATORS',
+            displayName: 'ALFRESCO_ADMINISTRATORS',
+            fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
+            shortName: 'ALFRESCO_ADMINISTRATORS',
+            groupSubType: '',
+            groupType: 'BRANCH',
+            nodeRef: 'emodel/authority-group@ALFRESCO_ADMINISTRATORS',
+            authorityType: AUTHORITY_TYPE_GROUP
+          });
+        }
+
+        return records;
+      });
 
     const users = Records.query(
       {
@@ -85,16 +121,7 @@ export class OrgStructApi extends RecordService {
         query: { t: 'and', v: queryVal },
         language: 'predicate'
       },
-      {
-        displayName: '?disp',
-        fullName: 'authorityName',
-        email: 'email',
-        isPersonDisabled: 'personDisabled?bool',
-        firstName: 'firstName',
-        lastName: 'lastName',
-        nodeRef: '?id',
-        authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`
-      }
+      { ...OrgStructApi.userAttributes }
     ).then(r => get(r, 'records', []));
 
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
@@ -163,15 +190,13 @@ export class OrgStructApi extends RecordService {
   fetchAuthorityByRef = async nodeRef => {
     const { recordRef, authorityType } = await OrgStructApi.prepareRecordRef(nodeRef);
 
-    return Records.get(recordRef).load({
-      displayName: '?disp',
-      fullName: 'authorityName',
-      isPersonDisabled: 'personDisabled?bool',
-      firstName: 'firstName',
-      lastName: 'lastName',
-      nodeRef: '?id',
-      authorityType: `authorityType!"${authorityType || ''}"`
-    });
+    if (authorityType === AUTHORITY_TYPE_USER) {
+      return Records.get(recordRef).load(OrgStructApi.userAttributes);
+    }
+
+    return Records.get(recordRef)
+      .load(this.groupAttributes)
+      .then(this._prepareGroups);
   };
 
   static async getGlobalSearchFields() {
@@ -194,7 +219,7 @@ export class OrgStructApi extends RecordService {
       {
         t: 'contains',
         a: 'authorityGroupsFull',
-        v: 'emodel/authority-group@_orgstruct_home_'
+        v: `emodel/authority-group@${ROOT_GROUP_NAME}`
       }
     ];
 
@@ -288,16 +313,7 @@ export class OrgStructApi extends RecordService {
         },
         language: 'predicate'
       },
-      {
-        displayName: '?disp',
-        fullName: 'authorityName',
-        email: 'email',
-        isPersonDisabled: 'personDisabled?bool',
-        firstName: 'firstName',
-        lastName: 'lastName',
-        nodeRef: '?id',
-        authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`
-      }
+      { ...OrgStructApi.userAttributes }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount
