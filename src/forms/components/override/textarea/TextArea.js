@@ -28,6 +28,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     return TextAreaComponent.schema();
   }
 
+  is(e = this.component.editor) {
+    return { Cke: e === 'ckeditor', Ace: e === 'ace', Quill: e === 'quill' };
+  }
+
   setValue(value, flags) {
     const skipSetting = _.isEqual(value, this.getValue());
     value = value || '';
@@ -201,7 +205,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return;
     }
 
-    if (this.component.editor === 'ace') {
+    if (this.is().Ace) {
       const settings = _.cloneDeep(this.component.wysiwyg || {});
       const props = { rows: this.component.rows };
 
@@ -209,7 +213,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return this.input;
     }
 
-    if (this.component.editor === 'ckeditor') {
+    if (this.is().Cke) {
       const settings = this.component.wysiwyg || {};
       settings.rows = this.component.rows;
       this.addCKE(this.input, settings, newValue => this.updateEditorValue(newValue)).then(editor => {
@@ -285,18 +289,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   show(show, noClear) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
     if (show && this.wysiwygRendered && this.editorReady) {
-      this.editorReady.then(editor => {
-        let parentNode = null;
-        if (this.component.editor === 'ckeditor') {
-          parentNode = _.get(editor, 'sourceElement.parentNode');
-        } else {
-          parentNode = _.get(editor, 'container.parentNode');
-        }
-
-        if (!parentNode) {
-          this.refreshWysiwyg();
-        }
-      });
+      this.editorReady
+        .then(editor => {
+          const source = this.is().Cke ? 'sourceElement' : 'container';
+          const parentNode = _.get(editor, `${source}.parentNode`);
+          !parentNode && this.refreshWysiwyg();
+        })
+        .catch(err => console.warn(err));
     }
 
     return super.show(show, noClear);
