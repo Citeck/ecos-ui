@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import isEmpty from 'lodash/isEmpty';
 
 import logger from '../../../../../../services/logger';
 import ZIndex from '../../../../../../services/ZIndex';
@@ -33,7 +32,7 @@ export default class SelectEditor extends BaseEditor {
 
       useEffect(() => {
         const selected = options ? options.filter(opt => (opt.value || opt) === value) : null;
-        let propOptions = config.options || [];
+        let propOptions = config.options;
 
         if (config.options && typeof config.options === 'string') {
           try {
@@ -48,7 +47,7 @@ export default class SelectEditor extends BaseEditor {
       }, []);
 
       useEffect(() => {
-        if (isEmpty(options) && !isLoading) {
+        if (!options && !isLoading) {
           const optionsAtt = config.optionsAtt || `_edge.${attribute}.options[]{value:?str,label:?disp}`;
 
           setLoading(true);
