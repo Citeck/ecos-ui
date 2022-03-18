@@ -25,14 +25,6 @@ export class OrgStructApi extends RecordService {
 
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
-    const filterByName = items =>
-      items.filter(item => {
-        if (!item.displayName || !excludeAuthoritiesByName) {
-          return true;
-        }
-
-        return !excludeAuthoritiesByName.split(',').some(name => name === item.displayName);
-      });
     let queryVal = searchText
       ? OrgStructApi.getSearchQuery(searchText)
       : [
@@ -42,15 +34,29 @@ export class OrgStructApi extends RecordService {
             v: `${SourcesId.GROUP}@${groupName}`
           }
         ];
+    const extraQueryVal = [];
 
     // TODO: need filter by isIncludedAdminGroup?
     if (isIncludedAdminGroup) {
     }
 
+    if (excludeAuthoritiesByName) {
+      excludeAuthoritiesByName.split(',').forEach(name => {
+        extraQueryVal.push({
+          t: 'not',
+          v: {
+            t: 'contains',
+            a: '_name',
+            v: name
+          }
+        });
+      });
+    }
+
     const groups = Records.query(
       {
         sourceId: SourcesId.GROUP,
-        query: { t: 'and', v: queryVal },
+        query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
       {
@@ -64,7 +70,6 @@ export class OrgStructApi extends RecordService {
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
-      .then(filterByName)
       .then(records =>
         records.map(record => ({
           ...record,
