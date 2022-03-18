@@ -18,7 +18,13 @@ import {
 import BaseComponent from '../base/BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
 
-const _array = str => split(str, ',').map(item => item.trim());
+const _array = (str, checkForEmpty) => {
+  if (checkForEmpty && !str) {
+    return [];
+  }
+
+  return split(str, ',').map(item => item.trim());
+};
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -130,9 +136,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     const allowedAuthorityTypes = _array(allowedAuthorityType);
     const allowedGroupTypes = _array(allowedGroupType);
-    const allowedGroupSubTypes = _array(allowedGroupSubType);
-    const userSearchExtraFields = _array(userSearchExtraFieldsStr);
-    const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType);
+    const allowedGroupSubTypes = _array(allowedGroupSubType, true);
+    const userSearchExtraFields = _array(userSearchExtraFieldsStr, true);
+    const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType, true);
 
     let renderControl = () => {
       if (comp.unreadable) {
@@ -209,7 +215,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
       !this.viewOnly &&
       this.options.formMode === 'CREATE'
     ) {
-      value = Array.isArray(value) ? [Formio.getUser()] : Formio.getUser();
+      const currentUser = (Formio.getUser() || '').toLowerCase();
+
+      value = Array.isArray(value) ? [currentUser] : currentUser;
     }
 
     const setValueImpl = v => {

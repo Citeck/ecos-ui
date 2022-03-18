@@ -15,9 +15,8 @@ export class OrgStructApi extends RecordService {
     );
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByType = [], ...extra }) => {
+  fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
-    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
       items.filter(item => {
         if (item.groupType === '') {
@@ -25,6 +24,14 @@ export class OrgStructApi extends RecordService {
         }
 
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
+      });
+    const filterByName = items =>
+      items.filter(item => {
+        if (!item.displayName || !excludeAuthoritiesByName) {
+          return true;
+        }
+
+        return !excludeAuthoritiesByName.split(',').some(name => name === item.displayName);
       });
     let queryVal = searchText
       ? OrgStructApi.getSearchQuery(searchText)
@@ -35,6 +42,10 @@ export class OrgStructApi extends RecordService {
             v: `${SourcesId.GROUP}@${groupName}`
           }
         ];
+
+    // TODO: need filter by isIncludedAdminGroup?
+    if (isIncludedAdminGroup) {
+    }
 
     const groups = Records.query(
       {
@@ -53,10 +64,13 @@ export class OrgStructApi extends RecordService {
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
+      .then(filterByName)
       .then(records =>
         records.map(record => ({
           ...record,
-          shortName: get(record, 'fullName', '').replace('GROUP_', '')
+          groupType: (record.groupType || '').toUpperCase(),
+          groupSubType: (record.groupSubType || '').toUpperCase(),
+          shortName: (record.fullName || '').replace('GROUP_', '')
         }))
       );
 
