@@ -16,6 +16,7 @@ import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 
 export class AppApi extends CommonApi {
   #isAuthenticated = true;
+  // #isActive
 
   constructor() {
     super();
@@ -32,8 +33,8 @@ export class AppApi extends CommonApi {
       .catch(() => '');
   };
 
-  touch = () => {
-    if (!this.#isAuthenticated) {
+  touch = (isCancelTouch = false) => {
+    if (!this.#isAuthenticated || document.hidden || isCancelTouch) {
       return Promise.resolve();
     }
 

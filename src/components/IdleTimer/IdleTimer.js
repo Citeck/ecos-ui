@@ -1,3 +1,5 @@
+import isFunction from 'lodash/isFunction';
+
 class IdleTimer {
   _timer = null;
   _idleTime = 0;
@@ -5,6 +7,7 @@ class IdleTimer {
   _idleTimeOut = 60000 * 30;
   _idleCallback = null;
   _noIdleCallback = null;
+  _resetIdleCallback = null;
 
   setCheckInterval = ms => {
     this._checkInterval = ms;
@@ -26,8 +29,15 @@ class IdleTimer {
     return this;
   };
 
+  setResetIdleCallback = callback => {
+    this._resetIdleCallback = callback;
+    return this;
+  };
+
   resetIdleTime = () => {
     this._idleTime = 0;
+
+    isFunction(this._resetIdleCallback) && this._resetIdleCallback();
   };
 
   run = () => {
@@ -35,9 +45,9 @@ class IdleTimer {
       this._idleTime += this._checkInterval;
 
       if (this._idleTime >= this._idleTimeOut) {
-        typeof this._idleCallback === 'function' && this._idleCallback();
+        isFunction(this._idleCallback) && this._idleCallback();
       } else {
-        typeof this._noIdleCallback === 'function' && this._noIdleCallback();
+        isFunction(this._noIdleCallback) && this._noIdleCallback();
       }
     }, this._checkInterval);
 
@@ -46,6 +56,8 @@ class IdleTimer {
     window.addEventListener('click', this.resetIdleTime);
     window.addEventListener('wheel', this.resetIdleTime);
     window.addEventListener('keypress', this.resetIdleTime);
+
+    return this;
   };
 
   stop = () => {
@@ -56,6 +68,10 @@ class IdleTimer {
     window.removeEventListener('keypress', this.resetIdleTime);
 
     clearInterval(this._timer);
+    this._timer = null;
+    this._idleTime = 0;
+
+    return this;
   };
 }
 
