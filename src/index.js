@@ -130,7 +130,7 @@ const rerunCancelTouchTimer = debounce(
 
 cancelTouchTimer
   .setCheckInterval(60000)
-  .setIdleTimeout(60000 * 10)
+  .setIdleTimeout(60000 * 3)
   .setResetIdleCallback(() => {
     cancelTouch = false;
     rerunCancelTouchTimer();
