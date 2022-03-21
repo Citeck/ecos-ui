@@ -16,7 +16,6 @@ import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 
 export class AppApi extends CommonApi {
   #isAuthenticated = true;
-  // #isActive
 
   constructor() {
     super();

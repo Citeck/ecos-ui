@@ -1,55 +1,55 @@
 import isFunction from 'lodash/isFunction';
 
 class IdleTimer {
-  _timer = null;
-  _idleTime = 0;
-  _checkInterval = 60000;
-  _idleTimeOut = 60000 * 30;
-  _idleCallback = null;
-  _noIdleCallback = null;
-  _resetIdleCallback = null;
+  #timer = null;
+  #idleTime = 0;
+  #checkInterval = 60000;
+  #idleTimeOut = 60000 * 30;
+  #idleCallback;
+  #noIdleCallback;
+  #resetIdleCallback;
 
   setCheckInterval = ms => {
-    this._checkInterval = ms;
+    this.#checkInterval = ms;
     return this;
   };
 
   setIdleTimeout = ms => {
-    this._idleTimeOut = ms;
+    this.#idleTimeOut = ms;
     return this;
   };
 
   setIdleCallback = callback => {
-    this._idleCallback = callback;
+    this.#idleCallback = callback;
     return this;
   };
 
   setNoIdleCallback = callback => {
-    this._noIdleCallback = callback;
+    this.#noIdleCallback = callback;
     return this;
   };
 
   setResetIdleCallback = callback => {
-    this._resetIdleCallback = callback;
+    this.#resetIdleCallback = callback;
     return this;
   };
 
   resetIdleTime = () => {
-    this._idleTime = 0;
+    this.#idleTime = 0;
 
-    isFunction(this._resetIdleCallback) && this._resetIdleCallback();
+    isFunction(this.#resetIdleCallback) && this.#resetIdleCallback();
   };
 
   run = () => {
-    this._timer = setInterval(() => {
-      this._idleTime += this._checkInterval;
+    this.#timer = setInterval(() => {
+      this.#idleTime += this.#checkInterval;
 
-      if (this._idleTime >= this._idleTimeOut) {
-        isFunction(this._idleCallback) && this._idleCallback();
+      if (this.#idleTime >= this.#idleTimeOut) {
+        isFunction(this.#idleCallback) && this.#idleCallback();
       } else {
-        isFunction(this._noIdleCallback) && this._noIdleCallback();
+        isFunction(this.#noIdleCallback) && this.#noIdleCallback();
       }
-    }, this._checkInterval);
+    }, this.#checkInterval);
 
     window.addEventListener('mousemove', this.resetIdleTime);
     window.addEventListener('mousedown', this.resetIdleTime);
@@ -67,9 +67,9 @@ class IdleTimer {
     window.removeEventListener('wheel', this.resetIdleTime);
     window.removeEventListener('keypress', this.resetIdleTime);
 
-    clearInterval(this._timer);
-    this._timer = null;
-    this._idleTime = 0;
+    clearInterval(this.#timer);
+    this.#timer = null;
+    this.#idleTime = 0;
 
     return this;
   };
