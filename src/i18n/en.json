@@ -575,6 +575,7 @@
   "records-actions.dialog.all-records-not-allowed.title": "Action is not allowed",
   "records-actions.dialog.all-records-not-allowed.text": "The action with selected lines is not allowed",
   "records-actions.confirm-not-allowed": "Action is not allowed for all lines. Continue?",
+  "records-actions.background-mode.message": "Processing continues in the background.\nAfter closing the window, you will be able to monitor the progress of the operation in the Journal.",
   "records-actions.notify.title": "Widget Actions",
   "records-actions.error.execute-action": "Action failed",
   "records-actions.error.get-actions": "Actions haven't received",
