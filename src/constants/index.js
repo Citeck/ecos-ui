@@ -80,7 +80,9 @@ export const SourcesId = {
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   ACTION: 'uiserv/action',
-  PRESETS: 'uiserv/journal-settings'
+  PRESETS: 'uiserv/journal-settings',
+  GROUP: 'emodel/authority-group',
+  PERSON: 'emodel/person'
 };
 
 export const EmodelTypes = {

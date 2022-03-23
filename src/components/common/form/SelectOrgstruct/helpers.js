@@ -1,3 +1,5 @@
+import isNil from 'lodash/isNil';
+
 import { AUTHORITY_TYPE_USER } from './constants';
 
 export function handleResponse(result) {
@@ -5,7 +7,7 @@ export function handleResponse(result) {
     id: item.nodeRef,
     label: item.displayName,
     extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.shortName : null,
-    hasChildren: !!item.groupType,
+    hasChildren: !isNil(item.groupType),
     isLoaded: false,
     isOpen: false,
     attributes: item
@@ -24,8 +26,8 @@ export function prepareSelected(selectedItem) {
 export function converterUserList(source) {
   return source.map(item => ({
     id: item.id,
-    label: item.fullName,
-    extraLabel: item.userName,
+    label: item.displayName,
+    extraLabel: item.fullName,
     attributes: item
   }));
 }

@@ -1,95 +1,202 @@
-import * as queryString from 'query-string';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
-import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  DataTypes,
+  ITEMS_PER_PAGE,
+  ROOT_GROUP_NAME
+} from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
-import { getCurrentUserName, isNodeRef } from '../helpers/util';
+import { getCurrentUserName } from '../helpers/util';
 import { RecordService } from './recordService';
 
 export class OrgStructApi extends RecordService {
-  _loadedAuthorities = {};
-  _loadedGroups = {};
+  get groupAttributes() {
+    return {
+      displayName: '?disp',
+      fullName: 'authorityName',
+      groupSubType: 'groupSubType!""',
+      groupType: 'groupType!""',
+      nodeRef: '?id',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
+    };
+  }
+
+  static get userAttributes() {
+    return {
+      displayName: '?disp',
+      fullName: 'authorityName',
+      email: 'email',
+      isPersonDisabled: 'personDisabled?bool',
+      firstName: 'firstName',
+      lastName: 'lastName',
+      nodeRef: '?id',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`
+    };
+  }
 
   getUsers = (searchText = '') => {
-    let url = `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
-    if (searchText) {
-      url += `&filter=${searchText}`;
-    }
-    return this.getJson(url).catch(() => []);
+    return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then(result =>
+      get(result, 'items', []).map(item => get(item, 'attributes', {}))
+    );
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
-    excludeAuthoritiesByName = excludeAuthoritiesByName
-      .split(',')
-      .map(item => item.trim())
-      .join(',');
+  _prepareGroups = groups =>
+    (groups || []).map(group => ({
+      ...group,
+      groupType: (group.groupType || '').toUpperCase(),
+      groupSubType: (group.groupSubType || '').toUpperCase(),
+      shortName: (group.fullName || '').replace('GROUP_', '')
+    }));
 
-    const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup });
-
-    if (this._loadedGroups[queryStr]) {
-      return Promise.resolve(this._loadedGroups[queryStr]);
-    }
-
+  fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
-    const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
-
-    if (searchText) {
-      urlQuery.filter = searchText;
-      urlQuery.recurse = true;
-    }
-
-    const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
-      query: urlQuery
-    });
-
-    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
       items.filter(item => {
+        if (item.groupType === '') {
+          return true;
+        }
+
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
+    let queryVal = searchText
+      ? OrgStructApi.getSearchQuery(searchText)
+      : [
+          {
+            t: 'contains',
+            a: 'authorityGroups',
+            v: `${SourcesId.GROUP}@${groupName}`
+          }
+        ];
+    const extraQueryVal = [];
 
-    return this.getJson(url)
+    if (excludeAuthoritiesByName) {
+      excludeAuthoritiesByName.split(',').forEach(name => {
+        extraQueryVal.push({
+          t: 'not',
+          v: {
+            t: 'contains',
+            a: '_name',
+            v: name
+          }
+        });
+      });
+    }
+
+    const groups = Records.query(
+      {
+        sourceId: SourcesId.GROUP,
+        query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
+        language: 'predicate'
+      },
+      { ...this.groupAttributes }
+    )
+      .then(r => get(r, 'records', []))
       .then(filterByType)
-      .then(filtered => {
-        this._loadedGroups[queryStr] = filtered;
-        return filtered;
-      })
-      .catch(() => []);
-  };
+      .then(this._prepareGroups)
+      .then(records => {
+        if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
+          records.unshift({
+            id: 'emodel/authority-group@ALFRESCO_ADMINISTRATORS',
+            displayName: 'ALFRESCO_ADMINISTRATORS',
+            fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
+            shortName: 'ALFRESCO_ADMINISTRATORS',
+            groupSubType: '',
+            groupType: 'BRANCH',
+            nodeRef: 'emodel/authority-group@ALFRESCO_ADMINISTRATORS',
+            authorityType: AUTHORITY_TYPE_GROUP
+          });
+        }
 
-  fetchAuthName = id => {
-    return Records.get(id).load('cm:authorityName!cm:userName');
+        return records;
+      });
+
+    const users = Records.query(
+      {
+        sourceId: SourcesId.PERSON,
+        query: { t: 'and', v: queryVal },
+        language: 'predicate'
+      },
+      { ...OrgStructApi.userAttributes }
+    ).then(r => get(r, 'records', []));
+
+    return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
   };
 
   fetchAuthority = (dataType, value) => {
-    if (dataType === DataTypes.AUTHORITY && !isNodeRef(value)) {
-      return this.fetchAuthorityByName(value);
+    let recordRef = value;
+
+    if (dataType === DataTypes.AUTHORITY) {
+      recordRef = recordRef.replace(`${SourcesId.GROUP}@`, 'GROUP_');
+      recordRef = recordRef.replace(`${SourcesId.PERSON}@`, '');
     }
 
-    return this.fetchAuthorityByRef(value);
+    return this.fetchAuthorityByRef(recordRef);
   };
 
-  fetchAuthorityByRef = nodeRef => {
-    if (this._loadedAuthorities[nodeRef]) {
-      return Promise.resolve(this._loadedAuthorities[nodeRef]);
+  static prepareRecordRef = async recordRef => {
+    const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
+
+    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
+      return {
+        recordRef,
+        authorityType
+      };
     }
 
-    let url = `${PROXY_URI}api/orgstruct/authority?nodeRef=${nodeRef}`;
+    if (recordRef.includes('workspace://SpacesStore')) {
+      const attributes = await Records.get(recordRef).load({
+        userName: 'cm:userName',
+        authorityName: 'cm:authorityName'
+      });
 
-    return this.getJson(url)
-      .then(result => {
-        this._loadedAuthorities[nodeRef] = result;
-        return result;
-      })
-      .catch(() => (isNodeRef(nodeRef) ? { nodeRef } : { nodeRef, name: nodeRef }));
+      if (get(attributes, 'userName')) {
+        return {
+          authorityType,
+          recordRef: `${SourcesId.PERSON}@${attributes.userName}`
+        };
+      }
+
+      if (get(attributes, 'authorityName')) {
+        return {
+          recordRef: `${SourcesId.GROUP}@${attributes.authorityName.replace('GROUP_', '')}`,
+          authorityType: AUTHORITY_TYPE_GROUP
+        };
+      }
+
+      return {
+        authorityType,
+        recordRef: `${SourcesId.PERSON}@${recordRef}`
+      };
+    }
+
+    if (recordRef.includes('GROUP_')) {
+      return {
+        recordRef: `${SourcesId.GROUP}@${recordRef.replace('GROUP_', '')}`,
+        authorityType: AUTHORITY_TYPE_GROUP
+      };
+    }
+
+    return {
+      recordRef: `${SourcesId.PERSON}@${recordRef}`,
+      authorityType
+    };
   };
 
-  fetchAuthorityByName = async (authName = '') => {
-    const nodeRef = await Records.get(`${SourcesId.A_AUTHORITY}@${authName}`).load('nodeRef?str');
-    return this.fetchAuthorityByRef(nodeRef);
+  fetchAuthorityByRef = async nodeRef => {
+    const { recordRef, authorityType } = await OrgStructApi.prepareRecordRef(nodeRef);
+
+    if (authorityType === AUTHORITY_TYPE_USER) {
+      return Records.get(recordRef).load(OrgStructApi.userAttributes);
+    }
+
+    return Records.get(recordRef)
+      .load(this.groupAttributes)
+      .then(this._prepareGroups);
   };
 
   static async getGlobalSearchFields() {
@@ -105,17 +212,57 @@ export class OrgStructApi extends RecordService {
       .catch(() => []);
   }
 
-  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
-    const valRaw = searchText.trim();
-    const val = valRaw.split(' ');
-
+  static getSearchQuery = (search = '', searchFields = ['id', '_name']) => {
+    const valRaw = search.trim();
+    const val = valRaw.split(' ').filter(item => !!item);
     const queryVal = [
       {
-        t: 'eq',
-        att: 'TYPE',
-        val: 'cm:person'
+        t: 'contains',
+        a: 'authorityGroupsFull',
+        v: `emodel/authority-group@${ROOT_GROUP_NAME}`
       }
     ];
+
+    if (isEmpty(val)) {
+      return queryVal;
+    }
+
+    if (val.length < 2) {
+      queryVal.push({
+        t: 'or',
+        v: searchFields.map(a => ({
+          t: 'contains',
+          a,
+          v: val[0]
+        }))
+      });
+    } else {
+      queryVal.push({
+        t: 'or',
+        v: searchFields.map(a => ({
+          t: 'or',
+          v: [
+            {
+              t: 'contains',
+              a,
+              v: val.join(' ')
+            },
+            {
+              t: 'contains',
+              a,
+              v: val.reverse().join(' ')
+            }
+          ]
+        }))
+      });
+    }
+
+    return queryVal;
+  };
+
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
+    const searchFields = ['id', '_name'];
+    let queryVal = [];
 
     const predicateNotDisabled = {
       t: 'not-eq',
@@ -140,9 +287,8 @@ export class OrgStructApi extends RecordService {
     }
 
     if (searchText) {
-      const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName'];
       const addExtraFields = (fields = []) => {
-        searchFields.push(...fields.map(field => field.trim()));
+        searchFields.push(...fields.map(field => field.trim()).filter(field => !!field));
       };
 
       const globalSearchConfig = await OrgStructApi.getGlobalSearchFields();
@@ -153,70 +299,21 @@ export class OrgStructApi extends RecordService {
       if (Array.isArray(extraFields) && extraFields.length > 0) {
         addExtraFields(extraFields);
       }
-
-      if (val.length < 2) {
-        queryVal.push({
-          t: 'or',
-          val: searchFields.map(att => ({
-            t: 'contains',
-            att: att,
-            val: val[0]
-          }))
-        });
-      } else {
-        const firstLast = {
-          t: 'and',
-          val: [
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[0]
-            },
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[1]
-            }
-          ]
-        };
-
-        const lastFirst = {
-          t: 'and',
-          val: [
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[0]
-            },
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[1]
-            }
-          ]
-        };
-
-        queryVal.push({
-          t: 'or',
-          val: [firstLast, lastFirst]
-        });
-      }
     }
+
+    queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields));
 
     return Records.query(
       {
-        query: { t: 'and', val: queryVal },
-        language: 'predicate',
-        consistency: 'EVENTUAL',
+        sourceId: SourcesId.PERSON,
+        query: { t: 'and', v: queryVal },
         page: {
           maxItems: params.maxItems,
           skipCount: params.page * params.maxItems
-        }
+        },
+        language: 'predicate'
       },
-      {
-        fullName: '.disp',
-        userName: 'userName'
-      }
+      { ...OrgStructApi.userAttributes }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount

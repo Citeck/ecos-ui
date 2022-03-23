@@ -138,7 +138,7 @@ export default class EcosFormUtils {
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = recordData.formMode || FORM_MODE_EDIT;
+        const formMode = record ? recordData.formMode || FORM_MODE_EDIT : FORM_MODE_CREATE;
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
