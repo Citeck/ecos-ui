@@ -20,7 +20,8 @@ const ModalForm = () => {
     onCreateFormSubmit,
     onEditFormSubmit,
     controlProps,
-    computed
+    computed,
+    rowPosition
   } = context;
   const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
 
@@ -77,7 +78,8 @@ const ModalForm = () => {
 
   const formOptions = {
     parentForm,
-    formMode: formMode === FORM_MODE_EDIT ? FORM_MODE_EDIT : FORM_MODE_CREATE
+    formMode: formMode === FORM_MODE_EDIT ? FORM_MODE_EDIT : FORM_MODE_CREATE,
+    rowPosition
   };
 
   if (typeRef) {

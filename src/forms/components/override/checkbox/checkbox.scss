@@ -1,180 +1,135 @@
 @import '../../../constants';
 
-%checkbox-place-icon {
+%checkbox {
   font-family: $font-family-citeck;
   content: $citeck-icon-checkbox;
   color: $color-gray-6;
-  font-size: 22px;
   font-weight: normal;
-  position: relative;
+  position: absolute;
+  font-size: 22px;
 }
 
-%checkbox {
-  &-checked {
-    content: $citeck-icon-checkbox-checked;
-    color: $color-blue-dark;
-  }
+$states: (
+  'checked': $color-blue-dark,
+  'focus': $color-blue-light,
+  'disabled': $color-gray-4
+);
 
-  &-focus {
-    color: $color-blue-light;
-  }
-
-  &-disabled {
-    content: $citeck-icon-checkbox-dark;
-    color: $color-gray-4;
-  }
-}
+$positions: (
+  'top': 'after',
+  'left-right': 'after',
+  'right-right': 'after',
+  'bottom': 'before',
+  'right-left': 'before',
+  'left-left': 'before'
+);
 
 .formio-dialog-content .preview-panel,
 .formio-form {
   .formio-component-checkbox {
     padding-left: 0;
+    display: flex;
 
-    &_right {
-      display: flex;
-      align-content: stretch;
-      justify-content: flex-end;
-      align-items: center;
+    .form-check-input {
+      position: absolute;
+      opacity: 0;
+      height: 0;
+      width: 0;
+      overflow: hidden;
 
-      .form-check-label {
-        display: flex;
-        align-items: baseline;
-
-        &__span_position {
-          &-right-right {
-            & + i.glyphicon-question-sign {
-              margin-left: 7px;
-            }
-          }
-
-          &-left-right {
-            order: 2;
-
-            & + i.glyphicon-question-sign {
-              margin-right: 7px;
-            }
+      @each $state, $color in $states {
+        &:#{$state} + .form-check-text {
+          &::before,
+          &::after {
+            color: $color;
           }
         }
+      }
+
+      &:disabled + .form-check-text {
+        color: $color-gray-5;
       }
     }
 
-    input.form-check-input:first-child + span {
-      &.form-check-label {
-        &__span {
-          padding-left: 0;
-
-          &:before {
-            top: 2px;
-          }
-        }
-      }
+    .form-check-text {
+      display: inline-block;
+      line-height: 18px;
+      position: relative;
     }
 
     .form-check-label {
-      $label: &;
-
       line-height: 24px;
       font-size: 14px;
       cursor: pointer;
-      padding-left: 0;
 
-      .form-check-input:first-child {
-        position: absolute;
-        opacity: 0;
-        height: 0;
-        width: 0;
-        overflow: hidden;
+      &_top,
+      &_bottom {
+        margin: 0 auto;
+      }
 
-        + span {
+      &_right-right,
+      &_right-left {
+        margin-left: auto;
+        margin-right: 0;
+      }
+
+      &_right-right {
+        padding-right: 30px;
+      }
+
+      &_top .form-check-text::#{map-get($positions, 'top')} {
+        position: initial;
+        display: block;
+        margin-top: 10px;
+      }
+
+      &_bottom .form-check-text::#{map-get($positions, 'bottom')} {
+        position: initial;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      //box is on the Left
+      &_left-left,
+      &_right-left {
+        & .form-check-text {
           padding-left: 32px;
-          display: inline-block;
-          line-height: 18px;
-          position: relative;
 
-          &:before {
-            @extend %checkbox-place-icon;
-            margin-right: 10px;
-            left: 1px;
-          }
-        }
-
-        &:checked {
-          + span {
-            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-              &:before {
-                @extend %checkbox-checked;
-              }
-            }
-
-            &.form-check-label__span_position-left-right,
-            &.form-check-label__span_position-left-left {
-              &:after {
-                @extend %checkbox-checked;
-              }
-            }
-          }
-        }
-
-        &:focus {
-          + span {
-            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-              &:before {
-                @extend %checkbox-focus;
-              }
-            }
-
-            &.form-check-label__span_position-left-right,
-            &.form-check-label__span_position-left-left {
-              &:after {
-                @extend %checkbox-focus;
-              }
-            }
-          }
-        }
-
-        &:disabled {
-          + span {
-            color: $color-gray-5;
-
-            &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-              &:before {
-                @extend %checkbox-disabled;
-              }
-            }
-
-            &.form-check-label__span_position-left-right,
-            &.form-check-label__span_position-left-left {
-              &:after {
-                @extend %checkbox-disabled;
-              }
-            }
-          }
-
-          &:checked {
-            + span {
-              &:not(.form-check-label__span_position-left-right):not(.form-check-label__span_position-left-left) {
-                &:before {
-                  content: $citeck-icon-checkbox-checked;
-                }
-              }
-
-              &.form-check-label__span_position-left-right,
-              &.form-check-label__span_position-left-left {
-                &:after {
-                  content: $citeck-icon-checkbox-checked;
-                }
-              }
-            }
+          &::#{map-get($positions, 'left-left')} {
+            position: absolute;
+            left: 0;
           }
         }
       }
 
-      &.field-required {
-        &:after {
-          position: absolute;
-          margin-left: 1px;
-          margin-top: -3px;
+      //box is on the Right
+      &_left-right,
+      &_right-right {
+        & .form-check-text::#{map-get($positions, 'left-right')} {
+          padding-left: 15px;
         }
+      }
+
+      &_has-tip .form-check-text::after {
+        padding-left: 25px;
+      }
+
+      @each $pos, $where in $positions {
+        &_#{$pos} .form-check-text::#{$where} {
+          @extend %checkbox;
+        }
+
+        &_#{$pos} .form-check-input:checked + .form-check-text::#{$where} {
+          content: $citeck-icon-checkbox-checked;
+        }
+      }
+
+      &.field-required::after {
+        top: 5px;
+      }
+
+      &_top.field-required::after {
+        top: -25px;
       }
     }
 
@@ -186,7 +141,6 @@
 
             &.form-check-label__span {
               &:before {
-                position: relative;
                 z-index: 5;
                 content: $citeck-icon-close;
 
@@ -194,10 +148,12 @@
                 margin-right: 12px;
                 font-size: 16px;
                 line-height: 100%;
-                left: 0;
                 margin-left: 4px;
                 top: 1px;
                 color: white;
+
+                position: absolute;
+                left: -0.5px;
               }
 
               &:after {
@@ -206,9 +162,78 @@
                 color: $color-blue-dark;
                 font-size: 22px;
                 position: absolute;
-                left: 1px;
                 top: 0;
                 border-radius: $border-radius-standard;
+
+                left: 0;
+              }
+
+              &_position {
+                &-left {
+                  &-right {
+                    padding-right: 32px;
+
+                    &:before {
+                      left: unset;
+                      right: -1.5px;
+                      margin: unset;
+                    }
+
+                    &:after {
+                      left: unset;
+                      right: -4.5px;
+                    }
+                  }
+                }
+
+                &-right {
+                  &-left {
+                    &:before {
+                      left: -1px;
+                    }
+                  }
+
+                  &-right {
+                    &:before {
+                      left: 100%;
+                      margin-left: 17.5px;
+                    }
+
+                    &:after {
+                      left: unset;
+                    }
+                  }
+                }
+
+                &-bottom {
+                  padding-top: 28px;
+
+                  &:before {
+                    margin: 0;
+                    left: calc(50% - 1em / 2);
+                  }
+
+                  &:after {
+                    left: calc(50% - 1em / 2);
+                  }
+                }
+
+                &-top {
+                  top: -3px;
+                  padding-bottom: 31px;
+
+                  &:before {
+                    margin: 0;
+                    top: 28px;
+                    left: calc(50% - 1em / 2);
+                  }
+
+                  &:after {
+                    margin: 0;
+                    top: 28px;
+                    left: calc(50% - 1em / 2);
+                  }
+                }
               }
             }
           }
@@ -238,230 +263,79 @@
       }
     }
 
-    &:not(.webform-builder-dv-checkbox) {
-      input.form-check-input:first-child + span {
-        &.form-check-label {
-          &__span {
-            &_position {
-              &-bottom {
-                padding-left: 0;
-
-                &:before {
-                  position: absolute;
-                  top: calc(-100% - 7px);
-                  margin: auto;
-                  width: 100%;
-                }
-
-                & + i.glyphicon-question-sign {
-                  position: absolute;
-                  bottom: 5px;
-                  margin-left: 5px;
-                }
-              }
-
-              &-top {
-                padding-left: 0;
-                margin-top: -23px;
-                vertical-align: top;
-
-                &:before {
-                  position: absolute;
-                  top: calc(100% + 7px);
-                  margin: auto;
-                  width: 100%;
-                }
-
-                & + i.glyphicon-question-sign {
-                  position: absolute;
-                  top: 4px;
-                  margin-left: 5px;
-                }
-              }
-
-              &-left {
-                &-left {
-                  padding-left: 0;
-
-                  &:before {
-                    content: '';
-                    margin: 0;
-                  }
-
-                  &:after {
-                    @extend %checkbox-place-icon;
-                    margin-left: 10px;
-                    top: 2px;
-                  }
-                }
-
-                &-right {
-                  padding-left: 0;
-                  right: 0;
-                  top: 0;
-
-                  &:before {
-                    content: '';
-                    margin: 0;
-                  }
-
-                  &:after {
-                    @extend %checkbox-place-icon;
-                    margin-left: 10px;
-                    top: 2px;
-                  }
-                }
-              }
-
-              &-right {
-                &-left {
-                  padding-left: 0;
-                }
-
-                &-right {
-                  padding-left: 0;
-                  right: 0;
-                  top: 0;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      &.checkbox-checked_cross {
-        .form-check-label {
-          .form-check-input:first-child {
-            + span {
-              &.form-check-label__span {
-                &_position {
-                  &-top {
-                    &:before {
-                      margin-left: 0;
-                      left: 1px;
-                      top: calc(100% + 8px);
-                      width: 100%;
-                    }
-
-                    &:after {
-                      margin-left: 0;
-                      top: calc(100% + 7px);
-                      left: 1px;
-                      width: 100%;
-                    }
-                  }
-
-                  &-left {
-                    &-left,
-                    &-right {
-                      &:before {
-                        position: absolute;
-                        right: 2px;
-                        top: 3px;
-                        left: unset;
-                        margin-right: 0;
-                        margin-left: 0;
-                      }
-
-                      &:after {
-                        position: relative;
-                        top: 2px;
-                        margin-left: 9px;
-                      }
-                    }
-
-                    &-left {
-                      & + i.glyphicon-question-sign {
-                        margin-left: 1px;
-                      }
-                    }
-
-                    &-right {
-                      &:before {
-                        right: 2px;
-                        margin-right: 1px;
-                      }
-
-                      &:after {
-                        margin-right: 1px;
-                      }
-                    }
-                  }
-
-                  &-right {
-                    &-left,
-                    &-right {
-                      &:before {
-                        position: relative;
-                        margin-right: 12px;
-                        top: 0;
-                      }
-
-                      &:after {
-                        position: absolute;
-                        top: -1px;
-                      }
-                    }
-
-                    &-right {
-                      margin-top: 3px;
-
-                      &:after {
-                        margin-right: 1px;
-                      }
-                    }
-                  }
-
-                  &-bottom {
-                    padding-left: 0;
-
-                    &:before,
-                    &:after {
-                      position: absolute;
-                      top: calc(-100% - 6px);
-                      margin: auto;
-                      width: 100%;
-                      left: 1px;
-                    }
-
-                    &:after {
-                      top: calc(-100% - 7px);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    &.webform-builder-dv-checkbox {
+    &.webform-builder-dv-checkbox.checkbox {
       label.form-check-label {
+        padding-right: 0;
+        margin: unset;
+        display: unset;
         text-align: left !important;
+        position: relative;
 
         input.form-check-input {
           width: unset !important;
           margin-left: -12px !important;
         }
 
-        .form-check-label__span {
+        i.glyphicon-question-sign {
+          position: absolute !important;
+          right: -16px !important;
+          top: 5px !important;
+        }
+
+        span.form-check-label__span.form-check-text {
+          padding-left: 32px;
+          padding-top: 0;
+
           &:before {
-            position: relative !important;
+            display: unset;
+            position: absolute;
+            left: 0;
+          }
+
+          &:after {
+            padding: unset;
+            position: absolute;
+            top: 0 !important;
+            margin: unset;
+            left: 0 !important;
+          }
+        }
+      }
+
+      &.checkbox-checked {
+        span.form-check-label__span.form-check-label__span_position-top.form-check-text {
+          &:after {
+            content: $citeck-icon-checkbox-checked;
+            color: $color-blue-dark;
           }
         }
       }
 
       &.checkbox-checked_cross {
         label.form-check-label {
-          .form-check-label__span {
+          span.form-check-label__span.form-check-text {
+            padding-right: 0 !important;
+
             &:before {
+              @extend %checkbox;
+              color: white;
+              content: $citeck-icon-close;
               margin-right: 12px !important;
               top: 0 !important;
+              left: 3px;
+              z-index: 5;
+              font-size: 16px;
+              right: unset !important;
+              margin-left: 0;
             }
 
             &:after {
-              top: -1px !important;
+              @extend %checkbox;
+              color: $color-blue-dark;
+              content: $citeck-icon-checkbox-dark;
+              top: 0 !important;
+              right: unset !important;
+              left: 0 !important;
             }
           }
         }

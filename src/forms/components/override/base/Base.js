@@ -13,10 +13,11 @@ import Tooltip from 'tooltip.js';
 import { getInputMask } from 'formiojs/utils/utils';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
-import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale } from '../../../../helpers/util';
 import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
+import { t } from '../../../../helpers/export/util';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -546,7 +547,7 @@ Base.prototype.build = function(state) {
 };
 
 Base.prototype.checkValidity = function(data, dirty, rowData) {
-  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue)) {
+  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue) && this.component.disabled) {
     return true;
   }
 

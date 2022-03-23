@@ -1,4 +1,5 @@
 import FormIOColumnComponent from 'formiojs/components/columns/Column';
+import _ from 'lodash';
 
 export default class ColumnComponent extends FormIOColumnComponent {
   static schema(...extend) {
@@ -27,6 +28,11 @@ export default class ColumnComponent extends FormIOColumnComponent {
   }
 
   get className() {
+    // exclude options.fullWidthColumns case / caused by ECOSENT-902
+    if (this.parent.component.inlineColumns) {
+      return 'col-inline-block';
+    }
+
     const comp = this.component;
     const options = this.options;
     const classList = [];
@@ -37,29 +43,21 @@ export default class ColumnComponent extends FormIOColumnComponent {
       return classList.join(' ');
     }
 
-    // exclude options.fullWidthColumns case
-    if (this.parent.component.inlineColumns) {
-      return 'col-inline-block';
-    }
+    const isOneColumnViewModeOld =
+      _.get(this, 'parent.parent.component.type') === 'panel' &&
+      _.get(this, 'parent.parent.component.title') &&
+      !_.get(this, 'parent.parent.component.hideLabel');
+    const isOneColumnViewModeEnabled = _.get(this, 'parent.component.oneColumnInViewMode', isOneColumnViewModeOld);
 
-    if (this.viewOnly) {
-      if (
-        this.parent &&
-        this.parent.parent &&
-        this.parent.parent.component &&
-        this.parent.parent.component.type === 'panel' &&
-        this.parent.parent.component.title &&
-        !this.parent.parent.component.hideLabel
-      ) {
-        classList.push('col-12');
-
-        return classList.join(' ');
-      }
+    if (this.viewOnly && isOneColumnViewModeEnabled) {
+      classList.push('col-12');
+      return classList.join(' ');
     }
 
     // TODO check it
     if (!comp.xs && !comp.sm) {
-      classList.push('col', `col-sm-${comp.width ? comp.width : 6}`);
+      const width = `col-sm-${comp.width ? comp.width : 6}`;
+      classList.push('col', width);
     }
 
     const xs = comp.xs || comp.width;

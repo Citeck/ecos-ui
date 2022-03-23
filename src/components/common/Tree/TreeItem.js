@@ -12,6 +12,7 @@ import { Badge, Checkbox } from '../../common/form';
 import { SortableElement, SortableHandle } from '../../Drag-n-Drop';
 import { ItemInterface, Labels, STEP_LVL, TOP_LVL } from './constants';
 import Actions from './Actions';
+import Popper from '../Popper';
 
 import './style.scss';
 
@@ -180,6 +181,8 @@ class TreeItem extends Component {
     );
   };
 
+  renderPopperContent = label => <div className="ecos-tree__item-element-label-tooltip">{extractLabel(label)}</div>;
+
   renderItem = (targetId, canDrag) => {
     const {
       isChild,
@@ -213,7 +216,7 @@ class TreeItem extends Component {
         })}
       >
         <div
-          className={classNames('ecos-tree__item-element', { [`${prefixClassName}--item-element`]: !!prefixClassName })}
+          className={classNames('ecos-tree__item-element', item.className, { [`${prefixClassName}--item-element`]: !!prefixClassName })}
           id={'id' + item.id}
         >
           {this.renderArrow()}
@@ -244,16 +247,17 @@ class TreeItem extends Component {
             </Tooltip>
           )}
           {isExistValue(badge) && <Badge text={badge} className="ecos-tree__item-element-badge" />}
-          <Tooltip target={targetId} text={extractLabel(label)} showAsNeeded uncontrolled autohide>
+
+          <Popper showAsNeeded text={extractLabel(label)} icon="icon-question" contentComponent={this.renderPopperContent(label)}>
             <div
               className={classNames('ecos-tree__item-element-label', {
                 'ecos-tree__item-element-label_locked': item.locked
               })}
-              id={targetId}
             >
               {extractLabel(label)}
             </div>
-          </Tooltip>
+          </Popper>
+
           {renderExtraComponents && (
             <div className="ecos-tree__item-element-custom-components">{renderExtraComponents({ item, level, isOpen })}</div>
           )}

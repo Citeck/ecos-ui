@@ -7,10 +7,7 @@ BaseEditValidation.push({
   clearOnHide: true,
   key: 'optionalWhenDisabled',
   label: 'Optional when disabled',
-  tooltip: 'Allow form saving if the field at once disabled, required and empty',
-  conditional: {
-    json: { var: 'data.validate.required' }
-  }
+  tooltip: 'Allow form saving if the field at once disabled, required and empty'
 });
 
 export default BaseEditValidation;

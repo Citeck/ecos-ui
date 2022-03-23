@@ -94,6 +94,7 @@
   "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
 
   "button.close-modal": "Закрыть",
+  "button.ok": "Понятно",
   "button.export": "Экспорт",
   "button.leave-site.cancel-label": "Отмена",
   "button.leave-site.confirm-label": "OK",
@@ -1187,6 +1188,14 @@
   "cipher-swp-gost.missing-plugin": "Не найден плагин КриптоПРО. Дешифрование будет отключено.",
 
   "esign.error": "Ошибка",
+  "esign.action.title": "<b>Действие</b>: {{action}}\n",
+  "esign.action.base64.title": "Получение Base64",
+  "esign.action.verification.title": "Проверка подписи строки в формате base64",
+  "esign.action.check-document.title": "Проверка документа",
+  "esign.action.get-certificates.title": "Получение сертификатов",
+  "esign.action.check-thumb.title": "Проверка thumbprint значения сертификата",
+  "esign.action.sign-docs.title": "Подписание документов",
+  "esign.eds-error": "Ошибка плагина ЭЦП",
   "esign.add-plugin.title": "Установите расширение",
   "esign.message.add-plugin": "Чтобы продолжить, установите расширение Cryptopro для браузера с сайта cryptopro.ru",
   "esign.message.no-certificates": "Нет доступных сертификатов",
@@ -1470,5 +1479,16 @@
   "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
   "ecos-form.import-button.failed-uploading.title": "Ошибка",
   "ecos-form.import-button.error.no-response-handler": "Необходимо указать настройку \"Response handler\"",
-  "ecos-form.builder.confirm-close.description": "Вы действительно хотите закрыть конструктор форм?\nВсе несохранённые данные будут утеряны."
+  "ecos-form.builder.confirm-close.description": "Вы действительно хотите закрыть конструктор форм?\nВсе несохранённые данные будут утеряны.",
+  "ecos-form.builder.debugging.title": "Отладка формы",
+  "ecos-form.builder.debugging.dependencies-tab.title": "Зависимости компонентов",
+  "ecos-form.builder.debugging.alert.loop": "Обнаружена циклическая зависимость в компонентах ({{count}})",
+  "ecos-form.builder.debugging.alert.not-loop": "Циклических зависимостей не обнаружено",
+  "ecos-form.builder.debugging.tree.dependencies.label": "Дерево зависимостей",
+  "ecos-form.builder.debugging.tree.influence.label": "Дерево влияния",
+  "ecos-form.builder.debugging.tree.dependencies.info": "Глубина дерева демонстрирует последовательность зависимости: родительский компонент зависит от дочернего и т.д.",
+  "ecos-form.builder.debugging.tree.influence.info": "Дерево влияния представляет собой обратную зависимость: глубже в дереве зависимые компоненты",
+  "ecos-form.builder.debugging.fatal-error": "При построении дерева зависисмостей произошла фатальная ошибка. Попробуйте провести анализ формы и зависимостей компанентов в json-редакторе или в Form Builder",
+
+  "more-about-error.label": "Подробнее об ошибке"
 }

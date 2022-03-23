@@ -94,6 +94,7 @@
   "admin-section.error.access-denied": "You don't have access to this page",
 
   "button.close-modal": "Close",
+  "button.ok": "OK",
   "button.export": "Export",
   "button.leave-site.cancel-label": "Cancel",
   "button.leave-site.confirm-label": "OK",
@@ -1188,6 +1189,14 @@
   "cipher-swp-gost.missing-plugin": "CryptoPRO plugin doesn't found. Decryption will be disabled.",
 
   "esign.error": "Error",
+  "esign.action.title": "<b>Action</b>: {{action}}\n",
+  "esign.action.base64.title": "Getting Base64",
+  "esign.action.verification.title": "Base64 string signature verification",
+  "esign.action.check-document.title": "Check Document",
+  "esign.action.get-certificates.title": "Getting Certificates",
+  "esign.action.check-thumb.title": "Check certificate value thumbprint",
+  "esign.action.sign-docs.title": "Sign Documents",
+  "esign.eds-error": "EDS plugin error",
   "esign.add-plugin.title": "Please, install extension",
   "esign.message.add-plugin": "To continue, install the Cryptopro browser extension from cryptopro.ru",
   "esign.message.no-certificates": "No certificates available",
@@ -1471,5 +1480,16 @@
   "ecos-form.import-button.failed-uploading.description": "Failure to upload file",
   "ecos-form.import-button.failed-uploading.title": "Error",
   "ecos-form.import-button.error.no-response-handler": "You must set \"Response handler\" setting",
-  "ecos-form.builder.confirm-close.description": "Are you sure you want to close the form designer?\nAll unsaved data will be lost."
+  "ecos-form.builder.confirm-close.description": "Are you sure you want to close the form designer?\nAll unsaved data will be lost.",
+  "ecos-form.builder.debugging.title": "Form debugging",
+  "ecos-form.builder.debugging.dependencies-tab.title": "Component Dependencies",
+  "ecos-form.builder.debugging.alert.loop": "Circular dependency detected in components ({{count}})",
+  "ecos-form.builder.debugging.alert.not-loop": "No loop dependencies found",
+  "ecos-form.builder.debugging.tree.dependencies.label": "Dependency Tree",
+  "ecos-form.builder.debugging.tree.influence.label": "Influence Tree",
+  "ecos-form.builder.debugging.tree.dependencies.info": "Tree depth shows dependency sequence: parent component depends on child, etc.",
+  "ecos-form.builder.debugging.tree.influence.info": "Influence tree is a reverse dependency: deeper in the tree are dependent components",
+  "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
+
+  "more-about-error.label": "More about the error"
 }
