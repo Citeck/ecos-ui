@@ -54,7 +54,7 @@ export const changeUrl = (url, opts = {}) => {
 };
 
 export const createProfileUrl = userName => {
-  return `${URL.DASHBOARD}?recordRef=${SourcesId.PEOPLE}@${userName}`;
+  return `${URL.DASHBOARD}?recordRef=${SourcesId.PERSON}@${userName}`;
 };
 
 export const createDocumentUrl = recordRef => {
@@ -77,6 +77,8 @@ export const createTaskUrl = (taskId, recordRef) => {
 
 export const createThumbnailUrl = (nodeRef, extra) => {
   const params = { property: 'ecos:photo', width: 150, ...extra, nodeRef };
+
+  console.warn({ params });
 
   return `${PROXY_URI}citeck/ecos/image/thumbnail?` + queryString.stringify(params);
 };

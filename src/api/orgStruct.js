@@ -275,7 +275,7 @@ export class OrgStructApi extends RecordService {
       queryVal.push(predicateNotDisabled);
     } else {
       const userName = getCurrentUserName();
-      const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
+      const isAdmin = Boolean(await Records.get(`${SourcesId.PERSON}@${userName}`).load('isAdmin?bool'));
       if (!isAdmin) {
         const showInactiveUserOnlyForAdmin = Boolean(
           await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')

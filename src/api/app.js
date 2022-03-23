@@ -67,7 +67,7 @@ export class AppApi extends CommonApi {
         .load('value?bool')
         .then(value => (isExistValue(value) ? value : true))
         .catch(() => true),
-      Records.get(`${SourcesId.PEOPLE}@${username}`)
+      Records.get(`${SourcesId.PERSON}@${username}`)
         .load('isAdmin?bool')
         .catch(() => false)
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);

@@ -81,8 +81,8 @@ export class DevToolsApi extends CommonApi {
   };
 
   getIsAccessiblePage = () => {
-    return Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`)
-      .load({ isAdmin: 'isAdmin?bool', isDevAdmin: '.att(n:"authorities"){has(n:"GROUP_DEV_TOOLS_ADMIN")}' })
+    return Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
+      .load({ isAdmin: 'isAdmin?bool', isDevAdmin: 'authorities._has.GROUP_DEV_TOOLS_ADMIN?bool' })
       .then(({ isAdmin, isDevAdmin }) => isAdmin || isDevAdmin);
   };
 }

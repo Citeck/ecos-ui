@@ -32,7 +32,7 @@ export default class EditPasswordAction extends ActionsExecutor {
       };
 
       const modal = WidgetService.openEditorPassword({ onChange, onCancel });
-      const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PEOPLE}@${getCurrentUserName()}`);
+      const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PERSON}@${getCurrentUserName()}`);
       const editUserData = await this.#userApi.getUserDataByRef(record.id);
 
       modal.update({

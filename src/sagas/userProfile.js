@@ -1,5 +1,8 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import set from 'lodash/set';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import {
   changePhoto,
@@ -14,8 +17,6 @@ import {
 import { setNotificationMessage } from '../actions/notification';
 import { t } from '../helpers/util';
 import UserService from '../services/UserService';
-import set from 'lodash/set';
-import get from 'lodash/get';
 
 function* sagaGetUserData({ api, logger }, { payload }) {
   const { record, stateId } = payload;
@@ -23,8 +24,16 @@ function* sagaGetUserData({ api, logger }, { payload }) {
   try {
     const data = yield call(api.user.getUserDataByRef, record);
 
+    console.warn({ data });
+
+    if (isEmpty(data)) {
+      return;
+    }
+
+    console.warn('set user data => ', { data, record });
+
     yield put(setUserData({ data, stateId }));
-    yield put(setUserPhoto({ thumbnail: UserService.getAvatarUrl(data.nodeRef, data.modified), stateId }));
+    yield put(setUserPhoto({ thumbnail: data.avatar /*UserService.getAvatarUrl(data.recordRef, data.modified)*/, stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.get-profile-data')));
     logger.error('[userProfile/sagaGetUserData saga] error', e.message);
@@ -43,7 +52,7 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     const { nodeRef = null } = yield call(api.app.uploadFile, formData);
 
     if (!nodeRef) {
-      throw new Error('No file nodeRef');
+      throw new Error('No file recordRef');
     }
 
     const response = yield call(api.user.changePhoto, {
@@ -59,7 +68,7 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     if (response.success) {
       const data = yield call(api.user.getUserDataByRef, record);
 
-      yield put(setUserPhoto({ thumbnail: UserService.getAvatarUrl(data.nodeRef, data.modified || Date.now()), stateId }));
+      yield put(setUserPhoto({ thumbnail: UserService.getAvatarUrl(data.recordRef, data.modified || Date.now()), stateId }));
       message = t('user-profile-widget.success.change-photo');
     } else {
       message = t('user-profile-widget.error.upload-profile-photo');
@@ -89,15 +98,21 @@ function* fetchAppUserData({ api, logger }, { payload }) {
 function* fetchAppUserThumbnail({ api, logger }, { payload }) {
   try {
     const userData = yield select(state => state.user);
-    const { nodeRef, modified } = userData || {};
+    const { recordRef, modified, avatar } = userData || {};
 
-    if (nodeRef) {
-      const userPhotoSize = yield call(api.user.getPhotoSize, nodeRef);
+    console.warn({ payload, userData });
 
-      if (userPhotoSize > 0) {
-        const photoUrl = UserService.getAvatarUrl(nodeRef, modified);
-        yield put(setAppUserThumbnail(photoUrl));
-      }
+    // if (recordRef) {
+    //   // const userPhotoSize = yield call(api.user.getPhotoSize, recordRef);
+    //
+    //   if (true/*userPhotoSize > 0*/) {
+    //     const photoUrl = UserService.getAvatarUrl(recordRef, modified);
+    //     yield put(setAppUserThumbnail(photoUrl));
+    //   }
+    // }
+
+    if (avatar) {
+      yield put(setAppUserThumbnail(avatar));
     }
   } catch (e) {
     logger.error('[user/getUpdUserData saga] error', e.message);

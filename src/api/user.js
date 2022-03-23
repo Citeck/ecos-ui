@@ -1,3 +1,5 @@
+import isEmpty from 'lodash/isEmpty';
+
 import { PROXY_URI } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
@@ -6,6 +8,26 @@ import { CommonApi } from './common';
 import { isNewJournalsPageEnable } from './export/journalsApi';
 
 export class UserApi extends CommonApi {
+  get attributes() {
+    return {
+      userName: '_localId',
+      isDeputyAvailable: 'atWorkplace?bool',
+      isMutable: 'isMutable?bool',
+      firstName: 'firstName',
+      lastName: 'lastName',
+      middleName: 'middleName',
+      isAdmin: 'isAdmin?bool',
+      fullName: 'fullName',
+      uid: 'id',
+      isDisabled: 'personDisabled?bool',
+      isBpmAdmin: 'authorities._has.GROUP_BPM_APP_ADMIN?bool',
+      // nodeRef: '_id',
+      authorityName: 'authorityName!"CURRENT"',
+      modified: '_modified?str',
+      avatar: 'avatar.url'
+    };
+  }
+
   getPhotoSize = userNodeRef => {
     const url = `${PROXY_URI}citeck/node?nodeRef=${userNodeRef}&props=ecos:photo`;
     return this.getJson(url).then(data => {
@@ -18,60 +40,44 @@ export class UserApi extends CommonApi {
   };
 
   getUserData = () => {
-    return Records.query(
-      {
-        sourceId: SourcesId.PEOPLE
-      },
-      {
-        userName: 'userName',
-        isAvailable: 'isAvailable?bool',
-        isDeputyAvailable: 'deputy:available?bool',
-        isMutable: 'isMutable?bool',
-        firstName: 'cm:firstName',
-        lastName: 'cm:lastName',
-        middleName: 'cm:middleName',
-        isAdmin: 'isAdmin?bool',
-        fullName: 'fullName',
-        uid: 'cm:name',
-        isBpmAdmin: '.att(n:"authorities"){has(n:"GROUP_BPM_APP_ADMIN")}',
-        nodeRef: 'nodeRef?str',
-        modified: '_modified?str',
-        avatar: 'avatar.url'
-      }
-    ).then(resp => {
-      if (resp.records.length < 1) {
-        return {
-          success: false
-        };
-      }
+    console.warn('get user data ===> ', SourcesId.CURRENT_USER);
 
-      return {
-        success: true,
-        payload: {
-          ...resp.records[0]
+    return Records.get(SourcesId.CURRENT_USER)
+      .load({ ...this.attributes })
+      .then(result => {
+        if (isEmpty(result)) {
+          return {
+            success: false
+          };
         }
-      };
-    });
+
+        return {
+          success: true,
+          payload: {
+            ...result,
+            isAvailable: !result.isDisabled,
+            recordRef: `${SourcesId.PERSON}@${result.authorityName}`
+          }
+        };
+      });
   };
 
   isUserAdmin = () => {
-    return Records.queryOne({ sourceId: SourcesId.PEOPLE }, 'isAdmin?bool');
+    return Records.get(SourcesId.CURRENT_USER).load('isAdmin?bool');
   };
 
-  getUserDataByRef(ref) {
-    return Records.get(ref).load({
-      userName: 'userName',
-      firstName: 'cm:firstName',
-      lastName: 'cm:lastName',
-      middleName: 'cm:middleName',
-      isAdmin: 'isAdmin?bool',
-      nodeRef: 'nodeRef?str',
-      modified: '_modified?str'
-    });
-  }
+  getUserDataByRef = ref =>
+    Records.get(ref)
+      .load({ ...this.attributes })
+      .then(result => ({
+        ...result,
+        recordRef: `${SourcesId.PERSON}@${result.authorityName}`
+      }));
 
   changePassword({ record, data: { oldPass, pass, passVerify } }) {
     const user = Records.get(record);
+
+    console.warn('changePassword => ', { record });
 
     user.att('ecos:pass', pass);
     user.att('ecos:passVerify', passVerify);
@@ -95,6 +101,8 @@ export class UserApi extends CommonApi {
 
   changePhoto({ record, data }) {
     const user = Records.get(record);
+
+    console.warn('changePhoto => ', { record });
 
     user.att('ecos:photo?str', { ...data });
 
