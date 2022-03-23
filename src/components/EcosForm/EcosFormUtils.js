@@ -925,10 +925,12 @@ export default class EcosFormUtils {
     if (!recordId) {
       return Promise.resolve({});
     }
+
     const { inputByKey, attributes } = EcosFormUtils.preProcessingAttrs(inputs);
 
     const recordInstance = Records.get(recordId);
-    const force = !recordInstance.isPendingCreate();
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
+    const force = !recordInstance.isPendingCreate() && !recordId.includes('-alias-');
 
     return recordInstance.load(attributes, force).then(recordData => {
       const submission = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey, ownerId });
