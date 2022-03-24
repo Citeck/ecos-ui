@@ -28,6 +28,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     return TextAreaComponent.schema();
   }
 
+  get isCkeEditor() {
+    return this.component.editor === 'ckeditor';
+  }
+
+  get isQuillEditor() {
+    return this.component.editor === 'quill';
+  }
+
+  get isAceEditor() {
+    return this.component.editor === 'ace';
+  }
+
   setValue(value, flags) {
     const skipSetting = _.isEqual(value, this.getValue());
     value = value || '';
@@ -97,12 +109,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           return editor;
         });
       });
-    });
+    }).catch(err => console.warn(err));
   }
 
   addQuill(element, settings, onChange) {
-    settings = _.isEmpty(settings) ? this.wysiwygDefault : settings;
-
+    settings = _.merge(this.wysiwygDefault, settings);
     // Lazy load the quill css.
     Formio.requireLibrary(
       `quill-css-${settings.theme}`,
@@ -202,7 +213,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return;
     }
 
-    if (this.component.editor === 'ace') {
+    if (this.isAceEditor) {
       const settings = _.cloneDeep(this.component.wysiwyg || {});
       const props = { rows: this.component.rows };
 
@@ -210,7 +221,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return this.input;
     }
 
-    if (this.component.editor === 'ckeditor') {
+    if (this.isCkeEditor) {
       const settings = this.component.wysiwyg || {};
       settings.rows = this.component.rows;
       this.addCKE(this.input, settings, newValue => this.updateEditorValue(newValue)).then(editor => {
@@ -230,7 +241,9 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       (this.component.wysiwyg.hasOwnProperty('toolbarGroups') || this.component.wysiwyg.hasOwnProperty('toolbar'))
     ) {
       console.warn(
-        'The WYSIWYG settings are configured for CKEditor. For this renderer, you will need to use configurations for the Quill Editor. See https://quilljs.com/docs/configuration for more information.'
+        'The WYSIWYG settings are configured for CKEditor. For this renderer, ' +
+          'you will need to use configurations for the Quill Editor. ' +
+          'See https://quilljs.com/docs/configuration for more information.'
       );
       this.component.wysiwyg = this.wysiwygDefault;
       this.emit('componentEdit', this);
@@ -263,10 +276,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   refreshWysiwyg() {
-    this.editorReady = new Promise(resolve => {
-      this.editorReadyResolve = resolve;
-    });
-
+    this.editorReady = new Promise(resolve => (this.editorReadyResolve = resolve));
     this.enableWysiwyg();
     this.setWysiwygValue(this.dataValue);
     this.wysiwygRendered = true;
@@ -287,18 +297,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   show(show, noClear) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
     if (show && this.wysiwygRendered && this.editorReady) {
-      this.editorReady.then(editor => {
-        let parentNode = null;
-        if (this.component.editor === 'ckeditor') {
-          parentNode = _.get(editor, 'sourceElement.parentNode');
-        } else {
-          parentNode = _.get(editor, 'container.parentNode');
-        }
-
-        if (!parentNode) {
-          this.refreshWysiwyg();
-        }
-      });
+      this.editorReady
+        .then(editor => {
+          const source = this.isCkeEditor ? 'sourceElement' : 'container';
+          const parentNode = _.get(editor, `${source}.parentNode`);
+          !parentNode && this.refreshWysiwyg();
+        })
+        .catch(err => console.warn(err));
     }
 
     return super.show(show, noClear);
