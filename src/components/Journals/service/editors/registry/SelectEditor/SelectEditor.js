@@ -42,7 +42,6 @@ export default class SelectEditor extends BaseEditor {
             propOptions = [];
           }
         }
-
         setOptions(propOptions);
         setSelected(selected);
       }, []);
@@ -52,6 +51,7 @@ export default class SelectEditor extends BaseEditor {
           const optionsAtt = config.optionsAtt || `_edge.${attribute}.options[]{value:?str,label:?disp}`;
 
           setLoading(true);
+
           Records.get(recordRef)
             .load(optionsAtt)
             .then(res => {
