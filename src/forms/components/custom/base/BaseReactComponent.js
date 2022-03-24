@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import RawHtmlWrapper from '../../../../components/common/RawHtmlWrapper';
 import BaseComponent from './BaseComponent';
@@ -57,6 +58,7 @@ export default class BaseReactComponent extends BaseComponent {
     }
 
     this.embedReactContainer(this.element, 'div');
+    this.setContainerStyles();
     this.renderReactComponent(firstBuild);
 
     if (firstBuild) {
@@ -94,6 +96,21 @@ export default class BaseReactComponent extends BaseComponent {
     }
   }
 
+  setContainerStyles() {
+    const input = this.#react.container;
+
+    if (this.labelOnTheLeftOrRight(this.component.labelPosition)) {
+      const totalLabelWidth = this.getLabelWidth() + this.getLabelMargin();
+
+      input.style.width = ''.concat(100 - totalLabelWidth, '%');
+      input.style.display = 'inline-block';
+
+      if (this._isInlineEditingMode) {
+        input.style.marginLeft = totalLabelWidth + '%';
+      }
+    }
+  }
+
   createViewOnlyValue(container) {
     this.embedReactContainer(container, 'dd');
     this.createInlineEditButton(container);
@@ -102,9 +119,7 @@ export default class BaseReactComponent extends BaseComponent {
 
   updateReactComponent(updateFunc) {
     this.#react.innerPromise.then(comp => {
-      if (typeof updateFunc === 'function') {
-        updateFunc(comp);
-      }
+      isFunction(updateFunc) && updateFunc(comp);
     });
   }
 
