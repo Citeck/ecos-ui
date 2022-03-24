@@ -1,5 +1,20 @@
 @import '../../../constants';
 
+:root {
+  --title-background-color: white;
+  --title-color: white;
+}
+
+$theme-title-back: (
+  'default': $color-yellow-1,
+  'primary': $primary,
+  'info': $color-blue-light2,
+  'success': $success,
+  'danger': $danger,
+  'warning': $warning
+);
+$theme-title-dark-color: 'info', 'default';
+
 .formio-dialog-content .preview-panel,
 .formio-form {
   .card {
@@ -9,8 +24,20 @@
       border: none !important;
     }
 
+    @each $name, $color in $theme-title-back {
+      &.panel-#{$name} {
+        --title-background-color: #{$color};
+      }
+    }
+
+    @each $name in $theme-title-dark-color {
+      &.panel-#{$name} {
+        --title-color: #{$text-color-gray};
+      }
+    }
+
     .card-header {
-      background-color: transparent;
+      background-color: transparent !important;
       border-bottom: none;
       padding: 0;
     }
@@ -20,15 +47,13 @@
     }
 
     .card-title {
-      background: $color-yellow-1;
+      background-color: var(--title-background-color);
       border-radius: 6px;
-
       font-family: $font-family-open-sans;
       font-weight: $font-weight-semi-bold !important;
       font-size: $font-size-large;
-      color: $text-color-gray;
+      color: var(--title-color);
       line-height: 22px;
-
       padding: 5px 12px;
     }
   }

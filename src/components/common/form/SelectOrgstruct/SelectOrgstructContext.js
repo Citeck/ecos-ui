@@ -8,6 +8,7 @@ import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import { handleResponse, prepareSelected } from './helpers';
+import { SourcesId } from '../../../../constants';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -81,7 +82,7 @@ export const SelectOrgstructProvider = props => {
 
   const onChangeValue = selectedList => {
     const { onChange } = controlProps;
-    let valuePromise;
+    let value;
 
     function getVal(arr = []) {
       return multiple ? arr : arr[0] || '';
@@ -89,24 +90,35 @@ export const SelectOrgstructProvider = props => {
 
     switch (true) {
       case getFullData: {
-        valuePromise = Promise.resolve(getVal(selectedList));
+        value = getVal(selectedList);
         break;
       }
       case dataType === DataTypes.AUTHORITY: {
-        valuePromise = Promise.all(selectedList.map(item => item.id && orgStructApi.fetchAuthName(item.id))).then(getVal);
+        value = getVal(
+          selectedList.map(item => {
+            let id = item.id;
+
+            if (!id) {
+              return '';
+            }
+
+            id = id.replace(`${SourcesId.GROUP}@`, 'GROUP_');
+            id = id.replace(`${SourcesId.PERSON}@`, '');
+
+            return id;
+          })
+        );
         break;
       }
       default: {
-        valuePromise = Promise.resolve(getVal(selectedList.map(item => item.id)));
+        value = getVal(selectedList.map(item => item.id));
         break;
       }
     }
 
-    valuePromise.then(value => {
-      if (typeof onChange === 'function') {
-        onChange(value, selectedList);
-      }
-    });
+    if (typeof onChange === 'function') {
+      onChange(value, selectedList);
+    }
   };
 
   const onSelect = () => {

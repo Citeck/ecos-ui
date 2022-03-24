@@ -5,6 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
 
+import { OrgStructApi } from '../../../../api/orgStruct';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -14,14 +15,16 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
-import { isNodeRef } from '../../../../helpers/util';
-import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
 
-let authorityRefsByName = {};
+const _array = (str, checkForEmpty) => {
+  if (checkForEmpty && !str) {
+    return [];
+  }
 
-const _array = str => split(str, ',').map(item => item.trim());
+  return split(str, ',').map(item => item.trim());
+};
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -133,9 +136,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     const allowedAuthorityTypes = _array(allowedAuthorityType);
     const allowedGroupTypes = _array(allowedGroupType);
-    const allowedGroupSubTypes = allowedGroupSubType ? _array(allowedGroupSubType) : [];
-    const userSearchExtraFields = userSearchExtraFieldsStr ? _array(userSearchExtraFieldsStr) : [];
-    const excludeAuthoritiesByType = comp.excludeAuthoritiesByType ? _array(comp.excludeAuthoritiesByType) : [];
+    const allowedGroupSubTypes = _array(allowedGroupSubType, true);
+    const userSearchExtraFields = _array(userSearchExtraFieldsStr, true);
+    const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType, true);
 
     let renderControl = () => {
       if (comp.unreadable) {
@@ -191,42 +194,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
       return;
     }
 
-    if (isNodeRef(authority)) {
-      callback(authority);
-      return;
-    }
-
-    let cacheValue = authorityRefsByName[authority];
-    if (cacheValue) {
-      if (cacheValue.then) {
-        cacheValue.then(record => {
-          if (isNodeRef(record)) {
-            authorityRefsByName[authority] = record;
-            if (this._requestedAuthority === authority) {
-              callback(record);
-            }
-          } else {
-            authorityRefsByName[authority] = null;
-          }
-        });
-      } else {
-        callback(cacheValue);
-      }
-      return;
-    }
-
-    let query = {
-      language: 'fts-alfresco'
-    };
-    if (authority.indexOf('GROUP_') === 0) {
-      query.query = '=cm:authorityName:"' + authority + '"';
-    } else {
-      query.query = '=cm:userName:"' + authority + '"';
-    }
-
-    authorityRefsByName[authority] = Records.queryOne(query);
-
-    this._getAuthorityRef(authority, callback);
+    OrgStructApi.prepareRecordRef(authority).then(({ recordRef }) => {
+      callback(recordRef);
+    });
   };
 
   getValue() {
@@ -245,7 +215,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
       !this.viewOnly &&
       this.options.formMode === 'CREATE'
     ) {
-      value = Array.isArray(value) ? [Formio.getUser()] : Formio.getUser();
+      const currentUser = (Formio.getUser() || '').toLowerCase();
+
+      value = Array.isArray(value) ? [currentUser] : currentUser;
     }
 
     const setValueImpl = v => {

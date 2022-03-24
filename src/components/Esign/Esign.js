@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { Esign } from '../../services/esign';
-import { Btn } from '../common/btns';
 import EsignModal from './EsignModal';
-import MessageModal from './MessageModal';
 import { t } from '../../helpers/util';
 import { ErrorTypes, Labels, PLUGIN_URL } from '../../constants/esign';
+import DialogManager from '../common/dialogs/Manager';
 
 import './style.scss';
 
@@ -55,12 +54,43 @@ class EsignComponent extends Component {
     return Boolean(errorType || messageTitle || messageDescription);
   }
 
-  setError = ({ messageTitle, messageDescription, errorType }) => {
+  setError = ({ messageTitle, messageDescription, errorType, formattedError }) => {
+    let descriptionClassNames = '';
+    let buttons = [];
+
+    switch (errorType) {
+      case ErrorTypes.NO_CADESPLUGIN:
+        buttons = [
+          {
+            label: Labels.CANCEL_BTN,
+            onClick: this.handleCloseModal
+          },
+          {
+            label: Labels.GO_TO_PLUGIN_PAGE_BTN,
+            className: 'ecos-btn_blue ecos-btn_hover_light-blue esign-message__btn-full',
+            onClick: this.handleGoToPlugin
+          }
+        ];
+        descriptionClassNames = 'esign-message__description';
+        break;
+      default:
+        buttons = [];
+        break;
+    }
+
     this.setState({
       isOpen: true,
       messageTitle,
       messageDescription,
       errorType
+    });
+
+    return DialogManager.showErrorDialog({
+      title: messageTitle,
+      text: messageDescription,
+      error: formattedError,
+      buttons,
+      descriptionClassNames
     });
   };
 
@@ -119,42 +149,6 @@ class EsignComponent extends Component {
     onClose();
   };
 
-  renderInfoMessage() {
-    const { messageTitle, messageDescription, errorType, isOpen } = this.state;
-    let buttons = null;
-
-    switch (errorType) {
-      case ErrorTypes.NO_CADESPLUGIN:
-        buttons = (
-          <>
-            <Btn onClick={this.handleCloseModal}>{t(Labels.CANCEL_BTN)}</Btn>
-            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue esign-message__btn-full" onClick={this.handleGoToPlugin}>
-              {t(Labels.GO_TO_PLUGIN_PAGE_BTN)}
-            </Btn>
-          </>
-        );
-        break;
-      default:
-        buttons = (
-          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleCloseModal}>
-            {t(Labels.OK_BTN)}
-          </Btn>
-        );
-        break;
-    }
-
-    return (
-      <MessageModal
-        isOpen={Boolean(isOpen && (messageTitle || messageDescription))}
-        title={messageTitle}
-        description={messageDescription}
-        onHideModal={this.handleCloseModal}
-      >
-        <div className="esign-message__btns">{buttons}</div>
-      </MessageModal>
-    );
-  }
-
   renderViewElement() {
     const { viewElement: ViewElement, toggleSignModal } = this.props;
 
@@ -185,8 +179,6 @@ class EsignComponent extends Component {
           certificates={certificates}
           selected={get(certificates, '0.id', '')}
         />
-
-        {this.renderInfoMessage()}
       </>
     );
   }

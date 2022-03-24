@@ -149,6 +149,15 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     const countByTypes = documents.map(record => record.documents);
     const filledTypes = DocumentsConverter.getDynamicTypes({ types: combinedTypes, countByTypes });
 
+    // TODO: Check if it's necessary
+    yield Promise.all(
+      filledTypes.map(async item => {
+        item.columns = await journalsService.resolveColumns(item.columns);
+
+        return item;
+      })
+    );
+
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
   } catch (e) {
     logger.error('[documents sagaGetDynamicTypes saga error', e.message);

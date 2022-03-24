@@ -116,7 +116,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns, columns, selected } = this.props;
+    const { resizableColumns, columns, selected, isResetSettings } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -132,6 +132,10 @@ class Grid extends Component {
 
     if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
       this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
+    }
+
+    if (!prevProps.isResetSettings && isResetSettings) {
+      this.#columnsSizes = {};
     }
 
     this.setColumnsSizes();
@@ -482,7 +486,7 @@ class Grid extends Component {
     this._tr = tr;
 
     if (!isScrolling) {
-      trigger.call(this, 'onChangeTrOptions', { row, ...style });
+      trigger.call(this, 'onChangeTrOptions', { row, position: tr.rowIndex - 1, ...style });
     }
   };
 
@@ -1076,6 +1080,8 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  withDateFilter: PropTypes.bool,
+  isResetSettings: PropTypes.bool,
   resizableColumns: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
