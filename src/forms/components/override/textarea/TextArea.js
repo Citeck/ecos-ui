@@ -328,7 +328,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   redraw(...r) {
-    if (this.is().Quill) {
+    if (this.isQuillEditor) {
       this.setWysiwygValue(this.dataValue);
       return;
     }
