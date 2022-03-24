@@ -28,8 +28,16 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     return TextAreaComponent.schema();
   }
 
-  is(e = this.component.editor) {
-    return { Cke: e === 'ckeditor', Ace: e === 'ace', Quill: e === 'quill' };
+  get isCkeEditor() {
+    return this.component.editor === 'ckeditor';
+  }
+
+  get isQuillEditor() {
+    return this.component.editor === 'quill';
+  }
+
+  get isAceEditor() {
+    return this.component.editor === 'ace';
   }
 
   setValue(value, flags) {
@@ -205,7 +213,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return;
     }
 
-    if (this.is().Ace) {
+    if (this.isAceEditor) {
       const settings = _.cloneDeep(this.component.wysiwyg || {});
       const props = { rows: this.component.rows };
 
@@ -213,7 +221,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return this.input;
     }
 
-    if (this.is().Cke) {
+    if (this.isCkeEditor) {
       const settings = this.component.wysiwyg || {};
       settings.rows = this.component.rows;
       this.addCKE(this.input, settings, newValue => this.updateEditorValue(newValue)).then(editor => {
@@ -291,7 +299,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (show && this.wysiwygRendered && this.editorReady) {
       this.editorReady
         .then(editor => {
-          const source = this.is().Cke ? 'sourceElement' : 'container';
+          const source = this.isCkeEditor ? 'sourceElement' : 'container';
           const parentNode = _.get(editor, `${source}.parentNode`);
           !parentNode && this.refreshWysiwyg();
         })
