@@ -43,8 +43,13 @@ export default class MLTextComponent extends BaseReactComponent {
     return MLText;
   }
 
+  prepareToInlineEditMode() {
+    this.setContainerStyles();
+  }
+
   getInitialReactProps() {
     return {
+      viewOnly: this.viewOnly,
       value: this.dataValue || this.emptyValue,
       onChange: value => {
         this.setPristine(false);

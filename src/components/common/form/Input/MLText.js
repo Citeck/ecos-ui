@@ -8,7 +8,11 @@ import './Input.scss';
 
 class MLText extends BaseMLField {
   render() {
-    const { className, style } = this.props;
+    const { className, style, viewOnly } = this.props;
+
+    if (viewOnly) {
+      return this.value || '-';
+    }
 
     return (
       <div style={style} className={classNames('ecos-ml-text', className)}>
