@@ -1,8 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
+import get from 'lodash/get';
 
-import { getPropByStringKey, t, trigger } from '../../../helpers/util';
+import { getPropByStringKey, isMobileDevice, t, trigger } from '../../../helpers/util';
 import { JOURNAL_SETTING_ID_FIELD } from '../constants';
+import { Tooltip } from '../../common';
 import { Input } from '../../common/form';
 import { IcoBtn } from '../../common/btns';
 import { RemoveDialog } from '../../common/dialogs';
@@ -91,9 +93,10 @@ class ListItem extends React.Component {
   };
 
   render() {
-    const { item, removable } = this.props;
+    const { item, removable, keyField } = this.props;
     const { isMouseOver, isDialogShow, isRenameMode, title, _title } = this.state;
     const hasActions = removable && !item.notRemovable && isMouseOver;
+    const targetId = '_' + get(item, keyField, '').replaceAll(/[#:/]/gi, '');
 
     return (
       <>
@@ -125,6 +128,7 @@ class ListItem extends React.Component {
           </>
         ) : (
           <div
+            id={targetId}
             className={classNames('ecos-journal-menu__list-item', {
               'ecos-journal-menu__list-item_hover': isMouseOver,
               'ecos-journal-menu__list-item_actions': hasActions
@@ -133,8 +137,9 @@ class ListItem extends React.Component {
             onMouseOver={this.onMouseOver}
             onMouseLeave={this.onMouseLeave}
           >
-            <span>{title}</span>
-
+            <Tooltip target={targetId} text={title} uncontrolled off={isMobileDevice()}>
+              <span>{title}</span>
+            </Tooltip>
             {hasActions ? (
               <>
                 <IcoBtn

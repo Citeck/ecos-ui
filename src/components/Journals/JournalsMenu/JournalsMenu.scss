@@ -57,6 +57,18 @@
       background-color: $color-gray-3 !important;
     }
   }
+
+  &__search {
+    &-block {
+      height: 50px;
+      padding-bottom: 10px;
+    }
+
+    &-field {
+      height: 100%;
+      width: 100%;
+    }
+  }
 }
 
 .ecos-journal-menu__hide-menu-btn {
