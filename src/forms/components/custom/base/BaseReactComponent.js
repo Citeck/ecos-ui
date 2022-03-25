@@ -131,7 +131,7 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   setContainerStyles() {
-    const input = this.#react.container;
+    const input = this.react.container;
 
     if (this.labelOnTheLeftOrRight(this.component.labelPosition)) {
       const totalLabelWidth = this.getLabelWidth() + this.getLabelMargin();
@@ -152,9 +152,7 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   updateReactComponent(updateFunc) {
-    this.#react.innerPromise.then(comp => {
-      isFunction(updateFunc) && updateFunc(comp);
-    });
+    this.react.innerPromise.then(comp => isFunction(updateFunc) && updateFunc(comp));
   }
 
   replaceReactComponent(component) {
