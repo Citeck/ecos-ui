@@ -128,6 +128,7 @@ class Tasks extends React.Component {
     return (
       <Scrollbars
         className="ecos-task-list"
+        hideTracksWhenNotNeeded
         renderTrackVertical={props => <div {...props} className="ecos-task-list__v-scroll" />}
         {...scrollbarProps}
       >
