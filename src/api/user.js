@@ -58,7 +58,7 @@ export class UserApi extends CommonApi {
 
   getUserDataByRef = (ref, force) =>
     Records.get(ref)
-      .load({ ...this.attributes })
+      .load({ ...this.attributes }, force)
       .then(result => ({
         ...result,
         recordRef: `${SourcesId.PERSON}@${result.authorityName}`
