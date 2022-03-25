@@ -2,6 +2,7 @@ import _ from 'lodash';
 import NativePromise from 'native-promise-only';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
+
 import { overrideTriggerChange } from '../misc';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
@@ -43,6 +44,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   setValue(value, flags) {
     const skipSetting = _.isEqual(value, this.getValue());
     value = value || '';
+
     if (this.options.readOnly || this.htmlView) {
       // For readOnly, just view the contents.
       if (this.input) {
@@ -54,16 +56,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       // Cause: ECOSUI-675 - Group list is not loaded in user info
       const changed = value !== undefined ? this.hasChanged(value, this.dataValue) : false;
       this.dataValue = value;
+
       return changed;
     } else if (this.isPlain) {
       value = Array.isArray(value) ? value.map(val => this.setConvertedValue(val)) : this.setConvertedValue(value);
+
       return super.setValue(value, flags);
     }
 
     // Set the value when the editor is ready.
     this.dataValue = value;
-
     this.setWysiwygValue(value, skipSetting, flags);
+
     return this.updateValue(flags); // Cause: ECOSUI-675 - Group list is not loaded in user info
   }
 
@@ -113,12 +117,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addQuill(element, settings, onChange) {
-    settings = _.merge(this.wysiwygDefault, settings);
+    const _settings = {};
+    _.merge(_settings, this.wysiwygDefault);
+    _.merge(_settings, settings);
     // Lazy load the quill css.
     Formio.requireLibrary(
-      `quill-css-${settings.theme}`,
+      `quill-css-${_settings.theme}`,
       'Quill',
-      [{ type: 'styles', src: `https://cdn.quilljs.com/1.3.6/quill.${settings.theme}.css` }],
+      [{ type: 'styles', src: `https://cdn.quilljs.com/1.3.6/quill.${_settings.theme}.css` }],
       true
     );
 
@@ -127,40 +133,51 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         if (!element.parentNode) {
           return NativePromise.reject();
         }
-        this.quill = new Quill(element, settings);
+        let quill = new Quill(element, _settings);
 
         /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
         const txtArea = document.createElement('textarea');
         txtArea.setAttribute('class', 'quill-source-code');
-        this.quill.addContainer('ql-custom').appendChild(txtArea);
+        quill.addContainer('ql-custom').appendChild(txtArea);
+
         const qlSource = element.parentNode.querySelector('.ql-source');
+        let onClickSource;
         if (qlSource) {
-          this.addEventListener(qlSource, 'click', event => {
+          onClickSource = event => {
             event.preventDefault();
             if (txtArea.style.display === 'inherit') {
-              this.quill.setContents(this.quill.clipboard.convert(txtArea.value));
+              quill.setContents(quill.clipboard.convert(txtArea.value));
             }
             txtArea.style.display = txtArea.style.display === 'none' ? 'inherit' : 'none';
-          });
+          };
+          this.addEventListener(qlSource, 'click', onClickSource);
         }
         /** END CODEBLOCK **/
 
         // Make sure to select cursor when they click on the element.
-        this.addEventListener(element, 'click', () => this.quill.focus());
+        const onClickElm = () => quill && quill.focus();
+        this.addEventListener(element, 'click', onClickElm);
 
         // Allows users to skip toolbar items when tabbing though form
-        const elm = document.querySelectorAll('.ql-formats > button');
-        for (let i = 0; i < elm.length; i++) {
-          elm[i].setAttribute('tabindex', '-1');
-        }
+        const buttons = document.querySelectorAll('.ql-formats > button');
+        [...buttons].map(btn => btn.setAttribute('tabindex', '-1'));
 
-        this.quill.on('text-change', () => {
-          txtArea.value = this.quill.root.innerHTML;
+        const onTextChange = () => {
+          txtArea.value = _.get(quill, 'root.innerHTML');
           onChange(txtArea);
-        });
+        };
+        quill.on('text-change', onTextChange);
 
-        resolve(this.quill);
-        return this.quill;
+        //own destroy, bc it's removed in new version, bc https://quilljs.com/guides/upgrading-to-1-0/
+        quill.destroy = () => {
+          this.removeEventListener(qlSource, 'click', onClickSource);
+          this.removeEventListener(element, 'click', onClickElm);
+          quill && quill.off('text-change', onTextChange);
+          quill = null;
+        };
+
+        resolve(quill);
+        return quill;
       });
     });
   }
@@ -248,13 +265,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.component.wysiwyg = this.wysiwygDefault;
       this.emit('componentEdit', this);
     }
+
     if (!this.component.wysiwyg || typeof this.component.wysiwyg === 'boolean') {
       this.component.wysiwyg = this.wysiwygDefault;
       this.emit('componentEdit', this);
     }
 
     // Add the quill editor.
-    this.addQuill(this.input, this.component.wysiwyg, () => this.updateEditorValue(this.quill.root.innerHTML))
+    this.addQuill(this.input, this.component.wysiwyg, txt => this.updateEditorValue(txt.value))
       .then(quill => {
         if (this.component.isUploadEnabled) {
           const _this = this;
@@ -307,5 +325,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     return super.show(show, noClear);
+  }
+
+  redraw(...r) {
+    if (this.isQuillEditor) {
+      this.setWysiwygValue(this.dataValue);
+      return;
+    }
+
+    super.redraw(...r);
   }
 }
