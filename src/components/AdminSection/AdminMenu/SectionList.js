@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
-import { t } from '../../../helpers/util';
+import { isMobileDevice, t } from '../../../helpers/util';
 import { Labels } from '../../../constants/adminSection';
 import { setActiveSection } from '../../../actions/adminSection';
 import AdminSectionService from '../../../services/AdminSectionService';
-import { CollapsibleList } from '../../common';
+import { CollapsibleList, Tooltip } from '../../common';
 
 import './style.scss';
 
-const renderItem = (item, onClick) => (
-  <div className="ecos-admin-menu-section__item" key={item.label} onClick={() => onClick(item)}>
-    {t(item.label)}
-  </div>
-);
+const renderItem = (item, onClick) => {
+  const id = '_' + JSON.stringify(item).replaceAll(/[\W]/gi, '');
+
+  return (
+    <div key={id} id={id} className="ecos-admin-menu-section__item" onClick={() => onClick(item)}>
+      <Tooltip uncontrolled showAsNeeded target={id} text={t(item.label)} off={isMobileDevice()}>
+        {t(item.label)}
+      </Tooltip>
+    </div>
+  );
+};
 
 const SectionList = React.memo(({ list = [], title = null, setActive, activeSection, onToggle, isOpen }) => {
   const [selected, setSelected] = useState(false);

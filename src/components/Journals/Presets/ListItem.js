@@ -32,11 +32,11 @@ export default class ListItem extends React.PureComponent {
 
   render() {
     const { item } = this.props;
-    const targetId = '_' + get(item, 'id', '').replaceAll(/[#:/@]/gi, '');
+    const targetId = '_' + get(item, 'id', '').replaceAll(/[\W]/gi, '');
 
     return (
       <div id={targetId} className="ecos-journal-menu__list-item fitnesse-ecos-journal-menu__list-item" onClick={this.onClick}>
-        <Tooltip target={targetId} text={item.displayName} uncontrolled off={isMobileDevice()}>
+        <Tooltip uncontrolled showAsNeeded target={targetId} text={item.displayName} off={isMobileDevice()}>
           <div className="ecos-journal-menu__list-item-title" title={item.displayName}>
             {item.displayName}
           </div>
