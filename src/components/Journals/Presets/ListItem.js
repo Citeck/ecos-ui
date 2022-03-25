@@ -1,6 +1,8 @@
 import React from 'react';
+import get from 'lodash/get';
 
-import { t } from '../../../helpers/util';
+import { isMobileDevice, t } from '../../../helpers/util';
+import { Tooltip } from '../../common';
 import DialogManager from '../../common/dialogs/Manager';
 import { IcoBtn } from '../../common/btns';
 import { Labels } from '../constants';
@@ -30,12 +32,15 @@ export default class ListItem extends React.PureComponent {
 
   render() {
     const { item } = this.props;
+    const targetId = '_' + get(item, 'id', '').replaceAll(/[#:/@]/gi, '');
 
     return (
-      <div className="ecos-journal-menu__list-item fitnesse-ecos-journal-menu__list-item" onClick={this.onClick}>
-        <div className="ecos-journal-menu__list-item-title" title={item.displayName}>
-          {item.displayName}
-        </div>
+      <div id={targetId} className="ecos-journal-menu__list-item fitnesse-ecos-journal-menu__list-item" onClick={this.onClick}>
+        <Tooltip target={targetId} text={item.displayName} uncontrolled off={isMobileDevice()}>
+          <div className="ecos-journal-menu__list-item-title" title={item.displayName}>
+            {item.displayName}
+          </div>
+        </Tooltip>
         {item.editable && (
           <div className="ecos-journal-menu__list-item-actions">
             <IcoBtn
