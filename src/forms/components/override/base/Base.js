@@ -296,7 +296,7 @@ Base.prototype.createInlineEditButton = function(container) {
       container.classList.add(INLINE_EDITING_CLASSNAME);
       editButton.removeEventListener('click', onEditClick);
 
-      if (typeof this.prepareToInlineEditMode === 'function') {
+      if (isFunction(this.prepareToInlineEditMode)) {
         this.prepareToInlineEditMode();
       }
 
