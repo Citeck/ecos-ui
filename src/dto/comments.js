@@ -47,7 +47,7 @@ export function getCommentForWeb(source) {
   target.lastName = author.lastName || '';
   target.displayName = author.displayName || '';
   target.userName = author.userName || '';
-  target.avatar = UserService.getAvatarUrl(author.id, undefined, { height: 150 });
+  target.avatar = UserService.getAvatarUrl(author.avatarUrl, { height: 150 });
   target.tags = Array.isArray(source.tags) ? source.tags.filter(item => !isEmpty(item)).map(getTag) : [];
 
   target.canEdit = !!permissions.canEdit;

@@ -21,27 +21,17 @@ export class UserApi extends CommonApi {
       uid: 'id',
       isDisabled: 'personDisabled?bool',
       isBpmAdmin: 'authorities._has.GROUP_BPM_APP_ADMIN?bool',
-      // nodeRef: '_id',
       authorityName: 'authorityName!"CURRENT"',
       modified: '_modified?str',
-      avatar: 'avatar.url'
+      thumbnail: 'avatar.url'
     };
   }
 
-  getPhotoSize = userNodeRef => {
-    const url = `${PROXY_URI}citeck/node?nodeRef=${userNodeRef}&props=ecos:photo`;
-    return this.getJson(url).then(data => {
-      if (!data.props || !data.props['ecos:photo']) {
-        return 0;
-      }
-
-      return data.props['ecos:photo'].size;
-    });
+  getUserPhoto = (recordRef = SourcesId.CURRENT_USER) => {
+    return Records.get(recordRef).load(this.attributes.thumbnail, true);
   };
 
   getUserData = () => {
-    console.warn('get user data ===> ', SourcesId.CURRENT_USER);
-
     return Records.get(SourcesId.CURRENT_USER)
       .load({ ...this.attributes })
       .then(result => {
@@ -66,7 +56,7 @@ export class UserApi extends CommonApi {
     return Records.get(SourcesId.CURRENT_USER).load('isAdmin?bool');
   };
 
-  getUserDataByRef = ref =>
+  getUserDataByRef = (ref, force) =>
     Records.get(ref)
       .load({ ...this.attributes })
       .then(result => ({
@@ -76,8 +66,6 @@ export class UserApi extends CommonApi {
 
   changePassword({ record, data: { oldPass, pass, passVerify } }) {
     const user = Records.get(record);
-
-    console.warn('changePassword => ', { record });
 
     user.att('ecos:pass', pass);
     user.att('ecos:passVerify', passVerify);
@@ -102,9 +90,11 @@ export class UserApi extends CommonApi {
   changePhoto({ record, data }) {
     const user = Records.get(record);
 
-    console.warn('changePhoto => ', { record });
-
-    user.att('ecos:photo?str', { ...data });
+    if (record.includes(`${SourcesId.PEOPLE}@`)) {
+      user.att('ecos:photo?str', { ...data });
+    } else {
+      user.att('photo', [{ ...data }]);
+    }
 
     return user
       .save()

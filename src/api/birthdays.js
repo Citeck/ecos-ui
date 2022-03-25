@@ -15,7 +15,8 @@ export class BirthdaysApi extends RecordService {
         lastName: 'lastName',
         middleName: 'middleName',
         displayName: 'displayName',
-        birthDate: 'birthDate'
+        birthDate: 'birthDate',
+        avatarUrl: 'avatarUrl'
       }
     ).then(response => response);
   };

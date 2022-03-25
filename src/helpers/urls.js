@@ -75,12 +75,15 @@ export const createTaskUrl = (taskId, recordRef) => {
   return `/citeck/components/redirect-to-task?nodeRef=${recordRef}`;
 };
 
-export const createThumbnailUrl = (nodeRef, extra) => {
-  const params = { property: 'ecos:photo', width: 150, ...extra, nodeRef };
+export const createThumbnailUrl = (url, extra) => {
+  if (!url) {
+    return '';
+  }
 
-  console.warn({ params });
+  const params = { width: 150, ...extra };
+  const symbol = url.includes('?') ? '&' : '?';
 
-  return `${PROXY_URI}citeck/ecos/image/thumbnail?` + queryString.stringify(params);
+  return `${url}${symbol}${queryString.stringify(params)}`;
 };
 
 export function createPrintUrl({ record, config }) {

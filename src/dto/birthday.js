@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import { IMAGE_URL_PATH } from '../constants';
 import { createProfileUrl } from '../helpers/urls';
+import UserService from '../services/UserService';
 
 export const getBirthdayDateForWeb = (source = {}) => {
   const target = {};
@@ -16,7 +17,7 @@ export const getBirthdayDateForWeb = (source = {}) => {
   target.name = get(source, 'displayName', '');
   target.nodeRef = get(source, 'userId', '');
   target.id = get(source, 'id', '');
-  target.avatar = `${IMAGE_URL_PATH}?nodeRef=${target.nodeRef}&property=ecos:photo&width=150&height=150`;
+  target.avatar = UserService.getAvatarUrl(get(source, 'avatarUrl'), { width: 150, height: 150 });
   target.url = createProfileUrl(get(source, 'userName', ''));
 
   return target;

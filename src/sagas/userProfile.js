@@ -24,16 +24,12 @@ function* sagaGetUserData({ api, logger }, { payload }) {
   try {
     const data = yield call(api.user.getUserDataByRef, record);
 
-    console.warn({ data });
-
     if (isEmpty(data)) {
       return;
     }
 
-    console.warn('set user data => ', { data, record });
-
     yield put(setUserData({ data, stateId }));
-    yield put(setUserPhoto({ thumbnail: data.avatar /*UserService.getAvatarUrl(data.recordRef, data.modified)*/, stateId }));
+    yield put(setUserPhoto({ thumbnail: data.thumbnail, stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.get-profile-data')));
     logger.error('[userProfile/sagaGetUserData saga] error', e.message);
@@ -66,9 +62,9 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     let message = '';
 
     if (response.success) {
-      const data = yield call(api.user.getUserDataByRef, record);
+      const data = yield call(api.user.getUserDataByRef, record, true);
 
-      yield put(setUserPhoto({ thumbnail: UserService.getAvatarUrl(data.recordRef, data.modified || Date.now()), stateId }));
+      yield put(setUserPhoto({ thumbnail: UserService.getAvatarUrl(data.thumbnail), stateId }));
       message = t('user-profile-widget.success.change-photo');
     } else {
       message = t('user-profile-widget.error.upload-profile-photo');
@@ -83,7 +79,7 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
   }
 }
 
-function* fetchAppUserData({ api, logger }, { payload }) {
+function* fetchAppUserData({ api, logger }) {
   try {
     const resp = yield call(api.user.getUserData);
 
@@ -95,24 +91,17 @@ function* fetchAppUserData({ api, logger }, { payload }) {
   }
 }
 
-function* fetchAppUserThumbnail({ api, logger }, { payload }) {
+function* fetchAppUserThumbnail({ api, logger }) {
   try {
     const userData = yield select(state => state.user);
-    const { recordRef, modified, avatar } = userData || {};
+    let { thumbnail } = userData || {};
 
-    console.warn({ payload, userData });
+    if (!thumbnail) {
+      thumbnail = yield call(api.user.getUserPhoto);
+    }
 
-    // if (recordRef) {
-    //   // const userPhotoSize = yield call(api.user.getPhotoSize, recordRef);
-    //
-    //   if (true/*userPhotoSize > 0*/) {
-    //     const photoUrl = UserService.getAvatarUrl(recordRef, modified);
-    //     yield put(setAppUserThumbnail(photoUrl));
-    //   }
-    // }
-
-    if (avatar) {
-      yield put(setAppUserThumbnail(avatar));
+    if (thumbnail) {
+      yield put(setAppUserThumbnail(thumbnail));
     }
   } catch (e) {
     logger.error('[user/getUpdUserData saga] error', e.message);

@@ -7,12 +7,13 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { extractLabel, t } from '../../helpers/util';
 import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
 import MenuService from '../../services/MenuService';
+import UserService from '../../services/UserService';
 import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
 import { IcoBtn } from '../common/btns';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
-  userPhotoUrl: state.user.avatar ? `${state.user.avatar}&width=150` : '',
+  userPhotoUrl: UserService.getAvatarUrl(state.user.thumbnail),
   items: state.header.userMenu.items,
   isLoading: state.header.userMenu.isLoading,
   theme: state.view.theme
