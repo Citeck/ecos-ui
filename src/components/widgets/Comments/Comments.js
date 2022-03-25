@@ -534,7 +534,7 @@ class Comments extends BaseWidget {
           <LinkEditor editorState={comment} onChangeState={this.handleChangeComment} />
         </div>
         <div className="ecos-comments__editor-body" onClick={this.handleFocusEditor}>
-          <Scrollbars style={{ height: '100%', minHeight }}>
+          <Scrollbars hideTracksWhenNotNeeded style={{ height: '100%', minHeight }}>
             <Editor
               spellCheck
               ref={this.setEditor}
