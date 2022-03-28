@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
 import { selectViewMode } from '../../../selectors/journals';
+import { Search } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { isDocLib, JOURNAL_VIEW_MODE, Labels } from '../constants';
 import FoldersTree from '../DocLib/FoldersTree';
@@ -22,7 +24,8 @@ class JournalsMenu extends React.Component {
 
   state = {
     journalsHeight: 0,
-    settingsHeight: 0
+    settingsHeight: 0,
+    searchText: ''
   };
 
   get isDocLibMode() {
@@ -31,9 +34,11 @@ class JournalsMenu extends React.Component {
 
   onClose = () => {
     const onClose = this.props.onClose;
-    if (typeof onClose === 'function') {
-      onClose.call(this);
-    }
+    isFunction(onClose) && onClose.call(this);
+  };
+
+  onSearch = searchText => {
+    this.setState({ searchText });
   };
 
   getMaxMenuHeight = () => {
@@ -68,9 +73,7 @@ class JournalsMenu extends React.Component {
   };
 
   setRef = ref => {
-    if (typeof this.props.forwardedRef === 'function') {
-      this.props.forwardedRef(ref);
-    }
+    isFunction(this.props.forwardedRef) && this.props.forwardedRef(ref);
 
     if (ref) {
       this._menuRef = ref;
@@ -85,7 +88,7 @@ class JournalsMenu extends React.Component {
         return <FoldersTree stateId={stateId} closeMenu={this.onClose} />;
       case JOURNAL_VIEW_MODE.TABLE:
       default:
-        return <PresetList stateId={stateId} />;
+        return <PresetList stateId={stateId} searchText={this.state.searchText} />;
     }
   };
 
@@ -124,6 +127,11 @@ class JournalsMenu extends React.Component {
               {this.getBtnLabel()}
             </IcoBtn>
           </div>
+          {!this.isDocLibMode && (
+            <div className="ecos-journal-menu__search-block">
+              <Search cleaner liveSearch searchWithEmpty onSearch={this.onSearch} className="ecos-journal-menu__search-field" />
+            </div>
+          )}
           {this.renderByViewMode()}
         </div>
       </div>
