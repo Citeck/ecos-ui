@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { getScrollbarWidth, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, openSelectedJournal, openSelectedJournalSettings, renameJournalSetting } from '../../../actions/journals';
-import { CollapsibleList } from '../../common';
+import { CollapsibleList, Search } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Well } from '../../common/form';
 import { JOURNAL_SETTING_DATA_FIELD, JOURNAL_SETTING_ID_FIELD } from '../constants';
@@ -56,14 +57,13 @@ class JournalsMenu extends React.Component {
 
   state = {
     journalsHeight: 0,
-    settingsHeight: 0
+    settingsHeight: 0,
+    searchText: ''
   };
 
   onClose = () => {
     const onClose = this.props.onClose;
-    if (typeof onClose === 'function') {
-      onClose.call(this);
-    }
+    isFunction(onClose) && onClose.call(this);
   };
 
   onJournalSelect = journal => {
@@ -72,6 +72,16 @@ class JournalsMenu extends React.Component {
 
   onJournalSettingsSelect = setting => {
     this.props.openSelectedJournalSettings(setting[JOURNAL_SETTING_ID_FIELD]);
+  };
+
+  onSearch = searchText => {
+    this.setState({ searchText });
+  };
+
+  filterList = (list, path) => {
+    const text = this.state.searchText;
+    const compare = item => new RegExp(`(${text})`, 'ig').test(get(item, path));
+    return !text ? list : list.filter(compare);
   };
 
   deleteJournalSettings = item => {
@@ -83,12 +93,15 @@ class JournalsMenu extends React.Component {
   };
 
   getMenuJournals = journals => {
-    return journals.map(journal => <ListItem onClick={this.onJournalSelect} item={journal} titleField={'title'} />);
+    return journals.map(journal => (
+      <ListItem key={get(journal, 'nodeRef')} onClick={this.onJournalSelect} item={journal} titleField={'title'} keyField={'nodeRef'} />
+    ));
   };
 
   getMenuJournalSettings = (settings, selectedIndex) => {
     return settings.map((setting, idx) => (
       <ListItem
+        key={get(setting, JOURNAL_SETTING_ID_FIELD)}
         onClick={this.onJournalSettingsSelect}
         onDelete={this.deleteJournalSettings}
         onApply={this.renameJournalSetting}
@@ -96,6 +109,7 @@ class JournalsMenu extends React.Component {
         item={setting}
         selected={idx === selectedIndex}
         titleField={`${JOURNAL_SETTING_DATA_FIELD}.title`}
+        keyField={JOURNAL_SETTING_ID_FIELD}
       />
     ));
   };
@@ -156,6 +170,8 @@ class JournalsMenu extends React.Component {
 
     const journalSettingId = journalSetting[JOURNAL_SETTING_ID_FIELD];
     const menuJournalSettingsSelectedIndex = this.getSelectedIndex(journalSettings, journalSettingId, JOURNAL_SETTING_ID_FIELD);
+    const journalArray = this.filterList(journals, 'title');
+    const settingArray = this.filterList(journalSettings, [JOURNAL_SETTING_DATA_FIELD, 'title']);
 
     return (
       <div
@@ -177,13 +193,16 @@ class JournalsMenu extends React.Component {
             {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
           </IcoBtn>
         </div>
+        <div className="ecos-journal-menu__search-block">
+          <Search cleaner liveSearch searchWithEmpty onSearch={this.onSearch} className="ecos-journal-menu__search-field" />
+        </div>
 
         <Well className="ecos-journal-menu__journals">
           <CollapsibleList
             needScrollbar={false}
             className="ecos-journal-menu__collapsible-list"
             classNameList="ecos-list-group_mode_journal"
-            list={this.getMenuJournals(journals)}
+            list={this.getMenuJournals(journalArray)}
             selected={this.getSelectedIndex(journals, nodeRef, 'nodeRef')}
             emptyText={t(Labels.EMPTY_LIST)}
           >
@@ -196,7 +215,7 @@ class JournalsMenu extends React.Component {
             needScrollbar={false}
             className="ecos-journal-menu__collapsible-list"
             classNameList="ecos-list-group_mode_journal"
-            list={this.getMenuJournalSettings(journalSettings, menuJournalSettingsSelectedIndex)}
+            list={this.getMenuJournalSettings(settingArray, menuJournalSettingsSelectedIndex)}
             selected={menuJournalSettingsSelectedIndex}
             emptyText={t(Labels.EMPTY_LIST)}
           >
