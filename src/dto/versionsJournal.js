@@ -29,7 +29,7 @@ export default class VersionsJournalConverter {
     target.name = source.name || '';
     target.id = source.id || '';
     target.url = source.downloadUrl || '';
-    target.avatar = source.modifierId ? UserService.getAvatarUrl(source.modifierId, undefined, { width: 50 }) : '';
+    target.avatar = UserService.getAvatarUrl(source.avatarUrl, { width: 50 });
 
     return target;
   }

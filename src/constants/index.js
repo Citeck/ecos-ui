@@ -82,7 +82,10 @@ export const SourcesId = {
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',
-  PERSON: 'emodel/person'
+  PERSON: 'emodel/person',
+  get CURRENT_USER() {
+    return `${SourcesId.PERSON}@CURRENT`;
+  }
 };
 
 export const EmodelTypes = {

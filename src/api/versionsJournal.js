@@ -20,7 +20,8 @@ export class VersionsJournalApi extends CommonApi {
         comment: 'comment',
         name: 'name',
         logo: 'logo',
-        modifierId: 'modifier.id'
+        modifierId: 'modifier.id',
+        avatarUrl: 'modifier.avatarUrl'
       }
     ).then(response => response);
   };

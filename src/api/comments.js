@@ -16,7 +16,7 @@ const EMODEL_FIELDS = {
   text: 'text',
   createdAt: '_created',
   modifiedAt: '_modified',
-  author: '_creator{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName}',
+  author: '_creator{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
   editor: '_modifier{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName}',
   permissions: 'permissions?json',
   edited: 'edited!false',

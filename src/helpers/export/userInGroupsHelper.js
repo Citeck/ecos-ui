@@ -1,11 +1,12 @@
 import Records from '../../components/Records';
 import { getCurrentUserName } from '../../helpers/util';
+import { SourcesId } from '../../constants';
 
 const isCurrentUserInGroup = group => {
   const currentPersonName = getCurrentUserName();
 
-  return Records.get('people@' + currentPersonName)
-    .load(`.att(n:"authorities"){has(n:"${group}")}`)
+  return Records.get(`${SourcesId.PERSON}@${currentPersonName}`)
+    .load(`authorities._has.${group}?bool`)
     .catch(e => {
       console.error(e);
       return false;
@@ -19,9 +20,12 @@ const checkFunctionalAvailability = configKeyFromSysJournal => {
       if (!groupsInOneString) {
         return false;
       }
+
       const groups = groupsInOneString.split(',');
       const results = [];
+
       groups.forEach(group => results.push(isCurrentUserInGroup(group)));
+
       return Promise.all(results).then(values => (values || []).includes(true));
     });
 };

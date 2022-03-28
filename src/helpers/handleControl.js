@@ -43,7 +43,7 @@ export const toggleAvailabilityStatus = payload => {
     },
     formDefinition: formDefinitionUserStatus,
     onSubmit: async submission => {
-      const userRef = await Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`).load('nodeRef?str');
+      const userRef = await Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`).load('nodeRef?str');
       const result = await ecosFetch(`${PROXY_URI}citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent`, {
         method: 'POST',
         body: {
@@ -219,7 +219,7 @@ export default function handleControl(type, payload) {
       })();
 
     case HCT.ECOS_EDIT_PASSWORD:
-      RecordActions.execForRecord(`${SourcesId.PEOPLE}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(e =>
+      RecordActions.execForRecord(`${SourcesId.PERSON}@${getCurrentUserName()}`, { type: ActionTypes.EDIT_PASSWORD }).catch(e =>
         console.error('error', e)
       );
       break;
