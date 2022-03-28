@@ -6,6 +6,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
+import debounce from 'lodash/debounce';
+
 import * as serviceWorker from './serviceWorker';
 
 import { i18nInit } from './i18n';
@@ -116,12 +118,35 @@ if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
   runApp();
 }
 
+const cancelTouchTimer = new IdleTimer();
+let cancelTouch = false;
+const rerunCancelTouchTimer = debounce(
+  () => {
+    cancelTouchTimer.stop().run();
+  },
+  500,
+  { leading: true, trailing: true, maxWait: 60000 }
+);
+
+cancelTouchTimer
+  .setCheckInterval(60000)
+  .setIdleTimeout(60000 * 3)
+  .setResetIdleCallback(() => {
+    cancelTouch = false;
+    rerunCancelTouchTimer();
+  })
+  .setIdleCallback(() => {
+    cancelTouch = true;
+  })
+  .run();
+
+const getCancelTouchStatus = () => cancelTouch;
 const idleTimer = new IdleTimer();
 idleTimer
   .setCheckInterval(60000)
   .setIdleTimeout(60000 * 60 * 3)
   .setNoIdleCallback(() => {
-    api.app.touch().catch(() => {});
+    api.app.touch(getCancelTouchStatus()).catch(() => {});
   })
   .run();
 
