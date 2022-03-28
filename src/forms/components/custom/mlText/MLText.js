@@ -69,6 +69,10 @@ export default class MLTextComponent extends BaseReactComponent {
     return this.convertStringValue(this.dataValue || this.emptyValue);
   }
 
+  prepareToInlineEditMode() {
+    this.setContainerStyles();
+  }
+
   handleChange = value => {
     this.setPristine(false);
     this.setValue(value);
