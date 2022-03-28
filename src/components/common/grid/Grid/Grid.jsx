@@ -136,6 +136,7 @@ class Grid extends Component {
 
     if (!prevProps.isResetSettings && isResetSettings) {
       this.#columnsSizes = {};
+      this.setState({ selected: [] });
     }
 
     this.setColumnsSizes();

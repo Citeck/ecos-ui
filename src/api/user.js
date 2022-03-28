@@ -1,6 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
 
-import { PROXY_URI } from '../constants/alfresco';
 import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';

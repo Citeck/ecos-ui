@@ -54,7 +54,7 @@ function mapDispatchToProps(dispatch, props) {
     saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
-    deselectAllRecords: () => dispatch(deselectAllRecords(w())),
+    deselectAllRecords: stateId => dispatch(deselectAllRecords({ stateId })),
     setUrl: urlParams => dispatch(setUrl(w(urlParams))),
     selectPreset: id => dispatch(selectPreset(w(id)))
   };
@@ -66,9 +66,22 @@ class TableView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, stateId, journalId, urlParams = {}, wasChangedSettings, withForceUpdate: force } = this.props;
+    const {
+      isActivePage,
+      viewMode,
+      stateId,
+      journalId,
+      urlParams = {},
+      wasChangedSettings,
+      withForceUpdate: force,
+      deselectAllRecords
+    } = this.props;
 
     if (!journalId || !isActivePage || !isTableOrPreview(viewMode)) {
+      if (prevProps.journalId !== journalId) {
+        deselectAllRecords(prevProps.stateId);
+      }
+
       return;
     }
 
