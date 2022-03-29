@@ -115,7 +115,7 @@ class Journals extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, setUrl } = this.props;
+    const { urlParams, stateId, isActivePage, isLoading, getJournalsData, setUrl, deselectAllRecords } = this.props;
     const { isActivePage: _isActivePage, urlParams: _urlParams } = prevProps;
 
     const _journalId = get(_urlParams, JournalUrlParams.JOURNAL_ID);
@@ -151,6 +151,7 @@ class Journals extends Component {
     }
 
     if (isActivePage && journalId && journalId !== _journalId) {
+      deselectAllRecords();
       this.setState({ isResetGridSettings: true }, () => this.setState({ isResetGridSettings: false }));
     }
   }
