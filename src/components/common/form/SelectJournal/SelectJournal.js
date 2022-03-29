@@ -824,7 +824,12 @@ export default class SelectJournal extends Component {
       >
         {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
 
-        <FiltersProvider columns={journalConfig.columns} sourceId={journalConfig.sourceId} presetFilterPredicates={presetFilterPredicates}>
+        <FiltersProvider
+          columns={journalConfig.columns}
+          sourceId={journalConfig.sourceId}
+          presetFilterPredicates={presetFilterPredicates}
+          metaRecord={journalConfig.metaRecord}
+        >
           {this.renderSelectModal()}
         </FiltersProvider>
       </div>

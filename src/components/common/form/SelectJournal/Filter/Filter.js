@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
@@ -6,23 +6,26 @@ import { t } from '../../../../../helpers/util';
 import Select from '../../../../common/form/Select';
 import EditorService from '../../../../Journals/service/editors/EditorService';
 import EditorScope from '../../../../Journals/service/editors/EditorScope';
+import FiltersContext from '../Filters/FiltersContext';
 
 import './Filter.scss';
 
 const Filter = React.memo(
   ({ idx, text, item, predicates, selectedPredicate, predicateValue, onRemove, onChangePredicate, onChangePredicateValue }) => {
+    const context = useContext(FiltersContext);
     const editorType = get(item, 'newEditor.type');
     const isShow = get(selectedPredicate, 'needValue', true);
-    const FilterValueComponent = React.memo(({ item, value, predicate, onUpdate }) =>
-      EditorService.getEditorControl({
+    const FilterValueComponent = React.memo(({ item, value, predicate, onUpdate }) => {
+      return EditorService.getEditorControl({
         attribute: item.attribute,
         editor: item.newEditor,
         value,
         scope: EditorScope.FILTER,
         onUpdate,
+        recordRef: context.metaRecord,
         controlProps: { predicate }
-      })
-    );
+      });
+    });
 
     return (
       <li className="select-journal-filter">
