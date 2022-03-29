@@ -1,7 +1,6 @@
 import moment from 'moment';
 import get from 'lodash/get';
 
-import { IMAGE_URL_PATH } from '../constants';
 import { createProfileUrl } from '../helpers/urls';
 import UserService from '../services/UserService';
 
