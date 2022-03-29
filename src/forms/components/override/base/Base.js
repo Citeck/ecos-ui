@@ -8,9 +8,8 @@ import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import Base from 'formiojs/components/base/Base';
-import { flattenComponents } from 'formiojs/utils/utils';
+import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
-import { getInputMask } from 'formiojs/utils/utils';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../../../helpers/util';
@@ -406,7 +405,8 @@ Base.prototype.createViewOnlyValue = function(container) {
   const customClass = get(this, 'component.customClass');
 
   if (customClass) {
-    container.classList.add(`${customClass}_view-mode`);
+    const list = `${customClass}_view-mode`.split(' ');
+    container.classList.add(...list);
   }
 };
 
