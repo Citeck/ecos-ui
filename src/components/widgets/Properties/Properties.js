@@ -162,6 +162,7 @@ class Properties extends React.Component {
       <Scrollbars
         className={classNames('ecos-properties__scroll', className)}
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
+        hideTracksWhenNotNeeded
         {...scrollProps}
       >
         <div ref={forwardedRef} style={{ minHeight: minHeight || '50px' }}>
