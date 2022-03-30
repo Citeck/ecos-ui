@@ -10,9 +10,8 @@ import isEqualWith from 'lodash/isEqualWith';
 import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 
-import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
+import { Caption, Checkbox, Field, Input, Select, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
-import SelectJournal from '../../common/form/SelectJournal';
 import {
   checkConfig,
   getDashletEditorData,
