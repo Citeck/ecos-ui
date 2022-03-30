@@ -1,12 +1,14 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import EventsHistory from './EventsHistory';
+import EventsHistorySettings from './EventsHistorySettings';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 
 import './style.scss';
@@ -41,7 +43,8 @@ class EventsHistoryDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      isSmallMode: false
+      isSmallMode: false,
+      isShowSetting: false
     };
   }
 
@@ -59,13 +62,31 @@ class EventsHistoryDashlet extends BaseWidget {
     return height;
   }
 
+  get dashletActions() {
+    const { isShowSetting } = this.state;
+
+    if (isShowSetting) {
+      return {};
+    }
+
+    return {
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.toggleSettings
+      }
+    };
+  }
+
   onResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
+  toggleSettings = () => {
+    this.setState(state => ({ isShowSetting: !state.isShowSetting }));
+  };
+
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isCollapsed } = this.state;
+    const { isSmallMode, runUpdate, isCollapsed, isShowSetting } = this.state;
 
     return (
       <Dashlet
@@ -73,7 +94,7 @@ class EventsHistoryDashlet extends BaseWidget {
         className={classNames('ecos-event-history-dashlet', classNameDashlet)}
         bodyClassName="ecos-event-history-dashlet__body"
         resizable={true}
-        noActions
+        actionConfig={this.dashletActions}
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
@@ -85,18 +106,22 @@ class EventsHistoryDashlet extends BaseWidget {
         setRef={this.setDashletRef}
         contentMaxHeight={this.dashletMaxHeight}
       >
-        <EventsHistory
-          {...config}
-          forwardedRef={this.contentRef}
-          className={classNameContent}
-          record={record}
-          stateId={this.stateId}
-          isSmallMode={isSmallMode}
-          runUpdate={runUpdate}
-          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
-          getContentHeight={this.setContentHeight}
-          scrollbarProps={this.scrollbarProps}
-        />
+        {isShowSetting ? (
+          <EventsHistorySettings />
+        ) : (
+          <EventsHistory
+            {...config}
+            forwardedRef={this.contentRef}
+            className={classNameContent}
+            record={record}
+            stateId={this.stateId}
+            isSmallMode={isSmallMode}
+            runUpdate={runUpdate}
+            maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
+            getContentHeight={this.setContentHeight}
+            scrollbarProps={this.scrollbarProps}
+          />
+        )}
       </Dashlet>
     );
   }
