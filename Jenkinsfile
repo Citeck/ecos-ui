@@ -75,8 +75,9 @@ timestamps {
           if (!project_version.contains('snapshot')) {
             mavenRepository = "maven-releases"
           }
-
-          sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+          withCredentials([usernamePassword(credentialsId: 'maven.jenkins', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh "gradle publish -PmavenUser=$USERNAME -PmavenPass=$PASSWORD -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+          }
         }
       }
 
