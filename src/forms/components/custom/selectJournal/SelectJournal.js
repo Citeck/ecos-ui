@@ -418,17 +418,26 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   updateValue(flags, value) {
     const changed = super.updateValue(flags, value);
+    const props = _.get(this.react, 'wrapper.props.props', {});
 
     this.refreshElementHasValueClasses();
 
     if (changed) {
-      _.set(this.react, 'waitingProps.defaultValue', value);
+      props.defaultValue = value;
     }
 
-    this.setReactProps(_.get(this.react, 'wrapper.props.props', {}));
+    this.delayedSettingProps(props);
 
     return changed;
   }
+
+  delayedSettingProps = _.debounce(
+    props => {
+      this.setReactProps(props);
+    },
+    250,
+    { maxWait: 500, trailing: true }
+  );
 
   refreshElementHasValueClasses() {
     if (!this.element) {
