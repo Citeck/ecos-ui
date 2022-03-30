@@ -62,12 +62,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournalComponent.schema();
   }
 
-  // clear() {
-  //   console.warn('clear');
-  //   this.getInitialReactProps().then(console.warn);
-  //   this.renderReactComponent(false);
-  // }
-
   checkConditions(data) {
     const result = super.checkConditions(data);
 
