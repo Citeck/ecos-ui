@@ -16,7 +16,7 @@ const Labels = {
 
 class EventsHistorySettings extends React.Component {
   static propTypes = {
-    selectedJournal: PropTypes.string,
+    config: PropTypes.object,
     onSave: PropTypes.func,
     onCancel: PropTypes.func
   };
@@ -31,18 +31,24 @@ class EventsHistorySettings extends React.Component {
     super(props);
 
     this.state = {
-      selectedJournal: props.selectedJournal
+      selectedJournal: props.config.selectedJournal
     };
   }
 
-  onCancel = () => {};
+  onCancel = () => {
+    this.props.onCancel();
+  };
 
-  onSave = () => {};
+  onSave = () => {
+    const { selectedJournal } = this.state;
+
+    this.props.onSave({ selectedJournal });
+  };
 
   onSelectJournal = selectedJournal => this.setState({ selectedJournal });
 
   render() {
-    const { selectedJournal } = this.props;
+    const { selectedJournal } = this.state;
 
     return (
       <div className="ecos-event-history-settings">

@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 
-import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
+import { filterEventsHistory, getEventsHistory, resetEventsHistory, getJournalConfig } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
@@ -36,22 +36,28 @@ import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../../Journals/service/util';
 import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const ahState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
+  const ehState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
+  let columns = EventsHistoryService.config.columns;
+
+  if (!!context.selectedJournal) {
+    columns = [];
+  } else if (!isEmpty(ehState.columns)) {
+    columns = ehState.columns;
+  } else if (!isEmpty(context.myColumns)) {
+    columns = context.myColumns;
+  }
 
   return {
-    list: ahState.list,
-    isLoading: ahState.isLoading,
-    columns: isEmpty(ahState.columns)
-      ? isEmpty(context.myColumns)
-        ? EventsHistoryService.config.columns
-        : context.myColumns
-      : ahState.columns,
+    list: ehState.list,
+    isLoading: ehState.isLoading,
+    columns,
     isMobile: state.view.isMobile
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   getEventsHistory: payload => dispatch(getEventsHistory(payload)),
+  getJournalConfig: payload => dispatch(getJournalConfig(payload)),
   filterEventsHistory: payload => dispatch(filterEventsHistory(payload)),
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
@@ -116,6 +122,10 @@ class EventsHistory extends React.Component {
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getEventsHistory();
     }
+
+    if (!isEqual(prevProps.selectedJournal, this.props.selectedJournal)) {
+      this.getJournalConfig();
+    }
   }
 
   componentWillUnmount() {
@@ -155,6 +165,12 @@ class EventsHistory extends React.Component {
     const { getEventsHistory, record, stateId, columns } = this.props;
 
     getEventsHistory({ stateId, record, columns });
+  };
+
+  getJournalConfig = () => {
+    const { getJournalConfig, record, stateId } = this.props;
+
+    getJournalConfig({ stateId, record });
   };
 
   getDateCompareResult(filter, value, format) {

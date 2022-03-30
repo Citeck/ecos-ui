@@ -80,6 +80,11 @@ class EventsHistoryDashlet extends BaseWidget {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
+  onSaveConfig = config => {
+    this.props.onSave && this.props.onSave(this.props.id, { config });
+    this.toggleSettings();
+  };
+
   toggleSettings = () => {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
@@ -106,8 +111,8 @@ class EventsHistoryDashlet extends BaseWidget {
         setRef={this.setDashletRef}
         contentMaxHeight={this.dashletMaxHeight}
       >
-        {isShowSetting ? (
-          <EventsHistorySettings />
+        {config && isShowSetting ? (
+          <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.onSaveConfig} />
         ) : (
           <EventsHistory
             {...config}
