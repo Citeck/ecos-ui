@@ -2,7 +2,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isBoolean from 'lodash/isBoolean';
-import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
@@ -40,26 +39,7 @@ export default class FileComponent extends FormIOFileComponent {
     super(...params);
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
-    this.on('change', () => {
-      if (!isEqual(this.dataValue, this.defaultValue)) {
-        this._runForciblyValidation();
-      }
-    });
-
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1665
-    const _triggerChange = this.triggerChange;
-
-    this.triggerChange = (...args) => {
-      if (!isEmpty(this.dataValue)) {
-        this.root && this.root.checkValidity(this.data, true);
-
-        window.setTimeout(() => {
-          this.root && this.root.showErrors(null, false);
-        }, 0);
-      }
-
-      return _triggerChange(...args);
-    };
+    this.on('change', this.validateOnChange);
   }
 
   get defaultSchema() {
@@ -378,17 +358,13 @@ export default class FileComponent extends FormIOFileComponent {
     }
   }
 
-  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
-  setCustomValidity = debounce((message, dirty) => {
-    super.setCustomValidity(message, dirty);
-  }, 150);
-
-  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
-  _runForciblyValidation = () => {
+  validateOnChange = () => {
     if (get(this.component, 'validateOn') !== 'change') {
       return;
     }
 
-    this.checkValidity(null, true);
+    if (!isEqual(this.dataValue, this.defaultValue)) {
+      this.checkValidity(null, true);
+    }
   };
 }
