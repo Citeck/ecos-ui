@@ -1,5 +1,6 @@
 import Choices from 'choices.js/public/assets/scripts/choices.js';
 import _ from 'lodash';
+
 import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
@@ -357,6 +358,10 @@ export default class SelectComponent extends BaseComponent {
 
       if (_.isString(item)) {
         return item === this.dataValue;
+      }
+
+      if (_.isArray(this.dataValue) && !_.isEmpty(this.dataValue)) {
+        return this.dataValue.includes(_.get(item, 'value'));
       }
 
       return _.get(item, 'value') === this.dataValue;
