@@ -108,11 +108,12 @@ class JournalsDataLoader {
               ...record
             }
           };
-          const recordComputed = journalConfig.configData.recordComputed;
+          const recordComputed = _get(journalConfig, 'configData.recordComputed');
           if (recordComputed && recordComputed.length) {
             computedPromises.push(computedService.resolve(recordComputed, newRecord.rawAttributes));
           }
-          const configComputed = journalConfig.configData.configComputed;
+
+          const configComputed = _get(journalConfig, 'configData.configComputed');
           if (configComputed) {
             for (let key in configComputed) {
               if (configComputed.hasOwnProperty(key)) {
@@ -155,7 +156,7 @@ class JournalsDataLoader {
     const attributesMap = {};
 
     for (let column of columns) {
-      attributesMap[column.name] = column.attSchema;
+      !!column.name && (attributesMap[column.name] = column.attSchema);
     }
 
     for (let att in settingsAttributes) {

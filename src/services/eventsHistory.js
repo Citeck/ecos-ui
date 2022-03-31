@@ -1,110 +1,79 @@
-import { cellMsg, t } from '../helpers/util';
-import { AUTHORITY_TYPE_USER } from '../components/common/form/SelectOrgstruct/constants';
-import OrgstructEditor from '../components/Journals/service/editors/registry/OrgstructEditor';
-import DateTimeEditor from '../components/Journals/service/editors/registry/DateTimeEditor';
+import { t } from '../helpers/util';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../components/Journals/service/util';
+import { EmodelTypes, SourcesId } from '../constants';
+import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 
 export default class EventsHistoryService {
   static config = {
     columns: [
       {
-        attribute: 'event:date',
-        formatter: {
-          name: 'DateTimeFormatter',
-          params: {
-            format: 'DD.MM.YYYY HH:mm:ss'
-          }
-        },
+        attribute: 'creationTime',
         text: t('dochist.header.date'),
+        searchable: true,
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.DATETIME,
-        newEditor: {
-          config: {},
-          type: DateTimeEditor.TYPE
+        newFormatter: {
+          type: 'datetime',
+          config: { format: 'DD.MM.YYYY HH:mm:ss' }
         }
       },
       {
-        attribute: 'event:name',
-        formatter: {
-          name: 'FunctionFormatter',
-          params: {
-            fn: cellMsg('dochist.')
-          }
-        },
-        text: t('dochist.header.name'),
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
-        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
-      },
-      {
-        attribute: 'event:documentVersion',
+        attribute: 'document.version',
         text: t('dochist.header.version'),
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
+        searchable: true,
+        searchableByText: true,
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        dataField: 'event:initiator',
-        formatter: 'UserNameLinkFormatter',
+        attribute: 'eventType',
+        text: t('dochist.header.name'),
+        searchable: true,
+        searchableByText: true,
+        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
+      },
+      {
         text: t('dochist.header.person'),
-        newEditor: {
-          config: {
-            allowedAuthorityTypes: AUTHORITY_TYPE_USER
-          },
-          type: OrgstructEditor.TYPE
-        },
-        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.AUTHORITY
+        attribute: 'username',
+        searchable: true,
+        searchableByText: true,
+        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        attribute: 'taskOriginalOwner',
-        formatter: 'UserNameLinkFormatter',
         text: t('dochist.header.fromName'),
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
+        attribute: 'document.owner',
+        searchable: true,
+        searchableByText: true,
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        attribute: 'event:taskRole',
-        text: t('dochist.header.group'),
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
-        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
-      },
-      {
-        attribute: 'event:taskTitle',
-        text: t('dochist.header.task'),
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
-        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
-      },
-      {
-        attribute: 'event:taskOutcomeTitle',
         text: t('dochist.header.outcome'),
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
+        attribute: 'taskTitle',
+        searchable: true,
+        searchableByText: true,
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        attribute: 'event:taskComment',
+        text: t('dochist.header.group'),
+        attribute: 'taskRole',
+        searchable: true,
+        searchableByText: true,
+        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
+      },
+      {
+        text: t('dochist.header.outcome'),
+        attribute: 'taskOutcomeName',
+        searchable: true,
+        searchableByText: true,
+        type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
+      },
+      {
         text: t('dochist.header.comment'),
-        className: 'event-cell-task-comment',
-        newEditor: {
-          config: {},
-          type: 'text'
-        },
+        attribute: 'comments',
+        searchable: true,
+        searchableByText: true,
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       }
-    ]
+    ],
+    sourceId: SourcesId.HISTORY_REC,
+    predicate: { att: '_type', val: EmodelTypes.HISTORY_REC, t: PREDICATE_EQ }
   };
 }

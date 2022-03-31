@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
@@ -65,15 +67,26 @@ class EventsHistoryDashlet extends BaseWidget {
   get dashletActions() {
     const { isShowSetting } = this.state;
 
-    if (isShowSetting) {
+    if (isShowSetting || !this.props.config) {
       return {};
     }
 
     return {
+      [DAction.Actions.RELOAD]: {
+        onClick: this.reload.bind(this)
+      },
       [DAction.Actions.SETTINGS]: {
         onClick: this.toggleSettings
       }
     };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
+
+    if (!isEqual(prevProps.config, this.props.config)) {
+      this.reload();
+    }
   }
 
   onResize = width => {
@@ -81,7 +94,7 @@ class EventsHistoryDashlet extends BaseWidget {
   };
 
   onSaveConfig = config => {
-    this.props.onSave && this.props.onSave(this.props.id, { config });
+    isFunction(this.props.onSave) && this.props.onSave(this.props.id, { config });
     this.toggleSettings();
   };
 
@@ -111,22 +124,19 @@ class EventsHistoryDashlet extends BaseWidget {
         setRef={this.setDashletRef}
         contentMaxHeight={this.dashletMaxHeight}
       >
-        {config && isShowSetting ? (
-          <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.onSaveConfig} />
-        ) : (
-          <EventsHistory
-            {...config}
-            forwardedRef={this.contentRef}
-            className={classNameContent}
-            record={record}
-            stateId={this.stateId}
-            isSmallMode={isSmallMode}
-            runUpdate={runUpdate}
-            maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
-            getContentHeight={this.setContentHeight}
-            scrollbarProps={this.scrollbarProps}
-          />
-        )}
+        {isShowSetting && <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.onSaveConfig} />}
+        <EventsHistory
+          {...config}
+          forwardedRef={this.contentRef}
+          className={classNames({ 'd-none': isShowSetting }, classNameContent)}
+          record={record}
+          stateId={this.stateId}
+          isSmallMode={isSmallMode}
+          runUpdate={runUpdate}
+          maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
+          getContentHeight={this.setContentHeight}
+          scrollbarProps={this.scrollbarProps}
+        />
       </Dashlet>
     );
   }

@@ -85,12 +85,16 @@ export const SourcesId = {
   PERSON: 'emodel/person',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
+  },
+  get HISTORY_REC() {
+    return `${SourcesId.HISTORY}/history-record`;
   }
 };
 
 export const EmodelTypes = {
   USER_DASHBOARD: 'emodel/type@user-dashboard',
-  BASE: 'emodel/type@base'
+  BASE: 'emodel/type@base',
+  HISTORY_REC: 'emodel/type@history-record'
 };
 
 export const ActionModes = {

@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 
-import { filterEventsHistory, getEventsHistory, resetEventsHistory, getJournalConfig } from '../../../actions/eventsHistory';
+import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
@@ -39,9 +39,7 @@ const mapStateToProps = (state, context) => {
   const ehState = selectDataEventsHistoryByStateId(state, context.stateId) || {};
   let columns = EventsHistoryService.config.columns;
 
-  if (!!context.selectedJournal) {
-    columns = [];
-  } else if (!isEmpty(ehState.columns)) {
+  if (!!context.selectedJournal || !isEmpty(ehState.columns)) {
     columns = ehState.columns;
   } else if (!isEmpty(context.myColumns)) {
     columns = context.myColumns;
@@ -57,10 +55,14 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getEventsHistory: payload => dispatch(getEventsHistory(payload)),
-  getJournalConfig: payload => dispatch(getJournalConfig(payload)),
   filterEventsHistory: payload => dispatch(filterEventsHistory(payload)),
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
+
+const Labels = {
+  NO_COLS: 'events-history-widget.info.no-columns',
+  NO_EVENTS: 'events-history-widget.info.no-events'
+};
 
 const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
   scrollable ? (
@@ -122,10 +124,6 @@ class EventsHistory extends React.Component {
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getEventsHistory();
     }
-
-    if (!isEqual(prevProps.selectedJournal, this.props.selectedJournal)) {
-      this.getJournalConfig();
-    }
   }
 
   componentWillUnmount() {
@@ -162,15 +160,9 @@ class EventsHistory extends React.Component {
   }
 
   getEventsHistory = () => {
-    const { getEventsHistory, record, stateId, columns } = this.props;
+    const { getEventsHistory, record, stateId, columns, selectedJournal } = this.props;
 
-    getEventsHistory({ stateId, record, columns });
-  };
-
-  getJournalConfig = () => {
-    const { getJournalConfig, record, stateId } = this.props;
-
-    getJournalConfig({ stateId, record });
+    getEventsHistory({ stateId, record, selectedJournal, columns });
   };
 
   getDateCompareResult(filter, value, format) {
@@ -345,11 +337,11 @@ class EventsHistory extends React.Component {
     }
 
     if (isEmpty(columns)) {
-      return <InfoText text={t('events-history-widget.info.no-columns')} />;
+      return <InfoText text={t(Labels.NO_COLS)} />;
     }
 
     if (isEmpty(list)) {
-      return <InfoText text={t('events-history-widget.info.no-events')} />;
+      return <InfoText text={t(Labels.NO_EVENTS)} />;
     }
 
     if (isSmallMode || isMobile) {
