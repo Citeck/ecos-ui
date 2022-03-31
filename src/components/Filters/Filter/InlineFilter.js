@@ -24,6 +24,7 @@ class InlineFilter extends Filter {
 
   static propTypes = {
     ...Filter.propTypes,
+    recordRef: PropTypes.string,
     onToggle: PropTypes.func,
     onFilter: PropTypes.func
   };
@@ -35,7 +36,7 @@ class InlineFilter extends Filter {
   }
 
   get valueClassNames() {
-    return classNames(super.valueClassNames, 'ecos-inline-filter__value');
+    return classNames(super.valueClassNames, 'ecos-inline-filter__value', 'fitnesse-ecos-inline-filter__value');
   }
 
   get selectorClassNames() {
@@ -60,10 +61,12 @@ class InlineFilter extends Filter {
   }
 
   get valueControlProps() {
+    const { recordRef } = this.props;
     const predicate = this.selectedPredicate;
 
     return {
       ...super.valueControlProps,
+      metaRecord: recordRef,
       onKeyDown: this.onKeyDown,
       predicate,
       value: this.state.value
@@ -78,14 +81,8 @@ class InlineFilter extends Filter {
     const { onFilter, onToggle } = this.props;
 
     e.stopPropagation();
-
-    if (isFunction(onFilter)) {
-      onFilter(this.selectedPredicate);
-    }
-
-    if (isFunction(onToggle)) {
-      onToggle();
-    }
+    isFunction(onFilter) && onFilter(this.selectedPredicate);
+    isFunction(onToggle) && onToggle();
   };
 
   onChangePredicate = predicate => {

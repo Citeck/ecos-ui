@@ -12,7 +12,7 @@ const Types = {
 export default class InfoText extends React.Component {
   static propTypes = {
     text: PropTypes.string,
-    type: PropTypes.oneOf([Types.INFO, Types.ERROR, Types.WARN]),
+    type: PropTypes.oneOf([Types.INFO, Types.ERROR, Types.WARN, 'primary']),
     className: PropTypes.string,
     noIndents: PropTypes.bool
   };

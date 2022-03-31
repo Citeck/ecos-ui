@@ -5,58 +5,99 @@
   display: flex;
   position: relative;
   width: 100%;
-  margin-bottom: 12px;
-  height: 40px;
+  flex-wrap: wrap;
+
+  & > :nth-child(n) {
+    margin-bottom: 12px;
+  }
+
+  & > :nth-child(n):not(#{$root}-right-side):not(:last-child) {
+    margin-right: 15px;
+  }
 
   .ecos-btn.ecos-journal__add-record {
     font-size: $font-size-xxl;
-  }
-
-  &-update {
     min-width: 40px;
   }
 
-  &-export,
   &-update {
-    transition: all 0.4s;
+    max-width: 40px;
   }
 
-  &_mobile &-search {
-    &.search_expanded {
-      & ~ #{$root}-export,
-      & ~ #{$root}-update {
-        transform: scale(0);
-        width: 0;
-        min-width: 0;
-        margin: 0;
-        opacity: 0;
-      }
+  &-search {
+    &:not(.search_collapsed) {
+      width: 200px;
+    }
+
+    & ~ :nth-child(n) {
+      transition: all 0.4s, opacity 0.2s;
     }
   }
 
   &-export-btn.ecos-btn {
     min-width: 70px;
+    background: $color-white;
+  }
+
+  &-right-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: auto;
+
+    &:empty {
+      display: none;
+    }
+
+    & > :nth-child(n):not(:last-child) {
+      margin-right: 15px;
+    }
+  }
+
+  &-extra {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-bottom: 12px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &_mobile {
+    & > #{$root}-search {
+      &.search_expanded {
+        height: 40px;
+        flex: auto;
+        z-index: 1;
+
+        & ~ :nth-child(n) {
+          transform: scale(0);
+          width: 0;
+          min-width: 0;
+          margin: 0;
+          padding: 0;
+          opacity: 0;
+          flex: 0;
+        }
+      }
+    }
+
+    &.search_expanded {
+      margin-right: 0;
+    }
   }
 }
 
-.ecos-journal__settings-bar_step {
-  &:not(:last-child) {
-    margin-right: 15px;
+@media (max-width: 1370px) {
+  .ecos-journal__settings-bar {
+    $root: &;
+
+    & > :nth-child(n):not(#{$root}-right-side):not(:last-child),
+    & &-right-side :nth-child(n):not(:last-child),
+    & &-extra > :nth-child(n):not(:last-child) {
+      margin-right: 10px;
+    }
   }
-
-  &-mobile:not(:last-child) {
-    margin-right: 10px;
-  }
-}
-
-.ecos-journal__settings-bar_right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex: auto;
-}
-
-.ecos-journal__settings-bar_right-btn {
-  position: relative;
-  top: -1px;
 }

@@ -2,16 +2,26 @@
 
 .journals-head {
   position: relative;
-  width: 100%;
   margin-bottom: 20px;
   height: 26px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+
+  & > :not(:last-child) {
+    margin-right: 10px;
+  }
+
+  &__space {
+    flex: auto;
+  }
 
   &__caption {
-    &_small {
-      @extend %ellipsis;
-    }
+    display: inline-block;
+    @extend %ellipsis;
+  }
+
+  &__settings-btn-text {
+    font-size: $font-size-standard;
   }
 
   &__menu-btn {

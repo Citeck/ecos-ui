@@ -20,13 +20,13 @@ const FilesViewer = ({
   openFolder,
   setSelected,
   setLastClicked,
-  groupActions,
-  path,
+  groupActions = {},
+  path = [],
   onInitData,
   onDrop,
   isLoading
 }) => {
-  const { hasError, isReady, items, selected, lastClicked } = fileViewer;
+  const { hasError, isReady, items = [], selected, lastClicked } = fileViewer;
 
   let content;
 
@@ -40,13 +40,13 @@ const FilesViewer = ({
 
   if (hasError) {
     content = t('document-library.failure-to-fetch-data');
-  } else if (!isReady) {
+  } else if (!isReady && !items.length) {
     content = <Loader blur rounded style={{ position: 'relative', margin: '0.5em 0' }} />;
   } else {
     const isGroupActionsReady = get(groupActions, 'isReady', false);
     const forRecords = get(groupActions, 'forRecords', {});
     const isGroupActionsVisible = !isGroupActionsReady || !isEmpty(forRecords.actions);
-    const isBreadcrumbsVisible = !!path.length;
+    const isBreadcrumbsVisible = !isEmpty(path);
 
     content =
       items.length > 0 ? (
@@ -76,7 +76,7 @@ const FilesViewer = ({
 
   return (
     <Well className="ecos-doclib__fileviewer-well">
-      {isLoading && <Loader blur rounded />}
+      {(isLoading || !isReady) && <Loader blur rounded />}
       {content}
     </Well>
   );

@@ -9,7 +9,8 @@ import {
   setFooter,
   setHomeLink,
   setLeftMenuEditable,
-  setRedirectToNewUi
+  setRedirectToNewUi,
+  setSeparateActionListForQuery
 } from '../actions/app';
 
 const initialState = {
@@ -74,6 +75,12 @@ export default handleActions(
       return {
         ...state,
         homeLink: action.payload
+      };
+    },
+    [setSeparateActionListForQuery]: (state, action) => {
+      return {
+        ...state,
+        isSeparateActionListForQuery: action.payload
       };
     }
   },

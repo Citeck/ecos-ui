@@ -78,7 +78,7 @@ class Select extends Component {
         loadOptions={this.loadOptions}
         value={this.state.value}
         className={classNames('ecos-select', props.className)}
-        classNamePrefix="select"
+        classNamePrefix="fitnesse-select select"
         closeMenuOnScroll={this.handleCloseMenuOnScroll()}
       />
     );

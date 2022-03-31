@@ -27,6 +27,7 @@ const api = new UserConfigApi();
 export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
+    classNameBtn: PropTypes.string,
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
@@ -107,15 +108,16 @@ export default class Export extends Component {
     const columns = get(grid, 'columns') || config.columns || [];
     const reportColumns = columns
       .filter(c => c.default)
-      .map(({ attribute, text, newType, newFormatter }) => ({
+      .map(({ attribute, text, newType, newFormatter, multiple }) => ({
         attribute,
         name: text,
         type: newType,
-        formatter: newFormatter
+        formatter: newFormatter,
+        multiple: multiple
       }));
     const mainPredicate = get(config, 'predicate', {});
     const gridPredicate = get(grid, 'predicates[0]', {});
-    const searchPredicate = get(grid, 'searchPredicate[0]', {});
+    const searchPredicate = get(grid, 'searchPredicate[0]') || this.getSearchPredicate(grid);
     const predicates = [mainPredicate, searchPredicate, gridPredicate];
     const cleanPredicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
     const predicate = convertAttributeValues(cleanPredicate, columns);
@@ -131,10 +133,11 @@ export default class Export extends Component {
   };
 
   getSelectionFilter = () => {
-    const { columns } = this.props.journalConfig || {};
-    const { groupBy, sortBy, pagination, predicates, search } = this.props.grid || {};
+    const { journalConfig, grid } = this.props;
+    const { columns } = journalConfig || {};
+    const { groupBy, sortBy, pagination, predicates, search } = grid || {};
 
-    return { columns, groupBy, sortBy, pagination, predicate: predicates[0], search };
+    return { columns, groupBy, sortBy, pagination, predicate: get(predicates, [0], {}), search };
   };
 
   getSelectionUrl = () => {
@@ -165,7 +168,7 @@ export default class Export extends Component {
   };
 
   render() {
-    const { right, className, children, ...props } = this.props;
+    const { right, className, children, classNameBtn, ...props } = this.props;
     const { isOpen } = this.state;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
 
@@ -184,7 +187,7 @@ export default class Export extends Component {
           {children || (
             <TwoIcoBtn
               icons={['icon-download', isOpen ? 'icon-small-up' : 'icon-small-down']}
-              className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
+              className={classNames('ecos-btn_grey ecos-btn_settings-down', classNameBtn)}
             />
           )}
         </Dropdown>

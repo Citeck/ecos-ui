@@ -6,6 +6,10 @@ import { loadAttribute, recordsMutateFetch } from './recordsApi';
 import Attribute from './Attribute';
 import RecordWatcher from './RecordWatcher';
 
+import recordsClientManager from './client';
+import { prepareAttsToLoad } from './utils/recordUtils';
+import { SourcesId } from '../../constants';
+
 export const EVENT_CHANGE = 'change';
 
 export default class Record {
@@ -144,6 +148,10 @@ export default class Record {
   isPersisted() {
     const atts = this._attributes;
 
+    if (this._mutClientData && !recordsClientManager.isPersisted(this._mutClientData)) {
+      return false;
+    }
+
     for (let att in atts) {
       if (!atts.hasOwnProperty(att)) {
         continue;
@@ -162,7 +170,7 @@ export default class Record {
     }
     return this.load(
       {
-        modified: 'cm:modified?str', //todo: change att to _modified?str
+        modified: '_modified?str',
         pendingUpdate: 'pendingUpdate?bool'
       },
       true
@@ -304,80 +312,94 @@ export default class Record {
     return watcher;
   }
 
-  load(attributes, force) {
-    let attsMapping = {};
+  async load(attributes, force) {
+    let attsAliases = [];
     let attsToLoad = [];
-    let isSingleAttribute = _.isString(attributes);
 
-    if (isSingleAttribute) {
-      attsToLoad = [attributes];
-    } else if (_.isArray(attributes)) {
-      attsToLoad = attributes;
-    } else if (_.isObject(attributes)) {
-      for (let attAlias in attributes) {
-        if (attributes.hasOwnProperty(attAlias)) {
-          let attToLoad = attributes[attAlias];
-          attsMapping[attributes[attAlias]] = attAlias;
-          attsToLoad.push(attToLoad);
-        }
+    const isSingleAttribute = _.isString(attributes);
+    prepareAttsToLoad(attributes, attsToLoad, attsAliases);
+
+    const attsToLoadLengthWithoutClient = attsToLoad.length;
+
+    let clientData = null;
+
+    if (!this.isVirtual() && !this.isPendingCreate()) {
+      const sourceIdDelimIdx = this.id.indexOf('@');
+      let clientSourceId = null;
+      if (sourceIdDelimIdx !== -1) {
+        clientSourceId = this.id.substring(0, sourceIdDelimIdx);
       }
-    } else {
-      attsToLoad = attributes;
+      clientData = await recordsClientManager.preProcessAtts(clientSourceId, attsToLoad);
+      if (clientData && clientData.clientAtts) {
+        prepareAttsToLoad(clientData.clientAtts, attsToLoad, attsAliases);
+      }
     }
 
-    return Promise.all(
-      attsToLoad.map(att => {
-        let parsedAtt = parseAttribute(att);
-        if (parsedAtt === null) {
-          let value = this._recordFieldsToSave[att];
-          if (value === undefined) {
-            value = this._recordFields[att];
-          }
-          if (!force && value !== undefined) {
-            return value;
-          } else {
-            value = this._loadRecordAttImpl(att, force);
-            if (value && value.then) {
-              this._recordFields[att] = value
-                .then(loaded => {
-                  this._recordFields[att] = loaded;
-                  return loaded;
-                })
-                .catch(e => {
-                  console.error(e);
-                  this._recordFields[att] = null;
-                  return null;
-                });
-            } else {
-              this._recordFields[att] = value;
-            }
-            return this._recordFields[att];
-          }
-        } else {
-          let attribute = this._attributes[parsedAtt.name];
-          if (!attribute) {
-            attribute = new Attribute(this, parsedAtt.name);
-            this._attributes[parsedAtt.name] = attribute;
-          }
-          return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
-        }
-      })
-    ).then(loadedAtts => {
-      let result = {};
+    let loadedAtts = await Promise.all(attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
 
-      for (let i = 0; i < attsToLoad.length; i++) {
-        let attKey = attsToLoad[i];
-        attKey = attsMapping[attKey] || attKey;
-        result[attsMapping[attKey] || attKey] = loadedAtts[i];
+    if (clientData) {
+      const clientAtts = {};
+      for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
+        clientAtts[attsAliases[i]] = loadedAtts[i];
       }
+      const mutClientData = await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+      if (mutClientData) {
+        this._mutClientData = mutClientData;
+      }
+    }
 
-      return isSingleAttribute ? result[Object.keys(result)[0]] : result;
-    });
+    if (isSingleAttribute) {
+      return loadedAtts[0];
+    }
+
+    let attsResultMap = {};
+    for (let i = 0; i < attsToLoadLengthWithoutClient; i++) {
+      attsResultMap[attsAliases[i]] = loadedAtts[i];
+    }
+
+    return attsResultMap;
+  }
+
+  async _loadAttWithCacheImpl(att, force) {
+    let parsedAtt = parseAttribute(att);
+    if (parsedAtt != null) {
+      let attribute = this._attributes[parsedAtt.name];
+      if (!attribute) {
+        attribute = new Attribute(this, parsedAtt.name);
+        this._attributes[parsedAtt.name] = attribute;
+      }
+      return attribute.getValue(parsedAtt.scalar, parsedAtt.isMultiple, true, force);
+    }
+
+    let value = this._recordFieldsToSave[att];
+    if (value === undefined) {
+      value = this._recordFields[att];
+    }
+    if (!force && value !== undefined) {
+      return value;
+    } else {
+      value = this._loadRecordAttImpl(att, force);
+      if (value && value.then) {
+        this._recordFields[att] = value
+          .then(loaded => {
+            this._recordFields[att] = loaded;
+            return loaded;
+          })
+          .catch(e => {
+            console.error(e);
+            this._recordFields[att] = null;
+            return null;
+          });
+      } else {
+        this._recordFields[att] = value;
+      }
+      return this._recordFields[att];
+    }
   }
 
   _loadRecordAttImpl(attribute, force) {
     if (this._baseRecord) {
-      return this._baseRecord.load(attribute, force);
+      return this._baseRecord._loadAttWithCacheImpl(attribute, force);
     } else {
       return loadAttribute(this.id, attribute);
     }
@@ -446,19 +468,32 @@ export default class Record {
         attributesToSave[attribute.getNewValueAttName()] = attribute.getValue();
       }
     }
-
     return attributesToSave;
   }
 
-  _getAssocAttributes() {
+  async _getChildAssocAttributes() {
     let attributes = [];
     for (let attName in this._attributes) {
-      if (!this._attributes.hasOwnProperty(attName)) {
+      if (!this._attributes.hasOwnProperty(attName) || !attName || attName[0] === '_') {
         continue;
       }
       let attribute = this._attributes[attName];
       if (attribute.getNewValueInnerAtt() === 'assoc') {
         attributes.push(attName);
+      }
+    }
+    const typeId = await this.getTypeId();
+    if (!typeId) {
+      return attributes;
+    }
+    const modelAtts = await this._records
+      .get(SourcesId.RESOLVED_TYPE + '@' + typeId)
+      .load('model.attributes[]{id,type,isChild:config.child?bool}');
+    if (modelAtts) {
+      for (let attDef of modelAtts) {
+        if (attDef.type === 'ASSOC' && attDef.isChild === true && attributes.indexOf(attDef.id) === -1) {
+          attributes.push(attDef.id);
+        }
       }
     }
     return attributes;
@@ -467,7 +502,8 @@ export default class Record {
   async _getLinkedRecordsToSave() {
     let self = this;
 
-    let result = this._getAssocAttributes().reduce((acc, att) => {
+    let assocAtts = await this._getChildAssocAttributes();
+    let result = assocAtts.reduce((acc, att) => {
       let value = self.att(att);
       if (!value) {
         return acc;
@@ -486,7 +522,6 @@ export default class Record {
     if (this.isVirtual()) {
       return;
     }
-
     let self = this;
 
     let requestRecords = [];
@@ -495,12 +530,14 @@ export default class Record {
       return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
 
-    return recordsToSavePromises.then(recordsToSave => {
+    return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
+        if (record._mutClientData) {
+          await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
+        }
         if (!_.isEmpty(attributesToSave)) {
           let baseId = record.getBaseRecord().id;
-
           requestRecords.push({
             id: baseId,
             attributes: attributesToSave
@@ -621,6 +658,12 @@ export default class Record {
     return baseRecord.id !== this.id && baseRecord.isVirtual();
   }
 
+  isPendingCreate() {
+    let baseRecordId = this.getBaseRecord().id;
+    // base record with '@' at the end mean that record is not exists yet and will be created on save
+    return baseRecordId.indexOf('@') === baseRecordId.length - 1;
+  }
+
   _processAttField(name, value, isRead, getter, setter, toSave) {
     if (!name) {
       return null;
@@ -699,5 +742,26 @@ export default class Record {
     this._watchers.forEach(watcher => {
       watcher.callCallback();
     });
+  }
+
+  async getTypeId() {
+    const typeAtt = this._attributes['_type'];
+    if (typeAtt == null) {
+      return this.load('_type?id').then(typeRef => {
+        return this.__getTypeIdFromRef(typeRef);
+      });
+    }
+    return this.__getTypeIdFromRef(await typeAtt.getValue('id', false, true, false));
+  }
+
+  __getTypeIdFromRef(ref) {
+    if (!_.isString(ref) || ref === '') {
+      return '';
+    }
+    const localIdDelimIdx = ref.indexOf('@');
+    if (localIdDelimIdx === -1 || localIdDelimIdx === ref.length - 1) {
+      return ref;
+    }
+    return ref.substring(localIdDelimIdx + 1);
   }
 }

@@ -37,10 +37,9 @@ export const documentLibrary = {
 };
 
 export const testStateId = 'testStateId';
+
 export const testState = {
-  journals: {
-    [testStateId]: {
-      documentLibrary
-    }
+  documentLibrary: {
+    [testStateId]: { ...documentLibrary }
   }
 };

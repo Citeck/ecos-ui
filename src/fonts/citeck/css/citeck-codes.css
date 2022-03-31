@@ -244,24 +244,33 @@
 .icon-bug:before {
   content: '\e851';
 } /* '' */
+.icon-undo:before {
+  content: '\e852';
+} /* '' */
 .icon-restore:before {
   content: '\e853';
 } /* '' */
 .icon-backup:before {
   content: '\e854';
 } /* '' */
-.icon-redo:before {
+.icon-custom-checkbox-filled-indeterminate:before {
   content: '\e855';
 } /* '' */
-.icon-undo:before {
-  content: '\e856';
-} /* '' */
 .icon-code-json:before {
   content: '\e857';
 } /* '' */
+.icon-filter-clean:before {
+  content: '\e858';
+} /* '' */
+.icon-kanban:before {
+  content: '\e859';
+} /* '' */
 .icon-actual:before {
   content: '\e85a';
 } /* '' */
+.icon-redo:before {
+  content: '\e85b';
+} /* '' */
 .icon-empty:before {
   content: '\e88d';
 } /* '' */

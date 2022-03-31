@@ -14,7 +14,6 @@ const pageApi = new PageApi();
 export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
-  SETTINGS: 'dashboard/settings',
   ADMIN_PAGE: 'admin',
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
@@ -38,6 +37,10 @@ export default class PageService {
     const found = queryString.parseUrl(_link).url.split('/v2/');
     let type = get(found, '[1]', '');
 
+    if (!type) {
+      return PageTypes.DASHBOARD;
+    }
+
     if (type.indexOf(PageTypes.TIMESHEET) === 0) {
       return PageTypes.TIMESHEET;
     }
@@ -55,8 +58,6 @@ export default class PageService {
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
-      case PageTypes.SETTINGS:
-        return urlProps.query.dashboardId || '';
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
@@ -76,7 +77,6 @@ export default class PageService {
     const urlProps = queryString.parseUrl(_link);
 
     switch (_type) {
-      case PageTypes.SETTINGS:
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
@@ -107,29 +107,16 @@ export default class PageService {
           recordRef = PageService.getRef(link);
         }
 
-        return recordRef ? pageApi.getRecordTitle(recordRef).then(title => convertTitle(title)) : staticTitle(TITLE.HOMEPAGE);
+        return recordRef ? pageApi.getRecordTitle(recordRef).then(convertTitle) : staticTitle(TITLE.HOMEPAGE);
       }
     },
     [PageTypes.JOURNALS]: {
-      getTitle: ({ journalId } = {}, link) => {
+      getTitle: ({ journalId, force } = {}, link) => {
         if (!journalId) {
           journalId = PageService.getRef(link);
         }
 
-        const prom = pageApi.getJournalTitle(journalId);
-
-        return prom.then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
-      }
-    },
-    [PageTypes.SETTINGS]: {
-      getTitle: ({ recordRef, journalId }) => {
-        const promise = journalId
-          ? pageApi.getJournalTitle(journalId)
-          : recordRef
-          ? pageApi.getRecordTitle(recordRef)
-          : staticTitle(TITLE.HOMEPAGE);
-
-        return promise.then(title => `${t(TITLE[URL.DASHBOARD_SETTINGS])} "${convertTitle(title)}"`);
+        return pageApi.getJournalTitle(journalId, force).then(title => `${t(TITLE.JOURNAL)} "${convertTitle(title)}"`);
       }
     },
     [PageTypes.TIMESHEET]: {
@@ -160,19 +147,20 @@ export default class PageService {
   });
 
   /**
-   *
-   * @param link - string
-   * @param params
-   *    link - string,
-   *    updateUrl - bool,
-   *    openNewTab - bool,
-   *    openNewBrowserTab - bool,
-   *    reopenBrowserTab - bool,
-   *    closeActiveTab - bool,
-   *    openInBackground - bool,
-   *    pushHistory - bool,
-   *    replaceHistory - bool // default true, if updateUrl is true
-   *    rerenderPage - bool, needed to replace link in the router and start rerendering page
+   * Change Link
+   * @param link {string}
+   * @param params {Object}
+   * @description for params:
+   *    link {string},
+   *    updateUrl {boolean},
+   *    openNewTab {boolean},
+   *    openNewBrowserTab {boolean},
+   *    reopenBrowserTab {boolean},
+   *    closeActiveTab {boolean},
+   *    openInBackground {boolean},
+   *    pushHistory {boolean},
+   *    replaceHistory {boolean} - default true, if updateUrl is true
+   *    rerenderPage {boolean} - needed to replace link in the router and start rerendering page
    */
   static changeUrlLink = (link = '', params = {}) => {
     if (PageService.eventIsDispatched) {

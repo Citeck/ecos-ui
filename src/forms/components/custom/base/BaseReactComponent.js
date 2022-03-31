@@ -99,6 +99,8 @@ export default class BaseReactComponent extends BaseComponent {
       this.createInlineEditSaveAndCancelButtons();
       this.attachRefreshOn();
       this.attachLogic();
+    } else {
+      this.updateDescription();
     }
 
     this.showElement(this.isShowElement);
@@ -106,6 +108,17 @@ export default class BaseReactComponent extends BaseComponent {
     if (!this.isShowElement && this.component.clearOnHide) {
       this.dataValue = this.emptyValue;
     }
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
+  updateDescription() {
+    if (!this.description) {
+      this.createDescription(this.element);
+      return;
+    }
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1558
+    this.description.innerHTML = this.t(this.component.description);
   }
 
   embedReactContainer(container, tag) {
@@ -134,15 +147,19 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   setReactProps(props) {
-    if (this.react.resolve) {
+    if (!isEmpty(this.react.resolve)) {
       this.react.waitingProps = { ...(this.react.waitingProps || {}), ...props };
-      this.react.wrapper &&
+
+      !isEmpty(this.react.wrapper) &&
         this.react.wrapper.then(w => {
           w.setProps(this.react.waitingProps);
           this.react.waitingProps = {};
         });
-    } else if (this.react.wrapper) {
-      this.react.wrapper.setProps(props);
+    } else {
+      // is this checking required?
+      if (!isEmpty(this.react.wrapper)) {
+        this.react.wrapper.setProps(props);
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
@@ -23,16 +24,15 @@ import {
   setDashletConfigByParams,
   setEditorMode,
   setRecordRef,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectDashletConfig, selectDashletConfigJournalId } from '../../../selectors/journals';
+import { selectJournalDashletProps } from '../../../selectors/dashletJournals';
 import Dashlet from '../../Dashlet';
 import JournalsDashletGrid from '../../Journals/JournalsDashletGrid';
 import JournalsDashletToolbar from '../../Journals/JournalsDashletToolbar';
 import JournalsDashletEditor from '../../Journals/JournalsDashletEditor';
 import JournalsDashletFooter from '../../Journals/JournalsDashletFooter';
-import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
@@ -47,21 +47,13 @@ const getKey = ({ tabId = '', stateId, id }) =>
   (stateId || '').includes(tabId) && stateId === tabId ? stateId : getStateId({ tabId, id: stateId || id });
 
 const mapStateToProps = (state, ownProps) => {
-  const newState = get(state, ['journals', getKey(ownProps)], {});
+  const stateId = getKey(ownProps);
+  const ownState = selectJournalDashletProps(state, stateId);
 
   return {
-    stateId: getKey(ownProps),
-    editorMode: newState.editorMode,
-    journalConfig: newState.journalConfig,
-    config: selectDashletConfig(state, getKey(ownProps)),
-    configJournalId: selectDashletConfigJournalId(state, getKey(ownProps)),
-    isMobile: get(state, 'view.isMobile') === true,
-    grid: newState.grid,
-    selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    selectAllRecordsVisible: newState.selectAllRecordsVisible,
-    isLoading: newState.isCheckLoading || newState.loading,
-    isExistJournal: newState.isExistJournal
+    stateId,
+    isMobile: !!get(state, 'view.isMobile'),
+    ...ownState
   };
 };
 
@@ -78,7 +70,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     setDashletConfigByParams: (id, config, recordRef, lsJournalId) =>
       dispatch(setDashletConfigByParams(w({ id, config, recordRef, lsJournalId }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
   };
 };
@@ -111,7 +103,7 @@ class JournalsDashlet extends BaseWidget {
     isMobile: PropTypes.bool,
     journalConfig: PropTypes.object,
     selectedRecords: PropTypes.array,
-    selectAllRecords: PropTypes.bool,
+    selectAllPageRecords: PropTypes.bool,
     selectAllRecordsVisible: PropTypes.bool
   };
 
@@ -160,8 +152,7 @@ class JournalsDashlet extends BaseWidget {
     }
 
     if (isActiveLayout && runUpdate) {
-      this.setState({ runUpdate: false });
-      reloadGrid();
+      this.setState({ runUpdate: false }, () => reloadGrid());
     }
   }
 
@@ -169,31 +160,15 @@ class JournalsDashlet extends BaseWidget {
     return get(this._toolbarRef, 'offsetHeight', 0);
   }
 
-  get groupActionsHeight() {
-    return get(this._groupActionsRef, 'offsetHeight', 0);
-  }
-
   get footerHeight() {
     return get(this._footerRef, 'offsetHeight', 0);
   }
 
-  setToolbarRef = ref => {
-    if (ref) {
-      this._toolbarRef = ref;
-    }
-  };
+  setToolbarRef = ref => !!ref && (this._toolbarRef = ref);
 
-  setFooterRef = ref => {
-    if (ref) {
-      this._footerRef = ref;
-    }
-  };
+  setFooterRef = ref => !!ref && (this._footerRef = ref);
 
-  setGroupActionsRef = ref => {
-    if (ref) {
-      this._groupActionsRef = ref;
-    }
-  };
+  setGroupActionsRef = ref => !!ref && (this._groupActionsRef = ref);
 
   setEditorRef = ref => {
     if (ref) {
@@ -201,42 +176,22 @@ class JournalsDashlet extends BaseWidget {
     }
   };
 
-  handleResize = width => {
-    !!width && this.setState({ width });
-  };
+  handleResize = width => !!width && this.setState({ width });
 
   showEditor = () => this.props.setEditorMode(true);
 
-  handleReload = () => {
-    this.props.reloadGrid();
-  };
+  handleReload = () => this.props.reloadGrid();
 
   handleUpdate() {
     super.handleUpdate();
     this.handleReload();
   }
 
-  handleSelectAllRecords = () => {
-    const { setSelectAllRecords, selectAllRecords, setSelectedRecords } = this.props;
-
-    setSelectAllRecords(!selectAllRecords);
-    !selectAllRecords && setSelectedRecords([]);
-  };
-
-  handleExecuteGroupAction(action) {
-    const { selectAllRecords } = this.props;
-    const data = selectAllRecords ? get(this.props, 'grid.query') : get(this.props, 'selectedRecords', []);
-
-    this.props.execRecordsAction(data, action);
-  }
-
   goToJournalsPage = () => {
-    const {
-      config: { journalsListId = '', journalSettingId = '' }
-    } = this.props;
+    const journalSettingId = get(this.props, 'config.journalSettingId', '');
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
 
-    goToJournalsPage({ journalsListId, journalId: nodeRef, journalSettingId, nodeRef });
+    goToJournalsPage({ journalId: nodeRef, journalSettingId, nodeRef });
   };
 
   handleChangeSelectedJournal = journalId => {
@@ -254,11 +209,12 @@ class JournalsDashlet extends BaseWidget {
 
   getMessages() {
     const { editorMode, isExistJournal, isLoading, journalConfig } = this.props;
-    const msgs = [];
 
-    if (isLoading || editorMode) {
-      return msgs;
+    if (isNil(isLoading) || isLoading || editorMode) {
+      return [];
     }
+
+    const msgs = [];
 
     !isExistJournal && msgs.push(Labels.J_NOT_EXISTED);
     isExistJournal && isEmpty(get(journalConfig, 'columns')) && msgs.push(Labels.J_NO_COLS);
@@ -295,8 +251,8 @@ class JournalsDashlet extends BaseWidget {
       return null;
     }
 
-    const { grid, isMobile, selectedRecords, selectAllRecords, selectAllRecordsVisible } = this.props;
-    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight + this.groupActionsHeight;
+    const extraIndents = this.toolbarHeight + this.footerHeight + this.dashletOtherHeight;
+    const isSmall = width < MIN_WIDTH_DASHLET_LARGE;
 
     return (
       <>
@@ -305,20 +261,8 @@ class JournalsDashlet extends BaseWidget {
           lsJournalId={journalId}
           forwardRef={this.setToolbarRef}
           stateId={stateId}
-          isSmall={width < MIN_WIDTH_DASHLET_LARGE}
+          isSmall={isSmall}
           onChangeSelectedJournal={this.handleChangeSelectedJournal}
-        />
-
-        <JournalsGroupActionsTools
-          forwardedRef={this.setGroupActionsRef}
-          className="ecos-journal-dashlet__group-actions"
-          isMobile={isMobile}
-          selectAllRecordsVisible={selectAllRecordsVisible}
-          selectAllRecords={selectAllRecords}
-          grid={grid}
-          selectedRecords={selectedRecords}
-          onExecuteAction={this.handleExecuteGroupAction.bind(this)}
-          onSelectAll={this.handleSelectAllRecords}
         />
 
         <JournalsDashletGrid
@@ -328,7 +272,7 @@ class JournalsDashlet extends BaseWidget {
           selectorContainer={'.ecos-layout'}
         />
 
-        <JournalsDashletFooter forwardRef={this.setFooterRef} stateId={stateId} isWidget />
+        <JournalsDashletFooter forwardRef={this.setFooterRef} stateId={stateId} isSmall={isSmall} isWidget />
       </>
     );
   }
@@ -336,11 +280,6 @@ class JournalsDashlet extends BaseWidget {
   render() {
     const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
     const { width, isCollapsed } = this.state;
-
-    if (!journalConfig) {
-      return null;
-    }
-
     const actions = {
       [DAction.Actions.HELP]: {
         onClick: () => null

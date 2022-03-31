@@ -53,6 +53,7 @@ WebformBuilder.prototype.updateComponent = function(component) {
       _.omit(component.component, [
         // Cause: https://citeck.atlassian.net/browse/ECOSUI-31
         'calculateValue',
+        'logic',
         // default
         'key',
         'label',
@@ -264,6 +265,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     _.omit(componentCopy.component, [
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-31
       'calculateValue',
+      'logic',
       // default
       'key',
       'label',

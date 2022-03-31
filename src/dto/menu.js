@@ -1,7 +1,7 @@
 import get from 'lodash/get';
+import replace from 'lodash/replace';
 import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
-import replace from 'lodash/replace';
 
 import { SourcesId } from '../constants';
 import { MenuSettings, MenuTypes } from '../constants/menu';

@@ -65,11 +65,11 @@ class JournalsService {
     return this._convertJournalConfig(journal);
   }
 
-  async getJournalConfig(journalId = '') {
+  async getJournalConfig(journalId = '', force) {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
 
-    return this._convertJournalConfig(await journalsApi.getJournalConfig(journalRecordId));
+    return this._convertJournalConfig(await journalsApi.getJournalConfig(journalRecordId, force));
   }
 
   async _convertJournalConfig(config) {

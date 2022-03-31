@@ -7,7 +7,6 @@ import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
 import recordActions, { ActionTypes } from '../../../../components/Records/actions';
-
 import Records from '../../../../components/Records';
 import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
@@ -34,6 +33,13 @@ export default class FileComponent extends FormIOFileComponent {
       },
       ...extend
     );
+  }
+
+  constructor(...params) {
+    super(...params);
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
+    this.on('change', this.validateOnChange);
   }
 
   get defaultSchema() {
@@ -344,10 +350,21 @@ export default class FileComponent extends FormIOFileComponent {
     if (!isEmpty(value) && !Array.isArray(value)) {
       value = [value];
     }
+
     super.setValue(value);
 
     if (!isEmpty(value) && this.isDisabledSaveButton) {
       this.toggleDisableSaveButton(false);
     }
   }
+
+  validateOnChange = () => {
+    if (get(this.component, 'validateOn') !== 'change') {
+      return;
+    }
+
+    if (!isEqual(this.dataValue, this.defaultValue)) {
+      this.checkValidity(null, true);
+    }
+  };
 }

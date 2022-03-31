@@ -46,7 +46,11 @@ export default class ListItem extends Component {
         cols={[
           <div className={'two-columns__left columns-setup__column_align '}>
             <i className="icon-custom-drag-big columns-setup__icon-drag" />
-            <Checkbox className={'columns-setup__next'} checked={column.default} onChange={this.handleChangeVisible} />
+            <Checkbox
+              className="columns-setup__next fitnesse-column-setup__checkbox"
+              checked={column.default}
+              onChange={this.handleChangeVisible}
+            />
             <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
           </div>,
 

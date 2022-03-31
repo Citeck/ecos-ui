@@ -105,5 +105,17 @@ describe('ScriptFormatter', () => {
       };
       expect(format).toThrow('mandatory');
     });
+
+    it('should return value from vars by path with _index_', () => {
+      const result = scriptFormatterInstance.format({
+        valueIndex: 0,
+        config: {
+          fn: 'return vars.lots[index];',
+          vars: { lots: [1] }
+        }
+      });
+
+      expect(result).toBe(1);
+    });
   });
 });

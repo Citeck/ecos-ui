@@ -56,7 +56,7 @@ class DocStatus extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'caseStatus', 'idocs:documentStatus'])];
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, '_status?str', 'idocs:documentStatus'])];
   }
 
   state = {

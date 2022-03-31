@@ -17,7 +17,7 @@ export class BpmnApi extends RecordService {
       attributes: {
         label: 'cm:title',
         parentId: 'attr:parent?id',
-        modified: 'cm:modified',
+        modified: '_modified',
         canWrite: '.att(n:"permissions"){has(n:"Write")}'
       }
     }).then(resp => {
@@ -77,8 +77,8 @@ export class BpmnApi extends RecordService {
         created: 'cm:created',
         creator: 'cm:creator',
         categoryId: 'ecosbpm:category?id',
-        modifier: 'cm:modifier',
-        modified: 'cm:modified',
+        modifier: '_modifier',
+        modified: '_modified',
         hasThumbnail: '.has(n:"ecosbpm:thumbnail")',
         canWrite: '.att(n:"permissions"){has(n:"Write")}'
       }

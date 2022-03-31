@@ -2,11 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { initState } from '../../actions/journals';
-import { getId, t } from '../../helpers/util';
 import { getStateId } from '../../helpers/redux';
+import { getId, t } from '../../helpers/util';
+import pageTabList from '../../services/pageTabs/PageTabList';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { Journals } from '../../components/Journals';
-import pageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
 
@@ -18,7 +18,7 @@ const Labels = {
 };
 
 const mapDispatchToProps = dispatch => ({
-  initState: stateId => dispatch(initState(stateId))
+  initState: stateId => dispatch(initState({ stateId }))
 });
 
 const mapStateToProps = (store, props) => ({
@@ -31,19 +31,16 @@ class JournalsPage extends React.Component {
     super(props);
 
     this.stateId = getKeys(props);
-  }
-
-  componentDidMount() {
     this.props.initState(this.stateId);
   }
 
   render() {
-    const { footerRef, isActivePage } = this.props;
+    const { footerRef, isActivePage, tabId } = this.props;
 
     return (
       <div className="ecos-journal-page">
         <ErrorBoundary title={t(Labels.ERROR_BOUNDARY_TITLE)} message={t(Labels.ERROR_BOUNDARY_MSG)}>
-          <Journals stateId={this.stateId} isActivePage={isActivePage} footerRef={footerRef} />
+          <Journals tabId={tabId} stateId={this.stateId} isActivePage={isActivePage} footerRef={footerRef} />
         </ErrorBoundary>
       </div>
     );

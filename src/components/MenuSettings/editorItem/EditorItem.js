@@ -11,8 +11,8 @@ import Divider from './Divider';
 import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
 import LinkCreateCase from './LinkCreateCase';
-import UserMenuItem from './UserMenuItem';
 import StartWorkflow from './StartWorkflow';
+import UserMenuItem from './UserMenuItem';
 
 import '../style.scss';
 

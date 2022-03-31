@@ -25,8 +25,10 @@ export const execRecordsAction = createAction(prefix + 'EXEC_RECORDS_ACTION');
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
-export const setSelectAllRecords = createAction(prefix + 'SET_SELECT_ALL_RECORDS');
+export const setExcludedRecords = createAction(prefix + 'SET_EXCLUDED_RECORDS');
+export const setSelectAllPageRecords = createAction(prefix + 'SET_SELECT_ALL_PAGE_RECORDS');
 export const setSelectAllRecordsVisible = createAction(prefix + 'SET_SELECT_ALL_RECORDS_VISIBLE');
+export const deselectAllRecords = createAction(prefix + 'DESELECT_ALL_RECORDS');
 export const setGridInlineToolSettings = createAction(prefix + 'SET_GRID_INLINE_TOOL_SETTINGS');
 
 export const getJournalsData = createAction(prefix + 'GET_JOURNALS_DATA');
@@ -37,6 +39,8 @@ export const editJournalSetting = createAction(prefix + 'EDIT_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
 export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
+export const resetFiltering = createAction(prefix + 'RESET_JOURNAL_FILTERING');
+export const execJournalAction = createAction(prefix + 'EXEC_JOURNAL_ACTION');
 
 export const setPredicate = createAction(prefix + 'SET_PREDICATE');
 export const setOriginGridSettings = createAction(prefix + 'SET_ORIGIN_GRID_SETTINGS');
@@ -55,9 +59,12 @@ export const initPreview = createAction(prefix + 'INIT_PREVIEW');
 export const setPreviewUrl = createAction(prefix + 'SET_PREVIEW_URL');
 export const setPreviewFileName = createAction(prefix + 'SET_PREVIEW_FILE_NAME');
 
+export const toggleViewMode = createAction(prefix + 'TOGGLE_VIEW_MODE');
 export const goToJournalsPage = createAction(prefix + 'GO_TO_JOURNALS_PAGE');
 export const runSearch = createAction(prefix + 'RUN_SEARCH');
 export const setUrl = createAction(prefix + 'SET_URL');
 export const initState = createAction(prefix + 'INIT_STATE');
 export const resetState = createAction(prefix + 'RESET_STATE');
 export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
+
+export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');

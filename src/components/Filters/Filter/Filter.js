@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import omit from 'lodash/omit';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
@@ -86,9 +87,9 @@ export default class Filter extends Component {
   handleChangeValue = debounce(
     withoutValue => {
       const { value: val } = this.state;
-      const { index } = this.props;
+      const { index, onChangeValue } = this.props;
 
-      this.props.onChangeValue({ val, index, withoutValue });
+      isFunction(onChangeValue) && onChangeValue({ val, index, withoutValue });
       this.setState({ isInput: false });
     },
     350,
@@ -273,7 +274,7 @@ export default class Filter extends Component {
     return (
       <IcoBtn
         icon={this.deleteActionIcon}
-        className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10')}
+        className={classNames(btnClasses, 'ecos-btn_hover_t_red ecos-btn_x-step_10', 'fitnesse-ecos-inline-filter__actions-delete')}
         onClick={this.onDeletePredicate}
       />
     );

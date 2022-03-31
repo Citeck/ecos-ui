@@ -1,8 +1,9 @@
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
+import get from 'lodash/get';
 
 import ecosXhr from '../helpers/ecosXhr';
-import ecosFetch from '../helpers/ecosFetch';
+import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { DEFAULT_EIS, SourcesId, URL } from '../constants';
@@ -11,8 +12,19 @@ import { DEFAULT_FEEDBACK_URL, DEFAULT_REPORT_ISSUE_URL } from '../constants/men
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
+import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 
 export class AppApi extends CommonApi {
+  #isAuthenticated = true;
+
+  constructor() {
+    super();
+
+    emitter.on(RESET_AUTH_STATE_EVENT, () => {
+      this.#isAuthenticated = false;
+    });
+  }
+
   getEcosConfig = configName => {
     const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
     return this.getJson(url)
@@ -21,6 +33,10 @@ export class AppApi extends CommonApi {
   };
 
   touch = () => {
+    if (!this.#isAuthenticated) {
+      return Promise.resolve();
+    }
+
     const url = `${CITECK_URI}ecos/touch`;
     return this.getJson(url);
   };
@@ -78,6 +94,18 @@ export class AppApi extends CommonApi {
   };
 
   static getDictionaryLocal(lang) {
+    let isExist;
+
+    try {
+      isExist = require.resolve(`../i18n/${lang}`);
+    } catch (e) {
+      isExist = false;
+    }
+
+    if (!isExist) {
+      lang = get(allowedLanguages, '0.id', LANGUAGE_EN);
+    }
+
     return import(`../i18n/${lang}`)
       .then(module => module.default)
       .catch(e => {
@@ -184,6 +212,12 @@ export class AppApi extends CommonApi {
       })
       .catch(() => false);
   };
+
+  getSeparateActionListForQuery() {
+    return Records.get(`${SourcesId.CONFIG}@separate-action-list-for-query`)
+      .load('value?bool!false')
+      .catch(() => false);
+  }
 
   static doLogOut = async () => {
     const DEF_LOGOUT = `/logout`;

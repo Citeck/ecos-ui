@@ -3,43 +3,40 @@ import PropTypes from 'prop-types';
 import connect from 'react-redux/es/connect/connect';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
+import first from 'lodash/first';
 
 import { ParserPredicate } from '../../Filters/predicates';
-import { Loader } from '../../common';
+import { InfoText, Loader } from '../../common';
 import { EmptyGrid, Grid, InlineTools } from '../../common/grid';
 import { t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import {
+  deselectAllRecords,
   execRecordsAction,
   goToJournalsPage,
   reloadGrid,
   saveRecords,
   setColumnsSetup,
+  setExcludedRecords,
   setGridInlineToolSettings,
   setJournalSetting,
   setPredicate,
-  setSelectAllRecords,
+  setSelectAllPageRecords,
   setSelectAllRecordsVisible,
   setSelectedRecords
 } from '../../../actions/journals';
-import { selectJournalData, selectViewColumns } from '../../../selectors/journals';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_JOURNALS_PAGINATION } from '../constants';
+import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
+import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
+import { selectOriginGridPredicates } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
-  const newState = selectJournalData(state, props.stateId);
-  const viewColumns = selectViewColumns(state, props.stateId);
+  const ownState = selectJournalDashletGridProps(state, props.stateId);
 
   return {
-    loading: newState.loading,
-    grid: newState.grid,
-    isMobile: (state.view || {}).isMobile === true,
-    predicate: newState.predicate,
-    query: get(newState, 'grid.query.query'),
-    isGrouped: !isEmpty(get(newState, 'grid.grouping.columns')),
-    journalConfig: newState.journalConfig,
-    selectedRecords: newState.selectedRecords,
-    selectAllRecords: newState.selectAllRecords,
-    viewColumns
+    isMobile: !!get(state, 'view.isMobile'),
+    originPredicates: selectOriginGridPredicates(state, props.stateId),
+    ...ownState
   };
 };
 
@@ -51,8 +48,10 @@ const mapDispatchToProps = (dispatch, props) => {
     saveRecords: ({ id, attributes }) => dispatch(saveRecords(w({ id, attributes }))),
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
-    setSelectAllRecords: need => dispatch(setSelectAllRecords(w(need))),
+    setExcludedRecords: records => dispatch(setExcludedRecords(w(records))),
+    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     setSelectAllRecordsVisible: visible => dispatch(setSelectAllRecordsVisible(w(visible))),
+    deselectAllRecords: () => dispatch(deselectAllRecords(w())),
     setGridInlineToolSettings: settings => dispatch(setGridInlineToolSettings(w(settings))),
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     setPredicate: options => dispatch(setPredicate(w(options))),
@@ -64,11 +63,12 @@ const mapDispatchToProps = (dispatch, props) => {
 const HeightCalculation = props => {
   const { minHeight, maxHeight, children, total, maxItems } = props;
 
-  if (minHeight !== undefined) {
+  if (!isNil(minHeight)) {
     return <div style={{ minHeight, maxHeight }}>{children}</div>;
   }
 
   let rowsNumber = total > maxItems ? maxItems : total;
+
   if (rowsNumber < 1) {
     rowsNumber = 1;
   }
@@ -96,19 +96,33 @@ class JournalsDashletGrid extends Component {
 
   handleSetInlineTools = this.props.setGridInlineToolSettings;
 
-  setSelectedRecords = ({ selected, all: allPage }) => {
-    const { setSelectedRecords, setSelectAllRecords } = this.props;
+  setSelectedRecords = ({ selected, all: allPage, allPossible, excluded }) => {
+    const {
+      setSelectedRecords,
+      setExcludedRecords,
+      setSelectAllRecordsVisible,
+      setSelectAllPageRecords,
+      deselectAllRecords,
+      selectAllRecordsVisible
+    } = this.props;
+
+    if (!selected.length) {
+      deselectAllRecords();
+      return;
+    }
 
     setSelectedRecords(selected);
-    setSelectAllRecords(allPage);
+    setSelectAllPageRecords(allPage);
+    !isNil(allPossible) && setSelectAllRecordsVisible(allPossible);
+
+    const _allPossible = isNil(allPossible) ? selectAllRecordsVisible : allPossible;
+    !isNil(excluded) && setExcludedRecords(_allPossible ? excluded : []);
   };
 
   reloadGrid(options) {
     options = options || {};
-    const {
-      predicate,
-      grid: { columns, groupBy, sortBy }
-    } = this.props;
+    const { predicate, grid } = this.props;
+    const { columns, groupBy, sortBy } = grid || {};
     const predicates = predicate ? [predicate] : [];
     const currentOptions = { columns, groupBy, sortBy, predicates };
 
@@ -116,41 +130,29 @@ class JournalsDashletGrid extends Component {
     this.props.reloadGrid({ ...currentOptions, ...options });
   }
 
-  onFilter = ([filter]) => {
-    const {
-      setPredicate = _ => _,
-      setJournalSetting = _ => _,
-      grid: { pagination: pager, predicates }
-    } = this.props;
-    const currentFilters = ParserPredicate.getFlatFilters(predicates) || [];
-    const filterIdx = currentFilters.findIndex(item => item.att === filter.att);
+  onFilterInline = (_predicates, _type) => {
+    const [filter] = _predicates;
+    const { setPredicate, setJournalSetting, grid } = this.props;
+    const { pagination: pager, predicates } = grid || {};
+    const newPredicates = ParserPredicate.setNewPredicates(first(predicates), filter, true);
+    const { maxItems } = pager || DEFAULT_PAGINATION;
+    const pagination = { ...DEFAULT_PAGINATION, maxItems };
 
-    if (filterIdx !== -1) {
-      currentFilters[filterIdx] = filter;
-    } else {
-      currentFilters.push(filter);
-    }
-
-    const newPredicate = ParserPredicate.setNewPredicates(predicates[0], currentFilters, true);
-    const { maxItems } = pager || DEFAULT_JOURNALS_PAGINATION;
-    const pagination = { ...DEFAULT_JOURNALS_PAGINATION, maxItems };
-
-    setPredicate(newPredicate);
-    setJournalSetting({ predicate: newPredicate });
-    this.reloadGrid({ predicates: [newPredicate], pagination });
+    setPredicate(newPredicates);
+    setJournalSetting({ predicate: newPredicates });
+    this.reloadGrid({ predicates: [newPredicates], pagination });
   };
 
   onSort = e => {
-    const {
-      setColumnsSetup,
-      grid: { columns }
-    } = this.props;
+    const { setColumnsSetup, grid } = this.props;
+    const { columns } = grid || {};
     const sortBy = [
       {
         attribute: e.column.attribute,
         ascending: !e.ascending
       }
     ];
+
     setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
   };
@@ -166,13 +168,11 @@ class JournalsDashletGrid extends Component {
   };
 
   getCurrentRowInlineActions() {
+    const { execRecordsAction, grid } = this.props;
     const {
-      execRecordsAction,
-      grid: {
-        groupBy = [],
-        actions: { forRecord = {} }
-      }
-    } = this.props;
+      groupBy = [],
+      actions: { forRecord = {} }
+    } = grid || {};
 
     if (groupBy.length) {
       return [
@@ -222,31 +222,30 @@ class JournalsDashletGrid extends Component {
   render() {
     const {
       selectedRecords,
-      selectAllRecords,
+      excludedRecords,
+      selectAllPageRecords,
       saveRecords,
       className,
       loading,
       isWidget,
-      grid: {
-        data,
-        sortBy,
-        pagination: { maxItems = 0 },
-        groupBy,
-        total = 0,
-        editingRules
-      },
+      grid,
       doInlineToolsOnRowClick = false,
       minHeight,
       maxHeight,
       autoHeight,
       predicate,
-      journalConfig: { params = {} },
+      journalConfig,
       selectorContainer,
       viewColumns,
       onOpenSettings,
       query,
-      isGrouped
+      isGrouped,
+      originPredicates
     } = this.props;
+
+    const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
+    const { params = {}, meta = {} } = journalConfig || {};
+    const maxItems = get(pagination, 'maxItems', 0);
 
     let editable = true;
 
@@ -264,13 +263,15 @@ class JournalsDashletGrid extends Component {
       <>
         <div className="ecos-journal-dashlet__grid">
           {!isWidget && loading && <Loader blur />}
-
+          {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
           <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
+              recordRef={meta.metaRecord}
+              originPredicates={originPredicates}
               data={data}
               columns={viewColumns}
               className={className}
-              gridWrapperClassName={'ecos-journal-dashlet__grid-wrapper'}
+              gridWrapperClassName="ecos-journal-dashlet__grid-wrapper"
               hTrackClassName="ecos-journal-dashlet__grid-track ecos-journal-dashlet__grid-track_h"
               freezeCheckboxes
               filterable
@@ -282,7 +283,7 @@ class JournalsDashletGrid extends Component {
               filters={filters}
               inlineTools={this.inlineTools}
               onSort={this.onSort}
-              onFilter={this.onFilter}
+              onFilter={this.onFilterInline}
               onSelect={this.setSelectedRecords}
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
@@ -290,7 +291,8 @@ class JournalsDashletGrid extends Component {
               onScrolling={this.onScrolling}
               onEdit={saveRecords}
               selected={selectedRecords}
-              selectAll={selectAllRecords}
+              excluded={excludedRecords}
+              selectAll={selectAllPageRecords}
               minHeight={minHeight}
               maxHeight={maxHeight}
               autoHeight={autoHeight}
@@ -310,6 +312,7 @@ JournalsDashletGrid.propTypes = {
   className: PropTypes.string,
   toolsClassName: PropTypes.string,
   selectorContainer: PropTypes.string,
+  originPredicates: PropTypes.array,
   minHeight: PropTypes.any,
   maxHeight: PropTypes.any,
   autoHeight: PropTypes.bool,

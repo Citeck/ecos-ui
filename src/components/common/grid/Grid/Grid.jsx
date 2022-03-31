@@ -23,46 +23,34 @@ import isBoolean from 'lodash/isBoolean';
 import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
 
-import { closest, getId, isInViewport, t, trigger } from '../../../../helpers/util';
-import Checkbox from '../../form/Checkbox/Checkbox';
-import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { getId, isInViewport, t, trigger } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
+import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
+import { SELECTOR_MENU_KEY } from '../util';
 import ErrorCell from '../ErrorCell';
 import ErrorTable from '../ErrorTable';
-import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
+import SelectorHeader from './SelectorHeader';
+import Selector from './Selector';
+import pageTabList from '../../../../services/pageTabs/PageTabList';
 
 import './Grid.scss';
 
+const CUSTOM_NESTED_DELIMITER = '|';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
 const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
-
-const ECOS_GRID_CHECKBOX_DIVIDER_CLASS = 'ecos-grid__checkbox-divider';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
-const Selector = ({ mode, ...rest }) => (
-  <div className="ecos-grid__checkbox">
-    <Checkbox checked={rest.checked} disabled={rest.disabled} />
-  </div>
-);
-
-const SelectorHeader = ({ indeterminate, ...rest }) => (
-  <div className="ecos-grid__checkbox">
-    {rest.mode === 'checkbox' ? <Checkbox indeterminate={indeterminate} checked={rest.checked} disabled={rest.disabled} /> : null}
-    <div className={ECOS_GRID_CHECKBOX_DIVIDER_CLASS} />
-  </div>
-);
-
 const MAX_START_TH_WIDTH = 500;
 
-function cssNum(v) {
-  return `${v}px`;
-}
+const cssNum = v => `${v}px`;
 
 class Grid extends Component {
   #columnsSizes = {};
   #gridRef = null;
+  #pageId = null;
 
   constructor(props) {
     super(props);
@@ -89,12 +77,16 @@ class Grid extends Component {
     };
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (!isEqual(props.selected, state.selected)) {
-      return { selected: props.selected };
-    }
+  get hasCheckboxes() {
+    const { singleSelectable, multiSelectable } = this.props;
 
-    return null;
+    return singleSelectable || multiSelectable;
+  }
+
+  get fixedHeader() {
+    const { freezeCheckboxes, fixedHeader } = this.props;
+
+    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -102,6 +94,8 @@ class Grid extends Component {
   }
 
   componentDidMount() {
+    this.#pageId = pageTabList.activeTabId;
+
     this.createKeydownEvents();
     this.createDragEvents();
 
@@ -122,10 +116,14 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns, columns } = this.props;
+    const { resizableColumns, columns, selected } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
+    }
+
+    if (isEmpty(prevProps.selected) && !isEmpty(selected) && !isEqual(selected, this.state.selected)) {
+      this.setState({ selected });
     }
 
     if (prevProps.resizableColumns !== resizableColumns) {
@@ -145,18 +143,6 @@ class Grid extends Component {
     this.removeKeydownEvents();
     this.removeDragEvents();
     clearTimeout(this._timeoutDefaultWidth);
-  }
-
-  get hasCheckboxes() {
-    const { singleSelectable, multiSelectable } = this.props;
-
-    return singleSelectable || multiSelectable;
-  }
-
-  get fixedHeader() {
-    const { freezeCheckboxes, fixedHeader } = this.props;
-
-    return (freezeCheckboxes && this.hasCheckboxes) || fixedHeader;
   }
 
   setGridRef = ref => {
@@ -263,19 +249,17 @@ class Grid extends Component {
     }
   };
 
-  onSelect = (allPage, newSelected) => {
+  onSelect = ({ allPage, newSelected, allPossible, newExcluded }) => {
     const { onSelect } = this.props;
     const selected = [...new Set(newSelected)];
+    const excluded = [...new Set(newExcluded)];
+    const props = { selected };
 
-    this.setState(
-      { selected },
-      () =>
-        isFunction(onSelect) &&
-        onSelect({
-          selected,
-          all: allPage
-        })
-    );
+    !isNil(allPage) && (props.all = allPage);
+    !isNil(allPossible) && (props.allPossible = allPossible);
+    !isNil(newExcluded) && (props.excluded = excluded);
+
+    this.setState({ selected }, () => isFunction(onSelect) && onSelect(props));
   };
 
   getBootstrapTableProps(props, extra) {
@@ -292,7 +276,8 @@ class Grid extends Component {
     if (Array.isArray(extra.columns)) {
       options.columns = extra.columns.map(column => {
         if (column.width) {
-          column = this.setWidth(column);
+          set(column, 'headerStyle.width', column.width);
+          get(column, 'style.width') && delete column.style.width;
         }
 
         if (!isUndefined(column.default)) {
@@ -370,7 +355,6 @@ class Grid extends Component {
       options.selectRow = this.createSingleSelectionCheckboxes(props);
     }
 
-    const CUSTOM_NESTED_DELIMITER = '|';
     const replaceDefaultNestedDelimiterForData = items => {
       if (!Array.isArray(items)) {
         return items;
@@ -539,28 +523,23 @@ class Grid extends Component {
     };
   };
 
-  setWidth = column => {
-    column.style = {
-      ...column.style,
-      width: column.width
-    };
-
-    return column;
-  };
-
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings } = this.props;
-    const isFilterable = filterable && column.searchable && column.searchableByText && typeof onFilter === 'function';
-    const isSortable = sortable && typeof onSort === 'function';
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef } = this.props;
+    const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
+    const isSortable = sortable && isFunction(onSort);
 
     column.headerFormatter = (column, colIndex) => {
       const filterPredicates = (filters || []).filter(filter => filter.att === column.dataField) || [];
-      const filterPredicate = get(filterPredicates, [0], {});
+      const filterPredicate = head(filterPredicates) || {};
       const filterValue = filterPredicate.val || '';
-      const ascending = ((sortBy || []).filter(sort => sort.attribute === column.dataField)[0] || {}).ascending;
+      const sort = find(sortBy, sort => sort.attribute === column.dataField) || {};
+      const ascending = sort.ascending;
+      const originPredicate = find(originPredicates, predicate => predicate.att === column.dataField) || {};
 
       return (
         <HeaderFormatter
+          recordRef={recordRef}
+          originPredicate={originPredicate}
           isComplexFilter={filterPredicates.length > COMPLEX_FILTER_LIMIT}
           predicate={filterPredicate}
           filterable={isFilterable}
@@ -589,15 +568,17 @@ class Grid extends Component {
       selected,
       nonSelectable: props.nonSelectable || [],
       onSelect: this.handleSelectRadio,
-      selectionHeaderRenderer: SelectorHeader,
-      selectionRenderer: Selector
+      selectionHeaderRenderer: props => <SelectorHeader {...props} />,
+      selectionRenderer: props => <Selector {...props} />
     };
   }
 
   handleSelectRadio = row => {
     const prevValue = head(this.state.selected);
     const newValue = row[this.props.keyField];
-    this.onSelect(false, newValue !== prevValue ? [newValue] : []);
+    const newSelected = newValue !== prevValue ? [newValue] : [];
+
+    this.onSelect({ allPage: false, newSelected });
   };
 
   createMultiSelectionCheckboxes(props) {
@@ -610,27 +591,44 @@ class Grid extends Component {
       nonSelectable: props.nonSelectable || [],
       onSelect: this.handleSelectCheckbox,
       onSelectAll: this.handleSelectAllCheckbox,
-      selectionHeaderRenderer: SelectorHeader,
-      selectionRenderer: Selector
+      selectionHeaderRenderer: props => <SelectorHeader {...props} hasMenu onClickMenu={this.handleClickMenuCheckbox} />,
+      selectionRenderer: props => <Selector {...props} />
     };
   }
 
   handleSelectCheckbox = (row, isSelect) => {
-    const keyValue = row[this.props.keyField];
-    const selected = this.state.selected;
+    const { keyField, excluded } = this.props;
+    const { selected } = this.state;
+    const keyValue = row[keyField];
     const newSelected = isSelect ? [...selected, keyValue] : selected.filter(x => x !== keyValue);
+    const newExcluded = isSelect ? excluded.filter(x => x !== keyValue) : [...excluded, keyValue];
 
-    this.onSelect(false, newSelected);
+    this.onSelect({ allPage: false, newSelected, newExcluded });
   };
 
   handleSelectAllCheckbox = (allPage, rows) => {
+    const { nonSelectable } = this.props;
     const { selected } = this.state;
     const page = this.getSelectedPageItems();
     const ids = rows.map(row => row.id);
     const isSelectedPage = allPage || (!allPage && rows.length < page.length);
     const newSelected = isSelectedPage ? [...selected, ...page] : selected.filter(item => !ids.includes(item));
 
-    this.onSelect(allPage, newSelected);
+    (nonSelectable || []).forEach(item => {
+      if (selected.includes(item)) {
+        newSelected.push(item);
+      }
+    });
+
+    this.onSelect({ allPage, newSelected, newExcluded: [] });
+  };
+
+  handleClickMenuCheckbox = option => {
+    const newSelected = option.id === SELECTOR_MENU_KEY.NONE ? [] : this.getSelectedPageItems();
+    const allPage = option.id !== SELECTOR_MENU_KEY.NONE;
+    const allPossible = option.id === SELECTOR_MENU_KEY.ALL;
+
+    this.onSelect({ allPage, newSelected, allPossible, newExcluded: [] });
   };
 
   toolsVisible = () => {
@@ -692,7 +690,7 @@ class Grid extends Component {
 
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
-    this._tableDom = closest(options.th, 'table');
+    this._tableDom = isElement(options.th) ? options.th.closest('table') : null;
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
 
@@ -745,11 +743,7 @@ class Grid extends Component {
   inlineTools = () => {
     const { inlineTools } = this.props;
 
-    if (typeof inlineTools === 'function') {
-      return inlineTools();
-    }
-
-    return null;
+    return isFunction(inlineTools) ? inlineTools() : null;
   };
 
   tools = selected => {
@@ -783,10 +777,7 @@ class Grid extends Component {
 
   onFilter = (predicates, type) => {
     const { onFilter } = this.props;
-
-    if (isFunction(onFilter)) {
-      onFilter(predicates, type);
-    }
+    isFunction(onFilter) && onFilter(predicates, type);
   };
 
   onEdit = (oldValue, newValue, row, column) => {
@@ -867,7 +858,7 @@ class Grid extends Component {
     }
 
     const target = e.target;
-    const tr = closest(target, ECOS_GRID_ROW_CLASS);
+    const tr = isElement(target) ? target.closest(`.${ECOS_GRID_ROW_CLASS}`) : null;
 
     trigger.call(this, 'onRowDragEnter', e);
 
@@ -942,7 +933,7 @@ class Grid extends Component {
     let scrollStyle = {};
     let scrollProps = {};
 
-    if (byContentHeight && this._scrollRef) {
+    if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
       maxHeight = this._scrollRef.getScrollHeight();
     }
 
@@ -1023,7 +1014,7 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable } = this.props;
 
     if (isEmpty(columns)) {
       return null;
@@ -1038,7 +1029,8 @@ class Grid extends Component {
         className={classNames('ecos-grid', {
           'ecos-grid_no-header': noHeader,
           'ecos-grid_freeze': this.fixedHeader,
-          'ecos-grid_checkable': this.hasCheckboxes,
+          'ecos-grid_selectable': this.hasCheckboxes,
+          'ecos-grid_selectable_multi': multiSelectable,
           'ecos-grid_no-top-border': noTopBorder,
           [className]: !!className
         })}
@@ -1068,6 +1060,7 @@ Grid.propTypes = {
   hTrackClassName: PropTypes.string,
   keyField: PropTypes.string,
   dataField: PropTypes.string,
+  recordRef: PropTypes.string,
 
   filterable: PropTypes.bool,
   editable: PropTypes.bool,
@@ -1090,8 +1083,10 @@ Grid.propTypes = {
   columns: PropTypes.array,
   data: PropTypes.array,
   filters: PropTypes.array,
+  originPredicates: PropTypes.array,
   sortBy: PropTypes.array,
   selected: PropTypes.array,
+  excluded: PropTypes.array,
   nonSelectable: PropTypes.array,
   editingRules: PropTypes.object,
 
@@ -1116,9 +1111,10 @@ Grid.defaultProps = {
   scrollable: true,
   sortable: true,
   resizableColumns: true,
-  keyField: 'id',
   nonSelectable: [],
-  selected: []
+  selected: [],
+  excluded: [],
+  keyField: 'id'
 };
 
 export default Grid;

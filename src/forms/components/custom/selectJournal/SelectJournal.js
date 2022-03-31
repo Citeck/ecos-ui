@@ -390,6 +390,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
     this.refreshElementHasValueClasses();
   }
 
+  setValue(value, flags) {
+    if (_.isEmpty(this.dataValue) && this.dataValue !== value && !_.isEmpty(this.react.resolve)) {
+      this.setReactProps({ defaultValue: value });
+    }
+
+    return super.setValue(value, flags);
+  }
+
   updateValue(flags, value) {
     const changed = super.updateValue(flags, value);
 

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { reloadGrid } from '../../../actions/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import Pagination from '../../common/Pagination/Pagination';
-import { PAGINATION_SIZES } from '../../Journals/constants';
+import { PAGINATION_SIZES } from '../constants';
 
 const mapStateToProps = (state, props) => {
   const newState = state.journals[props.stateId] || {};
@@ -29,7 +29,6 @@ class JournalsDashletPagination extends Component {
   static propTypes = {
     className: PropTypes.string,
     grid: PropTypes.object,
-    hasPageSize: PropTypes.bool,
     isWidget: PropTypes.bool,
     reloadGrid: PropTypes.func
   };
@@ -43,14 +42,8 @@ class JournalsDashletPagination extends Component {
   };
 
   render() {
-    const {
-      grid: { total, pagination, groupBy },
-      hasPageSize,
-      className,
-      loading
-    } = this.props;
-
-    const cssClasses = classNames('ecos-journal-dashlet__pagination', className);
+    const { grid, className, ...props } = this.props;
+    const { total, pagination = {}, groupBy } = grid || {};
 
     if (groupBy && groupBy.length) {
       return null;
@@ -58,13 +51,12 @@ class JournalsDashletPagination extends Component {
 
     return (
       <Pagination
-        className={cssClasses}
+        className={classNames('ecos-journal-dashlet__pagination', className)}
         total={total}
         sizes={PAGINATION_SIZES}
-        hasPageSize={hasPageSize}
-        loading={loading}
         onChange={this.changePage}
         {...pagination}
+        {...props}
       />
     );
   }

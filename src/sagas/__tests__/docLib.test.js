@@ -3,30 +3,32 @@ import clone from 'lodash/clone';
 
 import DocLibService from '../../components/Journals/DocLib/DocLibService';
 import JournalsService from '../../components/Journals/service/journalsService';
-import { JournalUrlParams } from '../../constants';
+import { DocLibUrlParams, SourcesId } from '../../constants';
 import { wrapArgs } from '../../helpers/redux';
 import {
   loadDocumentLibrarySettings,
+  sagaExecGroupAction,
+  sagaGetTypeRef,
   sagaInitDocumentLibrary,
   sagaInitDocumentLibrarySidebar,
-  sagaInitGroupActions,
-  sagaExecGroupAction
+  sagaInitGroupActions
 } from '../docLib';
 import {
-  setIsDocLibEnabled,
-  initDocLib,
-  setFolderId,
-  setSearchText,
   loadFolderData,
-  setSidebarIsReady,
+  setFolderId,
   setGroupActions,
-  setIsGroupActionsReady
+  setIsDocLibEnabled,
+  setIsGroupActionsReady,
+  setSearchText,
+  setSidebarIsReady
 } from '../../actions/docLib';
 
 const journalId = 'testJournalId';
 const typeRef = 'testTypeRef';
 const stateId = 'testStateId';
-const testRootId = 'testRootId';
+const rootId = 'testRootId';
+const dirType = 'testDirType';
+const fileType = 'testFileType';
 const w = wrapArgs(stateId);
 const logger = {
   error: jest.fn()
@@ -35,10 +37,12 @@ const logger = {
 const fakeState = {
   journals: {
     [stateId]: {
-      url: {},
-      documentLibrary: {
-        rootId: ''
-      }
+      url: {}
+    }
+  },
+  documentLibrary: {
+    [stateId]: {
+      rootId: ''
     }
   }
 };
@@ -48,7 +52,7 @@ afterEach(() => {
 });
 
 describe('docLib sagas tests', () => {
-  describe('loadDocumentLibrarySettings saga', () => {
+  describe('sagaGetTypeRef saga', () => {
     it('should set isDocLibEnabled=false if typeRef is empty', async () => {
       const dispatched = [];
       const getTypeRefSpy = jest.spyOn(DocLibService, 'getTypeRef').mockResolvedValue(null);
@@ -57,54 +61,72 @@ describe('docLib sagas tests', () => {
         {
           dispatch: action => dispatched.push(action)
         },
-        loadDocumentLibrarySettings,
-        journalId,
-        w
+        sagaGetTypeRef,
+        { logger, stateId, w },
+        { payload: { journalId } }
       ).done;
 
       expect(getTypeRefSpy).toHaveBeenCalledTimes(1);
       expect(dispatched[0]).toEqual(setIsDocLibEnabled(w(false)));
     });
 
-    it('should done loadDocumentLibrarySettings saga', async () => {
+    it('should set isDocLibEnabled and typeRef saga', async () => {
       const dispatched = [];
       const getTypeRefSpy = jest.spyOn(DocLibService, 'getTypeRef').mockResolvedValue(typeRef);
       const isDocLibEnabledSpy = jest.spyOn(DocLibService, 'isDocLibEnabled').mockResolvedValue(true);
-      const getFileTypeRefsSpy = jest.spyOn(DocLibService, 'getFileTypeRefs').mockResolvedValue(['fileType1']);
-      const getDirTypeRefSpy = jest.spyOn(DocLibService, 'getDirTypeRef').mockResolvedValue('dirType1');
-      const getCreateVariantsSpy = jest.spyOn(DocLibService, 'getCreateVariants').mockResolvedValue([]);
-      const getRootIdSpy = jest.spyOn(DocLibService, 'getRootId').mockResolvedValue('rootId');
 
       await runSaga(
         {
           dispatch: action => dispatched.push(action)
         },
-        loadDocumentLibrarySettings,
-        journalId,
-        w
+        sagaGetTypeRef,
+        { logger, stateId, w },
+        { payload: { journalId } }
       ).done;
 
       expect(getTypeRefSpy).toHaveBeenCalledTimes(1);
       expect(getTypeRefSpy).toHaveBeenCalledWith(journalId);
       expect(isDocLibEnabledSpy).toHaveBeenCalled();
       expect(isDocLibEnabledSpy).toHaveBeenCalledWith(typeRef);
+      expect(dispatched.length).toEqual(2);
+    });
+  });
+
+  describe('loadDocumentLibrarySettings saga', () => {
+    it('should done loadDocumentLibrarySettings saga', async () => {
+      const dispatched = [];
+      const getFileTypeRefsSpy = jest.spyOn(DocLibService, 'getFileTypeRefs').mockResolvedValue([fileType]);
+      const getDirTypeRefSpy = jest.spyOn(DocLibService, 'getDirTypeRef').mockResolvedValue(dirType);
+      const getCreateVariantsSpy = jest.spyOn(DocLibService, 'getCreateVariants').mockResolvedValue([]);
+      const getRootIdSpy = jest.spyOn(DocLibService, 'getRootId').mockResolvedValue(rootId);
+
+      await runSaga(
+        {
+          dispatch: action => dispatched.push(action)
+        },
+        loadDocumentLibrarySettings,
+        typeRef,
+        w
+      ).done;
+
       expect(getFileTypeRefsSpy).toHaveBeenCalled();
       expect(getFileTypeRefsSpy).toHaveBeenCalledWith(typeRef);
       expect(getDirTypeRefSpy).toHaveBeenCalled();
       expect(getDirTypeRefSpy).toHaveBeenCalledWith(typeRef);
       expect(getCreateVariantsSpy).toHaveBeenCalled();
-      expect(getCreateVariantsSpy).toHaveBeenCalledWith('dirType1', ['fileType1']);
+      expect(getCreateVariantsSpy).toHaveBeenCalledWith(dirType, [fileType]);
       expect(getRootIdSpy).toHaveBeenCalled();
       expect(getRootIdSpy).toHaveBeenCalledWith(typeRef);
-      expect(dispatched[dispatched.length - 1]).toEqual(initDocLib(w()));
+      expect(dispatched.length).toBe(4);
     });
   });
 
   describe('sagaInitDocumentLibrary saga', () => {
-    it('should set folderId=rootId if no "folderId" url-parameter', async () => {
+    it('should set folderId=rootId if No "folderId" url-parameter', async () => {
       const dispatched = [];
       const thisState = clone(fakeState);
-      thisState.journals[stateId].documentLibrary.rootId = testRootId;
+      thisState.documentLibrary[stateId].rootId = rootId;
+      thisState.documentLibrary[stateId].typeRef = typeRef;
 
       await runSaga(
         {
@@ -116,13 +138,13 @@ describe('docLib sagas tests', () => {
       ).done;
 
       const setFolderIdAction = dispatched.find(item => item.type === setFolderId().type);
-      expect(setFolderIdAction.payload).toEqual(w(testRootId));
+      expect(setFolderIdAction.payload).toEqual(w(rootId));
     });
 
-    it(`should set folderId from "${JournalUrlParams.DOCLIB_FOLDER_ID}" url-parameter`, async () => {
+    it(`should set folderId from "${DocLibUrlParams.FOLDER_ID}" url-parameter`, async () => {
       const dispatched = [];
       const thisState = clone(fakeState);
-      thisState.journals[stateId].url[JournalUrlParams.DOCLIB_FOLDER_ID] = 'folder1';
+      thisState.journals[stateId].url[DocLibUrlParams.FOLDER_ID] = 'folder1';
 
       await runSaga(
         {
@@ -137,10 +159,10 @@ describe('docLib sagas tests', () => {
       expect(setFolderIdAction.payload).toEqual(w('folder1'));
     });
 
-    it(`should set searchText from "${JournalUrlParams.DOCLIB_SEARCH}" url-parameter`, async () => {
+    it(`should set searchText from "${DocLibUrlParams.SEARCH}" url-parameter`, async () => {
       const dispatched = [];
       const thisState = clone(fakeState);
-      thisState.journals[stateId].url[JournalUrlParams.DOCLIB_SEARCH] = 'search text';
+      thisState.journals[stateId].url[DocLibUrlParams.SEARCH] = 'search text';
 
       await runSaga(
         {
@@ -176,8 +198,8 @@ describe('docLib sagas tests', () => {
     it('should done sagaInitDocumentLibrarySidebar', async () => {
       const dispatched = [];
       const thisState = clone(fakeState);
-      thisState.journals[stateId].documentLibrary.rootId = testRootId;
-      thisState.journals[stateId].documentLibrary.typeRef = typeRef;
+      thisState.documentLibrary[stateId].rootId = rootId;
+      thisState.documentLibrary[stateId].typeRef = typeRef;
 
       const unfoldedItems = ['unfoldedItem1', 'unfoldedItem2', 'unfoldedItem3'];
 
@@ -196,7 +218,7 @@ describe('docLib sagas tests', () => {
       ).done;
 
       expect(getFolderTitleSpy).toHaveBeenCalledTimes(1);
-      expect(getFolderTitleSpy).toHaveBeenCalledWith(testRootId);
+      expect(getFolderTitleSpy).toHaveBeenCalledWith(rootId);
 
       expect(loadUnfoldedFoldersSpy).toHaveBeenCalledTimes(1);
       expect(loadUnfoldedFoldersSpy).toHaveBeenCalledWith(typeRef);
@@ -279,15 +301,9 @@ describe('docLib sagas tests', () => {
   describe('sagaExecGroupAction saga', () => {
     it('should done sagaExecGroupAction', async () => {
       const dispatched = [];
-      const selectedItems = ['selectedItem1', 'selectedItem2'];
+      const selected = ['selectedItem1', 'selectedItem2'];
       const thisState = clone(fakeState);
-      thisState.journals[stateId] = {
-        documentLibrary: {
-          fileViewer: {
-            selected: selectedItems
-          }
-        }
-      };
+      thisState.documentLibrary[stateId] = { fileViewer: { selected } };
 
       const api = {
         recordActions: {
@@ -311,7 +327,7 @@ describe('docLib sagas tests', () => {
       ).done;
 
       expect(api.recordActions.executeAction).toHaveBeenCalledTimes(1);
-      expect(api.recordActions.executeAction).toHaveBeenCalledWith({ action: {}, records: selectedItems });
+      expect(api.recordActions.executeAction).toHaveBeenCalledWith({ action: {}, records: selected });
     });
 
     it('should handle exception', async () => {

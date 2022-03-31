@@ -6,7 +6,6 @@ import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
-import classNames from 'classnames';
 
 import DashboardService from '../../../services/dashboard';
 import { t } from '../../../helpers/util';
@@ -16,12 +15,18 @@ import { RemoveDialog } from '../../../components/common/dialogs';
 
 import '../style.scss';
 
+const Labels = {
+  TITLE: 'dashboard-settings.board-tabs.title',
+  DESC: 'dashboard-settings.board-tabs.edit-number-contents',
+  REMOVE_TITLE: 'dashboard-settings.remove-tab-dialog.title',
+  REMOVE_TEXT: 'dashboard-settings.remove-tab-dialog.text'
+};
+
 class SetTabs extends React.Component {
   static propTypes = {
     activeTabKey: PropTypes.string,
     tabs: PropTypes.array,
-    setData: PropTypes.func,
-    mode: PropTypes.oneOf(['modal', 'page'])
+    setData: PropTypes.func
   };
 
   static defaultProps = {
@@ -131,7 +136,7 @@ class SetTabs extends React.Component {
   };
 
   renderArrowTabs() {
-    const { tabs, activeTabKey, mode } = this.props;
+    const { tabs, activeTabKey } = this.props;
     const { scrollTabToEnd, editableTab, updateScrollPosition } = this.state;
     const empty = isEmpty(tabs);
 
@@ -150,7 +155,7 @@ class SetTabs extends React.Component {
       >
         <EditTabs
           className="ecos-dashboard-settings__layout-tabs-wrap"
-          classNameTab={classNames('ecos-dashboard-settings__layout-tabs-item', `ecos-dashboard-settings__layout-tabs-item_${mode}`)}
+          classNameTab="ecos-dashboard-settings__layout-tabs-item ecos-dashboard-settings__layout-tabs-item_modal"
           classNameTooltip="ecos-dashboard-settings__tooltip"
           hasHover
           hasHint
@@ -175,7 +180,7 @@ class SetTabs extends React.Component {
 
     return (
       <>
-        <h6 className="ecos-dashboard-settings__container-subtitle">{t('dashboard-settings.edit-number-contents')}</h6>
+        <h6 className="ecos-dashboard-settings__container-subtitle">{t(Labels.DESC)}</h6>
         <div className="ecos-dashboard-settings__layout-tabs-wrapper">
           {this.renderArrowTabs()}
           {empty && <div className="ecos-dashboard-settings__layout-tabs_empty" />}
@@ -187,13 +192,8 @@ class SetTabs extends React.Component {
         </div>
         <RemoveDialog
           isOpen={!isEmpty(removedTab)}
-          title={t('dashboard-settings.remove-tab-dialog.title')}
-          text={
-            <>
-              <div>{`${t('dashboard-settings.remove-tab-dialog.text1')} "${get(removedTab, 'label', '')}"?`}</div>
-              <div>{`${t('dashboard-settings.remove-tab-dialog.text2')}`}</div>
-            </>
-          }
+          title={t(Labels.REMOVE_TITLE)}
+          text={t(Labels.REMOVE_TEXT, { name: get(removedTab, 'label', '') })}
           onDelete={this.onDeleteTab}
           onCancel={this.closeDialog}
           onClose={this.closeDialog}

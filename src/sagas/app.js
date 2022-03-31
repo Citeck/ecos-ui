@@ -10,6 +10,7 @@ import {
   getAppEdition,
   getDashboardEditable,
   getFooter,
+  getSeparateActionListForQuery,
   initAppFailure,
   initAppRequest,
   initAppSettings,
@@ -19,7 +20,8 @@ import {
   setFooter,
   setHomeLink,
   setLeftMenuEditable,
-  setRedirectToNewUi
+  setRedirectToNewUi,
+  setSeparateActionListForQuery
 } from '../actions/app';
 import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } from '../actions/user';
 import { detectMobileDevice } from '../actions/view';
@@ -69,7 +71,7 @@ export function* initApp({ api, logger }, { payload }) {
       typeof payload.onSuccess === 'function' && payload.onSuccess(isAuthenticated);
     }
   } catch (e) {
-    logger.error('[initApp saga] error', e.message);
+    logger.error('[app saga] initApp error', e);
     yield put(initAppFailure());
   }
 }
@@ -80,9 +82,10 @@ export function* fetchAppSettings({ logger }) {
     yield put(getDashboardEditable());
     yield put(getAppEdition());
     yield put(getFooter());
+    yield put(getSeparateActionListForQuery());
     yield put(registerEventListeners());
   } catch (e) {
-    logger.error('[fetchAppSettings saga] error', e.message);
+    logger.error('[app saga] fetchAppSettings error', e);
   }
 }
 
@@ -94,7 +97,7 @@ export function* sagaRedirectToLoginPage({ api, logger }) {
       window.open(url, '_self');
     }
   } catch (e) {
-    logger.error('[sagaRedirectToLoginPage saga] error', e.message);
+    logger.error('[app saga] sagaRedirectToLoginPage error', e);
   }
 }
 
@@ -105,7 +108,7 @@ export function* fetchDashboardEditable({ api, logger }) {
 
     yield put(setDashboardEditable(editable));
   } catch (e) {
-    logger.error('[fetchDashboardEditable saga] error', e.message);
+    logger.error('[app saga] fetchDashboardEditable error', e);
   }
 }
 
@@ -114,7 +117,7 @@ export function* fetchAppEdition({ api, logger }) {
     const edition = yield call(api.app.getAppEdition);
     yield put(setAppEdition(edition));
   } catch (e) {
-    logger.error('[fetchAppEdition saga] error', e.message);
+    logger.error('[app saga] fetchAppEdition error', e);
   }
 }
 
@@ -125,7 +128,7 @@ export function* fetchLeftMenuEditable({ api, logger }) {
 
     yield put(setLeftMenuEditable(isAdmin && menuVersion > 0));
   } catch (e) {
-    logger.error('[fetchLeftMenuEditable saga] error', e.message);
+    logger.error('[app saga] fetchLeftMenuEditable error', e);
   }
 }
 
@@ -142,7 +145,7 @@ export function* fetchFooter({ api, logger }) {
       yield put(setFooter(footer));
     }
   } catch (e) {
-    logger.error('[fetchFooter saga] error', e.message);
+    logger.error('[app saga] fetchFooter error', e);
   }
 }
 
@@ -162,7 +165,16 @@ function* sagaBackFromHistory({ api, logger }) {
       PageService.changeUrlLink(pageUrl, { reopen: lenTabs <= 1, closeActiveTab: lenTabs > 1 });
     }
   } catch (e) {
-    logger.error('[app/page sagaChangeTabData saga error', e.message);
+    logger.error('[app saga] sagaBackFromHistory error', e);
+  }
+}
+
+function* fetchGetSeparateActionListForQuery({ api, logger }) {
+  try {
+    const flag = yield call(api.app.getSeparateActionListForQuery);
+    yield put(setSeparateActionListForQuery(flag));
+  } catch (e) {
+    logger.error('[app saga] fetchGetSeparateActionListForQuery error', e);
   }
 }
 
@@ -176,6 +188,7 @@ function* appSaga(ea) {
   yield takeEvery(getFooter().type, fetchFooter, ea);
   yield takeEvery(backPageFromTransitionsHistory().type, sagaBackFromHistory, ea);
   yield takeEvery(validateUserFailure().type, sagaRedirectToLoginPage, ea);
+  yield takeEvery(getSeparateActionListForQuery().type, fetchGetSeparateActionListForQuery, ea);
 }
 
 export default appSaga;

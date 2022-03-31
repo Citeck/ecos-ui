@@ -5,9 +5,11 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import Base from 'formiojs/components/base/Base';
+import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
-import { getInputMask } from 'formiojs/utils/utils';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../../../helpers/util';
@@ -369,6 +371,11 @@ Base.prototype.createInlineEditButton = function(container) {
       const currentValue = this.getValue();
       this._valueBeforeEdit = isObject(currentValue) ? clone(currentValue) : currentValue;
 
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1538
+      if (isEmpty(this._cachedData)) {
+        this._cachedData = cloneDeep(this.data);
+      }
+
       this.options.readOnly = false;
       this.options.viewAsHtml = false;
       this._isInlineEditingMode = true;
@@ -398,7 +405,8 @@ Base.prototype.createViewOnlyValue = function(container) {
   const customClass = get(this, 'component.customClass');
 
   if (customClass) {
-    container.classList.add(`${customClass}_view-mode`);
+    const list = `${customClass}_view-mode`.split(' ');
+    container.classList.add(...list);
   }
 };
 
@@ -431,33 +439,6 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       this.ce('span', { class: 'icon icon-small-close' })
     );
 
-    const switchToViewOnlyMode = () => {
-      if (typeof this.cleanAfterInlineEditMode === 'function') {
-        this.cleanAfterInlineEditMode();
-      }
-
-      this.options.readOnly = true;
-      this.options.viewAsHtml = true;
-      this._isInlineEditingMode = false;
-      this.element.classList.remove(INLINE_EDITING_CLASSNAME);
-
-      this.redraw();
-      this._removeEventListeners();
-
-      delete this._valueBeforeEdit;
-    };
-
-    const rollBack = () => {
-      if (this.hasOwnProperty('_valueBeforeEdit')) {
-        if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
-          // this.dataValue = this._valueBeforeEdit;
-          this.setValue(this._valueBeforeEdit);
-        }
-      }
-
-      switchToViewOnlyMode();
-    };
-
     const onSaveButtonClick = () => {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
 
@@ -466,31 +447,61 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       }
 
       const form = get(this, 'root');
+
       if (form.changing) {
         return;
       }
 
-      if (!this.checkValidity(this.data, true)) {
-        return;
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1559
+      const submitAttributes = [];
+
+      if (this.options.saveDraft) {
+        submitAttributes.push(false);
+        submitAttributes.push({ state: 'draft' });
+      } else {
+        if (!this.root.checkValidity(this.data, true)) {
+          return;
+        }
       }
 
       return form
-        .submit()
+        .submit(...submitAttributes)
         .then(() => {
-          switchToViewOnlyMode();
-          form.showErrors('', true);
-          if (typeof this.options.onInlineEditSave === 'function') {
+          this.switchToViewOnlyMode();
+
+          if (!this.options.saveDraft) {
+            form.showErrors('', true);
+          }
+
+          if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
           }
         })
         .catch(e => {
           form.showErrors(e, true);
-          rollBack();
+          this.inlineEditRollback();
         });
     };
 
     const onCancelButtonClick = () => {
-      rollBack();
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-1538
+      if (!isEmpty(this._cachedData)) {
+        this.root.setValue({ data: this._cachedData });
+        this.root.onChange();
+        this._cachedData = {};
+
+        const components = flattenComponents(this.root.components);
+
+        for (const key in components) {
+          if (components.hasOwnProperty(key)) {
+            const component = components[key];
+
+            component.inlineEditRollback.call(component);
+          }
+        }
+      }
+
+      this.inlineEditRollback();
       this.setCustomValidity('');
     };
 
@@ -535,9 +546,13 @@ Base.prototype.build = function(state) {
 };
 
 Base.prototype.checkValidity = function(data, dirty, rowData) {
+  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue)) {
+    return true;
+  }
+
   const validity = originalCheckValidity.call(this, data, dirty, rowData);
 
-  if (this._inlineEditSaveButton) {
+  if (this._inlineEditSaveButton && !this.options.saveDraft) {
     const saveButtonClassList = this._inlineEditSaveButton.classList;
     if (validity && saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
       saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
@@ -811,6 +826,35 @@ Base.prototype.createModal = function(...params) {
   ZIndex.setZ(modal);
 
   return modal;
+};
+
+Base.prototype.inlineEditRollback = function() {
+  if (this.hasOwnProperty('_valueBeforeEdit')) {
+    if (!isEqual(this.getValue(), this._valueBeforeEdit)) {
+      this.setValue(this._valueBeforeEdit);
+    }
+  }
+
+  this.switchToViewOnlyMode();
+};
+
+Base.prototype.switchToViewOnlyMode = function() {
+  if (isFunction(this.cleanAfterInlineEditMode)) {
+    this.cleanAfterInlineEditMode();
+  }
+
+  this.options.readOnly = true;
+  this.options.viewAsHtml = true;
+  this._isInlineEditingMode = false;
+  this.element.classList.remove(INLINE_EDITING_CLASSNAME);
+
+  this.redraw();
+
+  if (isFunction(this._removeEventListeners)) {
+    this._removeEventListeners.call(this);
+  }
+
+  delete this._valueBeforeEdit;
 };
 
 export default Base;

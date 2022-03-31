@@ -4,8 +4,6 @@
 .ecos-dashboard-settings {
   $settings: &;
 
-  position: relative;
-
   &__tooltip {
     .tooltip {
       z-index: 10001;
@@ -16,7 +14,7 @@
     padding: 0;
     max-width: unset;
 
-    .ecos-tab:not(.ecos-tab_active),
+    .ecos-tab_editable:not(.ecos-tab_active),
     #{$settings}__layout-tabs-add-tab:not(:hover):not(:focus):not(:active) {
       border-width: 1px;
       border-color: $color-gray-6;
@@ -27,8 +25,8 @@
       &__body {
         overflow-y: auto;
         position: relative;
-        padding: 10px 17px 10px 20px;
-        margin: 10px 3px 10px 0;
+        padding-right: 2px;
+        height: calc(100vh - 248px);
       }
 
       &__container {
@@ -44,42 +42,19 @@
       }
 
       &__actions {
-        position: relative;
-        padding-left: 15px;
-        padding-bottom: 20px;
-        padding-top: 15px;
+        margin-top: 35px;
 
         &:before {
-          content: '';
+          content: ' ';
           display: block;
-          background: #e8edef;
+          background: $color-gray-4;
           height: 2px;
           position: absolute;
+          margin-top: -20px;
           left: 0;
-          top: 0;
           width: 100%;
         }
       }
-    }
-  }
-
-  &-modal-wrapper.ecos-modal {
-    top: 10px;
-    margin-top: 0;
-    margin-bottom: 0;
-
-    .ecos-modal-header {
-      display: flex;
-      flex-shrink: 0;
-      flex-basis: auto;
-    }
-
-    .modal-body {
-      padding: 0;
-    }
-
-    .modal-content {
-      max-height: calc(100vh - 20px);
     }
   }
 
@@ -96,6 +71,11 @@
     @extend %title-page;
     margin-top: 30px;
     margin-bottom: 24px;
+  }
+
+  &__section {
+    border-top: 2px solid $color-gray-4;
+    padding-top: 20px;
   }
 
   &__spec {
@@ -115,7 +95,8 @@
 
   &__bindings {
     &-owner {
-      display: flex;
+      display: inline-flex;
+
       align-items: center;
       margin-top: 25px;
     }
@@ -158,13 +139,31 @@
       color: $color-gray-5;
       max-width: 350px;
     }
+
+    &-reset {
+      &-tooltip {
+        .tooltip {
+          z-index: 9999;
+        }
+
+        .tooltip-inner {
+          min-width: 450px;
+        }
+      }
+    }
   }
 
   &__device-tabs {
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 
     &-item {
       padding: 0 15px;
+    }
+
+    .ecos-tab {
+      &:not(.ecos-tab_active) {
+        background: $color-gray-4;
+      }
     }
   }
 
@@ -183,9 +182,7 @@
 
       &_modal {
         &.ecos-tab_draggable {
-          border-width: 1px;
-          border-color: $color-gray-6;
-          border-style: solid;
+          border: 1px solid $color-gray-6;
         }
       }
     }
@@ -204,12 +201,11 @@
   }
 
   &__container {
-    @extend %block--1;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     &-title {
       @extend %title-block--1;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     &-subtitle {

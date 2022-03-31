@@ -113,23 +113,22 @@ export default class HeaderFormatter extends Component {
   };
 
   triggerPendingChange = debounce((text, dataField, type) => {
-    const { column, onFilter } = this.props;
+    const { column, onFilter, originPredicate } = this.props;
     const { predicate } = this.state;
 
     this.onToggle();
 
-    if (isFunction(onFilter)) {
+    isFunction(onFilter) &&
       onFilter(
         [
           {
             att: dataField,
-            t: get(predicate, 't', ''),
+            t: get(predicate, 't', '') || get(originPredicate, 't', ''),
             val: text.trim()
           }
         ],
         type || column.type
       );
-    }
   }, 0);
 
   onDividerMouseDown = e => {
@@ -139,13 +138,12 @@ export default class HeaderFormatter extends Component {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
     e.stopPropagation();
 
-    if (isFunction(onDividerMouseDown)) {
+    isFunction(onDividerMouseDown) &&
       onDividerMouseDown({
         e: e,
         th: current.parentElement,
         colIndex
       });
-    }
   };
 
   onSort = () => {
@@ -249,11 +247,12 @@ export default class HeaderFormatter extends Component {
     );
 
     if (!isComplexFilter) {
-      const { column, predicate } = this.props;
+      const { column, predicate, recordRef } = this.props;
       const { text } = this.state;
 
       tooltipBody = (
         <InlineFilter
+          recordRef={recordRef}
           filter={{
             meta: {
               column,
@@ -369,7 +368,8 @@ export default class HeaderFormatter extends Component {
 
 HeaderFormatter.propTypes = {
   filterable: PropTypes.bool,
-  filterValue: PropTypes.string,
+  filterValue: PropTypes.any, //depends on field's type
+  recordRef: PropTypes.string,
   onFilter: PropTypes.func,
 
   ascending: PropTypes.bool,
@@ -382,5 +382,6 @@ HeaderFormatter.propTypes = {
 
   isComplexFilter: PropTypes.bool,
   predicate: PropTypes.object,
+  originPredicate: PropTypes.object,
   onOpenSettings: PropTypes.func
 };

@@ -10,6 +10,7 @@ import {
   setAuthorities,
   setCreateMenuItems,
   setGroupPriority,
+  setIsForAll,
   setLastAddedLeftItems,
   setLeftMenuItems,
   setLoading,
@@ -26,15 +27,16 @@ const initialState = {
   leftItems: [],
   availableSections: [],
   createItems: [],
-  authorities: [],
   userMenuItems: [],
+  authorities: [],
   groupPriority: [],
   isLoading: false,
   isLoadingPriority: false,
   isOpenMenuSettings: false,
   lastAddedLeftItems: [],
   lastAddedCreateItems: [],
-  fontIcons: []
+  fontIcons: [],
+  isForAll: false
 };
 
 Object.freeze(initialState);
@@ -91,6 +93,10 @@ export default handleActions(
     [setAuthorities]: (state, { payload }) => ({
       ...state,
       authorities: payload
+    }),
+    [setIsForAll]: (state, { payload }) => ({
+      ...state,
+      isForAll: payload
     }),
     [setMenuIcons]: (state, { payload }) => ({
       ...state,

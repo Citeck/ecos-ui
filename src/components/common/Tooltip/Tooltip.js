@@ -19,7 +19,7 @@ class Tooltip extends Component {
   static propTypes = {
     target: PropTypes.string.isRequired,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
+    contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node, PropTypes.string]),
     autohide: PropTypes.bool,
     hideArrow: PropTypes.bool,
     isOpen: PropTypes.bool,
@@ -55,6 +55,7 @@ class Tooltip extends Component {
     className: PropTypes.string,
     innerClassName: PropTypes.string,
     arrowClassName: PropTypes.string,
+    popperClassName: PropTypes.string,
     onToggle: PropTypes.func
   };
 
@@ -136,6 +137,7 @@ class Tooltip extends Component {
       className,
       innerClassName,
       arrowClassName,
+      popperClassName,
       trigger,
       uncontrolled,
       autohide,
@@ -162,7 +164,7 @@ class Tooltip extends Component {
       className: classNames('ecos-base-tooltip', className),
       innerClassName: classNames('ecos-base-tooltip-inner', innerClassName),
       arrowClassName: classNames('ecos-base-tooltip-arrow', arrowClassName),
-      popperClassName: 'ecosZIndexAnchor',
+      popperClassName: classNames('ecos-base-tooltip-popper', 'ecosZIndexAnchor', popperClassName),
       toggle: this.onToggle
     };
   };

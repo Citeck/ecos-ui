@@ -9,10 +9,13 @@ export const URL = {
   HOME: '/',
   JOURNAL: '/v2/journals',
   DASHBOARD: '/v2/dashboard',
-  DASHBOARD_SETTINGS: '/v2/dashboard/settings', // @deprecated
+  /** @deprecated */
+  DASHBOARD_SETTINGS: '/v2/dashboard/settings',
+  /** @deprecated */
   MENU_SETTINGS: '/v2/menu-settings',
   ADMIN_PAGE: '/v2/admin',
-  BPMN_DESIGNER: '/v2/bpmn-designer', // @deprecated
+  /** @deprecated */
+  BPMN_DESIGNER: '/v2/bpmn-designer',
   BPMN_EDITOR: '/v2/bpmn-editor',
   CMMN_EDITOR: '/v2/cmmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
@@ -44,6 +47,7 @@ export const SourcesId = {
   EAPPS_BUILD_INFO: 'eapps/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
+  RESOLVED_FORM: 'uiserv/rform',
   EFORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
   CONFIG: 'uiserv/config',
@@ -55,6 +59,8 @@ export const SourcesId = {
   META: 'uiserv/meta',
   JOURNAL: 'uiserv/journal',
   RESOLVED_JOURNAL: 'uiserv/rjournal',
+  BOARD: 'uiserv/board',
+  RESOLVED_BOARD: 'uiserv/rboard',
   RESOLVED_TYPE: 'emodel/rtype',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
@@ -64,7 +70,8 @@ export const SourcesId = {
   ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
-  COMMENT: 'comment',
+  LEGACY_COMMENT: 'comment',
+  EMODEL_COMMENT: 'emodel/comment',
   VERSION: 'version',
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
@@ -138,7 +145,6 @@ export const Attributes = {
 export const TMP_ICON_EMPTY = 'icon-empty';
 
 export const Pages = {
-  DASHBOARD_SETTINGS: 'dashboard-settings',
   DASHBOARD: 'dashboard',
   BPMN: 'bpmn',
   JOURNAL: 'journal',
@@ -167,9 +173,17 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode',
-  DOCLIB_FOLDER_ID: 'folderId',
-  DOCLIB_SEARCH: 'dlSearch'
+  VIEW_MODE: 'viewMode'
+};
+
+export const DocLibUrlParams = {
+  FOLDER_ID: 'folderId',
+  SEARCH: 'dlSearch'
+};
+
+export const KanbanUrlParams = {
+  BOARD_ID: 'boardId',
+  SEARCH: 'kbSearch'
 };
 
 export const SYSTEM_LIST = 'global-system';

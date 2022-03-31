@@ -40,3 +40,11 @@
     }
   }
 }
+
+@media (max-width: 1370px) {
+  .ecos-admin-section {
+    &__container {
+      padding: 15px 15px 0;
+    }
+  }
+}

@@ -1,11 +1,9 @@
 import React, { useContext, useEffect } from 'react';
-import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 
 import DateTimeFormatter from '../../../components/common/grid/formatters/gql/DateTimeFormatter';
 import PanelTitle from '../../../components/common/PanelTitle';
 import { Grid } from '../../../components/common/grid';
-import { t } from '../../../helpers/util';
+import { t } from '../../../helpers/export/util';
 
 import { BuildContext } from './BuildContext';
 import ErrorText from '../ErrorText';
@@ -22,28 +20,29 @@ const BuildTab = () => {
 
   const columns = [
     { dataField: 'label', text: 'ID' },
-    { dataField: 'version', text: 'Version' },
-    { dataField: 'buildDate', text: 'Build Date', formatExtraData: { formatter: DateTimeFormatter } }
+    {
+      dataField: 'version',
+      get text() {
+        return t('dev-tools.columns.version');
+      }
+    },
+    {
+      dataField: 'buildDate',
+      get text() {
+        return t('dev-tools.columns.build-date');
+      },
+      formatExtraData: { formatter: DateTimeFormatter, params: { format: 'DD.MM.YYYY HH:mm:ss' } }
+    }
   ];
 
   let systemModules = null;
+
   if (system.error) {
     systemModules = <ErrorText>{system.error}</ErrorText>;
   } else if (!system.isReady) {
     systemModules = <Loader />;
   } else {
-    systemModules = (
-      <Grid
-        scrollable={false}
-        data={system.items}
-        columns={cloneDeep(columns).map(column => {
-          if (column.dataField === 'buildDate') {
-            set(column, 'formatExtraData.params.format', 'DD.MM.YYYY HH:mm:ss');
-          }
-          return column;
-        })}
-      />
-    );
+    systemModules = <Grid scrollable={false} data={system.items} columns={columns} />;
   }
 
   let alfrescoModules = null;

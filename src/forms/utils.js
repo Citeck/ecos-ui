@@ -79,6 +79,24 @@ export const runTransform = (config, tabs) => {
   return { config: advancedConfig, tabsByKey: processEditFormConfig(advancedConfig, tabsByKey) };
 };
 
+const _removeDuplicateComponents = (components = []) => {
+  if (!Array.isArray(components)) {
+    return components;
+  }
+
+  return [
+    ...new Set(
+      components.map(component => {
+        if (Array.isArray(component.components)) {
+          component.components = _removeDuplicateComponents(component.components);
+        }
+
+        return component;
+      })
+    )
+  ];
+};
+
 const _expandEditForm = component => {
   const ignoredComponents = ['recaptcha', 'custom', 'horizontalLine', 'asyncData'];
 
@@ -113,7 +131,7 @@ const _expandEditForm = component => {
       key: `${item.key}-reworked`
     }));
 
-    return originEditForm([
+    const result = originEditForm([
       ...extend,
       editFormSectionBasic,
       ...removed,
@@ -132,6 +150,10 @@ const _expandEditForm = component => {
         ]
       }
     ]);
+
+    _removeDuplicateComponents(get(result, 'components.0.components', []));
+
+    return result;
   };
 
   return component;
@@ -157,7 +179,8 @@ export const disabledComponents = Object.freeze([
   'editgrid',
   'nested',
   'form',
-  'unknown'
+  'unknown',
+  'includeForm'
 ]);
 
 export const prepareComponentBuilderInfo = builderInfo => {

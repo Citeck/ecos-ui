@@ -27,11 +27,13 @@ export const ACTIONS_BY_TYPE = {
 export const ACTION_DTO_BY_ID = {
   [ACTION_0]: {
     id: 'first',
+    className: 'fitnesse-inline-tools-actions-btn__first',
     type: 'test-action',
     name: 'First Action'
   },
   [ACTION_1]: {
     id: 'second',
+    className: 'fitnesse-inline-tools-actions-btn__second',
     type: 'test-action',
     name: 'Second action',
     pluralName: 'Second actions',
@@ -41,6 +43,7 @@ export const ACTION_DTO_BY_ID = {
   },
   [ACTION_2]: {
     id: 'third',
+    className: 'fitnesse-inline-tools-actions-btn__third',
     type: 'test-action',
     features: {
       execForQuery: false

@@ -53,7 +53,8 @@ export const ActionTypes = {
   DELETE: DeleteAction.ACTION_ID,
   SET_TASK_ASSIGNEE: SetTaskAssignee.ACTION_ID,
   EDIT_PASSWORD: EditPasswordAction.ACTION_ID,
-  EDIT_JOURNAL_PRESET: EditJournalPresetAction.ACTION_ID
+  EDIT_JOURNAL_PRESET: EditJournalPresetAction.ACTION_ID,
+  PREVIEW: PreviewModalAction.ACTION_ID
 };
 
 // Executors - Common

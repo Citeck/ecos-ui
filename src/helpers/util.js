@@ -3,13 +3,14 @@ import * as queryString from 'query-string';
 import uuidV4 from 'uuid/v4';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
-import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 
 import { DataFormatTypes, DocScaleOptions, MIN_WIDTH_DASHLET_LARGE, MOBILE_APP_USER_AGENT } from '../constants';
 
@@ -57,6 +58,12 @@ export const utcAsLocal = jsonDate =>
 
 export const revokeUtcAsLocal = jsonDate => moment(jsonDate).format(UTC_AS_LOCAL_FORMAT) + 'Z';
 
+/**
+ * @deprecated use lodash/debounce
+ * @param {Function} func
+ * @param {Number} ms
+ * @returns {function(...[*]): Promise<unknown>}
+ */
 export const debounce = (func, ms = 0) => {
   let timer = null;
   let resolves = [];
@@ -78,6 +85,14 @@ export const debounce = (func, ms = 0) => {
 
 export const getBool = val => (val === 'false' ? false : val === 'true' ? true : val);
 
+/**
+ * @deprecated use Element.closest()
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
+ * @param {Element} node
+ * @param {String} selector
+ * @param {Boolean} checkSelf
+ * @returns {HTMLElement|null|*}
+ */
 export function closest(node = null, selector, checkSelf = false) {
   if (!node) {
     return null;
@@ -98,7 +113,7 @@ export function closest(node = null, selector, checkSelf = false) {
   return null;
 }
 
-export function getPropByStringKey(obj, strKey) {
+export function getPropByStringKey(obj = {}, strKey = '') {
   const keys = strKey.split('.');
   let res;
 
@@ -115,13 +130,17 @@ export function getPropByStringKey(obj, strKey) {
 }
 
 export function getSelectedValue(source, field, value, selectedField) {
+  if (isEmpty(source)) {
+    return;
+  }
+
   const selected = source.filter(option => option[field] === value);
 
   return isEmpty(selectedField) ? selected : selected.map(item => item[selectedField]);
 }
 
 /**
- * @deprecated use this.props[handler]
+ * @deprecated use lodash/isFunction + this.props[handler]
  * @param name - handler name from props
  * @param data
  */
@@ -280,7 +299,7 @@ export function formatFileSize(fileSize, decimalPlaces) {
 // TODO use moment.js in future
 export function getRelativeTime(from, to) {
   const originalFrom = from;
-  if (typeof from === 'string') {
+  if (isString(from)) {
     from = new Date(from);
   }
 
@@ -291,9 +310,9 @@ export function getRelativeTime(from, to) {
     };
   }
 
-  if (typeof to === 'undefined') {
+  if (isNil(to)) {
     to = new Date();
-  } else if (typeof to === 'string') {
+  } else if (isString(to)) {
     to = new Date(to);
   }
 
@@ -303,7 +322,7 @@ export function getRelativeTime(from, to) {
   const fnTime = (...args) => {
     let locale = getCurrentLocale();
     let formatted = '';
-    if (typeof from.toLocaleString === 'function') {
+    if (isFunction(from.toLocaleString)) {
       formatted = from.toLocaleString(locale);
     } else {
       formatted = from.toString();
@@ -1169,8 +1188,23 @@ export function getDOMElementMeasurer(element) {
   return measurer;
 }
 
+/**
+ * Return value, which isn't array, like array ex: 1 > [1] , [5] > [5]
+ * @param data
+ * @returns []
+ */
 export function beArray(data) {
   return isArray(data) ? data : isEmpty(data) ? [] : [data];
+}
+
+/**
+ * Check all values by null/undefined and return one real, including false, 0, ''
+ * ex: (null, false) > false ; (false, 123) > 123 ; (undefined, 0) > 0
+ * @param array - enumeration of props
+ * @returns {*} first found by condition
+ */
+export function getFirstNotNil(...array) {
+  return array.find(val => !isNil(val));
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

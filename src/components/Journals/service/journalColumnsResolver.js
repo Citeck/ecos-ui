@@ -14,6 +14,7 @@ import {
 } from '../../Records/predicates/predicates';
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
+import { ASSOC_DEFAULT_INNER_SCHEMA } from '../../Records/constants';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -138,7 +139,6 @@ class JournalColumnsResolver {
         attribute: column.attribute,
         ref: editorProps.ref,
         onUpdate: editorProps.onUpdate,
-        onKeyDown: editorProps.onKeyDown,
         onBlur: editorProps.onBlur,
         editor: column.newEditor,
         multiple: column.multiple,
@@ -160,7 +160,7 @@ class JournalColumnsResolver {
       return attSchema;
     }
     if (ASSOC_TYPES.indexOf(columnType) !== -1) {
-      return '{disp:?disp,value:?assoc}';
+      return ASSOC_DEFAULT_INNER_SCHEMA;
     }
     if (columnType === 'NUMBER' || columnType === 'double') {
       return '?num';

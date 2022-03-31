@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Col, Container, Row } from 'reactstrap';
+import get from 'lodash/get';
+import throttle from 'lodash/throttle';
 
-import { usePrevious } from '../../hooks';
 import { t } from '../../helpers/util';
 import { SectionTypes } from '../../constants/adminSection';
 import pageTabList from '../../services/pageTabs/PageTabList';
@@ -13,74 +14,141 @@ import BPMNDesigner from '../BPMNDesigner';
 import { JournalPresets } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
+import { showModalJson } from '../../helpers/tools';
+import { IcoBtn } from '../common/btns';
+import { wrapArgs } from '../../helpers/redux';
+import { execJournalAction } from '../../actions/journals';
+import { SourcesId } from '../../constants';
+import { ActionTypes } from '../Records/actions';
 
 import './style.scss';
 
-const AdminSection = React.memo(({ activeSection = {}, tabId, isActivePage, isOpenMenu }) => {
-  const wrapperRef = useRef(null);
-  const [journalStateId, setJournalStateId] = useState(null);
-  const [additionalHeights, setAdditionalHeights] = useState(0);
-  const prevJournalStateId = usePrevious(journalStateId);
+class AdminSection extends React.PureComponent {
+  _setWrapperRef;
 
-  const _setJournalStateId = id => {
-    if (id !== journalStateId) {
-      setJournalStateId(id);
+  state = {
+    journalStateId: null,
+    additionalHeights: 0,
+    needResetJournalView: false
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevState.journalStateId !== this.state.journalStateId) {
+      this.setState({ needResetJournalView: true }, () => this.setState({ needResetJournalView: false }));
+    }
+  }
+
+  setWrapperRef = ref => {
+    if (ref) {
+      this._setWrapperRef = ref;
     }
   };
-  const isHidden = type => !isActivePage || activeSection.type !== type;
-  const isFluid = () => ![SectionTypes.DEV_TOOLS].includes(activeSection.type);
 
-  useEffect(() => {
-    if (wrapperRef.current) {
-      const wrap = wrapperRef.current;
-      const header = wrap.querySelector('.ecos-admin-section__header');
-      const { paddingTop, paddingBottom } = window.getComputedStyle(wrap);
-      let heights = 0;
+  isHidden = type => {
+    const { isActivePage, activeSection } = this.props;
 
-      heights += parseInt(paddingTop, 10) + parseInt(paddingBottom, 10) - 2;
+    return !isActivePage || (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
+  };
 
-      if (header) {
-        heights += header.offsetTop;
+  isFluid = () => ![SectionTypes.DEV_TOOLS].includes(get(this.props, 'activeSection.type'));
+
+  setJournalStateId = stateId => {
+    const { journalStateId } = this.state;
+
+    if (journalStateId === stateId) {
+      return;
+    }
+
+    this.setState({ journalStateId: stateId });
+  };
+
+  handleClickCaption = event => {
+    if (event.ctrlKey && event.shiftKey) {
+      const { journalStateId } = this.state;
+
+      showModalJson(get(this.props, ['journals', journalStateId, 'journalConfig'], {}), 'Config');
+    }
+  };
+
+  handleEditJournal = throttle(
+    () => {
+      const { execJournalAction } = this.props;
+      const { journalStateId } = this.state;
+      const journalId = get(this.props, ['journals', journalStateId, 'journalConfig', 'id'], {});
+
+      if (!journalId) {
+        return;
       }
 
-      setAdditionalHeights(heights);
+      execJournalAction(`${SourcesId.JOURNAL}@${journalId}`, { type: ActionTypes.EDIT });
+    },
+    300,
+    {
+      leading: false,
+      trailing: true
     }
-  }, [wrapperRef, isOpenMenu, activeSection]);
-
-  return (
-    <div className="ecos-admin-section__container" ref={wrapperRef}>
-      <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
-        <Container fluid={isFluid()} className="p-0">
-          <Row className="ecos-admin-section__header m-0 px-0">
-            <Col className="m-0 p-0">
-              <Caption normal>{t(activeSection.label)}</Caption>
-            </Col>
-          </Row>
-          <Row className="m-0 p-0">
-            <Col className="m-0 p-0" md={12}>
-              <BPMNDesigner hidden={isHidden(SectionTypes.BPM)} />
-              <JournalViewer
-                hidden={isHidden(SectionTypes.JOURNAL)}
-                tabId={tabId}
-                upStateId={_setJournalStateId}
-                additionalHeights={-additionalHeights}
-                stateId={prevJournalStateId && prevJournalStateId !== journalStateId ? null : journalStateId}
-              />
-              <DevTools hidden={isHidden(SectionTypes.DEV_TOOLS)} />
-            </Col>
-          </Row>
-        </Container>
-      </div>
-      <AdminMenu>{!isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalPresets stateId={journalStateId} />}</AdminMenu>
-    </div>
   );
-});
+
+  render() {
+    const { activeSection, tabId, isActivePage, isOpenMenu } = this.props;
+    const { journalStateId, additionalHeights, needResetJournalView } = this.state;
+
+    return (
+      <div className="ecos-admin-section__container" ref={this.setWrapperRef}>
+        <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
+          <Container fluid={this.isFluid()} className="p-0">
+            <Row className="ecos-admin-section__header m-0 px-0">
+              <Col className="m-0 p-0">
+                <div className="m-0 px-0 d-flex align-items-baseline">
+                  <Caption normal onClick={this.handleClickCaption}>
+                    {t(activeSection.label)}
+                  </Caption>
+
+                  <IcoBtn
+                    icon="icon-settings"
+                    className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
+                    onClick={this.handleEditJournal}
+                  />
+                </div>
+              </Col>
+            </Row>
+            <Row className="m-0 p-0">
+              <Col className="m-0 p-0" md={12}>
+                <BPMNDesigner hidden={this.isHidden(SectionTypes.BPM)} />
+                <JournalViewer
+                  hidden={this.isHidden(SectionTypes.JOURNAL)}
+                  tabId={tabId}
+                  upStateId={this.setJournalStateId}
+                  additionalHeights={-additionalHeights}
+                  stateId={needResetJournalView ? null : journalStateId}
+                />
+                <DevTools hidden={this.isHidden(SectionTypes.DEV_TOOLS)} isActivePage={isActivePage} />
+              </Col>
+            </Row>
+          </Container>
+        </div>
+        <AdminMenu>{!this.isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalPresets stateId={journalStateId} />}</AdminMenu>
+      </div>
+    );
+  }
+}
 
 const mapStateToProps = (state, props) => ({
   isOpenMenu: state.adminSection.isOpenMenu,
   activeSection: state.adminSection.activeSection || {},
   groupSectionList: state.adminSection.groupSectionList,
-  isActivePage: pageTabList.isActiveTab(props.tabId)
+  isActivePage: pageTabList.isActiveTab(props.tabId),
+  journals: state.journals
 });
+const mapDispatchToProps = (dispatch, props) => {
+  const w = wrapArgs(props.stateId);
 
-export default connect(mapStateToProps)(AdminSection);
+  return {
+    execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context })))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AdminSection);

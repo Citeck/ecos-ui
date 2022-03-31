@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/export/util';
@@ -9,6 +10,10 @@ import { Labels } from '../constants';
 import './JournalsSettingsFooter.scss';
 
 class JournalsSettingsFooter extends Component {
+  state = {
+    disabledApply: false
+  };
+
   componentDidMount() {
     this.createKeydownEvents();
   }
@@ -18,7 +23,7 @@ class JournalsSettingsFooter extends Component {
   }
 
   createKeydownEvents() {
-    document.addEventListener('keydown', this.onKeydown);
+    document.addEventListener('keydown', this.onKeydown, { capture: true });
   }
 
   removeKeydownEvents() {
@@ -30,7 +35,7 @@ class JournalsSettingsFooter extends Component {
     const selector = `.${this.props.parentClass}`;
 
     if (key === 'Enter' && target && (target.closest(selector) || target.querySelector(selector))) {
-      this.applySetting();
+      debounce(this.applySetting, 360)();
     }
   };
 
@@ -47,8 +52,14 @@ class JournalsSettingsFooter extends Component {
   };
 
   applySetting = () => {
-    const { onApply } = this.props;
-    isFunction(onApply) && onApply();
+    if (this.state.disabledApply) {
+      return;
+    }
+
+    this.setState({ disabledApply: true }, () => {
+      const { onApply } = this.props;
+      isFunction(onApply) && onApply();
+    });
   };
 
   resetSettings = e => {
@@ -58,17 +69,27 @@ class JournalsSettingsFooter extends Component {
   };
 
   render() {
-    const { canSave } = this.props;
+    const { canSave, noCreateBtn } = this.props;
+    const { disabledApply } = this.state;
 
     return (
       <div className="ecos-journal__settings-footer">
-        <Btn onClick={this.createSetting}>{t(Labels.Settings.CREATE_PRESET)}</Btn>
-        {canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
+        {!noCreateBtn && (
+          <Btn className="fitnesse-ecos-journal__settings-footer-action_create-template" onClick={this.createSetting}>
+            {t(Labels.Settings.CREATE_PRESET)}
+          </Btn>
+        )}
+        {!noCreateBtn && canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
         <div className="ecos-journal__settings-footer-space" />
         <Btn className="ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
           {t(Labels.Settings.RESET)}
         </Btn>
-        <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.applySetting}>
+        <Btn
+          className="ecos-btn_blue ecos-btn_hover_light-blue"
+          onClick={this.applySetting}
+          disabled={disabledApply}
+          loading={disabledApply}
+        >
           {t(Labels.Settings.APPLY)}
         </Btn>
       </div>

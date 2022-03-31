@@ -3,22 +3,14 @@ import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
 import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
+import MenuItem from './MenuItem';
 
 import './Dropdown.scss';
-
-class MenuItem extends React.PureComponent {
-  onClick = () => {
-    this.props.onClick(this.props.item);
-  };
-
-  render() {
-    return <li onClick={this.onClick}>{this.props.children}</li>;
-  }
-}
 
 export default class Dropdown extends Component {
   static propTypes = {
@@ -27,6 +19,7 @@ export default class Dropdown extends Component {
     keyFields: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
     className: PropTypes.string,
     menuClassName: PropTypes.string,
+    itemClassName: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     toggleClassName: PropTypes.string,
     controlClassName: PropTypes.string,
     controlLabel: PropTypes.string,
@@ -96,21 +89,15 @@ export default class Dropdown extends Component {
 
   toggle = () => {
     this.setState(
-      {
-        dropdownOpen: !this.state.dropdownOpen
-      },
-      () => {
-        if (typeof this.props.getStateOpen == 'function') {
-          this.props.getStateOpen(this.state.dropdownOpen);
-        }
-      }
+      { dropdownOpen: !this.state.dropdownOpen },
+      () => isFunction(this.props.getStateOpen) && this.props.getStateOpen(this.state.dropdownOpen)
     );
   };
 
   getControl = text => {
     const { controlClassName, children, placeholder, hasEmpty, isButton, value } = this.props;
     const { dropdownOpen } = this.state;
-    let label = text;
+    let label = getTextByLocale(text);
 
     if (!children) {
       if (placeholder && hasEmpty && !value) {
@@ -175,10 +162,7 @@ export default class Dropdown extends Component {
   onChange = selected => {
     const { onChange } = this.props;
 
-    if (typeof onChange === 'function') {
-      onChange(selected);
-    }
-
+    isFunction(onChange) && onChange(selected);
     this.toggle();
   };
 
@@ -189,7 +173,7 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItems() {
-    const { valueField, source, value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
+    const { valueField, source = [], value, hideSelected, withScrollbar, scrollbarHeightMin, scrollbarHeightMax } = this.props;
     const filteredSource = hideSelected ? source.filter(item => item[valueField] !== value) : source;
     let Wrapper = ({ children }) => <div>{children}</div>;
 
@@ -214,16 +198,18 @@ export default class Dropdown extends Component {
   }
 
   renderMenuItem = (item, i) => {
-    const { CustomItem, titleField } = this.props;
+    const { CustomItem, titleField, valueField, value, itemClassName } = this.props;
 
     if (CustomItem) {
       return <CustomItem key={this.getKey(item, i)} onClick={this.onChange} item={item} />;
     }
 
     const text = getPropByStringKey(item, titleField);
+    const className = isFunction(itemClassName) ? itemClassName(item) : itemClassName;
+    const selected = item[valueField] === value;
 
     return (
-      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item}>
+      <MenuItem key={this.getKey(item, i)} onClick={this.onChange} item={item} selected={selected} className={className}>
         {getTextByLocale(text)}
       </MenuItem>
     );

@@ -1,24 +1,29 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import classnames from 'classnames';
 
 import { ResizeBoxes } from '../../common';
-import { Well } from '../../common/form';
+import { Wall } from '../../common/form';
 import JournalsDashletGrid from '../JournalsDashletGrid';
 import JournalsPreview from '../JournalsPreview';
 
 import './JournalsContent.scss';
 
 const mapStateToProps = (state, props) => {
-  const newState = state.journals[props.stateId] || {};
+  const newState = get(state, ['journals', props.stateId]) || {};
 
   return {
     journalId: get(newState, 'journalConfig.id', '')
   };
 };
 
-const Grid = React.memo(({ showPreview, ...props }) => (
-  <Well className="ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden">
+const Content = React.memo(({ showPreview, ...props }) => (
+  <Wall
+    className={classnames('ecos-journals-content__grid-well ecos-journals-content__grid-well_overflow_hidden', {
+      'ecos-journals-content__grid-well_preview': showPreview
+    })}
+  >
     <JournalsDashletGrid
       noTopBorder
       doInlineToolsOnRowClick={showPreview}
@@ -26,13 +31,13 @@ const Grid = React.memo(({ showPreview, ...props }) => (
       selectorContainer={'.ecos-journal-page'}
       {...props}
     />
-  </Well>
+  </Wall>
 ));
 
 const Preview = ({ stateId, recordId }) => (
-  <Well className="ecos-well_full ecos-journals-content__preview-well">
+  <Wall className="ecos-well_full ecos-journals-content__preview-well">
     <JournalsPreview stateId={stateId} recordId={recordId} />
-  </Well>
+  </Wall>
 );
 
 class JournalsContent extends Component {
@@ -53,18 +58,18 @@ class JournalsContent extends Component {
   };
 
   render() {
-    const { stateId, showPreview, maxHeight, onOpenSettings } = this.props;
+    const { stateId, showPreview, maxHeight, minHeight = 450, onOpenSettings } = this.props;
     const { recordId } = this.state;
 
     const grid = (
-      <Grid
+      <Content
         stateId={stateId}
         showPreview={showPreview}
         onRowClick={this.onRowClick}
         onOpenSettings={onOpenSettings}
         maxHeight={maxHeight}
+        minHeight={minHeight}
         autoHeight
-        minHeight={468}
       />
     );
 

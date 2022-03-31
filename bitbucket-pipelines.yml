@@ -1,9 +1,9 @@
 pipelines:
-    branches:      
-      master:
+    branches:
+      develop:
         - step:
            script:
              - git remote add sync git@github.com:Citeck/ecos-ui.git
-             - git checkout master
+             - git checkout develop
              - git pull
-             - git push sync master
+             - git push sync develop

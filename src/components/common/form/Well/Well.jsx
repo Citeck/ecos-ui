@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import './Well.scss';
 
-export default class Well extends Component {
+export default class Wall extends Component {
   render() {
     const props = this.props;
     const cssClasses = classNames('ecos-well', props.className);

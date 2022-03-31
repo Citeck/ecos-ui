@@ -5,12 +5,13 @@ import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
 import chunk from 'lodash/chunk';
 
-import { extractLabel, getModule, t } from '../../../helpers/util';
+import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
+import { getFitnesseClassName } from '../../../helpers/tools';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import { DetailActionResult, getActionResultTitle, notifyFailure, getRef, ResultTypes } from './util/actionUtils';
@@ -178,10 +179,18 @@ class RecordActions {
       resAction.name = t(resAction.name);
       resAction.pluralName = t(resAction.pluralName);
 
+      RecordActions._expandActionConfig(resAction);
+
       result.push(resAction);
     }
     return result;
   }
+
+  static _expandActionConfig = action => {
+    action.className = getFitnesseClassName(action.id);
+
+    return action;
+  };
 
   static _getConfirmData = action => {
     const title = extractLabel(get(action, 'confirm.title'));
@@ -339,7 +348,7 @@ class RecordActions {
    * @return {RecordsActionsRes}
    */
   async getActionsForRecords(records, actions, context = {}) {
-    const recordInst = Records.get(records);
+    const recordInst = beArray(Records.get(records));
     const recordRefs = recordInst.map(rec => rec.id);
     const resolvedActions = await actionsApi.getActionsForRecords(recordRefs, actions);
 

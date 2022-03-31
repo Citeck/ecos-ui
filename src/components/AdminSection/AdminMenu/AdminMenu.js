@@ -14,15 +14,33 @@ import { usePrevious } from '../../../hooks';
 import './style.scss';
 
 const AdminMenu = React.memo(
-  ({ isMobile, groupSectionList, children, toggleMenu, getGroupSectionList, activeSection, isOpen, toggleSection, sectionState }) => {
+  ({
+    isMobile,
+    groupSectionList,
+    children,
+    toggleMenu,
+    getGroupSectionList,
+    activeSection,
+    isOpen,
+    toggleSection,
+    sectionState,
+    isInitiated
+  }) => {
     const sidebarRef = useRef(null);
     const [topHeight, setTopHeight] = useState(500);
     const [needRecalculateSize, setNeedRecalculateSize] = useState(false);
     const prevActiveSection = usePrevious(activeSection);
+    const prevIsInitiated = usePrevious(isInitiated);
 
     useEffect(() => {
-      getGroupSectionList();
+      !isInitiated && getGroupSectionList();
     }, []);
+
+    useEffect(() => {
+      if (isInitiated && !prevIsInitiated) {
+        getGroupSectionList();
+      }
+    }, [isInitiated]);
 
     useEffect(() => {
       if (!isEqual(activeSection, prevActiveSection)) {
@@ -88,7 +106,8 @@ const mapStateToProps = state => ({
   isOpen: state.adminSection.isOpenMenu,
   activeSection: state.adminSection.activeSection,
   sectionState: state.adminSection.sectionState,
-  groupSectionList: state.adminSection.groupSectionList
+  groupSectionList: state.adminSection.groupSectionList,
+  isInitiated: state.adminSection.isInitiated
 });
 
 const mapDispatchToProps = dispatch => ({

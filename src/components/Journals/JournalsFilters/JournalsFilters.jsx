@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import isFunction from 'lodash/isFunction';
 
 import Filters from '../../Filters/Filters';
 import PanelBar from '../../common/PanelBar/PanelBar';
@@ -10,10 +11,7 @@ import './JournalsFilters.scss';
 class JournalsFilters extends Component {
   onChangeFilters = predicate => {
     const { setPredicate } = this.props;
-
-    if (typeof setPredicate === 'function') {
-      setPredicate(predicate);
-    }
+    isFunction(setPredicate) && setPredicate(predicate);
   };
 
   render() {

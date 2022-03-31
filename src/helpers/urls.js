@@ -11,7 +11,6 @@ import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { hasInString } from './util';
 
-const JOURNALS_LIST_ID_KEY = JournalUrlParams.JOURNALS_LIST_ID;
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
 const DASHBOARD_KEY_KEY = 'dashboardKey';
@@ -104,11 +103,10 @@ export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalsListId, journalId, journalSettingId, nodeRef, filter, search }) => {
+export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search }) => {
   const qString = queryString.stringify({
-    [JOURNALS_LIST_ID_KEY]: journalsListId,
     [JOURNAL_ID_KEY]: journalId,
-    [JOURNAL_SETTING_ID_KEY]: filter ? '' : journalSettingId,
+    [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
     [SEARCH_KEY]: search || filter
   });
 
@@ -216,11 +214,16 @@ export const getSearchParams = (params = window.location.search, options) => {
   return queryString.parse(params, options);
 };
 
-export const decodeLink = link => {
+/**
+ * Decode without exception
+ * @param str {string}
+ * @returns {string}
+ */
+export const decodeLink = str => {
   try {
-    return decodeURIComponent(link);
+    return decodeURIComponent(str);
   } catch (e) {
-    return link;
+    return str;
   }
 };
 
@@ -402,7 +405,7 @@ export const removeUrlSearchParams = (sourceUrl = window.location.href, keys = [
 
 export const getUrlWithoutOrigin = (location = window.location) => {
   const pathname = get(location, 'pathname', window.location.pathname);
-  const search = get(location, 'search', window.location.search);
+  const search = get(location, 'search', window.location.search || '');
 
   return `${pathname}${search}`;
 };

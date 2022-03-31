@@ -1,4 +1,5 @@
 import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
 
 import { PROXY_URI } from '../constants/alfresco';
 import recordActions from '../components/Records/actions/recordActions';
@@ -29,7 +30,7 @@ export class RecordActionsApi extends CommonApi {
     });
   };
 
-  executeServerGroupAction = ({ action, query, nodes }) => {
+  executeServerGroupAction = ({ action, query, nodes, excludedRecords }) => {
     const { type, params } = action;
 
     const postBody = {
@@ -45,6 +46,10 @@ export class RecordActionsApi extends CommonApi {
       postBody.sortBy = query.sortBy;
       postBody.sourceId = query.sourceId;
       postBody.consistency = query.consistency;
+    }
+
+    if (!isEmpty(excludedRecords)) {
+      postBody.excludedRecords = excludedRecords;
     }
 
     return this.postJson(`${PROXY_URI}api/journals/group-action`, postBody).catch(error => ({ error }));

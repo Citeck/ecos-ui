@@ -269,6 +269,12 @@ const Harness = {
       done();
     });
 
+    form.on('submit', () => {
+      if (_.isEmpty(errors)) {
+        done();
+      }
+    });
+
     onNext(form, 'change', () => {
       form.submit().catch(done);
     });

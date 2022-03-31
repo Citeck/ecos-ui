@@ -83,12 +83,15 @@ export default class FiltersProvider extends Component {
   };
 
   render() {
+    const { metaRecord } = this.props;
+
     return (
       <FiltersContext.Provider
         value={{
           allFields: this.state.allFields,
           fields: this.state.fields,
           searchText: this.state.searchText,
+          metaRecord,
           updateSearchText: e => {
             this.setState({
               searchText: e.target.value

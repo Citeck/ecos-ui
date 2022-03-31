@@ -16,6 +16,11 @@
     cursor: pointer;
   }
 
+  &#{$i}_small {
+    font-size: 14px;
+    line-height: 14px;
+  }
+
   &#{$i}_on {
     color: $color-green1;
   }

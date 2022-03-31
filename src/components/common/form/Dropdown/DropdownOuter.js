@@ -15,6 +15,7 @@ export default class DropdownOuter extends Dropdown {
     className: PropTypes.string,
     trigger: PropTypes.string,
     boundariesElement: PropTypes.string,
+    placement: PropTypes.string,
     modifiers: PropTypes.object,
     needClose: PropTypes.bool
   };
@@ -23,6 +24,7 @@ export default class DropdownOuter extends Dropdown {
     className: '',
     outClassName: 'ecos-dropdown-outer-tooltip',
     trigger: 'click',
+    placement: 'bottom-start',
     modifiers: {
       flip: {
         behavior: ['bottom', 'top', 'right', 'left']
@@ -52,7 +54,7 @@ export default class DropdownOuter extends Dropdown {
   }
 
   render() {
-    const { className, outClassName = '', trigger, boundariesElement, modifiers } = this.props;
+    const { className, outClassName = '', trigger, boundariesElement, modifiers, placement } = this.props;
     const { dropdownOpen, targetId } = this.state;
 
     return (
@@ -71,8 +73,9 @@ export default class DropdownOuter extends Dropdown {
           boundariesElement={boundariesElement}
           className={classNames('ecos-base-tooltip ecos-base-tooltip_opaque', outClassName)}
           innerClassName="ecos-base-tooltip-inner ecos-dropdown-outer__tooltip-inner"
-          placement="bottom-start"
+          placement={placement}
           modifiers={modifiers}
+          fade={false}
           popperClassName="ecosZIndexAnchor"
         >
           <ClickOutside

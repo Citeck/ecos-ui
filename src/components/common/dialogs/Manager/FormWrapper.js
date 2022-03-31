@@ -2,10 +2,11 @@ import React from 'react';
 import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 import classNames from 'classnames';
 
-import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import { getCurrentLocale } from '../../../../helpers/export/util';
+import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 
 class FormWrapper extends React.Component {
   constructor(props) {
@@ -23,7 +24,9 @@ class FormWrapper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    this.initForm();
+    if (!isEqual(prevProps, this.props)) {
+      this.initForm();
+    }
   }
 
   componentWillUnmount() {

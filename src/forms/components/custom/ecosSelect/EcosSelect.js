@@ -701,6 +701,19 @@ export default class SelectComponent extends BaseComponent {
     input.appendChild(placeholder);
   }
 
+  calculateValue(data, flag) {
+    const changed = super.calculateValue(data, flag);
+
+    // cause: https://citeck.atlassian.net/browse/ECOSUI-1584
+    if (changed && !_.isEqual(this.calculatedValue, this.dataValue)) {
+      if (_.isNil(this.calculatedValue)) {
+        this.setValue('');
+      }
+    }
+
+    return changed;
+  }
+
   /**
    * Activate this select control.
    */
@@ -1205,7 +1218,7 @@ export default class SelectComponent extends BaseComponent {
   static optimizeSchema(comp) {
     return {
       ...comp,
-      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc && key !== 'headers')
     };
   }
 }

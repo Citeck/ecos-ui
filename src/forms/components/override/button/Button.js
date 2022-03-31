@@ -84,6 +84,11 @@ export default class ButtonComponent extends FormIOButtonComponent {
         this.emit('checkValidity', this.data);
       }
 
+      if (this.options.builder) {
+        // buttons should not work in builder
+        return;
+      }
+
       switch (this.component.action) {
         case 'saveState':
         case 'submit':

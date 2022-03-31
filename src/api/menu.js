@@ -233,17 +233,13 @@ export class MenuApi extends CommonApi {
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
     const updUserMenuItems = await fetchExtraItemInfo(lodashGet(config, 'menu.user.items') || [], { label: '.disp' });
-    const filterAuthorities = lodashGet(config, 'authorities');
+    const updAuthorities = await this.getAuthoritiesInfoByName(lodashGet(config, 'authorities') || []);
 
-    !filterAuthorities.length && filterAuthorities.push(GROUP_EVERYONE);
     setSectionTitles(updCreateItems, updLeftItems);
-
-    const updAuthorities = await this.getAuthoritiesInfoByName(filterAuthorities);
-
     lodashSet(config, 'menu.left.items', updLeftItems);
     lodashSet(config, 'menu.create.items', updCreateItems);
-    lodashSet(config, 'authorities', updAuthorities);
     lodashSet(config, 'menu.user.items', updUserMenuItems);
+    lodashSet(config, 'authorities', updAuthorities);
 
     return config;
   };

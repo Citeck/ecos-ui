@@ -5,6 +5,9 @@ import { recordsDeleteFetch, recordsQueryFetch } from './recordsApi';
 import Record from './Record';
 import uuidV4 from 'uuid/v4';
 
+import recordsClientManager from './client';
+import { prepareAttsToLoad } from './utils/recordUtils';
+
 let Records;
 
 let tmpRecordsCounter = 0;
@@ -180,7 +183,7 @@ class RecordsComponent {
     });
   }
 
-  query(query, attributes, options) {
+  async query(query, attributes, options) {
     if (query.attributes && arguments.length === 1) {
       attributes = query.attributes;
       query = query.query;
@@ -188,59 +191,72 @@ class RecordsComponent {
 
     let self = this;
 
-    let attributesMapping = {};
+    let attsToLoad = [];
+    let attsAliases = [];
 
-    let isSingleAttribute = attributes && isString(attributes);
-    let queryAttributes = isSingleAttribute ? [attributes] : attributes || {};
+    prepareAttsToLoad(attributes, attsToLoad, attsAliases);
 
-    if (attributes) {
-      if (Array.isArray(queryAttributes)) {
-        for (let att of queryAttributes) {
-          attributesMapping[att] = att;
-        }
-      } else {
-        for (let att in queryAttributes) {
-          if (queryAttributes.hasOwnProperty(att)) {
-            attributesMapping[att] = queryAttributes[att];
-          }
-        }
+    const attsToLoadLengthWithoutClient = attsToLoad.length;
+
+    let clientData = null;
+
+    if (query.sourceId) {
+      clientData = await recordsClientManager.preProcessAtts(query.sourceId, attsToLoad);
+      if (clientData && clientData.clientAtts) {
+        prepareAttsToLoad(clientData.clientAtts, attsToLoad, attsAliases);
       }
     }
 
-    const processRespRecords = respRecords => {
+    const processRespRecords = async respRecords => {
       let records = [];
       for (let idx in respRecords) {
         if (!respRecords.hasOwnProperty(idx)) {
           continue;
         }
 
-        let recordMeta = respRecords[idx];
+        let recordAtts = respRecords[idx];
+        let loadedAtts = [];
+        for (let idx = 0; idx < attsToLoad.length; idx++) {
+          loadedAtts.push(recordAtts.attributes[idx]);
+        }
 
-        if (recordMeta.id) {
-          let record = self.get(recordMeta.id);
-
-          for (let att in recordMeta.attributes) {
-            if (recordMeta.attributes.hasOwnProperty(att)) {
-              record.persistedAtt(attributesMapping[att], recordMeta.attributes[att]);
-            }
+        if (recordAtts.id) {
+          let record = self.get(recordAtts.id);
+          for (let idx = 0; idx < attsToLoad.length; idx++) {
+            record.persistedAtt(attsToLoad[idx], loadedAtts[idx]);
           }
         }
-        if (attributes) {
-          records.push(
-            Object.assign(
-              {
-                id: recordMeta.id
-              },
-              recordMeta.attributes
-            )
-          );
+
+        if (clientData && attsToLoad.length) {
+          const clientAtts = {};
+          for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
+            clientAtts[attsAliases[i]] = loadedAtts[i];
+          }
+          await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+        }
+
+        let recordLoadedAtts = {};
+        for (let idx = 0; idx < attsToLoadLengthWithoutClient; idx++) {
+          recordLoadedAtts[attsAliases[idx]] = loadedAtts[idx];
+        }
+
+        if (attsToLoad.length) {
+          if (!recordLoadedAtts.hasOwnProperty('id')) {
+            recordLoadedAtts['id'] = recordAtts.id;
+          }
+          records.push(recordLoadedAtts);
         } else {
-          records.push(recordMeta.id);
+          records.push(recordAtts.id);
         }
       }
 
       return records;
     };
+
+    let queryAttributes = {};
+    for (let idx = 0; idx < attsToLoad.length; idx++) {
+      queryAttributes[idx] = attsToLoad[idx];
+    }
 
     let queryBody = {
       query: query,
@@ -251,18 +267,17 @@ class RecordsComponent {
       queryBody.msgLevel = 'DEBUG';
     }
 
-    return recordsQueryFetch(queryBody).then(response => {
-      const { messages, hasMore, totalCount, records: _records } = response;
-      let records = processRespRecords(_records);
-      return {
-        records,
-        messages,
-        hasMore,
-        totalCount,
-        attributes: queryBody.attributes,
-        errors: messages.filter(msg => msg && msg.level === 'ERROR')
-      };
-    });
+    const response = await recordsQueryFetch(queryBody);
+
+    const { messages, hasMore, totalCount, records: _records } = response;
+    let records = await processRespRecords(_records);
+    return {
+      records,
+      messages,
+      hasMore,
+      totalCount,
+      errors: messages.filter(msg => msg && msg.level === 'ERROR')
+    };
   }
 }
 
@@ -273,5 +288,7 @@ if (!window.Citeck) {
 window.Citeck = window.Citeck || {};
 Records = window.Citeck.Records || new RecordsComponent();
 window.Citeck.Records = Records;
+
+recordsClientManager.init(Records);
 
 export default Records;

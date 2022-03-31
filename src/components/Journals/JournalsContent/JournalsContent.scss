@@ -40,5 +40,9 @@
     &_overflow_hidden {
       overflow: hidden;
     }
+
+    &_preview {
+      min-height: 468px;
+    }
   }
 }

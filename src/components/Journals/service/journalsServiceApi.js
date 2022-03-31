@@ -5,7 +5,7 @@ class JournalsServiceApi {
   async getJournalConfigByType(typeRef, attributes) {
     return Records.queryOne(
       {
-        sourceId: 'uiserv/rjournal',
+        sourceId: SourcesId.RESOLVED_JOURNAL,
         query: { typeRef },
         language: 'by-type'
       },
@@ -13,8 +13,8 @@ class JournalsServiceApi {
     );
   }
 
-  async getJournalConfig(journalId) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json');
+  async getJournalConfig(journalId, force) {
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json', force);
   }
 
   async isNotExistsJournal(journalId) {
@@ -41,8 +41,9 @@ class JournalsServiceApi {
     return result.catch(e => {
       console.error(e);
       return {
+        error: e,
         records: [],
-        total: 0,
+        totalCount: 0,
         attributes
       };
     });

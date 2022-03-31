@@ -1,5 +1,5 @@
 properties([
-    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
+    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '3')),
 ])
 timestamps {
   node {
@@ -75,15 +75,17 @@ timestamps {
           if (!project_version.contains('snapshot')) {
             mavenRepository = "maven-releases"
           }
-
-          sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+          withCredentials([usernamePassword(credentialsId: 'maven.jenkins', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh "gradle publish -PmavenUser=$USERNAME -PmavenPass=$PASSWORD -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+          }
         }
       }
 
       stage('Building an ecos-proxy-odic docker images') {
         build job: 'build_ecos_ui_image', parameters: [
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
-          string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase())
+          string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase()),
+          string(name: 'ECOS_UI_CONFIG_VERSION', value: 'v4')
         ]
       }
 

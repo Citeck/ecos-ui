@@ -1,5 +1,7 @@
 import DefaultComponents from 'formiojs/components';
 import Components from 'formiojs/components/Components';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import Base from './override/base';
 import Button from './override/button';
@@ -23,6 +25,7 @@ import TextField from './override/textfield';
 import Url from './override/url';
 import Hidden from './override/hidden';
 import DataGrid from './override/datagrid';
+import EditGrid from './override/editgrid';
 
 import AsyncData from './custom/asyncData';
 import DataGridAssoc from './custom/datagridAssoc';
@@ -79,8 +82,27 @@ const components = {
   hidden: Hidden,
   importButton: ImportButton,
   datagrid: DataGrid,
+  editgrid: EditGrid,
   includeForm: IncludeForm
 };
+
+for (const key in components) {
+  const component = components[key];
+  const originEditForm = component.editForm;
+
+  component.editForm = function(...extend) {
+    const result = originEditForm(...extend);
+    const components = get(result, 'components.0.components');
+
+    if (!isEmpty(components)) {
+      components.forEach(item => {
+        item.components = (item.components || []).sort((prev, next) => prev.weight - next.weight);
+      });
+    }
+
+    return result;
+  };
+}
 
 Components.setComponents(prepareComponents(components));
 

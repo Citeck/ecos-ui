@@ -1,0 +1,24 @@
+@import './constants';
+
+%animationPulse {
+  width: 100%;
+  height: inherit;
+  background: $color-gray-5;
+  -webkit-animation: pulse 1.5s infinite;
+  -moz-animation: pulse 1.5s infinite;
+  -ms-animation: pulse 1.5s infinite;
+  animation: pulse 1.5s infinite;
+  background-size: 150% 100%;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}

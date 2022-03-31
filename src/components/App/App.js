@@ -27,12 +27,12 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { PopupContainer } from '../common/Popper';
 import { MenuSettingsController } from '../MenuSettings';
+import EcosFormModal from '../EcosForm/EcosFormModal';
 
 import './App.scss';
 
 const allowedLinks = [
   URL.DASHBOARD,
-  URL.DASHBOARD_SETTINGS,
   URL.BPMN_DESIGNER,
   URL.ADMIN_PAGE,
   URL.JOURNAL,
@@ -58,6 +58,12 @@ class App extends Component {
   componentDidMount() {
     this.props.initAppSettings();
     UserLocalSettingsService.checkDashletsUpdatedDate();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.isAuthenticated && !this.props.isAuthenticated) {
+      EcosFormModal.countOpenedModals <= 0 && window.location.reload();
+    }
   }
 
   get isOnlyContent() {
@@ -185,11 +191,6 @@ class App extends Component {
           <CacheSwitch isCurrent={isCurrent} tabLink={tab.link}>
             <CacheRoute
               {...baseCacheRouteProps}
-              path={URL.DASHBOARD_SETTINGS}
-              render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} {...basePageProps} />}
-            />
-            <CacheRoute
-              {...baseCacheRouteProps}
               path={URL.DASHBOARD}
               exact
               render={props => <Page pageKey={Pages.DASHBOARD} {...props} {...basePageProps} />}
@@ -283,7 +284,6 @@ class App extends Component {
       <div className="ecos-main-content" style={this.wrapperStyle}>
         <Suspense fallback={null}>
           <Switch>
-            <Route path={URL.DASHBOARD_SETTINGS} render={props => <Page pageKey={Pages.DASHBOARD_SETTINGS} {...props} />} />
             <Route path={URL.DASHBOARD} exact render={props => <Page pageKey={Pages.DASHBOARD} {...props} />} />
             <Route path={URL.ADMIN_PAGE} render={props => <Page pageKey={Pages.BPMN} {...props} />} />
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} />} />
@@ -366,7 +366,8 @@ const mapStateToProps = state => ({
   isMobile: get(state, ['view', 'isMobile']),
   isShowTabs: get(state, ['pageTabs', 'isShow'], false),
   tabs: get(state, 'pageTabs.tabs', []),
-  menuType: get(state, ['menu', 'type'])
+  menuType: get(state, ['menu', 'type']),
+  isAuthenticated: get(state, ['user', 'isAuthenticated'])
 });
 
 const mapDispatchToProps = dispatch => ({

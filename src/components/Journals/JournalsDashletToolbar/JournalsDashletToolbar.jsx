@@ -5,27 +5,29 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { selectJournal, selectPreset } from '../../../actions/journals';
-import { selectNewVersionDashletConfig } from '../../../selectors/journals';
+import { selectJournalData, selectNewVersionDashletConfig } from '../../../selectors/journals';
 import { wrapArgs } from '../../../helpers/redux';
 import { goToCardDetailsPage } from '../../../helpers/urls';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Dropdown } from '../../common/form';
 import Export from '../../Export/Export';
 import FormManager from '../../EcosForm/FormManager';
-import JournalsDashletPagination from '../JournalsDashletPagination';
 import { getCreateVariantKeyField } from '../service/util';
+import JournalsDashletPagination from '../JournalsDashletPagination';
+import GroupActions from '../GroupActions';
 
 const mapStateToProps = (state, props) => {
-  const newState = get(state, ['journals', props.stateId]) || {};
+  const ownState = selectJournalData(state, props.stateId);
+  const config = selectNewVersionDashletConfig(state, props.stateId);
 
   return {
-    journals: newState.journals,
-    journalConfig: newState.journalConfig,
-    journalSettings: newState.journalSettings,
-    config: selectNewVersionDashletConfig(state, props.stateId),
-    grid: newState.grid,
-    selectedRecords: newState.selectedRecords,
-    selectedJournals: newState.selectedJournals
+    journals: ownState.journals,
+    journalConfig: ownState.journalConfig,
+    journalSettings: ownState.journalSettings,
+    grid: ownState.grid,
+    selectedRecords: ownState.selectedRecords,
+    selectedJournals: ownState.selectedJournals,
+    config
   };
 };
 
@@ -110,47 +112,61 @@ class JournalsDashletToolbar extends Component {
     const isWide = !isSmall;
 
     return (
-      <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
-        {this.renderCreateMenu()}
+      <>
+        <div ref={this.props.forwardRef} className="ecos-journal-dashlet__toolbar">
+          {this.renderCreateMenu()}
 
-        {selectedJournals.length > 1 && (
-          <Dropdown
-            hasEmpty
-            source={selectedJournals}
-            value={lsJournalId || nodeRef}
-            valueField={'id'}
-            titleField={'title'}
-            className={classNames({
-              'ecos-journal-dashlet__toolbar-dropdown_small': isSmall
-            })}
-            onChange={this.onChangeJournal}
-          >
-            <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
-          </Dropdown>
-        )}
+          {!!selectedJournals && selectedJournals.length > 1 && (
+            <Dropdown
+              hasEmpty
+              source={selectedJournals}
+              value={lsJournalId || nodeRef}
+              valueField={'id'}
+              titleField={'title'}
+              className={classNames({ 'ecos-journal-dashlet__toolbar-dropdown_small': isSmall })}
+              onChange={this.onChangeJournal}
+            >
+              <IcoBtn invert icon={'icon-small-down'} className="ecos-btn_drop-down ecos-btn_r_6 ecos-btn_x-step_10" />
+            </Dropdown>
+          )}
 
-        {isWide && (
-          <Dropdown source={journalSettings} valueField={'id'} titleField={'displayName'} onChange={this.onChangeJournalSetting} isButton>
-            <TwoIcoBtn icons={['icon-settings', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
-          </Dropdown>
-        )}
+          {isWide && (
+            <Dropdown source={journalSettings} valueField={'id'} titleField={'displayName'} onChange={this.onChangeJournalSetting} isButton>
+              <TwoIcoBtn icons={['icon-settings', 'icon-small-down']} className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10" />
+            </Dropdown>
+          )}
 
-        {isWide && (
-          <Export
-            className="ecos-journal-dashlet__action-export"
-            journalConfig={journalConfig}
-            grid={grid}
-            dashletConfig={config}
-            selectedItems={selectedRecords}
-          />
-        )}
+          {isWide && (
+            <div className="ecos-journal-dashlet__group-actions">
+              <GroupActions stateId={stateId} />
+            </div>
+          )}
 
-        {isWide && (
-          <div className="ecos-journal-dashlet__actions">
-            {measurer.xs || measurer.xxs || measurer.xxxs ? null : <JournalsDashletPagination stateId={stateId} />}
-          </div>
-        )}
-      </div>
+          {isWide && (
+            <Export
+              className="ecos-journal-dashlet__action-export"
+              journalConfig={journalConfig}
+              grid={grid}
+              dashletConfig={config}
+              selectedItems={selectedRecords}
+            />
+          )}
+
+          {(measurer.xl || measurer.lg) && (
+            <div className="ecos-journal-dashlet__actions">
+              <JournalsDashletPagination stateId={stateId} />
+            </div>
+          )}
+        </div>
+
+        <div className="ecos-journal-dashlet__toolbar-extra">
+          {isSmall && (
+            <div className="ecos-journal-dashlet__group-actions">
+              <GroupActions stateId={stateId} isMobile />
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 }

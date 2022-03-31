@@ -2,16 +2,20 @@ import React from 'react';
 import lodash from 'lodash';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 import ecosFetch from '../../../../../helpers/ecosFetch';
 import { t } from '../../../../../helpers/export/util';
 import DefaultGqlFormatter from './DefaultGqlFormatter';
 
+const HTML = 'html';
+
 export default class FunctionFormatterV2 extends DefaultGqlFormatter {
   static getFilterValue(cell, row, params, rowIndex) {
     const result = this.prototype.getResult(this.prototype.value(cell), params, row, rowIndex);
 
-    if (typeof get(result, 'then') === 'function') {
+    if (isFunction(get(result, 'then'))) {
       return '';
     }
 
@@ -23,8 +27,8 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
       case 'object': {
         const innerText = get(result, 'innerText');
 
-        if (typeof innerText === 'string') {
-          return { value: result.innerHTML, type: 'html' };
+        if (isString(innerText)) {
+          return { value: result.innerHTML, type: HTML };
         }
 
         const type = get(result, 'type');
@@ -34,7 +38,7 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
           return { value: '', type: '' };
         }
 
-        if (type === 'html') {
+        if (type === HTML) {
           return { type, value };
         }
 
@@ -70,7 +74,7 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
       });
     };
 
-    if (typeof promise === 'function') {
+    if (isFunction(promise)) {
       result.then(applyResult);
     } else {
       applyResult(result);
@@ -82,7 +86,7 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
     const data = this.value(cell);
     const args = [cell, row, {}, data, rowIndex, { lodash, ecosFetch }];
 
-    if (typeof fn === 'function') {
+    if (isFunction(fn)) {
       const elCell = document.createElement('div');
 
       elCell.innerText = data;
@@ -91,19 +95,19 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
       const result = fn(...args);
       const then = get(result, 'then');
 
-      if (typeof then === 'function') {
+      if (isFunction(then)) {
         return result;
       }
 
       return result === undefined ? elCell : result;
     }
 
-    if (typeof fn === 'string') {
+    if (isString(fn)) {
       try {
         // eslint-disable-next-line
         const extractedFn = eval(`(function() { return function (cell, row, column, data, rowIndex, utils) { ${fn};}})()`);
 
-        if (typeof extractedFn === 'function') {
+        if (isFunction(extractedFn)) {
           return extractedFn(...args);
         }
       } catch (e) {
@@ -119,7 +123,7 @@ export default class FunctionFormatterV2 extends DefaultGqlFormatter {
       return null;
     }
 
-    if (type === 'html') {
+    if (type === HTML) {
       return <this.PopperWrapper contentComponent={() => <div dangerouslySetInnerHTML={{ __html: value }} />} />;
     }
 
