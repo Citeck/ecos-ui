@@ -45,7 +45,7 @@ export default class EventsHistoryService {
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        text: t('dochist.header.outcome'),
+        text: t('dochist.header.task'),
         attribute: 'taskTitle',
         searchable: true,
         searchableByText: true,
