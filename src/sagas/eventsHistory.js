@@ -1,27 +1,16 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { filterEventsHistory, getEventsHistory, setEventsHistory } from '../actions/eventsHistory';
+import { filterEventsHistory, getEventsHistory, getJournalHistory, setEventsHistory } from '../actions/eventsHistory';
 import { selectListEventsHistory } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
-import EventsHistoryService from '../services/eventsHistory';
 import { PREDICATE_CONTAINS } from '../components/Records/predicates/predicates';
 
 function* sagaGetEventsHistory({ api, logger }, { payload }) {
-  const { record, stateId, columns, selectedJournal } = payload;
+  const { record, stateId, columns } = payload;
 
   try {
-    let jConfig = EventsHistoryService.config;
+    const res = yield call(api.eventsHistory.getEventsHistory, { record, columns });
 
-    if (selectedJournal) {
-      jConfig = yield call([JournalsService, JournalsService.getJournalConfig], selectedJournal, true);
-    } else {
-      jConfig.columns = yield call([JournalsService, JournalsService.resolveColumns], columns);
-    }
-
-    const res = yield call([JournalsService, JournalsService.getJournalData], jConfig, {
-      predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS }
-    });
-
-    yield put(setEventsHistory({ stateId, list: res.records || [], columns: jConfig.columns }));
+    yield put(setEventsHistory({ stateId, list: res.data || [], columns: res.columns || [] }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [], columns: [] }));
     logger.error('[eventHistory sagaGetEventsHistory saga] error', e.message);
