@@ -60,7 +60,7 @@ const InputView = () => {
     if (!isSelectedValueAsText) {
       switch (get(item, 'attributes.authorityType', '')) {
         case AUTHORITY_TYPE_USER:
-          props.link = createProfileUrl(get(item, 'attributes.shortName', ''));
+          props.link = createProfileUrl(get(item, 'attributes.fullName', ''));
           break;
         case AUTHORITY_TYPE_GROUP:
         default:
