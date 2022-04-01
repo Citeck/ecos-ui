@@ -26,10 +26,7 @@ export class AppApi extends CommonApi {
   }
 
   getEcosConfig = configName => {
-    const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
-    return this.getJson(url)
-      .then(resp => resp.value)
-      .catch(() => '');
+    return Records.get(SourcesId.UI_CFG + '@' + configName).load('value?str');
   };
 
   touch = (isCancelTouch = false) => {
@@ -135,10 +132,7 @@ export class AppApi extends CommonApi {
   }
 
   isForceOldUserDashboardEnabled() {
-    return Records.get(`${SourcesId.ECOS_CONFIG}@force-old-user-dashboard-enabled`)
-      .load('.bool')
-      .then(res => res === true)
-      .catch(() => false);
+    return false;
   }
 
   recordIsExist(recordRef, showNotification = false) {
@@ -200,7 +194,10 @@ export class AppApi extends CommonApi {
   };
 
   getAppEdition = () => {
-    return Records.get(`${SourcesId.A_META}@`).load('attributes.edition');
+    return Records.get(`${SourcesId.A_META}@`)
+      .load('attributes.edition')
+      .then(r => r || 'community')
+      .catch(() => 'community');
   };
 
   getIsExternalIDP = () => {

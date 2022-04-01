@@ -4,7 +4,6 @@ import { SourcesId } from '../constants';
 import Records from '../components/Records';
 import { t } from '../helpers/util';
 import { CommonApi } from './common';
-import { isNewJournalsPageEnable } from './export/journalsApi';
 
 export class UserApi extends CommonApi {
   get attributes() {
@@ -103,9 +102,5 @@ export class UserApi extends CommonApi {
 
         return { success: false, message };
       });
-  }
-
-  checkNewUIAvailableStatus() {
-    return isNewJournalsPageEnable();
   }
 }

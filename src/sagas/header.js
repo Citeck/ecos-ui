@@ -33,7 +33,7 @@ import MenuConverter from '../dto/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
-    const createMenuView = yield call(api.app.getEcosConfig, 'default-ui-create-menu');
+    const createMenuView = yield call(api.app.getEcosConfig, 'create-menu-type');
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
     const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 

@@ -45,7 +45,7 @@ export function* initApp({ api, logger }, { payload }) {
         lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
       }
 
-      const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
+      const isNewUIAvailable = true;
 
       yield put(setNewUIAvailableStatus(isNewUIAvailable));
 
