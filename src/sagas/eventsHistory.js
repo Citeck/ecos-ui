@@ -3,6 +3,7 @@ import { filterEventsHistory, getEventsHistory, getJournalHistory, setEventsHist
 import { selectListEventsHistory } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
 import { PREDICATE_CONTAINS } from '../components/Records/predicates/predicates';
+import EventsHistoryService from '../services/eventsHistory';
 
 function* sagaGetEventsHistory({ api, logger }, { payload }) {
   const { record, stateId, columns } = payload;
@@ -30,9 +31,30 @@ function* sagaFilterEventsHistory({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetJournalHistory({ api, logger }, { payload }) {
+  const { record, stateId, selectedJournal } = payload;
+
+  try {
+    const jConfig = yield call(
+      [JournalsService, JournalsService.getJournalConfig],
+      selectedJournal || EventsHistoryService.defaultJournal,
+      true
+    );
+    const res = yield call([JournalsService, JournalsService.getJournalData], jConfig, {
+      predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS }
+    });
+
+    yield put(setEventsHistory({ stateId, list: res.records || [], columns: jConfig.columns }));
+  } catch (e) {
+    yield put(setEventsHistory({ stateId, list: [], columns: [] }));
+    logger.error('[eventHistory sagaGetJournalHistory saga] error', e.message);
+  }
+}
+
 function* eventsHistorySaga(ea) {
   yield takeEvery(getEventsHistory().type, sagaGetEventsHistory, ea);
   yield takeEvery(filterEventsHistory().type, sagaFilterEventsHistory, ea);
+  yield takeEvery(getJournalHistory().type, sagaGetJournalHistory, ea);
 }
 
 export default eventsHistorySaga;

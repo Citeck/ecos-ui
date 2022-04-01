@@ -25,6 +25,7 @@ import { AUTHORITY_TYPE_USER } from '../components/common/form/SelectOrgstruct/c
 import DateTimeEditor from '../components/Journals/service/editors/registry/DateTimeEditor';
 
 export default class EventsHistoryService {
+  static defaultJournal = 'history-records-widget';
   static config = {
     columns: [
       {

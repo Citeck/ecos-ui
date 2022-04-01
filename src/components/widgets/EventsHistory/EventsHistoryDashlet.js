@@ -7,11 +7,12 @@ import isFunction from 'lodash/isFunction';
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import DAction from '../../../services/DashletActionService';
+import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import EventsHistory from './EventsHistory';
+//import EventsHistory from './EventsHistory';
+import JournalHistory from './JournalHistory';
 import EventsHistorySettings from './EventsHistorySettings';
-import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 
 import './style.scss';
 
@@ -125,7 +126,8 @@ class EventsHistoryDashlet extends BaseWidget {
         contentMaxHeight={this.dashletMaxHeight}
       >
         {isShowSetting && <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.onSaveConfig} />}
-        <EventsHistory
+        {/*<EventsHistory*/}
+        <JournalHistory
           {...config}
           forwardedRef={this.contentRef}
           className={classNames({ 'd-none': isShowSetting }, classNameContent)}
