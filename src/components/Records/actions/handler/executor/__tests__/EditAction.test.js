@@ -6,6 +6,7 @@ import Records from '../../../../Records';
 import actionsRegistry from '../../../actionsRegistry';
 import '../../../index';
 import EditAction from '../EditAction';
+import { SourcesId } from '../../../../../../constants';
 
 const RecordIds = {
   TASK_REF: 'workspace://SpacesStore/test-task',
@@ -25,11 +26,11 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
             'cm:name?str': RecordIds.TASK_ID
           }
         };
-      case 'ecos-config@default-ui-main-menu':
+      case SourcesId.UI_CFG + '@main-menu-type':
         return {
           id: RecordIds.TASK_REF,
           attributes: {
-            '.str': 'left'
+            value: 'left'
           }
         };
       default:

@@ -193,47 +193,41 @@ export default class EcosFormUtils {
       formKey = config.formKey;
 
     const showForm = recordRef => {
-      if (recordRef) {
-        const params = {
-          attributes: config.attributes || {},
-          onSubmit: config.onSubmit
-        };
+      const params = {
+        attributes: config.attributes || {},
+        onSubmit: config.onSubmit
+      };
 
-        if (formKey) {
-          params.formKey = config.formKey;
-        }
-
-        if (config.onCancel) {
-          params.onCancel = config.onCancel;
-        }
-
-        if (config.onFormCancel) {
-          params.onFormCancel = config.onFormCancel;
-        }
-
-        if (config.contentBefore) {
-          params.contentBefore = config.contentBefore;
-        }
-
-        if (config.contentAfter) {
-          params.contentAfter = config.contentAfter;
-        }
-
-        if (config.options) {
-          params.options = config.options;
-        }
-
-        EcosFormUtils.eform(recordRef, {
-          params,
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true,
-          formContainer: config.formContainer || null
-        });
-      } else {
-        if (typeof fallback === 'function') {
-          fallback();
-        }
+      if (formKey) {
+        params.formKey = config.formKey;
       }
+
+      if (config.onCancel) {
+        params.onCancel = config.onCancel;
+      }
+
+      if (config.onFormCancel) {
+        params.onFormCancel = config.onFormCancel;
+      }
+
+      if (config.contentBefore) {
+        params.contentBefore = config.contentBefore;
+      }
+
+      if (config.contentAfter) {
+        params.contentAfter = config.contentAfter;
+      }
+
+      if (config.options) {
+        params.options = config.options;
+      }
+
+      EcosFormUtils.eform(recordRef, {
+        params,
+        class: 'ecos-modal_width-lg',
+        isBigHeader: true,
+        formContainer: config.formContainer || null
+      });
     };
 
     EcosFormUtils.hasForm(recordRef)
@@ -241,13 +235,18 @@ export default class EcosFormUtils {
         if (result) {
           showForm(recordRef);
         } else {
-          NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
-          throw new Error(`hasForm ${result} recordRef: ${recordRef}`);
+          if (typeof fallback === 'function') {
+            fallback();
+          } else {
+            NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+          }
         }
       })
-      .catch(() => {
+      .catch(e => {
+        const msg = 'Exception in hasForm request. RecordRef: ' + recordRef;
+        console.error(msg, e);
         NotificationManager.error(t('form-is-not-available'), t('error'));
-        throw new Error('Exception in hasForm request. RecordRef: ' + recordRef);
+        throw new Error(msg);
       });
   }
 
