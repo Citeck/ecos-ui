@@ -38,12 +38,6 @@
           font-size: $font-size-large;
         }
 
-        @media (min-width: 720px) {
-          & .modal-title {
-            font-size: $font-size-xxl;
-          }
-        }
-
         & .close {
           .ecos-modal-close__icon {
             margin-left: 5px;
@@ -81,18 +75,9 @@
   }
 
   &-header {
-    &__title {
-      display: inline-block;
-    }
-
+    &__title,
     &__buttons {
-      display: none;
-    }
-
-    @media (min-width: 720px) {
-      &__buttons {
-        display: inline-block;
-      }
+      display: inline-block;
     }
 
     &__title + &__buttons {
@@ -111,13 +96,6 @@
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-standard;
     color: $text-color-dark;
-    display: none;
-  }
-
-  @media (min-width: 720px) {
-    &-close__text {
-      display: inline-block;
-    }
   }
 }
 
