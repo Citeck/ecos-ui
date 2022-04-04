@@ -78,7 +78,7 @@ Base.prototype.updateValue = function(flags, value) {
   const changed = originalUpdateValue.call(this, flags, value);
 
   if (changed) {
-    this.valueChangedByUser = !isEmpty(value); // true;
+    this.valueChangedByUser = !isEmpty(this.dataValue); // true;
   }
 
   return changed;
@@ -166,8 +166,12 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     return !isBoolean(value) && this.isEmpty(value);
   };
 
-  if (this.key === 'pk_manager') {
-    console.log(this);
+  // if (this.key === 'pk_manager') {
+  //   console.log(this);
+  // }
+
+  if (!this.calculatedValueWasCalculated) {
+    this.calculatedValueWasCalculated = true;
   }
 
   if (this.calculatedValueWasCalculated && allowOverride && (isEmptyValue(this.dataValue) && this.valueChangedByUser)) {
@@ -178,9 +182,9 @@ const modifiedOriginalCalculateValue = function(data, flags) {
       (formMode === FORM_MODE_CREATE && !isEmptyValue(this.dataValue));
   }
 
-  if (!this.calculatedValueWasCalculated) {
-    this.calculatedValueWasCalculated = true;
-  }
+  // if (!this.calculatedValueWasCalculated) {
+  //   this.calculatedValueWasCalculated = true;
+  // }
 
   // If this is the firstPass, and the dataValue is different than to the calculatedValue.
   // if (allowOverride && firstPass && !isEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
@@ -216,7 +220,7 @@ Base.prototype.calculateValue = function(data, flags) {
     return false;
   }
 
-  console.log('calculateValue');
+  // console.log('calculateValue');
 
   // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
