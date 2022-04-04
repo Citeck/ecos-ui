@@ -10,7 +10,6 @@ import DAction from '../../../services/DashletActionService';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-//import EventsHistory from './EventsHistory';
 import JournalHistory from './JournalHistory';
 import EventsHistorySettings from './EventsHistorySettings';
 
@@ -126,7 +125,6 @@ class EventsHistoryDashlet extends BaseWidget {
         contentMaxHeight={this.dashletMaxHeight}
       >
         {isShowSetting && <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.onSaveConfig} />}
-        {/*<EventsHistory*/}
         <JournalHistory
           {...config}
           forwardedRef={this.contentRef}

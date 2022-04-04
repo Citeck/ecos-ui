@@ -1,6 +1,9 @@
-import { cellMsg, t } from '../helpers/util';
+import moment from 'moment';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
+
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../components/Journals/service/util';
-import { DataFormatTypes, DateFormats } from '../constants';
 import {
   datePredicateVariables,
   PREDICATE_CONTAINS,
@@ -16,16 +19,18 @@ import {
   PREDICATE_NOT_EQ,
   PREDICATE_STARTS
 } from '../components/Records/predicates/predicates';
-import moment from 'moment';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
-import get from 'lodash/get';
 import OrgstructEditor from '../components/Journals/service/editors/registry/OrgstructEditor';
 import { AUTHORITY_TYPE_USER } from '../components/common/form/SelectOrgstruct/constants';
 import DateTimeEditor from '../components/Journals/service/editors/registry/DateTimeEditor';
+import { cellMsg, t } from '../helpers/util';
+import { DataFormatTypes, DateFormats } from '../constants';
 
 export default class EventsHistoryService {
   static defaultJournal = 'history-records-widget';
+
+  /**
+   * @deprecated Use journal config
+   */
   static config = {
     columns: [
       {
@@ -129,6 +134,9 @@ export default class EventsHistoryService {
     ]
   };
 
+  /**
+   * @deprecated
+   */
   static getDateCompareResult(filter, value, format) {
     const valueInMoment = moment(value);
     const filterInMoment = moment(filter.val);
@@ -161,6 +169,9 @@ export default class EventsHistoryService {
     }
   }
 
+  /**
+   * @deprecated
+   */
   static getCompareResult(filter, value) {
     if (Array.isArray(filter.val)) {
       return filter.val.some(item => EventsHistoryService.getCompareResult({ t: filter.t, val: item }, value));
@@ -188,6 +199,8 @@ export default class EventsHistoryService {
     }
   }
 
+  static isDate = value => [DataFormatTypes.DATETIME, DataFormatTypes.DATE].includes(value);
+
   /**
    * @deprecated
    * https://citeck.atlassian.net/browse/ECOSUI-1749
@@ -209,7 +222,7 @@ export default class EventsHistoryService {
               column.type === COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.AUTHORITY ? 'nodeRef' : ''
             ) || '';
 
-          if (!this.isDate(column.type)) {
+          if (!EventsHistoryService.isDate(column.type)) {
             return EventsHistoryService.getCompareResult(filter, value);
           }
 

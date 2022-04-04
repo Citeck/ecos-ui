@@ -12,7 +12,6 @@ import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common';
 import { Grid } from '../../common/grid';
-import { DataFormatTypes } from '../../../constants';
 import EventsHistoryCard from './EventsHistoryCard';
 
 import './style.scss';
@@ -53,6 +52,7 @@ const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
   );
 
 /**
+ * @desc EventsHistory is 1d version of history.
  * @deprecated Use JournalHistory.js
  */
 class EventsHistory extends React.Component {
@@ -131,8 +131,6 @@ class EventsHistory extends React.Component {
 
     return EventsHistoryService.filterGridData({ list, columns, filters });
   }
-
-  isDate = value => [DataFormatTypes.DATETIME, DataFormatTypes.DATE].includes(value);
 
   checkHeight(old) {
     const { getContentHeight } = this.props;

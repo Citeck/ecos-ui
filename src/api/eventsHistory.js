@@ -4,6 +4,9 @@ import { PROXY_URI } from '../constants/alfresco';
 import { Permissions, SourcesId } from '../constants';
 
 export class EventsHistoryApi extends RecordService {
+  /**
+   * @deprecated journal service is used to get records
+   */
   getEventsHistory = ({ record, columns = [] }) => {
     const query = {
       query: {

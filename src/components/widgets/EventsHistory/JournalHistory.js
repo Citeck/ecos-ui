@@ -53,9 +53,9 @@ const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
   );
 
 /**
- * @desc JournalHistory is next version after EventsHistory.
+ * @desc JournalHistory is 2d version of history.
  * This version works with Journal config only
- * @default journal config - history-records-widget
+ * @default default journal config is defined in EventsHistoryService now
  */
 class JournalHistory extends React.Component {
   static propTypes = {
