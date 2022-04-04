@@ -230,6 +230,8 @@ class EcosForm extends React.Component {
           const [form, customModule] = formAndCustom;
           const HANDLER_PREFIX = 'onForm';
 
+          console.warn('TYT');
+
           form.ecos = { custom: customModule };
           form.setValue({ data });
           form.on('submit', submission => this.submitForm(form, submission));

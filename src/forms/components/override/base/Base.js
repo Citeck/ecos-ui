@@ -23,6 +23,7 @@ const originalCheckConditions = Base.prototype.checkConditions;
 const originalSetValue = Base.prototype.setValue;
 const originalT = Base.prototype.t;
 const originalApplyActions = Base.prototype.applyActions;
+const originalUpdateValue = Base.prototype.updateValue;
 
 const INLINE_EDITING_CLASSNAME = 'inline-editing';
 const DISABLED_SAVE_BUTTON_CLASSNAME = 'inline-editing__save-button_disabled';
@@ -61,6 +62,28 @@ Base.schema = (...extend) => {
   );
 };
 
+Object.defineProperty(Base.prototype, 'valueChangedByUser', {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: false
+});
+Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: false
+});
+Base.prototype.updateValue = function(flags, value) {
+  const changed = originalUpdateValue.call(this, flags, value);
+
+  if (changed) {
+    this.valueChangedByUser = !isEmpty(value); // true;
+  }
+
+  return changed;
+};
+
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 const originalGetClassName = Object.getOwnPropertyDescriptor(Base.prototype, 'className');
 Object.defineProperty(Base.prototype, 'className', {
@@ -95,6 +118,16 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     return false;
   }
 
+  // if (changed && this.calculatedValueWasCalculated) {
+  //   const formMode = get(this.options, 'formMode');
+  //
+  //   this.valueChangedByUser = formMode !== 'CREATE' && !_.isEqual(this.dataValue, this.calculatedValue) || formMode === 'CREATE' && this.dataValue !== null;
+  // }
+  //
+  // if (changed && !this.calculatedValueWasCalculated) {
+  //   this.calculatedValueWasCalculated = true;
+  // }
+
   // Get the dataValue.
   let firstPass = false;
   let dataValue = null;
@@ -110,9 +143,9 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   }
 
   // Check to ensure that the calculated value is different than the previously calculated value.
-  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !customIsEqual(dataValue, this.calculatedValue)) {
-    return false;
-  }
+  // if (allowOverride && this.calculatedValue !== emptyCalculateValue && !customIsEqual(dataValue, this.calculatedValue)) {
+  //   return false;
+  // }
 
   // Calculate the new value.
   const calculatedValue = this.evaluate(
@@ -132,31 +165,59 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     }
     return !isBoolean(value) && this.isEmpty(value);
   };
-  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
-  if (allowOverride && firstPass && !isEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
-    if (formMode && formMode !== FORM_MODE_CREATE && isEmptyValue(calculatedValue)) {
-      this.calculatedValue = undefined;
-      return false;
-    }
 
-    // Return that we have a change so it will perform another pass.
-    this.calculatedValue = calculatedValue;
-    return true;
+  if (this.key === 'pk_manager') {
+    console.log(this);
   }
+
+  if (this.calculatedValueWasCalculated && allowOverride && (isEmptyValue(this.dataValue) && this.valueChangedByUser)) {
+    const formMode = get(this.options, 'formMode');
+
+    this.valueChangedByUser =
+      (formMode !== FORM_MODE_CREATE && !customIsEqual(this.dataValue, this.calculatedValue)) ||
+      (formMode === FORM_MODE_CREATE && !isEmptyValue(this.dataValue));
+  }
+
+  if (!this.calculatedValueWasCalculated) {
+    this.calculatedValueWasCalculated = true;
+  }
+
+  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+  // if (allowOverride && firstPass && !isEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
+  //   // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
+  //   if (formMode && formMode !== FORM_MODE_CREATE && isEmptyValue(calculatedValue)) {
+  //     this.calculatedValue = undefined;
+  //     return false;
+  //   }
+  //
+  //   // Return that we have a change so it will perform another pass.
+  //   this.calculatedValue = calculatedValue;
+  //   return true;
+  // }
+
+  let changed;
 
   flags = flags || {};
   flags.noCheck = true;
-  const changed = this.setValue(calculatedValue, flags);
+
+  if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
+    changed = this.setValue(calculatedValue, flags);
+  }
+
+  // const changed = this.setValue(calculatedValue, flags);
+
   this.calculatedValue = this.dataValue;
 
   return changed;
 };
 
 Base.prototype.calculateValue = function(data, flags) {
-  if (!this.component.calculateValue) {
+  if (!this.component.calculateValue /* || (this.valueChangedByUser && this.component.allowCalculateOverride)*/) {
     return false;
   }
+
+  console.log('calculateValue');
+
   // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
