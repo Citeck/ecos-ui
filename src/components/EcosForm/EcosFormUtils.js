@@ -18,7 +18,6 @@ import uuidV4 from 'uuid/v4';
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, t, getMLValue } from '../../helpers/util';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
 import { Components } from '../../forms/components';
@@ -191,7 +190,6 @@ export default class EcosFormUtils {
   static editRecord(config) {
     const recordRef = config.recordRef,
       fallback = config.fallback,
-      forceNewForm = config.forceNewForm,
       formKey = config.formKey;
 
     const showForm = recordRef => {
@@ -238,35 +236,18 @@ export default class EcosFormUtils {
       }
     };
 
-    let isFormsEnabled;
-
-    if (!forceNewForm) {
-      isFormsEnabled = Records.get('ecos-config@ecos-forms-enable').load('.bool');
-    } else {
-      isFormsEnabled = Promise.resolve(true);
-    }
-
-    const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
-
-    Promise.all([isFormsEnabled, isShouldDisplay])
-      .then(values => {
-        if (values[0] || values[1]) {
-          EcosFormUtils.hasForm(recordRef).then(result => {
-            if (result) {
-              showForm(recordRef);
-            } else {
-              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
-              throw new Error(`hasForm ${result}`);
-            }
-          });
+    EcosFormUtils.hasForm(recordRef)
+      .then(result => {
+        if (result) {
+          showForm(recordRef);
         } else {
-          NotificationManager.error(t('form-is-not-available'), t('error'));
-          throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+          NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+          throw new Error(`hasForm ${result} recordRef: ${recordRef}`);
         }
       })
-      .catch(e => {
-        console.error(e);
-        showForm();
+      .catch(() => {
+        NotificationManager.error(t('form-is-not-available'), t('error'));
+        throw new Error('Exception in hasForm request. RecordRef: ' + recordRef);
       });
   }
 
