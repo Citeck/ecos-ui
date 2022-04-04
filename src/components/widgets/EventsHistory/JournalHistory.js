@@ -6,7 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { filterEventsHistory, getJournalHistory, resetEventsHistory } from '../../../actions/eventsHistory';
+import { filterJournalHistory, getJournalHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
@@ -29,7 +29,7 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getJournalHistory: payload => dispatch(getJournalHistory(payload)),
-  filterEventsHistory: payload => dispatch(filterEventsHistory(payload)),
+  filterJournalHistory: payload => dispatch(filterJournalHistory(payload)),
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
@@ -120,16 +120,6 @@ class JournalHistory extends React.Component {
     return 0;
   }
 
-  /**
-   * @deprecated
-   * https://citeck.atlassian.net/browse/ECOSUI-1749
-   */
-  get filteredGridData() {
-    const { list, columns } = this.props;
-    const { filters } = this.state;
-    return EventsHistoryService.filterGridData({ list, columns, filters });
-  }
-
   checkHeight(old) {
     const { getContentHeight } = this.props;
     const contentHeight = this.contentHeight;
@@ -146,9 +136,9 @@ class JournalHistory extends React.Component {
   };
 
   onFilter = predicates => {
-    const { filterEventsHistory, record, stateId, columns } = this.props;
+    const { filterJournalHistory, record, stateId, columns } = this.props;
 
-    filterEventsHistory({ stateId, record, columns, predicates });
+    filterJournalHistory({ stateId, record, columns, predicates });
   };
 
   onGridFilter = (newFilters = [], type) => {
@@ -174,13 +164,13 @@ class JournalHistory extends React.Component {
   }
 
   renderTable() {
-    const { columns, isMobile, maxHeight } = this.props;
+    const { columns, isMobile, maxHeight, list } = this.props;
     const { filters } = this.state;
 
     return (
       <Grid
         fixedHeader
-        data={this.filteredGridData}
+        data={list}
         columns={columns}
         scrollable={!isMobile}
         noTopBorder

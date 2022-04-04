@@ -6,7 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
+import { getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
@@ -33,7 +33,6 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getEventsHistory: payload => dispatch(getEventsHistory(payload)),
-  filterEventsHistory: payload => dispatch(filterEventsHistory(payload)),
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
@@ -147,18 +146,12 @@ class EventsHistory extends React.Component {
     getEventsHistory({ stateId, record, columns });
   };
 
-  onFilter = predicates => {
-    const { filterEventsHistory, record, stateId, columns } = this.props;
-
-    filterEventsHistory({ stateId, record, columns, predicates });
-  };
-
   onGridFilter = (newFilters = [], type) => {
     const { filters } = this.state;
     const newFilter = get(newFilters, '0', {});
     const upFilters = EventsHistoryService.applyFilters(filters, newFilter, type);
 
-    this.setState({ filters: upFilters }, () => this.onFilter(this.state.filters));
+    this.setState({ filters: upFilters });
   };
 
   renderEnum() {
