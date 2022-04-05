@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
@@ -12,6 +12,7 @@ import DisplayElementService from '../../../services/DisplayElementService';
 import { DialogManager } from '../../../components/common/dialogs';
 import { Btn, IcoBtn } from '../../../components/common/btns';
 import { InfoText } from '../../../components/common';
+import { Checkbox } from '../../../components/common/form';
 import { ParserPredicate } from '../../../components/Filters/predicates';
 import Filters from '../../../components/Filters/Filters';
 
@@ -41,7 +42,8 @@ const SettingsBody = props => {
   const { widget, executors, modelAttributes, hideModal } = props;
   const predicate = get(widget, 'props.config.widgetDisplayCondition');
   const _columns = DisplayElementService.getModelAttributesLikeColumns(modelAttributes);
-  const [_predicate, setPredicate] = React.useState(predicate || ParserPredicate.getDefaultPredicates(_columns));
+  const [_predicate, setPredicate] = useState(predicate || ParserPredicate.getDefaultPredicates(_columns));
+  const [collapsed, setCollapsed] = useState(get(widget, 'props.config.collapsed'));
   const onGoJournal = () => {
     DialogManager.hideAllDialogs();
     goToJournalsPage({
@@ -55,6 +57,8 @@ const SettingsBody = props => {
     if (!isEqual(predicate, _predicate)) {
       set(updWidget, 'props.config.widgetDisplayCondition', _predicate);
     }
+
+    set(updWidget, 'props.config.collapsed', collapsed);
 
     executors.edit(updWidget);
     hideModal();
@@ -79,6 +83,11 @@ const SettingsBody = props => {
           onChange={setPredicate}
         />
       )}
+
+      <Checkbox checked={collapsed} onChange={({ checked }) => setCollapsed(checked)}>
+        {t('Свёрнут по умолчанию')}
+      </Checkbox>
+
       <div className="ecos-ds-widget-settings__buttons">
         <Btn onClick={hideModal}>{t(Labels.MODAL_CANCEL)}</Btn>
         <Btn className="ecos-btn_blue" onClick={onApply}>

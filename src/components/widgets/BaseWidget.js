@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
+import isUndefined from 'lodash/isUndefined';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
@@ -18,6 +20,8 @@ class BaseWidget extends Component {
     super(props);
 
     const lsId = `${props.id}/${props.tabId}`;
+    const isCollapsedByConfig = get(props, 'config.collapsed');
+    const isCollapsedByLS = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
 
     UserLocalSettingsService.checkOldData(props.id, props.tabId);
 
@@ -29,7 +33,7 @@ class BaseWidget extends Component {
       width: MIN_WIDTH_DASHLET_SMALL,
       previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
+      isCollapsed: isUndefined(isCollapsedByLS) ? isCollapsedByConfig : isCollapsedByLS
     };
     this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
   }
@@ -45,7 +49,7 @@ class BaseWidget extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { onUpdate } = this.props;
+    const { onUpdate, config, id, tabId } = this.props;
 
     if (typeof onUpdate === 'function') {
       onUpdate(this);
@@ -53,6 +57,13 @@ class BaseWidget extends Component {
 
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.handleUpdate();
+    }
+
+    if (
+      isUndefined(UserLocalSettingsService.checkOldData(id, tabId)) &&
+      !isEqual(get(prevProps, 'config.collapsed'), get(config, 'collapsed'))
+    ) {
+      this.setState({ isCollapsed: config.collapsed });
     }
   }
 
