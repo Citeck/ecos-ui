@@ -1,10 +1,17 @@
-import { call, put, takeEvery, select } from 'redux-saga/effects';
-import { getEventsHistory, getJournalHistory, setEventsHistory, filterJournalHistory } from '../actions/eventsHistory';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { filterJournalHistory, getEventsHistory, getJournalHistory, setEventsHistory } from '../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_CONTAINS } from '../components/Records/predicates/predicates';
 import EventsHistoryService from '../services/eventsHistory';
+
+const getSettings = ({ predicates, record }) => {
+  return JournalsConverter.getSettingsForDataLoaderServer({
+    predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS },
+    predicates
+  });
+};
 
 /**
  * @deprecated
@@ -32,9 +39,7 @@ function* sagaGetJournalHistory({ logger }, { payload }) {
       true
     );
 
-    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
-      predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS }
-    });
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ record }));
 
     yield put(setEventsHistory({ stateId, list: res.records || [], columns: journalConfig.columns, journalConfig }));
   } catch (e) {
@@ -48,10 +53,7 @@ function* sagaFilterJournalHistory({ logger }, { payload }) {
 
   try {
     const { journalConfig } = yield select(state => selectDataEventsHistoryByStateId(state, stateId) || {});
-    const settings = JournalsConverter.getSettingsForDataLoaderServer({
-      predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS },
-      predicates
-    });
+    const settings = getSettings({ predicates, record });
     const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
 
     yield put(setEventsHistory({ stateId, list: res.records || [] }));
