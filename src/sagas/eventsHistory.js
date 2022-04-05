@@ -1,5 +1,6 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, put, takeEvery, select } from 'redux-saga/effects';
 import { getEventsHistory, getJournalHistory, setEventsHistory, filterJournalHistory } from '../actions/eventsHistory';
+import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_CONTAINS } from '../components/Records/predicates/predicates';
@@ -21,45 +22,41 @@ function* sagaGetEventsHistory({ api, logger }, { payload }) {
   }
 }
 
-function* sagaGetJournalHistory({ api, logger }, { payload }) {
+function* sagaGetJournalHistory({ logger }, { payload }) {
   const { record, stateId, selectedJournal } = payload;
 
   try {
-    const jConfig = yield call(
+    const journalConfig = yield call(
       [JournalsService, JournalsService.getJournalConfig],
       selectedJournal || EventsHistoryService.defaultJournal,
       true
     );
-    const res = yield call([JournalsService, JournalsService.getJournalData], jConfig, {
+
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
       predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS }
     });
 
-    yield put(setEventsHistory({ stateId, list: res.records || [], columns: jConfig.columns }));
+    yield put(setEventsHistory({ stateId, list: res.records || [], columns: journalConfig.columns, journalConfig }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [], columns: [] }));
     logger.error('[eventHistory sagaGetJournalHistory saga] error', e.message);
   }
 }
 
-function* sagaFilterJournalHistory({ api, logger }, { payload }) {
-  const { record, stateId, selectedJournal, predicates } = payload;
+function* sagaFilterJournalHistory({ logger }, { payload }) {
+  const { record, stateId, predicates } = payload;
 
   try {
-    const jConfig = yield call(
-      [JournalsService, JournalsService.getJournalConfig],
-      selectedJournal || EventsHistoryService.defaultJournal,
-      true
-    );
-
+    const { journalConfig } = yield select(state => selectDataEventsHistoryByStateId(state, stateId) || {});
     const settings = JournalsConverter.getSettingsForDataLoaderServer({
       predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS },
       predicates
     });
-    const res = yield call([JournalsService, JournalsService.getJournalData], jConfig, settings);
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
 
-    yield put(setEventsHistory({ stateId, list: res.records || [], columns: jConfig.columns }));
+    yield put(setEventsHistory({ stateId, list: res.records || [] }));
   } catch (e) {
-    yield put(setEventsHistory({ stateId, list: [], columns: [] }));
+    yield put(setEventsHistory({ stateId, list: [] }));
     logger.error('[eventHistory sagaFilterJournalHistory saga] error', e.message);
   }
 }

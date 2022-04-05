@@ -1,27 +1,23 @@
 import { handleActions } from 'redux-actions';
+import pick from 'lodash/pick';
+
 import { getEventsHistory, resetEventsHistory, setEventsHistory, filterJournalHistory, getJournalHistory } from '../actions/eventsHistory';
-import { deleteStateById, getCurrentStateById, startLoading, updateState } from '../helpers/redux';
+import { deleteStateById, startLoading, updateState } from '../helpers/redux';
 
 const initialState = {
   isLoading: false,
   list: [],
-  columns: []
+  columns: [],
+  journalConfig: null
 };
 
 export default handleActions(
   {
     [getEventsHistory]: startLoading(initialState),
     [getJournalHistory]: startLoading(initialState),
-    [setEventsHistory]: (state, { payload: { stateId, list, columns } }) => ({
-      ...state,
-      [stateId]: {
-        ...getCurrentStateById(state, stateId, initialState),
-        list,
-        columns,
-        isLoading: false
-      }
-    }),
-    [filterJournalHistory]: (state, { payload: { stateId } }) => updateState(state, stateId, { isLoading: true }),
+    [filterJournalHistory]: startLoading(initialState),
+    [setEventsHistory]: (state, { payload }) =>
+      updateState(state, payload.stateId, { ...pick(payload, 'list', 'columns', 'journalConfig'), isLoading: false }),
     [resetEventsHistory]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)
   },
   {}
