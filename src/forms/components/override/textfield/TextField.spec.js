@@ -1,11 +1,8 @@
-import { checkCalculated } from 'formiojs/utils/utils';
-
 import Harness from '../../../test/harness';
 import TextFieldComponent from './TextField';
 import EventEmitter from '../../../EventEmitter';
 
 import comp1 from './fixtures/comp1';
-import cloneDeep from 'lodash/cloneDeep';
 
 describe('TextField Component', () => {
   it('Should build a TextField component', done => {
@@ -21,16 +18,20 @@ describe('TextField Component', () => {
       allowCalculateOverride: true,
       calculateValue: "value = 'calculated value';"
     }).then(component => {
-      component.calculateValue(comp1.defaultValue);
-      expect(component.calculatedValue).toEqual('calculated value');
+      component.calculateValue();
+      expect(component.valueChangedByUser).toEqual(false);
+      expect(component.calculatedValueWasCalculated).toEqual(true);
+
+      expect(component.getValue()).toEqual('calculated value');
 
       component.setValue('user value');
-      component.calculateValue();
-      expect(component.dataValue).toEqual('user value');
+      component.onChange();
+      expect(component.valueChangedByUser).toEqual(true);
+      expect(component.getValue()).toEqual('user value');
 
       component.setValue();
-      component.calculateValue();
-      expect(component.calculatedValue).toEqual('calculated value');
+      expect(component.getValue()).toEqual('');
+
       done();
     });
   });
@@ -60,28 +61,6 @@ describe('TextField Builder', () => {
       done();
     });
   });
-
-  // it('Should be user value instead calculated value', done => {
-  //   Harness.testCreate(TextFieldComponent, {
-  //     ...comp1,
-  //     allowCalculateOverride: true,
-  //     calculateValue: 'value = \'calculated value\';'
-  //   }).then(component => {
-  //     component.on('componentChange', change => {
-  //       expect(component.dataValue).toEqual('dd');
-  //
-  //       done();
-  //     });
-  //
-  //     component.getValue();
-  //     // expect(component.dataValue).toEqual('dd');
-  //     // expect(component.dataField).toEqual(component.calculatedValue);
-  //     // Harness.getInputValue(component, 'data[firstName]', 'calculated value');
-  //     // Harness.testSetGet(component, 'test');
-  //     // expect(component.getValue()).toEqual('calculated value');
-  //     // done();
-  //   });
-  // });
 
   it('Should allow you to change the label', done => {
     Harness.setComponentProperty('label', 'Text Field', 'First Name', preview => {
