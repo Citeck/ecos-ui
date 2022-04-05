@@ -468,6 +468,10 @@
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.info.no-data": "No data",
   "events-history-widget.title": "Events history",
+  "events-history-widget.settings.title": "Setting widget",
+  "events-history-widget.settings.btn.cancel": "Cancel",
+  "events-history-widget.settings.btn.save": "Save",
+  "events-history-widget.settings.field.journal": "Journal",
 
   "export-component.action.html-load": "HTML (download)",
   "export-component.action.html-read": "HTML (view)",

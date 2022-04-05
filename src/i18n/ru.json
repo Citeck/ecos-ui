@@ -468,6 +468,10 @@
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
   "events-history-widget.title": "История событий",
+  "events-history-widget.settings.title": "Настройки виджета",
+  "events-history-widget.settings.btn.cancel": "Отмена",
+  "events-history-widget.settings.btn.save": "Сохранить",
+  "events-history-widget.settings.field.journal": "Журнал",
 
   "export-component.action.html-load": "HTML (скачивание)",
   "export-component.action.html-read": "HTML (просмотр)",

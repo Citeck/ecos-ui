@@ -8,10 +8,10 @@ import { Btn } from '../../common/btns';
 import './style.scss';
 
 const Labels = {
-  SETTINGS_TITLE: 'properties-widget.settings.title',
-  SETTINGS_BTN_CANCEL: 'properties-widget.settings.btn.cancel',
-  SETTINGS_BTN_SAVE: 'properties-widget.settings.btn.save',
-  JOURNAL_FIELD: 'journals.name'
+  SETTINGS_TITLE: 'events-history-widget.settings.title',
+  SETTINGS_BTN_CANCEL: 'events-history-widget.settings.btn.cancel',
+  SETTINGS_BTN_SAVE: 'events-history-widget.settings.btn.save',
+  JOURNAL_FIELD: 'events-history-widget.settings.field.journal'
 };
 
 class EventsHistorySettings extends React.Component {
