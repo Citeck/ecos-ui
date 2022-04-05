@@ -34,8 +34,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const Labels = {
-  NO_COLS: 'events-history-widget.info.no-columns',
-  NO_EVENTS: 'events-history-widget.info.no-events'
+  NO_COLS: 'events-history-widget.info.no-columns'
 };
 
 const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
@@ -185,18 +184,10 @@ class JournalHistory extends React.Component {
   }
 
   renderContent() {
-    const { isSmallMode, isMobile, isLoading, list, columns } = this.props;
+    const { isSmallMode, isMobile, isLoading, columns } = this.props;
 
-    if (isLoading) {
-      return <Loader className="ecos-event-history-list__loader" />;
-    }
-
-    if (isEmpty(columns)) {
+    if (!isLoading && isEmpty(columns)) {
       return <InfoText text={t(Labels.NO_COLS)} />;
-    }
-
-    if (isEmpty(list)) {
-      return <InfoText text={t(Labels.NO_EVENTS)} />;
     }
 
     if (isSmallMode || isMobile) {
@@ -207,10 +198,11 @@ class JournalHistory extends React.Component {
   }
 
   render() {
-    const { className, forwardedRef } = this.props;
+    const { isLoading, className, forwardedRef } = this.props;
 
     return (
       <div className={classNames('ecos-event-history', className)}>
+        {isLoading && <Loader className="ecos-event-history-list__loader" blur />}
         <div ref={forwardedRef}>{this.renderContent()}</div>
       </div>
     );
