@@ -131,7 +131,8 @@ export default class EcosModal extends Component {
     const modalClassName = classNames('ecos-modal', className, {
       'ecos-modal_draggable': draggableState !== null,
       [`ecos-modal_level-${modalLevel}`]: !!modalLevel,
-      'ecos-modal_mobile': isMobileDevice()
+      'ecos-modal_mobile': isMobileDevice(),
+      'ecos-modal_small-screen': window.innerWidth < 720
     });
 
     const draggableProps = {

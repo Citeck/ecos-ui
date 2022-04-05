@@ -5,6 +5,22 @@
     margin-bottom: 0;
   }
 
+  &_mobile {
+    .ecos-modal-header__buttons {
+      display: none;
+    }
+  }
+
+  &_small-screen {
+    .modal-title {
+      font-size: $font-size-large;
+    }
+
+    .ecos-modal-close__text {
+      display: none;
+    }
+  }
+
   .modal-content {
     border-radius: $border-radius-extra-large;
   }
@@ -35,7 +51,7 @@
     &.ecos-modal-header {
       &_big {
         & .modal-title {
-          font-size: $font-size-large;
+          font-size: $font-size-xxl;
         }
 
         & .close {
