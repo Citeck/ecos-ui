@@ -141,6 +141,7 @@ class TableView extends React.Component {
       journalConfig
     } = this.props;
     const maxHeight = getMaxHeight();
+    const configRec = journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`;
 
     return (
       <div hidden={!isTableOrPreview(viewMode)} className={classNames('ecos-journal-view__table', bodyClassName)}>
@@ -148,7 +149,7 @@ class TableView extends React.Component {
           <Header
             title={get(journalConfig, 'meta.title', '') || getTextByLocale(get(journalConfig, 'name'))}
             config={journalConfig}
-            configRec={journalConfig.id && `${SourcesId.JOURNAL}@${journalConfig.id}`}
+            configRec={configRec}
           />
           <Bar {...this.props} rightChild={isMobile ? <this.RightBarChild noData /> : null} />
         </div>
