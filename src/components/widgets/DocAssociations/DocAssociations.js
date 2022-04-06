@@ -360,7 +360,6 @@ class DocAssociations extends BaseWidget {
 
   render() {
     const { canDragging, dragHandleProps, associationsTotalCount, isLoading, isMobile } = this.props;
-    const { isCollapsed } = this.state;
     const actionRules = { orderedVisible: [DAction.Actions.RELOAD, 'addLink'] };
 
     return (
@@ -383,7 +382,7 @@ class DocAssociations extends BaseWidget {
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         badgeText={getAdaptiveNumberStr(associationsTotalCount)}
         noBody={!associationsTotalCount && !isLoading}
         setRef={this.setDashletRef}

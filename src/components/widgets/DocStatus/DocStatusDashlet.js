@@ -41,7 +41,7 @@ class DocStatusDashlet extends BaseWidget {
 
   render() {
     const { config, classNameStatus, classNameDashlet, record } = this.props;
-    const { isSmall, isCollapsed } = this.state;
+    const { isSmall } = this.state;
     const isMobile = isMobileDevice();
     const title = this.props.title || t('doc-status-widget.title');
     const isBig = !(isMobile || isSmall);
@@ -62,7 +62,7 @@ class DocStatusDashlet extends BaseWidget {
         actionDrag={isMobile}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         noHeader={isBig}
         setRef={this.setDashletRef}
       >

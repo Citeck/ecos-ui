@@ -23,7 +23,9 @@ const Labels = {
   JOURNAL_TYPE_GOTO: 'widget-settings.go-journal-types',
   DISPLAY_CONDITION_TITLE: 'widget-settings.display-condition',
   DISPLAY_CONDITION_NO_ATTR: 'widget-settings.dc-no-attributes',
-  DISPLAY_CONDITION_NO_RULES: 'widget-settings.dc-no-rules'
+  DISPLAY_CONDITION_NO_RULES: 'widget-settings.dc-no-rules',
+  COLLAPSED_BY_DEFAULT_LABEL: 'widget-settings.collapsed-by-default',
+  COLLAPSED_BY_DEFAULT_INFO: 'widget-settings.collapsed-by-default-info'
 };
 
 export const openWidgetSettings = props => {
@@ -66,6 +68,17 @@ const SettingsBody = props => {
 
   return (
     <>
+      <Checkbox
+        className="w-100"
+        checked={collapsed}
+        onChange={({ checked }) => setCollapsed(checked)}
+        title={t(Labels.COLLAPSED_BY_DEFAULT_INFO)}
+      >
+        {t(Labels.COLLAPSED_BY_DEFAULT_LABEL)}
+      </Checkbox>
+
+      <InfoText className="justify-content-start pl-0 pt-0" text={t(Labels.COLLAPSED_BY_DEFAULT_INFO)} />
+
       <div className="ecos-ds-widget-settings__title">
         {t(Labels.DISPLAY_CONDITION_TITLE)}
         <IcoBtn invert icon="icon-arrow" className="ecos-btn_narrow" onClick={onGoJournal}>
@@ -83,10 +96,6 @@ const SettingsBody = props => {
           onChange={setPredicate}
         />
       )}
-
-      <Checkbox checked={collapsed} onChange={({ checked }) => setCollapsed(checked)}>
-        {t('Свёрнут по умолчанию')}
-      </Checkbox>
 
       <div className="ecos-ds-widget-settings__buttons">
         <Btn onClick={hideModal}>{t(Labels.MODAL_CANCEL)}</Btn>
