@@ -224,9 +224,8 @@ class JournalsDashlet extends BaseWidget {
 
   renderEditor() {
     const { editorMode, id, config, stateId } = this.props;
-    const { isCollapsed } = this.state;
 
-    if (!editorMode || isCollapsed) {
+    if (!editorMode || this.isCollapsed) {
       return null;
     }
 
@@ -245,9 +244,9 @@ class JournalsDashlet extends BaseWidget {
 
   renderJournal() {
     const { editorMode, stateId } = this.props;
-    const { width, isCollapsed, journalId } = this.state;
+    const { width, journalId } = this.state;
 
-    if (editorMode || isCollapsed) {
+    if (editorMode || this.isCollapsed) {
       return null;
     }
 
@@ -279,7 +278,7 @@ class JournalsDashlet extends BaseWidget {
 
   render() {
     const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
-    const { width, isCollapsed } = this.state;
+    const { width } = this.state;
     const actions = {
       [DAction.Actions.HELP]: {
         onClick: () => null
@@ -311,7 +310,7 @@ class JournalsDashlet extends BaseWidget {
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         {warnings.map(msg => (
