@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { Dropdown, DropdownMenu, DropdownToggle, UncontrolledTooltip } from 'reactstrap';
+import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import get from 'lodash/get';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 
 import BaseWidget from '../BaseWidget';
-import { getAdaptiveNumberStr, t } from '../../../helpers/util';
+import { getAdaptiveNumberStr, t, isMobileDevice } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
   addAssociations,
@@ -22,9 +22,9 @@ import {
 import { selectStateByKey } from '../../../selectors/docAssociations';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
-import { EcosDropdownMenu, Icon, Loader } from '../../common/index';
-import { RemoveDialog } from '../../common/dialogs/index';
-import SelectJournal from '../../common/form/SelectJournal/index';
+import { EcosDropdownMenu, Icon, Loader, Tooltip } from '../../common';
+import { RemoveDialog } from '../../common/dialogs';
+import SelectJournal from '../../common/form/SelectJournal';
 import Dashlet from '../../Dashlet';
 import AssociationGrid from './AssociationGrid';
 
@@ -267,17 +267,9 @@ class DocAssociations extends BaseWidget {
     return (
       <Dropdown isOpen={isMenuOpen} toggle={this.handleToggleMenu} key="add-button" className="ecos-doc-associations__button-add">
         <DropdownToggle tag="button" className="ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue">
-          <Icon id={tooltipId} className="icon-small-plus" />
-          <UncontrolledTooltip
-            placement="top"
-            boundariesElement="window"
-            className="ecos-base-tooltip ecos-base-tooltip_opaque"
-            innerClassName="ecos-base-tooltip-inner"
-            arrowClassName="ecos-base-tooltip-arrow"
-            target={tooltipId}
-          >
-            {t(LABELS.TOOLTIP_ADD_LINK)}
-          </UncontrolledTooltip>
+          <Tooltip placement="top" target={tooltipId} text={t(LABELS.TOOLTIP_ADD_LINK)} trigger="hover" off={isMobileDevice()}>
+            <Icon id={tooltipId} className="icon-small-plus" />
+          </Tooltip>
         </DropdownToggle>
         <DropdownMenu
           className="ecos-dropdown__menu ecos-dropdown__menu_links ecos-dropdown__menu_cascade ecos-doc-associations__menu"
