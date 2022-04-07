@@ -33,8 +33,7 @@ export default class HeaderFormatter extends Component {
     this.fetchValue = false;
     this.state = {
       open: false,
-      predicate: {},
-      isOpenLabelTooltip: false
+      predicate: {}
     };
   }
 
@@ -226,10 +225,6 @@ export default class HeaderFormatter extends Component {
     }
   };
 
-  handleToggleLabelTooltip = () => {
-    this.setState(state => ({ isOpenLabelTooltip: !state.isOpenLabelTooltip }));
-  };
-
   renderFilter = () => {
     const { filterable, isComplexFilter } = this.props;
 
@@ -326,9 +321,8 @@ export default class HeaderFormatter extends Component {
 
   render() {
     const { column = {}, sortable } = this.props;
-    const { isOpenLabelTooltip } = this.state;
-
     const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
+
     this.tooltipFilterId = `filter-${id}`;
     this.tooltipLabelId = `label-${id}`;
     this.tooltipTextId = `text-${id}`;
@@ -348,10 +342,8 @@ export default class HeaderFormatter extends Component {
             elementId={this.tooltipTextId}
             text={column.text}
             placement="bottom"
-            trigger="hover"
+            uncontrolled
             showAsNeeded
-            isOpen={isOpenLabelTooltip}
-            onToggle={this.handleToggleLabelTooltip}
           >
             <span className="ecos-th__content-text" id={this.tooltipTextId}>
               {column.text}
