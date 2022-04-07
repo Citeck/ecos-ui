@@ -12,7 +12,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
   createHeader() {
     const hasTopButton = this.hasTopSubmit();
     const hasEnd = this.hasExtraColumn() || hasTopButton;
+
     let needsHeader = false;
+
+    console.log('this', this);
     const thead = this.ce(
       'thead',
       null,
@@ -34,9 +37,15 @@ export default class DataGridComponent extends FormIODataGridComponent {
             th.appendChild(this.text(title));
             this.createTooltip(th, comp);
           }
+
           return th;
         }),
-        hasEnd ? this.ce('th', null, hasTopButton ? this.addButton(true) : null) : null
+
+        this.numColumns > 1 && this.hasRemoveButtons() && this.numColumns !== this.visibleColumns.lenght
+          ? this.ce('th', {
+              class: 'formio-drag-small-column'
+            })
+          : null
       ])
     );
 
