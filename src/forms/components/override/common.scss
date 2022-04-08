@@ -185,3 +185,7 @@
 .formio-drag-small-column {
   width: 65px;
 }
+
+.formio-drag-small-last-column + th:last-child {
+  width: 65px;
+}

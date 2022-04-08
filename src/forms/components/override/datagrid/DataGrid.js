@@ -11,11 +11,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
 
   createHeader() {
     const hasTopButton = this.hasTopSubmit();
-    const hasEnd = this.hasExtraColumn() || hasTopButton;
-
+    const hasBottomButton = this.hasBottomSubmit();
+    const hasEnd = this.hasExtraColumn() && hasTopButton;
+    const hasBottomEnd = this.hasExtraColumn() && hasBottomButton;
     let needsHeader = false;
-
-    console.log('this', this);
     const thead = this.ce(
       'thead',
       null,
@@ -25,11 +24,16 @@ export default class DataGridComponent extends FormIODataGridComponent {
               class: 'formio-drag-column-header'
             })
           : null,
-        this.visibleComponents.map(comp => {
+        this.visibleComponents.map((comp, index) => {
           const th = this.ce('th');
           if (comp.validate && comp.validate.required) {
             th.setAttribute('class', 'field-required');
           }
+
+          if (hasEnd && this.visibleComponents.length - 1 === index) {
+            th.setAttribute('class', 'formio-drag-small-last-column');
+          }
+
           const title = comp.labelByLocale || comp.label || comp.title;
 
           if (title && !comp.dataGridLabel) {
@@ -41,11 +45,8 @@ export default class DataGridComponent extends FormIODataGridComponent {
           return th;
         }),
 
-        this.numColumns > 1 && this.hasRemoveButtons() && this.numColumns !== this.visibleColumns.lenght
-          ? this.ce('th', {
-              class: 'formio-drag-small-column'
-            })
-          : null
+        hasEnd ? this.ce('th', null, hasTopButton ? this.addButton('true') : null) : null,
+        hasBottomEnd ? this.ce('th', { class: 'formio-drag-small-column' }) : null
       ])
     );
 
