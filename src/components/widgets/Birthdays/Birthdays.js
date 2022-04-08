@@ -178,7 +178,6 @@ class Birthdays extends BaseWidget {
 
   render() {
     const { canDragging, dragHandleProps, totalCount } = this.props;
-    const { isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -188,7 +187,7 @@ class Birthdays extends BaseWidget {
         noActions
         canDragging={canDragging}
         resizable
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
         onToggleCollapse={this.handleToggleContent}

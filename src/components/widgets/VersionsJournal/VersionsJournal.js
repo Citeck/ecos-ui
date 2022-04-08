@@ -582,7 +582,6 @@ class VersionsJournal extends BaseWidget {
 
   render() {
     const { isMobile, hasWritePermission, versionsLabels, record } = this.props;
-    const { isCollapsed } = this.state;
     const actions = {};
 
     if (hasWritePermission && !isMobile && record) {
@@ -607,7 +606,7 @@ class VersionsJournal extends BaseWidget {
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         {(versionsLabels.length > 1 || isMobile) && (
