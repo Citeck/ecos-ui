@@ -1,9 +1,10 @@
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import chunk from 'lodash/chunk';
 import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
-import chunk from 'lodash/chunk';
+import isFunction from 'lodash/isFunction';
 
 import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
 import { replaceAttributeValues } from '../utils/recordUtils';
@@ -266,7 +267,7 @@ class RecordActions {
         result.hasError = true;
       });
 
-    if (typeof preActionHandler === 'function') {
+    if (isFunction(preActionHandler)) {
       try {
         const response = await preActionHandler(records, action, context);
         result.preProcessed = true;
@@ -847,6 +848,12 @@ class RecordActions {
 
     if (!confirmed) {
       return;
+    }
+
+    const preResult = RecordActions._preProcessAction({ action, context }, 'execForQuery');
+
+    if (preResult.configMerged) {
+      action.config = preResult.config;
     }
 
     if (!isEmpty(confirmed)) {
