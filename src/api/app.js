@@ -20,7 +20,11 @@ export class AppApi extends CommonApi {
       .catch(() => '');
   };
 
-  touch = () => {
+  touch = (isCancelTouch = false) => {
+    if (document.hidden || isCancelTouch) {
+      return Promise.resolve();
+    }
+
     const url = `${CITECK_URI}ecos/touch`;
     return this.getJson(url);
   };
