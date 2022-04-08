@@ -163,6 +163,8 @@
   "widget-settings.display-condition": "Display condition",
   "widget-settings.dc-no-attributes": "Attributes type are not configured",
   "widget-settings.dc-no-rules": "Condition group is not set",
+  "widget-settings.collapsed-by-default": "Collapsed by default",
+  "widget-settings.collapsed-by-default-info": "Doesn't work if the user himself changed the state by minimizing or expanding the widget.",
   "widget-settings.display-condition.element-title": "Element display condition \"{{title}}\"",
 
   "dashboard-settings.config.default": "Default",

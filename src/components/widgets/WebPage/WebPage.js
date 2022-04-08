@@ -344,7 +344,7 @@ class WebPage extends BaseWidget {
 
   render() {
     const { title } = this.props;
-    const { isCollapsed, settingsIsShow, pageIsLoaded } = this.state;
+    const { settingsIsShow, pageIsLoaded } = this.state;
     const fixHeight = MAX_DEFAULT_HEIGHT_DASHLET - this.dashletOtherHeight;
     const actions = {};
     const scrollProps = { autoHide: true };
@@ -378,7 +378,7 @@ class WebPage extends BaseWidget {
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
       >
         <Scrollbars {...scrollProps}>
           <div className="ecos-wpage__container" ref={this.contentRef}>
