@@ -784,7 +784,6 @@ class DesktopDocuments extends BaseDocuments {
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
-    const { isCollapsed } = this.state;
 
     return (
       <div>
@@ -801,7 +800,7 @@ class DesktopDocuments extends BaseDocuments {
           onChangeHeight={this.handleChangeHeight}
           getFitHeights={this.setFitHeights}
           onToggleCollapse={this.handleToggleContent}
-          isCollapsed={isCollapsed}
+          isCollapsed={this.isCollapsed}
           setRef={this.setDashletRef}
         >
           <div className="ecos-docs__container">

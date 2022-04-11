@@ -164,6 +164,8 @@
   "widget-settings.display-condition": "Условие отображения",
   "widget-settings.dc-no-attributes": "Атрибуты для типа не настроены",
   "widget-settings.dc-no-rules": "Группа условий не установлена",
+  "widget-settings.collapsed-by-default": "Свёрнут по умолчанию",
+  "widget-settings.collapsed-by-default-info": "Не работает, если пользователь сам изменил состояние - свернув или развернув виджет.",
   "widget-settings.display-condition.element-title": "Условие отображения элемента \"{{title}}\"",
 
   "dashboard-settings.config.default": "По умолчанию",

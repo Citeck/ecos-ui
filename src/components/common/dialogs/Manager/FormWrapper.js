@@ -71,6 +71,7 @@ class FormWrapper extends React.Component {
     const processedDefinition = EcosFormUtils.preProcessFormDefinition(formDefinition, options);
 
     const formPromise = Formio.createForm(containerElement, processedDefinition, options);
+
     formPromise.then(form => {
       this._form = form;
       this.setEvents(form, { onSubmit });
