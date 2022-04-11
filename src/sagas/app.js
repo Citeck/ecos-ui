@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 import { URL } from '../constants';
-import { getCurrentLocale, getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName } from '../helpers/util';
 import PageService from '../services/PageService';
 import {
   backPageFromTransitionsHistory,
@@ -27,6 +27,7 @@ import { setNewUIAvailableStatus, validateUserFailure, validateUserSuccess } fro
 import { detectMobileDevice } from '../actions/view';
 import { getMenuConfig, setMenuConfig } from '../actions/menu';
 import { registerEventListeners } from '../actions/customEvent';
+import ConfigService, { FOOTER_CONTENT, HOME_LINK_URL } from '../services/config/ConfigService';
 
 export function* initApp({ api, logger }, { payload }) {
   try {
@@ -53,14 +54,14 @@ export function* initApp({ api, logger }, { payload }) {
 
       yield put(setRedirectToNewUi(!isForceOldUserDashboardEnabled));
 
-      const homeLink = yield call(api.app.getHomeLink);
+      const homeLink = yield ConfigService.getValue(HOME_LINK_URL);
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
       if (e.message === 'User is disabled') {
         alert('User is disabled');
       }
-      logger.error('[initApp saga] error inner', e.message);
+      console.error('[initApp saga] error inner', e);
       yield put(validateUserFailure());
     }
 
@@ -137,15 +138,9 @@ export function* fetchLeftMenuEditable({ api, logger }) {
   }
 }
 
-export function* fetchFooter({ api, logger }) {
+export function* fetchFooter({ logger }) {
   try {
-    const params = `value.${getCurrentLocale()}?str!value.en`;
-    let footer = yield call(api.app.getFooter, params);
-
-    if (!footer) {
-      footer = yield call(api.app.getFooter);
-    }
-
+    let footer = yield ConfigService.getValue(FOOTER_CONTENT);
     if (footer) {
       yield put(setFooter(footer));
     }

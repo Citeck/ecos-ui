@@ -43,15 +43,12 @@ export const pagesWithOnlyContent = [
 
 export const SourcesId = {
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
-  UISERV_BUILD_INFO: 'uiserv/build-info',
   EAPPS_BUILD_INFO: 'eapps/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
   RESOLVED_FORM: 'uiserv/rform',
-  EFORM: 'uiserv/form',
+  FORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
-  CONFIG: 'uiserv/config',
-  UI_CFG: 'uiserv/cfg',
   MENU: 'uiserv/menu',
   RESOLVED_MENU: 'uiserv/rmenu',
   ICON: 'uiserv/icon',

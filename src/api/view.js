@@ -11,6 +11,7 @@ import {
   CACHE_KEY_RESOURCE_MENU
 } from '../constants/theme';
 import { SourcesId } from '../constants';
+import ConfigService, { ACTIVE_THEME } from '../services/config/ConfigService';
 
 export class ViewApi extends CommonApi {
   getActiveThemeId = () => {
@@ -27,11 +28,7 @@ export class ViewApi extends CommonApi {
   };
 
   changeTheme = theme => {
-    const record = Records.get(`${SourcesId.CONFIG}@active-theme`);
-
-    record.att('value', theme);
-
-    return record.save();
+    return ConfigService.setValue(ACTIVE_THEME, theme);
   };
 
   getThemeConfig = theme => {

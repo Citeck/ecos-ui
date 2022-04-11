@@ -29,11 +29,12 @@ import { SourcesId, URL } from '../constants';
 import { DefaultUserMenu } from '../constants/menu';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
+import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
 import MenuConverter from '../dto/menu';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
-    const createMenuView = yield call(api.app.getEcosConfig, 'create-menu-type');
+    const createMenuView = yield call(key => configService.getValue(key), CREATE_MENU_TYPE);
     const menuConfigItems = yield call(api.menu.getMainMenuCreateVariants);
     const config = MenuConverter.getMainMenuCreateItems(menuConfigItems);
 

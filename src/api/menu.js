@@ -13,6 +13,7 @@ import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
+import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
 
 const $4H = 14400000;
 const SITE = 'site';
@@ -91,17 +92,6 @@ export class MenuApi extends CommonApi {
       });
   };
 
-  getCustomCreateVariants = () => {
-    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
-      .load('value[]?json', true)
-      .then(res => lodashGet(res, '[0]', []))
-      .then(res => (Array.isArray(res) ? res : []))
-      .catch(e => {
-        console.error(e);
-        return [];
-      });
-  };
-
   getLiveSearchDocuments = (terms, startIndex) => {
     const url = `${PROXY_URI}slingshot/live-search-docs?t=${generateSearchTerm(terms)}&maxResults=5&startIndex=${startIndex}`;
     return this.getJson(url);
@@ -166,13 +156,8 @@ export class MenuApi extends CommonApi {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('totalCount?num!0');
   };
 
-  getMenuConfig = (disabledCache = false) => {
-    return Records.get(`${SourcesId.CONFIG}@menu-config`)
-      .load('value?json', disabledCache)
-      .catch(e => {
-        console.error(e);
-        return {};
-      });
+  getMenuConfig = () => {
+    throw new Error('Should be removed');
   };
 
   /**
@@ -196,24 +181,16 @@ export class MenuApi extends CommonApi {
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
-    const record = Records.get(`${SourcesId.CONFIG}@menu-config`);
-
-    record.att('value?json', config);
-    record.att('title', title);
-    record.att('description', description);
-
-    return record.save();
+    throw new Error('Should be removed');
   };
 
   checkSiteDashboardEnable = () => {
-    return Records.get(`${SourcesId.CONFIG}@site-dashboard-enable`).load('value?bool');
+    return ConfigService.getValue(SITE_DASHBOARD_ENABLE);
   };
 
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
-    const configVersion = await Records.get(`${SourcesId.UI_CFG}@main-menu-type`)
-      .load('value?str')
-      .catch(e => console.error(e));
+    const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
     const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id').catch(e => console.error(e));
 
@@ -276,7 +253,7 @@ export class MenuApi extends CommonApi {
   };
 
   getGroupPriority = () => {
-    return Records.get(`${SourcesId.CONFIG}@menu-group-priority`).load('value[]?json![]');
+    return ConfigService.getValue(MENU_GROUP_PRIORITY);
   };
 
   getFullGroupPriority = async ({ authorities }) => {
@@ -317,9 +294,7 @@ export class MenuApi extends CommonApi {
   };
 
   saveGroupPriority = ({ groupPriority }) => {
-    const rec = Records.get(`${SourcesId.CONFIG}@menu-group-priority`);
-    rec.att('value', groupPriority);
-    return rec.save();
+    return ConfigService.setServerValue(MENU_GROUP_PRIORITY, groupPriority);
   };
 
   removeSettings = ({ id }) => {

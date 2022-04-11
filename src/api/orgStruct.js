@@ -13,6 +13,7 @@ import Records from '../components/Records';
 import { getCurrentUserName } from '../helpers/util';
 import { SourcesId } from '../constants';
 import { RecordService } from './recordService';
+import ConfigService, { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
 
 export class OrgStructApi extends RecordService {
   get groupAttributes() {
@@ -199,16 +200,7 @@ export class OrgStructApi extends RecordService {
   };
 
   static async getGlobalSearchFields() {
-    return Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-extra-fields`)
-      .load('value?str')
-      .then(searchFields => {
-        if (typeof searchFields !== 'string' || !searchFields.trim().length) {
-          return [];
-        }
-
-        return searchFields.split(',');
-      })
-      .catch(() => []);
+    return ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
   }
 
   static getSearchQuery = (search = '', searchFields = ['id', '_name']) => {

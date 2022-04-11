@@ -22,7 +22,7 @@ import {
   updateTab,
   updateTabsFromStorage
 } from '../../actions/pageTabs';
-import { animateScrollTo, getScrollbarWidth, isDevEnv, t } from '../../helpers/util';
+import { animateScrollTo, getScrollbarWidth, IS_DEV_ENV, t } from '../../helpers/util';
 import PageService from '../../services/PageService';
 import UserLocalSettingsService from '../../services/userLocalSettings';
 import { SortableContainer } from '../Drag-n-Drop';
@@ -294,7 +294,7 @@ class PageTabs extends React.Component {
         this.handleCloseTab(tab);
         break;
       case ContextMenuTypes.GO_SOURCE_HOST:
-        const host = isDevEnv() ? process.env.REACT_APP_SHARE_PROXY_URL : _LOCALHOST_;
+        const host = IS_DEV_ENV ? process.env.REACT_APP_SHARE_PROXY_URL : _LOCALHOST_;
         window.open(`${host}${window.location.pathname}${window.location.search}`, '_blank');
         break;
       default:
@@ -636,9 +636,9 @@ class PageTabs extends React.Component {
       });
     }
 
-    if ((isDevEnv() || (ctrlKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
+    if ((IS_DEV_ENV || (ctrlKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
       actions.push({
-        title: `Go to ${isDevEnv() ? process.env.REACT_APP_SHARE_PROXY_URL : 'local'}`,
+        title: `Go to ${IS_DEV_ENV ? process.env.REACT_APP_SHARE_PROXY_URL : 'local'}`,
         onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST)
       });
     }

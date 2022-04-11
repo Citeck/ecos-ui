@@ -403,7 +403,7 @@ export default class EcosFormUtils {
   }
 
   static getNotResolvedFormId(formId) {
-    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.EFORM);
+    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.FORM);
   }
 
   static getResolvedFormId(formId) {
