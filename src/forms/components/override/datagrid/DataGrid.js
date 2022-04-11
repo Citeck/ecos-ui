@@ -36,7 +36,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
         this.visibleComponents.map((comp, index) => {
           const th = this.ce('th');
           if (comp.validate && comp.validate.required) {
-            th.setAttribute('class', 'field-required');
+            th.className.add('field-required');
           }
 
           if (hasEnd && this.visibleComponents.length - 1 === index) {
