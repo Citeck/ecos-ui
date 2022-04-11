@@ -17,6 +17,7 @@ const Header = React.forwardRef(
       title,
       needGoTo,
       onGoTo,
+      goToName,
       onToggleCollapse,
       actionDrag,
       measurer,
@@ -37,13 +38,13 @@ const Header = React.forwardRef(
   ) => {
     const btnGoTo = isMobile ? null : (
       <IcoBtn
-        title={t('dashlet.goto')}
+        title={goToName || t('dashlet.goto')}
         invert
         icon={'icon-small-arrow-right'}
         className="dashlet__btn dashlet__btn_goto ecos-btn_narrow"
         onClick={onGoTo}
       >
-        {measurer.xxs || measurer.xxxs ? '' : t('dashlet.goto')}
+        {measurer.xxs || measurer.xxxs ? '' : goToName || t('dashlet.goto')}
       </IcoBtn>
     );
 
