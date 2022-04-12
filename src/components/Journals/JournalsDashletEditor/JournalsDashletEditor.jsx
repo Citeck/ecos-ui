@@ -10,7 +10,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 
-import { Caption, Checkbox, Field, Input, Select } from '../../common/form';
+import { Caption, Checkbox, Field, Input, Select, MLText } from '../../common/form';
 import { Btn } from '../../common/btns';
 import SelectJournal from '../../common/form/SelectJournal';
 import {
@@ -61,6 +61,7 @@ const Labels = {
   SETTING_FIELD_PLACEHOLDER: 'journals.default',
   CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
+  GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
   RESET_BTN: 'journals.action.reset-settings',
   CANCEL_BTN: 'journals.action.cancel',
   SAVE_BTN: 'journals.action.save'
@@ -171,6 +172,10 @@ class JournalsDashletEditor extends Component {
       if (!isUndefined(config.onlyLinked) && !isEqual(config.onlyLinked, this.state.isOnlyLinked)) {
         newState.isOnlyLinked = config.onlyLinked;
       }
+
+      if (!isUndefined(config.goToButtonName) && !isEqual(config.goToButtonName, this.state.goToButtonName)) {
+        newState.goToButtonName = config.goToButtonName;
+      }
     }
 
     if (!isEmpty(newState)) {
@@ -187,7 +192,7 @@ class JournalsDashletEditor extends Component {
 
   handleSave = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
-    const { selectedJournals, isCustomJournalMode, customJournal, journalSettingId, isOnlyLinked } = this.state;
+    const { selectedJournals, isCustomJournalMode, customJournal, journalSettingId, isOnlyLinked, goToButtonName } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
@@ -201,6 +206,7 @@ class JournalsDashletEditor extends Component {
     newConfig.journalId = journalId.substr(journalId.indexOf('@') + 1);
     newConfig.customJournalMode = isCustomJournalMode;
     newConfig.customJournal = customJournal;
+    newConfig.goToButtonName = goToButtonName;
 
     if (isEqual(config, newConfig)) {
       setEditorMode(false);
@@ -258,25 +264,34 @@ class JournalsDashletEditor extends Component {
     this.setState({ selectedJournals });
   };
 
+  handleChangeGoToButtonName = goToButtonName => {
+    this.setState({ goToButtonName });
+  };
+
+  get isSmall() {
+    const { measurer } = this.props;
+
+    return measurer && !!measurer.width && (measurer.xxs || measurer.xxxs);
+  }
+
   render() {
-    const { className, measurer, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
-    const { customJournal, selectedJournals, journalSettingId, isCustomJournalMode, isOnlyLinked } = this.state;
-    const isSmall = measurer && !!measurer.width && (measurer.xxs || measurer.xxxs);
+    const { className, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
+    const { customJournal, selectedJournals, journalSettingId, isCustomJournalMode, isOnlyLinked, goToButtonName } = this.state;
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
-        <div className={classNames('ecos-journal-dashlet-editor__body', { 'ecos-journal-dashlet-editor__body_small': isSmall })}>
+        <div className={classNames('ecos-journal-dashlet-editor__body', { 'ecos-journal-dashlet-editor__body_small': this.isSmall })}>
           <Caption middle className="ecos-journal-dashlet-editor__caption">
             {t(Labels.SETTING_TITLE)}
           </Caption>
 
           {isCustomJournalMode ? (
-            <Field label={t(Labels.CUSTOM_FIELD)} isSmall={isSmall} isRequired>
+            <Field label={t(Labels.CUSTOM_FIELD)} isSmall={this.isSmall} isRequired>
               <Input value={customJournal} onChange={this.setCustomJournal} type="text" />
             </Field>
           ) : (
             <>
-              <Field label={t(Labels.NAME_FIELD)} isSmall={isSmall} labelPosition="top">
+              <Field label={t(Labels.NAME_FIELD)} isSmall={this.isSmall} labelPosition="top">
                 <SelectJournal
                   journalId={'ecos-journals'}
                   defaultValue={selectedJournals}
@@ -287,7 +302,7 @@ class JournalsDashletEditor extends Component {
                 />
               </Field>
 
-              <Field label={t(Labels.SETTING_FIELD)} isSmall={isSmall}>
+              <Field label={t(Labels.SETTING_FIELD)} isSmall={this.isSmall}>
                 <Select
                   className="ecos-journal-dashlet-editor__select"
                   placeholder={t(Labels.SETTING_FIELD_PLACEHOLDER)}
@@ -300,17 +315,21 @@ class JournalsDashletEditor extends Component {
               </Field>
             </>
           )}
-          <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={isSmall}>
+          <Field label={t(Labels.CUSTOM_MODE_FIELD)} isSmall={this.isSmall}>
             <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
           {!!recordRef && (
-            <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={isSmall}>
+            <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={this.isSmall}>
               <Checkbox checked={isOnlyLinked} onClick={this.setOnlyLinked} />
             </Field>
           )}
+
+          <Field label={t(Labels.GO_TO_BUTTON_NAME_FIELD)} isSmall={this.isSmall}>
+            <MLText value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
+          </Field>
         </div>
 
-        <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': isSmall })}>
+        <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': this.isSmall })}>
           <Btn onClick={this.handleClear}>{t(Labels.RESET_BTN)}</Btn>
           <div className="ecos-journal-dashlet-editor__actions-diver" />
           {configJournalId && <Btn onClick={this.handleCancel}>{t(Labels.CANCEL_BTN)}</Btn>}
