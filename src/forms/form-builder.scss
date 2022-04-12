@@ -1,0 +1,30 @@
+@import '../styles/constants';
+
+.formcomponent.drag-copy.gu-mirror {
+  text-align: left;
+  padding: 5px 5px 5px 8px;
+  margin-top: 0.2rem;
+  font-size: 0.8em;
+  line-height: 1.2;
+  border-radius: 0.3em;
+}
+
+.gu-mirror {
+  z-index: 99999999 !important;
+  position: relative;
+
+  &.formio-component-hidden {
+    border: 2px dashed #ddd;
+    height: 3em;
+    text-align: center;
+    color: #aaa;
+    padding-top: 0.5em;
+
+    .control-label {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: $text-color-dark;
+    }
+  }
+}
