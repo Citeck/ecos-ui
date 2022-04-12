@@ -1025,7 +1025,7 @@ export function isInViewport(element, container) {
 }
 
 export function reverseString(str = '') {
-  if (isString(str)) {
+  if (!isString(str)) {
     return str;
   }
 
