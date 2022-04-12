@@ -3,12 +3,13 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
-import isEmpty from 'lodash/isEmpty';
 import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 
 import { toggleViewMode } from '../../actions/journals';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
-import { getSearchParams, isExistValue, t } from '../../helpers/util';
+import { getSearchParams, t } from '../../helpers/util';
 import { wrapArgs } from '../../helpers/redux';
 import { Tooltip } from '../common';
 import { IcoBtn } from '../common/btns';
@@ -46,7 +47,7 @@ class ViewTabs extends React.Component {
       newUrl = merge(newUrl, { viewMode });
     }
 
-    if (isExistValue(urlShowPreview) && urlShowPreview !== isPreview(viewMode)) {
+    if (!isNil(urlShowPreview) && urlShowPreview !== isPreview(viewMode)) {
       newUrl = merge(newUrl, { showPreview: isPreview(viewMode) });
     }
 
