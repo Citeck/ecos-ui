@@ -10,7 +10,7 @@ import queryString from 'query-string';
 
 import { goToJournalsPage } from '../../../helpers/urls';
 import { getStateId, wrapArgs } from '../../../helpers/redux';
-import { extractLabel, getDOMElementMeasurer, t } from '../../../helpers/util';
+import { extractLabel, getDOMElementMeasurer, getTextByLocale, t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_LARGE, MIN_WIDTH_DASHLET_SMALL } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
@@ -36,6 +36,7 @@ import { JournalsGroupActionsTools } from '../../Journals/JournalsTools';
 import BaseWidget from '../BaseWidget';
 
 import './JournalsDashlet.scss';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
 
 const Labels = {
   J_TITLE: 'journal.title',
@@ -266,6 +267,12 @@ class JournalsDashlet extends BaseWidget {
     return msgs;
   }
 
+  get goToButtonName() {
+    const { config } = this.props;
+
+    return getTextByLocale(get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'goToButtonName']));
+  }
+
   renderEditor() {
     const { editorMode, id, config, stateId } = this.props;
 
@@ -367,6 +374,7 @@ class JournalsDashlet extends BaseWidget {
         title={journalName || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
         needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
+        goToButtonName={this.goToButtonName}
         actionConfig={actions}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
