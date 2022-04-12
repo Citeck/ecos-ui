@@ -1443,10 +1443,14 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
+  "model-editor.btn.save-deploy": "Сохранить и Опубликовать",
   "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "bpmn-editor.error.no-model": "Процесс не задан",
   "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
+
+  "bpmn-editor.success.model-save-deployed": "Процесс успешно сохранен и опубликован",
+  "bpmn-editor.error.can-not-save-deploy-model": "Произошла ошибка во время сохранения и публикации процесса",
 
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
   "cmmn-editor.error.no-model": "Сценарий не задан",

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
 
-import { getFormProps, initData, saveModel, setModel } from '../../../actions/bpmnEditor';
+import { getFormProps, initData, saveModel, saveAndDeployModel, setModel } from '../../../actions/bpmnEditor';
 
 import BPMNEditorPage from './BPMNEditor';
 
@@ -24,6 +24,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     initData: () => dispatch(initData({ stateId, record })),
     saveModel: (xml, img) => dispatch(saveModel({ stateId, record, xml, img })),
+    saveAndDeployModel: (xml, img) => dispatch(saveAndDeployModel({ stateId, record, xml, img })),
     setModel: model => dispatch(setModel({ stateId, model })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element }))
   };

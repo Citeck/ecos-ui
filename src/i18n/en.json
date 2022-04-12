@@ -1444,10 +1444,14 @@
   "model-editor.btn.apply": "Save",
   "model-editor.btn.create": "Create",
   "model-editor.btn.view-xml": "View XML",
+  "model-editor.btn.save-deploy": "Save and Deploy",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
 
   "bpmn-editor.error.no-model": "Process's not set",
   "bpmn-editor.error.no-selected-element": "You should select some element to edit it",
+
+  "bpmn-editor.success.model-save-deployed": "Process successfully saved and deployed",
+  "bpmn-editor.error.can-not-save-deploy-model": "An error occurred while saving and deploying the process",
 
   "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-model": "Scenario's not set",

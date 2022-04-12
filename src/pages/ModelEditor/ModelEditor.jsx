@@ -107,6 +107,27 @@ class ModelEditorPage extends React.Component {
       });
   };
 
+  handleClickSaveAndDeploy = () => {
+    if (!this.designer) {
+      return;
+    }
+
+    const promiseXml = new Promise((resolve, reject) =>
+      this.designer.saveXML({ callback: ({ error, xml }) => (xml ? resolve(xml) : reject(error)) })
+    );
+    const promiseImg = new Promise((resolve, reject) =>
+      this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) })
+    );
+
+    Promise.all([promiseXml, promiseImg])
+      .then(([xml, img]) => {
+        this.props.saveAndDeployModel(xml, img);
+      })
+      .catch(error => {
+        throw new Error(`Failure to save and deploy: ${error.message}`);
+      });
+  };
+
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
 
@@ -189,6 +210,7 @@ class ModelEditorPage extends React.Component {
           title={title}
           onApply={savedModel && this.handleSave}
           onViewXml={savedModel && this.handleClickViewXml}
+          onSaveAndDeploy={this.handleClickSaveAndDeploy}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={
