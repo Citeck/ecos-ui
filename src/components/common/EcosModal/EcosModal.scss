@@ -84,6 +84,7 @@
     line-height: 22px;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
   }
 
   .modal-loading {
@@ -157,6 +158,17 @@
 
 .ecos-modal_level-4 {
   top: 190px;
+}
+
+.ecos-modal_level-3 .ecos-modal-header__subtitle,
+.ecos-modal_level-1 .ecos-modal-header__subtitle {
+  display: none;
+}
+
+.ecos-modal-header__subtitle {
+  width: 100%;
+  flex-shrink: 0;
+  margin: 5px 0 5px;
 }
 
 .modal-dialog-scrollable {

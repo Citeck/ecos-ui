@@ -274,6 +274,10 @@ class EcosForm extends React.Component {
           });
 
           this._form = form;
+
+          if (this._form.data.formKey) {
+            modal.setAttribute('data-form-key', this._form.data.formKey);
+          }
           isFunction(customModule.init) && customModule.init({ form });
         });
       });

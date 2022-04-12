@@ -108,6 +108,16 @@ export default class EcosModal extends Component {
   renderModalHeader() {
     const { hideModal, title, isEmptyTitle, isBigHeader, customButtons, noHeader, classNameHeader, isTopDivider } = this.props;
     const { level } = this.state;
+    let keyValue;
+
+    let ecosModal = document.querySelectorAll('.ecos-modal');
+    ecosModal.forEach((item, i) => {
+      let key = item.getAttribute('data-form-key');
+
+      if (item.classList.contains('ecos-modal_level-1') && key) {
+        keyValue = key;
+      }
+    });
 
     return noHeader ? null : (
       <ModalHeader
@@ -120,6 +130,7 @@ export default class EcosModal extends Component {
       >
         {!isEmptyTitle && title && <div className="ecos-modal-header__title">{title}</div>}
         {!!customButtons && !!customButtons.length && <div className="ecos-modal-header__buttons">{customButtons}</div>}
+        {keyValue && <div className="ecos-modal-header__subtitle">{keyValue}</div>}
       </ModalHeader>
     );
   }
