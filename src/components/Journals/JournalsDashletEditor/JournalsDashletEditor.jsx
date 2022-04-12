@@ -61,7 +61,7 @@ const Labels = {
   SETTING_FIELD_PLACEHOLDER: 'journals.default',
   CUSTOM_MODE_FIELD: 'journals.action.custom-journal',
   ONLY_LINKED_FIELD: 'journals.action.only-linked',
-  BUTTON_NAME_FIELD: 'journals.action.button-name',
+  GO_TO_BUTTON_NAME_FIELD: 'journals.action.go-to-button-name',
   RESET_BTN: 'journals.action.reset-settings',
   CANCEL_BTN: 'journals.action.cancel',
   SAVE_BTN: 'journals.action.save'
@@ -324,7 +324,7 @@ class JournalsDashletEditor extends Component {
             </Field>
           )}
 
-          <Field label={t(Labels.BUTTON_NAME_FIELD)} isSmall={this.isSmall}>
+          <Field label={t(Labels.GO_TO_BUTTON_NAME_FIELD)} isSmall={this.isSmall}>
             <MLText value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
           </Field>
         </div>
