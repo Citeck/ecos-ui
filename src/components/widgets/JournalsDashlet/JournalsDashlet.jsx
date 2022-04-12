@@ -267,7 +267,7 @@ class JournalsDashlet extends BaseWidget {
     return msgs;
   }
 
-  get goToName() {
+  get goToButtonName() {
     const { config } = this.props;
 
     return getTextByLocale(get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'goToButtonName']));
@@ -375,7 +375,7 @@ class JournalsDashlet extends BaseWidget {
         title={journalName || t(Labels.J_TITLE)}
         onGoTo={this.goToJournalsPage}
         needGoTo={width >= MIN_WIDTH_DASHLET_LARGE && !isEmpty(config) && !editorMode}
-        goToName={this.goToName}
+        goToButtonName={this.goToButtonName}
         actionConfig={actions}
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
