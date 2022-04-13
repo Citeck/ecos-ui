@@ -345,9 +345,6 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   });
 
   this.addEventListener(saveButton, 'click', event => {
-    if (!this.editForm.checkValidity(this.editForm.data, true)) {
-      return;
-    }
     event.preventDefault();
     const originalComponent = component.schema;
     component.isNew = false;
