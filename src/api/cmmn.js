@@ -6,15 +6,11 @@ export default class CmmnApi {
     return Records.get(record).load('definition?str', true);
   };
 
-  saveDefinition = (record, xml, img, action) => {
+  saveDefinition = (record, xml, img) => {
     const rec = Records.get(record);
 
     rec.att('definition?str', xml);
     rec.att('image?str', img);
-
-    if (!!action) {
-      rec.att('action', action);
-    }
 
     return rec.save();
   };
