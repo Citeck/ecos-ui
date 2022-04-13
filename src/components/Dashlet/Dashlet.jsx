@@ -27,6 +27,7 @@ class Dashlet extends Component {
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
     badgeText: PropTypes.string,
+    goToButtonName: PropTypes.object,
     noHeader: PropTypes.bool,
     noBody: PropTypes.bool,
     needGoTo: PropTypes.bool,
@@ -227,6 +228,7 @@ class Dashlet extends Component {
       titleClassName,
       badgeText,
       needGoTo,
+      goToButtonName,
       actionDrag,
       onResize,
       dragHandleProps,
@@ -261,6 +263,7 @@ class Dashlet extends Component {
                 title={title}
                 needGoTo={needGoTo}
                 onGoTo={this.onGoTo}
+                goToButtonName={goToButtonName}
                 onToggleCollapse={this.onToggle}
                 actionDrag={actionDrag && canDragging}
                 dragHandleProps={dragHandleProps}
