@@ -17,7 +17,7 @@ import uuidV4 from 'uuid/v4';
 
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
-import { getCurrentUserName, t, getMLValue } from '../../helpers/util';
+import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
@@ -132,13 +132,14 @@ export default class EcosFormUtils {
       }, 100);
     };
 
-    Records.get(record)
+    const instanceRec = Records.get(record);
+    instanceRec
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = record ? recordData.formMode || FORM_MODE_EDIT : FORM_MODE_CREATE;
+        const formMode = recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -1130,6 +1131,14 @@ export default class EcosFormUtils {
 
       check();
     });
+  }
+
+  static getFormMode(instanceRec) {
+    const baseRecordId = instanceRec.getBaseRecord().id;
+
+    if (isString(baseRecordId)) {
+      return baseRecordId.endsWith('@') ? FORM_MODE_CREATE : FORM_MODE_EDIT;
+    }
   }
 }
 
