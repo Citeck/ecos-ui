@@ -580,7 +580,7 @@ class Dashboard extends Component {
   }
 
   renderContent() {
-    const { menuType, isMobile, tabId } = this.props;
+    const { menuType, isMobile, tabId, identificationId } = this.props;
     const { canDragging, activeLayoutId, openedTabs } = this.state;
 
     return this.tabList.map(tab => {
@@ -605,6 +605,7 @@ class Dashboard extends Component {
             columns={columns}
             type={type}
             tabId={tabId}
+            dashboardId={identificationId}
             isActiveLayout={PageTabList.isActiveTab(tabId)}
             onSaveWidget={this.prepareWidgetsConfig}
             onSaveWidgetProps={this.handleSaveWidgetProps}

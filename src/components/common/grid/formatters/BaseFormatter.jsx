@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import Popper from '../../Popper';
 import { BaseEditor } from '../editors';
 
 import './style.scss';
-import Popper from '../../Popper';
 
 export default class BaseFormatter extends Component {
   static propTypes = {

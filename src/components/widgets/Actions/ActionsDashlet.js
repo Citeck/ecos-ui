@@ -49,7 +49,7 @@ class ActionsDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameDashlet, classNameContent, record, dragHandleProps, canDragging, tabId, isActiveLayout } = this.props;
-    const { isSmallMode, isCollapsed, runUpdate } = this.state;
+    const { isSmallMode, runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -66,7 +66,7 @@ class ActionsDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         <Actions

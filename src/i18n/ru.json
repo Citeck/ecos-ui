@@ -164,6 +164,8 @@
   "widget-settings.display-condition": "Условие отображения",
   "widget-settings.dc-no-attributes": "Атрибуты для типа не настроены",
   "widget-settings.dc-no-rules": "Группа условий не установлена",
+  "widget-settings.collapsed-by-default": "Свёрнут по умолчанию",
+  "widget-settings.collapsed-by-default-info": "Не работает, если пользователь сам изменил состояние - свернув или развернув виджет.",
   "widget-settings.display-condition.element-title": "Условие отображения элемента \"{{title}}\"",
 
   "dashboard-settings.config.default": "По умолчанию",
@@ -767,6 +769,7 @@
   "journals.action.hide-menu": "Скрыть меню",
   "journals.action.hide-menu_sm": "Скрыть",
   "journals.action.only-linked": "Отображать только связанные записи",
+  "journals.action.go-to-button-name": "Название кнопки \"Перейти\"",
   "journals.action.custom-journal": "Произвольный журнал",
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",

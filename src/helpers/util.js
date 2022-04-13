@@ -910,7 +910,7 @@ export function getTimezoneValue() {
 }
 
 export function isHiddenElement(el) {
-  return el.style.display === 'none' || el.style.visibility === 'hidden';
+  return el.style.display === 'none' || el.style.visibility === 'hidden' || el.hidden;
 }
 
 /**
@@ -922,7 +922,7 @@ export function isHiddenElement(el) {
 export function isClosestHidden(el = null) {
   let node = el;
 
-  if (typeof node === 'string') {
+  if (isString(node)) {
     node = document.querySelector(el);
   }
 
@@ -1026,7 +1026,7 @@ export function isInViewport(element, container) {
 }
 
 export function reverseString(str = '') {
-  if (typeof str !== 'string') {
+  if (!isString(str)) {
     return str;
   }
 

@@ -85,7 +85,7 @@ class ReportDashlet extends BaseWidget {
       getReportData,
       isMobile
     } = this.props;
-    const { isSmallMode, previousHeight, isCollapsed, runUpdate } = this.state;
+    const { isSmallMode, previousHeight, runUpdate } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.reload.bind(this)
@@ -105,7 +105,7 @@ class ReportDashlet extends BaseWidget {
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         onResize={this.onResize}
         setRef={this.setDashletRef}
       >

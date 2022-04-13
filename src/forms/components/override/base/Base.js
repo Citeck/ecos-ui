@@ -35,6 +35,7 @@ const originalSetupValueElement = Base.prototype.setupValueElement;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
 const originalCreateModal = Base.prototype.createModal;
+const originalOnChange = Base.prototype.onChange;
 // Methods <<<
 
 // >>> PropertyDescriptors
@@ -80,6 +81,37 @@ Base.schema = (...extend) => {
   );
 };
 
+Object.defineProperty(Base.prototype, 'valueChangedByUser', {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: false
+});
+Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: false
+});
+Base.prototype.onChange = function(flags, fromRoot) {
+  const formMode = get(this.options, 'formMode');
+  const isEmptyValue = value => {
+    if (formMode === FORM_MODE_CREATE) {
+      return this.isEmpty(value);
+    }
+    return !isBoolean(value) && this.isEmpty(value);
+  };
+
+  if (!this.valueChangedByUser) {
+    this.valueChangedByUser =
+      (formMode !== FORM_MODE_CREATE && !customIsEqual(this.dataValue, this.calculatedValue)) ||
+      (formMode === FORM_MODE_CREATE && !isEmptyValue(this.dataValue));
+  }
+
+  return originalOnChange.call(this, flags, fromRoot);
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 Object.defineProperty(Base.prototype, 'className', {
   get: function() {
     let className = originalGetClassName.get.call(this);
@@ -171,23 +203,11 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     return false;
   }
 
-  // Get the dataValue.
-  let firstPass = false;
-  let dataValue = null;
   const allowOverride = this.component.allowCalculateOverride;
-  if (allowOverride) {
-    dataValue = this.dataValue;
-  }
 
   // First pass, the calculatedValue is undefined.
   if (this.calculatedValue === undefined) {
-    firstPass = true;
     this.calculatedValue = emptyCalculateValue;
-  }
-
-  // Check to ensure that the calculated value is different than the previously calculated value.
-  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !customIsEqual(dataValue, this.calculatedValue)) {
-    return false;
   }
 
   // Calculate the new value.
@@ -200,30 +220,19 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     'value'
   );
 
-  const formOptions = this.options;
-  const formMode = formOptions.formMode;
-  const isEmptyValue = value => {
-    if (formMode === FORM_MODE_CREATE) {
-      return this.isEmpty(value);
-    }
-    return !isBoolean(value) && this.isEmpty(value);
-  };
-  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
-  if (allowOverride && firstPass && !isEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
-    if (formMode && formMode !== FORM_MODE_CREATE && isEmptyValue(calculatedValue)) {
-      this.calculatedValue = undefined;
-      return false;
-    }
-
-    // Return that we have a change so it will perform another pass.
-    this.calculatedValue = calculatedValue;
-    return true;
+  if (!this.calculatedValueWasCalculated) {
+    this.calculatedValueWasCalculated = true;
   }
+
+  let changed;
 
   flags = flags || {};
   flags.noCheck = true;
-  const changed = this.setValue(calculatedValue, flags);
+
+  if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
+    changed = this.setValue(calculatedValue, flags);
+  }
+
   this.calculatedValue = this.dataValue;
 
   return changed;
@@ -233,6 +242,7 @@ Base.prototype.calculateValue = function(data, flags) {
   if (!this.component.calculateValue) {
     return false;
   }
+
   // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(

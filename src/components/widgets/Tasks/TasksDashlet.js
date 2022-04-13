@@ -64,7 +64,7 @@ class TasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { runUpdate, isSmallMode, fitHeights, isCollapsed, totalCount, isLoading } = this.state;
+    const { runUpdate, isSmallMode, fitHeights, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.reload.bind(this)
@@ -87,7 +87,7 @@ class TasksDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={!totalCount && !isLoading}
       >
