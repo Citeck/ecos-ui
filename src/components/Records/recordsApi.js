@@ -56,7 +56,6 @@ function recordsFetch(url, body) {
   });
 }
 
-//todo check here
 function checkRespMessages(messages) {
   if (!messages || messages.length === 0) {
     return;
@@ -75,7 +74,6 @@ function checkRespMessages(messages) {
       if (!errorMessage) {
         errorMessage = 'Server error';
       }
-      console.log({ errorMessage });
       throw new Error(errorMessage);
     }
   }

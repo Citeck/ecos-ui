@@ -35,7 +35,7 @@ export function* initApp({ api, logger }, { payload }) {
     let isAuthenticated = false;
     try {
       const resp = yield call(api.user.getUserData);
-      console.log({ resp });
+
       if (!resp.success) {
         yield put(validateUserFailure());
       } else {
@@ -58,7 +58,6 @@ export function* initApp({ api, logger }, { payload }) {
 
       yield put(setHomeLink(homeLink));
     } catch (e) {
-      console.log(e);
       if (e.message === 'User is disabled') {
         alert('User is disabled');
       }
