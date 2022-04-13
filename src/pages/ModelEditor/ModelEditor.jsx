@@ -3,6 +3,7 @@ import queryString from 'query-string';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
+import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 
 import { t, getTextByLocale } from '../../helpers/util';
@@ -26,6 +27,7 @@ class ModelEditorPage extends React.Component {
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
+  #allFormsData = {};
 
   componentDidMount() {
     this.initModeler();
@@ -131,22 +133,32 @@ class ModelEditorPage extends React.Component {
     return element;
   }
 
-  handleFormChange = (selectedElement, selectedDiagramElement, info) => {
+  handleFormChange = info => {
+    const { selectedElement, selectedDiagramElement } = this.state;
+
     if (info.changed && selectedElement) {
       const modelData = {};
+
+      set(this.#allFormsData, ['formsData', this.formId], info.data);
+
       Object.keys(info.data).forEach(key => {
         const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
         const rawValue = info.data[key];
         let valueAsText = rawValue;
+
         if (valueAsText != null && !isString(valueAsText)) {
           valueAsText = JSON.stringify(valueAsText);
         }
+
         modelData[fieldKey] = valueAsText;
+
         if (key.endsWith(ML_POSTFIX)) {
           modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
         }
       });
+
       this.designer.updateProps(selectedElement, modelData);
+
       if (selectedDiagramElement) {
         this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
       }
@@ -179,8 +191,7 @@ class ModelEditorPage extends React.Component {
 
   render() {
     const { savedModel, title, formProps, isLoading } = this.props;
-    const { selectedElement, selectedDiagramElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
-    const handleFormChange = info => this.handleFormChange(selectedElement, selectedDiagramElement, info);
+    const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
@@ -199,7 +210,8 @@ class ModelEditorPage extends React.Component {
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
                 {...formProps}
-                onFormChange={handleFormChange}
+                formOptions={this.#allFormsData}
+                onFormChange={this.handleFormChange}
               />
             </>
           }
