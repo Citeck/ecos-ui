@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import XMLViewer from 'react-xml-viewer';
 
-import { t, getTextByLocale } from '../../helpers/util';
+import { getTextByLocale, t } from '../../helpers/util';
 import { KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
@@ -171,6 +171,7 @@ class ModelEditorPage extends React.Component {
     const { savedModel } = this.props;
 
     if (savedModel) {
+      //BaseModeler.Sheet
       return <this.designer.Sheet diagram={savedModel} onClickElement={this.handleSelectItem} onMounted={this.handleReadySheet} />;
     } else {
       return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;

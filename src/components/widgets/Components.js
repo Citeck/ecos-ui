@@ -27,7 +27,8 @@ export const ComponentKeys = {
   BIRTHDAYS: 'birthdays',
   DOCUMENTS: 'documents',
   USER_PROFILE: 'user-profile',
-  DOC_CONSTRUCTOR: 'doc-constructor'
+  DOC_CONSTRUCTOR: 'doc-constructor',
+  PROCESS_STATISTICS: 'process-statistics'
 };
 
 /**
@@ -166,6 +167,12 @@ export default class Components {
     [ComponentKeys.DOC_CONSTRUCTOR]: {
       load: () => lazy(() => import('./DocConstructor')),
       label: 'dashboard-settings.widget.doc-constructor',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      props: {}
+    },
+    [ComponentKeys.PROCESS_STATISTICS]: {
+      load: () => lazy(() => import('./ProcessStatistics/Dashlet')),
+      label: 'PROCESS_statistics',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {}
     }
