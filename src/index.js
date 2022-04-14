@@ -7,7 +7,6 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import debounce from 'lodash/debounce';
-
 import * as serviceWorker from './serviceWorker';
 
 import { i18nInit } from './i18n';
