@@ -44,7 +44,12 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
         message = t('bpmn-editor.success.model-save-deployed');
       }
       NotificationManager.success(message, title);
-      yield put(deleteTab(PageTabList.activeTab));
+
+      if (deploy) {
+        yield put(setLoading({ stateId, isLoading: false }));
+      } else {
+        yield put(deleteTab(PageTabList.activeTab));
+      }
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
