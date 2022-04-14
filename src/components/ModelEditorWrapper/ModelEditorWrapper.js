@@ -15,6 +15,7 @@ const Labels = {
   NO_FORM: 'model-editor.error.no-form',
   APPLY: 'model-editor.btn.apply',
   VIEW_XML: 'model-editor.btn.view-xml',
+  SAVE_DEPLOY: 'model-editor.btn.save-deploy',
   CREATE: 'model-editor.btn.create'
 };
 
@@ -37,7 +38,7 @@ class ModelEditorWrapper extends React.Component {
 
   render() {
     const { rightSidebarOpen } = this.state;
-    const { rightSidebarTitle, editor, rightSidebar, title, onApply, onCreate, onViewXml } = this.props;
+    const { rightSidebarTitle, editor, rightSidebar, title, onApply, onCreate, onViewXml, onSaveAndDeploy } = this.props;
 
     return (
       <div className="ecos-model-editor">
@@ -61,6 +62,11 @@ class ModelEditorWrapper extends React.Component {
                 {onViewXml && (
                   <Btn className="ecos-btn_blue" onClick={onViewXml}>
                     {t(Labels.VIEW_XML)}
+                  </Btn>
+                )}
+                {onSaveAndDeploy && (
+                  <Btn className="ecos-btn_green" onClick={onSaveAndDeploy}>
+                    {t(Labels.SAVE_DEPLOY)}
                   </Btn>
                 )}
               </div>

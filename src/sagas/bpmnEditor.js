@@ -28,25 +28,38 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img } }) {
+export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, deploy } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
-      const res = yield call(api.cmmn.saveDefinition, record, xml, base64);
+      const res = yield call(api.cmmn.saveDefinition, record, xml, base64, deploy);
 
       if (!res.id) {
-        throw new Error();
+        throw new Error('res.id is undefined');
       }
 
-      // @todo add translation message
-      NotificationManager.success(t('bpmn-editor.success.model-saved'), t('success'));
-      yield put(deleteTab(PageTabList.activeTab));
+      let title = t('success');
+      let message = t('bpmn-editor.success.model-saved');
+      if (deploy) {
+        message = t('bpmn-editor.success.model-save-deployed');
+      }
+      NotificationManager.success(message, title);
+
+      if (deploy) {
+        yield put(setLoading({ stateId, isLoading: false }));
+      } else {
+        yield put(deleteTab(PageTabList.activeTab));
+      }
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
 
-    // @todo add translation message
-    NotificationManager.error(e.message || t('error'), t('bpmn-editor.error.can-not-save-model'));
+    let message = e.message || t('error');
+    let title = t('bpmn-editor.error.can-not-save-model');
+    if (deploy) {
+      title = t('bpmn-editor.error.can-not-save-deploy-model');
+    }
+    NotificationManager.error(message, title);
     logger.error('[bpmnEditor/runSaveModel saga] error', e.message);
   }
 }

@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     initData: () => dispatch(initData({ stateId, record })),
-    saveModel: (xml, img) => dispatch(saveModel({ stateId, record, xml, img })),
+    saveModel: (xml, img, deploy) => dispatch(saveModel({ stateId, record, xml, img, deploy })),
     setModel: model => dispatch(setModel({ stateId, model })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element }))
   };

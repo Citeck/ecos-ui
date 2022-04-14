@@ -86,7 +86,7 @@ class ModelEditorPage extends React.Component {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
-  handleSave = () => {
+  handleSave = (deploy = false) => {
     if (!this.designer) {
       return;
     }
@@ -100,7 +100,7 @@ class ModelEditorPage extends React.Component {
 
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
-        this.props.saveModel(xml, img);
+        this.props.saveModel(xml, img, deploy);
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -187,8 +187,9 @@ class ModelEditorPage extends React.Component {
         {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
           title={title}
-          onApply={savedModel && this.handleSave}
+          onApply={savedModel && (() => this.handleSave(false))}
           onViewXml={savedModel && this.handleClickViewXml}
+          onSaveAndDeploy={() => this.handleSave(true)}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={
