@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
-import set from 'lodash/set';
+import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
 import { t, getTextByLocale } from '../../helpers/util';
@@ -11,6 +11,8 @@ import { KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
+import Records from '../../components/Records';
+import { SourcesId } from '../../constants';
 
 import './ModelEditor.scss';
 
@@ -27,7 +29,7 @@ class ModelEditorPage extends React.Component {
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
-  #allFormsData = {};
+  #tempFormData = {};
 
   componentDidMount() {
     this.initModeler();
@@ -82,6 +84,23 @@ class ModelEditorPage extends React.Component {
 
   get recordRef() {
     return this.urlQuery.recordRef;
+  }
+
+  get formOptions() {
+    const { ecosType = '' } = this.#tempFormData;
+
+    return {
+      editor: {
+        getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`)
+      }
+    };
+  }
+
+  set tempFormData(data) {
+    this.#tempFormData = {
+      ...this.#tempFormData,
+      ...data
+    };
   }
 
   handleReadySheet = () => {
@@ -139,7 +158,7 @@ class ModelEditorPage extends React.Component {
     if (info.changed && selectedElement) {
       const modelData = {};
 
-      set(this.#allFormsData, ['formsData', this.formId], info.data);
+      this.#tempFormData = { ecosType: get(info, 'data.ecosType') };
 
       Object.keys(info.data).forEach(key => {
         const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
@@ -210,7 +229,7 @@ class ModelEditorPage extends React.Component {
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
                 {...formProps}
-                formOptions={this.#allFormsData}
+                formOptions={this.formOptions}
                 onFormChange={this.handleFormChange}
               />
             </>
