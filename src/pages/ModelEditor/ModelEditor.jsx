@@ -3,6 +3,7 @@ import queryString from 'query-string';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
+import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
 import { t, getTextByLocale } from '../../helpers/util';
@@ -10,6 +11,8 @@ import { KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
+import Records from '../../components/Records';
+import { SourcesId } from '../../constants';
 
 import './ModelEditor.scss';
 
@@ -26,6 +29,7 @@ class ModelEditorPage extends React.Component {
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
+  #tempFormData = {};
 
   componentDidMount() {
     this.initModeler();
@@ -82,6 +86,23 @@ class ModelEditorPage extends React.Component {
     return this.urlQuery.recordRef;
   }
 
+  get formOptions() {
+    const { ecosType = '' } = this.#tempFormData;
+
+    return {
+      editor: {
+        getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`)
+      }
+    };
+  }
+
+  set tempFormData(data) {
+    this.#tempFormData = {
+      ...this.#tempFormData,
+      ...data
+    };
+  }
+
   handleReadySheet = () => {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
@@ -131,22 +152,32 @@ class ModelEditorPage extends React.Component {
     return element;
   }
 
-  handleFormChange = (selectedElement, selectedDiagramElement, info) => {
+  handleFormChange = info => {
+    const { selectedElement, selectedDiagramElement } = this.state;
+
     if (info.changed && selectedElement) {
       const modelData = {};
+
+      this.#tempFormData = { ecosType: get(info, 'data.ecosType') };
+
       Object.keys(info.data).forEach(key => {
         const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
         const rawValue = info.data[key];
         let valueAsText = rawValue;
+
         if (valueAsText != null && !isString(valueAsText)) {
           valueAsText = JSON.stringify(valueAsText);
         }
+
         modelData[fieldKey] = valueAsText;
+
         if (key.endsWith(ML_POSTFIX)) {
           modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
         }
       });
+
       this.designer.updateProps(selectedElement, modelData);
+
       if (selectedDiagramElement) {
         this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
       }
@@ -179,8 +210,7 @@ class ModelEditorPage extends React.Component {
 
   render() {
     const { savedModel, title, formProps, isLoading } = this.props;
-    const { selectedElement, selectedDiagramElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
-    const handleFormChange = info => this.handleFormChange(selectedElement, selectedDiagramElement, info);
+    const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
@@ -200,7 +230,8 @@ class ModelEditorPage extends React.Component {
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
                 {...formProps}
-                onFormChange={handleFormChange}
+                formOptions={this.formOptions}
+                onFormChange={this.handleFormChange}
               />
             </>
           }
