@@ -6,6 +6,7 @@ import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import first from 'lodash/first';
 import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
@@ -157,7 +158,7 @@ export default class EcosFormUtils {
         if (config.formContainer) {
           let container = config.formContainer;
 
-          if (typeof config.formContainer === 'string') {
+          if (isString(config.formContainer)) {
             container = document.getElementById(config.formContainer);
           }
 
@@ -233,9 +234,7 @@ export default class EcosFormUtils {
           formContainer: config.formContainer || null
         });
       } else {
-        if (typeof fallback === 'function') {
-          fallback();
-        }
+        isFunction(fallback) && fallback();
       }
     };
 
@@ -326,6 +325,7 @@ export default class EcosFormUtils {
     if (!recordRef) {
       return Promise.resolve(false);
     }
+
     return this.getForm(recordRef, formKey)
       .then(record => record !== null)
       .catch(err => {
@@ -338,12 +338,12 @@ export default class EcosFormUtils {
     const recordInstance = isString(record) ? Records.get(record) : record;
     const baseRecord = recordInstance.getBaseRecord();
 
-    let getFormByKeysFromRecord = (keys, idx) => {
+    const getFormByKeysFromRecord = (keys, idx) => {
       if (!keys || idx >= keys.length) {
         return null;
       }
 
-      let query = {
+      const query = {
         sourceId: SourcesId.RESOLVED_FORM,
         query: {
           record: baseRecord.id,
@@ -351,12 +351,7 @@ export default class EcosFormUtils {
         }
       };
 
-      let formRec;
-      if (attributes) {
-        formRec = Records.queryOne(query, attributes);
-      } else {
-        formRec = Records.queryOne(query);
-      }
+      const formRec = Records.queryOne(query, attributes);
 
       return formRec.then(res => {
         if (res) {
@@ -368,22 +363,19 @@ export default class EcosFormUtils {
     };
 
     if (!formKey) {
-      let recordAtts = await baseRecord.load({
+      const attrs = {
         formKey: '_formKey[]?str',
         typeId: '_type?id',
         // legacy attribute. _type is preferred
         etypeId: '_etype?id',
         formRef: '_formRef?id'
-      });
+      };
+      let recordAtts = await baseRecord.load(attrs);
+
       if (!(recordAtts.formKey || []).length && !recordAtts.typeId && !recordAtts.etypeId && !recordAtts.formRef) {
-        recordAtts = await recordInstance.load({
-          formKey: '_formKey[]?str',
-          typeId: '_type?id',
-          // legacy attribute. _type is preferred
-          etypeId: '_etype?id',
-          formRef: '_formRef?id'
-        });
+        recordAtts = await recordInstance.load(attrs);
       }
+
       let { typeId, etypeId, formKey, formRef } = recordAtts;
 
       if (!typeId) {
@@ -477,7 +469,7 @@ export default class EcosFormUtils {
               continue;
             }
             let value = component.properties[key];
-            if (value[0] === '$') {
+            if (first(value) === '$') {
               component.properties[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
             }
           }
@@ -491,12 +483,12 @@ export default class EcosFormUtils {
             for (let labelKey in value) {
               if (value.hasOwnProperty(labelKey)) {
                 const langValue = value[labelKey];
-                if (isString(langValue) && langValue.length && langValue[0] === '$') {
+                if (isString(langValue) && first(langValue) === '$') {
                   value[labelKey] = EcosFormUtils._replaceOptionValuePlaceholder(langValue, formOptions);
                 }
               }
             }
-          } else if (isString(value) && value[0] === '$') {
+          } else if (isString(value) && first(value) === '$') {
             component[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
           }
         }
@@ -660,7 +652,7 @@ export default class EcosFormUtils {
       return innerSchema;
     }
 
-    if (innerSchema[0] === '.') {
+    if (first(innerSchema) === '.') {
       innerSchema = innerSchema.substring(1);
     }
 
@@ -997,7 +989,7 @@ export default class EcosFormUtils {
     }
 
     if (isString(data)) {
-      if (data[0] === '{') {
+      if (first(data) === '{') {
         data = JSON.parse(data);
       } else {
         return null;
