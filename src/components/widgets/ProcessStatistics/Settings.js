@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { SystemJournals } from '../../../constants';
 import { t } from '../../../helpers/util';
 import { Caption, Field, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
@@ -29,9 +30,7 @@ export default class extends React.Component {
     };
   }
 
-  onCancel = () => {
-    this.props.onCancel();
-  };
+  onCancel = () => this.props.onCancel();
 
   onSave = () => {
     const { selectedJournal } = this.state;
@@ -51,7 +50,7 @@ export default class extends React.Component {
         </Caption>
         <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
           <SelectJournal
-            journalId={'ecos-journals'}
+            journalId={SystemJournals.JOURNALS}
             defaultValue={selectedJournal}
             hideCreateButton
             isSelectedValueAsText

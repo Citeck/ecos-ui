@@ -13,10 +13,10 @@ const getSettings = ({ predicates, record }) => {
 };
 
 function* sagaGetJournal({ api, logger }, { payload }) {
-  const { record, stateId } = payload;
+  const { record, stateId, selectedJournal } = payload;
 
   try {
-    const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], 'ecos-forms', true);
+    const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], selectedJournal, true);
 
     const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ record }));
     yield put(setJournal({ stateId, ...res }));
@@ -30,9 +30,9 @@ function* sagaGetModel({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
-    const model = yield call(api.cmmn.getDefinition, record);
-
-    yield put(setModel({ stateId, model }));
+    // const model = yield call(api.cmmn.getDefinition, record);
+    //
+    // yield put(setModel({ stateId, model }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
     logger.error('[processStatistics/sagaGetModel] error', e);

@@ -13,6 +13,7 @@ import BaseWidget from '../BaseWidget';
 import Journal from './Journal';
 import Model from './Model';
 import Settings from './Settings';
+import { Labels } from './util';
 
 export default class extends BaseWidget {
   static propTypes = {
@@ -69,7 +70,7 @@ export default class extends BaseWidget {
 
     return (
       <Dashlet
-        title={title || t('process-statistics-widget.title')}
+        title={title || t(Labels.WG_TITLE)}
         className={classNames('ecos-process-statistics-dashlet', classNameDashlet)}
         bodyClassName="ecos-process-statistics-dashlet__body"
         resizable={true}
@@ -94,16 +95,18 @@ export default class extends BaseWidget {
             <Model record={record} stateId={this.stateId} />
           </div>
           <div className="ecos-process-statistics__journal">
-            <Journal
-              {...config}
-              forwardedRef={this.contentRef}
-              className={classNames(classNameContent)}
-              record={record}
-              stateId={this.stateId}
-              isSmallMode={isSmallMode}
-              runUpdate={runUpdate}
-              maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
-            />
+            {config.selectedJournal && (
+              <Journal
+                {...config}
+                forwardedRef={this.contentRef}
+                className={classNames(classNameContent)}
+                record={record}
+                stateId={this.stateId}
+                isSmallMode={isSmallMode}
+                runUpdate={runUpdate}
+                maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
+              />
+            )}
           </div>
         </div>
       </Dashlet>

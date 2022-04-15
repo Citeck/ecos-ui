@@ -12,12 +12,12 @@ import { Labels } from './util';
 import { getJournal } from '../../../actions/processStatistics';
 
 const mapStateToProps = (state, context) => {
-  const ehState = (state, dId) => get(state, ['processStatistics', dId]);
+  const psState = get(state, ['processStatistics', context.stateId], {});
 
   return {
-    data: ehState.list,
-    isLoading: ehState.isLoading,
-    columns: ehState.columns,
+    data: psState.data,
+    isLoading: psState.isLoading,
+    columns: psState.columns,
     isMobile: state.view.isMobile
   };
 };
@@ -67,9 +67,9 @@ class Journal extends React.Component {
   }
 
   getJournal = () => {
-    const { getJournalData, record, stateId } = this.props;
+    const { getJournalData, record, stateId, selectedJournal } = this.props;
 
-    getJournalData({ stateId, record });
+    getJournalData({ stateId, record, selectedJournal });
   };
 
   onFilter = predicates => {

@@ -1497,5 +1497,12 @@
   "ecos-form.builder.debugging.tree.influence.info": "Дерево влияния представляет собой обратную зависимость: глубже в дереве зависимые компоненты",
   "ecos-form.builder.debugging.fatal-error": "При построении дерева зависисмостей произошла фатальная ошибка. Попробуйте провести анализ формы и зависимостей компанентов в json-редакторе или в Form Builder",
 
-  "more-about-error.label": "Подробнее об ошибке"
+  "more-about-error.label": "Подробнее об ошибке",
+
+  "process-statistics-widget.title": "Статистика процессов",
+  "process-statistics-widget.info.no-columns": "Нет настроек отображения",
+  "process-statistics-widget.settings.title": "Настройки виджета",
+  "process-statistics-widget.settings.btn.cancel": "Отмена",
+  "process-statistics-widget.settings.btn.save": "Сохранить",
+  "process-statistics-widget.settings.field.journal": "Журнал"
 }
