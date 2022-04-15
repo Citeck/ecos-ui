@@ -4,6 +4,8 @@ import { getJournal, getModel, setJournal, setModel } from '../actions/processSt
 import JournalsService from '../components/Journals/service/journalsService';
 import { PREDICATE_CONTAINS } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
+//import Records from '../components/Records';
+//import { SourcesId } from '../constants';
 
 const getSettings = ({ predicates, record }) => {
   return JournalsConverter.getSettingsForDataLoaderServer({
@@ -30,7 +32,11 @@ function* sagaGetModel({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
-    const model = yield call(api.cmmn.getDefinition, record);
+    //todo ???
+    // const process = () => Records.get(record).load('ecosbpm:processId')
+    // const processId = yield call(process);
+    // console.log(SourcesId.BPMN_DEF+'@'+processId)
+    const model = yield call(api.cmmn.getDefinition, 'eproc/bpmn-def@bpmn-test');
     //
     yield put(setModel({ stateId, model }));
   } catch (e) {

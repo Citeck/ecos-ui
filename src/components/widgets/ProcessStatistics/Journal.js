@@ -52,11 +52,9 @@ class Journal extends React.Component {
     this.state = {
       contentHeight: 0,
       filters: [],
-      isOpened: props.showJournalDefault
+      isOpened: !!props.showJournalDefault
     };
   }
-
-  _filter = React.createRef();
 
   componentDidMount() {
     this.getJournal();

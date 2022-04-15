@@ -45,7 +45,7 @@ class Model extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpened: props.showModelDefault
+      isOpened: !!props.showModelDefault
     };
   }
 
@@ -82,7 +82,7 @@ class Model extends React.Component {
           <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
         </Caption>
         <Collapse isOpened={isOpened}>
-          {!isLoading && !model && <InfoText text={t(`test`)} />}
+          {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
         </Collapse>
       </div>

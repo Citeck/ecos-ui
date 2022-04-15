@@ -30,7 +30,7 @@ export default class extends React.Component {
       selectedJournal: props.config.selectedJournal,
       showHeatmapDefault: get(props, 'config.showHeatmapDefault', true),
       showModelDefault: get(props, 'config.showModelDefault', true),
-      showJournalDefault: props.config.showJournalDefault
+      showJournalDefault: get(props, 'config.showJournalDefault', false)
     };
   }
 
