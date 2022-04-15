@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import { SystemJournals } from '../../../constants';
 import { t } from '../../../helpers/util';
-import { Caption, Field, SelectJournal } from '../../common/form';
+import { Caption, Checkbox, Field, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
 
@@ -26,19 +27,30 @@ export default class extends React.Component {
     super(props);
 
     this.state = {
-      selectedJournal: props.config.selectedJournal
+      selectedJournal: props.config.selectedJournal,
+      showHeatmapDefault: get(props, 'config.showHeatmapDefault', true),
+      showModelDefault: get(props, 'config.showModelDefault', true),
+      showJournalDefault: props.config.showJournalDefault
     };
   }
 
   onCancel = () => this.props.onCancel();
 
   onSave = () => {
-    const { selectedJournal } = this.state;
-
-    this.props.onSave({ selectedJournal });
+    this.props.onSave({ ...this.state });
   };
 
-  onSelectJournal = selectedJournal => this.setState({ selectedJournal });
+  onToggleFlag = keyFlag => this.setState({ [keyFlag]: !this.state[keyFlag] });
+
+  renderFlags = () => {
+    const showKeys = Object.keys(this.state).filter(key => key.startsWith('show'));
+
+    return showKeys.map(key => (
+      <Field label={t('process-statistics-widget.settings.field.' + key)} labelPosition="top">
+        <Checkbox checked={this.state[key]} onClick={_ => this.onToggleFlag(key)} />
+      </Field>
+    ));
+  };
 
   render() {
     const { selectedJournal } = this.state;
@@ -54,9 +66,13 @@ export default class extends React.Component {
             defaultValue={selectedJournal}
             hideCreateButton
             isSelectedValueAsText
-            onChange={this.onSelectJournal}
+            onChange={selectedJournal => this.setState({ selectedJournal })}
           />
         </Field>
+        <Caption small className="ecos-process-statistics-settings__title">
+          {t(Labels.SETTINGS_DEFAULT_FLAGS)}
+        </Caption>
+        {this.renderFlags()}
         <div className="ecos-process-statistics-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>
             {t(Labels.SETTINGS_BTN_CANCEL)}

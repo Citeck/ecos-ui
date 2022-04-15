@@ -17,11 +17,11 @@ function* sagaGetJournal({ api, logger }, { payload }) {
 
   try {
     const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], selectedJournal, true);
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig);
 
-    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ record }));
-    yield put(setJournal({ stateId, ...res }));
+    yield put(setJournal({ stateId, data: res.records, journalConfig }));
   } catch (e) {
-    yield put(setJournal({ stateId, data: [], columns: [] }));
+    yield put(setJournal({ stateId, data: [], journalConfig: null }));
     logger.error('[processStatistics/sagaGetJournal] error', e);
   }
 }
@@ -30,9 +30,9 @@ function* sagaGetModel({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
-    // const model = yield call(api.cmmn.getDefinition, record);
+    const model = yield call(api.cmmn.getDefinition, record);
     //
-    // yield put(setModel({ stateId, model }));
+    yield put(setModel({ stateId, model }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
     logger.error('[processStatistics/sagaGetModel] error', e);

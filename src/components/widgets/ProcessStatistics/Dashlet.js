@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { getStateId } from '../../../helpers/redux';
@@ -36,6 +37,10 @@ export default class extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
+    this.state = {
+      isShowHeatmap: get(props, 'config.showHeatmapDefault'),
+      isShowSetting: false
+    };
   }
 
   get dashletActions() {
@@ -59,6 +64,10 @@ export default class extends BaseWidget {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
+  onToggleHeatmap = () => {
+    this.setState(state => ({ isShowHeatmap: !state.isShowHeatmap }));
+  };
+
   onSaveConfig = config => {
     isFunction(this.props.onSave) && this.props.onSave(this.props.id, { config });
     this.onToggleSettings();
@@ -66,7 +75,7 @@ export default class extends BaseWidget {
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isShowSetting } = this.state;
+    const { isSmallMode, runUpdate, isShowSetting, isShowHeatmap } = this.state;
 
     return (
       <Dashlet
@@ -87,27 +96,23 @@ export default class extends BaseWidget {
         {isShowSetting && <Settings config={config} onCancel={this.onToggleSettings} onSave={this.onSaveConfig} />}
         <div className={classNames({ 'd-none': isShowSetting }, classNameContent)}>
           <div className="ecos-process-statistics__header">
-            <div>
-              <Switch /> {t('Switch')}
+            <div className="ecos-process-statistics__heatmap-switch">
+              <Switch checked={isShowHeatmap} onToggle={this.onToggleHeatmap} /> {t(Labels.PANEL_HEATMAP)}
             </div>
           </div>
-          <div className="ecos-process-statistics__scheme">
-            <Model record={record} stateId={this.stateId} />
-          </div>
-          <div className="ecos-process-statistics__journal">
-            {config.selectedJournal && (
-              <Journal
-                {...config}
-                forwardedRef={this.contentRef}
-                className={classNames(classNameContent)}
-                record={record}
-                stateId={this.stateId}
-                isSmallMode={isSmallMode}
-                runUpdate={runUpdate}
-                maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
-              />
-            )}
-          </div>
+          <Model {...config} record={record} stateId={this.stateId} isShowHeatmap={isShowHeatmap} />
+          {config.selectedJournal && (
+            <Journal
+              {...config}
+              forwardedRef={this.contentRef}
+              className={classNames(classNameContent)}
+              record={record}
+              stateId={this.stateId}
+              isSmallMode={isSmallMode}
+              runUpdate={runUpdate}
+              maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
+            />
+          )}
         </div>
       </Dashlet>
     );

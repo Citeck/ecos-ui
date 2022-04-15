@@ -1,13 +1,37 @@
 @import '../../../styles/constants';
 
+%base-block {
+  position: relative;
+  min-height: 50px;
+  border-top: 2px solid $color-gray-4;
+
+  .ecos-caption {
+    margin: 10px;
+  }
+}
+
 .ecos-process-statistics {
   &__header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
   }
 
-  &__scheme {
+  &__heatmap-switch {
+    display: flex;
+    align-items: center;
+
+    .ecos-switch {
+      margin-right: 10px;
+    }
   }
 
-  &__journal {
+  &-model {
+    @extend %base-block;
+  }
+
+  &-journal {
+    @extend %base-block;
   }
 
   &-settings {

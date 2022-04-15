@@ -1499,10 +1499,17 @@
 
   "more-about-error.label": "Подробнее об ошибке",
 
-  "process-statistics-widget.title": "Статистика процессов",
+  "process-statistics-widget.title": "Статистика процесса",
   "process-statistics-widget.info.no-columns": "Нет настроек отображения",
   "process-statistics-widget.settings.title": "Настройки виджета",
   "process-statistics-widget.settings.btn.cancel": "Отмена",
   "process-statistics-widget.settings.btn.save": "Сохранить",
-  "process-statistics-widget.settings.field.journal": "Журнал"
+  "process-statistics-widget.settings.field.journal": "Журнал",
+  "process-statistics-widget.settings.default-display": "Отображение по умолчанию",
+  "process-statistics-widget.settings.field.showHeatmapDefault": "Интесивновть",
+  "process-statistics-widget.settings.field.showModelDefault": "Процесс",
+  "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
+  "process-statistics-widget.panel.field.heatmap": "Интенсивность",
+  "process-statistics-widget.model.title": "Процесс",
+  "process-statistics-widget.journal.title": "Журнал"
 }

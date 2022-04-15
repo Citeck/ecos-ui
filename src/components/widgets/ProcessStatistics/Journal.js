@@ -1,23 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { Collapse } from 'react-collapse';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+
+import { getJournal } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
-import { InfoText, Loader } from '../../common';
+import { Icon, InfoText, Loader } from '../../common';
 import { Grid } from '../../common/grid';
+import { Caption } from '../../common/form';
+import { Labels } from './util';
 
 import './style.scss';
-import { Labels } from './util';
-import { getJournal } from '../../../actions/processStatistics';
 
 const mapStateToProps = (state, context) => {
   const psState = get(state, ['processStatistics', context.stateId], {});
 
   return {
     data: psState.data,
-    isLoading: psState.isLoading,
-    columns: psState.columns,
+    isLoading: psState.isLoadingJournal,
+    columns: get(psState, 'journalConfig.columns', []),
     isMobile: state.view.isMobile
   };
 };
@@ -43,10 +47,14 @@ class Journal extends React.Component {
     className: ''
   };
 
-  state = {
-    contentHeight: 0,
-    filters: []
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      contentHeight: 0,
+      filters: [],
+      isOpened: props.showJournalDefault
+    };
+  }
 
   _filter = React.createRef();
 
@@ -87,30 +95,34 @@ class Journal extends React.Component {
   };
 
   render() {
-    const { isLoading, columns, isMobile, maxHeight, list } = this.props;
-    const { filters } = this.state;
+    const { isLoading, columns, isMobile, maxHeight, data } = this.props;
+    const { filters, isOpened } = this.state;
 
     if (!isLoading && isEmpty(columns)) {
       return <InfoText text={t(Labels.NO_COLS)} />;
     }
 
     return (
-      <>
+      <div className="ecos-process-statistics-journal">
         {isLoading && <Loader blur />}
-        <Grid
-          fixedHeader
-          data={list}
-          columns={columns}
-          scrollable={!isMobile}
-          noTopBorder
-          className="ecos-event-history-list ecos-event-history-list_view-table"
-          maxHeight={maxHeight}
-          autoHeight
-          filterable
-          filters={filters}
-          onFilter={this.onGridFilter}
-        />
-      </>
+        <Caption small onClick={() => this.setState({ isOpened: !isOpened })}>
+          {t(Labels.JOURNAL_TITLE)}
+          <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
+        </Caption>
+        <Collapse isOpened={isOpened}>
+          <Grid
+            fixedHeader
+            data={data}
+            columns={columns}
+            scrollable={!isMobile}
+            maxHeight={maxHeight}
+            autoHeight
+            filterable
+            filters={filters}
+            onFilter={this.onGridFilter}
+          />
+        </Collapse>
+      </div>
     );
   }
 }

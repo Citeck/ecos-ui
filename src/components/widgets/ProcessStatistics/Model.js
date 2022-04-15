@@ -1,20 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { Collapse } from 'react-collapse';
 import get from 'lodash/get';
 
 import { getModel } from '../../../actions/processStatistics';
 
-import './style.scss';
-import BPMNModeler from '../../ModelEditor/BPMNModeler';
-import { InfoText } from '../../common';
+import { Icon, InfoText, Loader } from '../../common';
+import { Caption } from '../../common/form';
 import { t } from '../../../helpers/export/util';
+import BPMNModeler from '../../ModelEditor/BPMNModeler';
+import { Labels } from './util';
+
+import './style.scss';
 
 const mapStateToProps = (state, context) => {
-  const ehState = (state, dId) => get(state, ['processStatistics', dId]);
+  const psState = get(state, ['processStatistics', context.stateId], {});
 
   return {
-    model: ehState.columns
+    isLoading: psState.isLoadingModel,
+    model: psState.model
   };
 };
 
@@ -27,6 +33,8 @@ class Model extends React.Component {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
     className: PropTypes.string,
+    isShowHeatmap: PropTypes.bool,
+    showModelDefault: PropTypes.bool,
     runUpdate: PropTypes.bool
   };
 
@@ -34,10 +42,12 @@ class Model extends React.Component {
     className: ''
   };
 
-  state = {
-    contentHeight: 0,
-    filters: []
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpened: props.showModelDefault
+    };
+  }
 
   _filter = React.createRef();
 
@@ -61,14 +71,22 @@ class Model extends React.Component {
   handleReadySheet = () => {};
 
   render() {
-    const { model } = this.props;
+    const { model, isLoading } = this.props;
+    const { isOpened } = this.state;
 
-    if (model) {
-      //BaseModeler.Sheet
-      return <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />;
-    } else {
-      return <InfoText text={t(`test`)} />;
-    }
+    return (
+      <div className="ecos-process-statistics-model">
+        {isLoading && <Loader blur />}
+        <Caption small onClick={() => this.setState({ isOpened: !isOpened })}>
+          {t(Labels.MODEL_TITLE)}
+          <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
+        </Caption>
+        <Collapse isOpened={isOpened}>
+          {!isLoading && !model && <InfoText text={t(`test`)} />}
+          {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
+        </Collapse>
+      </div>
+    );
   }
 }
 
