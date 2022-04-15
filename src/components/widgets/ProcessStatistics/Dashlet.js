@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { getStateId } from '../../../helpers/redux';
 import { t } from '../../../helpers/export/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
+import { Checkbox } from '../../common/form';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Journal from './Journal';
@@ -53,7 +54,9 @@ export default class extends BaseWidget {
         isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
-        <div className="ecos-process-statistics__header" />
+        <div className="ecos-process-statistics__header">
+          <Checkbox checked title={t('kukukuk')} />
+        </div>
         <div className="ecos-process-statistics__scheme">
           <Model record={record} />
         </div>
