@@ -5,6 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
 
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -243,7 +244,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       isEqual(value, this.emptyValue) &&
       this.component.currentUserByDefault &&
       !this.viewOnly &&
-      this.options.formMode === 'CREATE'
+      this.options.formMode === FORM_MODE_CREATE
     ) {
       value = Array.isArray(value) ? [Formio.getUser()] : Formio.getUser();
     }

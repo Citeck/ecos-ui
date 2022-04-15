@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
+import uuidV4 from 'uuid/v4';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
@@ -13,11 +14,10 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isUndefined from 'lodash/isUndefined';
-import uuidV4 from 'uuid/v4';
 
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
-import { getCurrentUserName, t, getMLValue } from '../../helpers/util';
+import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
 import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
@@ -28,8 +28,8 @@ import Records from '../Records';
 import EcosForm from './EcosForm';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
 
+const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
-
 const NOT_INPUT_TYPES = ['container', 'datagrid', 'button', 'horizontalLine'];
 
 const getComponentInnerAttSchema = component => {
@@ -132,13 +132,14 @@ export default class EcosFormUtils {
       }, 100);
     };
 
-    Records.get(record)
+    const instanceRec = Records.get(record);
+    instanceRec
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = recordData.formMode || FORM_MODE_EDIT;
+        const formMode = recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -434,11 +435,11 @@ export default class EcosFormUtils {
     if (!formId) {
       return formId;
     }
-    const sourceIdDelimIdx = formId.indexOf('@');
+    const sourceIdDelimIdx = formId.indexOf(SOURCE_DIVIDER);
     if (sourceIdDelimIdx > 0) {
       formId = formId.substring(sourceIdDelimIdx + 1);
     }
-    return sourceId + '@' + formId;
+    return sourceId + SOURCE_DIVIDER + formId;
   }
 
   static getCreateVariants(record, attribute) {
@@ -1058,7 +1059,7 @@ export default class EcosFormUtils {
     const displayName = data.typeName || data.displayName || '';
     const formMode = data.formMode || FORM_MODE_EDIT;
 
-    const titleKey = 'eform.header.' + formMode + '.title';
+    const titleKey = `eform.header.${formMode}.title`;
     const titleVal = t(titleKey);
 
     const titles = [];
@@ -1128,6 +1129,16 @@ export default class EcosFormUtils {
 
       check();
     });
+  }
+
+  static getFormMode(instanceRec) {
+    const baseRecordId = instanceRec.getBaseRecord().id || SOURCE_DIVIDER;
+
+    if (isString(baseRecordId)) {
+      return baseRecordId.endsWith(SOURCE_DIVIDER) ? FORM_MODE_CREATE : FORM_MODE_EDIT;
+    }
+
+    return undefined;
   }
 }
 

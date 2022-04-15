@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { URL } from '../constants';
 import { getCurrentLocale, getCurrentUserName } from '../helpers/util';
@@ -60,16 +61,14 @@ export function* initApp({ api, logger }, { payload }) {
       if (e.message === 'User is disabled') {
         alert('User is disabled');
       }
-      logger.error('[initApp saga] error inner', e.message);
+      logger.error('[initApp saga] error inner', e);
       yield put(validateUserFailure());
     }
 
     yield put(detectMobileDevice());
     yield put(initAppSuccess());
 
-    if (payload && payload.onSuccess) {
-      typeof payload.onSuccess === 'function' && payload.onSuccess(isAuthenticated);
-    }
+    payload && isFunction(payload.onSuccess) && payload.onSuccess(isAuthenticated);
   } catch (e) {
     logger.error('[app saga] initApp error', e);
     yield put(initAppFailure());
