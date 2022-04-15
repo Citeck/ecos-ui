@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../helpers/util';
+import { SystemJournals } from '../../../constants';
 import { Caption, Field, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
 
@@ -57,7 +58,7 @@ class EventsHistorySettings extends React.Component {
         </Caption>
         <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
           <SelectJournal
-            journalId={'ecos-journals'}
+            journalId={SystemJournals.JOURNALS}
             defaultValue={selectedJournal}
             hideCreateButton
             isSelectedValueAsText
