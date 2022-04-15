@@ -15,6 +15,7 @@
   "btn.confirm.label": "Подтвердить",
   "btn.create.label": "Создать",
   "btn.apply.label": "Применить",
+  "btn.save.label": "Сохранить",
 
   "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
 
@@ -164,6 +165,8 @@
   "widget-settings.display-condition": "Условие отображения",
   "widget-settings.dc-no-attributes": "Атрибуты для типа не настроены",
   "widget-settings.dc-no-rules": "Группа условий не установлена",
+  "widget-settings.collapsed-by-default": "Свёрнут по умолчанию",
+  "widget-settings.collapsed-by-default-info": "Не работает, если пользователь сам изменил состояние - свернув или развернув виджет.",
   "widget-settings.display-condition.element-title": "Условие отображения элемента \"{{title}}\"",
 
   "dashboard-settings.config.default": "По умолчанию",
@@ -771,6 +774,7 @@
   "journals.action.hide-menu": "Скрыть меню",
   "journals.action.hide-menu_sm": "Скрыть",
   "journals.action.only-linked": "Отображать только связанные записи",
+  "journals.action.go-to-button-name": "Название кнопки \"Перейти\"",
   "journals.action.custom-journal": "Произвольный журнал",
   "journals.action.remove-filter-group-msg": "Удалить группу фильтров?",
   "journals.action.remove-filter-msg": "Удалить фильтр?",
@@ -1445,10 +1449,14 @@
   "model-editor.btn.apply": "Сохранить",
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
+  "model-editor.btn.save-deploy": "Сохранить и Опубликовать",
   "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "bpmn-editor.error.no-model": "Процесс не задан",
   "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
+
+  "bpmn-editor.success.model-save-deployed": "Процесс успешно сохранен и опубликован",
+  "bpmn-editor.error.can-not-save-deploy-model": "Произошла ошибка во время сохранения и публикации процесса",
 
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
   "cmmn-editor.error.no-model": "Сценарий не задан",

@@ -1,6 +1,12 @@
 import isNil from 'lodash/isNil';
 
-import { AUTHORITY_TYPE_USER } from './constants';
+import { SourcesId } from '../../../../constants';
+import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
+
+export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
+export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
+export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
+export const getAuthRef = str => str.replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`).replace(`${SourcesId.PERSON}@`, '');
 
 export function handleResponse(result) {
   return result.map(item => ({

@@ -11,6 +11,30 @@ describe('TextField Component', () => {
       done();
     });
   });
+
+  it('Should be user value instead calculated value', done => {
+    Harness.testCreate(TextFieldComponent, {
+      ...comp1,
+      allowCalculateOverride: true,
+      calculateValue: "value = 'calculated value';"
+    }).then(component => {
+      component.calculateValue();
+      expect(component.valueChangedByUser).toEqual(false);
+      expect(component.calculatedValueWasCalculated).toEqual(true);
+
+      expect(component.getValue()).toEqual('calculated value');
+
+      component.setValue('user value');
+      component.onChange();
+      expect(component.valueChangedByUser).toEqual(true);
+      expect(component.getValue()).toEqual('user value');
+
+      component.setValue();
+      expect(component.getValue()).toEqual('');
+
+      done();
+    });
+  });
 });
 
 describe('TextField Builder', () => {

@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { UncontrolledTooltip } from 'reactstrap';
 
-import { t } from '../../helpers/util';
-import { IcoBtn } from '../common/btns';
+import { isMobileDevice, t } from '../../helpers/util';
 import DashletActionService from '../../services/DashletActionService';
+import { Tooltip } from '../common';
+import { IcoBtn } from '../common/btns';
 import DropdownActions from './DropdownActions/DropdownActions';
 
 const BtnAction = ({ id, text, icon, onClick, component }) => {
@@ -13,26 +13,14 @@ const BtnAction = ({ id, text, icon, onClick, component }) => {
   }
 
   return (
-    <>
+    <Tooltip uncontrolled target={id} text={text} off={isMobileDevice()}>
       <IcoBtn
         id={id}
         icon={icon}
         className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
         onClick={onClick}
       />
-      {text && (
-        <UncontrolledTooltip
-          target={id}
-          delay={0}
-          placement="top"
-          className="ecos-base-tooltip ecos-base-tooltip_opaque header-action-tooltip"
-          innerClassName="ecos-base-tooltip-inner header-action-tooltip-inner"
-          arrowClassName="ecos-base-tooltip-arrow"
-        >
-          {text}
-        </UncontrolledTooltip>
-      )}
-    </>
+    </Tooltip>
   );
 };
 

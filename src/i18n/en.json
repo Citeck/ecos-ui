@@ -15,6 +15,7 @@
   "btn.confirm.label": "Confirm",
   "btn.create.label": "Create",
   "btn.apply.label": "Apply",
+  "btn.save.label": "Save",
 
   "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
 
@@ -164,6 +165,8 @@
   "widget-settings.display-condition": "Display condition",
   "widget-settings.dc-no-attributes": "Attributes type are not configured",
   "widget-settings.dc-no-rules": "Condition group is not set",
+  "widget-settings.collapsed-by-default": "Collapsed by default",
+  "widget-settings.collapsed-by-default-info": "Doesn't work if the user himself changed the state by minimizing or expanding the widget.",
   "widget-settings.display-condition.element-title": "Element display condition \"{{title}}\"",
 
   "dashboard-settings.config.default": "Default",
@@ -772,6 +775,7 @@
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
   "journals.action.only-linked": "Display only linked records",
+  "journals.action.go-to-button-name": "Name of the \"Go to\" button",
   "journals.action.custom-journal": "Custom journal",
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
@@ -1446,10 +1450,14 @@
   "model-editor.btn.apply": "Save",
   "model-editor.btn.create": "Create",
   "model-editor.btn.view-xml": "View XML",
+  "model-editor.btn.save-deploy": "Save and Deploy",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
 
   "bpmn-editor.error.no-model": "Process's not set",
   "bpmn-editor.error.no-selected-element": "You should select some element to edit it",
+
+  "bpmn-editor.success.model-save-deployed": "Process successfully saved and deployed",
+  "bpmn-editor.error.can-not-save-deploy-model": "An error occurred while saving and deploying the process",
 
   "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-model": "Scenario's not set",

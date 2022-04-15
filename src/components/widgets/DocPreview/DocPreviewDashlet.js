@@ -84,7 +84,7 @@ class DocPreviewDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, scale, isCollapsed, runUpdate } = this.state;
+    const { width, scale, runUpdate } = this.state;
     const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
       'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
       'ecos-doc-preview-dashlet_mobile': isMobile,
@@ -106,7 +106,7 @@ class DocPreviewDashlet extends BaseWidget {
         contentMaxHeight={this.clientHeight + this.otherHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         <DocPreview
@@ -118,7 +118,7 @@ class DocPreviewDashlet extends BaseWidget {
           setUserScale={this.setUserScale}
           getContainerPageHeight={this.setContainerPageHeight}
           resizable
-          isCollapsed={isCollapsed}
+          isCollapsed={this.isCollapsed}
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
           setToolbarRef={this.setToolbarRef}

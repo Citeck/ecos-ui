@@ -103,10 +103,11 @@ export default class EcosFormBuilderModal extends React.Component {
     return (
       <>
         <EcosModal
+          customLevel={0}
           reactstrapProps={{
             backdrop: 'static'
           }}
-          className="ecos-modal_width-extra-lg"
+          className="ecos-modal_width-extra-lg ecos-modal_fullscreen"
           title={t('eform.modal.title.constructor')}
           isOpen={isModalOpen}
           zIndex={9000}

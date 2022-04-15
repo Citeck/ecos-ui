@@ -88,7 +88,7 @@ class CurrentTasksDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isCollapsed, totalCount, isLoading, isOpenSettings } = this.state;
+    const { isSmallMode, runUpdate, totalCount, isLoading, isOpenSettings } = this.state;
 
     return (
       <Dashlet
@@ -105,7 +105,7 @@ class CurrentTasksDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         badgeText={getAdaptiveNumberStr(totalCount)}
         noBody={!totalCount && !isLoading}
         setRef={this.setDashletRef}

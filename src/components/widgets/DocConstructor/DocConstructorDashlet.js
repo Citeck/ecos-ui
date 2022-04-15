@@ -160,13 +160,12 @@ class DocConstructorDashlet extends BaseWidget {
   };
 
   onToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
     UserLocalSettingsService.setDashletProperty(this.state.lsId, { isCollapsed });
   };
 
   render() {
     const { title, classNameDashlet, isLoading, error, contractTemplate, config } = this.props;
-    const { isSmallMode, isOpenSettings, isCollapsed } = this.state;
+    const { isSmallMode, isOpenSettings } = this.state;
 
     return (
       <Dashlet
@@ -177,7 +176,7 @@ class DocConstructorDashlet extends BaseWidget {
         actionConfig={this.actionConfig}
         onToggleCollapse={this.onToggleContent}
         onResize={this.onResize}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         <Scrollbars {...this.scrollbarProps}>

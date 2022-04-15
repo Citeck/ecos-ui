@@ -8,10 +8,10 @@ import {
   ITEMS_PER_PAGE,
   ROOT_GROUP_NAME
 } from '../components/common/form/SelectOrgstruct/constants';
+import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
-import { SourcesId } from '../constants';
-import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName } from '../helpers/util';
+import { SourcesId } from '../constants';
 import { RecordService } from './recordService';
 
 export class OrgStructApi extends RecordService {
@@ -50,7 +50,7 @@ export class OrgStructApi extends RecordService {
       ...group,
       groupType: (group.groupType || '').toUpperCase(),
       groupSubType: (group.groupSubType || '').toUpperCase(),
-      shortName: (group.fullName || '').replace('GROUP_', '')
+      shortName: getGroupName(group.fullName || '')
     }));
 
   fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
@@ -69,7 +69,7 @@ export class OrgStructApi extends RecordService {
           {
             t: 'contains',
             a: 'authorityGroups',
-            v: `${SourcesId.GROUP}@${groupName}`
+            v: getGroupRef(groupName)
           }
         ];
     const extraQueryVal = [];
@@ -101,13 +101,13 @@ export class OrgStructApi extends RecordService {
       .then(records => {
         if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
           records.unshift({
-            id: 'emodel/authority-group@ALFRESCO_ADMINISTRATORS',
+            id: getGroupRef('ALFRESCO_ADMINISTRATORS'),
             displayName: 'ALFRESCO_ADMINISTRATORS',
             fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
             shortName: 'ALFRESCO_ADMINISTRATORS',
             groupSubType: '',
             groupType: 'BRANCH',
-            nodeRef: 'emodel/authority-group@ALFRESCO_ADMINISTRATORS',
+            nodeRef: getGroupRef('ALFRESCO_ADMINISTRATORS'),
             authorityType: AUTHORITY_TYPE_GROUP
           });
         }
@@ -131,8 +131,7 @@ export class OrgStructApi extends RecordService {
     let recordRef = value;
 
     if (dataType === DataTypes.AUTHORITY) {
-      recordRef = recordRef.replace(`${SourcesId.GROUP}@`, 'GROUP_');
-      recordRef = recordRef.replace(`${SourcesId.PERSON}@`, '');
+      recordRef = getAuthRef(recordRef);
     }
 
     return this.fetchAuthorityByRef(recordRef);
@@ -163,26 +162,26 @@ export class OrgStructApi extends RecordService {
 
       if (get(attributes, 'authorityName')) {
         return {
-          recordRef: `${SourcesId.GROUP}@${attributes.authorityName.replace('GROUP_', '')}`,
+          recordRef: getGroupRef(getGroupName(attributes.authorityName)),
           authorityType: AUTHORITY_TYPE_GROUP
         };
       }
 
       return {
         authorityType,
-        recordRef: `${SourcesId.PERSON}@${recordRef}`
+        recordRef: getPersonRef(recordRef)
       };
     }
 
-    if (recordRef.includes('GROUP_')) {
+    if (recordRef.includes(`${AUTHORITY_TYPE_GROUP}_`)) {
       return {
-        recordRef: `${SourcesId.GROUP}@${recordRef.replace('GROUP_', '')}`,
+        recordRef: getGroupRef(getGroupName(recordRef)),
         authorityType: AUTHORITY_TYPE_GROUP
       };
     }
 
     return {
-      recordRef: `${SourcesId.PERSON}@${recordRef}`,
+      recordRef: getPersonRef(recordRef),
       authorityType
     };
   };
@@ -219,7 +218,7 @@ export class OrgStructApi extends RecordService {
       {
         t: 'contains',
         a: 'authorityGroupsFull',
-        v: `emodel/authority-group@${ROOT_GROUP_NAME}`
+        v: getGroupRef(ROOT_GROUP_NAME)
       }
     ];
 
@@ -275,7 +274,7 @@ export class OrgStructApi extends RecordService {
       queryVal.push(predicateNotDisabled);
     } else {
       const userName = getCurrentUserName();
-      const isAdmin = Boolean(await Records.get(`${SourcesId.PERSON}@${userName}`).load('isAdmin?bool'));
+      const isAdmin = Boolean(await Records.get(getPersonRef(userName)).load('isAdmin?bool'));
       if (!isAdmin) {
         const showInactiveUserOnlyForAdmin = Boolean(
           await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')

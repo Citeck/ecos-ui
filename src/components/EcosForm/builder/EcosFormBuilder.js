@@ -1,6 +1,8 @@
 import React from 'react';
 import 'formiojs/FormBuilder';
+
 import EcosFormUtils from '../EcosFormUtils';
+import { t } from '../../../helpers/export/util';
 
 let formPanelIdx = 0;
 
@@ -43,11 +45,12 @@ export default class EcosFormBuilder extends React.Component {
       <div>
         <div className="eform-panel-content" id={this.contentId} />
         <div className="eform-panel-actions">
-          <button className="btn btn-default btn-md eform-edit-form-btn btn-primary" onClick={onSubmit} type="button">
-            Save
+          <button className="btn btn-default btn-md eform-edit-form-btn btn-secondary mr-3" onClick={onCancel} type="button">
+            {t('btn.cancel.label')}
           </button>
-          <button className="btn btn-default btn-md eform-edit-form-btn btn-secondary" onClick={onCancel} type="button">
-            Cancel
+
+          <button className="btn btn-default btn-md eform-edit-form-btn btn-primary" onClick={onSubmit} type="button">
+            {t('btn.save.label')}
           </button>
         </div>
       </div>

@@ -9,9 +9,20 @@ export default class DataGridComponent extends FormIODataGridComponent {
     overrideTriggerChange.call(this);
   }
 
-  createHeader() {
+  createLastTh = () => {
+    const hasBottomButton = this.hasBottomSubmit();
+    const hasBottomEnd = this.hasExtraColumn() && hasBottomButton;
+    return hasBottomEnd ? this.ce('th', { class: 'formio-drag-small-column' }) : null;
+  };
+
+  createAddButton = () => {
     const hasTopButton = this.hasTopSubmit();
-    const hasEnd = this.hasExtraColumn() || hasTopButton;
+    return hasTopButton ? this.addButton('true') : null;
+  };
+
+  createHeader() {
+    const hasEnd = this.hasExtraColumn() && this.hasTopSubmit();
+
     let needsHeader = false;
     const thead = this.ce(
       'thead',
@@ -22,11 +33,16 @@ export default class DataGridComponent extends FormIODataGridComponent {
               class: 'formio-drag-column-header'
             })
           : null,
-        this.visibleComponents.map(comp => {
+        this.visibleComponents.map((comp, index) => {
           const th = this.ce('th');
           if (comp.validate && comp.validate.required) {
-            th.setAttribute('class', 'field-required');
+            th.className.add('field-required');
           }
+
+          if (hasEnd && this.visibleComponents.length - 1 === index) {
+            th.classList.add('formio-drag-small-last-column');
+          }
+
           const title = comp.labelByLocale || comp.label || comp.title;
 
           if (title && !comp.dataGridLabel) {
@@ -34,9 +50,12 @@ export default class DataGridComponent extends FormIODataGridComponent {
             th.appendChild(this.text(title));
             this.createTooltip(th, comp);
           }
+
           return th;
         }),
-        hasEnd ? this.ce('th', null, hasTopButton ? this.addButton(true) : null) : null
+
+        hasEnd ? this.ce('th', null, this.createAddButton()) : null,
+        this.createLastTh()
       ])
     );
 
