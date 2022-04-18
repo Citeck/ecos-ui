@@ -28,6 +28,12 @@ const mapDispatchToProps = dispatch => ({
   getModelData: payload => dispatch(getModel(payload))
 });
 
+const heatmapdata = [
+  { actId: 'StartEvent_1ew9rff', runCount: 12 },
+  { actId: 'Activity_1epip7d', runCount: 20 },
+  { actId: 'Activity_0q2hslg', runCount: 35 }
+];
+
 class Model extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
@@ -68,7 +74,14 @@ class Model extends React.Component {
     getModelData({ stateId, record });
   };
 
-  handleReadySheet = () => {};
+  handleReadySheet = mounted => {
+    if (mounted) {
+      const canvas = this.designer.modeler.get('canvas');
+      console.log(canvas);
+      //canvas.zoom('fit-viewport');
+      this.designer.renderHeatmap({ canvas, heatmapdata });
+    }
+  };
 
   render() {
     const { model, isLoading } = this.props;
