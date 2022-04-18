@@ -1,4 +1,54 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### `Surroundings`
+
+**Win**
+
+You need 
+1. `Node v14`
+1. `node-sass` 4.12.0 (check package)
+1. `Python27`
+1. *maybe - windows-build-tools*
+
+
+`Node` 
+
+[download here v14](https://nodejs.org/download/release/v14.19.1/)
+
+*After installation, check the box for downloading add-ons*
+
+`Python`
+
+[download here 27](https://community.chocolatey.org/packages/python/2.7.2)
+
+*you need install chocolatey or use differet source*
+
+You can have different Python version on your laptop, but for the project you need **27**. Check it
+
+Check npm - python
+```
+npm config list
+```
+If there is dif version set **27** 
+```
+//for Windows
+npm config set python C:\Python27\python.exe
+```
+```
+//btw for Linux
+npm config set python /usr/bin/python27
+```
+
+*If there is a different `node-sass` version in the project, change it 
+```
+yarn remove node-sass
+yarn cache clean --all
+yarn add node-sass@4.12.0
+```
+
+- [solution](https://danielwertheim.se/solution-to-issues-with-node-gyp-node-sass-on-windows/)
+- [reason](https://sass-lang.com/dart-sass)
+- [reason](https://github.com/sass/node-sass/issues/1176)
+
+---
 
 ## Available Scripts
 
