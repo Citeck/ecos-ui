@@ -1,4 +1,85 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### `Surroundings`
+
+**Win**
+
+You need 
+1. `Node v14`
+1. `node-sass` 4.12.0 (check package)
+1. `Python27`
+1. *maybe - windows-build-tools*
+
+
+`Node` 
+
+[download here v14](https://nodejs.org/download/release/v14.19.1/)
+
+*After installation, check the box for downloading add-ons*
+
+`Python`
+
+[download here v27](https://www.python.org/downloads/release/python-2718/)
+
+Set flag PATH
+
+You can have different Python versions on your laptop, but for the project you need **27**. Check it. May need to be removed...
+
+Check npm - python
+```
+npm config list
+```
+Response like:
+
+`python = "C:\\Python27\\python.exe"`
+
+```
+C:\Users\...\AppData\Roaming>npm config list
+; cli configs
+metrics-registry = "https://registry.npmjs.org/"
+scope = ""
+user-agent = "npm/6.14.16 node/v14.19.1 win32 x64"
+
+; userconfig C:\Users\...\.npmrc
+python = "C:\\Python27\\python.exe"
+
+; builtin config undefined
+prefix = "C:\\Users\\...\\AppData\\Roaming\\npm"
+
+; node bin location = C:\Program Files\nodejs\node.exe
+; cwd = C:\Users\...\AppData\Roaming
+; HOME = C:\Users\...
+; "npm config ls -l" to show all defaults.
+```
+If there are dif versions set **27** 
+```
+//for Windows
+npm config set python C:\Python27\python.exe
+```
+```
+//btw for Linux
+npm config set python /usr/bin/python27
+```
+
+---
+
+Extra step `windows-build-tools`
+
+If prev steps didn't help, you can try to install (windows-build-tools)[https://www.npmjs.com/package/windows-build-tools] it includes Python27. So, it's like enclosing solution
+
+---
+
+*And you can try to rebuild `node-sass`* 
+```
+yarn remove node-sass
+yarn cache clean --all
+yarn add node-sass@4.12.0
+```
+
+- [solution](https://danielwertheim.se/solution-to-issues-with-node-gyp-node-sass-on-windows/)
+- [reason](https://sass-lang.com/dart-sass)
+- [reason](https://github.com/sass/node-sass/issues/1176)
+- google tag: node python27 node-sass
+
+---
 
 ## Available Scripts
 
