@@ -347,7 +347,7 @@ describe('Formio Form Renderer tests', () => {
     each(formTest.tests, (formTestTest, title) => {
       it(title, done => {
         const formElement = document.createElement('div');
-        const form = new Webform(formElement, { language: 'en' });
+        const form = new Webform(formElement, { language: 'en' /*, formMode: 'EDIT'*/ });
         form
           .setForm(formTest.form)
           .then(() => {

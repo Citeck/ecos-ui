@@ -635,6 +635,7 @@ export default {
       };
       // Go next tick to get the changes applied.
       setTimeout(() => {
+        form.checkConditions(form.getValue());
         assert.deepEqual(form.getValue(), visibleData);
         done();
       });

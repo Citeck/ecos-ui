@@ -1044,6 +1044,10 @@ export default class SelectComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
+    // if (_.isUndefined(value)) {
+    //   return false;
+    // }
+
     flags = this.getFlags.apply(this, arguments);
     const previousValue = this.dataValue;
     if (this.component.multiple && !Array.isArray(value)) {
