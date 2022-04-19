@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
-import { trimFields } from '../../../../helpers/util';
+import { getTextByLocale, trimFields } from '../../../../helpers/util';
 import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -283,7 +283,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
-        placeholder: component.placeholder,
+        placeholder: getTextByLocale(component.placeholder),
         disabled: component.disabled,
         journalId: journalId,
         onChange: value => this.onReactValueChanged(value, { noUpdateEvent: this._isInlineEditingMode }),

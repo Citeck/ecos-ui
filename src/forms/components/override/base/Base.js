@@ -323,7 +323,7 @@ Base.prototype.createTooltip = function(container, component, classes) {
 
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
-    placement: 'right',
+    placement: 'top',
     html: true,
     title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
   });
