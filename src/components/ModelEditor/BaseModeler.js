@@ -4,6 +4,8 @@ import isFunction from 'lodash/isFunction';
 import includes from 'lodash/includes';
 import heatmap from 'heatmap.js';
 
+import { getTaskShapePoints } from './shapePoints';
+
 /**
  * Expansion for Modeler
  * @class
@@ -205,7 +207,7 @@ export default class BaseModeler {
     this.modeler && this.modeler._emit('diagram.destroy');
   };
 
-  renderHeatmap = ({ canvas, heatmapdata }) => {
+  renderHeatmap = ({ canvas, heatmapdata, heatmapRef }) => {
     let heatmapData = {};
     const elementRegistry = this.modeler.get('elementRegistry');
     const viewbox = canvas.viewbox();
@@ -228,7 +230,7 @@ export default class BaseModeler {
 
     shapes.forEach(shape => {
       const { x, y, width: w, height: h, type, id } = shape;
-      const shapeX = x * scale - X * scale + (X < 0 ? (X - oX) * scale : X > 0 ? (X - oX) * scale : 0); // eslint-disable-line
+      const shapeX = x * scale - X * scale + (X < 0 ? (X - oX) * scale : X > 0 ? (X - oX) * scale : 0);
       const shapeY = y * scale - Y * scale + (Y > 0 ? (Y - oY) * scale : 0);
       const shapeW = w * scale;
       const shapeH = h * scale;
@@ -238,53 +240,7 @@ export default class BaseModeler {
 
         if (id === actId) {
           if (includes(type, 'Task')) {
-            shapePoints.push(
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 1) / 4)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 1) / 4)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 1) / 2)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 1) / 4)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 3) / 4)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 1) / 4)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 1) / 4)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 1) / 2)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 1) / 2)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 1) / 2)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 3) / 4)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 1) / 2)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 1) / 4)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 3) / 4)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 1) / 2)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 3) / 4)),
-                value: runCount
-              },
-              {
-                x: Math.round(Math.abs(shapeX) + Math.floor((shapeW * 3) / 4)),
-                y: Math.round(Math.abs(shapeY) + Math.floor((shapeH * 3) / 4)),
-                value: runCount
-              }
-            );
+            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, runCount));
           } else {
             shapePoints.push({
               x: Math.round(Math.abs(shapeX) + Math.floor(shapeW / 2)),
@@ -328,7 +284,7 @@ export default class BaseModeler {
         data: points
       };
 
-      const heatmapInstance = heatmap.create(config);
+      heatmapRef = heatmap.create(config);
 
       document.querySelector('.heatmap-canvas').setAttribute(
         'style',
@@ -340,7 +296,7 @@ export default class BaseModeler {
       );
 
       // heatmapInstance.repaint();
-      heatmapInstance.setData(heatmapData);
+      heatmapRef.setData(heatmapData);
     }
   };
 }

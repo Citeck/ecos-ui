@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { Collapse } from 'react-collapse';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import { getModel } from '../../../actions/processStatistics';
 
@@ -51,11 +52,12 @@ class Model extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpened: !!props.showModelDefault
+      isOpened: !!props.showModelDefault,
+      isModelMounted: false
     };
   }
 
-  _filter = React.createRef();
+  heatmapRef = null;
 
   componentDidMount() {
     this.getModel();
@@ -66,6 +68,17 @@ class Model extends React.Component {
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getModel();
     }
+
+    if (!isEqual(prevProps.isShowHeatmap, this.props.isShowHeatmap) || !isEqual(prevState.isModelMounted, this.state.isModelMounted)) {
+      if (this.state.isModelMounted) {
+        if (this.props.isShowHeatmap) {
+          this.renderHeatmap();
+        } else {
+          this.heatmapRef.removeData();
+          this.heatmapRef.repaint();
+        }
+      }
+    }
   }
 
   getModel = () => {
@@ -75,17 +88,17 @@ class Model extends React.Component {
   };
 
   handleReadySheet = mounted => {
-    if (mounted) {
-      const canvas = this.designer.modeler.get('canvas');
-      console.log(canvas);
-      //canvas.zoom('fit-viewport');
-      this.designer.renderHeatmap({ canvas, heatmapdata });
-    }
+    this.setState({ isModelMounted: mounted });
+  };
+
+  renderHeatmap = () => {
+    const canvas = this.designer.modeler.get('canvas');
+    this.designer.renderHeatmap({ canvas, heatmapdata, heatmapRef: this.heatmapRef });
   };
 
   render() {
     const { model, isLoading } = this.props;
-    const { isOpened } = this.state;
+    const { isOpened, isModelMounted } = this.state;
 
     return (
       <div className="ecos-process-statistics-model">
@@ -94,7 +107,7 @@ class Model extends React.Component {
           {t(Labels.MODEL_TITLE)}
           <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
         </Caption>
-        <Collapse isOpened={isOpened}>
+        <Collapse isOpened={isModelMounted && isOpened}>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
         </Collapse>
