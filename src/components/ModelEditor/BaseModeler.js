@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 
 /**
  * Expansion for Modeler
@@ -97,7 +98,7 @@ export default class BaseModeler {
   updateProps = (element, properties) => {
     const { name, ...data } = properties;
 
-    if (name) {
+    if (!isNil(name)) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
       labelEditingProvider.update(element, name);
     }
