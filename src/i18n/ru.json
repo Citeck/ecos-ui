@@ -15,6 +15,7 @@
   "btn.confirm.label": "Подтвердить",
   "btn.create.label": "Создать",
   "btn.apply.label": "Применить",
+  "btn.save.label": "Сохранить",
 
   "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
 

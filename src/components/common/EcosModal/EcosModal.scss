@@ -228,6 +228,31 @@
   width: 100%;
 }
 
+.ecos-modal.ecos-modal_fullscreen {
+  top: 0;
+  margin-top: 0.5rem;
+
+  & .modal-content {
+    .formarea {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .eform-panel-actions {
+      position: sticky;
+      margin-left: -20px;
+      margin-right: -20px;
+      display: flex;
+      flex-wrap: wrap;
+      bottom: 0;
+      padding: 15px 20px;
+      border-top: 2px rgba(0, 0, 0, 0.125) solid;
+      background: white;
+      margin-bottom: -12px;
+    }
+  }
+}
+
 @media (max-width: 600px) {
   .ecos-modal.ecos-modal_width-sm {
     margin: 0.5rem;
