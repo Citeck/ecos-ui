@@ -27,10 +27,11 @@ import '../../forms/style.scss';
 let formCounter = 0;
 
 class EcosForm extends React.Component {
-  _formBuilderModal = React.createRef();
+  _formBuilderModal = null;
   _formContainer = React.createRef();
   _form = null;
   _containerHeightTimerId = null;
+  _formIdValue = null;
   _formSubmitDoneResolve = () => undefined;
 
   constructor(props) {
@@ -41,7 +42,12 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
+      formIdValue: null,
       ...this.initState
+    };
+
+    this.setFormBuilderModal = element => {
+      this._formBuilderModal = element;
     };
   }
 
@@ -275,8 +281,9 @@ class EcosForm extends React.Component {
 
           this._form = form;
 
-          if (this._form.data.formKey) {
-            modal.setAttribute('data-form-key', this._form.data.formKey);
+          if (this._form.data.moduleId) {
+            this._formIdValue = this._form.data.moduleId;
+            this.setState({ formIdValue: this._form.data.moduleId });
           }
           isFunction(customModule.init) && customModule.init({ form });
         });
@@ -535,7 +542,7 @@ class EcosForm extends React.Component {
     return (
       <div className={className}>
         <div id={containerId} ref={this._formContainer} />
-        <EcosFormBuilderModal ref={this._formBuilderModal} />
+        <EcosFormBuilderModal formIdValue={this._formIdValue} ref={this.setFormBuilderModal} />
       </div>
     );
   }

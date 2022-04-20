@@ -11,6 +11,7 @@ import { Icon } from '../../common';
 import DebugModal from './DebugModal';
 
 import './style.scss';
+import EcosForm from '..';
 
 const Labels = {
   CLOSE_CONFIRM_DESCRIPTION: 'ecos-form.builder.confirm-close.description',
@@ -26,7 +27,8 @@ export default class EcosFormBuilderModal extends React.Component {
       isModalOpen: false,
       isDebugModalOpen: false,
       isOpenDependencies: true,
-      isOpenInfluence: true
+      isOpenInfluence: true,
+      formIdValue: null
     };
   }
 
@@ -42,6 +44,16 @@ export default class EcosFormBuilderModal extends React.Component {
     this.setState({
       isModalOpen: false
     });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.formIdValue !== this.props.formIdValue && this.props.formIdValue !== undefined) {
+      this.setState({ formIdValue: this.props.formIdValue });
+    }
+  }
+
+  setTitle() {
+    return this.state.formIdValue ? <div>ID: {this.state.formIdValue}</div> : null;
   }
 
   toggleVisibility = () => {
@@ -113,6 +125,7 @@ export default class EcosFormBuilderModal extends React.Component {
           hideModal={this.toggleVisibility}
           customButtons={this.renderCustomButtons()}
         >
+          {this.setTitle()}
           <EcosFormBuilder formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
         </EcosModal>
 
