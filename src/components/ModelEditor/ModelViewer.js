@@ -51,7 +51,9 @@ export default class ModelViewer {
 
   setHeight = height => {
     if (this.modeler._container) {
-      height && (this.modeler._container.style.height = height + 'px');
+      if (height) {
+        this.modeler._container.style.height = `${height}px`;
+      }
       this.modeler.get('canvas').zoom('fit-viewport');
     }
   };
@@ -140,7 +142,7 @@ export default class ModelViewer {
       };
 
       this.heatmap = heatmap.create(config);
-      console.log(this.heatmap);
+
       //todo
       // document.querySelector('.heatmap-canvas').setAttribute(
       //   'style',

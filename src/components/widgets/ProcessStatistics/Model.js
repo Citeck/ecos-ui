@@ -94,7 +94,7 @@ class Model extends React.Component {
     this.setState({ isModelMounted: mounted, isModelMounting: false });
 
     if (mounted) {
-      this.designer.setHeight(500);
+      this.designer.setHeight();
       this.renderHeatmap();
     } else {
       console.warn({ result });
@@ -159,7 +159,7 @@ class Model extends React.Component {
 
     return (
       <div className="ecos-process-statistics-model">
-        {isLoading && <Loader blur />}
+        {(isLoading || isModelMounting) && <Loader blur />}
         <Caption small onClick={() => this.setState({ isOpened: !isOpened })}>
           {t(Labels.MODEL_TITLE)}
           <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
