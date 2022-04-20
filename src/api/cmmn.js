@@ -43,7 +43,7 @@ export default class CmmnApi {
           predicate: {}
         }
       },
-      ['activeCount', 'name', 'completedCount', 'id']
+      { id: 'id', name: 'name', activeCount: 'activeCount?num!0', completedCount: 'completedCount?num!0' }
     );
   };
 }

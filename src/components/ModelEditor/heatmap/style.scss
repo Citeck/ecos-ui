@@ -1,13 +1,16 @@
 @import '../../../styles/constants';
 
+$height: 14px;
+
 .model-heatmap {
   &__legend {
     display: flex;
-    line-height: $font-size-standard;
+    line-height: $height;
+    height: $height;
 
     &-min,
     &-max {
-      font-size: $font-size-standard;
+      font-size: $height;
       font-weight: $font-weight-bold;
       color: $text-color-dark;
     }

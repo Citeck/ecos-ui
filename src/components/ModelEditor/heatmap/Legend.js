@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 
 import { getLegendNum } from './util';
@@ -9,7 +10,8 @@ const Legend = ({
   width = 200,
   min = 0,
   max = 0,
-  gradient = { 1: 'rgb(255,0,0)', 0.25: 'rgb(0,0,255)', 0.55: 'rgb(0,255,0)', 0.85: 'yellow' }
+  gradient = { 1: 'rgb(255,0,0)', 0.25: 'rgb(0,0,255)', 0.55: 'rgb(0,255,0)', 0.85: 'yellow' },
+  className
 }) => {
   const gradientRef = useRef(null);
   const [_min, setMin] = useState(0);
@@ -47,7 +49,7 @@ const Legend = ({
   }, [gradientRef]);
 
   return (
-    <div className="model-heatmap__legend">
+    <div className={classNames('model-heatmap__legend', className)}>
       <span id="min" className="model-heatmap__legend-min">
         {_min}
       </span>

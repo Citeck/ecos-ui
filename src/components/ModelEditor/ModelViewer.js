@@ -12,7 +12,9 @@ export default class ModelViewer {
   modeler;
   heatmap;
 
-  init = async ({ diagram, container, callback }) => {
+  init = async ({ diagram, container, onInit, onMounted }) => {
+    isFunction(onInit) && onInit(true);
+
     this.modeler = new NavigatedViewer({
       additionalModules: [
         //minimapModule, //diagram-js-minimap
@@ -27,28 +29,25 @@ export default class ModelViewer {
       this.modeler.attachTo(container);
     }
 
-    await this.setDiagram(diagram, { callback });
+    await this.setDiagram(diagram, { onMounted });
   };
 
-  setDiagram = async (diagram, { callback }) => {
+  setDiagram = async (diagram, { onMounted }) => {
     let callbackData;
     try {
       if (this.modeler && diagram) {
         const result = await this.modeler.importXML(diagram);
-        const { warnings } = result || {};
-
-        !!warnings.length && console.warn(warnings);
-        callbackData = { mounted: true, warnings };
+        callbackData = { mounted: !!result.error, result };
       } else {
         console.error('No diagram', diagram);
-        callbackData = { mounted: false };
+        callbackData = { mounted: false, error: ['No diagram'] };
       }
-    } catch (err) {
-      console.error('Error rendering', err.message, err.warnings);
-      callbackData = { mounted: false };
+    } catch (error) {
+      console.error('Error rendering', error.message);
+      callbackData = { mounted: false, error };
     }
 
-    isFunction(callback) && callback(callbackData);
+    isFunction(onMounted) && onMounted(callbackData);
   };
 
   setHeight = height => {
@@ -58,7 +57,7 @@ export default class ModelViewer {
     }
   };
 
-  Sheet = ({ diagram, onMounted, ...props }) => {
+  Sheet = ({ diagram, onMounted, onInit }) => {
     const [initialized, setInitialized] = useState(false);
     const containerRef = useRef(null);
 
@@ -68,7 +67,8 @@ export default class ModelViewer {
         this.init({
           diagram,
           container: containerRef.current,
-          callback: res => onMounted(true, res)
+          onInit,
+          onMounted
         });
       }
     }, [initialized, containerRef]);
@@ -76,7 +76,7 @@ export default class ModelViewer {
     return <div ref={containerRef} className={ModelViewer.querySelector} />;
   };
 
-  drawHeatmap = ({ data, onChange }) => {
+  drawHeatmap = ({ data, onChange, onMounted }) => {
     const shapePoints = [];
     const connectionPoints = [];
     const canvas = this.modeler.get('canvas');
@@ -121,7 +121,8 @@ export default class ModelViewer {
     const points = shapePoints.concat(connectionPoints);
 
     if (points.length) {
-      const maxV = Math.max(...points.map(item => +item.value));
+      const values = points.map(item => item.value);
+      const maxV = Math.max(...values);
 
       const config = {
         container: this.modeler._container,
@@ -140,19 +141,28 @@ export default class ModelViewer {
       };
 
       this.heatmap = heatmap.create(config);
-
+      console.log(this.heatmap);
       //todo
-      document.querySelector('.heatmap-canvas').setAttribute(
-        'style',
-        `
-          position: absolute;
-          left: ${X < 0 ? -((X - oX) * scale) : X > 0 ? -(X - oX) * scale : 0}px;
-          top: ${Y > 0 ? -((Y - oY) * scale) : 0}px
-        `
-      );
+      // document.querySelector('.heatmap-canvas').setAttribute(
+      //   'style',
+      //   `
+      //     position: absolute;
+      //     left: ${X < 0 ? -((X - oX) * scale) : X > 0 ? -(X - oX) * scale : 0}px;
+      //     top: ${Y > 0 ? -((Y - oY) * scale) : 0}px
+      //   `
+      // );
 
       // heatmapInstance.repaint();
       this.heatmap.setData(heatmapData);
+
+      isFunction(onMounted) && onMounted(true);
+    }
+  };
+
+  toggleDisplayHeatmap = isHidden => {
+    const canvas = get(this.heatmap, '_renderer.canvas');
+    if (canvas) {
+      canvas.classList.toggle('d-none', isHidden);
     }
   };
 

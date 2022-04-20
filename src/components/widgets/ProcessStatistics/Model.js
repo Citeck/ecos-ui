@@ -39,7 +39,15 @@ class Model extends React.Component {
     className: PropTypes.string,
     isShowHeatmap: PropTypes.bool,
     showModelDefault: PropTypes.bool,
-    runUpdate: PropTypes.bool
+    runUpdate: PropTypes.bool,
+    heatmapData: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        activeCount: PropTypes.number,
+        completedCount: PropTypes.number
+      })
+    )
   };
 
   static defaultProps = {
@@ -50,12 +58,12 @@ class Model extends React.Component {
     super(props);
     this.state = {
       isOpened: !!props.showModelDefault,
+      isModelMounting: false,
       isModelMounted: false,
+      isHeatmapMounted: false,
       legendData: {}
     };
   }
-
-  heatmapRef = null;
 
   componentDidMount() {
     this.getModel();
@@ -67,15 +75,8 @@ class Model extends React.Component {
       this.getModel();
     }
 
-    //todo switch
-    if (!isEqual(prevProps.isShowHeatmap, this.props.isShowHeatmap) || !isEqual(prevState.isModelMounted, this.state.isModelMounted)) {
-      if (this.state.isModelMounted) {
-        if (this.props.isShowHeatmap) {
-          //this.renderHeatmap();
-        } else {
-          //this.destroyHeatmap();
-        }
-      }
+    if (!isEqual(prevProps.isShowHeatmap, this.props.isShowHeatmap)) {
+      this.toggleHeatmap();
     }
   }
 
@@ -85,19 +86,49 @@ class Model extends React.Component {
     getModelData({ stateId, record });
   };
 
-  handleReadySheet = mounted => {
-    this.setState({ isModelMounted: mounted });
-    this.designer.setHeight(500);
-    this.renderHeatmap();
+  handleInitSheet = isModelMounting => {
+    this.setState({ isModelMounting });
+  };
+
+  handleReadySheet = ({ mounted }) => {
+    this.setState({ isModelMounted: mounted, isModelMounting: false });
+
+    if (mounted) {
+      this.designer.setHeight(500);
+      this.renderHeatmap();
+    }
   };
 
   renderHeatmap = () => {
-    if (!isEmpty(this.props.heatmapData)) {
-      const data = this.props.heatmapData.map(item => ({ id: item.id, value: item.activeCount }));
-      this.designer.drawHeatmap({ data, onChange: this.onChangeHeatmap });
-    }
+    const { heatmapData, isShowHeatmap } = this.props;
 
-    // this.destroyHeatmap();
+    if (isShowHeatmap && !isEmpty(heatmapData)) {
+      const data = heatmapData.map(item => ({ id: item.id, value: item.activeCount }));
+      this.designer.drawHeatmap({
+        data,
+        onChange: this.onChangeHeatmap,
+        onMounted: () => this.setState({ isHeatmapMounted: true })
+      });
+    }
+  };
+
+  toggleHeatmap = () => {
+    const { isModelMounted, isHeatmapMounted } = this.state;
+    const { isShowHeatmap } = this.props;
+
+    switch (true) {
+      case isHeatmapMounted && !isShowHeatmap:
+        this.designer.toggleDisplayHeatmap(true);
+        break;
+      case isHeatmapMounted && isShowHeatmap:
+        this.designer.toggleDisplayHeatmap(false);
+        break;
+      case !isHeatmapMounted && isShowHeatmap && isModelMounted:
+        this.renderHeatmap();
+        break;
+      default:
+        break;
+    }
   };
 
   redraw = height => {
@@ -121,8 +152,8 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading } = this.props;
-    const { isOpened, isModelMounted, legendData } = this.state;
+    const { model, isLoading, isShowHeatmap } = this.props;
+    const { isOpened, isModelMounted, legendData, isHeatmapMounted } = this.state;
 
     return (
       <div className="ecos-process-statistics-model">
@@ -134,10 +165,10 @@ class Model extends React.Component {
         <Collapse isOpened={isOpened}>
           {!isLoading && !isModelMounted && <InfoText text={t(Labels.NO_MODEL)} />}
           <div className="ecos-process-statistics-model__panel">
-            <Legend {...legendData} />
+            <Legend {...legendData} className={classNames({ 'd-none': !isShowHeatmap || !isHeatmapMounted })} />
           </div>
           <ResizableBox getHeight={this.redraw} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
-            {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
+            {model && <this.designer.Sheet diagram={model} onInit={this.handleInitSheet} onMounted={this.handleReadySheet} />}
           </ResizableBox>
         </Collapse>
       </div>
