@@ -1502,6 +1502,8 @@
 
   "process-statistics-widget.title": "Статистика процесса",
   "process-statistics-widget.info.no-columns": "Нет настроек отображения",
+  "process-statistics-widget.info.no-model": "Нет модели",
+  "process-statistics-widget.info.mount-problem": "There is a mounting problem",
   "process-statistics-widget.settings.title": "Настройки виджета",
   "process-statistics-widget.settings.btn.cancel": "Отмена",
   "process-statistics-widget.settings.btn.save": "Сохранить",

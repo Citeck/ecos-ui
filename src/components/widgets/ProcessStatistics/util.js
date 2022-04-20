@@ -2,6 +2,7 @@ export const Labels = {
   WG_TITLE: 'process-statistics-widget.title',
   NO_COLS: 'process-statistics-widget.info.no-columns',
   NO_MODEL: 'process-statistics-widget.info.no-model',
+  ERR_MODEL: 'process-statistics-widget.info.mount-problem',
   SETTINGS_TITLE: 'process-statistics-widget.settings.title',
   SETTINGS_DEFAULT_FLAGS: 'process-statistics-widget.settings.default-display',
   SETTINGS_BTN_CANCEL: 'process-statistics-widget.settings.btn.cancel',

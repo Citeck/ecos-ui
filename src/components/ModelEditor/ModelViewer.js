@@ -37,10 +37,9 @@ export default class ModelViewer {
     try {
       if (this.modeler && diagram) {
         const result = await this.modeler.importXML(diagram);
-        callbackData = { mounted: !!result.error, result };
+        callbackData = { mounted: !result.error, result };
       } else {
-        console.error('No diagram', diagram);
-        callbackData = { mounted: false, error: ['No diagram'] };
+        callbackData = { mounted: false, error: 'No diagram' };
       }
     } catch (error) {
       console.error('Error rendering', error.message);

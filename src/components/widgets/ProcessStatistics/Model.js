@@ -90,12 +90,14 @@ class Model extends React.Component {
     this.setState({ isModelMounting });
   };
 
-  handleReadySheet = ({ mounted }) => {
+  handleReadySheet = ({ mounted, result }) => {
     this.setState({ isModelMounted: mounted, isModelMounting: false });
 
     if (mounted) {
       this.designer.setHeight(500);
       this.renderHeatmap();
+    } else {
+      console.warn({ result });
     }
   };
 
@@ -153,7 +155,7 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, isShowHeatmap } = this.props;
-    const { isOpened, isModelMounted, legendData, isHeatmapMounted } = this.state;
+    const { isOpened, isModelMounted, isModelMounting, legendData, isHeatmapMounted } = this.state;
 
     return (
       <div className="ecos-process-statistics-model">
@@ -163,7 +165,8 @@ class Model extends React.Component {
           <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
         </Caption>
         <Collapse isOpened={isOpened}>
-          {!isLoading && !isModelMounted && <InfoText text={t(Labels.NO_MODEL)} />}
+          {!isLoading && !model && <InfoText noIndents text={t(Labels.NO_MODEL)} />}
+          {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           <div className="ecos-process-statistics-model__panel">
             <Legend {...legendData} className={classNames({ 'd-none': !isShowHeatmap || !isHeatmapMounted })} />
           </div>
