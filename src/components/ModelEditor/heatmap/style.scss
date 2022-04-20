@@ -1,0 +1,19 @@
+@import '../../../styles/constants';
+
+.model-heatmap {
+  &__legend {
+    display: flex;
+    line-height: $font-size-standard;
+
+    &-min,
+    &-max {
+      font-size: $font-size-standard;
+      font-weight: $font-weight-bold;
+      color: $text-color-dark;
+    }
+
+    &-gradient {
+      margin: 0 8px;
+    }
+  }
+}

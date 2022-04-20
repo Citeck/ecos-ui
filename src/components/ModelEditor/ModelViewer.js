@@ -4,9 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isFunction from 'lodash/isFunction';
-import isEmpty from 'lodash/isEmpty';
 
-import { getTaskShapePoints, getUnknownShapePoints } from './heatmapUtil';
+import { getTaskShapePoints, getUnknownShapePoints } from './heatmap/util';
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
@@ -77,10 +76,7 @@ export default class ModelViewer {
     return <div ref={containerRef} className={ModelViewer.querySelector} />;
   };
 
-  //activeCount: "249"
-  // completedCount: "97"
-
-  drawHeatmap = data => {
+  drawHeatmap = ({ data, onChange }) => {
     const shapePoints = [];
     const connectionPoints = [];
     const canvas = this.modeler.get('canvas');
@@ -108,13 +104,11 @@ export default class ModelViewer {
       const shapeH = h * scale;
 
       data.forEach(heat => {
-        const { runCount } = heat;
-
         if (id === heat.id) {
           if (includes(type, 'Task')) {
-            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, runCount));
+            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
           } else {
-            shapePoints.push(...getUnknownShapePoints(shapeX, shapeY, shapeW, shapeH, runCount));
+            shapePoints.push(...getUnknownShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
           }
         }
       });
@@ -127,9 +121,7 @@ export default class ModelViewer {
     const points = shapePoints.concat(connectionPoints);
 
     if (points.length) {
-      let maxV = '';
-
-      points.forEach(item => (maxV = Math.max(maxV, +item.value)));
+      const maxV = Math.max(...points.map(item => +item.value));
 
       const config = {
         container: this.modeler._container,
@@ -139,10 +131,7 @@ export default class ModelViewer {
         maxOpacity: 0.8,
         minOpacity: 0,
         blur: 0.75,
-        onExtremaChange: data => {
-          console.log(data);
-          !isEmpty(data) && this.drawLegend(data);
-        }
+        onExtremaChange: data => isFunction(onChange) && onChange(data)
       };
 
       const heatmapData = {
@@ -152,6 +141,7 @@ export default class ModelViewer {
 
       this.heatmap = heatmap.create(config);
 
+      //todo
       document.querySelector('.heatmap-canvas').setAttribute(
         'style',
         `
@@ -165,8 +155,6 @@ export default class ModelViewer {
       this.heatmap.setData(heatmapData);
     }
   };
-
-  drawLegend = () => {};
 
   destroy = () => {
     this.modeler && this.modeler._emit('diagram.destroy');

@@ -57,3 +57,22 @@ export const getUnknownShapePoints = (x, y, w, h, value) => {
     }
   ];
 };
+
+export const getLegendNum = (num, isMax) => {
+  const str = `${num}`;
+
+  if (!isMax || +num === 0 || num % 10 === 0) {
+    return num;
+  }
+
+  if (str.length === 1) {
+    if (isMax) {
+      return 10;
+    }
+  } else {
+    if (num % 10 > 0) {
+      // eslint-disable-line
+      return +`${parseInt(num / 10) + 1}0`; // eslint-disable-line
+    }
+  }
+};

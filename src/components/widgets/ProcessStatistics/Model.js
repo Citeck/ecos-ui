@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { Collapse } from 'react-collapse';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import { getModel } from '../../../actions/processStatistics';
 
@@ -12,6 +13,7 @@ import { Icon, InfoText, Loader, ResizableBox } from '../../common';
 import { Caption } from '../../common/form';
 import { t } from '../../../helpers/export/util';
 import ModelViewer from '../../ModelEditor/ModelViewer';
+import Legend from '../../ModelEditor/heatmap/Legend';
 import { Labels } from './util';
 
 import './style.scss';
@@ -48,7 +50,8 @@ class Model extends React.Component {
     super(props);
     this.state = {
       isOpened: !!props.showModelDefault,
-      isModelMounted: false
+      isModelMounted: false,
+      legendData: {}
     };
   }
 
@@ -89,8 +92,9 @@ class Model extends React.Component {
   };
 
   renderHeatmap = () => {
-    if (this.props.heatmapData) {
-      this.heatmapRef = this.designer.drawHeatmap(this.props.heatmapData);
+    if (!isEmpty(this.props.heatmapData)) {
+      const data = this.props.heatmapData.map(item => ({ id: item.id, value: item.activeCount }));
+      this.designer.drawHeatmap({ data, onChange: this.onChangeHeatmap });
     }
 
     // this.destroyHeatmap();
@@ -112,9 +116,13 @@ class Model extends React.Component {
     this.heatmapRef = null;
   };
 
+  onChangeHeatmap = legendData => {
+    this.setState({ legendData });
+  };
+
   render() {
     const { model, isLoading } = this.props;
-    const { isOpened, isModelMounted } = this.state;
+    const { isOpened, isModelMounted, legendData } = this.state;
 
     return (
       <div className="ecos-process-statistics-model">
@@ -125,6 +133,9 @@ class Model extends React.Component {
         </Caption>
         <Collapse isOpened={isOpened}>
           {!isLoading && !isModelMounted && <InfoText text={t(Labels.NO_MODEL)} />}
+          <div className="ecos-process-statistics-model__panel">
+            <Legend {...legendData} />
+          </div>
           <ResizableBox getHeight={this.redraw} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
             {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
           </ResizableBox>

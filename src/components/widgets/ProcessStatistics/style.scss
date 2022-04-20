@@ -29,6 +29,12 @@
   &-model {
     @extend %base-block;
 
+    &__panel {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 10px;
+    }
+
     & &__sheet-resizer {
       &::before {
         content: none;
