@@ -9,7 +9,6 @@ import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 import isElement from 'lodash/isElement';
-import cloneDeep from 'lodash/cloneDeep';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { closest, getId } from '../../../../../../helpers/util';
