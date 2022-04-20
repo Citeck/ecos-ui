@@ -11,6 +11,7 @@ export default class ModelViewer {
   static querySelector = 'ecos-model-container';
   modeler;
   heatmap;
+  defaultScale;
 
   init = async ({ diagram, container, onInit, onMounted }) => {
     isFunction(onInit) && onInit(true);
@@ -32,12 +33,17 @@ export default class ModelViewer {
     await this.setDiagram(diagram, { onMounted });
   };
 
+  get canvas() {
+    return this.modeler.get('canvas');
+  }
+
   setDiagram = async (diagram, { onMounted }) => {
     let callbackData;
     try {
       if (this.modeler && diagram) {
         const result = await this.modeler.importXML(diagram);
         callbackData = { mounted: !result.error, result };
+        this.defaultScale = this.canvas.viewbox().scale;
       } else {
         callbackData = { mounted: false, error: 'No diagram' };
       }
@@ -54,8 +60,25 @@ export default class ModelViewer {
       if (height) {
         this.modeler._container.style.height = `${height}px`;
       }
-      this.modeler.get('canvas').zoom('fit-viewport');
+      this.canvas.zoom('fit-viewport');
     }
+  };
+
+  handleZoom = radio => {
+    // const { scale, defaultScale } = this.state;
+    // const newScale = !radio
+    //   ? defaultScale // 不输入radio则还原
+    //   : scale + radio <= 0.2 // 最小缩小倍数
+    //     ? 0.2
+    //     : scale + radio;
+    //
+    // this.canvas.zoom(newScale);
+    // this.setState({
+    //   scale: newScale
+    // });
+    // if (query('.heatmap-canvas')) remove(query('.heatmap-canvas'));
+    // // this.renderHeatmap(JSON.parse(JSON.stringify(heatmapdata)), canvas);
+    // this.renderHeatmap(canvas);
   };
 
   Sheet = ({ diagram, onMounted, onInit }) => {
@@ -80,9 +103,8 @@ export default class ModelViewer {
   drawHeatmap = ({ data, onChange, onMounted }) => {
     const shapePoints = [];
     const connectionPoints = [];
-    const canvas = this.modeler.get('canvas');
     const elementRegistry = this.modeler.get('elementRegistry');
-    const viewbox = canvas.viewbox();
+    const viewbox = this.canvas.viewbox();
 
     // get viewbox position & scale
     const {
@@ -116,7 +138,7 @@ export default class ModelViewer {
     });
 
     connections.forEach(connection => {
-      canvas.addMarker(connection.id, 'connection-shadow');
+      this.canvas.addMarker(connection.id, 'connection-shadow');
     });
 
     const points = shapePoints.concat(connectionPoints);
