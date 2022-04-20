@@ -91,7 +91,16 @@ class FormWrapper extends React.Component {
 
     // TODO: Maybe should think about optimization. For example, check previous and current values
     // Or set values with a delay, accumulating frequent changes into a separate object
-    this._form.setValue({ data });
+
+    const formData = this._form.getValue();
+
+    this._form.setValue({
+      ...formData,
+      data: {
+        ...formData.data,
+        ...data
+      }
+    });
   };
 
   setEvents(form, extra = {}) {

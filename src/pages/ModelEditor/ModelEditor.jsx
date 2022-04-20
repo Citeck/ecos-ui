@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
@@ -32,6 +33,7 @@ class ModelEditorPage extends React.Component {
   modelEditorRef = React.createRef();
   #tempFormData = {};
   #formWrapperRef = React.createRef();
+  #prevValue = {};
 
   componentDidMount() {
     this.initModeler();
@@ -130,8 +132,11 @@ class ModelEditorPage extends React.Component {
       }
     });
 
-    // TODO: Maybe should think about optimization. For example, check previous and current values
-    if (this.#formWrapperRef.current && !isEmpty(formFields)) {
+    /* Events can occur too often.
+     * In order not to provoke extra renders, additionally compare the previous and current value.
+     */
+    if (this.#formWrapperRef.current && !isEmpty(formFields) && !isEqual(this.#prevValue, formFields)) {
+      this.#prevValue = { ...formFields };
       this.#formWrapperRef.current.setValue(formFields);
     }
   };
