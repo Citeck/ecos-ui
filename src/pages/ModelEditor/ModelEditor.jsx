@@ -3,11 +3,12 @@ import queryString from 'query-string';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
+import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
-import { t, getTextByLocale } from '../../helpers/util';
-import { KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
+import { t, getTextByLocale, getCurrentLocale } from '../../helpers/util';
+import { KEY_FIELD_NAME, KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -30,6 +31,7 @@ class ModelEditorPage extends React.Component {
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
   #tempFormData = {};
+  #formWrapperRef = React.createRef();
 
   componentDidMount() {
     this.initModeler();
@@ -105,6 +107,33 @@ class ModelEditorPage extends React.Component {
 
   handleReadySheet = () => {
     this.handleSelectItem(this.designer.elementDefinitions);
+  };
+
+  handleChangeElement = element => {
+    if (!element) {
+      return;
+    }
+
+    const formFields = {};
+
+    Object.keys(get(element, 'businessObject', {})).forEach(key => {
+      if (KEY_FIELDS.includes(key)) {
+        const value = get(element, ['businessObject', key]);
+
+        if (!isUndefined(value)) {
+          if (key === KEY_FIELD_NAME) {
+            formFields[key + ML_POSTFIX] = { [getCurrentLocale()]: value || '' };
+          } else {
+            formFields[key] = value;
+          }
+        }
+      }
+    });
+
+    // TODO: Maybe should think about optimization. For example, check previous and current values
+    if (this.#formWrapperRef.current && !isEmpty(formFields)) {
+      this.#formWrapperRef.current.setValue(formFields);
+    }
   };
 
   handleSave = (deploy = false) => {
@@ -202,7 +231,14 @@ class ModelEditorPage extends React.Component {
     const { savedModel } = this.props;
 
     if (savedModel) {
-      return <this.designer.Sheet diagram={savedModel} onClickElement={this.handleSelectItem} onMounted={this.handleReadySheet} />;
+      return (
+        <this.designer.Sheet
+          diagram={savedModel}
+          onClickElement={this.handleSelectItem}
+          onMounted={this.handleReadySheet}
+          onChangeElement={this.handleChangeElement}
+        />
+      );
     } else {
       return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;
     }
@@ -227,6 +263,7 @@ class ModelEditorPage extends React.Component {
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
               {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
               <FormWrapper
+                ref={this.#formWrapperRef}
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
                 {...formProps}
