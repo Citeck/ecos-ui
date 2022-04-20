@@ -1510,7 +1510,8 @@
   "process-statistics-widget.settings.field.showHeatmapDefault": "Интесивновть",
   "process-statistics-widget.settings.field.showModelDefault": "Процесс",
   "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
-  "process-statistics-widget.panel.field.heatmap": "Интенсивность",
+  "process-statistics-widget.panel.field.heatmap": "Тепловая карта",
   "process-statistics-widget.model.title": "Процесс",
-  "process-statistics-widget.journal.title": "Журнал"
+  "process-statistics-widget.journal.title": "Журнал",
+  "process-statistics-widget.journal.last-n-records": "Последние 10 записей"
 }

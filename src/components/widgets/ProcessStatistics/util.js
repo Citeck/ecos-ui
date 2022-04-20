@@ -12,5 +12,6 @@ export const Labels = {
   DEF_JOURNAL_FIELD: 'process-statistics-widget.settings.field.display-journal-default',
   PANEL_HEATMAP: 'process-statistics-widget.panel.field.heatmap',
   MODEL_TITLE: 'process-statistics-widget.model.title',
-  JOURNAL_TITLE: 'process-statistics-widget.journal.title'
+  JOURNAL_TITLE: 'process-statistics-widget.journal.title',
+  JOURNAL_LAST_RECORDS: 'process-statistics-widget.journal.last-n-records'
 };

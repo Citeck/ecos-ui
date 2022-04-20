@@ -96,10 +96,6 @@ class Journal extends React.Component {
     const { isLoading, columns, isMobile, maxHeight, data } = this.props;
     const { filters, isOpened } = this.state;
 
-    if (!isLoading && isEmpty(columns)) {
-      return <InfoText text={t(Labels.NO_COLS)} />;
-    }
-
     return (
       <div className="ecos-process-statistics-journal">
         {isLoading && <Loader blur />}
@@ -108,6 +104,7 @@ class Journal extends React.Component {
           <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
         </Caption>
         <Collapse isOpened={isOpened}>
+          {!isLoading && isEmpty(columns) && <InfoText text={t(Labels.NO_COLS)} />}
           <Grid
             fixedHeader
             data={data}
@@ -119,6 +116,7 @@ class Journal extends React.Component {
             filters={filters}
             onFilter={this.onGridFilter}
           />
+          {!isEmpty(columns) && <InfoText text={t(Labels.JOURNAL_LAST_RECORDS)} noIndents />}
         </Collapse>
       </div>
     );

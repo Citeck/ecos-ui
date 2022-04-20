@@ -9,14 +9,16 @@ const initialState = {
   isLoadingModel: false,
   data: [],
   journalConfig: null,
-  model: null
+  model: null,
+  heatmapData: null
 };
 
 export default handleActions(
   {
     [getModel]: startLoading(initialState, 'isLoadingModel'),
     [getJournal]: startLoading(initialState, 'isLoadingJournal'),
-    [setModel]: (state, { payload }) => updateState(state, payload.stateId, { ...pick(payload, 'model'), isLoadingModel: false }),
+    [setModel]: (state, { payload }) =>
+      updateState(state, payload.stateId, { ...pick(payload, 'model', 'heatmapData'), isLoadingModel: false }),
     [setJournal]: (state, { payload }) =>
       updateState(state, payload.stateId, { ...pick(payload, 'data', 'journalConfig'), isLoadingJournal: false }),
     [resetDashlet]: (state, { payload: { stateId } }) => deleteStateById(state, stateId)

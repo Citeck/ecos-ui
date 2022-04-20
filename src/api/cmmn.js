@@ -1,4 +1,5 @@
 import Records from '../components/Records';
+import { SourcesId } from '../constants';
 
 // @todo actually its not only a cmmn api. Its bpmn-def + cmmn-def
 export default class CmmnApi {
@@ -26,5 +27,23 @@ export default class CmmnApi {
     });
 
     return rec.save();
+  };
+
+  getModel = procDef => {
+    return Records.get(procDef).load('cm:content');
+  };
+
+  getHeatmapData = procDef => {
+    return Records.query(
+      {
+        sourceId: SourcesId.BPMN_STAT,
+        language: 'predicate-with-data',
+        query: {
+          data: { procDef },
+          predicate: {}
+        }
+      },
+      ['activeCount', 'name', 'completedCount', 'id']
+    );
   };
 }

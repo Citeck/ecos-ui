@@ -8,10 +8,10 @@ import isEqual from 'lodash/isEqual';
 
 import { getModel } from '../../../actions/processStatistics';
 
-import { Icon, InfoText, Loader } from '../../common';
+import { Icon, InfoText, Loader, ResizableBox } from '../../common';
 import { Caption } from '../../common/form';
 import { t } from '../../../helpers/export/util';
-import BPMNModeler from '../../ModelEditor/BPMNModeler';
+import ModelViewer from '../../ModelEditor/ModelViewer';
 import { Labels } from './util';
 
 import './style.scss';
@@ -21,19 +21,14 @@ const mapStateToProps = (state, context) => {
 
   return {
     isLoading: psState.isLoadingModel,
-    model: psState.model
+    model: psState.model,
+    heatmapData: psState.heatmapData
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   getModelData: payload => dispatch(getModel(payload))
 });
-
-const heatmapdata = [
-  { actId: 'StartEvent_1ew9rff', runCount: 12 },
-  { actId: 'Activity_1epip7d', runCount: 20 },
-  { actId: 'Activity_0q2hslg', runCount: 35 }
-];
 
 class Model extends React.Component {
   static propTypes = {
@@ -61,7 +56,7 @@ class Model extends React.Component {
 
   componentDidMount() {
     this.getModel();
-    this.designer = new BPMNModeler();
+    this.designer = new ModelViewer();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -69,13 +64,13 @@ class Model extends React.Component {
       this.getModel();
     }
 
+    //todo switch
     if (!isEqual(prevProps.isShowHeatmap, this.props.isShowHeatmap) || !isEqual(prevState.isModelMounted, this.state.isModelMounted)) {
       if (this.state.isModelMounted) {
         if (this.props.isShowHeatmap) {
-          this.renderHeatmap();
+          //this.renderHeatmap();
         } else {
-          this.heatmapRef.removeData();
-          this.heatmapRef.repaint();
+          //this.destroyHeatmap();
         }
       }
     }
@@ -89,11 +84,32 @@ class Model extends React.Component {
 
   handleReadySheet = mounted => {
     this.setState({ isModelMounted: mounted });
+    this.designer.setHeight(500);
+    this.renderHeatmap();
   };
 
   renderHeatmap = () => {
-    const canvas = this.designer.modeler.get('canvas');
-    this.designer.renderHeatmap({ canvas, heatmapdata, heatmapRef: this.heatmapRef });
+    if (this.props.heatmapData) {
+      this.heatmapRef = this.designer.drawHeatmap(this.props.heatmapData);
+    }
+
+    // this.destroyHeatmap();
+  };
+
+  redraw = height => {
+    this.designer.setHeight(height);
+    this.heatmapRef && this.heatmapRef.repaint();
+  };
+
+  //todo
+  destroyHeatmap = () => {
+    if (!this.heatmapRef) {
+      return;
+    }
+
+    this.heatmapRef.removeData();
+    this.heatmapRef.repaint();
+    this.heatmapRef = null;
   };
 
   render() {
@@ -107,9 +123,11 @@ class Model extends React.Component {
           {t(Labels.MODEL_TITLE)}
           <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
         </Caption>
-        <Collapse isOpened={isModelMounted && isOpened}>
-          {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
-          {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
+        <Collapse isOpened={isOpened}>
+          {!isLoading && !isModelMounted && <InfoText text={t(Labels.NO_MODEL)} />}
+          <ResizableBox getHeight={this.redraw} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
+            {model && <this.designer.Sheet diagram={model} onMounted={this.handleReadySheet} />}
+          </ResizableBox>
         </Collapse>
       </div>
     );

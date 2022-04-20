@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import includes from 'lodash/includes';
-import heatmap from 'heatmap.js';
-
-import { getTaskShapePoints } from './shapePoints';
 
 /**
  * Expansion for Modeler
@@ -16,6 +12,8 @@ import { getTaskShapePoints } from './shapePoints';
  * @param {Boolean} isCustomContainer - shows whose container is. You can set using setCustomContainer
  */
 export default class BaseModeler {
+  static querySelector = 'ecos-model-container';
+
   modeler;
   events = {};
   _isCustomContainer = false;
@@ -30,6 +28,7 @@ export default class BaseModeler {
    * @param {String} diagram - initial xml diagram
    * @param container - html element where diagram draws
    * @param {Object} events - any events you want to use.
+   * @param {Function} callback
    */
   init = async ({ diagram, container, events, callback }) => {
     this.initModelerInstance();
@@ -38,7 +37,7 @@ export default class BaseModeler {
       this.modeler.attachTo(container);
     }
 
-    this.setDiagram(diagram, { callback });
+    await this.setDiagram(diagram, { callback });
     this.setEvents(events);
   };
 
@@ -194,7 +193,7 @@ export default class BaseModeler {
       }
     }, [initialized, containerRef]);
 
-    return <div ref={containerRef} className="ecos-model-container" />;
+    return <div ref={containerRef} className={BaseModeler.querySelector} />;
   };
 
   destroy = () => {
@@ -205,98 +204,5 @@ export default class BaseModeler {
     }
 
     this.modeler && this.modeler._emit('diagram.destroy');
-  };
-
-  renderHeatmap = ({ canvas, heatmapdata, heatmapRef }) => {
-    let heatmapData = {};
-    const elementRegistry = this.modeler.get('elementRegistry');
-    const viewbox = canvas.viewbox();
-
-    // get viewbox position & scale
-    const {
-      inner: { x: oX, y: oY },
-      outer: { height: H, width: W },
-      x: X,
-      y: Y,
-      scale // zoom rate
-    } = viewbox;
-
-    // get all shapes and connections
-    const shapes = elementRegistry.filter(element => !element.waypoints && element.parent && element.type !== 'label');
-
-    const connections = elementRegistry.filter(element => !!element.waypoints && element.parent);
-
-    const shapePoints = [];
-
-    shapes.forEach(shape => {
-      const { x, y, width: w, height: h, type, id } = shape;
-      const shapeX = x * scale - X * scale + (X < 0 ? (X - oX) * scale : X > 0 ? (X - oX) * scale : 0);
-      const shapeY = y * scale - Y * scale + (Y > 0 ? (Y - oY) * scale : 0);
-      const shapeW = w * scale;
-      const shapeH = h * scale;
-
-      heatmapdata.forEach(heat => {
-        const { actId, runCount } = heat;
-
-        if (id === actId) {
-          if (includes(type, 'Task')) {
-            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, runCount));
-          } else {
-            shapePoints.push({
-              x: Math.round(Math.abs(shapeX) + Math.floor(shapeW / 2)),
-              y: Math.round(Math.abs(shapeY) + Math.floor(shapeH / 2)),
-              value: runCount
-            });
-          }
-        }
-      });
-    });
-
-    const connectionPoints = [];
-    connections.forEach(connection => {
-      canvas.addMarker(connection.id, 'connection-shadow');
-    });
-
-    const points = shapePoints.concat(connectionPoints);
-
-    if (points.length) {
-      let maxV = '';
-
-      points.forEach(item => (maxV = Math.max(maxV, +item.value)));
-
-      const config = {
-        container: this.modeler._container,
-        width: +W + (X < 0 ? Math.round(+((X - oX) * scale)) : X > 0 ? -(X - oX) * scale : 0),
-        height: +H + (Y > 0 ? Math.round(+((Y - oY) * scale)) : 0),
-        radius: 46,
-        maxOpacity: 0.8,
-        minOpacity: 0,
-        blur: 0.75,
-        onExtremaChange: data => {
-          if (heatmapdata && heatmapdata.length) {
-            //updateLegend(data);
-          }
-        }
-      };
-
-      heatmapData = {
-        max: maxV,
-        data: points
-      };
-
-      heatmapRef = heatmap.create(config);
-
-      document.querySelector('.heatmap-canvas').setAttribute(
-        'style',
-        `
-          position: absolute;
-          left: ${X < 0 ? -((X - oX) * scale) : X > 0 ? -(X - oX) * scale : 0}px;
-          top: ${Y > 0 ? -((Y - oY) * scale) : 0}px
-        `
-      );
-
-      // heatmapInstance.repaint();
-      heatmapRef.setData(heatmapData);
-    }
   };
 }

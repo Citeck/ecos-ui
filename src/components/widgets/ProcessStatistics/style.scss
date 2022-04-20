@@ -28,6 +28,12 @@
 
   &-model {
     @extend %base-block;
+
+    & &__sheet-resizer {
+      &::before {
+        content: none;
+      }
+    }
   }
 
   &-journal {

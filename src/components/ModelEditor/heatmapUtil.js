@@ -47,3 +47,13 @@ export const getTaskShapePoints = (x, y, w, h, value) => {
     }
   ];
 };
+
+export const getUnknownShapePoints = (x, y, w, h, value) => {
+  return [
+    {
+      x: Math.round(Math.abs(x) + Math.floor(w / 2)),
+      y: Math.round(Math.abs(y) + Math.floor(h / 2)),
+      value
+    }
+  ];
+};
