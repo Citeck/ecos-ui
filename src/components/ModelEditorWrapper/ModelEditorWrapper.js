@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { isExistValue, t, isMobileDevice } from '../../helpers/util';
+import { isExistValue, t } from '../../helpers/util';
 import { Icon, InfoText } from '../common';
 import { Caption } from '../common/form';
 import { Btn, IcoBtn } from '../common/btns';
