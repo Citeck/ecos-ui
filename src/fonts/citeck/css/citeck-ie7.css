@@ -206,9 +206,6 @@
 .icon-custom-drag-small {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe840;&nbsp;');
 }
-.icon-link {
-  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe841;&nbsp;');
-}
 .icon-doc {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe842;&nbsp;');
 }
@@ -284,9 +281,33 @@
 .icon-redo {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85b;&nbsp;');
 }
+.icon-folder-2 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85c;&nbsp;');
+}
+.icon-picture {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85e;&nbsp;');
+}
+.icon-redo-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe85f;&nbsp;');
+}
+.icon-undo-1 {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe860;&nbsp;');
+}
+.icon-resize-vertical {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe861;&nbsp;');
+}
+.icon-zoom-in {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe862;&nbsp;');
+}
+.icon-zoom-out {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe863;&nbsp;');
+}
 .icon-empty {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88d;&nbsp;');
 }
 .icon-hamburger-menu {
   *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xe88e;&nbsp;');
+}
+.icon-resize-full-alt {
+  *zoom: expression(this.runtimeStyle[ 'zoom' ] = '1', this.innerHTML = '&#xf0b2;&nbsp;');
 }
