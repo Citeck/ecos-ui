@@ -62,16 +62,16 @@ class ModelEditorWrapper extends React.Component {
                   </>
                 )}
                 {onViewXml && (
-                  <div>
+                  <>
                     <IcoBtn icon="icon-document-view" onClick={onViewXml} id="icon-document-view" />
                     <Tooltip trigger="hover" target="icon-document-view" text={t(Labels.VIEW_XML)} />
-                  </div>
+                  </>
                 )}
                 {onSaveAndDeploy && (
-                  <div>
+                  <>
                     <IcoBtn icon="fa fa-cloud-upload" onClick={onSaveAndDeploy} className="ecos-btn_green" id="fa-fa-cloud-upload" />
                     <Tooltip trigger="hover" target="fa-fa-cloud-upload" text={t(Labels.SAVE_DEPLOY)} />
-                  </div>
+                  </>
                 )}
               </div>
             </div>
