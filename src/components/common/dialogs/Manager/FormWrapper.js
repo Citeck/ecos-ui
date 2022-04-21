@@ -3,12 +3,16 @@ import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import classNames from 'classnames';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 
 class FormWrapper extends React.Component {
+  #cachedForms = {};
+
   constructor(props) {
     super(props);
 
@@ -24,6 +28,12 @@ class FormWrapper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { cached, id } = this.props;
+
+    if (cached && prevProps.id && !isEqual(prevProps.id, id) && this._form) {
+      this.#cachedForms[prevProps.id] = cloneDeep(this._form.getValue().data);
+    }
+
     if (!isEqual(prevProps, this.props)) {
       this.initForm();
     }
@@ -81,6 +91,13 @@ class FormWrapper extends React.Component {
           data: this.props.formData
         };
       }
+
+      if (this.props.cached) {
+        form.submission.data = {
+          ...(form.submission.data || {}),
+          ...get(this.#cachedForms, this.props.id, {})
+        };
+      }
     });
   }
 
@@ -136,8 +153,10 @@ class FormWrapper extends React.Component {
 }
 
 FormWrapper.propTypes = {
+  id: PropTypes.string,
   className: PropTypes.string,
   isVisible: PropTypes.bool,
+  cached: PropTypes.bool,
   formDefinition: PropTypes.object,
   formOptions: PropTypes.object,
   formI18n: PropTypes.object,

@@ -51,3 +51,8 @@ id="Definitions_0uso40t" targetNamespace="http://bpmn.io/schema/cmmn" exporter="
   </cmmndi:CMMNDI>
 </cmmn:definitions>
 `;
+
+export const EventListeners = {
+  CREATE_END: 'create.end',
+  ELEMENT_UPDATE_ID: 'element.updateId'
+};

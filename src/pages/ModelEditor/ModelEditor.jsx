@@ -9,7 +9,7 @@ import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
 import { t, getTextByLocale, getCurrentLocale } from '../../helpers/util';
-import { KEY_FIELD_NAME, KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
+import { EventListeners, KEY_FIELD_NAME, KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -287,8 +287,8 @@ class ModelEditorPage extends React.Component {
           onChangeElement={this.handleChangeElement}
           onChangeElementLabel={this.handleChangeLabel}
           extraEvents={{
-            'create.end': this.handleElementCreateEnd,
-            'element.updateId': this.handleElementUpdateId
+            [EventListeners.CREATE_END]: this.handleElementCreateEnd,
+            [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId
           }}
         />
       );
@@ -316,6 +316,8 @@ class ModelEditorPage extends React.Component {
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
               {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
               <FormWrapper
+                id={get(selectedElement, 'id')}
+                cached
                 ref={this.#formWrapperRef}
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
