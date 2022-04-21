@@ -31,7 +31,6 @@ class EcosForm extends React.Component {
   _formContainer = React.createRef();
   _form = null;
   _containerHeightTimerId = null;
-  _formIdValue = null;
   _formSubmitDoneResolve = () => undefined;
 
   constructor(props) {
@@ -285,11 +284,6 @@ class EcosForm extends React.Component {
           });
 
           this._form = form;
-
-          if (this._form.data.moduleId) {
-            this._formIdValue = this._form.data.moduleId;
-            this.setState({ formIdValue: this._form.data.moduleId });
-          }
           isFunction(customModule.init) && customModule.init({ form });
         });
       });
