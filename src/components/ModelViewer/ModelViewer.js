@@ -4,8 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isFunction from 'lodash/isFunction';
+import isNumber from 'lodash/isNumber';
 
-import { getTaskShapePoints, getUnknownShapePoints } from './heatmap/util';
+import { getTaskShapePoints, getUnknownShapePoints } from './tools/util';
+import { Zooms } from './util';
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
@@ -57,29 +59,37 @@ export default class ModelViewer {
 
   setHeight = height => {
     if (this.modeler._container) {
-      if (height) {
-        this.modeler._container.style.height = `${height}px`;
-      }
-      this.canvas.zoom('fit-viewport');
+      const viewport = this.modeler._container.querySelector('.viewport');
+
+      height = height || viewport.getBoundingClientRect().height;
+      this.modeler._container.style.height = `${height}px`;
+
+      //this.canvas.zoom(Zooms.FIT);
     }
   };
 
-  handleZoom = radio => {
-    // const { scale, defaultScale } = this.state;
-    // const newScale = !radio
-    //   ? defaultScale // 不输入radio则还原
-    //   : scale + radio <= 0.2 // 最小缩小倍数
-    //     ? 0.2
-    //     : scale + radio;
-    //
-    // this.canvas.zoom(newScale);
-    // this.setState({
-    //   scale: newScale
-    // });
-    // if (query('.heatmap-canvas')) remove(query('.heatmap-canvas'));
-    // // this.renderHeatmap(JSON.parse(JSON.stringify(heatmapdata)), canvas);
-    // this.renderHeatmap(canvas);
+  setZoom = value => {
+    console.log({ value });
+    switch (value) {
+      case Zooms.DEFAULT:
+        this.canvas.zoom(this.defaultScale);
+        break;
+      case Zooms.FIT:
+        this.canvas.zoom(Zooms.FIT);
+        break;
+      default: {
+        const oldScale = this.canvas.viewbox().scale;
+        value = isNumber(oldScale) ? oldScale : this.defaultScale;
+        const newScale = value <= Zooms.MIN ? Zooms.MIN : oldScale + value;
+        this.canvas.zoom(newScale);
+        //if (query('.tools-canvas')) remove(query('.tools-canvas'));
+        //this.renderHeatmap(JSON.parse(JSON.stringify(heatmapdata)), canvas);
+        // this.renderHeatmap(canvas);
+      }
+    }
   };
+
+  //todo tooltip
 
   Sheet = ({ diagram, onMounted, onInit }) => {
     const [initialized, setInitialized] = useState(false);
@@ -166,14 +176,14 @@ export default class ModelViewer {
       this.heatmap = heatmap.create(config);
 
       //todo
-      // document.querySelector('.heatmap-canvas').setAttribute(
-      //   'style',
-      //   `
-      //     position: absolute;
-      //     left: ${X < 0 ? -((X - oX) * scale) : X > 0 ? -(X - oX) * scale : 0}px;
-      //     top: ${Y > 0 ? -((Y - oY) * scale) : 0}px
-      //   `
-      // );
+      document.querySelector('.tools-canvas').setAttribute(
+        'style',
+        `
+          position: absolute;
+          left: ${X < 0 ? -((X - oX) * scale) : X > 0 ? -(X - oX) * scale : 0}px;
+          top: ${Y > 0 ? -((Y - oY) * scale) : 0}px
+        `
+      );
 
       // heatmapInstance.repaint();
       this.heatmap.setData(heatmapData);
@@ -187,6 +197,11 @@ export default class ModelViewer {
     if (canvas) {
       canvas.classList.toggle('d-none', isHidden);
     }
+  };
+
+  setOpacityHeatmap = val => {
+    const canvas = get(this.heatmap, '_renderer.canvas');
+    canvas && (canvas.style.opacity = val);
   };
 
   destroy = () => {

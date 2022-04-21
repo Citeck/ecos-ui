@@ -32,9 +32,23 @@
     &__panel {
       display: flex;
       justify-content: flex-end;
-      padding: 0 10px 10px;
+      padding: 0 10px;
+      margin-bottom: 10px;
       align-items: center;
-      height: 15px;
+      height: 28px;
+
+      & > :nth-child(n):not(:last-child):not(:empty) {
+        border-right: 2px solid $color-gray;
+
+        &:not(:first-child) {
+          margin: 0 5px;
+          padding: 0 5px;
+        }
+      }
+
+      &-delimiter {
+        flex: auto;
+      }
     }
 
     & &__sheet-resizer {

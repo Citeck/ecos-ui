@@ -8,10 +8,11 @@ export const Labels = {
   SETTINGS_BTN_CANCEL: 'process-statistics-widget.settings.btn.cancel',
   SETTINGS_BTN_SAVE: 'process-statistics-widget.settings.btn.save',
   JOURNAL_FIELD: 'process-statistics-widget.settings.field.journal',
-  DEF_HEATMAP_FIELD: 'process-statistics-widget.settings.field.display-heatmap-default',
+  DEF_HEATMAP_FIELD: 'process-statistics-widget.settings.field.display-tools-default',
   DEF_MODEL_FIELD: 'process-statistics-widget.settings.field.display-model-default',
   DEF_JOURNAL_FIELD: 'process-statistics-widget.settings.field.display-journal-default',
   PANEL_HEATMAP: 'process-statistics-widget.panel.field.heatmap',
+  PANEL_OPACITY: 'process-statistics-widget.panel.field.opacity',
   MODEL_TITLE: 'process-statistics-widget.model.title',
   JOURNAL_TITLE: 'process-statistics-widget.journal.title',
   JOURNAL_LAST_RECORDS: 'process-statistics-widget.journal.last-n-records'

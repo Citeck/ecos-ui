@@ -67,8 +67,7 @@ class Journal extends React.Component {
   }
 
   componentWillUnmount() {
-    const { resetEventsHistory, stateId } = this.props;
-
+    //const { resetEventsHistory, stateId } = this.props;
     //resetEventsHistory({ stateId });
   }
 
@@ -79,8 +78,7 @@ class Journal extends React.Component {
   };
 
   onFilter = predicates => {
-    const { filterJournalHistory, record, stateId, columns } = this.props;
-
+    //const { filterJournalHistory, record, stateId, columns } = this.props;
     //filterJournalHistory({ stateId, record, columns, predicates });
   };
 

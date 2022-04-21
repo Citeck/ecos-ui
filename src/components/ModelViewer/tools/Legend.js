@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 
@@ -6,13 +7,7 @@ import { getLegendNum } from './util';
 
 import './style.scss';
 
-const Legend = ({
-  width = 200,
-  min = 0,
-  max = 0,
-  gradient = { 1: 'rgb(255,0,0)', 0.25: 'rgb(0,0,255)', 0.55: 'rgb(0,255,0)', 0.85: 'yellow' },
-  className
-}) => {
+const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => {
   const gradientRef = useRef(null);
   const [_min, setMin] = useState(0);
   const [_max, setMax] = useState(0);
@@ -61,6 +56,14 @@ const Legend = ({
       </span>
     </div>
   );
+};
+
+Legend.propTypes = {
+  width: PropTypes.number,
+  min: PropTypes.number,
+  max: PropTypes.number,
+  gradient: PropTypes.object,
+  className: PropTypes.string
 };
 
 export default Legend;

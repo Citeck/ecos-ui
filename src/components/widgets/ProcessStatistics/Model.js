@@ -12,8 +12,8 @@ import { getModel } from '../../../actions/processStatistics';
 import { Icon, InfoText, Loader, ResizableBox } from '../../common';
 import { Caption } from '../../common/form';
 import { t } from '../../../helpers/export/util';
-import ModelViewer from '../../ModelEditor/ModelViewer';
-import Legend from '../../ModelEditor/heatmap/Legend';
+import ModelViewer from '../../ModelViewer/ModelViewer';
+import { Legend, Opacity, Zoomer } from '../../ModelViewer/tools';
 import { Labels } from './util';
 
 import './style.scss';
@@ -94,7 +94,7 @@ class Model extends React.Component {
     this.setState({ isModelMounted: mounted, isModelMounting: false });
 
     if (mounted) {
-      this.designer.setHeight();
+      this.designer.setHeight(400);
       this.renderHeatmap();
     } else {
       console.warn({ result });
@@ -156,6 +156,7 @@ class Model extends React.Component {
   render() {
     const { model, isLoading, isShowHeatmap } = this.props;
     const { isOpened, isModelMounted, isModelMounting, legendData, isHeatmapMounted } = this.state;
+    const isShow = isShowHeatmap && isHeatmapMounted;
 
     return (
       <div className="ecos-process-statistics-model">
@@ -168,7 +169,10 @@ class Model extends React.Component {
           {!isLoading && !model && <InfoText noIndents text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           <div className="ecos-process-statistics-model__panel">
-            <Legend {...legendData} className={classNames({ 'd-none': !isShowHeatmap || !isHeatmapMounted })} />
+            <Zoomer instModelRef={this.designer} />
+            {isShow && <Opacity instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
+            <div className="ecos-process-statistics-model__panel-delimiter" />
+            {isShow && <Legend {...legendData} />}
           </div>
           <ResizableBox getHeight={this.redraw} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
             {model && <this.designer.Sheet diagram={model} onInit={this.handleInitSheet} onMounted={this.handleReadySheet} />}
