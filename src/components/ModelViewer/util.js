@@ -1,7 +1,6 @@
 export const Zooms = {
   FIT: 'fit-viewport',
   STEP: 0.1,
-  MIN: 0.2,
   DEFAULT: ''
 };
 

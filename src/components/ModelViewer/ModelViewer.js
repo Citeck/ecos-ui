@@ -1,12 +1,10 @@
 import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
-import heatmap from 'heatmap.js';
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
-import includes from 'lodash/includes';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 
-import { getTaskShapePoints, getUnknownShapePoints } from './tools/util';
+import HeatmapWrapper from './Heatmap.js';
 import { Zooms } from './util';
 
 export default class ModelViewer {
@@ -39,6 +37,10 @@ export default class ModelViewer {
     return this.modeler.get('canvas');
   }
 
+  get viewport() {
+    return this.modeler._container.querySelector('.viewport');
+  }
+
   setDiagram = async (diagram, { onMounted }) => {
     let callbackData;
     try {
@@ -59,9 +61,7 @@ export default class ModelViewer {
 
   setHeight = height => {
     if (this.modeler._container) {
-      const viewport = this.modeler._container.querySelector('.viewport');
-
-      height = height || viewport.getBoundingClientRect().height;
+      height = height || this.viewport.getBoundingClientRect().height;
       this.modeler._container.style.height = `${height}px`;
 
       //this.canvas.zoom(Zooms.FIT);
@@ -69,24 +69,27 @@ export default class ModelViewer {
   };
 
   setZoom = value => {
-    console.log({ value });
+    let nv;
     switch (value) {
       case Zooms.DEFAULT:
-        this.canvas.zoom(this.defaultScale);
+        nv = this.defaultScale;
         break;
       case Zooms.FIT:
-        this.canvas.zoom(Zooms.FIT);
+        nv = Zooms.FIT;
         break;
       default: {
-        const oldScale = this.canvas.viewbox().scale;
-        value = isNumber(oldScale) ? oldScale : this.defaultScale;
-        const newScale = value <= Zooms.MIN ? Zooms.MIN : oldScale + value;
-        this.canvas.zoom(newScale);
+        let oldScale = this.canvas.viewbox().scale;
+        oldScale = isNumber(oldScale) ? oldScale : this.defaultScale;
+        const newScale = oldScale + value;
+        nv = newScale > Zooms.STEP ? newScale : Zooms.STEP;
         //if (query('.tools-canvas')) remove(query('.tools-canvas'));
         //this.renderHeatmap(JSON.parse(JSON.stringify(heatmapdata)), canvas);
-        // this.renderHeatmap(canvas);
+        //this.renderHeatmap(canvas);
       }
     }
+
+    nv && this.canvas.zoom(nv);
+    nv && this.heatmap && this.heatmap.canvas.zoom(nv);
   };
 
   //todo tooltip
@@ -111,97 +114,7 @@ export default class ModelViewer {
   };
 
   drawHeatmap = ({ data, onChange, onMounted }) => {
-    const shapePoints = [];
-    const connectionPoints = [];
-    const elementRegistry = this.modeler.get('elementRegistry');
-    const viewbox = this.canvas.viewbox();
-
-    // get viewbox position & scale
-    const {
-      inner: { x: oX, y: oY },
-      outer: { height: H, width: W },
-      x: X,
-      y: Y,
-      scale // zoom rate
-    } = viewbox;
-
-    // get all shapes and connections
-    const shapes = elementRegistry.filter(element => !element.waypoints && element.parent && element.type !== 'label');
-    const connections = elementRegistry.filter(element => !!element.waypoints && element.parent);
-
-    shapes.forEach(shape => {
-      const { x, y, width: w, height: h, type, id } = shape;
-      const shapeX = x * scale - X * scale + (X < 0 ? (X - oX) * scale : X > 0 ? (X - oX) * scale : 0);
-      const shapeY = y * scale - Y * scale + (Y > 0 ? (Y - oY) * scale : 0);
-      const shapeW = w * scale;
-      const shapeH = h * scale;
-
-      data.forEach(heat => {
-        if (id === heat.id) {
-          if (includes(type, 'Task')) {
-            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
-          } else {
-            shapePoints.push(...getUnknownShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
-          }
-        }
-      });
-    });
-
-    connections.forEach(connection => {
-      this.canvas.addMarker(connection.id, 'connection-shadow');
-    });
-
-    const points = shapePoints.concat(connectionPoints);
-
-    if (points.length) {
-      const values = points.map(item => item.value);
-      const maxV = Math.max(...values);
-
-      const config = {
-        container: this.modeler._container,
-        width: +W + (X < 0 ? Math.round(+((X - oX) * scale)) : X > 0 ? -(X - oX) * scale : 0),
-        height: +H + (Y > 0 ? Math.round(+((Y - oY) * scale)) : 0),
-        radius: 46,
-        maxOpacity: 0.8,
-        minOpacity: 0,
-        blur: 0.75,
-        onExtremaChange: data => isFunction(onChange) && onChange(data)
-      };
-
-      const heatmapData = {
-        max: maxV,
-        data: points
-      };
-
-      this.heatmap = heatmap.create(config);
-
-      //todo
-      document.querySelector('.tools-canvas').setAttribute(
-        'style',
-        `
-          position: absolute;
-          left: ${X < 0 ? -((X - oX) * scale) : X > 0 ? -(X - oX) * scale : 0}px;
-          top: ${Y > 0 ? -((Y - oY) * scale) : 0}px
-        `
-      );
-
-      // heatmapInstance.repaint();
-      this.heatmap.setData(heatmapData);
-
-      isFunction(onMounted) && onMounted(true);
-    }
-  };
-
-  toggleDisplayHeatmap = isHidden => {
-    const canvas = get(this.heatmap, '_renderer.canvas');
-    if (canvas) {
-      canvas.classList.toggle('d-none', isHidden);
-    }
-  };
-
-  setOpacityHeatmap = val => {
-    const canvas = get(this.heatmap, '_renderer.canvas');
-    canvas && (canvas.style.opacity = val);
+    this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, onChange, onMounted });
   };
 
   destroy = () => {

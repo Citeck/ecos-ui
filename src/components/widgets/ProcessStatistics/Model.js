@@ -120,10 +120,10 @@ class Model extends React.Component {
 
     switch (true) {
       case isHeatmapMounted && !isShowHeatmap:
-        this.designer.toggleDisplayHeatmap(true);
+        this.designer.heatmap.toggleDisplay(true);
         break;
       case isHeatmapMounted && isShowHeatmap:
-        this.designer.toggleDisplayHeatmap(false);
+        this.designer.heatmap.toggleDisplay(false);
         break;
       case !isHeatmapMounted && isShowHeatmap && isModelMounted:
         this.renderHeatmap();

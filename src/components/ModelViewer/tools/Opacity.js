@@ -8,7 +8,7 @@ const Opacity = ({ defValue = 1, instModelRef, label }) => {
     e => {
       const val = e.target.value;
       setValue(val);
-      instModelRef.setOpacityHeatmap(val);
+      instModelRef.heatmap.setOpacity(val);
     },
     [instModelRef]
   );
