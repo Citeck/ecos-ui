@@ -79,25 +79,29 @@ class FormWrapper extends React.Component {
     options.language = language;
 
     const processedDefinition = EcosFormUtils.preProcessFormDefinition(formDefinition, options);
-
     const formPromise = Formio.createForm(containerElement, processedDefinition, options);
 
     formPromise.then(form => {
-      this._form = form;
+      let data = {};
+
       this.setEvents(form, { onSubmit });
 
       if (this.props.formData) {
-        form.submission = {
-          data: this.props.formData
+        data = {
+          ...this.props.formData
         };
       }
 
       if (this.props.cached) {
-        form.submission.data = {
-          ...(form.submission.data || {}),
+        data = {
+          ...(data || {}),
           ...get(this.#cachedForms, this.props.id, {})
         };
       }
+
+      form.setValue({ data });
+
+      this._form = form;
     });
   }
 
@@ -122,6 +126,12 @@ class FormWrapper extends React.Component {
       },
       flags
     );
+  };
+
+  clearFromCache = id => {
+    if (id) {
+      delete this.#cachedForms[id];
+    }
   };
 
   setEvents(form, extra = {}) {

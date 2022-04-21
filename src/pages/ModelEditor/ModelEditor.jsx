@@ -275,6 +275,14 @@ class ModelEditorPage extends React.Component {
     element && this.handleSelectItem(element);
   };
 
+  handleElementDelete = data => {
+    const element = get(data, 'context.elements.0');
+
+    if (element && this.#formWrapperRef.current) {
+      this.#formWrapperRef.current.clearFromCache(element.id);
+    }
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -288,7 +296,8 @@ class ModelEditorPage extends React.Component {
           onChangeElementLabel={this.handleChangeLabel}
           extraEvents={{
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
-            [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId
+            [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
+            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete
           }}
         />
       );
