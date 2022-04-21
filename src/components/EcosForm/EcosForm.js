@@ -42,12 +42,7 @@ class EcosForm extends React.Component {
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
       recordId: record.id,
-      formIdValue: null,
       ...this.initState
-    };
-
-    this.setFormBuilderModal = element => {
-      this._formBuilderModal = element;
     };
   }
 
@@ -82,6 +77,12 @@ class EcosForm extends React.Component {
       tabs: ['currentTab']
     };
   }
+
+  setRefFormBuilderModal = element => {
+    if (element) {
+      this._formBuilderModal = element;
+    }
+  };
 
   initForm(newFormDefinition = this.state.formDefinition) {
     const alfConstants = get(window, 'Alfresco.constants') || {};
@@ -148,6 +149,10 @@ class EcosForm extends React.Component {
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
       this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
+
+      if (this._formBuilderModal) {
+        this._formBuilderModal.setStateData({ formId: formData.formId });
+      }
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
@@ -357,11 +362,11 @@ class EcosForm extends React.Component {
   };
 
   onShowFormBuilder = async callback => {
-    if (this._formBuilderModal.current) {
+    if (this._formBuilderModal) {
       const { formId } = this.state;
       const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
-      this._formBuilderModal.current.show(definitionToEdit, form => {
+      this._formBuilderModal.show(definitionToEdit, form => {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
           EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
             this.initForm(newFormDef);
@@ -542,7 +547,7 @@ class EcosForm extends React.Component {
     return (
       <div className={className}>
         <div id={containerId} ref={this._formContainer} />
-        <EcosFormBuilderModal formIdValue={this._formIdValue} ref={this.setFormBuilderModal} />
+        <EcosFormBuilderModal ref={this.setRefFormBuilderModal} />
       </div>
     );
   }

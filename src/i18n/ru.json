@@ -1492,6 +1492,7 @@
   "ecos-form.builder.debugging.tree.dependencies.info": "Глубина дерева демонстрирует последовательность зависимости: родительский компонент зависит от дочернего и т.д.",
   "ecos-form.builder.debugging.tree.influence.info": "Дерево влияния представляет собой обратную зависимость: глубже в дереве зависимые компоненты",
   "ecos-form.builder.debugging.fatal-error": "При построении дерева зависисмостей произошла фатальная ошибка. Попробуйте провести анализ формы и зависимостей компанентов в json-редакторе или в Form Builder",
+  "ecos-form.builder.form-id.label": "ID формы",
 
   "more-about-error.label": "Подробнее об ошибке"
 }

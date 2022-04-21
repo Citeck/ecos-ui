@@ -1,6 +1,8 @@
 import React from 'react';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
 import EcosModal from '../../common/EcosModal';
@@ -11,11 +13,11 @@ import { Icon } from '../../common';
 import DebugModal from './DebugModal';
 
 import './style.scss';
-import EcosForm from '..';
 
 const Labels = {
   CLOSE_CONFIRM_DESCRIPTION: 'ecos-form.builder.confirm-close.description',
-  DEBUG_TITLE: 'ecos-form.builder.debugging.title'
+  DEBUG_TITLE: 'ecos-form.builder.debugging.title',
+  FORM_ID_LABEL: 'ecos-form.builder.form-id.label'
 };
 
 export default class EcosFormBuilderModal extends React.Component {
@@ -28,7 +30,7 @@ export default class EcosFormBuilderModal extends React.Component {
       isDebugModalOpen: false,
       isOpenDependencies: true,
       isOpenInfluence: true,
-      formIdValue: null
+      formId: null
     };
   }
 
@@ -40,20 +42,39 @@ export default class EcosFormBuilderModal extends React.Component {
     });
   }
 
+  setStateData = (data = {}) => {
+    const newState = {};
+
+    Object.keys(data).forEach(key => {
+      if (!isEqual(data.key, this.state[key])) {
+        newState[key] = data[key];
+      }
+    });
+
+    if (!isEmpty(newState)) {
+      this.setState({ ...newState });
+    }
+  };
+
   hide() {
     this.setState({
       isModalOpen: false
     });
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.formIdValue !== this.props.formIdValue && this.props.formIdValue !== undefined) {
-      this.setState({ formIdValue: this.props.formIdValue });
-    }
-  }
+  renderTitle() {
+    const { formId } = this.state;
 
-  setTitle() {
-    return this.state.formIdValue ? <div>ID: {this.state.formIdValue}</div> : null;
+    if (!formId) {
+      return null;
+    }
+
+    return (
+      <div className="form-builder-modal__info">
+        <span className="form-builder-modal__info-key">{t(Labels.FORM_ID_LABEL)}:</span>
+        <span className="form-builder-modal__info-value">{formId}</span>
+      </div>
+    );
   }
 
   toggleVisibility = () => {
@@ -125,7 +146,7 @@ export default class EcosFormBuilderModal extends React.Component {
           hideModal={this.toggleVisibility}
           customButtons={this.renderCustomButtons()}
         >
-          {this.setTitle()}
+          {this.renderTitle()}
           <EcosFormBuilder formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
         </EcosModal>
 
