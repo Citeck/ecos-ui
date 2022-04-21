@@ -1,12 +1,13 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import uuidv4 from 'uuid/v4';
 
 import { isExistValue, t } from '../../helpers/util';
 import { Icon, InfoText } from '../common';
 import { Caption } from '../common/form';
-import { Btn, IcoBtn } from '../common/btns';
-import { Tooltip } from '../common';
+import Tools from './Tools';
+
 import TitlePageLoader from '../common/TitlePageLoader';
 
 import './style.scss';
@@ -26,7 +27,17 @@ class ModelEditorWrapper extends React.Component {
     rightSidebar: PropTypes.element,
     rightSidebarTitle: PropTypes.string,
     onApply: PropTypes.func,
-    onCreate: PropTypes.func
+    onCreate: PropTypes.func,
+    configButtons: PropTypes.arrayOf(
+      PropTypes.shape({
+        icon: PropTypes.string,
+        action: PropTypes.func.isRequired,
+        text: PropTypes.string,
+        id: PropTypes.string.isRequired,
+        trigger: PropTypes.string,
+        className: PropTypes.string
+      })
+    )
   };
 
   state = {
@@ -41,6 +52,41 @@ class ModelEditorWrapper extends React.Component {
     const { rightSidebarOpen } = this.state;
     const { rightSidebarTitle, editor, rightSidebar, title, onApply, onCreate, onViewXml, onSaveAndDeploy } = this.props;
 
+    const configButtons = [
+      {
+        icon: 'icon-small-plus',
+        action: onCreate,
+        text: t(Labels.CREATE),
+        id: `bpmn-create-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      },
+      {
+        icon: 'fa fa-save',
+        action: onApply,
+        text: t(Labels.APPLY),
+        id: `bpmn-save-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      },
+      {
+        icon: 'icon-document-view',
+        action: onViewXml,
+        text: t(Labels.VIEW_XML),
+        id: `bpmn-view-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: 'ecos-btn_blue'
+      },
+      {
+        icon: 'fa fa-cloud-upload',
+        action: onSaveAndDeploy,
+        text: t(Labels.SAVE_DEPLOY),
+        id: `bpmn-download-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: 'ecos-btn_green'
+      }
+    ];
+
     return (
       <div className="ecos-model-editor">
         <div className="ecos-model-editor__designer">
@@ -53,27 +99,7 @@ class ModelEditorWrapper extends React.Component {
           {editor && (
             <div className="ecos-model-editor__designer-work-zone">
               <div className="ecos-model-editor__designer-child">{editor}</div>
-              <div className="ecos-model-editor__designer-buttons">
-                {onCreate && <Btn onClick={onCreate}>{t(Labels.CREATE)}</Btn>}
-                {onApply && (
-                  <>
-                    <IcoBtn icon="fa fa-save" onClick={onApply} id="fa-fa-save" />
-                    <Tooltip trigger="hover" target="fa-fa-save" text={t(Labels.APPLY)} />
-                  </>
-                )}
-                {onViewXml && (
-                  <>
-                    <IcoBtn icon="icon-document-view" onClick={onViewXml} id="icon-document-view" />
-                    <Tooltip trigger="hover" target="icon-document-view" text={t(Labels.VIEW_XML)} />
-                  </>
-                )}
-                {onSaveAndDeploy && (
-                  <>
-                    <IcoBtn icon="fa fa-cloud-upload" onClick={onSaveAndDeploy} className="ecos-btn_green" id="fa-fa-cloud-upload" />
-                    <Tooltip trigger="hover" target="fa-fa-cloud-upload" text={t(Labels.SAVE_DEPLOY)} />
-                  </>
-                )}
-              </div>
+              <Tools configButtons={configButtons} />
             </div>
           )}
         </div>
