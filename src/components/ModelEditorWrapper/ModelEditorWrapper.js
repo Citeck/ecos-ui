@@ -6,9 +6,8 @@ import uuidv4 from 'uuid/v4';
 import { isExistValue, t } from '../../helpers/util';
 import { Icon, InfoText } from '../common';
 import { Caption } from '../common/form';
-import Tools from './Tools';
-
 import TitlePageLoader from '../common/TitlePageLoader';
+import Tools from './Tools';
 
 import './style.scss';
 
