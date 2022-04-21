@@ -107,7 +107,7 @@ class ModelEditorPage extends React.Component {
     };
   }
 
-  handleReadySheet = () => {
+  handleReadySheet = (...data) => {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
@@ -116,7 +116,24 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    const formFields = this.getFormFields(element);
+
+    /**
+     * Events can occur too often.
+     * In order not to provoke extra renders, additionally compare the previous and current value.
+     */
+    if (this.#formWrapperRef.current && !isEmpty(formFields) && !isEqual(this.#prevValue, formFields)) {
+      this.#prevValue = { ...formFields };
+      this.#formWrapperRef.current.setValue(formFields);
+    }
+  };
+
+  getFormFields(element) {
     const formFields = {};
+
+    if (!element) {
+      return formFields;
+    }
 
     Object.keys(get(element, 'businessObject', {})).forEach(key => {
       if (KEY_FIELDS.includes(key)) {
@@ -124,6 +141,9 @@ class ModelEditorPage extends React.Component {
 
         if (!isUndefined(value)) {
           if (key === KEY_FIELD_NAME) {
+            /**
+             * @todo save values other locales
+             */
             formFields[key + ML_POSTFIX] = { [getCurrentLocale()]: value || '' };
           } else {
             formFields[key] = value;
@@ -132,14 +152,8 @@ class ModelEditorPage extends React.Component {
       }
     });
 
-    /* Events can occur too often.
-     * In order not to provoke extra renders, additionally compare the previous and current value.
-     */
-    if (this.#formWrapperRef.current && !isEmpty(formFields) && !isEqual(this.#prevValue, formFields)) {
-      this.#prevValue = { ...formFields };
-      this.#formWrapperRef.current.setValue(formFields);
-    }
-  };
+    return formFields;
+  }
 
   handleSave = (deploy = false) => {
     if (!this.designer) {
@@ -164,7 +178,6 @@ class ModelEditorPage extends React.Component {
 
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
-
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
 
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
@@ -232,6 +245,36 @@ class ModelEditorPage extends React.Component {
     });
   };
 
+  handleChangeLabel = label => {
+    const { selectedElement: currentSelected } = this.state;
+    const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
+
+    if (!selectedElement) {
+      return;
+    }
+
+    if (!isUndefined(label) && this.#formWrapperRef.current) {
+      this.#formWrapperRef.current.setValue(
+        {
+          [KEY_FIELD_NAME + ML_POSTFIX]: { [getCurrentLocale()]: label || '' }
+        },
+        { noUpdateEvent: true }
+      );
+    }
+  };
+
+  handleElementCreateEnd = event => {
+    const element = get(event, 'elements.0');
+
+    element && this.handleSelectItem(element);
+  };
+
+  handleElementUpdateId = data => {
+    const element = get(data, 'element');
+
+    element && this.handleSelectItem(element);
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -242,6 +285,11 @@ class ModelEditorPage extends React.Component {
           onClickElement={this.handleSelectItem}
           onMounted={this.handleReadySheet}
           onChangeElement={this.handleChangeElement}
+          onChangeElementLabel={this.handleChangeLabel}
+          extraEvents={{
+            'create.end': this.handleElementCreateEnd,
+            'element.updateId': this.handleElementUpdateId
+          }}
         />
       );
     } else {
