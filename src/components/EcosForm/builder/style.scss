@@ -28,4 +28,19 @@
       cursor: pointer;
     }
   }
+
+  &__info {
+    font-size: 14px;
+    margin-bottom: 15px;
+    margin-top: -15px;
+
+    &-key {
+      color: $color-gray-5;
+      margin-right: 5px;
+    }
+
+    &-value {
+      font-weight: 600;
+    }
+  }
 }

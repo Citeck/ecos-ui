@@ -1498,6 +1498,7 @@
   "ecos-form.builder.debugging.tree.dependencies.info": "Tree depth shows dependency sequence: parent component depends on child, etc.",
   "ecos-form.builder.debugging.tree.influence.info": "Influence tree is a reverse dependency: deeper in the tree are dependent components",
   "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
+  "ecos-form.builder.form-id.label": "Form ID",
 
   "more-about-error.label": "More about the error"
 }
