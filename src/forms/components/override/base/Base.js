@@ -96,7 +96,7 @@ Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
 Base.prototype.onChange = function(flags, fromRoot) {
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-  if (get(flags, 'modified')) {
+  if (get(flags, 'modified') || get(flags, 'skipReactWrapperUpdating')) {
     this.valueChangedByUser =
       (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
