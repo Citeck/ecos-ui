@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { IcoBtn } from '../common/btns';
 import { Tooltip } from '../common';
@@ -17,5 +18,18 @@ const Tools = ({ configButtons }) => (
     })}
   </div>
 );
+
+Tools.propTypes = {
+  configButtons: PropTypes.arrayOf(
+    PropTypes.shape({
+      icon: PropTypes.string,
+      action: PropTypes.func.isRequired,
+      text: PropTypes.string,
+      id: PropTypes.string.isRequired,
+      trigger: PropTypes.string,
+      className: PropTypes.string
+    })
+  )
+};
 
 export default Tools;
