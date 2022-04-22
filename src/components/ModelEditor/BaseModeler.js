@@ -26,8 +26,9 @@ export default class BaseModeler {
    * @param {String} diagram - initial xml diagram
    * @param container - html element where diagram draws
    * @param {Object} events - any events you want to use.
+   * @param {Object} extraEvents - Additional events. You can see the keys of all available events through the this.getEventBus() command {@see getEventBus}
    */
-  init = async ({ diagram, container, events }) => {
+  init = async ({ diagram, container, events, extraEvents }) => {
     this.initModelerInstance();
 
     if (container) {
@@ -35,7 +36,7 @@ export default class BaseModeler {
     }
 
     this.setDiagram(diagram);
-    this.setEvents(events);
+    this.setEvents(events, extraEvents);
   };
 
   get elementDefinitions() {
@@ -68,29 +69,51 @@ export default class BaseModeler {
     }
   };
 
-  setEvents = events => {
+  /**
+   * Set events of modeler
+   *
+   * @param events
+   * @param {Object} extraEvents - events by key from {@see getEventBus}, for example:
+   * - create.end - fired after adding element
+   * - element.updateId - fired after changing element ID (for example, when changing the element type through a wrench).
+   * - selection.changed - fired after every change of selected element
+   */
+  setEvents = (events, extraEvents) => {
     // unsubscribe for added events in this.destroy below
 
-    if (this.modeler && events) {
+    if (this.modeler && (events || extraEvents)) {
       this.events = {};
 
-      if (events.onSelectElement) {
-        this.events.onSelectElement = e => {
-          if (get(e, 'newSelection.length', 0) < 2) {
-            events.onSelectElement(get(e, 'newSelection[0]'));
-          }
-        };
-        this.modeler.on('selection.changed', this.events.onSelectElement);
+      if (events) {
+        if (events.onSelectElement) {
+          this.events.onSelectElement = e => {
+            if (get(e, 'newSelection.length', 0) < 2) {
+              events.onSelectElement(get(e, 'newSelection[0]'));
+            }
+          };
+          this.modeler.on('selection.changed', this.events.onSelectElement);
+        }
+
+        if (events.onChangeElement) {
+          this.events.onChangeElement = e => events.onChangeElement(get(e, 'element'));
+          this.modeler.on('element.changed', this.events.onChangeElement);
+        }
+
+        if (events.onClickElement) {
+          this.events.onClickElement = e => events.onClickElement(get(e, 'element'));
+          this.modeler.on('element.click', this.events.onClickElement);
+        }
+
+        if (events.onChangeElementLabel) {
+          this.events.onChangeElementLabel = e => events.onChangeElementLabel(get(e, 'target.innerText'));
+          this.modeler._container.addEventListener('keyup', this.events.onChangeElementLabel);
+        }
       }
 
-      if (events.onChangeElement) {
-        this.events.onChangeElement = e => events.onChangeElement(get(e, 'element'));
-        this.modeler.on('element.changed', this.events.onChangeElement);
-      }
-
-      if (events.onClickElement) {
-        this.events.onClickElement = e => events.onClickElement(get(e, 'element'));
-        this.modeler.on('element.click', this.events.onClickElement);
+      if (extraEvents) {
+        Object.keys(extraEvents).forEach(key => {
+          this.modeler.on(key, extraEvents[key]);
+        });
       }
     }
   };
@@ -166,7 +189,7 @@ export default class BaseModeler {
    * see available events
    * @return {ReactComponent}
    */
-  Sheet = ({ diagram, onMounted, ...props }) => {
+  Sheet = ({ diagram, onMounted, extraEvents, ...props }) => {
     const [initialized, setInitialized] = useState(false);
     const [mounted, setMounted] = useState(false);
     const containerRef = useRef(null);
@@ -178,7 +201,7 @@ export default class BaseModeler {
 
     useEffect(() => {
       if (!initialized && get(containerRef, 'current')) {
-        this.init({ diagram, container: containerRef.current, events });
+        this.init({ diagram, container: containerRef.current, events, extraEvents });
         setInitialized(true);
       }
     }, [initialized, containerRef]);
@@ -196,8 +219,12 @@ export default class BaseModeler {
   destroy = () => {
     if (this.events) {
       this.events.onSelectElement && this.modeler.off('selection.changed', this.events.onSelectElement);
-      this.events.onChangeElement && this.modeler.on('element.changed', this.events.onChangeElement);
-      this.events.onClickElement && this.modeler.on('element.click', this.events.onClickElement);
+      this.events.onChangeElement && this.modeler.off('element.changed', this.events.onChangeElement);
+      this.events.onClickElement && this.modeler.off('element.click', this.events.onClickElement);
+    }
+
+    if (this.events.onChangeElementLabel) {
+      this.modeler._container.removeEventListener('keyup', this.events.onChangeElementLabel);
     }
 
     this.modeler && this.modeler._emit('diagram.destroy');
