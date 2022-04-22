@@ -40,8 +40,56 @@ class ModelEditorWrapper extends React.Component {
   };
 
   state = {
-    rightSidebarOpen: true
+    rightSidebarOpen: true,
+    configButtons: []
   };
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.createConfig();
+    }, 1000);
+  }
+
+  createConfig() {
+    let { onCreate, onApply, onViewXml, onSaveAndDeploy } = this.props;
+
+    this.setState({
+      configButtons: [
+        {
+          icon: 'icon-small-plus',
+          action: onCreate,
+          text: t(Labels.CREATE),
+          id: `bpmn-create-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        },
+        {
+          icon: 'fa fa-save',
+          action: onApply,
+          text: t(Labels.APPLY),
+          id: `bpmn-save-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        },
+        {
+          icon: 'icon-document-view',
+          action: onViewXml,
+          text: t(Labels.VIEW_XML),
+          id: `bpmn-view-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: 'ecos-btn_blue'
+        },
+        {
+          icon: 'fa fa-cloud-upload',
+          action: onSaveAndDeploy,
+          text: t(Labels.SAVE_DEPLOY),
+          id: `bpmn-download-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: 'ecos-btn_green'
+        }
+      ]
+    });
+  }
 
   togglePropertiesOpen = () => {
     this.setState(({ rightSidebarOpen }) => ({ rightSidebarOpen: !rightSidebarOpen }));
@@ -49,42 +97,7 @@ class ModelEditorWrapper extends React.Component {
 
   render() {
     const { rightSidebarOpen } = this.state;
-    const { rightSidebarTitle, editor, rightSidebar, title, onApply, onCreate, onViewXml, onSaveAndDeploy } = this.props;
-
-    const configButtons = [
-      {
-        icon: 'icon-small-plus',
-        action: onCreate,
-        text: t(Labels.CREATE),
-        id: `bpmn-create-btn-${uuidv4()}`,
-        trigger: 'hover',
-        className: ''
-      },
-      {
-        icon: 'fa fa-save',
-        action: onApply,
-        text: t(Labels.APPLY),
-        id: `bpmn-save-btn-${uuidv4()}`,
-        trigger: 'hover',
-        className: ''
-      },
-      {
-        icon: 'icon-document-view',
-        action: onViewXml,
-        text: t(Labels.VIEW_XML),
-        id: `bpmn-view-btn-${uuidv4()}`,
-        trigger: 'hover',
-        className: 'ecos-btn_blue'
-      },
-      {
-        icon: 'fa fa-cloud-upload',
-        action: onSaveAndDeploy,
-        text: t(Labels.SAVE_DEPLOY),
-        id: `bpmn-download-btn-${uuidv4()}`,
-        trigger: 'hover',
-        className: 'ecos-btn_green'
-      }
-    ];
+    const { rightSidebarTitle, editor, rightSidebar, title } = this.props;
 
     return (
       <div className="ecos-model-editor">
@@ -98,7 +111,7 @@ class ModelEditorWrapper extends React.Component {
           {editor && (
             <div className="ecos-model-editor__designer-work-zone">
               <div className="ecos-model-editor__designer-child">{editor}</div>
-              <Tools configButtons={configButtons} />
+              {this.state.configButtons && <Tools configButtons={this.state.configButtons} />}
             </div>
           )}
         </div>
