@@ -1,10 +1,10 @@
 properties([
-    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
+    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '3')),
 ])
 timestamps {
   node {
 
-    def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
+    def repoUrl = "git@gitlab.citeck.ru:citeck-projects/ecos-ui.git"
     def mavenRepository = "maven-snapshots"
 
     stage('Checkout Script Tools SCM') {
