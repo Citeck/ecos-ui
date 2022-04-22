@@ -1,6 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
+
 import ModelViewer from '../ModelViewer';
+
+import './style.scss';
 
 const Opacity = ({ defValue = 1, instModelRef, label }) => {
   const [value, setValue] = useState(defValue);

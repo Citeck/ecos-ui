@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
+import PropTypes from 'prop-types';
 
 import { IcoBtn } from '../../common/btns';
-
-import './style.scss';
-import PropTypes from 'prop-types';
 import ModelViewer from '../ModelViewer';
 import { Zooms } from '../util';
+
+import './style.scss';
 
 const Zoomer = ({ instModelRef }) => {
   const cn = 'ecos-btn_transparent ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-tree__action model-zoomer__btn';

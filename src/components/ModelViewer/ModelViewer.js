@@ -115,12 +115,13 @@ export default class ModelViewer {
 
   /**
    * Draw Heatmap
-   * @param data
-   * @param onChange
-   * @param onMounted
+   * @param data {Array}
+   * @param hasTooltip {Boolean}
+   * @param onChange {Function}
+   * @param onMounted {Function}
    */
-  drawHeatmap = ({ data, onChange, onMounted }) => {
-    this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, onChange, onMounted });
+  drawHeatmap = ({ data, onChange, onMounted, hasTooltip }) => {
+    this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
   };
 
   destroy = () => {

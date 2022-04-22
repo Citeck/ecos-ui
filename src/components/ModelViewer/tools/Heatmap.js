@@ -1,20 +1,25 @@
 import Heatmap from 'heatmap.js';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
 import includes from 'lodash/includes';
 import isFunction from 'lodash/isFunction';
 
 import { getTaskShapePoints, getUnknownShapePoints } from './util';
+import { HeatTooltip } from './';
 
 export default class HeatmapWrapper {
-  instModel;
   instance;
+  #instModel;
+  #origData;
+  #mapData;
 
-  constructor({ instModel, data, onChange, onMounted }) {
-    this.instModel = instModel;
+  constructor({ instModel, data, hasTooltip, onChange, onMounted }) {
+    this.#instModel = instModel;
 
     const info = this.getData({ data, onChange });
 
     this.draw({ info, onMounted });
+    hasTooltip && this.drawTooltip();
   }
 
   get canvas() {
@@ -22,7 +27,7 @@ export default class HeatmapWrapper {
   }
 
   get viewboxData() {
-    const viewbox = this.instModel.get('canvas').viewbox();
+    const viewbox = this.#instModel.get('canvas').viewbox();
 
     const {
       inner: { x: oX, y: oY },
@@ -36,10 +41,13 @@ export default class HeatmapWrapper {
   }
 
   getData({ data, onChange }) {
+    this.#origData = cloneDeep(data);
+    this.#mapData = {};
+
     const shapePoints = [];
     const connectionPoints = [];
-    const elementRegistry = this.instModel.get('elementRegistry');
-    const canvas = this.instModel.get('canvas');
+    const elementRegistry = this.#instModel.get('elementRegistry');
+    const canvas = this.#instModel.get('canvas');
     const { oX, oY, H, W, X, Y, scale } = this.viewboxData;
     // get viewbox position & scale
 
@@ -56,11 +64,16 @@ export default class HeatmapWrapper {
 
       data.forEach(heat => {
         if (id === heat.id) {
+          let fun;
           if (includes(type, 'Task')) {
-            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
+            fun = getTaskShapePoints;
           } else {
-            shapePoints.push(...getUnknownShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
+            fun = getUnknownShapePoints;
           }
+
+          const points = fun(shapeX, shapeY, shapeW, shapeH, heat.value);
+          this.#mapData[heat.id] = points;
+          shapePoints.push(...points);
         }
       });
     });
@@ -72,7 +85,7 @@ export default class HeatmapWrapper {
     const points = shapePoints.concat(connectionPoints);
 
     const config = {
-      container: this.instModel._container,
+      container: this.#instModel._container,
       width: +W + (X < 0 ? Math.round(+((X - oX) * scale)) : X > 0 ? -(X - oX) * scale : 0),
       height: +H + (Y > 0 ? Math.round(+((Y - oY) * scale)) : 0),
       radius: 46,
@@ -121,5 +134,30 @@ export default class HeatmapWrapper {
 
   setOpacity = val => {
     this.canvas && (this.canvas.style.opacity = val);
+  };
+
+  //todo
+  drawTooltip = () => {
+    const container = this.#instModel._container;
+    this.tooltip = HeatTooltip(container);
+
+    container.onmousemove = ev => {
+      const x = ev.layerX;
+      const y = ev.layerY;
+      // getValueAt gives us the value for a point p(x/y)
+      const value = this.instance.getValueAt({ x, y });
+      const key = Object.keys(this.#mapData).find(k => this.#mapData[k].find(point => point.x === x && point.y === y));
+      const data = this.#origData.find(item => key === item.id);
+      console.log(data);
+      this.tooltip.setHidden(false);
+      this.tooltip.setText(`medium: ${value}`);
+      this.tooltip.setPlace(x, y);
+    };
+
+    container.onmouseout = () => {
+      this.tooltip.setHidden(true);
+    };
+
+    console.log(this.tooltip);
   };
 }

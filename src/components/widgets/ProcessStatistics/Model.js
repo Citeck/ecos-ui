@@ -123,7 +123,8 @@ class Model extends React.Component {
       this.designer.drawHeatmap({
         data,
         onChange: this.onChangeHeatmap,
-        onMounted: () => this.setState({ isHeatmapMounted: true })
+        onMounted: () => this.setState({ isHeatmapMounted: true }),
+        hasTooltip: true
       });
     }
   };
