@@ -10,11 +10,11 @@ import isEmpty from 'lodash/isEmpty';
 import { getModel } from '../../../actions/processStatistics';
 
 import { Icon, InfoText, Loader, ResizableBox } from '../../common';
-import { Caption } from '../../common/form';
+import { Caption, Checkbox } from '../../common/form';
 import { t } from '../../../helpers/export/util';
 import ModelViewer from '../../ModelViewer/ModelViewer';
 import { Legend, Opacity, Zoomer } from '../../ModelViewer/tools';
-import { Labels } from './util';
+import { getPreparedHeatItem, Labels } from './util';
 
 import './style.scss';
 
@@ -61,6 +61,8 @@ class Model extends React.Component {
       isModelMounting: false,
       isModelMounted: false,
       isHeatmapMounted: false,
+      isActiveCount: false,
+      isCompletedCount: false,
       legendData: {}
     };
   }
@@ -86,6 +88,17 @@ class Model extends React.Component {
     getModelData({ stateId, record });
   };
 
+  getPreparedHeatData = () => {
+    const { heatmapData } = this.props;
+    const { isActiveCount, isCompletedCount } = this.state;
+
+    if (!isActiveCount && !isCompletedCount) {
+      return [];
+    }
+
+    return heatmapData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount }));
+  };
+
   handleInitSheet = isModelMounting => {
     this.setState({ isModelMounting });
   };
@@ -105,13 +118,20 @@ class Model extends React.Component {
     const { heatmapData, isShowHeatmap } = this.props;
 
     if (isShowHeatmap && !isEmpty(heatmapData)) {
-      const data = heatmapData.map(item => ({ id: item.id, value: item.activeCount }));
+      const data = this.getPreparedHeatData();
+
       this.designer.drawHeatmap({
         data,
         onChange: this.onChangeHeatmap,
         onMounted: () => this.setState({ isHeatmapMounted: true })
       });
     }
+  };
+
+  rerenderHeatmap = () => {
+    const data = this.getPreparedHeatData();
+
+    this.designer.heatmap.updateData({ data });
   };
 
   toggleHeatmap = () => {
@@ -153,6 +173,25 @@ class Model extends React.Component {
     this.setState({ legendData });
   };
 
+  handleChangeCountFlag = data => {
+    this.setState(data, this.rerenderHeatmap);
+  };
+
+  renderCountFlags = () => {
+    return (
+      <>
+        <div className="ecos-process-statistics-model__filter-count">
+          <Checkbox onChange={d => this.handleChangeCountFlag({ isActiveCount: d.checked })} />
+          <span className="ecos-process-statistics-model__filter-count-label">{t(Labels.PANEL_ACTIVE_COUNT)}</span>
+        </div>
+        <div className="ecos-process-statistics-model__filter-count">
+          <Checkbox onChange={d => this.handleChangeCountFlag({ isCompletedCount: d.checked })} />
+          <span className="ecos-process-statistics-model__filter-count-label">{t(Labels.PANEL_COMPLETED_COUNT)}</span>
+        </div>
+      </>
+    );
+  };
+
   render() {
     const { model, isLoading, isShowHeatmap } = this.props;
     const { isOpened, isModelMounted, isModelMounting, legendData, isHeatmapMounted } = this.state;
@@ -171,6 +210,7 @@ class Model extends React.Component {
           <div className="ecos-process-statistics-model__panel">
             <Zoomer instModelRef={this.designer} />
             {isShow && <Opacity instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
+            {isShow && this.renderCountFlags()}
             <div className="ecos-process-statistics-model__panel-delimiter" />
             {isShow && <Legend {...legendData} />}
           </div>

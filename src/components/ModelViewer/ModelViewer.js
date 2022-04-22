@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 
-import HeatmapWrapper from './Heatmap.js';
+import HeatmapWrapper from './tools/Heatmap.js';
 import { Zooms } from './util';
 
 export default class ModelViewer {
@@ -64,7 +64,7 @@ export default class ModelViewer {
       height = height || this.viewport.getBoundingClientRect().height;
       this.modeler._container.style.height = `${height}px`;
 
-      //this.canvas.zoom(Zooms.FIT);
+      this.canvas.zoom(Zooms.FIT);
     }
   };
 
@@ -89,7 +89,7 @@ export default class ModelViewer {
     }
 
     nv && this.canvas.zoom(nv);
-    nv && this.heatmap && this.heatmap.canvas.zoom(nv);
+    // nv && this.heatmap && this.heatmap.canvas.zoom(nv);
   };
 
   //todo tooltip
@@ -113,6 +113,12 @@ export default class ModelViewer {
     return <div ref={containerRef} className={ModelViewer.querySelector} />;
   };
 
+  /**
+   * Draw Heatmap
+   * @param data
+   * @param onChange
+   * @param onMounted
+   */
   drawHeatmap = ({ data, onChange, onMounted }) => {
     this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, onChange, onMounted });
   };

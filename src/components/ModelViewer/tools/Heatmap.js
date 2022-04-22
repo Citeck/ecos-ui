@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isFunction from 'lodash/isFunction';
 
-import { getTaskShapePoints, getUnknownShapePoints } from './tools/util';
+import { getTaskShapePoints, getUnknownShapePoints } from './util';
 
 export default class HeatmapWrapper {
   instModel;
@@ -13,7 +13,8 @@ export default class HeatmapWrapper {
     this.instModel = instModel;
 
     const info = this.getData({ data, onChange });
-    info && this.draw({ info, onMounted });
+
+    this.draw({ info, onMounted });
   }
 
   get canvas() {
@@ -53,16 +54,15 @@ export default class HeatmapWrapper {
       const shapeW = w * scale;
       const shapeH = h * scale;
 
-      data &&
-        data.forEach(heat => {
-          if (id === heat.id) {
-            if (includes(type, 'Task')) {
-              shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
-            } else {
-              shapePoints.push(...getUnknownShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
-            }
+      data.forEach(heat => {
+        if (id === heat.id) {
+          if (includes(type, 'Task')) {
+            shapePoints.push(...getTaskShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
+          } else {
+            shapePoints.push(...getUnknownShapePoints(shapeX, shapeY, shapeW, shapeH, heat.value));
           }
-        });
+        }
+      });
     });
 
     connections.forEach(connection => {
@@ -71,28 +71,22 @@ export default class HeatmapWrapper {
 
     const points = shapePoints.concat(connectionPoints);
 
-    if (points.length) {
-      const values = points.map(item => item.value);
-      const maxV = Math.max(...values);
+    const config = {
+      container: this.instModel._container,
+      width: +W + (X < 0 ? Math.round(+((X - oX) * scale)) : X > 0 ? -(X - oX) * scale : 0),
+      height: +H + (Y > 0 ? Math.round(+((Y - oY) * scale)) : 0),
+      radius: 46,
+      maxOpacity: 0.8,
+      minOpacity: 0,
+      blur: 0.75,
+      onExtremaChange: data => isFunction(onChange) && onChange(data)
+    };
 
-      const config = {
-        container: this.modeler._container,
-        width: +W + (X < 0 ? Math.round(+((X - oX) * scale)) : X > 0 ? -(X - oX) * scale : 0),
-        height: +H + (Y > 0 ? Math.round(+((Y - oY) * scale)) : 0),
-        radius: 46,
-        maxOpacity: 0.8,
-        minOpacity: 0,
-        blur: 0.75,
-        onExtremaChange: data => isFunction(onChange) && onChange(data)
-      };
+    const values = points.map(item => item.value);
+    const maxV = Math.max(...values);
+    const heatmapData = { max: maxV, data: points };
 
-      const heatmapData = {
-        max: maxV,
-        data: points
-      };
-
-      return { config, heatmapData };
-    }
+    return { config, heatmapData };
   }
 
   draw = ({ info, onMounted }) => {
@@ -114,6 +108,11 @@ export default class HeatmapWrapper {
     this.instance.setData(info.heatmapData);
 
     isFunction(onMounted) && onMounted(true);
+  };
+
+  updateData = ({ data }) => {
+    const info = this.getData({ data });
+    this.instance.setData(info.heatmapData);
   };
 
   toggleDisplay = isHidden => {
