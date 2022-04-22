@@ -257,6 +257,7 @@ class ModelEditorPage extends React.Component {
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
         {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
+          savedModel={savedModel}
           title={title}
           onApply={savedModel && (() => this.handleSave(false))}
           onViewXml={savedModel && this.handleClickViewXml}

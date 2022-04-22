@@ -44,10 +44,10 @@ class ModelEditorWrapper extends React.Component {
     configButtons: []
   };
 
-  componentDidMount() {
-    setTimeout(() => {
+  componentDidUpdate(prevProps) {
+    if (prevProps.savedModel !== this.props.savedModel) {
       this.createConfig();
-    }, 1000);
+    }
   }
 
   createConfig() {
