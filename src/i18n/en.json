@@ -16,17 +16,13 @@
   "btn.create.label": "Create",
   "btn.apply.label": "Apply",
   "btn.save.label": "Save",
-
   "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
-
   "page.error-loading.title": "The error occurred while loading the page",
   "page.error-loading.message": "Try reloading the page. If the error persists, contact your administrator",
   "page.error-loading.log": "Error log",
   "page.error.logout.no-url": "Insufficient parameters. Contact your administrator",
-
   "record.permission-denied.message": "You do not have sufficient rights to view this document. Contact your administrator.",
   "record.not-found.message": "The document was deleted or not yet created.",
-
   "bpmn-card.go-back-to-list-button.text": "Back to list",
   "bpmn-card.open-editor-button.text": "Visual Editor",
   "bpmn-designer.add-category": "Create category",
@@ -86,14 +82,12 @@
   "bpmn-designer.view-button": "View",
   "bpmn-designer.view-mode.cards": "Cards",
   "bpmn-designer.view-mode.list": "List",
-
   "admin-section.sidebar.show": "Show menu",
   "admin-section.sidebar.show-sm": "Menu",
   "admin-section.sidebar.hide": "Hide menu",
   "admin-section.sidebar.hide-sm": "Hide",
   "admin-section.sidebar.list-empty": "No data",
   "admin-section.error.access-denied": "You don't have access to this page",
-
   "button.close-modal": "Close",
   "button.ok": "OK",
   "button.export": "Export",
@@ -101,12 +95,10 @@
   "button.leave-site.confirm-label": "OK",
   "button.login": "Login",
   "button.close.label": "Close",
-
   "columns-setup.ascending": "Ascending",
   "columns-setup.descending": "Descending",
   "columns-setup.order": "Column order and display",
   "columns-setup.sort": "Sort by column",
-
   "comments-widget.add": "Add a comment",
   "comments-widget.comment-form1": "comment",
   "comments-widget.comment-form2": "comments",
@@ -140,7 +132,6 @@
   "comments-widget.title": "Comments",
   "comments-widget.edited-by": "edited by",
   "comments-widget.edited-in": "in",
-
   "current-tasks-widget.title": "All tasks",
   "current-tasks-widget.column.actors": "Performer",
   "current-tasks-widget.column.deadline": "Due Date",
@@ -155,11 +146,9 @@
   "current-tasks-widget.settings.date-format.title": "Date format",
   "current-tasks-widget.settings.info.more.label": "More details...",
   "current-tasks-widget.settings.info.description": "Examples of data format for moment.js",
-
   "dashboard.error.get-config": "Dashboard config hasn't gotten",
   "dashboard.error.get-title": "Dashboard title hasn't gotten",
   "dashboard.error.save-config": "Dashboard config hasn't saved",
-
   "widget-settings.title": "Widget settings \"{{title}}\"",
   "widget-settings.go-journal-types": "Journal types",
   "widget-settings.display-condition": "Display condition",
@@ -168,7 +157,6 @@
   "widget-settings.collapsed-by-default": "Collapsed by default",
   "widget-settings.collapsed-by-default-info": "Doesn't work if the user himself changed the state by minimizing or expanding the widget.",
   "widget-settings.display-condition.element-title": "Element display condition \"{{title}}\"",
-
   "dashboard-settings.config.default": "Default",
   "dashboard-settings.config.custom": "Custom",
   "dashboard-settings.already-exists": "A dashboard for the installed type and / or user already exists",
@@ -242,7 +230,6 @@
   "dashboard-settings.widget.doc-constructor": "Doc.One",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
-
   "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
@@ -252,7 +239,6 @@
   "dashlet.resize.title": "Resize",
   "dashlet.update.title": "Update the data",
   "dashlet.settings.title": "Setting widget",
-
   "dev-tools.tab.build": "Build",
   "dev-tools.tab.dev-modules": "Dev modules",
   "dev-tools.tab.commits": "Commits",
@@ -275,7 +261,6 @@
   "dev-tools.commits.grid-column.commit": "Commit",
   "dev-tools.commits.grid-column.date": "Date",
   "dev-tools.commits.grid-column.message": "Message",
-
   "doc-associations-widget.add-association": "Add association",
   "doc-associations-widget.assoc-with-docs": "Associated with documents",
   "doc-associations-widget.basis-document": "Basis document",
@@ -294,7 +279,6 @@
   "doc-associations-widget.remove-association.success.message": "Document deleted successfully",
   "doc-associations-widget.view-association.error.message": "Failed to start document view",
   "doc-associations-widget.incorrect-type.error.message": "Documents cannot be added to the selected communication type",
-
   "doc-preview.download": "Download",
   "doc-preview.error.failure-to-fetch": "Failure to fetch the document",
   "doc-preview.error.loading-failure": "There was a problem loading the document. Try to download the document",
@@ -306,7 +290,6 @@
   "doc-preview.scale.page-height": "Page Height",
   "doc-preview.scale.page-width": "Page Width",
   "doc-preview.modal.title": "Document preview",
-
   "document-library.title": "Document library",
   "document-library.folders-panel.title": "Folders",
   "document-library.no-folders": "No folders",
@@ -319,7 +302,6 @@
   "document-library.uploading-file.message.success": "File \"{{file}}\" has been successfully uploaded to the folder \"{{folder}}\"",
   "document-library.uploading-file.message.error": "Failed to upload file \"{{file}}\"",
   "document-library.uploading-file.message.abort": "Unable to upload file(s)",
-
   "kanban.label.big-total": "Total: {{count}}",
   "kanban.label.no-columns": "Columns not configured",
   "kanban.label.no-card": "No Card",
@@ -333,7 +315,6 @@
   "kanban.error.form-not-found": "Form card has not found",
   "kanban.error.card-not-moved": "Card hasn't moved",
   "kanban.error.get-column-data": "Error getting cards for the column",
-
   "type-permissions.empty-attribute.title": "Attribute id is empty",
   "type-permissions.empty-attribute.text": "Please fill id field before call permissions editor",
   "type-permissions.empty-roles.title": "Roles is empty",
@@ -353,13 +334,11 @@
   "type-permissions.load-data-error": "Failure to load data",
   "type-permissions.save-permissions-error.title": "Error",
   "type-permissions.save-permissions-error.message": "Failure to save permissions",
-
   "doc-status-widget.no-status": "No status",
   "doc-status-widget.saga.error1": "Error. Failure to fetch document status",
   "doc-status-widget.saga.error2": "Error. Failure to fetch document status list",
   "doc-status-widget.saga.error3": "Error. Failure to change document status",
   "doc-status-widget.title": "Status",
-
   "dochist.assoc.added": "Added",
   "dochist.assoc.contains": "Document",
   "dochist.assoc.removed": "Removed",
@@ -391,11 +370,9 @@
   "dochist.workflow.end": "Workflow ended",
   "dochist.workflow.end.cancelled": "Workflow cancelled",
   "dochist.workflow.start": "Workflow started",
-
   "dropdown-filter.all-fields": "All fields",
   "dropdown-filter.icon-button.label": "Filter",
   "dropdown-filter.item.placeholder": "Filter",
-
   "ecos-form.value-unreadable": "Field not available",
   "ecos-form.empty-form-data": "Error: form is not defined",
   "ecos-form.error-get-form": "Error: form is not loaded. Try to configure form",
@@ -405,11 +382,9 @@
   "ecos-form.error.form-is-not-available": "Form is not available",
   "ecos-form.success.clone-record": "Record has cloned",
   "ecos-form.infinite-loop": "Data fields are looping",
-
   "ecos-forms.datepicker.time-label": "Time",
   "ecos-forms.datepicker.month-prev-label": "Previous Month",
   "ecos-forms.datepicker.month-next-label": "Next Month",
-
   "ecos-table-form.create-button": "Create",
   "ecos-table-form.import-button": "Import",
   "ecos-table-form.create-modal.title": "Create",
@@ -426,11 +401,9 @@
   "ecos-table-form.error.no-journal-config": "Journal config hasn't gotten",
   "ecos-table-form.error.source": "Invalid source type",
   "ecos-table-form.error.fail-to-resolve-custom-table": "Data not formed",
-
   "ecos-ui.select.loading-message": "Loading...",
   "ecos-ui.select.no-options-message": "No options",
   "ecos-ui.select.placeholder": "Select",
-
   "ecos.forms.Drop files to attach, or": "Drop files to attach, or",
   "ecos.forms.File Name": "File Name",
   "ecos.forms.Size": "Size",
@@ -466,39 +439,32 @@
   "ecos.form.reload.confirm.message": "Session ended\nLog in to continue working",
   "ecos.form.reload.confirm.button-cancel": "Stay on the page",
   "ecos.form.reload.confirm.button-confirm": "Go to authorization",
-
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
   "events-history-widget.info.no-data": "No data",
   "events-history-widget.title": "Events history",
-
   "export-component.action.html-load": "HTML (download)",
   "export-component.action.html-read": "HTML (view)",
   "export-component.action.copy-link": "Copy selection link",
   "export-component.notice.buffer-link-done": "Selection link was copied to clipboard",
   "export-component.notice.buffer-link-err": "Failed to create select link",
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
-
   "tree-component.tooltip.cannot-be-changes": "Cannot change state",
   "tree-component.tooltip.update-icon": "Update icon",
   "tree-component.empty": "Nothing found",
-
   "filter-list.add-criterion": "Add criterion",
   "filter-list.add-operator": "Add operator",
   "filter-list.condition-group": "Condition group",
   "filter-list.criterion": "Criterion",
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
-
   "record-action.tasks-actions.task-name-prefix": "Complete task: ",
-
   "record-action.task-outcome.incorrect-action.header": "Incorrect action",
   "record-action.task-outcome.incorrect-action.message": "Incorrect action. Contact your system administrator",
   "record-action.task-outcome.form-not-found.header": "Form not found",
   "record-action.task-outcome.form-not-found.message": "Form not found. Contact your system administrator",
   "record-action.task-outcome.complete-task.header": "Complete task",
   "record-action.task-outcome.complete-task.message": "Complete task with outcome \"{{outcome}}\"",
-
   "record-action.msg.confirm.title": "Action confirmation",
   "record-action.msg.info.title": "Information",
   "record-action.msg.error.title": "Action error",
@@ -508,18 +474,15 @@
   "record-action.msg.success.text": "Action's completed",
   "record-action.msg.status.start-n-wait": "Action started\nPending execution",
   "record-action.msg.info.started": "Action started",
-
   "action.edit.label": "Edit",
   "action.view.label": "View",
   "action.delete.label": "Delete",
   "action.download.label": "Download",
   "action.move-to-lines.label": "Go to lines",
   "action.record-actions.label": "Server actions",
-
   "userActions.contract.property.addApprover": "Add approver",
   "userActions.contract.property.approvalCancelation": "Approval cancellation",
   "userActions.contract.property.delete": "Delete",
-
   "record-action.name.delete": "Delete",
   "record-action.delete.dialog.title.remove-many": "Delete records",
   "record-action.delete.dialog.title.remove-one": "Delete record",
@@ -527,7 +490,6 @@
   "record-action.delete.dialog.msg.remove-one": "Do you really want to delete the record?",
   "record-action.delete.dialog.title.error": "Error",
   "record-action.delete.dialog.msg.error": "An error occurred while deleting",
-
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
   "record-action.name.create": "Create",
@@ -535,22 +497,17 @@
   "record-action.name.show": "View document",
   "record-action.name.open-in-background": "Open in background tab",
   "record-action.name.view-card-template-in-background": "View in background tab",
-
   "record-action.name.assoc-action": "Assoc action",
   "record-action.assoc-action.not-found": "Association is not found",
-
   "record-action.name.script-action": "Script action",
   "record-action.script-action.error.text": "Undefined action",
-
   "record-action.name.upload-new-version": "Upload new version",
   "record-action.upload-new-version.title.upload-model": "Add new document version",
   "record-action.upload-new-version.title.error-modal": "Error",
   "record-action.upload-new-version.error.no-version": "No version",
   "record-action.upload-new-version.error.no-record": "No record",
-
   "record-action.name.set-task-assignee": "Set assignee",
   "record-action.set-task-assignee.error.not-all-info": "Not enough information to complete the action",
-
   "record-action.name.save-as-case-template": "Save as template",
   "record-action.name.preview": "Preview",
   "record-action.name.fetch-action": "Perform the remote action",
@@ -561,14 +518,12 @@
   "record-action.name.edit-type-permissions": "Edit permissions",
   "record-action.name.edit-password": "Change password",
   "record-action.name.open-submit-form": "Open and submit",
-
   "record-action.edit-journal-preset.name": "Edit journal template",
   "record-action.edit-journal-preset.msg.saved-success": "Template saved",
   "record-action.edit-journal-preset.msg.saved-error": "Template not saved",
   "record-action.edit-journal-preset.msg.deleted-success": "Template deleted",
   "record-action.edit-journal-preset.modal.title.create": "Create a template",
   "record-action.edit-journal-preset.modal.title.edit": "Edit the template",
-
   "records-actions.actions": "Actions",
   "records-actions.create": "Create",
   "records-actions.download": "Download",
@@ -583,14 +538,11 @@
   "records-actions.notify.title": "Widget Actions",
   "records-actions.error.execute-action": "Action failed",
   "records-actions.error.get-actions": "Actions haven't received",
-
   "records-actions.create.create-variant-with-id-not-found": "Creation variant with id = '{{id}}' doesn't found",
-
   "group-action.select.copy-to": "Copy to...",
   "group-action.select.delete": "Delete",
   "group-action.select.download": "Download as Zip",
   "group-action.select.move-to": "Move to...",
-
   "group-action.label.header": "Result action \"{{action}}\"",
   "group-action.label.message": "Description",
   "group-action.label.record": "Record",
@@ -601,7 +553,6 @@
   "group-action.message.started": "Started",
   "group-action.message.in-progress": "In progress",
   "group-action.label.result": "The result of performing a group operation",
-
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",
   "batch-edit.message.OK": "Success",
@@ -613,23 +564,19 @@
   "batch-edit.message.ALLOWED": "Allowed",
   "batch-edit.message.NOT_ALLOWED": "Not Allowed",
   "batch-edit.message.no-status": "No status",
-
   "grid.inline-tools.details": "Details",
   "grid.no-data-indication": "No items in the list",
   "grid.tools.copy-to": "Copy to...",
   "grid.tools.delete": "Delete",
   "grid.tools.group-actions": "More actions",
-
   "grid.tools.move-to": "Move to...",
   "grid.tools.zip": "Download Zip",
   "grid.tools.select-all": "Select all",
   "grid.tools.select-all-page": "Select all page",
   "grid.tools.remove-selection": "Remove selection",
-
   "grouping.how": "How to group",
   "grouping.show": "View the principle of grouping",
   "grouping.what": "What to group",
-
   "header.menu.create.btn.label": "Create",
   "header.menu.msg.empty-list": "No available items",
   "header.menu.msg.loading": "Loading...",
@@ -651,15 +598,12 @@
   "header.site-menu.go-home-page": "Go home",
   "header.site-menu.menu-settings": "Menu settings",
   "header.site-menu.page-settings": "Page settings",
-
   "modal.make-notavailable.start.label": "Beginning of absence",
   "modal.make-notavailable.end.label": "End of absence",
   "modal.make-notavailable.auto-answer.label": "Auto answer",
   "modal.make-notavailable.end.error.big-date": "The start date cannot be greater than the end date",
-
   "hints.disabled": "Hints is disabled",
   "hints.enabled": "Hints is enabled",
-
   "journal.page.error-boundary.title": "Error",
   "journal.page.error-boundary.msg": "Try updating the page. If the error reappears, contact your administrator",
   "journal.page.unavailable-view": "The view «{{name}}» is not available for this journal. Change the view option or customize the journal",
@@ -808,7 +752,6 @@
   "journals.view.label.journal-preview": "Preview",
   "journals.view.label.document-library": "Document library",
   "journals.view.label.kanban": "Kanban",
-
   "journal.presets.menu.title": "Template Settings",
   "journal.presets.modal.field.name": "Name",
   "journal.presets.modal.field.authority": "Available for",
@@ -819,15 +762,11 @@
   "journal.presets.action.delete": "Delete template",
   "journal.presets.action.delete.msg": "Remove template \"{{name}}\"?",
   "journal.presets.error.get-one": "Settings template not received",
-
   "journals.formatter.action.execution-error": "Action can't be executed",
-
   "journals.header-formatter.message.complex-filter.part-1": "A complex filter has been applied.\nGo to the ",
   "journals.header-formatter.message.complex-filter.part-2": "journal settings.",
-
   "label.password": "Password",
   "label.username": "User Name",
-
   "message.joining": "Adding user \"{{user}}\" to site \"{{site}}\"...",
   "message.leave": "Leave Site \"{{name}}\"",
   "message.leave-failure": "We couldn't remove user \"{{userFullName}}\" from site \"{{siteTitle}}\". There must be at least one Site Manager for a site.",
@@ -938,7 +877,6 @@
   "react-select.select-value.label": "Select",
   "react-select.value-false.label": "No",
   "react-select.value-true.label": "Yes",
-
   "relative.day": "about a day ago",
   "relative.days": "{{value}} days ago",
   "relative.earlierThisWeek": "Earlier this week",
@@ -964,7 +902,6 @@
   "search.show-more-results": "Show more results",
   "search.sites": "Sites",
   "search.size": "Size",
-
   "select-journal.button.add": "Add",
   "select-journal.button.change": "Change",
   "select-journal.button.select": "Select",
@@ -985,7 +922,6 @@
   "select-member-dialog.form-field.label": "Employees",
   "select-member-dialog.listmem.title": "Selected employees",
   "select-member-dialog.title": "Select",
-
   "select-orgstruct.button.add": "Add",
   "select-orgstruct.button.change": "Change",
   "select-orgstruct.button.select": "Select",
@@ -1000,13 +936,11 @@
   "select-orgstruct.tab.by-levels": "By levels",
   "select-orgstruct.tab.only-selected": "Only selected",
   "select-orgstruct.modal.title.edit-task-assignee": "Edit assignee",
-
   "size.bytes": "bytes",
   "size.gigabytes": "GB",
   "size.kilobytes": "KB",
   "size.megabytes": "MB",
   "slide_menu_click_to_open.label": "Click to open the menu",
-
   "tasks-widget.assign.assign": "Assign",
   "tasks-widget.assign.me": "I will perform this",
   "tasks-widget.assign.reassign": "Reassign",
@@ -1022,7 +956,6 @@
   "tasks-widget.error.assign-task": "Task assignment error",
   "tasks-widget.error.failed-assign-task": "There was a problem while assign. Please, check task",
   "tasks-widget.title": "My tasks",
-
   "timesheets.allForms.title": "Timesheets",
   "timesheets.allForms.delegation": "Delegation",
   "timesheets.tabs.myTimesheetTab": "My Timesheet",
@@ -1112,11 +1045,9 @@
   "timesheets.modal.comment.btn.send": "Send",
   "timesheets.error.get-subordinates": "There's error while getting subordinates",
   "timesheets.error.no-subordinates": "There aren't subordinates",
-
   "dropzone.modal.dropzone_placeholder": "Drag the file here or select manually",
   "dropzone.modal.dropzone_button_select": "Select file",
   "dropzone.modal.dropzone_button_cancel": "Cancel",
-
   "versions-journal-widget.add": "Add new version",
   "versions-journal-widget.add-version": "Add version",
   "versions-journal-widget.current-version": "Current version",
@@ -1145,7 +1076,6 @@
   "versions-journal-widget.set-current-version": "Set current version",
   "versions-journal-widget.title": "Versions journal",
   "versions-journal-widget.version": "Version",
-
   "web-page-widget.title": "Web Page",
   "web-page-widget.empty": "No content. Specify the address of the web page in the settings.",
   "web-page-widget.settings.caption": "Setting widget",
@@ -1159,12 +1089,10 @@
   "web-page-widget.btn.update": "Update",
   "web-page-widget.error": "Error",
   "web-page-widget.error-server-not-found": "Server not found.",
-
   "birthdays-widget.title": "Birthdays",
   "birthdays-widget.error.default-message": "Error loading birthdays",
   "birthdays-widget.btn.go-to-profile": "Go to profile",
   "birthdays-widget.btn.try-one-more-time": "To try one more time",
-
   "barcode-widget.saga.error1": "Error. Failure to fetch data",
   "barcode-widget.saga.error2": "Error. Unable to print",
   "barcode-widget.btn.print": "Print",
@@ -1182,16 +1110,13 @@
   "barcode-widget.settings.margin-top.label": "Top",
   "barcode-widget.settings.margin-bottom.label": "Bottom",
   "barcode-widget.settings.mm.label": "mm",
-
   "report-widget.title": "Tasks statistics",
   "report-widget.urgent": "URGENT",
   "report-widget.today": "TODAY",
   "report-widget.later": "LATER",
   "report-widget.records.no-document-type": "No status",
   "report-widget.records.no-status": "No status",
-
   "cipher-swp-gost.missing-plugin": "CryptoPRO plugin doesn't found. Decryption will be disabled.",
-
   "esign.error": "Error",
   "esign.action.title": "<b>Action</b>: {{action}}\n",
   "esign.action.base64.title": "Getting Base64",
@@ -1223,7 +1148,6 @@
   "esign.no-data": "No data",
   "esign.no-document-ref": "No documents to sign",
   "esign.message.plugin-is-fetching": "The process of initializing the extension for working with digital signature",
-
   "documents-widget.title": "Documents",
   "documents-widget.settings.title": "Setting document types",
   "documents-widget.settings-modal.button.cancel": "Cancel",
@@ -1270,7 +1194,6 @@
   "documents-widget.notification.add-many.error": "Failed to upload documents",
   "documents-widget.notification.update.success": "Document Version Updated Successfully",
   "documents-widget.notification.update.error": "Failed to update document version",
-
   "user-profile-widget.title": "Profile",
   "user-profile-widget.label.admin": "Administrator",
   "user-profile-widget.label.you": "You",
@@ -1281,14 +1204,12 @@
   "user-profile-widget.error.get-profile-data": "Failure to fetch profile data",
   "user-profile-widget.error.upload-profile-photo": "Failure to upload profile photo. Try again",
   "user-profile-widget.success.change-photo": "Profile photo successfully changed",
-
   "password-field.rule.valid-characters": "Any characters except whitespaces are available",
   "password-field.rule.count-characters": "minimum 3 characters",
   "password-field.rule.count-digits": "1 digit",
   "password-field.rule.count-capitals": "1 capital",
   "password-field.rule.count-lowercase": "1 lowercase",
   "password-field.rule.required": "Password is required",
-
   "password-editor.error.change-profile-password": "Failure to change password",
   "password-editor.error.invalid-password": "The old password is incorrect",
   "password-editor.error.server-error": "Server error occurred",
@@ -1300,7 +1221,6 @@
   "password-editor.button.change": "Change password",
   "password-editor.msg.new-passwords-not-match": "Passwords do not match",
   "password-editor.msg.new-n-old-passwords-match": "New and old passwords match",
-
   "doc-constructor-widget.title": "Doc.One",
   "doc-constructor-widget.description.title": "Working with the main document in the designer Doc.One",
   "doc-constructor-widget.description.text": "1. Select a template to create a document\n2. Edit and save\n3. Sync to see the changes",
@@ -1325,14 +1245,11 @@
   "doc-constructor-widget.settings.prop.journal-templates-id": "Journal templates ID",
   "doc-constructor-widget.settings.button.cancel": "Cancel",
   "doc-constructor-widget.settings.button.save": "Save",
-
   "business-process-viewer.button.cancel-bp": "Cancel the business-process",
   "business-process-viewer.dialog.msg": "Cancel the business-process?",
-
   "menu.error.get-config": "Menu configuration hasn't received",
   "menu.error.save-config": "Menu configuration hasn't saved",
   "menu.label.no-name": "No name",
-
   "menu-settings.header.title": "Menu Settings",
   "menu-settings.button.cancel": "Cancel",
   "menu-settings.button.apply": "Apply",
@@ -1398,7 +1315,6 @@
   "menu-settings.error-boundary.title": "Error",
   "menu-settings.error-boundary.msg": "Try reopen the settings. If the error reappears, contact your administrator",
   "menu-editor.user.empty.msg": "The user menu is not configured or all items are hidden. In order to comfortably interact with the site, the basic user menu will be displayed:\n{{items}}",
-
   "menu-settings.error.no-id-config": "User menu ID is absent",
   "menu-settings.error.get-config": "Menu settings configuration hasn't received",
   "menu-settings.error.save-config": "Menu settings configuration hasn't saved",
@@ -1411,7 +1327,6 @@
   "menu-settings.error.save-group-priority": "Group priority hasn't saved",
   "menu-settings.success.save-group-priority": "Group priority has saved",
   "menu-settings.error.type-not-created": "The selected type cannot be created",
-
   "menu-item.type.section": "Section",
   "menu-item.type.journal": "Journal",
   "menu-item.type.arbitrary": "Arbitrary menu item",
@@ -1426,7 +1341,6 @@
   "menu-item.type.user-feedback": "Feedback",
   "menu-item.type.user-send-problem-report": "Report a problem",
   "menu-item.type.user-logout": "Log out",
-
   "icon-select.title": "Select Icon",
   "icon-select.btn.upload-custom": "Upload",
   "icon-select.btn.delete-custom": "Delete",
@@ -1439,7 +1353,6 @@
   "icon-select.error.get-font-icons": "Font menu icons haven't received",
   "icon-select.error.upload-custom-icon": "Custom icon hasn't uploaded",
   "icon-select.error.delete-custom-icon": "Custom icon hasn't deleted",
-
   "model-editor.error.no-form": "Form's not found",
   "model-editor.error.no-record-ref": "Record's not found",
   "model-editor.error.no-editor": "Editor's not installed",
@@ -1448,20 +1361,16 @@
   "model-editor.btn.view-xml": "View XML",
   "model-editor.btn.save-deploy": "Save and Deploy",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
-
   "bpmn-editor.error.no-model": "Process's not set",
   "bpmn-editor.error.no-selected-element": "You should select some element to edit it",
-
   "bpmn-editor.success.model-save-deployed": "Process successfully saved and deployed",
   "bpmn-editor.error.can-not-save-deploy-model": "An error occurred while saving and deploying the process",
-
   "cmmn-editor.success.scenario-saved": "Scenario is saved",
   "cmmn-editor.error.no-model": "Scenario's not set",
   "cmmn-editor.error.can-not-save-scenario": "Scenario could not be saved",
   "cmmn-editor.error.can-not-save-record-data": "Record data has not saved",
   "cmmn-editor.error.no-selected-element": "You should select some element to edit it",
   "cmmn-editor.error.form-not-found": "No property form found for this entry",
-
   "legacy-cmmn-editor.header": "Edit scenario",
   "legacy-cmmn-editor.header2": "CMMN Editor",
   "legacy-cmmn-editor.loading.error.title": "Loading error",
@@ -1471,18 +1380,15 @@
   "legacy-cmmn-editor.button.save.label": "Save",
   "legacy-cmmn-editor.button.cancel.label": "Cancel",
   "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Copy temporary case ID",
-
   "go-to.home-page": "Go to home page",
   "notification.journal-will-be-opened-soon": "Journal will be opened soon",
   "task": "Task",
   "action": "Action",
   "TASK": "Task",
   "ACTION": "Action",
-
   "copy-to-clipboard.modal.title": "Copy",
   "copy-to-clipboard.modal.description": "To copy the text, click the button below",
   "copy-to-clipboard.btn.copy": "Copy",
-
   "ecos-form.import-button.confirm.default-title": "Removing previously added entries",
   "ecos-form.import-button.confirm.default-description": "Before loading lines from the template file, the current lines will be deleted. Do you want to continue the action?",
   "ecos-form.import-button.failed-uploading.description": "Failure to upload file",
@@ -1499,6 +1405,8 @@
   "ecos-form.builder.debugging.tree.influence.info": "Influence tree is a reverse dependency: deeper in the tree are dependent components",
   "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
   "ecos-form.builder.form-id.label": "Form ID",
-
-  "more-about-error.label": "More about the error"
+  "more-about-error.label": "More about the error",
+  "form-editor.text-field": "Text field",
+  "form-editor.textarea": "Textarea",
+  "form-editor.datetime": "Date / time"
 }

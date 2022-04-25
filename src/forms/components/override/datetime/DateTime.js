@@ -2,6 +2,7 @@ import isEqual from 'lodash/isEqual';
 import omitBy from 'lodash/omitBy';
 import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 import isEmpty from 'lodash/isEmpty';
+import { t } from '../../../../helpers/export/util';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
   build(state) {

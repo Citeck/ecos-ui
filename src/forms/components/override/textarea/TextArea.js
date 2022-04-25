@@ -2,6 +2,7 @@ import _ from 'lodash';
 import NativePromise from 'native-promise-only';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
+import { t } from '../../../../helpers/export/util';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -13,7 +14,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         isUploadEnabled: false,
         showWordCount: false,
         showCharCount: false,
-        inputFormat: 'plain'
+        inputFormat: 'plain',
+        label: t('form-editor.textarea')
       },
       ...extend
     );
