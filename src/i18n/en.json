@@ -240,6 +240,7 @@
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
   "dashboard-settings.widget.doc-constructor": "Doc.One",
+  "dashboard-settings.widget.process-statistics": "Process Statistics",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
 
@@ -1499,5 +1500,31 @@
   "ecos-form.builder.debugging.tree.influence.info": "Influence tree is a reverse dependency: deeper in the tree are dependent components",
   "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
 
-  "more-about-error.label": "More about the error"
+  "more-about-error.label": "More about the error",
+
+  "process-statistics-widget.title": "Process Statistics",
+  "process-statistics-widget.info.no-columns": "No display settings",
+  "process-statistics-widget.info.no-model": "No model",
+  "process-statistics-widget.info.mount-problem": "There is a mounting problem",
+  "process-statistics-widget.settings.title": "Widget Settings",
+  "process-statistics-widget.settings.btn.cancel": "Cancel",
+  "process-statistics-widget.settings.btn.save": "Save",
+  "process-statistics-widget.settings.field.journal": "Journal",
+  "process-statistics-widget.settings.default-display": "Default display",
+  "process-statistics-widget.settings.field.showHeatmapDefault": "Heatmap",
+  "process-statistics-widget.settings.field.showModelDefault": "Process",
+  "process-statistics-widget.settings.field.showJournalDefault": "Journal",
+  "process-statistics-widget.panel.heatmap": "Heatmap",
+  "process-statistics-widget.panel.opacity": "Opacity",
+  "process-statistics-widget.panel.active-count": "Active",
+  "process-statistics-widget.panel.completed-count": "Completed",
+  "process-statistics-widget.model.title": "Process",
+  "process-statistics-widget.journal.title": "Journal",
+  "process-statistics-widget.journal.last-n-records": "Last 10 records",
+
+  "model-viewer.zoom.tip-window": "Fit to Width",
+  "model-viewer.zoom.tip-reset": "Default",
+  "model-viewer.zoom.tip-in": "Zoom In",
+  "model-viewer.zoom.tip-out": "Zoom Out",
+  "model-viewer.heatmap.average-value": "Average"
 }

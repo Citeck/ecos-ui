@@ -240,6 +240,7 @@
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashboard-settings.widget.doc-constructor": "Doc.One",
+  "dashboard-settings.widget.process-statistics": "Статистика процесса",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
@@ -1509,7 +1510,7 @@
   "process-statistics-widget.settings.btn.save": "Сохранить",
   "process-statistics-widget.settings.field.journal": "Журнал",
   "process-statistics-widget.settings.default-display": "Отображение по умолчанию",
-  "process-statistics-widget.settings.field.showHeatmapDefault": "Интесивновть",
+  "process-statistics-widget.settings.field.showHeatmapDefault": "Тепловая карта",
   "process-statistics-widget.settings.field.showModelDefault": "Процесс",
   "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
   "process-statistics-widget.panel.heatmap": "Тепловая карта",
@@ -1518,5 +1519,11 @@
   "process-statistics-widget.panel.completed-count": "Завершенные",
   "process-statistics-widget.model.title": "Процесс",
   "process-statistics-widget.journal.title": "Журнал",
-  "process-statistics-widget.journal.last-n-records": "Последние 10 записей"
+  "process-statistics-widget.journal.last-n-records": "Последние 10 записей",
+
+  "model-viewer.zoom.tip-window": "По ширине",
+  "model-viewer.zoom.tip-reset": "По умолчанию",
+  "model-viewer.zoom.tip-in": "Увеличить",
+  "model-viewer.zoom.tip-out": "Уменьшить",
+  "model-viewer.heatmap.average-value": "Среднее значение"
 }

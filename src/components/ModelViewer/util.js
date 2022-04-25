@@ -5,7 +5,9 @@ export const Zooms = {
 };
 
 export const Labels = {
-  ZOOM_RESET: 'model.zoom-reset',
-  ZOOM_IN: 'model.zoom-in',
-  ZOOM_OUT: 'model.zoom-out'
+  ZOOM_WINDOW: 'model-viewer.zoom.tip-window',
+  ZOOM_RESET: 'model-viewer.zoom.tip-reset',
+  ZOOM_IN: 'model-viewer.zoom.tip-in',
+  ZOOM_OUT: 'model-viewer.zoom.tip-out',
+  TIP_AVG_VAL: 'model-viewer.heatmap.average-value'
 };

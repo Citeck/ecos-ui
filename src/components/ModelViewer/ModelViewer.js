@@ -11,7 +11,7 @@ export default class ModelViewer {
   static querySelector = 'ecos-model-container';
   modeler;
   heatmap;
-  defaultScale;
+  #defaultScale;
 
   init = async ({ diagram, container, onInit, onMounted }) => {
     isFunction(onInit) && onInit(true);
@@ -47,7 +47,7 @@ export default class ModelViewer {
       if (this.modeler && diagram) {
         const result = await this.modeler.importXML(diagram);
         callbackData = { mounted: !result.error, result };
-        this.defaultScale = this.canvas.viewbox().scale;
+        this.#defaultScale = this.canvas.viewbox().scale;
       } else {
         callbackData = { mounted: false, error: 'No diagram' };
       }
@@ -63,36 +63,30 @@ export default class ModelViewer {
     if (this.modeler._container) {
       height = height || this.viewport.getBoundingClientRect().height;
       this.modeler._container.style.height = `${height}px`;
-
-      this.canvas.zoom(Zooms.FIT);
     }
+    this.setZoom(Zooms.FIT);
   };
 
   setZoom = value => {
     let nv;
     switch (value) {
       case Zooms.DEFAULT:
-        nv = this.defaultScale;
+        nv = this.#defaultScale;
         break;
       case Zooms.FIT:
         nv = Zooms.FIT;
         break;
       default: {
         let oldScale = this.canvas.viewbox().scale;
-        oldScale = isNumber(oldScale) ? oldScale : this.defaultScale;
+        oldScale = isNumber(oldScale) ? oldScale : this.#defaultScale;
         const newScale = oldScale + value;
         nv = newScale > Zooms.STEP ? newScale : Zooms.STEP;
-        //if (query('.tools-canvas')) remove(query('.tools-canvas'));
-        //this.renderHeatmap(JSON.parse(JSON.stringify(heatmapdata)), canvas);
-        //this.renderHeatmap(canvas);
       }
     }
 
     nv && this.canvas.zoom(nv);
-    // nv && this.heatmap && this.heatmap.canvas.zoom(nv);
+    this.redrawHeatmap();
   };
-
-  //todo tooltip
 
   Sheet = ({ diagram, onMounted, onInit }) => {
     const [initialized, setInitialized] = useState(false);
@@ -120,11 +114,28 @@ export default class ModelViewer {
    * @param onChange {Function}
    * @param onMounted {Function}
    */
-  drawHeatmap = ({ data, onChange, onMounted, hasTooltip }) => {
+  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip }) => {
     this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
   };
 
+  redrawHeatmap = () => {
+    if (!this.heatmap) {
+      return;
+    }
+
+    const origData = this.heatmap.origData;
+    this.heatmap.destroy();
+    this.drawHeatmap(origData);
+  };
+
+  // drawInfoBlock = ({ data = [] }) => {
+  //   const overlays = this.modeler.get('overlays');
+  //   console.log(overlays)
+  //   const { scale } = this.canvas.viewbox();
+  // }
+
   destroy = () => {
     this.modeler && this.modeler._emit('diagram.destroy');
+    this.heatmap && this.heatmap.destroy();
   };
 }

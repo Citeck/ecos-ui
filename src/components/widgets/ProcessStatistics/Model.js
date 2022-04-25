@@ -32,6 +32,8 @@ const mapDispatchToProps = dispatch => ({
   getModelData: payload => dispatch(getModel(payload))
 });
 
+const DEF_OPACITY = 0.5;
+
 class Model extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
@@ -61,7 +63,7 @@ class Model extends React.Component {
       isModelMounting: false,
       isModelMounted: false,
       isHeatmapMounted: false,
-      isActiveCount: false,
+      isActiveCount: true,
       isCompletedCount: false,
       legendData: {}
     };
@@ -107,7 +109,8 @@ class Model extends React.Component {
     this.setState({ isModelMounted: mounted, isModelMounting: false });
 
     if (mounted) {
-      this.designer.setHeight(400);
+      //setTimeout(()=>this.setHeight(400), 1000);
+      //this.designer.drawInfoBlock({data: [1]})
       this.renderHeatmap();
     } else {
       console.warn({ result });
@@ -132,7 +135,7 @@ class Model extends React.Component {
   rerenderHeatmap = () => {
     const data = this.getPreparedHeatData();
 
-    this.designer.heatmap.updateData({ data });
+    this.designer.heatmap.updateData(data);
   };
 
   toggleHeatmap = () => {
@@ -154,22 +157,6 @@ class Model extends React.Component {
     }
   };
 
-  redraw = height => {
-    this.designer.setHeight(height);
-    this.heatmapRef && this.heatmapRef.repaint();
-  };
-
-  //todo
-  destroyHeatmap = () => {
-    if (!this.heatmapRef) {
-      return;
-    }
-
-    this.heatmapRef.removeData();
-    this.heatmapRef.repaint();
-    this.heatmapRef = null;
-  };
-
   onChangeHeatmap = legendData => {
     this.setState({ legendData });
   };
@@ -179,18 +166,24 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
+    const { isActiveCount, isCompletedCount } = this.state;
+
     return (
       <>
         <div className="ecos-process-statistics-model__filter-count">
-          <Checkbox onChange={d => this.handleChangeCountFlag({ isActiveCount: d.checked })} />
+          <Checkbox checked={isActiveCount} onChange={d => this.handleChangeCountFlag({ isActiveCount: d.checked })} />
           <span className="ecos-process-statistics-model__filter-count-label">{t(Labels.PANEL_ACTIVE_COUNT)}</span>
         </div>
         <div className="ecos-process-statistics-model__filter-count">
-          <Checkbox onChange={d => this.handleChangeCountFlag({ isCompletedCount: d.checked })} />
+          <Checkbox checked={isCompletedCount} onChange={d => this.handleChangeCountFlag({ isCompletedCount: d.checked })} />
           <span className="ecos-process-statistics-model__filter-count-label">{t(Labels.PANEL_COMPLETED_COUNT)}</span>
         </div>
       </>
     );
+  };
+
+  setHeight = height => {
+    this.designer.setHeight(height);
   };
 
   render() {
@@ -210,12 +203,12 @@ class Model extends React.Component {
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           <div className="ecos-process-statistics-model__panel">
             <Zoomer instModelRef={this.designer} />
-            {isShow && <Opacity instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
+            {isShow && <Opacity defValue={DEF_OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
             {isShow && this.renderCountFlags()}
             <div className="ecos-process-statistics-model__panel-delimiter" />
             {isShow && <Legend {...legendData} />}
           </div>
-          <ResizableBox getHeight={this.redraw} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
+          <ResizableBox getHeight={this.setHeight} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
             {model && <this.designer.Sheet diagram={model} onInit={this.handleInitSheet} onMounted={this.handleReadySheet} />}
           </ResizableBox>
         </Collapse>

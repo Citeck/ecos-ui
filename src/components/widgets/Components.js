@@ -172,7 +172,7 @@ export default class Components {
     },
     [ComponentKeys.PROCESS_STATISTICS]: {
       load: () => lazy(() => import('./ProcessStatistics/Dashlet')),
-      label: 'PROCESS_statistics',
+      label: 'dashboard-settings.widget.process-statistics',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {}
     }
