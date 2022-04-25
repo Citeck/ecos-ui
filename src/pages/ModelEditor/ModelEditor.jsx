@@ -147,7 +147,10 @@ class ModelEditorPage extends React.Component {
     }
 
     const { savedModel } = this.props;
-    if (!savedModel) return;
+
+    if (!savedModel) {
+      return;
+    }
 
     const promiseXml = new Promise((resolve, reject) =>
       this.designer.saveXML({ callback: ({ error, xml }) => (xml ? resolve(xml) : reject(error)) })
@@ -227,7 +230,10 @@ class ModelEditorPage extends React.Component {
 
   handleClickViewXml = () => {
     const { savedModel } = this.props;
-    if (!savedModel) return;
+
+    if (!savedModel) {
+      return;
+    }
 
     this.designer.saveXML({
       callback: ({ xml }) => {
@@ -263,11 +269,10 @@ class ModelEditorPage extends React.Component {
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
         {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
-          savedModel={this.props.savedModel}
           title={title}
-          onApply={() => this.handleSave(false)}
+          onApply={this.handleSave}
           onViewXml={this.handleClickViewXml}
-          onSaveAndDeploy={() => this.handleSave(true)}
+          onSaveAndDeploy={this.handleSave}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={

@@ -2,8 +2,8 @@ import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import uuidv4 from 'uuid/v4';
+import isNil from 'lodash/isNil';
 
-import _ from 'lodash';
 import { t } from '../../helpers/util';
 import { Icon, InfoText } from '../common';
 import { Caption } from '../common/form';
@@ -45,14 +45,20 @@ class ModelEditorWrapper extends React.Component {
     configButtons: []
   };
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.savedModel !== this.props.savedModel) {
-      this.createConfigTools();
-    }
+  componentDidMount() {
+    this.createConfigTools();
   }
 
+  onApply = () => {
+    this.props.onApply(false);
+  };
+
+  onSaveAndDeploy = () => {
+    this.props.onSaveAndDeploy(true);
+  };
+
   createConfigTools() {
-    const { onCreate, onApply, onViewXml, onSaveAndDeploy } = this.props;
+    const { onCreate, onViewXml } = this.props;
 
     this.setState({
       configButtons: [
@@ -66,7 +72,7 @@ class ModelEditorWrapper extends React.Component {
         },
         {
           icon: 'fa fa-save',
-          action: onApply,
+          action: this.onApply,
           text: t(Labels.APPLY),
           id: `bpmn-save-btn-${uuidv4()}`,
           trigger: 'hover',
@@ -82,7 +88,7 @@ class ModelEditorWrapper extends React.Component {
         },
         {
           icon: 'fa fa-cloud-upload',
-          action: onSaveAndDeploy,
+          action: this.onSaveAndDeploy,
           text: t(Labels.SAVE_DEPLOY),
           id: `bpmn-download-btn-${uuidv4()}`,
           trigger: 'hover',
@@ -103,7 +109,7 @@ class ModelEditorWrapper extends React.Component {
     return (
       <div className="ecos-model-editor">
         <div className="ecos-model-editor__designer">
-          <TitlePageLoader isReady={!_.isNil(title)}>
+          <TitlePageLoader isReady={!isNil(title)}>
             <Caption normal className="ecos-model-editor__designer-title">
               {title}
             </Caption>
