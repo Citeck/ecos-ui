@@ -146,6 +146,9 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    const { savedModel } = this.props;
+    if (!savedModel) return;
+
     const promiseXml = new Promise((resolve, reject) =>
       this.designer.saveXML({ callback: ({ error, xml }) => (xml ? resolve(xml) : reject(error)) })
     );
@@ -223,6 +226,9 @@ class ModelEditorPage extends React.Component {
   };
 
   handleClickViewXml = () => {
+    const { savedModel } = this.props;
+    if (!savedModel) return;
+
     this.designer.saveXML({
       callback: ({ xml }) => {
         if (xml) {
@@ -250,17 +256,17 @@ class ModelEditorPage extends React.Component {
   };
 
   render() {
-    const { savedModel, title, formProps, isLoading } = this.props;
+    const { title, formProps, isLoading } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
         {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
-          savedModel={savedModel}
+          savedModel={this.props.savedModel}
           title={title}
-          onApply={savedModel && (() => this.handleSave(false))}
-          onViewXml={savedModel && this.handleClickViewXml}
+          onApply={() => this.handleSave(false)}
+          onViewXml={this.handleClickViewXml}
           onSaveAndDeploy={() => this.handleSave(true)}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}

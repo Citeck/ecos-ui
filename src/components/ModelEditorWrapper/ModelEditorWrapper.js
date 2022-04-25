@@ -3,7 +3,8 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import uuidv4 from 'uuid/v4';
 
-import { isExistValue, t } from '../../helpers/util';
+import _ from 'lodash';
+import { t } from '../../helpers/util';
 import { Icon, InfoText } from '../common';
 import { Caption } from '../common/form';
 import TitlePageLoader from '../common/TitlePageLoader';
@@ -46,12 +47,12 @@ class ModelEditorWrapper extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.savedModel !== this.props.savedModel) {
-      this.createConfig();
+      this.createConfigTools();
     }
   }
 
-  createConfig() {
-    let { onCreate, onApply, onViewXml, onSaveAndDeploy } = this.props;
+  createConfigTools() {
+    const { onCreate, onApply, onViewXml, onSaveAndDeploy } = this.props;
 
     this.setState({
       configButtons: [
@@ -102,7 +103,7 @@ class ModelEditorWrapper extends React.Component {
     return (
       <div className="ecos-model-editor">
         <div className="ecos-model-editor__designer">
-          <TitlePageLoader isReady={isExistValue(title)}>
+          <TitlePageLoader isReady={!_.isNil(title)}>
             <Caption normal className="ecos-model-editor__designer-title">
               {title}
             </Caption>
