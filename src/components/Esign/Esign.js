@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { Esign } from '../../services/esign';
 import { Btn } from '../common/btns';
@@ -19,7 +20,11 @@ class EsignComponent extends Component {
      * callback function upon successful signing of a document
      */
     onSigned: PropTypes.func,
-    onClose: PropTypes.func
+    onClose: PropTypes.func,
+    /**
+     * callback function to call before signing
+     */
+    onBeforeSigning: PropTypes.func
   };
 
   static defaultProps = {
@@ -100,9 +105,15 @@ class EsignComponent extends Component {
   };
 
   handleSignDocument = selectedCertificate => {
+    const { onBeforeSigning, recordRefs } = this.props;
+
+    if (isFunction(onBeforeSigning)) {
+      onBeforeSigning(recordRefs, selectedCertificate);
+    }
+
     this.setState({ isLoading: true });
 
-    Esign.signDocument(this.props.recordRefs, selectedCertificate)
+    Esign.signDocument(recordRefs, selectedCertificate)
       .then(this.documentSigned)
       .catch(this.setError);
   };
@@ -112,7 +123,7 @@ class EsignComponent extends Component {
 
     this.setState({ documentSigned });
 
-    if (documentSigned && typeof onSigned === 'function') {
+    if (documentSigned && isFunction(onSigned)) {
       onSigned();
     }
 
