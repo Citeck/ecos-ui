@@ -2,14 +2,12 @@ import FormIOPanelComponent from 'formiojs/components/panel/Panel';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
 
-import { t } from '../../../../helpers/export/util';
-
 export default class PanelComponent extends FormIOPanelComponent {
   static schema(...extend) {
     return FormIOPanelComponent.schema(
       {
-        title: t('form-constructor.panel'),
-        label: t('form-constructor.panel'),
+        title: 'Panel',
+        label: 'Panel',
         collapsible: false,
         scrollableContent: false
       },
@@ -19,7 +17,7 @@ export default class PanelComponent extends FormIOPanelComponent {
 
   static get builderInfo() {
     return {
-      title: t('form-constructor.panel'),
+      title: 'Panel',
       group: 'layout',
       icon: 'fa fa-list-alt',
       schema: PanelComponent.schema()

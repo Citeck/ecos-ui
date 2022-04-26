@@ -2,7 +2,6 @@ import _ from 'lodash';
 import NativePromise from 'native-promise-only';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
-import { t } from '../../../../helpers/export/util';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -14,22 +13,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         isUploadEnabled: false,
         showWordCount: false,
         showCharCount: false,
-        inputFormat: 'plain',
-        label: t('form-editor.textarea')
+        inputFormat: 'plain'
       },
       ...extend
     );
-  }
-
-  static get builderInfo() {
-    return {
-      title: t('form-constructor.text-area'),
-      group: 'basic',
-      icon: 'fa fa-font',
-      documentation: 'http://help.form.io/userguide/#textarea',
-      weight: 40,
-      schema: TextAreaComponent.schema()
-    };
   }
 
   constructor(...args) {

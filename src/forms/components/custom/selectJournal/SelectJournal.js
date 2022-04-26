@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
-import { getTextByLocale, trimFields, t } from '../../../../helpers/util';
+import { getTextByLocale, trimFields } from '../../../../helpers/util';
 import { SelectJournal } from '../../../../components/common/form';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -50,7 +50,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   static get builderInfo() {
     return {
-      title: t('form-constructor.select-journal'),
+      title: 'Select Journal',
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,

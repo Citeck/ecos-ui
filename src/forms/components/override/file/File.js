@@ -35,17 +35,6 @@ export default class FileComponent extends FormIOFileComponent {
     );
   }
 
-  static get builderInfo() {
-    return {
-      title: t('form-constructor.file'),
-      group: 'advanced',
-      icon: 'fa fa-file',
-      documentation: 'http://help.form.io/userguide/#file',
-      weight: 100,
-      schema: FileComponent.schema()
-    };
-  }
-
   constructor(...params) {
     super(...params);
 

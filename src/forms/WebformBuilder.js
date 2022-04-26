@@ -78,7 +78,6 @@ WebformBuilder.prototype.updateComponent = function(component) {
 
 WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   const componentCopy = _.cloneDeep(component);
-  console.log('componentCopy', componentCopy);
   let componentClass = Components.components[componentCopy.component.type];
   const isCustom = componentClass === undefined;
   //custom component should be edited as JSON
@@ -95,33 +94,30 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   });
   const componentInfo = componentClass ? componentClass.builderInfo : {};
 
-  const saveButtonText = t('form-editor.save-button');
   const saveButton = this.ce(
     'button',
     {
       class: 'btn btn-success',
       style: 'margin-right: 10px;'
     },
-    this.t(saveButtonText)
+    this.t(t('form-editor.save-button'))
   );
 
-  const cancelButtonText = t('form-editor.cancel-button');
   const cancelButton = this.ce(
     'button',
     {
       class: 'btn btn-default',
       style: 'margin-right: 10px;'
     },
-    this.t(cancelButtonText)
+    this.t(t('form-editor.cancel-button'))
   );
 
-  const removeButtonText = t('form-editor.remove-button');
   const removeButton = this.ce(
     'button',
     {
       class: 'btn btn-danger'
     },
-    this.t(removeButtonText)
+    this.t(t('form-editor.remove-button'))
   );
 
   const previewText = t('form-editor.preview-button');
@@ -236,14 +232,12 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
       ]
     )
   ]);
-  console.log('componentEdit', componentEdit);
 
   // Append the settings page to the dialog body.
   this.dialog.body.appendChild(componentEdit);
 
   // Allow editForm overrides per component.
   const overrides = _.get(this.options, `editForm.${componentCopy.component.type}`, {});
-  console.log('overrides', overrides);
 
   // Get the editform for this component.
   let editForm;
@@ -298,7 +292,6 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
 
   // Set the form to the edit form.
   this.editForm.form = editForm;
-  console.log('editForm', editForm);
 
   // Pass along the form being edited.
   this.editForm.editForm = this._form;

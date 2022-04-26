@@ -3,7 +3,6 @@ import get from 'lodash/get';
 import BaseReactComponent from '../base/BaseReactComponent';
 import Dropdown from '../../../../components/common/form/Dropdown';
 import { Types } from './constants';
-import { t } from '../../../../helpers/export/util';
 
 export default class SelectActionComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -25,7 +24,7 @@ export default class SelectActionComponent extends BaseReactComponent {
 
   static get builderInfo() {
     return {
-      title: t('form-constructor.select-action'),
+      title: 'Select Action',
       icon: 'fa fa-chevron-circle-down',
       group: 'basic',
       weight: 120,

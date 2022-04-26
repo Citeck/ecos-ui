@@ -20,15 +20,6 @@ export default class ButtonComponent extends FormIOButtonComponent {
 
   _loading = false;
 
-  static get builderInfo() {
-    return {
-      title: t('form-constructor.button'),
-      group: 'basic',
-      icon: 'fa fa-stop',
-      schema: ButtonComponent.schema()
-    };
-  }
-
   get defaultSchema() {
     return ButtonComponent.schema();
   }

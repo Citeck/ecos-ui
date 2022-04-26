@@ -1,5 +1,4 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
-import { t } from '../../../../helpers/export/util';
 import { overrideTriggerChange } from '../misc';
 
 export default class TextFieldComponent extends FormIOTextFieldComponent {
@@ -10,7 +9,6 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
         showWordCount: false,
         showCharCount: false,
         inputFormat: 'plain',
-        label: t('form-editor.text-field'),
         widget: {
           type: '',
           format: 'yyyy-MM-dd hh:mm a',
@@ -32,15 +30,6 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
       },
       ...extend
     );
-  }
-
-  static get builderInfo() {
-    return {
-      title: t('form-constructor.text-field'),
-      icon: 'fa fa-terminal',
-      group: 'basic',
-      schema: TextFieldComponent.schema()
-    };
   }
 
   get defaultSchema() {

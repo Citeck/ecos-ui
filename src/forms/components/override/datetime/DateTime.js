@@ -2,7 +2,6 @@ import isEqual from 'lodash/isEqual';
 import omitBy from 'lodash/omitBy';
 import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 import isEmpty from 'lodash/isEmpty';
-import { t } from '../../../../helpers/export/util';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
   build(state) {
@@ -12,17 +11,6 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
       this.setPristine(false);
       this.addClass(this.getElement(), 'formio-modified');
     });
-  }
-
-  static get builderInfo() {
-    return {
-      title: t('form-constructor.date-time'),
-      group: 'advanced',
-      icon: 'fa fa-calendar-plus-o',
-      documentation: 'http://help.form.io/userguide/#datetime',
-      weight: 40,
-      schema: DateTimeComponent.schema()
-    };
   }
 
   static optimizeSchema(comp) {

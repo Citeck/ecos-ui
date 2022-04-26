@@ -13,7 +13,7 @@ export default class TabsComponent extends NestedComponent {
   static schema(...extend) {
     return NestedComponent.schema(
       {
-        label: t('form-constructor.tabs'),
+        label: 'Tabs',
         type: 'tabs',
         input: false,
         key: 'tabs',
@@ -33,7 +33,7 @@ export default class TabsComponent extends NestedComponent {
 
   static get builderInfo() {
     return {
-      title: t('form-constructor.tabs'),
+      title: 'Tabs',
       group: 'layout',
       icon: 'fa fa-folder-o',
       weight: 50,
@@ -282,9 +282,21 @@ export default class TabsComponent extends NestedComponent {
 
     this.tabLinks = [];
     this.tabs = [];
-    console.log('this.component.components', this.component.components);
     this.component.components.forEach((tab, index) => {
-      console.log('TAB', tab.components);
+      tab.components.forEach(el => {
+        el.label = t(`form-constructor.tabs-content.${el.key}`);
+        if (el.tooltip) {
+          el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
+        }
+        if (el.components) {
+          el.components.forEach(item => {
+            item.label = t(`form-constructor.tabs-content.${item.key}`);
+            if (item.placeholder) {
+              item.placeholder = t(`form-constructor.tabs-content.${item.key}`);
+            }
+          });
+        }
+      });
       const tabLink = this.ce(
         'a',
         {
@@ -320,7 +332,6 @@ export default class TabsComponent extends NestedComponent {
         id: tab.key
       });
       this.tabsContent.appendChild(tabPanel);
-      console.log('TAB CONTENT', this.tabsContent, tabPanel);
       this.tabs.push(tabPanel);
     });
 
