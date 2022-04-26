@@ -3,12 +3,14 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../helpers/util';
 import { Icon, InfoText } from '../common';
 import { Caption } from '../common/form';
 import TitlePageLoader from '../common/TitlePageLoader';
 import Tools from './Tools';
+import { ToolsInterface } from './propsInterfaces';
 
 import './style.scss';
 
@@ -28,16 +30,7 @@ class ModelEditorWrapper extends React.Component {
     rightSidebarTitle: PropTypes.string,
     onApply: PropTypes.func,
     onCreate: PropTypes.func,
-    configButtons: PropTypes.arrayOf(
-      PropTypes.shape({
-        icon: PropTypes.string,
-        action: PropTypes.func.isRequired,
-        text: PropTypes.string,
-        id: PropTypes.string.isRequired,
-        trigger: PropTypes.string,
-        className: PropTypes.string
-      })
-    )
+    configButtons: PropTypes.arrayOf(PropTypes.shape(ToolsInterface))
   };
 
   state = {
@@ -50,11 +43,15 @@ class ModelEditorWrapper extends React.Component {
   }
 
   onApply = () => {
-    this.props.onApply(false);
+    if (isFunction(this.props.onApply)) {
+      this.props.onApply(false);
+    }
   };
 
   onSaveAndDeploy = () => {
-    this.props.onSaveAndDeploy(true);
+    if (isFunction(this.props.onSaveAndDeploy)) {
+      this.props.onSaveAndDeploy(true);
+    }
   };
 
   createConfigTools() {

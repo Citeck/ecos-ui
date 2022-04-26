@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { IcoBtn } from '../common/btns';
 import { Tooltip } from '../common';
+import { ToolsInterface } from './propsInterfaces';
 
 const Tools = ({ configButtons }) => (
   <div className="ecos-model-editor__designer-buttons">
@@ -20,16 +21,7 @@ const Tools = ({ configButtons }) => (
 );
 
 Tools.propTypes = {
-  configButtons: PropTypes.arrayOf(
-    PropTypes.shape({
-      icon: PropTypes.string,
-      action: PropTypes.func.isRequired,
-      text: PropTypes.string,
-      id: PropTypes.string.isRequired,
-      trigger: PropTypes.string,
-      className: PropTypes.string
-    })
-  )
+  configButtons: PropTypes.arrayOf(PropTypes.shape(ToolsInterface))
 };
 
 export default Tools;
