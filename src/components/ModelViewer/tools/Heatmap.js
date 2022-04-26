@@ -123,22 +123,27 @@ export default class HeatmapWrapper {
       });
 
       //todo fill between points depends on scale
+      //now filling only X side!
       // if (conPoints.length > 1) {
-      //   let addPoints;
+      //   let addPoints = [];
       //   for (let i = 1; i < conPoints.length; i++) {
       //     const { x: x1, y: y1 } = conPoints[i - 1];
       //     const { x: x2, y: y2 } = conPoints[i];
-      //     const amount = Math.round(Math.abs((x2 - x1) / conRadius));
-      //     addPoints = [];
-      //     addPoints.push({ ...conPoints[i - 1], x: x1 + (x2 - x1)/2, y: y1 + (y2 - y1)/2  })
-      //     // let x = x1, y = y1;
-      //     // for (let j = 0; j < addPoints.length; j++) {
-      //     //   x += conRadius;
-      //     //   y += conRadius;
-      //     //   addPoints[j] = { ...conPoints[i - 1], x, y  };
-      //     // }
+      //     let amount = Math.round(Math.abs((x2 - x1) / conRadius));
+      //     console.log(amount)
+      //     let x = x1, y = y1;
+      //     while (amount) {
+      //       amount--;
+      //       // for (let j = 0; j < addPoints.length; j++) {
+      //         x += conRadius;
+      //         // y += conRadius;
+      //         addPoints.push({ ...conPoints[i - 1], x, y  });
+      //       // }
+      //     }
+      //     // addPoints.push({ ...conPoints[i - 1], x: x1 + (x2 - x1)/2, y: y1 + (y2 - y1)/2  })
+      //
       //   }
-      //   debugger;
+      //   console.log(...addPoints)
       //   conPoints.push(...addPoints);
       // }
 
