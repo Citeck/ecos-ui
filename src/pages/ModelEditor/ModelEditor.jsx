@@ -4,11 +4,12 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
 import { getCurrentLocale, getTextByLocale, t } from '../../helpers/util';
-import { KEY_FIELD_NAME, KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
+import { EventListeners, KEY_FIELD_NAME, KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -32,6 +33,7 @@ class ModelEditorPage extends React.Component {
   modelEditorRef = React.createRef();
   #tempFormData = {};
   #formWrapperRef = React.createRef();
+  #prevValue = {};
 
   componentDidMount() {
     this.initModeler();
@@ -105,7 +107,7 @@ class ModelEditorPage extends React.Component {
     };
   }
 
-  handleReadySheet = () => {
+  handleReadySheet = (...data) => {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
@@ -114,7 +116,24 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    const formFields = this.getFormFields(element);
+
+    /**
+     * Events can occur too often.
+     * In order not to provoke extra renders, additionally compare the previous and current value.
+     */
+    if (this.#formWrapperRef.current && !isEmpty(formFields) && !isEqual(this.#prevValue, formFields)) {
+      this.#prevValue = { ...formFields };
+      this.#formWrapperRef.current.setValue(formFields);
+    }
+  };
+
+  getFormFields(element) {
     const formFields = {};
+
+    if (!element) {
+      return formFields;
+    }
 
     Object.keys(get(element, 'businessObject', {})).forEach(key => {
       if (KEY_FIELDS.includes(key)) {
@@ -122,6 +141,9 @@ class ModelEditorPage extends React.Component {
 
         if (!isUndefined(value)) {
           if (key === KEY_FIELD_NAME) {
+            /**
+             * @todo save values other locales
+             */
             formFields[key + ML_POSTFIX] = { [getCurrentLocale()]: value || '' };
           } else {
             formFields[key] = value;
@@ -130,11 +152,8 @@ class ModelEditorPage extends React.Component {
       }
     });
 
-    // TODO: Maybe should think about optimization. For example, check previous and current values
-    if (this.#formWrapperRef.current && !isEmpty(formFields)) {
-      this.#formWrapperRef.current.setValue(formFields);
-    }
-  };
+    return formFields;
+  }
 
   handleSave = (deploy = false) => {
     if (!this.designer) {
@@ -159,7 +178,6 @@ class ModelEditorPage extends React.Component {
 
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
-
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
 
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
@@ -227,6 +245,44 @@ class ModelEditorPage extends React.Component {
     });
   };
 
+  handleChangeLabel = label => {
+    const { selectedElement: currentSelected } = this.state;
+    const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
+
+    if (!selectedElement) {
+      return;
+    }
+
+    if (!isUndefined(label) && this.#formWrapperRef.current) {
+      this.#formWrapperRef.current.setValue(
+        {
+          [KEY_FIELD_NAME + ML_POSTFIX]: { [getCurrentLocale()]: label || '' }
+        },
+        { noUpdateEvent: true }
+      );
+    }
+  };
+
+  handleElementCreateEnd = event => {
+    const element = get(event, 'elements.0');
+
+    element && this.handleSelectItem(element);
+  };
+
+  handleElementUpdateId = data => {
+    const element = get(data, 'element');
+
+    element && this.handleSelectItem(element);
+  };
+
+  handleElementDelete = data => {
+    const element = get(data, 'context.elements.0');
+
+    if (element && this.#formWrapperRef.current) {
+      this.#formWrapperRef.current.clearFromCache(element.id);
+    }
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -237,6 +293,12 @@ class ModelEditorPage extends React.Component {
           onClickElement={this.handleSelectItem}
           onMounted={this.handleReadySheet}
           onChangeElement={this.handleChangeElement}
+          onChangeElementLabel={this.handleChangeLabel}
+          extraEvents={{
+            [EventListeners.CREATE_END]: this.handleElementCreateEnd,
+            [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
+            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete
+          }}
         />
       );
     } else {
@@ -263,6 +325,8 @@ class ModelEditorPage extends React.Component {
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
               {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
               <FormWrapper
+                id={get(selectedElement, 'id')}
+                cached
                 ref={this.#formWrapperRef}
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
