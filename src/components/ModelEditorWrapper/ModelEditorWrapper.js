@@ -1,12 +1,15 @@
 import React from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
+import uniqueId from 'lodash/uniqueId';
 
 import { isExistValue, t } from '../../helpers/util';
-import { Icon, InfoText } from '../common';
+import { Icon, InfoText, ResizeBoxes } from '../common';
 import { Caption } from '../common/form';
 import { Btn } from '../common/btns';
 import TitlePageLoader from '../common/TitlePageLoader';
+import { generateKey, getData, setData } from '../../helpers/ls';
 
 import './style.scss';
 
@@ -32,17 +35,58 @@ class ModelEditorWrapper extends React.Component {
     rightSidebarOpen: true
   };
 
+  #sidebarRightRef = null;
+  #designerId = uniqueId('modelEditorLeftColumn_');
+  #editorId = uniqueId('modelEditorRightColumn_');
+  #lsKey = generateKey('bpmn-editor', true);
+
+  constructor(props) {
+    super(props);
+
+    const sizes = getData(this.#lsKey);
+
+    this.state = {
+      rightSidebarOpen: true
+    };
+
+    if (sizes) {
+      this.state.sizes = sizes;
+    }
+  }
+
   togglePropertiesOpen = () => {
-    this.setState(({ rightSidebarOpen }) => ({ rightSidebarOpen: !rightSidebarOpen }));
+    this.setState(({ rightSidebarOpen }) => {
+      if (rightSidebarOpen) {
+        this.#sidebarRightRef = null;
+      }
+
+      return { rightSidebarOpen: !rightSidebarOpen };
+    });
+  };
+
+  setRightSidebarRef = ref => {
+    if (!ref) {
+      return;
+    }
+
+    const { top = 0 } = ref.getBoundingClientRect();
+
+    ref.style.maxHeight = `calc(100vh - ${top}px)`;
+    this.#sidebarRightRef = ref;
+  };
+
+  handleResizeComplete = sizes => {
+    this.setState({ sizes });
+    setData(this.#lsKey, sizes);
   };
 
   render() {
-    const { rightSidebarOpen } = this.state;
     const { rightSidebarTitle, editor, rightSidebar, title, onApply, onCreate, onViewXml, onSaveAndDeploy } = this.props;
+    const { rightSidebarOpen, sizes } = this.state;
 
     return (
-      <div className="ecos-model-editor">
-        <div className="ecos-model-editor__designer">
+      <div className="ecos-model-editor" style={{ display: 'flex' }}>
+        <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: rightSidebarOpen ? get(sizes, 'left') : '' }}>
           <TitlePageLoader isReady={isExistValue(title)}>
             <Caption normal className="ecos-model-editor__designer-title">
               {title}
@@ -73,16 +117,35 @@ class ModelEditorWrapper extends React.Component {
             </div>
           )}
         </div>
-        <div className={classNames('ecos-model-editor__sidebar-right', { 'ecos-model-editor__sidebar-right_open': rightSidebarOpen })}>
+
+        <div
+          id={this.#editorId}
+          className={classNames('ecos-model-editor__sidebar-right', {
+            'ecos-model-editor__sidebar-right_open': rightSidebarOpen
+          })}
+          style={{ width: rightSidebarOpen ? get(sizes, 'right') : '' }}
+        >
+          {rightSidebarOpen && (
+            <ResizeBoxes
+              leftId={this.#designerId}
+              rightId={this.#editorId}
+              className="ecos-model-editor__sidebar-right-resizer"
+              sizes={sizes}
+              onResizeComplete={this.handleResizeComplete}
+            />
+          )}
+
           <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
             <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
           </div>
-          <div className="ecos-model-editor__sidebar-right-content">
+
+          <div ref={this.setRightSidebarRef} className="ecos-model-editor__sidebar-right-content">
             {rightSidebarTitle && (
-              <Caption className="mb-2" normal>
+              <Caption normal className="ecos-model-editor__sidebar-right-caption">
                 {rightSidebarTitle}
               </Caption>
             )}
+
             {rightSidebar}
           </div>
         </div>
