@@ -55,13 +55,7 @@ class ModelEditorWrapper extends React.Component {
   }
 
   togglePropertiesOpen = () => {
-    this.setState(({ rightSidebarOpen }) => {
-      if (rightSidebarOpen) {
-        this.#sidebarRightRef = null;
-      }
-
-      return { rightSidebarOpen: !rightSidebarOpen };
-    });
+    this.setState(({ rightSidebarOpen }) => ({ rightSidebarOpen: !rightSidebarOpen }));
   };
 
   setRightSidebarRef = ref => {
