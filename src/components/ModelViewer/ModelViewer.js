@@ -12,6 +12,7 @@ export default class ModelViewer {
   modeler;
   heatmap;
   #defaultScale;
+  #container;
 
   init = async ({ diagram, container, onInit, onMounted }) => {
     isFunction(onInit) && onInit(true);
@@ -27,6 +28,7 @@ export default class ModelViewer {
     });
 
     if (container) {
+      this.#container = container;
       this.modeler.attachTo(container);
     }
 
@@ -60,11 +62,11 @@ export default class ModelViewer {
   };
 
   setHeight = height => {
-    if (this.modeler._container) {
+    if (this.#container) {
       height = height || this.viewport.getBoundingClientRect().height;
-      this.modeler._container.style.height = `${height}px`;
+      this.#container.style.height = `${height}px`;
+      this.setZoom(Zooms.FIT);
     }
-    this.setZoom(Zooms.FIT);
   };
 
   setZoom = value => {
@@ -88,7 +90,7 @@ export default class ModelViewer {
     this.redrawHeatmap();
   };
 
-  Sheet = ({ diagram, onMounted, onInit }) => {
+  Sheet = ({ diagram, onMounted, onInit, defHeight }) => {
     const [initialized, setInitialized] = useState(false);
     const containerRef = useRef(null);
 
@@ -104,7 +106,7 @@ export default class ModelViewer {
       }
     }, [initialized, containerRef]);
 
-    return <div ref={containerRef} className={ModelViewer.querySelector} />;
+    return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={ModelViewer.querySelector} />;
   };
 
   /**

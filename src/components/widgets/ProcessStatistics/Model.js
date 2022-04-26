@@ -33,6 +33,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 const DEF_OPACITY = 0.5;
+const DEF_HEIGHT = 400;
 
 class Model extends React.Component {
   static propTypes = {
@@ -144,10 +145,8 @@ class Model extends React.Component {
 
     switch (true) {
       case isHeatmapMounted && !isShowHeatmap:
-        this.designer.heatmap.toggleDisplay(true);
-        break;
-      case isHeatmapMounted && isShowHeatmap:
-        this.designer.heatmap.toggleDisplay(false);
+        this.designer.heatmap.destroy();
+        this.setState({ isHeatmapMounted: false });
         break;
       case !isHeatmapMounted && isShowHeatmap && isModelMounted:
         this.renderHeatmap();
@@ -209,7 +208,9 @@ class Model extends React.Component {
             {isShow && <Legend {...legendData} />}
           </div>
           <ResizableBox getHeight={this.setHeight} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
-            {model && <this.designer.Sheet diagram={model} onInit={this.handleInitSheet} onMounted={this.handleReadySheet} />}
+            {model && (
+              <this.designer.Sheet diagram={model} onInit={this.handleInitSheet} onMounted={this.handleReadySheet} defHeight={DEF_HEIGHT} />
+            )}
           </ResizableBox>
         </Collapse>
       </div>

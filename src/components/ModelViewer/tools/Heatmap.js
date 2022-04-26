@@ -12,9 +12,10 @@ import Tooltip from './Tooltip';
 
 export default class HeatmapWrapper {
   instance;
-  #instModel;
   origData;
+  #instModel;
   #mapData;
+  #container;
 
   constructor({ instModel, data, hasTooltip, onChange, onMounted }) {
     this.#instModel = instModel;
@@ -28,11 +29,13 @@ export default class HeatmapWrapper {
 
   destroy = () => {
     Tooltip.destroy();
-    this.canvas.remove();
+    this.instance && this.instance._renderer.canvas.remove();
     this.instance = null;
     this.origData = null;
     this.#mapData = null;
     this.#instModel = null;
+    this.#container.removeEventListener('mousemove', this.#onmousemove);
+    this.#container.removeEventListener('mouseout', this.#onmouseout);
   };
 
   get canvas() {
@@ -43,14 +46,14 @@ export default class HeatmapWrapper {
     const viewbox = this.#instModel.get('canvas').viewbox();
 
     const {
-      inner: { x: oX, y: oY },
+      inner: { x: iX, y: iY, height: iH, width: iW },
       outer: { height: H, width: W },
       x: X,
       y: Y,
       scale // zoom rate
     } = viewbox;
 
-    return { oX, oY, H, W, X, Y, scale };
+    return { iX, iY, iH, iW, H, W, X, Y, scale };
   }
 
   getPreparedData({ data, onChange }) {
@@ -60,8 +63,7 @@ export default class HeatmapWrapper {
     const connectionPoints = [];
     const elementRegistry = this.#instModel.get('elementRegistry');
     const canvas = this.#instModel.get('canvas');
-    const { oX, oY, H, W, X, Y, scale } = this.viewboxData;
-    // get viewbox position & scale
+    const { iX, iY, iH, iW, X, Y, scale } = this.viewboxData;
 
     // get all shapes and connections
     const shapes = elementRegistry.filter(element => !element.waypoints && element.parent && element.type !== 'label');
@@ -95,16 +97,16 @@ export default class HeatmapWrapper {
     });
 
     const points = shapePoints.concat(connectionPoints);
-
+    this.#container = canvas._container;
     const config = {
-      container: this.#instModel._container,
-      width: +W + (X < 0 ? Math.round(+((X - oX) * scale)) : X > 0 ? -(X - oX) * scale : 0),
-      height: +H + (Y > 0 ? Math.round(+((Y - oY) * scale)) : 0),
+      container: this.#container,
+      width: iW,
+      height: iH,
       radius: 45 * scale,
       maxOpacity: 0.8,
       minOpacity: 0,
       blur: 0.75,
-      onExtremaChange: data => isFunction(onChange) && onChange(data)
+      onExtremaChange: data => this.instance && isFunction(onChange) && onChange(data)
     };
 
     const values = points.map(item => item.value);
@@ -134,21 +136,22 @@ export default class HeatmapWrapper {
   };
 
   drawTooltip = () => {
-    const container = this.#instModel._container;
-    Tooltip.create(container);
+    Tooltip.create(this.#container);
+    this.#container.addEventListener('mousemove', this.#onmousemove);
+    this.#container.addEventListener('mouseout', this.#onmouseout);
+  };
 
-    container.onmousemove = ev => {
-      const x = ev.layerX;
-      const y = ev.layerY;
-      const key = Object.keys(this.#mapData).find(k => this.#mapData[k].find(point => point.x === x && point.y === y));
-      const data = this.origData.data.find(item => key === item.id);
-      const text = data && !isNil(data.value) ? data.value : `${t(Labels.TIP_AVG_VAL)}: ${this.instance.getValueAt({ x, y })}`;
+  #onmousemove = ev => {
+    const x = ev.layerX;
+    const y = ev.layerY;
+    const key = this.#mapData && Object.keys(this.#mapData).find(k => this.#mapData[k].find(point => point.x === x && point.y === y));
+    const data = this.origData && this.origData.data.find(item => key === item.id);
+    const text = data && !isNil(data.value) ? data.value : `${t(Labels.TIP_AVG_VAL)}: ${this.instance.getValueAt({ x, y })}`;
 
-      Tooltip.draw({ hidden: false, text, coords: { x, y } });
-    };
+    Tooltip.draw({ hidden: false, text, coords: { x, y } });
+  };
 
-    container.onmouseout = () => {
-      Tooltip.draw({ hidden: true });
-    };
+  #onmouseout = () => {
+    Tooltip.draw({ hidden: true });
   };
 }
