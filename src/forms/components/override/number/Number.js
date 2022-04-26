@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { maskInput } from 'vanilla-text-mask';
 import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
+import { t } from '../../../../helpers/export/util';
 
 import { overrideTriggerChange } from '../misc';
 import { getNumberSeparators, reverseString } from '../../../../helpers/util';
@@ -14,10 +15,22 @@ export default class NumberComponent extends FormIONumberComponent {
         delimiter: false,
         requireDecimal: false,
         decimalLimit: '',
-        decimalValue: ','
+        decimalValue: ',',
+        label: t('form-editor.number')
       },
       ...extend
     );
+  }
+
+  static get builderInfo() {
+    return {
+      title: t('form-constructor.number'),
+      icon: 'fa fa-hashtag',
+      group: 'basic',
+      documentation: 'http://help.form.io/userguide/#number',
+      weight: 10,
+      schema: NumberComponent.schema()
+    };
   }
 
   stringValue = '';

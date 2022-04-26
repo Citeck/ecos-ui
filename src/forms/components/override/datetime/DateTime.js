@@ -14,6 +14,17 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
     });
   }
 
+  static get builderInfo() {
+    return {
+      title: t('form-constructor.date-time'),
+      group: 'advanced',
+      icon: 'fa fa-calendar-plus-o',
+      documentation: 'http://help.form.io/userguide/#datetime',
+      weight: 40,
+      schema: DateTimeComponent.schema()
+    };
+  }
+
   static optimizeSchema(comp) {
     const defaultSchema = DateTimeComponent.schema();
 

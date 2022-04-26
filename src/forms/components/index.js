@@ -91,7 +91,9 @@ for (const key in components) {
   const originEditForm = component.editForm;
 
   component.editForm = function(...extend) {
+    console.log('EDIT FORM');
     const result = originEditForm(...extend);
+    console.log(result);
     const components = get(result, 'components.0.components');
 
     if (!isEmpty(components)) {

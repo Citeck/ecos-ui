@@ -18,6 +18,17 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
     );
   }
 
+  static get builderInfo() {
+    return {
+      title: t('form-constructor.checkbox'),
+      group: 'basic',
+      icon: 'fa fa-check-square',
+      documentation: 'http://help.form.io/userguide/#checkbox',
+      weight: 50,
+      schema: CheckBoxComponent.schema()
+    };
+  }
+
   #beforeState;
 
   set dataValue(value) {

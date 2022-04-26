@@ -6,6 +6,7 @@ import EventEmitter from 'formiojs/EventEmitter';
 import BuilderUtils from 'formiojs/utils/builder';
 import { getComponent } from 'formiojs/utils/formUtils';
 
+import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
 
 WebformBuilder.prototype.updateComponent = function(component) {
@@ -77,6 +78,7 @@ WebformBuilder.prototype.updateComponent = function(component) {
 
 WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   const componentCopy = _.cloneDeep(component);
+  console.log('componentCopy', componentCopy);
   let componentClass = Components.components[componentCopy.component.type];
   const isCustom = componentClass === undefined;
   //custom component should be edited as JSON
@@ -93,32 +95,37 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   });
   const componentInfo = componentClass ? componentClass.builderInfo : {};
 
+  const saveButtonText = t('form-editor.save-button');
   const saveButton = this.ce(
     'button',
     {
       class: 'btn btn-success',
       style: 'margin-right: 10px;'
     },
-    this.t('Save')
+    this.t(saveButtonText)
   );
 
+  const cancelButtonText = t('form-editor.cancel-button');
   const cancelButton = this.ce(
     'button',
     {
       class: 'btn btn-default',
       style: 'margin-right: 10px;'
     },
-    this.t('Cancel')
+    this.t(cancelButtonText)
   );
 
+  const removeButtonText = t('form-editor.remove-button');
   const removeButton = this.ce(
     'button',
     {
       class: 'btn btn-danger'
     },
-    this.t('Remove')
+    this.t(removeButtonText)
   );
 
+  const previewText = t('form-editor.preview-button');
+  const helpText = t('form-editor.help');
   const componentEdit = this.ce('div', {}, [
     this.ce(
       'div',
@@ -162,7 +169,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
                   {
                     class: this.iconClass('new-window')
                   },
-                  ` ${this.t('Help')}`
+                  ` ${this.t(helpText)}`
                 )
               )
             )
@@ -205,7 +212,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
                     {
                       class: 'card-title panel-title mb-0'
                     },
-                    this.t('Preview')
+                    this.t(previewText)
                   )
                 ),
                 this.ce(
@@ -229,12 +236,14 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
       ]
     )
   ]);
+  console.log('componentEdit', componentEdit);
 
   // Append the settings page to the dialog body.
   this.dialog.body.appendChild(componentEdit);
 
   // Allow editForm overrides per component.
   const overrides = _.get(this.options, `editForm.${componentCopy.component.type}`, {});
+  console.log('overrides', overrides);
 
   // Get the editform for this component.
   let editForm;
@@ -281,6 +290,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
 
   // Create the form instance.
   const editFormOptions = _.get(this, 'options.editForm', {});
+
   this.editForm = new Webform(formioForm, {
     language: this.options.language,
     ...editFormOptions
@@ -288,6 +298,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
 
   // Set the form to the edit form.
   this.editForm.form = editForm;
+  console.log('editForm', editForm);
 
   // Pass along the form being edited.
   this.editForm.editForm = this._form;

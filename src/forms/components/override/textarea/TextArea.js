@@ -21,6 +21,17 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     );
   }
 
+  static get builderInfo() {
+    return {
+      title: t('form-constructor.text-area'),
+      group: 'basic',
+      icon: 'fa fa-font',
+      documentation: 'http://help.form.io/userguide/#textarea',
+      weight: 40,
+      schema: TextAreaComponent.schema()
+    };
+  }
+
   constructor(...args) {
     super(...args);
 

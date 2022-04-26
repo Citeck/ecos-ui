@@ -17,7 +17,7 @@ export default class IncludeFormComponent extends BaseComponent {
 
   static get builderInfo() {
     return {
-      title: 'Include Form',
+      title: t('form-constructor.include-form'),
       icon: 'fa fa-id-card',
       group: 'data',
       weight: 0,

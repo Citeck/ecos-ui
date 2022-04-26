@@ -5,6 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
 
+import { t } from '../../../../helpers/export/util';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
@@ -55,7 +56,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
   static get builderInfo() {
     return {
-      title: 'Select Orgstruct',
+      title: t('form-constructor.select-orgstruct'),
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,

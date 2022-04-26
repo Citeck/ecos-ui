@@ -1,9 +1,9 @@
-import FormIOHiddenComponent from 'formiojs/components/hidden/Hidden';
+import FormIODayComponent from 'formiojs/components/address/Address';
 
 import { t } from '../../../../helpers/export/util';
 import { overrideTriggerChange } from '../misc';
 
-export default class HiddenComponent extends FormIOHiddenComponent {
+export default class AddressComponent extends FormIODayComponent {
   constructor(...args) {
     super(...args);
 
@@ -12,10 +12,10 @@ export default class HiddenComponent extends FormIOHiddenComponent {
 
   static get builderInfo() {
     return {
-      title: t('form-constructor.hidden'),
+      title: t('form-constructor.address-field'),
       group: 'data',
-      icon: 'fa fa-user-secret',
-      schema: HiddenComponent.schema()
+      icon: 'fa fa-calendar',
+      schema: AddressComponent.schema()
     };
   }
 

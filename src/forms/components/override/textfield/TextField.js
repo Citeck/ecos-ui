@@ -34,6 +34,15 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     );
   }
 
+  static get builderInfo() {
+    return {
+      title: t('form-constructor.text-field'),
+      icon: 'fa fa-terminal',
+      group: 'basic',
+      schema: TextFieldComponent.schema()
+    };
+  }
+
   get defaultSchema() {
     return TextFieldComponent.schema();
   }

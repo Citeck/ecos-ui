@@ -2,11 +2,13 @@ import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import FormIOColumnsComponent from 'formiojs/components/columns/Columns';
 import _ from 'lodash';
 
+import { t } from '../../../../helpers/export/util';
+
 export default class ColumnsComponent extends FormIOColumnsComponent {
   static schema(...extend) {
     return NestedComponent.schema(
       {
-        label: 'Columns',
+        label: t('form-constructor.columns'),
         key: 'columns',
         type: 'columns',
         columns: [{ components: [], xs: 0, sm: 12, md: 6, lg: 0, xl: 0, classes: '' }],
@@ -26,6 +28,7 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
   static get builderInfo() {
     return {
       ...super.builderInfo,
+      title: t('form-constructor.columns'),
       schema: ColumnsComponent.schema()
     };
   }

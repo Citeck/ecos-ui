@@ -2,6 +2,7 @@ import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import throttle from 'lodash/throttle';
 
+import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
 import { animateScrollTo } from '../../../../helpers/util';
 
@@ -12,7 +13,7 @@ export default class TabsComponent extends NestedComponent {
   static schema(...extend) {
     return NestedComponent.schema(
       {
-        label: 'Tabs',
+        label: t('form-constructor.tabs'),
         type: 'tabs',
         input: false,
         key: 'tabs',
@@ -32,7 +33,7 @@ export default class TabsComponent extends NestedComponent {
 
   static get builderInfo() {
     return {
-      title: 'Tabs',
+      title: t('form-constructor.tabs'),
       group: 'layout',
       icon: 'fa fa-folder-o',
       weight: 50,
@@ -281,7 +282,9 @@ export default class TabsComponent extends NestedComponent {
 
     this.tabLinks = [];
     this.tabs = [];
+    console.log('this.component.components', this.component.components);
     this.component.components.forEach((tab, index) => {
+      console.log('TAB', tab.components);
       const tabLink = this.ce(
         'a',
         {
@@ -289,7 +292,7 @@ export default class TabsComponent extends NestedComponent {
           href: `#${tab.key}`,
           [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
-        tab.label
+        t(`form-constructor.tabs.${tab.key}`)
       );
       this.addEventListener(tabLink, 'click', event => {
         event.preventDefault();
@@ -317,6 +320,7 @@ export default class TabsComponent extends NestedComponent {
         id: tab.key
       });
       this.tabsContent.appendChild(tabPanel);
+      console.log('TAB CONTENT', this.tabsContent, tabPanel);
       this.tabs.push(tabPanel);
     });
 

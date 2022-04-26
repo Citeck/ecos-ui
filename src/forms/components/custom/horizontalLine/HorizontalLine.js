@@ -1,12 +1,13 @@
 import BaseComponent from '../base/BaseComponent';
+import { t } from '../../../../helpers/export/util';
 
 export default class HorizontalLine extends BaseComponent {
   static schema(...extend) {
     return BaseComponent.schema(
       {
-        label: 'Horizontal Line',
+        label: t('form-constructor.horizontal-line'),
         key: 'horizontalLine',
-        type: 'horizontalLine',
+        type: t('form-constructor.horizontal-line'),
         mask: false,
         inputType: 'horizontalLine',
         useNegativeIndents: true,
@@ -18,7 +19,7 @@ export default class HorizontalLine extends BaseComponent {
 
   static get builderInfo() {
     return {
-      title: 'Horizontal Line',
+      title: t('form-constructor.horizontal-line'),
       icon: 'fa fa-minus',
       group: 'layout',
       weight: 0,
