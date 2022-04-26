@@ -1,20 +1,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { getStateId } from '../../../helpers/redux';
 import { t } from '../../../helpers/export/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
-import Switch from '../../common/form/Checkbox/Switch';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Journal from './Journal';
 import Model from './Model';
 import Settings from './Settings';
-import { Labels } from './util';
+import { DefSets, Labels } from './util';
 
 export default class extends BaseWidget {
   static propTypes = {
@@ -38,7 +36,6 @@ export default class extends BaseWidget {
 
     this.stateId = getStateId(props);
     this.state = {
-      isShowHeatmap: get(props, 'config.showHeatmapDefault'),
       isShowSetting: false
     };
   }
@@ -64,10 +61,6 @@ export default class extends BaseWidget {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
-  onToggleHeatmap = () => {
-    this.setState(state => ({ isShowHeatmap: !state.isShowHeatmap }));
-  };
-
   onSaveConfig = config => {
     isFunction(this.props.onSave) && this.props.onSave(this.props.id, { config });
     this.onToggleSettings();
@@ -75,7 +68,9 @@ export default class extends BaseWidget {
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isShowSetting, isShowHeatmap } = this.state;
+    const { isSmallMode, runUpdate, isShowSetting } = this.state;
+
+    config.selectedJournal = DefSets.JOURNAL;
 
     return (
       <Dashlet
@@ -95,12 +90,7 @@ export default class extends BaseWidget {
       >
         {isShowSetting && <Settings config={config} onCancel={this.onToggleSettings} onSave={this.onSaveConfig} />}
         <div className={classNames({ 'd-none': isShowSetting }, classNameContent)}>
-          <div className="ecos-process-statistics__header">
-            <div className="ecos-process-statistics__heatmap-switch">
-              <Switch checked={isShowHeatmap} onToggle={this.onToggleHeatmap} /> {t(Labels.PANEL_HEATMAP)}
-            </div>
-          </div>
-          <Model {...config} record={record} stateId={this.stateId} isShowHeatmap={isShowHeatmap} />
+          <Model {...config} record={record} stateId={this.stateId} />
           {config.selectedJournal && (
             <Journal
               {...config}

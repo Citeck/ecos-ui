@@ -126,8 +126,10 @@ export default class ModelViewer {
     }
 
     const origData = this.heatmap.origData;
+    const opacity = this.heatmap.opacity;
     this.heatmap.destroy();
     this.drawHeatmap(origData);
+    this.heatmap.setOpacity(opacity);
   };
 
   // drawInfoBlock = ({ data = [] }) => {

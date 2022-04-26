@@ -79,7 +79,7 @@ export const SourcesId = {
   TASK: 'wftask',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
-  BPMN_STAT: 'eproc/bpmn-activities-stat',
+  BPMN_STAT: 'eproc/bpmn-process-elements',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',

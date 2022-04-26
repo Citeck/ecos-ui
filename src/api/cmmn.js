@@ -34,16 +34,33 @@ export default class CmmnApi {
   };
 
   getHeatmapData = procDef => {
-    return Records.query(
-      {
-        sourceId: SourcesId.BPMN_STAT,
-        language: 'predicate-with-data',
-        query: {
-          data: { procDef },
-          predicate: {}
-        }
+    const query = completed => ({
+      sourceId: SourcesId.BPMN_STAT,
+      language: 'predicate',
+      query: {
+        t: 'and',
+        v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }]
       },
-      { id: 'id', name: 'name', activeCount: 'activeCount?num!0', completedCount: 'completedCount?num!0' }
-    );
+      groupBy: ['elementDefId']
+    });
+
+    const promiseCompleted = Records.query(query(true), { id: 'elementDefId', completedCount: 'count(*)?num' });
+    const promiseActive = Records.query(query(false), { id: 'elementDefId', activeCount: 'count(*)?num' });
+
+    return Promise.all([promiseCompleted, promiseActive]).then(([completedCount, activeCount]) => {
+      const mergedRecords = [...completedCount.records];
+
+      activeCount.records.forEach(rec => {
+        const foundI = completedCount.records.findIndex(r => r.id === rec.id);
+
+        if (foundI === -1) {
+          mergedRecords.push(rec);
+        } else {
+          mergedRecords[foundI] = { ...rec, ...mergedRecords[foundI] };
+        }
+      });
+
+      return mergedRecords;
+    });
   };
 }

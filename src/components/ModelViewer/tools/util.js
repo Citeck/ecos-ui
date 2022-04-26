@@ -58,6 +58,16 @@ export const getUnknownShapePoints = (x, y, w, h, value) => {
   ];
 };
 
+// export const getWayShapePoints = (x, y, w, h, value) => {
+//   return [
+//     {
+//       x: Math.abs(X - item.x),
+//       y: Math.abs(item.y),
+//       value: 0
+//     }
+//   ];
+// };
+
 export const getLegendNum = (num, isMax) => {
   const str = `${num}`;
 

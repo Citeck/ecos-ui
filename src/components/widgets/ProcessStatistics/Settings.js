@@ -63,9 +63,9 @@ export default class extends React.Component {
         <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
           <SelectJournal
             journalId={SystemJournals.JOURNALS}
-            defaultValue={selectedJournal}
+            // defaultValue={selectedJournal}
+            viewOnly
             hideCreateButton
-            isSelectedValueAsText
             onChange={selectedJournal => this.setState({ selectedJournal })}
           />
         </Field>

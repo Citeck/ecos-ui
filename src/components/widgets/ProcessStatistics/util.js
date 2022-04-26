@@ -1,3 +1,9 @@
+export const DefSets = {
+  JOURNAL: 'bpmn-process-elements',
+  OPACITY: 0.5,
+  HEIGHT: 400
+};
+
 export const Labels = {
   WG_TITLE: 'process-statistics-widget.title',
   NO_COLS: 'process-statistics-widget.info.no-columns',
