@@ -22,7 +22,7 @@ export const Labels = {
   PANEL_COMPLETED_COUNT: 'process-statistics-widget.panel.completed-count',
   MODEL_TITLE: 'process-statistics-widget.model.title',
   JOURNAL_TITLE: 'process-statistics-widget.journal.title',
-  JOURNAL_LAST_RECORDS: 'process-statistics-widget.journal.last-n-records'
+  JOURNAL_RESET_FILTER: 'process-statistics-widget.journal.reset-filter'
 };
 
 const getCount = (flag, value) => (flag && value) || 0;
@@ -30,6 +30,6 @@ const getCount = (flag, value) => (flag && value) || 0;
 export const getPreparedHeatItem = (item, flags) => {
   return {
     id: item.id,
-    value: (flags.isActiveCount ? item.activeCount : 0) + (flags.isCompletedCount ? item.completedCount : 0)
+    value: getCount(flags.isActiveCount, item.activeCount) + getCount(flags.isCompletedCount, item.completedCount)
   };
 };

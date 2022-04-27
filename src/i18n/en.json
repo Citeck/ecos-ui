@@ -1522,7 +1522,7 @@
   "process-statistics-widget.panel.completed-count": "Completed",
   "process-statistics-widget.model.title": "Process",
   "process-statistics-widget.journal.title": "Journal",
-  "process-statistics-widget.journal.last-n-records": "Last 10 records",
+  "process-statistics-widget.journal.reset-filter": "Reset filter",
 
   "model-viewer.zoom.tip-window": "Fit to Width",
   "model-viewer.zoom.tip-reset": "Default",

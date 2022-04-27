@@ -34,7 +34,7 @@ const buttons = [
 ].map(btn => ({ ...btn, key: uniqueId('model-zoom-btn-') }));
 
 const Zoomer = ({ instModelRef }) => {
-  const cn = 'ecos-btn_transparent ecos-btn_width_auto ecos-btn_hover_t-light-blue ecos-tree__action model-zoomer__btn';
+  const cn = 'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue model-zoomer__btn';
   const handleZoom = useCallback(val => instModelRef && instModelRef.setZoom(val), [instModelRef]);
 
   return (

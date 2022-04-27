@@ -26,6 +26,10 @@
     }
   }
 
+  &__delimiter {
+    flex: auto;
+  }
+
   &-model {
     @extend %base-block;
     border-top: none;
@@ -40,10 +44,6 @@
 
       & > :nth-child(n):not(:last-child):not(:empty) {
         padding-right: 15px;
-      }
-
-      &-delimiter {
-        flex: auto;
       }
     }
 
@@ -67,6 +67,11 @@
 
   &-journal {
     @extend %base-block;
+    padding: 0 15px;
+
+    &__footer {
+      display: flex;
+    }
   }
 
   &-settings {

@@ -209,7 +209,7 @@ class Model extends React.Component {
 
     return (
       <div className="ecos-process-statistics-model">
-        <Section title={t(Labels.MODEL_TITLE)} loading={isLoading || isModelMounting} opened={showModelDefault}>
+        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened={showModelDefault}>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {model && (
@@ -217,7 +217,7 @@ class Model extends React.Component {
               <div className="ecos-process-statistics-model__panel">
                 <Zoomer instModelRef={this.designer} />
                 {this.renderSwitchHeatmap()}
-                <div className="ecos-process-statistics-model__panel-delimiter" />
+                <div className="ecos-process-statistics__delimiter" />
                 {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
                 {isShow && this.renderCountFlags()}
               </div>

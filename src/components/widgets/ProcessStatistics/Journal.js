@@ -7,8 +7,8 @@ import isEmpty from 'lodash/isEmpty';
 import { filterJournal, getJournal, resetDashlet } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
 import { DEFAULT_PAGINATION } from '../../Journals/constants';
-import { InfoText } from '../../common';
-import Pagination from '../../common/Pagination/Pagination';
+import { InfoText, Pagination, Tooltip } from '../../common';
+import { IcoBtn } from '../../common/btns';
 import { Grid } from '../../common/grid';
 import { Labels } from './util';
 import Section from './Section';
@@ -118,9 +118,14 @@ class Journal extends React.Component {
     );
   };
 
+  handleResetFilter = () => {
+    this.setState({ filters: [], pagination: DEFAULT_PAGINATION }, this.filterJournal);
+  };
+
   render() {
-    const { isLoading, columns, isMobile, maxHeight, data, showJournalDefault, totalCount } = this.props;
+    const { isLoading, columns, isMobile, maxHeight, data, showJournalDefault, totalCount, stateId } = this.props;
     const { filters = [], pagination = {} } = this.state;
+    const target = prefix => `${prefix}-${stateId}`.replaceAll(/[\W]/gi, '');
 
     return (
       <div className="ecos-process-statistics-journal">
@@ -137,7 +142,20 @@ class Journal extends React.Component {
             filters={filters}
             onFilter={this.handleChangeFilter}
           />
-          <Pagination page={pagination.page} maxItems={pagination.maxItems} total={totalCount} onChange={this.handleChangePage} />
+          <div className="ecos-process-statistics-journal__footer">
+            <Pagination page={pagination.page} maxItems={pagination.maxItems} total={totalCount} onChange={this.handleChangePage} />
+            <div className="ecos-process-statistics__delimiter" />
+            {!!filters.length && (
+              <Tooltip off={isMobile} target={target('reset-filter')} text={t(Labels.JOURNAL_RESET_FILTER)} uncontrolled>
+                <IcoBtn
+                  id={target('reset-filter')}
+                  icon={'icon-filter-clean'}
+                  className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+                  onClick={this.handleResetFilter}
+                />
+              </Tooltip>
+            )}
+          </div>
         </Section>
       </div>
     );

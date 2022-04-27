@@ -1521,7 +1521,7 @@
   "process-statistics-widget.panel.completed-count": "Завершенные",
   "process-statistics-widget.model.title": "Процесс",
   "process-statistics-widget.journal.title": "Журнал",
-  "process-statistics-widget.journal.last-n-records": "Последние 10 записей",
+  "process-statistics-widget.journal.reset-filter": "Сбросить фильтр",
 
   "model-viewer.zoom.tip-window": "По ширине",
   "model-viewer.zoom.tip-reset": "По умолчанию",
