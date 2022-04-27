@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import { Collapse } from 'react-collapse';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { getJournal } from '../../../actions/processStatistics';
+import { filterJournal, getJournal, resetDashlet } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
-import { Icon, InfoText, Loader } from '../../common';
+import { DEFAULT_PAGINATION } from '../../Journals/constants';
+import { InfoText } from '../../common';
+import Pagination from '../../common/Pagination/Pagination';
 import { Grid } from '../../common/grid';
-import { Caption } from '../../common/form';
 import { Labels } from './util';
+import Section from './Section';
 
 import './style.scss';
 
@@ -20,6 +20,7 @@ const mapStateToProps = (state, context) => {
 
   return {
     data: psState.data,
+    totalCount: psState.totalCount,
     isLoading: psState.isLoadingJournal,
     columns: get(psState, 'journalConfig.columns', []),
     isMobile: state.view.isMobile
@@ -27,9 +28,9 @@ const mapStateToProps = (state, context) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  getJournalData: payload => dispatch(getJournal(payload))
-  // filterJournalHistory: payload => dispatch(filterJournalHistory(payload)),
-  // resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
+  getJournalData: payload => dispatch(getJournal(payload)),
+  filterJournal: payload => dispatch(filterJournal(payload)),
+  resetDashlet: payload => dispatch(resetDashlet(payload))
 });
 
 class Journal extends React.Component {
@@ -52,7 +53,7 @@ class Journal extends React.Component {
     this.state = {
       contentHeight: 0,
       filters: [],
-      isOpened: !!props.showJournalDefault
+      pagination: DEFAULT_PAGINATION
     };
   }
 
@@ -67,41 +68,63 @@ class Journal extends React.Component {
   }
 
   componentWillUnmount() {
-    //const { resetEventsHistory, stateId } = this.props;
-    //resetEventsHistory({ stateId });
+    const { resetDashlet, stateId } = this.props;
+    resetDashlet({ stateId });
   }
 
   getJournal = () => {
     const { getJournalData, record, stateId, selectedJournal } = this.props;
-
-    getJournalData({ stateId, record, selectedJournal });
+    getJournalData({ stateId, record, selectedJournal, pagination: DEFAULT_PAGINATION });
   };
 
-  onFilter = predicates => {
-    //const { filterJournalHistory, record, stateId, columns } = this.props;
-    //filterJournalHistory({ stateId, record, columns, predicates });
+  filterJournal = () => {
+    const { filters, pagination } = this.state;
+    const predicates = filters.map(({ att, t, val, needValue }) => {
+      const item = { att, t };
+      needValue && (item.val = val);
+      return item;
+    });
+
+    const { filterJournal, record, stateId } = this.props;
+    filterJournal({ stateId, record, predicates, pagination });
   };
 
-  onGridFilter = (newFilters = [], type) => {
-    // const { filters } = this.state;
-    // const newFilter = get(newFilters, '0', {});
-    // const upFilters = EventsHistoryService.applyFilters(filters, newFilter, type);
-    //
-    // this.setState({ filters: upFilters }, () => this.onFilter(this.state.filters));
+  handleChangeFilter = (data = [], type) => {
+    const { filters = [] } = this.state;
+    const newFilter = get(data, '0') || {};
+    const foundIndex = filters.findIndex(item => item.att === newFilter.att);
+    const newFilters = [...filters];
+
+    if (foundIndex === -1) {
+      newFilters.push(newFilter);
+    } else {
+      newFilters[foundIndex] = newFilter;
+    }
+
+    this.setState({ filters: newFilters.filter(item => !!item.t), pagination: DEFAULT_PAGINATION }, this.filterJournal);
+  };
+
+  handleChangePage = ({ page, maxItems }) => {
+    this.setState(
+      ({ pagination }) => ({
+        pagination: {
+          ...pagination,
+          page,
+          maxItems,
+          skipCount: (page - 1) * maxItems
+        }
+      }),
+      this.filterJournal
+    );
   };
 
   render() {
-    const { isLoading, columns, isMobile, maxHeight, data } = this.props;
-    const { filters, isOpened } = this.state;
+    const { isLoading, columns, isMobile, maxHeight, data, showJournalDefault, totalCount } = this.props;
+    const { filters = [], pagination = {} } = this.state;
 
     return (
       <div className="ecos-process-statistics-journal">
-        {isLoading && <Loader blur />}
-        <Caption small onClick={() => this.setState({ isOpened: !isOpened })}>
-          {t(Labels.JOURNAL_TITLE)}
-          <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
-        </Caption>
-        <Collapse isOpened={isOpened}>
+        <Section title={t(Labels.JOURNAL_TITLE)} isLoading={isLoading} opened={!!showJournalDefault}>
           {!isLoading && isEmpty(columns) && <InfoText text={t(Labels.NO_COLS)} />}
           <Grid
             fixedHeader
@@ -112,10 +135,10 @@ class Journal extends React.Component {
             autoHeight
             filterable
             filters={filters}
-            onFilter={this.onGridFilter}
+            onFilter={this.handleChangeFilter}
           />
-          {!isEmpty(columns) && <InfoText text={t(Labels.JOURNAL_LAST_RECORDS)} noIndents />}
-        </Collapse>
+          <Pagination page={pagination.page} maxItems={pagination.maxItems} total={totalCount} onChange={this.handleChangePage} />
+        </Section>
       </div>
     );
   }

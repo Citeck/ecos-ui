@@ -1,30 +1,47 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 
-import { getJournal, getModel, setJournal, setModel } from '../actions/processStatistics';
+import { filterJournal, getJournal, getModel, setJournal, setModel } from '../actions/processStatistics';
 import JournalsService from '../components/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
-const getSettings = ({ predicates, record }) => {
+const getSettings = ({ pagination, predicates, record }) => {
   return JournalsConverter.getSettingsForDataLoaderServer({
     predicate: { att: 'procDefRef', val: record, t: PREDICATE_EQ },
     predicates,
-    pagination: DEFAULT_PAGINATION //todo?
+    pagination
   });
 };
 
 function* sagaGetJournal({ api, logger }, { payload }) {
-  const { record, stateId, selectedJournal } = payload;
+  const { record, stateId, pagination, selectedJournal } = payload;
 
   try {
     const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], selectedJournal, true);
-    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ record }));
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ pagination, record }));
 
-    yield put(setJournal({ stateId, data: res.records, journalConfig }));
+    yield put(setJournal({ stateId, data: res.records, journalConfig, totalCount: res.totalCount }));
   } catch (e) {
     yield put(setJournal({ stateId, data: [], journalConfig: null }));
     logger.error('[processStatistics/sagaGetJournal] error', e);
+  }
+}
+
+function* sagaFilterJournal({ api, logger }, { payload }) {
+  const { record, stateId, pagination, predicates } = payload;
+
+  try {
+    const journalConfig = yield select(state => state.processStatistics[stateId].journalConfig);
+    const res = yield call(
+      [JournalsService, JournalsService.getJournalData],
+      journalConfig,
+      getSettings({ pagination, record, predicates })
+    );
+
+    yield put(setJournal({ stateId, data: res.records, totalCount: res.totalCount }));
+  } catch (e) {
+    yield put(setJournal({ stateId, data: [], journalConfig: null }));
+    logger.error('[processStatistics/sagaFilterJournal] error', e);
   }
 }
 
@@ -45,7 +62,7 @@ function* sagaGetModel({ api, logger }, { payload }) {
 function* eventsHistorySaga(ea) {
   yield takeEvery(getModel().type, sagaGetModel, ea);
   yield takeEvery(getJournal().type, sagaGetJournal, ea);
-  // yield takeEvery(getJournal().type, sagaFilterEventsHistory, ea);
+  yield takeEvery(filterJournal().type, sagaFilterJournal, ea);
 }
 
 export default eventsHistorySaga;

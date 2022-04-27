@@ -46,7 +46,7 @@ export default class Settings extends React.Component {
     const showKeys = Object.keys(this.state).filter(key => key.startsWith('show'));
 
     return showKeys.map(key => (
-      <Field label={t('process-statistics-widget.settings.field.' + key)} labelPosition="top">
+      <Field key={key} label={t('process-statistics-widget.settings.field.' + key)} labelPosition="top">
         <Checkbox checked={this.state[key]} onClick={_ => this.onToggleFlag(key)} />
       </Field>
     ));

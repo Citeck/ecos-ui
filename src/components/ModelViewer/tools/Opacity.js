@@ -1,29 +1,30 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isNil from 'lodash/isNil';
+import get from 'lodash/get';
 
 import ModelViewer from '../ModelViewer';
 
 import './style.scss';
 
-const Opacity = ({ defValue, instModelRef, label }) => {
+const Opacity = ({ defValue, instModelRef = {}, label }) => {
   const [value, setValue] = useState();
 
   const handleChange = useCallback(
     e => {
-      const val = e.target.value;
+      const val = get(e, 'target.value');
       setValue(val);
-      instModelRef.heatmap.setOpacity(val);
+      instModelRef.heatmap && instModelRef.heatmap.setOpacity(val);
     },
-    [instModelRef]
+    [instModelRef.heatmap]
   );
 
   useEffect(() => {
-    if (instModelRef && isNil(value) && !isNil(defValue)) {
+    if (instModelRef.heatmap && isNil(value) && !isNil(defValue)) {
       setValue(defValue);
       instModelRef.heatmap.setOpacity(defValue);
     }
-  }, [instModelRef, defValue, value]);
+  }, [instModelRef.heatmap, defValue, value]);
 
   return (
     <div className="model-opacity">
