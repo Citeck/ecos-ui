@@ -4,12 +4,13 @@ import { getJournal, getModel, setJournal, setModel } from '../actions/processSt
 import JournalsService from '../components/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 
 const getSettings = ({ predicates, record }) => {
   return JournalsConverter.getSettingsForDataLoaderServer({
     predicate: { att: 'procDefRef', val: record, t: PREDICATE_EQ },
-    predicates
-    //pagination: DEFAULT_PAGINATION //todo?
+    predicates,
+    pagination: DEFAULT_PAGINATION //todo?
   });
 };
 
