@@ -1,5 +1,4 @@
 export const DefSets = {
-  JOURNAL: 'bpmn-process-elements',
   OPACITY: 0.5,
   HEIGHT: 400
 };
@@ -26,9 +25,11 @@ export const Labels = {
   JOURNAL_LAST_RECORDS: 'process-statistics-widget.journal.last-n-records'
 };
 
+const getCount = (flag, value) => (flag && value) || 0;
+
 export const getPreparedHeatItem = (item, flags) => {
   return {
     id: item.id,
-    value: (flags.isActiveCount ? item.activeCount || 0 : 0) + (flags.isCompletedCount ? item.completedCount || 0 : 0)
+    value: (flags.isActiveCount ? item.activeCount : 0) + (flags.isCompletedCount ? item.completedCount : 0)
   };
 };

@@ -5,16 +5,16 @@ import isFunction from 'lodash/isFunction';
 
 import { getStateId } from '../../../helpers/redux';
 import { t } from '../../../helpers/export/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
+import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import { Labels } from './util';
 import Journal from './Journal';
 import Model from './Model';
 import Settings from './Settings';
-import { DefSets, Labels } from './util';
 
-export default class extends BaseWidget {
+export default class Widget extends BaseWidget {
   static propTypes = {
     id: PropTypes.string.isRequired,
     record: PropTypes.string.isRequired,
@@ -62,7 +62,9 @@ export default class extends BaseWidget {
   };
 
   onSaveConfig = config => {
-    isFunction(this.props.onSave) && this.props.onSave(this.props.id, { config });
+    const { onSave, id } = this.props;
+
+    isFunction(onSave) && onSave(id, { config });
     this.onToggleSettings();
   };
 
@@ -70,7 +72,7 @@ export default class extends BaseWidget {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { isSmallMode, runUpdate, isShowSetting } = this.state;
 
-    config.selectedJournal = DefSets.JOURNAL;
+    config.selectedJournal = `${SourcesId.JOURNAL}@${SystemJournals.PROCESS_ELMS}`;
 
     return (
       <Dashlet

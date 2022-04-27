@@ -252,6 +252,7 @@
   "dashlet.move.title": "Move",
   "dashlet.resize.title": "Resize",
   "dashlet.update.title": "Update the data",
+  "dashlet.collapse.title": "Collapse",
   "dashlet.settings.title": "Setting widget",
 
   "dev-tools.tab.build": "Build",

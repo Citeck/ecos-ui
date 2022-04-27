@@ -1,1 +1,1 @@
-export { default } from './Dashlet';
+export { default } from './Widget';

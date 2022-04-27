@@ -1,22 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
-import { Collapse } from 'react-collapse';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { getModel } from '../../../actions/processStatistics';
 
-import { Icon, InfoText, Loader, ResizableBox } from '../../common';
-import { Caption } from '../../common/form';
+import { InfoText, ResizableBox } from '../../common';
+import { ControlledCheckbox } from '../../common/form';
 import { t } from '../../../helpers/export/util';
 import ModelViewer from '../../ModelViewer/ModelViewer';
-import { Legend, Opacity, Zoomer } from '../../ModelViewer/tools';
+import { Opacity, Zoomer } from '../../ModelViewer/tools';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
+import Section from './Section';
 
 import './style.scss';
-import ControlledCheckbox from '../../common/form/Checkbox/ControlledCheckbox';
 
 const mapStateToProps = (state, context) => {
   const psState = get(state, ['processStatistics', context.stateId], {});
@@ -57,7 +55,6 @@ class Model extends React.Component {
     super(props);
     this.state = {
       isShowHeatmap: !!props.showHeatmapDefault,
-      isOpened: !!props.showModelDefault,
       isModelMounting: false,
       isModelMounted: false,
       isHeatmapMounted: false,
@@ -201,18 +198,13 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading } = this.props;
-    const { isOpened, isModelMounted, isModelMounting, legendData, isHeatmapMounted, isShowHeatmap } = this.state;
+    const { model, isLoading, showModelDefault } = this.props;
+    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap } = this.state;
     const isShow = isShowHeatmap && isHeatmapMounted;
 
     return (
       <div className="ecos-process-statistics-model">
-        {(isLoading || isModelMounting) && <Loader blur />}
-        <Caption small onClick={() => this.setState({ isOpened: !isOpened })}>
-          {t(Labels.MODEL_TITLE)}
-          <Icon className={classNames({ 'icon-small-up': isOpened, 'icon-small-down': !isOpened })} />
-        </Caption>
-        <Collapse isOpened={isOpened}>
+        <Section title={t(Labels.MODEL_TITLE)} loading={isLoading || isModelMounting} opened={showModelDefault}>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {model && (
@@ -220,10 +212,9 @@ class Model extends React.Component {
               <div className="ecos-process-statistics-model__panel">
                 <Zoomer instModelRef={this.designer} />
                 {this.renderSwitchHeatmap()}
+                <div className="ecos-process-statistics-model__panel-delimiter" />
                 {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
                 {isShow && this.renderCountFlags()}
-                <div className="ecos-process-statistics-model__panel-delimiter" />
-                {isShow && <Legend {...legendData} />}
               </div>
               <ResizableBox getHeight={this.setHeight} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
                 <this.designer.Sheet
@@ -235,7 +226,7 @@ class Model extends React.Component {
               </ResizableBox>
             </>
           )}
-        </Collapse>
+        </Section>
       </div>
     );
   }

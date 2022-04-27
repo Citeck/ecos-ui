@@ -10,7 +10,7 @@ import { Labels } from './util';
 
 import './style.scss';
 
-export default class extends React.Component {
+export default class Settings extends React.Component {
   static propTypes = {
     config: PropTypes.object,
     onSave: PropTypes.func,
@@ -63,7 +63,7 @@ export default class extends React.Component {
         <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
           <SelectJournal
             journalId={SystemJournals.JOURNALS}
-            // defaultValue={selectedJournal}
+            defaultValue={selectedJournal}
             viewOnly
             hideCreateButton
             onChange={selectedJournal => this.setState({ selectedJournal })}

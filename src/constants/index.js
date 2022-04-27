@@ -199,7 +199,8 @@ export const SystemJournals = {
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
-  PROCESS: 'bpmn-process-def'
+  PROCESS: 'bpmn-process-def',
+  PROCESS_ELMS: 'bpmn-process-elements'
 };
 
 export const DateFormats = {

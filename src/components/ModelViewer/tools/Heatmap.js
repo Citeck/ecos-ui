@@ -93,15 +93,7 @@ export default class HeatmapWrapper {
         return;
       }
 
-      const { x, y, width: w, height: h, type, id } = shape;
-      //todo check
-      const shapeX = x;
-      // console.log({ x, scale, X, iX })
-      // console.log( x * scale , X * scale , X - iX)
-      const shapeY = y;
-      // console.log(shapeX, shapeY)
-      const shapeW = w;
-      const shapeH = h;
+      const { x, y, width, height, type, id } = shape;
 
       if (mapData[id]) {
         let fun;
@@ -111,55 +103,26 @@ export default class HeatmapWrapper {
           fun = getUnknownShapePoints;
         }
 
-        const points = fun(shapeX, shapeY, shapeW, shapeH, mapData[id].value);
+        const points = fun(x, y, width, height, mapData[id].value);
         this.#mapPoints[id] = points;
         shapePoints.push(...points);
       }
     });
 
     connections.forEach(con => {
-      if (con.hidden) {
+      if (con.hidden || !mapData[con.id]) {
         return;
       }
-      const conPoints = [];
-      const { waypoints } = con;
 
-      waypoints.forEach(item => {
-        conPoints.push({
-          x: Math.abs(item.x),
-          y: Math.abs(item.y),
-          value: mapData[con.id] ? mapData[con.id].value : 0,
-          radius: 20
-        });
-      });
+      const wayPoints = con.waypoints.map(item => ({
+        //todo different props for line drawing + new in Canvas2dRenderer._getPointTemplate
+        x: Math.abs(item.x),
+        y: Math.abs(item.y),
+        value: mapData[con.id] ? mapData[con.id].value : 0,
+        radius: 20
+      }));
 
-      //todo fill between points depends on scale
-      //now filling only X side!
-      // if (conPoints.length > 1) {
-      //   let addPoints = [];
-      //   for (let i = 1; i < conPoints.length; i++) {
-      //     const { x: x1, y: y1 } = conPoints[i - 1];
-      //     const { x: x2, y: y2 } = conPoints[i];
-      //     let amount = Math.round(Math.abs((x2 - x1) / conRadius));
-      //     console.log(amount)
-      //     let x = x1, y = y1;
-      //     while (amount) {
-      //       amount--;
-      //       // for (let j = 0; j < addPoints.length; j++) {
-      //         x += conRadius;
-      //         // y += conRadius;
-      //         addPoints.push({ ...conPoints[i - 1], x, y  });
-      //       // }
-      //     }
-      //     // addPoints.push({ ...conPoints[i - 1], x: x1 + (x2 - x1)/2, y: y1 + (y2 - y1)/2  })
-      //
-      //   }
-      //   console.log(...addPoints)
-      //   conPoints.push(...addPoints);
-      // }
-
-      connectionPoints.push(...conPoints);
-      //canvas.addMarker(con.id, 'con-shadow');
+      connectionPoints.push(...wayPoints);
     });
 
     const points = shapePoints.concat(connectionPoints);
@@ -198,10 +161,6 @@ export default class HeatmapWrapper {
     this.instance = Heatmap.create(info.config);
     this._updateTransform();
     this.instance.setData(info.heatmapData);
-    //const { X, Y, iX, iY, scale } = this.viewboxData;
-    //debugger;
-    //this.canvas.style.left = `${X < 0 ? -((X - iX) * scale) : (X > 0 ? -(X - iX) * scale : 0)}px`;
-    //this.canvas.style.top = `${Y > 0 ? -((Y - iY) * scale) : 0}px`;
     isFunction(onMounted) && onMounted(true);
   };
 

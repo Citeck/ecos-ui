@@ -252,6 +252,7 @@
   "dashlet.move.title": "Переместить",
   "dashlet.resize.title": "Изменить размер",
   "dashlet.update.title": "Обновить данные",
+  "dashlet.collapse.title": "Свернуть",
   "dashlet.settings.title": "Настроить виджет",
 
   "dev-tools.tab.build": "Сборка",

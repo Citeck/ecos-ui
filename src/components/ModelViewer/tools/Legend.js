@@ -33,6 +33,7 @@ const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => 
 
       try {
         ctx.beginPath();
+        //todo add polyfill
         ctx.roundRect(0, 0, width, 14, [7]);
         ctx.fillStyle = gradientEl;
         ctx.fill();
