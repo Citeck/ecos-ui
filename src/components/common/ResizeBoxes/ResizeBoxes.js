@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+
 import { Icon } from '../';
 
 import './style.scss';
@@ -14,6 +16,10 @@ class ResizeBoxes extends React.Component {
     notCountAtLeft: PropTypes.bool,
     notCountAtRight: PropTypes.bool,
     autoRightSide: PropTypes.bool,
+    sizes: PropTypes.shape({
+      left: PropTypes.number,
+      right: PropTypes.number
+    }),
     onResizeComplete: PropTypes.func
   };
 
@@ -68,13 +74,18 @@ class ResizeBoxes extends React.Component {
   };
 
   stopResize = event => {
+    const { leftId, rightId, onResizeComplete } = this.props;
     const { resizing } = this.state;
 
     window.removeEventListener('mousemove', this.doResize);
 
     if (resizing) {
       this.setState({ resizing: false, startX: 0, startLeftWidth: 0, startRightWidth: 0 });
-      this.props.onResizeComplete();
+      isFunction(onResizeComplete) &&
+        onResizeComplete({
+          left: this.getElm(leftId).offsetWidth,
+          right: this.getElm(rightId).offsetWidth
+        });
     }
   };
 
