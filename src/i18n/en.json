@@ -1517,6 +1517,7 @@
   "process-statistics-widget.settings.field.showModelDefault": "Process",
   "process-statistics-widget.settings.field.showJournalDefault": "Journal",
   "process-statistics-widget.panel.heatmap": "Heatmap",
+  "process-statistics-widget.panel.counters": "Counters",
   "process-statistics-widget.panel.opacity": "Opacity",
   "process-statistics-widget.panel.active-count": "Active",
   "process-statistics-widget.panel.completed-count": "Completed",

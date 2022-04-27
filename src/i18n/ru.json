@@ -1516,6 +1516,7 @@
   "process-statistics-widget.settings.field.showModelDefault": "Процесс",
   "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
   "process-statistics-widget.panel.heatmap": "Тепловая карта",
+  "process-statistics-widget.panel.counters": "Счётчики",
   "process-statistics-widget.panel.opacity": "Прозрачность",
   "process-statistics-widget.panel.active-count": "Активные",
   "process-statistics-widget.panel.completed-count": "Завершенные",

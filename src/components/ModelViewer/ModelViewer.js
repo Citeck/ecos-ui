@@ -127,11 +127,31 @@ export default class ModelViewer {
     this.heatmap.repaint();
   };
 
-  // drawInfoBlock = ({ data = [] }) => {
-  //   const overlays = this.modeler.get('overlays');
-  //   console.log(overlays)
-  //   const { scale } = this.canvas.viewbox();
-  // }
+  drawInfoBlock = ({ data = [], getTemplateHtml }) => {
+    const mapData = {};
+    data && data.forEach(item => (mapData[item.id] = item));
+
+    const elementRegistry = this.modeler.get('elementRegistry');
+    const overlays = this.modeler.get('overlays');
+    const nodes = elementRegistry
+      .getAll()
+      .filter(element => !!mapData[element.id] && !element.hidden && !element.waypoints && element.parent && element.type !== 'label');
+    const { scale } = this.canvas.viewbox();
+
+    nodes.forEach(node => {
+      const item = mapData[node.id];
+
+      if (item) {
+        const element = elementRegistry.get(node.id);
+        const { width } = element;
+
+        overlays.add(node.id, 'note', {
+          position: { right: 0, top: -20 },
+          html: getTemplateHtml({ width: Math.floor(width * scale), data: item })
+        });
+      }
+    });
+  };
 
   destroy = () => {
     this.modeler && this.modeler._emit('diagram.destroy');

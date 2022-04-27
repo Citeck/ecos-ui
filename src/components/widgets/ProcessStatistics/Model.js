@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -12,7 +13,7 @@ import { ControlledCheckbox } from '../../common/form';
 import { t } from '../../../helpers/export/util';
 import ModelViewer from '../../ModelViewer/ModelViewer';
 import { Opacity, Zoomer } from '../../ModelViewer/tools';
-import { DefSets, getPreparedHeatItem, Labels } from './util';
+import { DefSets, getBadgesHtml, getPreparedHeatItem, Labels } from './util';
 import Section from './Section';
 
 import './style.scss';
@@ -56,6 +57,7 @@ class Model extends React.Component {
     super(props);
     this.state = {
       isShowHeatmap: !!props.showHeatmapDefault,
+      isShowCounters: true,
       isModelMounting: false,
       isModelMounted: false,
       isHeatmapMounted: false,
@@ -94,7 +96,7 @@ class Model extends React.Component {
       return [];
     }
 
-    return heatmapData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount }));
+    return heatmapData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter(item => item.value);
   };
 
   setHeight = height => {
@@ -109,7 +111,9 @@ class Model extends React.Component {
     this.setState({ isModelMounted: mounted, isModelMounting: false });
 
     if (mounted) {
-      //this.designer.drawInfoBlock({data: [1]})
+      const { heatmapData } = this.props;
+      //todo review work with data & template...
+      this.designer.drawInfoBlock({ data: heatmapData, getTemplateHtml: getBadgesHtml });
       this.renderHeatmap();
     } else {
       console.warn({ result });
@@ -169,6 +173,17 @@ class Model extends React.Component {
     this.setState(data, this.reRenderHeatmap);
   };
 
+  renderSwitchBadges = () => {
+    const { isShowCounters } = this.state;
+
+    return (
+      <div className="ecos-process-statistics-model__checkbox">
+        <ControlledCheckbox checked={isShowCounters} onClick={() => this.setState({ isShowCounters: !isShowCounters })} />
+        <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
+      </div>
+    );
+  };
+
   renderSwitchHeatmap = () => {
     const { isShowHeatmap } = this.state;
     const { heatmapData } = this.props;
@@ -204,11 +219,11 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, showModelDefault } = this.props;
-    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap } = this.state;
+    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters } = this.state;
     const isShow = isShowHeatmap && isHeatmapMounted;
 
     return (
-      <div className="ecos-process-statistics-model">
+      <div className={classNames('ecos-process-statistics-model', { 'ecos-process-statistics-model_hidden-badges': !isShowCounters })}>
         <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened={showModelDefault}>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
@@ -217,6 +232,7 @@ class Model extends React.Component {
               <div className="ecos-process-statistics-model__panel">
                 <Zoomer instModelRef={this.designer} />
                 {this.renderSwitchHeatmap()}
+                {this.renderSwitchBadges()}
                 <div className="ecos-process-statistics__delimiter" />
                 {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
                 {isShow && this.renderCountFlags()}

@@ -46,6 +46,10 @@ export default class HeatmapWrapper {
   }
 
   get viewboxData() {
+    if (!this.#instModel) {
+      return {};
+    }
+
     const viewbox = this.#instModel.get('canvas').viewbox();
 
     const {
@@ -66,7 +70,7 @@ export default class HeatmapWrapper {
 
   _updateTransform() {
     const { scale, X, Y } = this.viewboxData;
-    this.instance._renderer.setOffsetAndScale(X, Y, scale);
+    this.instance && this.instance._renderer.setOffsetAndScale(X, Y, scale);
   }
 
   get opacity() {
@@ -76,7 +80,7 @@ export default class HeatmapWrapper {
   getPreparedData({ data, onChange }) {
     this.#mapPoints = {};
     const mapData = {};
-    data.forEach(item => (mapData[item.id] = item));
+    data && data.forEach(item => (mapData[item.id] = item));
 
     const shapePoints = [];
     const connectionPoints = [];
@@ -85,14 +89,12 @@ export default class HeatmapWrapper {
     const { H, W } = this.viewboxData;
 
     // get all shapes and connections
-    const shapes = elementRegistry.filter(element => !element.waypoints && element.parent && element.type !== 'label');
-    const connections = elementRegistry.filter(element => !!element.waypoints && element.parent);
+    const shapes = elementRegistry.filter(element => !element.hidden && !element.waypoints && element.parent && element.type !== 'label');
+    const connections = elementRegistry.filter(
+      element => !!mapData[element.id] && !element.hidden && !!element.waypoints && element.parent
+    );
 
     shapes.forEach(shape => {
-      if (shape.hidden) {
-        return;
-      }
-
       const { x, y, width, height, type, id } = shape;
 
       if (mapData[id]) {
@@ -110,10 +112,6 @@ export default class HeatmapWrapper {
     });
 
     connections.forEach(con => {
-      if (con.hidden || !mapData[con.id]) {
-        return;
-      }
-
       const wayPoints = con.waypoints.map(item => ({
         //todo different props for line drawing + new in Canvas2dRenderer._getPointTemplate
         x: Math.abs(item.x),

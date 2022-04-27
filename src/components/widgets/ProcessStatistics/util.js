@@ -17,6 +17,7 @@ export const Labels = {
   DEF_MODEL_FIELD: 'process-statistics-widget.settings.field.display-model-default',
   DEF_JOURNAL_FIELD: 'process-statistics-widget.settings.field.display-journal-default',
   PANEL_HEATMAP: 'process-statistics-widget.panel.heatmap',
+  PANEL_COUNTERS: 'process-statistics-widget.panel.counters',
   PANEL_OPACITY: 'process-statistics-widget.panel.opacity',
   PANEL_ACTIVE_COUNT: 'process-statistics-widget.panel.active-count',
   PANEL_COMPLETED_COUNT: 'process-statistics-widget.panel.completed-count',
@@ -33,3 +34,9 @@ export const getPreparedHeatItem = (item, flags) => {
     value: getCount(flags.isActiveCount, item.activeCount) + getCount(flags.isCompletedCount, item.completedCount)
   };
 };
+
+export const getBadgesHtml = ({ data }) =>
+  `<div>
+    <span class="ecos-process-statistics__badge ecos-process-statistics__badge_active">${data.activeCount || ''}</span>
+    <span class="ecos-process-statistics__badge">${data.completedCount || ''}</span>
+  </div>`;

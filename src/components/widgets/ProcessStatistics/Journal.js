@@ -141,6 +141,7 @@ class Journal extends React.Component {
             filterable
             filters={filters}
             onFilter={this.handleChangeFilter}
+            className="ecos-process-statistics-journal__grid"
           />
           <div className="ecos-process-statistics-journal__footer">
             <Pagination page={pagination.page} maxItems={pagination.maxItems} total={totalCount} onChange={this.handleChangePage} />
