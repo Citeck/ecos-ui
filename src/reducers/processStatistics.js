@@ -2,7 +2,7 @@ import { handleActions } from 'redux-actions';
 import pick from 'lodash/pick';
 
 import { deleteStateById, startLoading, updateState } from '../helpers/redux';
-import { filterJournal, getJournal, getModel, resetDashlet, setJournal, setModel } from '../actions/processStatistics';
+import { filterHeatdata, filterJournal, getJournal, getModel, resetDashlet, setJournal, setModel } from '../actions/processStatistics';
 
 const initialState = {
   isLoadingJournal: false,
@@ -17,6 +17,7 @@ const initialState = {
 export default handleActions(
   {
     [getModel]: startLoading(initialState, 'isLoadingModel'),
+    [filterHeatdata]: startLoading(initialState, 'isLoadingModel'),
     [getJournal]: startLoading(initialState, 'isLoadingJournal'),
     [filterJournal]: startLoading(initialState, 'isLoadingJournal'),
     [setModel]: (state, { payload }) =>

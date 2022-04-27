@@ -33,13 +33,13 @@ export default class CmmnApi {
     return Records.get(procDef).load('cm:content');
   };
 
-  getHeatmapData = procDef => {
+  getHeatmapData = (procDef, predicates = []) => {
     const query = completed => ({
       sourceId: SourcesId.BPMN_STAT,
       language: 'predicate',
       query: {
         t: 'and',
-        v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }]
+        v: [{ t: 'eq', a: 'procDefRef', v: procDef }, { t: completed ? 'not-empty' : 'empty', a: 'completed' }, ...predicates]
       },
       groupBy: ['elementDefId']
     });

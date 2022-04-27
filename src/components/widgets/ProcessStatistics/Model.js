@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import { getModel } from '../../../actions/processStatistics';
 
@@ -73,6 +74,10 @@ class Model extends React.Component {
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getModel();
     }
+
+    if (!!prevProps.heatmapData && !isEqual(prevProps.heatmapData, this.props.heatmapData)) {
+      this.reRenderHeatmap();
+    }
   }
 
   getModel = () => {
@@ -114,7 +119,7 @@ class Model extends React.Component {
   renderHeatmap = () => {
     const { heatmapData } = this.props;
     const { isShowHeatmap } = this.state;
-    console.log({ isShowHeatmap, heatmapData });
+
     if (isShowHeatmap && !isEmpty(heatmapData)) {
       const data = this.getPreparedHeatData();
 
