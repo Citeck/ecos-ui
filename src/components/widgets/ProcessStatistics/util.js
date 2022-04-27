@@ -29,6 +29,6 @@ export const Labels = {
 export const getPreparedHeatItem = (item, flags) => {
   return {
     id: item.id,
-    value: (flags.isActiveCount ? item.activeCount : 0) + (flags.isCompletedCount ? item.completedCount : 0)
+    value: (flags.isActiveCount ? item.activeCount || 0 : 0) + (flags.isCompletedCount ? item.completedCount || 0 : 0)
   };
 };

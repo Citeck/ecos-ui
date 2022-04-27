@@ -178,9 +178,18 @@ export default class HeatmapWrapper {
       onExtremaChange: data => this.instance && isFunction(onChange) && onChange(data)
     };
 
-    const values = data.map(item => item.value);
-    const maxV = Math.max(...values);
-    const heatmapData = { max: maxV, data: points };
+    let minV = 0;
+    let maxV = 0;
+    if (points.length) {
+      minV = points[0].value || 0;
+      maxV = points[0].value || 0;
+      for (let point of points) {
+        const value = point.value || 0;
+        minV = value < minV ? value : minV;
+        maxV = value > maxV ? value : maxV;
+      }
+    }
+    const heatmapData = { max: maxV, min: minV, data: points };
 
     return { config, heatmapData };
   }
