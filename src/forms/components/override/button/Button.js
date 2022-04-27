@@ -11,8 +11,7 @@ export default class ButtonComponent extends FormIOButtonComponent {
     return FormIOButtonComponent.schema(
       {
         removeIndents: false,
-        disableOnFormInvalid: false,
-        label: t('form-editor.submit-button')
+        disableOnFormInvalid: false
       },
       ...extend
     );

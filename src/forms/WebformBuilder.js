@@ -120,8 +120,6 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     t('form-editor.remove-button')
   );
 
-  const previewText = t('form-editor.preview-button');
-  const helpText = t('form-editor.help');
   const componentEdit = this.ce('div', {}, [
     this.ce(
       'div',
@@ -165,7 +163,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
                   {
                     class: this.iconClass('new-window')
                   },
-                  ` ${this.t(helpText)}`
+                  t('form-editor.help')
                 )
               )
             )
@@ -208,7 +206,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
                     {
                       class: 'card-title panel-title mb-0'
                     },
-                    this.t(previewText)
+                    t('form-editor.preview-button')
                   )
                 ),
                 this.ce(
