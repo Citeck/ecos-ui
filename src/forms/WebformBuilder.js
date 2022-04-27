@@ -100,7 +100,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
       class: 'btn btn-success',
       style: 'margin-right: 10px;'
     },
-    this.t(t('form-editor.save-button'))
+    t('form-editor.save-button')
   );
 
   const cancelButton = this.ce(
@@ -109,7 +109,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
       class: 'btn btn-default',
       style: 'margin-right: 10px;'
     },
-    this.t(t('form-editor.cancel-button'))
+    t('form-editor.cancel-button')
   );
 
   const removeButton = this.ce(
@@ -117,7 +117,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     {
       class: 'btn btn-danger'
     },
-    this.t(t('form-editor.remove-button'))
+    t('form-editor.remove-button')
   );
 
   const previewText = t('form-editor.preview-button');
