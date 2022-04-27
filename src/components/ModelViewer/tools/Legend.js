@@ -31,10 +31,18 @@ const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => 
         }
       }
 
-      ctx.beginPath();
-      ctx.roundRect(0, 0, width, 14, [7]);
-      ctx.fillStyle = gradientEl;
-      ctx.fill();
+      try {
+        ctx.beginPath();
+        ctx.roundRect(0, 0, width, 14, [7]);
+        ctx.fillStyle = gradientEl;
+        ctx.fill();
+      } catch (e) {
+        /*
+         * index.js:1437 TypeError: ctx.roundRect is not a function
+         * at eval (Legend.js:36)
+         * */
+        console.error(e);
+      }
     }
   }, [gradient, ctx, gradientCfg]);
 

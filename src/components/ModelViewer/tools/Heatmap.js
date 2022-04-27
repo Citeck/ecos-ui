@@ -9,6 +9,9 @@ import { t } from '../../../helpers/util';
 import { Labels } from '../util';
 import { getTaskShapePoints, getUnknownShapePoints } from './util';
 import Tooltip from './Tooltip';
+import EcosPlugin from './custom/ecosPlugin';
+
+Heatmap.register('ecos', EcosPlugin);
 
 export default class HeatmapWrapper {
   instance;
@@ -22,8 +25,8 @@ export default class HeatmapWrapper {
     this.origData = cloneDeep({ data, hasTooltip, onChange, onMounted });
 
     const info = this.getPreparedData({ data, onChange });
-
     this.draw({ info, onMounted });
+
     hasTooltip && this.drawTooltip();
   }
 
@@ -56,6 +59,16 @@ export default class HeatmapWrapper {
     return { iX, iY, iH, iW, H, W, X, Y, scale };
   }
 
+  repaint() {
+    this._updateTransform();
+    this.instance && this.instance.repaint();
+  }
+
+  _updateTransform() {
+    const { scale, X, Y } = this.viewboxData;
+    this.instance._renderer.setOffsetAndScale(X, Y, scale);
+  }
+
   get opacity() {
     return this.canvas.style.opacity;
   }
@@ -69,7 +82,7 @@ export default class HeatmapWrapper {
     const connectionPoints = [];
     const elementRegistry = this.#instModel.get('elementRegistry');
     const canvas = this.#instModel.get('canvas');
-    const { iX, iY, H, W, X, Y, scale } = this.viewboxData;
+    const { H, W } = this.viewboxData;
 
     // get all shapes and connections
     const shapes = elementRegistry.filter(element => !element.waypoints && element.parent && element.type !== 'label');
@@ -82,13 +95,13 @@ export default class HeatmapWrapper {
 
       const { x, y, width: w, height: h, type, id } = shape;
       //todo check
-      const shapeX = x * scale - X * scale + (X < 0 ? (X - iX) * scale : X > 0 ? (X - iX) * scale : 0);
+      const shapeX = x;
       // console.log({ x, scale, X, iX })
       // console.log( x * scale , X * scale , X - iX)
-      const shapeY = y * scale - Y * scale + (Y > 0 ? (Y - iY) * scale : 0);
+      const shapeY = y;
       // console.log(shapeX, shapeY)
-      const shapeW = w * scale;
-      const shapeH = h * scale;
+      const shapeW = w;
+      const shapeH = h;
 
       if (mapData[id]) {
         let fun;
@@ -104,8 +117,6 @@ export default class HeatmapWrapper {
       }
     });
 
-    const conRadius = Math.round(20 * scale);
-
     connections.forEach(con => {
       if (con.hidden) {
         return;
@@ -115,10 +126,10 @@ export default class HeatmapWrapper {
 
       waypoints.forEach(item => {
         conPoints.push({
-          x: Math.abs(X - item.x),
+          x: Math.abs(item.x),
           y: Math.abs(item.y),
           value: mapData[con.id] ? mapData[con.id].value : 0,
-          radius: conRadius
+          radius: 20
         });
       });
 
@@ -157,12 +168,13 @@ export default class HeatmapWrapper {
 
     const config = {
       container: this.#container,
-      width: +W + (X < 0 ? Math.round(+((X - iX) * scale)) : X > 0 ? -(X - iX) * scale : 0),
-      height: +H + (Y > 0 ? Math.round(+((Y - iY) * scale)) : 0),
-      radius: 45 * scale,
+      width: +W,
+      height: +H,
+      radius: 45,
       maxOpacity: 0.8,
       minOpacity: 0,
       blur: 0.75,
+      plugin: 'ecos',
       onExtremaChange: data => this.instance && isFunction(onChange) && onChange(data)
     };
 
@@ -175,6 +187,7 @@ export default class HeatmapWrapper {
 
   draw = ({ info, onMounted }) => {
     this.instance = Heatmap.create(info.config);
+    this._updateTransform();
     this.instance.setData(info.heatmapData);
     //const { X, Y, iX, iY, scale } = this.viewboxData;
     //debugger;

@@ -124,12 +124,7 @@ export default class ModelViewer {
     if (!this.heatmap) {
       return;
     }
-
-    const origData = this.heatmap.origData;
-    const opacity = this.heatmap.opacity;
-    this.heatmap.destroy();
-    this.drawHeatmap(origData);
-    this.heatmap.setOpacity(opacity);
+    this.heatmap.repaint();
   };
 
   // drawInfoBlock = ({ data = [] }) => {
