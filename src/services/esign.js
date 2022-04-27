@@ -12,11 +12,12 @@ import { t, objectByString } from '../helpers/util';
 class Esign {
   static #queryParams = {};
 
-  sign(recordRefs, componentProps = {}, queryParams = false) {
-    if (!recordRefs) {
-      return new Error(`The "recordRefs" argument is required`);
-    }
-
+  /**
+   * @param recordRefs {string[]|string}
+   * @param queryParams {boolean|object}
+   * @returns {string[]}
+   */
+  static dataPreparation(recordRefs, queryParams) {
     let params;
 
     switch (typeof queryParams) {
@@ -36,6 +37,20 @@ class Esign {
       recordRefs = [recordRefs];
     }
 
+    return recordRefs;
+  }
+
+  /**
+   * @param refs {string[]|string}
+   * @param componentProps {object}
+   * @param queryParams {boolean|object}
+   */
+  sign(refs, componentProps = {}, queryParams = false) {
+    if (!refs) {
+      return new Error(`The "recordRefs" argument is required`);
+    }
+
+    const recordRefs = Esign.dataPreparation(refs, queryParams);
     const container = document.createElement('div');
 
     ReactDOM.render(
@@ -53,29 +68,12 @@ class Esign {
   }
 
   /* document will be signed by the first found certificate */
-  async silentSign(recordRefs, componentProps = {}, queryParams = false) {
-    if (!recordRefs) {
+  async silentSign(refs, componentProps = {}, queryParams = false) {
+    if (!refs) {
       return new Error(`The "recordRefs" argument is required`);
     }
 
-    let params;
-
-    switch (typeof queryParams) {
-      case 'boolean':
-        params = { isApprovementSignature: queryParams };
-        break;
-      case 'object':
-        params = queryParams instanceof Array ? {} : queryParams;
-        break;
-      default:
-        params = {};
-    }
-
-    Esign.#queryParams = cloneDeep(params);
-
-    if (!Array.isArray(recordRefs)) {
-      recordRefs = [recordRefs];
-    }
+    const recordRefs = Esign.dataPreparation(refs, queryParams);
 
     return Esign.init(recordRefs)
       .then(() => Esign.getCertificates(componentProps.thumbprints))
