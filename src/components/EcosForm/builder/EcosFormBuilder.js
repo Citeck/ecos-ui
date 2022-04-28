@@ -17,7 +17,6 @@ export default class EcosFormBuilder extends React.Component {
 
   componentDidMount() {
     let self = this;
-    console.log(this.props.formDefinition);
     window.Formio.builder(document.getElementById(this.contentId), this.props.formDefinition).then(editorForm => {
       console.log('editorForm', editorForm);
       self.setState({

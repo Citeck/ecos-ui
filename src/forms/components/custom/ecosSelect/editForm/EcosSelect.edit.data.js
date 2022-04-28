@@ -1,5 +1,6 @@
 import SelectEditData from 'formiojs/components/select/editForm/Select.edit.data';
-import EditFormUtils from 'formiojs/components/base/editForm/utils';
+// import EditFormUtils from 'formiojs/components/base/editForm/utils';
+import EditFormUtils from '../../../override/base/editForm/utils';
 
 SelectEditData.push(
   {
