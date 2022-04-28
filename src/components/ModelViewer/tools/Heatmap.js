@@ -69,8 +69,11 @@ export default class HeatmapWrapper {
   }
 
   _updateTransform() {
-    const { scale, X, Y } = this.viewboxData;
-    this.instance && this.instance._renderer.setOffsetAndScale(X, Y, scale);
+    const { scale, X, Y, W, H } = this.viewboxData;
+    if (this.instance) {
+      this.instance._renderer.setDimensions(+W, +H);
+      this.instance._renderer.setOffsetAndScale(X, Y, scale);
+    }
   }
 
   get opacity() {
