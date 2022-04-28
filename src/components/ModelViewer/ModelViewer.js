@@ -5,6 +5,7 @@ import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 
 import HeatmapWrapper from './tools/Heatmap.js';
+import Badges from './tools/Badges';
 import { Zooms } from './util';
 
 export default class ModelViewer {
@@ -36,11 +37,11 @@ export default class ModelViewer {
   };
 
   get canvas() {
-    return this.modeler.get('canvas');
+    return this.modeler && this.modeler.get('canvas');
   }
 
   get viewport() {
-    return this.modeler._container.querySelector('.viewport');
+    return this.modeler && this.modeler._container.querySelector('.viewport');
   }
 
   setDiagram = async (diagram, { onMounted }) => {
@@ -127,34 +128,16 @@ export default class ModelViewer {
     this.heatmap.repaint();
   };
 
-  drawInfoBlock = ({ data = [], getTemplateHtml }) => {
+  drawBadges = ({ data = [], keys = [] }) => {
     const mapData = {};
     data && data.forEach(item => (mapData[item.id] = item));
-
-    const elementRegistry = this.modeler.get('elementRegistry');
-    const overlays = this.modeler.get('overlays');
-    const nodes = elementRegistry
-      .getAll()
-      .filter(element => !!mapData[element.id] && !element.hidden && !element.waypoints && element.parent && element.type !== 'label');
-    const { scale } = this.canvas.viewbox();
-
-    nodes.forEach(node => {
-      const item = mapData[node.id];
-
-      if (item) {
-        const element = elementRegistry.get(node.id);
-        const { width } = element;
-
-        overlays.add(node.id, 'note', {
-          position: { right: 0, top: -20 },
-          html: getTemplateHtml({ width: Math.floor(width * scale), data: item })
-        });
-      }
-    });
+    !Badges.created && Badges.create(this.modeler.get('overlays'));
+    Badges.draw({ data, keys });
   };
 
   destroy = () => {
     this.modeler && this.modeler._emit('diagram.destroy');
     this.heatmap && this.heatmap.destroy();
+    Badges.created && Badges.destroy();
   };
 }

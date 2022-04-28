@@ -13,7 +13,7 @@ import { ControlledCheckbox } from '../../common/form';
 import { t } from '../../../helpers/export/util';
 import ModelViewer from '../../ModelViewer/ModelViewer';
 import { Opacity, Zoomer } from '../../ModelViewer/tools';
-import { DefSets, getBadgesHtml, getPreparedHeatItem, Labels } from './util';
+import { DefSets, getPreparedHeatItem, Labels } from './util';
 import Section from './Section';
 
 import './style.scss';
@@ -79,6 +79,7 @@ class Model extends React.Component {
 
     if (!!prevProps.heatmapData && !isEqual(prevProps.heatmapData, this.props.heatmapData)) {
       this.reRenderHeatmap();
+      this.renderBadges();
     }
   }
 
@@ -111,13 +112,15 @@ class Model extends React.Component {
     this.setState({ isModelMounted: mounted, isModelMounting: false });
 
     if (mounted) {
-      const { heatmapData } = this.props;
-      //todo review work with data & template...
-      this.designer.drawInfoBlock({ data: heatmapData, getTemplateHtml: getBadgesHtml });
+      this.renderBadges();
       this.renderHeatmap();
     } else {
       console.warn({ result });
     }
+  };
+
+  renderBadges = () => {
+    this.designer.drawBadges({ data: this.props.heatmapData, keys: ['activeCount', 'completedCount'] });
   };
 
   renderHeatmap = () => {
@@ -140,6 +143,7 @@ class Model extends React.Component {
     if (!this.state.isShowHeatmap || !this.designer.heatmap) {
       return;
     }
+
     const data = this.getPreparedHeatData();
     this.designer.heatmap.updateData(data);
   };

@@ -34,9 +34,3 @@ export const getPreparedHeatItem = (item, flags) => {
     value: getCount(flags.isActiveCount, item.activeCount) + getCount(flags.isCompletedCount, item.completedCount)
   };
 };
-
-export const getBadgesHtml = ({ data }) =>
-  `<div>
-    <span class="ecos-process-statistics__badge ecos-process-statistics__badge_active">${data.activeCount || ''}</span>
-    <span class="ecos-process-statistics__badge">${data.completedCount || ''}</span>
-  </div>`;
