@@ -137,11 +137,11 @@ class Model extends React.Component {
   };
 
   reRenderHeatmap = () => {
-    const data = this.getPreparedHeatData();
-
-    if (this.designer.heatmap) {
-      this.designer.heatmap.updateData(data);
+    if (!this.state.isShowHeatmap || !this.designer.heatmap) {
+      return;
     }
+    const data = this.getPreparedHeatData();
+    this.designer.heatmap.updateData(data);
   };
 
   handleToggleHeatmap = () => {
