@@ -1226,5 +1226,13 @@ export function objectByString(object) {
   }, '');
 }
 
+export function isJSON(str) {
+  try {
+    return JSON.parse(str) && !!str;
+  } catch (e) {
+    return false;
+  }
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
