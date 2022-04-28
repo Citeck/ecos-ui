@@ -131,7 +131,7 @@ class Model extends React.Component {
         data,
         onChange: this.handleChangeHeatmap,
         onMounted: () => this.setState({ isHeatmapMounted: true }),
-        hasTooltip: true
+        hasTooltip: false
       });
     }
   };
