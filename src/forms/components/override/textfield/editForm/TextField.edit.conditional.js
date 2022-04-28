@@ -1,10 +1,9 @@
-import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
 import EditFormUtils from 'formiojs/components/base/editForm/utils';
 
 export default [
   {
     type: 'panel',
-    title: 'Simple',
+    title: 'Simple 1',
     key: 'simple-conditional',
     theme: 'default',
     components: [
@@ -15,7 +14,7 @@ export default [
         key: 'conditional.show',
         dataSrc: 'values',
         data: {
-          values: [{ label: 'True', value: 'true' }, { label: 'False', value: 'false' }]
+          values: [{ label: 'Истина', value: 'true' }, { label: 'Ложь', value: 'false' }]
         }
       },
       {
