@@ -12,7 +12,7 @@ import { InfoText, ResizableBox } from '../../common';
 import { ControlledCheckbox } from '../../common/form';
 import { t } from '../../../helpers/export/util';
 import ModelViewer from '../../ModelViewer/ModelViewer';
-import { Opacity, Zoomer } from '../../ModelViewer/tools';
+import { Legend, Opacity, Zoomer } from '../../ModelViewer/tools';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
 import Section from './Section';
 
@@ -220,7 +220,7 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, showModelDefault, heatmapData } = this.props;
-    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters } = this.state;
+    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, legendData } = this.state;
     const isShow = isShowHeatmap && isHeatmapMounted;
 
     return (
@@ -236,6 +236,7 @@ class Model extends React.Component {
               <div className="ecos-process-statistics__delimiter" />
               {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
               {isShow && this.renderCountFlags()}
+              {isShow && <Legend {...legendData} />}
             </div>
           )}
           {model && (

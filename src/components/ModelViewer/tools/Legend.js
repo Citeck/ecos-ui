@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
@@ -8,11 +8,10 @@ import { getLegendNum } from './util';
 import './style.scss';
 
 const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => {
-  const gradientRef = useRef(null);
   const [_min, setMin] = useState(0);
   const [_max, setMax] = useState(0);
-  const [ctx, setCtx] = useState();
   const [gradientCfg, setGradientCfg] = useState();
+  const [gradientImg, setGradientImg] = useState();
 
   useEffect(() => {
     setMin(getLegendNum(min, false));
@@ -20,10 +19,14 @@ const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => 
   }, [min, max]);
 
   useEffect(() => {
-    if (ctx && !isEqual(gradient, gradientCfg)) {
+    if (!isEqual(gradient, gradientCfg)) {
       setGradientCfg(gradient);
 
-      const gradientEl = ctx.createLinearGradient(0, 0, 100, 1);
+      const legendCanvas = document.createElement('canvas');
+      legendCanvas.width = width;
+      legendCanvas.height = 10;
+      const ctx = legendCanvas.getContext('2d');
+      const gradientEl = ctx.createLinearGradient(0, 0, width, 1);
 
       for (const key in gradient) {
         if (gradient.hasOwnProperty(key)) {
@@ -31,35 +34,19 @@ const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => 
         }
       }
 
-      try {
-        ctx.beginPath();
-        //todo add polyfill
-        ctx.roundRect(0, 0, width, 14, [7]);
-        ctx.fillStyle = gradientEl;
-        ctx.fill();
-      } catch (e) {
-        /*
-         * index.js:1437 TypeError: ctx.roundRect is not a function
-         * at eval (Legend.js:36)
-         * */
-        console.error(e);
-      }
+      ctx.fillStyle = gradientEl;
+      ctx.fillRect(0, 0, width, 10);
+      setGradientImg(legendCanvas.toDataURL());
     }
-  }, [gradient, ctx, gradientCfg]);
+  }, [gradient, gradientCfg]);
 
-  useEffect(() => {
-    const canvas = gradientRef.current;
-    canvas && setCtx(canvas.getContext('2d'));
-  }, [gradientRef]);
-
+  console.log(gradientImg);
   return (
     <div className={classNames('model-heatmap__legend', className)}>
       <span id="min" className="model-heatmap__legend-min">
         {_min}
       </span>
-      <div className="model-heatmap__legend-gradient">
-        <canvas ref={gradientRef} width={width} />
-      </div>
+      <div className="model-heatmap__legend-gradient">{gradientImg && <img src={gradientImg} alt="legend" />}</div>
       <span id="max" className="model-heatmap__legend-max">
         {_max}
       </span>
