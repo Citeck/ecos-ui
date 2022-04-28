@@ -27,23 +27,29 @@ Tooltip.propTypes = {
   })
 };
 
-Tooltip.create = container => {
-  const parent = container || document.body;
-  const wrapper = document.createElement('div');
+class PortalTooltip {
+  created = false;
+  #wrapper;
 
-  Tooltip.wrapper = wrapper;
-  wrapper.classList.add('model-tooltip__wrap');
-  parent.appendChild(wrapper);
+  create = container => {
+    const parent = container || document.body;
 
-  return wrapper;
-};
+    this.#wrapper = document.createElement('div');
+    this.#wrapper.classList.add('model-tooltip__wrap');
+    parent.appendChild(this.#wrapper);
+    this.created = true;
 
-Tooltip.draw = props => {
-  ReactDOM.render(<Tooltip {...props} />, Tooltip.wrapper);
-};
+    return this.#wrapper;
+  };
 
-Tooltip.destroy = () => {
-  Tooltip.wrapper && Tooltip.wrapper.remove();
-};
+  draw = props => {
+    ReactDOM.render(<Tooltip {...props} />, this.#wrapper);
+  };
 
-export default Tooltip;
+  destroy = () => {
+    this.#wrapper && this.#wrapper.remove();
+    this.created = false;
+  };
+}
+
+export default new PortalTooltip();

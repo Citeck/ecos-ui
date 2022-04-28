@@ -192,11 +192,6 @@ class Model extends React.Component {
 
   renderSwitchHeatmap = () => {
     const { isShowHeatmap } = this.state;
-    const { heatmapData } = this.props;
-
-    if (isEmpty(heatmapData)) {
-      return null;
-    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox">
@@ -224,7 +219,7 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, showModelDefault } = this.props;
+    const { model, isLoading, showModelDefault, heatmapData } = this.props;
     const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters } = this.state;
     const isShow = isShowHeatmap && isHeatmapMounted;
 
@@ -233,25 +228,25 @@ class Model extends React.Component {
         <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened={showModelDefault}>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
+          {isModelMounted && (
+            <div className="ecos-process-statistics-model__panel">
+              <Zoomer instModelRef={this.designer} />
+              {!isEmpty(heatmapData) && this.renderSwitchHeatmap()}
+              {!isEmpty(heatmapData) && this.renderSwitchBadges()}
+              <div className="ecos-process-statistics__delimiter" />
+              {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
+              {isShow && this.renderCountFlags()}
+            </div>
+          )}
           {model && (
-            <>
-              <div className="ecos-process-statistics-model__panel">
-                <Zoomer instModelRef={this.designer} />
-                {this.renderSwitchHeatmap()}
-                {this.renderSwitchBadges()}
-                <div className="ecos-process-statistics__delimiter" />
-                {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
-                {isShow && this.renderCountFlags()}
-              </div>
-              <ResizableBox getHeight={this.setHeight} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
-                <this.designer.Sheet
-                  diagram={model}
-                  onInit={this.handleInitSheet}
-                  onMounted={this.handleReadySheet}
-                  defHeight={DefSets.HEIGHT}
-                />
-              </ResizableBox>
-            </>
+            <ResizableBox getHeight={this.setHeight} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
+              <this.designer.Sheet
+                diagram={model}
+                onInit={this.handleInitSheet}
+                onMounted={this.handleReadySheet}
+                defHeight={DefSets.HEIGHT}
+              />
+            </ResizableBox>
           )}
         </Section>
       </div>

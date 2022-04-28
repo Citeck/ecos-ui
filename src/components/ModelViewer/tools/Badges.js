@@ -8,6 +8,10 @@ import './style.scss';
 const getMedium = (p, k) => p[0][k] + (p[1][k] - p[0][k]) / 2;
 
 const getCoords = elm => {
+  if (!elm) {
+    return {};
+  }
+
   const { x, y, waypoints, height, type } = elm;
   const intend = 5;
 
@@ -73,7 +77,7 @@ class PortalBadges {
   };
 
   draw = props => {
-    const getElm = id => this.#overlays._elementRegistry.get(id) || {};
+    const getElm = id => this.#overlays._elementRegistry.get(id);
     ReactDOM.render(<Badges {...props} getElm={getElm} />, this.#wrapper);
   };
 
