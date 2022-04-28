@@ -62,7 +62,7 @@ class Model extends React.Component {
       isModelMounted: false,
       isHeatmapMounted: false,
       isActiveCount: true,
-      isCompletedCount: false,
+      isCompletedCount: true,
       legendData: {}
     };
   }
