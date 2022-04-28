@@ -107,7 +107,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
         formData[att] = value;
       });
 
-      formData.elementId = element.id;
+      formData.id = element.id;
     }
 
     yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
