@@ -14,6 +14,7 @@ export default class ModelViewer {
   heatmap;
   #defaultScale;
   #container;
+  #badges;
 
   init = async ({ diagram, container, onInit, onMounted }) => {
     isFunction(onInit) && onInit(true);
@@ -131,13 +132,18 @@ export default class ModelViewer {
   drawBadges = ({ data = [], keys = [] }) => {
     const mapData = {};
     data && data.forEach(item => (mapData[item.id] = item));
-    !Badges.created && Badges.create(this.modeler.get('overlays'));
-    Badges.draw({ data, keys });
+
+    if (!this.#badges) {
+      this.#badges = new Badges();
+      this.#badges.create(this.modeler.get('overlays'));
+    }
+
+    this.#badges.draw({ data, keys });
   };
 
   destroy = () => {
     this.modeler && this.modeler._emit('diagram.destroy');
     this.heatmap && this.heatmap.destroy();
-    Badges.created && Badges.destroy();
+    this.#badges && this.#badges.destroy();
   };
 }

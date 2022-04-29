@@ -52,4 +52,4 @@ class PortalTooltip {
   };
 }
 
-export default new PortalTooltip();
+export default PortalTooltip;

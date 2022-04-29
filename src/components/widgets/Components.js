@@ -174,7 +174,13 @@ export default class Components {
       load: () => lazy(() => import('./ProcessStatistics/Widget')),
       label: 'dashboard-settings.widget.process-statistics',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
-      props: {}
+      props: {
+        config: {
+          showModelDefault: true,
+          showHeatmapDefault: true,
+          showJournalDefault: false
+        }
+      }
     }
   });
 

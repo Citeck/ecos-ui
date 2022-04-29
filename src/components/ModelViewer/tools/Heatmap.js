@@ -19,6 +19,7 @@ export default class HeatmapWrapper {
   #instModel;
   #mapPoints;
   #container;
+  #tooltip;
 
   constructor({ instModel, data, hasTooltip, onChange, onMounted }) {
     this.#instModel = instModel;
@@ -31,7 +32,7 @@ export default class HeatmapWrapper {
   }
 
   destroy = () => {
-    Tooltip.destroy();
+    this.#tooltip && this.#tooltip.destroy();
     this.instance && this.instance._renderer.canvas.remove();
     this.instance = null;
     this.origData = null;
@@ -176,7 +177,8 @@ export default class HeatmapWrapper {
   };
 
   drawTooltip = () => {
-    Tooltip.create(this.#container);
+    this.#tooltip = new Tooltip();
+    this.#tooltip.create(this.#container);
     this.#container.addEventListener('mousemove', this.#onmousemove);
     this.#container.addEventListener('mouseout', this.#onmouseout);
   };
@@ -188,10 +190,10 @@ export default class HeatmapWrapper {
     const data = this.origData && this.origData.data.find(item => key === item.id);
     const text = data && !isNil(data.value) ? data.value : `${t(Labels.TIP_AVG_VAL)}: ${this.instance.getValueAt({ x, y })}`;
 
-    Tooltip.draw({ hidden: false, text, coords: { x, y } });
+    this.#tooltip.draw({ hidden: false, text, coords: { x, y } });
   };
 
   #onmouseout = () => {
-    Tooltip.draw({ hidden: true });
+    this.#tooltip.draw({ hidden: true });
   };
 }

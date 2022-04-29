@@ -195,6 +195,12 @@ class Model extends React.Component {
     this.setState(data, this.reRenderHeatmap);
   };
 
+  handleChangeSection = opened => {
+    if (opened) {
+      this.handleClickZoom(Zooms.FIT);
+    }
+  };
+
   renderSwitchBadges = () => {
     const { isShowCounters } = this.state;
 
@@ -239,8 +245,18 @@ class Model extends React.Component {
     const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, legendData } = this.state;
 
     return (
-      <div className={classNames('ecos-process-statistics-model', { 'ecos-process-statistics-model_hidden-badges': !isShowCounters })}>
-        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened={showModelDefault}>
+      <div
+        className={classNames('ecos-process-statistics-model', {
+          'ecos-process-statistics-model_hidden-badges': !isShowCounters,
+          'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
+        })}
+      >
+        <Section
+          title={t(Labels.MODEL_TITLE)}
+          isLoading={isLoading || isModelMounting}
+          opened={showModelDefault}
+          onChange={this.handleChangeSection}
+        >
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {isModelMounted && (

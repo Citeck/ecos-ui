@@ -52,20 +52,20 @@ export default class Widget extends BaseWidget {
         onClick: this.reload.bind(this)
       },
       [DAction.Actions.SETTINGS]: {
-        onClick: this.onToggleSettings
+        onClick: this.handleToggleSettings
       }
     };
   }
 
-  onToggleSettings = () => {
+  handleToggleSettings = () => {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
-  onSaveConfig = config => {
+  handleSaveConfig = config => {
     const { onSave, id } = this.props;
 
     isFunction(onSave) && onSave(id, { config });
-    this.onToggleSettings();
+    this.handleToggleSettings();
   };
 
   render() {
@@ -90,7 +90,7 @@ export default class Widget extends BaseWidget {
         isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
-        {isShowSetting && <Settings config={config} onCancel={this.onToggleSettings} onSave={this.onSaveConfig} />}
+        {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <div className={classNames({ 'd-none': isShowSetting }, classNameContent)}>
           <Model {...config} record={record} stateId={this.stateId} />
           {config.selectedJournal && (

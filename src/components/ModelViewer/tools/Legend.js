@@ -40,7 +40,6 @@ const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => 
     }
   }, [gradient, gradientCfg]);
 
-  console.log(gradientImg);
   return (
     <div className={classNames('model-heatmap__legend', className)}>
       <span id="min" className="model-heatmap__legend-min">

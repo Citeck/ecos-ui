@@ -28,9 +28,9 @@ export default class Settings extends React.Component {
 
     this.state = {
       selectedJournal: props.config.selectedJournal,
-      showHeatmapDefault: get(props, 'config.showHeatmapDefault', true),
-      showModelDefault: get(props, 'config.showModelDefault', true),
-      showJournalDefault: get(props, 'config.showJournalDefault', false)
+      showHeatmapDefault: get(props, 'config.showHeatmapDefault'),
+      showModelDefault: get(props, 'config.showModelDefault'),
+      showJournalDefault: get(props, 'config.showJournalDefault')
     };
   }
 

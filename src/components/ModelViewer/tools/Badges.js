@@ -87,4 +87,4 @@ class PortalBadges {
   };
 }
 
-export default new PortalBadges();
+export default PortalBadges;
