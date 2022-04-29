@@ -1907,5 +1907,17 @@
   "form-constructor.tabs-description.valueProperty": "Имя параметра запроса URL",
   "form-constructor.tabs-description.filter": "Запрос фильтра для результатов.",
   "form-constructor.tabs-description.sort": "Запрос сортировки для результатов",
-  "form-constructor.tabs-description.limit": "Максимальное количество элементов для просмотра на странице результатов."
+  "form-constructor.tabs-description.limit": "Максимальное количество элементов для просмотра на странице результатов.",
+  "form-constructor.table.form": "Полный объект формы JSON.",
+  "form-constructor.table.submission": "Полный объект отправки.",
+  "form-constructor.table.data": "Полный объект данных.",
+  "form-constructor.table.row": "Контекстные данные «строки», используемые в компонентах DataGrid, EditGrid и Container.",
+  "form-constructor.table.component": "Текущий компонент в формате JSON.",
+  "form-constructor.table.instance": "Текущий экземпляр компонента.",
+  "form-constructor.table.value": "Текущее значение компонента",
+  "form-constructor.table.moment": "Библиотека moment.js для работы с датами.",
+  "form-constructor.table.lodash": "Экземпляр <a href='https://lodash.com/docs/' target='_blank'>Lodash</a>.",
+  "form-constructor.table.utils": "Экземпляр объекта <a href='http://formio.github.io/formio.js/docs/identifiers.html#utils' target='_blank'>FormioUtils</a>.",
+  "form-constructor.table.util": "Псевдоним для «utils»",
+  "form-constructor.table.queryResult": "Получить результат запроса."
 }

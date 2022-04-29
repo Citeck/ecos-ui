@@ -1910,5 +1910,17 @@
   "form-constructor.tabs-description.valueProperty": "Name of URL query parameter",
   "form-constructor.tabs-description.filter": "The filter query for results.",
   "form-constructor.tabs-description.sort": "The sort query for results",
-  "form-constructor.tabs-description.limit": "Maximum number of items to view per page of results."
+  "form-constructor.tabs-description.limit": "Maximum number of items to view per page of results.",
+  "form-constructor.table.form": "The complete form JSON object.",
+  "form-constructor.table.submission": "The complete submission object.",
+  "form-constructor.table.data": "The complete submission data object.",
+  "form-constructor.table.row": "Contextual 'row' data, used within DataGrid, EditGrid, and Container components",
+  "form-constructor.table.component": "The current component JSON",
+  "form-constructor.table.instance": "The current component instance.",
+  "form-constructor.table.value": "The current value of the component.",
+  "form-constructor.table.moment": "The moment.js library for date manipulation.",
+  "form-constructor.table.lodash": "An instance of <a href='https://lodash.com/docs/' target='_blank'>Lodash</a>.",
+  "form-constructor.table.utils": "An instance of <a href='https://lodash.com/docs/' target='_blank'>Lodash</a>.",
+  "form-constructor.table.util": "An alias for 'utils'.",
+  "form-constructor.table.queryResult": "Fetch request result."
 }
