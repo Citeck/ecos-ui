@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
+import isFunction from 'lodash/isFunction';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
-import ModelViewer from '../ModelViewer';
 import { Labels, Zooms } from '../util';
 
 import './style.scss';
@@ -33,9 +33,9 @@ const buttons = [
   }
 ].map(btn => ({ ...btn, key: uniqueId('model-zoom-btn-') }));
 
-const Zoomer = ({ instModelRef }) => {
+const Zoomer = ({ onClick }) => {
   const cn = 'ecos-btn_grey3 ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue model-zoomer__btn';
-  const handleZoom = useCallback(val => instModelRef && instModelRef.setZoom(val), [instModelRef]);
+  const handleZoom = useCallback(val => isFunction(onClick) && onClick(val), [onClick]);
 
   return (
     <div className="model-zoomer">
@@ -49,7 +49,7 @@ const Zoomer = ({ instModelRef }) => {
 };
 
 Zoomer.propTypes = {
-  instModelRef: PropTypes.instanceOf(ModelViewer)
+  onClick: PropTypes.func
 };
 
 export default Zoomer;

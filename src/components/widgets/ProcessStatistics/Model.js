@@ -3,16 +3,18 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
 import { getModel } from '../../../actions/processStatistics';
 
 import { InfoText, ResizableBox } from '../../common';
-import { ControlledCheckbox } from '../../common/form';
+import { ControlledCheckbox, Range } from '../../common/form';
 import { t } from '../../../helpers/export/util';
-import ModelViewer from '../../ModelViewer/ModelViewer';
-import { Legend, Opacity, Zoomer } from '../../ModelViewer/tools';
+import ModelViewer from '../../ModelViewer';
+import { Legend, Zoomer } from '../../ModelViewer/tools';
+import { Zooms } from '../../ModelViewer/util';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
 import Section from './Section';
 
@@ -133,7 +135,13 @@ class Model extends React.Component {
       this.designer.drawHeatmap({
         data,
         onChange: this.handleChangeHeatmap,
-        onMounted: () => this.setState({ isHeatmapMounted: true }),
+        onMounted: () => {
+          this.setState({ isHeatmapMounted: true });
+          debounce(() => {
+            this.handleChangeOpacity(DefSets.OPACITY);
+            this.handleClickZoom(Zooms.FIT);
+          }, 100)();
+        },
         hasTooltip: false
       });
     }
@@ -173,6 +181,14 @@ class Model extends React.Component {
 
   handleChangeHeatmap = legendData => {
     this.setState({ legendData });
+  };
+
+  handleChangeOpacity = value => {
+    this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+  };
+
+  handleClickZoom = value => {
+    this.designer.setZoom(value);
   };
 
   handleChangeCountFlag = data => {
@@ -221,7 +237,6 @@ class Model extends React.Component {
   render() {
     const { model, isLoading, showModelDefault, heatmapData } = this.props;
     const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, legendData } = this.state;
-    const isShow = isShowHeatmap && isHeatmapMounted;
 
     return (
       <div className={classNames('ecos-process-statistics-model', { 'ecos-process-statistics-model_hidden-badges': !isShowCounters })}>
@@ -230,13 +245,10 @@ class Model extends React.Component {
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {isModelMounted && (
             <div className="ecos-process-statistics-model__panel">
-              <Zoomer instModelRef={this.designer} />
+              <Zoomer onClick={this.handleClickZoom} />
+              <div className="ecos-process-statistics__delimiter" />
               {!isEmpty(heatmapData) && this.renderSwitchHeatmap()}
               {!isEmpty(heatmapData) && this.renderSwitchBadges()}
-              <div className="ecos-process-statistics__delimiter" />
-              {isShow && <Opacity defValue={DefSets.OPACITY} instModelRef={this.designer} label={t(Labels.PANEL_OPACITY)} />}
-              {isShow && this.renderCountFlags()}
-              {isShow && <Legend {...legendData} />}
             </div>
           )}
           {model && (
@@ -248,6 +260,14 @@ class Model extends React.Component {
                 defHeight={DefSets.HEIGHT}
               />
             </ResizableBox>
+          )}
+          {isShowHeatmap && isHeatmapMounted && (
+            <div className="ecos-process-statistics-model__panel">
+              <Range value={DefSets.OPACITY} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
+              {this.renderCountFlags()}
+              <div className="ecos-process-statistics__delimiter" />
+              <Legend {...legendData} />
+            </div>
           )}
         </Section>
       </div>
