@@ -272,4 +272,31 @@ describe('Util helpers', () => {
   ])('fun strSplice %s', (title, input, start, del, str, output) => {
     it(input + '>' + output, () => expect(Util.strSplice(input, start, del, str)).toEqual(output));
   });
+
+  describe('function isJsonObjectString', () => {
+    const data = [
+      {
+        title: 'Without arguments - will returned false',
+        input: [],
+        output: false
+      },
+      {
+        title: 'Failed json - will returned false',
+        input: ['simple string'],
+        output: false
+      },
+      {
+        title: 'In json non-object value - will returned false',
+        input: ['true'],
+        output: false
+      },
+      {
+        title: 'In json valid value - will returned true',
+        input: ['{"key": "username", "value": "qwerty123"}'],
+        output: true
+      }
+    ];
+
+    check(data, 'isJsonObjectString');
+  });
 });
