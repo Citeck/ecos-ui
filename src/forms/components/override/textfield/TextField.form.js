@@ -1,9 +1,9 @@
-import baseEditForm from '../../override/base/Base.form';
+import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import TextFieldEditConditional from './editForm/TextField.edit.conditional';
 import TextFieldEditDisplay from './editForm/TextField.edit.display';
 
 export default function(...extend) {
-  return baseEditForm(
+  return FormIOTextFieldComponent(
     [
       {
         key: 'display',

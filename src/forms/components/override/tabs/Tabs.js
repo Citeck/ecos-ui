@@ -285,26 +285,26 @@ export default class TabsComponent extends NestedComponent {
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
       console.log('TAB', tab.components);
-      // tab.components.forEach(el => {
-      //   el.label = t(`form-constructor.tabs-content.${el.key}`);
-      //   if (el.tooltip) {
-      //     el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
-      //   }
-      //   if (el.placeholder) {
-      //     el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
-      //   }
-      //   if (el.description) {
-      //     el.description = t(`form-constructor.tabs-description.${el.key}`);
-      //   }
-      //   if (el.components) {
-      //     el.components.forEach(item => {
-      //       item.label = t(`form-constructor.tabs-content.${item.key}`);
-      //       if (item.placeholder) {
-      //         item.placeholder = t(`form-constructor.tabs-content.${item.key}`);
-      //       }
-      //     });
-      //   }
-      // });
+      tab.components.forEach(el => {
+        el.label = t(`form-constructor.tabs-content.${el.key}`);
+        if (el.tooltip) {
+          el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
+        }
+        if (el.placeholder) {
+          el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
+        }
+        if (el.description) {
+          el.description = t(`form-constructor.tabs-description.${el.key}`);
+        }
+        if (el.components) {
+          el.components.forEach(item => {
+            item.label = t(`form-constructor.tabs-content.${item.key}`);
+            if (item.placeholder) {
+              item.placeholder = t(`form-constructor.tabs-content.${item.key}`);
+            }
+          });
+        }
+      });
       const tabLink = this.ce(
         'a',
         {
