@@ -27,10 +27,12 @@ export default class Settings extends React.Component {
     super(props);
 
     this.state = {
-      selectedJournal: props.config.selectedJournal,
+      selectedJournal: get(props, 'config.selectedJournal'),
       showHeatmapDefault: get(props, 'config.showHeatmapDefault'),
       showModelDefault: get(props, 'config.showModelDefault'),
-      showJournalDefault: get(props, 'config.showJournalDefault')
+      showJournalDefault: get(props, 'config.showJournalDefault'),
+      showCountersDefault: get(props, 'config.showCountersDefault'),
+      displayHeatmapToolbar: get(props, 'config.displayHeatmapToolbar')
     };
   }
 
@@ -42,10 +44,8 @@ export default class Settings extends React.Component {
 
   onToggleFlag = keyFlag => this.setState({ [keyFlag]: !this.state[keyFlag] });
 
-  renderFlags = () => {
-    const showKeys = Object.keys(this.state).filter(key => key.startsWith('show'));
-
-    return showKeys.map(key => (
+  renderFlags = sortedFlags => {
+    return sortedFlags.map(key => (
       <Field key={key} label={t('process-statistics-widget.settings.field.' + key)} labelPosition="top">
         <Checkbox checked={this.state[key]} onClick={_ => this.onToggleFlag(key)} />
       </Field>
@@ -72,7 +72,12 @@ export default class Settings extends React.Component {
         <Caption small className="ecos-process-statistics-settings__title">
           {t(Labels.SETTINGS_DEFAULT_FLAGS)}
         </Caption>
-        {this.renderFlags()}
+        {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
+
+        <Caption small className="ecos-process-statistics-settings__title">
+          {t(Labels.SETTINGS_READ_OUT)}
+        </Caption>
+        {this.renderFlags(['displayHeatmapToolbar'])}
         <div className="ecos-process-statistics-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>
             {t(Labels.SETTINGS_BTN_CANCEL)}

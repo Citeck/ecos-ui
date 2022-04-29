@@ -4,9 +4,9 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 
+import { ScaleOptions } from '../common/Scaler/util';
 import HeatmapWrapper from './tools/Heatmap.js';
 import Badges from './tools/Badges';
-import { Zooms } from './util';
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
@@ -67,24 +67,24 @@ export default class ModelViewer {
     if (this.#container) {
       height = height || this.viewport.getBoundingClientRect().height;
       this.#container.style.height = `${height}px`;
-      this.setZoom(Zooms.FIT);
+      this.setZoom(ScaleOptions.FIT);
     }
   };
 
   setZoom = value => {
     let nv;
     switch (value) {
-      case Zooms.DEFAULT:
+      case ScaleOptions.DEFAULT:
         nv = this.#defaultScale;
         break;
-      case Zooms.FIT:
-        nv = Zooms.FIT;
+      case ScaleOptions.FIT:
+        nv = ScaleOptions.FIT;
         break;
       default: {
         let oldScale = this.canvas.viewbox().scale;
         oldScale = isNumber(oldScale) ? oldScale : this.#defaultScale;
         const newScale = oldScale + value;
-        nv = newScale > Zooms.STEP ? newScale : Zooms.STEP;
+        nv = newScale > ScaleOptions.STEP ? newScale : ScaleOptions.STEP;
       }
     }
 

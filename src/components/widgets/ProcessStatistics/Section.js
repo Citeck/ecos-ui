@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { Collapse } from 'react-collapse';
+import PropTypes from 'prop-types';
+import isFunction from 'lodash/isFunction';
 
 import { Icon, Loader } from '../../common';
 import { Caption } from '../../common/form';
-import PropTypes from 'prop-types';
-import isFunction from 'lodash/isFunction';
+
+import './style.scss';
 
 const Section = ({ isLoading, title, children, opened, onChange }) => {
   const [isOpened, setOpened] = useState(!!opened);
@@ -17,7 +19,7 @@ const Section = ({ isLoading, title, children, opened, onChange }) => {
   return (
     <>
       {isLoading && <Loader blur />}
-      <Caption small onClick={handleChange}>
+      <Caption className="ecos-process-statistics-section__caption" small onClick={handleChange}>
         {title}
         <Icon className={classNames({ 'icon-small-up': !isOpened, 'icon-small-down': isOpened })} />
       </Caption>

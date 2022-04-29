@@ -1,41 +1,5 @@
 @import '../../../styles/constants';
 
-$height: 14px;
-
-.model-heatmap {
-  &__legend {
-    display: flex;
-    line-height: $height;
-    height: $height;
-
-    &-min,
-    &-max {
-      font-size: $height;
-      font-weight: $font-weight-bold;
-      color: $text-color-dark;
-    }
-
-    &-gradient {
-      margin: 0 8px;
-
-      & img {
-        height: 100%;
-        border-radius: 10px;
-      }
-    }
-  }
-}
-
-.model-zoomer {
-  display: flex;
-
-  & &__btn {
-    font-size: 16px;
-    width: 28px;
-    line-height: 1;
-  }
-}
-
 .model-tooltip {
   &__wrap {
     position: absolute;

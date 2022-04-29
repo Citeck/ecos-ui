@@ -178,7 +178,9 @@ export default class Components {
         config: {
           showModelDefault: true,
           showHeatmapDefault: true,
-          showJournalDefault: false
+          showJournalDefault: false,
+          showCountersDefault: false,
+          displayHeatmapToolbar: true
         }
       }
     }

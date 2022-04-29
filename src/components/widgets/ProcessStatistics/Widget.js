@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
 
 import { getStateId } from '../../../helpers/redux';
-import { t } from '../../../helpers/export/util';
+import { t } from '../../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
@@ -35,9 +35,7 @@ export default class Widget extends BaseWidget {
     super(props);
 
     this.stateId = getStateId(props);
-    this.state = {
-      isShowSetting: false
-    };
+    this.state.isShowSetting = false;
   }
 
   get dashletActions() {
@@ -70,7 +68,7 @@ export default class Widget extends BaseWidget {
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isShowSetting } = this.state;
+    const { isSmallMode, runUpdate, isShowSetting, width } = this.state;
 
     config.selectedJournal = `${SourcesId.JOURNAL}@${SystemJournals.PROCESS_ELMS}`;
 
@@ -89,10 +87,11 @@ export default class Widget extends BaseWidget {
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
+        onResize={this.handleResize}
       >
         {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <div className={classNames({ 'd-none': isShowSetting }, classNameContent)}>
-          <Model {...config} record={record} stateId={this.stateId} />
+          <Model {...config} record={record} stateId={this.stateId} width={width} runUpdate={runUpdate} />
           {config.selectedJournal && (
             <Journal
               {...config}

@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 
-import { getLegendNum } from './util';
-
 import './style.scss';
 
 const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => {
@@ -41,12 +39,12 @@ const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => 
   }, [gradient, gradientCfg]);
 
   return (
-    <div className={classNames('model-heatmap__legend', className)}>
-      <span id="min" className="model-heatmap__legend-min">
+    <div className={classNames('ecos-legend', className)}>
+      <span id="min" className="ecos-legend-min">
         {_min}
       </span>
-      <div className="model-heatmap__legend-gradient">{gradientImg && <img src={gradientImg} alt="legend" />}</div>
-      <span id="max" className="model-heatmap__legend-max">
+      <div className="ecos-legend-gradient">{gradientImg && <img src={gradientImg} alt="legend" />}</div>
+      <span id="max" className="ecos-legend-max">
         {_max}
       </span>
     </div>
@@ -62,3 +60,22 @@ Legend.propTypes = {
 };
 
 export default Legend;
+
+function getLegendNum(num, isMax) {
+  const str = `${num}`;
+
+  if (!isMax || +num === 0 || num % 10 === 0) {
+    return num;
+  }
+
+  if (str.length === 1) {
+    if (isMax) {
+      return 10;
+    }
+  } else {
+    if (num % 10 > 0) {
+      // eslint-disable-line
+      return +`${parseInt(num / 10) + 1}0`; // eslint-disable-line
+    }
+  }
+}
