@@ -7,6 +7,7 @@ import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
+import { isJsonObjectString } from '../helpers/util';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -101,10 +102,12 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
           value !== '' &&
           (isMultiple === true || inputType === 'mlText' || inputType === 'datamap' || inputType === 'container')
         ) {
-          value = JSON.parse(value);
+          value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }
         formData[att] = value;
       });
+
+      formData.id = element.id;
     }
 
     yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
