@@ -92,11 +92,20 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     const formData = {};
 
     if (element) {
+      console.warn({ inputs, element });
+
       inputs.forEach(input => {
         const att = input.attribute;
         let value = CmmnUtils.getValue(element, att);
         const inputType = input.component && input.component.type;
         const isMultiple = input.component && input.component.multiple;
+
+        console.log({
+          att,
+          value,
+          inputType
+        });
+
         if (
           value != null &&
           value !== '' &&

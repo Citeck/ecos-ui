@@ -85,6 +85,7 @@ export default class BaseModeler {
       this.events = {};
 
       if (events) {
+        console.log(this.getEventBus());
         if (events.onSelectElement) {
           this.events.onSelectElement = e => {
             if (get(e, 'newSelection.length', 0) < 2) {

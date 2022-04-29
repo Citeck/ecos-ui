@@ -158,7 +158,7 @@ class FormWrapper extends React.Component {
   }
 
   render() {
-    return <div className={classNames('formio-form', this.props.className)} id={this.state.containerId} />;
+    return <div id={this.state.containerId} className={classNames('formio-form', this.props.className)} onClick={this.props.onClick} />;
   }
 }
 
@@ -171,6 +171,7 @@ FormWrapper.propTypes = {
   formOptions: PropTypes.object,
   formI18n: PropTypes.object,
   formData: PropTypes.object,
+  onClick: PropTypes.func,
   onSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
   onFormChange: PropTypes.func

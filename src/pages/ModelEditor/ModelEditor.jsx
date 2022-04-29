@@ -44,6 +44,7 @@ class ModelEditorPage extends React.Component {
   #tempFormData = {};
   #formWrapperRef = React.createRef();
   #prevValue = {};
+  #labelIsEdited = false;
 
   componentDidMount() {
     this.initModeler();
@@ -263,6 +264,10 @@ class ModelEditorPage extends React.Component {
   handleFormChange = info => {
     const { selectedElement, selectedDiagramElement } = this.state;
 
+    if (this.#labelIsEdited) {
+      return;
+    }
+
     if (info.changed && selectedElement) {
       const modelData = {};
 
@@ -285,6 +290,13 @@ class ModelEditorPage extends React.Component {
       });
 
       this.designer.updateProps(selectedElement, modelData);
+
+      console.log({
+        selectedElement,
+        selectedDiagramElement,
+        modelData,
+        info
+      });
 
       if (selectedDiagramElement) {
         this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
@@ -312,6 +324,10 @@ class ModelEditorPage extends React.Component {
     });
   };
 
+  handleClickForm = () => {
+    this.#labelIsEdited = false;
+  };
+
   handleChangeLabel = label => {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
@@ -321,6 +337,7 @@ class ModelEditorPage extends React.Component {
     }
 
     if (!isUndefined(label) && this.#formWrapperRef.current) {
+      this.#labelIsEdited = true;
       this.#formWrapperRef.current.setValue(
         {
           [KEY_FIELD_NAME + ML_POSTFIX]: { [getCurrentLocale()]: label || '' }
@@ -364,7 +381,10 @@ class ModelEditorPage extends React.Component {
           extraEvents={{
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
-            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete
+            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
+            'directEditing.complete': () => {
+              this.#labelIsEdited = false;
+            }
           }}
         />
       );
@@ -399,6 +419,7 @@ class ModelEditorPage extends React.Component {
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
                 {...formProps}
                 formOptions={this.formOptions}
+                onClick={this.handleClickForm}
                 onFormChange={this.handleFormChange}
               />
             </>
