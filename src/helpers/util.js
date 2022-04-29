@@ -1226,9 +1226,15 @@ export function objectByString(object) {
   }, '');
 }
 
-export function isJSON(str) {
+export function isJsonObjectString(str) {
+  if (isEmpty(str)) {
+    return false;
+  }
+
   try {
-    return JSON.parse(str) && !!str;
+    const result = JSON.parse(str);
+
+    return typeof result === 'object';
   } catch (e) {
     return false;
   }
