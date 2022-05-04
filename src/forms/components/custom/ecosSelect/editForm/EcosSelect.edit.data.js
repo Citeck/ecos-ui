@@ -1,6 +1,5 @@
 import SelectEditData from 'formiojs/components/select/editForm/Select.edit.data';
-// import EditFormUtils from 'formiojs/components/base/editForm/utils';
-import EditFormUtils from '../../../override/base/editForm/utils';
+import EditFormUtils from 'formiojs/components/base/editForm/utils';
 import { t } from '../../../../../helpers/export/util';
 
 SelectEditData.push(
@@ -13,7 +12,7 @@ SelectEditData.push(
     key: 'dataPreProcessingCode-panel',
     weight: 10,
     components: [
-      EditFormUtils.logicVariablesTable(`<tr><th>queryResult</th><td>${t('form-constructor.table.queryResult')}</td></tr>`),
+      EditFormUtils.logicVariablesTable(`<tr><th>queryResult</th><td>fetch request result</td></tr>`),
       {
         type: 'textarea',
         key: 'dataPreProcessingCode',
@@ -25,13 +24,9 @@ SelectEditData.push(
       {
         type: 'htmlelement',
         tag: 'div',
-        content: `
-          <small>
-            <p>Data pre-processing after receiving the specified URL. Enter custom JavaScript code.</p>
-            <p>You must assign the <strong>values</strong> variable.</p>
-            <h5>Example:</h5>
-            <pre>values = _.sortBy(queryResult, "label");</pre>
-          </small>`
+        get content() {
+          return t('form-constructor.panel.data-preporocessing');
+        }
       }
     ],
     conditional: {
@@ -69,7 +64,7 @@ SelectEditData.push(
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code.</p>'
+        content: `<p>${t('form-constructor.panel.data-custom-js')}</p>`
       }
     ],
     conditional: {

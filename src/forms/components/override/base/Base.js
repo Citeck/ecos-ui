@@ -170,7 +170,6 @@ Object.defineProperty(Base.prototype, 'label', {
     }
 
     this.component.label = value;
-
     if (this.labelElement) {
       this.labelElement.innerText = getTextByLocale(value);
     }
@@ -325,7 +324,10 @@ Base.prototype.createTooltip = function(container, component, classes) {
     trigger: 'hover click',
     placement: 'top',
     html: true,
-    title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
+    // title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
+    get title() {
+      return t(`form-constructor.tabs-tooltip.${component.key}`);
+    }
   });
 
   if (this.tooltip) {
@@ -673,6 +675,7 @@ Base.prototype.createLabel = function(container) {
   originalCreateLabel.call(this, container);
 
   if (!this.labelIsHidden()) {
+    // console.log('THIS', this, this.label, this.text(this.label), this.labelElement.childNodes[0])
     this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
     this.createTooltip(this.labelElement);
   }
@@ -710,7 +713,7 @@ Base.prototype.elementInfo = function() {
   const info = originalElementInfo.call(this);
 
   if (this.component.placeholder) {
-    set(info, 'attr.placeholder', this.t(this.placeholder));
+    set(info, 'attr.placeholder', t(`form-constructor.tabs-placeholder.${this.component.key}`));
   }
 
   return info;
@@ -724,7 +727,7 @@ Base.prototype.createDescription = function(container) {
     return;
   }
 
-  this.description.innerHTML = this.t(getTextByLocale(this.component.description));
+  this.description.innerHTML = t(`form-constructor.tabs-description.${this.component.key}`);
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829

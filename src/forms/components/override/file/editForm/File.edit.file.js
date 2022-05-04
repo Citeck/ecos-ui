@@ -1,4 +1,5 @@
 import FileEditFile from 'formiojs/components/file/editForm/File.edit.file';
+import { t } from '../../../../../helpers/export/util';
 
 export const FILE_CLICK_ACTION_DOWNLOAD = 'download';
 export const FILE_CLICK_ACTION_OPEN_DASHBOARD = 'openDashboard';
@@ -25,7 +26,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>disp</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.value-display-name');
+        }
       }
     ]
   },

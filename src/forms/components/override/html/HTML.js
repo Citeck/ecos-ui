@@ -1,7 +1,9 @@
 import FormIOHTMLComponent from 'formiojs/components/html/HTML';
+import { t } from '../../../../helpers/export/util';
 
 export default class HtmlComponent extends FormIOHTMLComponent {
   setHTML() {
-    this.htmlElement.innerHTML = this.interpolate(this.t(this.component.content));
+    console.log('THIS COMPONENT CONTENT', this.component.key, this.component.content);
+    this.htmlElement.innerHTML = this.interpolate(t(`form-constructor.html.${this.component.key}`));
   }
 }
