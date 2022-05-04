@@ -17,7 +17,9 @@ export const TYPE_PLAN_ITEM = 'cmmn:PlanItem';
 
 export const KEY_FIELD_NAME = 'name';
 export const KEY_FIELD_OUTCOMES = 'outcomes';
-export const KEY_FIELDS = [KEY_FIELD_NAME];
+export const KEY_FIELDS = [KEY_FIELD_NAME, `${KEY_FIELD_NAME}${ML_POSTFIX}`];
+
+export const ML_FIELDS = [KEY_FIELD_NAME, 'description'];
 
 // eslint-disable-next-line
 export const initialDiagram = `<?xml version="1.0" encoding="UTF-8"?>

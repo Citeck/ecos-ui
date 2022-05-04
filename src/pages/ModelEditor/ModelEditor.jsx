@@ -15,6 +15,7 @@ import {
   KEY_FIELD_NAME,
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
+  ML_FIELDS,
   ML_POSTFIX,
   PREFIX_FIELD,
   SEQUENCE_TYPE,
@@ -196,7 +197,7 @@ class ModelEditorPage extends React.Component {
         const value = get(element, ['businessObject', key]);
 
         if (!isUndefined(value)) {
-          if (key === KEY_FIELD_NAME) {
+          if (key === KEY_FIELD_NAME /*ML_FIELDS.includes(key)*/) {
             /**
              * @todo save values other locales
              */
@@ -207,6 +208,8 @@ class ModelEditorPage extends React.Component {
         }
       }
     });
+
+    console.warn({ formFields });
 
     return formFields;
   }
@@ -234,6 +237,7 @@ class ModelEditorPage extends React.Component {
         this.props.saveModel(xml, img, deploy);
       })
       .catch(error => {
+        console.warn({ error });
         throw new Error(`Failure to save xml or image: ${error.message}`);
       });
   };
@@ -273,30 +277,29 @@ class ModelEditorPage extends React.Component {
 
       this.#tempFormData = { ecosType: get(info, 'data.ecosType') };
 
-      Object.keys(info.data).forEach(key => {
-        const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
-        const rawValue = info.data[key];
-        let valueAsText = rawValue;
+      console.log('info.data => ', info.data);
 
-        if (valueAsText != null && !isString(valueAsText)) {
-          valueAsText = JSON.stringify(valueAsText);
-        }
+      Object.keys(info.data)
+        .filter(key => !isUndefined(info.data[key]))
+        .forEach(key => {
+          const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+          const rawValue = info.data[key];
+          let valueAsText = rawValue;
 
-        modelData[fieldKey] = valueAsText;
+          if (valueAsText != null && !isString(valueAsText)) {
+            valueAsText = JSON.stringify(valueAsText);
+          }
 
-        if (key.endsWith(ML_POSTFIX)) {
-          modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
-        }
-      });
+          modelData[fieldKey] = valueAsText;
+
+          if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
+            modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
+          }
+        });
+
+      console.log({ modelData });
 
       this.designer.updateProps(selectedElement, modelData);
-
-      console.log({
-        selectedElement,
-        selectedDiagramElement,
-        modelData,
-        info
-      });
 
       if (selectedDiagramElement) {
         this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });

@@ -152,6 +152,10 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
+        // console.log('--- change --- ', {
+        //   data: form.submission,
+        //   args
+        // });
         this.props.onFormChange(...args);
       });
     }

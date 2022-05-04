@@ -46,7 +46,10 @@ export default class BPMNModeler extends BaseModeler {
     this.modeler
       .saveXML({ format: true })
       .then(callback)
-      .catch(callback);
+      .catch(e => {
+        console.warn('XML error ', { e });
+        return callback(e);
+      });
   };
 
   saveSVG = ({ callback }) => {
@@ -57,6 +60,9 @@ export default class BPMNModeler extends BaseModeler {
     this.modeler
       .saveSVG({ format: true })
       .then(callback)
-      .catch(callback);
+      .catch(e => {
+        console.warn('SVG error ', { e });
+        return callback(e);
+      });
   };
 }
