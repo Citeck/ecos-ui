@@ -13,7 +13,8 @@ const mapStateToProps = (store, props) => {
     title: ownStore.title,
     savedModel: ownStore.model,
     formProps: ownStore.formProps,
-    isLoading: ownStore.isLoading
+    isLoading: ownStore.isLoading,
+    isLoadingProps: ownStore.isLoadingProps
   };
 };
 

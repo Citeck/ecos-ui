@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import classNames from 'classnames';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
@@ -31,19 +32,38 @@ class FormWrapper extends React.Component {
     const { cached, id } = this.props;
 
     if (cached && prevProps.id && !isEqual(prevProps.id, id) && this._form) {
-      this.#cachedForms[prevProps.id] = cloneDeep(this._form.getValue().data);
+      this.cachingFormData(prevProps.id);
     }
 
-    if (!isEqual(prevProps, this.props)) {
-      this.initForm();
+    if (cached) {
+      if (isEqual(prevProps.id, id) && !isEqual(prevProps, this.props)) {
+        this.initForm();
+      }
+    } else {
+      if (!isEqual(prevProps, this.props)) {
+        this.initForm();
+      }
     }
   }
 
   componentWillUnmount() {
     if (this._form) {
+      this.cachingFormData();
       this._form.destroy();
       this._form = null;
     }
+  }
+
+  get form() {
+    return this._form;
+  }
+
+  cachingFormData(id = this.props.id) {
+    if (!this.props.cached) {
+      return;
+    }
+
+    this.#cachedForms[id] = cloneDeep(this._form.getValue().data);
   }
 
   initForm() {
@@ -100,6 +120,9 @@ class FormWrapper extends React.Component {
       }
 
       form.setValue({ data });
+      form.formReady.then(() => {
+        isFunction(this.props.onFormReady) && this.props.onFormReady(this._form);
+      });
 
       this._form = form;
     });
@@ -152,10 +175,6 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
-        // console.log('--- change --- ', {
-        //   data: form.submission,
-        //   args
-        // });
         this.props.onFormChange(...args);
       });
     }
@@ -178,7 +197,8 @@ FormWrapper.propTypes = {
   onClick: PropTypes.func,
   onSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
-  onFormChange: PropTypes.func
+  onFormChange: PropTypes.func,
+  onFormReady: PropTypes.func
 };
 
 export default FormWrapper;

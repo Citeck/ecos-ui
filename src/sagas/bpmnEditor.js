@@ -92,8 +92,6 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     const formData = {};
 
     if (element) {
-      console.warn({ inputs, element });
-
       inputs.forEach(input => {
         if (input.scope !== null) {
           return;
@@ -104,12 +102,6 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
         const inputType = input.component && input.component.type;
         const isMultiple = input.component && input.component.multiple;
 
-        console.log({
-          att,
-          value,
-          inputType
-        });
-
         if (
           value != null &&
           value !== '' &&
@@ -117,6 +109,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
         ) {
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }
+
         formData[att] = value;
       });
 

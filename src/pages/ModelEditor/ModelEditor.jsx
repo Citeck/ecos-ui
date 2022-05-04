@@ -46,6 +46,7 @@ class ModelEditorPage extends React.Component {
   #formWrapperRef = React.createRef();
   #prevValue = {};
   #labelIsEdited = false;
+  #formReady = false;
 
   componentDidMount() {
     this.initModeler();
@@ -169,7 +170,13 @@ class ModelEditorPage extends React.Component {
   };
 
   handleChangeElement = element => {
-    if (!element) {
+    const { isLoadingProps } = this.props;
+
+    if (!element || isLoadingProps || !this.#formReady) {
+      return;
+    }
+
+    if (!get(this.#formWrapperRef, 'current.form.submission')) {
       return;
     }
 
@@ -208,8 +215,6 @@ class ModelEditorPage extends React.Component {
         }
       }
     });
-
-    console.warn({ formFields });
 
     return formFields;
   }
@@ -250,6 +255,7 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    this.#formReady = false;
     this.setState(
       {
         selectedDiagramElement: element,
@@ -257,6 +263,7 @@ class ModelEditorPage extends React.Component {
       },
       () => {
         this.props.getFormProps(this.formId, selectedElement);
+        this.#labelIsEdited = false;
       }
     );
   };
@@ -265,10 +272,15 @@ class ModelEditorPage extends React.Component {
     return element;
   }
 
+  handleFormReady = form => {
+    this.#formReady = true;
+  };
+
   handleFormChange = info => {
+    const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
-    if (this.#labelIsEdited) {
+    if (this.#labelIsEdited || isLoadingProps || !this.#formReady) {
       return;
     }
 
@@ -276,8 +288,6 @@ class ModelEditorPage extends React.Component {
       const modelData = {};
 
       this.#tempFormData = { ecosType: get(info, 'data.ecosType') };
-
-      console.log('info.data => ', info.data);
 
       Object.keys(info.data)
         .filter(key => !isUndefined(info.data[key]))
@@ -296,8 +306,6 @@ class ModelEditorPage extends React.Component {
             modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
           }
         });
-
-      console.log({ modelData });
 
       this.designer.updateProps(selectedElement, modelData);
 
@@ -386,7 +394,8 @@ class ModelEditorPage extends React.Component {
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
             'directEditing.complete': () => {
-              this.#labelIsEdited = false;
+              console.warn('directEditing.complete');
+              // this.#labelIsEdited = false;
             }
           }}
         />
@@ -414,6 +423,7 @@ class ModelEditorPage extends React.Component {
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
               {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
+
               <FormWrapper
                 id={get(selectedElement, 'id')}
                 cached
@@ -424,6 +434,7 @@ class ModelEditorPage extends React.Component {
                 formOptions={this.formOptions}
                 onClick={this.handleClickForm}
                 onFormChange={this.handleFormChange}
+                onFormReady={this.handleFormReady}
               />
             </>
           }

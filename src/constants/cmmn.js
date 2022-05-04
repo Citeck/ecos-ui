@@ -17,7 +17,7 @@ export const TYPE_PLAN_ITEM = 'cmmn:PlanItem';
 
 export const KEY_FIELD_NAME = 'name';
 export const KEY_FIELD_OUTCOMES = 'outcomes';
-export const KEY_FIELDS = [KEY_FIELD_NAME, `${KEY_FIELD_NAME}${ML_POSTFIX}`];
+export const KEY_FIELDS = [KEY_FIELD_NAME];
 
 export const ML_FIELDS = [KEY_FIELD_NAME, 'description'];
 
