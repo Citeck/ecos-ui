@@ -6,7 +6,10 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import pick from 'lodash/pick';
+import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
+import { flattenComponents } from 'formiojs/utils/formUtils';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
@@ -31,14 +34,22 @@ class FormWrapper extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { cached, id } = this.props;
 
-    if (cached && prevProps.id && !isEqual(prevProps.id, id) && this._form) {
-      this.cachingFormData(prevProps.id);
-    }
+    // if (cached && prevProps.id && !isEqual(prevProps.id, id) && this._form) {
+    //   this.cachingFormData(prevProps.id);
+    // }
 
     if (cached) {
-      if (isEqual(prevProps.id, id) && !isEqual(prevProps, this.props)) {
-        this.initForm();
-      }
+      // if (
+      //   !isEqual(
+      //     pick(prevProps, ['formDefinition', 'formOptions', 'formI18n', 'formData', 'id']),
+      //     pick(this.props, ['formDefinition', 'formOptions', 'formI18n', 'formData', 'id'])
+      //   )
+      // ) {
+      //   this.initForm();
+      // }
+      // if (/*isEqual(prevProps.id, id) && */!isEqual(prevProps, this.props)) {
+      //   this.initForm();
+      // }
     } else {
       if (!isEqual(prevProps, this.props)) {
         this.initForm();
@@ -67,6 +78,10 @@ class FormWrapper extends React.Component {
   }
 
   initForm() {
+    // if (isEmpty(this.props.formData)) {
+    //   return;
+    // }
+
     if (this._form) {
       this._form.destroy();
       this._form = null;
@@ -119,7 +134,10 @@ class FormWrapper extends React.Component {
         };
       }
 
-      form.setValue({ data });
+      if (!isEmpty(data)) {
+        form.setValue({ data });
+      }
+
       form.formReady.then(() => {
         isFunction(this.props.onFormReady) && this.props.onFormReady(this._form);
       });
@@ -175,7 +193,13 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
-        this.props.onFormChange(...args);
+        console.warn({
+          args,
+          form,
+          inputs: flattenComponents(form.components, false)
+          // inputs: EcosFormUtils.getFormInputs(form.formDefinition)
+        });
+        this.props.onFormChange(...args, flattenComponents(form.components, false));
       });
     }
   }

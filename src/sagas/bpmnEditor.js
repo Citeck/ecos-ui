@@ -1,5 +1,6 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import isUndefined from 'lodash/isUndefined';
 
 import { getFormProps, getModel, getTitle, initData, saveModel, setFormProps, setLoading, setModel, setTitle } from '../actions/bpmnEditor';
 import { deleteTab } from '../actions/pageTabs';
@@ -110,7 +111,9 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }
 
-        formData[att] = value;
+        if (!isUndefined(value)) {
+          formData[att] = value;
+        }
       });
 
       formData.id = element.id;
