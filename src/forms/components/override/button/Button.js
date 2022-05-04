@@ -2,7 +2,6 @@ import each from 'lodash/each';
 import get from 'lodash/get';
 import FormIOButtonComponent from 'formiojs/components/button/Button';
 import { flattenComponents } from 'formiojs/utils/formUtils';
-import { t } from '../../../../helpers/export/util';
 
 const MAX_WAITING_TIME = 30000;
 

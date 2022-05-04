@@ -1,11 +1,8 @@
 import TabsEditDisplay from 'formiojs/components/tabs/editForm/Tabs.edit.display';
-import { t } from '../../../../../helpers/export/util';
-
-const test = t('form-constructor.tabs-content.scrollableContent');
 
 export default [
   {
-    label: test,
+    label: 'Scrollable content',
     labelPosition: 'left-left',
     type: 'checkbox',
     input: true,

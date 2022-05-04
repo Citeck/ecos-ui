@@ -182,7 +182,6 @@ export default class TabsComponent extends NestedComponent {
   }
 
   build(state, showLabel) {
-    console.log('THIS', this);
     if (this.options.flatten) {
       this.element = super.createElement();
       this.component.components.forEach(tab => {

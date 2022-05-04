@@ -34,7 +34,7 @@ export default class PanelComponent extends FormIOPanelComponent {
     this.component.hideLabel = hidePanels;
 
     super.build(state);
-    // console.log('PANEL', this)
+
     this.element.classList.remove('mb-2');
 
     if (hidePanels) {
@@ -42,10 +42,8 @@ export default class PanelComponent extends FormIOPanelComponent {
     } else {
       this.panelBody.classList.remove('p-0', 'm-0');
     }
-    // console.log(this.panelBody)
 
     if (this.panelTitle) {
-      // console.log('this.panelTitle', this, this.panelTitle, this.component.key)
       this.panelTitle.innerHTML = '';
       if (this.component.collapsible) {
         this.collapseIcon = this.getCollapseIcon();
