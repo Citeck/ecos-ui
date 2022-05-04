@@ -5,16 +5,19 @@
   height: 100%;
   overflow: hidden;
 
+  $right-content-min-width: 320px;
+
   &__info {
     height: auto;
   }
 
   &__designer {
-    flex: auto;
     display: flex;
     flex-direction: column;
     margin: 20px;
     position: relative;
+    width: 100vw;
+    min-width: 25%;
 
     & > :nth-child(n):not(:last-child) {
       margin-bottom: 10px;
@@ -60,9 +63,28 @@
     position: relative;
     box-shadow: -5px 0px 5px -5px rgba(0, 0, 0, 0.2);
     transition: width 0.5s;
+    flex-grow: 2;
+
+    &-caption {
+      position: sticky;
+      top: -20px;
+      background: white;
+      z-index: 2;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      border-bottom: 2px $color-gray-6 solid;
+      padding-left: 20px;
+      margin: -20px -20px 5px -20px;
+    }
+
+    &-resizer {
+      left: -10px;
+      top: 5rem;
+    }
 
     &_open {
       width: 25%;
+      min-width: $right-content-min-width;
     }
 
     &-opener {
@@ -98,13 +120,21 @@
       display: none;
       padding: 20px;
       background: $color-white;
-      overflow: auto;
       height: 100%;
-      min-width: 320px;
+      min-width: $right-content-min-width;
+      position: relative;
+
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     &_open > &-content {
       display: block;
     }
+  }
+
+  .ecos-btn__i {
+    font-size: $font-size-extra-large;
+    line-height: $font-size-extra-large;
   }
 }

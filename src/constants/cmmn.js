@@ -16,6 +16,7 @@ export const TYPE_EXIT_CRITERION = 'cmmn:ExitCriterion';
 export const TYPE_PLAN_ITEM = 'cmmn:PlanItem';
 
 export const KEY_FIELD_NAME = 'name';
+export const KEY_FIELD_OUTCOMES = 'outcomes';
 export const KEY_FIELDS = [KEY_FIELD_NAME];
 
 // eslint-disable-next-line
@@ -57,3 +58,26 @@ export const EventListeners = {
   ELEMENT_UPDATE_ID: 'element.updateId',
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted'
 };
+
+export const GATEWAY_TYPES = [
+  'bpmn:ExclusiveGateway',
+  'bpmn:ParallelGateway',
+  'bpmn:InclusiveGateway',
+  'bpmn:ComplexGateway',
+  'bpmn:EventBasedGateway'
+];
+
+export const TASK_TYPES = [
+  'bpmn:Task',
+  'bpmn:SendTask',
+  'bpmn:ReceiveTask',
+  'bpmn:UserTask',
+  'bpmn:ManualTask',
+  'bpmn:BusinessRuleTask',
+  'bpmn:ServiceTask',
+  'bpmn:ScriptTask',
+  'bpmn:CallActivity',
+  'bpmn:SubProcess'
+];
+
+export const SEQUENCE_TYPE = 'bpmn:SequenceFlow';

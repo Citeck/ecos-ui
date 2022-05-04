@@ -8,8 +8,18 @@ import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import XMLViewer from 'react-xml-viewer';
 
-import { t, getTextByLocale, getCurrentLocale } from '../../helpers/util';
-import { EventListeners, KEY_FIELD_NAME, KEY_FIELDS, ML_POSTFIX, PREFIX_FIELD } from '../../constants/cmmn';
+import { t, getTextByLocale, getCurrentLocale, getMLValue } from '../../helpers/util';
+import {
+  EventListeners,
+  GATEWAY_TYPES,
+  KEY_FIELD_NAME,
+  KEY_FIELD_OUTCOMES,
+  KEY_FIELDS,
+  ML_POSTFIX,
+  PREFIX_FIELD,
+  SEQUENCE_TYPE,
+  TASK_TYPES
+} from '../../constants/cmmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -90,12 +100,57 @@ class ModelEditorPage extends React.Component {
     return this.urlQuery.recordRef;
   }
 
+  #getIncomingOutcomes = () => {
+    const { selectedElement } = this.state;
+    const isSequenceFlow = get(selectedElement, 'type') === SEQUENCE_TYPE;
+
+    if (!isSequenceFlow) {
+      return [];
+    }
+
+    const element = this.designer.modeler.get('elementRegistry').find(e => e.id === selectedElement.id);
+
+    if (!GATEWAY_TYPES.includes(get(element, 'source.type', ''))) {
+      return [];
+    }
+
+    const incoming = get(element, 'source.incoming', []);
+    const result = [];
+
+    for (let i = 0; i < incoming.length; i++) {
+      const item = incoming[i];
+
+      if (item.type !== SEQUENCE_TYPE || !item.source) {
+        continue;
+      }
+
+      if (!TASK_TYPES.includes(item.source.type)) {
+        continue;
+      }
+
+      const rawOutcomes = get(item, `source.businessObject.$attrs.${PREFIX_FIELD + KEY_FIELD_OUTCOMES}`);
+      const outcomes = isEmpty(rawOutcomes) ? [] : JSON.parse(rawOutcomes);
+
+      result.push({
+        id: item.id,
+        name: item.name,
+        outcomes: outcomes.map(item => ({
+          id: item.id,
+          name: getMLValue(item.name)
+        }))
+      });
+    }
+
+    return result;
+  };
+
   get formOptions() {
     const { ecosType = '' } = this.#tempFormData;
 
     return {
       editor: {
-        getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`)
+        getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`),
+        getIncomingOutcomes: this.#getIncomingOutcomes
       }
     };
   }
@@ -157,6 +212,12 @@ class ModelEditorPage extends React.Component {
 
   handleSave = (deploy = false) => {
     if (!this.designer) {
+      return;
+    }
+
+    const { savedModel } = this.props;
+
+    if (!savedModel) {
       return;
     }
 
@@ -236,6 +297,12 @@ class ModelEditorPage extends React.Component {
   };
 
   handleClickViewXml = () => {
+    const { savedModel } = this.props;
+
+    if (!savedModel) {
+      return;
+    }
+
     this.designer.saveXML({
       callback: ({ xml }) => {
         if (xml) {
@@ -307,7 +374,7 @@ class ModelEditorPage extends React.Component {
   };
 
   render() {
-    const { savedModel, title, formProps, isLoading } = this.props;
+    const { title, formProps, isLoading } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
@@ -315,9 +382,9 @@ class ModelEditorPage extends React.Component {
         {isLoading && <Loader blur height={100} width={100} />}
         <ModelEditorWrapper
           title={title}
-          onApply={savedModel && (() => this.handleSave(false))}
-          onViewXml={savedModel && this.handleClickViewXml}
-          onSaveAndDeploy={() => this.handleSave(true)}
+          onApply={this.handleSave}
+          onViewXml={this.handleClickViewXml}
+          onSaveAndDeploy={this.handleSave}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={
