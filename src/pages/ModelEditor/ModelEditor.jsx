@@ -16,6 +16,7 @@ import {
   KEY_FIELD_NAME,
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
+  LABEL_POSTFIX,
   ML_FIELDS,
   ML_POSTFIX,
   PREFIX_FIELD,
@@ -269,7 +270,15 @@ class ModelEditorPage extends React.Component {
     }
 
     if (currentSelected) {
-      this._cache[currentSelected.id] = get(this._formWrapperRef, 'current.form.submission.data');
+      const data = get(this._formWrapperRef, 'current.form.submission.data');
+
+      if (currentSelected.id.endsWith(LABEL_POSTFIX)) {
+        set(this._cache, [currentSelected.id.replace(LABEL_POSTFIX, ''), KEY_FIELD_NAME + ML_POSTFIX], data[KEY_FIELD_NAME + ML_POSTFIX]);
+      } else {
+        set(this._cache, [currentSelected.id + LABEL_POSTFIX, KEY_FIELD_NAME + ML_POSTFIX], data[KEY_FIELD_NAME + ML_POSTFIX]);
+      }
+
+      this._cache[currentSelected.id] = data;
     }
 
     this._formReady = false;
@@ -384,8 +393,6 @@ class ModelEditorPage extends React.Component {
       );
 
       set(this._cache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX, getCurrentLocale()], label || '');
-
-      console.log(this._cache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX, getCurrentLocale()], label);
     }
   };
 

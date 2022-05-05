@@ -9,6 +9,7 @@ import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
 import { isJsonObjectString } from '../helpers/util';
+import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -103,11 +104,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
         const inputType = input.component && input.component.type;
         const isMultiple = input.component && input.component.multiple;
 
-        if (
-          value != null &&
-          value !== '' &&
-          (isMultiple === true || inputType === 'mlText' || inputType === 'datamap' || inputType === 'container')
-        ) {
+        if (value != null && value !== '' && (isMultiple === true || JSON_VALUE_COMPONENTS.includes(inputType))) {
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }
 
