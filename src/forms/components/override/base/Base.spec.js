@@ -3,6 +3,7 @@ import _merge from 'lodash/merge';
 import Harness from '../../../test/harness';
 import BaseComponent from './Base';
 import { extractLabel } from '../../../../helpers/util';
+import { t } from '../../../../helpers/export/util';
 
 import { comp1, comp2, comp3, multipleWithDraggableRows } from './fixtures';
 
@@ -25,6 +26,7 @@ describe('Base Component', () => {
       const inputs = Harness.testElements(component, 'input[type="text"]', 1);
 
       for (let i = 0; i < inputs.length; i++) {
+        console.log('INPUTS PLACEHOLDER', inputs[i].placeholder);
         expect(inputs[i].name).toBe(`data[${comp3.key}]`);
         expect(inputs[i].placeholder).toBe(comp3.placeholder.ru);
       }

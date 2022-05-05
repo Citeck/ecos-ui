@@ -320,13 +320,20 @@ Base.prototype.createTooltip = function(container, component, classes) {
   container.appendChild(this.text(' '));
   container.appendChild(ttElement);
 
+  let title;
+  if (!t(`form-constructor.tabs-tooltip.${component.key}`).includes(component.key)) {
+    title = t(`form-constructor.tabs-tooltip.${component.key}`);
+  } else {
+    title = this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
+  }
+
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
     placement: 'top',
     html: true,
     // title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
     get title() {
-      return t(`form-constructor.tabs-tooltip.${component.key}`);
+      return title;
     }
   });
 
@@ -675,7 +682,6 @@ Base.prototype.createLabel = function(container) {
   originalCreateLabel.call(this, container);
 
   if (!this.labelIsHidden()) {
-    // console.log('THIS', this, this.label, this.text(this.label), this.labelElement.childNodes[0])
     this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
     this.createTooltip(this.labelElement);
   }

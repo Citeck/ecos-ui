@@ -25,6 +25,7 @@ export default class SelectComponent extends FormIOSelectComponent {
     if (!values) {
       return false;
     }
+
     const notFoundValuesToAdd = [];
     const added = values.reduce((defaultAdded, value) => {
       if (!value) {

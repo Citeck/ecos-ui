@@ -15,6 +15,7 @@ set(BaseEditData.find(item => item.key === 'refreshOn'), 'multiple', true);
 const refreshOn = BaseEditData.find(item => item.key === 'refreshOn');
 
 if (refreshOn) {
+  console.log('BASE.EDIT.DATA');
   refreshOn.data = {
     custom: `
         values.push({label: 'Any Change', value: 'data'});

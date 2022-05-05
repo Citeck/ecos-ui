@@ -8,6 +8,7 @@ import BaseEditCondition from './editForm/Base.edit.conditional';
 import BaseEditApi from './editForm/Base.edit.api';
 
 export default function(...extend) {
+  console.log('BASE FORM EDITOR');
   return baseEditForm(
     [
       {

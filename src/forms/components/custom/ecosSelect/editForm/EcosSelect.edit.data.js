@@ -12,7 +12,7 @@ SelectEditData.push(
     key: 'dataPreProcessingCode-panel',
     weight: 10,
     components: [
-      EditFormUtils.logicVariablesTable(`<tr><th>queryResult</th><td>fetch request result</td></tr>`),
+      EditFormUtils.logicVariablesTable(`<tr><th>queryResult</th><td>${t('form-constructor.table.queryResult')}</td></tr>`),
       {
         type: 'textarea',
         key: 'dataPreProcessingCode',

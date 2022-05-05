@@ -191,6 +191,7 @@ export default class EcosFormUtils {
   }
 
   static editRecord(config) {
+    console.log('EDIT RECORD');
     const recordRef = config.recordRef,
       fallback = config.fallback,
       forceNewForm = config.forceNewForm,

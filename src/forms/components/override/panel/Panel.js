@@ -44,14 +44,16 @@ export default class PanelComponent extends FormIOPanelComponent {
     }
 
     if (this.panelTitle) {
-      this.panelTitle.innerHTML = '';
-      if (this.component.collapsible) {
-        this.collapseIcon = this.getCollapseIcon();
-        this.panelTitle.appendChild(this.collapseIcon);
-      }
+      if (!t(`form-constructor.panel.${this.component.key}`).includes(this.component.key)) {
+        this.panelTitle.innerHTML = '';
+        if (this.component.collapsible) {
+          this.collapseIcon = this.getCollapseIcon();
+          this.panelTitle.appendChild(this.collapseIcon);
+        }
 
-      this.panelTitle.appendChild(this.text(' '));
-      this.panelTitle.appendChild(this.text(t(`form-constructor.panel.${this.component.key}`)));
+        this.panelTitle.appendChild(this.text(' '));
+        this.panelTitle.appendChild(this.text(t(`form-constructor.panel.${this.component.key}`)));
+      }
       if (this.component.validate && this.component.validate.required) {
         this.panelTitle.classList.add('field-required');
       } else {

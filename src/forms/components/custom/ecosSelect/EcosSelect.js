@@ -24,7 +24,7 @@ export default class SelectComponent extends BaseComponent {
         },
         limit: 100,
         dataSrc: 'url',
-        valueProperty: t('form-constructor.placeholder.value'),
+        valueProperty: 'value',
         filter: '',
         searchEnabled: true,
         searchField: '',

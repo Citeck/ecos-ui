@@ -1,12 +1,23 @@
 import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';
+import { t } from '../../../../../helpers/export/util';
 
-BaseEditDisplay.push({
-  type: 'checkbox',
-  input: true,
-  weight: 650,
-  key: 'disableInlineEdit',
-  label: `Disable inline editing in view mode`
-});
+BaseEditDisplay.push(
+  {
+    type: 'checkbox',
+    input: true,
+    weight: 650,
+    key: 'disableInlineEdit',
+    label: `Disable inline editing in view mode`
+  },
+  {
+    type: 'select',
+    key: 'test',
+    label: t('ecos.forms.test'),
+    data: {
+      values: [{ label: t('ecos.forms.test'), value: 'top' }]
+    }
+  }
+);
 
 const mutatingFields = {
   label: { type: 'mlText' },
@@ -18,6 +29,7 @@ const mutatingFields = {
 const fields = Object.keys(mutatingFields);
 
 export default BaseEditDisplay.map(item => {
+  console.log('ITEM', item);
   if (fields.includes(item.key)) {
     const data = mutatingFields[item.key];
 
