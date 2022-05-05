@@ -27,9 +27,9 @@ import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
+import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
-import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -49,7 +49,7 @@ class ModelEditorPage extends React.Component {
   _prevValue = {};
   _labelIsEdited = false;
   _formReady = false;
-  _cache = {};
+  _formsCache = {};
 
   componentDidMount() {
     this.initModeler();
@@ -274,28 +274,21 @@ class ModelEditorPage extends React.Component {
       const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
 
       if (currentSelected.id.endsWith(LABEL_POSTFIX)) {
-        set(this._cache, [currentSelected.id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
+        set(this._formsCache, [currentSelected.id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
       } else {
-        set(this._cache, [currentSelected.id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
+        set(this._formsCache, [currentSelected.id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
       }
 
-      this._cache[currentSelected.id] = data;
+      this._formsCache[currentSelected.id] = data;
     }
 
     this._formReady = false;
     this.props.getFormProps(this.getFormType(selectedElement.$type || selectedElement.type), selectedElement);
 
-    this.setState(
-      {
-        // selectedDiagramElement: element,
-        selectedElement: undefined
-      },
-      () => {
-        // this.props.getFormProps(this.getFormType(selectedElement.$type || selectedElement.type), selectedElement);
-        this.setState({ selectedElement, selectedDiagramElement: element });
-        this._labelIsEdited = false;
-      }
-    );
+    this.setState({ selectedElement: undefined }, () => {
+      this.setState({ selectedElement, selectedDiagramElement: element });
+      this._labelIsEdited = false;
+    });
   };
 
   _getBusinessObjectByDiagramElement(element) {
@@ -306,7 +299,7 @@ class ModelEditorPage extends React.Component {
     this._formReady = true;
   };
 
-  handleFormChange = (info, inputs) => {
+  handleFormChange = info => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
@@ -323,9 +316,7 @@ class ModelEditorPage extends React.Component {
       }
 
       Object.keys(info.data)
-        .filter(key => {
-          return !isUndefined(info.data[key]) /* && !['asyncData'].includes(get(inputs, [key, 'type']))*/;
-        })
+        .filter(key => !isUndefined(info.data[key]))
         .forEach(key => {
           const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
           const rawValue = info.data[key];
@@ -341,8 +332,6 @@ class ModelEditorPage extends React.Component {
             modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
           }
         });
-
-      console.log({ modelData });
 
       this.designer.updateProps(selectedElement, modelData);
 
@@ -393,7 +382,7 @@ class ModelEditorPage extends React.Component {
         { noUpdateEvent: true }
       );
 
-      set(this._cache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX, getCurrentLocale()], label || '');
+      set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX, getCurrentLocale()], label || '');
     }
   };
 
@@ -412,8 +401,12 @@ class ModelEditorPage extends React.Component {
   handleElementDelete = data => {
     const element = get(data, 'context.elements.0');
 
-    if (element && this._formWrapperRef.current) {
-      this._formWrapperRef.current.clearFromCache(element.id);
+    if (element) {
+      delete this._formsCache[element.id];
+      delete this._formsCache[element.id + LABEL_POSTFIX];
+
+      this.setState({ selectedElement: undefined, selectedDiagramElement: undefined });
+      this.props.clearFormProps();
     }
   };
 
@@ -431,11 +424,7 @@ class ModelEditorPage extends React.Component {
           extraEvents={{
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
-            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
-            'directEditing.complete': () => {
-              console.warn('directEditing.complete');
-              // this._labelIsEdited = false;
-            }
+            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete
           }}
         />
       );
@@ -452,7 +441,7 @@ class ModelEditorPage extends React.Component {
       return formData;
     }
 
-    const cachedData = get(this._cache, selectedElement.id, {});
+    const cachedData = get(this._formsCache, selectedElement.id, {});
 
     return {
       ...formData,
@@ -463,10 +452,6 @@ class ModelEditorPage extends React.Component {
   render() {
     const { title, formProps, isLoading } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
-
-    if (selectedElement) {
-      console.log(selectedElement.id, ' => ', this.formData, this);
-    }
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>
@@ -485,7 +470,6 @@ class ModelEditorPage extends React.Component {
 
               <FormWrapper
                 id={get(selectedElement, 'id')}
-                // cached
                 ref={this._formWrapperRef}
                 isVisible
                 className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}

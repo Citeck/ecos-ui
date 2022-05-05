@@ -3,10 +3,7 @@ import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
-import pick from 'lodash/pick';
 import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
 import { flattenComponents } from 'formiojs/utils/formUtils';
@@ -15,8 +12,6 @@ import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 
 class FormWrapper extends React.Component {
-  #cachedForms = {};
-
   constructor(props) {
     super(props);
 
@@ -32,34 +27,13 @@ class FormWrapper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { cached, id } = this.props;
-
-    // if (cached && prevProps.id && !isEqual(prevProps.id, id) && this._form) {
-    //   this.cachingFormData(prevProps.id);
-    // }
-
-    if (cached) {
-      // if (
-      //   !isEqual(
-      //     pick(prevProps, ['formDefinition', 'formOptions', 'formI18n', 'formData', 'id']),
-      //     pick(this.props, ['formDefinition', 'formOptions', 'formI18n', 'formData', 'id'])
-      //   )
-      // ) {
-      //   this.initForm();
-      // }
-      // if (/*isEqual(prevProps.id, id) && */!isEqual(prevProps, this.props)) {
-      //   this.initForm();
-      // }
-    } else {
-      if (!isEqual(prevProps, this.props)) {
-        this.initForm();
-      }
+    if (!isEqual(prevProps, this.props)) {
+      this.initForm();
     }
   }
 
   componentWillUnmount() {
     if (this._form) {
-      this.cachingFormData();
       this._form.destroy();
       this._form = null;
     }
@@ -69,19 +43,7 @@ class FormWrapper extends React.Component {
     return this._form;
   }
 
-  cachingFormData(id = this.props.id) {
-    if (!this.props.cached) {
-      return;
-    }
-
-    this.#cachedForms[id] = cloneDeep(this._form.getValue().data);
-  }
-
   initForm() {
-    // if (isEmpty(this.props.formData)) {
-    //   return;
-    // }
-
     if (this._form) {
       this._form.destroy();
       this._form = null;
@@ -127,13 +89,6 @@ class FormWrapper extends React.Component {
         };
       }
 
-      if (this.props.cached) {
-        data = {
-          ...(data || {}),
-          ...get(this.#cachedForms, this.props.id, {})
-        };
-      }
-
       if (!isEmpty(data)) {
         form.setValue({ data });
       }
@@ -169,12 +124,6 @@ class FormWrapper extends React.Component {
     );
   };
 
-  clearFromCache = id => {
-    if (id) {
-      delete this.#cachedForms[id];
-    }
-  };
-
   setEvents(form, extra = {}) {
     form.on('submit', submission => {
       let res = extra.onSubmit(submission);
@@ -193,12 +142,6 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
-        console.warn({
-          args,
-          form,
-          inputs: flattenComponents(form.components, false)
-          // inputs: EcosFormUtils.getFormInputs(form.formDefinition)
-        });
         this.props.onFormChange(...args, flattenComponents(form.components, false));
       });
     }
@@ -213,7 +156,6 @@ FormWrapper.propTypes = {
   id: PropTypes.string,
   className: PropTypes.string,
   isVisible: PropTypes.bool,
-  cached: PropTypes.bool,
   formDefinition: PropTypes.object,
   formOptions: PropTypes.object,
   formI18n: PropTypes.object,
