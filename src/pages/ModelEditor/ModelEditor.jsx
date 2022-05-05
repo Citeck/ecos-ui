@@ -17,7 +17,6 @@ import {
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
   LABEL_POSTFIX,
-  ML_FIELDS,
   ML_POSTFIX,
   PREFIX_FIELD,
   SEQUENCE_TYPE,
@@ -30,6 +29,7 @@ import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
 
 import './ModelEditor.scss';
+import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -149,8 +149,8 @@ class ModelEditorPage extends React.Component {
       const outcomes = isEmpty(rawOutcomes) ? [] : JSON.parse(rawOutcomes);
 
       result.push({
-        id: item.id,
-        name: item.name,
+        id: get(item, 'source.id'), // item.id,
+        name: getMLValue(getValue(item.source, KEY_FIELD_NAME)), // item.name,
         outcomes: outcomes.map(item => ({
           id: item.id,
           name: getMLValue(item.name)
@@ -218,7 +218,7 @@ class ModelEditorPage extends React.Component {
         const value = get(element, ['businessObject', key]);
 
         if (!isUndefined(value)) {
-          if (key === KEY_FIELD_NAME /*ML_FIELDS.includes(key)*/) {
+          if (key === KEY_FIELD_NAME) {
             /**
              * @todo save values other locales
              */
@@ -271,11 +271,12 @@ class ModelEditorPage extends React.Component {
 
     if (currentSelected) {
       const data = get(this._formWrapperRef, 'current.form.submission.data');
+      const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
 
       if (currentSelected.id.endsWith(LABEL_POSTFIX)) {
-        set(this._cache, [currentSelected.id.replace(LABEL_POSTFIX, ''), KEY_FIELD_NAME + ML_POSTFIX], data[KEY_FIELD_NAME + ML_POSTFIX]);
+        set(this._cache, [currentSelected.id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
       } else {
-        set(this._cache, [currentSelected.id + LABEL_POSTFIX, KEY_FIELD_NAME + ML_POSTFIX], data[KEY_FIELD_NAME + ML_POSTFIX]);
+        set(this._cache, [currentSelected.id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
       }
 
       this._cache[currentSelected.id] = data;
