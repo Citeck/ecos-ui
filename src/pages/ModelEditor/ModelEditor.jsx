@@ -314,7 +314,7 @@ class ModelEditorPage extends React.Component {
 
       Object.keys(info.data)
         .filter(key => {
-          return !isUndefined(info.data[key]) && !['asyncData'].includes(get(inputs, [key, 'type']));
+          return !isUndefined(info.data[key]) /* && !['asyncData'].includes(get(inputs, [key, 'type']))*/;
         })
         .forEach(key => {
           const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
