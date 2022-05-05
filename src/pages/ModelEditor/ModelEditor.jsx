@@ -149,8 +149,8 @@ class ModelEditorPage extends React.Component {
       const outcomes = isEmpty(rawOutcomes) ? [] : JSON.parse(rawOutcomes);
 
       result.push({
-        id: get(item, 'source.id'), // item.id,
-        name: getMLValue(getValue(item.source, KEY_FIELD_NAME)), // item.name,
+        id: get(item, 'source.id'),
+        name: getMLValue(getValue(item.source, KEY_FIELD_NAME)),
         outcomes: outcomes.map(item => ({
           id: item.id,
           name: getMLValue(item.name)
@@ -256,7 +256,6 @@ class ModelEditorPage extends React.Component {
         this.props.saveModel(xml, img, deploy);
       })
       .catch(error => {
-        console.warn({ error });
         throw new Error(`Failure to save xml or image: ${error.message}`);
       });
   };
@@ -315,23 +314,25 @@ class ModelEditorPage extends React.Component {
         this._tempFormData = { ecosType };
       }
 
-      Object.keys(info.data)
-        .filter(key => !isUndefined(info.data[key]))
-        .forEach(key => {
-          const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
-          const rawValue = info.data[key];
-          let valueAsText = rawValue;
+      for (let key in info.data) {
+        if (isUndefined(info.data[key])) {
+          continue;
+        }
 
-          if (valueAsText != null && !isString(valueAsText)) {
-            valueAsText = JSON.stringify(valueAsText);
-          }
+        const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+        const rawValue = info.data[key];
+        let valueAsText = rawValue;
 
-          modelData[fieldKey] = valueAsText;
+        if (valueAsText != null && !isString(valueAsText)) {
+          valueAsText = JSON.stringify(valueAsText);
+        }
 
-          if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
-            modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
-          }
-        });
+        modelData[fieldKey] = valueAsText;
+
+        if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
+          modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
+        }
+      }
 
       this.designer.updateProps(selectedElement, modelData);
 
@@ -441,11 +442,9 @@ class ModelEditorPage extends React.Component {
       return formData;
     }
 
-    const cachedData = get(this._formsCache, selectedElement.id, {});
-
     return {
       ...formData,
-      ...cachedData
+      ...get(this._formsCache, selectedElement.id, {})
     };
   }
 

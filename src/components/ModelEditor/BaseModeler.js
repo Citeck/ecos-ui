@@ -85,7 +85,6 @@ export default class BaseModeler {
       this.events = {};
 
       if (events) {
-        console.log(this.getEventBus());
         if (events.onSelectElement) {
           this.events.onSelectElement = e => {
             if (get(e, 'newSelection.length', 0) < 2) {
@@ -103,7 +102,6 @@ export default class BaseModeler {
         if (events.onClickElement) {
           this.events.onClickElement = e => events.onClickElement(get(e, 'element'));
           this.modeler.on('element.click', this.events.onClickElement);
-          // this.modeler.on('selection.changed', this.events.onClickElement);
         }
 
         if (events.onChangeElementLabel) {
@@ -223,7 +221,6 @@ export default class BaseModeler {
       this.events.onSelectElement && this.modeler.off('selection.changed', this.events.onSelectElement);
       this.events.onChangeElement && this.modeler.off('element.changed', this.events.onChangeElement);
       this.events.onClickElement && this.modeler.off('element.click', this.events.onClickElement);
-      // this.events.onClickElement && this.modeler.off('selection.changed', this.events.onClickElement);
     }
 
     if (this.events.onChangeElementLabel) {
