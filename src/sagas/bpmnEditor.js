@@ -1,6 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import isUndefined from 'lodash/isUndefined';
+import get from 'lodash/get';
 
 import { getFormProps, getModel, getTitle, initData, saveModel, setFormProps, setLoading, setModel, setTitle } from '../actions/bpmnEditor';
 import { deleteTab } from '../actions/pageTabs';
@@ -94,23 +95,29 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     const formData = {};
 
     if (element) {
+      const addedKeys = [];
+
       inputs.forEach(input => {
-        if (input.scope !== null) {
+        const component = get(input, 'scope.component', input.component);
+        const att = component.key;
+
+        if (addedKeys.includes(att)) {
           return;
         }
 
-        const att = input.attribute;
+        const inputType = component.type;
+        const isMultiple = component.multiple;
         let value = CmmnUtils.getValue(element, att);
-        const inputType = input.component && input.component.type;
-        const isMultiple = input.component && input.component.multiple;
 
         if (value != null && value !== '' && (isMultiple === true || JSON_VALUE_COMPONENTS.includes(inputType))) {
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }
 
-        if (!isUndefined(value)) {
+        if (!isUndefined(value) && !['asyncData'].includes(inputType)) {
           formData[att] = value;
         }
+
+        addedKeys.push(att);
       });
 
       formData.id = element.id;
