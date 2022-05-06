@@ -6,7 +6,6 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
-import { flattenComponents } from 'formiojs/utils/formUtils';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
@@ -142,7 +141,7 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
-        this.props.onFormChange(...args, flattenComponents(form.components, false));
+        this.props.onFormChange(...args, form);
       });
     }
   }
