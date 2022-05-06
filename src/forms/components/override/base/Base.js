@@ -682,8 +682,15 @@ Base.prototype.createLabel = function(container) {
   originalCreateLabel.call(this, container);
 
   if (!this.labelIsHidden()) {
-    this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
+    let title;
+    // if (!t(`form-constructor.tabs-content.${this.key}`).includes(this.key)) {
+    //   title = t(`form-constructor.tabs-content.${this.key}`)
+    // } else {
+    title = this.label;
+    // }
+    this.labelElement.replaceChild(this.text(title), this.labelElement.childNodes[0]);
     this.createTooltip(this.labelElement);
+    console.log(this.key, title);
   }
 };
 

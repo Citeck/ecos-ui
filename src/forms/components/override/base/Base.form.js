@@ -8,17 +8,17 @@ import BaseEditCondition from './editForm/Base.edit.conditional';
 import BaseEditApi from './editForm/Base.edit.api';
 
 export default function(...extend) {
-  console.log('BASE FORM EDITOR');
+  console.log(baseEditForm);
   return baseEditForm(
     [
       {
         key: 'data',
         components: BaseEditData
       },
-      {
-        key: 'display',
-        components: BaseEditDisplay
-      },
+      // {
+      //   key: 'display',
+      //   components: BaseEditDisplay
+      // },
       {
         key: 'logic',
         components: BaseEditLogic

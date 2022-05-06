@@ -41,9 +41,6 @@ import preval from 'preval.macro';
 import { Base64 } from 'js-base64';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
 
-import('./services/EcosModules')
-  .then(EcosModules => console.log(EcosModules))
-  .catch(err => err);
 /* set moment locale */
 const currentLocale = getCurrentLocale();
 moment.locale(currentLocale);
@@ -74,7 +71,10 @@ window.requirejs.config({
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('WINDOW CONTENT LOADED');
+  import('./services/EcosModules')
+    .then(EcosModules => console.log(EcosModules))
+    .catch(err => err);
+
   import('./constants/alfresco/util').then(({ default: util }) => {
     window.Alfresco.util = window.Alfresco.util || {};
     window.Alfresco.util = {

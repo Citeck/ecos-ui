@@ -84,7 +84,6 @@ class EcosForm extends React.Component {
   };
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    console.log('INIT FORM');
     const alfConstants = get(window, 'Alfresco.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
