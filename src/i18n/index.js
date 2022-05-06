@@ -6,6 +6,7 @@ import { AppApi } from '../api/app';
 import { LANGUAGE_EN } from '../constants/lang';
 
 export function i18nInit({ debug = false }) {
+  console.log('i18nINIT');
   const lng = getCurrentLocale();
   const promiseServer = AppApi.getDictionaryServer(lng);
   const promiseLocal = AppApi.getDictionaryLocal(lng);

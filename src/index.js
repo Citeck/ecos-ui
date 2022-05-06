@@ -71,10 +71,6 @@ window.requirejs.config({
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-  import('./services/EcosModules')
-    .then(EcosModules => console.log(EcosModules))
-    .catch(err => err);
-
   import('./constants/alfresco/util').then(({ default: util }) => {
     window.Alfresco.util = window.Alfresco.util || {};
     window.Alfresco.util = {
@@ -99,6 +95,9 @@ const runApp = () => {
             isAuthenticated,
             onSuccess: () => {
               i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
+                import('./services/EcosModules')
+                  .then(EcosModules => console.log(EcosModules))
+                  .catch(err => err);
                 ReactDOM.render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>

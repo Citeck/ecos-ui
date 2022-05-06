@@ -1,15 +1,20 @@
 import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';
 import { t } from '../../../../../helpers/export/util';
+// import i18next from '../../../../i18next';
+import i18next from 'i18next';
 
 BaseEditDisplay.splice(0, BaseEditDisplay.length);
 
+// console.log('LANG', i18next['translator']['language'])
+// console.log('BASE EDIT DISPLAY', i18next['store']['data']['ru']['translation'], i18next['language'])
+console.log('LOCALE', typeof i18next, i18next['options']['lng'], i18next);
 const settings = [
   {
     weight: 0,
     type: 'textfield',
     input: true,
     key: 'label',
-    label: t('form-constructor.tabs-content.label'),
+    label: 'Label',
     placeholder: 'Field Label',
     tooltip: 'The label for this field that will appear next to it.',
     validate: {

@@ -17,6 +17,7 @@ import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
 import { t } from '../../../../helpers/export/util';
+import i18next from '../../../i18next';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -319,6 +320,8 @@ Base.prototype.createTooltip = function(container, component, classes) {
 
   container.appendChild(this.text(' '));
   container.appendChild(ttElement);
+  // console.log('T FUNCTION', this.t(`form-constructor.tabs-tooltip.${component.key}`))
+  // console.log('BASE', i18next)
 
   let title;
   if (!t(`form-constructor.tabs-tooltip.${component.key}`).includes(component.key)) {
@@ -690,7 +693,6 @@ Base.prototype.createLabel = function(container) {
     // }
     this.labelElement.replaceChild(this.text(title), this.labelElement.childNodes[0]);
     this.createTooltip(this.labelElement);
-    console.log(this.key, title);
   }
 };
 

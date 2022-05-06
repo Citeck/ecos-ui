@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-// import '../../forms';
+import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
 import { getCurrentLocale, getMLValue, isMobileDevice, strSplice, t } from '../../helpers/util';
 import { PROXY_URI } from '../../constants/alfresco';
