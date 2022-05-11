@@ -8,11 +8,13 @@ import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
+import { flattenComponents } from 'formiojs/utils/formUtils';
 
 import { t, getTextByLocale, getCurrentLocale, getMLValue } from '../../helpers/util';
 import {
   EventListeners,
   GATEWAY_TYPES,
+  IGNORED_VALUE_COMPONENTS,
   KEY_FIELD_NAME,
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
@@ -298,7 +300,7 @@ class ModelEditorPage extends React.Component {
     this._formReady = true;
   };
 
-  handleFormChange = info => {
+  handleFormChange = (info, form) => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
@@ -314,8 +316,10 @@ class ModelEditorPage extends React.Component {
         this._tempFormData = { ecosType };
       }
 
+      const componentsByKey = flattenComponents(form.components);
+
       for (let key in info.data) {
-        if (isUndefined(info.data[key])) {
+        if (isUndefined(info.data[key]) || IGNORED_VALUE_COMPONENTS.includes(get(componentsByKey, [key, 'type']))) {
           continue;
         }
 

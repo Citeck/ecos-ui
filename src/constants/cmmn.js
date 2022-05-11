@@ -20,8 +20,8 @@ export const KEY_FIELD_NAME = 'name';
 export const KEY_FIELD_OUTCOMES = 'outcomes';
 export const KEY_FIELDS = [KEY_FIELD_NAME];
 
-export const ML_FIELDS = [KEY_FIELD_NAME];
-export const JSON_VALUE_COMPONENTS = ['mlText', 'datamap', 'container', 'mlTextarea'];
+export const JSON_VALUE_COMPONENTS = ['mlText', 'datamap', 'container', 'mlTextarea', 'dataGrid'];
+export const IGNORED_VALUE_COMPONENTS = ['asyncData'];
 
 // eslint-disable-next-line
 export const initialDiagram = `<?xml version="1.0" encoding="UTF-8"?>
