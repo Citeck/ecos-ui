@@ -51,7 +51,6 @@ class EcosModules {
   }
 
   loadModule(path, callback) {
-    console.log('ECOS MODULES');
     const key = path.replace(/\/.+/, '');
 
     const fromCache = this.cache[key];

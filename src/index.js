@@ -96,7 +96,7 @@ const runApp = () => {
             onSuccess: () => {
               i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
                 import('./services/EcosModules')
-                  .then(EcosModules => console.log(EcosModules))
+                  .then(EcosModules => EcosModules)
                   .catch(err => err);
                 ReactDOM.render(
                   <Provider store={store}>
@@ -116,10 +116,8 @@ const runApp = () => {
 };
 
 if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
-  console.log('IF');
   authService.init().then(runApp);
 } else {
-  console.log('ELSE');
   runApp();
 }
 
