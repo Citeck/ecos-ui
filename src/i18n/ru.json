@@ -1528,7 +1528,7 @@
   "process-statistics-widget.journal.reset-filter": "Сбросить фильтр",
 
   "model-viewer.zoom.tip-window": "По ширине",
-  "model-viewer.zoom.tip-reset": "По умолчанию",
+  "model-viewer.zoom.tip-original": "Оригинальный",
   "model-viewer.zoom.tip-in": "Увеличить",
   "model-viewer.zoom.tip-out": "Уменьшить",
   "model-viewer.heatmap.average-value": "Среднее значение"

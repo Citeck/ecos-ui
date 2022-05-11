@@ -131,6 +131,20 @@ class Journal extends React.Component {
       <div className="ecos-process-statistics-journal">
         <Section title={t(Labels.JOURNAL_TITLE)} isLoading={isLoading} opened={!!showJournalDefault}>
           {!isLoading && isEmpty(columns) && <InfoText text={t(Labels.NO_COLS)} />}
+          <div className="ecos-process-statistics-journal__panel">
+            <Pagination page={pagination.page} maxItems={pagination.maxItems} total={totalCount} onChange={this.handleChangePage} />
+            <div className="ecos-process-statistics__delimiter" />
+            {!!filters.length && (
+              <Tooltip off={isMobile} target={target('reset-filter')} text={t(Labels.JOURNAL_RESET_FILTER)} uncontrolled>
+                <IcoBtn
+                  id={target('reset-filter')}
+                  icon={'icon-filter-clean'}
+                  className="ecos-btn_sq_sm ecos-btn_tight"
+                  onClick={this.handleResetFilter}
+                />
+              </Tooltip>
+            )}
+          </div>
           <Grid
             fixedHeader
             data={data}
@@ -143,20 +157,6 @@ class Journal extends React.Component {
             onFilter={this.handleChangeFilter}
             className="ecos-process-statistics-journal__grid"
           />
-          <div className="ecos-process-statistics-journal__footer">
-            <Pagination page={pagination.page} maxItems={pagination.maxItems} total={totalCount} onChange={this.handleChangePage} />
-            <div className="ecos-process-statistics__delimiter" />
-            {!!filters.length && (
-              <Tooltip off={isMobile} target={target('reset-filter')} text={t(Labels.JOURNAL_RESET_FILTER)} uncontrolled>
-                <IcoBtn
-                  id={target('reset-filter')}
-                  icon={'icon-filter-clean'}
-                  className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue"
-                  onClick={this.handleResetFilter}
-                />
-              </Tooltip>
-            )}
-          </div>
         </Section>
       </div>
     );

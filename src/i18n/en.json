@@ -1529,7 +1529,7 @@
   "process-statistics-widget.journal.reset-filter": "Reset filter",
 
   "model-viewer.zoom.tip-window": "Fit to Width",
-  "model-viewer.zoom.tip-reset": "Default",
+  "model-viewer.zoom.tip-original": "Original",
   "model-viewer.zoom.tip-in": "Zoom In",
   "model-viewer.zoom.tip-out": "Zoom Out",
   "model-viewer.heatmap.average-value": "Average"

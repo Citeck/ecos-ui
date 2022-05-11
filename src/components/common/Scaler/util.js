@@ -3,7 +3,7 @@ import { t } from '../../../helpers/export/util';
 
 export const Labels = {
   ZOOM_WINDOW: 'model-viewer.zoom.tip-window',
-  ZOOM_RESET: 'model-viewer.zoom.tip-reset',
+  ZOOM_ORIGINAL: 'model-viewer.zoom.tip-original',
   ZOOM_IN: 'model-viewer.zoom.tip-in',
   ZOOM_OUT: 'model-viewer.zoom.tip-out'
 };
@@ -17,9 +17,9 @@ export const ScaleOptions = {
 export const getButtons = step =>
   [
     {
-      icon: 'icon-backup',
+      icon: 'icon-filter-clean',
       zoom: ScaleOptions.DEFAULT,
-      tip: t(Labels.ZOOM_RESET)
+      tip: t(Labels.ZOOM_ORIGINAL)
     },
     {
       icon: 'icon-resize-full-alt',
