@@ -1226,5 +1226,19 @@ export function objectByString(object) {
   }, '');
 }
 
+export function isJsonObjectString(str) {
+  if (isEmpty(str)) {
+    return false;
+  }
+
+  try {
+    const result = JSON.parse(str);
+
+    return typeof result === 'object';
+  } catch (e) {
+    return false;
+  }
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

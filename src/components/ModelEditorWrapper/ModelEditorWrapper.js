@@ -3,13 +3,17 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
+import uuidv4 from 'uuid/v4';
+import isNil from 'lodash/isNil';
+import isFunction from 'lodash/isFunction';
 
-import { isExistValue, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { Icon, InfoText, ResizeBoxes } from '../common';
 import { Caption } from '../common/form';
-import { Btn } from '../common/btns';
 import TitlePageLoader from '../common/TitlePageLoader';
 import { generateKey, getData, setData } from '../../helpers/ls';
+import Tools from './Tools';
+import { ToolsInterface } from './propsInterfaces';
 
 import './style.scss';
 
@@ -28,11 +32,13 @@ class ModelEditorWrapper extends React.Component {
     rightSidebar: PropTypes.element,
     rightSidebarTitle: PropTypes.string,
     onApply: PropTypes.func,
-    onCreate: PropTypes.func
+    onCreate: PropTypes.func,
+    configButtons: PropTypes.arrayOf(PropTypes.shape(ToolsInterface))
   };
 
   state = {
-    rightSidebarOpen: true
+    rightSidebarOpen: true,
+    configButtons: []
   };
 
   #sidebarRightRef = null;
@@ -52,6 +58,63 @@ class ModelEditorWrapper extends React.Component {
     if (sizes) {
       this.state.sizes = sizes;
     }
+  }
+
+  componentDidMount() {
+    this.createConfigTools();
+  }
+
+  onApply = () => {
+    if (isFunction(this.props.onApply)) {
+      this.props.onApply(false);
+    }
+  };
+
+  onSaveAndDeploy = () => {
+    if (isFunction(this.props.onSaveAndDeploy)) {
+      this.props.onSaveAndDeploy(true);
+    }
+  };
+
+  createConfigTools() {
+    const { onCreate, onViewXml } = this.props;
+
+    this.setState({
+      configButtons: [
+        {
+          icon: 'icon-small-plus',
+          action: onCreate,
+          text: t(Labels.CREATE),
+          id: `bpmn-create-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        },
+        {
+          icon: 'fa fa-save',
+          action: this.onApply,
+          text: t(Labels.APPLY),
+          id: `bpmn-save-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        },
+        {
+          icon: 'icon-document-view',
+          action: onViewXml,
+          text: t(Labels.VIEW_XML),
+          id: `bpmn-view-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: 'ecos-btn_blue'
+        },
+        {
+          icon: 'fa fa-cloud-upload',
+          action: this.onSaveAndDeploy,
+          text: t(Labels.SAVE_DEPLOY),
+          id: `bpmn-download-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: 'ecos-btn_green'
+        }
+      ]
+    });
   }
 
   togglePropertiesOpen = () => {
@@ -75,12 +138,12 @@ class ModelEditorWrapper extends React.Component {
   };
 
   renderEditor = () => {
-    const { editor, title, onApply, onCreate, onViewXml, onSaveAndDeploy } = this.props;
+    const { editor, title } = this.props;
     const { rightSidebarOpen, sizes } = this.state;
 
     return (
       <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: rightSidebarOpen ? get(sizes, 'left') : '' }}>
-        <TitlePageLoader isReady={isExistValue(title)}>
+        <TitlePageLoader isReady={!isNil(title)}>
           <Caption normal className="ecos-model-editor__designer-title">
             {title}
           </Caption>
@@ -90,22 +153,7 @@ class ModelEditorWrapper extends React.Component {
           <div className="ecos-model-editor__designer-work-zone">
             <div className="ecos-model-editor__designer-child">{editor}</div>
             <div className="ecos-model-editor__designer-buttons">
-              {onCreate && <Btn onClick={onCreate}>{t(Labels.CREATE)}</Btn>}
-              {onApply && (
-                <Btn className="ecos-btn_blue" onClick={onApply}>
-                  {t(Labels.APPLY)}
-                </Btn>
-              )}
-              {onViewXml && (
-                <Btn className="ecos-btn_blue" onClick={onViewXml}>
-                  {t(Labels.VIEW_XML)}
-                </Btn>
-              )}
-              {onSaveAndDeploy && (
-                <Btn className="ecos-btn_green" onClick={onSaveAndDeploy}>
-                  {t(Labels.SAVE_DEPLOY)}
-                </Btn>
-              )}
+              {this.state.configButtons && <Tools configButtons={this.state.configButtons} />}
             </div>
           </div>
         )}
