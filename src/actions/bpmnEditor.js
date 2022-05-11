@@ -12,3 +12,4 @@ export const saveModel = createAction(prefix + 'SAVE_MODEL');
 export const getFormProps = createAction(prefix + 'GET_FORM_PROPS');
 export const setFormProps = createAction(prefix + 'SET_FORM_PROPS');
 export const setFormData = createAction(prefix + 'SET_FORM_DATA');
+export const setLoaderFormData = createAction(prefix + 'SET_LOADER_FORM_DATA');

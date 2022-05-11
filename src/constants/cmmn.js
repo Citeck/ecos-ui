@@ -1,5 +1,6 @@
 export const PREFIX_FIELD = 'ecos:';
 export const ML_POSTFIX = '_ml';
+export const LABEL_POSTFIX = '_label';
 
 export const PREFIX_FORM_ELM = '@cmmn-type-';
 
@@ -18,6 +19,9 @@ export const TYPE_PLAN_ITEM = 'cmmn:PlanItem';
 export const KEY_FIELD_NAME = 'name';
 export const KEY_FIELD_OUTCOMES = 'outcomes';
 export const KEY_FIELDS = [KEY_FIELD_NAME];
+
+export const ML_FIELDS = [KEY_FIELD_NAME];
+export const JSON_VALUE_COMPONENTS = ['mlText', 'datamap', 'container', 'mlTextarea'];
 
 // eslint-disable-next-line
 export const initialDiagram = `<?xml version="1.0" encoding="UTF-8"?>
