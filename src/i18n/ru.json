@@ -1512,7 +1512,7 @@
   "process-statistics-widget.settings.btn.save": "Сохранить",
   "process-statistics-widget.settings.field.journal": "Журнал",
   "process-statistics-widget.settings.default-turn-on": "Включены по умолчанию",
-  "process-statistics-widget.settings.read-out": "Отображаемые",
+  "process-statistics-widget.settings.read-out": "Отображаются",
   "process-statistics-widget.settings.field.showHeatmapDefault": "Тепловая карта",
   "process-statistics-widget.settings.field.showModelDefault": "Процесс",
   "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
