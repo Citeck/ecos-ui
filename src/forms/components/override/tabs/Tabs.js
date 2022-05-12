@@ -283,20 +283,23 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
-      console.log(tab.components);
-      // tab.components.forEach(el => {
-      //   if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
-      //     el.label = t(`form-constructor.tabs-content.${el.key}`);
-      //   }
+      tab.components.forEach(el => {
+        if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
+          el.label = t(`form-constructor.tabs-content.${el.key}`);
+        }
 
-      //   if (el.components) {
-      //     el.components.forEach(item => {
-      //       if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
-      //         item.label = t(`form-constructor.tabs-content.${item.key}`);
-      //       }
-      //     });
-      //   }
-      // });
+        if (!t(`form-constructor.tabs-placeholder.${el.key}`).includes(el.key)) {
+          el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
+        }
+
+        if (el.components) {
+          el.components.forEach(item => {
+            if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
+              item.label = t(`form-constructor.tabs-content.${item.key}`);
+            }
+          });
+        }
+      });
       const tabLink = this.ce(
         'a',
         {

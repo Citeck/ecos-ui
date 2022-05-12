@@ -17,7 +17,6 @@ import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
 import { t } from '../../../../helpers/export/util';
-import i18next from '../../../i18next';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -324,11 +323,11 @@ Base.prototype.createTooltip = function(container, component, classes) {
   // console.log('BASE', i18next)
 
   let title;
-  // if (!t(`form-constructor.tabs-tooltip.${component.key}`).includes(component.key)) {
-  //   title = t(`form-constructor.tabs-tooltip.${component.key}`);
-  // } else {
-  title = this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
-  // }
+  if (!t(`form-constructor.tabs-tooltip.${component.key}`).includes(component.key)) {
+    title = t(`form-constructor.tabs-tooltip.${component.key}`);
+  } else {
+    title = this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
+  }
 
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
@@ -686,11 +685,11 @@ Base.prototype.createLabel = function(container) {
 
   if (!this.labelIsHidden()) {
     let title;
-    // if (!t(`form-constructor.tabs-content.${this.key}`).includes(this.key)) {
-    //   title = t(`form-constructor.tabs-content.${this.key}`)
-    // } else {
-    title = this.label;
-    // }
+    if (!t(`form-constructor.tabs-content.${this.key}`).includes(this.key)) {
+      title = t(`form-constructor.tabs-content.${this.key}`);
+    } else {
+      title = this.label;
+    }
     this.labelElement.replaceChild(this.text(title), this.labelElement.childNodes[0]);
     this.createTooltip(this.labelElement);
   }
@@ -743,8 +742,11 @@ Base.prototype.createDescription = function(container) {
     return;
   }
 
-  // this.description.innerHTML = t(`form-constructor.tabs-description.${this.component.key}`);
-  this.description.innerHTML = this.t(getTextByLocale(this.component.description));
+  if (!t(`form-constructor.tabs-description.${this.component.key}`).includes(this.component.key)) {
+    this.description.innerHTML = t(`form-constructor.tabs-description.${this.component.key}`);
+  } else {
+    this.description.innerHTML = this.t(getTextByLocale(this.component.description));
+  }
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829

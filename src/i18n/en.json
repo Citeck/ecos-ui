@@ -1610,6 +1610,8 @@
   "form-constructor.tabs-content.size": "Size",
   "form-constructor.tabs-content.leftIcon": "Left Icon",
   "form-constructor.tabs-content.block": "Block",
+  "form-constructor.tabs-content.name": "Logic Name",
+  "form-constructor.tabs-content.actions": "Actions",
   "form-constructor.tabs-content.disableOnFormInvalid": "Disable on Form Invalid",
   "form-constructor.tabs-content.storage": "Storage",
   "form-constructor.tabs-content.onFileClick": "Behaviour on file item click",
