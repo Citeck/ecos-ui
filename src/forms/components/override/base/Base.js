@@ -319,21 +319,13 @@ Base.prototype.createTooltip = function(container, component, classes) {
 
   container.appendChild(this.text(' '));
   container.appendChild(ttElement);
-  // console.log('T FUNCTION', this.t(`form-constructor.tabs-tooltip.${component.key}`))
-  // console.log('BASE', i18next)
 
-  let title;
-  if (!t(`form-constructor.tabs-tooltip.${component.key}`).includes(component.key)) {
-    title = t(`form-constructor.tabs-tooltip.${component.key}`);
-  } else {
-    title = this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
-  }
+  const title = this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
 
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
     placement: 'top',
     html: true,
-    // title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
     get title() {
       return title;
     }
@@ -684,13 +676,7 @@ Base.prototype.createLabel = function(container) {
   originalCreateLabel.call(this, container);
 
   if (!this.labelIsHidden()) {
-    let title;
-    if (!t(`form-constructor.tabs-content.${this.key}`).includes(this.key)) {
-      title = t(`form-constructor.tabs-content.${this.key}`);
-    } else {
-      title = this.label;
-    }
-    this.labelElement.replaceChild(this.text(title), this.labelElement.childNodes[0]);
+    this.labelElement.replaceChild(this.text(this.label), this.labelElement.childNodes[0]);
     this.createTooltip(this.labelElement);
   }
 };
@@ -742,11 +728,7 @@ Base.prototype.createDescription = function(container) {
     return;
   }
 
-  if (!t(`form-constructor.tabs-description.${this.component.key}`).includes(this.component.key)) {
-    this.description.innerHTML = t(`form-constructor.tabs-description.${this.component.key}`);
-  } else {
-    this.description.innerHTML = this.t(getTextByLocale(this.component.description));
-  }
+  this.description.innerHTML = this.t(getTextByLocale(this.component.description));
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-829

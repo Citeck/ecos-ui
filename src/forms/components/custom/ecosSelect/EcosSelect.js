@@ -6,7 +6,6 @@ import Formio from 'formiojs/Formio';
 
 import { isNodeRef } from '../../../../helpers/util';
 import { createDocumentUrl } from '../../../../helpers/urls';
-import { t } from '../../../../helpers/export/util';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
