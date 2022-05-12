@@ -44,6 +44,7 @@ class FormWrapper extends React.Component {
 
   initForm() {
     if (this._form) {
+      this._form.formReadyReject();
       this._form.destroy();
       this._form = null;
     }

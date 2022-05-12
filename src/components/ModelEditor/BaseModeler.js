@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import isEmpty from 'lodash/isEmpty';
+
+import { DI_POSTFIX, LABEL_POSTFIX } from '../../constants/cmmn';
 
 /**
  * Expansion for Modeler
@@ -118,16 +121,31 @@ export default class BaseModeler {
     }
   };
 
+  idAssigned = (id, businessObject) => {
+    if (isEmpty(businessObject)) {
+      return false;
+    }
+
+    return !!businessObject.$model.ids.assigned(id);
+  };
+
   updateProps = (element, properties) => {
-    const { name, ...data } = properties;
+    const { name, id, ...data } = properties;
+    const modeling = this.modeler.get('modeling');
 
     if (!isNil(name)) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
       labelEditingProvider.update(element, name);
     }
 
+    if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX)) {
+      if (!this.idAssigned(id, element.businessObject)) {
+        data.id = id;
+        element.businessObject && modeling.updateModdleProperties(element, element.businessObject.di, { id: id + DI_POSTFIX });
+      }
+    }
+
     if (data) {
-      const modeling = this.modeler.get('modeling');
       modeling.updateProperties(element, data);
     }
   };
