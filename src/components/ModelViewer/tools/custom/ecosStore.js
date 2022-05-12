@@ -1,10 +1,22 @@
+import head from 'lodash/head';
+import set from 'lodash/set';
+import get from 'lodash/get';
+
 import HeatmapConfig from './HeatmapConfig';
 
+/** @namespace HM_Store */
+
 const Store = (function StoreClosure() {
-  var Store = function Store(config) {
+  /**
+   *
+   * @param config {HM_Config}
+   * @constructor
+   */
+  const Store = function Store(config) {
     this._coordinator = {};
     this._data = [];
     this._radi = [];
+    this._lines = [];
     this._min = 10;
     this._max = 1;
     this._xField = config['xField'] || config.defaultXField;
@@ -16,32 +28,38 @@ const Store = (function StoreClosure() {
     }
   };
 
-  var defaultRadius = HeatmapConfig.defaultRadius;
+  const defaultRadius = HeatmapConfig.defaultRadius;
 
   Store.prototype = {
     // when forceRender = false -> called from setData, omits renderall event
+    /**
+     * @returns {boolean|HM_Point}
+     * @private
+     */
     _organiseData: function(dataPoint, forceRender) {
-      var x = dataPoint[this._xField];
-      var y = dataPoint[this._yField];
-      var radi = this._radi;
-      var store = this._data;
-      var max = this._max;
-      var min = this._min;
-      var value = dataPoint[this._valueField] || 1;
-      var radius = dataPoint.radius || this._cfgRadius || defaultRadius;
+      const isLine = !!head(dataPoint.line);
+      const x = (isLine ? head(dataPoint.line) : dataPoint)[this._xField];
+      const y = (isLine ? head(dataPoint.line) : dataPoint)[this._yField];
+      const radi = this._radi;
+      const store = this._data;
+      const _lines = this._lines;
+      const max = this._max;
+      const min = this._min;
+      const value = dataPoint[this._valueField] || 1;
+      const radius = dataPoint.radius || this._cfgRadius || defaultRadius;
 
-      if (!store[x]) {
-        store[x] = [];
-        radi[x] = [];
-      }
-
-      if (!store[x][y]) {
-        store[x][y] = value;
-        radi[x][y] = radius;
+      if (!get(store, [x, y])) {
+        set(store, [x, y], value);
+        set(radi, [x, y], radius);
       } else {
         store[x][y] += value;
       }
-      var storedVal = store[x][y];
+
+      if (isLine) {
+        set(_lines, [x, y], dataPoint.line);
+      }
+
+      const storedVal = store[x][y];
 
       if (storedVal > max) {
         if (!forceRender) {
@@ -49,35 +67,32 @@ const Store = (function StoreClosure() {
         } else {
           this.setDataMax(storedVal);
         }
+
         return false;
-      } else if (storedVal < min) {
+      }
+
+      if (storedVal < min) {
         if (!forceRender) {
           this._min = storedVal;
         } else {
           this.setDataMin(storedVal);
         }
+
         return false;
-      } else {
-        return {
-          x: x,
-          y: y,
-          value: value,
-          radius: radius,
-          min: min,
-          max: max
-        };
       }
+
+      return { x, y, value, radius, min, max };
     },
     _unOrganizeData: function() {
-      var unorganizedData = [];
-      var data = this._data;
-      var radi = this._radi;
+      const unorganizedData = [];
+      const data = this._data;
+      const radi = this._radi;
 
-      for (var x in data) {
-        for (var y in data[x]) {
+      for (const x in data) {
+        for (const y in data[x]) {
           unorganizedData.push({
-            x: x,
-            y: y,
+            x,
+            y,
             radius: radi[x][y],
             value: data[x][y]
           });
@@ -96,15 +111,15 @@ const Store = (function StoreClosure() {
       });
     },
     addData: function() {
-      if (arguments[0].length > 0) {
-        var dataArr = arguments[0];
-        var dataLen = dataArr.length;
+      if (head(arguments).length > 0) {
+        const dataArr = head(arguments);
+        let dataLen = dataArr.length;
         while (dataLen--) {
           this.addData.call(this, dataArr[dataLen]);
         }
       } else {
         // add to store
-        var organisedEntry = this._organiseData(arguments[0], true);
+        const organisedEntry = this._organiseData(head(arguments), true);
         if (organisedEntry) {
           // if it's the first datapoint initialize the extremas with it
           if (this._data.length === 0) {
@@ -120,14 +135,14 @@ const Store = (function StoreClosure() {
       return this;
     },
     setData: function(data) {
-      var dataPoints = data.data;
-      var pointsLen = dataPoints.length;
+      const dataPoints = data.data;
+      const pointsLen = dataPoints.length;
 
       // reset data arrays
       this._data = [];
       this._radi = [];
 
-      for (var i = 0; i < pointsLen; i++) {
+      for (let i = 0; i < pointsLen; i++) {
         this._organiseData(dataPoints[i], false);
       }
       this._max = data.max;
@@ -155,12 +170,17 @@ const Store = (function StoreClosure() {
     setCoordinator: function(coordinator) {
       this._coordinator = coordinator;
     },
+    /**
+     * @returns {HM_InternalData}
+     * @private
+     */
     _getInternalData: function() {
       return {
         max: this._max,
         min: this._min,
         data: this._data,
-        radi: this._radi
+        radi: this._radi,
+        lines: this._lines
       };
     },
     getData: function() {

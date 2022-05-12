@@ -115,17 +115,13 @@ export default class HeatmapWrapper {
       }
     });
 
-    connections.forEach(con => {
-      const wayPoints = con.waypoints.map(item => ({
-        //todo different props for line drawing + new in Canvas2dRenderer._getPointTemplate
-        x: Math.abs(item.x),
-        y: Math.abs(item.y),
-        value: mapData[con.id] ? mapData[con.id].value : 0,
+    connections.forEach(con =>
+      connectionPoints.push({
+        line: con.waypoints.map(item => ({ x: Math.abs(item.x), y: Math.abs(item.y) })),
+        value: get(mapData, [con.id, 'value']) || 0,
         radius: 20
-      }));
-
-      connectionPoints.push(...wayPoints);
-    });
+      })
+    );
 
     const points = shapePoints.concat(connectionPoints);
 
@@ -144,13 +140,8 @@ export default class HeatmapWrapper {
     };
 
     let maxV = 0;
-    if (points.length) {
-      maxV = points[0].value || 0;
-      for (let point of points) {
-        const value = point.value || 0;
-        maxV = value > maxV ? value : maxV;
-      }
-    }
+    points.forEach(item => (maxV = item.value > maxV ? item.value : maxV));
+
     const heatmapData = { max: maxV, min: 0, data: points };
 
     return { config, heatmapData };

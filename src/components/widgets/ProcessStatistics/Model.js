@@ -71,6 +71,8 @@ class Model extends React.Component {
     };
   }
 
+  isFirstBoot = true;
+
   componentDidMount() {
     this.getModel();
     this.designer = new ModelViewer();
@@ -141,7 +143,10 @@ class Model extends React.Component {
           this.setState({ isHeatmapMounted: true });
           debounce(() => {
             this.handleChangeOpacity(DefSets.OPACITY);
-            this.handleClickZoom(ScaleOptions.FIT);
+            if (this.isFirstBoot) {
+              this.handleClickZoom(ScaleOptions.FIT);
+              this.isFirstBoot = false;
+            }
           }, 100)();
         },
         hasTooltip: false
@@ -273,7 +278,7 @@ class Model extends React.Component {
                 onMounted={this.handleReadySheet}
                 defHeight={DefSets.HEIGHT}
               />
-              {displayHeatmapToolbar && isShowHeatmap && isHeatmapMounted && (
+              {!isLoading && displayHeatmapToolbar && isShowHeatmap && isHeatmapMounted && (
                 <div className="ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer">
                   <Range value={DefSets.OPACITY} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
                   {this.renderCountFlags()}
