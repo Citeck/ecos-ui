@@ -71,8 +71,7 @@ export default {
     },
     'Test field is initially calculated when allow override is checked'(form, done) {
       form.on('change', () => {
-        const value = form.getValue();
-        assert.equal(value.data.totalWithOverride, 20);
+        assert.equal(form.getComponent('totalWithOverride').calculatedValue, 20);
         done();
       });
       form.setValue({
