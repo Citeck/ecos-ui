@@ -1,6 +1,6 @@
 import get from 'lodash/get';
 
-import { _getLineTemplate, _getPointTemplate } from './ecosTemplates';
+import { getLineTemplate, getPointTemplate } from './ecosTemplates';
 
 /** @namespace HM_Renderer */
 
@@ -193,9 +193,9 @@ const Canvas2dRenderer = (function Canvas2dRendererClosure() {
           tpl = this._templates[keyTemp];
         } else {
           if (point.line) {
-            tpl = _getLineTemplate(point.line, radius, 1);
+            tpl = getLineTemplate(point.line, radius, blur);
           } else {
-            tpl = _getPointTemplate(radius, blur);
+            tpl = getPointTemplate(radius, blur);
           }
 
           this._templates[keyTemp] = tpl;
