@@ -11,15 +11,36 @@ import { getButtons, ScaleOptions } from './util';
 import './style.scss';
 
 const Scaler = ({ onClick, step = ScaleOptions.STEP }) => {
+  const [timerId, setTimerId] = useState();
   const [buttons] = useState(getButtons(step));
-  const cn = 'ecos-btn_sq_sm ecos-btn_tight';
+
   const handleZoom = useCallback(val => isFunction(onClick) && onClick(isNumber(val) ? val * step : val), [onClick]);
+
+  const handleDown = useCallback(
+    val => {
+      handleZoom(val);
+      const id = setInterval(handleZoom, 300, val);
+      setTimerId(id);
+    },
+    [timerId]
+  );
+
+  const handleUp = useCallback(() => {
+    clearInterval(timerId);
+    setTimerId();
+  }, [timerId]);
 
   return (
     <div className="ecos-scaler">
       {buttons.map(item => (
         <Tooltip key={item.key} off={isMobileDevice()} target={item.key} text={item.tip} uncontrolled>
-          <IcoBtn id={item.key} icon={item.icon} className={cn} onClick={() => handleZoom(item.zoom)} />
+          <IcoBtn
+            id={item.key}
+            icon={item.icon}
+            className="ecos-btn_sq_sm ecos-btn_tight"
+            onMouseDown={() => handleDown(item.zoom)}
+            onMouseUp={handleUp}
+          />
         </Tooltip>
       ))}
     </div>
