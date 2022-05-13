@@ -300,6 +300,10 @@ class Model extends React.Component {
                 defHeight={DefSets.HEIGHT}
                 onMouseDown={this.handleMouseDown}
                 onMouseUp={this.handleMouseUp}
+                //todo
+                //onWheel={this.handleWheel}
+                //onKeyDown={this.handleMouseDown}
+                //onKeyUp={this.handleMouseUp}
               />
               {!isLoading && displayHeatmapToolbar && (
                 <div

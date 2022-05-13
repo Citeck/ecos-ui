@@ -159,9 +159,8 @@ export default class HeatmapWrapper {
     this.canvas && this.canvas.classList.toggle('d-none', isHidden);
   };
 
-  setOpacity = maxOpacity => {
-    const minOpacity = maxOpacity / 2; //todo
-    this.instance.configure({ maxOpacity, minOpacity });
+  setOpacity = opacity => {
+    this.canvas && (this.canvas.style.opacity = opacity);
   };
 
   drawTooltip = () => {

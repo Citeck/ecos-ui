@@ -181,8 +181,8 @@ const Canvas2dRenderer = (function Canvas2dRendererClosure() {
         // if value is bigger than max
         // use max as value
         const value = Math.min(point.value, max);
-        const rectX = point.line ? x : x - radius;
-        const rectY = point.line ? y : y - radius;
+        const rectX = point.line ? x - radius / 2 : x - radius;
+        const rectY = point.line ? y - radius / 2 : y - radius;
         const shadowCtx = this.shadowCtx;
 
         const keyTemp = point.line ? JSON.stringify(point.line) : radius;

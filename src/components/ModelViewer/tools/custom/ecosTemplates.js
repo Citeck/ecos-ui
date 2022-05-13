@@ -27,12 +27,12 @@ export function getPointTemplate(radius, blurFactor) {
 /**
  *
  * @param {HM_Line} line
- * @param {number} width
+ * @param {number} radius
  * @param {number} blur
  * @returns {HTMLCanvasElement}
  * @private
  */
-export function getLineTemplate(line, width, blur) {
+export function getLineTemplate(line, radius, blur) {
   const tplCanvas = document.createElement('canvas');
   const tplCtx = tplCanvas.getContext('2d');
 
@@ -43,8 +43,8 @@ export function getLineTemplate(line, width, blur) {
   const y0 = Math.min(...Ys);
   const y1 = Math.max(...Ys);
 
-  tplCanvas.width = Math.max(x1 - x0, width);
-  tplCanvas.height = Math.max(y1 - y0, width);
+  tplCanvas.width = Math.max(x1 - x0, radius);
+  tplCanvas.height = Math.max(y1 - y0, radius);
 
   if (blur === 1) {
     const [head, ...linesTo] = line;
@@ -54,25 +54,25 @@ export function getLineTemplate(line, width, blur) {
     Array.isArray(linesTo) && linesTo.forEach(point => tplCtx.lineTo(point.x - head.x, point.y - head.y));
 
     tplCtx.strokeStyle = 'black';
-    tplCtx.lineWidth = width;
+    tplCtx.lineWidth = radius;
     tplCtx.stroke();
   } else {
     const head = line[0];
     for (let i = 1; i < line.length; i++) {
       const prev = line[i - 1];
       const cur = line[i];
-      drawGradientLine(tplCtx, prev.x - head.x, prev.y - head.y, cur.x - head.x, cur.y - head.y, width);
+
+      drawGradientLine(tplCtx, prev.x - head.x, prev.y - head.y, cur.x - head.x, cur.y - head.y, radius);
     }
   }
 
   return tplCanvas;
 }
 
-function drawGradientLine(ctx, x1, y1, x2, y2, width) {
+function drawGradientLine(ctx, x1, y1, x2, y2, radius) {
   const isVertical = x1 === x2;
-  const w = isVertical ? width : x2 - x1;
-  const h = isVertical ? y2 - y1 : width;
-  const gradient = ctx.createLinearGradient(x1, y1, Math.abs(h), Math.abs(w));
+  const width = isVertical ? y2 - y1 : x2 - x1;
+  const gradient = ctx.createLinearGradient(y1, 0, y2, radius);
 
   //todo a few point for long dist
   gradient.addColorStop(0, 'transparent');
@@ -80,5 +80,11 @@ function drawGradientLine(ctx, x1, y1, x2, y2, width) {
   gradient.addColorStop(1, 'transparent');
 
   ctx.fillStyle = gradient;
-  ctx.fillRect(x1, y1, w, h);
+  if (isVertical) {
+    //ctx.translate(x1+x1/2, y1+y1/2);
+    //ctx.rotate(Math.PI / 2);
+    //sssctx.translate(-(x1+x1/2), -(y1+y1/2));
+  } else {
+  }
+  ctx.fillRect(x1, y1, Math.abs(width), radius);
 }
