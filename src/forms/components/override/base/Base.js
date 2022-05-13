@@ -75,21 +75,30 @@ Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
   value: false
 });
 Base.prototype.onChange = function(flags, fromRoot) {
-  const formMode = get(this.options, 'formMode');
-  const isEmptyValue = value => {
-    if (formMode === FORM_MODE_CREATE) {
-      return this.isEmpty(value);
-    }
-    return !isBoolean(value) && this.isEmpty(value);
-  };
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-  if (!this.valueChangedByUser) {
+  if (get(flags, 'modified') || get(flags, 'skipReactWrapperUpdating')) {
     this.valueChangedByUser =
-      (formMode !== FORM_MODE_CREATE && !customIsEqual(this.dataValue, this.calculatedValue)) ||
-      (formMode === FORM_MODE_CREATE && !isEmptyValue(this.dataValue));
+      (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
 
   return originalOnChange.call(this, flags, fromRoot);
+};
+Base.prototype.isEmptyValue = function(value) {
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+
+  if (isCreateMode) {
+    return this.isEmpty(value);
+  }
+
+  return !isBoolean(value) && this.isEmpty(value);
+};
+Base.prototype.customIsEqual = function(val1, val2) {
+  if (typeof val1 === 'number' || typeof val2 === 'number') {
+    return parseFloat(val1) === parseFloat(val2);
+  }
+
+  return isEqual(val1, val2);
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
@@ -112,12 +121,6 @@ Object.defineProperty(Base.prototype, 'className', {
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-208
 const emptyCalculateValue = Symbol('empty calculate value');
-const customIsEqual = (val1, val2) => {
-  if (typeof val1 === 'number' || typeof val2 === 'number') {
-    return parseFloat(val1) === parseFloat(val2);
-  }
-  return isEqual(val1, val2);
-};
 
 const modifiedOriginalCalculateValue = function(data, flags) {
   // If no calculated value or
@@ -142,10 +145,16 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     },
     'value'
   );
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
   if (!this.calculatedValueWasCalculated) {
+    this.valueChangedByUser =
+      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+
     this.calculatedValueWasCalculated = true;
   }
+
+  this.calculatedValue = calculatedValue;
 
   let changed;
 
@@ -154,9 +163,11 @@ const modifiedOriginalCalculateValue = function(data, flags) {
 
   if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
     changed = this.setValue(calculatedValue, flags);
-  }
 
-  this.calculatedValue = this.dataValue;
+    if (changed) {
+      this.calculatedValue = this.dataValue;
+    }
+  }
 
   return changed;
 };
