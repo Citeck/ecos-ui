@@ -18,21 +18,21 @@ describe('TextField Component', () => {
       allowCalculateOverride: true,
       calculateValue: "value = 'calculated value';"
     }).then(component => {
-      component.calculateValue();
       expect(component.valueChangedByUser).toEqual(false);
-      expect(component.calculatedValueWasCalculated).toEqual(true);
+      expect(component.calculatedValueWasCalculated).toEqual(false);
 
-      expect(component.getValue()).toEqual('calculated value');
+      component.calculateValue();
+      expect(component.calculatedValue).toEqual('calculated value');
+      component.onChange({ modified: true });
 
-      component.setValue('user value');
-      component.onChange();
-      expect(component.valueChangedByUser).toEqual(true);
-      expect(component.getValue()).toEqual('user value');
+      Harness.testSetGet(component, 'user value');
+      component.onChange({ modified: true });
 
-      component.setValue();
-      expect(component.getValue()).toEqual('');
+      component.on('componentChange', () => {
+        expect(component.getValue()).toEqual('user value');
 
-      done();
+        done();
+      });
     });
   });
 });
