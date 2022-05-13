@@ -64,7 +64,9 @@ SelectEditData.push(
       {
         type: 'htmlelement',
         tag: 'div',
-        content: `<p>${t('form-constructor.panel.data-custom-js')}</p>`
+        get content() {
+          return `<p>${t('form-constructor.panel.data-custom-js')}</p>`;
+        }
       }
     ],
     conditional: {

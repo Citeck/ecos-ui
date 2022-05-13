@@ -320,14 +320,12 @@ Base.prototype.createTooltip = function(container, component, classes) {
   container.appendChild(this.text(' '));
   container.appendChild(ttElement);
 
-  const title = this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
-
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
     placement: 'top',
     html: true,
     get title() {
-      return title;
+      return this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
     }
   });
 
@@ -713,7 +711,6 @@ Base.prototype.elementInfo = function() {
   const info = originalElementInfo.call(this);
 
   if (this.component.placeholder) {
-    // set(info, 'attr.placeholder', t(`form-constructor.tabs-placeholder.${this.component.key}`));
     set(info, 'attr.placeholder', this.t(this.placeholder));
   }
 
