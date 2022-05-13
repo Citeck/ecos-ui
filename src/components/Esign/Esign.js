@@ -104,14 +104,14 @@ class EsignComponent extends Component {
     window.open(PLUGIN_URL, '_blank');
   };
 
-  handleSignDocument = selectedCertificate => {
+  handleSignDocument = async selectedCertificate => {
     const { onBeforeSigning, recordRefs } = this.props;
 
-    if (isFunction(onBeforeSigning)) {
-      onBeforeSigning(recordRefs, selectedCertificate);
-    }
-
     this.setState({ isLoading: true });
+
+    if (isFunction(onBeforeSigning)) {
+      await onBeforeSigning(recordRefs, selectedCertificate);
+    }
 
     Esign.signDocument(recordRefs, selectedCertificate)
       .then(this.documentSigned)
