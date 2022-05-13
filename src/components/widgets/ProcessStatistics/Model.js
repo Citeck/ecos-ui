@@ -67,7 +67,8 @@ class Model extends React.Component {
       isHeatmapMounted: false,
       isActiveCount: true,
       isCompletedCount: true,
-      legendData: {}
+      legendData: {},
+      isTempHeatmapOff: false
     };
   }
 
@@ -124,6 +125,26 @@ class Model extends React.Component {
       console.warn({ result });
     }
   };
+
+  handleMouseMove = () => {
+    //todo: impl witout hiding HM
+  };
+
+  handleMouseDown = () => {
+    if (this.state.isShowHeatmap) {
+      this.setState({ isTempHeatmapOff: true });
+      this.handleToggleHeatmap();
+    }
+  };
+
+  handleMouseUp = () => {
+    if (this.state.isTempHeatmapOff) {
+      this.setState({ isTempHeatmapOff: false });
+      this.handleToggleHeatmap();
+    }
+  };
+
+  //todo: wheel - zoom
 
   renderBadges = () => {
     this.designer.drawBadges({ data: this.props.heatmapData, keys: ['activeCount', 'completedCount'] });
@@ -277,9 +298,15 @@ class Model extends React.Component {
                 onInit={this.handleInitSheet}
                 onMounted={this.handleReadySheet}
                 defHeight={DefSets.HEIGHT}
+                onMouseDown={this.handleMouseDown}
+                onMouseUp={this.handleMouseUp}
               />
-              {!isLoading && displayHeatmapToolbar && isShowHeatmap && isHeatmapMounted && (
-                <div className="ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer">
+              {!isLoading && displayHeatmapToolbar && (
+                <div
+                  className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
+                    invisible: !(isShowHeatmap && isHeatmapMounted)
+                  })}
+                >
                   <Range value={DefSets.OPACITY} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />

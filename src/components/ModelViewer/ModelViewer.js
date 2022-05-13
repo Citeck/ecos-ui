@@ -7,6 +7,9 @@ import isNumber from 'lodash/isNumber';
 import { ScaleOptions } from '../common/Scaler/util';
 import HeatmapWrapper from './tools/Heatmap.js';
 import Badges from './tools/Badges';
+import BaseModeler from '../ModelEditor/BaseModeler';
+
+const _extendModeler = new BaseModeler();
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
@@ -16,7 +19,7 @@ export default class ModelViewer {
   #container;
   #badges;
 
-  init = async ({ diagram, container, onInit, onMounted }) => {
+  init = async ({ diagram, container, onInit, onMounted, modelEvents }) => {
     isFunction(onInit) && onInit(true);
 
     this.modeler = new NavigatedViewer({
@@ -24,7 +27,7 @@ export default class ModelViewer {
         //minimapModule, //diagram-js-minimap
         {
           //moveCanvas: ['value', ''], //destroy
-          zoomScroll: ['value', ''] //destroy
+          //zoomScroll: ['value', ''] //destroy
         }
       ]
     });
@@ -35,6 +38,7 @@ export default class ModelViewer {
     }
 
     await this.setDiagram(diagram, { onMounted });
+    this.setEvents({}, modelEvents);
   };
 
   get canvas() {
@@ -62,6 +66,8 @@ export default class ModelViewer {
 
     isFunction(onMounted) && onMounted(callbackData);
   };
+
+  setEvents = _extendModeler.setEvents.bind(this);
 
   setHeight = height => {
     if (this.#container) {
@@ -92,9 +98,16 @@ export default class ModelViewer {
     this.redrawHeatmap();
   };
 
-  Sheet = ({ diagram, onMounted, onInit, defHeight }) => {
+  Sheet = ({ diagram, onMounted, onInit, defHeight, modelEvents, ...props }) => {
     const [initialized, setInitialized] = useState(false);
     const containerRef = useRef(null);
+    const events = {};
+
+    for (const key in props) {
+      if (Object.hasOwnProperty.call(props, key) && key.startsWith('on')) {
+        events[key] = props[key];
+      }
+    }
 
     useEffect(() => {
       if (!initialized && get(containerRef, 'current')) {
@@ -103,12 +116,13 @@ export default class ModelViewer {
           diagram,
           container: containerRef.current,
           onInit,
-          onMounted
+          onMounted,
+          modelEvents
         });
       }
     }, [initialized, containerRef]);
 
-    return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={ModelViewer.querySelector} />;
+    return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={ModelViewer.querySelector} {...events} />;
   };
 
   /**

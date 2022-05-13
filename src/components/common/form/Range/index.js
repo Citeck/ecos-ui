@@ -11,7 +11,7 @@ const Range = ({ value, onChange, label, className }) => {
 
   return (
     <div className={classNames('ecos-range', className)}>
-      <input className="ecos-range__input" type="range" min="0" max="1" defaultValue={value} step="0.1" onChange={handleChange} />
+      <input className="ecos-range__input" type="range" min="0.1" max="1" defaultValue={value} step="0.1" onChange={handleChange} />
       {label && <span className="ecos-range__label">{label}</span>}
     </div>
   );

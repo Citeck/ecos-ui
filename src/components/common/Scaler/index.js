@@ -40,6 +40,7 @@ const Scaler = ({ onClick, step = ScaleOptions.STEP }) => {
             className="ecos-btn_sq_sm ecos-btn_tight"
             onMouseDown={() => handleDown(item.zoom)}
             onMouseUp={handleUp}
+            onMouseOut={handleUp}
           />
         </Tooltip>
       ))}

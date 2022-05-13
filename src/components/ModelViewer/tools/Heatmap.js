@@ -77,10 +77,6 @@ export default class HeatmapWrapper {
     }
   }
 
-  get opacity() {
-    return this.canvas.style.opacity;
-  }
-
   getPreparedData({ data, onChange }) {
     this.#mapPoints = {};
     const mapData = {};
@@ -119,7 +115,7 @@ export default class HeatmapWrapper {
       connectionPoints.push({
         line: con.waypoints.map(item => ({ x: Math.abs(item.x), y: Math.abs(item.y) })),
         value: get(mapData, [con.id, 'value']) || 0,
-        radius: 7
+        radius: 12
       })
     );
 
@@ -163,8 +159,9 @@ export default class HeatmapWrapper {
     this.canvas && this.canvas.classList.toggle('d-none', isHidden);
   };
 
-  setOpacity = val => {
-    this.canvas && (this.canvas.style.opacity = val);
+  setOpacity = maxOpacity => {
+    const minOpacity = maxOpacity / 2; //todo
+    this.instance.configure({ maxOpacity, minOpacity });
   };
 
   drawTooltip = () => {
