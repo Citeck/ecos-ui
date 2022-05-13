@@ -7,6 +7,7 @@ import isUndefined from 'lodash/isUndefined';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
@@ -235,6 +236,25 @@ class ModelEditorPage extends React.Component {
     return formFields;
   }
 
+  cacheFormData() {
+    const { selectedElement } = this.state;
+    const data = get(this._formWrapperRef, 'current.form.submission.data');
+
+    if (!selectedElement || !data) {
+      return;
+    }
+
+    const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
+
+    if (selectedElement.id.endsWith(LABEL_POSTFIX)) {
+      set(this._formsCache, [selectedElement.id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
+    } else {
+      set(this._formsCache, [selectedElement.id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
+    }
+
+    this._formsCache[selectedElement.id] = data;
+  }
+
   handleSave = (deploy = false) => {
     if (!this.designer) {
       return;
@@ -253,6 +273,8 @@ class ModelEditorPage extends React.Component {
       this.designer.saveSVG({ callback: ({ error, svg }) => (svg ? resolve(svg) : reject(error)) })
     );
 
+    this.cacheFormData();
+
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
         this.props.saveModel(xml, img, deploy);
@@ -270,26 +292,13 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    if (currentSelected) {
-      const data = get(this._formWrapperRef, 'current.form.submission.data');
-      const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
-
-      if (currentSelected.id.endsWith(LABEL_POSTFIX)) {
-        set(this._formsCache, [currentSelected.id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
-      } else {
-        set(this._formsCache, [currentSelected.id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
-      }
-
-      this._formsCache[currentSelected.id] = data;
-    }
+    this.cacheFormData();
 
     this._formReady = false;
     this.props.getFormProps(this.getFormType(selectedElement.$type || selectedElement.type), selectedElement);
 
-    this.setState({ selectedElement: undefined }, () => {
-      this.setState({ selectedElement, selectedDiagramElement: element });
-      this._labelIsEdited = false;
-    });
+    this.setState({ selectedElement, selectedDiagramElement: element });
+    this._labelIsEdited = false;
   };
 
   _getBusinessObjectByDiagramElement(element) {
@@ -305,6 +314,10 @@ class ModelEditorPage extends React.Component {
     const { selectedElement, selectedDiagramElement } = this.state;
 
     if (this._labelIsEdited || isLoadingProps || !this._formReady) {
+      return;
+    }
+
+    if (form.id !== get(this._formWrapperRef, 'current.form.id')) {
       return;
     }
 
@@ -356,6 +369,8 @@ class ModelEditorPage extends React.Component {
     if (!savedModel) {
       return;
     }
+
+    this.cacheFormData();
 
     this.designer.saveXML({
       callback: ({ xml }) => {
@@ -415,6 +430,18 @@ class ModelEditorPage extends React.Component {
     }
   };
 
+  handleDragStart = (start, end) => {
+    const { selectedElement: currentSelected } = this.state;
+    const selectedElement = this._getBusinessObjectByDiagramElement(start.shape);
+
+    if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
+      return;
+    }
+
+    this.cacheFormData();
+    this.setState({ selectedElement, selectedDiagramElement: start.shape });
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -429,7 +456,8 @@ class ModelEditorPage extends React.Component {
           extraEvents={{
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
-            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete
+            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
+            [EventListeners.DRAG_START]: this.handleDragStart
           }}
         />
       );
@@ -442,7 +470,7 @@ class ModelEditorPage extends React.Component {
     const formData = get(this.props, 'formProps.formData');
     const { selectedElement } = this.state;
 
-    if (!selectedElement || !selectedElement.id) {
+    if (!selectedElement || !selectedElement.id || !this._formReady) {
       return formData;
     }
 
@@ -471,18 +499,20 @@ class ModelEditorPage extends React.Component {
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
               {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
 
-              <FormWrapper
-                id={get(selectedElement, 'id')}
-                ref={this._formWrapperRef}
-                isVisible
-                className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
-                {...formProps}
-                formData={this.formData}
-                formOptions={this.formOptions}
-                onClick={this.handleClickForm}
-                onFormChange={this.handleFormChange}
-                onFormReady={this.handleFormReady}
-              />
+              {selectedElement && (
+                <FormWrapper
+                  id={get(selectedElement, 'id')}
+                  ref={this._formWrapperRef}
+                  isVisible
+                  className={classNames('ecos-model-editor-page', { 'd-none': isEmpty(formProps) })}
+                  {...formProps}
+                  formData={this.formData}
+                  formOptions={this.formOptions}
+                  onClick={this.handleClickForm}
+                  onFormChange={this.handleFormChange}
+                  onFormReady={this.handleFormReady}
+                />
+              )}
             </>
           }
         />
