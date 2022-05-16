@@ -15,54 +15,11 @@ import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, notifyFailure, getRef, ResultTypes } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-
-/**
- * @typedef {Boolean} RecordsActionBoolResult
- * true if action was executed and something changed (update required).
- * false if action is not executed or nothing changed (update not required).
- *
- * @typedef {Object} RecordsActionObjResult
- * @property {String} type
- * @property {Object} config
- *
- * @typedef {RecordsActionBoolResult|RecordsActionObjResult} RecordsActionResult
- *
- * @typedef {Object} RecordActionFeatures
- * @property {Boolean} execForQuery
- * @property {Boolean} execForRecord
- * @property {Boolean} execForRecords
-
- * @typedef {Object} RecordAction
- * @property {String} id
- * @property {String} type
- * @property {String} icon
- * @property {String} name
- * @property {String} pluralName
- * @property {Object} config
- * @property {RecordActionFeatures} features
- *
- * @typedef RecordActionCtxData
- * @property {Object} context
- * @property {Number} recordsMask
- *
- * @typedef {RecordAction & RecordActionCtxData} RecActionWithCtx
- *
- * @typedef {Object} ForRecordsRes
- * @property {Array<RecActionWithCtx>} actions
- * @property {Object<String,number>} records
- *
- * @typedef {Object} RecordsActionsRes
- * @property {Object<String,Array<RecActionWithCtx>>} forRecord
- * @property {ForRecordsRes} forRecords
- * @property {Object<String>} forQuery
- *
- * @typedef {Object} RecordsQuery
- */
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -86,24 +43,29 @@ export const DEFAULT_MODEL = {
 };
 
 class RecordActions {
-  static _checkExecActionFeature(feature, handler, config) {
-    if (config === false) {
+  static _checkExecActionFeature(feature, handler, allowed) {
+    if (allowed === false) {
       return false;
     }
+
     if (handler instanceof ActionsExecutor) {
       let proto = Object.getPrototypeOf(handler);
+
       if (proto[feature] === ActionsExecutor.prototype[feature]) {
-        if (config === true) {
+        if (allowed === true) {
           console.error("Action executor doesn't allow feature " + feature + '. Handler: ', handler);
         }
+
         return false;
       }
+
       return true;
     } else if (handler instanceof RecordActionsResolver) {
       return feature === 'execForRecord';
     } else if (handler instanceof ActionsResolver) {
       return true;
     }
+
     return false;
   }
 
@@ -139,6 +101,7 @@ class RecordActions {
       }
 
       let features = action.features ? { ...action.features } : {};
+
       if (handler instanceof ActionsExecutor) {
         features.execForQuery = RecordActions._checkExecActionFeature('execForQuery', handler, features.execForQuery);
         features.execForRecord = RecordActions._checkExecActionFeature('execForRecord', handler, features.execForRecord);
@@ -193,6 +156,11 @@ class RecordActions {
     return action;
   };
 
+  /**
+   * @param {RecordAction} action
+   * @returns {Object}
+   * @private
+   */
   static _getConfirmData = action => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
@@ -239,7 +207,14 @@ class RecordActions {
     }
   }
 
+  /**
+   * @param {RecordAction} action
+   * @param params
+   * @returns {Promise<Boolean | unknown>}
+   * @private
+   */
   static async _checkConfirmAction(action, params) {
+    /** @see ConfirmAction */
     const confirmData = RecordActions._getConfirmData(action);
 
     if (!confirmData) {
@@ -253,6 +228,14 @@ class RecordActions {
     });
   }
 
+  /**
+   * @param {Array<String>|Array<Record>|undefined} records
+   * @param {RecordAction} action
+   * @param context
+   * @param {String} nameFunction
+   * @returns {Promise<PreProcessActionResult> | PreProcessActionResult}
+   * @private
+   */
   static async _preProcessAction({ records, action, context }, nameFunction) {
     const result = { preProcessed: false, configMerged: false, hasError: false };
 
@@ -300,7 +283,7 @@ class RecordActions {
   /**
    * Fill values by attributes mapping (change properties of action)
    *
-   * @param {Object} action - configuration
+   * @param {RecordAction} action - configuration
    * @param {Object} data - values which set
    * @param {String} targetPath - where attributesMapping is in action
    * @param {String} sourcePath - where to set values by map
@@ -829,6 +812,7 @@ class RecordActions {
     if (!query) {
       return false;
     }
+
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -838,7 +822,9 @@ class RecordActions {
     if (!action.config) {
       action.config = {};
     }
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+
+    /** @type {RecordActionCtxData} */
+    const actionContext = get(action, [ACTION_CONTEXT_KEY, 'context']) || {};
     const execContext = {
       ...actionContext,
       ...context
@@ -850,7 +836,8 @@ class RecordActions {
       return;
     }
 
-    const preResult = RecordActions._preProcessAction({ action, context }, 'execForQuery');
+    /** @type {PreProcessActionResult} */
+    const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
 
     if (preResult.configMerged) {
       action.config = preResult.config;
@@ -858,6 +845,10 @@ class RecordActions {
 
     if (!isEmpty(confirmed)) {
       RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    }
+
+    if (!!get(action, 'execForQueryOptions.execAsForRecords')) {
+      return await this.execForQueryAsForRecords(query, action, context);
     }
 
     const result = handler.execForQuery(query, action, execContext);
@@ -868,6 +859,25 @@ class RecordActions {
     }
 
     return actResult;
+  }
+
+  /**
+   * @param {RecordsQuery} query
+   * @param {RecActionWithCtx} action
+   * @param {Object} context
+   */
+  async execForQueryAsForRecords(query, action, context) {
+    if (query.language !== 'predicate') {
+      //todo
+      notifyFailure('Oops');
+      return false;
+    }
+
+    const { execForRecordsBatchSize, preActionModule, confirm, ...preparedAction } = action;
+    //todo get records
+    //byBatch no?
+    // preActionModule ?
+    await this.execForRecords([], preparedAction, context);
   }
 
   /**
