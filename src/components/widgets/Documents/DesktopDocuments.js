@@ -194,7 +194,7 @@ class DesktopDocuments extends BaseDocuments {
     const { tableFilter, selectedType, statusFilter } = this.state;
     const data = selectedType || dynamicTypes.length === 1 ? documents : dynamicTypes;
     const filter = (data = []) => {
-      if (!data.length) {
+      if (isEmpty(data)) {
         return [];
       }
 
@@ -202,13 +202,15 @@ class DesktopDocuments extends BaseDocuments {
 
       return data.filter(item => {
         const byStatus = statusFilter === statusesKeys.ALL ? true : this.getTypeStatus(item) === statusFilter;
-        const byText = fields
-          .map(field =>
-            get(item, [field.name], '')
-              .toLowerCase()
-              .includes(tableFilter)
-          )
-          .includes(true);
+        const byText = fields.some(field => {
+          const name = get(item, [field.name], '');
+
+          if (typeof name !== 'string') {
+            return false;
+          }
+
+          return name.toLowerCase().includes(tableFilter);
+        });
 
         return byText && byStatus;
       });
