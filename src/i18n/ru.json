@@ -427,6 +427,11 @@
   "ecos.forms.btn.add-another": "Добавить ещё",
   "ecos.forms.test": "Тест",
   "ecos.forms.label": "Название поля",
+  "ecos.forms.Copy": "Копировать",
+  "ecos.forms.Drag and Drop a form component": "Перетащите компонент формы",
+  "ecos.forms.Add Logic": "Добавить логику",
+  "ecos.forms.Right (Right-aligned)": "Справа (выравнивание по правому краю)",
+  "ecos.forms.Paste below": "Вставить ниже",
   "edit_site_details.label": "Изменить сведения о сайте",
   "eform.file.on-click-confirmation": "Действие может привести к закрытию формы. Продолжить?",
   "eform.header.CREATE.title": "Создать",
@@ -2000,5 +2005,6 @@
   "form-constructor.builder.basic": "Основные компоненты",
   "form-constructor.builder.advanced": "Расширенные",
   "form-constructor.builder.layout": "Макет",
-  "form-constructor.builder.data": "Данные"
+  "form-constructor.builder.data": "Данные",
+  "form-constructor.builder.__Copy": "Копировать"
 }
