@@ -7,7 +7,6 @@ import isUndefined from 'lodash/isUndefined';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 

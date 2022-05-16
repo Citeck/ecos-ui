@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import FormIOHTMLComponent from 'formiojs/components/html/HTML';
 
 export default class HtmlComponent extends FormIOHTMLComponent {
