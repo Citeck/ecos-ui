@@ -740,6 +740,7 @@
   "journals.action.hide-menu": "Hide menu",
   "journals.action.hide-menu_sm": "Hide menu",
   "journals.action.only-linked": "Display only linked records",
+  "journals.action.go-to-button-name": "Name of the \"Go to\" button",
   "journals.action.custom-journal": "Custom journal",
   "journals.action.remove-filter-group-msg": "Remove filter group?",
   "journals.action.remove-filter-msg": "Remove filter?",
