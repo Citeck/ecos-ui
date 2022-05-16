@@ -9,7 +9,6 @@ import { getComponent } from 'formiojs/utils/formUtils';
 
 import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
-import { objectByString } from '../helpers/util';
 
 Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
   get: function() {

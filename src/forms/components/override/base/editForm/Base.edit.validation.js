@@ -12,6 +12,25 @@ BaseEditValidation.push({
   tooltip: 'Allow form saving if the field at once disabled, required and empty'
 });
 
+const validateOn = BaseEditValidation.find(item => item.key === 'validateOn');
+
+if (validateOn) {
+  validateOn.data.values = [
+    {
+      get label() {
+        return t('form-constructor.select.change');
+      },
+      value: 'change'
+    },
+    {
+      get label() {
+        return t('form-constructor.select.blur');
+      },
+      value: 'blur'
+    }
+  ];
+}
+
 const customConditional = BaseEditValidation.find(item => item.key === 'custom-validation-js');
 
 if (customConditional) {

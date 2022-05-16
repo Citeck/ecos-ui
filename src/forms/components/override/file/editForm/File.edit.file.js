@@ -47,18 +47,27 @@ export default [
       values: [
         {
           value: FILE_CLICK_ACTION_OPEN_DASHBOARD,
-          label: 'Open document page'
+          get label() {
+            return t('form-constructor.select.openDashboard');
+          }
         },
         {
           value: FILE_CLICK_ACTION_DOWNLOAD,
-          label: 'Download'
+          get label() {
+            return t('form-constructor.select.download');
+          }
         },
         {
           value: FILE_CLICK_ACTION_NOOP,
-          label: 'No action'
+          get label() {
+            return t('form-constructor.select.noop');
+          }
         }
       ]
     }
   },
   ...FileEditFile
 ];
+
+const storage = FileEditFile.find(item => item.key === 'storage');
+console.log('STORAGE', storage);

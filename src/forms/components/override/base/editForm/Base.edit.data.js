@@ -1,5 +1,6 @@
 import set from 'lodash/set';
 import BaseEditData from 'formiojs/components/base/editForm/Base.edit.data';
+import { t } from '../../../../../helpers/export/util';
 
 BaseEditData.push({
   type: 'checkbox',
@@ -11,6 +12,31 @@ BaseEditData.push({
 });
 
 set(BaseEditData.find(item => item.key === 'refreshOn'), 'multiple', true);
+
+const inputFormat = BaseEditData.find(item => item.key === 'inputFormat');
+
+if (inputFormat) {
+  inputFormat.data.values = [
+    {
+      get label() {
+        return t('form-constructor.select.plain');
+      },
+      value: 'plain'
+    },
+    {
+      get label() {
+        return 'HTML';
+      },
+      value: 'html'
+    },
+    {
+      get label() {
+        return t('form-constructor.select.raw');
+      },
+      value: 'raw'
+    }
+  ];
+}
 
 const refreshOn = BaseEditData.find(item => item.key === 'refreshOn');
 

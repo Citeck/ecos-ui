@@ -7,7 +7,10 @@ BaseEditDisplay.push({
   input: true,
   weight: 650,
   key: 'disableInlineEdit',
-  label: `Disable inline editing in view mode`
+  get label() {
+    return t('form-constructor.tabs-content.disableInlineEdit');
+  }
+  // label: `Disable inline editing in view mode`
 });
 
 const labelPosition = BaseEditDisplay.find(item => item.key === 'labelPosition');
@@ -20,11 +23,74 @@ if (labelPosition) {
       },
       value: 'top'
     },
-    { label: 'Left (Left-aligned)', value: 'left-left' },
-    { label: 'Left (Right-aligned)', value: 'left-right' },
-    { label: 'Right (Left-aligned)', value: 'right-left' },
-    { label: 'Right (Right-aligned)', value: 'right-right' },
-    { label: 'Bottom', value: 'bottom' }
+    {
+      get label() {
+        return t('form-constructor.select.left-l-align');
+      },
+      value: 'left-left'
+    },
+    {
+      get label() {
+        return t('form-constructor.select.left-r-align');
+      },
+      value: 'left-right'
+    },
+    {
+      get label() {
+        return t('form-constructor.select.right-l-align');
+      },
+      value: 'right-left'
+    },
+    {
+      get label() {
+        return t('form-constructor.select.right-r-align');
+      },
+      value: 'right-right'
+    },
+    {
+      get label() {
+        return t('form-constructor.select.bottom');
+      },
+      value: 'bottom'
+    }
+  ];
+}
+
+const widgetInput = BaseEditDisplay.find(item => item.key === 'widget.type');
+
+if (widgetInput) {
+  widgetInput.data.values = [
+    {
+      get label() {
+        return t('form-constructor.select.widget.type');
+      },
+      value: 'calendar'
+    }
+  ];
+}
+
+const persistentRadio = BaseEditDisplay.find(item => item.key === 'persistent');
+
+if (persistentRadio) {
+  persistentRadio.values = [
+    {
+      get label() {
+        return t('form-constructor.radio.none');
+      },
+      value: false
+    },
+    {
+      get label() {
+        return t('form-constructor.radio.server');
+      },
+      value: true
+    },
+    {
+      get label() {
+        return t('form-constructor.radio.client');
+      },
+      value: 'client-only'
+    }
   ];
 }
 
@@ -38,6 +104,7 @@ const mutatingFields = {
 const fields = Object.keys(mutatingFields);
 
 export default BaseEditDisplay.map(item => {
+  console.log('ITEM', item);
   if (fields.includes(item.key)) {
     const data = mutatingFields[item.key];
 

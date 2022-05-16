@@ -1,4 +1,5 @@
 import { UpdateTypes } from '../const';
+import { t } from '../../../../../helpers/export/util';
 
 export default [
   {
@@ -10,10 +11,30 @@ export default [
     defaultValue: UpdateTypes.disabled,
     data: {
       values: [
-        { label: 'Any change', value: UpdateTypes.anyChange },
-        { label: 'Event', value: UpdateTypes.event },
-        { label: 'Once', value: UpdateTypes.once },
-        { label: 'Disabled', value: UpdateTypes.disabled }
+        {
+          get label() {
+            return t('form-constructor.select.any-change');
+          },
+          value: UpdateTypes.anyChange
+        },
+        {
+          get label() {
+            return t('form-constructor.select.event');
+          },
+          value: UpdateTypes.event
+        },
+        {
+          get label() {
+            return t('form-constructor.select.once');
+          },
+          value: UpdateTypes.once
+        },
+        {
+          get label() {
+            return t('form-constructor.select.disabled');
+          },
+          value: UpdateTypes.disabled
+        }
       ]
     }
   },

@@ -283,6 +283,7 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
+      console.log(tab.components);
       tab.components.forEach(el => {
         if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
           el.label = t(`form-constructor.tabs-content.${el.key}`);
@@ -294,6 +295,10 @@ export default class TabsComponent extends NestedComponent {
 
         if (!t(`form-constructor.tabs-tooltip.${el.key}`).includes(el.key)) {
           el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
+        }
+
+        if (!t(`form-constructor.tabs-description.${el.key}`).includes(el.key)) {
+          el.description = t(`form-constructor.tabs-description.${el.key}`);
         }
 
         if (el.components) {
