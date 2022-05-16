@@ -3,10 +3,24 @@ import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 
 import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
+import { getCurrentLocale } from '../helpers/export/util';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalSubmit = Webform.prototype.submit;
 const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
+const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
+
+Object.defineProperty(Webform.prototype, 'language', {
+  set: function(lang) {
+    const currentLang = getCurrentLocale();
+
+    if (lang !== currentLang) {
+      lang = currentLang;
+    }
+
+    originalSetLanguage.set.call(this, lang);
+  }
+});
 
 Webform.prototype.setElement = function(element) {
   originalSetElement.call(this, element);
