@@ -178,11 +178,13 @@ const Canvas2dRenderer = (function Canvas2dRendererClosure() {
         const x = point.x;
         const y = point.y;
         const radius = point.radius;
+
         // if value is bigger than max
         // use max as value
         const value = Math.min(point.value, max);
-        const rectX = point.line ? x - radius / 2 : x - radius;
-        const rectY = point.line ? y - radius / 2 : y - radius;
+        const divider = point.line ? 2 : 1;
+        const rectX = x - radius / divider;
+        const rectY = y - radius / divider;
         const shadowCtx = this.shadowCtx;
 
         const keyTemp = point.line ? JSON.stringify(point.line) : radius;
@@ -193,7 +195,8 @@ const Canvas2dRenderer = (function Canvas2dRendererClosure() {
           tpl = this._templates[keyTemp];
         } else {
           if (point.line) {
-            tpl = getLineTemplate(point.line, radius, blur);
+            //todo drawing with correct gradient // 1 -> blur
+            tpl = getLineTemplate(point.line, radius, 1);
           } else {
             tpl = getPointTemplate(radius, blur);
           }

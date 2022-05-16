@@ -48,10 +48,10 @@ export function getLineTemplate(line, radius, blur) {
 
   if (blur === 1) {
     const [head, ...linesTo] = line;
+    const indentation = radius / 2;
 
-    tplCtx.moveTo(0, 0);
-
-    Array.isArray(linesTo) && linesTo.forEach(point => tplCtx.lineTo(point.x - head.x, point.y - head.y));
+    tplCtx.moveTo(indentation, indentation);
+    Array.isArray(linesTo) && linesTo.forEach(point => tplCtx.lineTo(point.x - head.x + indentation, point.y - head.y + indentation));
 
     tplCtx.strokeStyle = 'black';
     tplCtx.lineWidth = radius;
@@ -74,17 +74,15 @@ function drawGradientLine(ctx, x1, y1, x2, y2, radius) {
   const width = isVertical ? y2 - y1 : x2 - x1;
   const gradient = ctx.createLinearGradient(y1, 0, y2, radius);
 
-  //todo a few point for long dist
+  //todo: add a few points for long dist
   gradient.addColorStop(0, 'transparent');
   gradient.addColorStop(0.5, 'black');
   gradient.addColorStop(1, 'transparent');
 
   ctx.fillStyle = gradient;
   if (isVertical) {
-    //ctx.translate(x1+x1/2, y1+y1/2);
-    //ctx.rotate(Math.PI / 2);
-    //sssctx.translate(-(x1+x1/2), -(y1+y1/2));
-  } else {
+    //todo: vertical lines (translate + rotate)
   }
+
   ctx.fillRect(x1, y1, Math.abs(width), radius);
 }

@@ -51,7 +51,7 @@
  * @property {number} x
  * @property {number} y,
  * @property {number} value
- * @property {number} radius,
+ * @property {number|undefined} radius,
  * @property {HM_Line|undefined} line
  * @memberOf HM_Store
  */

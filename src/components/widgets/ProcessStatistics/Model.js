@@ -77,6 +77,12 @@ class Model extends React.Component {
   componentDidMount() {
     this.getModel();
     this.designer = new ModelViewer();
+
+    document.addEventListener('keyup', this.handleKeyUp.bind(this));
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keyup', this.handleKeyUp.bind(this));
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -126,9 +132,7 @@ class Model extends React.Component {
     }
   };
 
-  handleMouseMove = () => {
-    //todo: impl witout hiding HM
-  };
+  //todo: impl without hiding HM
 
   handleMouseDown = () => {
     if (this.state.isShowHeatmap) {
@@ -144,7 +148,17 @@ class Model extends React.Component {
     }
   };
 
-  //todo: wheel - zoom
+  handleWheel = event => {
+    if (event.ctrlKey || event.shiftKey) {
+      this.handleMouseDown();
+    }
+  };
+
+  handleKeyUp = event => {
+    if (event.key === 'Control' || event.key === 'Shift') {
+      this.handleMouseUp();
+    }
+  };
 
   renderBadges = () => {
     this.designer.drawBadges({ data: this.props.heatmapData, keys: ['activeCount', 'completedCount'] });
@@ -300,10 +314,7 @@ class Model extends React.Component {
                 defHeight={DefSets.HEIGHT}
                 onMouseDown={this.handleMouseDown}
                 onMouseUp={this.handleMouseUp}
-                //todo
-                //onWheel={this.handleWheel}
-                //onKeyDown={this.handleMouseDown}
-                //onKeyUp={this.handleMouseUp}
+                onWheel={this.handleWheel}
               />
               {!isLoading && displayHeatmapToolbar && (
                 <div

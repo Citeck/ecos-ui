@@ -115,7 +115,7 @@ export default class HeatmapWrapper {
       connectionPoints.push({
         line: con.waypoints.map(item => ({ x: Math.abs(item.x), y: Math.abs(item.y) })),
         value: get(mapData, [con.id, 'value']) || 0,
-        radius: 12
+        radius: 13
       })
     );
 
