@@ -9,6 +9,28 @@ import { getComponent } from 'formiojs/utils/formUtils';
 import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
 
+delete WebformBuilder.prototype.defaultComponents;
+
+WebformBuilder.prototype.defaultComponents = {
+  basic: {
+    title: t('form-constructor.builder.basic'),
+    weight: 0,
+    default: true
+  },
+  advanced: {
+    title: 'Advanced',
+    weight: 10
+  },
+  layout: {
+    title: 'Layout',
+    weight: 20
+  },
+  data: {
+    title: 'Data',
+    weight: 30
+  }
+};
+
 WebformBuilder.prototype.updateComponent = function(component) {
   // Update the preview.
   if (this.componentPreview) {

@@ -425,8 +425,6 @@
   "ecos.forms.previous": "Previous",
   "ecos.forms.required": "{{field}} is required",
   "ecos.forms.btn.add-another": "Add another",
-  "ecos.forms.test": "Test",
-  "ecos.forms.label": "Label",
   "edit_site_details.label": "Edit Project Details",
   "eform.file.on-click-confirmation": "The form will be closed. Are you sure you want to continue?",
   "eform.header.CREATE.title": "Create",
@@ -1976,5 +1974,9 @@
   "form-constructor.html.htmlelement16": "<p>The following variables are available in all scripts.</p><table class='table table-bordered table-condensed table-striped'><tr><th>form</th><td>The complete form JSON object</td></tr><tr><th>submission</th><td>The complete submission object.</td></tr><tr><th>data</th><td>The complete submission data object.</td></tr><tr><th>row</th><td>Contextual 'row' data, used within DataGrid, EditGrid, and Container components</td></tr><tr><th>component</th><td>The current component JSON</td></tr><tr><th>instance</th><td>The current component instance.</td></tr><tr><th>value</th><td>The current value of the component.</td></tr><tr><th>moment</th><td>The moment.js library for date manipulation.</td></tr><tr><th>_</th><td>An instance of <a href='https://lodash.com/docs/' target='_blank'>Lodash</a>.</td></tr><tr><th>utils</th><td>An instance of the <a href='http://formio.github.io/formio.js/docs/identifiers.html#utils' target='_blank'>FormioUtils</a> object.</td></tr><tr><th>util</th><td>An alias for 'utils'.</td></tr></table><br/>",
   "form-constructor.html.htmlelement17": "<p>Enter custom javascript code.</p><p>You must assign the <strong>show</strong> variable as either <strong>true</strong> or <strong>false</strong>.</p><p><strong>Note: Advanced Conditional logic will override the results of the Simple Conditional logic.</strong></p><h5>Example</h5><pre>show = !!data.showMe;</pre>",
   "form-constructor.html.htmlelement18": "<p>Execute custom logic using <a href='http://jsonlogic.com/' target='_blank'>JSONLogic</a>.</p><p>Full <a href='https://lodash.com/docs' target='_blank'>Lodash</a> support is provided using an '_' before each operation, such as <code>{'_sum': {var: 'data.a'}}</code></p><p><a href='http://formio.github.io/formio.js/app/examples/conditions.html' target='_blank'>Click here for an example</a></p>",
-  "form-constructor.select.top": "Top"
+  "form-constructor.select.top": "Top",
+  "form-constructor.builder.basic": "Basic Components",
+  "form-constructor.builder.advanced": "Advanced",
+  "form-constructor.builder.layout": "Layout",
+  "form-constructor.builder.data": "Data"
 }

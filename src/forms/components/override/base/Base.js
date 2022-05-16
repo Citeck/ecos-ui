@@ -325,9 +325,6 @@ Base.prototype.createTooltip = function(container, component, classes) {
     placement: 'top',
     html: true,
     title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
-    // get title() {
-    //   return this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />');
-    // }
   });
 
   if (this.tooltip) {
