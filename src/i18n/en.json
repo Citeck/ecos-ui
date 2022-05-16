@@ -1830,7 +1830,7 @@
   "form-constructor.tabs-tooltip.validate.min": "The minimum value this field must have before the form can be submitted.",
   "form-constructor.tabs-tooltip.validate.max": "The maximum value this field can have before the form can be submitted.",
   "form-constructor.tabs-tooltip.validate.pattern": "The regular expression pattern test that the field value must pass before the form can be submitted.",
-  "form-constructor.tabs-tooltip.validate.validateOn": "Determines when this component should trigger front-end validation.",
+  "form-constructor.tabs-tooltip.validateOn": "Determines when this component should trigger front-end validation.",
   "form-constructor.tabs-tooltip.validate.validate.customMessage": "Error message displayed if any error occurred.",
   "form-constructor.tabs-tooltip.validate.tags": "Tag the field for use in custom logic.",
   "form-constructor.tabs-tooltip.validate.properties": "This allows you to configure any custom properties for this component.",

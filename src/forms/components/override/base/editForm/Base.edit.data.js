@@ -1,5 +1,5 @@
-import BaseEditData from 'formiojs/components/base/editForm/Base.edit.data';
 import set from 'lodash/set';
+import BaseEditData from 'formiojs/components/base/editForm/Base.edit.data';
 
 BaseEditData.push({
   type: 'checkbox',

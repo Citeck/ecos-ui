@@ -292,6 +292,10 @@ export default class TabsComponent extends NestedComponent {
           el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
         }
 
+        if (!t(`form-constructor.tabs-tooltip.${el.key}`).includes(el.key)) {
+          el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
+        }
+
         if (el.components) {
           el.components.forEach(item => {
             if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
@@ -307,6 +311,7 @@ export default class TabsComponent extends NestedComponent {
           href: `#${tab.key}`,
           [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
+        // tab.label
         t(`form-constructor.tabs.${tab.key}`)
       );
       this.addEventListener(tabLink, 'click', event => {
@@ -322,6 +327,7 @@ export default class TabsComponent extends NestedComponent {
         tabLink
       );
       tabElement.tabLink = tabLink;
+
       this.tabsBar.appendChild(tabElement);
       this.tabLinks.push(tabElement);
       this.tabsBarScrollWrapper.appendChild(this.tabsBar);

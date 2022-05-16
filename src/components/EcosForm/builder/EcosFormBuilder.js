@@ -17,11 +17,13 @@ export default class EcosFormBuilder extends React.Component {
 
   componentDidMount() {
     let self = this;
+
     window.Formio.builder(document.getElementById(this.contentId), this.props.formDefinition).then(editorForm => {
       self.setState({
         editorForm: editorForm
       });
     });
+    console.log('COMPONENT DID MOINT ECOS FORM BUILDER', self);
   }
 
   onCancel() {
