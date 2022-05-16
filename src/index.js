@@ -94,7 +94,6 @@ const runApp = () => {
             isAuthenticated,
             onSuccess: () => {
               i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
-                console.log('I18INIT');
                 import('./services/EcosModules')
                   .then(EcosModules => EcosModules)
                   .catch(err => err);

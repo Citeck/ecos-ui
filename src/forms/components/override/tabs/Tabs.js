@@ -311,7 +311,6 @@ export default class TabsComponent extends NestedComponent {
           href: `#${tab.key}`,
           [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
-        // tab.label
         t(`form-constructor.tabs.${tab.key}`)
       );
       this.addEventListener(tabLink, 'click', event => {
