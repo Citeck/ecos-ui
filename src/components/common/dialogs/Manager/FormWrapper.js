@@ -3,16 +3,14 @@ import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 
 class FormWrapper extends React.Component {
-  #cachedForms = {};
-
   constructor(props) {
     super(props);
 
@@ -28,12 +26,6 @@ class FormWrapper extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { cached, id } = this.props;
-
-    if (cached && prevProps.id && !isEqual(prevProps.id, id) && this._form) {
-      this.#cachedForms[prevProps.id] = cloneDeep(this._form.getValue().data);
-    }
-
     if (!isEqual(prevProps, this.props)) {
       this.initForm();
     }
@@ -46,8 +38,13 @@ class FormWrapper extends React.Component {
     }
   }
 
+  get form() {
+    return this._form;
+  }
+
   initForm() {
     if (this._form) {
+      this._form.formReadyReject();
       this._form.destroy();
       this._form = null;
     }
@@ -92,14 +89,13 @@ class FormWrapper extends React.Component {
         };
       }
 
-      if (this.props.cached) {
-        data = {
-          ...(data || {}),
-          ...get(this.#cachedForms, this.props.id, {})
-        };
+      if (!isEmpty(data)) {
+        form.setValue({ data });
       }
 
-      form.setValue({ data });
+      form.formReady.then(() => {
+        isFunction(this.props.onFormReady) && this.props.onFormReady(this._form);
+      });
 
       this._form = form;
     });
@@ -128,12 +124,6 @@ class FormWrapper extends React.Component {
     );
   };
 
-  clearFromCache = id => {
-    if (id) {
-      delete this.#cachedForms[id];
-    }
-  };
-
   setEvents(form, extra = {}) {
     form.on('submit', submission => {
       let res = extra.onSubmit(submission);
@@ -152,13 +142,13 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
-        this.props.onFormChange(...args);
+        this.props.onFormChange(...args, form);
       });
     }
   }
 
   render() {
-    return <div className={classNames('formio-form', this.props.className)} id={this.state.containerId} />;
+    return <div id={this.state.containerId} className={classNames('formio-form', this.props.className)} onClick={this.props.onClick} />;
   }
 }
 
@@ -166,14 +156,15 @@ FormWrapper.propTypes = {
   id: PropTypes.string,
   className: PropTypes.string,
   isVisible: PropTypes.bool,
-  cached: PropTypes.bool,
   formDefinition: PropTypes.object,
   formOptions: PropTypes.object,
   formI18n: PropTypes.object,
   formData: PropTypes.object,
+  onClick: PropTypes.func,
   onSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
-  onFormChange: PropTypes.func
+  onFormChange: PropTypes.func,
+  onFormReady: PropTypes.func
 };
 
 export default FormWrapper;

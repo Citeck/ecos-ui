@@ -6,6 +6,7 @@ import {
   saveModel,
   setFormData,
   setFormProps,
+  setLoaderFormData,
   setLoading,
   setModel,
   setTitle
@@ -16,7 +17,8 @@ const initialState = {
   title: undefined,
   model: undefined,
   formProps: {},
-  isLoading: false
+  isLoading: false,
+  isLoadingProps: false
 };
 
 Object.freeze(initialState);
@@ -29,8 +31,9 @@ export default handleActions(
     [setLoading]: (state, { payload: { stateId, isLoading } }) => updateState(state, stateId, { isLoading }),
     [setTitle]: (state, { payload: { stateId, title } }) => updateState(state, stateId, { title }),
     [setModel]: (state, { payload: { stateId, model } }) => updateState(state, stateId, { model, isLoading: false }),
-    [getFormProps]: (state, { payload: { stateId } }) => updateState(state, stateId, { formProps: {} }),
-    [setFormProps]: (state, { payload: { stateId, formProps } }) => updateState(state, stateId, { formProps }),
+    [getFormProps]: (state, { payload: { stateId } }) => updateState(state, stateId, { formProps: {}, isLoadingProps: true }),
+    [setLoaderFormData]: (state, { payload: { stateId, isLoadingProps } }) => updateState(state, stateId, { isLoadingProps }),
+    [setFormProps]: (state, { payload: { stateId, formProps } }) => updateState(state, stateId, { formProps, isLoadingProps: false }),
     [setFormData]: (state, { payload: { stateId, formData } }) =>
       updateState(state, stateId, {
         formProps: {

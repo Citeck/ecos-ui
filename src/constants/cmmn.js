@@ -1,5 +1,7 @@
 export const PREFIX_FIELD = 'ecos:';
 export const ML_POSTFIX = '_ml';
+export const LABEL_POSTFIX = '_label';
+export const DI_POSTFIX = '_di';
 
 export const PREFIX_FORM_ELM = '@cmmn-type-';
 
@@ -16,8 +18,12 @@ export const TYPE_EXIT_CRITERION = 'cmmn:ExitCriterion';
 export const TYPE_PLAN_ITEM = 'cmmn:PlanItem';
 
 export const KEY_FIELD_NAME = 'name';
+export const KEY_FIELD_ID = 'id';
 export const KEY_FIELD_OUTCOMES = 'outcomes';
-export const KEY_FIELDS = [KEY_FIELD_NAME];
+export const KEY_FIELDS = [KEY_FIELD_NAME, KEY_FIELD_ID];
+
+export const JSON_VALUE_COMPONENTS = ['mlText', 'datamap', 'container', 'mlTextarea', 'dataGrid'];
+export const IGNORED_VALUE_COMPONENTS = ['asyncData'];
 
 // eslint-disable-next-line
 export const initialDiagram = `<?xml version="1.0" encoding="UTF-8"?>
@@ -56,7 +62,8 @@ id="Definitions_0uso40t" targetNamespace="http://bpmn.io/schema/cmmn" exporter="
 export const EventListeners = {
   CREATE_END: 'create.end',
   ELEMENT_UPDATE_ID: 'element.updateId',
-  CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted'
+  CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
+  DRAG_START: 'drag.start'
 };
 
 export const GATEWAY_TYPES = [
