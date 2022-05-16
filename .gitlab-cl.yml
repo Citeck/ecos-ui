@@ -24,5 +24,5 @@ mirror:
     - git fetch --unshallow origin
     - git push -f --progress mirror HEAD:master
     - git checkout develop
-    - git push -f --progress mirror HEAD:develop
+    - git push -f --progress mirror HEAD:develop 
 
