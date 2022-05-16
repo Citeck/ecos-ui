@@ -1,3 +1,5 @@
+import { t } from '../../../../../helpers/export/util';
+
 const DATA_PROP = 'source.ajax.data';
 const RES_MAPPING_PROP = 'source.ajax.mapping';
 
@@ -58,7 +60,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
@@ -83,7 +87,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   }

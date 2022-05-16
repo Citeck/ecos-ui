@@ -135,7 +135,9 @@ export default [
   },
   {
     type: 'panel',
-    title: 'Execution condition',
+    get title() {
+      return t('form-constructor.title.executionCondition-js');
+    },
     collapsible: true,
     collapsed: false,
     style: {
@@ -154,7 +156,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
