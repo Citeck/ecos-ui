@@ -66,7 +66,6 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentDidMount() {
-    console.log('ECOS FORM MODAL');
     const { record } = this.props;
 
     this.checkEditRights();
