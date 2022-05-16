@@ -223,9 +223,6 @@ class EcosForm extends React.Component {
         };
 
         options.theme = EcosFormUtils.getThemeName();
-
-        console.warn({ language });
-
         options.language = language;
         options.i18n = i18n;
         options.events = new CustomEventEmitter({
