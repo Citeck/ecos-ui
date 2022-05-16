@@ -145,6 +145,7 @@ export default class ModelViewer {
 
   drawBadges = ({ data = [], keys = [] }) => {
     const mapData = {};
+
     data && data.forEach(item => (mapData[item.id] = item));
 
     if (!this.#badges) {

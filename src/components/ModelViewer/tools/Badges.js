@@ -37,8 +37,13 @@ const Badges = ({ data = {}, keys = [], getElm }) => {
     <>
       {data.map(item => {
         const elm = getElm(item.id);
+
+        if (elm.hidden) {
+          return null;
+        }
+
         const style = getCoords(elm);
-        //console.log(elm);
+
         return (
           <div key={item.id} className="model-badges__item-wrap" style={style}>
             {keys.map(k => (
