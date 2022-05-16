@@ -4,10 +4,12 @@ import WebformBuilder from 'formiojs/WebformBuilder';
 import Components from 'formiojs/components/Components';
 import EventEmitter from 'formiojs/EventEmitter';
 import BuilderUtils from 'formiojs/utils/builder';
+import Tooltip from 'tooltip.js';
 import { getComponent } from 'formiojs/utils/formUtils';
 
 import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
+import { objectByString } from '../helpers/util';
 
 delete WebformBuilder.prototype.defaultComponents;
 
@@ -30,6 +32,127 @@ WebformBuilder.prototype.defaultComponents = {
     weight: 30
   }
 };
+
+// Object.defineProperty(WebformBuilder.prototype, 'options.hoocks.addComponent')
+
+console.log('WEB FORM BUILDER', WebformBuilder);
+
+Object.defineProperty(WebformBuilder.prototype, 'options.hooks.addComponent', {
+  set: function(container, comp, parent) {
+    if (!comp || !comp.component) {
+      return container;
+    }
+
+    if (!comp.noEdit && !comp.component.internal) {
+      // Make sure the component position is relative so the buttons align properly.
+      comp.getElement().style.position = 'relative';
+
+      const removeButton = this.ce(
+        'div',
+        {
+          class: 'btn btn-xxs btn-danger component-settings-button component-settings-button-remove'
+        },
+        this.getIcon('remove')
+      );
+      this.addEventListener(removeButton, 'click', () => this.deleteComponent(comp));
+      new Tooltip(removeButton, {
+        trigger: 'hover',
+        placement: 'top',
+        title: this.t('Remove')
+      });
+
+      const editButton = this.ce(
+        'div',
+        {
+          class: 'btn btn-xxs btn-default component-settings-button component-settings-button-edit'
+        },
+        this.getIcon('cog')
+      );
+      this.addEventListener(editButton, 'click', () => this.editComponent(comp));
+      new Tooltip(editButton, {
+        trigger: 'hover',
+        placement: 'top',
+        title: this.t('Редактировать')
+      });
+
+      const copyButton = this.ce(
+        'div',
+        {
+          class: 'btn btn-xxs btn-default component-settings-button component-settings-button-copy'
+        },
+        this.getIcon('copy')
+      );
+      this.addEventListener(copyButton, 'click', () => this.copyComponent(comp));
+      new Tooltip(copyButton, {
+        trigger: 'hover',
+        placement: 'top',
+        title: this.t('Copy')
+      });
+
+      const pasteButton = this.ce(
+        'div',
+        {
+          class: 'btn btn-xxs btn-default component-settings-button component-settings-button-paste'
+        },
+        this.getIcon('save')
+      );
+      const pasteTooltip = new Tooltip(pasteButton, {
+        trigger: 'hover',
+        placement: 'top',
+        title: this.t('Paste below')
+      });
+      this.addEventListener(pasteButton, 'click', () => {
+        pasteTooltip.hide();
+        this.pasteComponent(comp);
+      });
+
+      const editJsonButton = this.ce(
+        'div',
+        {
+          class: 'btn btn-xxs btn-default component-settings-button component-settings-button-edit-json'
+        },
+        this.getIcon('wrench')
+      );
+      this.addEventListener(editJsonButton, 'click', () => this.editComponent(comp, true));
+      new Tooltip(editJsonButton, {
+        trigger: 'hover',
+        placement: 'top',
+        title: this.t('Edit JSON')
+      });
+
+      // Set in paste mode if we have an item in our clipboard.
+      if (window.sessionStorage) {
+        const data = window.sessionStorage.getItem('formio.clipboard');
+        if (data) {
+          this.addClass(this.element, 'builder-paste-mode');
+        }
+      }
+
+      // Add the edit buttons to the component.
+      comp.prepend(
+        this.ce(
+          'div',
+          {
+            class: 'component-btn-group'
+          },
+          [
+            this.options.enableButtons.remove ? removeButton : null,
+            this.options.enableButtons.copy ? copyButton : null,
+            this.options.enableButtons.paste ? pasteButton : null,
+            this.options.enableButtons.editJson ? editJsonButton : null,
+            this.options.enableButtons.edit ? editButton : null
+          ]
+        )
+      );
+    }
+
+    if (!container.noDrop) {
+      this.addDragContainer(container, parent);
+    }
+
+    return container;
+  }
+});
 
 WebformBuilder.prototype.updateComponent = function(component) {
   // Update the preview.
