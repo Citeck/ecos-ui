@@ -836,22 +836,26 @@ class RecordActions {
       return;
     }
 
-    /** @type {PreProcessActionResult} */
-    const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
+    let result;
 
-    if (preResult.configMerged) {
-      action.config = preResult.config;
+    //todo 1
+    if (1 || !!get(action, 'execForQueryOptions.execAsForRecords')) {
+      result = await this.execForQueryAsForRecords(query, action, context);
+    } else {
+      /** @type {PreProcessActionResult} */
+      const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
+
+      if (preResult.configMerged) {
+        action.config = preResult.config;
+      }
+
+      if (!isEmpty(confirmed)) {
+        RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+      }
+
+      result = handler.execForQuery(query, action, execContext);
     }
 
-    if (!isEmpty(confirmed)) {
-      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
-    }
-
-    if (!!get(action, 'execForQueryOptions.execAsForRecords')) {
-      return await this.execForQueryAsForRecords(query, action, context);
-    }
-
-    const result = handler.execForQuery(query, action, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     if (!isBoolean(actResult)) {
@@ -867,17 +871,21 @@ class RecordActions {
    * @param {Object} context
    */
   async execForQueryAsForRecords(query, action, context) {
+    console.log({ query });
     if (query.language !== 'predicate') {
       //todo
       notifyFailure('Oops');
       return false;
     }
 
-    const { execForRecordsBatchSize, preActionModule, confirm, ...preparedAction } = action;
-    //todo get records
-    //byBatch no?
-    // preActionModule ?
-    await this.execForRecords([], preparedAction, context);
+    const { page, ...preparedQuery } = query;
+    const { confirm, ...preparedAction } = action;
+
+    const res = await Records.query(preparedQuery);
+    console.log(res);
+
+    return false;
+    //await this.execForRecords([], preparedAction, context);
   }
 
   /**
