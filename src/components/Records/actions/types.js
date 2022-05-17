@@ -83,3 +83,22 @@
  * @property {?Object} preProcessedRecords
  * @property {?Object} results
  */
+
+/**
+ * @typedef {Object} ActionResultInfo
+ * @property {String} type
+ *    @see ResultTypes
+ * @property {{message?: String, url?: String, results?: Array}} data
+ */
+
+/**
+ * @typedef {Object} ActionResultOptions
+ * @property {Function} callback
+ * @property {String} title
+ * @property {Boolean} withConfirm
+ */
+
+/**
+ * @typedef {Object} IterableRecordsConfig
+ * @property {?{skipCount: number}} pagination
+ */

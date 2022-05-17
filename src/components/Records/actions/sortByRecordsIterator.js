@@ -1,16 +1,24 @@
+/**
+ * @class
+ */
 class SortByRecordsIterator {
-  //todo
+  #skipCount = 1;
+  #page = 1;
 
-  exec = () => {};
+  /**
+   * @param {IterableRecordsConfig} config
+   */
+  constructor(config = {}) {
+    const { skipCount } = config.pagination || IterableRecordsConfig.pagination;
+    this.#skipCount = skipCount;
+  }
 }
 
-let Citeck = window.Citeck;
+export default SortByRecordsIterator;
 
-if (!Citeck) {
-  Citeck = {};
-  window.Citeck = Citeck;
-}
-
-Citeck.SortByRecordsIterator = Citeck.SortByRecordsIterator || new SortByRecordsIterator();
-
-export default Citeck.SortByRecordsIterator;
+/** @type IterableRecordsConfig */
+export const IterableRecordsConfig = {
+  pagination: {
+    skipCount: 50
+  }
+};
