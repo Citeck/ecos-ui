@@ -19,7 +19,9 @@ export default [
     inline: true,
     clearOnHide: false,
     input: true,
-    label: 'Method:',
+    get label() {
+      return t('form-constructor.tabs.content.source.ajax.method');
+    },
     key: 'source.ajax.method',
     values: [
       {
@@ -38,7 +40,9 @@ export default [
   },
   {
     type: 'panel',
-    title: 'Query Data',
+    get title() {
+      return t('form-constructor.tabs.content.source.ajax.data-js');
+    },
     collapsible: true,
     collapsed: false,
     style: {
@@ -68,7 +72,9 @@ export default [
   },
   {
     type: 'panel',
-    title: 'Query Result Mapping',
+    get title() {
+      return t('form-constructor.tabs.content.source.ajax.mapping-js');
+    },
     collapsible: true,
     collapsed: true,
     style: {

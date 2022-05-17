@@ -38,6 +38,130 @@ if (inputFormat) {
   ];
 }
 
+const customDefaultValuePanel = BaseEditData.find(item => item.key === 'customDefaultValuePanel');
+
+if (customDefaultValuePanel) {
+  customDefaultValuePanel.components = [
+    {
+      type: 'htmlelement',
+      tag: 'div',
+      get content() {
+        return t('form-constructor.html.htmlelement1');
+      }
+    },
+    {
+      type: 'panel',
+      key: 'customDefaultValue-js',
+      label: 'JavaScript',
+      collapsible: true,
+      collapsed: false,
+      components: [
+        {
+          type: 'textarea',
+          key: 'customDefaultValue',
+          rows: 5,
+          editor: 'ace',
+          hideLabel: true,
+          input: true
+        },
+        {
+          type: 'htmlelement',
+          tag: 'div',
+          get content() {
+            return t('form-constructor.html.htmlelement2');
+          }
+        }
+      ]
+    },
+    {
+      type: 'panel',
+      key: 'customDefaultValue-json',
+      label: 'JSONLogic',
+      collapsible: true,
+      collapsed: true,
+      components: [
+        {
+          type: 'htmlelement',
+          tag: 'div',
+          get content() {
+            return t('form-constructor.html.htmlelement3');
+          }
+        },
+        {
+          type: 'textarea',
+          key: 'customDefaultValue',
+          rows: 5,
+          editor: 'ace',
+          hideLabel: true,
+          input: true
+        }
+      ]
+    }
+  ];
+}
+
+const calculatedValuePanel = BaseEditData.find(item => item.key === 'calculateValuePanel');
+
+if (calculatedValuePanel) {
+  calculatedValuePanel.components = [
+    {
+      type: 'htmlelement',
+      tag: 'div',
+      get content() {
+        return t('form-constructor.html.htmlelement1');
+      }
+    },
+    {
+      type: 'panel',
+      key: 'customDefaultValue-js',
+      label: 'JavaScript',
+      collapsible: true,
+      collapsed: false,
+      components: [
+        {
+          type: 'textarea',
+          key: 'calculateValue',
+          rows: 5,
+          editor: 'ace',
+          hideLabel: true,
+          input: true
+        },
+        {
+          type: 'htmlelement',
+          tag: 'div',
+          get content() {
+            return t('form-constructor.html.htmlelement8');
+          }
+        }
+      ]
+    },
+    {
+      type: 'panel',
+      key: 'calculateValue-json',
+      label: 'JSONLogic',
+      collapsible: true,
+      collapsed: true,
+      components: [
+        {
+          type: 'htmlelement',
+          tag: 'div',
+          get content() {
+            return t('form-constructor.html.htmlelement9');
+          }
+        },
+        {
+          type: 'textarea',
+          key: 'calculateValue',
+          rows: 5,
+          editor: 'ace',
+          hideLabel: true,
+          input: true
+        }
+      ]
+    }
+  ];
+}
+
 const refreshOn = BaseEditData.find(item => item.key === 'refreshOn');
 
 if (refreshOn) {

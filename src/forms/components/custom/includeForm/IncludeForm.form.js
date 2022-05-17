@@ -1,3 +1,5 @@
+import { t } from '../../../../helpers/export/util';
+
 export default function() {
   return {
     components: [
@@ -8,8 +10,9 @@ export default function() {
         },
         key: 'html',
         className: 'alert alert-info',
-        content:
-          "This component allows embed another form. The component doesn't include anything common settings. If there's a value, the component will be replased form fully.",
+        get content() {
+          return t('form-constructor.attention.include-form');
+        },
         refreshOnChange: false,
         refreshOn: [],
         type: 'htmlelement',
@@ -18,7 +21,8 @@ export default function() {
       {
         weight: 10,
         label: {
-          ru: 'Select Form'
+          ru: 'Выберите форму',
+          en: 'Select Form'
         },
         key: 'formRef',
         journalId: 'ecos-forms',

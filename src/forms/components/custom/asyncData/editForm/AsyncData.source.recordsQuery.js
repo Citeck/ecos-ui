@@ -1,9 +1,13 @@
+import { t } from '../../../../../helpers/export/util';
+
 const QUERY_PROP = 'source.recordsQuery.query';
 
 export default [
   {
     type: 'panel',
-    title: 'Query',
+    get title() {
+      return t('form-constructor.tabs-content.source.recordsQuery.query-js');
+    },
     collapsible: true,
     collapsed: false,
     style: {
@@ -25,27 +29,37 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
   {
     weight: 200,
     type: 'datamap',
-    label: 'Attributes',
-    tooltip: 'Attributes to load',
+    get label() {
+      return t('form-constructor.tabs.content.source.recordsQuery.attributes');
+    },
+    get tooltip() {
+      return t('form-constructor.tabs-tooltip.source.recordsQuery.attributes');
+    },
     key: 'source.recordsQuery.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      label: 'Attribute',
+      get label() {
+        return t('form-constructor.tabs-content.source.record.attribute');
+      },
       defaultValue: '',
       input: true
     }
   },
   {
-    label: 'Single record',
+    get label() {
+      return t('form-constructor.tabs-content.source.recordsQuery.isSingle');
+    },
     labelPosition: 'left-left',
     shortcut: '',
     tableView: true,

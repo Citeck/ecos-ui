@@ -80,4 +80,26 @@ if (customConditional) {
   ];
 }
 
+const jsonLogic = BaseEditValidation.find(item => item.key === 'json-validation-json');
+
+if (jsonLogic) {
+  jsonLogic.components = [
+    {
+      type: 'htmlelement',
+      tag: 'div',
+      get content() {
+        return t('form-constructor.html.htmlelement10');
+      }
+    },
+    {
+      type: 'textarea',
+      key: 'validate.json',
+      rows: 5,
+      editor: 'ace',
+      hideLabel: true,
+      input: true
+    }
+  ];
+}
+
 export default BaseEditValidation;

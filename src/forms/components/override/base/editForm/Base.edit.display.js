@@ -10,7 +10,6 @@ BaseEditDisplay.push({
   get label() {
     return t('form-constructor.tabs-content.disableInlineEdit');
   }
-  // label: `Disable inline editing in view mode`
 });
 
 const labelPosition = BaseEditDisplay.find(item => item.key === 'labelPosition');
@@ -104,7 +103,6 @@ const mutatingFields = {
 const fields = Object.keys(mutatingFields);
 
 export default BaseEditDisplay.map(item => {
-  console.log('ITEM', item);
   if (fields.includes(item.key)) {
     const data = mutatingFields[item.key];
 

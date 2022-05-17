@@ -1,5 +1,4 @@
 import SelectEditData from 'formiojs/components/select/editForm/Select.edit.data';
-import EditFormUtils from 'formiojs/components/base/editForm/utils';
 import { t } from '../../../../../helpers/export/util';
 
 SelectEditData.push(
@@ -12,7 +11,13 @@ SelectEditData.push(
     key: 'dataPreProcessingCode-panel',
     weight: 10,
     components: [
-      EditFormUtils.logicVariablesTable(`<tr><th>queryResult</th><td>${t('form-constructor.table.queryResult')}</td></tr>`),
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        get content() {
+          return t('form-constructor.html.htmlelement1', { additional: t('form-constructor.html.queryResult') });
+        }
+      },
       {
         type: 'textarea',
         key: 'dataPreProcessingCode',
