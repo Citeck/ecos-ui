@@ -38,7 +38,7 @@ export default [
   },
   {
     type: 'panel',
-    get ttile() {
+    get title() {
       return t('form-constructor.tabs-content.source.custom.asyncData-js');
     },
     collapsible: true,

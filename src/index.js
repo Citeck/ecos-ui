@@ -36,7 +36,7 @@ import './styles/index.scss';
 import './build-info';
 import './services/esign';
 import preval from 'preval.macro';
-
+import './services/EcosModules';
 import { Base64 } from 'js-base64';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
 
@@ -94,9 +94,6 @@ const runApp = () => {
             isAuthenticated,
             onSuccess: () => {
               i18nInit({ debug: process.env.NODE_ENV === 'development' }).then(() => {
-                import('./services/EcosModules')
-                  .then(EcosModules => EcosModules)
-                  .catch(err => err);
                 ReactDOM.render(
                   <Provider store={store}>
                     <ConnectedRouter history={history}>
