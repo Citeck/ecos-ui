@@ -6,6 +6,7 @@ import BaseEditLogic from './editForm/Base.edit.logic';
 import BaseEditValidation from './editForm/Base.edit.validation';
 import BaseEditCondition from './editForm/Base.edit.conditional';
 import BaseEditApi from './editForm/Base.edit.api';
+import BaseEditLayout from './editForm/Base.edit.layout';
 
 export default function(...extend) {
   return baseEditForm(
@@ -33,6 +34,10 @@ export default function(...extend) {
       {
         key: 'condition',
         components: BaseEditCondition
+      },
+      {
+        key: 'layout',
+        components: BaseEditLayout
       }
     ],
     ...extend

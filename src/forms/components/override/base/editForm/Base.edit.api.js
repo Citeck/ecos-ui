@@ -1,5 +1,18 @@
 import set from 'lodash/set';
 import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
+import { t } from '../../../../../helpers/export/util';
+
+const propertiesComponent = BaseEditApi.find(item => item.key === 'properties');
+
+if (propertiesComponent) {
+  propertiesComponent['valueComponent'] = {
+    ...propertiesComponent['valueComponent'],
+    label: {
+      ru: 'Значение',
+      en: 'Value'
+    }
+  };
+}
 
 const keyComponent = BaseEditApi.find(item => item.key === 'key');
 

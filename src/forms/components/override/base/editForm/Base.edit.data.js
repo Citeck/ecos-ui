@@ -18,8 +18,12 @@ const inputFormat = BaseEditData.find(item => item.key === 'inputFormat');
 if (inputFormat) {
   inputFormat.data.values = [
     {
-      get label() {
-        return t('form-constructor.select.plain');
+      // get label() {
+      //   return t('form-constructor.select.plain');
+      // },
+      label: {
+        ru: 'Обычный',
+        en: 'Plain'
       },
       value: 'plain'
     },

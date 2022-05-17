@@ -16,13 +16,17 @@
   "btn.create.label": "Создать",
   "btn.apply.label": "Применить",
   "btn.save.label": "Сохранить",
+
   "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
+
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",
   "page.error-loading.message": "Попробуйте перезагрузить страницу. Если ошибка повториться, обратитесь к администратору ",
   "page.error-loading.log": "Журнал ошибки",
   "page.error.logout.no-url": "Недостаточно параметров. Обратитесь к администратору",
+
   "record.permission-denied.message": "У вас недостаточно прав для просмотра данного документа. Обратитесь к администратору.",
   "record.not-found.message": "Документ удален или еще не создан.",
+
   "bpmn-card.go-back-to-list-button.text": "Назад к списку",
   "bpmn-card.open-editor-button.text": "Визуальный редактор",
   "bpmn-designer.add-category": "Добавить категорию",
@@ -82,12 +86,14 @@
   "bpmn-designer.view-button": "Просмотр",
   "bpmn-designer.view-mode.cards": "Плитка",
   "bpmn-designer.view-mode.list": "Список",
+
   "admin-section.sidebar.show": "Показать меню",
   "admin-section.sidebar.show-sm": "Меню",
   "admin-section.sidebar.hide": "Скрыть меню",
   "admin-section.sidebar.hide-sm": "Скрыть",
   "admin-section.sidebar.list-empty": "Нет данных",
   "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
+
   "button.close-modal": "Закрыть",
   "button.ok": "Понятно",
   "button.export": "Экспорт",
@@ -95,10 +101,12 @@
   "button.leave-site.confirm-label": "OK",
   "button.login": "Войти",
   "button.close.label": "Закрыть",
+
   "columns-setup.ascending": "По возрастанию",
   "columns-setup.descending": "По убыванию",
   "columns-setup.order": "Порядок и отображение колонок",
   "columns-setup.sort": "Сортировка в колонке",
+
   "comments-widget.add": "Добавить комментарий",
   "comments-widget.comment-form1": "комментарий",
   "comments-widget.comment-form2": "комментария",
@@ -132,6 +140,7 @@
   "comments-widget.title": "Комментарии",
   "comments-widget.edited-by": "отредактировано",
   "comments-widget.edited-in": "в",
+
   "current-tasks-widget.title": "Все задачи",
   "current-tasks-widget.column.actors": "Исполнитель",
   "current-tasks-widget.column.deadline": "Срок до",
@@ -146,9 +155,11 @@
   "current-tasks-widget.settings.date-format.title": "Формат даты",
   "current-tasks-widget.settings.info.more.label": "Подробнее...",
   "current-tasks-widget.settings.info.description": "Примеры формата данных для moment.js",
+
   "dashboard.error.get-config": "Конфигурация дашборда не получена",
   "dashboard.error.get-title": "Заголовок дашборда не получен",
   "dashboard.error.save-config": "Конфигурация дашборда не сохранена",
+
   "widget-settings.title": "Настройки виджета \"{{title}}\"",
   "widget-settings.go-journal-types": "Журнал типов",
   "widget-settings.display-condition": "Условие отображения",
@@ -157,6 +168,7 @@
   "widget-settings.collapsed-by-default": "Свёрнут по умолчанию",
   "widget-settings.collapsed-by-default-info": "Не работает, если пользователь сам изменил состояние - свернув или развернув виджет.",
   "widget-settings.display-condition.element-title": "Условие отображения элемента \"{{title}}\"",
+
   "dashboard-settings.config.default": "По умолчанию",
   "dashboard-settings.config.custom": "Пользовательские",
   "dashboard-settings.already-exists": "Дашборд для установленного типа и/или пользователя уже существует",
@@ -230,6 +242,7 @@
   "dashboard-settings.widget.doc-constructor": "Doc.One",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
+
   "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
@@ -239,6 +252,7 @@
   "dashlet.resize.title": "Изменить размер",
   "dashlet.update.title": "Обновить данные",
   "dashlet.settings.title": "Настроить виджет",
+
   "dev-tools.tab.build": "Сборка",
   "dev-tools.tab.dev-modules": "Модули разработки",
   "dev-tools.tab.commits": "Коммиты",
@@ -261,6 +275,7 @@
   "dev-tools.commits.grid-column.commit": "Коммит",
   "dev-tools.commits.grid-column.date": "Дата",
   "dev-tools.commits.grid-column.message": "Сообщение",
+
   "doc-associations-widget.add-association": "Добавить связь",
   "doc-associations-widget.assoc-with-docs": "Связан с документами",
   "doc-associations-widget.basis-document": "Документ-основание",
@@ -279,6 +294,7 @@
   "doc-associations-widget.remove-association.success.message": "Документ успешно удален",
   "doc-associations-widget.view-association.error.message": "Не удалось запустить просмотр документа",
   "doc-associations-widget.incorrect-type.error.message": "К выбранному типу связи не могут быть добавлены документы",
+
   "doc-preview.download": "Скачать",
   "doc-preview.error.failure-to-fetch": "Документ не получен",
   "doc-preview.error.loading-failure": "Возникла проблема при загрузке документа. Попробуйте скачать документ",
@@ -290,6 +306,7 @@
   "doc-preview.scale.page-height": "По высоте страницы",
   "doc-preview.scale.page-width": "По ширине страницы",
   "doc-preview.modal.title": "Предпросмотр документа",
+
   "document-library.title": "Библиотека документов",
   "document-library.folders-panel.title": "Папки",
   "document-library.no-folders": "Нет папок",
@@ -302,6 +319,7 @@
   "document-library.uploading-file.message.success": "Файл \"{{file}}\" успешно загружен в папку \"{{folder}}\"",
   "document-library.uploading-file.message.error": "Не удалось загрузить файл \"{{file}}\"",
   "document-library.uploading-file.message.abort": "Невозможно загрузить файл(ы)",
+
   "kanban.label.big-total": "Всего: {{count}}",
   "kanban.label.no-columns": "Колонки не настроены",
   "kanban.label.no-card": "Нет карточек",
@@ -315,6 +333,7 @@
   "kanban.error.form-not-found": "Форма карточки не найдена",
   "kanban.error.card-not-moved": "Карточка не перемещена",
   "kanban.error.get-column-data": "Не удалось получить карточки для столбца",
+
   "type-permissions.empty-attribute.title": "Идинтификатор атрибута не заполнен",
   "type-permissions.empty-attribute.text": "Пожалуйста, заполните поле 'Идентификатор' перед редактированием прав",
   "type-permissions.empty-roles.title": "Роли не настроены",
@@ -334,11 +353,13 @@
   "type-permissions.load-data-error": "Ошибка загрузки данных",
   "type-permissions.save-permissions-error.title": "Ошибка",
   "type-permissions.save-permissions-error.message": "Не удалось сохранить права доступа",
+
   "doc-status-widget.no-status": "Нет статуса",
   "doc-status-widget.saga.error1": "Ошибка получения статуса документа",
   "doc-status-widget.saga.error2": "Ошибка получения доступных статусов",
   "doc-status-widget.saga.error3": "Ошибка изменения статуса",
   "doc-status-widget.title": "Статус",
+
   "dochist.assoc.added": "Добавлено",
   "dochist.assoc.contains": "Документ",
   "dochist.assoc.removed": "Удалено",
@@ -370,9 +391,11 @@
   "dochist.workflow.end": "Процесс завершен",
   "dochist.workflow.end.cancelled": "Процесс отменен",
   "dochist.workflow.start": "Процесс запущен",
+
   "dropdown-filter.all-fields": "По всем полям",
   "dropdown-filter.icon-button.label": "Фильтровать",
   "dropdown-filter.item.placeholder": "Фильтровать",
+
   "ecos-form.value-unreadable": "Поле недоступно",
   "ecos-form.empty-form-data": "Ошибка: форма не определена",
   "ecos-form.error-get-form": "Ошибка: форма не загружена. Попробуйте настроить ее",
@@ -382,9 +405,11 @@
   "ecos-form.error.form-is-not-available": "Форма недоступна",
   "ecos-form.success.clone-record": "Запись склонирована",
   "ecos-form.infinite-loop": "Данные полей зацикливаются",
+
   "ecos-forms.datepicker.time-label": "Время",
   "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",
   "ecos-forms.datepicker.month-next-label": "Следующий месяц",
+
   "ecos-table-form.create-button": "Создать",
   "ecos-table-form.import-button": "Импорт",
   "ecos-table-form.create-modal.title": "Создать",
@@ -401,9 +426,11 @@
   "ecos-table-form.error.no-journal-config": "Конфигурация журнала не получена",
   "ecos-table-form.error.source": "Неверный тип источника",
   "ecos-table-form.error.fail-to-resolve-custom-table": "Данные не сформированы",
+
   "ecos-ui.select.loading-message": "Загрузка...",
   "ecos-ui.select.no-options-message": "Не найдено",
   "ecos-ui.select.placeholder": "Выбрать",
+
   "ecos.forms.Drop files to attach, or": "Перетащите файлы для прикрепления, или",
   "ecos.forms.File Name": "Имя файла",
   "ecos.forms.Size": "Размер",
@@ -448,32 +475,39 @@
   "ecos.form.reload.confirm.message": "Сессия завершена\nДля продолжения работы авторизуйтесь",
   "ecos.form.reload.confirm.button-cancel": "Остаться на странице",
   "ecos.form.reload.confirm.button-confirm": "Перейти к авторизации",
+
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",
   "events-history-widget.info.no-data": "Нет данных",
   "events-history-widget.title": "История событий",
+
   "export-component.action.html-load": "HTML (скачивание)",
   "export-component.action.html-read": "HTML (просмотр)",
   "export-component.action.copy-link": "Копировать ссылку на выборку",
   "export-component.notice.buffer-link-done": "Ссылка на выборку скопирована в буфер обмена",
   "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
+
   "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
   "tree-component.tooltip.update-icon": "Обновить иконку",
   "tree-component.empty": "Элементов не найдено",
+
   "filter-list.add-criterion": "Добавить критерий",
   "filter-list.add-operator": "Добавить оператор",
   "filter-list.condition-group": "Группу условий",
   "filter-list.criterion": "Критерий",
   "filter-list.filter-group-add": "Добавить",
   "filter-list.panel-header": "Фильтрация",
+
   "record-action.tasks-actions.task-name-prefix": "Завершить задачу: ",
+
   "record-action.task-outcome.incorrect-action.header": "Некорректное действие",
   "record-action.task-outcome.incorrect-action.message": "Некорректное действие. Если ошибка повторится, обратитесь к администратору",
   "record-action.task-outcome.form-not-found.header": "Форма для задачи не найдена",
   "record-action.task-outcome.form-not-found.message": "Форма для задачи не найдена. Если ошибка повторится, обратитесь к администратору",
   "record-action.task-outcome.complete-task.header": "Завершить задачу",
   "record-action.task-outcome.complete-task.message": "Завершить задачу с вердиктом \"{{outcome}}\"",
+
   "record-action.msg.confirm.title": "Подтверждение действия",
   "record-action.msg.info.title": "Информация",
   "record-action.msg.error.title": "Ошибка",
@@ -483,15 +517,18 @@
   "record-action.msg.success.text": "Действие выполнено",
   "record-action.msg.status.start-n-wait": "Действие запущено\nОжидайте выполнения",
   "record-action.msg.info.started": "Действие запущено",
+
   "action.edit.label": "Редактировать",
   "action.view.label": "Просмотреть",
   "action.delete.label": "Удалить",
   "action.download.label": "Скачать",
   "action.move-to-lines.label": "Перейти к строкам",
   "action.record-actions.label": "Серверные действия",
+
   "userActions.contract.property.addApprover": "Добавить дополнительного согласующего",
   "userActions.contract.property.approvalCancelation": "Отмена согласования",
   "userActions.contract.property.delete": "Удалить",
+
   "record-action.name.delete": "Удалить",
   "record-action.delete.dialog.title.remove-many": "Удаление записей",
   "record-action.delete.dialog.title.remove-one": "Удаление записи",
@@ -499,6 +536,7 @@
   "record-action.delete.dialog.msg.remove-one": "Вы действительно хотите удалить эту запись?",
   "record-action.delete.dialog.title.error": "Ошибка",
   "record-action.delete.dialog.msg.error": "Произошла ошибка при удалении",
+
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
   "record-action.name.create": "Создать",
@@ -506,17 +544,22 @@
   "record-action.name.show": "Смотреть документ",
   "record-action.name.open-in-background": "Открыть в фоновой вкладке",
   "record-action.name.view-card-template-in-background": "Просмотреть в фоновом режиме",
+
   "record-action.name.assoc-action": "Ассоциативное действие",
   "record-action.assoc-action.not-found": "Связь не найдена",
+
   "record-action.name.script-action": "Скриптовое действие",
   "record-action.script-action.error.text": "Действие не определено",
+
   "record-action.name.upload-new-version": "Загрузить новую версию",
   "record-action.upload-new-version.title.upload-model": "Добавление новой версии документа",
   "record-action.upload-new-version.title.error-modal": "Ошибка",
   "record-action.upload-new-version.error.no-version": "Нет версий",
   "record-action.upload-new-version.error.no-record": "Запись не найдена",
+
   "record-action.name.set-task-assignee": "Установить исполнителя",
   "record-action.set-task-assignee.error.not-all-info": "Недостаточно информации для завершения действия",
+
   "record-action.name.save-as-case-template": "Сохранить как шаблон",
   "record-action.name.preview": "Предпросмотр",
   "record-action.name.fetch-action": "Выполнить действие",
@@ -527,12 +570,14 @@
   "record-action.name.edit-type-permissions": "Редактировать права доступа",
   "record-action.name.edit-password": "Изменить пароль",
   "record-action.name.open-submit-form": "Открыть и рассмотреть",
+
   "record-action.edit-journal-preset.name": "Редактировать шаблон настроек журнала",
   "record-action.edit-journal-preset.msg.saved-success": "Шаблон сохранен",
   "record-action.edit-journal-preset.msg.saved-error": "Шаблон не сохранен",
   "record-action.edit-journal-preset.msg.deleted-success": "Шаблон удален",
   "record-action.edit-journal-preset.modal.title.create": "Создание шаблона",
   "record-action.edit-journal-preset.modal.title.edit": "Редактирование шаблона",
+
   "records-actions.actions": "Действия",
   "records-actions.create": "Создать",
   "records-actions.download": "Скачать",
@@ -547,11 +592,14 @@
   "records-actions.notify.title": "Виджет Действия",
   "records-actions.error.execute-action": "Ошибка выполнения действия",
   "records-actions.error.get-actions": "Действия не получены",
+
   "records-actions.create.create-variant-with-id-not-found": "Вариант создания с id = '{{id}}' не найден",
+
   "group-action.select.copy-to": "Копировать в...",
   "group-action.select.delete": "Удалить",
   "group-action.select.download": "Скачать как Zip",
   "group-action.select.move-to": "Переместить в...",
+
   "group-action.label.header": "Результат действия \"{{action}}\"",
   "group-action.label.message": "Описание",
   "group-action.label.record": "Запись",
@@ -562,6 +610,7 @@
   "group-action.message.started": "Запущено",
   "group-action.message.in-progress": "В процессе",
   "group-action.label.result": "Результат выполнения групповой операции",
+
   "batch-edit.header.edit-attribute": "Изменение атрибута",
   "batch-edit.header.results": "Результат редактирования атрибута",
   "batch-edit.message.OK": "Успешно",
@@ -573,6 +622,7 @@
   "batch-edit.message.ALLOWED": "Разрешено",
   "batch-edit.message.NOT_ALLOWED": "Не разрешено",
   "batch-edit.message.no-status": "Нет статуса",
+
   "grid.inline-tools.details": "Детальная информация",
   "grid.no-data-indication": "Нет элементов в списке",
   "grid.tools.copy-to": "Копировать в...",
@@ -583,9 +633,11 @@
   "grid.tools.select-all": "Выбрать все",
   "grid.tools.select-all-page": "Выбрать все на странице",
   "grid.tools.remove-selection": "Снять выделение",
+
   "grouping.how": "Как группировать",
   "grouping.show": "Посмотреть принцип действия группировки",
   "grouping.what": "Что группировать",
+
   "header.menu.create.btn.label": "Создать",
   "header.menu.msg.empty-list": "Нет доступных пунктов",
   "header.menu.msg.loading": "Загрузка...",
@@ -607,12 +659,15 @@
   "header.site-menu.go-home-page": "Открыть домашнюю страницу",
   "header.site-menu.menu-settings": "Настроить меню",
   "header.site-menu.page-settings": "Настроить страницу",
+
   "modal.make-notavailable.start.label": "Начало отсутствия",
   "modal.make-notavailable.end.label": "Окончание отсутствия",
   "modal.make-notavailable.auto-answer.label": "Автоответ",
   "modal.make-notavailable.end.error.big-date": "Дата начала не может быть больше даты окончания",
+
   "hints.disabled": "Подсказки выключены",
   "hints.enabled": "Подсказки включены",
+
   "journal.page.error-boundary.title": "Ошибка",
   "journal.page.error-boundary.msg": "Попробуйте обновить страницу. Если ошибка повторится, обратитесь к администратору",
   "journal.page.unavailable-view": "Представление «{{name}}» недоступно для этого журнала. Смените вариант представления или настройте журнал",
@@ -761,6 +816,7 @@
   "journals.view.label.journal-preview": "Предпросмотр",
   "journals.view.label.document-library": "Библиотека документов",
   "journals.view.label.kanban": "Канбан",
+
   "journal.presets.menu.title": "Шаблоны настроек",
   "journal.presets.modal.field.name": "Название",
   "journal.presets.modal.field.authority": "Доступно для",
@@ -771,11 +827,15 @@
   "journal.presets.action.delete": "Удаление шаблона",
   "journal.presets.action.delete.msg": "Удалить шаблон \"{{name}}\"?",
   "journal.presets.error.get-one": "Шаблон настроек не получен",
+
   "journals.formatter.action.execution-error": "Действие не может быть выполнено",
+
   "journals.header-formatter.message.complex-filter.part-1": "Применён комплексный фильтр.\nПерейдите в ",
   "journals.header-formatter.message.complex-filter.part-2": "настройки журнала.",
+
   "label.password": "Пароль",
   "label.username": "Имя пользователя",
+
   "message.joining": "Пользователь \"{{user}}\" добавляется к сайту \"{{site}}\"...",
   "message.leave": "Покинуть сайт \"{{name}}\"",
   "message.leave-failure": "Не удается удалить пользователя \"{{userFullName}}\" из сайта \"{{siteTitle}}\". У сайта должен быть хотя бы один менеджер сайта.",
@@ -886,6 +946,7 @@
   "react-select.select-value.label": "Выбрать",
   "react-select.value-false.label": "Нет",
   "react-select.value-true.label": "Да",
+
   "relative.day": "вчера",
   "relative.days": "{{value}} дн. назад",
   "relative.earlierThisWeek": "Ранее на этой неделе",
@@ -911,6 +972,7 @@
   "search.show-more-results": "Показать все результаты",
   "search.sites": "Разделы",
   "search.size": "Размер",
+
   "select-journal.button.add": "Добавить",
   "select-journal.button.change": "Изменить",
   "select-journal.button.select": "Выбрать",
@@ -945,11 +1007,13 @@
   "select-orgstruct.tab.by-levels": "По уровням",
   "select-orgstruct.tab.only-selected": "Только выбранные",
   "select-orgstruct.modal.title.edit-task-assignee": "Изменить исполнителя",
+
   "size.bytes": "б",
   "size.gigabytes": "ГБ",
   "size.kilobytes": "КБ",
   "size.megabytes": "МБ",
   "slide_menu_click_to_open.label": "Нажмите для раскрытия меню",
+
   "tasks-widget.assign.assign": "Назначить",
   "tasks-widget.assign.me": "Я выполню это",
   "tasks-widget.assign.reassign": "Переназначить",
@@ -965,6 +1029,7 @@
   "tasks-widget.error.assign-task": "Ошибка назначения задачи",
   "tasks-widget.error.failed-assign-task": "При назначении возникла проблема. Пожалуйста, проверьте задачу",
   "tasks-widget.title": "Мои задачи",
+
   "timesheets.allForms.title": "Табели учёта времени",
   "timesheets.allForms.delegation": "Делегирование",
   "timesheets.tabs.myTimesheetTab": "Мой табель",
@@ -1054,9 +1119,11 @@
   "timesheets.modal.comment.btn.send": "Отправить",
   "timesheets.error.get-subordinates": "Ошибка при получении подчиненных",
   "timesheets.error.no-subordinates": "Подчиненные отсутствуют",
+
   "dropzone.modal.dropzone_placeholder": "Перетяните сюда файл или выберите вручную",
   "dropzone.modal.dropzone_button_select": "Выбрать файл",
   "dropzone.modal.dropzone_button_cancel": "Отмена",
+
   "versions-journal-widget.add": "Добавить новую версию",
   "versions-journal-widget.add-version": "Добавить версию",
   "versions-journal-widget.current-version": "Актуальная версия",
@@ -1085,6 +1152,7 @@
   "versions-journal-widget.set-current-version": "Сделать актуальной версию",
   "versions-journal-widget.title": "Журнал версий",
   "versions-journal-widget.version": "Версия",
+
   "web-page-widget.title": "Веб-страница",
   "web-page-widget.empty": "Содержимого нет. Укажите в настройках адрес веб-страницы.",
   "web-page-widget.settings.caption": "Настройки виджета",
@@ -1098,10 +1166,12 @@
   "web-page-widget.btn.update": "Обновить",
   "web-page-widget.error": "Ошибка",
   "web-page-widget.error-server-not-found": "Сервер не найден.",
+
   "birthdays-widget.title": "Дни рождения",
   "birthdays-widget.error.default-message": "Ошибка загрузки дней рождений",
   "birthdays-widget.btn.go-to-profile": "Перейти в профиль",
   "birthdays-widget.btn.try-one-more-time": "Попробовать еще раз",
+
   "barcode-widget.saga.error1": "Ошибка получения штрих-кода",
   "barcode-widget.saga.error2": "Ошибка печати штрих-кода",
   "barcode-widget.btn.print": "Распечатать",
@@ -1119,13 +1189,16 @@
   "barcode-widget.settings.margin-top.label": "Сверху",
   "barcode-widget.settings.margin-bottom.label": "Снизу",
   "barcode-widget.settings.mm.label": "мм",
+
   "report-widget.title": "Статистика по задачам",
   "report-widget.urgent": "СРОЧНО",
   "report-widget.today": "СЕГОДНЯ",
   "report-widget.later": "ПОЗЖЕ",
   "report-widget.records.no-document-type": "Без статуса",
   "report-widget.records.no-status": "Без статуса",
+
   "cipher-swp-gost.missing-plugin": "Не найден плагин КриптоПРО. Дешифрование будет отключено.",
+
   "esign.error": "Ошибка",
   "esign.action.title": "<b>Действие</b>: {{action}}\n",
   "esign.action.base64.title": "Получение Base64",
@@ -1157,6 +1230,7 @@
   "esign.no-data": "Нет данных",
   "esign.no-document-ref": "Нет документов для подписи",
   "esign.message.plugin-is-fetching": "Идёт процесс инициализации расширения для работы с цифровой подписью",
+
   "documents-widget.title": "Документы",
   "documents-widget.settings.title": "Настройка типов документов",
   "documents-widget.settings-modal.button.cancel": "Отмена",
@@ -1203,6 +1277,7 @@
   "documents-widget.notification.add-many.error": "Не удалось загрузить документы",
   "documents-widget.notification.update.success": "Версия документа успешно обновлена",
   "documents-widget.notification.update.error": "Не удалось обновить версию документа",
+
   "user-profile-widget.title": "Профиль",
   "user-profile-widget.label.admin": "Администратор",
   "user-profile-widget.label.you": "Вы",
@@ -1213,12 +1288,14 @@
   "user-profile-widget.error.get-profile-data": "Ошибка получения данных профиля",
   "user-profile-widget.error.upload-profile-photo": "Ошибка загрузки фотографии. Попробуйте ещё раз",
   "user-profile-widget.success.change-photo": "Фотография профиля успешно изменена",
+
   "password-field.rule.valid-characters": "Допустимы латинские, русские и другие символы",
   "password-field.rule.count-characters": "минимум 3 знака/символа",
   "password-field.rule.count-digits": "1 цифра",
   "password-field.rule.count-capitals": "1 заглавная",
   "password-field.rule.count-lowercase": "1 строчная",
   "password-field.rule.required": "Необходимо ввести пароль",
+
   "password-editor.error.change-profile-password": "Ошибка смены пароля",
   "password-editor.error.invalid-password": "Старый пароль введен неверно",
   "password-editor.error.server-error": "Произошла ошибка на сервере",
@@ -1230,6 +1307,7 @@
   "password-editor.button.change": "Изменить пароль",
   "password-editor.msg.new-passwords-not-match": "Пароль не совпадает",
   "password-editor.msg.new-n-old-passwords-match": "Новый пароль такой же как старый",
+
   "doc-constructor-widget.title": "Doc.One",
   "doc-constructor-widget.description.title": "Работа с основным документом в конструкторе Doc.One",
   "doc-constructor-widget.description.text": "1. Выберите шаблон для создания документа\n2. Отредактируйте и сохраните\n3. Синхронизируйте, чтобы увидеть изменения",
@@ -1254,11 +1332,14 @@
   "doc-constructor-widget.settings.prop.journal-templates-id": "ID журнала шаблонов",
   "doc-constructor-widget.settings.button.cancel": "Отменить",
   "doc-constructor-widget.settings.button.save": "Сохранить",
+
   "business-process-viewer.button.cancel-bp": "Отменить бизнес-процесс",
   "business-process-viewer.dialog.msg": "Отменить бизнес-процесс?",
+
   "menu.error.get-config": "Конфигурация меню не получена",
   "menu.error.save-config": "Конфигурация меню не сохранена",
   "menu.label.no-name": "Без имени",
+
   "menu-settings.header.title": "Настройки меню",
   "menu-settings.button.cancel": "Отмена",
   "menu-settings.button.apply": "Применить",
@@ -1324,6 +1405,7 @@
   "menu-settings.error-boundary.title": "Ошибка",
   "menu-settings.error-boundary.msg": "Попробуйте закрыть и открыть настройки повторно. Если ошибка повторится, обратитесь к администратору",
   "menu-editor.user.empty.msg": "Меню пользователя не настроено или все пункты скрыты. Для того, чтобы комфортно взаимодействовать с сайтом, будет отображаться базовое меню пользователя:\n{{items}}",
+
   "menu-settings.error.no-id-config": "Идентификатор пользовательского меню отсутствует",
   "menu-settings.error.get-config": "Конфигурация настроек меню не получена",
   "menu-settings.error.save-config": "Конфигурация настроек меню не сохранена",
@@ -1336,6 +1418,7 @@
   "menu-settings.error.save-group-priority": "Приоритеты групп не сохранены",
   "menu-settings.success.save-group-priority": "Приоритеты групп сохранены",
   "menu-settings.error.type-not-created": "Выбранный тип создать нельзя",
+
   "menu-item.type.section": "Раздел",
   "menu-item.type.journal": "Журнал",
   "menu-item.type.arbitrary": "Произвольный пункт меню",
@@ -1350,6 +1433,7 @@
   "menu-item.type.user-feedback": "Обратная связь",
   "menu-item.type.user-send-problem-report": "Сообщить о проблеме",
   "menu-item.type.user-logout": "Выйти",
+
   "icon-select.title": "Выбор иконки",
   "icon-select.btn.upload-custom": "Загрузить",
   "icon-select.btn.delete-custom": "Удалить",
@@ -1362,6 +1446,7 @@
   "icon-select.error.get-font-icons": "Шрифт-иконки не получены",
   "icon-select.error.upload-custom-icon": "Загузка иконки не удалась",
   "icon-select.error.delete-custom-icon": "Удаление иконки не удалось",
+
   "model-editor.error.no-form": "Форма не найдена",
   "model-editor.error.no-record-ref": "Запись не найдена",
   "model-editor.error.no-editor": "Редактор не установлен",
@@ -1370,16 +1455,20 @@
   "model-editor.btn.view-xml": "Посмотреть XML",
   "model-editor.btn.save-deploy": "Сохранить и Опубликовать",
   "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
+
   "bpmn-editor.error.no-model": "Процесс не задан",
   "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
+
   "bpmn-editor.success.model-save-deployed": "Процесс успешно сохранен и опубликован",
   "bpmn-editor.error.can-not-save-deploy-model": "Произошла ошибка во время сохранения и публикации процесса",
+
   "cmmn-editor.success.scenario-saved": "Сценарий сохранен",
   "cmmn-editor.error.no-model": "Сценарий не задан",
   "cmmn-editor.error.can-not-save-scenario": "Сценарий не удалось сохранить",
   "cmmn-editor.error.can-not-save-record-data": "Данные записи не сохранены",
   "cmmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
   "cmmn-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
+
   "legacy-cmmn-editor.header": "Редактирование сценария",
   "legacy-cmmn-editor.header2": "CMMN Редактор",
   "legacy-cmmn-editor.loading.error.title": "Ошибка при загрузке",
@@ -1389,15 +1478,18 @@
   "legacy-cmmn-editor.button.save.label": "Сохранить",
   "legacy-cmmn-editor.button.cancel.label": "Отменить",
   "legacy-cmmn-editor.button.copy-tmpl-node-ref.label": "Скопировать ID временного кейса",
+
   "go-to.home-page": "Перейти на домашнюю страницу",
   "notification.journal-will-be-opened-soon": "Журнал будет скоро открыт",
   "task": "Задача",
   "action": "Действие",
   "TASK": "Задача",
   "ACTION": "Действие",
+
   "copy-to-clipboard.modal.title": "Копирование",
   "copy-to-clipboard.modal.description": "Для того, чтобы скопировать текст, нажмите кнопку ниже",
   "copy-to-clipboard.btn.copy": "Скопировать",
+
   "ecos-form.import-button.confirm.default-title": "Удаление ранее добавленных записей",
   "ecos-form.import-button.confirm.default-description": "Перед загрузкой строк из файла - шаблона, текущие строки будут удалены. Вы хотите продолжить действие?",
   "ecos-form.import-button.failed-uploading.description": "Не удалось загрузить файл",
@@ -1466,8 +1558,8 @@
   "form-constructor.tabs.condition-reworked": "Условия",
   "form-constructor.tabs.file-reworked": "Файл",
   "form-constructor.tabs.import-reworked": "Импорт",
-  "form-constructor.tabs.async-data": "Async Data",
-  "form-constructor.tabs.advanced": "Advanced",
+  "form-constructor.tabs.async-data": "Aсинхронные данные",
+  "form-constructor.tabs.advanced": "Расширенные настройки",
   "form-constructor.tabs.api": "API",
   "form-constructor.tabs-content.label": "Название поля",
   "form-constructor.tabs-content.key": "Имя свойства",
@@ -1716,6 +1808,7 @@
   "form-constructor.tabs-content.source.items": "Элементы",
   "form-constructor.tabs-content.ecos.dataType": "Тип данных",
   "form-constructor.tabs-content.message": "Сообщение",
+  "form-constructor.tabs-content.attributes.layout": "Название атрибута",
   "form-constructor.tabs-content.source.custom.syncData-js": "Синхронные данные",
   "form-constructor.tabs-content.source.custom.asyncData-js": "Асинхронные данные",
   "form-constructor.tabs-content.source.recordsQuery.isSingle": "Единственная запись",
@@ -2052,5 +2145,10 @@
   "form-constructor.builder.layout": "Макет",
   "form-constructor.builder.data": "Данные",
   "form-constructor.builder.__Copy": "Копировать",
+  "form-constructor.async.record": "Запись (Record)",
+  "form-constructor.async.record.script": "Скрипт записей (Records Script)",
+  "form-constructor.async.record.array": "Массив записей (Records Array)",
+  "form-constructor.async.record.query": "Запрос записей (Records Query)",
+  "form-constructor.async.record.custom": "Пользовательские данные",
   "form-constructor.attention.include-form": "Компонент позволяет встроить другую форму. Компонент не включает в себя общие настройки. Если значение присутствует, компонент будет заменен полностью."
 }
