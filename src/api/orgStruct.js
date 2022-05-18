@@ -45,13 +45,20 @@ export class OrgStructApi extends RecordService {
     );
   };
 
-  _prepareGroups = groups =>
-    (groups || []).map(group => ({
+  _prepareGroups = groups => {
+    const replace = group => ({
       ...group,
       groupType: (group.groupType || '').toUpperCase(),
       groupSubType: (group.groupSubType || '').toUpperCase(),
       shortName: getGroupName(group.fullName || '')
-    }));
+    });
+
+    if (!Array.isArray(groups)) {
+      return replace(groups);
+    }
+
+    return (groups || []).map(replace);
+  };
 
   fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
