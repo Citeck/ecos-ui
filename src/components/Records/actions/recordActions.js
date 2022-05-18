@@ -905,10 +905,9 @@ class RecordActions {
    * @param {Object} context
    */
   async execForQueryAsForRecords(query, action, context) {
-    DialogManager.toggleLoader({ text: 'Processing' });
+    DialogManager.toggleLoader({ text: 'record-action.msg.status.start-n-wait' });
     if (query.language !== 'predicate') {
-      //todo
-      notifyFailure('Oops');
+      DialogManager.showInfoDialog({ title: 'error', text: 'record-action.msg.error.text' });
       return false;
     }
 
@@ -918,8 +917,8 @@ class RecordActions {
     const exec = data => this.execForRecords(data.records, preparedAction, context, { ungearedPopups: true });
 
     await iterator.iterate(exec);
-    DialogManager.showInfoDialog({ text: 'End' });
-    return false;
+    DialogManager.showInfoDialog({ title: 'success', text: 'record-action.msg.success.text' });
+    return true;
   }
 
   /**

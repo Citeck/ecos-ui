@@ -459,7 +459,7 @@ export default class DialogManager {
 
   /**
    * Display dialog loader; Manual or auto control
-   * @param props {?Object} other props or open state
+   * @param {?LoaderDialog} props  other props or open state
    */
   static toggleLoader(props = {}) {
     const isVisible = props.isVisible || (dialogs[LOADER_DIALOG_ID] && dialogs[LOADER_DIALOG_ID].isVisible);
