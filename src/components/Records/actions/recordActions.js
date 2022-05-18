@@ -1,34 +1,22 @@
+import chunk from 'lodash/chunk';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
-import set from 'lodash/set';
-import chunk from 'lodash/chunk';
-import isEmpty from 'lodash/isEmpty';
 import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-
+import set from 'lodash/set';
 import { extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
-import { replaceAttributeValues } from '../utils/recordUtils';
-import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-
-import actionsApi from './recordActionsApi';
+import Records from '../Records';
+import { replaceAttributeValues } from '../utils/recordUtils';
 import actionsRegistry from './actionsRegistry';
-import {
-  DetailActionResult,
-  getActionResultTitle,
-  getRef,
-  notifyFailure,
-  notifyStart,
-  notifySuccess,
-  popupService,
-  ResultTypes
-} from './util/actionUtils';
-import RecordsIterator from './RecordsIterator';
-
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
+import actionsApi from './recordActionsApi';
+import RecordsIterator from './RecordsIterator';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -872,8 +860,7 @@ class RecordActions {
 
     let result;
 
-    //todo 1
-    if (1 || !!get(action, 'execForQueryOptions.execAsForRecords')) {
+    if (!!get(action, 'execForQueryOptions.execAsForRecords')) {
       result = await this.execForQueryAsForRecords(query, action, context);
     } else {
       /** @type {PreProcessActionResult} */
