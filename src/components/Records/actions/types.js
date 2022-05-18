@@ -100,5 +100,5 @@
 
 /**
  * @typedef {Object} IterableRecordsConfig
- * @property {?{skipCount: number}} pagination
+ * @property {?Number} amountPerIteration
  */

@@ -14,7 +14,17 @@ import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
+import {
+  DetailActionResult,
+  getActionResultTitle,
+  getRef,
+  notifyFailure,
+  notifyStart,
+  notifySuccess,
+  popupService,
+  ResultTypes
+} from './util/actionUtils';
+import RecordsIterator from './RecordsIterator';
 
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
@@ -497,8 +507,10 @@ class RecordActions {
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
    * @param {Object} context
+   * @param {{ungearedPopups: ?Boolean}} params
    */
-  async execForRecords(records, action = {}, context = {}) {
+  async execForRecords(records, action = {}, context = {}, params) {
+    const { ungearedPopups } = params || {};
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let withTimeoutError = false;
@@ -544,7 +556,9 @@ class RecordActions {
         RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
-      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+      if (!ungearedPopups) {
+        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+      }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
       const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
@@ -574,7 +588,9 @@ class RecordActions {
           return false;
         }
 
-        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+        if (!ungearedPopups) {
+          popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+        }
       }
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
@@ -754,7 +770,9 @@ class RecordActions {
       return actResult;
     })();
 
-    isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
+    isBoolean(execution)
+      ? popupExecution && popupExecution.hide()
+      : !ungearedPopups && (await DetailActionResult.showResult(execution, resultOptions));
 
     if (withTimeoutError) {
       RecordActions._showTimeoutMessageDialog();
@@ -887,7 +905,7 @@ class RecordActions {
    * @param {Object} context
    */
   async execForQueryAsForRecords(query, action, context) {
-    console.log({ query });
+    DialogManager.toggleLoader({ text: 'Processing' });
     if (query.language !== 'predicate') {
       //todo
       notifyFailure('Oops');
@@ -896,12 +914,12 @@ class RecordActions {
 
     const { page, ...preparedQuery } = query;
     const { confirm, ...preparedAction } = action;
+    const iterator = new RecordsIterator(preparedQuery, { skipCount: 5 });
+    const exec = data => this.execForRecords(data.records, preparedAction, context, { ungearedPopups: true });
 
-    const res = await Records.query(preparedQuery);
-    console.log(res);
-
+    await iterator.iterate(exec);
+    DialogManager.showInfoDialog({ text: 'End' });
     return false;
-    //await this.execForRecords([], preparedAction, context);
   }
 
   /**
