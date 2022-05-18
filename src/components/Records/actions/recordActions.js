@@ -1,22 +1,23 @@
-import chunk from 'lodash/chunk';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import chunk from 'lodash/chunk';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
-import set from 'lodash/set';
+
 import { extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import Records from '../Records';
 import { replaceAttributeValues } from '../utils/recordUtils';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
+import Records from '../Records';
+import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-import actionsApi from './recordActionsApi';
 import RecordsIterator from './RecordsIterator';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
