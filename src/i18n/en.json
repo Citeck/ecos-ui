@@ -1554,6 +1554,7 @@
   "form-constructor.tabs.async-data": "Async Data",
   "form-constructor.tabs.advanced": "Advanced",
   "form-constructor.tabs.api": "API",
+  "form-constructor.tabs.tab2": "Tab 1",
   "form-constructor.tabs-content.label": "Label",
   "form-constructor.tabs-content.key": "Property Name",
   "form-constructor.tabs-content.hideLabel": "Hide Label",

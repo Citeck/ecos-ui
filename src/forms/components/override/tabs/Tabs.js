@@ -309,6 +309,7 @@ export default class TabsComponent extends NestedComponent {
           });
         }
       });
+
       const tabLink = this.ce(
         'a',
         {
