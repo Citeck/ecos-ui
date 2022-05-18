@@ -893,6 +893,7 @@ class RecordActions {
    */
   async execForQueryAsForRecords(query, action, context) {
     DialogManager.toggleLoader({ text: 'record-action.msg.status.start-n-wait' });
+
     if (query.language !== 'predicate') {
       DialogManager.showInfoDialog({ title: 'error', text: 'record-action.msg.error.text' });
       return false;
@@ -905,6 +906,7 @@ class RecordActions {
 
     await iterator.iterate(exec);
     DialogManager.showInfoDialog({ title: 'success', text: 'record-action.msg.success.text' });
+
     return true;
   }
 
