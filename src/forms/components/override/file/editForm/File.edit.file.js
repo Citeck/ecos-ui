@@ -68,6 +68,3 @@ export default [
   },
   ...FileEditFile
 ];
-
-const storage = FileEditFile.find(item => item.key === 'storage');
-console.log('STORAGE', storage);

@@ -2106,6 +2106,7 @@
   "form-constructor.html.import": "<p>Enter custom javascript code. You must assign the <strong>result</strong> variable.</p> The <strong>resp</strong> (or <strong>response</strong>) variable is available here.",
   "form-constructor.html.table.conditional": "<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable can contain next boolean properties: <strong>create</strong>, <strong>clone</strong>, <strong>view</strong>, <strong>preview</strong>, <strong>edit</strong>, <strong>delete</strong>. Default <em>preview</em>, <em>clone</em> are <em>false</em>. For example, <strong>value = {view: false, edit: true, delete: false, clone: false, preview: false};</strong></p>",
   "form-constructor.html.table.nonselectable": "<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable accept an recordRef array.</p>",
+  "form-constructor.html.logic.header": "<div class='row'> <div class='col-sm-6'><strong>{{ value.length }} Advanced Logic Configured</strong></div></div>",
   "form-constructor.select.top": "Top",
   "form-constructor.select.left-l-align": "Left (Left-aligned)",
   "form-constructor.select.left-r-align": "Left (Right-aligned)",
@@ -2133,6 +2134,7 @@
   "form-constructor.radio.none": "None",
   "form-constructor.radio.server": "Server",
   "form-constructor.radio.client": "Client",
+  "form-constructor.logic.save-logic": "Save Logic",
   "form-constructor.builder.basic": "Basic Components",
   "form-constructor.builder.advanced": "Advanced",
   "form-constructor.builder.layout": "Layout",
@@ -2142,5 +2144,6 @@
   "form-constructor.async.record.array": "Records Array",
   "form-constructor.async.record.query": "Records Query",
   "form-constructor.async.record.custom": "Custom",
-  "form-constructor.attention.include-form": "This component allows embed another form. The component doesn't include anything common settings. If there's a value, the component will be replased form fully."
+  "form-constructor.attention.include-form": "This component allows embed another form. The component doesn't include anything common settings. If there's a value, the component will be replased form fully.",
+  "form-constructor.error.panel.key": "The property name must only contain alphanumeric characters, underscores, dots, colons and dashes and should not be ended by dash or dot."
 }

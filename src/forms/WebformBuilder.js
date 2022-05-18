@@ -4,7 +4,6 @@ import WebformBuilder from 'formiojs/WebformBuilder';
 import Components from 'formiojs/components/Components';
 import EventEmitter from 'formiojs/EventEmitter';
 import BuilderUtils from 'formiojs/utils/builder';
-import Tooltip from 'tooltip.js';
 import { getComponent } from 'formiojs/utils/formUtils';
 
 import { t } from '../helpers/export/util';
