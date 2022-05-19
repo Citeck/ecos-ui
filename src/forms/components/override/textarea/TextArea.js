@@ -43,6 +43,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   setValue(value, flags) {
     const skipSetting = _.isEqual(value, this.getValue());
+
     value = value || '';
 
     if (this.options.readOnly || this.htmlView) {
@@ -55,6 +56,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       }
       // Cause: ECOSUI-675 - Group list is not loaded in user info
       const changed = value !== undefined ? this.hasChanged(value, this.dataValue) : false;
+
       this.dataValue = value;
 
       return changed;

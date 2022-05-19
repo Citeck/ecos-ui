@@ -9,10 +9,14 @@ export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
 export const getAuthRef = str => str.replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`).replace(`${SourcesId.PERSON}@`, '');
 
 export function handleResponse(result) {
+  if (!Array.isArray(result)) {
+    result = [result];
+  }
+
   return result.map(item => ({
     id: item.nodeRef,
     label: item.displayName,
-    extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.shortName : null,
+    extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.fullName : null,
     hasChildren: !isNil(item.groupType),
     isLoaded: false,
     isOpen: false,
