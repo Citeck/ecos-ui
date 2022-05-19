@@ -152,6 +152,10 @@ class SetWidgets extends React.Component {
     this.props.setData(activeWidgets, removedWidgets);
   };
 
+  getWidgetKey = widget => {
+    return `${get(widget, 'id')}-${JSON.stringify(get(widget, 'props.config', {}))}`;
+  };
+
   renderWidgetColumns() {
     const { activeWidgets, columns, isMobile, positionAdjustment, modelAttributes } = this.props;
     const { draggableDestination } = this.state;
@@ -185,7 +189,7 @@ class SetWidgets extends React.Component {
                   activeWidgets[indexColumn] &&
                   activeWidgets[indexColumn].map((widget, indexWidget) => (
                     <SelectedWidget
-                      key={widget.dndId}
+                      key={this.getWidgetKey(widget)}
                       {...{ widget, indexWidget, indexColumn, isMobile, modelAttributes, positionAdjustment }}
                       executors={{
                         remove: () => this.handleRemoveWidget(widget, indexColumn, indexWidget),
