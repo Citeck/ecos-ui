@@ -1,7 +1,0 @@
-{
-    "jestrunner.debugOptions": {
-        "runtimeArgs": ["--experimental-vm-modules"]
-    },
-    "jestrunner.jestCommand": "node_modules/.bin/react-scripts test",
-    "jestrunner.preserveEditorFocus": true
-}
