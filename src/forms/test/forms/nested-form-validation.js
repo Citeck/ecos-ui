@@ -24,7 +24,7 @@ export default {
           radio: 'yes'
         }
       };
-
+      document.cookie = 'alf_share_locale=en';
       Harness.onNext(form, 'change', () => {
         form
           .submit()
