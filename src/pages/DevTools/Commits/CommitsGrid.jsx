@@ -5,7 +5,7 @@ import DateTimeFormatter from '../../../components/common/grid/formatters/gql/Da
 import { Grid } from '../../../components/common/grid';
 import { t } from '../../../helpers/util';
 
-import { ALL_REPOS, BITBUCKET } from './constants';
+import { ALL_REPOS, BITBUCKET, CURRENT_REPO } from './constants';
 import { getRepoProject, parseTasksLinks } from './helpers';
 import { CommitsContext } from './CommitsContext';
 
@@ -52,7 +52,9 @@ const CommitsGrid = () => {
           }
           return (
             <a
-              href={`${BITBUCKET}${repoProject}/commits/${cell}`}
+              href={
+                row.isCurrentRepo ? `https://${CURRENT_REPO}/${repoProject}/commit/${cell}` : `${BITBUCKET}${repoProject}/commits/${cell}`
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="commits-grid__link"

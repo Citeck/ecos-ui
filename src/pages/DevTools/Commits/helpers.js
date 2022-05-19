@@ -1,15 +1,32 @@
-import { JIRA } from './constants';
+import { JIRA, CURRENT_REPO } from './constants';
 
-const repoRegex = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\w.@:/\-~]+)(\.git)(\/)?/;
+const repoRegex = /(git|ssh|https?|git@([-\w.]+)):(\/\/)?(.*?)(?:\.git)/;
 const taskRegex = /[A-Z]+-[0-9]+/g;
 
-export function getRepoProject(url) {
+export function matchUrl(url, part = null) {
   const parts = url.match(repoRegex);
+
   if (!parts) {
     return null;
   }
 
-  return parts[7];
+  if (typeof part === 'number') {
+    return parts[part];
+  }
+
+  return parts;
+}
+
+export function getRepoProject(url) {
+  return matchUrl(url, 4);
+}
+
+export function isCurrentRepo(host) {
+  return CURRENT_REPO === host;
+}
+
+export function getHostName(url) {
+  return matchUrl(url, 2);
 }
 
 export function parseTasksLinks(str) {
