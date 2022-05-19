@@ -18,12 +18,8 @@ const inputFormat = BaseEditData.find(item => item.key === 'inputFormat');
 if (inputFormat) {
   inputFormat.data.values = [
     {
-      // get label() {
-      //   return t('form-constructor.select.plain');
-      // },
-      label: {
-        ru: 'Обычный',
-        en: 'Plain'
+      get label() {
+        return t('form-constructor.select.plain');
       },
       value: 'plain'
     },
@@ -173,7 +169,7 @@ if (refreshOn) {
     custom: `
         values.push({label: 'Any Change', value: 'data'});
         utils.eachComponent(instance.root.editForm.components, function(component, path) {
-          if (component.key !== data.key) {          
+          if (component.key !== data.key) {
             values.push({
               label: component.labelByLocale || utils.getTextByLocale(component.label) || component.label || component.key,
               value: path

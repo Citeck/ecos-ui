@@ -1,5 +1,6 @@
 import BaseEditForm from 'formiojs/components/base/Base.form';
 import TextAreaDisplay from 'formiojs/components/textarea/editForm/TextArea.edit.display';
+
 import { t } from '../../../../helpers/export/util';
 
 const wysiwyg = TextAreaDisplay.find(el => el.key === 'wysiwyg');

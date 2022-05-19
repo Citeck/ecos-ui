@@ -306,7 +306,6 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
 
   // Create the form instance.
   const editFormOptions = _.get(this, 'options.editForm', {});
-
   this.editForm = new Webform(formioForm, {
     language: this.options.language,
     ...editFormOptions

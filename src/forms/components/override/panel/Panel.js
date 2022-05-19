@@ -1,6 +1,7 @@
 import FormIOPanelComponent from 'formiojs/components/panel/Panel';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
+
 import { t } from '../../../../helpers/export/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
@@ -14,15 +15,6 @@ export default class PanelComponent extends FormIOPanelComponent {
       },
       ...extend
     );
-  }
-
-  static get builderInfo() {
-    return {
-      title: 'Panel',
-      group: 'layout',
-      icon: 'fa fa-list-alt',
-      schema: PanelComponent.schema()
-    };
   }
 
   get defaultSchema() {

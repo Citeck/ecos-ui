@@ -1049,6 +1049,7 @@
   "select-member-dialog.form-field.label": "Сотрудники",
   "select-member-dialog.listmem.title": "Выбранные сотрудники",
   "select-member-dialog.title": "Выбрать",
+
   "select-orgstruct.button.add": "Добавить",
   "select-orgstruct.button.change": "Изменить",
   "select-orgstruct.button.select": "Выбрать",

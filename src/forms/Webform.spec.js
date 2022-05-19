@@ -55,7 +55,6 @@ describe('Formio Form Renderer tests', () => {
         }
       }
     });
-
     translateForm
       .setForm({
         title: 'Translate Form',
