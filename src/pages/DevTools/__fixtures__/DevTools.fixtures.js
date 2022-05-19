@@ -1317,6 +1317,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-26T06:56:54Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-26T06:56:54Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '990e0eab7e49e48bd435a67206f18f7e0bd170dc'
   },
   {
@@ -1326,6 +1327,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-24T06:19:50Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-24T06:20:11Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'a7f76b487ac1935f067260c8f976af0400e8c88d'
   },
   {
@@ -1335,6 +1337,7 @@ export const output4 = [
     author: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T10:15:54Z' },
     committer: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T10:15:54Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'b9238bd15d5bf2707745acdbfd4a4a1017e290ff'
   },
   {
@@ -1344,6 +1347,7 @@ export const output4 = [
     author: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T10:12:19Z' },
     committer: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T10:12:19Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'a13e1ecca7060e63eec35850f81dc91bb0a72b67'
   },
   {
@@ -1353,6 +1357,7 @@ export const output4 = [
     author: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T09:58:13Z' },
     committer: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T09:58:13Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'a9e0a778b1419fbc15b51c9b64586e76a99afb22'
   },
   {
@@ -1362,6 +1367,7 @@ export const output4 = [
     author: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T09:41:33Z' },
     committer: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T09:41:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '695da2f85bbebbf82760de05c954ac4ad2a5d90b'
   },
   {
@@ -1371,6 +1377,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-23T09:39:32Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-23T09:39:32Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '9a4ccc66994581ca3272859d08a58cac57eda7a8'
   },
   {
@@ -1380,6 +1387,7 @@ export const output4 = [
     author: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T09:29:05Z' },
     committer: { name: 'Author 2', email: 'author2@email.com', date: '2020-10-23T09:29:05Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '77610e165941404109624a8b5bc3fd89d0229435'
   },
   {
@@ -1389,6 +1397,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-23T05:13:52Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-23T05:13:52Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '620d80991220882b10130b18ba417e1f01e66bfc'
   },
   {
@@ -1398,6 +1407,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-22T14:27:56Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-22T14:27:56Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '370253cbec50e55b3db0e945cc718309953872b4'
   },
   {
@@ -1407,6 +1417,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-22T14:23:47Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-22T14:23:47Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'ed5f79b43fcbae565eb0cdb9a094726b4c60f278'
   },
   {
@@ -1416,6 +1427,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-22T12:04:42Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-22T12:04:42Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'bf2df6c9b9b083989d4725714567ae51d0ebd2f2'
   },
   {
@@ -1425,6 +1437,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-22T12:04:15Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-22T12:04:15Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b710055e0fb0ce667da39a748f3af09c4e5a8152'
   },
   {
@@ -1434,6 +1447,7 @@ export const output4 = [
     author: { name: 'Author 6', email: 'author6@email.com', date: '2020-10-21T07:20:22Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-22T12:03:58Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '8df4cfa52721d36f7969f4467665587d80cbb787'
   },
   {
@@ -1443,6 +1457,7 @@ export const output4 = [
     author: { name: 'Author 6', email: 'author6@email.com', date: '2020-10-22T12:02:33Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-22T12:02:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '50f9bbe2dd46d5d650b2839825ad9d43968cc170'
   },
   {
@@ -1452,6 +1467,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:36:55Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:36:55Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '3a65de76042a58d1b5b64c2defdc0aeb8e34002a'
   },
   {
@@ -1461,6 +1477,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:36:39Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:36:39Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '3e12516727caee65863a1270399a90ab4fd9ed3c'
   },
   {
@@ -1470,6 +1487,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:29:07Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:29:07Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '51195c7c6cb8e4c01f0fabb46bbfe58a81f18eaa'
   },
   {
@@ -1479,6 +1497,7 @@ export const output4 = [
     author: { name: 'Author 4', email: 'author4@email.com', date: '2020-10-21T15:27:44Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T15:27:44Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '0e756de11ccf13f77908d9a3a4db2d8408e75894'
   },
   {
@@ -1488,6 +1507,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T15:00:59Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T15:00:59Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '55e4a375d629ea8645f3fb7dbc4daa100d9263ee'
   },
   {
@@ -1497,6 +1517,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:59:45Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:59:45Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '4ddca1fdf88585306bd18903b89bdba40ce8b5de'
   },
   {
@@ -1506,6 +1527,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:58:38Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:58:38Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'e6155d3cc34a54b85060c22c45f730b113aa36eb'
   },
   {
@@ -1515,6 +1537,7 @@ export const output4 = [
     author: { name: 'Author 4', email: 'author4@email.com', date: '2020-10-21T13:55:40Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:55:40Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '77056512d1d6010fca9c51a5239cb312f756f487'
   },
   {
@@ -1524,6 +1547,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:19:11Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:19:11Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'ecb0fe7a7be35a746c56b84f92cbf01a1fa60c20'
   },
   {
@@ -1533,6 +1557,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:17:33Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:17:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '1a0638ab21567ecdbf3936622eb83e9b30ecd074'
   },
   {
@@ -1542,6 +1567,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T13:11:19Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T13:11:19Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'd9af3a6c9ee11fedf3b44a6eaa7de3c41d761a89'
   },
   {
@@ -1551,6 +1577,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:09:39Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T13:09:39Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '0b32289bc11d4be468f8fdec8c3765613d37f529'
   },
   {
@@ -1560,6 +1587,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T12:33:45Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T12:33:45Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'd478d574a43dc1e60b7cd19787a96d8d901c3ecc'
   },
   {
@@ -1569,6 +1597,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T12:05:10Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T12:05:10Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '1a5e64767b6360af263a2f089a7d642e4c411e78'
   },
   {
@@ -1578,6 +1607,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T12:00:56Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T12:00:56Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '8a21666c65c4421083afa0001df0f32e7a92240e'
   },
   {
@@ -1587,6 +1617,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T11:57:53Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T11:57:53Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '859d284058d00e371fbaa796d1ac9e84c7bd05d1'
   },
   {
@@ -1596,6 +1627,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T11:55:53Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T11:55:53Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '47921ebd2dfe49d3facebe247a1fccba78d77667'
   },
   {
@@ -1605,6 +1637,7 @@ export const output4 = [
     author: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T11:53:08Z' },
     committer: { name: 'Author 10', email: 'author10@email.com', date: '2020-10-21T11:53:08Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '350ebe415520365536d38b4bf6a118667b8ccc8c'
   },
   {
@@ -1614,6 +1647,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:25:45Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:25:45Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'd5f91241ce23ad429c383a428402bf1dd2b9613b'
   },
   {
@@ -1623,6 +1657,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:25:23Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:25:23Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'b050ddb6684633fa8e666565f64fb78b4721c264'
   },
   {
@@ -1632,6 +1667,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:14:02Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:14:02Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '43efb7cc71d30fc5d0bf9a6e1dfe02c1e2e84dbd'
   },
   {
@@ -1641,6 +1677,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:13:06Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:13:06Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '3bb886a73b9c6949f1a414917c0adf5aa3a481b0'
   },
   {
@@ -1650,6 +1687,7 @@ export const output4 = [
     author: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:07:21Z' },
     committer: { name: 'Author 3', email: 'author3@email.com', date: '2020-10-21T09:07:21Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'c6f72a462738dd3ef46bfa2578fb0c887b69d236'
   },
   {
@@ -1659,6 +1697,7 @@ export const output4 = [
     author: { name: 'Author 6', email: 'author6@email.com', date: '2020-10-21T07:20:22Z' },
     committer: { name: 'Author 6', email: 'author6@email.com', date: '2020-10-21T07:20:22Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'ef31cc4edde0bf3acd38e76c00ee1074c7aad1af'
   },
   {
@@ -1668,6 +1707,7 @@ export const output4 = [
     author: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:41:26Z' },
     committer: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:41:26Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '4a9b2700912fa46bad38052d77312b31120f566e'
   },
   {
@@ -1677,6 +1717,7 @@ export const output4 = [
     author: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:29:51Z' },
     committer: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:29:51Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '6dea1e5c96f5fbcadb7acb7ea9295255af0ec058'
   },
   {
@@ -1686,6 +1727,7 @@ export const output4 = [
     author: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:29:02Z' },
     committer: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:29:02Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '20968a6e6b578c590907350f8e84aeaa66f00319'
   },
   {
@@ -1695,6 +1737,7 @@ export const output4 = [
     author: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:16:50Z' },
     committer: { name: 'Author 9', email: 'author9@email.com', date: '2020-10-21T06:16:50Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'd1ff62de6945a997fec9e4b498b091e74c7ad8c4'
   },
   {
@@ -1704,6 +1747,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T12:03:54Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T12:03:54Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'de60ec6f36f3f399022b9f4f963734dd65778a28'
   },
   {
@@ -1713,6 +1757,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T12:03:36Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T12:03:36Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '6e33a3f92031bbe51d34e32c0681c2612fc347aa'
   },
   {
@@ -1722,6 +1767,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:51:16Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:59:06Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '339da49a5359560e7b54d50cc728b8b2fdfeb5b9'
   },
   {
@@ -1731,6 +1777,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:52:08Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:59:03Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'cee7786df0a3814aab9db125c5bc1f614de4a28d'
   },
   {
@@ -1740,6 +1787,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:48:07Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:59:00Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'b7c4c23f9f2daf16de2b82fff4296d9319efa249'
   },
   {
@@ -1749,6 +1797,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:58:36Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:58:36Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'e92e59e2f28d7db2234c2cbf7d26658940367463'
   },
   {
@@ -1758,6 +1807,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:56:42Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:56:42Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '959080ef49808b75fde6bf794f1d5c2524564b52'
   },
   {
@@ -1767,6 +1817,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:51:37Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:51:37Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'a5b390511b48cc8bddad97a92c21dd52386aed7f'
   },
   {
@@ -1776,6 +1827,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:51:16Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T11:51:16Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '31846ad439f49407e94d286c81effa65eca82d6d'
   },
   {
@@ -1785,6 +1837,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:52:31Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:52:31Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '87f4d6d51f1f3396da01a69fe7a5f9808de9f0db'
   },
   {
@@ -1794,6 +1847,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:52:08Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:52:08Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: 'b642b7ad7052b4e66f5a1d65cc2b1480c17de7eb'
   },
   {
@@ -1803,6 +1857,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:48:07Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-20T09:48:07Z' },
     repo: 'git@bitbucket.org:citeck/ecos-ui.git',
+    isCurrentRepo: false,
     id: '50a8546ba0b3daa6e03f0e4214c256be7e689ef5'
   },
   {
@@ -1812,6 +1867,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-19T10:19:18Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-19T10:19:18Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'f93c01458f5d7b3f296410b60e5b9f85a6a47495'
   },
   {
@@ -1821,6 +1877,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-19T09:58:06Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-19T09:58:06Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '20573345aca1de16dd805e246209f4b138d90ab0'
   },
   {
@@ -1830,6 +1887,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-19T06:55:49Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-19T06:55:49Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'e0b57c8870c2d3439d3a529ed341305eebb9e893'
   },
   {
@@ -1839,6 +1897,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-12T12:34:08Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-12T12:34:08Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '4b18e744856d11713a698302ea56f8fb0e33c76d'
   },
   {
@@ -1848,6 +1907,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-12T12:32:10Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-12T12:32:10Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '37c6c656920357ba4d682b30a55d75110845c6a6'
   },
   {
@@ -1857,6 +1917,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-09T12:41:56Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-09T12:41:56Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '1ed72028d6810d65d8c6e49acc80cd318b6521fe'
   },
   {
@@ -1866,6 +1927,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-09T12:40:05Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-09T12:40:05Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'f379d048405e47b12c933c699a6c1bf9b933ee13'
   },
   {
@@ -1875,6 +1937,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-08T11:47:34Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-08T11:47:34Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'f2ec67a2da012b9c601046408c8d6779e6eb335e'
   },
   {
@@ -1884,6 +1947,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-07T09:54:33Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-07T09:56:27Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'a3b47fa00088a040b053aa4dc09995edca4ca2a7'
   },
   {
@@ -1893,6 +1957,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-07T09:54:33Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-07T09:54:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '62489493813855cc5840b52394fdf3af09d564a8'
   },
   {
@@ -1902,6 +1967,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-07T08:42:34Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-07T08:42:34Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b99406906e3239a71375f6455ba67157a90abf54'
   },
   {
@@ -1911,6 +1977,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-06T16:24:59Z' },
     committer: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-06T16:24:59Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'eb4c4fcd88b8aad2ee91e0a6aea053754c6b53c4'
   },
   {
@@ -1920,6 +1987,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-06T04:46:29Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-06T04:47:53Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '56f1ace67138420578e8706fa704d11f3b2f4ac6'
   },
   {
@@ -1929,6 +1997,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-05T10:32:50Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:32:50Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'a084bb0fe42b1b9513e09e24f2516c8b0d3d905c'
   },
   {
@@ -1938,6 +2007,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:20:31Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:20:31Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'e0d3b45be7ee51379850cb191bfb6e4584963309'
   },
   {
@@ -1947,6 +2017,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:04:55Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:18:51Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '8ab0a7fa107e952f0e0d60e3545dee84a67a8403'
   },
   {
@@ -1956,6 +2027,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:15:33Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:15:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '72eb31633922e97877ab7c093a23fbdbdb4bdcc0'
   },
   {
@@ -1965,6 +2037,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:07:22Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:07:22Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '88b9be9015c94e4758435b2d73d51491f4ffdf91'
   },
   {
@@ -1974,6 +2047,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:04:55Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T10:04:55Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b98a4f390730186e6e7e349d95032fb4e277780a'
   },
   {
@@ -1983,6 +2057,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T08:25:13Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T08:25:13Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '749077161178a1a09037b16f6eaca21dafee70bc'
   },
   {
@@ -1992,6 +2067,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T08:05:08Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T08:05:08Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '7a8fe5575c73a3c3a2f8762d3c81f1e73d1d6020'
   },
   {
@@ -2001,6 +2077,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T07:25:12Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-05T07:25:12Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'cf97611bd26bd1dc5a66451559a26086c3c62011'
   },
   {
@@ -2010,6 +2087,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-04T22:48:04Z' },
     committer: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-04T22:49:27Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '05a16d443cfdc62b3a1bc116b2808bb5fd14e2fa'
   },
   {
@@ -2019,6 +2097,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-04T19:58:20Z' },
     committer: { name: 'Author 5', email: 'author5@email.com', date: '2020-10-04T19:58:20Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '92563208a550c22a7fa92ca65a0bac73803adf4a'
   },
   {
@@ -2028,6 +2107,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-02T08:44:47Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-02T08:44:47Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'bb02332cff0dd5462a7dc649beaa72b8825e2198'
   },
   {
@@ -2037,6 +2117,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-02T08:44:14Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-02T08:44:14Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'bb9324038a332df61f793d48a5a4abfc0ba61a48'
   },
   {
@@ -2046,6 +2127,7 @@ export const output4 = [
     author: { name: 'Author 8', email: 'author8@email.com', date: '2020-10-01T03:54:33Z' },
     committer: { name: 'Author 8', email: 'author8@email.com', date: '2020-10-01T03:54:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'ffd248bad56fec7a21fabae9c3daa77cfe1fe071'
   },
   {
@@ -2055,6 +2137,7 @@ export const output4 = [
     author: { name: 'Author 8', email: 'author8@email.com', date: '2020-10-01T03:53:29Z' },
     committer: { name: 'Author 8', email: 'author8@email.com', date: '2020-10-01T03:53:29Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b06dcfbe061bdbd8d7b9e2b53e737c77e90daaa9'
   },
   {
@@ -2064,6 +2147,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-01T01:26:27Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-10-01T01:26:27Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'dc8f2801dc9761e0660f47ecc8678f7bad9e50ca'
   },
   {
@@ -2073,6 +2157,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T14:15:10Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T14:15:10Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'e0ea5cdf67a8e2bfa5f3c053df397e79652f0778'
   },
   {
@@ -2082,6 +2167,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T14:09:31Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T14:09:31Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'ab74aa2b040487826dc05598140877ac34b583b2'
   },
   {
@@ -2091,6 +2177,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T13:08:57Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T13:08:57Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'd3b94c658dcc43c163eb0a1a198bcc68a4b39da4'
   },
   {
@@ -2100,6 +2187,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T12:43:43Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T12:43:43Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '1a0070ff7541acc2afcf19b60bebf40dc0719237'
   },
   {
@@ -2109,6 +2197,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T11:32:51Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T11:32:51Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'a4af9340dcce81d09d97155163c76fdcadc9896e'
   },
   {
@@ -2118,6 +2207,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T09:51:51Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T09:51:51Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '2e0dec27e137c49a0598db6c078c25cbf65a3b0b'
   },
   {
@@ -2127,6 +2217,7 @@ export const output4 = [
     author: { name: 'Author 7', email: 'author7@email.com', date: '2020-09-30T09:28:55Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T09:28:55Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'd34250f19ca831c9ce253341f0142de0ad3cc515'
   },
   {
@@ -2136,6 +2227,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T08:59:52Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-30T08:59:52Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '374f1b489e90759b7dc5a0516768003597b005b3'
   },
   {
@@ -2149,6 +2241,7 @@ export const output4 = [
       date: '2020-09-30T08:56:01Z'
     },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b320c7257ec203badbb14e06f50e26e9888093aa'
   },
   {
@@ -2162,6 +2255,7 @@ export const output4 = [
       date: '2020-09-30T08:54:28Z'
     },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'bfae188513c427c54388dabd34133c55315e8535'
   },
   {
@@ -2171,6 +2265,7 @@ export const output4 = [
     author: { name: 'Author 6', email: 'author6@email.com', date: '2020-09-25T09:31:33Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-25T09:31:33Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '7c75fc051837ec5a08768e576f36375675e948b1'
   },
   {
@@ -2180,6 +2275,7 @@ export const output4 = [
     author: { name: 'Author 6', email: 'author6@email.com', date: '2020-09-25T06:46:36Z' },
     committer: { name: 'Author 6', email: 'author6@email.com', date: '2020-09-25T06:46:36Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: '5e087ae4e986e0bfca3a69569c07e58e229e14ae'
   },
   {
@@ -2189,6 +2285,7 @@ export const output4 = [
     author: { name: 'Author 6', email: 'author6@email.com', date: '2020-09-22T12:20:28Z' },
     committer: { name: 'Author 6', email: 'author6@email.com', date: '2020-09-22T12:20:28Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'ca9b81aa49000c273a790904eab17b6d639435e0'
   },
   {
@@ -2198,6 +2295,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-09-22T08:45:39Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-22T08:45:39Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'd44077d222353d832165141bccbfa1b52cf6e705'
   },
   {
@@ -2207,6 +2305,7 @@ export const output4 = [
     author: { name: 'Author 5', email: 'author5@email.com', date: '2020-09-18T04:58:20Z' },
     committer: { name: 'Author 5', email: 'author5@email.com', date: '2020-09-21T04:22:06Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b0e22dedf5f423fe170307c822a1e41cda6e564b'
   },
   {
@@ -2216,6 +2315,7 @@ export const output4 = [
     author: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-18T07:27:06Z' },
     committer: { name: 'Author 1', email: 'author1@email.com', date: '2020-09-18T07:27:06Z' },
     repo: 'git@bitbucket.org:citeck/ecos-uiserv.git',
+    isCurrentRepo: false,
     id: 'b601841e6ed986affbef1612b7217bdf475d1fcb'
   }
 ];
