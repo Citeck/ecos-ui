@@ -76,7 +76,7 @@ export const SourcesId = {
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
-  TASK: 'wftask',
+  TASK: 'eproc/wftask',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   BPMN_PROC: 'eproc/bpmn-proc',
