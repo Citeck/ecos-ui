@@ -87,6 +87,20 @@
       margin-top: 5px;
     }
   }
+
+  .formio-component-file.alert {
+    .list-group {
+      .list-group-item.list-group-header {
+        .row > .col-md-2 {
+          flex: 0 0 20%;
+        }
+
+        .row > .col-md-9 {
+          flex: 0 0 70%;
+        }
+      }
+    }
+  }
 }
 
 .file-list-view-mode {
