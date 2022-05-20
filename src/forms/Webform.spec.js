@@ -352,6 +352,7 @@ describe('Formio Form Renderer tests', () => {
   each(FormTests, formTest => {
     each(formTest.tests, (formTestTest, title) => {
       it(title, done => {
+        document.cookie = 'alf_share_locale=en';
         const formElement = document.createElement('div');
         const form = new Webform(formElement, { language: 'en' /*, formMode: 'EDIT'*/ });
         form
