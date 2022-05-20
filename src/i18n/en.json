@@ -522,6 +522,8 @@
   "ecos.forms.Add Column": "Add Column",
   "ecos.forms.True": "True",
   "ecos.forms.False": "False",
+  "ecos.forms.Any Change": "Any Change",
+  "ecos.forms.No choices to choose from": "No choices to choose from",
   "edit_site_details.label": "Edit Project Details",
   "eform.file.on-click-confirmation": "The form will be closed. Are you sure you want to continue?",
   "eform.header.CREATE.title": "Create",
@@ -1843,6 +1845,7 @@
   "form-constructor.tabs-content.keyLabel": "Label for Key column",
   "form-constructor.tabs-content.customDefaultValue-js": "JavaScript",
   "form-constructor.tabs-content.as": "Save As",
+  "form-constructor.tabs-content.any-change": "Any Change",
   "form-constructor.tabs-content.wysiwyg": "Editor Settings",
   "form-constructor.tabs-content.source.custom.syncData-js": "Sync Data",
   "form-constructor.tabs-content.source.custom.asyncData-js": "Async Data",
@@ -2193,6 +2196,7 @@
   "form-constructor.async.record.array": "Records Array",
   "form-constructor.async.record.query": "Records Query",
   "form-constructor.async.record.custom": "Custom",
+  "form-constructor.refreshOn.day": "Day",
   "form-constructor.attention.include-form": "This component allows embed another form. The component doesn't include anything common settings. If there's a value, the component will be replased form fully.",
   "form-constructor.error.panel.key": "The property name must only contain alphanumeric characters, underscores, dots, colons and dashes and should not be ended by dash or dot."
 }
