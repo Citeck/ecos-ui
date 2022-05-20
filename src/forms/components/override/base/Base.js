@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
 import Base from 'formiojs/components/base/Base';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
@@ -223,13 +224,6 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   );
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-  if (!this.calculatedValueWasCalculated) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
-
-    this.calculatedValueWasCalculated = true;
-  }
-
   this.calculatedValue = calculatedValue;
 
   let changed;
@@ -243,6 +237,13 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     if (changed) {
       this.calculatedValue = this.dataValue;
     }
+  }
+
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
+    this.valueChangedByUser =
+      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+
+    this.calculatedValueWasCalculated = true;
   }
 
   return changed;
