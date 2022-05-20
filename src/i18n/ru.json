@@ -1648,7 +1648,7 @@
   "form-constructor.tabs-content.alwaysEnabled": "Всегда доступно",
   "form-constructor.tabs-content.defaultValue": "Значение по умолчанию",
   "form-constructor.tabs-content.inputFormat": "Формат поля",
-  "form-constructor.tabs-content.refreshOn": "Обновление при",
+  "form-constructor.tabs-content.refreshOn": "Обновлять при",
   "form-constructor.tabs-content.clearOnRefresh": "Очистить значение при обновлении",
   "form-constructor.tabs-content.customDefaultValuePanel": "Всегда включен",
   "form-constructor.tabs-content.calculateValuePanel": "Всегда включен",
