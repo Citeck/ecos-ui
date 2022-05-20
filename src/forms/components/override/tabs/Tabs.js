@@ -1,5 +1,6 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import throttle from 'lodash/throttle';
 
 import { t } from '../../../../helpers/export/util';
@@ -283,26 +284,27 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
+      console.log('TAB COMPONENTS', tab.components);
       tab.components.forEach(el => {
-        if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
+        if (!isEqual(t(`form-constructor.tabs-content.${el.key}`), `form-constructor.tabs-content.${el.key}`) && el.label) {
           el.label = t(`form-constructor.tabs-content.${el.key}`);
         }
 
-        if (!t(`form-constructor.tabs-placeholder.${el.key}`).includes(el.key)) {
+        if (!isEqual(t(`form-constructor.tabs-placeholder.${el.key}`), `form-constructor.tabs-placeholder.${el.key}`) && el.placeholder) {
           el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
         }
 
-        if (!t(`form-constructor.tabs-tooltip.${el.key}`).includes(el.key)) {
+        if (!isEqual(t(`form-constructor.tabs-tooltip.${el.key}`), `form-constructor.tabs-tooltip.${el.key}`) && el.tooltip) {
           el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
         }
 
-        if (!t(`form-constructor.tabs-description.${el.key}`).includes(el.key)) {
+        if (!isEqual(t(`form-constructor.tabs-description.${el.key}`), `form-constructor.tabs-description.${el.key}`) && el.description) {
           el.description = t(`form-constructor.tabs-description.${el.key}`);
         }
 
         if (el.components) {
           el.components.forEach(item => {
-            if (!t(`form-constructor.tabs-content.${el.key}`).includes(el.key)) {
+            if (!isEqual(t(`form-constructor.tabs-content.${item.key}`), `form-constructor.tabs-content.${item.key}`) && item.label) {
               item.label = t(`form-constructor.tabs-content.${item.key}`);
             }
           });

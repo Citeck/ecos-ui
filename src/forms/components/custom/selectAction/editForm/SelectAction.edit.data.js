@@ -116,7 +116,10 @@ export default [
                       {
                         type: 'htmlelement',
                         tag: 'div',
-                        content: '<p>Enter custom javascript code.</p>'
+                        content: {
+                          ru: '<p>Укажите пользовательский javascript код.</p>',
+                          en: '<p>Enter custom javascript code.</p>'
+                        }
                       }
                     ],
                     conditional: {
@@ -135,7 +138,10 @@ export default [
                     type: 'textfield',
                     input: true,
                     key: 'eventName',
-                    placeholder: 'Enter event name',
+                    placeholder: {
+                      ru: 'Укажите название события',
+                      en: 'Enter event name'
+                    },
                     widget: {
                       type: ''
                     },

@@ -8,8 +8,14 @@ BaseEditValidation.push({
   weight: 1,
   clearOnHide: true,
   key: 'optionalWhenDisabled',
-  label: 'Optional when disabled',
-  tooltip: 'Allow form saving if the field at once disabled, required and empty'
+  label: {
+    ru: 'Необязательно если заблокировано',
+    en: 'Optional when disabled'
+  },
+  tooltip: {
+    ru: 'Разрешить сохранение формы, если поле одновременно отключено, обязательно и пусто',
+    en: 'Allow form saving if the field at once disabled, required and empty'
+  }
 });
 
 const validateOn = BaseEditValidation.find(item => item.key === 'validateOn');
