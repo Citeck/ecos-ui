@@ -284,7 +284,6 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
-      console.log('TAB COMPONENTS', tab.components);
       tab.components.forEach(el => {
         if (!isEqual(t(`form-constructor.tabs-content.${el.key}`), `form-constructor.tabs-content.${el.key}`) && el.label) {
           el.label = t(`form-constructor.tabs-content.${el.key}`);
