@@ -938,6 +938,7 @@ class Grid extends Component {
       rowEvents,
       byContentHeight,
       noHeader,
+      noHorizontalScroll,
       ...otherProps
     } = this.props;
 
@@ -994,6 +995,7 @@ class Grid extends Component {
           'ecos-grid_freeze': this.fixedHeader,
           'ecos-grid_checkable': this.hasCheckboxes,
           'ecos-grid_no-top-border': noTopBorder,
+          'ecos-grid_no-scroll_h': noHorizontalScroll,
           [className]: !!className
         })}
         onMouseLeave={this.onMouseLeave}
@@ -1043,6 +1045,7 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  noHorizontalScroll: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 

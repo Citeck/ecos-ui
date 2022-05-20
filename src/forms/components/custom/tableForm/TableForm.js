@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import TableForm from '../../../../components/common/form/TableForm';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -51,7 +52,8 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         triggerEventOnChange: false,
         isInstantClone: false,
-        defaultValue: []
+        defaultValue: [],
+        noHorizontalScroll: false
       },
       ...extend
     );
@@ -476,7 +478,8 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         computed: {
           valueFormKey: value => this.getValueFormKey(value)
-        }
+        },
+        noHorizontalScroll: component.noHorizontalScroll
       };
     };
 

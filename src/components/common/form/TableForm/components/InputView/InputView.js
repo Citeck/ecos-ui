@@ -13,7 +13,15 @@ import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(TableFormContext);
-  const { placeholder, viewOnly, isSelectableRows, nonSelectableRows, selectedRows, noColHeaders } = context.controlProps;
+  const {
+    placeholder,
+    viewOnly,
+    isSelectableRows,
+    nonSelectableRows,
+    selectedRows,
+    noColHeaders,
+    noHorizontalScroll
+  } = context.controlProps;
   const { gridRows, columns, error, setInlineToolsOffsets, onSelectGridItem } = context;
   const wrapperRef = useRef(null);
 
@@ -45,6 +53,7 @@ const InputView = () => {
         onSelectGridItem={onSelectGridItem}
         selectedRows={selectedRows}
         nonSelectableRows={nonSelectableRows}
+        noHorizontalScroll={noHorizontalScroll}
         setInlineToolsOffsets={setInlineToolsOffsets}
         noHeader={noColHeaders}
       />
@@ -72,7 +81,8 @@ const List = React.memo(
       selectedRows,
       nonSelectableRows,
       setInlineToolsOffsets,
-      noHeader
+      noHeader,
+      noHorizontalScroll
     } = props;
     const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
 
@@ -94,6 +104,7 @@ const List = React.memo(
             scrollable={false}
             noHeader={noHeader}
             noTopBorder={noHeader}
+            noHorizontalScroll={noHorizontalScroll}
           />
         </div>
         {!gridRows.length && (
