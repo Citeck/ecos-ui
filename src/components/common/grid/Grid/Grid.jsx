@@ -1019,7 +1019,7 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
 
     if (isEmpty(columns)) {
       return null;
@@ -1037,6 +1037,7 @@ class Grid extends Component {
           'ecos-grid_selectable': this.hasCheckboxes,
           'ecos-grid_selectable_multi': multiSelectable,
           'ecos-grid_no-top-border': noTopBorder,
+          'ecos-grid_no-scroll_h': noHorizontalScroll,
           [className]: !!className
         })}
         onMouseLeave={this.onMouseLeave}
@@ -1084,6 +1085,7 @@ Grid.propTypes = {
   withDateFilter: PropTypes.bool,
   isResetSettings: PropTypes.bool,
   resizableColumns: PropTypes.bool,
+  noHorizontalScroll: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 
