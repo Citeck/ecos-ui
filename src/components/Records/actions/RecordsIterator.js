@@ -18,14 +18,14 @@ class RecordsIterator {
    * @param {Object} query
    * @param {IterableRecordsConfig} config
    */
-  constructor(query, config = {}) {
+  constructor(query, config) {
     if (!query) {
       console.error('No Query');
       return;
     }
 
     this.#query = cloneDeep(query);
-    const { amountPerIteration = 5 } = config || {};
+    const { amountPerIteration = 10 } = config || {};
     this.#amountPerIteration = amountPerIteration;
   }
 
@@ -33,7 +33,7 @@ class RecordsIterator {
     return {
       skipCount: (this.#page - 1) * this.#amountPerIteration,
       maxItems: this.#amountPerIteration,
-      amountPerIteration: this.#page
+      page: this.#page
     };
   }
 
@@ -53,10 +53,21 @@ class RecordsIterator {
     return res;
   }
 
-  async iterate(callback) {
+  /**
+   *
+   * @param {IteraateConfig} param
+   */
+  async iterate({ callback, waitCallback }) {
     while (!this.#isEnd) {
       const res = await this.next();
-      isFunction(callback) && res && callback(res);
+      if (res && isFunction(callback)) {
+        if (waitCallback) {
+          await callback(res);
+        } else {
+          callback(res);
+        }
+      }
+
       this.#isEnd = !res;
     }
   }

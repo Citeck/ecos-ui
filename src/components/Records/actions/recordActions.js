@@ -507,9 +507,10 @@ class RecordActions {
    * @param {Object} context
    * @param {{ungearedPopups: ?Boolean}} params
    */
-  async execForRecords(records, action = {}, context = {}, params) {
-    const { ungearedPopups } = params || {};
+  async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
+    const isQueryRecords = !!get(action, 'execForQueryConfig.execAsForRecords');
+    const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
@@ -773,15 +774,12 @@ class RecordActions {
 
     const executor = RecordActions._getActionsExecutor(action);
 
-    if (!executor) {
+    if (!executor || !action.id) {
       return allNotAllowedResult;
-    }
-    if (!executor.isActionConfigCheckingRequired(action)) {
-      return allAllowedResult;
     }
 
-    if (!action.id) {
-      return allNotAllowedResult;
+    if (!executor.isActionConfigCheckingRequired(action) || !!get(action, 'execForQueryConfig.execAsForRecords')) {
+      return allAllowedResult;
     }
 
     const actions = await this.getActionsForRecords(records, [action.id], context);
@@ -846,7 +844,7 @@ class RecordActions {
 
     let result;
 
-    if (!!get(action, 'execForQueryOptions.execAsForRecords')) {
+    if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
       result = await this.execForQueryAsForRecords(query, action, context);
     } else {
       /** @type {PreProcessActionResult} */
@@ -887,10 +885,12 @@ class RecordActions {
 
     const { page, ...preparedQuery } = query;
     const { confirm, ...preparedAction } = action;
-    const iterator = new RecordsIterator(preparedQuery, { skipCount: 5 });
-    const exec = data => this.execForRecords(data.records, preparedAction, context, { ungearedPopups: true });
+    const iterator = new RecordsIterator(preparedQuery, { amountPerIteration: 3 });
 
-    await iterator.iterate(exec);
+    const callback = data => this.execForRecords(data.records, preparedAction, context);
+
+    //todo rethink dificult action
+    await iterator.iterate({ callback, waitCallback: true });
     DialogManager.showInfoDialog({ title: 'success', text: 'record-action.msg.success.text' });
 
     return true;
