@@ -36,7 +36,7 @@
  * @property {Number} execForRecordsBatchSize
  * @property {Number} execForRecordsParallelBatchesCount
  * @property {RecordActionFeatures} features
- * @property {ExecForQueryOptions} execForQueryOptions
+ * @property {ExecForQueryOptions} execForQueryConfig
  * @property {String} preActionModule
  */
 
@@ -101,4 +101,10 @@
 /**
  * @typedef {Object} IterableRecordsConfig
  * @property {?Number} amountPerIteration
+ */
+
+/**
+ * @typedef {Object} IteraateConfig
+ * @property {?Function} callback
+ * @property {?Boolean} waitCallback
  */

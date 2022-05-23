@@ -11,7 +11,8 @@ const ACTION_INNER_ATTRIBUTES = [
   'config:config?json',
   'confirm:confirm?json',
   'execForRecordsParallelBatchesCount:execForRecordsParallelBatchesCount',
-  'execForRecordsBatchSize:execForRecordsBatchSize'
+  'execForRecordsBatchSize:execForRecordsBatchSize',
+  'execForQueryConfig:execForQueryConfig?json'
 ];
 
 /**
