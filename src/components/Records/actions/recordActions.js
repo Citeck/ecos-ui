@@ -10,7 +10,7 @@ import { extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { replaceAttributeValues } from '../utils/recordUtils';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess, ResultTypes } from './util/actionUtils';
 import Records from '../Records';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
@@ -500,7 +500,7 @@ class RecordActions {
    */
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
-    const isQueryRecords = !!get(action, 'execForQueryConfig.execAsForRecords');
+    const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
     const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let withTimeoutError = false;
@@ -793,7 +793,7 @@ class RecordActions {
       return allNotAllowedResult;
     }
 
-    if (!executor.isActionConfigCheckingRequired(action) || !!get(action, 'execForQueryConfig.execAsForRecords')) {
+    if (!executor.isActionConfigCheckingRequired(action) || get(context, 'fromFeature') === 'execForQuery') {
       return allAllowedResult;
     }
 
@@ -891,22 +891,43 @@ class RecordActions {
    * @param {Object} context
    */
   async execForQueryAsForRecords(query, action, context) {
-    DialogManager.toggleLoader({ text: 'record-action.msg.status.start-n-wait' });
+    let processedCount = 0;
+    let showProcess = true;
+
+    const handleInfo = () => {
+      notifySuccess('group-action.message.background-mode');
+      showProcess = false;
+    };
+
+    const info = (title, text, isEnd) => DialogManager.showInfoDialog({ title, text, onClose: () => !isEnd && handleInfo() });
+
+    info('group-action.message.started', 'group-action.label.fetch-data');
 
     if (query.language !== 'predicate') {
-      DialogManager.showInfoDialog({ title: 'error', text: 'record-action.msg.error.text' });
+      info('error', 'record-action.msg.error.text');
       return false;
     }
 
     const { page, ...preparedQuery } = query;
     const { confirm, ...preparedAction } = action;
-    const iterator = new RecordsIterator(preparedQuery, { amountPerIteration: 3 });
+    const preparedContext = { ...context, fromFeature: 'execForQuery' };
+    const iterator = new RecordsIterator(preparedQuery);
 
-    const callback = data => this.execForRecords(data.records, preparedAction, context);
+    const callback = async data => {
+      processedCount += data.records.length;
 
-    //todo rethink dificult action
-    await iterator.iterate({ callback, waitCallback: true });
-    DialogManager.showInfoDialog({ title: 'success', text: 'record-action.msg.success.text' });
+      await this.execForRecords(data.records, preparedAction, preparedContext);
+
+      showProcess &&
+        info(
+          t('group-action.message.in-progress', { name: action.name }),
+          t('group-action.message.processed', { total: data.totalCount, count: processedCount })
+        );
+    };
+
+    await iterator.iterate(callback);
+
+    info('success', t('group-action.message.done-name', { action: action.name }), true);
 
     return true;
   }
