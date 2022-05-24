@@ -86,6 +86,7 @@ class DocPreview extends Component {
       contentHeight: 0,
       error: '',
       fileName: props.fileName,
+      filesList: [],
       downloadData: {},
       wrapperWidth: 0,
       needRecalculateScale: false
@@ -101,6 +102,7 @@ class DocPreview extends Component {
       this.loadPDF(link);
     }
 
+    this.getFilesByRecord();
     this.getUrlByRecord();
   }
 
@@ -303,6 +305,17 @@ class DocPreview extends Component {
     });
   };
 
+  getFilesByRecord = () => {
+    const { byLink } = this.props;
+    const { recordId } = this.state;
+
+    if (byLink || !recordId) {
+      return;
+    }
+
+    DocPreviewApi.getFilesList(this.getRecordId()).then(list => this.setState({ filesList: list }));
+  };
+
   getFileName = () => {
     const { byLink } = this.props;
     const { recordId } = this.state;
@@ -364,6 +377,16 @@ class DocPreview extends Component {
         this.exist && this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
       }
     );
+  };
+
+  onFileChange = link => {
+    this.setState({
+      isLoading: true,
+      link,
+      pdf: {},
+      settings: {},
+      scrollPage: 1
+    });
   };
 
   onChangeSettings = settings => {
@@ -467,6 +490,8 @@ class DocPreview extends Component {
         calcScale={calcScale}
         inputRef={this.setToolbarRef}
         fileName={fileName}
+        onFileChange={this.onFileChange}
+        filesList={this.state.filesList}
         downloadData={downloadData}
       />
     );

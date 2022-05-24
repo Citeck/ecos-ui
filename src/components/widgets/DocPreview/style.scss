@@ -157,8 +157,20 @@ $border-base: #c1c1c1;
       }
     }
 
+    &-select {
+      button.ecos-btn {
+        padding: 0 10px;
+        height: 26px;
+        font-size: $font-size-small;
+
+        .icon {
+          font-size: $font-size-small;
+        }
+      }
+    }
+
     &-pager {
-      &-input {
+      & &-input {
         display: inline-block;
         width: 35px;
         height: 100%;
