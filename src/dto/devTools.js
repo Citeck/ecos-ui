@@ -1,7 +1,7 @@
 import omit from 'lodash/omit';
 import get from 'lodash/get';
 
-import { getHostName, isCurrentRepo } from '../pages/DevTools/Commits/helpers';
+import { getHostName } from '../pages/DevTools/Commits/helpers';
 
 export default class DevToolsConverter {
   static fetchAlfrescoModulesList(source = {}) {
@@ -44,14 +44,16 @@ export default class DevToolsConverter {
     return target;
   }
 
-  static normalizeCommits(source = []) {
+  static normalizeCommits(currentRepo, source = []) {
+    const currentRepoHost = getHostName(currentRepo);
+
     return source
       .map(app => {
         return app.commits.map(commit => ({
           ...commit,
           id: commit.commit,
           repo: app.repo,
-          isCurrentRepo: isCurrentRepo(getHostName(app.repo))
+          isCurrentRepo: currentRepoHost === getHostName(app.repo)
         }));
       })
       .reduce((acc, val) => acc.concat(val))

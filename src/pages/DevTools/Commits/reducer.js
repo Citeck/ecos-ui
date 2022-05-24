@@ -1,9 +1,10 @@
-import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR, SELECT_REPO } from './actions';
+import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR, SELECT_REPO, SET_CURRENT_REPO } from './actions';
 import { ALL_REPOS } from './constants';
 
 export const initialState = {
   isReady: false,
   error: null,
+  currentRepo: null,
   repos: {},
   commits: [],
   repo: ALL_REPOS
@@ -11,6 +12,11 @@ export const initialState = {
 
 export function reducer(state, { type, payload }) {
   switch (type) {
+    case SET_CURRENT_REPO:
+      return {
+        ...state,
+        currentRepo: payload
+      };
     case SET_REPOS:
       return {
         ...state,
