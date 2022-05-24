@@ -7,6 +7,7 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
+import { NotificationManager } from 'react-notifications';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -62,8 +63,9 @@ export default class Export extends Component {
     this.setState({ isOpen });
   };
 
-  export = item => {
-    if (item.target) {
+  export = async item => {
+    this.setState({ isDoing: true });
+    if (item.target && this.state.isDoing) {
       const { journalConfig, grid } = this.props;
       const query = this.getQuery(journalConfig, item.type, grid);
 
@@ -84,7 +86,10 @@ export default class Export extends Component {
         }
       };
 
-      recordActions.execForQuery(recordsQuery, action);
+      await recordActions.execForQuery(recordsQuery, action);
+
+      NotificationManager.info(t('ecos-form.export.attention'));
+      this.setState({ isDoing: false });
     } else if (typeof item.click === 'function') {
       item.click();
     }
