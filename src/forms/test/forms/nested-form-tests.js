@@ -10,7 +10,7 @@ export default {
       const constructorFnSpy = sinon.spy(Components.components, 'form');
       const callback = () => {
         try {
-          document.cookie = 'alf_share_locale=us';
+          document.cookie = 'COOKIE_KEY_LOCALE=us';
           expect(constructorFnSpy.called).toBe(true);
           expect(constructorFnSpy.calledOnce).toBe(true);
           const args = constructorFnSpy.args[0];
