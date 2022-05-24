@@ -7,7 +7,6 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
-import { NotificationManager } from 'react-notifications';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -46,7 +45,8 @@ export default class Export extends Component {
   }
 
   state = {
-    isOpen: false
+    isOpen: false,
+    isDoing: false
   };
 
   get dropdownSource() {
@@ -64,8 +64,8 @@ export default class Export extends Component {
   };
 
   export = async item => {
-    this.setState({ isDoing: true });
-    if (item.target && this.state.isDoing) {
+    if (item.target) {
+      this.setState({ isDoing: true });
       const { journalConfig, grid } = this.props;
       const query = this.getQuery(journalConfig, item.type, grid);
 
@@ -86,9 +86,7 @@ export default class Export extends Component {
         }
       };
 
-      await recordActions.execForQuery(recordsQuery, action);
-
-      NotificationManager.info(t('ecos-form.export.attention'));
+      await recordActions.execForQuery(recordsQuery, action, this.state);
       this.setState({ isDoing: false });
     } else if (typeof item.click === 'function') {
       item.click();
