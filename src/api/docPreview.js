@@ -2,9 +2,8 @@ import endsWith from 'lodash/endsWith';
 
 import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
-import { RecordService } from './recordService';
 
-export class DocPreviewApi extends RecordService {
+export class DocPreviewApi {
   static getPreviewLinkByRecord = recordRef => {
     return Records.get(recordRef)
       .load(
@@ -100,6 +99,35 @@ export class DocPreviewApi extends RecordService {
       .catch(e => {
         console.error(e);
         return {};
+      });
+  };
+
+  static getFilesList = recordRef => {
+    return Records.query(
+      {
+        sourceId: 'alfresco/documents',
+        language: 'types-documents',
+        query: {
+          recordRef,
+          types: ['emodel/type@user-base']
+        }
+      },
+      {
+        documents: 'documents[]{id:?id,displayName:?disp,previewUrl:_content.previewInfo.url}'
+      }
+    )
+      .then(resp => {
+        if (resp.records[0]) {
+          const { documents } = resp.records[0];
+
+          return documents;
+        }
+
+        return [];
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
       });
   };
 }

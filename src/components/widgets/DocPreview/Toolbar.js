@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import * as queryString from 'query-string';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
 import { getScaleModes, isExistValue, t } from '../../../helpers/util';
+import { decodeLink, pushHistoryLink } from '../../../helpers/urls';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -23,6 +25,8 @@ class Toolbar extends Component {
     isPDF: PropTypes.bool.isRequired,
     className: PropTypes.string,
     fileName: PropTypes.string,
+    filesList: PropTypes.array,
+    onFileChange: PropTypes.func,
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
@@ -34,7 +38,9 @@ class Toolbar extends Component {
     scale: '',
     className: '',
     downloadData: {},
-    fileName: ''
+    fileName: '',
+    filesList: [],
+    onFileChange: () => null
   };
 
   constructor(props) {
@@ -273,12 +279,45 @@ class Toolbar extends Component {
     ) : null;
   }
 
+  renderFilesList() {
+    const { fileName, filesList } = this.props;
+
+    return filesList.length > 1 ? (
+      <div className="ecos-doc-preview__toolbar-group">
+        <Dropdown
+          className="ecos-doc-preview__toolbar-select"
+          source={filesList}
+          valueField={'id'}
+          titleField={'displayName'}
+          value={fileName}
+          withScrollbar
+          onChange={val => {
+            const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
+
+            pushHistoryLink(window, {
+              pathname: window.location.pathname,
+              search:
+                '?' +
+                new URLSearchParams({
+                  recordRef: val.id,
+                  activeLayoutId: layoutId
+                }).toString()
+            });
+
+            this.props.onFileChange(`gateway/${val.previewUrl}`);
+          }}
+        />
+      </div>
+    ) : null;
+  }
+
   render() {
     const { isPDF, inputRef, className } = this.props;
 
     return (
       <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
         <div ref={this.toolbarWrapperRef} className="ecos-doc-preview__toolbar-wrapper">
+          {this.renderFilesList()}
           {isPDF && this.renderPager()}
           {this.renderZoom()}
           {this.renderExtraBtns()}
