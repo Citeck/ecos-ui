@@ -93,6 +93,7 @@ class PropertiesDashlet extends BaseWidget {
 
     const actions = {
       [DAction.Actions.RELOAD]: {
+        // todo
         onClick: this.onReloadDashlet
       },
       [DAction.Actions.SETTINGS]: {
