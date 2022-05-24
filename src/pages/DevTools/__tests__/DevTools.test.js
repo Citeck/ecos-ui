@@ -32,7 +32,7 @@ describe('DevTools tests', () => {
       expect(DevToolsConverter.fetchRepos(input3_4)).toEqual(output3);
     });
     it('normalizeCommits', () => {
-      expect(DevToolsConverter.normalizeCommits(input3_4)).toEqual(output4);
+      expect(DevToolsConverter.normalizeCommits('git@gitlab.citeck.ru:citeck-uiserv/ecos-ui.git', input3_4)).toEqual(output4);
     });
   });
 

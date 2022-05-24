@@ -1,4 +1,4 @@
-import { JIRA, CURRENT_REPO } from './constants';
+import { JIRA } from './constants';
 
 const repoRegex = /(git|ssh|https?|git@([-\w.]+)):(\/\/)?(.*?)(?:\.git)/;
 const taskRegex = /[A-Z]+-[0-9]+/g;
@@ -19,10 +19,6 @@ export function matchUrl(url, part = null) {
 
 export function getRepoProject(url) {
   return matchUrl(url, 4);
-}
-
-export function isCurrentRepo(host) {
-  return CURRENT_REPO === host;
 }
 
 export function getHostName(url) {
