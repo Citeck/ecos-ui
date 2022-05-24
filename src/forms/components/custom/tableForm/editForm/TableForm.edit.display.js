@@ -13,6 +13,15 @@ export default [
   {
     type: 'checkbox',
     input: true,
+    key: 'noHorizontalScroll',
+    label: 'Disable horizontal scroll',
+    tooltip: 'Limiting table content width to component width',
+    weight: 18,
+    defaultValue: false
+  },
+  {
+    type: 'checkbox',
+    input: true,
     key: 'isStaticModalTitle',
     label: {
       ru: 'Скрыть имя записи в модальном заголовке',

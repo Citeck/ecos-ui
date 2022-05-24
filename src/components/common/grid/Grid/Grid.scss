@@ -14,6 +14,8 @@ $header-height: 52px;
 }
 
 .ecos-grid {
+  $grid: &;
+
   position: relative;
   overflow: hidden;
 
@@ -36,6 +38,16 @@ $header-height: 52px;
 
     .ecos-grid__head-shadow::before {
       content: none;
+    }
+  }
+
+  &_no-scroll {
+    &_h#{$grid} {
+      overflow-x: hidden;
+
+      table.ecos-grid__table {
+        table-layout: fixed;
+      }
     }
   }
 
