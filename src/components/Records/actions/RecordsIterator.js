@@ -1,6 +1,7 @@
-import { get } from 'lodash';
+import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 
 import Records from '../Records';
 
@@ -19,9 +20,8 @@ class RecordsIterator {
    * @param {IterableRecordsConfig} config
    */
   constructor(query, config) {
-    if (!query) {
-      console.error('No Query');
-      return;
+    if (isEmpty(query)) {
+      throw new Error('No Query');
     }
 
     this.#query = cloneDeep(query);
@@ -54,18 +54,15 @@ class RecordsIterator {
   }
 
   /**
-   *
-   * @param {IteraateConfig} param
+   * Iterate query by page
+   * @param {?Function} callback
    */
-  async iterate({ callback, waitCallback }) {
+  async iterate(callback) {
     while (!this.#isEnd) {
       const res = await this.next();
+
       if (res && isFunction(callback)) {
-        if (waitCallback) {
-          await callback(res);
-        } else {
-          callback(res);
-        }
+        await callback(res);
       }
 
       this.#isEnd = !res;

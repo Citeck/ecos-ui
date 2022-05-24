@@ -1,4 +1,3 @@
-import { async } from 'regenerator-runtime';
 import RecordsIterator from '../RecordsIterator';
 
 const def_amountPerIteration = 10;
@@ -26,6 +25,14 @@ describe('RecordsIterator', () => {
       expect(iterator.pagination).toEqual({ skipCount: 0, maxItems: def_amountPerIteration, page: 1 });
     });
 
+    it('bad query / empty', () => {
+      try {
+        new RecordsIterator();
+      } catch (error) {
+        expect(error).not.toBeUndefined();
+      }
+    });
+
     it('custom amountPerIteration', async () => {
       const amountPerIteration = 20;
       const iterator = new RecordsIterator({ query: {} }, { amountPerIteration });
@@ -38,7 +45,7 @@ describe('RecordsIterator', () => {
   });
 
   describe('next', () => {
-    const iterator = new RecordsIterator({});
+    const iterator = new RecordsIterator({ query: {} });
 
     it('1 page & result', async () => {
       const res = await iterator.next();
@@ -66,7 +73,7 @@ describe('RecordsIterator', () => {
 
   describe('iterate', () => {
     it('iteration without callback', async () => {
-      const iterator = new RecordsIterator({});
+      const iterator = new RecordsIterator({ query: {} });
       await iterator.iterate();
       expect(iterator.pagination).toEqual({
         skipCount: stop_page * def_amountPerIteration,
@@ -76,23 +83,25 @@ describe('RecordsIterator', () => {
     });
 
     it('iteration with callback', async () => {
-      const iterator = new RecordsIterator({});
-
-      const callback = res => {
-        if (iterator.pagination.page <= stop_page) {
-          expect(res.records.length).toEqual(def_amountPerIteration);
-        } else {
-          expect(res).toEqual(null);
+      const iterator = new RecordsIterator({ query: {} });
+      const spy = {
+        callback: res => {
+          if (iterator.pagination.page <= stop_page) {
+            expect(res.records.length).toEqual(def_amountPerIteration);
+          } else {
+            expect(res).toEqual(null);
+          }
         }
       };
-
-      await iterator.iterate(callback);
+      const spyOnCallback = jest.spyOn(spy, 'callback');
+      await iterator.iterate(spy.callback);
 
       expect(iterator.pagination).toEqual({
         skipCount: stop_page * def_amountPerIteration,
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });
+      expect(spyOnCallback).toHaveBeenCalled();
     });
   });
 });

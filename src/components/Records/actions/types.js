@@ -102,9 +102,3 @@
  * @typedef {Object} IterableRecordsConfig
  * @property {?Number} amountPerIteration
  */
-
-/**
- * @typedef {Object} IteraateConfig
- * @property {?Function} callback
- * @property {?Boolean} waitCallback
- */
