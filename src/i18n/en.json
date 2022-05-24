@@ -1500,5 +1500,7 @@
   "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
   "ecos-form.builder.form-id.label": "Form ID",
 
-  "more-about-error.label": "More about the error"
+  "more-about-error.label": "More about the error",
+
+  "ecos-form.export.attention": "You cannot start multiple identical actions at the same time"
 }

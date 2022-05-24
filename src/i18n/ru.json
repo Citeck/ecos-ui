@@ -1499,5 +1499,7 @@
   "ecos-form.builder.debugging.fatal-error": "При построении дерева зависисмостей произошла фатальная ошибка. Попробуйте провести анализ формы и зависимостей компанентов в json-редакторе или в Form Builder",
   "ecos-form.builder.form-id.label": "ID формы",
 
-  "more-about-error.label": "Подробнее об ошибке"
+  "more-about-error.label": "Подробнее об ошибке",
+
+  "ecos-form.export.attention": "Вы не можете начать одновременно несколько идентичных действий"
 }
