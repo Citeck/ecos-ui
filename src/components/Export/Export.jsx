@@ -66,36 +66,37 @@ export default class Export extends Component {
   };
 
   export = async item => {
-    if (isNil(this.#actionsDoing.get(item.id))) {
-      this.#actionsDoing.set(item.id, true);
-      if (item.target) {
-        const { journalConfig, grid } = this.props;
-        const query = this.getQuery(journalConfig, item.type, grid);
-
-        this.textInput.current.value = JSON.stringify(query);
-
-        const recordsQuery = {
-          sourceId: journalConfig.sourceId,
-          query: query.predicate,
-          language: 'predicate',
-          sortBy: query.sortBy
-        };
-        const action = {
-          type: 'records-export',
-          config: {
-            exportType: query.reportType,
-            columns: query.reportColumns,
-            download: item.download
-          }
-        };
-
-        await recordActions.execForQuery(recordsQuery, action);
-      } else if (typeof item.click === 'function') {
-        await item.click();
-      }
-
-      this.#actionsDoing.delete(item.id);
+    if (!isNil(this.#actionsDoing.get(item.id))) {
+      return;
     }
+    this.#actionsDoing.set(item.id, true);
+    if (item.target) {
+      const { journalConfig, grid } = this.props;
+      const query = this.getQuery(journalConfig, item.type, grid);
+
+      this.textInput.current.value = JSON.stringify(query);
+
+      const recordsQuery = {
+        sourceId: journalConfig.sourceId,
+        query: query.predicate,
+        language: 'predicate',
+        sortBy: query.sortBy
+      };
+      const action = {
+        type: 'records-export',
+        config: {
+          exportType: query.reportType,
+          columns: query.reportColumns,
+          download: item.download
+        }
+      };
+
+      await recordActions.execForQuery(recordsQuery, action);
+    } else if (typeof item.click === 'function') {
+      await item.click();
+    }
+
+    this.#actionsDoing.delete(item.id);
   };
 
   getSearchPredicate = (grid = {}) => {
