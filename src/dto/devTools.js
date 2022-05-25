@@ -1,8 +1,6 @@
 import omit from 'lodash/omit';
 import get from 'lodash/get';
 
-import { getHostName } from '../pages/DevTools/Commits/helpers';
-
 export default class DevToolsConverter {
   static fetchAlfrescoModulesList(source = {}) {
     const modules = source.modules || [];
