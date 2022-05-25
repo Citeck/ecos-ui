@@ -5,9 +5,8 @@ import { t } from '../../../helpers/util';
 
 import devToolsApi from '../api';
 import { ECOS_UI_ID, ECOS_UI_LABEL } from '../constants';
-import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR, SELECT_REPO, SET_CURRENT_REPO } from './actions';
+import { SET_REPOS, SET_COMMITS, SET_IS_READY, SET_ERROR, SELECT_REPO } from './actions';
 import { reducer, initialState } from './reducer';
-import { getHostName } from './helpers';
 
 export const CommitsContext = React.createContext();
 
@@ -27,9 +26,8 @@ export const CommitsContextProvider = props => {
         ...(otherAppsCommits.records || [])
       ];
 
-      dispatch({ type: SET_CURRENT_REPO, payload: getHostName(uiCommits.repo) });
       dispatch({ type: SET_REPOS, payload: DevToolsConverter.fetchRepos(allAppsCommits) });
-      dispatch({ type: SET_COMMITS, payload: DevToolsConverter.normalizeCommits(uiCommits.repo, allAppsCommits) });
+      dispatch({ type: SET_COMMITS, payload: DevToolsConverter.normalizeCommits(allAppsCommits) });
       dispatch({ type: SET_IS_READY, payload: true });
     } catch (e) {
       dispatch({ type: SET_ERROR, payload: t('dev-tools.error.failure-to-fetch-data') });
