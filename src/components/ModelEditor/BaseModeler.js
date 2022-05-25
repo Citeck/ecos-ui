@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
+import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 
 import { DI_POSTFIX, LABEL_POSTFIX } from '../../constants/cmmn';
 
@@ -132,16 +133,18 @@ export default class BaseModeler {
   updateProps = (element, properties) => {
     const { name, id, ...data } = properties;
     const modeling = this.modeler.get('modeling');
+    const di = getDi(element);
 
-    if (!isNil(name)) {
+    if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
+
       labelEditingProvider.update(element, name);
     }
 
-    if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX)) {
+    if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && di) {
       if (!this.idAssigned(id, element.businessObject)) {
         data.id = id;
-        element.businessObject && modeling.updateModdleProperties(element, element.businessObject.di, { id: id + DI_POSTFIX });
+        modeling.updateModdleProperties(element, di, { id: id + DI_POSTFIX });
       }
     }
 
