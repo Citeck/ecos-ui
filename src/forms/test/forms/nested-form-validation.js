@@ -1,6 +1,8 @@
 import { nestedConditionalForm } from '../fixtures';
 import Harness from '../harness';
 
+import { COOKIE_KEY_LOCALE } from '../../../constants/alfresco';
+
 export default {
   title: 'Nested Form Tests',
   form: nestedConditionalForm,
@@ -24,7 +26,7 @@ export default {
           radio: 'yes'
         }
       };
-      document.cookie = 'alf_share_locale=en';
+      document.cookie = `${COOKIE_KEY_LOCALE}=en`;
       Harness.onNext(form, 'change', () => {
         form
           .submit()

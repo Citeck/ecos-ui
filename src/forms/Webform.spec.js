@@ -6,6 +6,8 @@ import Formio from './Formio';
 import Webform from './Webform';
 import { APIMock } from './test/APIMock';
 
+import { COOKIE_KEY_LOCALE } from '../constants/alfresco';
+
 describe('Formio Form Renderer tests', () => {
   let simpleForm = null;
   it('Should create a simple form', done => {
@@ -45,7 +47,7 @@ describe('Formio Form Renderer tests', () => {
   });
 
   it('Should translate a form from options', done => {
-    document.cookie = 'alf_share_locale=es';
+    document.cookie = `${COOKIE_KEY_LOCALE}=es`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement, {
       language: 'es',
@@ -77,7 +79,7 @@ describe('Formio Form Renderer tests', () => {
   });
 
   it('Should translate a form after instantiate', done => {
-    document.cookie = 'alf_share_locale=es';
+    document.cookie = `${COOKIE_KEY_LOCALE}=es`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement, {
       i18n: {
@@ -109,7 +111,7 @@ describe('Formio Form Renderer tests', () => {
   });
 
   it('Should add a translation after instantiate', done => {
-    document.cookie = 'alf_share_locale=fr';
+    document.cookie = `${COOKIE_KEY_LOCALE}=fr`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement, {
       i18n: {
@@ -145,7 +147,7 @@ describe('Formio Form Renderer tests', () => {
   });
 
   it('Should switch a translation after instantiate', done => {
-    document.cookie = 'alf_share_locale=es';
+    document.cookie = `${COOKIE_KEY_LOCALE}=es`;
     const formElement = document.createElement('div');
     const translateForm = new Webform(formElement);
     translateForm
@@ -171,7 +173,7 @@ describe('Formio Form Renderer tests', () => {
   });
 
   it('Should keep translation after redraw', done => {
-    document.cookie = 'alf_share_locale=ru';
+    document.cookie = `${COOKIE_KEY_LOCALE}=ru`;
     const formElement = document.createElement('div');
     const form = new Webform(formElement);
     const schema = {
@@ -210,7 +212,7 @@ describe('Formio Form Renderer tests', () => {
   });
 
   it('Should fire languageChanged event when language is set', done => {
-    document.cookie = 'alf_share_locale=ru';
+    document.cookie = `${COOKIE_KEY_LOCALE}=ru`;
     let isLanguageChangedEventFired = false;
     const formElement = document.createElement('div');
     const form = new Webform(formElement);
@@ -352,7 +354,7 @@ describe('Formio Form Renderer tests', () => {
   each(FormTests, formTest => {
     each(formTest.tests, (formTestTest, title) => {
       it(title, done => {
-        document.cookie = 'alf_share_locale=en';
+        document.cookie = `${COOKIE_KEY_LOCALE}=en`;
         const formElement = document.createElement('div');
         const form = new Webform(formElement, { language: 'en' /*, formMode: 'EDIT'*/ });
         form
