@@ -12,59 +12,21 @@ import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
 
 class JournalsDataLoader {
+  /**
+   *
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Promise}
+   */
   async load(journalConfig, settings = {}) {
-    const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
-
-    if (settings.onlyLinked && settings.recordRef) {
-      predicates.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: settings.recordRef,
-            att: a.attribute
-          }))
-      });
-
-      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
-    }
-
-    let language = 'predicate';
-    let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
-    let queryData = null;
-
-    if (journalConfig.queryData || settings.queryData) {
-      queryData = {
-        ...(journalConfig.queryData || {}),
-        ...(settings.queryData || {})
-      };
-    }
-
-    if (queryData && Object.keys(queryData).length > 0) {
-      query = {
-        data: queryData,
-        predicate: query
-      };
-      language = 'predicate-with-data';
-    }
-
-    const recordsQuery = {
-      sourceId: settings.customSourceId || journalConfig.sourceId || '',
-      query,
-      language,
-      page: settings.page,
-      consistency: 'EVENTUAL'
-    };
-
+    const recordsQuery = this.getRecordsQuery(journalConfig, settings);
+    //todo тоже в recordsQuery ???
     const groupBy = settings.groupBy || journalConfig.groupBy;
+    let sortBy = [];
+
     if (groupBy && groupBy.length) {
       recordsQuery.groupBy = groupBy;
     }
-
-    let sortBy = [];
 
     if (Array.isArray(settings.sortBy)) {
       sortBy = settings.sortBy;
@@ -75,14 +37,16 @@ class JournalsDataLoader {
     if (!sortBy.length) {
       sortBy = journalConfig.sortBy || [];
     }
+
     sortBy = sortBy.filter(s => !!s.attribute);
 
     if (!sortBy.length) {
       sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
     }
+
     recordsQuery.sortBy = sortBy;
 
-    const attributes = this._getAttributes(journalConfig, settings);
+    const attributes = this.#getAttributes(journalConfig, settings);
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
@@ -148,7 +112,68 @@ class JournalsDataLoader {
       });
   }
 
-  _getAttributes(journalConfig, settings) {
+  /**
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {RecordsQuery}
+   */
+  getRecordsQuery = async (journalConfig, settings = {}) => {
+    const consistency = 'EVENTUAL';
+    const columns = journalConfig.columns || settings.columns || [];
+    const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
+
+    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
+
+    if (settings.onlyLinked && settings.recordRef) {
+      predicates.push({
+        t: PREDICATE_OR,
+        val: columns
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
+          .map(a => ({
+            t: PREDICATE_CONTAINS,
+            val: settings.recordRef,
+            att: a.attribute
+          }))
+      });
+
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
+    }
+
+    let language = 'predicate';
+    let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
+    let queryData = null;
+
+    if (journalConfig.queryData || settings.queryData) {
+      queryData = {
+        ...(journalConfig.queryData || {}),
+        ...(settings.queryData || {})
+      };
+    }
+
+    if (queryData && Object.keys(queryData).length > 0) {
+      query = {
+        data: queryData,
+        predicate: query
+      };
+      language = 'predicate-with-data';
+    }
+
+    return {
+      sourceId: settings.customSourceId || journalConfig.sourceId || '',
+      query,
+      language,
+      page: settings.page,
+      consistency
+    };
+  };
+
+  /**
+   * @private
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {{attributesMap: Object, attributesSet: Array}}
+   */
+  #getAttributes = (journalConfig, settings) => {
     const groupBy = journalConfig.groupBy || [];
     const columns = journalConfig.columns || [];
     const settingsAttributes = settings.attributes || {};
@@ -188,7 +213,7 @@ class JournalsDataLoader {
       attributesMap: attributesMap,
       attributesSet: [...attributesSet]
     };
-  }
+  };
 }
 
 const INSTANCE = new JournalsDataLoader();

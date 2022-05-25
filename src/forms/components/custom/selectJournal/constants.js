@@ -18,3 +18,10 @@ export const DisplayModes = {
   DEFAULT: 'default',
   TABLE: 'table'
 };
+
+export const DataTypes = {
+  ASSOS: 'assoc',
+  JSON_REC: 'json-record',
+  RECORDS: 'records',
+  QUERY: 'query'
+};
