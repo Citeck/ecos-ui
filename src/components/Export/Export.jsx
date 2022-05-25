@@ -46,7 +46,28 @@ export default class Export extends Component {
 
   state = {
     isOpen: false,
-    isDoing: false
+    actionsDoing: [
+      {
+        id: 0,
+        status: false
+      },
+      {
+        id: 1,
+        status: false
+      },
+      {
+        id: 2,
+        status: false
+      },
+      {
+        id: 3,
+        status: false
+      },
+      {
+        id: 4,
+        status: false
+      }
+    ]
   };
 
   get dropdownSource() {
@@ -65,7 +86,7 @@ export default class Export extends Component {
 
   export = async item => {
     if (item.target) {
-      this.setState({ isDoing: true });
+      // this.setState({ isDoing: true });
       const { journalConfig, grid } = this.props;
       const query = this.getQuery(journalConfig, item.type, grid);
 
@@ -86,10 +107,10 @@ export default class Export extends Component {
         }
       };
 
-      await recordActions.execForQuery(recordsQuery, action, this.state);
-      this.setState({ isDoing: false });
+      await recordActions.execForQuery(recordsQuery, action);
+      // this.setState({ isDoing: false });
     } else if (typeof item.click === 'function') {
-      item.click();
+      await item.click();
     }
   };
 
