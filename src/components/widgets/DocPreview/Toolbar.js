@@ -287,24 +287,24 @@ class Toolbar extends Component {
         <Dropdown
           className="ecos-doc-preview__toolbar-select"
           source={filesList}
-          valueField={'id'}
-          titleField={'displayName'}
+          valueField="id"
+          titleField="displayName"
           value={fileName}
           withScrollbar
           onChange={val => {
-            const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
+            // const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
 
-            pushHistoryLink(window, {
-              pathname: window.location.pathname,
-              search:
-                '?' +
-                new URLSearchParams({
-                  recordRef: val.id,
-                  activeLayoutId: layoutId
-                }).toString()
-            });
+            // pushHistoryLink(window, {
+            //   pathname: window.location.pathname,
+            //   search:
+            //     '?' +
+            //     new URLSearchParams({
+            //       recordRef: val.id,
+            //       activeLayoutId: layoutId
+            //     }).toString()
+            // });
 
-            this.props.onFileChange(`gateway/${val.previewUrl}`);
+            this.props.onFileChange(val.id, val.displayName, val.previewUrl);
           }}
         />
       </div>

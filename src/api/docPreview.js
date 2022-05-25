@@ -120,7 +120,9 @@ export class DocPreviewApi {
         if (resp.records[0]) {
           const { documents } = resp.records[0];
 
-          return documents;
+          return documents.map(i => {
+            return { ...i, previewUrl: i.previewUrl.replace('alfresco/api/node/', '/gateway/alfresco/alfresco/s/api/node/') };
+          });
         }
 
         return [];

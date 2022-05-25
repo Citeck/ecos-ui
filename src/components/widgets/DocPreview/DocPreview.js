@@ -102,11 +102,10 @@ class DocPreview extends Component {
       this.loadPDF(link);
     }
 
-    this.getFilesByRecord();
     this.getUrlByRecord();
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(_prevProps, prevState) {
     if (prevState.wrapperWidth !== this.state.wrapperWidth) {
       const viewerForceUpdate = get(this._viewerRef, 'onUpdate');
 
@@ -118,8 +117,9 @@ class DocPreview extends Component {
 
   componentWillReceiveProps(nextProps) {
     const prevProps = this.props;
-    const { link, isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
-    const { recordId } = this.state;
+    const { isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
+    const { recordId, link, fileName } = this.state;
+
     const isPdf = isPDFbyStr(link);
     const newState = {};
 
@@ -140,7 +140,14 @@ class DocPreview extends Component {
       newState.link = link;
     }
 
-    const newRecordId = nextProps.recordId || this.getRecordId();
+    let newRecordId = nextProps.recordId || this.getRecordId();
+
+    if (!isEmpty(recordId) && recordId !== newRecordId) {
+      newRecordId = recordId;
+
+      newState.recordId = recordId;
+      newState.fileName = fileName;
+    }
 
     if ((!byLink && recordId !== newRecordId) || (!byLink && prevProps.isCollapsed && !isCollapsed)) {
       newState.recordId = newRecordId;
@@ -152,10 +159,6 @@ class DocPreview extends Component {
 
     if (!prevProps.clear && clear) {
       this.clearState();
-    }
-
-    if ((!prevProps.fileName && nextProps.fileName) || prevProps.fileName !== nextProps.fileName) {
-      newState.fileName = nextProps.fileName;
     }
 
     this.setState({ ...newState }, () => {
@@ -285,18 +288,21 @@ class DocPreview extends Component {
 
   getUrlByRecord = () => {
     const { byLink } = this.props;
-    const { recordId } = this.state;
+    const { recordId, filesList } = this.state;
 
     if (byLink || !recordId) {
       return;
     }
 
-    this.setState({ isLoading: true });
     DocPreviewApi.getPreviewLinkByRecord(recordId).then(link => {
       if (this.exist) {
         const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
         this.setState({ isLoading: false, link, error });
+
+        if (filesList.length === 0) {
+          this.getFilesByRecord();
+        }
 
         if (link && isPDFbyStr(link)) {
           this.loadPDF(link);
@@ -306,14 +312,13 @@ class DocPreview extends Component {
   };
 
   getFilesByRecord = () => {
-    const { byLink } = this.props;
-    const { recordId } = this.state;
+    const { recordId, fileName, link } = this.state;
 
-    if (byLink || !recordId) {
-      return;
-    }
-
-    DocPreviewApi.getFilesList(this.getRecordId()).then(list => this.setState({ filesList: list }));
+    DocPreviewApi.getFilesList(this.getRecordId()).then(list => {
+      this.setState({
+        filesList: [{ id: recordId, displayName: fileName, previewUrl: link }, ...list]
+      });
+    });
   };
 
   getFileName = () => {
@@ -379,13 +384,18 @@ class DocPreview extends Component {
     );
   };
 
-  onFileChange = link => {
+  onFileChange = (id, displayName, link) => {
+    this.clearState();
+
     this.setState({
-      isLoading: true,
+      scrollPage: 1,
+      recordId: id,
       link,
-      pdf: {},
-      settings: {},
-      scrollPage: 1
+      fileName: displayName,
+      downloadData: {
+        link,
+        fileName: displayName
+      }
     });
   };
 
@@ -472,7 +482,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, downloadData, fileName } = this.state;
+    const { pdf, scrollPage, calcScale, downloadData, filesList } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -489,9 +499,9 @@ class DocPreview extends Component {
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.setToolbarRef}
-        fileName={fileName}
+        fileName={downloadData.fileName}
         onFileChange={this.onFileChange}
-        filesList={this.state.filesList}
+        filesList={filesList}
         downloadData={downloadData}
       />
     );
