@@ -44,16 +44,13 @@ export default class DevToolsConverter {
     return target;
   }
 
-  static normalizeCommits(currentRepo, source = []) {
-    const currentRepoHost = getHostName(currentRepo);
-
+  static normalizeCommits(source = []) {
     return source
       .map(app => {
         return app.commits.map(commit => ({
           ...commit,
           id: commit.commit,
-          repo: app.repo,
-          isCurrentRepo: currentRepoHost === getHostName(app.repo)
+          repo: app.repo
         }));
       })
       .reduce((acc, val) => acc.concat(val))
