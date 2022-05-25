@@ -39,6 +39,8 @@ export default class Export extends Component {
     className: ''
   };
 
+  #actionsDoing = new Map();
+
   constructor(props) {
     super(props);
     this.textInput = React.createRef();
@@ -46,8 +48,7 @@ export default class Export extends Component {
   }
 
   state = {
-    isOpen: false,
-    isDoing: false
+    isOpen: false
   };
 
   get dropdownSource() {
@@ -65,6 +66,10 @@ export default class Export extends Component {
   };
 
   export = async item => {
+    if (this.#actionsDoing.get(item.id)) {
+      return;
+    }
+    this.#actionsDoing.set(item.id, true);
     if (item.target) {
       this.setState({ isDoing: true });
       const { journalConfig, grid } = this.props;
@@ -90,8 +95,10 @@ export default class Export extends Component {
       await recordActions.execForQuery(recordsQuery, action, this.state);
       this.setState({ isDoing: false });
     } else if (typeof item.click === 'function') {
-      item.click();
+      await item.click();
     }
+
+    this.#actionsDoing.delete(item.id);
   };
 
   getSearchPredicate = (grid = {}) => {
@@ -167,7 +174,7 @@ export default class Export extends Component {
       data.selectedItems = this.props.selectedItems;
     }
 
-    api.copyUrlConfig({ data, url });
+    return api.copyUrlConfig({ data, url });
   };
 
   render() {
