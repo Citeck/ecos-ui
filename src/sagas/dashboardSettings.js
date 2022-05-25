@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isUndefined from 'lodash/isUndefined';
 
 import {
   getAvailableWidgets,
@@ -30,6 +31,7 @@ import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
 import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import DashboardConverter from '../dto/dashboard';
+import UserLocalSettingsService from '../services/userLocalSettings';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
@@ -188,6 +190,26 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       status: parseDashboard.dashboardId ? RequestStatuses.SUCCESS : RequestStatuses.FAILURE,
       dashboardId: parseDashboard.dashboardId
     };
+
+    Object.keys(get(payload, 'widgets')).forEach(key => {
+      const widgets = get(payload, ['widgets', key], []);
+      const clearWidgetLSData = widget => {
+        if (Array.isArray(widget)) {
+          widget.forEach(clearWidgetLSData);
+          return;
+        }
+
+        const dashletKey = UserLocalSettingsService.getDashletKey(newIdentification.id, widget.id);
+        const isCollapsed = get(widget, 'props.config.collapsed');
+        const isCollapsedFromLS = UserLocalSettingsService.getDashletProperty(dashletKey, 'isCollapsed');
+
+        if (!isUndefined(isCollapsedFromLS) && isCollapsed !== isCollapsedFromLS) {
+          UserLocalSettingsService.setDataByKey(dashletKey, { isCollapsed: undefined });
+        }
+      };
+
+      widgets.forEach(clearWidgetLSData);
+    });
 
     yield call(api.dashboard.deleteFromCache, [
       DashboardService.getCacheKey({ type: identification.key, user: identification.user }),

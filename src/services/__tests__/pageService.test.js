@@ -30,6 +30,7 @@ describe('Page Service', () => {
     ],
     ['/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', PageTypes.DASHBOARD],
     ['/v2/admin', PageTypes.ADMIN_PAGE],
+    ['/v2/dev-tools', PageTypes.ADMIN_PAGE],
     ['/v2/timesheet', PageTypes.TIMESHEET],
     ['/v2/cmmn-editor', PageTypes.CMMN_EDITOR]
   ])('Method getType', (input, output) => {

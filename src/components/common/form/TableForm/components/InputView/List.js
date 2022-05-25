@@ -20,7 +20,8 @@ const List = React.memo(
       selectedRows,
       nonSelectableRows,
       setInlineToolsOffsets,
-      noHeader
+      noHeader,
+      noHorizontalScroll
     } = props;
     const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
     const rowsIds = gridRows.map(i => i.id);
@@ -43,6 +44,7 @@ const List = React.memo(
             scrollable={false}
             noHeader={noHeader}
             noTopBorder={noHeader}
+            noHorizontalScroll={noHorizontalScroll}
           />
         </div>
         {!gridRows.length && (
