@@ -1,4 +1,4 @@
-import _get from 'lodash/get';
+import get from 'lodash/get';
 import _filter from 'lodash/filter';
 
 import { Attributes } from '../../../constants';
@@ -19,41 +19,12 @@ class JournalsDataLoader {
    * @returns {Promise}
    */
   async load(journalConfig, settings = {}) {
-    const recordsQuery = this.getRecordsQuery(journalConfig, settings);
-    //todo тоже в recordsQuery ???
-    const groupBy = settings.groupBy || journalConfig.groupBy;
-    let sortBy = [];
-
-    if (groupBy && groupBy.length) {
-      recordsQuery.groupBy = groupBy;
-    }
-
-    if (Array.isArray(settings.sortBy)) {
-      sortBy = settings.sortBy;
-    } else if (typeof settings.sortBy === 'object' && Object.keys(settings).length) {
-      sortBy = [settings.sortBy];
-    }
-
-    if (!sortBy.length) {
-      sortBy = journalConfig.sortBy || [];
-    }
-
-    sortBy = sortBy.filter(s => !!s.attribute);
-
-    if (!sortBy.length) {
-      sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
-    }
-
-    recordsQuery.sortBy = sortBy;
-
+    const recordsQuery = await this.getRecordsQuery(journalConfig, settings);
     const attributes = this.#getAttributes(journalConfig, settings);
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
-      .then(res => ({
-        ...res,
-        query: recordsQuery
-      }))
+      .then(res => ({ ...res, query: recordsQuery }))
       .then(resArg => {
         const result = { ...resArg };
         const resultRecords = [];
@@ -158,13 +129,62 @@ class JournalsDataLoader {
       language = 'predicate-with-data';
     }
 
+    const sortBy = this.#getSortBy(journalConfig, settings);
+    const groupBy = this.#getGroupBy(journalConfig, settings);
+
     return {
       sourceId: settings.customSourceId || journalConfig.sourceId || '',
-      query,
       language,
+      consistency,
+      query,
       page: settings.page,
-      consistency
+      sortBy,
+      groupBy
     };
+  };
+
+  /**
+   * @private
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Array<{attribute: String, ascending: Boolean}>}
+   */
+  #getSortBy = (journalConfig, settings) => {
+    let sortBy = [];
+
+    if (Array.isArray(settings.sortBy)) {
+      sortBy = settings.sortBy;
+    } else if (typeof settings.sortBy === 'object' && Object.keys(settings).length) {
+      sortBy = [settings.sortBy];
+    }
+
+    if (!sortBy.length) {
+      sortBy = journalConfig.sortBy || [];
+    }
+
+    sortBy = sortBy.filter(s => !!s.attribute);
+
+    if (!sortBy.length) {
+      sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
+    }
+
+    return sortBy;
+  };
+
+  /**
+   * @private
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Array<String>|undefined}
+   */
+  #getGroupBy = (journalConfig, settings) => {
+    const groupBy = settings.groupBy || journalConfig.groupBy;
+
+    if (groupBy && groupBy.length) {
+      return groupBy;
+    }
+
+    return;
   };
 
   /**
@@ -201,7 +221,7 @@ class JournalsDataLoader {
       }
     }
 
-    const additionalAttributes = _get(journalConfig, 'configData.attributesToLoad');
+    const additionalAttributes = get(journalConfig, 'configData.attributesToLoad');
 
     if (additionalAttributes) {
       for (let att of additionalAttributes) {
