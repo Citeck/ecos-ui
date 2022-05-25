@@ -71,7 +71,6 @@ export default class Export extends Component {
     }
     this.#actionsDoing.set(item.id, true);
     if (item.target) {
-      this.setState({ isDoing: true });
       const { journalConfig, grid } = this.props;
       const query = this.getQuery(journalConfig, item.type, grid);
 
