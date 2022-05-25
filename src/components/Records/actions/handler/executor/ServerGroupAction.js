@@ -4,7 +4,6 @@ import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 
 import { RecordActionsApi } from '../../../../../api/recordActions';
-import { t } from '../../../../../helpers/util';
 import FormManager from '../../../../EcosForm/FormManager';
 import { notifyStart, prepareBatchEditAction, prepareResult, removeNotify, ResultTypes } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
