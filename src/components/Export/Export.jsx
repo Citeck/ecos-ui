@@ -93,7 +93,6 @@ export default class Export extends Component {
       };
 
       await recordActions.execForQuery(recordsQuery, action, this.state);
-      this.setState({ isDoing: false });
     } else if (typeof item.click === 'function') {
       await item.click();
     }
