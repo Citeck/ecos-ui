@@ -53,8 +53,6 @@ export class UserConfigApi extends CommonApi {
         } else if (copied !== undefined) {
           NotificationManager.warning(t('export-component.notice.buffer-link-err'));
         }
-
-        return true;
       })
       .catch(e => {
         console.error(e);

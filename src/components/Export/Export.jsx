@@ -161,7 +161,7 @@ export default class Export extends Component {
     return `${objectUrl.url}?${queryString.stringify({ journalId })}`;
   };
 
-  onCopyUrl = async () => {
+  onCopyUrl = () => {
     const data = this.getSelectionFilter();
     const url = this.getSelectionUrl();
 
@@ -169,7 +169,7 @@ export default class Export extends Component {
       data.selectedItems = this.props.selectedItems;
     }
 
-    await api.copyUrlConfig({ data, url });
+    return api.copyUrlConfig({ data, url });
   };
 
   render() {
