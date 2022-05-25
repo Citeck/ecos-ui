@@ -7,7 +7,6 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
-import isNil from 'lodash/isNil';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -66,7 +65,7 @@ export default class Export extends Component {
   };
 
   export = async item => {
-    if (!isNil(this.#actionsDoing.get(item.id))) {
+    if (this.#actionsDoing.get(item.id)) {
       return;
     }
     this.#actionsDoing.set(item.id, true);
