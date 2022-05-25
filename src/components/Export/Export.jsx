@@ -7,6 +7,7 @@ import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
+import isNil from 'lodash/isNil';
 
 import { UserConfigApi } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -38,6 +39,8 @@ export default class Export extends Component {
     className: ''
   };
 
+  #actionsDoing = new Map();
+
   constructor(props) {
     super(props);
     this.textInput = React.createRef();
@@ -45,29 +48,7 @@ export default class Export extends Component {
   }
 
   state = {
-    isOpen: false,
-    actionsDoing: [
-      {
-        id: 0,
-        status: false
-      },
-      {
-        id: 1,
-        status: false
-      },
-      {
-        id: 2,
-        status: false
-      },
-      {
-        id: 3,
-        status: false
-      },
-      {
-        id: 4,
-        status: false
-      }
-    ]
+    isOpen: false
   };
 
   get dropdownSource() {
@@ -85,32 +66,35 @@ export default class Export extends Component {
   };
 
   export = async item => {
-    if (item.target) {
-      // this.setState({ isDoing: true });
-      const { journalConfig, grid } = this.props;
-      const query = this.getQuery(journalConfig, item.type, grid);
+    if (isNil(this.#actionsDoing.get(item.id))) {
+      this.#actionsDoing.set(item.id, true);
+      if (item.target) {
+        const { journalConfig, grid } = this.props;
+        const query = this.getQuery(journalConfig, item.type, grid);
 
-      this.textInput.current.value = JSON.stringify(query);
+        this.textInput.current.value = JSON.stringify(query);
 
-      const recordsQuery = {
-        sourceId: journalConfig.sourceId,
-        query: query.predicate,
-        language: 'predicate',
-        sortBy: query.sortBy
-      };
-      const action = {
-        type: 'records-export',
-        config: {
-          exportType: query.reportType,
-          columns: query.reportColumns,
-          download: item.download
-        }
-      };
+        const recordsQuery = {
+          sourceId: journalConfig.sourceId,
+          query: query.predicate,
+          language: 'predicate',
+          sortBy: query.sortBy
+        };
+        const action = {
+          type: 'records-export',
+          config: {
+            exportType: query.reportType,
+            columns: query.reportColumns,
+            download: item.download
+          }
+        };
 
-      await recordActions.execForQuery(recordsQuery, action);
-      // this.setState({ isDoing: false });
-    } else if (typeof item.click === 'function') {
-      await item.click();
+        await recordActions.execForQuery(recordsQuery, action);
+      } else if (typeof item.click === 'function') {
+        await item.click();
+      }
+
+      this.#actionsDoing.delete(item.id);
     }
   };
 
