@@ -120,12 +120,6 @@ export default class ServerGroupAction extends ActionsExecutor {
     groupAction.type = 'filtered';
     groupAction = await showFormIfRequired(groupAction);
 
-    // let notifyMsg = '';
-
-    // if (typeof context.isDoing === 'boolean' && context.isDoing) {
-    //   notifyMsg = t('ecos-form.export.attention');
-    // }
-    // const notify = notifyStart(notifyMsg, 0);
     const notify = notifyStart('', 0);
     const result = await executeAction({ groupAction, query });
 
