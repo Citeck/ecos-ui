@@ -2216,6 +2216,8 @@
 
   "more-about-error.label": "Подробнее об ошибке",
 
+  "ecos-form.export.attention": "Вы не можете начать одновременно несколько идентичных действий",
+
   "process-statistics-widget.title": "Статистика процесса",
   "process-statistics-widget.info.no-columns": "Нет настроек отображения",
   "process-statistics-widget.info.no-model": "Нет модели",
