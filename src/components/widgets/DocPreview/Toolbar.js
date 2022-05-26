@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
@@ -269,19 +270,27 @@ class Toolbar extends Component {
   renderExtraBtns() {
     const { downloadData, fileName } = this.props;
 
-    return downloadData && downloadData.link ? (
+    if (!downloadData && !downloadData.link) {
+      return null;
+    }
+
+    return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
         <a href={downloadData.link} download={downloadData.fileName || fileName} data-external>
           <IcoBtn icon="icon-download" className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
-    ) : null;
+    );
   }
 
   renderFilesList() {
     const { filesList } = this.props;
 
-    return filesList.length > 1 ? (
+    if (isArray(filesList) && filesList.length <= 1) {
+      return null;
+    }
+
+    return (
       <div className="ecos-doc-preview__toolbar-group">
         <Dropdown
           className="ecos-doc-preview__toolbar-select"
@@ -293,7 +302,7 @@ class Toolbar extends Component {
           onChange={val => this.props.onFileChange(val)}
         />
       </div>
-    ) : null;
+    );
   }
 
   render() {
