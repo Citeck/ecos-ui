@@ -117,14 +117,14 @@ class DocPreview extends Component {
 
   componentWillReceiveProps(nextProps) {
     const prevProps = this.props;
+
+    let isUpdate = false;
+
     const { isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
     const { recordId, link, fileName } = this.state;
 
     const isPdf = isPDFbyStr(link);
-    const newState = {
-      recordId,
-      fileName
-    };
+    const newState = { recordId, fileName };
 
     if (isLoading !== prevProps.isLoading && !isPdf) {
       newState.isLoading = isLoading;
@@ -139,12 +139,11 @@ class DocPreview extends Component {
       this.loadPDF(link);
     }
 
-    if (prevProps.link !== link) {
-      newState.link = link;
-    }
-
     if (!prevProps.runUpdate && runUpdate) {
-      this.getUrlByRecord();
+      isUpdate = true;
+
+      newState.recordId = nextProps.recordId;
+      newState.fileName = null;
     }
 
     if (!prevProps.clear && clear) {
@@ -152,6 +151,10 @@ class DocPreview extends Component {
     }
 
     this.setState({ ...newState }, () => {
+      if (isUpdate) {
+        this.getUrlByRecord();
+      }
+
       if (!newState.fileName) {
         this.getFileName();
       }

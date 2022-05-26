@@ -1,4 +1,5 @@
 import endsWith from 'lodash/endsWith';
+import get from 'lodash/get';
 
 import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
@@ -117,15 +118,18 @@ export class DocPreviewApi {
       }
     )
       .then(resp => {
-        if (resp.records[0]) {
-          const { documents } = resp.records[0];
+        const documents = get(resp, 'records[0].documents', []);
 
-          return documents.map(i => {
-            return { ...i, previewUrl: i.previewUrl.replace('alfresco/api/node/', '/gateway/alfresco/alfresco/s/api/node/') };
+        if (documents.length > 0) {
+          documents.map(i => {
+            return {
+              ...i,
+              previewUrl: i.previewUrl ? i.previewUrl.replace('alfresco/api/node/', `${PROXY_URI}api/node/`) : null
+            };
           });
         }
 
-        return [];
+        return documents;
       })
       .catch(e => {
         console.error(e);
