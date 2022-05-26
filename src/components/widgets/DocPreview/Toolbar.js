@@ -3,12 +3,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import * as queryString from 'query-string';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
 import { getScaleModes, isExistValue, t } from '../../../helpers/util';
-import { decodeLink, pushHistoryLink } from '../../../helpers/urls';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
