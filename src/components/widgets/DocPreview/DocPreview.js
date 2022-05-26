@@ -121,7 +121,10 @@ class DocPreview extends Component {
     const { recordId, link, fileName } = this.state;
 
     const isPdf = isPDFbyStr(link);
-    const newState = {};
+    const newState = {
+      recordId,
+      fileName
+    };
 
     if (isLoading !== prevProps.isLoading && !isPdf) {
       newState.isLoading = isLoading;
@@ -140,19 +143,6 @@ class DocPreview extends Component {
       newState.link = link;
     }
 
-    let newRecordId = nextProps.recordId || this.getRecordId();
-
-    if (!isEmpty(recordId) && recordId !== newRecordId) {
-      newRecordId = recordId;
-
-      newState.recordId = recordId;
-      newState.fileName = fileName;
-    }
-
-    if ((!byLink && recordId !== newRecordId) || (!byLink && prevProps.isCollapsed && !isCollapsed)) {
-      newState.recordId = newRecordId;
-    }
-
     if (!prevProps.runUpdate && runUpdate) {
       this.getUrlByRecord();
     }
@@ -162,10 +152,6 @@ class DocPreview extends Component {
     }
 
     this.setState({ ...newState }, () => {
-      if (newState.recordId) {
-        this.getUrlByRecord();
-      }
-
       if (!newState.fileName) {
         this.getFileName();
       }
@@ -375,6 +361,7 @@ class DocPreview extends Component {
 
     loadingTask.promise.then(
       pdf => {
+        console.log(pdf);
         this.exist && this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
       },
       err => {
@@ -387,16 +374,20 @@ class DocPreview extends Component {
   onFileChange = (id, displayName, link) => {
     this.clearState();
 
-    this.setState({
-      scrollPage: 1,
-      recordId: id,
-      link,
-      fileName: displayName,
-      downloadData: {
+    this.setState(
+      {
+        scrollPage: 1,
+        recordId: id,
         link,
-        fileName: displayName
-      }
-    });
+        isLoading: true,
+        fileName: displayName,
+        downloadData: {
+          link,
+          fileName: displayName
+        }
+      },
+      () => this.getUrlByRecord()
+    );
   };
 
   onChangeSettings = settings => {
@@ -482,7 +473,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, downloadData, filesList } = this.state;
+    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -499,7 +490,7 @@ class DocPreview extends Component {
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.setToolbarRef}
-        fileName={downloadData.fileName}
+        fileName={fileName || downloadData.fileName}
         onFileChange={this.onFileChange}
         filesList={filesList}
         downloadData={downloadData}
