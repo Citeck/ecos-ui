@@ -1504,6 +1504,8 @@
 
   "more-about-error.label": "More about the error",
 
+  "ecos-form.export.attention": "You cannot start multiple identical actions at the same time",
+
   "process-statistics-widget.title": "Process Statistics",
   "process-statistics-widget.info.no-columns": "No display settings",
   "process-statistics-widget.info.no-model": "No model",

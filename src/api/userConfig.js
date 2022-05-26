@@ -41,7 +41,7 @@ export class UserConfigApi extends CommonApi {
   copyUrlConfig = ({ data, url }) => {
     NotificationManager.info('', t('export-component.notice.buffer-link-preparation'));
 
-    this.saveConfig({ data })
+    return this.saveConfig({ data })
       .then(response => {
         const fullId = get(response, 'id');
         const shortId = fullId && get(fullId.split(context), '[1]');
