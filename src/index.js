@@ -50,7 +50,7 @@ registerLocale('ru', datePickerLocaleRu);
 setDefaultLocale(currentLocale);
 
 const { api, setNotAuthCallback } = configureAPI();
-const store = configureStore({ api, logger });
+export const store = configureStore({ api, logger });
 const history = getHistory();
 const setAuthStatus = () => {
   store.dispatch(setIsAuthenticated(false));
