@@ -158,9 +158,9 @@ $border-base: #c1c1c1;
     }
 
     &-pager {
-      &-input {
+      & &-input {
         display: inline-block;
-        width: 35px;
+        width: 45px;
         height: 100%;
         padding: 1.5px;
         margin-right: 0;

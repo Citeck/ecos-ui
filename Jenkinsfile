@@ -7,7 +7,7 @@ timestamps {
     def repoUrl = "git@gitlab.citeck.ru:citeck-projects/ecos-ui.git"
     def mavenRepository = "maven-snapshots"
 
-    stage('Checkout Script Tools SCM') {
+    stage('Checkout Script Index SCM') {
       dir('jenkins-script-tools') {
         checkout([
           $class: 'GitSCM',

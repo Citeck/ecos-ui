@@ -240,6 +240,7 @@
   "dashboard-settings.widget.documents": "Documents",
   "dashboard-settings.widget.user-basic-info": "Profile",
   "dashboard-settings.widget.doc-constructor": "Doc.One",
+  "dashboard-settings.widget.process-statistics": "Process Statistics",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
 
@@ -251,6 +252,7 @@
   "dashlet.move.title": "Move",
   "dashlet.resize.title": "Resize",
   "dashlet.update.title": "Update the data",
+  "dashlet.collapse.title": "Collapse",
   "dashlet.settings.title": "Setting widget",
 
   "dev-tools.tab.build": "Build",
@@ -1502,5 +1504,35 @@
 
   "more-about-error.label": "More about the error",
 
-  "ecos-form.export.attention": "You cannot start multiple identical actions at the same time"
+  "ecos-form.export.attention": "You cannot start multiple identical actions at the same time",
+
+  "process-statistics-widget.title": "Process Statistics",
+  "process-statistics-widget.info.no-columns": "No display settings",
+  "process-statistics-widget.info.no-model": "No model",
+  "process-statistics-widget.info.mount-problem": "There is a mounting problem",
+  "process-statistics-widget.settings.title": "Widget Settings",
+  "process-statistics-widget.settings.btn.cancel": "Cancel",
+  "process-statistics-widget.settings.btn.save": "Save",
+  "process-statistics-widget.settings.field.journal": "Journal",
+  "process-statistics-widget.settings.default-turn-on": "Default Turn-on",
+  "process-statistics-widget.settings.read-out": "Read-out",
+  "process-statistics-widget.settings.field.showHeatmapDefault": "Heatmap",
+  "process-statistics-widget.settings.field.showModelDefault": "Process",
+  "process-statistics-widget.settings.field.showJournalDefault": "Journal",
+  "process-statistics-widget.settings.field.showCountersDefault": "Counters",
+  "process-statistics-widget.settings.field.displayHeatmapToolbar": "Heatmap Toolbar",
+  "process-statistics-widget.panel.heatmap": "Heatmap",
+  "process-statistics-widget.panel.counters": "Counters",
+  "process-statistics-widget.panel.opacity": "Opacity",
+  "process-statistics-widget.panel.active-count": "Active",
+  "process-statistics-widget.panel.completed-count": "Completed",
+  "process-statistics-widget.model.title": "Process",
+  "process-statistics-widget.journal.title": "Journal",
+  "process-statistics-widget.journal.reset-filter": "Reset filter",
+
+  "model-viewer.zoom.tip-window": "Fit to Width",
+  "model-viewer.zoom.tip-original": "Original",
+  "model-viewer.zoom.tip-in": "Zoom In",
+  "model-viewer.zoom.tip-out": "Zoom Out",
+  "model-viewer.heatmap.average-value": "Average"
 }
