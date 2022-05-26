@@ -1,70 +1,79 @@
 /**
- * @typedef SortBy
- * @propery {String} attribute
- * @propery {Boolean} ascending
+ * @typedef ItemSortBy
+ * @property {String} attribute
+ * @property {Boolean} ascending
+ */
+
+/**
+ * @typedef {Array<ItemSortBy>} SortBy
+ */
+
+/**
+ * @typedef {Array<String>} GroupBy
  */
 
 /**
  * @typedef Page
- * @propery {Number} maxItems
- * @propery {Number} skipCount
+ * @property {Number} maxItems
+ * @property {Number} skipCount
  */
 
 /**
  * @typedef Predicate
- * @propery {String} t - predicate type (and, or, contains, eq, not-eq, etc)
- * @propery {String} att - attribute
- * @propery {String|Number|Boolean|Predicate|Array<Predicate>|null} val
+ * @property {String} t - predicate type (and, or, contains, eq, not-eq, etc)
+ * @property {String} att - attribute
+ * @property {String|Number|Boolean|Predicate|Array<Predicate>|null} val
  */
 
 /**
  * @typedef JournalSettings
- * @propery {Predicate} predicate
- * @propery {Object} queryData - additional data to send in search query
- * @propery {Object<String, String>} attributes - additional attributes to load
- * @propery {Array<SortBy>>} sortBy - search query sorting
- * @propery {Page} page -
- * @propery {Boolean} onlyLinked
- * @propery {String} recordRef
- * @propery {?Array<Object>} columns
+ * @property {Predicate} predicate
+ * @property {Object} queryData - additional data to send in search query
+ * @property {Object<String, String>} attributes - additional attributes to load
+ * @property {SortBy} sortBy - search query sorting
+ * @property {GroupBy} groupBy - search query sorting
+ * @property {Page} page -
+ * @property {Boolean} onlyLinked
+ * @property {String} recordRef
+ * @property {?Array<Object>} columns
  *
  * @todo fill all
  */
 
 /**
  * @typedef RecordsError
- * @propery {String} type
- * @propery {String} msg
- * @propery {Array<String>} stackTrace
+ * @property {String} type
+ * @property {String} msg
+ * @property {Array<String>} stackTrace
  */
 
 /**
  * @typedef JournalData
- * @propery {List<Object>} records
- * @propery {List<RecordsError>} errors
- * @propery {Number} totalCount
- * @propery {Boolean} hasMore
- * @propery {Object<String, String>} attributes - requested attributes
+ * @property {List<Object>} records
+ * @property {List<RecordsError>} errors
+ * @property {Number} totalCount
+ * @property {Boolean} hasMore
+ * @property {Object<String, String>} attributes - requested attributes
  */
 
 /**
  * @typedef JournalConfig
- * @propery {String} sourceId
- * @propery {Object} groupBy
- * @propery {Object} sortBy
- * @propery {Array<Object>} columns
- * @propery {Predicate} predicate
- * @propery {Object} queryData
- * @propery {Object} configData
+ * @property {String} sourceId
+ * @property {Object} groupBy
+ * @property {Object} sortBy
+ * @property {Array<Object>} columns
+ * @property {Predicate} predicate
+ * @property {Object} queryData
+ * @property {Object} configData
  *
  * @todo fill all
  */
 
 /**
  * @typedef RecordsQuery
- * @propery {String} sourceId
- * @propery {String} language
- * @propery {String} consistency
- * @propery {Object} query
- * @propery {Object} page
+ * @property {String} sourceId
+ * @property {String} language
+ * @property {String} consistency
+ * @property {Object} query
+ * @property {Object} page
  */

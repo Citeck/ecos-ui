@@ -13,7 +13,6 @@ import { COMPUTED_ATT_PREFIX } from './util';
 
 class JournalsDataLoader {
   /**
-   *
    * @param {JournalConfig} journalConfig
    * @param {JournalSettings} settings
    * @returns {Promise}
@@ -147,7 +146,7 @@ class JournalsDataLoader {
    * @private
    * @param {JournalConfig} journalConfig
    * @param {JournalSettings} settings
-   * @returns {Array<{attribute: String, ascending: Boolean}>}
+   * @returns {SortBy}
    */
   #getSortBy = (journalConfig, settings) => {
     let sortBy = [];
@@ -175,7 +174,7 @@ class JournalsDataLoader {
    * @private
    * @param {JournalConfig} journalConfig
    * @param {JournalSettings} settings
-   * @returns {Array<String>|undefined}
+   * @returns {?Array<String>}
    */
   #getGroupBy = (journalConfig, settings) => {
     const groupBy = settings.groupBy || journalConfig.groupBy;
@@ -183,8 +182,6 @@ class JournalsDataLoader {
     if (groupBy && groupBy.length) {
       return groupBy;
     }
-
-    return;
   };
 
   /**

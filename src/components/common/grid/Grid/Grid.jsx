@@ -596,7 +596,9 @@ class Grid extends Component {
       nonSelectable: props.nonSelectable || [],
       onSelect: this.handleSelectCheckbox,
       onSelectAll: this.handleSelectAllCheckbox,
-      selectionHeaderRenderer: props => <SelectorHeader {...props} hasMenu onClickMenu={this.handleClickMenuCheckbox} />,
+      selectionHeaderRenderer: props => (
+        <SelectorHeader {...props} hasMenu={!props.noSelectorMenu} onClickMenu={this.handleClickMenuCheckbox} />
+      ),
       selectionRenderer: props => <Selector {...props} />
     };
   }
@@ -1074,6 +1076,7 @@ Grid.propTypes = {
   singleSelectable: PropTypes.bool,
   freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
+  noSelectorMenu: PropTypes.bool,
   fixedHeader: PropTypes.bool,
   noHeader: PropTypes.bool,
   noTopBorder: PropTypes.bool,

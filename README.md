@@ -3,7 +3,7 @@
 **Win**
 
 You need 
-1. `Node v14`
+1. `Node v12`
 1. `node-sass` 4.12.0 (check package)
 1. `Python27`
 1. *maybe - windows-build-tools*
@@ -11,7 +11,7 @@ You need
 
 `Node` 
 
-[download here v14](https://nodejs.org/download/release/v14.19.1/)
+[download here v12](https://nodejs.org/download/release/latest-v12.x/)
 
 *After installation, check the box for downloading add-ons*
 

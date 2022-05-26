@@ -28,7 +28,7 @@ export default [
     data: {
       values: [
         {
-          value: DataTypes.ASSOS,
+          value: DataTypes.ASSOC,
           label: 'Association'
         },
         {
@@ -38,14 +38,10 @@ export default [
         {
           value: DataTypes.QUERY,
           label: 'Query'
-        },
-        {
-          value: DataTypes.RECORDS,
-          label: 'Records'
         }
       ]
     },
-    defaultValue: DataTypes.ASSOS,
+    defaultValue: DataTypes.ASSOC,
     input: true
   },
   {

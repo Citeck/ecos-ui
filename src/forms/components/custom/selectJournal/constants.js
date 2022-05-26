@@ -20,8 +20,7 @@ export const DisplayModes = {
 };
 
 export const DataTypes = {
-  ASSOS: 'assoc',
+  ASSOC: 'assoc',
   JSON_REC: 'json-record',
-  RECORDS: 'records',
   QUERY: 'query'
 };

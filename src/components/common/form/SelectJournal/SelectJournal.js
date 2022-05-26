@@ -7,10 +7,11 @@ import get from 'lodash/get';
 import merge from 'lodash/merge';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import { Attributes, Permissions } from '../../../../constants';
 import { beArray, isMobileDevice, t } from '../../../../helpers/util';
-import { DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
+import { DataTypes, DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
 import { EcosModal, Loader, Pagination } from '../../../common';
@@ -85,6 +86,10 @@ export default class SelectJournal extends Component {
     }
 
     return newState;
+  }
+
+  get isQuery() {
+    return this.props.dataType === DataTypes.QUERY;
   }
 
   componentDidMount() {
@@ -437,6 +442,7 @@ export default class SelectJournal extends Component {
             .then(result => {
               const fetchedAtts = {};
               let currentAttIndex = 0;
+
               for (let attSchema in result) {
                 if (!result.hasOwnProperty(attSchema)) {
                   continue;
@@ -672,7 +678,7 @@ export default class SelectJournal extends Component {
   };
 
   renderSelectModal() {
-    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title } = this.props;
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, dataType } = this.props;
     const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
     const extraProps = {};
 
@@ -685,6 +691,14 @@ export default class SelectJournal extends Component {
     if (isMobileDevice()) {
       extraProps.scrollable = true;
       extraProps.autoHeight = true;
+    }
+
+    if (this.isQuery) {
+      extraProps.singleSelectable = false;
+      extraProps.multiSelectable = true;
+      extraProps.selectAll = true;
+      extraProps.noSelectorMenu = true;
+      extraProps.nonSelectable = [];
     }
 
     return (
@@ -736,8 +750,6 @@ export default class SelectJournal extends Component {
             singleSelectable={!multiple}
             multiSelectable={multiple}
             onSelect={this.onSelectGridItem}
-            selectAllRecords={null}
-            selectAllRecordsVisible={null}
             className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
             scrollable={false}
             onRowDoubleClick={this.onRowDoubleClick}
@@ -776,7 +788,8 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
-      viewMode
+      viewMode,
+      dataType
     } = this.props;
     const { journalConfig, selectedRows, error } = this.state;
 
@@ -800,6 +813,7 @@ export default class SelectJournal extends Component {
       isInlineEditingMode,
       isModalMode,
       viewMode,
+      dataType,
       gridData: {
         columns: this.getColumns(),
         data: this.state.selectedRows,
@@ -813,7 +827,7 @@ export default class SelectJournal extends Component {
         scrollable: false
       }
     };
-    const defaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
+    const DefaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
 
     return (
       <div
@@ -822,7 +836,7 @@ export default class SelectJournal extends Component {
           'select-journal_view-only': viewOnly
         })}
       >
-        {typeof renderView === 'function' ? renderView(inputViewProps) : defaultView}
+        {isFunction(renderView) ? renderView(inputViewProps) : DefaultView}
 
         <FiltersProvider
           columns={journalConfig.columns}
@@ -846,6 +860,7 @@ const predicateShape = PropTypes.shape({
 SelectJournal.propTypes = {
   journalId: PropTypes.string,
   queryData: PropTypes.object,
+  dataType: PropTypes.oneOf(Object.values(DataTypes)),
   customSourceId: PropTypes.string,
   defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
   onChange: PropTypes.func,
