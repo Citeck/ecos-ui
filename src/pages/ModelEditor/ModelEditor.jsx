@@ -10,7 +10,7 @@ import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
-import { t, getTextByLocale, getCurrentLocale, getMLValue } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../helpers/util';
 import {
   EventListeners,
   GATEWAY_TYPES,

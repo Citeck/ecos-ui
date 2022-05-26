@@ -1,3 +1,4 @@
+export const SET_CURRENT_REPO = 'SET_CURRENT_REPO';
 export const SET_REPOS = 'SET_REPOS';
 export const SET_COMMITS = 'SET_COMMITS';
 export const SET_IS_READY = 'SET_IS_READY';
