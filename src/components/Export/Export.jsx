@@ -38,6 +38,8 @@ export default class Export extends Component {
     className: ''
   };
 
+  #actionsDoing = new Map();
+
   constructor(props) {
     super(props);
     this.textInput = React.createRef();
@@ -62,7 +64,11 @@ export default class Export extends Component {
     this.setState({ isOpen });
   };
 
-  export = item => {
+  export = async item => {
+    if (this.#actionsDoing.get(item.id)) {
+      return;
+    }
+    this.#actionsDoing.set(item.id, true);
     if (item.target) {
       const { journalConfig, grid } = this.props;
       const query = this.getQuery(journalConfig, item.type, grid);
@@ -84,10 +90,12 @@ export default class Export extends Component {
         }
       };
 
-      recordActions.execForQuery(recordsQuery, action);
+      await recordActions.execForQuery(recordsQuery, action);
     } else if (typeof item.click === 'function') {
-      item.click();
+      await item.click();
     }
+
+    this.#actionsDoing.delete(item.id);
   };
 
   getSearchPredicate = (grid = {}) => {
@@ -161,7 +169,7 @@ export default class Export extends Component {
       data.selectedItems = this.props.selectedItems;
     }
 
-    api.copyUrlConfig({ data, url });
+    return api.copyUrlConfig({ data, url });
   };
 
   render() {
