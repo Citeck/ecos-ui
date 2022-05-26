@@ -6,13 +6,21 @@ import { Grid } from '../../../components/common/grid';
 import { t } from '../../../helpers/util';
 
 import { ALL_REPOS, BITBUCKET } from './constants';
-import { getRepoProject, parseTasksLinks } from './helpers';
+import { getRepoProject, parseTasksLinks, getHostName } from './helpers';
 import { CommitsContext } from './CommitsContext';
 
 const CommitsGrid = () => {
   const context = useContext(CommitsContext);
   const { state } = context;
   const { repo, repos, commits } = state;
+
+  const repoCommitLink = (fullRepo, repoProject, hash) => {
+    if (fullRepo.includes(getHostName(BITBUCKET))) {
+      return `${BITBUCKET}${repoProject}/commits/${hash}`;
+    }
+
+    return `https://${getHostName(fullRepo)}/${repoProject}/commit/${hash}`;
+  };
 
   const columns = [
     {
@@ -26,14 +34,20 @@ const CommitsGrid = () => {
       dataField: 'repo',
       text: t('dev-tools.commits.grid-column.repo'),
       formatExtraData: {
-        formatter: ({ cell }) => {
+        formatter: ({ cell, row }) => {
           const repoProject = getRepoProject(cell);
           const repoLabel = repos[cell].label;
           if (!repoProject) {
             return repoLabel;
           }
           return (
-            <a href={`${BITBUCKET}${repoProject}`} target="_blank" rel="noopener noreferrer" className="commits-grid__link" title={cell}>
+            <a
+              href={`https://${getHostName(row.repo)}/${repoProject}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="commits-grid__link"
+              title={cell}
+            >
               {repoLabel}
             </a>
           );
@@ -52,8 +66,8 @@ const CommitsGrid = () => {
           }
           return (
             <a
-              href={`${BITBUCKET}${repoProject}/commits/${cell}`}
               target="_blank"
+              href={repoCommitLink(row.repo, repoProject, cell)}
               rel="noopener noreferrer"
               className="commits-grid__link"
               title={cell}
