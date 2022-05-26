@@ -240,6 +240,7 @@
   "dashboard-settings.widget.documents": "Документы",
   "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashboard-settings.widget.doc-constructor": "Doc.One",
+  "dashboard-settings.widget.process-statistics": "Статистика процесса",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
@@ -251,6 +252,7 @@
   "dashlet.move.title": "Переместить",
   "dashlet.resize.title": "Изменить размер",
   "dashlet.update.title": "Обновить данные",
+  "dashlet.collapse.title": "Свернуть",
   "dashlet.settings.title": "Настроить виджет",
 
   "dev-tools.tab.build": "Сборка",
@@ -1499,5 +1501,35 @@
   "ecos-form.builder.debugging.fatal-error": "При построении дерева зависисмостей произошла фатальная ошибка. Попробуйте провести анализ формы и зависимостей компанентов в json-редакторе или в Form Builder",
   "ecos-form.builder.form-id.label": "ID формы",
 
-  "more-about-error.label": "Подробнее об ошибке"
+  "more-about-error.label": "Подробнее об ошибке",
+
+  "process-statistics-widget.title": "Статистика процесса",
+  "process-statistics-widget.info.no-columns": "Нет настроек отображения",
+  "process-statistics-widget.info.no-model": "Нет модели",
+  "process-statistics-widget.info.mount-problem": "There is a mounting problem",
+  "process-statistics-widget.settings.title": "Настройки виджета",
+  "process-statistics-widget.settings.btn.cancel": "Отмена",
+  "process-statistics-widget.settings.btn.save": "Сохранить",
+  "process-statistics-widget.settings.field.journal": "Журнал",
+  "process-statistics-widget.settings.default-turn-on": "Включены по умолчанию",
+  "process-statistics-widget.settings.read-out": "Отображаются",
+  "process-statistics-widget.settings.field.showHeatmapDefault": "Тепловая карта",
+  "process-statistics-widget.settings.field.showModelDefault": "Процесс",
+  "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
+  "process-statistics-widget.settings.field.showCountersDefault": "Счётчики",
+  "process-statistics-widget.settings.field.displayHeatmapToolbar": "Панель тепловой карты",
+  "process-statistics-widget.panel.heatmap": "Тепловая карта",
+  "process-statistics-widget.panel.counters": "Счётчики",
+  "process-statistics-widget.panel.opacity": "Прозрачность",
+  "process-statistics-widget.panel.active-count": "Активные",
+  "process-statistics-widget.panel.completed-count": "Завершенные",
+  "process-statistics-widget.model.title": "Процесс",
+  "process-statistics-widget.journal.title": "Журнал",
+  "process-statistics-widget.journal.reset-filter": "Сбросить фильтр",
+
+  "model-viewer.zoom.tip-window": "По ширине",
+  "model-viewer.zoom.tip-original": "Оригинальный",
+  "model-viewer.zoom.tip-in": "Увеличить",
+  "model-viewer.zoom.tip-out": "Уменьшить",
+  "model-viewer.heatmap.average-value": "Среднее значение"
 }

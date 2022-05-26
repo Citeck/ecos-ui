@@ -80,6 +80,7 @@ export const SourcesId = {
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   BPMN_PROC: 'eproc/bpmn-proc',
+  BPMN_STAT: 'eproc/bpmn-process-elements',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',
@@ -199,7 +200,8 @@ export const SystemJournals = {
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
-  PROCESS: 'bpmn-process-def'
+  PROCESS: 'bpmn-process-def',
+  PROCESS_ELMS: 'bpmn-process-elements'
 };
 
 export const DateFormats = {

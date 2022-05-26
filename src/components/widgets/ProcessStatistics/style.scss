@@ -1,0 +1,161 @@
+@import '../../../styles/constants';
+
+%base-block {
+  position: relative;
+  min-height: 50px;
+  border-top: 2px solid $color-gray-4;
+
+  .ecos-caption {
+    margin: 10px;
+  }
+}
+
+.ecos-process-statistics {
+  $root: &;
+
+  &__header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+  }
+
+  &-section__caption {
+    cursor: pointer;
+  }
+
+  &__heatmap-switch {
+    display: flex;
+    align-items: center;
+
+    .ecos-switch {
+      margin-right: 10px;
+    }
+  }
+
+  &__delimiter {
+    flex: auto;
+  }
+
+  &-model {
+    $model: &;
+
+    @extend %base-block;
+
+    border-top: none;
+
+    &_hidden-heatmap {
+      .ecos-model-container {
+        cursor: move;
+      }
+    }
+
+    &_hidden-badges .model-badges__wrap {
+      display: none;
+    }
+
+    &__panel {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 10px;
+      margin-bottom: 10px;
+      align-items: center;
+
+      & > :nth-child(n):not(:last-child):not(:empty) {
+        padding-right: 15px;
+      }
+
+      &_footer {
+        margin: 10px 0 0;
+      }
+    }
+
+    & &__sheet-resizer {
+      &::before {
+        content: none;
+      }
+    }
+
+    &__checkbox {
+      display: flex;
+      align-items: center;
+      font-weight: $font-weight-semi-bold;
+      height: 100%;
+
+      &-label {
+        padding-left: 5px;
+      }
+
+      &-group {
+        display: flex;
+
+        & > :nth-child(n):not(:last-child) {
+          padding-right: 15px;
+        }
+      }
+    }
+
+    &_x {
+      #{$model}__panel {
+        flex-direction: column;
+        align-items: flex-start;
+
+        & > :nth-child(n) {
+          padding-bottom: 10px;
+          width: 100%;
+
+          &:last-child,
+          &:empty {
+            padding-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  &-journal {
+    @extend %base-block;
+
+    &__grid {
+      padding: 0 15px;
+    }
+
+    &__panel {
+      display: flex;
+      padding: 0 15px;
+    }
+  }
+
+  &-settings {
+    padding: 20px 20px 0;
+
+    &__block {
+      max-width: 434px;
+    }
+
+    &__title {
+      margin-bottom: 20px;
+
+      &.ecos-caption_small {
+        color: $text-color-gray;
+      }
+    }
+
+    &__buttons {
+      margin-top: 22px;
+
+      & > :nth-child(even) {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  /*todo*/
+  & .model-badges__item_activeCount {
+    background: $color-green-dark;
+    color: white;
+  }
+}
+
+.heatmap-canvas {
+  pointer-events: none;
+}

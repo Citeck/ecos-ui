@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.7.0-snapshot",
+  "version": "2.7.0-heatmap-snapshot",
   "private": true,
   "dependencies": {
     "@popperjs/core": "^2.4.4",
@@ -21,6 +21,7 @@
     "font-awesome": "^4.7.0",
     "formiojs": "3.23.0",
     "fscreen": "^1.0.2",
+    "heatmap.js": "^2.0.5",
     "history": "^4.7.2",
     "http-proxy-middleware": "^0.19.1",
     "i18next": "^17.1.0",

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
@@ -16,6 +17,8 @@ import { DI_POSTFIX, LABEL_POSTFIX } from '../../constants/cmmn';
  * @param {Boolean} isCustomContainer - shows whose container is. You can set using setCustomContainer
  */
 export default class BaseModeler {
+  static querySelector = 'ecos-model-container';
+
   modeler;
   events = {};
   _isCustomContainer = false;
@@ -31,15 +34,16 @@ export default class BaseModeler {
    * @param container - html element where diagram draws
    * @param {Object} events - any events you want to use.
    * @param {Object} extraEvents - Additional events. You can see the keys of all available events through the this.getEventBus() command {@see getEventBus}
+   * @param {Function} callback
    */
-  init = async ({ diagram, container, events, extraEvents }) => {
+  init = async ({ diagram, container, events, extraEvents, callback }) => {
     this.initModelerInstance();
 
     if (container) {
       this.modeler.attachTo(container);
     }
 
-    this.setDiagram(diagram);
+    this.setDiagram(diagram, { callback });
     this.setEvents(events, extraEvents);
   };
 
@@ -59,17 +63,20 @@ export default class BaseModeler {
     return this.modeler.get('eventBus');
   }
 
-  setDiagram = diagram => {
-    if (this.modeler && diagram) {
-      this.modeler.importXML(diagram, error => {
-        if (error) {
-          console.error('Error rendering', error);
-        } else {
-          this._isDiagramMounted = true;
-        }
-      });
-    } else {
-      console.warn('No diagram');
+  setDiagram = async (diagram, { callback }) => {
+    try {
+      if (this.modeler && diagram) {
+        const result = await this.modeler.importXML(diagram);
+        const { warnings } = result || {};
+
+        this._isDiagramMounted = true;
+        isFunction(callback) && callback({ mounted: !!this.isDiagramMounted, warnings });
+        !!warnings.length && console.warn(warnings);
+      } else {
+        console.error('No diagram', diagram);
+      }
+    } catch (err) {
+      console.error('Error rendering', err.message, err.warnings);
     }
   };
 
@@ -212,7 +219,6 @@ export default class BaseModeler {
    */
   Sheet = ({ diagram, onMounted, extraEvents, ...props }) => {
     const [initialized, setInitialized] = useState(false);
-    const [mounted, setMounted] = useState(false);
     const containerRef = useRef(null);
     const events = {};
 
@@ -222,19 +228,18 @@ export default class BaseModeler {
 
     useEffect(() => {
       if (!initialized && get(containerRef, 'current')) {
-        this.init({ diagram, container: containerRef.current, events, extraEvents });
+        this.init({
+          diagram,
+          container: containerRef.current,
+          events,
+          extraEvents,
+          callback: res => onMounted(true, res)
+        });
         setInitialized(true);
       }
     }, [initialized, containerRef]);
 
-    useEffect(() => {
-      if (!mounted && initialized && this.isDiagramMounted) {
-        onMounted(true);
-        setMounted(true);
-      }
-    });
-
-    return <div ref={containerRef} className="ecos-model-container" />;
+    return <div ref={containerRef} className={BaseModeler.querySelector} />;
   };
 
   destroy = () => {

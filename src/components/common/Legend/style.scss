@@ -1,0 +1,23 @@
+@import '../../../styles/constants';
+
+.ecos-legend {
+  display: flex;
+
+  &-min,
+  &-max {
+    font-size: $font-size-standard;
+    font-weight: $font-weight-bold;
+    color: $text-color-dark;
+  }
+
+  &-gradient {
+    margin: 0 8px;
+    flex: auto;
+
+    & img {
+      height: 14px;
+      border-radius: 10px;
+      width: 100%;
+    }
+  }
+}
