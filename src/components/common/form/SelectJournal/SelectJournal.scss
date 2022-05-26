@@ -3,6 +3,18 @@
 .select-journal {
   position: relative;
   display: flow-root;
+
+  &__info-msg {
+    color: $text-color-gray;
+    font-size: $font-size-standard;
+    font-weight: $font-weight-semi-bold;
+    margin-top: 10px;
+
+    & .icon {
+      margin-right: 10px;
+      font-size: $font-size-standard;
+    }
+  }
 }
 
 .select-journal_compact {

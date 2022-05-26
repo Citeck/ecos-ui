@@ -11,10 +11,9 @@ import isFunction from 'lodash/isFunction';
 
 import { Attributes, Permissions } from '../../../../constants';
 import { beArray, isMobileDevice, t } from '../../../../helpers/util';
-import { DataTypes, DisplayModes } from '../../../../forms/components/custom/selectJournal/constants';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
-import { EcosModal, Loader, Pagination } from '../../../common';
+import { EcosModal, Icon, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
 import FormManager from '../../../EcosForm/FormManager';
@@ -23,6 +22,7 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { DialogManager } from '../../dialogs';
 import { matchCardDetailsLinkFormatterColumn } from '../../grid/mapping/Mapper';
 
+import { DataTypes, DisplayModes, Labels } from './constants';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
 import Filters from './Filters';
@@ -42,15 +42,6 @@ const emptyJournalConfig = Object.freeze({
   meta: {}
 });
 
-const Labels = {
-  NO_JOURNAL_ID_ERROR: 'select-journal.error.no-journal-id',
-  NO_JOURNAL_CONFIG_ERROR: 'select-journal.error.no-journal-config',
-  DEFAULT_TITLE: 'select-journal.select-modal.title',
-  FILTER_BUTTON: 'select-journal.select-modal.filter-button',
-  CANCEL_BUTTON: 'select-journal.select-modal.cancel-button',
-  SAVE_BUTTON: 'select-journal.select-modal.ok-button'
-};
-
 export default class SelectJournal extends Component {
   state = {
     isCollapsePanelOpen: false,
@@ -69,7 +60,8 @@ export default class SelectJournal extends Component {
     filterPredicate: [],
     selectedRows: [],
     error: null,
-    customPredicate: null
+    customPredicate: null,
+    value: undefined
   };
 
   liveComponent = true;
@@ -94,11 +86,11 @@ export default class SelectJournal extends Component {
 
   componentDidMount() {
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
-    const initValue = beArray(defaultValue);
+    const initValue = this.isQuery ? defaultValue : beArray(defaultValue);
 
     this.checkJournalId();
 
-    if (!multiple) {
+    if (!this.isQuery && !multiple) {
       initValue.splice(1);
     }
 
@@ -133,7 +125,9 @@ export default class SelectJournal extends Component {
     const { multiple } = this.props;
     let newValue;
 
-    if (multiple && Array.isArray(value) && value.length > 0) {
+    if (this.isQuery) {
+      newValue = value;
+    } else if (multiple && Array.isArray(value) && value.length > 0) {
       newValue = [...value];
     } else if (!multiple && !!value) {
       newValue = beArray(value);
@@ -361,13 +355,8 @@ export default class SelectJournal extends Component {
   hideSelectModal = () => {
     const { onCancel } = this.props;
 
-    this.setState({
-      isSelectModalOpen: false
-    });
-
-    if (typeof onCancel === 'function') {
-      onCancel.call(this);
-    }
+    this.setState({ isSelectModalOpen: false });
+    isFunction(onCancel) && onCancel();
   };
 
   toggleCollapsePanel = () => {
@@ -375,9 +364,9 @@ export default class SelectJournal extends Component {
   };
 
   onSelectFromJournalPopup = () => {
-    this.setValue(this.state.gridData.selected).then(
-      () => this.liveComponent && this.setState({ isSelectModalOpen: false, wasChangedFromPopup: true })
-    );
+    const value = this.isQuery ? this.state.gridData.query : this.state.gridData.selected;
+
+    this.setValue(value).then(() => this.liveComponent && this.setState({ isSelectModalOpen: false, wasChangedFromPopup: true }));
   };
 
   fillCanEdit = rows => {
@@ -490,8 +479,20 @@ export default class SelectJournal extends Component {
     );
   };
 
+  /**
+   * @param {String|Array<String>|RecordsQuery} selected - value can be array or string - recordRef or query for selection
+   * @param shouldTriggerOnChange - default TRUE
+   * @returns {Promise<unknown>}
+   */
   setValue = (selected, shouldTriggerOnChange = true) => {
     const { onChange, multiple } = this.props;
+
+    if (this.isQuery) {
+      return new Promise(resolve => {
+        this.setState({ value: selected }, () => shouldTriggerOnChange && isFunction(onChange) && onChange(selected));
+        resolve();
+      });
+    }
 
     selected = beArray(selected);
 
@@ -516,9 +517,7 @@ export default class SelectJournal extends Component {
               }
             }),
             () => {
-              if (shouldTriggerOnChange && typeof onChange === 'function') {
-                onChange(newValue, selected);
-              }
+              shouldTriggerOnChange && isFunction(onChange) && onChange(newValue, selected);
               resolve();
             }
           );
@@ -536,10 +535,7 @@ export default class SelectJournal extends Component {
       },
       isSelectModalOpen: false
     }));
-
-    if (typeof onCancel === 'function') {
-      onCancel.call(this);
-    }
+    isFunction(onCancel) && onCancel();
   };
 
   onSelectGridItem = value => {
@@ -568,7 +564,7 @@ export default class SelectJournal extends Component {
         selected = [val];
       }
     }
-    this.setState(prevState => ({ gridData: { ...prevState.gridData, selected: selected } }), this.onSelectFromJournalPopup);
+    this.setState(prevState => ({ gridData: { ...prevState.gridData, selected } }), this.onSelectFromJournalPopup);
   };
 
   openSelectModal = () => {
@@ -678,7 +674,7 @@ export default class SelectJournal extends Component {
   };
 
   renderSelectModal() {
-    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, dataType } = this.props;
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title } = this.props;
     const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
     const extraProps = {};
 
@@ -694,11 +690,14 @@ export default class SelectJournal extends Component {
     }
 
     if (this.isQuery) {
+      const demoSelected = get(gridData, 'data', []).map(item => item.id);
+
       extraProps.singleSelectable = false;
       extraProps.multiSelectable = true;
-      extraProps.selectAll = true;
       extraProps.noSelectorMenu = true;
-      extraProps.nonSelectable = [];
+      extraProps.selected = isGridDataReady ? demoSelected : [];
+      extraProps.nonSelectable = demoSelected;
+      extraProps.onRowDoubleClick = undefined;
     }
 
     return (
@@ -742,6 +741,12 @@ export default class SelectJournal extends Component {
           </Collapse>
         </div>
 
+        {this.isQuery && (
+          <div className="select-journal__info-msg">
+            <Icon className="icon-filter" />
+            {t(Labels.MSG_WHOLE_SELECTION)}
+          </div>
+        )}
         <div className="select-journal__grid-container">
           {!isGridDataReady && <Loader />}
 
@@ -791,7 +796,7 @@ export default class SelectJournal extends Component {
       viewMode,
       dataType
     } = this.props;
-    const { journalConfig, selectedRows, error } = this.state;
+    const { journalConfig, selectedRows, error, gridData } = this.state;
 
     const inputViewProps = {
       disabled,
@@ -817,7 +822,7 @@ export default class SelectJournal extends Component {
       gridData: {
         columns: this.getColumns(),
         data: this.state.selectedRows,
-        total: this.state.selectedRows.length,
+        total: this.isQuery ? gridData.total : this.state.selectedRows.length,
         editable: false,
         singleSelectable: false,
         multiSelectable: false,
@@ -862,7 +867,7 @@ SelectJournal.propTypes = {
   queryData: PropTypes.object,
   dataType: PropTypes.oneOf(Object.values(DataTypes)),
   customSourceId: PropTypes.string,
-  defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string]),
+  defaultValue: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.string, PropTypes.object]),
   onChange: PropTypes.func,
   onError: PropTypes.func,
   multiple: PropTypes.bool,

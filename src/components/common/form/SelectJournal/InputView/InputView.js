@@ -10,6 +10,7 @@ import { Btn, IcoBtn } from '../../../../common/btns';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
 import { AssocLink } from '../../AssocLink';
+import { DataTypes, Labels } from '../constants';
 
 import './InputView.scss';
 
@@ -32,6 +33,10 @@ class InputView extends Component {
     }
 
     this.#scrollPosition = {};
+  }
+
+  get isQuery() {
+    return this.props.dataType === DataTypes.QUERY;
   }
 
   setRef = ref => {
@@ -197,10 +202,14 @@ class InputView extends Component {
       return null;
     }
 
+    if (this.isQuery && gridData.total) {
+      return <p className="select-journal__value-selection">{t(Labels.SELECTED_LABEL, { data: gridData.total })}</p>;
+    }
+
     if (!selectedRows.length) {
       return (
         <p className={classNames('select-journal__value-not-selected', { 'select-journal__value-not-selected_view-only': viewOnly })}>
-          {placeholder ? placeholder : t('select-journal.placeholder')}
+          {placeholder || t(Labels.PLACEHOLDER)}
         </p>
       );
     }
@@ -258,11 +267,7 @@ class InputView extends Component {
         autoFocus={autoFocus}
         onBlur={this.onBlur}
       >
-        {selectedRows.length > 0
-          ? multiple
-            ? t('select-journal.button.add')
-            : t('select-journal.button.change')
-          : t('select-journal.button.select')}
+        {selectedRows.length > 0 ? (multiple ? t(Labels.INPUT_BTN_ADD) : t(Labels.INPUT_BTN_CHANGE)) : t(Labels.INPUT_BTN_SELECT)}
       </Btn>
     );
   }
@@ -301,7 +306,8 @@ InputView.propTypes = {
   hideActionButton: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
   isInlineEditingMode: PropTypes.bool,
-  gridData: PropTypes.object
+  gridData: PropTypes.object,
+  dataType: PropTypes.string
 };
 
 export default InputView;

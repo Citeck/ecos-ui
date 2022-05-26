@@ -981,6 +981,8 @@
   "select-journal.select-modal.title": "Select",
   "select-journal.error.no-journal-id": "The \"journal ID\" config is required!",
   "select-journal.error.no-journal-config": "The journal with ID {{journalId}} was not found. \n Contact your system administrator",
+  "select-journal.msg.whole-selection-used": "The entire filtered selection is used",
+  "select-journal.msg.selected-records": "Selected: {{data}}",
   "select-member-dialog.form-field.button": "Select",
   "select-member-dialog.form-field.label": "Employees",
   "select-member-dialog.listmem.title": "Selected employees",

@@ -586,18 +586,18 @@ class Grid extends Component {
     this.onSelect({ allPage: false, newSelected });
   };
 
-  createMultiSelectionCheckboxes(props) {
-    const selected = props.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
+  createMultiSelectionCheckboxes(gridProps) {
+    const selected = gridProps.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
 
     return {
       mode: BootstrapTableConst.ROW_SELECT_MULTIPLE,
       classes: 'ecos-grid__tr_selected',
       selected,
-      nonSelectable: props.nonSelectable || [],
+      nonSelectable: gridProps.nonSelectable || [],
       onSelect: this.handleSelectCheckbox,
       onSelectAll: this.handleSelectAllCheckbox,
       selectionHeaderRenderer: props => (
-        <SelectorHeader {...props} hasMenu={!props.noSelectorMenu} onClickMenu={this.handleClickMenuCheckbox} />
+        <SelectorHeader {...props} hasMenu={!gridProps.noSelectorMenu} onClickMenu={this.handleClickMenuCheckbox} />
       ),
       selectionRenderer: props => <Selector {...props} />
     };
