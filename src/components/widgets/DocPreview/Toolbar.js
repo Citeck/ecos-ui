@@ -26,6 +26,7 @@ class Toolbar extends Component {
     className: PropTypes.string,
     fileName: PropTypes.string,
     filesList: PropTypes.array,
+    fileValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     onFileChange: PropTypes.func,
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
@@ -280,7 +281,7 @@ class Toolbar extends Component {
   }
 
   renderFilesList() {
-    const { fileName, filesList } = this.props;
+    const { filesList } = this.props;
 
     return filesList.length > 1 ? (
       <div className="ecos-doc-preview__toolbar-group">
@@ -289,23 +290,9 @@ class Toolbar extends Component {
           source={filesList}
           valueField="id"
           titleField="displayName"
-          value={fileName}
+          value={this.props.fileValue}
           withScrollbar
-          onChange={val => {
-            // const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
-
-            // pushHistoryLink(window, {
-            //   pathname: window.location.pathname,
-            //   search:
-            //     '?' +
-            //     new URLSearchParams({
-            //       recordRef: val.id,
-            //       activeLayoutId: layoutId
-            //     }).toString()
-            // });
-
-            this.props.onFileChange(val.id, val.displayName, val.previewUrl);
-          }}
+          onChange={val => this.props.onFileChange(val)}
         />
       </div>
     ) : null;

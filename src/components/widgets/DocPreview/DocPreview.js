@@ -361,7 +361,6 @@ class DocPreview extends Component {
 
     loadingTask.promise.then(
       pdf => {
-        console.log(pdf);
         this.exist && this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
       },
       err => {
@@ -371,19 +370,19 @@ class DocPreview extends Component {
     );
   };
 
-  onFileChange = (id, displayName, link) => {
+  onFileChange = file => {
     this.clearState();
 
     this.setState(
       {
         scrollPage: 1,
-        recordId: id,
-        link,
+        recordId: file.id,
+        link: file.link,
         isLoading: true,
-        fileName: displayName,
+        fileName: file.displayName,
         downloadData: {
-          link,
-          fileName: displayName
+          link: file.link,
+          fileName: file.displayName
         }
       },
       () => this.getUrlByRecord()
@@ -473,7 +472,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName } = this.state;
+    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -490,7 +489,8 @@ class DocPreview extends Component {
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.setToolbarRef}
-        fileName={fileName || downloadData.fileName}
+        fileValue={recordId}
+        fileName={fileName}
         onFileChange={this.onFileChange}
         filesList={filesList}
         downloadData={downloadData}
