@@ -84,6 +84,19 @@ export default class SelectJournal extends Component {
     return this.props.dataType === DataTypes.QUERY;
   }
 
+  get presetFilterPredicates() {
+    const { presetFilterPredicates } = this.props;
+    const { value } = this.state;
+    const filters = presetFilterPredicates || [];
+
+    if (this.isQuery) {
+      const queryFilters = get(value, 'query.val') || [];
+      filters.push(...queryFilters);
+    }
+
+    return filters;
+  }
+
   componentDidMount() {
     const { defaultValue, multiple, isSelectModalOpen, initCustomPredicate } = this.props;
     const initValue = this.isQuery ? defaultValue : beArray(defaultValue);
@@ -118,6 +131,10 @@ export default class SelectJournal extends Component {
   }
 
   componentWillUnmount() {
+    this.setState({
+      pagination: paginationInitState,
+      filterPredicate: []
+    });
     this.liveComponent = false;
   }
 
@@ -127,7 +144,7 @@ export default class SelectJournal extends Component {
 
     if (this.isQuery) {
       newValue = value;
-    } else if (multiple && Array.isArray(value) && value.length > 0) {
+    } else if (multiple && Array.isArray(value) && !!value.length) {
       newValue = [...value];
     } else if (!multiple && !!value) {
       newValue = beArray(value);
@@ -150,7 +167,7 @@ export default class SelectJournal extends Component {
 
     if (!journalId) {
       error = new Error(t(Labels.NO_JOURNAL_ID_ERROR));
-      typeof onError === 'function' && onError(error);
+      isFunction(onError) && onError(error);
     }
 
     this.setState({ error });
@@ -218,7 +235,7 @@ export default class SelectJournal extends Component {
   };
 
   getJournalConfig = () => {
-    const { journalId, displayColumns, presetFilterPredicates } = this.props;
+    const { journalId, displayColumns } = this.props;
 
     return new Promise(async (resolve, reject) => {
       if (!journalId) {
@@ -246,13 +263,13 @@ export default class SelectJournal extends Component {
 
       this.setState(
         state => ({
-          filterPredicate: presetFilterPredicates || [],
+          filterPredicate: this.presetFilterPredicates,
           displayedColumns,
           journalConfig,
           isJournalConfigFetched: true,
           isSelectModalOpen: state.isSelectModalOpen && this.isEmptyJournalConfig(journalConfig) ? false : state.isSelectModalOpen
         }),
-        resolve
+        () => resolve()
       );
     });
   };
@@ -262,6 +279,7 @@ export default class SelectJournal extends Component {
       const { sortBy, queryData, customSourceId } = this.props;
       const { customPredicate, journalConfig, gridData, pagination, filterPredicate, displayedColumns } = this.state;
       const predicates = JournalsConverter.cleanUpPredicate([customPredicate, ...(filterPredicate || [])]);
+      /** @type JournalSettings */
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         sourceId: customSourceId,
         sortBy,
@@ -364,7 +382,10 @@ export default class SelectJournal extends Component {
   };
 
   onSelectFromJournalPopup = () => {
-    const value = this.isQuery ? this.state.gridData.query : this.state.gridData.selected;
+    const {
+      gridData: { query, selected }
+    } = this.state;
+    const value = this.isQuery ? query : selected;
 
     this.setValue(value).then(() => this.liveComponent && this.setState({ isSelectModalOpen: false, wasChangedFromPopup: true }));
   };
@@ -488,6 +509,7 @@ export default class SelectJournal extends Component {
     const { onChange, multiple } = this.props;
 
     if (this.isQuery) {
+      !this.state.gridData.total && this.getJournalConfig().then(this.refreshGridData);
       return new Promise(resolve => {
         this.setState({ value: selected }, () => shouldTriggerOnChange && isFunction(onChange) && onChange(selected));
         resolve();
@@ -627,7 +649,13 @@ export default class SelectJournal extends Component {
   };
 
   onValueDelete = id => {
-    const newValue = this.state.selectedRows.filter(item => item.id !== id);
+    let newValue;
+
+    if (this.isQuery) {
+      newValue = null;
+    } else {
+      newValue = this.state.selectedRows.filter(item => item.id !== id);
+    }
 
     this.setValue(newValue);
   };
@@ -713,15 +741,6 @@ export default class SelectJournal extends Component {
         <div className="select-journal-collapse-panel">
           <div className="select-journal-collapse-panel__controls">
             <div className="select-journal-collapse-panel__controls-left">
-              <IcoBtn
-                invert
-                icon={classNames({ 'icon-small-up': isCollapsePanelOpen, 'icon-small-down': !isCollapsePanelOpen })}
-                className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_blue ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
-                onClick={this.toggleCollapsePanel}
-              >
-                {t(Labels.FILTER_BUTTON)}
-              </IcoBtn>
-
               {!hideCreateButton && (
                 <CreateVariants
                   items={get(journalConfig, 'meta.createVariants')}
@@ -730,9 +749,17 @@ export default class SelectJournal extends Component {
                   onCreateFormSubmit={this.onCreateFormSubmit}
                 />
               )}
+              <IcoBtn
+                invert
+                icon={classNames({ 'icon-small-up': isCollapsePanelOpen, 'icon-small-down': !isCollapsePanelOpen })}
+                className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
+                onClick={this.toggleCollapsePanel}
+              >
+                {t(Labels.FILTER_BUTTON)}
+              </IcoBtn>
             </div>
             <div className="select-journal-collapse-panel__controls-right">
-              <Search searchField={searchField} onApply={this.onApplyFilters} />
+              {!this.isQuery && <Search searchField={searchField} onApply={this.onApplyFilters} />}
             </div>
           </div>
 
@@ -744,7 +771,7 @@ export default class SelectJournal extends Component {
         {this.isQuery && (
           <div className="select-journal__info-msg">
             <Icon className="icon-filter" />
-            {t(Labels.MSG_WHOLE_SELECTION)}
+            {`${t(Labels.MSG_WHOLE_SELECTION)}. ${t(Labels.SELECTED_LABEL, { data: gridData.total })}`}
           </div>
         )}
         <div className="select-journal__grid-container">
@@ -781,7 +808,6 @@ export default class SelectJournal extends Component {
       multiple,
       isCompact,
       viewOnly,
-      presetFilterPredicates,
       placeholder,
       disabled,
       hideEditRowButton,
@@ -793,10 +819,10 @@ export default class SelectJournal extends Component {
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
-      viewMode,
-      dataType
+      viewMode
     } = this.props;
-    const { journalConfig, selectedRows, error, gridData } = this.state;
+    const { journalConfig, selectedRows, error, gridData, value } = this.state;
+    const selectedQueryInfo = this.isQuery && !isEmpty(value) && t(Labels.SELECTED_LABEL, { data: gridData.total });
 
     const inputViewProps = {
       disabled,
@@ -805,7 +831,7 @@ export default class SelectJournal extends Component {
       placeholder,
       viewOnly,
       error,
-      selectedRows,
+      selectedRows: this.isQuery ? value : selectedRows,
       editValue: this.onValueEdit,
       deleteValue: this.onValueDelete,
       openSelectModal: this.openSelectModal,
@@ -818,11 +844,11 @@ export default class SelectJournal extends Component {
       isInlineEditingMode,
       isModalMode,
       viewMode,
-      dataType,
+      selectedQueryInfo,
       gridData: {
         columns: this.getColumns(),
         data: this.state.selectedRows,
-        total: this.isQuery ? gridData.total : this.state.selectedRows.length,
+        total: this.state.selectedRows.length,
         editable: false,
         singleSelectable: false,
         multiSelectable: false,
@@ -846,7 +872,7 @@ export default class SelectJournal extends Component {
         <FiltersProvider
           columns={journalConfig.columns}
           sourceId={journalConfig.sourceId}
-          presetFilterPredicates={presetFilterPredicates}
+          presetFilterPredicates={this.presetFilterPredicates}
           metaRecord={journalConfig.metaRecord}
         >
           {this.renderSelectModal()}

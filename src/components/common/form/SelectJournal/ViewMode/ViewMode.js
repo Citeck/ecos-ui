@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
@@ -16,34 +17,34 @@ class ViewMode extends Component {
   }
 
   render() {
+    const { selectedRows, selectedQueryInfo, placeholder, isSelectedValueAsText } = this.props;
+
+    if (selectedQueryInfo) {
+      return <p>{selectedQueryInfo}</p>;
+    }
+
     if (this.props.viewMode === DisplayModes.TABLE) {
       return this.renderTableView();
     }
 
-    const { selectedRows, placeholder, isSelectedValueAsText } = this.props;
+    if (!isEmpty(selectedRows)) {
+      return (
+        <ul className="select-journal-view-mode__list">
+          {selectedRows.map(item => (
+            <li key={item.id}>
+              <AssocLink
+                label={item.disp}
+                asText={isSelectedValueAsText}
+                link={createDocumentUrl(item.id)}
+                className="select-journal-view-mode__list-value"
+              />
+            </li>
+          ))}
+        </ul>
+      );
+    }
 
-    const placeholderText = placeholder ? placeholder : t(Labels.PLACEHOLDER);
-
-    return (
-      <>
-        {selectedRows.length > 0 ? (
-          <ul className="select-journal-view-mode__list">
-            {selectedRows.map(item => (
-              <li key={item.id}>
-                <AssocLink
-                  label={item.disp}
-                  asText={isSelectedValueAsText}
-                  link={createDocumentUrl(item.id)}
-                  className="select-journal-view-mode__list-value"
-                />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>{placeholderText}</p>
-        )}
-      </>
-    );
+    return <p>{placeholder || t(Labels.PLACEHOLDER)}</p>;
   }
 }
 
