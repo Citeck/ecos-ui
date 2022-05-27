@@ -1,0 +1,15 @@
+@import '../../../../styles/constants';
+
+.ecos-range {
+  display: flex;
+  align-items: center;
+  height: 100%;
+
+  &__label {
+    font-weight: $font-weight-semi-bold;
+    padding-left: 5px;
+  }
+
+  &__input {
+  }
+}

@@ -1,9 +1,9 @@
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 import isBoolean from 'lodash/isBoolean';
 
 import { RecordActionsApi } from '../../../../../api/recordActions';
-import { isExistValue } from '../../../../../helpers/util';
 import FormManager from '../../../../EcosForm/FormManager';
 import { notifyStart, prepareBatchEditAction, prepareResult, removeNotify, ResultTypes } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
@@ -92,7 +92,7 @@ export default class ServerGroupAction extends ActionsExecutor {
 
     groupAction.type = 'selected';
 
-    if (isExistValue(groupAction.formKey)) {
+    if (!isNil(groupAction.formKey)) {
       groupActionWithData = await showFormIfRequired(groupAction);
 
       if (!groupActionWithData) {
