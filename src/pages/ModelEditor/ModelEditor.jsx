@@ -312,6 +312,11 @@ class ModelEditorPage extends React.Component {
   };
 
   handleFormChange = (info, form) => {
+    const formId = info.data.id;
+    if (formId.includes('Process')) {
+      return;
+    }
+
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
