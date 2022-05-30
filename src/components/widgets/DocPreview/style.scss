@@ -307,6 +307,30 @@ $border-base: #c1c1c1;
       font-size: $font-size-small;
     }
   }
+
+  &-settings {
+    padding: 20px 20px 0;
+
+    &__block {
+      max-width: 434px;
+    }
+
+    &__title {
+      margin-bottom: 20px;
+
+      &.ecos-caption_small {
+        color: $text-color-gray;
+      }
+    }
+
+    &__buttons {
+      margin-top: 22px;
+
+      & > :nth-child(even) {
+        margin-left: 10px;
+      }
+    }
+  }
 }
 
 .ecos-modal-preview-doc {

@@ -23,12 +23,13 @@ class Toolbar extends Component {
     fileName: PropTypes.string,
     filesList: PropTypes.array,
     fileValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    onFileChange: PropTypes.func,
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
-    onChangeSettings: PropTypes.func.isRequired,
     inputRef: PropTypes.any,
-    downloadData: PropTypes.object
+    downloadData: PropTypes.object,
+    onFullscreen: PropTypes.func,
+    onChangeSettings: PropTypes.func.isRequired,
+    onFileChange: PropTypes.func
   };
 
   static defaultProps = {

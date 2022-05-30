@@ -475,17 +475,17 @@ class DocPreview extends Component {
       <Toolbar
         totalPages={pages}
         isPDF={this.isPDF}
-        onChangeSettings={this.onChangeSettings}
-        onFullscreen={this.onFullscreen}
         scale={scale}
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.setToolbarRef}
         fileValue={recordId}
         fileName={fileName}
-        onFileChange={this.onFileChange}
         filesList={filesList}
         downloadData={downloadData}
+        onChangeSettings={this.onChangeSettings}
+        onFullscreen={this.onFullscreen}
+        onFileChange={this.onFileChange}
       />
     );
   }
