@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import { getScale } from '../../../helpers/util';
 import { DocScaleOptions } from '../../../constants';
@@ -84,9 +85,7 @@ class ImgViewer extends Component {
       this.setState({ calcScale });
     }
 
-    if (typeof onCentered === 'function') {
-      onCentered();
-    }
+    isFunction(onCentered) && onCentered();
   };
 
   get elImage() {

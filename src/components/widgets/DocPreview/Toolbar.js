@@ -4,20 +4,17 @@ import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
+import isNil from 'lodash/isNil';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
-import { getScaleModes, isExistValue, t } from '../../../helpers/util';
+import { getScaleModes, t } from '../../../helpers/util';
+import { Labels } from './util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
 const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 4;
-
-const Labels = {
-  OUT_OF: 'doc-preview.out-of',
-  DOWNLOAD: 'doc-preview.download'
-};
 
 class Toolbar extends Component {
   static propTypes = {
@@ -69,11 +66,11 @@ class Toolbar extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (isExistValue(currentPage) && currentPage !== prevState.currentPage) {
+    if (!isNil(currentPage) && currentPage !== prevState.currentPage) {
       this.setState({ currentPage });
     }
 
-    if (!Number.isNaN(scale) && isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
+    if (!Number.isNaN(scale) && !isNil(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
       this.setState({ scale });
     }
   }
@@ -141,8 +138,7 @@ class Toolbar extends Component {
 
   onChangeZoomOption = zoom => {
     const { id, scale } = zoom || {};
-
-    let newState = { ...this.state, selectedZoom: id, scale };
+    const newState = { ...this.state, selectedZoom: id, scale };
 
     this.setState(newState);
     this.onChangeSettings(newState);
@@ -169,7 +165,7 @@ class Toolbar extends Component {
       scale = MAX_ZOOM;
     }
 
-    let newState = { ...this.state, selectedZoom, scale };
+    const newState = { ...this.state, selectedZoom, scale };
 
     this.setState(newState);
     this.triggerScaleChange(newState);

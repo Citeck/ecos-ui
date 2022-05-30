@@ -10,6 +10,7 @@ import UserLocalSettingsService from '../../../services/userLocalSettings';
 import Dashlet from '../../Dashlet/Dashlet';
 import DocPreview from './DocPreview';
 import BaseWidget from '../BaseWidget';
+import { Labels } from './util';
 
 import './style.scss';
 
@@ -85,17 +86,16 @@ class DocPreviewDashlet extends BaseWidget {
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
     const { width, scale, runUpdate } = this.state;
-    const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
-      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
-      'ecos-doc-preview-dashlet_mobile': isMobile,
-      'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
-    });
 
     return (
       <Dashlet
-        title={title || t('doc-preview.preview')}
+        title={title || t(Labels.WG_TITLE)}
         bodyClassName="ecos-doc-preview-dashlet__body"
-        className={classesDashlet}
+        className={classNames('ecos-doc-preview-dashlet', classNameDashlet, {
+          'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
+          'ecos-doc-preview-dashlet_mobile': isMobile,
+          'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
+        })}
         noActions
         needGoTo={false}
         canDragging={canDragging}
