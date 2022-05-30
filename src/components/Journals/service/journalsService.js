@@ -13,42 +13,6 @@ import { DEFAULT_TYPE } from './constants';
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
 /**
- * @typedef SortBy
- * @field {String} attribute
- * @field {Boolean} ascending
- *
- * @typedef Page
- * @field {Number} maxItems
- * @field {Number} skipCount
- *
- * @typedef Predicate
- * @field {String} t - predicate type (and, or, contains, eq, not-eq, etc)
- * @field {String} att - attribute
- * @field {String|Number|Boolean|Predicate|Array<Predicate>|null} val
- *
- * @typedef JournalSettings
- * @field {Predicate} predicate
- * @field {Object} queryData - additional data to send in search query
- * @field {Object<String, String>} attributes - additional attributes to load
- * @field {Array<SortBy>>} sortBy - search query sorting
- * @field {Page} page -
- * @field {Boolean} onlyLinked
- * @field {String} recordRef
- *
- * @typedef RecordsError
- * @field {String} type
- * @field {String} msg
- * @field {Array<String>} stackTrace
- *
- * @typedef JournalData
- * @field {List<Object>} records
- * @field {List<RecordsError>} errors
- * @field {Number} totalCount
- * @field {Boolean} hasMore
- * @field {Object<String, String>} attributes - requested attributes
- */
-
-/**
  * Service to work with journals.
  */
 class JournalsService {
@@ -198,7 +162,7 @@ class JournalsService {
   }
 
   /**
-   * @param journalConfig
+   * @param {JournalConfig} journalConfig
    * @param {JournalSettings} settings
    * @return {Promise<JournalData>}
    */
@@ -319,6 +283,15 @@ class JournalsService {
     }
     return value;
   }
+
+  /**
+   *
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   */
+  getRecordsQuery = async (journalConfig, settings) => {
+    return journalDataLoader.getRecordsQuery;
+  };
 }
 
 window.Citeck = window.Citeck || {};
