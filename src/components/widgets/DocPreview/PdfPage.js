@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
 
@@ -6,7 +6,7 @@ import { getScale, isMobileDevice } from '../../../helpers/util';
 
 import 'pdfjs-dist/web/pdf_viewer.css';
 
-class PdfPage extends React.PureComponent {
+class PdfPage extends Component {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     pageNumber: PropTypes.number.isRequired,

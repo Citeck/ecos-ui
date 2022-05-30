@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Scrollbars } from 'react-custom-scrollbars';
 import fscreen from 'fscreen';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import debounce from 'lodash/debounce';
-import { Scrollbars } from 'react-custom-scrollbars';
 
 import { Fullpage, Icon } from '../../common';
 

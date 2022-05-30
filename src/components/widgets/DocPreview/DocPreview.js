@@ -20,19 +20,12 @@ import ImgViewer from './ImgViewer';
 import getViewer from './Viewer';
 
 import './style.scss';
+import { Labels } from './util';
 
 // 2.4.456 version of worker for 2.4.456 version of pdfjs-dist:
 // pdfjs.GlobalWorkerOptions.workerSrc = '//cdn.jsdelivr.net/npm/pdfjs-dist@2.4.456/build/pdf.worker.min.js';
 pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/js/lib/pdf.worker.min.js?v=2.4.456`;
 
-const Labels = {
-  Errors: {
-    FAILURE_FETCH: 'doc-preview.error.failure-to-fetch',
-    LOADING_FAILURE: 'doc-preview.error.loading-failure',
-    NOT_SPECIFIED: 'doc-preview.error.not-specified'
-  },
-  DOWNLOAD: 'doc-preview.download'
-};
 const decreasingSteps = [562, 387, 293];
 
 class DocPreview extends Component {
@@ -478,10 +471,6 @@ class DocPreview extends Component {
     const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
-    if (!this.loaded) {
-      return null;
-    }
-
     return (
       <Toolbar
         totalPages={pages}
@@ -540,17 +529,16 @@ class DocPreview extends Component {
         })}
         style={{ height: this.height }}
       >
-        {!isLoading && (
-          <div
-            ref={this.setBodyRef}
-            className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}
-          >
-            {this.renderToolbar()}
-            {this.renderViewer()}
-            {this.renderMessage()}
-          </div>
-        )}
         {this.renderLoader()}
+
+        <div
+          ref={this.setBodyRef}
+          className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents, 'd-none': isLoading })}
+        >
+          {this.renderToolbar()}
+          {this.renderViewer()}
+          {this.renderMessage()}
+        </div>
 
         <ReactResizeDetector handleWidth onResize={this.onResizeWrapper} />
       </div>
