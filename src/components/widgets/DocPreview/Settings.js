@@ -38,14 +38,14 @@ export default class Settings extends React.Component {
 
   render() {
     return (
-      <div className="ecos-process-statistics-settings">
-        <Caption middle className="ecos-process-statistics-settings__title">
+      <div className="ecos-doc-preview-settings">
+        <Caption middle className="ecos-doc-preview-settings__title">
           {t(Labels.SETTINGS_TITLE)}
         </Caption>
         <Field label={Labels.SETTINGS_TITLE} labelPosition="top">
           <Checkbox checked onClick={this.handleChangeDocList} />
         </Field>
-        <div className="ecos-process-statistics-settings__buttons">
+        <div className="ecos-doc-preview-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.handleCancel}>
             {t(Labels.SETTINGS_BTN_CANCEL)}
           </Btn>
