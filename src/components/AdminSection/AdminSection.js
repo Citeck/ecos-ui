@@ -140,6 +140,7 @@ const mapStateToProps = (state, props) => ({
   isActivePage: pageTabList.isActiveTab(props.tabId),
   journals: state.journals
 });
+
 const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
