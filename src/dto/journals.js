@@ -4,9 +4,11 @@ import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 
+import Predicate from '../components/Filters/predicates/Predicate';
 import AttributesService from '../services/AttributesService';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { getId } from '../helpers/util';
+import { PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -15,6 +17,75 @@ const isPredicateValid = predicate => {
 export default class JournalsConverter {
   static cleanUpPredicate(predicate) {
     return ParserPredicate.removeEmptyPredicates(cloneDeep(predicate));
+  }
+
+  static searchConfigProcessed(predicate, searchConfigByColumn) {
+    let val = get(predicate, 'val', get(predicate, 'v'));
+
+    if (Array.isArray(val)) {
+      return val.map(item => JournalsConverter.searchConfigProcessed(item, searchConfigByColumn));
+    }
+
+    const attribute = get(predicate, 'att', get(predicate, 'a'));
+    const delimiters = get(searchConfigByColumn, [attribute, 'delimiters'], []);
+
+    if (predicate.t === PREDICATE_CONTAINS && typeof val === 'string' && !isEmpty(delimiters)) {
+      val = val.trim();
+
+      if (isEmpty(val)) {
+        return predicate;
+      }
+
+      if (val[0] === '`' && val[val.length - 1] === '`') {
+        predicate.val = val.slice(1, val.length - 1);
+        return predicate;
+      }
+
+      const result = JournalsConverter._splitStringByDelimiters(val, delimiters);
+
+      return {
+        t: PREDICATE_OR,
+        val: result.map(
+          val =>
+            new Predicate({
+              ...predicate,
+              val
+            })
+        )
+      };
+    }
+
+    return predicate;
+  }
+
+  static _splitStringByDelimiters(string, delimiters = []) {
+    const quote = string.match(/["|'](.*?)["|']/);
+
+    if (quote) {
+      return [
+        quote[0],
+        ...JournalsConverter._splitStringByDelimiters(string.slice(0, quote.index), delimiters),
+        ...JournalsConverter._splitStringByDelimiters(string.slice(quote.index + quote[0].length), delimiters)
+      ];
+    }
+
+    const subStrings = string.split(delimiters[0]).filter(item => !!item.trim());
+
+    if (subStrings.length < 2) {
+      return subStrings;
+    }
+
+    return subStrings.reduce((result, current) => {
+      const text = current.trim();
+
+      if (!text) {
+        return result;
+      }
+
+      result.push(...JournalsConverter._splitStringByDelimiters(text, delimiters.slice(1)));
+
+      return result;
+    }, []);
   }
 
   static optimizePredicate(predicate) {
