@@ -24,6 +24,7 @@ import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
+import { NotificationManager } from 'react-notifications';
 
 import { configureAPI } from './api';
 import { fakeApi } from './api/fakeApi';
@@ -36,6 +37,7 @@ import './build-info';
 import './services/esign';
 import preval from 'preval.macro';
 import './services/EcosModules';
+import { Base64 } from 'js-base64';
 
 const logger = Logger.create('EcoS');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -79,6 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 });
+
+if (!window.Citeck) {
+  window.Citeck = {};
+}
+window.Citeck.NotificationManager = NotificationManager;
+window.Citeck.Base64 = Base64;
 
 const runApp = () => {
   store.dispatch(
