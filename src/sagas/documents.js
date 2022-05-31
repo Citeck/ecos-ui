@@ -382,7 +382,16 @@ export function* uploadFile({ api, file, callback }) {
 function* formManager({ api, payload, files }) {
   try {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
-    const type = yield select(state => selectTypeById(state, payload.key, payload.type));
+
+    const type = yield select(state => {
+      const selectedType = selectTypeById(state, payload.key, payload.type);
+
+      if (isEmpty(selectedType)) {
+        return selectDynamicType(state, payload.key, payload.type);
+      }
+
+      return selectedType;
+    });
 
     if (isEmpty(createVariants)) {
       payload.openForm(

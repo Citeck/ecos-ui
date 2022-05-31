@@ -25,7 +25,7 @@ export function valueOrNull(value) {
 }
 
 export function replacePlaceholders(object, values, keyPreProc) {
-  if (!object || !values) {
+  if (_.isEmpty(object) || _.isEmpty(values)) {
     return object;
   }
   if (_.isString(object)) {

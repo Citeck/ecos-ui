@@ -1,6 +1,7 @@
 import { Attributes } from '../../../../../constants';
 import { t } from '../../../../../helpers/export/util';
-import { SortOrderOptions, TableTypes, DisplayModes } from '../constants';
+
+import { SortOrderOptions, TableTypes, DisplayModes, DataTypes } from '../constants';
 
 const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
@@ -29,22 +30,26 @@ export default [
     data: {
       values: [
         {
-          value: 'assoc',
+          value: DataTypes.ASSOC,
           label: {
             ru: 'Ассоциация',
             en: 'Association'
           }
         },
         {
-          value: 'json-record',
+          value: DataTypes.JSON_REC,
           label: {
             ru: 'Запись JSON',
             en: 'Json Record'
           }
+        },
+        {
+          value: DataTypes.QUERY,
+          label: 'Query'
         }
       ]
     },
-    defaultValue: 'assoc',
+    defaultValue: DataTypes.ASSOC,
     input: true
   },
   {
