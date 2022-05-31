@@ -8,7 +8,8 @@ export const Labels = {
   DOWNLOAD: 'doc-preview.download',
   OUT_OF: 'doc-preview.out-of',
 
-  SETTINGS_TITLE: 'process-statistics-widget.settings.title',
-  SETTINGS_BTN_CANCEL: 'process-statistics-widget.settings.btn.cancel',
-  SETTINGS_BTN_SAVE: 'process-statistics-widget.settings.btn.save'
+  SETTINGS_TITLE: 'doc-preview.settings.title',
+  SETTINGS_FIELD_ALL_DOCS: 'doc-preview.settings.field.show-all-documents',
+  SETTINGS_BTN_CANCEL: 'doc-preview.settings.btn.cancel',
+  SETTINGS_BTN_SAVE: 'doc-preview.settings.btn.save'
 };

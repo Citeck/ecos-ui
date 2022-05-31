@@ -300,6 +300,10 @@
   "doc-preview.scale.page-height": "По высоте страницы",
   "doc-preview.scale.page-width": "По ширине страницы",
   "doc-preview.modal.title": "Предпросмотр документа",
+  "doc-preview.settings.title": "Настройки",
+  "doc-preview.settings.field.show-all-documents": "Показывать все документы",
+  "doc-preview.settings.btn.cancel": "Отмена",
+  "doc-preview.settings.btn.save": "Сохранить",
 
   "document-library.title": "Библиотека документов",
   "document-library.folders-panel.title": "Папки",
