@@ -271,5 +271,3 @@ export default class JournalsConverter {
     return predicate;
   }
 }
-
-window.JournalsConverter = JournalsConverter;
