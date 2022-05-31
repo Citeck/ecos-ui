@@ -40,6 +40,10 @@ export default class JournalsConverter {
     return cloneDeep(predicate);
   }
 
+  /**
+   * @param source
+   * @returns {JournalSettings}
+   */
   static getSettingsForDataLoaderServer(source) {
     const _source = cloneDeep(source);
     const target = {};
