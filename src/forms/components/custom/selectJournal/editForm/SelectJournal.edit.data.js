@@ -1,5 +1,5 @@
 import { Attributes } from '../../../../../constants';
-import { SortOrderOptions, TableTypes, DisplayModes } from '../constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes } from '../constants';
 
 const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
@@ -28,16 +28,20 @@ export default [
     data: {
       values: [
         {
-          value: 'assoc',
+          value: DataTypes.ASSOC,
           label: 'Association'
         },
         {
-          value: 'json-record',
+          value: DataTypes.JSON_REC,
           label: 'Json Record'
+        },
+        {
+          value: DataTypes.QUERY,
+          label: 'Query'
         }
       ]
     },
-    defaultValue: 'assoc',
+    defaultValue: DataTypes.ASSOC,
     input: true
   },
   {

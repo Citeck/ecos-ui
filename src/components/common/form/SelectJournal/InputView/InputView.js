@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../../../helpers/util';
 import { createDocumentUrl } from '../../../../../helpers/urls';
@@ -10,6 +11,7 @@ import { Btn, IcoBtn } from '../../../../common/btns';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
 import { AssocLink } from '../../AssocLink';
+import { Labels } from '../constants';
 
 import './InputView.scss';
 
@@ -122,7 +124,7 @@ class InputView extends Component {
     const { selectedRows, isCompact } = this.props;
     const { targetId } = this.state;
 
-    if (!isCompact || selectedRows.length === 0) {
+    if (!isCompact || isEmpty(selectedRows)) {
       return null;
     }
 
@@ -190,17 +192,31 @@ class InputView extends Component {
       selectedRows,
       hideEditRowButton,
       hideDeleteRowButton,
-      gridData
+      gridData,
+      selectedQueryInfo
     } = this.props;
 
     if (isCompact) {
       return null;
     }
 
-    if (!selectedRows.length) {
+    if (selectedQueryInfo) {
+      return (
+        <div className="select-journal__value-selection">
+          <div>{selectedQueryInfo}</div>
+          {!disabled && (
+            <div className="select-journal__values-list-actions">
+              {!hideDeleteRowButton && <span className="icon icon-delete" onClick={deleteValue} />}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (isEmpty(selectedRows)) {
       return (
         <p className={classNames('select-journal__value-not-selected', { 'select-journal__value-not-selected_view-only': viewOnly })}>
-          {placeholder ? placeholder : t('select-journal.placeholder')}
+          {placeholder || t(Labels.PLACEHOLDER)}
         </p>
       );
     }
@@ -227,7 +243,7 @@ class InputView extends Component {
         {selectedRows.map(item => (
           <li key={item.id}>
             {this.renderSelectedValue(item)}
-            {disabled ? null : (
+            {!disabled && (
               <div className="select-journal__values-list-actions">
                 {!(!item.canEdit || hideEditRowButton) && (
                   <span data-id={item.id} className="icon icon-edit" onClick={() => editValue(item.id)} />
@@ -258,11 +274,7 @@ class InputView extends Component {
         autoFocus={autoFocus}
         onBlur={this.onBlur}
       >
-        {selectedRows.length > 0
-          ? multiple
-            ? t('select-journal.button.add')
-            : t('select-journal.button.change')
-          : t('select-journal.button.select')}
+        {isEmpty(selectedRows) ? t(Labels.INPUT_BTN_SELECT) : multiple ? t(Labels.INPUT_BTN_ADD) : t(Labels.INPUT_BTN_CHANGE)}
       </Btn>
     );
   }
@@ -301,7 +313,8 @@ InputView.propTypes = {
   hideActionButton: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
   isInlineEditingMode: PropTypes.bool,
-  gridData: PropTypes.object
+  gridData: PropTypes.object,
+  dataType: PropTypes.string
 };
 
 export default InputView;
