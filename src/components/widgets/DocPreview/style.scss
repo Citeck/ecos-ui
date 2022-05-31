@@ -36,6 +36,7 @@ $border-base: #c1c1c1;
 
 .ecos-doc-preview {
   $root: &;
+  position: relative;
 
   &_decreasing-step {
     &-1 {
@@ -111,11 +112,6 @@ $border-base: #c1c1c1;
     }
   }
 
-  &__loader {
-    padding: 15px;
-    position: relative;
-  }
-
   &__info-block {
     display: flex;
     flex-direction: column;
@@ -141,7 +137,7 @@ $border-base: #c1c1c1;
       margin: auto;
 
       & > * {
-        padding: 0 15px;
+        padding: 0 10px;
       }
 
       & > *:not(:last-child) {
@@ -154,6 +150,10 @@ $border-base: #c1c1c1;
 
       & > * {
         margin: 0 5px;
+      }
+
+      &:empty {
+        display: none;
       }
     }
 

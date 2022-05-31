@@ -53,7 +53,7 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
     }
 
-    getSnapshotBeforeUpdate(prevProps) {
+    getSnapshotBeforeUpdate(prevProps, prevState) {
       let snapshot = null;
 
       const { currentPage: prevCurrentPage, isFullscreen: prevIsFullscreen } = prevProps.settings || {};
@@ -123,6 +123,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     get failed() {
       const { pdf, src, isLoading } = this.props;
 
+      //todo
       if (isLoading) {
         return true;
       }
@@ -213,10 +214,6 @@ export default function getViewer(WrappedComponent, isPdf) {
       const { isFullscreenOn } = this.state;
       const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
 
-      if (this.failed) {
-        return null;
-      }
-
       const extraProps = { ...scrollbarProps };
 
       if (isFullscreenOn) {
@@ -247,12 +244,14 @@ export default function getViewer(WrappedComponent, isPdf) {
     render() {
       const { isFullscreenOn } = this.state;
 
-      return this.failed ? null : (
-        <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
-          {this.renderDocument()}
-          {fullscreenEnabled && isFullscreenOn && this.renderBtnCloseFullscreen()}
-          {!fullscreenEnabled && isFullscreenOn && <Fullpage onClose={this.onCloseFullscreen}>{this.renderDocument()}</Fullpage>}
-        </div>
+      return (
+        !this.failed && (
+          <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
+            {this.renderDocument()}
+            {fullscreenEnabled && isFullscreenOn && this.renderBtnCloseFullscreen()}
+            {!fullscreenEnabled && isFullscreenOn && <Fullpage onClose={this.onCloseFullscreen}>{this.renderDocument()}</Fullpage>}
+          </div>
+        )
       );
     }
   };

@@ -29,7 +29,7 @@ class DocPreviewDashlet extends BaseWidget {
     classNamePreview: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
-      link: PropTypes.string.isRequired
+      link: PropTypes.string
     }),
     dragHandleProps: PropTypes.object,
     canDragging: PropTypes.bool,
@@ -54,7 +54,9 @@ class DocPreviewDashlet extends BaseWidget {
       isShowSetting: false,
       scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(this.state.lsId) || DocScaleOptions.AUTO
     };
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'version', 'preview-hash', 'cm:content'])];
+    this.observableFieldsToUpdate = [
+      ...new Set([...this.observableFieldsToUpdate, 'version', 'preview-hash', 'cm:content', 'documents[]'])
+    ];
   }
 
   get dashletActions() {
@@ -80,6 +82,11 @@ class DocPreviewDashlet extends BaseWidget {
       this._toolbarRef = ref;
     }
   };
+
+  get toolbarConfig() {
+    const { showAllDocuments } = this.props.config || {};
+    return { showAllDocuments };
+  }
 
   setUserScale = scale => {
     scale && !isMobile && UserLocalSettingsService.setDashletScale(this.state.lsId, scale);
@@ -141,7 +148,7 @@ class DocPreviewDashlet extends BaseWidget {
         {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <DocPreview
           forwardedRef={this.contentRef}
-          link={config.link}
+          link={config.link || ''}
           className={classNames(classNamePreview, { 'd-none': isShowSetting })}
           scale={scale}
           fileName={fileName}
@@ -152,6 +159,7 @@ class DocPreviewDashlet extends BaseWidget {
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
           setToolbarRef={this.setToolbarRef}
+          toolbarConfig={this.toolbarConfig}
         />
       </Dashlet>
     );

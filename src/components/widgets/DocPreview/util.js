@@ -9,6 +9,7 @@ export const Labels = {
   OUT_OF: 'doc-preview.out-of',
 
   SETTINGS_TITLE: 'doc-preview.settings.title',
+  SETTINGS_TOOLBAR: 'doc-preview.settings.title.toolbar',
   SETTINGS_FIELD_ALL_DOCS: 'doc-preview.settings.field.show-all-documents',
   SETTINGS_BTN_CANCEL: 'doc-preview.settings.btn.cancel',
   SETTINGS_BTN_SAVE: 'doc-preview.settings.btn.save'
