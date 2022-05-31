@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
@@ -23,6 +24,9 @@ class Toolbar extends Component {
     isPDF: PropTypes.bool.isRequired,
     className: PropTypes.string,
     fileName: PropTypes.string,
+    filesList: PropTypes.array,
+    fileValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    onFileChange: PropTypes.func,
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
     onChangeSettings: PropTypes.func.isRequired,
@@ -34,7 +38,9 @@ class Toolbar extends Component {
     scale: '',
     className: '',
     downloadData: {},
-    fileName: ''
+    fileName: '',
+    filesList: [],
+    onFileChange: () => null
   };
 
   constructor(props) {
@@ -264,13 +270,39 @@ class Toolbar extends Component {
   renderExtraBtns() {
     const { downloadData, fileName } = this.props;
 
-    return downloadData && downloadData.link ? (
+    if (!downloadData && !downloadData.link) {
+      return null;
+    }
+
+    return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
         <a href={downloadData.link} download={downloadData.fileName || fileName} data-external>
           <IcoBtn icon="icon-download" className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
-    ) : null;
+    );
+  }
+
+  renderFilesList() {
+    const { filesList } = this.props;
+
+    if (isArray(filesList) && filesList.length <= 1) {
+      return null;
+    }
+
+    return (
+      <div className="ecos-doc-preview__toolbar-group">
+        <Dropdown
+          className="ecos-doc-preview__toolbar-select"
+          source={filesList}
+          valueField="id"
+          titleField="displayName"
+          value={this.props.fileValue}
+          withScrollbar
+          onChange={val => this.props.onFileChange(val)}
+        />
+      </div>
+    );
   }
 
   render() {
@@ -279,6 +311,7 @@ class Toolbar extends Component {
     return (
       <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
         <div ref={this.toolbarWrapperRef} className="ecos-doc-preview__toolbar-wrapper">
+          {this.renderFilesList()}
           {isPDF && this.renderPager()}
           {this.renderZoom()}
           {this.renderExtraBtns()}

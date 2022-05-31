@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import isNil from 'lodash/isNil';
 
 import { initAdminSection, updActiveSection } from '../../actions/adminSection';
-import { isExistValue, t } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
 import AdminSection from '../../components/AdminSection';
@@ -35,7 +36,7 @@ class AdminPage extends React.Component {
   render() {
     const { isAccessible } = this.props;
 
-    if (!isExistValue(isAccessible)) {
+    if (isNil(isAccessible)) {
       return <Loader height={100} width={100} />;
     }
 
