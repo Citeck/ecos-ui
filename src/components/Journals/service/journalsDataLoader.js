@@ -36,22 +36,7 @@ class JournalsDataLoader {
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
     let queryData = null;
 
-    const searchConfigByColumn = columns.reduce((result, current) => {
-      const config = _get(current, 'searchConfig');
-
-      if (!config) {
-        return result;
-      }
-
-      const id = current.attribute || current.name || current.schema;
-
-      return {
-        ...result,
-        [id]: config
-      };
-    }, {});
-
-    query = JournalsConverter.searchConfigProcessed(query, searchConfigByColumn);
+    query = JournalsConverter.searchConfigProcessed(query, columns);
 
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
