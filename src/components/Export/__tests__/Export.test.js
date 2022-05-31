@@ -3,7 +3,7 @@ import { shallow, mount } from 'enzyme';
 
 import Export from '../Export';
 
-describe('Export component tests', () => {
+describe.skip('Export component tests', () => {
   test('should render Export component', () => {
     const component = shallow(<Export />);
     expect(component).toMatchSnapshot();
