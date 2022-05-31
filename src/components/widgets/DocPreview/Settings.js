@@ -24,26 +24,26 @@ export default class Settings extends React.Component {
     super(props);
 
     this.state = {
-      displayHeatmapToolbar: get(props, 'config.displayHeatmapToolbar')
+      showAllDocuments: get(props, 'config.showAllDocuments')
     };
   }
 
   handleCancel = () => this.props.onCancel();
 
-  handleSave = () => {
-    this.props.onSave({ ...this.state });
-  };
+  handleSave = () => this.props.onSave({ ...this.state });
 
-  handleChangeDocList = () => {};
+  handleChangeField = keyFlag => this.setState({ [keyFlag]: !this.state[keyFlag] });
 
   render() {
+    const { showAllDocuments } = this.state;
+
     return (
       <div className="ecos-doc-preview-settings">
         <Caption middle className="ecos-doc-preview-settings__title">
           {t(Labels.SETTINGS_TITLE)}
         </Caption>
-        <Field label={Labels.SETTINGS_TITLE} labelPosition="top">
-          <Checkbox checked onClick={this.handleChangeDocList} />
+        <Field label={t(Labels.SETTINGS_FIELD_ALL_DOCS)} labelPosition="top">
+          <Checkbox checked={showAllDocuments} onClick={() => this.handleChangeField('showAllDocuments')} />
         </Field>
         <div className="ecos-doc-preview-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.handleCancel}>

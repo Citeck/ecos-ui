@@ -281,7 +281,7 @@ class Toolbar extends Component {
   }
 
   renderFilesList() {
-    const { filesList } = this.props;
+    const { filesList, fileValue, onFileChange } = this.props;
 
     if (isArray(filesList) && filesList.length <= 1) {
       return null;
@@ -290,13 +290,13 @@ class Toolbar extends Component {
     return (
       <div className="ecos-doc-preview__toolbar-group">
         <Dropdown
+          withScrollbar
           className="ecos-doc-preview__toolbar-select"
-          source={filesList}
           valueField="id"
           titleField="displayName"
-          value={this.props.fileValue}
-          withScrollbar
-          onChange={val => this.props.onFileChange(val)}
+          source={filesList}
+          value={fileValue}
+          onChange={onFileChange}
         />
       </div>
     );
