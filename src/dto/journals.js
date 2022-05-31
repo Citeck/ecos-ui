@@ -3,6 +3,7 @@ import concat from 'lodash/concat';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import find from 'lodash/find';
 
 import Predicate from '../components/Filters/predicates/Predicate';
 import AttributesService from '../services/AttributesService';
@@ -19,46 +20,91 @@ export default class JournalsConverter {
     return ParserPredicate.removeEmptyPredicates(cloneDeep(predicate));
   }
 
-  static searchConfigProcessed(predicate, searchConfigByColumn) {
-    let val = get(predicate, 'val', get(predicate, 'v'));
+  /**
+   * @param column {object}
+   * @returns {undefined|string}
+   */
+  static getColumnId(column) {
+    if (isEmpty(column)) {
+      return undefined;
+    }
 
-    if (Array.isArray(val)) {
-      return val.map(item => JournalsConverter.searchConfigProcessed(item, searchConfigByColumn));
+    return column.attribute || column.name || column.schema;
+  }
+
+  /**
+   * @param predicate {object|array}
+   * @param columns {array}
+   * @returns {{val: Predicate[], t: string}|{}|(*&{val: *})|*}
+   */
+  static searchConfigProcessed(predicate, columns) {
+    if (isEmpty(predicate)) {
+      return {};
+    }
+
+    if (isEmpty(columns)) {
+      return predicate;
     }
 
     const attribute = get(predicate, 'att', get(predicate, 'a'));
-    const delimiters = get(searchConfigByColumn, [attribute, 'delimiters'], []);
+    const delimiters = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig.delimiters');
+    let val = get(predicate, 'val', get(predicate, 'v'));
 
-    if (predicate.t === PREDICATE_CONTAINS && typeof val === 'string' && !isEmpty(delimiters)) {
-      val = val.trim();
-
-      if (isEmpty(val)) {
-        return predicate;
-      }
-
-      if (val[0] === '`' && val[val.length - 1] === '`') {
-        predicate.val = val.slice(1, val.length - 1);
-        return predicate;
-      }
-
-      const result = JournalsConverter._splitStringByDelimiters(val, delimiters);
-
+    if (Array.isArray(val)) {
       return {
-        t: PREDICATE_OR,
-        val: result.map(
-          val =>
-            new Predicate({
-              ...predicate,
-              val
-            })
-        )
+        ...predicate,
+        val: val.map(item => JournalsConverter.searchConfigProcessed(item, columns))
       };
     }
 
-    return predicate;
+    if (predicate.t !== PREDICATE_CONTAINS || typeof val !== 'string') {
+      return predicate;
+    }
+
+    val = val.trim();
+
+    if (isEmpty(val)) {
+      return predicate;
+    }
+
+    if (val[0] === '`' && val[val.length - 1] === '`') {
+      predicate.val = val.slice(1, val.length - 1);
+      return predicate;
+    }
+
+    if (isEmpty(delimiters)) {
+      return predicate;
+    }
+
+    const result = JournalsConverter._splitStringByDelimiters(val, delimiters);
+
+    if (result.length < 2) {
+      return predicate;
+    }
+
+    return {
+      t: PREDICATE_OR,
+      val: result.map(
+        val =>
+          new Predicate({
+            ...predicate,
+            val
+          })
+      )
+    };
   }
 
+  /**
+   * @param string {string}
+   * @param delimiters {[]}
+   * @returns {string[]}
+   * @private
+   */
   static _splitStringByDelimiters(string, delimiters = []) {
+    if (string[0] === '`' && string[string.length - 1] === '`') {
+      return [string.slice(1, string.length - 1)];
+    }
+
     const quote = string.match(/["|'](.*?)["|']/);
 
     if (quote) {
@@ -71,7 +117,7 @@ export default class JournalsConverter {
 
     const subStrings = string.split(delimiters[0]).filter(item => !!item.trim());
 
-    if (subStrings.length < 2) {
+    if (subStrings.length < 2 && isEmpty(delimiters)) {
       return subStrings;
     }
 
@@ -204,9 +250,9 @@ export default class JournalsConverter {
       return columns;
     }
 
-    const configColumnsIds = (configColumns || []).map(item => item.attribute || item.name || item.schema);
+    const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
 
-    return columns.filter(item => configColumnsIds.includes(item.attribute || item.name || item.schema));
+    return columns.filter(item => configColumnsIds.includes(JournalsConverter.getColumnId(item)));
   }
 
   static filterPredicatesByConfigColumns(predicate, configColumns) {
@@ -216,7 +262,7 @@ export default class JournalsConverter {
       return predicate;
     }
 
-    const configColumnsIds = (configColumns || []).map(item => item.attribute || item.name || item.schema);
+    const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
 
     if (Array.isArray(predicate.val) && !predicate.att) {
       predicate.val = predicate.val.filter(item => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
@@ -229,3 +275,5 @@ export default class JournalsConverter {
     return predicate;
   }
 }
+
+window.JournalsConverter = JournalsConverter;
