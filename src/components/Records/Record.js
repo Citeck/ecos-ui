@@ -621,6 +621,12 @@ export default class Record {
     return baseRecord.id !== this.id && baseRecord.isVirtual();
   }
 
+  isPendingCreate() {
+    let baseRecordId = this.getBaseRecord().id;
+    // base record with '@' at the end mean that record is not exists yet and will be created on save
+    return baseRecordId.indexOf('@') === baseRecordId.length - 1;
+  }
+
   _processAttField(name, value, isRead, getter, setter, toSave) {
     if (!name) {
       return null;
