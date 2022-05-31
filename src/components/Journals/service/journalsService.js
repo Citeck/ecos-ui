@@ -42,7 +42,6 @@ class JournalsService {
     }
 
     const journalConfig = _.cloneDeep(config);
-
     const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
 
     if (!legacyConfig.columns || !legacyConfig.columns.length) {
@@ -53,10 +52,8 @@ class JournalsService {
     legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
 
     let columns = this.__replaceConfigPlaceholders(legacyConfig.columns, legacyConfig.configData.configComputed);
-
     legacyConfig.columns = await this.resolveColumns(columns);
     legacyConfig.modelVersion = 1;
-
     return legacyConfig;
   }
 
@@ -129,7 +126,7 @@ class JournalsService {
     result.multiple = column.multiple;
     result.newFormatter = column.formatter;
     result.newAttSchema = column.attSchema;
-    result.newEditor = column.editor;
+    result.newEditor = this.__mapEditor(column.editor);
     result.computed = column.computed;
     result.hidden = column.hidden === true;
     result.text = getTextByLocale(column.label || column.name);
@@ -147,6 +144,25 @@ class JournalsService {
     result.editable = column.editable !== false;
 
     return result;
+  }
+
+  __mapEditor(editor) {
+    const newEditor = _.cloneDeep(editor);
+    const options = _.get(newEditor, 'config.options', []);
+
+    if (_.isEmpty(options)) {
+      return newEditor;
+    }
+
+    if (Array.isArray(options)) {
+      options.forEach(item => {
+        if (item.label) {
+          item.label = getTextByLocale(item.label);
+        }
+      });
+    }
+
+    return newEditor;
   }
 
   __mapCreateVariant(cv) {
@@ -265,6 +281,12 @@ class JournalsService {
       }
 
       return newValue;
+    } else if (_.isArray(value)) {
+      let newValue = [];
+      for (let item of value) {
+        newValue.push(this._fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
+      }
+      return newValue;
     } else if (_.isObject(value)) {
       let newValue = {};
       for (let key in value) {
@@ -274,13 +296,8 @@ class JournalsService {
         }
       }
       return newValue;
-    } else if (_.isArray(value)) {
-      let newValue = [];
-      for (let item of value) {
-        newValue.push(this._fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
-      }
-      return newValue;
     }
+
     return value;
   }
 
