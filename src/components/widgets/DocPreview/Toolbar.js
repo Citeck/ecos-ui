@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
-import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
 
 import { IcoBtn } from '../../common/btns/index';
@@ -27,6 +26,7 @@ class Toolbar extends Component {
     totalPages: PropTypes.number.isRequired,
     inputRef: PropTypes.any,
     downloadData: PropTypes.object,
+    config: PropTypes.object,
     onFullscreen: PropTypes.func,
     onChangeSettings: PropTypes.func.isRequired,
     onFileChange: PropTypes.func
@@ -35,6 +35,7 @@ class Toolbar extends Component {
   static defaultProps = {
     scale: '',
     className: '',
+    config: {},
     downloadData: {},
     fileName: '',
     filesList: [],
@@ -281,9 +282,9 @@ class Toolbar extends Component {
   }
 
   renderFilesList() {
-    const { filesList, fileValue, onFileChange } = this.props;
+    const { filesList, fileValue, onFileChange, config } = this.props;
 
-    if (isArray(filesList) && filesList.length <= 1) {
+    if (!config.showAllDocuments || !Array.isArray(filesList) || filesList.length <= 1) {
       return null;
     }
 

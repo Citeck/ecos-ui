@@ -1,5 +1,5 @@
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import React from 'react';
 import get from 'lodash/get';
 
 import { t } from '../../../helpers/util';
@@ -9,7 +9,7 @@ import { Labels } from './util';
 
 import './style.scss';
 
-export default class Settings extends React.Component {
+export default class Settings extends Component {
   static propTypes = {
     config: PropTypes.object,
     onSave: PropTypes.func,
@@ -41,6 +41,9 @@ export default class Settings extends React.Component {
       <div className="ecos-doc-preview-settings">
         <Caption middle className="ecos-doc-preview-settings__title">
           {t(Labels.SETTINGS_TITLE)}
+        </Caption>
+        <Caption small className="ecos-doc-preview-settings__title">
+          {t(Labels.SETTINGS_TOOLBAR)}
         </Caption>
         <Field label={t(Labels.SETTINGS_FIELD_ALL_DOCS)} labelPosition="top">
           <Checkbox checked={showAllDocuments} onClick={() => this.handleChangeField('showAllDocuments')} />

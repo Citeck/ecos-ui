@@ -103,6 +103,10 @@ export class DocPreviewApi {
       });
   };
 
+  /**
+   * @param recordRef
+   * @returns {Promise<Array<Object>>}
+   */
   static getFilesList = recordRef => {
     return Records.query(
       {
@@ -118,16 +122,12 @@ export class DocPreviewApi {
       }
     )
       .then(resp => {
-        const documents = get(resp, 'records[0].documents', []);
+        const documents = get(resp, 'records[0].documents') || [];
 
-        if (documents.length > 0) {
-          documents.map(i => {
-            return {
-              ...i,
-              previewUrl: i.previewUrl ? i.previewUrl.replace('alfresco/api/node/', `${PROXY_URI}api/node/`) : null
-            };
-          });
-        }
+        documents.map(doc => ({
+          ...doc,
+          previewUrl: doc.previewUrl ? doc.previewUrl.replace('alfresco/api/node/', `${PROXY_URI}api/node/`) : null
+        }));
 
         return documents;
       })

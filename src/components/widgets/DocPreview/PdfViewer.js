@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 
 import PdfPage from './PdfPage';
 
-class PdfViewer extends React.PureComponent {
+class PdfViewer extends PureComponent {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     defHeight: PropTypes.number,
