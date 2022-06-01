@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 
 import { getScale } from '../../../helpers/util';
 import { DocScaleOptions } from '../../../constants';
@@ -142,7 +143,7 @@ class ImgViewer extends Component {
   }
 
   onError = error => {
-    this.props.onError && this.props.onError(error);
+    isFunction(this.props.onError) && this.props.onError(error);
   };
 
   onUpdate() {
@@ -159,6 +160,10 @@ class ImgViewer extends Component {
     } = props;
     const { clientWidth: cW, clientHeight: cH } = this.elContainer;
     const { clientWidth: iW, clientHeight: iH } = this.elImage;
+
+    if (!(cW && cH && iW && iH) || isNil(scale)) {
+      return 1;
+    }
 
     switch (scale) {
       case DocScaleOptions.AUTO: {
@@ -182,15 +187,17 @@ class ImgViewer extends Component {
         })}
         ref={this.refImgCtr}
       >
-        <img
-          src={src}
-          alt={src}
-          className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
-          style={this.styleZoom}
-          ref={this.setImgRef}
-          onError={this.onError}
-          onLoad={this.setImageScale}
-        />
+        {!!src && (
+          <img
+            src={src}
+            alt={src}
+            className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
+            style={this.styleZoom}
+            ref={this.setImgRef}
+            onError={this.onError}
+            onLoad={this.setImageScale}
+          />
+        )}
       </div>
     );
   }
