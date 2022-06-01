@@ -78,7 +78,7 @@ class DocPreview extends Component {
       settings: {},
       isLoading: this.isPDF,
       scrollPage: props.firstPageNumber,
-      recordId: props.recordId || this.getRecordId(),
+      recordId: props.recordId || this.getUrlRecordId(),
       link: props.link,
       contentHeight: 0,
       error: '',
@@ -86,7 +86,8 @@ class DocPreview extends Component {
       filesList: [],
       downloadData: {},
       wrapperWidth: 0,
-      needRecalculateScale: false
+      needRecalculateScale: false,
+      mainDoc: undefined
     };
 
     this.bootstrapLink = !!props.link;
@@ -245,12 +246,7 @@ class DocPreview extends Component {
     return this.props.byLink || !this.state.recordId;
   }
 
-  get mainDoc() {
-    const { recordId, fileName, link } = this.state;
-    return { recordId, fileName, link };
-  }
-
-  getRecordId() {
+  getUrlRecordId() {
     return queryString.parseUrl(window.location.href).query.recordRef || '';
   }
 
@@ -271,11 +267,12 @@ class DocPreview extends Component {
   };
 
   runGetData = async () => {
-    await this.getUrlByRecord();
+    await this.getFileLinkByRecord();
+    await this.getInfoMainDoc();
     await this.getFilesByRecord();
   };
 
-  getUrlByRecord = async () => {
+  getFileLinkByRecord = async () => {
     if (this.isBlockedByRecord) {
       return;
     }
@@ -294,20 +291,31 @@ class DocPreview extends Component {
       return;
     }
 
-    const filesList = await DocPreviewApi.getFilesList(this.getRecordId());
+    const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
 
-    filesList.unshift(this.mainDoc); //todo fix main
+    this.state.mainDoc && filesList.unshift(this.state.mainDoc);
     !isArrayEqual(this.state.filesList, filesList) && this.setState({ filesList });
   };
 
-  getFileName = () => {
+  getFileName = async () => {
     if (this.isBlockedByRecord) {
       return;
     }
 
-    DocPreviewApi.getFileName(this.state.recordId).then(fileName => {
-      this.exist && this.setState({ fileName });
-    });
+    const fileName = await DocPreviewApi.getFileName(this.state.recordId);
+    this.exist && this.setState({ fileName });
+  };
+
+  getInfoMainDoc = async () => {
+    if (this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments) {
+      return;
+    }
+
+    const recordId = this.getUrlRecordId();
+    const fileName = await DocPreviewApi.getFileName(recordId);
+    const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
+
+    this.setState({ mainDoc: { recordId, fileName, link } });
   };
 
   getDownloadData() {
