@@ -17,11 +17,6 @@
         color: $color-blue-light;
       }
     }
-
-    &-content {
-      width: 50vw;
-      padding: 5px 0;
-    }
   }
 
   &-assoc {
@@ -64,6 +59,16 @@
       &:hover {
         color: $color-blue-dark2;
       }
+    }
+  }
+
+  &-popper {
+    max-width: 700px;
+    word-break: break-all;
+    padding: 5px;
+
+    &:not(:last-child):not(:first-child) {
+      border-bottom: $border-width-standard solid $color-gray-4;
     }
   }
 }

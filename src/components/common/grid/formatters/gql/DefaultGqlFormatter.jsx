@@ -1,7 +1,4 @@
-import React from 'react';
-
 import BaseFormatter from '../BaseFormatter';
-import Popper from '../../../Popper';
 
 export default class DefaultGqlFormatter extends BaseFormatter {
   static getQueryString(attribute) {
@@ -14,15 +11,5 @@ export default class DefaultGqlFormatter extends BaseFormatter {
     }
 
     return `${attribute}?disp`;
-  }
-
-  render() {
-    const value = this.value(this.props.cell);
-
-    return (
-      <Popper showAsNeeded text={value} icon="icon-question" contentComponent={this.renderTooltipContent()}>
-        {value}
-      </Popper>
-    );
   }
 }
