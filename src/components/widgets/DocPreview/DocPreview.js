@@ -64,7 +64,8 @@ class DocPreview extends Component {
     scale: DocScaleOptions.AUTO,
     firstPageNumber: 1,
     fileName: '',
-    scrollbarProps: {}
+    scrollbarProps: {},
+    toolbarConfig: {}
   };
 
   state = {};
@@ -87,6 +88,8 @@ class DocPreview extends Component {
       wrapperWidth: 0,
       needRecalculateScale: false
     };
+
+    this.bootstrapLink = !!props.link;
   }
 
   componentDidMount() {
@@ -134,6 +137,7 @@ class DocPreview extends Component {
 
       newState.recordId = nextProps.recordId || newState.recordId;
       newState.fileName = null;
+      newState.pdf = {};
     }
 
     if (!prevProps.clear && clear) {
@@ -243,7 +247,7 @@ class DocPreview extends Component {
 
   get mainDoc() {
     const { recordId, fileName, link } = this.state;
-    return { id: recordId, displayName: fileName, previewUrl: link };
+    return { recordId, fileName, link };
   }
 
   getRecordId() {
@@ -279,20 +283,20 @@ class DocPreview extends Component {
     const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
 
     if (this.exist) {
+      !this.bootstrapLink && !!link && (this.bootstrapLink = true);
       const error = !link && t(Labels.Errors.FAILURE_FETCH);
-
       this.setState({ isLoading: false, link, error }, () => this.loadPDF(link));
     }
   };
 
   getFilesByRecord = async () => {
-    if (this.isBlockedByRecord) {
+    if (this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments) {
       return;
     }
 
     const filesList = await DocPreviewApi.getFilesList(this.getRecordId());
 
-    filesList.unshift(this.mainDoc);
+    filesList.unshift(this.mainDoc); //todo fix main
     !isArrayEqual(this.state.filesList, filesList) && this.setState({ filesList });
   };
 
@@ -341,15 +345,13 @@ class DocPreview extends Component {
       return;
     }
 
-    const { firstPageNumber } = this.props;
     const loadingTask = pdfjs.getDocument(link);
+    const scrollPage = this.state.scrollPage || this.props.firstPageNumber;
 
-    this.setState({ scrollPage: firstPageNumber, isLoading: true });
+    this.setState({ scrollPage, isLoading: true });
 
     loadingTask.promise.then(
-      pdf => {
-        this.exist && this.setState({ pdf, isLoading: false, scrollPage: firstPageNumber, error: '' });
-      },
+      pdf => this.exist && this.setState({ pdf, isLoading: false, scrollPage, error: '' }),
       err => {
         console.error(`Error during loading document: ${err}`);
         this.exist && this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
@@ -357,17 +359,18 @@ class DocPreview extends Component {
     );
   };
 
-  onFileChange = ({ displayName: fileName, id: recordId, link }) => {
-    this.clearState();
-
+  onFileChange = ({ fileName, recordId, link }) => {
     this.setState(
       {
-        isLoading: true,
+        scrollPage: 1,
+        pdf: {},
+        error: '',
         recordId,
+        link,
         fileName,
         downloadData: { link, fileName }
       },
-      this.getUrlByRecord
+      () => this.loadPDF(link)
     );
   };
 
@@ -478,7 +481,17 @@ class DocPreview extends Component {
   }
 
   renderViewer() {
-    return this.isPDF ? this.pdfViewer() : this.imgViewer();
+    const { link, error } = this.state;
+
+    if (!!error || (!this.bootstrapLink && !link)) {
+      return null;
+    }
+
+    if (this.isPDF) {
+      return this.pdfViewer();
+    }
+
+    return this.imgViewer();
   }
 
   renderLoader() {

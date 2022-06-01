@@ -120,25 +120,6 @@ export default function getViewer(WrappedComponent, isPdf) {
       return [];
     }
 
-    get failed() {
-      const { pdf, src, isLoading } = this.props;
-
-      //todo
-      if (isLoading) {
-        return true;
-      }
-
-      if (pdf === undefined && !src) {
-        return true;
-      }
-
-      if (pdf && Object.keys(pdf).length && !pdf._pdfInfo) {
-        return true;
-      }
-
-      return false;
-    }
-
     prevScroll = 0;
 
     setScrollDefaultPosition = debounce(() => {
@@ -241,17 +222,23 @@ export default function getViewer(WrappedComponent, isPdf) {
       );
     }
 
-    render() {
+    renderFullscreen() {
       const { isFullscreenOn } = this.state;
 
       return (
-        !this.failed && (
-          <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
-            {this.renderDocument()}
-            {fullscreenEnabled && isFullscreenOn && this.renderBtnCloseFullscreen()}
-            {!fullscreenEnabled && isFullscreenOn && <Fullpage onClose={this.onCloseFullscreen}>{this.renderDocument()}</Fullpage>}
-          </div>
-        )
+        <>
+          {fullscreenEnabled && isFullscreenOn && this.renderBtnCloseFullscreen()}
+          {!fullscreenEnabled && isFullscreenOn && <Fullpage onClose={this.onCloseFullscreen}>{this.renderDocument()}</Fullpage>}
+        </>
+      );
+    }
+
+    render() {
+      return (
+        <div className="ecos-doc-preview__viewer" ref={this.refViewer}>
+          {this.renderDocument()}
+          {this.renderFullscreen()}
+        </div>
       );
     }
   };

@@ -192,7 +192,11 @@ class Toolbar extends Component {
     const { totalPages } = this.props;
 
     return (
-      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager">
+      <div
+        className={classNames('ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager', {
+          'ecos-doc-preview__toolbar-pager_disabled': !totalPages
+        })}
+      >
         <IcoBtn
           icon={'icon-small-left'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
@@ -200,12 +204,10 @@ class Toolbar extends Component {
           })}
           onClick={this.handlePrev}
         />
-        {!!totalPages && (
-          <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
-            <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
-            <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages}`} </span>
-          </div>
-        )}
+        <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
+          <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
+          <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages || '⭯'}`} </span>
+        </div>
         <IcoBtn
           icon={'icon-small-right'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
@@ -293,8 +295,8 @@ class Toolbar extends Component {
         <Dropdown
           withScrollbar
           className="ecos-doc-preview__toolbar-select"
-          valueField="id"
-          titleField="displayName"
+          valueField="recordId"
+          titleField="fileName"
           source={filesList}
           value={fileValue}
           onChange={onFileChange}

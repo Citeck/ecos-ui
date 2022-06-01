@@ -170,6 +170,11 @@ $border-base: #c1c1c1;
     }
 
     &-pager {
+      &_disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
       & &-input {
         display: inline-block;
         width: 35px;
