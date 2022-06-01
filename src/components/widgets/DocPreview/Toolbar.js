@@ -291,7 +291,7 @@ class Toolbar extends Component {
     }
 
     return (
-      <div className="ecos-doc-preview__toolbar-group">
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-files">
         <Dropdown
           withScrollbar
           className="ecos-doc-preview__toolbar-select"

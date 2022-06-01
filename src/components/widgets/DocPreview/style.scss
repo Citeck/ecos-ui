@@ -75,8 +75,23 @@ $border-base: #c1c1c1;
     &_mobile_small {
       #{$root} {
         &__toolbar {
-          > * {
-            padding: 0 5px;
+          &-wrapper {
+            padding: 5px;
+            flex-wrap: wrap;
+          }
+
+          &-files {
+            flex-basis: 100%;
+            margin-bottom: 5px;
+            border-right: 0 !important;
+
+            .ecos-dropdown {
+              width: 100%;
+
+              .ecos-btn {
+                width: 100%;
+              }
+            }
           }
 
           &-pager {
@@ -134,13 +149,13 @@ $border-base: #c1c1c1;
 
     &-wrapper {
       display: flex;
-      margin: auto;
+      padding: 5px;
+    }
 
-      & > * {
-        padding: 0 10px;
-      }
+    &-wrapper &-group {
+      padding: 0 10px;
 
-      & > *:not(:last-child) {
+      &:not(:last-child) {
         border-right: 1px solid $border-toolbar;
       }
     }
