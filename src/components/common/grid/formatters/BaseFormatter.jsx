@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
 
 import { BaseEditor } from '../editors';
 
@@ -43,7 +44,17 @@ export default class BaseFormatter extends Component {
     });
   };
 
+  renderTooltipContent = () => {
+    const content = this.value(this.props.cell);
+
+    if (isEmpty(content)) {
+      return null;
+    }
+
+    return <div className="ecos-formatter__tooltip-content">{content}</div>;
+  };
+
   render() {
-    return <>{this.value(this.props.cell)}</>;
+    return this.value(this.props.cell);
   }
 }

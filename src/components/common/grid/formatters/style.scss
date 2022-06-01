@@ -17,6 +17,11 @@
         color: $color-blue-light;
       }
     }
+
+    &-content {
+      width: 50vw;
+      padding: 5px 0;
+    }
   }
 
   &-assoc {
