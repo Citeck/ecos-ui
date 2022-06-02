@@ -37,6 +37,8 @@ class ImgViewer extends Component {
     this.state = {
       calcScale: 1
     };
+
+    this.exist = true;
   }
 
   componentDidMount() {
@@ -65,6 +67,8 @@ class ImgViewer extends Component {
   }
 
   componentWillUnmount() {
+    this.exist = false;
+
     if (this.elImage.removeEventListener) {
       this.elImage.removeEventListener('error', this.onError);
     }
@@ -78,6 +82,10 @@ class ImgViewer extends Component {
   };
 
   setImageScale = () => {
+    if (!this.exist) {
+      return;
+    }
+
     const { onCentered } = this.props;
     const { calcScale: currentScale } = this.state;
     const calcScale = this.getCalcScale();
@@ -143,7 +151,7 @@ class ImgViewer extends Component {
   }
 
   onError = error => {
-    isFunction(this.props.onError) && this.props.onError(error);
+    this.exist && isFunction(this.props.onError) && this.props.onError(error);
   };
 
   onUpdate() {

@@ -129,6 +129,10 @@ function formatLink(info, fileName, version) {
   const { url = '', ext = '', originalUrl = '' } = info || {};
   let link = url || originalUrl;
 
+  if (!link) {
+    return '';
+  }
+
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-415
   if (version) {
     if (link.includes('?')) {
@@ -138,12 +142,17 @@ function formatLink(info, fileName, version) {
     }
   }
 
-  if (link && ext) {
-    const extWithDot = '.' + ext;
-    const withFileName = fileName ? `|${fileName}.${ext}` : '';
+  if (ext) {
+    const EXT = `.${ext}`;
+    let name = '';
 
-    return endsWith(link, extWithDot) ? `${link}${withFileName}` : `${link}#.${ext}${withFileName}`;
+    if (fileName) {
+      name = `|${fileName}`;
+      name += endsWith(fileName, EXT) ? '' : EXT;
+    }
+
+    return endsWith(link, EXT) ? `${link}${name}` : `${link}#${EXT}${name}`;
   }
 
-  return '';
+  return link;
 }

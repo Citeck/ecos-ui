@@ -294,12 +294,14 @@ class Toolbar extends Component {
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-files">
         <Dropdown
           withScrollbar
+          hasEmpty
           className="ecos-doc-preview__toolbar-select"
           valueField="recordId"
           titleField="fileName"
           source={filesList}
           value={fileValue}
           onChange={onFileChange}
+          itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
         />
       </div>
     );
