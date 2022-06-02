@@ -196,7 +196,7 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    if (element.id !== this._formWrapperRef.current.props.id) {
+    if (get(this._formWrapperRef, 'current.props.id', null) !== element.id) {
       return;
     }
 
@@ -312,12 +312,6 @@ class ModelEditorPage extends React.Component {
   };
 
   handleFormChange = (info, form) => {
-    const formId = info.data.id;
-
-    if (formId.includes('Process')) {
-      return;
-    }
-
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
