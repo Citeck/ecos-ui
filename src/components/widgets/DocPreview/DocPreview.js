@@ -86,6 +86,7 @@ class DocPreview extends Component {
       contentHeight: 0,
       error: '',
       fileName: props.fileName,
+      filesList: [],
       downloadData: {},
       wrapperWidth: 0,
       needRecalculateScale: false
@@ -104,7 +105,7 @@ class DocPreview extends Component {
     this.getUrlByRecord();
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(_prevProps, prevState) {
     if (prevState.wrapperWidth !== this.state.wrapperWidth) {
       const viewerForceUpdate = get(this._viewerRef, 'onUpdate');
 
@@ -116,10 +117,14 @@ class DocPreview extends Component {
 
   componentWillReceiveProps(nextProps) {
     const prevProps = this.props;
-    const { link, isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
-    const { recordId } = this.state;
+
+    let isUpdate = false;
+
+    const { isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
+    const { recordId, link, fileName } = this.state;
+
     const isPdf = isPDFbyStr(link);
-    const newState = {};
+    const newState = { recordId, fileName };
 
     if (isLoading !== prevProps.isLoading && !isPdf) {
       newState.isLoading = isLoading;
@@ -134,30 +139,19 @@ class DocPreview extends Component {
       this.loadPDF(link);
     }
 
-    if (prevProps.link !== link) {
-      newState.link = link;
-    }
-
-    const newRecordId = nextProps.recordId || this.getRecordId();
-
-    if ((!byLink && recordId !== newRecordId) || (!byLink && prevProps.isCollapsed && !isCollapsed)) {
-      newState.recordId = newRecordId;
-    }
-
     if (!prevProps.runUpdate && runUpdate) {
-      this.getUrlByRecord();
+      isUpdate = true;
+
+      newState.recordId = nextProps.recordId;
+      newState.fileName = null;
     }
 
     if (!prevProps.clear && clear) {
       this.clearState();
     }
 
-    if ((!prevProps.fileName && nextProps.fileName) || prevProps.fileName !== nextProps.fileName) {
-      newState.fileName = nextProps.fileName;
-    }
-
     this.setState({ ...newState }, () => {
-      if (newState.recordId) {
+      if (isUpdate) {
         this.getUrlByRecord();
       }
 
@@ -283,23 +277,36 @@ class DocPreview extends Component {
 
   getUrlByRecord = () => {
     const { byLink } = this.props;
-    const { recordId } = this.state;
+    const { recordId, filesList } = this.state;
 
     if (byLink || !recordId) {
       return;
     }
 
-    this.setState({ isLoading: true });
     DocPreviewApi.getPreviewLinkByRecord(recordId).then(link => {
       if (this.exist) {
         const error = link ? '' : t(Labels.Errors.FAILURE_FETCH);
 
         this.setState({ isLoading: false, link, error });
 
+        if (filesList.length === 0) {
+          this.getFilesByRecord();
+        }
+
         if (link && isPDFbyStr(link)) {
           this.loadPDF(link);
         }
       }
+    });
+  };
+
+  getFilesByRecord = () => {
+    const { recordId, fileName, link } = this.state;
+
+    DocPreviewApi.getFilesList(this.getRecordId()).then(list => {
+      this.setState({
+        filesList: [{ id: recordId, displayName: fileName, previewUrl: link }, ...list]
+      });
     });
   };
 
@@ -363,6 +370,25 @@ class DocPreview extends Component {
         console.error(`Error during loading document: ${err}`);
         this.exist && this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
       }
+    );
+  };
+
+  onFileChange = file => {
+    this.clearState();
+
+    this.setState(
+      {
+        scrollPage: 1,
+        recordId: file.id,
+        link: file.link,
+        isLoading: true,
+        fileName: file.displayName,
+        downloadData: {
+          link: file.link,
+          fileName: file.displayName
+        }
+      },
+      () => this.getUrlByRecord()
     );
   };
 
@@ -449,7 +475,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale } = this.props;
-    const { pdf, scrollPage, calcScale, downloadData, fileName } = this.state;
+    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     if (!this.loaded) {
@@ -466,7 +492,10 @@ class DocPreview extends Component {
         scrollPage={scrollPage}
         calcScale={calcScale}
         inputRef={this.setToolbarRef}
+        fileValue={recordId}
         fileName={fileName}
+        onFileChange={this.onFileChange}
+        filesList={filesList}
         downloadData={downloadData}
       />
     );

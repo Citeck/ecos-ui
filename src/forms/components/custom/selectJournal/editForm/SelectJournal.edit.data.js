@@ -1,5 +1,7 @@
 import { Attributes } from '../../../../../constants';
-import { SortOrderOptions, TableTypes, DisplayModes } from '../constants';
+import { t } from '../../../../../helpers/export/util';
+
+import { SortOrderOptions, TableTypes, DisplayModes, DataTypes } from '../constants';
 
 const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
@@ -28,16 +30,26 @@ export default [
     data: {
       values: [
         {
-          value: 'assoc',
-          label: 'Association'
+          value: DataTypes.ASSOC,
+          label: {
+            ru: 'Ассоциация',
+            en: 'Association'
+          }
         },
         {
-          value: 'json-record',
-          label: 'Json Record'
+          value: DataTypes.JSON_REC,
+          label: {
+            ru: 'Запись JSON',
+            en: 'Json Record'
+          }
+        },
+        {
+          value: DataTypes.QUERY,
+          label: 'Query'
         }
       ]
     },
-    defaultValue: 'assoc',
+    defaultValue: DataTypes.ASSOC,
     input: true
   },
   {
@@ -65,11 +77,17 @@ export default [
       values: [
         {
           value: DisplayModes.DEFAULT,
-          label: 'Default'
+          label: {
+            ru: 'По умолчанию',
+            en: 'Default'
+          }
         },
         {
           value: DisplayModes.TABLE,
-          label: 'Table'
+          label: {
+            ru: 'Табличный',
+            en: 'Table'
+          }
         }
       ]
     },
@@ -262,7 +280,10 @@ export default [
   {
     weight: 24,
     type: 'panel',
-    title: 'Custom Query Data',
+    title: {
+      ru: 'Пользовательские данные запроса',
+      en: 'Custom Query Data'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'mb-3',
@@ -279,14 +300,19 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
   {
     weight: 25,
     type: 'panel',
-    title: 'Custom Predicate',
+    title: {
+      ru: 'Пользовательский предикат',
+      en: 'Custom Predicate'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'mb-3',
@@ -303,14 +329,19 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
   {
     weight: 25,
     type: 'panel',
-    title: 'Value Display Name',
+    title: {
+      ru: 'Отображаемое имя значения',
+      en: 'Value Display Name'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'mb-3',
@@ -327,7 +358,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>disp</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
@@ -346,7 +379,10 @@ export default [
   {
     weight: 27,
     type: 'panel',
-    title: 'Preset filter predicates',
+    title: {
+      ru: 'Предикаты предустановленного фильтра',
+      en: 'Preset filter predicates'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'mb-3',
@@ -363,14 +399,19 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
   {
     weight: 29,
     type: 'panel',
-    title: 'Sorting',
+    title: {
+      ru: 'Сортировка',
+      en: 'Sorting'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'mb-3',
@@ -384,11 +425,17 @@ export default [
           {
             components: [
               {
-                label: 'Sort by attribute',
+                label: {
+                  ru: 'Сортировать по атрибуту',
+                  en: 'Sort by attribute'
+                },
                 type: 'textfield',
                 input: true,
                 key: 'sortAttribute',
-                placeholder: 'Enter column name',
+                placeholder: {
+                  ru: 'Введите название колонки',
+                  en: 'Enter column name'
+                },
                 defaultValue: Attributes.DBID
               }
             ],
@@ -402,7 +449,10 @@ export default [
           {
             components: [
               {
-                label: 'Sort order',
+                label: {
+                  ru: 'Порядок сортировки',
+                  en: 'Sort order'
+                },
                 type: 'select',
                 input: true,
                 key: 'sortAscending',

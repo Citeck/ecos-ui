@@ -1,4 +1,5 @@
 import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';
+import { t } from '../../../../../helpers/export/util';
 
 const SelectActionDisplayData = [
   ...BaseEditDisplay,
@@ -13,11 +14,15 @@ const SelectActionDisplayData = [
     data: {
       values: [
         {
-          label: 'Default',
+          get label() {
+            return t('form-constructor.select.default');
+          },
           value: 'default'
         },
         {
-          label: 'Primary',
+          get label() {
+            return t('form-constructor.select.primary');
+          },
           value: 'primary'
         }
       ]
@@ -34,11 +39,15 @@ const SelectActionDisplayData = [
     data: {
       values: [
         {
-          label: 'Normal',
+          get label() {
+            return t('form-constructor.select.normal');
+          },
           value: 'normal'
         },
         {
-          label: 'Big',
+          get label() {
+            return t('form-constructor.select.big');
+          },
           value: 'big'
         }
       ]

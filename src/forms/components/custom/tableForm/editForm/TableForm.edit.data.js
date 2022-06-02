@@ -1,3 +1,5 @@
+import { t } from '../../../../../helpers/export/util';
+
 const CUSTOM_CREATE_VARIANTS_FIELD = 'customCreateVariantsJs';
 const VALUE_FORM_KEY_FIELD = 'computed.valueFormKey';
 
@@ -26,7 +28,22 @@ export default [
     dataSrc: 'values',
     defaultValue: 'journal',
     data: {
-      values: [{ label: 'Journal', value: 'journal' }, { label: 'Custom', value: 'custom' }]
+      values: [
+        {
+          label: {
+            ru: 'Журнал',
+            en: 'Journal'
+          },
+          value: 'journal'
+        },
+        {
+          label: {
+            ru: 'Пользовательские',
+            en: 'Custom'
+          },
+          value: 'custom'
+        }
+      ]
     },
     weight: 20
   },
@@ -66,7 +83,10 @@ export default [
     }
   },
   {
-    label: 'Columns',
+    label: {
+      ru: 'Колонки',
+      en: 'Columns'
+    },
     disableAddingRemovingRows: false,
     defaultOpen: false,
     addAnother: '',
@@ -86,7 +106,10 @@ export default [
           {
             components: [
               {
-                label: 'Column attribute name',
+                label: {
+                  ru: 'Имя атрибуты столбца',
+                  en: 'Column attribute name'
+                },
                 allowMultipleMasks: false,
                 showWordCount: false,
                 showCharCount: false,
@@ -102,7 +125,10 @@ export default [
               },
               {
                 type: 'panel',
-                title: 'Formatter',
+                title: {
+                  ru: 'Форматирование',
+                  en: 'Formatter'
+                },
                 collapsible: true,
                 collapsed: true,
                 customClass: 'form-builder__panel-js',
@@ -120,7 +146,9 @@ export default [
                   {
                     type: 'htmlelement',
                     tag: 'div',
-                    content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+                    get content() {
+                      return t('form-constructor.panel.executionCondition');
+                    }
                   }
                 ]
               },
@@ -128,11 +156,17 @@ export default [
                 type: 'checkbox',
                 input: true,
                 key: 'setAttributesManually',
-                label: 'Set attributes manually',
+                label: {
+                  ru: 'Установить атрибуты вручную',
+                  en: 'Set attributes manually'
+                },
                 defaultValue: false
               },
               {
-                label: 'Column title',
+                label: {
+                  ru: 'Заголовок колонки',
+                  en: 'Column title'
+                },
                 type: 'textfield',
                 input: true,
                 key: 'title',
@@ -148,7 +182,10 @@ export default [
               {
                 type: 'select',
                 input: true,
-                label: 'Column data type:',
+                label: {
+                  ru: 'Тип данных колонки:',
+                  en: 'Column data type:'
+                },
                 key: 'type',
                 dataSrc: 'values',
                 defaultValue: '',
@@ -180,7 +217,10 @@ export default [
                 type: 'checkbox',
                 input: true,
                 key: 'multiple',
-                label: 'Multiple',
+                label: {
+                  ru: 'Выбор нескольких',
+                  en: 'Multiple'
+                },
                 defaultValue: false,
                 conditional: {
                   json: {
@@ -210,13 +250,19 @@ export default [
     type: 'checkbox',
     input: true,
     key: 'isSelectableRows',
-    label: 'Selectable rows',
+    label: {
+      ru: 'Выбираемые строки',
+      en: 'Selectable rows'
+    },
     weight: 23,
     defaultValue: false
   },
   {
     type: 'panel',
-    title: 'Specify nonselectable rows',
+    title: {
+      ru: 'Указать невыбираемые строки',
+      en: 'Specify nonselectable rows'
+    },
     collapsible: true,
     collapsed: true,
     key: 'nonSelectableRowsJS-js',
@@ -233,8 +279,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable accept an recordRef array.</p>'
+        get content() {
+          return t('form-constructor.html.table.nonselectable');
+        }
       }
     ],
     conditional: {
@@ -246,7 +293,10 @@ export default [
   },
   {
     type: 'panel',
-    title: 'Specify selected rows',
+    title: {
+      ru: 'Указать выбираемые строки',
+      en: 'Specify selected rows'
+    },
     collapsible: true,
     collapsed: true,
     key: 'selectedRowsJS-js',
@@ -263,8 +313,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. The <strong>value</strong> variable accept an recordRef array.</p>'
+        get content() {
+          return t('form-constructor.html.table.nonselectable');
+        }
       }
     ],
     conditional: {
@@ -278,14 +329,20 @@ export default [
     type: 'checkbox',
     input: true,
     key: 'triggerEventOnChange',
-    label: 'Trigger event on table change',
+    label: {
+      ru: 'Инициировать событие при изменении таблицы',
+      en: 'Trigger event on table change'
+    },
     weight: 24,
     defaultValue: false
   },
   {
     weight: 25,
     type: 'panel',
-    title: 'Custom Create Variants',
+    title: {
+      ru: 'Пользовательские варианты создания',
+      en: 'Custom Create Variants'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'form-builder__panel-js',
@@ -302,14 +359,19 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
   {
     weight: 28,
     type: 'panel',
-    title: 'Value Form Key',
+    title: {
+      ru: 'Ключ формы значения',
+      en: 'Value Form Key'
+    },
     collapsible: true,
     collapsed: true,
     customClass: 'form-builder__panel-js',
@@ -326,7 +388,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. You can use "record" variable.</p>'
+        get content() {
+          return t('form-constructor.html.table-form');
+        }
       }
     ]
   },
@@ -334,7 +398,10 @@ export default [
     type: 'asyncData',
     input: true,
     key: 'displayColumnsAsyncData',
-    label: 'Async Data',
+    label: {
+      ru: 'Асинхронные данные',
+      en: 'Async Data'
+    },
     inputType: 'asyncData',
     source: {
       type: 'custom',

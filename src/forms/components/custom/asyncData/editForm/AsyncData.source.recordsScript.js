@@ -1,9 +1,13 @@
+import { t } from '../../../../../helpers/export/util';
+
 const RECORDS_SCRIPT_PROP = 'source.recordsScript.script';
 
 export default [
   {
     type: 'panel',
-    title: 'Records Script',
+    get title() {
+      return t('form-constructor.tabs.content.source.recordsScript.script-js');
+    },
     collapsible: false,
     collapsed: false,
     style: {
@@ -25,23 +29,29 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable. ' +
-          'You can assign array of records or single record</p>'
+        get content() {
+          return t('form-constructor.html.records-script');
+        }
       }
     ]
   },
   {
     weight: 200,
     type: 'datamap',
-    label: 'Attributes',
-    tooltip: 'Attributes to load',
+    get label() {
+      return t('form-constructor.tabs.content.source.recordsQuery.attributes');
+    },
+    get tooltip() {
+      return t('form-constructor.tabs-tooltip.source.recordsQuery.attributes');
+    },
     key: 'source.recordsScript.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      label: 'Attribute',
+      get label() {
+        return t('form-constructor.tabs-content.source.record.attribute');
+      },
       defaultValue: '',
       input: true
     },

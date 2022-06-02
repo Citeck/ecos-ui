@@ -1,10 +1,10 @@
 import endsWith from 'lodash/endsWith';
+import get from 'lodash/get';
 
 import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
-import { RecordService } from './recordService';
 
-export class DocPreviewApi extends RecordService {
+export class DocPreviewApi {
   static getPreviewLinkByRecord = recordRef => {
     return Records.get(recordRef)
       .load(
@@ -100,6 +100,40 @@ export class DocPreviewApi extends RecordService {
       .catch(e => {
         console.error(e);
         return {};
+      });
+  };
+
+  static getFilesList = recordRef => {
+    return Records.query(
+      {
+        sourceId: 'alfresco/documents',
+        language: 'types-documents',
+        query: {
+          recordRef,
+          types: ['emodel/type@user-base']
+        }
+      },
+      {
+        documents: 'documents[]{id:?id,displayName:?disp,previewUrl:_content.previewInfo.url}'
+      }
+    )
+      .then(resp => {
+        const documents = get(resp, 'records[0].documents', []);
+
+        if (documents.length > 0) {
+          documents.map(i => {
+            return {
+              ...i,
+              previewUrl: i.previewUrl ? i.previewUrl.replace('alfresco/api/node/', `${PROXY_URI}api/node/`) : null
+            };
+          });
+        }
+
+        return documents;
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
       });
   };
 }

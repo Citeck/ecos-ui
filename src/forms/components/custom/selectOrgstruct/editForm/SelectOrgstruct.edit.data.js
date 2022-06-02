@@ -8,7 +8,16 @@ export default [
     key: 'dataType',
     weight: 10,
     data: {
-      values: Object.values(DataTypes)
+      values: [
+        {
+          value: DataTypes.NODE_REF,
+          label: 'Node Ref'
+        },
+        {
+          value: DataTypes.AUTHORITY,
+          label: 'Authority'
+        }
+      ]
     },
     defaultValue: DataTypes.NODE_REF
   }
