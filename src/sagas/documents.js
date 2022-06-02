@@ -268,7 +268,6 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
       }
     }
 
-    //todo check actions
     Records.get(payload.record).update();
   } catch (e) {
     logger.error('[documents sagaExecRecordsAction saga error', e);
