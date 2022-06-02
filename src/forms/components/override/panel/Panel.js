@@ -94,4 +94,19 @@ export default class PanelComponent extends FormIOPanelComponent {
   };
 
   _calculatePanelContentHeightThrottled = throttle(this._calculatePanelContentHeight, 300);
+
+  clearOnHide(show) {
+    // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
+    if (this.component.clearOnHide !== false && !this.options.readOnly) {
+      if (!show) {
+        for (let component of this.getComponents()) {
+          if (component.getComponents()) {
+            for (let item of component.getComponents()) {
+              item.deleteValue();
+            }
+          }
+        }
+      }
+    }
+  }
 }
