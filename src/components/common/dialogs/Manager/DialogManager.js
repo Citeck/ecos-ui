@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 import { Collapse, Card, CardBody } from 'reactstrap';
 
-import { isExistValue, objectByString, t } from '../../../../helpers/util';
+import { objectByString, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
 import { RemoveDialog } from '../index';
@@ -13,6 +14,9 @@ import FormWrapper from './FormWrapper';
 
 import './DialogManager.scss';
 
+/**
+ * @alias DialogTypes
+ */
 const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
 const INFO_DIALOG_ID = 'DialogManager-info-dialog';
 const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
@@ -97,8 +101,8 @@ const dialogsById = {
     } = dialogProps;
     const dProps = {
       ...otherProps,
-      title: t(isExistValue(title) ? title : 'record-action.delete.dialog.title.remove-many'),
-      text: t(isExistValue(text) ? text : 'record-action.delete.dialog.msg.remove-many'),
+      title: t(!isNil(title) ? title : 'record-action.delete.dialog.title.remove-many'),
+      text: t(!isNil(text) ? text : 'record-action.delete.dialog.msg.remove-many'),
       isOpen: props.isVisible,
       isLoading: props.isLoading
     };
@@ -204,7 +208,7 @@ const dialogsById = {
         hideModal={dProps.onNo}
         className={classNames('ecos-dialog ecos-dialog_confirm ecos-modal_width-xs', modalClass, { 'ecos-dialog_headless': !dProps.title })}
       >
-        {isExistValue(dProps.text) && <div className="ecos-dialog__body">{dProps.text}</div>}
+        {!isNil(dProps.text) && <div className="ecos-dialog__body">{dProps.text}</div>}
         <div className="ecos-dialog__buttons">
           <Btn onClick={dProps.onNo}>{t('boolean.no')}</Btn>
           <Btn className="ecos-btn_blue" onClick={dProps.onYes}>
@@ -449,7 +453,7 @@ const dialogsById = {
 const dialogs = {};
 
 const showDialog = (id, props = {}) => {
-  const isVisible = isExistValue(props.isVisible) ? props.isVisible : true;
+  const isVisible = !isNil(props.isVisible) ? props.isVisible : true;
   const _id = props.instance ? `${id}-${props.instance}` : id;
   let dialog = dialogs[_id];
 
@@ -488,33 +492,57 @@ function checkLoader() {
 }
 
 export default class DialogManager {
+  /**
+   * @param {InfoDialog & BaseDialog} props
+   * @returns dialog instance
+   */
   static showRemoveDialog(props) {
     return showDialog(REMOVE_DIALOG_ID, props);
   }
 
+  /**
+   * @param {InfoDialog & BaseDialog} props
+   * @returns dialog instance
+   */
   static showInfoDialog(props) {
     return showDialog(INFO_DIALOG_ID, props);
   }
 
+  /**
+   * @param {ConfirmDialog & BaseDialog} props
+   * @returns dialog instance
+   */
   static confirmDialog(props) {
     return showDialog(CONFIRM_DIALOG_ID, props);
   }
 
+  /**
+   * @param {CustomDialog & BaseDialog} props
+   * @returns dialog instance
+   */
   static showCustomDialog(props) {
     return showDialog(CUSTOM_DIALOG_ID, props);
   }
 
+  /**
+   * @param {FormDialog & BaseDialog} props
+   * @returns dialog instance
+   */
   static showFormDialog(props) {
     return showDialog(FORM_DIALOG_ID, props);
   }
 
+  /**
+   * @param {ErrorDialog & BaseDialog} props
+   * @returns dialog instance
+   */
   static showErrorDialog(props) {
     return showDialog(ERROR_DIALOG_ID, props);
   }
 
   /**
    * Display dialog loader; Manual or auto control
-   * @param props {?Object} other props or open state
+   * @param {?LoaderDialog} props  other props or open state
    */
   static toggleLoader(props = {}) {
     const isVisible = props.isVisible || (dialogs[LOADER_DIALOG_ID] && dialogs[LOADER_DIALOG_ID].isVisible);
