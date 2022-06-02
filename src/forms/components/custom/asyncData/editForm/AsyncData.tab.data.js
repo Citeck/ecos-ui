@@ -5,6 +5,7 @@ import RecordsScriptSource from './AsyncData.source.recordsScript';
 import AjaxSource from './AsyncData.source.ajax';
 import CustomSource from './AsyncData.source.custom';
 import { SourceTypes } from '../const';
+import { t } from '../../../../../helpers/export/util';
 
 export default [
   {
@@ -28,12 +29,40 @@ export default [
     defaultValue: SourceTypes.record,
     data: {
       values: [
-        { label: 'Record', value: SourceTypes.record },
-        { label: 'Records Script', value: SourceTypes.recordsScript },
-        { label: 'Records Array', value: SourceTypes.recordsArray },
-        { label: 'Records Query', value: SourceTypes.recordsQuery },
-        { label: 'Ajax', value: SourceTypes.ajax },
-        { label: 'Custom', value: SourceTypes.custom }
+        {
+          get label() {
+            return t('form-constructor.async.record');
+          },
+          value: SourceTypes.record
+        },
+        {
+          get label() {
+            return t('form-constructor.async.record.script');
+          },
+          value: SourceTypes.recordsScript
+        },
+        {
+          get label() {
+            return t('form-constructor.async.record.array');
+          },
+          value: SourceTypes.recordsArray
+        },
+        {
+          get label() {
+            return t('form-constructor.async.record.query');
+          },
+          value: SourceTypes.recordsQuery
+        },
+        {
+          label: 'Ajax',
+          value: SourceTypes.ajax
+        },
+        {
+          get label() {
+            return t('form-constructor.async.record.custom');
+          },
+          value: SourceTypes.custom
+        }
       ]
     }
   },

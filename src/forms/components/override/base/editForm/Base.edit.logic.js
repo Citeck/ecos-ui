@@ -16,7 +16,7 @@ if (triggerPanel && triggerPanel.components) {
   if (conditionalWhen) {
     conditionalWhen.data = {
       custom: `
-      utils.eachComponent(instance.root.editForm.components, function(component, path) {      
+      utils.eachComponent(instance.root.editForm.components, function(component, path) {
         if (component.key !== data.key) {
           values.push({
             label: component.labelByLocale || utils.getTextByLocale(component.label) || component.label || component.key,
