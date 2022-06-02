@@ -232,11 +232,16 @@ class DocPreview extends Component {
     return getOptimalHeight(height, contentHeight, minHeight, maxHeight, !this.loaded) || '100%';
   }
 
-  get hiddenTool() {
+  get hiddenPreview() {
     const heightTool = get(this._toolbarRef, 'offsetHeight', 0) + 10;
     const heightBody = get(this._bodyRef, 'offsetHeight', 0);
 
     return heightTool >= heightBody && !this.message;
+  }
+
+  get hiddenToolbar() {
+    const { filesList, link, isLoading, error } = this.state;
+    return isLoading ? false : filesList.length < 2 && (!!error || !link);
   }
 
   get isBlockedByRecord() {
@@ -287,9 +292,13 @@ class DocPreview extends Component {
     }
 
     const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
+    const { filesList: oldFiles = [], mainDoc } = this.state;
 
-    this.state.mainDoc && filesList.unshift(this.state.mainDoc);
-    !isArrayEqual(this.state.filesList, filesList) && this.setState({ filesList });
+    mainDoc && filesList.unshift(mainDoc);
+
+    if (!isArrayEqual(oldFiles, filesList)) {
+      this.setState({ filesList });
+    }
   };
 
   getFileName = async () => {
@@ -462,7 +471,7 @@ class DocPreview extends Component {
 
   renderToolbar() {
     const { scale, toolbarConfig } = this.props;
-    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId, link, isLoading } = this.state;
+    const { pdf, scrollPage, calcScale, downloadData, filesList, fileName, recordId } = this.state;
     const pages = get(pdf, '_pdfInfo.numPages', 0);
 
     return (
@@ -481,7 +490,7 @@ class DocPreview extends Component {
         onFullscreen={this.onFullscreen}
         onFileChange={this.onFileChange}
         config={toolbarConfig}
-        className={classNames({ 'd-none': !link && isEmpty(filesList) && !isLoading })}
+        className={classNames({ 'd-none': this.hiddenToolbar })}
       />
     );
   }
@@ -530,7 +539,7 @@ class DocPreview extends Component {
       <div
         className={classNames('ecos-doc-preview', className, {
           [`ecos-doc-preview_decreasing-step-${this.decreasingStep}`]: this.decreasingStep,
-          'ecos-doc-preview_hidden': this.hiddenTool
+          'ecos-doc-preview_hidden': this.hiddenPreview
         })}
         style={{ height: this.height }}
       >
