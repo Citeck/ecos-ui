@@ -1,11 +1,17 @@
+import { t } from '../../../../../helpers/export/util';
+
 export default [
   {
     weight: 0,
     type: 'textfield',
     input: true,
     key: 'source.recordsArray.id',
-    label: 'Records array',
-    tooltip: 'Records array to retrieve data',
+    get label() {
+      return t('form-constructor.tabs-content.source.recordsArray.id');
+    },
+    get tooltip() {
+      return t('form-constructor.tabs-tooltip.source.recordsArray.id');
+    },
     validate: {
       required: true
     }
@@ -13,14 +19,20 @@ export default [
   {
     weight: 200,
     type: 'datamap',
-    label: 'Attributes',
-    tooltip: 'Attributes to load',
+    get label() {
+      return t('form-constructor.tabs-content.source.recordsArray.attributes');
+    },
+    get tooltip() {
+      return t('form-constructor.tabs-tooltip.source.recordsArray.attributes');
+    },
     key: 'source.recordsArray.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      label: 'Attribute',
+      get label() {
+        return t('form-constructor.tabs-content.source.record.attribute');
+      },
       defaultValue: '',
       input: true
     },

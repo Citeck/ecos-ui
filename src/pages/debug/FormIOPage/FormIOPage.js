@@ -7,6 +7,9 @@ import FormBuilder from 'formiojs/FormBuilder';
 // import schema from './contractor.json';
 import '../../../forms';
 // import Formio from 'formiojs/Formio';
+import { getCurrentLocale } from '../../../helpers/export/util';
+import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
+
 import './temp.scss';
 
 class FormIOPage extends React.Component {
@@ -65,7 +68,16 @@ class FormIOPage extends React.Component {
     //   });
     // });
 
-    const formBuilder = new FormBuilder(document.getElementById('builder'), {});
+    const formBuilder = new FormBuilder(
+      document.getElementById('builder'),
+      {},
+      {
+        language: getCurrentLocale(),
+        i18n: {
+          [getCurrentLocale()]: EcosFormUtils.getI18n({}, {}, {})
+        }
+      }
+    );
 
     formBuilder.render().then(form => {
       // Everytime the form changes, this will fire.

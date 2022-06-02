@@ -1,6 +1,18 @@
 import set from 'lodash/set';
 import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 
+const propertiesComponent = BaseEditApi.find(item => item.key === 'properties');
+
+if (propertiesComponent) {
+  propertiesComponent['valueComponent'] = {
+    ...propertiesComponent['valueComponent'],
+    label: {
+      ru: 'Значение',
+      en: 'Value'
+    }
+  };
+}
+
 const keyComponent = BaseEditApi.find(item => item.key === 'key');
 
 set(keyComponent, 'validate.pattern', '(\\w|\\w[\\w-.:]*\\w)');
