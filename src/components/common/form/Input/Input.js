@@ -14,7 +14,9 @@ export default class Input extends Component {
     type: PropTypes.string,
     autoFocus: PropTypes.bool,
     clear: PropTypes.bool,
-    autoSelect: PropTypes.string
+    readonly: PropTypes.bool,
+    autoSelect: PropTypes.string,
+    className: PropTypes.string
   };
 
   static defaultProps = {

@@ -1,0 +1,34 @@
+@import '../../../../styles/constants';
+
+.ecos-dp-interval {
+  &__inputs {
+    display: flex;
+
+    &-start,
+    &-end {
+      height: 26px;
+    }
+
+    & > div:first-child {
+      &:after {
+        content: '-';
+        position: absolute;
+        right: -2px;
+        top: 2px;
+        z-index: 3;
+        font-weight: bold;
+        color: $text-color-dark;
+      }
+    }
+
+    &-start {
+      border-right: none;
+      border-radius: 6px 0 0 6px;
+    }
+
+    &-end {
+      border-left: none;
+      border-radius: 0 6px 6px 0;
+    }
+  }
+}
