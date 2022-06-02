@@ -112,42 +112,41 @@ class DocPreview extends Component {
    */
   componentWillReceiveProps(nextProps, nextContext) {
     const prevProps = this.props;
-
-    let isUpdate = false;
-
-    const { isLoading, byLink, isCollapsed, runUpdate, clear } = nextProps;
+    const { isLoading, byLink, runUpdate, clear } = nextProps;
     const { recordId, link, fileName } = this.state;
-    const isPdf = isPDFbyStr(link);
-    const newState = { recordId, fileName };
 
-    if (isLoading !== prevProps.isLoading && !isPdf) {
+    let newState = { recordId, fileName, link };
+    let isUpdate = false;
+    let isUpdatePdf = false;
+
+    //clear state by request
+    if (!prevProps.clear && clear) {
+      newState = this.getCleanState();
+    }
+
+    //additional loader by request
+    if (isLoading !== prevProps.isLoading && !isPDFbyStr(link)) {
       newState.isLoading = isLoading;
     }
 
-    if (
-      (byLink && prevProps.link !== link && isPdf) ||
-      (byLink && prevProps.link !== link && isPdf && prevProps.isCollapsed && !isCollapsed)
-    ) {
-      newState.isLoading = true;
-      newState.pdf = {};
-      this.loadPDF(link);
+    //update link if it works by byLink
+    if (byLink && link !== nextProps.link) {
+      newState.link = nextProps.link;
+      isUpdatePdf = isPDFbyStr(link);
     }
 
+    //refresh data
     if (!prevProps.runUpdate && runUpdate) {
       isUpdate = true;
-
       newState.recordId = nextProps.recordId || newState.recordId;
-      newState.fileName = null;
-      newState.pdf = {};
-    }
-
-    if (!prevProps.clear && clear) {
-      this.clearState();
+      newState.fileName = nextProps.fileName;
     }
 
     this.setState({ ...newState }, () => {
+      //after update of state, run get of remote data
       isUpdate && this.runGetData();
-      !newState.fileName && this.getFileName();
+      isUpdatePdf && this.loadPDF(newState.link); //if link is set self
+      !newState.fileName && this.getFileName(); //if fileName is not set, get by record
       !get(newState, 'downloadData.link') && this.getDownloadData();
     });
   }
@@ -173,9 +172,7 @@ class DocPreview extends Component {
   }
 
   get isPDF() {
-    const { link } = this.state;
-
-    return isPDFbyStr(link);
+    return isPDFbyStr(this.state.link);
   }
 
   get commonProps() {
@@ -250,21 +247,19 @@ class DocPreview extends Component {
     return queryString.parseUrl(window.location.href).query.recordRef || '';
   }
 
-  clearState = () => {
-    this.setState({
-      pdf: {},
-      settings: {},
-      isLoading: false,
-      scrollPage: 1,
-      recordId: '',
-      link: '',
-      contentHeight: 0,
-      error: '',
-      fileName: '',
-      downloadData: {},
-      needRecalculateScale: false
-    });
-  };
+  getCleanState = () => ({
+    pdf: {},
+    settings: {},
+    isLoading: false,
+    scrollPage: 1,
+    recordId: '',
+    link: '',
+    contentHeight: 0,
+    error: '',
+    fileName: '',
+    downloadData: {},
+    needRecalculateScale: false
+  });
 
   runGetData = async () => {
     await this.getFileLinkByRecord();
@@ -319,7 +314,7 @@ class DocPreview extends Component {
   };
 
   getDownloadData() {
-    const { recordId, byLink, link, fileName } = this.state;
+    const { recordId, byLink, link, fileName = '' } = this.state;
 
     if (byLink && link) {
       this.setState({ downloadData: { link, fileName } });
@@ -356,7 +351,7 @@ class DocPreview extends Component {
     const loadingTask = pdfjs.getDocument(link);
     const scrollPage = this.state.scrollPage || this.props.firstPageNumber;
 
-    this.setState({ scrollPage, isLoading: true });
+    this.setState({ scrollPage, isLoading: true, pdf: {}, error: '' });
 
     loadingTask.promise.then(
       pdf => this.exist && this.setState({ pdf, isLoading: false, scrollPage, error: '' }),
@@ -368,18 +363,21 @@ class DocPreview extends Component {
   };
 
   onFileChange = ({ fileName, recordId, link }) => {
-    this.setState(
-      {
-        scrollPage: 1,
-        pdf: {},
-        error: '',
-        recordId,
-        link,
-        fileName,
-        downloadData: { link, fileName }
-      },
-      () => this.loadPDF(link)
-    );
+    if (link !== this.state.link) {
+      const error = !link && t(Labels.Errors.FAILURE_FETCH);
+
+      this.setState(
+        {
+          ...this.getCleanState(),
+          recordId,
+          link,
+          error,
+          fileName,
+          downloadData: { link, fileName }
+        },
+        () => this.loadPDF(link)
+      );
+    }
   };
 
   onChangeSettings = settings => {
@@ -483,7 +481,7 @@ class DocPreview extends Component {
         onFullscreen={this.onFullscreen}
         onFileChange={this.onFileChange}
         config={toolbarConfig}
-        className={classNames({ 'd-none': !link && !isLoading })}
+        className={classNames({ 'd-none': !link && isEmpty(filesList) && !isLoading })}
       />
     );
   }
