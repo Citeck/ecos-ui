@@ -110,13 +110,19 @@ export default class PanelComponent extends FormIOPanelComponent {
   _calculatePanelContentHeightThrottled = throttle(this._calculatePanelContentHeight, 300);
 
   _checkContainer = component => {
+    if (!component.getValue()) {
+      return;
+    }
+
     for (let item of component.getComponents()) {
       item.deleteValue();
 
       if (item.components) {
-        return this._checkContainer(item);
+        this._checkContainer(item);
       }
     }
+
+    return component;
   };
 
   clearOnHide(show) {
