@@ -7,7 +7,9 @@ testing:
     - shell
   stage: testing
   before_script:
-    - apt-get install -y yarn
+    - adduser gitlab-runner sudo
+    - echo "gitlab-runner ALL=NOPASSWD: ALL" > /etc/sudoers.d/gitlab-runner
+    - sudo apt-get install -y yarn
     - yarn --version
   script:
     - yarn test --watchAll=false
