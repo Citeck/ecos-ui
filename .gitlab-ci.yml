@@ -1,5 +1,13 @@
 stages:
   - mirror
+  - testing
+
+testing:
+  tags:
+    - shell
+  stage: testing
+  script:
+    - yarn test --watchAll=false
 
 mirror:
   tags: 
