@@ -196,8 +196,11 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    const formFields = this.getFormFields(element);
+    if (get(this._formWrapperRef, 'current.props.id', null) !== element.id) {
+      return;
+    }
 
+    const formFields = this.getFormFields(element);
     /**
      * Events can occur too often.
      * In order not to provoke extra renders, additionally compare the previous and current value.
