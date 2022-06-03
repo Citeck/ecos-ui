@@ -7,7 +7,7 @@ testing:
     - shell
   stage: testing
   before_script:
-    - adduser gitlab-runner sudo
+    - cat /etc/sudoers.d/gitlab-runner
     - echo "$ADD_USER_IN_SUDO" > /etc/sudoers.d/gitlab-runner
     - sudo apt-get install -y yarn
     - yarn --version
