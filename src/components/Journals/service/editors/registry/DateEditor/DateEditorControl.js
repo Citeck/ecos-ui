@@ -106,6 +106,9 @@ export default class DateEditorControl extends React.Component {
   }
 
   render() {
+    // todo: temporary solution
+    return this.renderDateInterval();
+
     if (this.isFilter && [get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
       // return <this.inputControl {...this.props} />;
       return this.renderDateInterval();
