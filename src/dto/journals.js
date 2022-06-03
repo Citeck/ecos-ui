@@ -33,7 +33,7 @@ export default class JournalsConverter {
   }
 
   /**
-   * Get processed search configuration
+   * Get processed predicate with search configuration
    * @param {Predicate|Array<Predicate>} predicate
    * @param {Array<Column>} columns
    * @returns {Predicate|*}
