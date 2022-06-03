@@ -58,13 +58,20 @@
 
 /**
  * @typedef JournalConfig
+ * @property {String} label
+ * @property {String} name
+ * @property {String} id
  * @property {String} sourceId
+ * @property {String} metaRecord
+ * @property {Object} meta
  * @property {Object} groupBy
  * @property {Object} sortBy
  * @property {Array<Column>} columns
  * @property {Predicate} predicate
  * @property {Object} queryData
  * @property {Object} configData
+ * @property {Array<RecordAction>} actions
+ * @property {Array<CreateVariant>} createVariants
  *
  * @todo fill all
  */
@@ -75,6 +82,14 @@
  * @property {?String} name
  * @property {?String} schema
  * @property {?SearchConfigCol} searchConfig
+ *
+ * @todo fill all
+ */
+
+/**
+ * @typedef CreateVariant
+ * @property {String} name
+ * @property {String} type
  *
  * @todo fill all
  */
