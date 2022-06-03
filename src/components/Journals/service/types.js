@@ -61,10 +61,27 @@
  * @property {String} sourceId
  * @property {Object} groupBy
  * @property {Object} sortBy
- * @property {Array<Object>} columns
+ * @property {Array<Column>} columns
  * @property {Predicate} predicate
  * @property {Object} queryData
  * @property {Object} configData
+ *
+ * @todo fill all
+ */
+
+/**
+ * @typedef Column
+ * @property {?String} attribute
+ * @property {?String} name
+ * @property {?String} schema
+ * @property {?SearchConfigCol} searchConfig
+ *
+ * @todo fill all
+ */
+
+/**
+ * @typedef SearchConfigCol
+ * @property {Array<String>} delimiters
  *
  * @todo fill all
  */
