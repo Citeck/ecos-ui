@@ -2249,5 +2249,13 @@
   "model-viewer.zoom.tip-original": "Оригинальный",
   "model-viewer.zoom.tip-in": "Увеличить",
   "model-viewer.zoom.tip-out": "Уменьшить",
-  "model-viewer.heatmap.average-value": "Среднее значение"
+  "model-viewer.heatmap.average-value": "Среднее значение",
+
+  "interval-picker.date-type.relative": "Относительное значение",
+  "interval-picker.date-type.absolute": "Абсолютное значение",
+  "interval-picker.date-type.custom": "Произвольное значение",
+  "interval-picker.date-type.today": "Сегодня",
+  "interval-picker.date-type.now": "Сейчас",
+  "interval-picker.date-inputs.start": "Дата начала",
+  "interval-picker.date-inputs.end": "Дата окончания"
 }
