@@ -6,9 +6,6 @@ testing:
   tags:
     - shell
   stage: testing
-  before_script:
-    - sudo apt-get install -y yarn
-    - yarn --version
   script:
     - yarn test --watchAll=false
 
