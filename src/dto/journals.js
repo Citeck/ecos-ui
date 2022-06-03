@@ -1,15 +1,15 @@
 import cloneDeep from 'lodash/cloneDeep';
 import concat from 'lodash/concat';
 import get from 'lodash/get';
+import find from 'lodash/find';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
-import find from 'lodash/find';
 
 import Predicate from '../components/Filters/predicates/Predicate';
 import AttributesService from '../services/AttributesService';
 import { ParserPredicate } from '../components/Filters/predicates';
+import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
 import { getId } from '../helpers/util';
-import { PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -21,8 +21,8 @@ export default class JournalsConverter {
   }
 
   /**
-   * @param column {object}
-   * @returns {undefined|string}
+   * @param {Column} column
+   * @returns {?string}
    */
   static getColumnId(column) {
     if (isEmpty(column)) {
@@ -33,9 +33,10 @@ export default class JournalsConverter {
   }
 
   /**
-   * @param predicate {object|array}
-   * @param columns {array}
-   * @returns {{val: Predicate[], t: string}|{}|(*&{val: *})|*}
+   * Get processed search configuration
+   * @param {Predicate|Array<Predicate>} predicate
+   * @param {Array<Column>} columns
+   * @returns {Predicate|*}
    */
   static searchConfigProcessed(predicate, columns) {
     if (isEmpty(predicate)) {
@@ -95,9 +96,9 @@ export default class JournalsConverter {
   }
 
   /**
-   * @param string {string}
-   * @param delimiters {[]}
-   * @returns {string[]}
+   * @param {string} string
+   * @param {Array<string>} delimiters
+   * @returns {Array<string>}
    * @private
    */
   static _splitStringByDelimiters(string, delimiters = []) {
@@ -139,7 +140,7 @@ export default class JournalsConverter {
       return {};
     }
 
-    if (predicate.t === 'and' || predicate.t === 'or') {
+    if (predicate.t === PREDICATE_AND || predicate.t === PREDICATE_OR) {
       const predicates = (predicate.val || []).map(pred => JournalsConverter.optimizePredicate(pred)).filter(isPredicateValid);
 
       if (predicates.length === 0) {
@@ -158,7 +159,7 @@ export default class JournalsConverter {
   }
 
   /**
-   * @param source
+   * @param {Object} source
    * @returns {JournalSettings}
    */
   static getSettingsForDataLoaderServer(source) {
@@ -201,6 +202,10 @@ export default class JournalsConverter {
     return target;
   }
 
+  /**
+   * @param {Object} source
+   * @returns {RecordsActionsRes}
+   */
   static getJournalActions(source) {
     return {
       forRecords: source.forRecords || {},
@@ -255,6 +260,12 @@ export default class JournalsConverter {
     return columns.filter(item => configColumnsIds.includes(JournalsConverter.getColumnId(item)));
   }
 
+  /**
+   *
+   * @param {Predicate|Array<Predicate>} predicate
+   * @param {Array} configColumns
+   * @returns {Predicate|Array<Predicate>}
+   */
   static filterPredicatesByConfigColumns(predicate, configColumns) {
     if (Array.isArray(predicate)) {
       predicate.forEach(item => JournalsConverter.filterPredicatesByConfigColumns(item, configColumns));
