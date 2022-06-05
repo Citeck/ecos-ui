@@ -7,7 +7,7 @@ import DevToolsConverter from '../../../dto/devTools';
 import { TABS } from '../constants';
 import { JIRA } from '../Commits/constants';
 import { getRepoProject, parseTasksLinks, getHostName } from '../Commits/helpers';
-import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
+import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__mocks__/DevTools.mock';
 import * as DevToolsContext from '../DevToolsContext';
 import ErrorText from '../ErrorText';
 import Loader from '../Loader';
