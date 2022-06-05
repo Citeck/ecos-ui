@@ -2248,6 +2248,7 @@
   "model-viewer.zoom.tip-window": "По ширине",
   "model-viewer.zoom.tip-original": "Оригинальный",
   "model-viewer.zoom.tip-in": "Увеличить",
+  "model-viewer.zoom.tip-in": "Увеличить",
   "model-viewer.zoom.tip-out": "Уменьшить",
   "model-viewer.heatmap.average-value": "Среднее значение",
 
@@ -2257,5 +2258,16 @@
   "interval-picker.date-type.today": "Сегодня",
   "interval-picker.date-type.now": "Сейчас",
   "interval-picker.date-inputs.start": "Дата начала",
-  "interval-picker.date-inputs.end": "Дата окончания"
+  "interval-picker.date-inputs.end": "Дата окончания",
+  "interval-picker.time-ago.days": "Дней назад",
+  "interval-picker.time-ago.hours": "Часов назад",
+  "interval-picker.placeholder": "Выберите дату",
+  "interval-picker.labels.ago": "{{count}} {{unit}} назад",
+
+  "hour-form1": "час",
+  "hour-form2": "часа",
+  "hour-form3": "часов",
+  "day-form1": "день",
+  "day-form2": "дня",
+  "day-form3": "дней"
 }

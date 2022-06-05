@@ -51,5 +51,24 @@
         right: calc(50% - 50px) !important;
       }
     }
+
+    &-content {
+      display: grid;
+      grid-template-columns: 1fr 20% 1fr;
+      grid-gap: 10px;
+
+      &_absolute {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      &_relative {
+      }
+      &_cistom {
+      }
+      &_today {
+      }
+      &_now {
+      }
+    }
   }
 }

@@ -15,6 +15,7 @@ export default class Input extends Component {
     autoFocus: PropTypes.bool,
     clear: PropTypes.bool,
     readonly: PropTypes.bool,
+    narrow: PropTypes.bool,
     autoSelect: PropTypes.string,
     className: PropTypes.string
   };
@@ -98,11 +99,17 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, clear, ...props } = this.props;
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, ...props } = this.props;
 
     return (
       <div className="position-relative">
-        <input ref={this.setRef} {...props} className={classNames('ecos-input', className, `ecos-input_${align}`)} />
+        <input
+          ref={this.setRef}
+          {...props}
+          className={classNames('ecos-input', className, `ecos-input_${align}`, {
+            'ecos-input_narrow': narrow
+          })}
+        />
         {this.renderClearButton()}
       </div>
     );
