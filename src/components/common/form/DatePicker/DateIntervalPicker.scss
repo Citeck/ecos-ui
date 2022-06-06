@@ -54,21 +54,22 @@
 
     &-content {
       display: grid;
-      grid-template-columns: 1fr 20% 1fr;
+      grid-template-columns: 1fr 1fr;
       grid-gap: 10px;
 
       &_absolute {
-        grid-template-columns: 1fr 1fr;
+        //grid-template-columns: 1fr 1fr;
       }
 
       &_relative {
+        grid-template-columns: 1fr 20% 1fr;
       }
       &_cistom {
       }
-      &_today {
-      }
-      &_now {
-      }
+      //&_$today {
+      //}
+      //&_$now {
+      //}
     }
   }
 }
