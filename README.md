@@ -1,12 +1,13 @@
-### `Surroundings`
+###`Surroundings`
 
-**Win**
+**Windows**
 
-You need 
-1. `Node v14`
-1. `node-sass` 4.12.0 (check package)
-1. `Python27`
-1. *maybe - windows-build-tools*
+You need
+1. `Node v14` *(if it does't work, try `v12`)*
+2. `node-sass` 4.12.0 *(check package)*
+3. `Python27`
+4. use `yarn`, not `npm` !
+5. *maybe - windows-build-tools ↓*
 
 
 `Node` 
@@ -80,10 +81,19 @@ yarn add node-sass@4.12.0
 - google tag: node python27 node-sass
 
 ---
-
 ## Available Scripts
 
 In the project directory, you can run:
+
+**use YARN**
+
+### `yarn cache clean --all`
+
+Clean all cache
+
+### `yarn`
+
+Install dependencies
 
 ### `yarn start`
 

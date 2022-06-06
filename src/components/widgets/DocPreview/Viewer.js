@@ -13,7 +13,7 @@ const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
 
 export default function getViewer(WrappedComponent, isPdf) {
-  return class extends Component {
+  return class Viewer extends Component {
     static propTypes = {
       pdf: PropTypes.object,
       src: PropTypes.string,
@@ -181,15 +181,15 @@ export default function getViewer(WrappedComponent, isPdf) {
       this.setState({ isFullscreenOn: !this.state.isFullscreenOn });
     };
 
-    renderBtnCloseFullscreen() {
+    renderBtnCloseFullscreen = () => {
       return (
         <div className="ecos-doc-preview__btn-close-fullscreen" onClick={this.onCloseFullscreen}>
           <Icon className="icon-small-close" />
         </div>
       );
-    }
+    };
 
-    renderDocument() {
+    renderDocument = () => {
       const { resizable, scrollbarProps, componentRef } = this.props;
       const newProps = { ...this.props, refViewer: this.refViewer };
       const { isFullscreenOn } = this.state;
@@ -220,9 +220,9 @@ export default function getViewer(WrappedComponent, isPdf) {
           </div>
         </Scrollbars>
       );
-    }
+    };
 
-    renderFullscreen() {
+    renderFullscreen = () => {
       const { isFullscreenOn } = this.state;
 
       return (
@@ -231,7 +231,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           {!fullscreenEnabled && isFullscreenOn && <Fullpage onClose={this.onCloseFullscreen}>{this.renderDocument()}</Fullpage>}
         </>
       );
-    }
+    };
 
     render() {
       return (

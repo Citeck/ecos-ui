@@ -80,8 +80,8 @@
  * @property {Boolean} configMerged
  * @property {Boolean} hasError
  * @property {?Object} config
- * @property {?Object} preProcessedRecords
- * @property {?Object} results
+ * @property {?Array} preProcessedRecords
+ * @property {?Array} results
  */
 
 /**

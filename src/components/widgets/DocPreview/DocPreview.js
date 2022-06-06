@@ -234,7 +234,8 @@ class DocPreview extends Component {
 
   get hiddenPreview() {
     const heightTool = get(this._toolbarRef, 'offsetHeight', 0) + 10;
-    const heightBody = get(this._bodyRef, 'offsetHeight', 0);
+    const viewer = this._bodyRef && this._bodyRef.querySelector('.ecos-doc-preview__viewer');
+    const heightBody = get(viewer, 'offsetHeight', 0);
 
     return heightTool >= heightBody && !this.message;
   }
@@ -265,6 +266,8 @@ class DocPreview extends Component {
     downloadData: {},
     needRecalculateScale: false
   });
+
+  updSettings = (key, val, state = this.state) => ({ ...state.settings, [key]: val });
 
   runGetData = async () => {
     await this.getFileLinkByRecord();
@@ -394,21 +397,8 @@ class DocPreview extends Component {
   };
 
   onFullscreen = () => {
-    this.setState(
-      state => ({
-        settings: {
-          ...state.settings,
-          isFullscreen: true
-        }
-      }),
-      () => {
-        this.setState(state => ({
-          settings: {
-            ...state.settings,
-            isFullscreen: false
-          }
-        }));
-      }
+    this.setState({ settings: this.updSettings('isFullscreen', true) }, () =>
+      this.setState({ settings: this.updSettings('isFullscreen', false) })
     );
   };
 
@@ -421,13 +411,7 @@ class DocPreview extends Component {
   }, 350);
 
   setScrollPage = (scrollPage = this.props.firstPageNumber) => {
-    this.setState(state => ({
-      scrollPage,
-      settings: {
-        ...state.settings,
-        currentPage: scrollPage
-      }
-    }));
+    this.setState({ scrollPage, settings: this.updSettings('currentPage', scrollPage) });
   };
 
   setCalcScale = calcScale => {
