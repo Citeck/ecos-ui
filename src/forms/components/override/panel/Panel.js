@@ -110,7 +110,7 @@ export default class PanelComponent extends FormIOPanelComponent {
   _calculatePanelContentHeightThrottled = throttle(this._calculatePanelContentHeight, 300);
 
   _checkContainer = component => {
-    for (let item of component.components) {
+    for (let item of get(component, 'components')) {
       item.deleteValue();
 
       if (item.components) {
@@ -122,8 +122,8 @@ export default class PanelComponent extends FormIOPanelComponent {
   clearOnHide(show) {
     // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
     if (this.component.clearOnHide !== false && !this.options.readOnly && !show) {
-      for (let component of this.components) {
-        if (component.components) {
+      for (let component of get(this, 'components')) {
+        if (get(component, 'components')) {
           this._checkContainer(component);
         } else {
           component.deleteValue();
