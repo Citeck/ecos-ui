@@ -37,7 +37,9 @@
 
   &__popover {
     &-popper.popover {
-      max-width: 400px;
+      max-width: 100%;
+      width: 100%;
+      min-width: 400px;
     }
 
     &-inner.popover-inner {
@@ -58,7 +60,21 @@
       grid-gap: 10px;
 
       &_absolute {
-        //grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+
+        .react-datepicker {
+          width: 100%;
+
+          &__time {
+            &-container {
+              width: 30% !important;
+            }
+
+            &-box {
+              width: 100% !important;
+            }
+          }
+        }
       }
 
       &_relative {
@@ -66,10 +82,6 @@
       }
       &_cistom {
       }
-      //&_$today {
-      //}
-      //&_$now {
-      //}
     }
   }
 }
