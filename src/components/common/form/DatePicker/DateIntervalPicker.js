@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledPopover, PopoverHeader, PopoverBody } from 'reactstrap';
@@ -61,6 +62,9 @@ class DateIntervalPicker extends Component {
     onChange: PropTypes.func
   };
 
+  #componentRef = React.createRef();
+  #tooltipId = prepareTooltipId();
+
   state = {
     [DateInputs.START]: '',
     [DateInputs.END]: '',
@@ -69,8 +73,11 @@ class DateIntervalPicker extends Component {
     selectedTimeAgo: this.timeAgoOptions[0]
   };
 
-  #componentRef = React.createRef();
-  #tooltipId = prepareTooltipId();
+  constructor(props) {
+    super(props);
+
+    this.portal = this.createDateEditorContainer();
+  }
 
   componentDidMount() {
     const component = get(this.#componentRef, 'current');
@@ -103,25 +110,6 @@ class DateIntervalPicker extends Component {
       }
     }
   }
-
-  splitIntervalToParts = (props = this.props) => {
-    const { value } = props;
-
-    if (isEmpty(value)) {
-      return;
-    }
-
-    const { start, end } = this.state;
-    const [_start, _end] = value.split('/');
-
-    if (start !== _start && !isEmpty(_start)) {
-      this.setState({ start: _start });
-    }
-
-    if (end !== _end && !isEmpty(_end)) {
-      this.setState({ end: _end });
-    }
-  };
 
   get popoverLabel() {
     const { selectedPart } = this.state;
@@ -209,6 +197,34 @@ class DateIntervalPicker extends Component {
   get endLabel() {
     return this.parseToLabel(get(this.state, [DateInputs.END]));
   }
+
+  createDateEditorContainer = () => {
+    const div = document.createElement('div');
+
+    div.classList.add('date-editor-container');
+    document.body.appendChild(div);
+
+    return div;
+  };
+
+  splitIntervalToParts = (props = this.props) => {
+    const { value } = props;
+
+    if (isEmpty(value)) {
+      return;
+    }
+
+    const { start, end } = this.state;
+    const [_start, _end] = value.split('/');
+
+    if (start !== _start && !isEmpty(_start)) {
+      this.setState({ start: _start });
+    }
+
+    if (end !== _end && !isEmpty(_end)) {
+      this.setState({ end: _end });
+    }
+  };
 
   parseToLabel(date) {
     if (isEmpty(date)) {
@@ -390,14 +406,13 @@ class DateIntervalPicker extends Component {
           </>
         );
       case DateTypes.ABSOLUTE:
-        // todo: Поправить размер и позицию выпадающего календаря (возможно, сделать не выпадашку, а отрисовывать ниже инлайн)
         return (
           <DatePicker
-            showIcon
-            narrow
+            inline
             showTimeSelect
             selected={this.date}
             placeholderText={t(Labels.DATEPICKER_PLACEHOLDER)}
+            popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
             onChange={this.handleSelectDate}
           />
         );
