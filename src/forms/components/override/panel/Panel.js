@@ -1,7 +1,6 @@
 import FormIOPanelComponent from 'formiojs/components/panel/Panel';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
-import unset from 'lodash/unset';
 
 import { t } from '../../../../helpers/export/util';
 
@@ -109,14 +108,6 @@ export default class PanelComponent extends FormIOPanelComponent {
   };
 
   _calculatePanelContentHeightThrottled = throttle(this._calculatePanelContentHeight, 300);
-
-  deleteValue() {
-    this.setValue(null, {
-      noUpdateEvent: true,
-      noDefault: true
-    });
-    unset(this.data, this.key);
-  }
 
   _checkContainer = component => {
     for (let item of component.components) {
