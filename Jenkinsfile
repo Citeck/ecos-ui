@@ -4,7 +4,7 @@ properties([
 timestamps {
   node {
 
-    def repoUrl = "git@bitbucket.org:citeck/ecos-ui.git"
+    def repoUrl = "git@gitlab.citeck.ru:citeck-projects/ecos-ui.git"
     def mavenRepository = "maven-snapshots"
 
     stage('Checkout Script Tools SCM') {
@@ -15,7 +15,7 @@ timestamps {
           doGenerateSubmoduleConfigurations: false,
           extensions: [],
           submoduleCfg: [],
-          userRemoteConfigs: [[credentialsId: 'awx.integrations', url: 'git@bitbucket.org:citeck/pipelines.git']]
+          userRemoteConfigs: [[credentialsId: 'awx.integrations', url: 'git@gitlab.citeck.ru:infrastructure/pipelines.git']]
         ])
       }
     }
