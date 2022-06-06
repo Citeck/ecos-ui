@@ -13,8 +13,8 @@ function format(val) {
 export default class NumberFormatter extends BaseFormatter {
   static TYPE = 'number';
 
-  format(props) {
-    const { cell } = props;
+  format(props = {}) {
+    const { cell = '' } = props;
 
     if (Number.isNaN(+cell)) {
       return cell;
