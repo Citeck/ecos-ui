@@ -71,6 +71,12 @@ export default class DateEditorControl extends React.Component {
     this.setState({ date }, this.sendData);
   };
 
+  onChangeInterval = dates => {
+    if (dates && dates.includes('/')) {
+      this.setState({ date: dates }, this.sendData);
+    }
+  };
+
   sendData = () => {
     this.props.onUpdate && this.props.onUpdate(this.state.date);
   };
@@ -102,7 +108,7 @@ export default class DateEditorControl extends React.Component {
   }
 
   renderDateInterval() {
-    return <DateIntervalPicker />;
+    return <DateIntervalPicker value={this.state.date} onChange={this.onChangeInterval} />;
   }
 
   render() {

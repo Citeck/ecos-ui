@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledPopover, PopoverHeader, PopoverBody } from 'reactstrap';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import moment from 'moment';
 
 import { Select, Input, DatePicker } from '../';
@@ -54,6 +56,11 @@ const Labels = {
 };
 
 class DateIntervalPicker extends Component {
+  static propTypes = {
+    value: PropTypes.string,
+    onChange: PropTypes.func
+  };
+
   state = {
     [DateInputs.START]: '',
     [DateInputs.END]: '',
@@ -75,7 +82,46 @@ class DateIntervalPicker extends Component {
         wrapper.style.minWidth = '300px';
       }
     }
+
+    this.splitIntervalToParts();
   }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.value !== this.props.value) {
+      this.splitIntervalToParts();
+    }
+  }
+
+  componentWillUnmount() {
+    const component = get(this.#componentRef, 'current');
+
+    if (component) {
+      const wrapper = component.closest('.ecos-inline-filter__value');
+
+      if (wrapper) {
+        wrapper.style.minWidth = 'unset';
+      }
+    }
+  }
+
+  splitIntervalToParts = (props = this.props) => {
+    const { value } = props;
+
+    if (isEmpty(value)) {
+      return;
+    }
+
+    const { start, end } = this.state;
+    const [_start, _end] = value.split('/');
+
+    if (start !== _start && !isEmpty(_start)) {
+      this.setState({ start: _start });
+    }
+
+    if (end !== _end && !isEmpty(_end)) {
+      this.setState({ end: _end });
+    }
+  };
 
   get popoverLabel() {
     const { selectedPart } = this.state;
@@ -189,7 +235,15 @@ class DateIntervalPicker extends Component {
       return moment(date).format(DateFormats.DATETIME);
     }
 
-    return '';
+    if (date === DateTypes.TODAY) {
+      return t(Labels.DATE_TYPE_TODAY);
+    }
+
+    if (date === DateTypes.NOW) {
+      return t(Labels.DATE_TYPE_NOW);
+    }
+
+    return date;
   }
 
   checkIsDays(date) {
@@ -250,6 +304,15 @@ class DateIntervalPicker extends Component {
     });
   };
 
+  sendDate = () => {
+    const { onChange } = this.props;
+    const { start, end } = this.state;
+
+    if (start && end && isFunction(onChange)) {
+      onChange(`${start}/${end}`);
+    }
+  };
+
   handleClick = selectedPart => {
     if (selectedPart === this.state.selectedPart) {
       return;
@@ -265,7 +328,19 @@ class DateIntervalPicker extends Component {
   };
 
   handleChangeDateType = selectedType => {
-    this.setState({ selectedType });
+    let selectedPartValue = '';
+
+    if ([DateTypes.TODAY, DateTypes.NOW].includes(selectedType.value)) {
+      selectedPartValue = selectedType.value;
+    }
+
+    this.setState(
+      {
+        selectedType,
+        [this.state.selectedPart]: selectedPartValue
+      },
+      this.sendDate
+    );
   };
 
   handleChangeTimeAgo = selectedTimeAgo => {
@@ -300,7 +375,7 @@ class DateIntervalPicker extends Component {
         break;
     }
 
-    this.setState({ [selectedPart]: result });
+    this.setState({ [selectedPart]: result }, this.sendDate);
   };
 
   renderInput() {
@@ -326,6 +401,11 @@ class DateIntervalPicker extends Component {
             onChange={this.handleSelectDate}
           />
         );
+      case DateTypes.NOW:
+      case DateTypes.TODAY:
+        return <Input readOnly narrow disabled value={moment().format(DateFormats.DATETIME)} />;
+      case DateTypes.CUSTOM:
+        return <Input narrow value={this.date} onChange={event => this.handleSelectDate(event.target.value)} />;
       default:
         return null;
     }
