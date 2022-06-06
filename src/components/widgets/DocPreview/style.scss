@@ -1,9 +1,8 @@
 @import '../../../styles/constants';
 
-$border-toolbar: #c1c1c1;
-$background-toolbar: #fbfbfb;
-$background-viewer: #f5f5f5;
-$border-base: #c1c1c1;
+$border-toolbar: $color-gray-2;
+$background-viewer: $color-gray-15;
+$border-base: $color-gray-5;
 
 %base-flex {
   display: flex;
@@ -64,9 +63,7 @@ $border-base: #c1c1c1;
     width: 100%;
 
     &_indents {
-      padding-top: 14px;
-      padding-right: 17px;
-      padding-left: 17px;
+      padding: 5px 17px 0;
     }
   }
 
@@ -75,8 +72,23 @@ $border-base: #c1c1c1;
     &_mobile_small {
       #{$root} {
         &__toolbar {
-          > * {
-            padding: 0 5px;
+          &-wrapper {
+            padding: 5px;
+            flex-wrap: wrap;
+          }
+
+          &-files {
+            flex-basis: 100%;
+            margin-bottom: 5px;
+            border-right: 0 !important;
+
+            .ecos-dropdown {
+              width: 100%;
+
+              .ecos-btn {
+                width: 100%;
+              }
+            }
           }
 
           &-pager {
@@ -127,20 +139,19 @@ $border-base: #c1c1c1;
   &__toolbar {
     @extend %base-flex;
     justify-content: center;
-    background-color: $background-toolbar;
-    border: 1px solid $border-base;
+    background-color: transparent;
     min-height: 45px;
     min-width: 250px;
 
     &-wrapper {
       display: flex;
-      margin: auto;
+      padding: 5px;
+    }
 
-      & > * {
-        padding: 0 10px;
-      }
+    &-wrapper &-group {
+      padding: 0 10px;
 
-      & > *:not(:last-child) {
+      &:not(:last-child) {
         border-right: 1px solid $border-toolbar;
       }
     }
@@ -167,9 +178,20 @@ $border-base: #c1c1c1;
           font-size: $font-size-small;
         }
       }
+
+      &-item {
+        &_disabled {
+          opacity: 0.5;
+        }
+      }
     }
 
     &-pager {
+      &_disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
       & &-input {
         display: inline-block;
         width: 45px;
@@ -220,9 +242,7 @@ $border-base: #c1c1c1;
     background-color: $background-viewer;
     position: relative;
     height: calc(100% - 45px);
-    border-bottom: 1px solid $border-base;
-    border-right: 1px solid $border-base;
-    border-left: 1px solid $border-base;
+    border: 1px solid $border-base;
 
     &_fullscreen {
       height: 100vh;

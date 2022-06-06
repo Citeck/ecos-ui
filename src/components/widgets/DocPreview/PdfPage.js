@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { TextLayerBuilder } from 'pdfjs-dist/lib/web/text_layer_builder.js';
+import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
 
 import { getScale, isMobileDevice } from '../../../helpers/util';
 
@@ -74,10 +76,14 @@ class PdfPage extends Component {
     let viewport = page.getViewport({ scale: calcScale });
 
     const [, , origW, origH] = viewport.viewBox;
-    const { clientWidth: cW, clientHeight: cH } = elViewer;
-    const noHeight = !cH && defHeight && !isMob;
+    const { clientWidth: width, clientHeight } = elViewer;
+    const scaleW = viewport.width;
+    const noHeight = !clientHeight && defHeight && !isMob;
+    const height = noHeight ? defHeight : clientHeight;
 
-    calcScale = getScale(scale, { width: cW, height: noHeight ? defHeight : cH }, { origW, origH, scaleW: viewport.width }, cW / 3);
+    if ((isString(scale) && width && height && origW && origH) || !isNil(scale)) {
+      calcScale = getScale(scale, { width, height }, { origW, origH, scaleW }, width / 3);
+    }
 
     viewport = page.getViewport({ scale: calcScale });
 
