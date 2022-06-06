@@ -1,67 +1,24 @@
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
-import isBoolean from 'lodash/isBoolean';
 import chunk from 'lodash/chunk';
+import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
+import { DialogManager } from '../../common/dialogs';
+import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { replaceAttributeValues } from '../utils/recordUtils';
 import { getFitnesseClassName } from '../../../helpers/tools';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess, ResultTypes } from './util/actionUtils';
 import Records from '../Records';
-import { DialogManager } from '../../common/dialogs';
-
-import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
-
-import { DetailActionResult, getActionResultTitle, notifyFailure, getRef, ResultTypes } from './util/actionUtils';
 import ActionsExecutor from './handler/ActionsExecutor';
 import ActionsResolver from './handler/ActionsResolver';
 import RecordActionsResolver from './handler/RecordActionsResolver';
-
-/**
- * @typedef {Boolean} RecordsActionBoolResult
- * true if action was executed and something changed (update required).
- * false if action is not executed or nothing changed (update not required).
- *
- * @typedef {Object} RecordsActionObjResult
- * @property {String} type
- * @property {Object} config
- *
- * @typedef {RecordsActionBoolResult|RecordsActionObjResult} RecordsActionResult
- *
- * @typedef {Object} RecordActionFeatures
- * @property {Boolean} execForQuery
- * @property {Boolean} execForRecord
- * @property {Boolean} execForRecords
-
- * @typedef {Object} RecordAction
- * @property {String} id
- * @property {String} type
- * @property {String} icon
- * @property {String} name
- * @property {String} pluralName
- * @property {Object} config
- * @property {RecordActionFeatures} features
- *
- * @typedef RecordActionCtxData
- * @property {Object} context
- * @property {Number} recordsMask
- *
- * @typedef {RecordAction & RecordActionCtxData} RecActionWithCtx
- *
- * @typedef {Object} ForRecordsRes
- * @property {Array<RecActionWithCtx>} actions
- * @property {Object<String,number>} records
- *
- * @typedef {Object} RecordsActionsRes
- * @property {Object<String,Array<RecActionWithCtx>>} forRecord
- * @property {ForRecordsRes} forRecords
- * @property {Object<String>} forQuery
- *
- * @typedef {Object} RecordsQuery
- */
+import RecordsIterator from './RecordsIterator';
 
 const ACTION_CONTEXT_KEY = '__act_ctx__';
 
@@ -86,24 +43,29 @@ export const DEFAULT_MODEL = {
 };
 
 class RecordActions {
-  static _checkExecActionFeature(feature, handler, config) {
-    if (config === false) {
+  static _checkExecActionFeature(feature, handler, allowed) {
+    if (allowed === false) {
       return false;
     }
+
     if (handler instanceof ActionsExecutor) {
       let proto = Object.getPrototypeOf(handler);
+
       if (proto[feature] === ActionsExecutor.prototype[feature]) {
-        if (config === true) {
+        if (allowed === true) {
           console.error("Action executor doesn't allow feature " + feature + '. Handler: ', handler);
         }
+
         return false;
       }
+
       return true;
     } else if (handler instanceof RecordActionsResolver) {
       return feature === 'execForRecord';
     } else if (handler instanceof ActionsResolver) {
       return true;
     }
+
     return false;
   }
 
@@ -139,6 +101,7 @@ class RecordActions {
       }
 
       let features = action.features ? { ...action.features } : {};
+
       if (handler instanceof ActionsExecutor) {
         features.execForQuery = RecordActions._checkExecActionFeature('execForQuery', handler, features.execForQuery);
         features.execForRecord = RecordActions._checkExecActionFeature('execForRecord', handler, features.execForRecord);
@@ -193,6 +156,11 @@ class RecordActions {
     return action;
   };
 
+  /**
+   * @param {RecordAction} action
+   * @returns {Object}
+   * @private
+   */
   static _getConfirmData = action => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
@@ -239,7 +207,14 @@ class RecordActions {
     }
   }
 
+  /**
+   * @param {RecordAction} action
+   * @param params
+   * @returns {Promise<Boolean | unknown>}
+   * @private
+   */
   static async _checkConfirmAction(action, params) {
+    /** @see ConfirmAction */
     const confirmData = RecordActions._getConfirmData(action);
 
     if (!confirmData) {
@@ -253,6 +228,14 @@ class RecordActions {
     });
   }
 
+  /**
+   * @param {Array<String>|Array<Record>|undefined} records
+   * @param {RecordAction} action
+   * @param context
+   * @param {String} nameFunction
+   * @returns {Promise<PreProcessActionResult> | PreProcessActionResult}
+   * @private
+   */
   static async _preProcessAction({ records, action, context }, nameFunction) {
     const result = { preProcessed: false, configMerged: false, hasError: false };
 
@@ -267,7 +250,7 @@ class RecordActions {
         result.hasError = true;
       });
 
-    if (typeof preActionHandler === 'function') {
+    if (isFunction(preActionHandler)) {
       try {
         const response = await preActionHandler(records, action, context);
         result.preProcessed = true;
@@ -300,7 +283,7 @@ class RecordActions {
   /**
    * Fill values by attributes mapping (change properties of action)
    *
-   * @param {Object} action - configuration
+   * @param {RecordAction} action - configuration
    * @param {Object} data - values which set
    * @param {String} targetPath - where attributesMapping is in action
    * @param {String} sourcePath - where to set values by map
@@ -476,7 +459,8 @@ class RecordActions {
       return false;
     }
 
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+    /** @type {RecordActionCtxData} */
+    const actionContext = get(action, [ACTION_CONTEXT_KEY, 'context']) || {};
     const execContext = {
       ...actionContext,
       ...context
@@ -522,9 +506,12 @@ class RecordActions {
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
    * @param {Object} context
+   * @param {{ungearedPopups: ?Boolean}} params
    */
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
+    const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
+    const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let withTimeoutError = false;
     let popupExecution;
@@ -569,7 +556,9 @@ class RecordActions {
         RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
-      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+      if (!ungearedPopups) {
+        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+      }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
       const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
@@ -599,7 +588,9 @@ class RecordActions {
           return false;
         }
 
-        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+        if (!ungearedPopups) {
+          popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+        }
       }
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
@@ -779,7 +770,9 @@ class RecordActions {
       return actResult;
     })();
 
-    isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
+    isBoolean(execution)
+      ? popupExecution && popupExecution.hide()
+      : !ungearedPopups && (await DetailActionResult.showResult(execution, resultOptions));
 
     if (withTimeoutError) {
       RecordActions._showTimeoutMessageDialog();
@@ -806,15 +799,12 @@ class RecordActions {
 
     const executor = RecordActions._getActionsExecutor(action);
 
-    if (!executor) {
+    if (!executor || !action.id) {
       return allNotAllowedResult;
-    }
-    if (!executor.isActionConfigCheckingRequired(action)) {
-      return allAllowedResult;
     }
 
-    if (!action.id) {
-      return allNotAllowedResult;
+    if (!executor.isActionConfigCheckingRequired(action) || get(context, 'fromFeature') === 'execForQuery') {
+      return allAllowedResult;
     }
 
     const actions = await this.getActionsForRecords(records, [action.id], context);
@@ -853,6 +843,7 @@ class RecordActions {
     if (!query) {
       return false;
     }
+
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -874,11 +865,25 @@ class RecordActions {
       return;
     }
 
-    if (!isEmpty(confirmed)) {
-      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    let result;
+
+    if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
+      result = await this.execForQueryAsForRecords(query, action, context);
+    } else {
+      /** @type {PreProcessActionResult} */
+      const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
+
+      if (preResult.configMerged) {
+        action.config = preResult.config;
+      }
+
+      if (!isEmpty(confirmed)) {
+        RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+      }
+
+      result = handler.execForQuery(query, action, execContext);
     }
 
-    const result = handler.execForQuery(query, action, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     if (!isBoolean(actResult)) {
@@ -886,6 +891,53 @@ class RecordActions {
     }
 
     return actResult;
+  }
+
+  /**
+   * @param {RecordsQuery} query
+   * @param {RecActionWithCtx} action
+   * @param {Object} context
+   */
+  async execForQueryAsForRecords(query, action, context) {
+    let processedCount = 0;
+    let showProcess = true;
+
+    const handleInfo = () => {
+      notifySuccess('group-action.message.background-mode');
+      showProcess = false;
+    };
+
+    const info = (title, text, isEnd) => DialogManager.showInfoDialog({ title, text, onClose: () => !isEnd && handleInfo() });
+
+    info('group-action.message.started', 'group-action.label.fetch-data');
+
+    if (query.language !== 'predicate') {
+      info('error', 'record-action.msg.error.text');
+      return false;
+    }
+
+    const { page, ...preparedQuery } = query;
+    const { confirm, ...preparedAction } = action;
+    const preparedContext = { ...context, fromFeature: 'execForQuery' };
+    const iterator = new RecordsIterator(preparedQuery);
+
+    const callback = async data => {
+      processedCount += data.records.length;
+
+      await this.execForRecords(data.records, preparedAction, preparedContext);
+
+      showProcess &&
+        info(
+          t('group-action.message.in-progress', { name: action.name }),
+          t('group-action.message.processed', { total: data.totalCount, count: processedCount })
+        );
+    };
+
+    await iterator.iterate(callback);
+
+    info('success', t('group-action.message.done-name', { action: action.name }), true);
+
+    return true;
   }
 
   /**

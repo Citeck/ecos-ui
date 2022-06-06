@@ -226,6 +226,27 @@ describe('RecordActions service', () => {
       }
     });
 
+    describe(`Result for configurable execForQuery`, async () => {
+      it('execForQueryConfig.execAsForRecords - False', async () => {
+        const result = await recordActions.execForQuery({}, { ...TEST_ACTION_CONFIG, execForQueryConfig: { execAsForRecords: false } });
+        const execForQueryAsForRecordsSpy = jest.spyOn(recordActions, 'execForQueryAsForRecords');
+
+        expect(execForQueryAsForRecordsSpy).not.toHaveBeenCalled();
+        expect(result).toEqual(false);
+      });
+
+      it('execForQueryConfig.execAsForRecords - bad query language', async () => {
+        const result = await recordActions.execForQuery(
+          { query: { language: 'bad-predicate' } },
+          { ...TEST_ACTION_CONFIG, execForQueryConfig: { execAsForRecords: true } }
+        );
+        const execForQueryAsForRecordsSpy = jest.spyOn(recordActions, 'execForQueryAsForRecords');
+
+        expect(execForQueryAsForRecordsSpy).toHaveBeenCalled();
+        expect(result).toEqual(false);
+      });
+    });
+
     describe('Formation Result', () => {
       for (let key in ActionResultFormation) {
         it(key, () => {
