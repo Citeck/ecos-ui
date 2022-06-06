@@ -13,42 +13,6 @@ import { DEFAULT_TYPE } from './constants';
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
 /**
- * @typedef SortBy
- * @field {String} attribute
- * @field {Boolean} ascending
- *
- * @typedef Page
- * @field {Number} maxItems
- * @field {Number} skipCount
- *
- * @typedef Predicate
- * @field {String} t - predicate type (and, or, contains, eq, not-eq, etc)
- * @field {String} att - attribute
- * @field {String|Number|Boolean|Predicate|Array<Predicate>|null} val
- *
- * @typedef JournalSettings
- * @field {Predicate} predicate
- * @field {Object} queryData - additional data to send in search query
- * @field {Object<String, String>} attributes - additional attributes to load
- * @field {Array<SortBy>>} sortBy - search query sorting
- * @field {Page} page -
- * @field {Boolean} onlyLinked
- * @field {String} recordRef
- *
- * @typedef RecordsError
- * @field {String} type
- * @field {String} msg
- * @field {Array<String>} stackTrace
- *
- * @typedef JournalData
- * @field {List<Object>} records
- * @field {List<RecordsError>} errors
- * @field {Number} totalCount
- * @field {Boolean} hasMore
- * @field {Object<String, String>} attributes - requested attributes
- */
-
-/**
  * Service to work with journals.
  */
 class JournalsService {
@@ -78,7 +42,6 @@ class JournalsService {
     }
 
     const journalConfig = _.cloneDeep(config);
-
     const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
 
     if (!legacyConfig.columns || !legacyConfig.columns.length) {
@@ -89,10 +52,8 @@ class JournalsService {
     legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
 
     let columns = this.__replaceConfigPlaceholders(legacyConfig.columns, legacyConfig.configData.configComputed);
-
     legacyConfig.columns = await this.resolveColumns(columns);
     legacyConfig.modelVersion = 1;
-
     return legacyConfig;
   }
 
@@ -165,7 +126,7 @@ class JournalsService {
     result.multiple = column.multiple;
     result.newFormatter = column.formatter;
     result.newAttSchema = column.attSchema;
-    result.newEditor = column.editor;
+    result.newEditor = this.__mapEditor(column.editor);
     result.computed = column.computed;
     result.hidden = column.hidden === true;
     result.text = getTextByLocale(column.label || column.name);
@@ -181,8 +142,28 @@ class JournalsService {
     result.newType = column.type;
     result.visible = column.hidden !== true;
     result.editable = column.editable !== false;
+    result.searchConfig = column.searchConfig || {};
 
     return result;
+  }
+
+  __mapEditor(editor) {
+    const newEditor = _.cloneDeep(editor);
+    const options = _.get(newEditor, 'config.options', []);
+
+    if (_.isEmpty(options)) {
+      return newEditor;
+    }
+
+    if (Array.isArray(options)) {
+      options.forEach(item => {
+        if (item.label) {
+          item.label = getTextByLocale(item.label);
+        }
+      });
+    }
+
+    return newEditor;
   }
 
   __mapCreateVariant(cv) {
@@ -198,7 +179,7 @@ class JournalsService {
   }
 
   /**
-   * @param journalConfig
+   * @param {JournalConfig} journalConfig
    * @param {JournalSettings} settings
    * @return {Promise<JournalData>}
    */
@@ -301,6 +282,12 @@ class JournalsService {
       }
 
       return newValue;
+    } else if (_.isArray(value)) {
+      let newValue = [];
+      for (let item of value) {
+        newValue.push(this._fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
+      }
+      return newValue;
     } else if (_.isObject(value)) {
       let newValue = {};
       for (let key in value) {
@@ -310,15 +297,19 @@ class JournalsService {
         }
       }
       return newValue;
-    } else if (_.isArray(value)) {
-      let newValue = [];
-      for (let item of value) {
-        newValue.push(this._fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
-      }
-      return newValue;
     }
+
     return value;
   }
+
+  /**
+   *
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   */
+  getRecordsQuery = async (journalConfig, settings) => {
+    return journalDataLoader.getRecordsQuery;
+  };
 }
 
 window.Citeck = window.Citeck || {};

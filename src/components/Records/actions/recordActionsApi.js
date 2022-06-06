@@ -1,7 +1,19 @@
 import Records from '../Records';
 
-const ACTION_INNER_ATTRIBUTES =
-  'id,name,pluralName:pluralName,icon,type,preActionModule,features:features?json,config:config?json,confirm:confirm?json,execForRecordsParallelBatchesCount:execForRecordsParallelBatchesCount,execForRecordsBatchSize:execForRecordsBatchSize';
+const ACTION_INNER_ATTRIBUTES = [
+  'id',
+  'name',
+  'pluralName:pluralName',
+  'icon',
+  'type',
+  'preActionModule',
+  'features:features?json',
+  'config:config?json',
+  'confirm:confirm?json',
+  'execForRecordsParallelBatchesCount:execForRecordsParallelBatchesCount',
+  'execForRecordsBatchSize:execForRecordsBatchSize',
+  'execForQueryConfig:execForQueryConfig?json'
+];
 
 /**
  * @typedef ForRecordsApiRes
@@ -30,7 +42,7 @@ class RecordActionsApi {
         },
         {
           records: 'records[]?num',
-          actions: `actions[]{${ACTION_INNER_ATTRIBUTES}}`
+          actions: `actions[]{${ACTION_INNER_ATTRIBUTES.join()}}`
         }
       );
     } catch (e) {
