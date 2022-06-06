@@ -1,7 +1,7 @@
 import Records from '../Records';
 
 const ACTION_INNER_ATTRIBUTES =
-  'id,name,pluralName:pluralName,icon,type,preActionModule,features:features?json,config:config?json,confirm:confirm?json';
+  'id,name,pluralName:pluralName,icon,type,preActionModule,features:features?json,config:config?json,confirm:confirm?json,execForRecordsParallelBatchesCount:execForRecordsParallelBatchesCount,execForRecordsBatchSize:execForRecordsBatchSize';
 
 /**
  * @typedef ForRecordsApiRes

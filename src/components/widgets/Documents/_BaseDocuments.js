@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { NotificationManager } from 'react-notifications';
 
@@ -17,7 +18,7 @@ import UserLocalSettingsService from '../../../services/userLocalSettings';
 import DAction from '../../../services/DashletActionService';
 import DocumentsConverter from '../../../dto/documents';
 import { Labels, statusesKeys, tooltips, typesStatuses, typeStatusesByFields } from '../../../constants/documents';
-import { deepClone, prepareTooltipId } from '../../../helpers/util';
+import { prepareTooltipId } from '../../../helpers/util';
 import { t } from '../../../helpers/export/util';
 import { AvailableTypeInterface, DynamicTypeInterface } from './propsInterfaces';
 import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
@@ -140,7 +141,7 @@ class BaseDocuments extends BaseWidget {
     }
 
     const check = originTypes => {
-      const types = deepClone(originTypes);
+      const types = cloneDeep(originTypes);
       const checkName = type => type.name.toLowerCase().includes(typesFilter);
 
       return types
