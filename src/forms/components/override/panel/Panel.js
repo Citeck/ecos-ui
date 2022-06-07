@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 import { t } from '../../../../helpers/export/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
-  _currentId = new Set();
+  #isHidden = false;
 
   static schema(...extend) {
     return FormIOPanelComponent.schema(
@@ -24,6 +24,7 @@ export default class PanelComponent extends FormIOPanelComponent {
   }
 
   build(state) {
+    console.log('BUILD', this);
     const hidePanels = get(this, 'options.viewAsHtmlConfig.hidePanels', false);
     this.component.hideLabel = hidePanels;
 
@@ -121,10 +122,39 @@ export default class PanelComponent extends FormIOPanelComponent {
     }
   };
 
+  show(show, noClear) {
+    if (!this.options.builder && this.options.hide && this.options.hide[this.component.key]) {
+      console.log('IF');
+      show = false;
+    } else if (this.options.builder || (this.options.show && this.options.show[this.component.key])) {
+      console.log('ELSE');
+      show = true;
+    }
+
+    // Execute only if visibility changes or if we are in builder mode or if hidden fields should be shown.
+    if (!show === !this._visible || this.options.builder || this.options.showHiddenFields) {
+      console.log('РЕЖИМ БИЛДЕРА', !show, !this._visible);
+      if (!show) {
+        console.log('ВНУТРИ УСЛОВИЯ');
+        this.clearOnHide(false);
+      }
+      return show;
+    }
+
+    this.visible = show;
+    this.showElement(show && !this.component.hidden);
+    if (!noClear) {
+      console.log('NO CLEAR');
+      this.clearOnHide(show);
+    }
+    return show;
+  }
+
   clearOnHide(show) {
     // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
-    if (this.component.clearOnHide && !this.options.readOnly && !show && !this._currentId.has(this.id)) {
-      this._currentId.add(this.id);
+    if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#isHidden) {
+      this.#isHidden = true;
+      console.log('CLEAR ON HIDE', this, show, this._visible);
 
       for (let component of get(this, 'components')) {
         if (get(component, 'components')) {
@@ -135,6 +165,6 @@ export default class PanelComponent extends FormIOPanelComponent {
       }
     }
 
-    this._currentId.delete(this.id);
+    this.#isHidden = false;
   }
 }
