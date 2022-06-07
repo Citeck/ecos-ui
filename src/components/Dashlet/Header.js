@@ -8,6 +8,7 @@ import { Icon } from '../common';
 import { Badge } from '../common/form';
 import { IcoBtn } from '../common/btns';
 import Actions from './Actions';
+import { Labels } from './util';
 
 const Header = React.forwardRef(
   (
@@ -64,7 +65,7 @@ const Header = React.forwardRef(
             key="action-drag"
             icon={'icon-custom-drag-big'}
             className="ecos-btn_i dashlet__btn_move ecos-btn_grey1 ecos-btn_width_auto ecos-btn_hover_grey1"
-            title={t('dashlet.move.title')}
+            title={t(Labels.BTN_DnD)}
           />
         </span>
       );
@@ -72,7 +73,7 @@ const Header = React.forwardRef(
 
     return (
       <div className="dashlet__header" ref={ref}>
-        <span onClick={onToggleCollapse} className={classNames('dashlet__caption', titleClassName)}>
+        <span onClick={onToggleCollapse} className={classNames('dashlet__caption', { [titleClassName]: !!titleClassName })}>
           {toggleIcon}
           {title}
         </span>

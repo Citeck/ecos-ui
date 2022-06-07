@@ -143,16 +143,12 @@ class JournalsDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState, snapshot);
 
     const { config: prevConfig } = prevProps;
-    const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
-    const { journalId, runUpdate } = this.state;
+    const { id, config, setDashletConfigByParams, setRecordRef, onSave } = this.props;
+    const { journalId } = this.state;
 
     if (!isEqual(config, prevConfig) && isFunction(onSave)) {
+      setRecordRef(this.recordRef);
       setDashletConfigByParams(id, config, this.recordRef, journalId);
-      !isActiveLayout && this.setState({ runUpdate: true });
-    }
-
-    if (isActiveLayout && runUpdate) {
-      this.setState({ runUpdate: false }, () => reloadGrid());
     }
   }
 
@@ -222,7 +218,7 @@ class JournalsDashlet extends BaseWidget {
     return msgs;
   }
 
-  renderEditor() {
+  renderSettings() {
     const { editorMode, id, config, stateId } = this.props;
     const { isCollapsed } = this.state;
 
@@ -319,7 +315,7 @@ class JournalsDashlet extends BaseWidget {
             {t(msg, { configJournalId, journalName }).trim()}
           </div>
         ))}
-        {this.renderEditor()}
+        {this.renderSettings()}
         {isEmpty(warnings) && this.renderJournal()}
       </Dashlet>
     );
