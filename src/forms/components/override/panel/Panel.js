@@ -122,39 +122,10 @@ export default class PanelComponent extends FormIOPanelComponent {
     }
   };
 
-  show(show, noClear) {
-    if (!this.options.builder && this.options.hide && this.options.hide[this.component.key]) {
-      console.log('IF');
-      show = false;
-    } else if (this.options.builder || (this.options.show && this.options.show[this.component.key])) {
-      console.log('ELSE');
-      show = true;
-    }
-
-    // Execute only if visibility changes or if we are in builder mode or if hidden fields should be shown.
-    if (!show === !this._visible || this.options.builder || this.options.showHiddenFields) {
-      console.log('РЕЖИМ БИЛДЕРА', !show, !this._visible);
-      if (!show) {
-        console.log('ВНУТРИ УСЛОВИЯ');
-        this.clearOnHide(false);
-      }
-      return show;
-    }
-
-    this.visible = show;
-    this.showElement(show && !this.component.hidden);
-    if (!noClear) {
-      console.log('NO CLEAR');
-      this.clearOnHide(show);
-    }
-    return show;
-  }
-
   clearOnHide(show) {
     // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
     if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#isHidden) {
       this.#isHidden = true;
-      console.log('CLEAR ON HIDE', this, show, this._visible);
 
       for (let component of get(this, 'components')) {
         if (get(component, 'components')) {
