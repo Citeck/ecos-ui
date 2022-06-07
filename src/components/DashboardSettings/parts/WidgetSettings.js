@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
@@ -11,9 +11,10 @@ import { t } from '../../../helpers/export/util';
 import DisplayElementService from '../../../services/DisplayElementService';
 import { DialogManager } from '../../../components/common/dialogs';
 import { Btn, IcoBtn } from '../../../components/common/btns';
-import { InfoText } from '../../../components/common';
+import { InfoText, Loader } from '../../../components/common';
 import { ParserPredicate } from '../../../components/Filters/predicates';
 import Filters from '../../../components/Filters/Filters';
+import Components from '../../widgets/Components';
 
 const Labels = {
   MODAL_TITLE: 'widget-settings.title',
@@ -37,11 +38,14 @@ export const openWidgetSettings = props => {
   return modalSettings;
 };
 
+let loadedWidgetSettings = {};
+
 const SettingsBody = props => {
   const { widget, executors, modelAttributes, hideModal } = props;
   const predicate = get(widget, 'props.config.widgetDisplayCondition');
   const _columns = DisplayElementService.getModelAttributesLikeColumns(modelAttributes);
-  const [_predicate, setPredicate] = React.useState(predicate || ParserPredicate.getDefaultPredicates(_columns));
+  const [_predicate, setPredicate] = useState(predicate || ParserPredicate.getDefaultPredicates(_columns));
+  const [individualSettings, setIndividualSettings] = useState({});
   const onGoJournal = () => {
     DialogManager.hideAllDialogs();
     goToJournalsPage({
@@ -59,6 +63,18 @@ const SettingsBody = props => {
     executors.edit(updWidget);
     hideModal();
   };
+  let IndividualWidgetSettings = loadedWidgetSettings[widget.name];
+
+  if (!IndividualWidgetSettings) {
+    IndividualWidgetSettings = Components.settings(widget.name);
+    loadedWidgetSettings[widget.name] = IndividualWidgetSettings;
+  }
+
+  useEffect(() => {
+    return () => {
+      loadedWidgetSettings = {};
+    };
+  }, []);
 
   return (
     <>
@@ -79,6 +95,12 @@ const SettingsBody = props => {
           onChange={setPredicate}
         />
       )}
+
+      <Suspense fallback={<Loader type="points" />}>
+        {/*todo: добавить обработчик изменения конфигурации*/}
+        <IndividualWidgetSettings widget={widget} onChange={setIndividualSettings} />
+      </Suspense>
+
       <div className="ecos-ds-widget-settings__buttons">
         <Btn onClick={hideModal}>{t(Labels.MODAL_CANCEL)}</Btn>
         <Btn className="ecos-btn_blue" onClick={onApply}>
