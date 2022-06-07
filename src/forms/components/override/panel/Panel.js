@@ -24,7 +24,6 @@ export default class PanelComponent extends FormIOPanelComponent {
   }
 
   build(state) {
-    console.log('BUILD', this);
     const hidePanels = get(this, 'options.viewAsHtmlConfig.hidePanels', false);
     this.component.hideLabel = hidePanels;
 
