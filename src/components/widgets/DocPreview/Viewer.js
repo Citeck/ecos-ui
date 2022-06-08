@@ -20,6 +20,7 @@ export default function getViewer(WrappedComponent, isPdf) {
       isLoading: PropTypes.bool,
       resizable: PropTypes.bool,
       scrollPage: PropTypes.func,
+      onReachBottom: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         isFullscreen: PropTypes.bool,
@@ -29,6 +30,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     };
 
     static defaultProps = {
+      onReachBottom: () => {},
       settings: {}
     };
 
@@ -133,12 +135,28 @@ export default function getViewer(WrappedComponent, isPdf) {
       this.elScrollbar.scrollTop((scrollHeight - clientHeight) / 2);
     }, 250);
 
-    onScrollFrame = data => {
+    handleAboutToReachBottom = debounce(
+      () => {
+        this.props.onReachBottom();
+      },
+      500,
+      { maxWait: 1000, trailing: true }
+    );
+
+    onScrollFrame = event => {
+      this.handleAboutToReachBottom.cancel();
+
+      const { scrollTop, scrollHeight, clientHeight, top } = event;
+
+      const quotient = (scrollTop + 10) / (scrollHeight - clientHeight);
+
+      if (quotient > 1) this.handleAboutToReachBottom();
+
       if (isPdf) {
         const { scrollPage } = this.state;
-        const { scrollTop } = data;
         const children = this.childrenScroll;
-        const isDown = this.prevScroll - scrollTop <= 0;
+        const isDown = top === 1;
+
         this.prevScroll = scrollTop;
 
         const coords = Array.from(children).map(child => {

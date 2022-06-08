@@ -412,6 +412,23 @@ class DocPreview extends Component {
     );
   };
 
+  onReachBottom = () => {
+    const { recordId, filesList, isLoading } = this.state;
+
+    if (isLoading) {
+      return;
+    }
+
+    if (Array.isArray(filesList) && filesList.length > 1) {
+      const currentIndex = filesList.findIndex(file => file.recordId === recordId);
+      const nextFile = filesList[currentIndex + 1];
+
+      if (nextFile) {
+        this.onFileChange(nextFile);
+      }
+    }
+  };
+
   onResizeWrapper = debounce(wrapperWidth => {
     if (this.state.wrapperWidth === wrapperWidth) {
       return;
@@ -448,7 +465,16 @@ class DocPreview extends Component {
     const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
 
-    return <Pdf pdf={pdf} forwardedRef={forwardedRef} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
+    return (
+      <Pdf
+        pdf={pdf}
+        forwardedRef={forwardedRef}
+        defHeight={maxHeight}
+        scrollPage={this.setScrollPage}
+        onReachBottom={this.onReachBottom}
+        {...this.commonProps}
+      />
+    );
   }
 
   imgViewer() {
@@ -460,6 +486,7 @@ class DocPreview extends Component {
         src={link}
         forwardedRef={forwardedRef}
         resizable={resizable}
+        onReachBottom={this.onReachBottom}
         {...this.commonProps}
         onError={error => {
           console.error(error);
@@ -503,7 +530,9 @@ class DocPreview extends Component {
     }
 
     if (this.isPDF) {
-      return this.pdfViewer();
+      const viewer = this.pdfViewer();
+
+      return viewer;
     }
 
     return this.imgViewer();
