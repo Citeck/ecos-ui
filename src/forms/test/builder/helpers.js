@@ -1,11 +1,9 @@
 import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
 
-import { t } from '../../../helpers/export/util';
 import Harness from '../harness';
 import EventEmitter from '../../EventEmitter';
 import { disabledComponents } from '../../utils';
-import { COOKIE_KEY_LOCALE } from '../../../constants/alfresco';
 
 export const basicSectionTest = Component => {
   const type = Component.type || Component.schema().type;
@@ -26,7 +24,6 @@ export const basicSectionTest = Component => {
       spies = [];
       spies.push(jest.spyOn(console, 'error').mockImplementation(() => {}));
       spies.push(jest.spyOn(console, 'warn').mockImplementation(() => {}));
-      // document.cookie = `${COOKIE_KEY_LOCALE}=en`;
 
       Harness.builderBefore(() => {}, {
         editForm: {
