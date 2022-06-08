@@ -41,8 +41,14 @@ export default [
     get label() {
       return t('form-constructor.tabs.content.source.recordsQuery.attributes');
     },
+    set label(label) {
+      this._label = label;
+    },
     get tooltip() {
       return t('form-constructor.tabs-tooltip.source.recordsQuery.attributes');
+    },
+    set tooltip(tooltip) {
+      this._tooltip = tooltip;
     },
     key: 'source.recordsScript.attributes',
     clearOnHide: false,
@@ -51,6 +57,9 @@ export default [
       key: 'value',
       get label() {
         return t('form-constructor.tabs-content.source.record.attribute');
+      },
+      set label(label) {
+        this._label = label;
       },
       defaultValue: '',
       input: true

@@ -22,6 +22,9 @@ export default [
     get label() {
       return t('form-constructor.tabs.content.source.ajax.method');
     },
+    set label(label) {
+      this._label = label;
+    },
     key: 'source.ajax.method',
     values: [
       {

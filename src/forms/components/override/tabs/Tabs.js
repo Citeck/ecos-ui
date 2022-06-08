@@ -2,6 +2,7 @@ import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import throttle from 'lodash/throttle';
+import get from 'lodash/get';
 
 import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
@@ -284,31 +285,33 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
-      tab.components.forEach(el => {
-        if (!isEqual(t(`form-constructor.tabs-content.${el.key}`), `form-constructor.tabs-content.${el.key}`) && el.label) {
-          el.label = t(`form-constructor.tabs-content.${el.key}`);
-        }
+      if (get(tab, 'components')) {
+        tab.components.forEach(el => {
+          if (!isEqual(t(`form-constructor.tabs-content.${el.key}`), `form-constructor.tabs-content.${el.key}`) && el.label) {
+            el.label = t(`form-constructor.tabs-content.${el.key}`);
+          }
 
-        if (!isEqual(t(`form-constructor.tabs-placeholder.${el.key}`), `form-constructor.tabs-placeholder.${el.key}`) && el.placeholder) {
-          el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
-        }
+          if (!isEqual(t(`form-constructor.tabs-placeholder.${el.key}`), `form-constructor.tabs-placeholder.${el.key}`) && el.placeholder) {
+            el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
+          }
 
-        if (!isEqual(t(`form-constructor.tabs-tooltip.${el.key}`), `form-constructor.tabs-tooltip.${el.key}`) && el.tooltip) {
-          el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
-        }
+          if (!isEqual(t(`form-constructor.tabs-tooltip.${el.key}`), `form-constructor.tabs-tooltip.${el.key}`) && el.tooltip) {
+            el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
+          }
 
-        if (!isEqual(t(`form-constructor.tabs-description.${el.key}`), `form-constructor.tabs-description.${el.key}`) && el.description) {
-          el.description = t(`form-constructor.tabs-description.${el.key}`);
-        }
+          if (!isEqual(t(`form-constructor.tabs-description.${el.key}`), `form-constructor.tabs-description.${el.key}`) && el.description) {
+            el.description = t(`form-constructor.tabs-description.${el.key}`);
+          }
 
-        if (el.components) {
-          el.components.forEach(item => {
-            if (!isEqual(t(`form-constructor.tabs-content.${item.key}`), `form-constructor.tabs-content.${item.key}`) && item.label) {
-              item.label = t(`form-constructor.tabs-content.${item.key}`);
-            }
-          });
-        }
-      });
+          if (el.components) {
+            el.components.forEach(item => {
+              if (!isEqual(t(`form-constructor.tabs-content.${item.key}`), `form-constructor.tabs-content.${item.key}`) && item.label) {
+                item.label = t(`form-constructor.tabs-content.${item.key}`);
+              }
+            });
+          }
+        });
+      }
 
       const tabLink = this.ce(
         'a',
@@ -317,7 +320,7 @@ export default class TabsComponent extends NestedComponent {
           href: `#${tab.key}`,
           [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
-        t(`form-constructor.tabs.${tab.key}`)
+        t(`form-constructor.tabs.${tab.key}`) === `form-constructor.tabs.${tab.key}` ? tab.label : t(`form-constructor.tabs.${tab.key}`)
       );
       this.addEventListener(tabLink, 'click', event => {
         event.preventDefault();
