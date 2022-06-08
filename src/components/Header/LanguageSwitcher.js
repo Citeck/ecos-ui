@@ -5,6 +5,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { EcosDropdownMenu } from '../common';
 import IcoBtn from '../common/btns/IcoBtn';
 import { getCurrentLocale, setCookie } from '../../helpers/util';
+import { getIconUpDown } from '../../helpers/icon';
 import { COOKIE_KEY_LOCALE, COOKIE_KEY_LOCALE_MAX_AGE } from '../../constants/alfresco';
 import { allowedLanguages } from '../../constants/lang';
 
@@ -62,7 +63,7 @@ export default class LanguageSwitcher extends React.Component {
     return (
       <Dropdown className="ecos-header-lang ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
-          <IcoBtn invert className={classNameIcoBtn} icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}>
+          <IcoBtn invert className={classNameIcoBtn} icon={getIconUpDown(dropdownOpen)}>
             <img className="ecos-header-lang__img" src={currentLanguage.img} alt={language} />
             {currentLanguage.label}
           </IcoBtn>

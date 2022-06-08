@@ -268,7 +268,7 @@ class JournalsDashlet extends BaseWidget {
     return getTextByLocale(get(config, [JOURNAL_DASHLET_CONFIG_VERSION, 'goToButtonName']));
   }
 
-  renderSettings() {
+  renderEditor() {
     const { editorMode, id, config, stateId } = this.props;
 
     if (!editorMode || this.isCollapsed) {
@@ -382,7 +382,7 @@ class JournalsDashlet extends BaseWidget {
             {t(msg, { configJournalId, journalName }).trim()}
           </div>
         ))}
-        {this.renderSettings()}
+        {this.renderEditor()}
         {isEmpty(warnings) && this.renderJournal()}
       </Dashlet>
     );
