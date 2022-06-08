@@ -2,8 +2,6 @@ import Harness from '../../../test/harness';
 import TextFieldComponent from './TextField';
 import EventEmitter from '../../../EventEmitter';
 
-import { t } from '../../../../helpers/export/util';
-import { COOKIE_KEY_LOCALE } from '../../../../constants/alfresco';
 import comp1 from './fixtures/comp1';
 
 describe('TextField Component', () => {
@@ -65,14 +63,11 @@ describe('TextField Builder', () => {
   });
 
   it('The first tab in the builder must be "Basic"', done => {
-    document.cookie = `${COOKIE_KEY_LOCALE}=en`;
-    console.log(t('form-constructor.tabs.basic'));
     builder.editForm.formReady.then(() => {
       const firstTab = builder.dialog.querySelector('.nav-item');
-      console.log(t);
-
+      const i18n = require(`../../../../i18n/${builder.options.i18n.lng}`);
       expect(firstTab).not.toBeUndefined();
-      expect(firstTab.textContent).toBe(t('form-constructor.tabs.basic'));
+      expect(firstTab.textContent).toBe(i18n['form-constructor.tabs.basic']);
       done();
     });
   });
