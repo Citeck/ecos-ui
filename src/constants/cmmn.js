@@ -63,7 +63,12 @@ export const EventListeners = {
   CREATE_END: 'create.end',
   ELEMENT_UPDATE_ID: 'element.updateId',
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
-  DRAG_START: 'drag.start'
+  DRAG_START: 'drag.start',
+  COMMAND_STACK_REVERT: 'commandStack.revert',
+  COMMAND_STACK_CHANGED: 'commandStack.changed',
+  KEYBOARD_KEYDOWN: 'keyboard.keyup',
+  CANVAS_INIT: 'canvas.init',
+  UPDATE_REVERTED: 'commandStack.connection.updateWaypoints.reverted'
 };
 
 export const GATEWAY_TYPES = [

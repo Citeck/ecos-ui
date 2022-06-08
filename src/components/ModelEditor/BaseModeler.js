@@ -90,6 +90,7 @@ export default class BaseModeler {
    * - selection.changed - fired after every change of selected element
    */
   setEvents = (events, extraEvents) => {
+    console.log(events, extraEvents, this.getEventBus());
     // unsubscribe for added events in this.destroy below
 
     if (this.modeler && (events || extraEvents)) {
