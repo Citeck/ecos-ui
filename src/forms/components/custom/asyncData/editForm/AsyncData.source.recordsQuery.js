@@ -5,9 +5,7 @@ const QUERY_PROP = 'source.recordsQuery.query';
 export default [
   {
     type: 'panel',
-    get title() {
-      return t('form-constructor.tabs-content.source.recordsQuery.query-js');
-    },
+    title: t('form-constructor.tabs-content.source.recordsQuery.query-js'),
     collapsible: true,
     collapsed: false,
     style: {
@@ -29,42 +27,32 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        get content() {
-          return t('form-constructor.panel.executionCondition');
-        }
+        content: t('form-constructor.panel.executionCondition')
       }
     ]
   },
   {
     weight: 200,
     type: 'datamap',
-    get label() {
-      return t('form-constructor.tabs.content.source.recordsQuery.attributes');
-    },
-    get tooltip() {
-      return t('form-constructor.tabs-tooltip.source.recordsQuery.attributes');
-    },
+    label: t('form-constructor.tabs.content.source.recordsQuery.attributes'),
+    tooltip: t('form-constructor.tabs-tooltip.source.recordsQuery.attributes'),
     key: 'source.recordsQuery.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      get label() {
-        return t('form-constructor.tabs-content.source.record.attribute');
-      },
+      label: t('form-constructor.tabs-content.source.record.attribute'),
       defaultValue: '',
       input: true
     }
   },
   {
-    get label() {
-      return t('form-constructor.tabs-content.source.recordsQuery.isSingle');
-    },
+    type: 'checkbox',
+    label: t('form-constructor.tabs-content.source.recordsQuery.isSingle'),
     labelPosition: 'left-left',
     shortcut: '',
     tableView: true,
     alwaysEnabled: false,
-    type: 'checkbox',
     input: true,
     key: 'source.recordsQuery.isSingle',
     defaultValue: false
