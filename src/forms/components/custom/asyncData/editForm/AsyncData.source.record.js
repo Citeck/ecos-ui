@@ -7,13 +7,13 @@ export default [
     input: true,
     key: 'source.record.id',
     get label() {
-      return t('form-constructor.tabs.content.source.record.id');
+      return this._label || t('form-constructor.tabs.content.source.record.id');
     },
     set label(label) {
       this._label = label;
     },
     get tooltip() {
-      return t('form-constructor.tabs-tooltip.source.record.id');
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.record.id');
     },
     set tooltip(tooltip) {
       this._tooltip = tooltip;
@@ -26,13 +26,13 @@ export default [
     weight: 200,
     type: 'datamap',
     get label() {
-      return t('form-constructor.tabs.content.source.record.attributes');
+      return this._label || t('form-constructor.tabs.content.source.record.attributes');
     },
     set label(label) {
       this._label = label;
     },
     get tooltip() {
-      return t('form-constructor.tabs-tooltip.source.record.attributes');
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.record.attributes');
     },
     set tooltip(tooltip) {
       this._tooltip = tooltip;

@@ -20,7 +20,7 @@ export default [
     clearOnHide: false,
     input: true,
     get label() {
-      return t('form-constructor.tabs.content.source.ajax.method');
+      return this._label || t('form-constructor.tabs.content.source.ajax.method');
     },
     set label(label) {
       this._label = label;

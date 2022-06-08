@@ -285,6 +285,10 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
+      const tabLabel = isEqual(t(`form-constructor.tabs.${tab.key}`), `form-constructor.tabs.${tab.key}`)
+        ? tab.label
+        : t(`form-constructor.tabs.${tab.key}`);
+
       if (get(tab, 'components')) {
         tab.components.forEach(el => {
           if (!isEqual(t(`form-constructor.tabs-content.${el.key}`), `form-constructor.tabs-content.${el.key}`) && el.label) {
@@ -320,7 +324,7 @@ export default class TabsComponent extends NestedComponent {
           href: `#${tab.key}`,
           [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
-        t(`form-constructor.tabs.${tab.key}`) === `form-constructor.tabs.${tab.key}` ? tab.label : t(`form-constructor.tabs.${tab.key}`)
+        tabLabel
       );
       this.addEventListener(tabLink, 'click', event => {
         event.preventDefault();
