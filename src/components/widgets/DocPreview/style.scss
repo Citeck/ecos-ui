@@ -264,6 +264,10 @@ $border-base: $color-gray-5;
       }
 
       &_pdf {
+        &:last-of-type {
+          margin-bottom: 440px;
+        }
+
         &::before {
           content: ' ';
           height: 10px;
