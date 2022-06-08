@@ -1,28 +1,26 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import omit from 'lodash/omit';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
+import get from 'lodash/get';
+import omit from 'lodash/omit';
+import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
-import { UserConfigApi } from '../../api/userConfig';
+import { instUserConfigApi as api } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
+import { getIconUpDown } from '../../helpers/icon';
+import JournalsConverter from '../../dto/journals';
 import { Dropdown } from '../common/form';
 import { TwoIcoBtn } from '../common/btns';
-import { PREDICATE_AND } from '../Records/predicates/predicates';
-import { convertAttributeValues } from '../Records/predicates/util';
 import ParserPredicate from '../Filters/predicates/ParserPredicate';
-
 import recordActions from '../Records/actions/recordActions';
+import RecordsExportAction from '../Records/actions/handler/executor/RecordsExport';
+import journalsService from '../Journals/service/journalsService';
 
 import './Export.scss';
-
-const api = new UserConfigApi();
 
 export default class Export extends Component {
   static propTypes = {
@@ -68,30 +66,18 @@ export default class Export extends Component {
     if (this.#actionsDoing.get(item.id)) {
       return;
     }
+
     this.#actionsDoing.set(item.id, true);
+
     if (item.target) {
-      const { journalConfig, grid } = this.props;
-      const query = this.getQuery(journalConfig, item.type, grid);
+      const recordsQuery = await this.getQuery();
+      const actionConfig = this.getActionConfig(item);
+      const action = { type: RecordsExportAction.ACTION_ID, config: actionConfig };
 
-      this.textInput.current.value = JSON.stringify(query);
-
-      const recordsQuery = {
-        sourceId: journalConfig.sourceId,
-        query: query.predicate,
-        language: 'predicate',
-        sortBy: query.sortBy
-      };
-      const action = {
-        type: 'records-export',
-        config: {
-          exportType: query.reportType,
-          columns: query.reportColumns,
-          download: item.download
-        }
-      };
+      this.textInput.current.value = JSON.stringify(recordsQuery.query);
 
       await recordActions.execForQuery(recordsQuery, action);
-    } else if (typeof item.click === 'function') {
+    } else if (isFunction(item.click)) {
       await item.click();
     }
 
@@ -108,12 +94,23 @@ export default class Export extends Component {
     return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
   };
 
-  getQuery = (config = {}, reportType, grid = {}) => {
-    set(config, 'meta.createVariants', get(config, 'meta.createVariants') || []);
+  getQuery = async () => {
+    const { journalConfig, grid, dashletConfig, recordRef } = this.props;
+    const settings = JournalsConverter.getSettingsForDataLoaderServer({
+      ...grid,
+      predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
+      onlyLinked: dashletConfig.onlyLinked,
+      recordRef
+    });
+    const query = await journalsService.getRecordsQuery(journalConfig, settings);
 
-    const reportTitle = get(config, 'meta.createVariants[0].title') || get(config, 'meta.title');
-    const columns = get(grid, 'columns') || config.columns || [];
-    const reportColumns = columns
+    return query;
+  };
+
+  getActionConfig = item => {
+    const { journalConfig, grid } = this.props;
+    const cols = get(grid, 'columns') || journalConfig.columns || [];
+    const columns = cols
       .filter(c => c.default)
       .map(({ attribute, text, newType, newFormatter }) => ({
         attribute,
@@ -121,20 +118,14 @@ export default class Export extends Component {
         type: newType,
         formatter: newFormatter
       }));
-    const mainPredicate = get(config, 'predicate', {});
-    const gridPredicate = get(grid, 'predicates[0]', {});
-    const searchPredicate = get(grid, 'searchPredicate[0]', {});
-    const predicates = [mainPredicate, searchPredicate, gridPredicate];
-    const cleanPredicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
-    const predicate = convertAttributeValues(cleanPredicate, columns);
-    const sortBy = get(grid, 'sortBy') || [{ attribute: '_created', ascending: false }];
+
+    const reportTitle = get(journalConfig, 'meta.createVariants[0].title') || get(journalConfig, 'meta.title');
 
     return {
-      sortBy,
-      predicate: get(predicate, '[0]', null),
-      reportType,
-      reportTitle,
-      reportColumns
+      exportType: item.type,
+      columns,
+      download: item.download,
+      reportTitle
     };
   };
 
@@ -178,7 +169,7 @@ export default class Export extends Component {
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
 
     return (
-      <div {...attributes} className={classNames('ecos-btn-export', className)}>
+      <div {...attributes} className={classNames('ecos-btn-export', { [className]: !!className })}>
         <Dropdown
           source={this.dropdownSource}
           value={0}
@@ -191,7 +182,7 @@ export default class Export extends Component {
         >
           {children || (
             <TwoIcoBtn
-              icons={['icon-download', isOpen ? 'icon-small-up' : 'icon-small-down']}
+              icons={['icon-download', getIconUpDown(isOpen)]}
               className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
             />
           )}

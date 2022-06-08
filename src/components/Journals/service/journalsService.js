@@ -290,7 +290,7 @@ class JournalsService {
    * @param {JournalSettings} settings
    */
   getRecordsQuery = async (journalConfig, settings) => {
-    return journalDataLoader.getRecordsQuery;
+    return journalDataLoader.getRecordsQuery(journalConfig, settings);
   };
 }
 
