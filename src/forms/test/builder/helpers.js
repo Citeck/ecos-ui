@@ -44,18 +44,6 @@ export const basicSectionTest = Component => {
       spies.forEach(spy => spy.mockRestore());
     });
 
-    it('The first tab in the builder must be "Basic"', done => {
-      const builder = Harness.buildComponent(type);
-
-      builder.editForm.formReady.then(() => {
-        const firstTab = builder.dialog.querySelector('.nav-item');
-        const i18n = require(`../../../i18n/${builder.options.i18n.lng}`);
-        expect(firstTab).not.toBeUndefined();
-        expect(firstTab.textContent).toBe(i18n['form-constructor.tabs.basic']);
-        done();
-      });
-    });
-
     it('The key must be correct', done => {
       const builder = Harness.buildComponent(type, true);
 
