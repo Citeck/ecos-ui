@@ -64,7 +64,8 @@ export default class Components {
       load: () => lazy(() => import('./JournalsDashlet/JournalsDashlet')),
       label: 'dashboard-settings.widget.journal',
       supportedDashboardTypes: [],
-      props: {}
+      props: {},
+      settings: () => lazy(() => import('./JournalsDashlet/Settings'))
     },
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
@@ -204,6 +205,16 @@ export default class Components {
     }
 
     return loadComponent();
+  }
+
+  static settings(component) {
+    const settingsComponent = get(Components.components, [component, 'settings']);
+
+    if (!settingsComponent) {
+      return () => null;
+    }
+
+    return settingsComponent();
   }
 
   static getProps(component) {
