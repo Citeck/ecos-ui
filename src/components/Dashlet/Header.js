@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
+import { getIconUpDown } from '../../helpers/icon';
 import { Icon } from '../common';
 import { Badge } from '../common/form';
 import { IcoBtn } from '../common/btns';
@@ -48,14 +49,8 @@ const Header = React.forwardRef(
       </IcoBtn>
     );
 
-    const toggleIcon = (
-      <Icon
-        className={classNames('dashlet__header-collapser', {
-          'icon-small-down': isCollapsed,
-          'icon-small-up': !isCollapsed
-        })}
-      />
-    );
+    const toggleIcon = <Icon className={classNames('dashlet__header-collapser', getIconUpDown(!isCollapsed))} />;
+
     let dragBtn = null;
 
     if (actionDrag) {
