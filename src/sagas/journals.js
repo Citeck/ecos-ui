@@ -160,16 +160,17 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
 function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
     const { config = {}, lsJournalId, recordRef } = action.payload;
+    const configByVersion = config[JOURNAL_DASHLET_CONFIG_VERSION];
 
-    if (isEmpty(config) || config.version !== JOURNAL_DASHLET_CONFIG_VERSION) {
+    if (isEmpty(config) || (config.version !== JOURNAL_DASHLET_CONFIG_VERSION && isEmpty(configByVersion))) {
       yield put(setEditorMode(w(true)));
       yield put(setLoading(w(false)));
       return;
     }
 
-    const { journalId: configJournalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config[
-      JOURNAL_DASHLET_CONFIG_VERSION
-    ];
+    yield put(setDashletConfig(w(config)));
+
+    const { journalId: configJournalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = configByVersion;
     const headJournalsListId = getFirst(journalsListIds);
 
     let editorMode = false;

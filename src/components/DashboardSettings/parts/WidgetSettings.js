@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import merge from 'lodash/merge';
 
 import { SourcesId, SYSTEM_LIST, SystemJournals } from '../../../constants';
 import { goToJournalsPage } from '../../../helpers/urls';
@@ -15,6 +16,7 @@ import { InfoText, Loader } from '../../../components/common';
 import { ParserPredicate } from '../../../components/Filters/predicates';
 import Filters from '../../../components/Filters/Filters';
 import Components from '../../widgets/Components';
+import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
 
 const Labels = {
   MODAL_TITLE: 'widget-settings.title',
@@ -44,8 +46,9 @@ const SettingsBody = props => {
   const { widget, executors, modelAttributes, hideModal } = props;
   const predicate = get(widget, 'props.config.widgetDisplayCondition');
   const _columns = DisplayElementService.getModelAttributesLikeColumns(modelAttributes);
-  const [_predicate, setPredicate] = useState(predicate || ParserPredicate.getDefaultPredicates(_columns));
-  const [individualSettings, setIndividualSettings] = useState({});
+  const defaultPredicate = ParserPredicate.getDefaultPredicates(_columns);
+  const [_predicate, setPredicate] = useState(predicate || defaultPredicate);
+  const [individualSettings, setIndividualSettings] = useState(get(widget, ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION], {}));
   const onGoJournal = () => {
     DialogManager.hideAllDialogs();
     goToJournalsPage({
@@ -56,13 +59,21 @@ const SettingsBody = props => {
   const onApply = () => {
     const updWidget = cloneDeep(widget);
 
-    if (!isEqual(predicate, _predicate)) {
+    if (!isEqual(predicate, _predicate) && !isEqual(_predicate, defaultPredicate)) {
       set(updWidget, 'props.config.widgetDisplayCondition', _predicate);
     }
+
+    set(
+      updWidget,
+      ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION],
+      merge(get(updWidget, ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION]), individualSettings)
+    );
+    set(updWidget, 'props.config.version', JOURNAL_DASHLET_CONFIG_VERSION);
 
     executors.edit(updWidget);
     hideModal();
   };
+
   let IndividualWidgetSettings = loadedWidgetSettings[widget.name];
 
   if (!IndividualWidgetSettings) {
@@ -97,8 +108,9 @@ const SettingsBody = props => {
       )}
 
       <Suspense fallback={<Loader type="points" />}>
-        {/*todo: добавить обработчик изменения конфигурации*/}
-        <IndividualWidgetSettings widget={widget} onChange={setIndividualSettings} />
+        <div className="mt-3">
+          <IndividualWidgetSettings widget={individualSettings} onChange={setIndividualSettings} />
+        </div>
       </Suspense>
 
       <div className="ecos-ds-widget-settings__buttons">
