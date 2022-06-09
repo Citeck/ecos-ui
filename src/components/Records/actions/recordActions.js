@@ -229,7 +229,9 @@ class RecordActions {
   }
 
   /**
-   * @param {Array<String>|Array<Record>|undefined} records
+   * Run external js module and prepare config / records ...
+   *
+   * @param {Array<String|Record>|undefined} records
    * @param {RecordAction} action
    * @param context
    * @param {String} nameFunction
