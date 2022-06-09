@@ -102,6 +102,10 @@ Base.prototype.onChange = function(flags, fromRoot) {
       (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
 
+  if (get(flags, 'changeByUser')) {
+    this.valueChangedByUser = true;
+  }
+
   return originalOnChange.call(this, flags, fromRoot);
 };
 Base.prototype.isEmptyValue = function(value) {
@@ -209,7 +213,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   const allowOverride = this.component.allowCalculateOverride;
 
   // First pass, the calculatedValue is undefined.
-  if (this.calculatedValue === undefined) {
+  if (isUndefined(this.calculatedValue)) {
     this.calculatedValue = emptyCalculateValue;
   }
 
@@ -227,9 +231,6 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   this.calculatedValue = calculatedValue;
 
   let changed;
-
-  flags = flags || {};
-  flags.noCheck = true;
 
   if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
     changed = this.setValue(calculatedValue, flags);
