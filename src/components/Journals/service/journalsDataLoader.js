@@ -113,6 +113,8 @@ class JournalsDataLoader {
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
     let queryData = null;
 
+    query = JournalsConverter.searchConfigProcessed(query, columns);
+
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
         ...(journalConfig.queryData || {}),
