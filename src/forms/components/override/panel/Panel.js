@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 import { t } from '../../../../helpers/export/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
-  #isProgress = false;
+  #isHiddenChildComponent = false;
 
   static schema(...extend) {
     return FormIOPanelComponent.schema(
@@ -125,8 +125,8 @@ export default class PanelComponent extends FormIOPanelComponent {
 
   clearOnHide(show) {
     // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
-    if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#isProgress) {
-      this.#isProgress = true;
+    if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#isHiddenChildComponent) {
+      this.#isHiddenChildComponent = true;
 
       for (let component of get(this, 'components')) {
         if (get(component, 'components')) {
@@ -137,6 +137,6 @@ export default class PanelComponent extends FormIOPanelComponent {
       }
     }
 
-    this.#isProgress = false;
+    this.#isHiddenChildComponent = false;
   }
 }
