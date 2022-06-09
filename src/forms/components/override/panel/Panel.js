@@ -61,10 +61,6 @@ export default class PanelComponent extends FormIOPanelComponent {
       }, 0);
     }
 
-    // if(this.labelIsHidden()) {
-    //   this.panelTitle.setAttribute('hidden', true)
-    // }
-
     this.addEventListeners();
   }
 
@@ -84,13 +80,6 @@ export default class PanelComponent extends FormIOPanelComponent {
       window.removeEventListener('resize', this._calculatePanelContentHeightThrottled);
     }
   }
-
-  // labelIsHidden() {
-  //   return !this.component.label ||
-  //     this.component.hideLabel ||
-  //     this.options.inputsOnly ||
-  //     (this.inDataGrid && !this.component.dataGridLabel);
-  // }
 
   _calculatePanelContentHeight = () => {
     this.panelBody.style.maxHeight = null;
