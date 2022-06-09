@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 import { t } from '../../../../helpers/export/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
-  #isHidden = false;
+  #isProgress = false;
 
   static schema(...extend) {
     return FormIOPanelComponent.schema(
@@ -24,6 +24,7 @@ export default class PanelComponent extends FormIOPanelComponent {
   }
 
   build(state) {
+    //todo: check on the prod whether the component is built twice. Then you can delete
     console.log('build');
     const hidePanels = get(this, 'options.viewAsHtmlConfig.hidePanels', false);
     this.component.hideLabel = hidePanels;
@@ -124,8 +125,8 @@ export default class PanelComponent extends FormIOPanelComponent {
 
   clearOnHide(show) {
     // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
-    if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#isHidden) {
-      this.#isHidden = true;
+    if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#isProgress) {
+      this.#isProgress = true;
 
       for (let component of get(this, 'components')) {
         if (get(component, 'components')) {
@@ -136,6 +137,6 @@ export default class PanelComponent extends FormIOPanelComponent {
       }
     }
 
-    this.#isHidden = false;
+    this.#isProgress = false;
   }
 }
