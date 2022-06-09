@@ -41,10 +41,6 @@ export default class Export extends Component {
     this.form = React.createRef();
   }
 
-  state = {
-    isOpen: false
-  };
-
   get dropdownSource() {
     return [
       { id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' },
@@ -54,10 +50,6 @@ export default class Export extends Component {
       { id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }
     ];
   }
-
-  hangleChangeOpen = isOpen => {
-    this.setState({ isOpen });
-  };
 
   handleExport = async item => {
     if (this.#actionsDoing.get(item.id)) {
@@ -167,7 +159,6 @@ export default class Export extends Component {
           controlIcon="icon-download"
           controlClassName="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
           onChange={this.handleExport}
-          getStateOpen={this.hangleChangeOpen}
         >
           {children}
         </Dropdown>
