@@ -31,7 +31,8 @@ export default class Export extends Component {
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    dashletConfig: {}
   };
 
   #actionsDoing = new Map();
@@ -92,7 +93,7 @@ export default class Export extends Component {
     return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,
       predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
-      onlyLinked: dashletConfig.onlyLinked,
+      onlyLinked: get(dashletConfig, 'onlyLinked'),
       recordRef
     });
   };
