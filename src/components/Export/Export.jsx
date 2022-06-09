@@ -11,14 +11,11 @@ import { instUserConfigApi as api } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
-import { getIconUpDown } from '../../helpers/icon';
 import JournalsConverter from '../../dto/journals';
-import { Dropdown } from '../common/form';
-import { TwoIcoBtn } from '../common/btns';
-import ParserPredicate from '../Filters/predicates/ParserPredicate';
 import recordActions from '../Records/actions/recordActions';
 import RecordsExportAction from '../Records/actions/handler/executor/RecordsExport';
 import journalsService from '../Journals/service/journalsService';
+import { Dropdown } from '../common/form';
 
 import './Export.scss';
 
@@ -26,6 +23,7 @@ export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
     classNameBtn: PropTypes.string,
+    recordRef: PropTypes.string,
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
@@ -53,15 +51,15 @@ export default class Export extends Component {
       { id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' },
       { id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' },
       { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
-      { id: 4, title: t('export-component.action.copy-link'), click: this.onCopyUrl }
+      { id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }
     ];
   }
 
-  getStateOpen = isOpen => {
+  hangleChangeOpen = isOpen => {
     this.setState({ isOpen });
   };
 
-  export = async item => {
+  handleExport = async item => {
     if (this.#actionsDoing.get(item.id)) {
       return;
     }
@@ -69,7 +67,8 @@ export default class Export extends Component {
     this.#actionsDoing.set(item.id, true);
 
     if (item.target) {
-      const recordsQuery = await this.getQuery();
+      const { journalConfig } = this.props;
+      const recordsQuery = await journalsService.getRecordsQuery(journalConfig, this.getJSettings());
       const actionConfig = this.getActionConfig(item);
       const action = { type: RecordsExportAction.ACTION_ID, config: actionConfig };
 
@@ -81,27 +80,26 @@ export default class Export extends Component {
     }
   };
 
-  getSearchPredicate = (grid = {}) => {
-    const { search: text, columns, groupBy } = grid || {};
+  handleCopyUrl = async () => {
+    const data = await this.getSelectionFilter();
+    const url = this.getSelectionUrl();
 
-    if (isEmpty(text)) {
-      return {};
+    if (!isEmpty(this.props.selectedItems)) {
+      data.selectedItems = this.props.selectedItems;
     }
 
-    return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+    return api.copyUrlConfig({ data, url });
   };
 
-  getQuery = async () => {
-    const { journalConfig, grid, dashletConfig, recordRef } = this.props;
-    const settings = JournalsConverter.getSettingsForDataLoaderServer({
+  getJSettings = () => {
+    const { grid, dashletConfig, recordRef } = this.props;
+
+    return JournalsConverter.getSettingsForDataLoaderServer({
       ...grid,
       predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
       onlyLinked: dashletConfig.onlyLinked,
       recordRef
     });
-    const query = await journalsService.getRecordsQuery(journalConfig, settings);
-
-    return query;
   };
 
   getActionConfig = item => {
@@ -127,12 +125,13 @@ export default class Export extends Component {
     };
   };
 
-  getSelectionFilter = () => {
-    const { journalConfig, grid } = this.props;
+  getSelectionFilter = async () => {
+    const { grid, journalConfig } = this.props;
     const { columns } = journalConfig || {};
-    const { groupBy, sortBy, pagination, predicates, search } = grid || {};
+    const { groupBy, sortBy, pagination, search } = grid || {};
+    const predicate = await journalsService.getPredicates(journalConfig, this.getJSettings());
 
-    return { columns, groupBy, sortBy, pagination, predicate: get(predicates, [0], {}), search };
+    return { columns, groupBy, sortBy, pagination, predicate, search };
   };
 
   getSelectionUrl = () => {
@@ -140,51 +139,37 @@ export default class Export extends Component {
     const { href, host } = window.location;
 
     if (journalConfig) {
-      const journalId = get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId'), '');
+      const journalId = get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) || '';
 
       return decodeLink(`${host}${URL.JOURNAL}?${queryString.stringify({ journalId })}`);
     }
 
     const objectUrl = queryString.parseUrl(href);
-    const { journalId } = objectUrl.query;
+    const { journalId, url } = objectUrl.query;
 
-    return `${objectUrl.url}?${queryString.stringify({ journalId })}`;
-  };
-
-  onCopyUrl = () => {
-    const data = this.getSelectionFilter();
-    const url = this.getSelectionUrl();
-
-    if (!isEmpty(this.props.selectedItems)) {
-      data.selectedItems = this.props.selectedItems;
-    }
-
-    api.copyUrlConfig({ data, url });
+    return `${url}?${queryString.stringify({ journalId })}`;
   };
 
   render() {
     const { right, className, children, classNameBtn, ...props } = this.props;
-    const { isOpen } = this.state;
-    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
+    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
 
     return (
       <div {...attributes} className={classNames('ecos-btn-export', { [className]: !!className })}>
         <Dropdown
+          isButton
+          isStatic={!children}
+          hasEmpty
           source={this.dropdownSource}
-          value={0}
           valueField={'id'}
           titleField={'title'}
-          isButton
-          onChange={this.export}
           right={right}
-          getStateOpen={this.getStateOpen}
+          controlIcon="icon-download"
+          controlClassName="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
+          onChange={this.handleExport}
+          getStateOpen={this.hangleChangeOpen}
         >
-          {children || (
-            <TwoIcoBtn
-              icons={['icon-download', getIconUpDown(isOpen)]}
-              className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
-            />
-          )}
+          {children}
         </Dropdown>
 
         <form ref={this.form} method="post" encType="multipart/form-data">
