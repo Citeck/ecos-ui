@@ -13,6 +13,7 @@ import { num2str, prepareTooltipId } from '../../../../helpers/util';
 import { t } from '../../../../helpers/export/util';
 import { datePredicateVariables } from '../../../Records/predicates/predicates';
 import { DateFormats } from '../../../../constants';
+import ZIndex from '../../../../services/ZIndex';
 
 import './DateIntervalPicker.scss';
 
@@ -96,6 +97,11 @@ class DateIntervalPicker extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.value !== this.props.value) {
       this.splitIntervalToParts();
+    }
+
+    if (this.state.selectedPart) {
+      ZIndex.calcZ();
+      ZIndex.setZ('ecos-dp-interval__popover');
     }
   }
 
@@ -433,12 +439,11 @@ class DateIntervalPicker extends Component {
       return;
     }
 
-    // todo: Поправить позицию выпадашки (левее сделать)
     return (
       <UncontrolledPopover
         className="ecos-dp-interval__popover"
         innerClassName="ecos-dp-interval__popover-inner"
-        popperClassName="ecos-dp-interval__popover-popper"
+        popperClassName="ecos-dp-interval__popover-popper ecosZIndexAnchor"
         arrowClassName={classNames('ecos-dp-interval__popover-arrow', {
           'ecos-dp-interval__popover-arrow_end': selectedPart === DateInputs.END
         })}
@@ -446,7 +451,7 @@ class DateIntervalPicker extends Component {
         target={this.#tooltipId}
         placement="bottom"
         trigger="legacy"
-        container={get(this.#componentRef, 'current', document.body)}
+        container="body"
         toggle={this.handleClosePopover}
       >
         <PopoverHeader>{this.popoverLabel}</PopoverHeader>
