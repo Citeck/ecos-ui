@@ -65,9 +65,9 @@ describe('TextField Builder', () => {
   it('The first tab in the builder must be "Basic"', done => {
     builder.editForm.formReady.then(() => {
       const firstTab = builder.dialog.querySelector('.nav-item');
-      const i18n = require(`../../../../i18n/${builder.options.i18n.lng}`);
+
       expect(firstTab).not.toBeUndefined();
-      expect(firstTab.textContent).toBe(i18n['form-constructor.tabs.basic']);
+      expect(firstTab.textContent).toBe('Basic');
       done();
     });
   });
