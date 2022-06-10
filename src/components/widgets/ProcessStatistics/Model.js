@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
@@ -77,12 +78,11 @@ class Model extends React.Component {
   componentDidMount() {
     this.getModel();
     this.designer = new ModelViewer();
-
-    document.addEventListener('keyup', this.handleKeyUp.bind(this));
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keyup', this.handleKeyUp.bind(this));
+    this.handleMouseDown.cancel();
+    this.handleMouseUp.cancel();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -132,32 +132,18 @@ class Model extends React.Component {
     }
   };
 
-  //todo: impl without hiding HM
-
-  handleMouseDown = () => {
-    if (this.state.isShowHeatmap) {
-      this.setState({ isTempHeatmapOff: true });
-      this.handleToggleHeatmap();
-    }
+  toggleTempHeatmap = isTempHeatmapOff => {
+    this.setState({ isTempHeatmapOff });
+    this.handleToggleHeatmap();
   };
 
-  handleMouseUp = () => {
-    if (this.state.isTempHeatmapOff) {
-      this.setState({ isTempHeatmapOff: false });
-      this.handleToggleHeatmap();
-    }
-  };
+  handleMouseDown = throttle(() => this.state.isShowHeatmap && this.toggleTempHeatmap(true), 100);
 
-  handleWheel = event => {
-    if (event.ctrlKey || event.shiftKey) {
-      this.handleMouseDown();
-    }
-  };
+  handleMouseUp = debounce(() => this.state.isTempHeatmapOff && this.toggleTempHeatmap(false), 100);
 
-  handleKeyUp = event => {
-    if (event.key === 'Control' || event.key === 'Shift') {
-      this.handleMouseUp();
-    }
+  handleWheel = () => {
+    this.handleMouseDown();
+    this.handleMouseUp();
   };
 
   renderBadges = () => {
@@ -244,7 +230,7 @@ class Model extends React.Component {
   };
 
   renderSwitches = () => {
-    const { isShowHeatmap, isShowCounters } = this.state;
+    const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
@@ -253,7 +239,7 @@ class Model extends React.Component {
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
         </div>
         <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isShowHeatmap} onClick={this.handleToggleHeatmap} />
+          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} onClick={this.handleToggleHeatmap} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
         </div>
       </div>
@@ -279,7 +265,7 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar } = this.props;
-    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, legendData } = this.state;
+    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, isTempHeatmapOff, legendData } = this.state;
 
     return (
       <div
@@ -319,7 +305,7 @@ class Model extends React.Component {
               {!isLoading && displayHeatmapToolbar && (
                 <div
                   className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
-                    invisible: !(isShowHeatmap && isHeatmapMounted)
+                    invisible: !isTempHeatmapOff && !isHeatmapMounted
                   })}
                 >
                   <Range value={DefSets.OPACITY} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
