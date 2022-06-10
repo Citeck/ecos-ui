@@ -3,6 +3,7 @@ import TextFieldComponent from './TextField';
 import EventEmitter from '../../../EventEmitter';
 
 import comp1 from './fixtures/comp1';
+import { t } from '../../../../helpers/export/util';
 
 describe('TextField Component', () => {
   it('Should build a TextField component', done => {
