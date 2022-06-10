@@ -7,7 +7,7 @@ timestamps {
     def repoUrl = "git@gitlab.citeck.ru:citeck-projects/ecos-ui.git"
     def mavenRepository = "maven-snapshots"
 
-    stage('Checkout Script Tools SCM') {
+    stage('Checkout Script Index SCM') {
       dir('jenkins-script-tools') {
         checkout([
           $class: 'GitSCM',
@@ -85,7 +85,7 @@ timestamps {
         build job: 'build_ecos_ui_image', parameters: [
           string(name: 'DOCKER_BUILD_DIR', value: 'ecos-proxy-oidc'),
           string(name: 'ECOS_UI_VERSION', value: project_version.toUpperCase()),
-          string(name: 'ECOS_UI_CONFIG_VERSION', value: 'v4')
+          string(name: 'ECOS_UI_CONFIG_VERSION', value: 'v5')
         ]
       }
 

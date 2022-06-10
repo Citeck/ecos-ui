@@ -22,22 +22,6 @@ export default class BPMNModeler extends BaseModeler {
     return getParent(getBusinessObject(root), 'bpmn:Definitions');
   }
 
-  setDiagram = diagram => {
-    if (!this.modeler || !diagram) {
-      console.warn('No diagram');
-      return;
-    }
-
-    this.modeler
-      .importXML(diagram)
-      .then(() => {
-        this._isDiagramMounted = true;
-      })
-      .catch(error => {
-        console.error('Error rendering', error);
-      });
-  };
-
   saveXML = ({ callback }) => {
     if (!this.modeler) {
       return;

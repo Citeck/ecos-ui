@@ -8,6 +8,7 @@ import { t } from '../../../../../helpers/util';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import Dropdown from '../../../../common/form/Dropdown';
 import ParserPredicate from '../../../../Filters/predicates/ParserPredicate';
+import { Labels } from '../constants';
 import Filter from '../Filter';
 import FiltersContext from './FiltersContext';
 
@@ -43,6 +44,11 @@ class Filters extends React.Component {
         })
       );
     }
+  };
+
+  onReset = () => {
+    const { resetFields } = this.context;
+    resetFields();
   };
 
   onKeydown = debounce(e => {
@@ -82,15 +88,18 @@ class Filters extends React.Component {
         <Row>
           <Col md={6} xs={12}>
             <Dropdown source={columns} valueField={'attribute'} titleField={'text'} isStatic onChange={addField}>
-              <IcoBtn invert icon="icon-small-down" className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_grey6">
-                {t('select-journal.filters.add-criteria')}
+              <IcoBtn invert icon="icon-small-down" className="ecos-btn_drop-down">
+                {t(Labels.FILTER_ADD_FIELD_BTN)}
               </IcoBtn>
             </Dropdown>
           </Col>
           <Col md={6} xs={12}>
             <div className="select-journal-filters__apply-button-wrapper">
-              <Btn className={'ecos-btn_blue'} onClick={this.onApply}>
-                {t('select-journal.filters.apply-criteria')}
+              <Btn className="ecos-btn_x-step_10" onClick={this.onReset}>
+                {t(Labels.FILTER_RESET_BTN)}
+              </Btn>
+              <Btn className="ecos-btn_blue" onClick={this.onApply}>
+                {t(Labels.FILTER_APPLY_BTN)}
               </Btn>
             </div>
           </Col>

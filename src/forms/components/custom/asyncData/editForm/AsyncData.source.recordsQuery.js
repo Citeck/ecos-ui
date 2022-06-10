@@ -1,9 +1,11 @@
+import { t } from '../../../../../helpers/export/util';
+
 const QUERY_PROP = 'source.recordsQuery.query';
 
 export default [
   {
     type: 'panel',
-    title: 'Query',
+    title: t('form-constructor.tabs-content.source.recordsQuery.query-js'),
     collapsible: true,
     collapsed: false,
     style: {
@@ -25,32 +27,32 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        content: t('form-constructor.panel.executionCondition')
       }
     ]
   },
   {
     weight: 200,
     type: 'datamap',
-    label: 'Attributes',
-    tooltip: 'Attributes to load',
+    label: t('form-constructor.tabs.content.source.recordsQuery.attributes'),
+    tooltip: t('form-constructor.tabs-tooltip.source.recordsQuery.attributes'),
     key: 'source.recordsQuery.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      label: 'Attribute',
+      label: t('form-constructor.tabs-content.source.record.attribute'),
       defaultValue: '',
       input: true
     }
   },
   {
-    label: 'Single record',
+    type: 'checkbox',
+    label: t('form-constructor.tabs-content.source.recordsQuery.isSingle'),
     labelPosition: 'left-left',
     shortcut: '',
     tableView: true,
     alwaysEnabled: false,
-    type: 'checkbox',
     input: true,
     key: 'source.recordsQuery.isSingle',
     defaultValue: false

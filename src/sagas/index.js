@@ -38,6 +38,7 @@ import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import customEvent from './customEvent';
 import kanban from './kanban';
+import processStatistics from './processStatistics';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -79,6 +80,7 @@ export default function* rootSaga(extraArguments) {
     adminSection(extraArguments),
     cmmnEditor(extraArguments),
     customEvent(extraArguments),
-    kanban(extraArguments)
+    kanban(extraArguments),
+    processStatistics(extraArguments)
   ]);
 }

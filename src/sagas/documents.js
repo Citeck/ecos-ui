@@ -3,13 +3,17 @@ import { all, call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isArray from 'lodash/isArray';
-import cloneDeep from 'lodash/cloneDeep';
+import isNil from 'lodash/isNil';
+import isFunction from 'lodash/isFunction';
 
-import { getFirstNonEmpty, isExistValue, t } from '../helpers/util';
+import { getFirstNonEmpty, t } from '../helpers/util';
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
+import Records from '../components/Records';
 import recordActions, { ActionTypes } from '../components/Records/actions';
+import journalsService from '../components/Journals/service';
 import DocumentsConverter from '../dto/documents';
 import { selectIsMobile } from '../selectors/view';
 import {
@@ -44,15 +48,14 @@ import {
   setDocuments,
   setDocumentsByTypes,
   setDynamicTypes,
+  setLoadingStatus,
   setTypeSettings,
   setTypeSettingsFinally,
   setUploadError,
-  setLoadingStatus,
   updateVersion,
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
-import journalsService from '../components/Journals/service';
 import { store } from '../';
 
 function* fillTypeInfo(api, types = []) {
@@ -107,7 +110,7 @@ function* sagaInitWidget({ api, logger }, { payload }) {
     yield* sagaGetDynamicTypes({ api, logger }, { payload: { ...payload } });
     yield put(initSuccess(payload.key));
   } catch (e) {
-    logger.error('[documents sagaInitWidget saga error', e.message);
+    logger.error('[documents sagaInitWidget saga error', e);
   } finally {
     yield put(initFinally(payload.key));
   }
@@ -161,7 +164,7 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
 
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
   } catch (e) {
-    logger.error('[documents sagaGetDynamicTypes saga error', e.message);
+    logger.error('[documents sagaGetDynamicTypes saga error', e);
   }
 }
 
@@ -180,12 +183,12 @@ function* sagaGetAvailableTypes({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    logger.error('[documents sagaGetAvailableTypes saga error', e.message);
+    logger.error('[documents sagaGetAvailableTypes saga error', e);
   }
 }
 
 function* sagaGetDocumentsByType({ api, logger }, { payload }) {
-  if (isExistValue(payload.loadTypesForAll) && payload.loadTypesForAll) {
+  if (!isNil(payload.loadTypesForAll) && payload.loadTypesForAll) {
     return;
   }
 
@@ -249,7 +252,7 @@ function* sagaGetDocumentsByType({ api, logger }, { payload }) {
       yield put(setActions({ key: payload.key, actions: recActions.forRecord }));
     }
   } catch (e) {
-    logger.error('[documents sagaGetDocumentsByType saga error', e.message);
+    logger.error('[documents sagaGetDocumentsByType saga error', e);
   } finally {
     yield put(getDocumentsFinally({ key: payload.key }));
   }
@@ -263,19 +266,21 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
 
     if (check) {
       if (actionType !== ActionTypes.BACKGROUND_VIEW) {
-        if (typeof payload.callback === 'function') {
+        if (isFunction(payload.callback)) {
           payload.callback(actionType);
         }
       }
     }
 
     if (actionType === ActionTypes.CREATE) {
-      if (typeof payload.callback === 'function') {
+      if (isFunction(payload.callback)) {
         payload.callback(actionType);
       }
     }
+
+    Records.get(payload.record).update();
   } catch (e) {
-    logger.error('[documents sagaExecRecordsAction saga error', e.message, e);
+    logger.error('[documents sagaExecRecordsAction saga error', e);
   } finally {
     const loadTypesForAll = yield select(state => state.view.isMobile);
     yield put(execRecordsActionFinally({ ...payload, loadTypesForAll }));
@@ -310,7 +315,7 @@ function* sagaSaveSettings({ api, logger }, { payload }) {
       yield put(initStore({ ...payload }));
     }
   } catch (e) {
-    logger.error('[documents sagaSaveSettings saga error', e.message);
+    logger.error('[documents sagaSaveSettings saga error', e);
   } finally {
     if (!isEmpty(payload.selectedType)) {
       yield put(
@@ -350,7 +355,7 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
 
     NotificationManager.success(t('documents-widget.notification.update.success'), t('success'));
   } catch (e) {
-    logger.error('[documents sagaUpdateVerion saga error]', e.message);
+    logger.error('[documents sagaUpdateVerion saga error]', e);
     NotificationManager.error(t('documents-widget.notification.update.error'), t('error'));
   }
 }
@@ -374,7 +379,7 @@ export function* uploadFile({ api, file, callback }) {
       data: { nodeRef }
     };
   } catch (e) {
-    console.error('[documents uploadFile error]', e.message);
+    console.error('[documents uploadFile error]', e);
 
     return Promise.reject(e);
   }
@@ -426,7 +431,7 @@ function* formManager({ api, payload, files }) {
       }
     );
   } catch (e) {
-    console.error('[documents formManager error]', e.message);
+    console.error('[documents formManager error]', e);
 
     return Promise.reject(e);
   }
@@ -472,14 +477,14 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       );
     });
 
-    yield put(getDocumentsByType({ ...payload }));
+    Records.get(payload.record).update();
 
     NotificationManager.success(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
     );
   } catch (e) {
     yield put(setUploadError({ ...payload, message: e.message }));
-    logger.error('[documents sagaUploadFiles saga error', e.message);
+    logger.error('[documents sagaUploadFiles saga error', e);
     NotificationManager.error(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
       t('error')
@@ -516,7 +521,7 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    logger.error('[documents sagaGetTypeSettings saga error', e.message);
+    logger.error('[documents sagaGetTypeSettings saga error', e);
   } finally {
     yield put(setTypeSettingsFinally(payload.key));
   }
@@ -525,7 +530,7 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
 function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
   const isMobile = yield select(selectIsMobile);
 
-  if ((isExistValue(payload.loadTypesForAll) && !payload.loadTypesForAll) || !isMobile) {
+  if ((!isNil(payload.loadTypesForAll) && !payload.loadTypesForAll) || !isMobile) {
     return;
   }
 
@@ -579,7 +584,7 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
 
     yield put(setDocumentsByTypes({ ...payload, documentsByTypes }));
   } catch (e) {
-    logger.error('[documents sagaGetDocumentsByTypes saga error] ', e.message);
+    logger.error('[documents sagaGetDocumentsByTypes saga error] ', e);
   }
 }
 

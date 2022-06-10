@@ -7,11 +7,10 @@ import isUndefined from 'lodash/isUndefined';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import cloneDeep from 'lodash/cloneDeep';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
-import { t, getTextByLocale, getCurrentLocale, getMLValue } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../helpers/util';
 import {
   EventListeners,
   GATEWAY_TYPES,
@@ -197,8 +196,11 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    const formFields = this.getFormFields(element);
+    if (get(this._formWrapperRef, 'current.props.id', null) !== element.id) {
+      return;
+    }
 
+    const formFields = this.getFormFields(element);
     /**
      * Events can occur too often.
      * In order not to provoke extra renders, additionally compare the previous and current value.

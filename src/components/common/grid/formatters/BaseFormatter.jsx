@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
 
 import Popper from '../../Popper';
 import { BaseEditor } from '../editors';
@@ -46,6 +47,16 @@ export default class BaseFormatter extends Component {
         return { withTooltip };
       }
     });
+  };
+
+  renderTooltipContent = () => {
+    const content = this.value(this.props.cell);
+
+    if (isEmpty(content)) {
+      return null;
+    }
+
+    return <div className="ecos-formatter__tooltip-content">{content}</div>;
   };
 
   PopperWrapper = React.memo(props => {

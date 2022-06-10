@@ -3,7 +3,10 @@ export default [
     type: 'checkbox',
     input: true,
     key: 'noColHeaders',
-    label: 'Hide columns headers',
+    label: {
+      ru: 'Скрыть заголовки колонок',
+      en: 'Hide columns headers'
+    },
     weight: 18,
     defaultValue: false
   },
@@ -20,7 +23,10 @@ export default [
     type: 'checkbox',
     input: true,
     key: 'isStaticModalTitle',
-    label: 'Hide record name in modal title',
+    label: {
+      ru: 'Скрыть имя записи в модальном заголовке',
+      en: 'Hide record name in modal title'
+    },
     weight: 18,
     defaultValue: false
   },
@@ -28,7 +34,10 @@ export default [
     type: 'textfield',
     input: true,
     key: 'customStringForConcatWithStaticTitle',
-    label: 'Enter custom static label for concat with basic',
+    label: {
+      ru: 'Укажите пользовательское статическое название поля для объединения с основным',
+      en: 'Enter custom static label for concat with basic'
+    },
     weight: 18,
     defaultValue: '',
     conditional: {

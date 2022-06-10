@@ -39,10 +39,14 @@ const getComponentInnerAttSchema = component => {
     dataType = lodashGet(component, 'properties.dataType', '');
   }
 
-  if (dataType === 'json') {
-    return 'json';
-  } else if (dataType === 'bool') {
-    return 'bool';
+  switch (dataType) {
+    case 'json':
+    case 'query':
+      return 'json';
+    case 'bool':
+      return 'bool';
+    default:
+      break;
   }
 
   switch (component.type) {

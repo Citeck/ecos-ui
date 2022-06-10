@@ -5,8 +5,14 @@ export default [
     type: 'select',
     input: true,
     key: 'buttonSize',
-    label: 'Button size',
-    tooltip: 'The button size, as defined through the Bootstrap Documentation',
+    label: {
+      ru: 'Размер кнопки',
+      en: 'Button size'
+    },
+    tooltip: {
+      ru: 'Размер кнопки, как определено в документации Bootstrap',
+      en: 'The button size, as defined through the Bootstrap Documentation'
+    },
     weight: 18,
     defaultValue: 'md',
     dataSrc: 'values',
@@ -25,9 +31,18 @@ export default [
     type: 'textfield',
     input: true,
     key: 'message',
-    label: 'Message',
-    tooltip: 'This message is displayed when the action buttons are not defined',
-    defaultValue: 'Action buttons not defined',
+    label: {
+      ru: 'Сообщение',
+      en: 'Message'
+    },
+    tooltip: {
+      ru: 'Это сообщение отображается, когда кнопки действий не определены',
+      en: 'This message is displayed when the action buttons are not defined'
+    },
+    defaultValue: {
+      ru: 'Кнопки действий не определены',
+      en: 'Action buttons not defined'
+    },
     validate: {
       required: true
     }

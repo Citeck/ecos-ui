@@ -22,7 +22,10 @@ export default [
           {
             components: [
               {
-                label: 'Action name',
+                label: {
+                  ru: 'Название действия',
+                  en: 'Action name'
+                },
                 allowMultipleMasks: false,
                 showWordCount: false,
                 showCharCount: false,
@@ -31,7 +34,10 @@ export default [
                 type: 'textfield',
                 input: true,
                 key: 'name',
-                placeholder: 'Enter action name',
+                placeholder: {
+                  ru: 'Введите название действия',
+                  en: 'Enter action name'
+                },
                 widget: {
                   type: ''
                 }
@@ -47,10 +53,16 @@ export default [
           {
             components: [
               {
-                label: 'Action type',
+                label: {
+                  ru: 'Тип действия',
+                  en: 'Action type'
+                },
                 type: 'select',
                 input: false,
-                placeholder: 'Select action type',
+                placeholder: {
+                  ru: 'Выберите тип действия',
+                  en: 'Select action type'
+                },
                 key: 'type',
                 dataSrc: 'values',
                 data: {
@@ -76,7 +88,10 @@ export default [
                     type: 'htmlelement',
                     tag: 'div',
                     customClass: 'mt-2',
-                    content: '<p>Select action type</p>',
+                    content: {
+                      ru: '<p>Выберите тип действия</p>',
+                      en: '<p>Select action type</p>'
+                    },
                     conditional: {
                       json: {
                         and: [{ '==': [{ var: 'row.type' }, false] }]
@@ -101,7 +116,10 @@ export default [
                       {
                         type: 'htmlelement',
                         tag: 'div',
-                        content: '<p>Enter custom javascript code.</p>'
+                        content: {
+                          ru: '<p>Укажите пользовательский javascript код.</p>',
+                          en: '<p>Enter custom javascript code.</p>'
+                        }
                       }
                     ],
                     conditional: {
@@ -120,7 +138,10 @@ export default [
                     type: 'textfield',
                     input: true,
                     key: 'eventName',
-                    placeholder: 'Enter event name',
+                    placeholder: {
+                      ru: 'Укажите название события',
+                      en: 'Enter event name'
+                    },
                     widget: {
                       type: ''
                     },

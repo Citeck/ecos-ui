@@ -1,3 +1,5 @@
+import { t } from '../../../../../helpers/export/util';
+
 const DATA_PROP = 'source.ajax.data';
 const RES_MAPPING_PROP = 'source.ajax.mapping';
 
@@ -17,7 +19,9 @@ export default [
     inline: true,
     clearOnHide: false,
     input: true,
-    label: 'Method:',
+    get label() {
+      return t('form-constructor.tabs.content.source.ajax.method');
+    },
     key: 'source.ajax.method',
     values: [
       {
@@ -36,7 +40,9 @@ export default [
   },
   {
     type: 'panel',
-    title: 'Query Data',
+    get title() {
+      return t('form-constructor.tabs.content.source.ajax.data-js');
+    },
     collapsible: true,
     collapsed: false,
     style: {
@@ -58,13 +64,17 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   },
   {
     type: 'panel',
-    title: 'Query Result Mapping',
+    get title() {
+      return t('form-constructor.tabs.content.source.ajax.mapping-js');
+    },
     collapsible: true,
     collapsed: true,
     style: {
@@ -83,7 +93,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>'
+        get content() {
+          return t('form-constructor.panel.executionCondition');
+        }
       }
     ]
   }

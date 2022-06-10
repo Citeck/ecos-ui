@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
 
+import { isSmallMode } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
 
-class BaseWidget extends React.Component {
+class BaseWidget extends Component {
   #dashletRef = null;
   #observableFieldsToUpdate = ['_modified'];
   #updateWatcher = null;
@@ -36,20 +38,13 @@ class BaseWidget extends React.Component {
 
   componentDidMount() {
     const { onLoad } = this.props;
-
-    if (typeof onLoad === 'function') {
-      onLoad(this);
-    }
-
+    isFunction(onLoad) && onLoad(this);
     this.updateLocalStorageDate();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { onUpdate } = this.props;
-
-    if (typeof onUpdate === 'function') {
-      onUpdate(this);
-    }
+    isFunction(onUpdate) && onUpdate(this);
 
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.handleUpdate();
@@ -67,6 +62,10 @@ class BaseWidget extends React.Component {
     const isCollapsedByLS = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
 
     return isUndefined(isCollapsedByLS) ? isCollapsedByConfig : isCollapsedByLS;
+  }
+
+  get isNarrow() {
+    return isSmallMode(this.state.width);
   }
 
   get instanceRecord() {
@@ -181,7 +180,7 @@ class BaseWidget extends React.Component {
       contentHeight = 0;
     }
 
-    if (!contentHeight && this.state.userHeight === undefined) {
+    if (!contentHeight && isUndefined(this.state.userHeight)) {
       return;
     }
 

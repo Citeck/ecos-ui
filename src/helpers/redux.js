@@ -57,7 +57,7 @@ export function deleteStateById(state, stateId) {
   return newState;
 }
 
-export function startLoading(initialState) {
+export function startLoading(initialState, keyLoader = 'isLoading') {
   return function(state, action = {}) {
     const stateId = get(action, 'payload.stateId');
 
@@ -66,7 +66,7 @@ export function startLoading(initialState) {
         ...state,
         [stateId]: {
           ...getCurrentStateById(state, stateId, initialState),
-          isLoading: true
+          [keyLoader]: true
         }
       };
     }

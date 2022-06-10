@@ -1,0 +1,12 @@
+.ecos-scaler {
+  display: flex;
+
+  & &__btn {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  & > :nth-child(n):not(:last-child) {
+    margin-right: 5px;
+  }
+}

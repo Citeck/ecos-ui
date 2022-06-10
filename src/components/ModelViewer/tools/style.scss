@@ -1,0 +1,48 @@
+@import '../../../styles/constants';
+
+.model-tooltip {
+  &__wrap {
+    position: absolute;
+    top: 0;
+  }
+
+  &__content {
+    position: absolute;
+    background: $color-white;
+    border-radius: $border-radius-standard;
+    box-shadow: $box-shadow-default;
+    padding: 5px;
+    z-index: 1000;
+    min-width: 170px;
+  }
+}
+
+.model-badges {
+  &__wrap {
+    position: relative;
+  }
+
+  &__item {
+    &-wrap {
+      position: absolute;
+      display: inline-flex;
+    }
+
+    &:empty {
+      display: none;
+    }
+
+    padding: 0 2px;
+    border-radius: 10px;
+    background: $color-blue-light2;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-small;
+    display: inline-block;
+    text-align: center;
+    min-width: 30px;
+
+    &:not(:last-child) {
+      margin-right: 5px;
+    }
+  }
+}
