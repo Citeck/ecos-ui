@@ -42,12 +42,12 @@ class JournalsDataLoader {
               ...record
             }
           };
-          const recordComputed = _get(journalConfig, 'configData.recordComputed');
+          const recordComputed = get(journalConfig, 'configData.recordComputed');
           if (recordComputed && recordComputed.length) {
             computedPromises.push(computedService.resolve(recordComputed, newRecord.rawAttributes));
           }
 
-          const configComputed = _get(journalConfig, 'configData.configComputed');
+          const configComputed = get(journalConfig, 'configData.configComputed');
           if (configComputed) {
             for (let key in configComputed) {
               if (configComputed.hasOwnProperty(key)) {

@@ -291,25 +291,25 @@ export default class TabsComponent extends NestedComponent {
 
       if (get(tab, 'components')) {
         tab.components.forEach(el => {
-          if (!isEqual(t(`form-constructor.tabs-content.${el.key}`), `form-constructor.tabs-content.${el.key}`) && el.label) {
+          if (this.checkTranslation('label', 'content', el)) {
             el.label = t(`form-constructor.tabs-content.${el.key}`);
           }
 
-          if (!isEqual(t(`form-constructor.tabs-placeholder.${el.key}`), `form-constructor.tabs-placeholder.${el.key}`) && el.placeholder) {
+          if (this.checkTranslation('placeholder', 'placeholder', el)) {
             el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
           }
 
-          if (!isEqual(t(`form-constructor.tabs-tooltip.${el.key}`), `form-constructor.tabs-tooltip.${el.key}`) && el.tooltip) {
+          if (this.checkTranslation('tooltip', 'tooltip', el)) {
             el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
           }
 
-          if (!isEqual(t(`form-constructor.tabs-description.${el.key}`), `form-constructor.tabs-description.${el.key}`) && el.description) {
+          if (this.checkTranslation('description', 'description', el)) {
             el.description = t(`form-constructor.tabs-description.${el.key}`);
           }
 
           if (el.components) {
             el.components.forEach(item => {
-              if (!isEqual(t(`form-constructor.tabs-content.${item.key}`), `form-constructor.tabs-content.${item.key}`) && item.label) {
+              if (this.checkTranslation('label', 'content', item)) {
                 item.label = t(`form-constructor.tabs-content.${item.key}`);
               }
             });
@@ -413,6 +413,10 @@ export default class TabsComponent extends NestedComponent {
       window.removeEventListener('resize', this._calculateTabsContentHeightThrottled);
     }
   }
+
+  checkTranslation = (propName, keyName, el) => {
+    return !isEqual(t(`form-constructor.tabs-${keyName}.${el.key}`), `form-constructor.tabs-${keyName}.${el.key}`) && `el.${propName}`;
+  };
 
   detectScroll = () => {
     const containerWidth = this.tabsBar.getBoundingClientRect()['width'];
