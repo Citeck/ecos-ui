@@ -5,6 +5,8 @@ import throttle from 'lodash/throttle';
 import { t } from '../../../../helpers/export/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
+  #clearOnHideInProcess = false;
+
   static schema(...extend) {
     return FormIOPanelComponent.schema(
       {
@@ -22,6 +24,8 @@ export default class PanelComponent extends FormIOPanelComponent {
   }
 
   build(state) {
+    //todo: check on the prod whether the component is built twice. Then you can delete
+    console.log('build');
     const hidePanels = get(this, 'options.viewAsHtmlConfig.hidePanels', false);
     this.component.hideLabel = hidePanels;
 
@@ -108,4 +112,31 @@ export default class PanelComponent extends FormIOPanelComponent {
   };
 
   _calculatePanelContentHeightThrottled = throttle(this._calculatePanelContentHeight, 300);
+
+  _checkContainer = component => {
+    for (let item of get(component, 'components')) {
+      item.deleteValue();
+
+      if (item.components) {
+        this._checkContainer(item);
+      }
+    }
+  };
+
+  clearOnHide(show) {
+    // clearOnHide defaults to true for old forms (without the value set) so only trigger if the value is false.
+    if (this.component.clearOnHide && !this.options.readOnly && !show && !this.#clearOnHideInProcess) {
+      this.#clearOnHideInProcess = true;
+
+      for (let component of get(this, 'components')) {
+        if (get(component, 'components')) {
+          this._checkContainer(component);
+        } else {
+          component.deleteValue();
+        }
+      }
+    }
+
+    this.#clearOnHideInProcess = false;
+  }
 }
