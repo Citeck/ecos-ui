@@ -7,6 +7,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { goToPageFromSiteMenu } from '../../actions/header';
 import { processMenuItemsFromOldMenu } from '../../helpers/menu';
+import { getIconUpDown } from '../../helpers/icon';
 import { EcosDropdownMenu, Icon } from '../common';
 import { IcoBtn } from '../common/btns';
 
@@ -75,7 +76,7 @@ class SiteMenu extends React.Component {
     return (
       <Dropdown className="ecos-header-site ecos-header-dropdown" isOpen={dropdownOpen} toggle={this.toggle}>
         <DropdownToggle tag="div">
-          <IcoBtn invert className={classNameIcoBtn} icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}>
+          <IcoBtn invert className={classNameIcoBtn} icon={getIconUpDown(dropdownOpen)}>
             <Icon className="icon-settings" />
           </IcoBtn>
         </DropdownToggle>

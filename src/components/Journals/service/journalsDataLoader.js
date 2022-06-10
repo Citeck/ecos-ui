@@ -1,5 +1,5 @@
 import get from 'lodash/get';
-import _filter from 'lodash/filter';
+import filter from 'lodash/filter';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
@@ -42,11 +42,13 @@ class JournalsDataLoader {
               ...record
             }
           };
-          const recordComputed = journalConfig.configData.recordComputed;
+
+          const recordComputed = get(journalConfig, 'configData.recordComputed');
           if (recordComputed && recordComputed.length) {
             computedPromises.push(computedService.resolve(recordComputed, newRecord.rawAttributes));
           }
-          const configComputed = journalConfig.configData.configComputed;
+
+          const configComputed = get(journalConfig, 'configData.configComputed');
           if (configComputed) {
             for (let key in configComputed) {
               if (configComputed.hasOwnProperty(key)) {
@@ -90,25 +92,7 @@ class JournalsDataLoader {
   getRecordsQuery = async (journalConfig, settings = {}) => {
     const consistency = 'EVENTUAL';
     const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
-
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
-
-    if (settings.onlyLinked && settings.recordRef) {
-      predicates.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: settings.recordRef,
-            att: a.attribute
-          }))
-      });
-
-      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
-    }
-
+    const predicates = await this.getPredicates(journalConfig, settings);
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
     let queryData = null;
@@ -142,6 +126,35 @@ class JournalsDataLoader {
       sortBy,
       groupBy
     };
+  };
+
+  /**
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Promise<Array<Predicate>>}}
+   */
+  getPredicates = async (journalConfig, settings) => {
+    const columns = journalConfig.columns || settings.columns || [];
+    const predicateFilter = convertAttributeValues(filter(settings.filter, p => !!p), columns);
+
+    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+
+    if (settings.onlyLinked && settings.recordRef) {
+      predicates.push({
+        t: PREDICATE_OR,
+        val: columns
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
+          .map(a => ({
+            t: PREDICATE_CONTAINS,
+            val: settings.recordRef,
+            att: a.attribute
+          }))
+      });
+
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
+    }
+
+    return predicates;
   };
 
   /**
@@ -199,7 +212,7 @@ class JournalsDataLoader {
     const attributesMap = {};
 
     for (let column of columns) {
-      attributesMap[column.name] = column.attSchema;
+      !!column.name && (attributesMap[column.name] = column.attSchema);
     }
 
     for (let att in settingsAttributes) {

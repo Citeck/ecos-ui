@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import uniqueId from 'lodash/uniqueId';
+import get from 'lodash/get';
+
 import PdfPage from './PdfPage';
 
-class PdfViewer extends React.PureComponent {
+class PdfViewer extends PureComponent {
   static propTypes = {
     pdf: PropTypes.object.isRequired,
     defHeight: PropTypes.number,
@@ -19,37 +22,39 @@ class PdfViewer extends React.PureComponent {
     settings: {}
   };
 
-  state = {
-    needUpdate: false
-  };
+  constructor(props) {
+    super(props);
+
+    this.instanceId = uniqueId('ecos-doc-preview-page-');
+    this.state = {
+      needUpdate: false
+    };
+  }
+
+  get pages() {
+    const { pdf } = this.props;
+    const numPages = get(pdf, '_pdfInfo.numPages', 0);
+    const arrayPages = new Array(numPages);
+
+    return arrayPages.fill(0);
+  }
 
   onUpdate() {
     this.setState({ needUpdate: true }, () => this.setState({ needUpdate: false }));
   }
 
   render() {
-    const { forwardedRef, ...props } = this.props;
-    let { pdf } = this.props;
     const { needUpdate } = this.state;
-    let { _pdfInfo = {} } = pdf;
-    let { numPages = 0 } = _pdfInfo;
-    let arrayPages = [];
-
-    if (needUpdate) {
-      return null;
-    }
-
-    while (numPages) {
-      arrayPages.push(numPages--);
-    }
-    arrayPages.reverse();
+    const { forwardedRef, ...props } = this.props;
 
     return (
-      <div ref={forwardedRef}>
-        {arrayPages.map((pageN, idx) => (
-          <PdfPage key={`ecos-doc-preview-page-${pageN}-${idx}`} {...props} pageNumber={pageN} />
-        ))}
-      </div>
+      !needUpdate && (
+        <div ref={forwardedRef}>
+          {this.pages.map((_, index) => (
+            <PdfPage key={`${this.instanceId}-${index + 1}`} {...props} pageNumber={index + 1} />
+          ))}
+        </div>
+      )
     );
   }
 }

@@ -11,6 +11,7 @@ import isFunction from 'lodash/isFunction';
 
 import { Attributes, Permissions } from '../../../../constants';
 import { beArray, isMobileDevice, t } from '../../../../helpers/util';
+import { getIconUpDown } from '../../../../helpers/icon';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
 import { EcosModal, Icon, Loader, Pagination } from '../../../common';
@@ -751,7 +752,7 @@ export default class SelectJournal extends Component {
               )}
               <IcoBtn
                 invert
-                icon={classNames({ 'icon-small-up': isCollapsePanelOpen, 'icon-small-down': !isCollapsePanelOpen })}
+                icon={getIconUpDown(isCollapsePanelOpen)}
                 className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
                 onClick={this.toggleCollapsePanel}
               >
