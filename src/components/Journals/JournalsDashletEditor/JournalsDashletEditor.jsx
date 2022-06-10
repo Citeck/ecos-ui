@@ -223,10 +223,9 @@ class JournalsDashletEditor extends Component {
       onSave(id, { config: newConfig });
     } else if (isFunction(saveDashlet)) {
       saveDashlet(newConfig, id);
+      setDashletConfig(newConfig);
+      checkConfig(newConfig);
     }
-
-    setDashletConfig(newConfig);
-    checkConfig(newConfig);
   };
 
   handleClear = () => {

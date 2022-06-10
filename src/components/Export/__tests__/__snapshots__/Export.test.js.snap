@@ -5,6 +5,7 @@ ShallowWrapper {
   Symbol(enzyme.__root__): [Circular],
   Symbol(enzyme.__unrendered__): <Export
     className=""
+    dashletConfig={Object {}}
   />,
   Symbol(enzyme.__renderer__): Object {
     "batchedUpdates": [Function],
@@ -25,15 +26,16 @@ ShallowWrapper {
           CustomItem={null}
           cascade={false}
           className=""
-          controlClassName=""
+          controlClassName="ecos-btn_grey ecos-btn_settings-down"
+          controlIcon="icon-download"
           direction="down"
           full={false}
           getStateOpen={[Function]}
-          hasEmpty={false}
+          hasEmpty={true}
           hideSelected={false}
           isButton={true}
           isLinks={false}
-          isStatic={false}
+          isStatic={true}
           menuClassName=""
           onChange={[Function]}
           placeholder=""
@@ -79,20 +81,9 @@ ShallowWrapper {
           }
           titleField="title"
           toggleClassName=""
-          value={0}
           valueField="id"
           withScrollbar={false}
-        >
-          <TwoIcoBtn
-            className="ecos-btn_grey ecos-btn_settings-down"
-            icons={
-              Array [
-                "icon-download",
-                "icon-small-down",
-              ]
-            }
-          />
-        </Dropdown>,
+        />,
         <form
           encType="multipart/form-data"
           method="post"
@@ -115,25 +106,18 @@ ShallowWrapper {
         "props": Object {
           "CustomItem": null,
           "cascade": false,
-          "children": <TwoIcoBtn
-            className="ecos-btn_grey ecos-btn_settings-down"
-            icons={
-              Array [
-                "icon-download",
-                "icon-small-down",
-              ]
-            }
-          />,
+          "children": undefined,
           "className": "",
-          "controlClassName": "",
+          "controlClassName": "ecos-btn_grey ecos-btn_settings-down",
+          "controlIcon": "icon-download",
           "direction": "down",
           "full": false,
           "getStateOpen": [Function],
-          "hasEmpty": false,
+          "hasEmpty": true,
           "hideSelected": false,
           "isButton": true,
           "isLinks": false,
-          "isStatic": false,
+          "isStatic": true,
           "menuClassName": "",
           "onChange": [Function],
           "placeholder": "",
@@ -177,26 +161,11 @@ ShallowWrapper {
           ],
           "titleField": "title",
           "toggleClassName": "",
-          "value": 0,
           "valueField": "id",
           "withScrollbar": false,
         },
         "ref": null,
-        "rendered": Object {
-          "instance": null,
-          "key": undefined,
-          "nodeType": "class",
-          "props": Object {
-            "className": "ecos-btn_grey ecos-btn_settings-down",
-            "icons": Array [
-              "icon-download",
-              "icon-small-down",
-            ],
-          },
-          "ref": null,
-          "rendered": null,
-          "type": [Function],
-        },
+        "rendered": null,
         "type": [Function],
       },
       Object {
@@ -246,15 +215,16 @@ ShallowWrapper {
             CustomItem={null}
             cascade={false}
             className=""
-            controlClassName=""
+            controlClassName="ecos-btn_grey ecos-btn_settings-down"
+            controlIcon="icon-download"
             direction="down"
             full={false}
             getStateOpen={[Function]}
-            hasEmpty={false}
+            hasEmpty={true}
             hideSelected={false}
             isButton={true}
             isLinks={false}
-            isStatic={false}
+            isStatic={true}
             menuClassName=""
             onChange={[Function]}
             placeholder=""
@@ -300,20 +270,9 @@ ShallowWrapper {
             }
             titleField="title"
             toggleClassName=""
-            value={0}
             valueField="id"
             withScrollbar={false}
-          >
-            <TwoIcoBtn
-              className="ecos-btn_grey ecos-btn_settings-down"
-              icons={
-                Array [
-                  "icon-download",
-                  "icon-small-down",
-                ]
-              }
-            />
-          </Dropdown>,
+          />,
           <form
             encType="multipart/form-data"
             method="post"
@@ -336,25 +295,18 @@ ShallowWrapper {
           "props": Object {
             "CustomItem": null,
             "cascade": false,
-            "children": <TwoIcoBtn
-              className="ecos-btn_grey ecos-btn_settings-down"
-              icons={
-                Array [
-                  "icon-download",
-                  "icon-small-down",
-                ]
-              }
-            />,
+            "children": undefined,
             "className": "",
-            "controlClassName": "",
+            "controlClassName": "ecos-btn_grey ecos-btn_settings-down",
+            "controlIcon": "icon-download",
             "direction": "down",
             "full": false,
             "getStateOpen": [Function],
-            "hasEmpty": false,
+            "hasEmpty": true,
             "hideSelected": false,
             "isButton": true,
             "isLinks": false,
-            "isStatic": false,
+            "isStatic": true,
             "menuClassName": "",
             "onChange": [Function],
             "placeholder": "",
@@ -398,26 +350,11 @@ ShallowWrapper {
             ],
             "titleField": "title",
             "toggleClassName": "",
-            "value": 0,
             "valueField": "id",
             "withScrollbar": false,
           },
           "ref": null,
-          "rendered": Object {
-            "instance": null,
-            "key": undefined,
-            "nodeType": "class",
-            "props": Object {
-              "className": "ecos-btn_grey ecos-btn_settings-down",
-              "icons": Array [
-                "icon-download",
-                "icon-small-down",
-              ],
-            },
-            "ref": null,
-            "rendered": null,
-            "type": [Function],
-          },
+          "rendered": null,
           "type": [Function],
         },
         Object {
