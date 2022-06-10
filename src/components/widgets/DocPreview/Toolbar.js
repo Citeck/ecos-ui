@@ -3,38 +3,43 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
-import { getScaleModes, isExistValue, t } from '../../../helpers/util';
+import { getScaleModes, t } from '../../../helpers/util';
+import { Labels } from './util';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
 const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 4;
 
-const Labels = {
-  OUT_OF: 'doc-preview.out-of',
-  DOWNLOAD: 'doc-preview.download'
-};
-
 class Toolbar extends Component {
   static propTypes = {
     isPDF: PropTypes.bool.isRequired,
     className: PropTypes.string,
     fileName: PropTypes.string,
+    filesList: PropTypes.array,
+    fileValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     totalPages: PropTypes.number.isRequired,
-    onChangeSettings: PropTypes.func.isRequired,
     inputRef: PropTypes.any,
-    downloadData: PropTypes.object
+    downloadData: PropTypes.object,
+    config: PropTypes.object,
+    onFullscreen: PropTypes.func,
+    onChangeSettings: PropTypes.func.isRequired,
+    onFileChange: PropTypes.func
   };
 
   static defaultProps = {
     scale: '',
     className: '',
+    config: {},
     downloadData: {},
-    fileName: ''
+    fileName: '',
+    filesList: [],
+    onFileChange: () => null
   };
 
   constructor(props) {
@@ -63,11 +68,11 @@ class Toolbar extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { scrollPage: currentPage, calcScale: scale } = this.props;
 
-    if (isExistValue(currentPage) && currentPage !== prevState.currentPage) {
+    if (!isNil(currentPage) && currentPage !== prevState.currentPage) {
       this.setState({ currentPage });
     }
 
-    if (!Number.isNaN(scale) && isExistValue(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
+    if (!Number.isNaN(scale) && !isNil(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
       this.setState({ scale });
     }
   }
@@ -135,8 +140,7 @@ class Toolbar extends Component {
 
   onChangeZoomOption = zoom => {
     const { id, scale } = zoom || {};
-
-    let newState = { ...this.state, selectedZoom: id, scale };
+    const newState = { ...this.state, selectedZoom: id, scale };
 
     this.setState(newState);
     this.onChangeSettings(newState);
@@ -163,7 +167,7 @@ class Toolbar extends Component {
       scale = MAX_ZOOM;
     }
 
-    let newState = { ...this.state, selectedZoom, scale };
+    const newState = { ...this.state, selectedZoom, scale };
 
     this.setState(newState);
     this.triggerScaleChange(newState);
@@ -188,7 +192,11 @@ class Toolbar extends Component {
     const { totalPages } = this.props;
 
     return (
-      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager">
+      <div
+        className={classNames('ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-pager', {
+          'ecos-doc-preview__toolbar-pager_disabled': !totalPages
+        })}
+      >
         <IcoBtn
           icon={'icon-small-left'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-prev', {
@@ -196,12 +204,10 @@ class Toolbar extends Component {
           })}
           onClick={this.handlePrev}
         />
-        {!!totalPages && (
-          <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
-            <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
-            <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages}`} </span>
-          </div>
-        )}
+        <div className="ecos-doc-preview__toolbar-pager-text-wrapper">
+          <Input type="text" onChange={this.goToPage} value={currentPage} className="ecos-doc-preview__toolbar-pager-input" />
+          <span className="ecos-doc-preview__toolbar-pager-text"> {`${t(Labels.OUT_OF)} ${totalPages || '⭯'}`} </span>
+        </div>
         <IcoBtn
           icon={'icon-small-right'}
           className={classNames('ecos-btn_sq_sm ecos-btn_tight ecos-doc-preview__toolbar-pager-next', {
@@ -264,13 +270,41 @@ class Toolbar extends Component {
   renderExtraBtns() {
     const { downloadData, fileName } = this.props;
 
-    return downloadData && downloadData.link ? (
+    if (!downloadData && !downloadData.link) {
+      return null;
+    }
+
+    return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-extra-btns">
         <a href={downloadData.link} download={downloadData.fileName || fileName} data-external>
           <IcoBtn icon="icon-download" className="ecos-btn_sq_sm ecos-btn_tight" title={t(Labels.DOWNLOAD)} />
         </a>
       </div>
-    ) : null;
+    );
+  }
+
+  renderFilesList() {
+    const { filesList, fileValue, onFileChange, config } = this.props;
+
+    if (!config.showAllDocuments || !Array.isArray(filesList) || filesList.length <= 1) {
+      return null;
+    }
+
+    return (
+      <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-files">
+        <Dropdown
+          withScrollbar
+          hasEmpty
+          className="ecos-doc-preview__toolbar-select"
+          valueField="recordId"
+          titleField="fileName"
+          source={filesList}
+          value={fileValue}
+          onChange={onFileChange}
+          itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
+        />
+      </div>
+    );
   }
 
   render() {
@@ -279,6 +313,7 @@ class Toolbar extends Component {
     return (
       <div ref={inputRef} className={classNames('ecos-doc-preview__toolbar', className)}>
         <div ref={this.toolbarWrapperRef} className="ecos-doc-preview__toolbar-wrapper">
+          {this.renderFilesList()}
           {isPDF && this.renderPager()}
           {this.renderZoom()}
           {this.renderExtraBtns()}

@@ -453,24 +453,22 @@ export function getScaleModes() {
 }
 
 /**
- * todo: translate to english
- *
- * Вычисление масштабирования для строковых режимов
- * @param scale {Number|String} - режим см getScaleModes
- * @param paramsContainer {Object} - ширина и высота объекта масштабирования
- * @param paramsPage {Object} - ширина и высота контейнера
- * @param ratioAuto
- * @returns {Number} масштаб
+ * @desc Calculation of Scale for stringe modes
+ * @requires @param {Number|String} scale mode @see getScaleModes
+ * @requires @param {Object} paramsContainer width and height of the zoom object
+ * @requires @param {Object} paramsPage width and height of container
+ * @param {Number} ratioAuto
+ * @returns {Number}
  */
 export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
-  let { origW, origH, scaleW } = paramsPage || {};
-  let { width: cW, height: cH } = paramsContainer || {};
+  const { width: cW, height: cH } = paramsContainer || {};
+  const { origW, origH, scaleW } = paramsPage || {};
 
-  let calcScale = (c, so) => {
+  const calcScale = (c, so) => {
     return +Number(c / so).toFixed(2);
   };
 
-  let fit = ratio => {
+  const fit = ratio => {
     if (Math.min(cH, cW) === cH) {
       return calcScale(cH + ratio, origH);
     }
@@ -1224,6 +1222,20 @@ export function objectByString(object) {
 
     return res;
   }, '');
+}
+
+export function isJsonObjectString(str) {
+  if (isEmpty(str)) {
+    return false;
+  }
+
+  try {
+    const result = JSON.parse(str);
+
+    return typeof result === 'object';
+  } catch (e) {
+    return false;
+  }
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

@@ -4,6 +4,7 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
@@ -85,6 +86,10 @@ export const SelectOrgstructProvider = props => {
     let value;
 
     function getVal(arr = []) {
+      if (isEmpty(arr)) {
+        return null;
+      }
+
       return multiple ? arr : arr[0] || '';
     }
 

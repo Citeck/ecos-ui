@@ -27,7 +27,7 @@ import '../../forms/style.scss';
 let formCounter = 0;
 
 class EcosForm extends React.Component {
-  _formBuilderModal = React.createRef();
+  _formBuilderModal = null;
   _formContainer = React.createRef();
   _form = null;
   _containerHeightTimerId = null;
@@ -76,6 +76,12 @@ class EcosForm extends React.Component {
       tabs: ['currentTab']
     };
   }
+
+  setRefFormBuilderModal = element => {
+    if (element) {
+      this._formBuilderModal = element;
+    }
+  };
 
   initForm(newFormDefinition = this.state.formDefinition) {
     const alfConstants = get(window, 'Alfresco.constants') || {};
@@ -142,6 +148,10 @@ class EcosForm extends React.Component {
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
       this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
+
+      if (this._formBuilderModal) {
+        this._formBuilderModal.setStateData({ formId: formData.formId });
+      }
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
@@ -346,11 +356,11 @@ class EcosForm extends React.Component {
   };
 
   onShowFormBuilder = async callback => {
-    if (this._formBuilderModal.current) {
+    if (this._formBuilderModal) {
       const { formId } = this.state;
       const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
-      this._formBuilderModal.current.show(definitionToEdit, form => {
+      this._formBuilderModal.show(definitionToEdit, form => {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
           EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
             this.initForm(newFormDef);
@@ -531,7 +541,7 @@ class EcosForm extends React.Component {
     return (
       <div className={className}>
         <div id={containerId} ref={this._formContainer} />
-        <EcosFormBuilderModal ref={this._formBuilderModal} />
+        <EcosFormBuilderModal ref={this.setRefFormBuilderModal} />
       </div>
     );
   }

@@ -68,7 +68,8 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         triggerEventOnChange: false,
         isInstantClone: false,
-        defaultValue: []
+        defaultValue: [],
+        noHorizontalScroll: false
       },
       ...extend
     );
@@ -554,7 +555,8 @@ export default class TableFormComponent extends BaseReactComponent {
         },
         computed: {
           valueFormKey: value => this.getValueFormKey(value)
-        }
+        },
+        noHorizontalScroll: component.noHorizontalScroll
       };
     };
 

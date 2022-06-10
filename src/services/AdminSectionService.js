@@ -54,17 +54,11 @@ export default class AdminSectionService {
     const type = get(info, 'type');
 
     switch (type) {
-      case SectionTypes.BPM: {
-        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type } });
-      }
       case SectionTypes.JOURNAL: {
         return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type, journalId: get(info, 'config.journalId') } });
       }
-      case SectionTypes.DEV_TOOLS: {
-        return URL.DEV_TOOLS;
-      }
       default: {
-        return;
+        return queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type } });
       }
     }
   }

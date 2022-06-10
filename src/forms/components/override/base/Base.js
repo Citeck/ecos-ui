@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
 import Base from 'formiojs/components/base/Base';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
@@ -94,21 +95,30 @@ Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
   value: false
 });
 Base.prototype.onChange = function(flags, fromRoot) {
-  const formMode = get(this.options, 'formMode');
-  const isEmptyValue = value => {
-    if (formMode === FORM_MODE_CREATE) {
-      return this.isEmpty(value);
-    }
-    return !isBoolean(value) && this.isEmpty(value);
-  };
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-  if (!this.valueChangedByUser) {
+  if (get(flags, 'modified') || get(flags, 'skipReactWrapperUpdating')) {
     this.valueChangedByUser =
-      (formMode !== FORM_MODE_CREATE && !customIsEqual(this.dataValue, this.calculatedValue)) ||
-      (formMode === FORM_MODE_CREATE && !isEmptyValue(this.dataValue));
+      (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
 
   return originalOnChange.call(this, flags, fromRoot);
+};
+Base.prototype.isEmptyValue = function(value) {
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+
+  if (isCreateMode) {
+    return this.isEmpty(value);
+  }
+
+  return !isBoolean(value) && this.isEmpty(value);
+};
+Base.prototype.customIsEqual = function(val1, val2) {
+  if (typeof val1 === 'number' || typeof val2 === 'number') {
+    return parseFloat(val1) === parseFloat(val2);
+  }
+
+  return isEqual(val1, val2);
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-166
@@ -189,13 +199,6 @@ Object.defineProperty(Base.prototype, 'name', {
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-208
 const emptyCalculateValue = Symbol('empty calculate value');
 
-const customIsEqual = (val1, val2) => {
-  if (typeof val1 === 'number' || typeof val2 === 'number') {
-    return parseFloat(val1) === parseFloat(val2);
-  }
-  return isEqual(val1, val2);
-};
-
 const modifiedOriginalCalculateValue = function(data, flags) {
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
@@ -219,10 +222,9 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     },
     'value'
   );
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-  if (!this.calculatedValueWasCalculated) {
-    this.calculatedValueWasCalculated = true;
-  }
+  this.calculatedValue = calculatedValue;
 
   let changed;
 
@@ -231,9 +233,18 @@ const modifiedOriginalCalculateValue = function(data, flags) {
 
   if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
     changed = this.setValue(calculatedValue, flags);
+
+    if (changed) {
+      this.calculatedValue = this.dataValue;
+    }
   }
 
-  this.calculatedValue = this.dataValue;
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
+    this.valueChangedByUser =
+      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+
+    this.calculatedValueWasCalculated = true;
+  }
 
   return changed;
 };
@@ -243,7 +254,7 @@ Base.prototype.calculateValue = function(data, flags) {
     return false;
   }
 
-  // TODO: check, it seems redundant
+  // // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
       this.component.calculateValue,
@@ -313,7 +324,7 @@ Base.prototype.createTooltip = function(container, component, classes) {
 
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
-    placement: 'right',
+    placement: 'top',
     html: true,
     title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
   });

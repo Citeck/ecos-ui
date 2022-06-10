@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { t } from '../../../helpers/util';
+import { getIconUpDown } from '../../../helpers/icon';
 import { Dropdown } from '../form';
 import { IcoBtn } from '../btns';
 import FilterItem from './FilterItem';
@@ -54,7 +55,7 @@ export default class DropdownFilter extends React.Component {
           className={classNames(this.className, className)}
           full
         >
-          <IcoBtn invert icon={isOpenFilter ? 'icon-small-up' : 'icon-small-down'} className={`ecos-btn_full-width ecos-btn_drop-down`}>
+          <IcoBtn invert icon={getIconUpDown(isOpenFilter)} className={`ecos-btn_full-width ecos-btn_drop-down`}>
             {t('dropdown-filter.icon-button.label')}
           </IcoBtn>
         </Dropdown>

@@ -42,6 +42,7 @@ import iconSelect from './iconSelect';
 import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import kanban from './kanban';
+import processStatistics from './processStatistics';
 
 const reducers = {
   app,
@@ -84,7 +85,8 @@ const reducers = {
   iconSelect,
   adminSection,
   cmmnEditor,
-  kanban
+  kanban,
+  processStatistics
 };
 
 export default history =>

@@ -5,6 +5,7 @@ import { cellMsg, t } from '../helpers/util';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../components/Journals/service/util';
 import OrgstructEditor from '../components/Journals/service/editors/registry/OrgstructEditor';
 import { AUTHORITY_TYPE_USER } from '../components/common/form/SelectOrgstruct/constants';
+import { cellMsg, t } from '../helpers/util';
 
 export default class EventsHistoryService {
   static defaultJournal = 'history-records-widget';

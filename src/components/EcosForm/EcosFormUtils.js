@@ -39,10 +39,14 @@ const getComponentInnerAttSchema = component => {
     dataType = lodashGet(component, 'properties.dataType', '');
   }
 
-  if (dataType === 'json') {
-    return 'json';
-  } else if (dataType === 'bool') {
-    return 'bool';
+  switch (dataType) {
+    case 'json':
+    case 'query':
+      return 'json';
+    case 'bool':
+      return 'bool';
+    default:
+      break;
   }
 
   switch (component.type) {
@@ -922,8 +926,7 @@ export default class EcosFormUtils {
     const { inputByKey, attributes } = EcosFormUtils.preProcessingAttrs(inputs);
 
     const recordInstance = Records.get(recordId);
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
-    const force = !recordInstance.isPendingCreate() && !recordId.includes('-alias-');
+    const force = !recordInstance.isPendingCreate();
 
     return recordInstance.load(attributes, force).then(recordData => {
       const submission = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey, ownerId });
