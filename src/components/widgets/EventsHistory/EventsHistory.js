@@ -8,7 +8,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 
-import { filterEventsHistory, getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
+import { getEventsHistory, resetEventsHistory } from '../../../actions/eventsHistory';
 import { selectDataEventsHistoryByStateId } from '../../../selectors/eventsHistory';
 import EventsHistoryService from '../../../services/eventsHistory';
 import { t } from '../../../helpers/util';
@@ -52,7 +52,6 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getEventsHistory: payload => dispatch(getEventsHistory(payload)),
-  filterEventsHistory: payload => dispatch(filterEventsHistory(payload)),
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
@@ -70,6 +69,10 @@ const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
     <>{children}</>
   );
 
+/**
+ * @desc EventsHistory is 1d version of history.
+ * @deprecated Use JournalHistory.js
+ */
 class EventsHistory extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
@@ -281,9 +284,7 @@ class EventsHistory extends React.Component {
     const newFilter = get(newFilters, '0', {});
     const upFilters = this.applyFiltering(filters, newFilter, type);
 
-    this.setState({ filters: upFilters }, () => {
-      this.onFilter(this.state.filters);
-    });
+    this.setState({ filters: upFilters });
   };
 
   renderEnum() {
