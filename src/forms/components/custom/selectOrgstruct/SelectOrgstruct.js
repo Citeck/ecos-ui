@@ -17,7 +17,7 @@ import {
 import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
-import UnreadableLabel from '../../UnreadedableLabel';
+import UnreadableLabel from '../../UnreadableLabel';
 
 let authorityRefsByName = {};
 

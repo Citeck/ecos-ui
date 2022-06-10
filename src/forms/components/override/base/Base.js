@@ -150,11 +150,13 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     },
     'value'
   );
-  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
   this.calculatedValue = calculatedValue;
 
   let changed;
+
+  flags = flags || {};
+  flags.noCheck = true;
 
   if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
     changed = this.setValue(calculatedValue, flags);
@@ -164,10 +166,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     }
   }
 
-  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
-
+  if (!this.calculatedValueWasCalculated && (!isUndefined(calculatedValue) && !isEqual(calculatedValue, this.defaultValue))) {
     this.calculatedValueWasCalculated = true;
   }
 
@@ -573,7 +572,7 @@ Base.prototype.createWidget = function() {
   settings.language = this.options.language;
 
   const widget = new Widgets[settings.type](settings, this.component);
-  widget.on('update', () => this.updateValue(), true);
+  widget.on('update', () => this.updateValue({ changeByUser: true }), true);
   widget.on('redraw', () => this.redraw(), true);
   this._widget = widget;
   return widget;
