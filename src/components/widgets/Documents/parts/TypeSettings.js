@@ -6,6 +6,7 @@ import { EcosModal } from '../../../common';
 import { Btn } from '../../../common/btns';
 import { objectCompare, t } from '../../../../helpers/util';
 import { DynamicTypeInterface, TypeSettingsInterface } from '../propsInterfaces';
+import { SystemJournals } from '../../../../constants';
 import { Checkbox, Radio } from '../../../common/form';
 import SelectJournal from '../../../common/form/SelectJournal';
 
@@ -151,7 +152,7 @@ class TypeSettings extends Component {
         <div className="ecos-docs__modal-type-settings-label">{t(Labels.JOURNAL_SETTINGS_LABEL)}</div>
         <div className="ecos-docs__modal-type-settings-tabs">
           <SelectJournal
-            journalId="ecos-journals"
+            journalId={SystemJournals.JOURNALS}
             defaultValue={type.journalId}
             hideCreateButton
             onChange={this.handleSelectJournal}
