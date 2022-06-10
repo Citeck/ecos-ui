@@ -89,6 +89,7 @@ class JournalsDataLoader {
    */
   getRecordsQuery = async (journalConfig, settings = {}) => {
     const consistency = 'EVENTUAL';
+    const columns = journalConfig.columns || settings.columns || [];
     const predicates = await this.getPredicates(journalConfig, settings);
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
