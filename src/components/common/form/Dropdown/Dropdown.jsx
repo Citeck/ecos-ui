@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
 import { Dropdown as Drd, DropdownMenu, DropdownToggle } from 'reactstrap';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -7,10 +7,11 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
 import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
+import { getIconUpDown } from '../../../../helpers/icon';
 
 import './Dropdown.scss';
 
-class MenuItem extends React.PureComponent {
+class MenuItem extends PureComponent {
   onClick = () => {
     this.props.onClick(this.props.item);
   };
@@ -118,11 +119,7 @@ export default class Dropdown extends Component {
       }
 
       return (
-        <IcoBtn
-          className={classNames('ecos-dropdown__toggle_selected', controlClassName)}
-          invert
-          icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}
-        >
+        <IcoBtn className={classNames('ecos-dropdown__toggle_selected', controlClassName)} invert icon={getIconUpDown(dropdownOpen)}>
           {label}
         </IcoBtn>
       );
@@ -142,7 +139,7 @@ export default class Dropdown extends Component {
     if (!children) {
       return (
         <TwoIcoBtn
-          icons={[controlIcon, dropdownOpen ? 'icon-small-up' : 'icon-small-down']}
+          icons={[controlIcon, getIconUpDown(dropdownOpen)]}
           label={controlLabel}
           className={classNames('ecos-dropdown__toggle_static', controlClassName)}
         >

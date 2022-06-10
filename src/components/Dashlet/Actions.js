@@ -5,6 +5,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { t } from '../../helpers/util';
 import { IcoBtn } from '../common/btns';
 import DashletActionService from '../../services/DashletActionService';
+import { Labels } from './util';
 
 const BtnAction = ({ id, text, icon, onClick, component }) => {
   if (component) {
@@ -114,22 +115,22 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable,
     edit: {
       icon: 'icon-edit',
       onClick: null,
-      text: t('dashlet.edit.title')
+      text: t(Labels.ACT_EDIT)
     },
     help: {
       icon: 'icon-question',
       onClick: null,
-      text: t('dashlet.help.title')
+      text: t(Labels.ACT_HELP)
     },
     reload: {
       icon: 'icon-reload',
       onClick: null,
-      text: t('dashlet.update.title')
+      text: t(Labels.ACT_UPDATE)
     },
     settings: {
       icon: 'icon-settings',
       onClick: null,
-      text: t('dashlet.settings.title')
+      text: t(Labels.ACT_SETTINGS)
     }
   };
 

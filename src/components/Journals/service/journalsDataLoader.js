@@ -1,5 +1,5 @@
 import get from 'lodash/get';
-import _filter from 'lodash/filter';
+import filter from 'lodash/filter';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
@@ -89,26 +89,7 @@ class JournalsDataLoader {
    */
   getRecordsQuery = async (journalConfig, settings = {}) => {
     const consistency = 'EVENTUAL';
-    const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
-
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
-
-    if (settings.onlyLinked && settings.recordRef) {
-      predicates.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: settings.recordRef,
-            att: a.attribute
-          }))
-      });
-
-      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
-    }
-
+    const predicates = await this.getPredicates(journalConfig, settings);
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
     let queryData = null;
@@ -142,6 +123,35 @@ class JournalsDataLoader {
       sortBy,
       groupBy
     };
+  };
+
+  /**
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Promise<Array<Predicate>>}}
+   */
+  getPredicates = async (journalConfig, settings) => {
+    const columns = journalConfig.columns || settings.columns || [];
+    const predicateFilter = convertAttributeValues(filter(settings.filter, p => !!p), columns);
+
+    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+
+    if (settings.onlyLinked && settings.recordRef) {
+      predicates.push({
+        t: PREDICATE_OR,
+        val: columns
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
+          .map(a => ({
+            t: PREDICATE_CONTAINS,
+            val: settings.recordRef,
+            att: a.attribute
+          }))
+      });
+
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
+    }
+
+    return predicates;
   };
 
   /**
