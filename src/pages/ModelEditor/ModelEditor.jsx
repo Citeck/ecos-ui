@@ -183,16 +183,6 @@ class ModelEditorPage extends React.Component {
 
   handleReadySheet = (...data) => {
     this.handleSelectItem(this.designer.elementDefinitions);
-    console.log('READY');
-
-    document.addEventListener('keydown', e => {
-      console.log(e, ...data);
-      if (e.keyCode === 90 && e.ctrlKey) {
-        console.log('UNDO');
-        // this.handleRevert();
-        this.designer.getEventBus().fire('commandStack.revert');
-      }
-    });
   };
 
   handleChangeElement = element => {
@@ -454,47 +444,6 @@ class ModelEditorPage extends React.Component {
     this.setState({ selectedElement, selectedDiagramElement: start.shape });
   };
 
-  handleRevert = () => {
-    console.log('HANDLE CANCEL', this);
-    // var action = this._getUndoAction(),
-    //   next;
-    // console.log(action)
-
-    // if (action) {
-    //   this._currentExecution.trigger = 'undo';
-
-    //   this._pushAction(action);
-
-    //   while (action) {
-    //     this._internalUndo(action);
-    //     next = this._getUndoAction();
-
-    //     if (!next || next.id !== action.id) {
-    //       break;
-    //     }
-
-    //     action = next;
-    //   }
-
-    //   this._popAction();
-    // }
-  };
-
-  handleCommandStackChange = e => {
-    console.log('COMMAND STACK CHANGED', e);
-  };
-
-  handleKeyDown = e => {
-    console.log('HANDLE KEY DOWN');
-    if (e.keyCode === 90 && e.ctrlKey) {
-      console.log('UNDO');
-    }
-  };
-
-  handleUpdateReverted = e => {
-    console.log('reverted');
-  };
-
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -510,11 +459,7 @@ class ModelEditorPage extends React.Component {
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
-            [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.COMMAND_STACK_REVERT]: this.handleRevert,
-            [EventListeners.COMMAND_STACK_CHANGED]: this.handleCommandStackChange,
-            [EventListeners.KEYBOARD_KEYDOWN]: this.handleKeyDown,
-            [EventListeners.UPDATE_REVERTED]: this.handleUpdateReverted
+            [EventListeners.DRAG_START]: this.handleDragStart
           }}
         />
       );
