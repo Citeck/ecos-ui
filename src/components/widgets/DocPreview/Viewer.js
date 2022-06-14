@@ -8,6 +8,9 @@ import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 
 import { Fullpage, Icon } from '../../common';
+import { Btn } from '../../common/btns';
+import { Labels } from './util';
+import { t } from '../../../helpers/util';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
@@ -20,17 +23,19 @@ export default function getViewer(WrappedComponent, isPdf) {
       isLoading: PropTypes.bool,
       resizable: PropTypes.bool,
       scrollPage: PropTypes.func,
-      onReachBottom: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         isFullscreen: PropTypes.bool,
         currentPage: PropTypes.number
       }),
+      nextDocument: PropTypes.func,
+      isLastDocument: PropTypes.bool,
       forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
     };
 
     static defaultProps = {
-      onReachBottom: () => {},
+      isLastDocument: false,
+      nextDocument: () => {},
       settings: {}
     };
 
@@ -137,7 +142,15 @@ export default function getViewer(WrappedComponent, isPdf) {
 
     handleAboutToReachBottom = debounce(
       () => {
-        this.props.onReachBottom();
+        if (this.props.isLastDocument) {
+          return;
+        }
+
+        if (this.elScrollbar) {
+          this.elScrollbar.scrollTop(0);
+        }
+
+        this.props.nextDocument();
       },
       500,
       { maxWait: 1000, trailing: true }
@@ -147,10 +160,11 @@ export default function getViewer(WrappedComponent, isPdf) {
       this.handleAboutToReachBottom.cancel();
 
       const { scrollTop, scrollHeight, clientHeight, top } = event;
+      const scrollQuotient = (scrollTop + 10) / (scrollHeight - clientHeight);
 
-      const quotient = (scrollTop + 10) / (scrollHeight - clientHeight);
-
-      if (quotient > 1) this.handleAboutToReachBottom();
+      if (scrollQuotient > 1) {
+        this.handleAboutToReachBottom();
+      }
 
       if (isPdf) {
         const { scrollPage } = this.state;
@@ -208,7 +222,7 @@ export default function getViewer(WrappedComponent, isPdf) {
     }
 
     renderDocument() {
-      const { resizable, scrollbarProps, componentRef } = this.props;
+      const { resizable, scrollbarProps, componentRef, isLastDocument, isLoading } = this.props;
       const newProps = { ...this.props, refViewer: this.refViewer };
       const { isFullscreenOn } = this.state;
       const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
@@ -236,6 +250,14 @@ export default function getViewer(WrappedComponent, isPdf) {
           >
             <WrappedComponent {...newProps} ref={componentRef} onCentered={this.setScrollDefaultPosition} />
           </div>
+          {!isLoading && !isLastDocument && (
+            <div className="ecos-doc-preview__viewer_bottom_action">
+              <p className="ecos-doc-preview__viewer_bottom_action-text">{t(Labels.BOTTOM_ACTION_TEXT)}</p>
+              <Btn className="ecos-doc-preview__viewer_bottom_action-btn" onClick={() => this.props.nextDocument()}>
+                {t(Labels.BOTTOM_ACTION_BTN)}
+              </Btn>
+            </div>
+          )}
         </Scrollbars>
       );
     }

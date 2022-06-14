@@ -3,6 +3,7 @@
 $border-toolbar: $color-gray-2;
 $background-viewer: $color-gray-15;
 $border-base: $color-gray-5;
+$bottom-pad: 80px;
 
 %base-flex {
   display: flex;
@@ -254,6 +255,23 @@ $border-base: $color-gray-5;
     }
 
     &-scroll-area {
+      overflow-anchor: none;
+    }
+
+    &_bottom_action {
+      display: block;
+      margin: auto;
+      text-align: center;
+      margin-bottom: 150px;
+
+      &-text {
+        font-size: 12px;
+        color: $text-color-dark;
+      }
+
+      &-btn {
+        cursor: pointer;
+      }
     }
 
     &-page {
@@ -265,7 +283,7 @@ $border-base: $color-gray-5;
 
       &_pdf {
         &:last-of-type {
-          margin-bottom: 440px;
+          margin-bottom: $bottom-pad;
         }
 
         &::before {
@@ -279,6 +297,10 @@ $border-base: $color-gray-5;
         height: 100%;
         width: 100%;
         text-align: unset;
+
+        &:last-of-type {
+          margin-bottom: $bottom-pad;
+        }
 
         #{$root}__viewer-page-content {
           margin: unset;
