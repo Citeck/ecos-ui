@@ -412,7 +412,7 @@ class DocPreview extends Component {
     );
   };
 
-  onReachBottom = () => {
+  nextDocument = () => {
     const { recordId, filesList, isLoading } = this.state;
 
     if (isLoading) {
@@ -461,6 +461,14 @@ class DocPreview extends Component {
     this.setState({ contentHeight });
   };
 
+  isLastDocument = () => {
+    const { recordId, filesList } = this.state;
+
+    const currentIndex = filesList.findIndex(file => file.recordId === recordId);
+
+    return currentIndex === filesList.length - 1;
+  };
+
   pdfViewer() {
     const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
@@ -471,7 +479,8 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         defHeight={maxHeight}
         scrollPage={this.setScrollPage}
-        onReachBottom={this.onReachBottom}
+        nextDocument={this.nextDocument}
+        isLastDocument={this.isLastDocument()}
         {...this.commonProps}
       />
     );
@@ -486,7 +495,8 @@ class DocPreview extends Component {
         src={link}
         forwardedRef={forwardedRef}
         resizable={resizable}
-        onReachBottom={this.onReachBottom}
+        isLastDocument={this.isLastDocument()}
+        nextDocument={this.nextDocument}
         {...this.commonProps}
         onError={error => {
           console.error(error);
