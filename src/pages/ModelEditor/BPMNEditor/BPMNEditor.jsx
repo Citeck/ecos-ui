@@ -10,8 +10,7 @@ class BPMNEditorPage extends ModelEditor {
   static modelType = 'bpmn';
 
   initModeler = () => {
-    this.designer = new BPMNModeler({});
-    console.log('THIS DESIGNER', this.designer);
+    this.designer = new BPMNModeler();
   };
 
   get formId() {
