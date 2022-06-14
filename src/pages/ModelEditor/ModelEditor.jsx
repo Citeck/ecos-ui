@@ -189,8 +189,8 @@ class ModelEditorPage extends React.Component {
       console.log(e, ...data);
       if (e.keyCode === 90 && e.ctrlKey) {
         console.log('UNDO');
-        console.log(this.state, this.props);
-        this.handleRevert();
+        // this.handleRevert();
+        this.designer.getEventBus().fire('commandStack.revert');
       }
     });
   };
@@ -456,6 +456,28 @@ class ModelEditorPage extends React.Component {
 
   handleRevert = () => {
     console.log('HANDLE CANCEL', this);
+    // var action = this._getUndoAction(),
+    //   next;
+    // console.log(action)
+
+    // if (action) {
+    //   this._currentExecution.trigger = 'undo';
+
+    //   this._pushAction(action);
+
+    //   while (action) {
+    //     this._internalUndo(action);
+    //     next = this._getUndoAction();
+
+    //     if (!next || next.id !== action.id) {
+    //       break;
+    //     }
+
+    //     action = next;
+    //   }
+
+    //   this._popAction();
+    // }
   };
 
   handleCommandStackChange = e => {
