@@ -12,6 +12,7 @@ import isElement from 'lodash/isElement';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { closest, getId } from '../../../../../../helpers/util';
+import { getIconUpDown } from '../../../../../../helpers/icon';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
@@ -342,10 +343,8 @@ export default class HeaderFormatter extends Component {
       <div className="ecos-th__actions">
         {sortable && (
           <Icon
-            className={classNames('ecos-th__order ecos-th__action-icon', {
-              'ecos-th__action-icon_active': !isNil(ascending),
-              'icon-small-up': ascending,
-              'icon-small-down': !ascending
+            className={classNames('ecos-th__order ecos-th__action-icon', getIconUpDown(ascending), {
+              'ecos-th__action-icon_active': !isNil(ascending)
             })}
           />
         )}
