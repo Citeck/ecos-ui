@@ -83,4 +83,24 @@
       }
     }
   }
+
+  &-settings {
+    padding: 20px 20px 0;
+
+    &__block {
+      max-width: 434px;
+    }
+
+    &__title {
+      margin-bottom: 20px;
+    }
+
+    &__buttons {
+      margin-top: 22px;
+
+      & > :nth-child(even) {
+        margin-left: 10px;
+      }
+    }
+  }
 }

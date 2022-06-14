@@ -29,7 +29,7 @@ class Dashlet extends Component {
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
     badgeText: PropTypes.string,
-    goToButtonName: PropTypes.object,
+    goToButtonName: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     noHeader: PropTypes.bool,
     noBody: PropTypes.bool,
     needGoTo: PropTypes.bool,

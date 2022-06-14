@@ -10,9 +10,8 @@ import isEqualWith from 'lodash/isEqualWith';
 import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 
-import { Caption, Checkbox, Field, Input, Select, MLText } from '../../common/form';
+import { Caption, Checkbox, Field, Input, MLText, Select, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
-import SelectJournal from '../../common/form/SelectJournal';
 import {
   checkConfig,
   getDashletEditorData,
@@ -26,6 +25,7 @@ import { selectJournalDashletEditorProps } from '../../../selectors/dashletJourn
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import DashboardService from '../../../services/dashboard';
+import { SystemJournals } from '../../../constants';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
 
 import './JournalsDashletEditor.scss';
@@ -223,10 +223,9 @@ class JournalsDashletEditor extends Component {
       onSave(id, { config: newConfig });
     } else if (isFunction(saveDashlet)) {
       saveDashlet(newConfig, id);
+      setDashletConfig(newConfig);
+      checkConfig(newConfig);
     }
-
-    setDashletConfig(newConfig);
-    checkConfig(newConfig);
   };
 
   handleClear = () => {
@@ -293,7 +292,7 @@ class JournalsDashletEditor extends Component {
             <>
               <Field label={t(Labels.NAME_FIELD)} isSmall={this.isSmall} labelPosition="top">
                 <SelectJournal
-                  journalId={'ecos-journals'}
+                  journalId={SystemJournals.JOURNALS}
                   defaultValue={selectedJournals}
                   multiple
                   hideCreateButton

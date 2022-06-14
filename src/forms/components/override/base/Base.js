@@ -102,6 +102,10 @@ Base.prototype.onChange = function(flags, fromRoot) {
       (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
 
+  if (get(flags, 'changeByUser')) {
+    this.valueChangedByUser = true;
+  }
+
   return originalOnChange.call(this, flags, fromRoot);
 };
 Base.prototype.isEmptyValue = function(value) {
@@ -209,7 +213,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   const allowOverride = this.component.allowCalculateOverride;
 
   // First pass, the calculatedValue is undefined.
-  if (this.calculatedValue === undefined) {
+  if (isUndefined(this.calculatedValue)) {
     this.calculatedValue = emptyCalculateValue;
   }
 
@@ -222,7 +226,6 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     },
     'value'
   );
-  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
   this.calculatedValue = calculatedValue;
 
@@ -239,10 +242,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     }
   }
 
-  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
-
+  if (!this.calculatedValueWasCalculated && (!isUndefined(calculatedValue) && !isEqual(calculatedValue, this.defaultValue))) {
     this.calculatedValueWasCalculated = true;
   }
 
@@ -663,7 +663,7 @@ Base.prototype.createWidget = function() {
   settings.language = this.options.language;
 
   const widget = new Widgets[settings.type](settings, this.component);
-  widget.on('update', () => this.updateValue(), true);
+  widget.on('update', () => this.updateValue({ changeByUser: true }), true);
   widget.on('redraw', () => this.redraw(), true);
   this._widget = widget;
   return widget;

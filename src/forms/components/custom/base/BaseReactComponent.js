@@ -43,6 +43,10 @@ export default class BaseReactComponent extends BaseComponent {
     return this.component.multiple ? [] : '';
   }
 
+  get reactComponent() {
+    return this.react;
+  }
+
   build() {
     if (
       !isEqual(this.#viewOnlyPrev, this.viewOnly) ||
