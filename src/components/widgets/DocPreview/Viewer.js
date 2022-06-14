@@ -147,7 +147,11 @@ export default function getViewer(WrappedComponent, isPdf) {
         }
 
         if (this.elScrollbar) {
-          this.elScrollbar.scrollTop(0);
+          const { scrollTop } = this.elScrollbar.getValues();
+
+          if (scrollTop === 0) {
+            return;
+          }
         }
 
         this.props.nextDocument();

@@ -250,7 +250,6 @@ class DocPreview extends Component {
 
   get isLastDocument() {
     const { recordId, filesList } = this.state;
-
     const currentIndex = filesList.findIndex(file => file.recordId === recordId);
 
     return currentIndex === filesList.length - 1;
@@ -480,7 +479,7 @@ class DocPreview extends Component {
         defHeight={maxHeight}
         scrollPage={this.setScrollPage}
         nextDocument={this.nextDocument}
-        isLastDocument={this.isLastDocument()}
+        isLastDocument={this.isLastDocument}
         {...this.commonProps}
       />
     );
@@ -495,7 +494,7 @@ class DocPreview extends Component {
         src={link}
         forwardedRef={forwardedRef}
         resizable={resizable}
-        isLastDocument={this.isLastDocument()}
+        isLastDocument={this.isLastDocument}
         nextDocument={this.nextDocument}
         {...this.commonProps}
         onError={error => {
