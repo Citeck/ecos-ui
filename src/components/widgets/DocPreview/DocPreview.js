@@ -248,6 +248,14 @@ class DocPreview extends Component {
     return this.props.byLink || !this.state.recordId;
   }
 
+  get isLastDocument() {
+    const { recordId, filesList } = this.state;
+
+    const currentIndex = filesList.findIndex(file => file.recordId === recordId);
+
+    return currentIndex === filesList.length - 1;
+  }
+
   getUrlRecordId() {
     return queryString.parseUrl(window.location.href).query.recordRef || '';
   }
@@ -459,14 +467,6 @@ class DocPreview extends Component {
 
   getContentHeight = contentHeight => {
     this.setState({ contentHeight });
-  };
-
-  isLastDocument = () => {
-    const { recordId, filesList } = this.state;
-
-    const currentIndex = filesList.findIndex(file => file.recordId === recordId);
-
-    return currentIndex === filesList.length - 1;
   };
 
   pdfViewer() {
