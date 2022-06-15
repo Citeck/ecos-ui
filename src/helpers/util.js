@@ -1238,5 +1238,20 @@ export function isJsonObjectString(str) {
   }
 }
 
+export function downloadImageAsSVG(svgBlob) {
+  const fileName = 'diagram.svg';
+  const downloadLink = document.createElement('a');
+  downloadLink.download = fileName;
+  downloadLink.href = window.URL.createObjectURL(svgBlob);
+
+  downloadLink.onclick = function(event) {
+    document.body.removeChild(event.target);
+  };
+
+  downloadLink.style.visibility = 'hidden';
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

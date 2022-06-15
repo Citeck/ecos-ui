@@ -10,7 +10,7 @@ import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
-import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t, downloadImageAsSVG } from '../../helpers/util';
 import {
   EventListeners,
   GATEWAY_TYPES,
@@ -395,7 +395,20 @@ class ModelEditorPage extends React.Component {
     });
   };
 
-  handleSaveAsSVG = () => {};
+  handleSaveAsSVG = () => {
+    if (!this.designer) {
+      return;
+    }
+
+    this.designer.saveSVG({
+      callback: ({ error, svg }) => {
+        const svgBlob = new Blob([svg], {
+          type: 'image/svg+xml'
+        });
+        downloadImageAsSVG(svgBlob);
+      }
+    });
+  };
 
   handleClickForm = () => {
     this._labelIsEdited = false;
