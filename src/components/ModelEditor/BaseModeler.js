@@ -118,6 +118,7 @@ export default class BaseModeler {
    */
   setEvents = (events, extraEvents) => {
     // unsubscribe for added events in this.destroy below
+
     if (this.modeler && (events || extraEvents)) {
       this.events = {};
 
