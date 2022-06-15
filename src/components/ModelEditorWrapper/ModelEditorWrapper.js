@@ -13,6 +13,7 @@ import { Caption } from '../common/form';
 import TitlePageLoader from '../common/TitlePageLoader';
 import { generateKey, getData, setData } from '../../helpers/ls';
 import Tools from './Tools';
+import ZoomScroll from './ZoomScroll';
 import { ToolsInterface } from './propsInterfaces';
 
 import './style.scss';
@@ -23,7 +24,8 @@ const Labels = {
   APPLY: 'model-editor.btn.apply',
   VIEW_XML: 'model-editor.btn.view-xml',
   SAVE_DEPLOY: 'model-editor.btn.save-deploy',
-  CREATE: 'model-editor.btn.create'
+  CREATE: 'model-editor.btn.create',
+  SAVE_AS_SVG: 'model-editor.btn.download-as-svg'
 };
 
 class ModelEditorWrapper extends React.Component {
@@ -77,7 +79,7 @@ class ModelEditorWrapper extends React.Component {
   };
 
   createConfigTools() {
-    const { onCreate, onViewXml } = this.props;
+    const { onCreate, onViewXml, onSaveAsSVG } = this.props;
 
     this.setState({
       configButtons: [
@@ -112,6 +114,14 @@ class ModelEditorWrapper extends React.Component {
           id: `bpmn-download-btn-${uuidv4()}`,
           trigger: 'hover',
           className: 'ecos-btn_green'
+        },
+        {
+          icon: 'icon-picture',
+          action: onSaveAsSVG,
+          text: t(Labels.SAVE_AS_SVG),
+          id: `bpmn-download-as-svg-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
         }
       ]
     });
@@ -154,6 +164,9 @@ class ModelEditorWrapper extends React.Component {
             <div className="ecos-model-editor__designer-child">{editor}</div>
             <div className="ecos-model-editor__designer-buttons">
               {this.state.configButtons && <Tools configButtons={this.state.configButtons} />}
+            </div>
+            <div className="ecos-model-editor__designer-zoom">
+              <ZoomScroll onZoomIn={this.props.onZoomIn} config={1111} />
             </div>
           </div>
         )}

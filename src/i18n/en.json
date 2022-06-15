@@ -1546,6 +1546,7 @@
   "model-editor.btn.create": "Create",
   "model-editor.btn.view-xml": "View XML",
   "model-editor.btn.save-deploy": "Save and Deploy",
+  "model-editor.btn.download-as-svg": "Download as SVG image",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
 
   "bpmn-editor.error.no-model": "Process's not set",

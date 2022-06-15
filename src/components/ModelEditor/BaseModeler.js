@@ -23,6 +23,7 @@ export default class BaseModeler {
   events = {};
   _isCustomContainer = false;
   _isDiagramMounted = false;
+  zoomScroll;
 
   initModelerInstance = () => {
     this.modeler = null;
@@ -45,6 +46,7 @@ export default class BaseModeler {
 
     this.setDiagram(diagram, { callback });
     this.setEvents(events, extraEvents);
+    this.zoomScroll = this.modeler.get('zoomScroll');
   };
 
   get elementDefinitions() {
@@ -58,6 +60,18 @@ export default class BaseModeler {
   get isDiagramMounted() {
     return this._isDiagramMounted;
   }
+
+  // zoomScrollIn() {
+  //   this.zoomScroll.stepZoom(1);
+  // }
+
+  // zoomScrollOut() {
+  //   this.zoomScroll.stepZoom(-1);
+  // }
+
+  // zoomScrollReset() {
+  //   this.zoomScroll.resert();
+  // }
 
   getEventBus() {
     return this.modeler.get('eventBus');
@@ -91,7 +105,6 @@ export default class BaseModeler {
    */
   setEvents = (events, extraEvents) => {
     // unsubscribe for added events in this.destroy below
-
     if (this.modeler && (events || extraEvents)) {
       this.events = {};
 
