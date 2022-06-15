@@ -20,10 +20,10 @@ export default class BaseModeler {
   static querySelector = 'ecos-model-container';
 
   modeler;
+  zoomScroll;
   events = {};
   _isCustomContainer = false;
   _isDiagramMounted = false;
-  zoomScroll;
 
   initModelerInstance = () => {
     this.modeler = null;
@@ -46,7 +46,6 @@ export default class BaseModeler {
 
     this.setDiagram(diagram, { callback });
     this.setEvents(events, extraEvents);
-    this.zoomScroll = this.modeler.get('zoomScroll');
   };
 
   get elementDefinitions() {
@@ -61,18 +60,6 @@ export default class BaseModeler {
     return this._isDiagramMounted;
   }
 
-  // zoomScrollIn() {
-  //   this.zoomScroll.stepZoom(1);
-  // }
-
-  // zoomScrollOut() {
-  //   this.zoomScroll.stepZoom(-1);
-  // }
-
-  // zoomScrollReset() {
-  //   this.zoomScroll.resert();
-  // }
-
   getEventBus() {
     return this.modeler.get('eventBus');
   }
@@ -84,6 +71,8 @@ export default class BaseModeler {
         const { warnings } = result || {};
 
         this._isDiagramMounted = true;
+        this.zoomScroll = this.modeler.get('zoomScroll');
+
         isFunction(callback) && callback({ mounted: !!this.isDiagramMounted, warnings });
         !!warnings.length && console.warn(warnings);
       } else {
@@ -92,6 +81,30 @@ export default class BaseModeler {
     } catch (err) {
       console.error('Error rendering', err.message, err.warnings);
     }
+  };
+
+  zoomIn = () => {
+    if (!this.zoomScroll) {
+      return;
+    }
+
+    this.zoomScroll.stepZoom(1);
+  };
+
+  zoomOut = () => {
+    if (!this.zoomScroll) {
+      return;
+    }
+
+    this.zoomScroll.stepZoom(-1);
+  };
+
+  zoomReset = () => {
+    if (!this.zoomScroll) {
+      return;
+    }
+
+    this.zoomScroll.reset();
   };
 
   /**

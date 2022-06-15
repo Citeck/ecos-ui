@@ -1546,6 +1546,9 @@
   "model-editor.btn.view-xml": "Посмотреть XML",
   "model-editor.btn.save-deploy": "Сохранить и Опубликовать",
   "model-editor.btn.download-as-svg": "Скачать как svg",
+  "model-editor.btn.reset-zoom": "Сбросить масштаб",
+  "model-editor.btn.zoom-in": "Увеличить",
+  "model-editor.btn.zoom-out": "Уменьшить",
   "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
   "bpmn-editor.error.no-model": "Процесс не задан",

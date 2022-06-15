@@ -5,8 +5,8 @@ import { IcoBtn } from '../common/btns';
 import { Tooltip } from '../common';
 import { ToolsInterface } from './propsInterfaces';
 
-const Tools = ({ configButtons }) => (
-  <div className="ecos-model-editor__designer-buttons">
+const Tools = ({ configButtons, className }) => (
+  <div className={className}>
     {configButtons.map(item => {
       return (
         item.action && (

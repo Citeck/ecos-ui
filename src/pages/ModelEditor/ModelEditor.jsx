@@ -257,7 +257,17 @@ class ModelEditorPage extends React.Component {
     this._formsCache[selectedElement.id] = data;
   }
 
-  handleZoomIn = () => {};
+  handleZoomIn = () => {
+    this.designer.zoomIn();
+  };
+
+  handleZoomOut = () => {
+    this.designer.zoomOut();
+  };
+
+  handleZoomReset = () => {
+    this.designer.zoomReset();
+  };
 
   handleSave = (deploy = false) => {
     if (!this.designer) {
@@ -449,7 +459,7 @@ class ModelEditorPage extends React.Component {
   };
 
   renderEditor = () => {
-    const { savedModel, zoomScroll } = this.props;
+    const { savedModel } = this.props;
 
     if (savedModel) {
       return (
@@ -459,7 +469,6 @@ class ModelEditorPage extends React.Component {
           onMounted={this.handleReadySheet}
           onChangeElement={this.handleChangeElement}
           onChangeElementLabel={this.handleChangeLabel}
-          onZoomIn={this.handleZoomIn}
           extraEvents={{
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
@@ -500,6 +509,9 @@ class ModelEditorPage extends React.Component {
           onViewXml={this.handleClickViewXml}
           onSaveAndDeploy={this.handleSave}
           onSaveAsSVG={this.handleSaveAsSVG}
+          onZoomIn={this.handleZoomIn}
+          onZoomOut={this.handleZoomOut}
+          onZoomReset={this.handleZoomReset}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={

@@ -27,7 +27,7 @@ export default class ModelViewer {
         //minimapModule, //diagram-js-minimap
         {
           //moveCanvas: ['value', ''], //destroy
-          //zoomScroll: ['value', ''] //destroy
+          // zoomScroll: ['value', ''] //destroy
         }
       ]
     });
