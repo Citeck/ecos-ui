@@ -278,8 +278,8 @@ class DocPreview extends Component {
 
   runGetData = async () => {
     await this.getFileLinkByRecord();
-    await this.getInfoMainDoc();
-    await this.getFilesByRecord();
+    const mainDoc = await this.getInfoMainDoc();
+    await this.getFilesByRecord(mainDoc);
   };
 
   getFileLinkByRecord = async () => {
@@ -296,7 +296,7 @@ class DocPreview extends Component {
     }
   };
 
-  getFilesByRecord = async () => {
+  getFilesByRecord = async (document = null) => {
     if (this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments) {
       return;
     }
@@ -304,11 +304,21 @@ class DocPreview extends Component {
     const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
     const { filesList: oldFiles = [], mainDoc } = this.state;
 
-    mainDoc && filesList.unshift(mainDoc);
+    let newState = { mainDoc: document || mainDoc };
+
+    if (document && document.link !== '') {
+      document && filesList.unshift(document);
+    }
 
     if (!isArrayEqual(oldFiles, filesList)) {
-      this.setState({ filesList });
+      newState = { ...newState, filesList };
     }
+
+    this.setState(newState, () => {
+      if (newState.mainDoc.link === '') {
+        this.nextDocument();
+      }
+    });
   };
 
   getFileName = async () => {
@@ -329,7 +339,7 @@ class DocPreview extends Component {
     const fileName = await DocPreviewApi.getFileName(recordId);
     const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
 
-    this.setState({ mainDoc: { recordId, fileName, link } });
+    return { recordId, fileName, link };
   };
 
   getDownloadData() {
