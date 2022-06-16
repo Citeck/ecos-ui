@@ -292,6 +292,10 @@ class Toolbar extends Component {
 
     const currentIndex = filesList.findIndex(file => file.recordId === fileValue);
 
+    if (!filesList[currentIndex]) {
+      return null;
+    }
+
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-files">
         <Dropdown
