@@ -151,6 +151,15 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     'value'
   );
 
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
+    this.valueChangedByUser =
+      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+
+    this.calculatedValueWasCalculated = true;
+  }
+
   this.calculatedValue = calculatedValue;
 
   let changed;
@@ -164,10 +173,6 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     if (changed) {
       this.calculatedValue = this.dataValue;
     }
-  }
-
-  if (!this.calculatedValueWasCalculated && (!isUndefined(calculatedValue) && !isEqual(calculatedValue, this.defaultValue))) {
-    this.calculatedValueWasCalculated = true;
   }
 
   return changed;
