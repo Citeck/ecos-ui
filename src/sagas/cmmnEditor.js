@@ -101,7 +101,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
       });
     }
 
-    // yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
+    yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
     NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
