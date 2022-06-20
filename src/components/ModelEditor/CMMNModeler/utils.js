@@ -16,7 +16,7 @@ function getName(element, key) {
 
   let name = element.name;
 
-  if (element.get(PREFIX_FIELD + key)) {
+  if (element.get(`${PREFIX_FIELD}${key}`)) {
     name = element.get(PREFIX_FIELD + key);
   }
 
