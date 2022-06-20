@@ -11,6 +11,7 @@ import DateFormatter from './DateFormatter';
 import DateTimeFormatter from './DateTimeFormatter';
 import BooleanFormatter from './BooleanFormatter';
 import ActionFormatter from './ActionFormatter';
+import NumberFormatter from './NumberFormatter';
 
 const formatterRegistry = new FormatterRegistry();
 
@@ -26,5 +27,6 @@ formatterRegistry.register(new DateFormatter());
 formatterRegistry.register(new DateTimeFormatter());
 formatterRegistry.register(new BooleanFormatter());
 formatterRegistry.register(new ActionFormatter());
+formatterRegistry.register(new NumberFormatter());
 
 export default formatterRegistry;
