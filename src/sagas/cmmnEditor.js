@@ -100,7 +100,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
         formData[att] = value;
       });
     }
-    console.log('CMNN EDITOR');
+
     // yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
