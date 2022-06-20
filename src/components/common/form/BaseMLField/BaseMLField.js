@@ -65,6 +65,7 @@ class BaseMLField extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log('COMPONENT DID UPDATE');
     const { cursorPosition, canCheckLang } = this.state;
     const isSelectedText = !isEmpty(window.getSelection().toString());
 
@@ -79,6 +80,7 @@ class BaseMLField extends Component {
     if (prevProps.lang !== this.props.lang) {
       let selectedLang = this.props.lang;
       const value = get(this.props, ['value', selectedLang]);
+      console.log('VALUE', value);
 
       if (value === undefined) {
         this.props.onChange({
@@ -102,6 +104,7 @@ class BaseMLField extends Component {
   }
 
   get value() {
+    console.log('GET VALUE', this.props);
     const { value } = this.props;
     const { selectedLang } = this.state;
 

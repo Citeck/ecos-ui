@@ -100,8 +100,8 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
         formData[att] = value;
       });
     }
-
-    yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
+    console.log('CMNN EDITOR');
+    // yield put(setFormProps({ stateId, formProps: { ...form, formData } }));
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
     NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
