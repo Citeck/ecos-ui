@@ -12,7 +12,10 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
-    this.modeler = new Modeler({ additionalModules });
+    this.modeler = new Modeler({
+      additionalModules,
+      keyboard: { bindTo: document }
+    });
   };
 
   get elementDefinitions() {
