@@ -22,12 +22,12 @@ export default class DatePicker extends Component {
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     showIcon: PropTypes.bool,
     showTimeInput: PropTypes.bool,
+    narrow: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
   };
 
   static defaultProps = {
     className: '',
-    dateFormat: 'P',
     selected: null
   };
 
@@ -40,11 +40,13 @@ export default class DatePicker extends Component {
   }
 
   get timeProps() {
-    if (this.props.showTimeInput || this.props.showTimeSelect) {
+    const { showTimeInput, showTimeSelect, dateFormat } = this.props;
+
+    if (showTimeInput || showTimeSelect) {
       return {
         timeInputLabel: `${t('ecos-forms.datepicker.time-label')}:`,
         timeCaption: `${t('ecos-forms.datepicker.time-label')}`,
-        dateFormat: 'P hh:mm'
+        dateFormat: dateFormat || 'P hh:mm'
       };
     }
 
@@ -54,7 +56,8 @@ export default class DatePicker extends Component {
   get monthProps() {
     return {
       previousMonthButtonLabel: t('ecos-forms.datepicker.month-prev-label'),
-      nextMonthButtonLabel: t('ecos-forms.datepicker.month-next-label')
+      nextMonthButtonLabel: t('ecos-forms.datepicker.month-next-label'),
+      dateFormat: this.props.dateFormat || 'P'
     };
   }
 
@@ -96,18 +99,23 @@ export default class DatePicker extends Component {
   };
 
   render() {
-    const { className, showIcon, dateFormat, wrapperClasses, value, onChangeValue, ...otherProps } = this.props;
+    const { className, showIcon, dateFormat, wrapperClasses, value, onChangeValue, narrow, ...otherProps } = this.props;
     const { isOpen } = this.state;
 
     return (
-      <div className={classNames('ecos-datepicker', { 'ecos-datepicker_show-icon': showIcon }, wrapperClasses)}>
+      <div
+        className={classNames(
+          'ecos-datepicker',
+          { 'ecos-datepicker_show-icon': showIcon, 'ecos-datepicker_narrow': narrow },
+          wrapperClasses
+        )}
+      >
         <ReactDatePicker
           {...otherProps}
-          {...this.timeProps}
           {...this.monthProps}
+          {...this.timeProps}
           open={isOpen}
-          customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} />}
-          dateFormat={dateFormat}
+          customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} narrow={narrow} />}
           selected={this.selected}
           className={classNames('ecos-input_hover', className)}
           calendarClassName="ecos-datepicker__calendar"
