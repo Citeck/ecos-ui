@@ -52,7 +52,7 @@ export default class ViewAction extends ActionsExecutor {
 }
 
 const goToTaskView = async (task, params) => {
-  let taskRecord = Records.get(task.replace('alfresco/workflow-tasks@', ''));
+  let taskRecord = Records.get(`${SourcesId.AGGREGATION_PROC_TASK}@${task}`);
 
   await taskRecord.load('wfm:document?id').then(docId => {
     if (docId) {
@@ -64,7 +64,12 @@ const goToTaskView = async (task, params) => {
           notifyFailure();
           return;
         }
-        const taskRecordId = `${SourcesId.TASK}@${taskId}`;
+
+        let taskRecordId = `${SourcesId.PROC_TASK}@${taskId}`;
+        if (taskId.indexOf('$') !== -1) {
+          taskRecordId = `${SourcesId.TASK}@${taskId}`;
+        }
+
         await Records.get(taskRecordId)
           .load('workflow?id')
           .then(workflowId => goToCardDetailsPage(workflowId || taskRecordId, params));

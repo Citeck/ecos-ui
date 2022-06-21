@@ -85,6 +85,8 @@ export const SourcesId = {
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',
   PERSON: 'emodel/person',
+  PROC_TASK: 'eproc/proc-task',
+  AGGREGATION_PROC_TASK: 'eproc/aggregation-proc-task',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
   },
