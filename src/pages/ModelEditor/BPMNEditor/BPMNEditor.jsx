@@ -18,7 +18,7 @@ class BPMNEditorPage extends ModelEditor {
   }
 
   getFormType(type = this.formType) {
-    return type ? `${SourcesId.EFORM}${PREFIX_FORM_ELM}${type}` : null;
+    return type ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${type}` : null;
   }
 
   get formTitle() {

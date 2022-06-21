@@ -17,7 +17,7 @@ const TYPE_MLTEXT = 'MLTEXT';
  * perform force loading. Force loading mean that UI will wait until config will be updated.
  *
  * When user works with system cache will be updated every MIN_CACHE_TIME_MS
- * and force updating should not occurred. This will slightly increase page responsiveness.
+ * and force updating should not occur. This will slightly increase page responsiveness.
  */
 const MAX_CACHE_TIME_MS = 1800000; // 30 min
 const MIN_CACHE_TIME_MS = 10000; // 10 sec

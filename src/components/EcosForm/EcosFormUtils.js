@@ -19,7 +19,6 @@ import isUndefined from 'lodash/isUndefined';
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
 import { Components } from '../../forms/components';
