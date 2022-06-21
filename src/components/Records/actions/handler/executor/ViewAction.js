@@ -52,7 +52,7 @@ export default class ViewAction extends ActionsExecutor {
 }
 
 const goToTaskView = async (task, params) => {
-  let taskRecord = Records.get(`${SourcesId.AGGREGATION_PROC_TASK}@${task}`);
+  let taskRecord = Records.get(`${SourcesId.PROC_TASK}@${task}`);
 
   await taskRecord.load('wfm:document?id').then(docId => {
     if (docId) {
