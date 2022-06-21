@@ -52,7 +52,12 @@ export default class ViewAction extends ActionsExecutor {
 }
 
 const goToTaskView = async (task, params) => {
-  let taskRecord = Records.get(`${SourcesId.PROC_TASK}@${task}`);
+  let fixedTaskId = task;
+  if (!fixedTaskId.startsWith(`${SourcesId.PROC_TASK}`)) {
+    fixedTaskId = `${SourcesId.PROC_TASK}@${task}`;
+  }
+
+  let taskRecord = Records.get(fixedTaskId);
 
   await taskRecord.load('wfm:document?id').then(docId => {
     if (docId) {
