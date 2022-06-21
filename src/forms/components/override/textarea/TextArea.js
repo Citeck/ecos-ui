@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import merge from 'lodash/merge';
+import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import NativePromise from 'native-promise-only';
@@ -170,7 +171,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         [...buttons].map(btn => btn.setAttribute('tabindex', '-1'));
 
         const onTextChange = () => {
-          txtArea.value = _.get(quill, 'root.innerHTML');
+          txtArea.value = get(quill, 'root.innerHTML');
           onChange(txtArea);
         };
         quill.on('text-change', onTextChange);
@@ -242,7 +243,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     }
 
     if (this.isAceEditor) {
-      const settings = _.cloneDeep(this.component.wysiwyg || {});
+      const settings = cloneDeep(this.component.wysiwyg || {});
       const props = { rows: this.component.rows };
 
       this.addAce(this.input, settings, props);
@@ -329,7 +330,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       this.editorReady
         .then(editor => {
           const source = this.isCkeEditor ? 'sourceElement' : 'container';
-          const parentNode = _.get(editor, `${source}.parentNode`);
+          const parentNode = get(editor, `${source}.parentNode`);
           !parentNode && this.refreshWysiwyg();
         })
         .catch(err => console.warn(err));
