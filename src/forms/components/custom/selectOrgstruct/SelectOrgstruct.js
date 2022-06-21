@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -182,7 +183,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   };
 
   onValueChange = value => {
-    this.updateValue({}, value);
+    this.updateValue({ modified: true, changeByUser: true }, value);
     this.refreshDOM();
   };
 
@@ -213,7 +214,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       isEqual(value, this.emptyValue) &&
       this.component.currentUserByDefault &&
       !this.viewOnly &&
-      this.options.formMode === 'CREATE'
+      this.options.formMode === FORM_MODE_CREATE
     ) {
       const currentUser = (Formio.getUser() || '').toLowerCase();
 

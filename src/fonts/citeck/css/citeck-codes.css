@@ -193,9 +193,6 @@
 .icon-custom-drag-small:before {
   content: '\e840';
 } /* '' */
-.icon-link:before {
-  content: '\e841';
-} /* '' */
 .icon-doc:before {
   content: '\e842';
 } /* '' */
@@ -271,9 +268,33 @@
 .icon-redo:before {
   content: '\e85b';
 } /* '' */
+.icon-folder-2:before {
+  content: '\e85c';
+} /* '' */
+.icon-picture:before {
+  content: '\e85e';
+} /* '' */
+.icon-redo-1:before {
+  content: '\e85f';
+} /* '' */
+.icon-undo-1:before {
+  content: '\e860';
+} /* '' */
+.icon-resize-vertical:before {
+  content: '\e861';
+} /* '' */
+.icon-zoom-in:before {
+  content: '\e862';
+} /* '' */
+.icon-zoom-out:before {
+  content: '\e863';
+} /* '' */
 .icon-empty:before {
   content: '\e88d';
 } /* '' */
 .icon-hamburger-menu:before {
   content: '\e88e';
 } /* '' */
+.icon-resize-full-alt:before {
+  content: '\f0b2';
+} /* '' */

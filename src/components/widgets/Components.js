@@ -27,7 +27,8 @@ export const ComponentKeys = {
   BIRTHDAYS: 'birthdays',
   DOCUMENTS: 'documents',
   USER_PROFILE: 'user-profile',
-  DOC_CONSTRUCTOR: 'doc-constructor'
+  DOC_CONSTRUCTOR: 'doc-constructor',
+  PROCESS_STATISTICS: 'process-statistics'
 };
 
 /**
@@ -56,7 +57,10 @@ export default class Components {
       label: 'dashboard-settings.widget.preview',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {
-        fixedHeight: true
+        fixedHeight: true,
+        config: {
+          showAllDocuments: false
+        }
       }
     },
     [ComponentKeys.JOURNAL]: {
@@ -168,6 +172,20 @@ export default class Components {
       label: 'dashboard-settings.widget.doc-constructor',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {}
+    },
+    [ComponentKeys.PROCESS_STATISTICS]: {
+      load: () => lazy(() => import('./ProcessStatistics/Widget')),
+      label: 'dashboard-settings.widget.process-statistics',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      props: {
+        config: {
+          showModelDefault: true,
+          showHeatmapDefault: true,
+          showJournalDefault: false,
+          showCountersDefault: false,
+          displayHeatmapToolbar: true
+        }
+      }
     }
   });
 

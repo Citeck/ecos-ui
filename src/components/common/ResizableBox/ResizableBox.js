@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/util';
 import { Icon } from '../';
@@ -17,10 +18,8 @@ class ResizableBox extends React.Component {
   };
 
   static defaultProps = {
-    resizable: false,
     classNameBox: '',
-    classNameResizer: '',
-    getHeight: () => null
+    classNameResizer: ''
   };
 
   state = {
@@ -71,7 +70,7 @@ class ResizableBox extends React.Component {
         height -= this.resizeButtonRef.current.offsetHeight / 2;
       }
 
-      getHeight(height);
+      isFunction(getHeight) && getHeight(height);
     }
   };
 

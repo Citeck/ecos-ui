@@ -2,7 +2,8 @@ export const DashboardTypes = {
   CASE_DETAILS: 'case-details',
   USER: 'user-dashboard',
   SITE: 'site-details',
-  PROFILE: 'profile-details'
+  PROFILE: 'profile-details',
+  PROCESS: 'process-dashboard'
 };
 
 export const DeviceTabs = [

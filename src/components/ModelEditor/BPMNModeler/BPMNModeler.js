@@ -12,7 +12,10 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
-    this.modeler = new Modeler({ additionalModules });
+    this.modeler = new Modeler({
+      additionalModules,
+      keyboard: { bindTo: document }
+    });
   };
 
   get elementDefinitions() {
@@ -21,22 +24,6 @@ export default class BPMNModeler extends BaseModeler {
 
     return getParent(getBusinessObject(root), 'bpmn:Definitions');
   }
-
-  setDiagram = diagram => {
-    if (!this.modeler || !diagram) {
-      console.warn('No diagram');
-      return;
-    }
-
-    this.modeler
-      .importXML(diagram)
-      .then(() => {
-        this._isDiagramMounted = true;
-      })
-      .catch(error => {
-        console.error('Error rendering', error);
-      });
-  };
 
   saveXML = ({ callback }) => {
     if (!this.modeler) {

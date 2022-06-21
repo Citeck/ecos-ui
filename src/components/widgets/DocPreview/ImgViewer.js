@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
 
 import { getScale } from '../../../helpers/util';
 import { DocScaleOptions } from '../../../constants';
@@ -35,6 +37,8 @@ class ImgViewer extends Component {
     this.state = {
       calcScale: 1
     };
+
+    this.exist = true;
   }
 
   componentDidMount() {
@@ -63,6 +67,8 @@ class ImgViewer extends Component {
   }
 
   componentWillUnmount() {
+    this.exist = false;
+
     if (this.elImage.removeEventListener) {
       this.elImage.removeEventListener('error', this.onError);
     }
@@ -76,6 +82,10 @@ class ImgViewer extends Component {
   };
 
   setImageScale = () => {
+    if (!this.exist) {
+      return;
+    }
+
     const { onCentered } = this.props;
     const { calcScale: currentScale } = this.state;
     const calcScale = this.getCalcScale();
@@ -84,9 +94,7 @@ class ImgViewer extends Component {
       this.setState({ calcScale });
     }
 
-    if (typeof onCentered === 'function') {
-      onCentered();
-    }
+    isFunction(onCentered) && onCentered();
   };
 
   get elImage() {
@@ -143,7 +151,7 @@ class ImgViewer extends Component {
   }
 
   onError = error => {
-    this.props.onError && this.props.onError(error);
+    this.exist && isFunction(this.props.onError) && this.props.onError(error);
   };
 
   onUpdate() {
@@ -160,6 +168,10 @@ class ImgViewer extends Component {
     } = props;
     const { clientWidth: cW, clientHeight: cH } = this.elContainer;
     const { clientWidth: iW, clientHeight: iH } = this.elImage;
+
+    if (!(cW && cH && iW && iH) || isNil(scale)) {
+      return 1;
+    }
 
     switch (scale) {
       case DocScaleOptions.AUTO: {
@@ -183,15 +195,17 @@ class ImgViewer extends Component {
         })}
         ref={this.refImgCtr}
       >
-        <img
-          src={src}
-          alt={src}
-          className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
-          style={this.styleZoom}
-          ref={this.setImgRef}
-          onError={this.onError}
-          onLoad={this.setImageScale}
-        />
+        {!!src && (
+          <img
+            src={src}
+            alt={src}
+            className="ecos-doc-preview__viewer-page-content ecos-doc-preview__viewer-page-content_img"
+            style={this.styleZoom}
+            ref={this.setImgRef}
+            onError={this.onError}
+            onLoad={this.setImageScale}
+          />
+        )}
       </div>
     );
   }

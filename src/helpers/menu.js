@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import queryString from 'query-string';
 
 import { URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
@@ -74,7 +75,7 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
-      targetUrl: URL.DEV_TOOLS,
+      targetUrl: queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type: 'DEV_TOOLS' } }),
       targetUrlType: 'FULL_PATH'
     }
   ];

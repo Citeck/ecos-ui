@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import moment from 'moment';
+import uuidV4 from 'uuid/v4';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
+import first from 'lodash/first';
 import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
@@ -13,11 +15,11 @@ import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isUndefined from 'lodash/isUndefined';
-import uuidV4 from 'uuid/v4';
 
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
-import { getCurrentUserName, t, getMLValue } from '../../helpers/util';
+import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
+import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
 import { Components } from '../../forms/components';
@@ -27,8 +29,8 @@ import Records from '../Records';
 import EcosForm from './EcosForm';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
 
+const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
-
 const NOT_INPUT_TYPES = ['container', 'datagrid', 'button', 'horizontalLine'];
 
 const getComponentInnerAttSchema = component => {
@@ -37,10 +39,14 @@ const getComponentInnerAttSchema = component => {
     dataType = lodashGet(component, 'properties.dataType', '');
   }
 
-  if (dataType === 'json') {
-    return 'json';
-  } else if (dataType === 'bool') {
-    return 'bool';
+  switch (dataType) {
+    case 'json':
+    case 'query':
+      return 'json';
+    case 'bool':
+      return 'bool';
+    default:
+      break;
   }
 
   switch (component.type) {
@@ -131,13 +137,14 @@ export default class EcosFormUtils {
       }, 100);
     };
 
-    Records.get(record)
+    const instanceRec = Records.get(record);
+    instanceRec
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = record ? recordData.formMode || FORM_MODE_EDIT : FORM_MODE_CREATE;
+        const formMode = recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -155,7 +162,7 @@ export default class EcosFormUtils {
         if (config.formContainer) {
           let container = config.formContainer;
 
-          if (typeof config.formContainer === 'string') {
+          if (isString(config.formContainer)) {
             container = document.getElementById(config.formContainer);
           }
 
@@ -235,7 +242,7 @@ export default class EcosFormUtils {
         if (result) {
           showForm(recordRef);
         } else {
-          if (typeof fallback === 'function') {
+          if (isFunction(fallback)) {
             fallback();
           } else {
             NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
@@ -305,6 +312,7 @@ export default class EcosFormUtils {
     if (!recordRef) {
       return Promise.resolve(false);
     }
+
     return this.getForm(recordRef, formKey)
       .then(record => record !== null)
       .catch(err => {
@@ -317,12 +325,12 @@ export default class EcosFormUtils {
     const recordInstance = isString(record) ? Records.get(record) : record;
     const baseRecord = recordInstance.getBaseRecord();
 
-    let getFormByKeysFromRecord = (keys, idx) => {
+    const getFormByKeysFromRecord = (keys, idx) => {
       if (!keys || idx >= keys.length) {
         return null;
       }
 
-      let query = {
+      const query = {
         sourceId: SourcesId.RESOLVED_FORM,
         query: {
           record: baseRecord.id,
@@ -330,12 +338,7 @@ export default class EcosFormUtils {
         }
       };
 
-      let formRec;
-      if (attributes) {
-        formRec = Records.queryOne(query, attributes);
-      } else {
-        formRec = Records.queryOne(query);
-      }
+      const formRec = Records.queryOne(query, attributes);
 
       return formRec.then(res => {
         if (res) {
@@ -347,22 +350,19 @@ export default class EcosFormUtils {
     };
 
     if (!formKey) {
-      let recordAtts = await baseRecord.load({
+      const attrs = {
         formKey: '_formKey[]?str',
         typeId: '_type?id',
         // legacy attribute. _type is preferred
         etypeId: '_etype?id',
         formRef: '_formRef?id'
-      });
+      };
+      let recordAtts = await baseRecord.load(attrs);
+
       if (!(recordAtts.formKey || []).length && !recordAtts.typeId && !recordAtts.etypeId && !recordAtts.formRef) {
-        recordAtts = await recordInstance.load({
-          formKey: '_formKey[]?str',
-          typeId: '_type?id',
-          // legacy attribute. _type is preferred
-          etypeId: '_etype?id',
-          formRef: '_formRef?id'
-        });
+        recordAtts = await recordInstance.load(attrs);
       }
+
       let { typeId, etypeId, formKey, formRef } = recordAtts;
 
       if (!typeId) {
@@ -414,11 +414,11 @@ export default class EcosFormUtils {
     if (!formId) {
       return formId;
     }
-    const sourceIdDelimIdx = formId.indexOf('@');
+    const sourceIdDelimIdx = formId.indexOf(SOURCE_DIVIDER);
     if (sourceIdDelimIdx > 0) {
       formId = formId.substring(sourceIdDelimIdx + 1);
     }
-    return sourceId + '@' + formId;
+    return sourceId + SOURCE_DIVIDER + formId;
   }
 
   static getCreateVariants(record, attribute) {
@@ -456,7 +456,7 @@ export default class EcosFormUtils {
               continue;
             }
             let value = component.properties[key];
-            if (value[0] === '$') {
+            if (first(value) === '$') {
               component.properties[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
             }
           }
@@ -470,12 +470,12 @@ export default class EcosFormUtils {
             for (let labelKey in value) {
               if (value.hasOwnProperty(labelKey)) {
                 const langValue = value[labelKey];
-                if (isString(langValue) && langValue.length && langValue[0] === '$') {
+                if (isString(langValue) && first(langValue) === '$') {
                   value[labelKey] = EcosFormUtils._replaceOptionValuePlaceholder(langValue, formOptions);
                 }
               }
             }
-          } else if (isString(value) && value[0] === '$') {
+          } else if (isString(value) && first(value) === '$') {
             component[key] = EcosFormUtils._replaceOptionValuePlaceholder(value, formOptions);
           }
         }
@@ -639,7 +639,7 @@ export default class EcosFormUtils {
       return innerSchema;
     }
 
-    if (innerSchema[0] === '.') {
+    if (first(innerSchema) === '.') {
       innerSchema = innerSchema.substring(1);
     }
 
@@ -909,8 +909,7 @@ export default class EcosFormUtils {
     const { inputByKey, attributes } = EcosFormUtils.preProcessingAttrs(inputs);
 
     const recordInstance = Records.get(recordId);
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1542
-    const force = !recordInstance.isPendingCreate() && !recordId.includes('-alias-');
+    const force = !recordInstance.isPendingCreate();
 
     return recordInstance.load(attributes, force).then(recordData => {
       const submission = EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey, ownerId });
@@ -976,7 +975,7 @@ export default class EcosFormUtils {
     }
 
     if (isString(data)) {
-      if (data[0] === '{') {
+      if (first(data) === '{') {
         data = JSON.parse(data);
       } else {
         return null;
@@ -1040,7 +1039,7 @@ export default class EcosFormUtils {
     const displayName = data.typeName || data.displayName || '';
     const formMode = data.formMode || FORM_MODE_EDIT;
 
-    const titleKey = 'eform.header.' + formMode + '.title';
+    const titleKey = `eform.header.${formMode}.title`;
     const titleVal = t(titleKey);
 
     const titles = [];
@@ -1110,6 +1109,16 @@ export default class EcosFormUtils {
 
       check();
     });
+  }
+
+  static getFormMode(instanceRec) {
+    const baseRecordId = instanceRec.getBaseRecord().id || SOURCE_DIVIDER;
+
+    if (isString(baseRecordId)) {
+      return baseRecordId.endsWith(SOURCE_DIVIDER) ? FORM_MODE_CREATE : FORM_MODE_EDIT;
+    }
+
+    return undefined;
   }
 }
 

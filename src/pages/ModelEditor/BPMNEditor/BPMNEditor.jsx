@@ -17,6 +17,10 @@ class BPMNEditorPage extends ModelEditor {
     return this.formType ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${this.formType}` : null;
   }
 
+  getFormType(type = this.formType) {
+    return type ? `${SourcesId.EFORM}${PREFIX_FORM_ELM}${type}` : null;
+  }
+
   get formTitle() {
     if (!this.formType || !this.state.selectedElement) {
       return null;

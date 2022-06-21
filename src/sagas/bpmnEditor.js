@@ -1,5 +1,7 @@
 import { call, put, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import isUndefined from 'lodash/isUndefined';
+import get from 'lodash/get';
 
 import { getFormProps, getModel, getTitle, initData, saveModel, setFormProps, setLoading, setModel, setTitle } from '../actions/bpmnEditor';
 import { deleteTab } from '../actions/pageTabs';
@@ -7,6 +9,8 @@ import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
+import { isJsonObjectString } from '../helpers/util';
+import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -28,25 +32,38 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img } }) {
+export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, deploy } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
-      const res = yield call(api.cmmn.saveDefinition, record, xml, base64);
+      const res = yield call(api.cmmn.saveDefinition, record, xml, base64, deploy);
 
       if (!res.id) {
-        throw new Error();
+        throw new Error('res.id is undefined');
       }
 
-      // @todo add translation message
-      NotificationManager.success(t('bpmn-editor.success.model-saved'), t('success'));
-      yield put(deleteTab(PageTabList.activeTab));
+      let title = t('success');
+      let message = t('bpmn-editor.success.model-saved');
+      if (deploy) {
+        message = t('bpmn-editor.success.model-save-deployed');
+      }
+      NotificationManager.success(message, title);
+
+      if (deploy) {
+        yield put(setLoading({ stateId, isLoading: false }));
+      } else {
+        yield put(deleteTab(PageTabList.activeTab));
+      }
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
 
-    // @todo add translation message
-    NotificationManager.error(e.message || t('error'), t('bpmn-editor.error.can-not-save-model'));
+    let message = e.message || t('error');
+    let title = t('bpmn-editor.error.can-not-save-model');
+    if (deploy) {
+      title = t('bpmn-editor.error.can-not-save-deploy-model');
+    }
+    NotificationManager.error(message, title);
     logger.error('[bpmnEditor/runSaveModel saga] error', e.message);
   }
 }
@@ -78,20 +95,32 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     const formData = {};
 
     if (element) {
+      const addedKeys = [];
+
       inputs.forEach(input => {
-        const att = input.attribute;
-        let value = CmmnUtils.getValue(element, att);
-        const inputType = input.component && input.component.type;
-        const isMultiple = input.component && input.component.multiple;
-        if (
-          value != null &&
-          value !== '' &&
-          (isMultiple === true || inputType === 'mlText' || inputType === 'datamap' || inputType === 'container')
-        ) {
-          value = JSON.parse(value);
+        const component = get(input, 'scope.component', input.component);
+        const att = component.key;
+
+        if (addedKeys.includes(att)) {
+          return;
         }
-        formData[att] = value;
+
+        const inputType = component.type;
+        const isMultiple = component.multiple;
+        let value = CmmnUtils.getValue(element, att);
+
+        if (value != null && value !== '' && (isMultiple === true || JSON_VALUE_COMPONENTS.includes(inputType))) {
+          value = isJsonObjectString(value) ? JSON.parse(value) : value;
+        }
+
+        if (!isUndefined(value) && !['asyncData'].includes(inputType)) {
+          formData[att] = value;
+        }
+
+        addedKeys.push(att);
       });
+
+      formData.id = element.id;
     }
 
     yield put(setFormProps({ stateId, formProps: { ...form, formData } }));

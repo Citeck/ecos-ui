@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import unset from 'lodash/unset';
 import set from 'lodash/set';
 
-import { t } from '../../../../helpers/util';
+import { getBool, t } from '../../../../helpers/util';
 import Base from '../base/Base';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
@@ -222,6 +222,9 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   }
 
   setCheckedState(value) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1854
+    value = getBool(value);
+
     if (this.hasThreeStates) {
       const newValue = this.getValueByString(value);
 

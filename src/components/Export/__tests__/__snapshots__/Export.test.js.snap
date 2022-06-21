@@ -1,0 +1,425 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Export component tests should render Export component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Export
+    className=""
+    dashletConfig={Object {}}
+  />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "host",
+    "props": Object {
+      "children": Array [
+        <Dropdown
+          CustomItem={null}
+          cascade={false}
+          className=""
+          controlClassName="ecos-btn_grey ecos-btn_settings-down"
+          controlIcon="icon-download"
+          direction="down"
+          full={false}
+          getStateOpen={[Function]}
+          hasEmpty={true}
+          hideSelected={false}
+          isButton={true}
+          isLinks={false}
+          isStatic={true}
+          menuClassName=""
+          onChange={[Function]}
+          placeholder=""
+          right={false}
+          scrollbarHeightMax="100%"
+          scrollbarHeightMin="100%"
+          source={
+            Array [
+              Object {
+                "download": false,
+                "id": 0,
+                "target": "_blank",
+                "title": "export-component.action.html-read",
+                "type": "html",
+              },
+              Object {
+                "download": true,
+                "id": 1,
+                "target": "_self",
+                "title": "export-component.action.html-load",
+                "type": "html",
+              },
+              Object {
+                "download": true,
+                "id": 2,
+                "target": "_self",
+                "title": "Excel",
+                "type": "xlsx",
+              },
+              Object {
+                "download": true,
+                "id": 3,
+                "target": "_self",
+                "title": "CSV",
+                "type": "csv",
+              },
+              Object {
+                "click": [Function],
+                "id": 4,
+                "title": "export-component.action.copy-link",
+              },
+            ]
+          }
+          titleField="title"
+          toggleClassName=""
+          valueField="id"
+          withScrollbar={false}
+        />,
+        <form
+          encType="multipart/form-data"
+          method="post"
+        >
+          <input
+            name="jsondata"
+            type="hidden"
+            value=""
+          />
+        </form>,
+      ],
+      "className": "ecos-btn-export",
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "CustomItem": null,
+          "cascade": false,
+          "children": undefined,
+          "className": "",
+          "controlClassName": "ecos-btn_grey ecos-btn_settings-down",
+          "controlIcon": "icon-download",
+          "direction": "down",
+          "full": false,
+          "getStateOpen": [Function],
+          "hasEmpty": true,
+          "hideSelected": false,
+          "isButton": true,
+          "isLinks": false,
+          "isStatic": true,
+          "menuClassName": "",
+          "onChange": [Function],
+          "placeholder": "",
+          "right": false,
+          "scrollbarHeightMax": "100%",
+          "scrollbarHeightMin": "100%",
+          "source": Array [
+            Object {
+              "download": false,
+              "id": 0,
+              "target": "_blank",
+              "title": "export-component.action.html-read",
+              "type": "html",
+            },
+            Object {
+              "download": true,
+              "id": 1,
+              "target": "_self",
+              "title": "export-component.action.html-load",
+              "type": "html",
+            },
+            Object {
+              "download": true,
+              "id": 2,
+              "target": "_self",
+              "title": "Excel",
+              "type": "xlsx",
+            },
+            Object {
+              "download": true,
+              "id": 3,
+              "target": "_self",
+              "title": "CSV",
+              "type": "csv",
+            },
+            Object {
+              "click": [Function],
+              "id": 4,
+              "title": "export-component.action.copy-link",
+            },
+          ],
+          "titleField": "title",
+          "toggleClassName": "",
+          "valueField": "id",
+          "withScrollbar": false,
+        },
+        "ref": null,
+        "rendered": null,
+        "type": [Function],
+      },
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "host",
+        "props": Object {
+          "children": <input
+            name="jsondata"
+            type="hidden"
+            value=""
+          />,
+          "encType": "multipart/form-data",
+          "method": "post",
+        },
+        "ref": Object {
+          "current": null,
+        },
+        "rendered": Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "name": "jsondata",
+            "type": "hidden",
+            "value": "",
+          },
+          "ref": Object {
+            "current": null,
+          },
+          "rendered": null,
+          "type": "input",
+        },
+        "type": "form",
+      },
+    ],
+    "type": "div",
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "host",
+      "props": Object {
+        "children": Array [
+          <Dropdown
+            CustomItem={null}
+            cascade={false}
+            className=""
+            controlClassName="ecos-btn_grey ecos-btn_settings-down"
+            controlIcon="icon-download"
+            direction="down"
+            full={false}
+            getStateOpen={[Function]}
+            hasEmpty={true}
+            hideSelected={false}
+            isButton={true}
+            isLinks={false}
+            isStatic={true}
+            menuClassName=""
+            onChange={[Function]}
+            placeholder=""
+            right={false}
+            scrollbarHeightMax="100%"
+            scrollbarHeightMin="100%"
+            source={
+              Array [
+                Object {
+                  "download": false,
+                  "id": 0,
+                  "target": "_blank",
+                  "title": "export-component.action.html-read",
+                  "type": "html",
+                },
+                Object {
+                  "download": true,
+                  "id": 1,
+                  "target": "_self",
+                  "title": "export-component.action.html-load",
+                  "type": "html",
+                },
+                Object {
+                  "download": true,
+                  "id": 2,
+                  "target": "_self",
+                  "title": "Excel",
+                  "type": "xlsx",
+                },
+                Object {
+                  "download": true,
+                  "id": 3,
+                  "target": "_self",
+                  "title": "CSV",
+                  "type": "csv",
+                },
+                Object {
+                  "click": [Function],
+                  "id": 4,
+                  "title": "export-component.action.copy-link",
+                },
+              ]
+            }
+            titleField="title"
+            toggleClassName=""
+            valueField="id"
+            withScrollbar={false}
+          />,
+          <form
+            encType="multipart/form-data"
+            method="post"
+          >
+            <input
+              name="jsondata"
+              type="hidden"
+              value=""
+            />
+          </form>,
+        ],
+        "className": "ecos-btn-export",
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "CustomItem": null,
+            "cascade": false,
+            "children": undefined,
+            "className": "",
+            "controlClassName": "ecos-btn_grey ecos-btn_settings-down",
+            "controlIcon": "icon-download",
+            "direction": "down",
+            "full": false,
+            "getStateOpen": [Function],
+            "hasEmpty": true,
+            "hideSelected": false,
+            "isButton": true,
+            "isLinks": false,
+            "isStatic": true,
+            "menuClassName": "",
+            "onChange": [Function],
+            "placeholder": "",
+            "right": false,
+            "scrollbarHeightMax": "100%",
+            "scrollbarHeightMin": "100%",
+            "source": Array [
+              Object {
+                "download": false,
+                "id": 0,
+                "target": "_blank",
+                "title": "export-component.action.html-read",
+                "type": "html",
+              },
+              Object {
+                "download": true,
+                "id": 1,
+                "target": "_self",
+                "title": "export-component.action.html-load",
+                "type": "html",
+              },
+              Object {
+                "download": true,
+                "id": 2,
+                "target": "_self",
+                "title": "Excel",
+                "type": "xlsx",
+              },
+              Object {
+                "download": true,
+                "id": 3,
+                "target": "_self",
+                "title": "CSV",
+                "type": "csv",
+              },
+              Object {
+                "click": [Function],
+                "id": 4,
+                "title": "export-component.action.copy-link",
+              },
+            ],
+            "titleField": "title",
+            "toggleClassName": "",
+            "valueField": "id",
+            "withScrollbar": false,
+          },
+          "ref": null,
+          "rendered": null,
+          "type": [Function],
+        },
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "host",
+          "props": Object {
+            "children": <input
+              name="jsondata"
+              type="hidden"
+              value=""
+            />,
+            "encType": "multipart/form-data",
+            "method": "post",
+          },
+          "ref": Object {
+            "current": null,
+          },
+          "rendered": Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "host",
+            "props": Object {
+              "name": "jsondata",
+              "type": "hidden",
+              "value": "",
+            },
+            "ref": Object {
+              "current": null,
+            },
+            "rendered": null,
+            "type": "input",
+          },
+          "type": "form",
+        },
+      ],
+      "type": "div",
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+  Symbol(enzyme.__childContext__): null,
+}
+`;

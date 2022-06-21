@@ -1,4 +1,4 @@
-export { default as DatePicker } from './DatePicker';
+export { default as DatePicker, DateIntervalPicker } from './DatePicker';
 export { default as Input, MLText } from './Input';
 export { default as Label } from './Label';
 export { default as Select } from './Select';
@@ -17,3 +17,4 @@ export { default as Badge } from './Badge/Badge';
 export { default as SelectOrgstruct } from './SelectOrgstruct';
 export { default as SelectJournal } from './SelectJournal';
 export { default as TableForm } from './TableForm';
+export { default as Range } from './Range';

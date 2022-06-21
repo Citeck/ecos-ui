@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import set from 'lodash/set';
 
+import { t } from '../../../helpers/export/util';
 import Harness from '../harness';
 import EventEmitter from '../../EventEmitter';
 import { disabledComponents } from '../../utils';
@@ -51,7 +52,7 @@ export const basicSectionTest = Component => {
         const firstTab = builder.dialog.querySelector('.nav-item');
 
         expect(firstTab).not.toBeUndefined();
-        expect(firstTab.textContent).toBe('Basic');
+        expect(firstTab.textContent).toBe(t('form-constructor.tabs.basic'));
         done();
       });
     });

@@ -73,21 +73,27 @@ export const SourcesId = {
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
-  TASK: 'wftask',
+  TASK: 'eproc/wftask',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
+  BPMN_PROC: 'eproc/bpmn-proc',
+  BPMN_STAT: 'eproc/bpmn-process-elements',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',
   PERSON: 'emodel/person',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
+  },
+  get HISTORY_REC() {
+    return `${SourcesId.HISTORY}/history-record`;
   }
 };
 
 export const EmodelTypes = {
   USER_DASHBOARD: 'emodel/type@user-dashboard',
-  BASE: 'emodel/type@base'
+  BASE: 'emodel/type@base',
+  HISTORY_REC: 'emodel/type@history-record'
 };
 
 export const ActionModes = {
@@ -195,7 +201,8 @@ export const SystemJournals = {
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
-  PROCESS: 'bpmn-process-def'
+  PROCESS: 'bpmn-process-def',
+  PROCESS_ELMS: 'bpmn-process-elements'
 };
 
 export const DateFormats = {

@@ -208,3 +208,13 @@
     padding-bottom: 0 !important;
   }
 }
+
+.formio-form {
+  .tooltip {
+    max-width: 100%;
+
+    &-inner {
+      max-width: 100% !important;
+    }
+  }
+}

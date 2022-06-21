@@ -9,8 +9,10 @@ import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 import isElement from 'lodash/isElement';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { closest, getId } from '../../../../../../helpers/util';
+import { getIconUpDown } from '../../../../../../helpers/icon';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
 import { Icon, Tooltip as EcosTooltip } from '../../../../';
@@ -274,16 +276,58 @@ export default class HeaderFormatter extends Component {
       <Tooltip
         target={this.tooltipFilterId}
         isOpen={open}
-        trigger={'click'}
+        trigger="click"
         placement="top"
-        boundariesElement={'window'}
+        boundariesElement="window"
         className="ecos-th__filter-tooltip"
         innerClassName="ecos-th__filter-tooltip-body"
         arrowClassName="ecos-th__filter-tooltip-marker"
+        modifiers={{
+          offsetsCorrection: {
+            order: 840,
+            enabled: true,
+            fn: data => {
+              const {
+                popper,
+                offsets,
+                instance: { popper: popperEl }
+              } = data;
+              const { clientWidth } = popperEl.offsetParent;
+
+              if (popper.right > clientWidth) {
+                popper.right = clientWidth;
+                popper.left = popper.right - popper.width;
+
+                offsets.popper = {
+                  ...offsets.popper,
+                  ...popper
+                };
+
+                offsets.arrow.left -= 20;
+              }
+
+              if (popper.left < 0) {
+                popper.left = 0;
+                popper.right = popper.width;
+
+                offsets.popper = {
+                  ...offsets.popper,
+                  ...popper
+                };
+
+                offsets.arrow.left += 20;
+              }
+
+              return data;
+            }
+          }
+        }}
       >
-        <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
-          {tooltipBody}
-        </ClickOutside>
+        <ReactResizeDetector handleWidth onResize={() => this.forceUpdate()}>
+          <ClickOutside handleClickOutside={this.handleClickOutside} excludeElements={[filterIcon, ...document.querySelectorAll('.modal')]}>
+            {tooltipBody}
+          </ClickOutside>
+        </ReactResizeDetector>
       </Tooltip>
     );
   };
@@ -299,10 +343,8 @@ export default class HeaderFormatter extends Component {
       <div className="ecos-th__actions">
         {sortable && (
           <Icon
-            className={classNames('ecos-th__order ecos-th__action-icon', {
-              'ecos-th__action-icon_active': !isNil(ascending),
-              'icon-small-up': ascending,
-              'icon-small-down': !ascending
+            className={classNames('ecos-th__order ecos-th__action-icon', getIconUpDown(ascending), {
+              'ecos-th__action-icon_active': !isNil(ascending)
             })}
           />
         )}
