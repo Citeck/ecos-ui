@@ -77,6 +77,7 @@ export const SourcesId = {
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
   TASK: 'eproc/wftask',
+  TASK_FORM: 'uiserv/task-form',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   BPMN_PROC: 'eproc/bpmn-proc',
@@ -92,6 +93,11 @@ export const SourcesId = {
   get HISTORY_REC() {
     return `${SourcesId.HISTORY}/history-record`;
   }
+};
+
+export const QueryLanguages = {
+  TASKS: 'tasks',
+  FORM: 'form'
 };
 
 export const EmodelTypes = {
