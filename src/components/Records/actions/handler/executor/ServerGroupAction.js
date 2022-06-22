@@ -23,8 +23,6 @@ const executeAction = async ({ groupAction, selected = [], excludedRecords, reso
   }
 
   if (exAction.error) {
-    console.warn({ exAction, groupAction, selected, excludedRecords, resolved, query });
-
     return {
       error: get(exAction, 'error.message') || '-',
       code: get(exAction, 'error.response.status')
