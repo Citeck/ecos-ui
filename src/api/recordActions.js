@@ -57,15 +57,12 @@ export class RecordActionsApi extends CommonApi {
 
       const errorObject = {
         error: {
-          message: '',
+          message: err.message,
           response: {
-            status: ''
+            status: err.status.code
           }
         }
       };
-
-      errorObject['error']['message'] = err.message;
-      errorObject['error']['response']['status'] = err.status.code;
 
       return errorObject;
     });
