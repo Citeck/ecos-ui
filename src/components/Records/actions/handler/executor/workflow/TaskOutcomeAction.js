@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { getCurrentLocale, t } from '../../../../../../helpers/export/util';
+import { QueryLanguages, SourcesId } from '../../../../../../constants';
 import DialogManager from '../../../../../common/dialogs/Manager';
 import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
 import Records from '../../../../Records';
@@ -37,8 +38,8 @@ export default class TaskOutcomeAction extends ActionsExecutor {
 
     const formDefRes = await Records.query(
       {
-        sourceId: 'uiserv/task-form',
-        language: 'form',
+        sourceId: SourcesId.TASK_FORM,
+        language: QueryLanguages.FORM,
         query: { formRef }
       },
       '.json'

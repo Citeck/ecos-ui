@@ -1,15 +1,19 @@
-import RecordActionsResolver from '../RecordActionsResolver';
-import Records from '../../../Records';
+import get from 'lodash/get';
+
 import { t } from '../../../../../helpers/export/util';
+import { QueryLanguages, SourcesId } from '../../../../../constants';
+import Records from '../../../Records';
+import RecordActionsResolver from '../RecordActionsResolver';
 
 export default class TasksActionsResolver extends RecordActionsResolver {
   static ACTION_ID = 'tasks-actions';
 
   async resolve(records, action, context) {
-    let queryRes = await Records.query(
+    const result = {};
+    const queryRes = await Records.query(
       {
-        sourceId: 'uiserv/task-form',
-        language: 'tasks',
+        sourceId: SourcesId.TASK_FORM,
+        language: QueryLanguages.TASKS,
         query: {
           recordRefs: records.map(r => r.id)
         }
@@ -17,19 +21,17 @@ export default class TasksActionsResolver extends RecordActionsResolver {
       '.json'
     );
 
-    if (!queryRes || !queryRes.records || !queryRes.records.length) {
-      return {};
+    if (!get(queryRes, 'records.length')) {
+      return result;
     }
 
-    let result = {};
     for (let recordInfo of queryRes.records) {
-      let recordData = recordInfo['.json'] || {};
+      const recordData = recordInfo['.json'] || {};
+      const actions = [];
 
-      let actions = [];
       for (let taskData of recordData.taskActions || []) {
-        let outcomes = taskData.outcomes;
-
-        let variants = [];
+        const outcomes = taskData.outcomes;
+        const variants = [];
 
         for (let outcome of outcomes) {
           variants.push({

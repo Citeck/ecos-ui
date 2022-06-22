@@ -70,10 +70,16 @@ export const SourcesId = {
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
   TASK: 'wftask',
+  TASK_FORM: 'uiserv/task-form',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings'
+};
+
+export const QueryLanguages = {
+  TASKS: 'tasks',
+  FORM: 'form'
 };
 
 export const EmodelTypes = {
