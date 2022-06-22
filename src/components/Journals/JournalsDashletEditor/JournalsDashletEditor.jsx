@@ -10,7 +10,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 
-import { Caption, Checkbox, Field, Input, Select, MLText } from '../../common/form';
+import { Caption, Checkbox, Field, Input, MLText, Select } from '../../common/form';
 import { Btn } from '../../common/btns';
 import SelectJournal from '../../common/form/SelectJournal';
 import {
@@ -229,10 +229,9 @@ class JournalsDashletEditor extends Component {
       onSave(id, { config: newConfig });
     } else if (isFunction(saveDashlet)) {
       saveDashlet(newConfig, id);
+      setDashletConfig(newConfig);
+      checkConfig(newConfig);
     }
-
-    setDashletConfig(newConfig);
-    checkConfig(newConfig);
   };
 
   handleClear = () => {

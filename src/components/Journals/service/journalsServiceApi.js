@@ -14,7 +14,7 @@ class JournalsServiceApi {
   }
 
   async getJournalConfig(journalId) {
-    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json');
+    return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json', true);
   }
 
   async isNotExistsJournal(journalId) {
