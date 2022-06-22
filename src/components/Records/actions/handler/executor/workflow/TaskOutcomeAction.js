@@ -6,6 +6,7 @@ import { QueryLanguages, SourcesId } from '../../../../../../constants';
 import DialogManager from '../../../../../common/dialogs/Manager';
 import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
 import Records from '../../../../Records';
+import { notifySuccess } from '../../../util/actionUtils';
 import ActionsExecutor from '../../ActionsExecutor';
 
 /**
@@ -59,11 +60,6 @@ export default class TaskOutcomeAction extends ActionsExecutor {
     }
 
     const formInputs = EcosFormUtils.getFormInputs(formDef.definition);
-
-    if (hideConfirmEmptyForm && !formInputs.length) {
-      return true;
-    }
-
     let formI18n = await this.getFormI18n(taskRef, formInputs, formDef.i18n);
     formI18n = { [getCurrentLocale()]: formI18n };
 
@@ -92,7 +88,10 @@ export default class TaskOutcomeAction extends ActionsExecutor {
 
         task
           .save()
-          .then(() => resolve(true))
+          .then(() => {
+            notifySuccess();
+            resolve(true);
+          })
           .catch(e => {
             console.error(e);
 
@@ -105,6 +104,11 @@ export default class TaskOutcomeAction extends ActionsExecutor {
             resolve(false);
           });
       };
+
+      if (hideConfirmEmptyForm && !formInputs.length) {
+        completeAction({});
+        return;
+      }
 
       let messageWithOutcome = t('record-action.task-outcome.complete-task.message', { outcome: label });
 

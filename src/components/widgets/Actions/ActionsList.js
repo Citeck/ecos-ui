@@ -5,8 +5,8 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import uniqueId from 'lodash/uniqueId';
 
-import { InfoText, Loader, Separator, Tooltip } from '../../common/index';
 import { prepareTooltipId, t } from '../../../helpers/util';
+import { InfoText, Loader, Separator, Tooltip } from '../../common';
 
 class ActionsList extends React.Component {
   countList = uniqueId('list-');
@@ -44,16 +44,12 @@ class ActionsList extends React.Component {
 
   onClick = action => {
     const { executeAction, isLoading } = this.props;
-
-    if (!isLoading) {
-      executeAction(action);
-    }
+    !isLoading && executeAction(action);
   };
 
   renderVariant = (action, variant, postfix) => {
     const { isLoading, isActiveLayout } = this.props;
-    const targetId = prepareTooltipId(`variant-${variant.type}-${postfix}`);
-    const variantAction = Object.assign({}, action, variant);
+    const targetId = prepareTooltipId(`variant-${action.type}-${postfix}`);
 
     return (
       <Tooltip showAsNeeded uncontrolled key={targetId} target={targetId} text={variant.name} off={!isActiveLayout}>
@@ -62,7 +58,7 @@ class ActionsList extends React.Component {
           className={classNames('ecos-actions-list__item-variants__item', {
             'ecos-actions-list__item-variants__item_disabled': isLoading
           })}
-          onClick={() => this.onClick(variantAction)}
+          onClick={() => this.onClick(variant)}
         >
           {variant.name}
         </div>
