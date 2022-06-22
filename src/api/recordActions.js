@@ -1,4 +1,6 @@
 import isString from 'lodash/isString';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { PROXY_URI } from '../constants/alfresco';
 import recordActions from '../components/Records/actions/recordActions';
@@ -29,7 +31,7 @@ export class RecordActionsApi extends CommonApi {
     });
   };
 
-  executeServerGroupAction = ({ action, query, nodes }) => {
+  executeServerGroupAction = ({ action, query, nodes, excludedRecords }) => {
     const { type, params } = action;
 
     const postBody = {
@@ -57,7 +59,7 @@ export class RecordActionsApi extends CommonApi {
 
       const errorObject = {
         error: {
-          message: err.message || errorResp.error.response.statusText,
+          message: err.message || get(errorResp, 'error.response.statusText'),
           response: {
             status: err.status.code
           }
