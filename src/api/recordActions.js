@@ -54,10 +54,11 @@ export class RecordActionsApi extends CommonApi {
 
     return this.postJson(`${PROXY_URI}api/journals/group-action`, postBody).catch(async error => {
       const err = await error.response.json();
+      const errorResp = { error };
 
       const errorObject = {
         error: {
-          message: err.message,
+          message: err.message || errorResp.error.response.statusText,
           response: {
             status: err.status.code
           }
