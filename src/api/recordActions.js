@@ -47,6 +47,24 @@ export class RecordActionsApi extends CommonApi {
       postBody.consistency = query.consistency;
     }
 
-    return this.postJson(`${PROXY_URI}api/journals/group-action`, postBody).catch(error => ({ error }));
+    if (!isEmpty(excludedRecords)) {
+      postBody.excludedRecords = excludedRecords;
+    }
+
+    return this.postJson(`${PROXY_URI}api/journals/group-action`, postBody).catch(error => {
+      console.warn(error);
+
+      const errorObject = { error };
+      console.log('ERROR OBJECT', errorObject);
+      // errorObject.error.message = 'ТЕСТОВЫЙ ТЕКСТ ОШИБКИ'
+
+      const reader = errorObject.error.response.body
+        .getReader()
+        .read()
+        .then(({ done, value }) => {
+          console.log('VALUE', value);
+        });
+      return errorObject;
+    });
   };
 }
