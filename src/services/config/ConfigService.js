@@ -2,6 +2,7 @@ import { IS_TEST_ENV } from '../../helpers/util';
 import { loadConfigs, saveConfig } from './configApi';
 import _ from 'lodash';
 import { URL } from '../../constants';
+import { getCurrentLocale } from '../../helpers/export/util';
 
 const LOCAL_STORAGE_KEY = 'ecos-ui-config';
 
@@ -10,7 +11,6 @@ const TYPE_TEXT = 'TEXT';
 const TYPE_NUMBER = 'NUMBER';
 const TYPE_ASSOC = 'ASSOC';
 const TYPE_BOOLEAN = 'BOOLEAN';
-const TYPE_MLTEXT = 'MLTEXT';
 
 /**
  * Max cache time determine time diff since last configs update when we should
@@ -129,12 +129,17 @@ class ConfigService {
     this._values = { ...(lsConfig.values || {}) };
 
     let timeSinceLastUpdate = currentTime - (lsConfig.lastUpdateTime || 0);
-    for (let configKey in CONFIG_PROPS) {
-      if (!this._values.hasOwnProperty(configKey)) {
-        // if localStorage not contains some configs then we should update all configs
-        timeSinceLastUpdate = MAX_CACHE_TIME_MS + 1;
-        this._values = {};
-        break;
+    const currentLocale = getCurrentLocale();
+    if (lsConfig.locale !== currentLocale) {
+      timeSinceLastUpdate = MAX_CACHE_TIME_MS + 1;
+    } else {
+      for (let configKey in CONFIG_PROPS) {
+        if (!this._values.hasOwnProperty(configKey)) {
+          // if localStorage not contains some configs then we should update all configs
+          timeSinceLastUpdate = MAX_CACHE_TIME_MS + 1;
+          this._values = {};
+          break;
+        }
       }
     }
     if (timeSinceLastUpdate < MIN_CACHE_TIME_MS) {
@@ -152,6 +157,7 @@ class ConfigService {
       localStorage.setItem(
         LOCAL_STORAGE_KEY,
         JSON.stringify({
+          locale: currentLocale,
           values: cfgValues,
           lastUpdateTime: currentTime
         })
@@ -271,7 +277,7 @@ class ConfigService {
       scalar = '?num';
     } else if (props.type === TYPE_ASSOC) {
       scalar = '?id';
-    } else if (props.type === TYPE_JSON || props.type === TYPE_MLTEXT) {
+    } else if (props.type === TYPE_JSON) {
       scalar = '?json';
     }
     return attribute + scalar;
