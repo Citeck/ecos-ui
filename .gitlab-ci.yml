@@ -7,7 +7,7 @@ testing:
     - shell
   stage: testing
   script:
-    - yarn run --watchAll=false
+    - yarn test --watchAll=false
 
 mirror:
   tags: 
