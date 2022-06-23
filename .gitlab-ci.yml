@@ -7,7 +7,10 @@ testing:
     - shell
   stage: testing
   script:
-    - yarn test --watchAll=false
+    - yarn && yarn test --watchAll=false
+  rules:
+    - if: $CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT
+
 
 mirror:
   tags: 
