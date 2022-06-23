@@ -9,7 +9,7 @@ testing:
   script:
     - yarn && yarn test --watchAll=false
   rules:
-    - if: $CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT
+    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event') && ($CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT)
 
 
 mirror:
