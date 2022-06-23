@@ -12,7 +12,7 @@ export function* initUser({ api, logger }, { payload }) {
       yield put(validateUserSuccess(resp.payload));
       set(window, 'Alfresco.constants.USERNAME', get(resp.payload, 'userName'));
 
-      const isNewUIAvailable = yield call(api.user.checkNewUIAvailableStatus);
+      const isNewUIAvailable = true;
 
       yield put(setNewUIAvailableStatus(isNewUIAvailable));
     }

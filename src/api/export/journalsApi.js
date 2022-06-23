@@ -1,8 +1,6 @@
 import { URL } from '../../constants';
 import { PROXY_URI } from '../../constants/alfresco';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import ecosFetch from '../../helpers/ecosFetch';
-import Records from '../../components/Records';
 
 const prepareJournalLinkParams = params => {
   let listId = params.listId || params.journalsListId;
@@ -90,13 +88,6 @@ export const getNewPageUrl = params => {
   return notNullJournalId.then(journalId => {
     return `${URL.JOURNAL}?journalId=${journalId}&journalSettingId=${settingsId}&journalsListId=${journalsListId}`;
   });
-};
-
-export const isNewJournalsPageEnable = () => {
-  const isNewJournalPageEnable = Records.get('ecos-config@new-journals-page-enable').load('.bool');
-  const isJournalAvailableForUser = checkFunctionalAvailabilityForUser('default-ui-new-journals-access-groups');
-
-  return Promise.all([isNewJournalPageEnable, isJournalAvailableForUser]).then(values => values.includes(true));
 };
 
 export const getJournalPageUrl = params => {
