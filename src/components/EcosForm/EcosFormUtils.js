@@ -59,6 +59,7 @@ const getComponentInnerAttSchema = component => {
       return 'assoc';
     case 'datamap':
     case 'mlText':
+    case 'mlTextarea':
       return 'json';
     case 'file':
       return 'as(n:"content-data"){json}';
