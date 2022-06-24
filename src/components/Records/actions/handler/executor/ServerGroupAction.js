@@ -114,6 +114,10 @@ export default class ServerGroupAction extends ActionsExecutor {
     return result || false;
   }
 
+  async execForRecord() {
+    return false;
+  }
+
   async execForQuery(query, action, context) {
     let groupAction = cloneDeep(action.config);
     groupAction.type = 'filtered';
