@@ -87,7 +87,7 @@ class DocPreview extends Component {
       downloadData: {},
       wrapperWidth: 0,
       needRecalculateScale: false,
-      mainDoc: undefined
+      mainDoc: {}
     };
 
     this.bootstrapLink = !!props.link;
@@ -116,7 +116,7 @@ class DocPreview extends Component {
     const { recordId, link, fileName } = this.state;
 
     let newState = { recordId, fileName, link };
-    let isUpdate = false;
+    let isBigUpdate = false;
     let isUpdatePdf = false;
 
     //clear state by request
@@ -137,14 +137,14 @@ class DocPreview extends Component {
 
     //refresh data
     if (!prevProps.runUpdate && runUpdate) {
-      isUpdate = true;
+      isBigUpdate = true;
       newState.recordId = nextProps.recordId || newState.recordId;
       newState.fileName = nextProps.fileName;
     }
 
     this.setState({ ...newState }, () => {
       //after update of state, run get of remote data
-      isUpdate && this.runGetData();
+      isBigUpdate && this.runGetData();
       isUpdatePdf && this.loadPDF(newState.link); //if link is set self
       !newState.fileName && this.getFileName(); //if fileName is not set, get by record
       !get(newState, 'downloadData.link') && this.getDownloadData();
@@ -153,7 +153,7 @@ class DocPreview extends Component {
 
   componentWillUnmount() {
     this.exist = false;
-    this.onResizeWrapper.cancel();
+    this.handleResizeWrapper.cancel();
   }
 
   get decreasingStep() {
@@ -274,48 +274,53 @@ class DocPreview extends Component {
   });
 
   runGetData = async () => {
-    await this.getFileLinkByRecord();
-    const mainDoc = await this.getInfoMainDoc();
-    await this.getFilesByRecord(mainDoc);
+    await this.fetchInfoMainDoc();
+    await this.fetchFilesByRecord();
+    this.showFileBootstrap();
   };
 
-  getFileLinkByRecord = async () => {
-    if (this.isBlockedByRecord) {
-      return;
-    }
+  fetchInfoMainDoc = async () => {
+    if (!(this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments)) {
+      return new Promise(async resolve => {
+        const recordId = this.getUrlRecordId();
+        const fileName = await DocPreviewApi.getFileName(recordId);
+        const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
+        const mainDoc = { recordId, fileName, link };
 
-    const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
-
-    if (this.exist) {
-      !this.bootstrapLink && !!link && (this.bootstrapLink = true);
-      const error = !link && t(Labels.Errors.FAILURE_FETCH);
-      this.setState({ isLoading: false, link, error }, () => this.loadPDF(link));
+        this.exist && this.setState({ mainDoc }, () => resolve());
+      });
     }
   };
 
-  getFilesByRecord = async (document = null) => {
-    if (this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments) {
-      return;
+  fetchFilesByRecord = async () => {
+    if (!(this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments)) {
+      return new Promise(async resolve => {
+        const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
+        const { filesList: oldFiles = [], mainDoc = {} } = this.state;
+
+        if (!!mainDoc.link) {
+          filesList.unshift(mainDoc);
+        }
+
+        if (!isArrayEqual(oldFiles, filesList)) {
+          this.exist && this.setState({ filesList }, () => resolve());
+        }
+      });
     }
+  };
 
-    const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
-    const { filesList: oldFiles = [], mainDoc } = this.state;
+  showFileBootstrap = () => {
+    if (!this.bootstrapLink) {
+      const { filesList, mainDoc = {} } = this.state;
 
-    let newState = { mainDoc: document || mainDoc };
-
-    if (document && document.link !== '') {
-      document && filesList.unshift(document);
-    }
-
-    if (!isArrayEqual(oldFiles, filesList)) {
-      newState = { ...newState, filesList };
-    }
-
-    this.setState(newState, () => {
-      if (newState.mainDoc.link === '') {
-        this.nextDocument();
+      if (get(filesList, '[0].link') || mainDoc.link) {
+        this.handleFileChange(get(filesList, '[0]') || mainDoc);
+      } else {
+        this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
       }
-    });
+
+      this.bootstrapLink = true;
+    }
   };
 
   getFileName = async () => {
@@ -325,18 +330,6 @@ class DocPreview extends Component {
 
     const fileName = await DocPreviewApi.getFileName(this.state.recordId);
     this.exist && this.setState({ fileName });
-  };
-
-  getInfoMainDoc = async () => {
-    if (this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments) {
-      return;
-    }
-
-    const recordId = this.getUrlRecordId();
-    const fileName = await DocPreviewApi.getFileName(recordId);
-    const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
-
-    return { recordId, fileName, link };
   };
 
   getDownloadData() {
@@ -388,7 +381,7 @@ class DocPreview extends Component {
     );
   };
 
-  onFileChange = ({ fileName, recordId, link }) => {
+  handleFileChange = ({ fileName, recordId, link }) => {
     if (link !== this.state.link) {
       const error = !link && t(Labels.Errors.FAILURE_FETCH);
 
@@ -406,11 +399,11 @@ class DocPreview extends Component {
     }
   };
 
-  onChangeSettings = settings => {
+  handleChangeSettings = settings => {
     this.setState({ settings }, () => isFunction(this.props.setUserScale) && this.props.setUserScale(settings.scale));
   };
 
-  onFullscreen = () => {
+  handleFullscreen = () => {
     this.setState(
       state => ({
         settings: {
@@ -429,7 +422,7 @@ class DocPreview extends Component {
     );
   };
 
-  nextDocument = () => {
+  handleNextDocument = () => {
     const { recordId, filesList, isLoading } = this.state;
 
     if (isLoading) {
@@ -440,13 +433,11 @@ class DocPreview extends Component {
       const currentIndex = filesList.findIndex(file => file.recordId === recordId);
       const nextFile = filesList[currentIndex + 1];
 
-      if (nextFile) {
-        this.onFileChange(nextFile);
-      }
+      nextFile && this.handleFileChange(nextFile);
     }
   };
 
-  onResizeWrapper = debounce(wrapperWidth => {
+  handleResizeWrapper = debounce(wrapperWidth => {
     if (this.state.wrapperWidth === wrapperWidth) {
       return;
     }
@@ -454,7 +445,7 @@ class DocPreview extends Component {
     this.setState({ wrapperWidth });
   }, 350);
 
-  setScrollPage = (scrollPage = this.props.firstPageNumber) => {
+  handleScrollPage = (scrollPage = this.props.firstPageNumber) => {
     this.setState(state => ({
       scrollPage,
       settings: {
@@ -487,8 +478,8 @@ class DocPreview extends Component {
         pdf={pdf}
         forwardedRef={forwardedRef}
         defHeight={maxHeight}
-        scrollPage={this.setScrollPage}
-        nextDocument={this.nextDocument}
+        onScrollPage={this.handleScrollPage}
+        onNextDocument={this.handleNextDocument}
         isLastDocument={this.isLastDocument}
         {...this.commonProps}
       />
@@ -505,7 +496,7 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         resizable={resizable}
         isLastDocument={this.isLastDocument}
-        nextDocument={this.nextDocument}
+        onNextDocument={this.handleNextDocument}
         {...this.commonProps}
         onError={error => {
           console.error(error);
@@ -532,9 +523,9 @@ class DocPreview extends Component {
         fileName={fileName}
         filesList={filesList}
         downloadData={downloadData}
-        onChangeSettings={this.onChangeSettings}
-        onFullscreen={this.onFullscreen}
-        onFileChange={this.onFileChange}
+        onChangeSettings={this.handleChangeSettings}
+        onFullscreen={this.handleFullscreen}
+        onFileChange={this.handleFileChange}
         config={toolbarConfig}
         className={classNames({ 'd-none': this.hiddenToolbar })}
       />
@@ -549,9 +540,7 @@ class DocPreview extends Component {
     }
 
     if (this.isPDF) {
-      const viewer = this.pdfViewer();
-
-      return viewer;
+      return this.pdfViewer();
     }
 
     return this.imgViewer();
@@ -598,7 +587,7 @@ class DocPreview extends Component {
           {this.renderMessage()}
         </div>
 
-        <ReactResizeDetector handleWidth onResize={this.onResizeWrapper} />
+        <ReactResizeDetector handleWidth onResize={this.handleResizeWrapper} />
       </div>
     );
   }
