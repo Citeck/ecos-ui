@@ -26,13 +26,6 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
             'cm:name?str': RecordIds.TASK_ID
           }
         };
-      case 'ecos-config@default-ui-main-menu':
-        return {
-          id: RecordIds.TASK_REF,
-          attributes: {
-            '.str': 'left'
-          }
-        };
       default:
         return {
           id: 'workspace://SpacesStore/a0652fbe-8b72-4a1c-9ca7-3d72c72a7f9e',

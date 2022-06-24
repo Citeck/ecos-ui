@@ -11,7 +11,7 @@ export class PropertiesApi {
 
     return await Records.query(
       {
-        sourceId: SourcesId.EFORM,
+        sourceId: SourcesId.FORM,
         language: 'forms-for-type',
         query: { typeRef }
       },
