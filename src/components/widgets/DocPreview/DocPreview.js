@@ -279,6 +279,7 @@ class DocPreview extends Component {
     this.showFileBootstrap();
   };
 
+  //todo: check conditions
   fetchInfoMainDoc = async () => {
     if (!this.isBlockedByRecord) {
       return new Promise(async resolve => {
@@ -309,6 +310,7 @@ class DocPreview extends Component {
     }
   };
 
+  //todo: check journal / create mainDoc for it
   showFileBootstrap = () => {
     const { filesList = [], mainDoc = {}, link } = this.state;
     const isActualLink = link === mainDoc.link || !!filesList.find(file => file.link === link);
