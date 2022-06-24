@@ -280,11 +280,11 @@ class DocPreview extends Component {
   };
 
   fetchInfoMainDoc = async () => {
-    if (!(this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments)) {
+    if (!this.isBlockedByRecord) {
       return new Promise(async resolve => {
         const recordId = this.getUrlRecordId();
         const fileName = await DocPreviewApi.getFileName(recordId);
-        const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
+        const link = await DocPreviewApi.getPreviewLinkByRecord(recordId);
         const mainDoc = { recordId, fileName, link };
 
         this.exist && this.setState({ mainDoc }, () => resolve());
@@ -310,15 +310,13 @@ class DocPreview extends Component {
   };
 
   showFileBootstrap = () => {
+    const { filesList = [], mainDoc = {}, link } = this.state;
+    const isActualLink = link === mainDoc.link || !!filesList.find(file => file.link === link);
+
+    this.bootstrapLink = isActualLink && this.bootstrapLink;
+
     if (!this.bootstrapLink) {
-      const { filesList, mainDoc = {} } = this.state;
-
-      if (get(filesList, '[0].link') || mainDoc.link) {
-        this.handleFileChange(get(filesList, '[0]') || mainDoc);
-      } else {
-        this.setState({ isLoading: false, error: t(Labels.Errors.FAILURE_FETCH) });
-      }
-
+      this.handleFileChange(get(filesList, '[0]') || mainDoc);
       this.bootstrapLink = true;
     }
   };
