@@ -22,20 +22,21 @@ export default function getViewer(WrappedComponent, isPdf) {
       src: PropTypes.string,
       isLoading: PropTypes.bool,
       resizable: PropTypes.bool,
-      scrollPage: PropTypes.func,
       settings: PropTypes.shape({
         scale: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         isFullscreen: PropTypes.bool,
         currentPage: PropTypes.number
       }),
-      nextDocument: PropTypes.func,
       isLastDocument: PropTypes.bool,
-      forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })])
+      forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+      onNextDocument: PropTypes.func,
+      onScrollPage: PropTypes.func
     };
 
     static defaultProps = {
       isLastDocument: false,
-      nextDocument: () => {},
+      onNextDocument: () => {},
+      onScrollPage: () => {},
       settings: {}
     };
 
@@ -154,7 +155,7 @@ export default function getViewer(WrappedComponent, isPdf) {
           }
         }
 
-        this.props.nextDocument();
+        this.props.onNextDocument();
       },
       500,
       { maxWait: 1000, trailing: true }
@@ -192,7 +193,7 @@ export default function getViewer(WrappedComponent, isPdf) {
 
         if (scrollPage !== newPage) {
           this.setState({ scrollPage: newPage });
-          this.props.scrollPage && this.props.scrollPage(newPage);
+          this.props.onScrollPage(newPage);
         }
       }
     };
@@ -225,8 +226,8 @@ export default function getViewer(WrappedComponent, isPdf) {
       );
     };
 
-    renderDocument() {
-      const { resizable, scrollbarProps, componentRef, isLastDocument, isLoading } = this.props;
+    renderDocument = () => {
+      const { resizable, scrollbarProps, componentRef, isLastDocument, isLoading, onNextDocument } = this.props;
       const newProps = { ...this.props, refViewer: this.refViewer };
       const { isFullscreenOn } = this.state;
       const renderView = props => <div {...props} className="ecos-doc-preview__viewer-scroll-area" />;
@@ -257,14 +258,14 @@ export default function getViewer(WrappedComponent, isPdf) {
           {!isLoading && !isLastDocument && (
             <div className="ecos-doc-preview__viewer_bottom_action">
               <p className="ecos-doc-preview__viewer_bottom_action-text">{t(Labels.BOTTOM_ACTION_TEXT)}</p>
-              <Btn className="ecos-doc-preview__viewer_bottom_action-btn" onClick={() => this.props.nextDocument()}>
+              <Btn className="ecos-doc-preview__viewer_bottom_action-btn" onClick={onNextDocument}>
                 {t(Labels.BOTTOM_ACTION_BTN)}
               </Btn>
             </div>
           )}
         </Scrollbars>
       );
-    }
+    };
 
     renderFullscreen = () => {
       const { isFullscreenOn } = this.state;
