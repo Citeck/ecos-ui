@@ -249,6 +249,13 @@ class DocPreview extends Component {
     return this.props.byLink || !this.state.recordId;
   }
 
+  get isLastDocument() {
+    const { recordId, filesList } = this.state;
+    const currentIndex = filesList.findIndex(file => file.recordId === recordId);
+
+    return currentIndex === filesList.length - 1;
+  }
+
   getUrlRecordId() {
     return queryString.parseUrl(window.location.href).query.recordRef || '';
   }
@@ -271,8 +278,8 @@ class DocPreview extends Component {
 
   runGetData = async () => {
     await this.getFileLinkByRecord();
-    await this.getInfoMainDoc();
-    await this.getFilesByRecord();
+    const mainDoc = await this.getInfoMainDoc();
+    await this.getFilesByRecord(mainDoc);
   };
 
   getFileLinkByRecord = async () => {
@@ -289,7 +296,7 @@ class DocPreview extends Component {
     }
   };
 
-  getFilesByRecord = async () => {
+  getFilesByRecord = async (document = null) => {
     if (this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments) {
       return;
     }
@@ -297,11 +304,21 @@ class DocPreview extends Component {
     const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
     const { filesList: oldFiles = [], mainDoc } = this.state;
 
-    mainDoc && filesList.unshift(mainDoc);
+    let newState = { mainDoc: document || mainDoc };
+
+    if (document && document.link !== '') {
+      document && filesList.unshift(document);
+    }
 
     if (!isArrayEqual(oldFiles, filesList)) {
-      this.setState({ filesList });
+      newState = { ...newState, filesList };
     }
+
+    this.setState(newState, () => {
+      if (newState.mainDoc.link === '') {
+        this.nextDocument();
+      }
+    });
   };
 
   getFileName = async () => {
@@ -322,7 +339,7 @@ class DocPreview extends Component {
     const fileName = await DocPreviewApi.getFileName(recordId);
     const link = await DocPreviewApi.getPreviewLinkByRecord(this.state.recordId);
 
-    this.setState({ mainDoc: { recordId, fileName, link } });
+    return { recordId, fileName, link };
   };
 
   getDownloadData() {
@@ -402,6 +419,23 @@ class DocPreview extends Component {
     );
   };
 
+  nextDocument = () => {
+    const { recordId, filesList, isLoading } = this.state;
+
+    if (isLoading) {
+      return;
+    }
+
+    if (Array.isArray(filesList) && filesList.length > 1) {
+      const currentIndex = filesList.findIndex(file => file.recordId === recordId);
+      const nextFile = filesList[currentIndex + 1];
+
+      if (nextFile) {
+        this.onFileChange(nextFile);
+      }
+    }
+  };
+
   onResizeWrapper = debounce(wrapperWidth => {
     if (this.state.wrapperWidth === wrapperWidth) {
       return;
@@ -432,7 +466,17 @@ class DocPreview extends Component {
     const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
 
-    return <Pdf pdf={pdf} forwardedRef={forwardedRef} defHeight={maxHeight} scrollPage={this.setScrollPage} {...this.commonProps} />;
+    return (
+      <Pdf
+        pdf={pdf}
+        forwardedRef={forwardedRef}
+        defHeight={maxHeight}
+        scrollPage={this.setScrollPage}
+        nextDocument={this.nextDocument}
+        isLastDocument={this.isLastDocument}
+        {...this.commonProps}
+      />
+    );
   }
 
   imgViewer() {
@@ -444,6 +488,8 @@ class DocPreview extends Component {
         src={link}
         forwardedRef={forwardedRef}
         resizable={resizable}
+        isLastDocument={this.isLastDocument}
+        nextDocument={this.nextDocument}
         {...this.commonProps}
         onError={error => {
           console.error(error);
@@ -487,7 +533,9 @@ class DocPreview extends Component {
     }
 
     if (this.isPDF) {
-      return this.pdfViewer();
+      const viewer = this.pdfViewer();
+
+      return viewer;
     }
 
     return this.imgViewer();

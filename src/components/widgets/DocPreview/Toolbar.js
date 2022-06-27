@@ -290,15 +290,23 @@ class Toolbar extends Component {
       return null;
     }
 
+    const currentIndex = filesList.findIndex(file => file.recordId === fileValue);
+
+    if (!filesList[currentIndex]) {
+      return null;
+    }
+
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-files">
         <Dropdown
           withScrollbar
           hasEmpty
+          isStatic
           className="ecos-doc-preview__toolbar-select"
           valueField="recordId"
           titleField="fileName"
           source={filesList}
+          controlLabel={`${currentIndex + 1}/${filesList.length} ${filesList[currentIndex].fileName}`}
           value={fileValue}
           onChange={onFileChange}
           itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
