@@ -3,7 +3,9 @@ export const Labels = {
   Errors: {
     FAILURE_FETCH: 'doc-preview.error.failure-to-fetch',
     LOADING_FAILURE: 'doc-preview.error.loading-failure',
-    NOT_SPECIFIED: 'doc-preview.error.not-specified'
+    NOT_SPECIFIED: 'doc-preview.error.not-specified',
+    NO_DOCS: 'doc-preview.error.no-documents',
+    NO_DOC: 'doc-preview.error.no-document'
   },
   DOWNLOAD: 'doc-preview.download',
   OUT_OF: 'doc-preview.out-of',

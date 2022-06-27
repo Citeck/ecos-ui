@@ -294,31 +294,41 @@ class DocPreview extends Component {
   };
 
   fetchFilesByRecord = async () => {
-    if (!(this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments)) {
-      return new Promise(async resolve => {
-        const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
-        const { filesList: oldFiles = [], mainDoc = {} } = this.state;
+    return new Promise(async resolve => {
+      const { filesList: oldFiles = [], mainDoc = {} } = this.state;
+      const showAllDocuments = get(this.props.toolbarConfig, 'showAllDocuments');
+      let filesList = [];
+      let error = '';
 
-        if (!!mainDoc.link) {
-          filesList.unshift(mainDoc);
-        }
+      if (!!mainDoc.link) {
+        filesList.push(mainDoc);
+      }
 
-        if (!isArrayEqual(oldFiles, filesList)) {
-          this.exist && this.setState({ filesList }, () => resolve());
-        }
-      });
-    }
+      if (!(this.isBlockedByRecord || !showAllDocuments)) {
+        const list = await DocPreviewApi.getFilesList(this.getUrlRecordId());
+        filesList.push(...list);
+      }
+
+      if (!filesList.length) {
+        error = t(showAllDocuments ? Labels.Errors.NO_DOCS : Labels.Errors.NO_DOC);
+      }
+
+      if (this.exist && !isArrayEqual(oldFiles, filesList)) {
+        this.setState({ filesList, error }, () => resolve());
+      }
+    });
   };
 
   //todo: check journal / create mainDoc for it
+  //todo: check error if no doc
   showFileBootstrap = () => {
-    const { filesList = [], mainDoc = {}, link } = this.state;
-    const isActualLink = link === mainDoc.link || !!filesList.find(file => file.link === link);
+    const { filesList = [], link } = this.state;
+    const isActualLink = !!filesList.find(file => file.link === link);
 
     this.bootstrapLink = isActualLink && this.bootstrapLink;
 
     if (!this.bootstrapLink) {
-      this.handleFileChange(get(filesList, '[0]') || mainDoc);
+      this.handleFileChange(get(filesList, '[0]'));
       this.bootstrapLink = true;
     }
   };
