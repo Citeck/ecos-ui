@@ -231,7 +231,8 @@ class ModelEditorPage extends React.Component {
             /**
              * @todo save values other locales
              */
-            formFields[key + ML_POSTFIX] = { [getCurrentLocale()]: value || '' };
+            const formData = this.formData;
+            formFields[key + ML_POSTFIX] = formData[key + ML_POSTFIX];
           } else {
             formFields[key] = value;
           }
