@@ -13,17 +13,21 @@ import { flattenComponents } from 'formiojs/utils/formUtils';
 import { getCurrentLocale, getMLValue, getTextByLocale, t, downloadImageAsSVG } from '../../helpers/util';
 import {
   EventListeners,
-  GATEWAY_TYPES,
   IGNORED_VALUE_COMPONENTS,
   KEY_FIELD_NAME,
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
   LABEL_POSTFIX,
   ML_POSTFIX,
-  PREFIX_FIELD,
-  SEQUENCE_TYPE,
-  TASK_TYPES
+  PREFIX_FIELD
 } from '../../constants/cmmn';
+import {
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER,
+  ELEMENT_TYPES_FORM_DETERMINER_MAP
+} from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -227,7 +231,8 @@ class ModelEditorPage extends React.Component {
             /**
              * @todo save values other locales
              */
-            formFields[key + ML_POSTFIX] = { [getCurrentLocale()]: value || '' };
+            const formData = this.formData;
+            formFields[key + ML_POSTFIX] = formData[key + ML_POSTFIX];
           } else {
             formFields[key] = value;
           }
@@ -309,11 +314,27 @@ class ModelEditorPage extends React.Component {
     this.cacheFormData();
 
     this._formReady = false;
-    this.props.getFormProps(this.getFormType(selectedElement.$type || selectedElement.type), selectedElement);
+
+    const formId = this._determineFormId(selectedElement);
+
+    this.props.getFormProps(this.getFormType(formId), selectedElement);
 
     this.setState({ selectedElement, selectedDiagramElement: element });
     this._labelIsEdited = false;
   };
+
+  _determineFormId(selectedElement) {
+    const elementType = selectedElement.$type || selectedElement.type;
+
+    if (ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER.includes(elementType)) {
+      let eventDefType = get(selectedElement, 'businessObject.eventDefinitions[0].$type');
+      if (ELEMENT_TYPES_FORM_DETERMINER_MAP.has(eventDefType)) {
+        return ELEMENT_TYPES_FORM_DETERMINER_MAP.get(eventDefType);
+      }
+    }
+
+    return elementType;
+  }
 
   _getBusinessObjectByDiagramElement(element) {
     return element;

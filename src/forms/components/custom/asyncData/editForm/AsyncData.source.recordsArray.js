@@ -6,8 +6,18 @@ export default [
     type: 'textfield',
     input: true,
     key: 'source.recordsArray.id',
-    label: t('form-constructor.tabs-content.source.recordsArray.id'),
-    tooltip: t('form-constructor.tabs-tooltip.source.recordsArray.id'),
+    get label() {
+      return this._label || t('form-constructor.tabs-content.source.recordsArray.id');
+    },
+    set label(label) {
+      this._label = label;
+    },
+    get tooltip() {
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.recordsArray.id');
+    },
+    set tooltip(tooltip) {
+      this._tooltip = tooltip;
+    },
     validate: {
       required: true
     }
@@ -15,14 +25,29 @@ export default [
   {
     weight: 200,
     type: 'datamap',
-    label: t('form-constructor.tabs-content.source.recordsArray.attributes'),
-    tooltip: t('form-constructor.tabs-tooltip.source.recordsArray.attributes'),
+    get label() {
+      return this._label || t('form-constructor.tabs-content.source.recordsArray.attributes');
+    },
+    set label(label) {
+      this._label = label;
+    },
+    get tooltip() {
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.recordsArray.attributes');
+    },
+    set tooltip(tooltip) {
+      this._tooltip = tooltip;
+    },
     key: 'source.recordsArray.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      label: t('form-constructor.tabs-content.source.record.attribute'),
+      get label() {
+        return t('form-constructor.tabs-content.source.record.attribute');
+      },
+      set label(label) {
+        this._label = label;
+      },
       defaultValue: '',
       input: true
     },

@@ -26,7 +26,8 @@ const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
 
-export const isDevEnv = () => process.env.NODE_ENV === 'development';
+export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
+export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 
 export function setCookie(name, value, options = {}) {
   options = {
