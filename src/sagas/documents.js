@@ -56,7 +56,6 @@ import {
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
-import { store } from '../';
 
 function* fillTypeInfo(api, types = []) {
   const typeKeys = types.map(record => record.type);
@@ -388,6 +387,7 @@ export function* uploadFile({ api, file, callback }) {
 function* formManager({ api, payload, files }) {
   try {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+
     const type = yield select(state => {
       const selectedType = selectTypeById(state, payload.key, payload.type);
 
@@ -417,18 +417,7 @@ function* formManager({ api, payload, files }) {
         formId: type.formId,
         files,
         createVariants
-      }),
-      {
-        onModalCancel: () => {
-          store.dispatch(
-            setLoadingStatus({
-              key: payload.key,
-              loadingField: 'isLoading',
-              status: false
-            })
-          );
-        }
-      }
+      })
     );
   } catch (e) {
     console.error('[documents formManager error]', e);
