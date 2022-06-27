@@ -86,7 +86,7 @@ const CONFIG_PROPS = {
   },
   [MENU_GROUP_PRIORITY]: {
     multiple: true,
-    type: TYPE_ASSOC
+    type: TYPE_JSON
   },
   [ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS]: {
     multiple: true,
