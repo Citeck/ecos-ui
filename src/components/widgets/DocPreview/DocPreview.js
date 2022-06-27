@@ -76,9 +76,10 @@ class DocPreview extends Component {
     this.state = {
       pdf: {},
       settings: {},
-      isLoading: this.isPDF,
+      isLoading: true,
       scrollPage: props.firstPageNumber,
       recordId: props.recordId || this.getUrlRecordId(),
+      mainRecordId: props.recordId || this.getUrlRecordId(),
       link: props.link,
       contentHeight: 0,
       error: '',
@@ -122,6 +123,12 @@ class DocPreview extends Component {
     //clear state by request
     if (!prevProps.clear && clear) {
       newState = this.getCleanState();
+    }
+
+    if ((!prevProps.clear && clear) || (prevProps.recordId && prevProps.recordId !== nextProps.recordId)) {
+      newState = this.getCleanState();
+      newState.mainRecordId = nextProps.recordId;
+      isBigUpdate = true;
     }
 
     //additional loader by request
@@ -246,7 +253,7 @@ class DocPreview extends Component {
   }
 
   get isBlockedByRecord() {
-    return this.props.byLink || !this.state.recordId;
+    return this.props.byLink || !this.state.mainRecordId;
   }
 
   get isLastDocument() {
@@ -263,7 +270,7 @@ class DocPreview extends Component {
   getCleanState = () => ({
     pdf: {},
     settings: {},
-    isLoading: false,
+    isLoading: true,
     scrollPage: 1,
     recordId: '',
     link: '',
@@ -280,13 +287,13 @@ class DocPreview extends Component {
     await this.fetchInfoMainDoc();
     await this.fetchFilesByRecord();
     this.showFileBootstrap();
+    this.setState({ isLoading: false });
   };
 
-  //todo: check conditions
   fetchInfoMainDoc = async () => {
     if (!this.isBlockedByRecord) {
       return new Promise(async resolve => {
-        const recordId = this.getUrlRecordId();
+        const recordId = this.state.mainRecordId;
         const fileName = await DocPreviewApi.getFileName(recordId);
         const link = await DocPreviewApi.getPreviewLinkByRecord(recordId);
         const mainDoc = { recordId, fileName, link };
@@ -297,31 +304,43 @@ class DocPreview extends Component {
   };
 
   fetchFilesByRecord = async () => {
-    if (!(this.isBlockedByRecord || !this.props.toolbarConfig.showAllDocuments)) {
-      return new Promise(async resolve => {
-        const filesList = await DocPreviewApi.getFilesList(this.getUrlRecordId());
-        const { filesList: oldFiles = [], mainDoc = {} } = this.state;
+    return new Promise(async resolve => {
+      const { filesList: oldFiles = [], mainDoc = {} } = this.state;
+      const showAllDocuments = get(this.props.toolbarConfig, 'showAllDocuments');
+      let filesList = [];
+      const newState = {};
 
-        if (!!mainDoc.link) {
-          filesList.unshift(mainDoc);
-        }
+      if (!!mainDoc.link) {
+        filesList.unshift(mainDoc);
+      }
 
-        if (!isArrayEqual(oldFiles, filesList)) {
-          this.exist && this.setState({ filesList }, () => resolve());
-        }
-      });
-    }
+      if (!(this.isBlockedByRecord || !showAllDocuments)) {
+        const list = await DocPreviewApi.getFilesList(this.getUrlRecordId());
+        filesList.push(...list);
+      }
+
+      if (!isArrayEqual(oldFiles, filesList)) {
+        newState.filesList = filesList;
+      }
+
+      if (!filesList.length) {
+        newState.error = t(showAllDocuments ? Labels.Errors.NO_DOCS : Labels.Errors.NO_DOC);
+      }
+
+      if (this.exist && !isEmpty(newState)) {
+        this.setState(newState, () => resolve());
+      }
+    });
   };
 
-  //todo: check journal / create mainDoc for it
   showFileBootstrap = () => {
     const { filesList = [], mainDoc = {}, link } = this.state;
     const isActualLink = link === mainDoc.link || !!filesList.find(file => file.link === link);
 
     this.bootstrapLink = isActualLink && this.bootstrapLink;
 
-    if (!this.bootstrapLink) {
-      this.handleFileChange(get(filesList, '[0]') || mainDoc);
+    if (!this.bootstrapLink && filesList.length) {
+      this.handleFileChange(get(filesList, '[0]'));
       this.bootstrapLink = true;
     }
   };
@@ -391,6 +410,7 @@ class DocPreview extends Component {
       this.setState(
         {
           ...this.getCleanState(),
+          isLoading: isPDFbyStr(link),
           recordId,
           link,
           error,
@@ -463,8 +483,7 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         defHeight={maxHeight}
         onScrollPage={this.handleScrollPage}
-        onNextDocument={this.handleNextDocument}
-        isLastDocument={this.isLastDocument}
+        onNextDocument={!this.isLastDocument && this.handleNextDocument}
         {...this.commonProps}
       />
     );
@@ -480,7 +499,7 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         resizable={resizable}
         isLastDocument={this.isLastDocument}
-        onNextDocument={this.handleNextDocument}
+        onNextDocument={!this.isLastDocument && this.handleNextDocument}
         {...this.commonProps}
         onError={error => {
           console.error(error);
@@ -555,16 +574,18 @@ class DocPreview extends Component {
 
   render() {
     const { className, noIndents } = this.props;
+    const Loader = this.renderLoader();
 
     return (
       <div
         className={classNames('ecos-doc-preview', className, {
           [`ecos-doc-preview_decreasing-step-${this.decreasingStep}`]: this.decreasingStep,
-          'ecos-doc-preview_hidden': this.hiddenPreview
+          'ecos-doc-preview_hidden': !Loader && this.hiddenPreview,
+          'ecos-doc-preview_loading': !!Loader
         })}
         style={{ height: this.height }}
       >
-        {this.renderLoader()}
+        {Loader}
         <div ref={this.setBodyRef} className={classNames('ecos-doc-preview__content', { 'ecos-doc-preview__content_indents': !noIndents })}>
           {this.renderToolbar()}
           {this.renderViewer()}

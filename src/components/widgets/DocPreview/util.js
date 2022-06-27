@@ -8,8 +8,8 @@ export const Labels = {
   DOWNLOAD: 'doc-preview.download',
   OUT_OF: 'doc-preview.out-of',
 
-  BOTTOM_ACTION_TEXT: 'doc-preview.bottom-action.text',
-  BOTTOM_ACTION_BTN: 'doc-preview.bottom-action.btn',
+  DOC_TRANSITION_MSG: 'doc-preview.doc-transition.msg',
+  DOC_TRANSITION_BTN: 'doc-preview.doc-transition.btn',
 
   SETTINGS_TITLE: 'doc-preview.settings.title',
   SETTINGS_TOOLBAR: 'doc-preview.settings.title.toolbar',
