@@ -272,7 +272,7 @@ export const DetailActionResult = {
               set(options, ['statusesByRecords', id], t(status));
               set(options, ['messagesByRecords', id], result.message);
 
-              return setDisplayDataRecord({ id, disp }, t(result.type), result.message);
+              return setDisplayDataRecord({ id, disp }, t(status), result.message);
             }
 
             return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])), get(options, ['messagesByRecords', id]));
