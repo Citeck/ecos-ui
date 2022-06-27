@@ -301,6 +301,8 @@
   "doc-preview.error.failure-to-fetch": "Документ не получен",
   "doc-preview.error.loading-failure": "Возникла проблема при загрузке документа. Попробуйте скачать документ",
   "doc-preview.error.not-specified": "Документ не указан",
+  "doc-preview.error.no-documents": "Нет документов",
+  "doc-preview.error.no-document": "Нет документа",
   "doc-preview.out-of": "из",
   "doc-preview.preview": "Предпросмотр",
   "doc-preview.scale.auto": "Авто",

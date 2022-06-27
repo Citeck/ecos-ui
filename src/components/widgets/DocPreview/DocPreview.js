@@ -305,9 +305,9 @@ class DocPreview extends Component {
 
   fetchFilesByRecord = async () => {
     return new Promise(async resolve => {
-      const { filesList: oldFiles = [], mainDoc = {} } = this.state;
+      const { filesList: oldFiles = [], mainDoc = {}, mainRecordId } = this.state;
       const showAllDocuments = get(this.props.toolbarConfig, 'showAllDocuments');
-      let filesList = [];
+      const filesList = [];
       const newState = {};
 
       if (!!mainDoc.link) {
@@ -315,7 +315,7 @@ class DocPreview extends Component {
       }
 
       if (!(this.isBlockedByRecord || !showAllDocuments)) {
-        const list = await DocPreviewApi.getFilesList(this.getUrlRecordId());
+        const list = await DocPreviewApi.getFilesList(mainRecordId);
         filesList.push(...list);
       }
 

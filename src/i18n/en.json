@@ -301,6 +301,8 @@
   "doc-preview.error.failure-to-fetch": "Failure to fetch the document",
   "doc-preview.error.loading-failure": "There was a problem loading the document. Try to download the document",
   "doc-preview.error.not-specified": "Document is not specified",
+  "doc-preview.error.no-documents": "No documents",
+  "doc-preview.error.no-document": "No document",
   "doc-preview.out-of": "out of",
   "doc-preview.preview": "Preview",
   "doc-preview.scale.auto": "Automatic Zoom",
