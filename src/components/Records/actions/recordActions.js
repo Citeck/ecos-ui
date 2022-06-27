@@ -547,7 +547,10 @@ class RecordActions {
       }
 
       if (!ungearedPopups) {
-        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+        popupExecution = await DetailActionResult.showPreviewRecords(
+          recordInstances.map(r => getRef(r)),
+          resultOptions
+        );
       }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
@@ -579,7 +582,10 @@ class RecordActions {
         }
 
         if (!ungearedPopups) {
-          popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+          popupExecution = await DetailActionResult.showPreviewRecords(
+            allowedRecords.map(r => getRef(r)),
+            resultOptions
+          );
         }
       }
 
@@ -602,11 +608,14 @@ class RecordActions {
             }
 
             if (!isEmpty(preResult.preProcessedRecords)) {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(preResult, 'results', []).map(item => getRef(item))
-              });
+              await DetailActionResult.showPreviewRecords(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(preResult, 'results', []).map(item => getRef(item))
+                }
+              );
             }
 
             const filteredRecords = preResult.preProcessedRecords
@@ -614,18 +623,22 @@ class RecordActions {
               : chunks[i];
 
             if (!isEmpty(preResult.preProcessedRecords) && isEmpty(filteredRecords)) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: preResult.preProcessedRecords,
-                statuses: preResult.results.reduce(
-                  (result, current) => ({
-                    ...result,
-                    [getRef(current)]: 'ERROR'
-                  }),
-                  {}
-                )
-              });
+              await DetailActionResult.setStatus(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: preResult.preProcessedRecords,
+                  statuses: preResult.results.reduce(
+                    (result, current) => ({
+                      ...result,
+                      [getRef(current)]: 'ERROR',
+                      message: current.message
+                    }),
+                    {}
+                  )
+                }
+              );
 
               actResult = {
                 ...(actResult || {}),
@@ -647,18 +660,21 @@ class RecordActions {
 
             // Cause: https://citeck.atlassian.net/browse/ECOSUI-1578
             if (error) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: filteredRecords.map(item => getRef(item)),
-                statuses: filteredRecords.reduce(
-                  (result, current) => ({
-                    ...result,
-                    [getRef(current)]: 'ERROR'
-                  }),
-                  {}
-                )
-              });
+              await DetailActionResult.setStatus(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: filteredRecords.map(item => getRef(item)),
+                  statuses: filteredRecords.reduce(
+                    (result, current) => ({
+                      ...result,
+                      [getRef(current)]: 'ERROR'
+                    }),
+                    {}
+                  )
+                }
+              );
 
               delete result.error;
 
@@ -678,11 +694,14 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item))
-              });
+              await DetailActionResult.showPreviewRecords(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item))
+                }
+              );
 
               actResult = {
                 ...(actResult || {}),
@@ -692,18 +711,21 @@ class RecordActions {
                 }
               };
 
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item)),
-                statuses: get(result, 'data.results', []).reduce(
-                  (result, current) => ({
-                    ...result,
-                    [getRef(current)]: current.status
-                  }),
-                  {}
-                )
-              });
+              await DetailActionResult.setStatus(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item)),
+                  statuses: get(result, 'data.results', []).reduce(
+                    (result, current) => ({
+                      ...result,
+                      [getRef(current)]: current.status
+                    }),
+                    {}
+                  )
+                }
+              );
             }
 
             results = {
