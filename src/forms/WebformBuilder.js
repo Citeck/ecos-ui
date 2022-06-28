@@ -9,6 +9,8 @@ import { getComponent } from 'formiojs/utils/formUtils';
 import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
 
+const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
+
 Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
   get: function() {
     return {
@@ -399,10 +401,15 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   this.emit('editComponent', component);
 };
 
-const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
-
+//todo
 WebformBuilder.prototype.addBuilderComponentInfo = function(builderInfo) {
+  console.log(builderInfo);
   return originAddBuilderComponentInfo.call(this, prepareComponentBuilderInfo(builderInfo));
 };
+
+// WebformBuilder.prototype.insertInOrder = function(...props) {
+//   console.log({props})
+//   return originInsertInOrder.call(this, ...props);
+// };
 
 export default WebformBuilder;

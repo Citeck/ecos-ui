@@ -1,8 +1,8 @@
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import omit from 'lodash/omit';
-import isNil from 'lodash/isNil';
 import cloneDeep from 'lodash/cloneDeep';
 
 import BaseEditDisplay from 'formiojs/components/base/editForm/Base.edit.display';

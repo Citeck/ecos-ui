@@ -47,5 +47,5 @@ export const DocCompMap = {
 };
 
 export const getCompDoc = keyComp => {
-  return Documentation.FORM_COMPONENTS_URL + DocCompMap[keyComp];
+  return DocCompMap[keyComp] && Documentation.FORM_COMPONENTS_URL + DocCompMap[keyComp];
 };
