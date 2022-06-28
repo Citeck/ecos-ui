@@ -12,6 +12,8 @@ import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
 import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
 
+import { getCompDoc } from '../constants/documentation';
+
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
     return true;
@@ -228,6 +230,13 @@ export const prepareComponentBuilderInfo = builderInfo => {
 export const prepareComponents = components => {
   Object.keys(components).forEach(key => {
     const component = components[key];
+    const builderInfo = component.builderInfo || {};
+
+    Object.defineProperty(component, 'builderInfo', {
+      get: function() {
+        return { ...builderInfo, documentation: getCompDoc(key) || builderInfo.documentation };
+      }
+    });
 
     _expandEditForm(component);
   });
