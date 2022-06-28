@@ -1,7 +1,8 @@
-import BaseReactComponent from '../base/BaseReactComponent';
+import { DocUrls } from '../../../../constants/documentation';
 import MLTextarea from '../../../../components/common/form/Textarea/MLTextarea';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { checkIsEmptyMlField } from '../../../utils';
+import BaseReactComponent from '../base/BaseReactComponent';
 
 export default class MLTextareaComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -21,6 +22,7 @@ export default class MLTextareaComponent extends BaseReactComponent {
       icon: 'fa fa-language',
       group: 'basic',
       weight: 45,
+      documentation: `${DocUrls.COMPONENT}ml-textarea`,
       schema: MLTextareaComponent.schema()
     };
   }

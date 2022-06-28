@@ -7,6 +7,7 @@ import isEqual from 'lodash/isEqual';
 import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
 
+import { DocUrls } from '../../../../constants/documentation';
 import ecosFetch from '../../../../helpers/ecosFetch';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
@@ -75,6 +76,7 @@ export default class AsyncDataComponent extends BaseComponent {
       icon: 'fa fa-terminal',
       group: 'data',
       weight: 0,
+      documentation: `${DocUrls.COMPONENT}async-data`,
       schema: AsyncDataComponent.schema()
     };
   }

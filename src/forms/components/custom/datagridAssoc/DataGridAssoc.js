@@ -1,4 +1,6 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
+
+import { DocUrls } from '../../../../constants/documentation';
 import { isNodeRef } from '../../../../helpers/util';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import Records from '../../../../components/Records/Records';
@@ -21,7 +23,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
       title: 'Data Grid Assoc',
       icon: 'fa fa-th',
       group: 'data',
-      documentation: 'http://help.form.io/userguide/#datagrid',
+      documentation: `${DocUrls.COMPONENT}data-grid-assoc`,
       weight: 21,
       schema: DataGridComponent.schema()
     };

@@ -1,3 +1,4 @@
+import { DocUrls } from '../../../../constants/documentation';
 import BaseComponent from '../base/BaseComponent';
 
 export default class HorizontalLine extends BaseComponent {
@@ -22,6 +23,7 @@ export default class HorizontalLine extends BaseComponent {
       icon: 'fa fa-minus',
       group: 'layout',
       weight: 0,
+      documentation: `${DocUrls.COMPONENT}horizontal-line`,
       schema: HorizontalLine.schema()
     };
   }

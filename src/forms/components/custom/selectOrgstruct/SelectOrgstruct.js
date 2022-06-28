@@ -5,6 +5,7 @@ import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
 
+import { DocUrls } from '../../../../constants/documentation';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
@@ -16,8 +17,8 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
-import BaseComponent from '../base/BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
+import BaseComponent from '../base/BaseComponent';
 
 const _array = (str, checkForEmpty) => {
   if (checkForEmpty && !str) {
@@ -59,6 +60,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
+      documentation: `${DocUrls.COMPONENT}select-orgstruct`,
       schema: SelectOrgstructComponent.schema()
     };
   }

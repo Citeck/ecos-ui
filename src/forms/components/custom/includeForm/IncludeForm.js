@@ -1,3 +1,4 @@
+import { DocUrls } from '../../../../constants/documentation';
 import { t } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
@@ -21,6 +22,7 @@ export default class IncludeFormComponent extends BaseComponent {
       icon: 'fa fa-id-card',
       group: 'data',
       weight: 0,
+      documentation: `${DocUrls.COMPONENT}include-form`,
       schema: IncludeFormComponent.schema()
     };
   }

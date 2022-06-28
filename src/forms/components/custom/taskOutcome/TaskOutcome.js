@@ -1,7 +1,8 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 
-import Records from '../../../../components/Records';
+import { DocUrls } from '../../../../constants/documentation';
 import { t } from '../../../../helpers/util';
+import Records from '../../../../components/Records';
 
 const ButtonType = {
   NEGATIVE: 'n',
@@ -41,6 +42,7 @@ export default class TaskOutcome extends NestedComponent {
       icon: 'fa fa-square',
       group: 'basic',
       weight: 0,
+      documentation: `${DocUrls.COMPONENT}task-outcome`,
       schema: TaskOutcome.schema()
     };
   }
