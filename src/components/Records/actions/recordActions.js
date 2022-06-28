@@ -623,7 +623,7 @@ class RecordActions {
                     ...result,
                     [getRef(current)]: {
                       type: 'ERROR',
-                      message: current.message
+                      message: current.message || ''
                     }
                   }),
                   {}
@@ -657,7 +657,10 @@ class RecordActions {
                 statuses: filteredRecords.reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: 'ERROR'
+                    [getRef(current)]: {
+                      type: 'ERROR',
+                      message: error || current.message
+                    }
                   }),
                   {}
                 )
@@ -702,7 +705,10 @@ class RecordActions {
                 statuses: get(result, 'data.results', []).reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: current.status
+                    [getRef(current)]: {
+                      type: current.status,
+                      message: current.message || ''
+                    }
                   }),
                   {}
                 )

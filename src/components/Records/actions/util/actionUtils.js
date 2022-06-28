@@ -267,7 +267,7 @@ export const DetailActionResult = {
           .then(disp => {
             if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
               const result = get(options, ['statuses', id]);
-              const status = packedActionStatus(get(result, 'type'));
+              const status = packedActionStatus(result.type);
 
               set(options, ['statusesByRecords', id], t(status));
               set(options, ['messagesByRecords', id], result.message);
@@ -275,7 +275,14 @@ export const DetailActionResult = {
               return setDisplayDataRecord({ id, disp }, t(status), result.message);
             }
 
-            return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])), get(options, ['messagesByRecords', id]));
+            return setDisplayDataRecord(
+              {
+                id,
+                disp
+              },
+              t(get(options, ['statusesByRecords', id])),
+              get(options, ['messagesByRecords', id])
+            );
           })
       )
     );
