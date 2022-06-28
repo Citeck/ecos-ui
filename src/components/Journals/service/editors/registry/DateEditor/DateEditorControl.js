@@ -6,7 +6,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { PREDICATE_TIME_INTERVAL } from '../../../../../Records/predicates/predicates';
-import { DatePicker } from '../../../../../common/form';
+import { DatePicker, DateIntervalPicker } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import TextEditor from '../TextEditor';
 import editorRegistry from '../';
@@ -35,7 +35,7 @@ export default class DateEditorControl extends React.Component {
   dateFormat = 'dd.MM.yyyy';
 
   get extraProps() {
-    return { ...get(this, 'props.extraProps', null) };
+    return { ...get(this, 'props.extraProps', {}) };
   }
 
   get selected() {
@@ -71,6 +71,12 @@ export default class DateEditorControl extends React.Component {
     this.setState({ date }, this.sendData);
   };
 
+  onChangeInterval = dates => {
+    if (dates && dates.includes('/')) {
+      this.setState({ date: dates }, this.sendData);
+    }
+  };
+
   sendData = () => {
     this.props.onUpdate && this.props.onUpdate(this.state.date);
   };
@@ -101,9 +107,13 @@ export default class DateEditorControl extends React.Component {
     return Control;
   }
 
+  renderDateInterval() {
+    return <DateIntervalPicker value={this.state.date} onChange={this.onChangeInterval} />;
+  }
+
   render() {
     if (this.isFilter && [get(this.props, 'predicate.t'), get(this.props, 'predicate.value')].includes(PREDICATE_TIME_INTERVAL)) {
-      return <this.inputControl {...this.props} />;
+      return this.renderDateInterval();
     }
 
     return (

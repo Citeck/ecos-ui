@@ -10,7 +10,7 @@ export default class PanelComponent extends FormIOPanelComponent {
   static schema(...extend) {
     return FormIOPanelComponent.schema(
       {
-        title: 'Panel',
+        title: '',
         label: 'Panel',
         collapsible: false,
         scrollableContent: false

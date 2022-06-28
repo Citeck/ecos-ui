@@ -23,7 +23,7 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
     yield put(getTitle({ stateId, record }));
     yield put(getScenario({ stateId, record }));
   } catch (e) {
-    logger.error('[cmmnEditor/init saga] error', e.message);
+    logger.error('[cmmnEditor/init saga] error', e);
   }
 }
 
@@ -34,7 +34,7 @@ export function* fetchScenario({ api, logger }, { payload: { stateId, record } }
     yield put(setScenario({ stateId, scenario }));
   } catch (e) {
     yield put(setScenario({ stateId, scenario: null }));
-    logger.error('[cmmnEditor/fetchScenario saga] error', e.message);
+    logger.error('[cmmnEditor/fetchScenario saga] error', e);
   }
 }
 
@@ -54,7 +54,7 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
     NotificationManager.error(e.message || t('error'), t('cmmn-editor.error.can-not-save-scenario'));
-    logger.error('[cmmnEditor/runSaveScenario  saga] error', e.message);
+    logger.error('[cmmnEditor/runSaveScenario  saga] error', e);
   }
 }
 
@@ -65,7 +65,7 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[cmmnEditor/fetchTitle saga] error', e.message);
+    logger.error('[cmmnEditor/fetchTitle saga] error', e);
   }
 }
 
@@ -105,7 +105,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
   } catch (e) {
     yield put(setFormProps({ stateId, formProps: {} }));
     NotificationManager.error(t('model-editor.error.form-not-found'), t('success'));
-    logger.error('[cmmnEditor/fetchFormProps saga] error', e.message);
+    logger.error('[cmmnEditor/fetchFormProps saga] error', e);
   }
 }
 

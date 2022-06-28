@@ -1,6 +1,7 @@
 import Records from '../../components/Records';
-import { getCurrentUserName } from '../../helpers/util';
+import { getCurrentUserName } from '../util';
 import { SourcesId } from '../../constants';
+import configService, { MAIN_MENU_TYPE } from '../../services/config/ConfigService';
 
 const isCurrentUserInGroup = group => {
   const currentPersonName = getCurrentUserName();
@@ -14,20 +15,16 @@ const isCurrentUserInGroup = group => {
 };
 
 const checkFunctionalAvailability = configKeyFromSysJournal => {
-  return Records.get(`ecos-config@${configKeyFromSysJournal}`)
-    .load('.str')
-    .then(groupsInOneString => {
-      if (!groupsInOneString) {
-        return false;
-      }
+  return configService.getValue(configKeyFromSysJournal, { multiple: true }).then(groupsList => {
+    if (!groupsList || !groupsList.length) {
+      return true;
+    }
+    const results = [];
 
-      const groups = groupsInOneString.split(',');
-      const results = [];
+    groupsList.forEach(group => results.push(isCurrentUserInGroup(group)));
 
-      groups.forEach(group => results.push(isCurrentUserInGroup(group)));
-
-      return Promise.all(results).then(values => (values || []).includes(true));
-    });
+    return Promise.all(results).then(values => (values || []).includes(true));
+  });
 };
 
 /**
@@ -36,7 +33,7 @@ const checkFunctionalAvailability = configKeyFromSysJournal => {
  * @returns {void|*|PromiseLike<any>|Promise<any>}
  */
 export const checkFunctionalAvailabilityForUser = configKeyFromSysJournal => {
-  return Records.get('ecos-config@default-ui-main-menu')
-    .load('.str')
+  return configService
+    .getValue(MAIN_MENU_TYPE)
     .then(result => (result && result.indexOf('left') === 0 ? checkFunctionalAvailability(configKeyFromSysJournal) : false));
 };

@@ -4,26 +4,17 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { t } from '../helpers/util';
 import { RequestStatuses } from '../constants';
 import MenuConverter from '../dto/menu';
-import { getMenuConfig, initMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
-
-function* doInitMenu({ api, logger }, action) {
-  try {
-    yield put(getMenuConfig());
-  } catch (e) {
-    logger.error('[menu/ doInitMenu] error', e.message);
-  }
-}
+import { getMenuConfig, saveMenuConfig, setMenuConfig, setRequestResultMenuConfig } from '../actions/menu';
 
 function* doGetMenuConfigRequest({ api, logger }) {
   try {
-    const result1 = yield call(api.menu.getMenuConfig, true);
     const result2 = yield call(api.menu.getUserMenuConfig);
-    const menu = MenuConverter.parseGetResult({ ...result1, ...result2 });
+    const menu = MenuConverter.parseGetResult({ ...result2 });
 
     yield put(setMenuConfig(menu));
   } catch (e) {
     NotificationManager.error(t('menu.error.get-config'), t('error'));
-    logger.error('[menu/ doGetMenuConfigRequest] error', e.message);
+    logger.error('[menu/ doGetMenuConfigRequest] error', e);
   }
 }
 
@@ -37,12 +28,11 @@ function* doSaveMenuConfigRequest({ api, logger }, { payload }) {
     yield put(setRequestResultMenuConfig({ status: RequestStatuses.SUCCESS }));
   } catch (e) {
     NotificationManager.error(t('menu.error.save-config'), t('error'));
-    logger.error('[menu/ doSaveMenuConfigRequest] error', e.message);
+    logger.error('[menu/ doSaveMenuConfigRequest] error', e);
   }
 }
 
 function* saga(ea) {
-  yield takeLatest(initMenuConfig().type, doInitMenu, ea);
   yield takeLatest(getMenuConfig().type, doGetMenuConfigRequest, ea);
   yield takeLatest(saveMenuConfig().type, doSaveMenuConfigRequest, ea);
 }
