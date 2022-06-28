@@ -1,5 +1,5 @@
-import _get from 'lodash/get';
-import _filter from 'lodash/filter';
+import get from 'lodash/get';
+import filter from 'lodash/filter';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
@@ -12,84 +12,18 @@ import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
 
 class JournalsDataLoader {
+  /**
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Promise}
+   */
   async load(journalConfig, settings = {}) {
-    const columns = journalConfig.columns || settings.columns || [];
-    const predicateFilter = convertAttributeValues(_filter(settings.filter, p => !!p), columns);
-    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter];
-
-    if (settings.onlyLinked && settings.recordRef) {
-      predicates.push({
-        t: PREDICATE_OR,
-        val: columns
-          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
-          .map(a => ({
-            t: PREDICATE_CONTAINS,
-            val: settings.recordRef,
-            att: a.attribute
-          }))
-      });
-
-      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
-    }
-
-    let language = 'predicate';
-    let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
-    let queryData = null;
-
-    if (journalConfig.queryData || settings.queryData) {
-      queryData = {
-        ...(journalConfig.queryData || {}),
-        ...(settings.queryData || {})
-      };
-    }
-
-    if (queryData && Object.keys(queryData).length > 0) {
-      query = {
-        data: queryData,
-        predicate: query
-      };
-      language = 'predicate-with-data';
-    }
-
-    const recordsQuery = {
-      sourceId: settings.customSourceId || journalConfig.sourceId || '',
-      query,
-      language,
-      page: settings.page,
-      consistency: 'EVENTUAL'
-    };
-
-    const groupBy = settings.groupBy || journalConfig.groupBy;
-    if (groupBy && groupBy.length) {
-      recordsQuery.groupBy = groupBy;
-    }
-
-    let sortBy = [];
-
-    if (Array.isArray(settings.sortBy)) {
-      sortBy = settings.sortBy;
-    } else if (typeof settings.sortBy === 'object' && Object.keys(settings).length) {
-      sortBy = [settings.sortBy];
-    }
-
-    if (!sortBy.length) {
-      sortBy = journalConfig.sortBy || [];
-    }
-    sortBy = sortBy.filter(s => !!s.attribute);
-
-    if (!sortBy.length) {
-      sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
-    }
-    recordsQuery.sortBy = sortBy;
-
-    const attributes = this._getAttributes(journalConfig, settings);
+    const recordsQuery = await this.getRecordsQuery(journalConfig, settings);
+    const attributes = this.#getAttributes(journalConfig, settings);
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
-      .then(res => ({
-        ...res,
-        query: recordsQuery
-      }))
+      .then(res => ({ ...res, query: recordsQuery }))
       .then(resArg => {
         const result = { ...resArg };
         const resultRecords = [];
@@ -148,7 +82,128 @@ class JournalsDataLoader {
       });
   }
 
-  _getAttributes(journalConfig, settings) {
+  /**
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {RecordsQuery}
+   */
+  getRecordsQuery = async (journalConfig, settings = {}) => {
+    const consistency = 'EVENTUAL';
+    const columns = journalConfig.columns || settings.columns || [];
+    const predicates = await this.getPredicates(journalConfig, settings);
+    let language = 'predicate';
+    let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
+    let queryData = null;
+
+    query = JournalsConverter.searchConfigProcessed(query, columns);
+
+    if (journalConfig.queryData || settings.queryData) {
+      queryData = {
+        ...(journalConfig.queryData || {}),
+        ...(settings.queryData || {})
+      };
+    }
+
+    if (queryData && Object.keys(queryData).length > 0) {
+      query = {
+        data: queryData,
+        predicate: query
+      };
+      language = 'predicate-with-data';
+    }
+
+    const sortBy = this.#getSortBy(journalConfig, settings);
+    const groupBy = this.#getGroupBy(journalConfig, settings);
+
+    return {
+      sourceId: settings.customSourceId || journalConfig.sourceId || '',
+      language,
+      consistency,
+      query,
+      page: settings.page,
+      sortBy,
+      groupBy
+    };
+  };
+
+  /**
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {Promise<Array<Predicate>>}}
+   */
+  getPredicates = async (journalConfig, settings) => {
+    const columns = journalConfig.columns || settings.columns || [];
+    const predicateFilter = convertAttributeValues(filter(settings.filter, p => !!p), columns);
+
+    let predicates = [journalConfig.predicate, settings.predicate, ...predicateFilter].filter(p => !!p);
+
+    if (settings.onlyLinked && settings.recordRef) {
+      predicates.push({
+        t: PREDICATE_OR,
+        val: columns
+          .filter(c => c.type === COLUMN_DATA_TYPE_ASSOC && c.searchable)
+          .map(a => ({
+            t: PREDICATE_CONTAINS,
+            val: settings.recordRef,
+            att: a.attribute
+          }))
+      });
+
+      predicates = await RecordUtils.replaceAttrValuesForRecord(predicates, settings.recordRef);
+    }
+
+    return predicates;
+  };
+
+  /**
+   * @private
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {SortBy}
+   */
+  #getSortBy = (journalConfig, settings) => {
+    let sortBy = [];
+
+    if (Array.isArray(settings.sortBy)) {
+      sortBy = settings.sortBy;
+    } else if (typeof settings.sortBy === 'object' && Object.keys(settings).length) {
+      sortBy = [settings.sortBy];
+    }
+
+    if (!sortBy.length) {
+      sortBy = journalConfig.sortBy || [];
+    }
+
+    sortBy = sortBy.filter(s => !!s.attribute);
+
+    if (!sortBy.length) {
+      sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
+    }
+
+    return sortBy;
+  };
+
+  /**
+   * @private
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {?Array<String>}
+   */
+  #getGroupBy = (journalConfig, settings) => {
+    const groupBy = settings.groupBy || journalConfig.groupBy;
+
+    if (groupBy && groupBy.length) {
+      return groupBy;
+    }
+  };
+
+  /**
+   * @private
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns {{attributesMap: Object, attributesSet: Array}}
+   */
+  #getAttributes = (journalConfig, settings) => {
     const groupBy = journalConfig.groupBy || [];
     const columns = journalConfig.columns || [];
     const settingsAttributes = settings.attributes || {};
@@ -176,7 +231,7 @@ class JournalsDataLoader {
       }
     }
 
-    const additionalAttributes = _get(journalConfig, 'configData.attributesToLoad');
+    const additionalAttributes = get(journalConfig, 'configData.attributesToLoad');
 
     if (additionalAttributes) {
       for (let att of additionalAttributes) {
@@ -188,7 +243,7 @@ class JournalsDataLoader {
       attributesMap: attributesMap,
       attributesSet: [...attributesSet]
     };
-  }
+  };
 }
 
 const INSTANCE = new JournalsDataLoader();

@@ -1,32 +1,28 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import omit from 'lodash/omit';
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
-import cloneDeep from 'lodash/cloneDeep';
 import queryString from 'query-string';
+import get from 'lodash/get';
+import omit from 'lodash/omit';
+import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
-import { UserConfigApi } from '../../api/userConfig';
+import { instUserConfigApi as api } from '../../api/userConfig';
 import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
-import { Dropdown } from '../common/form';
-import { TwoIcoBtn } from '../common/btns';
-import { PREDICATE_AND } from '../Records/predicates/predicates';
-import { convertAttributeValues } from '../Records/predicates/util';
-import ParserPredicate from '../Filters/predicates/ParserPredicate';
-
+import JournalsConverter from '../../dto/journals';
 import recordActions from '../Records/actions/recordActions';
+import RecordsExportAction from '../Records/actions/handler/executor/RecordsExport';
+import journalsService from '../Journals/service/journalsService';
+import { Dropdown } from '../common/form';
 
 import './Export.scss';
-
-const api = new UserConfigApi();
 
 export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
+    recordRef: PropTypes.string,
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,
@@ -35,8 +31,11 @@ export default class Export extends Component {
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    dashletConfig: {}
   };
+
+  #actionsDoing = new Map();
 
   constructor(props) {
     super(props);
@@ -44,68 +43,65 @@ export default class Export extends Component {
     this.form = React.createRef();
   }
 
-  state = {
-    isOpen: false
-  };
-
   get dropdownSource() {
     return [
       { id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' },
       { id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' },
       { id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' },
       { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
-      { id: 4, title: t('export-component.action.copy-link'), click: this.onCopyUrl }
+      { id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }
     ];
   }
 
-  getStateOpen = isOpen => {
-    this.setState({ isOpen });
-  };
+  handleExport = async item => {
+    if (this.#actionsDoing.get(item.id)) {
+      return;
+    }
 
-  export = item => {
+    this.#actionsDoing.set(item.id, true);
+
     if (item.target) {
-      const { journalConfig, grid } = this.props;
-      const query = this.getQuery(journalConfig, item.type, grid);
+      const { journalConfig } = this.props;
+      const recordsQuery = await journalsService.getRecordsQuery(journalConfig, this.getJSettings());
+      const actionConfig = this.getActionConfig(item);
+      const action = { type: RecordsExportAction.ACTION_ID, config: actionConfig };
 
-      this.textInput.current.value = JSON.stringify(query);
+      this.textInput.current.value = JSON.stringify(recordsQuery.query);
 
-      const recordsQuery = {
-        sourceId: journalConfig.sourceId,
-        query: query.predicate,
-        language: 'predicate',
-        sortBy: query.sortBy
-      };
-      const action = {
-        type: 'records-export',
-        config: {
-          exportType: query.reportType,
-          columns: query.reportColumns,
-          download: item.download
-        }
-      };
-
-      recordActions.execForQuery(recordsQuery, action);
-    } else if (typeof item.click === 'function') {
-      item.click();
-    }
-  };
-
-  getSearchPredicate = (grid = {}) => {
-    const { search: text, columns, groupBy } = grid || {};
-
-    if (isEmpty(text)) {
-      return {};
+      await recordActions.execForQuery(recordsQuery, action);
+    } else if (isFunction(item.click)) {
+      await item.click();
     }
 
-    return ParserPredicate.getSearchPredicates({ text, columns, groupBy });
+    this.#actionsDoing.delete(item.id);
   };
 
-  getQuery = (config = {}, reportType, grid = {}) => {
-    set(config, 'meta.createVariants', get(config, 'meta.createVariants') || []);
+  handleCopyUrl = async () => {
+    const data = await this.getSelectionFilter();
+    const url = this.getSelectionUrl();
 
-    const reportTitle = get(config, 'meta.createVariants[0].title') || get(config, 'meta.title');
-    const columns = get(grid, 'columns') || config.columns || [];
-    const reportColumns = columns
+    if (!isEmpty(this.props.selectedItems)) {
+      data.selectedItems = this.props.selectedItems;
+    }
+
+    return api.copyUrlConfig({ data, url });
+  };
+
+  getJSettings = () => {
+    const { grid, dashletConfig, recordRef } = this.props;
+
+    return JournalsConverter.getSettingsForDataLoaderServer({
+      ...grid,
+      predicates: JournalsConverter.cleanUpPredicate(grid.predicates),
+      onlyLinked: get(dashletConfig, 'onlyLinked'),
+      recordRef
+    });
+  };
+
+  getActionConfig = item => {
+    const { journalConfig, grid } = this.props;
+    const cols = get(grid, 'columns') || journalConfig.columns || [];
+    const columns = cols
       .filter(c => c.default)
       .map(({ attribute, text, newType, newFormatter }) => ({
         attribute,
@@ -113,28 +109,24 @@ export default class Export extends Component {
         type: newType,
         formatter: newFormatter
       }));
-    const mainPredicate = get(config, 'predicate', {});
-    const gridPredicate = get(grid, 'predicates[0]', {});
-    const searchPredicate = get(grid, 'searchPredicate[0]', {});
-    const predicates = [mainPredicate, searchPredicate, gridPredicate];
-    const cleanPredicate = ParserPredicate.removeEmptyPredicates([cloneDeep({ t: PREDICATE_AND, val: predicates })]);
-    const predicate = convertAttributeValues(cleanPredicate, columns);
-    const sortBy = get(grid, 'sortBy') || [{ attribute: '_created', ascending: false }];
+
+    const reportTitle = get(journalConfig, 'meta.createVariants[0].title') || get(journalConfig, 'meta.title');
 
     return {
-      sortBy,
-      predicate: get(predicate, '[0]', null),
-      reportType,
-      reportTitle,
-      reportColumns
+      exportType: item.type,
+      columns,
+      download: item.download,
+      reportTitle
     };
   };
 
-  getSelectionFilter = () => {
-    const { columns } = this.props.journalConfig || {};
-    const { groupBy, sortBy, pagination, predicates, search } = this.props.grid || {};
+  getSelectionFilter = async () => {
+    const { grid, journalConfig } = this.props;
+    const { columns } = journalConfig || {};
+    const { groupBy, sortBy, pagination, search } = grid || {};
+    const predicate = await journalsService.getPredicates(journalConfig, this.getJSettings());
 
-    return { columns, groupBy, sortBy, pagination, predicate: predicates[0], search };
+    return { columns, groupBy, sortBy, pagination, predicate, search };
   };
 
   getSelectionUrl = () => {
@@ -142,51 +134,36 @@ export default class Export extends Component {
     const { href, host } = window.location;
 
     if (journalConfig) {
-      const journalId = get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId'), '');
+      const journalId = get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) || '';
 
       return decodeLink(`${host}${URL.JOURNAL}?${queryString.stringify({ journalId })}`);
     }
 
     const objectUrl = queryString.parseUrl(href);
-    const { journalId } = objectUrl.query;
+    const { journalId, url } = objectUrl.query;
 
-    return `${objectUrl.url}?${queryString.stringify({ journalId })}`;
-  };
-
-  onCopyUrl = () => {
-    const data = this.getSelectionFilter();
-    const url = this.getSelectionUrl();
-
-    if (!isEmpty(this.props.selectedItems)) {
-      data.selectedItems = this.props.selectedItems;
-    }
-
-    api.copyUrlConfig({ data, url });
+    return `${url}?${queryString.stringify({ journalId })}`;
   };
 
   render() {
     const { right, className, children, ...props } = this.props;
-    const { isOpen } = this.state;
-    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid']);
+    const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
 
     return (
-      <div {...attributes} className={classNames('ecos-btn-export', className)}>
+      <div {...attributes} className={classNames('ecos-btn-export', { [className]: !!className })}>
         <Dropdown
+          isButton
+          isStatic={!children}
+          hasEmpty
           source={this.dropdownSource}
-          value={0}
           valueField={'id'}
           titleField={'title'}
-          isButton
-          onChange={this.export}
           right={right}
-          getStateOpen={this.getStateOpen}
+          controlIcon="icon-download"
+          controlClassName="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
+          onChange={this.handleExport}
         >
-          {children || (
-            <TwoIcoBtn
-              icons={['icon-download', isOpen ? 'icon-small-up' : 'icon-small-down']}
-              className="ecos-btn_grey ecos-btn_settings-down ecos-btn_x-step_10"
-            />
-          )}
+          {children}
         </Dropdown>
 
         <form ref={this.form} method="post" encType="multipart/form-data">

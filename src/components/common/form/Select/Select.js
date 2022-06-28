@@ -65,7 +65,7 @@ class Select extends Component {
   }
 
   render() {
-    const { loadOptions, closeMenuOnScroll, ...props } = this.props;
+    const { loadOptions, closeMenuOnScroll, narrow, ...props } = this.props;
     const SelectComponent = loadOptions ? AsyncSelect : ReactSelect;
 
     return (
@@ -77,8 +77,10 @@ class Select extends Component {
         {...props}
         loadOptions={this.loadOptions}
         value={this.state.value}
-        className={classNames('ecos-select', props.className)}
-        classNamePrefix="select"
+        className={classNames('ecos-select', props.className, {
+          select_narrow: narrow
+        })}
+        classNamePrefix="fitnesse-select select"
         closeMenuOnScroll={this.handleCloseMenuOnScroll()}
       />
     );
@@ -87,6 +89,7 @@ class Select extends Component {
 
 Select.propTypes = {
   loadOptions: PropTypes.bool,
+  narrow: PropTypes.bool,
   className: PropTypes.string
 };
 

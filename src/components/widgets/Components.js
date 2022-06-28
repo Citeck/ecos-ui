@@ -56,7 +56,10 @@ export default class Components {
       label: 'dashboard-settings.widget.preview',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {
-        fixedHeight: true
+        fixedHeight: true,
+        config: {
+          showAllDocuments: false
+        }
       }
     },
     [ComponentKeys.JOURNAL]: {

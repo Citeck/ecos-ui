@@ -1,3 +1,4 @@
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
 
@@ -14,6 +15,9 @@ import {
 } from '../../Records/predicates/predicates';
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
+import DefaultFormatter from './formatters/registry/DefaultFormatter';
+import BooleanFormatter from './formatters/registry/BooleanFormatter';
+import NumberFormatter from './formatters/registry/NumberFormatter';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -110,16 +114,22 @@ class JournalColumnsResolver {
       return res;
     };
 
-    if (!updColumn.newFormatter || !updColumn.newFormatter.type) {
+    if (!get(updColumn, 'newFormatter.type')) {
       if (updColumn.type === 'boolean') {
         updColumn.newFormatter = {
-          type: 'bool'
+          type: BooleanFormatter.TYPE
         };
       } else {
         updColumn.newFormatter = {
-          type: 'default'
+          type: DefaultFormatter.TYPE
         };
       }
+    }
+
+    if (['double', 'number'].includes(updColumn.type) && updColumn.newFormatter.type === DefaultFormatter.TYPE) {
+      updColumn.newFormatter = {
+        type: NumberFormatter.TYPE
+      };
     }
 
     if (updColumn.newEditor) {

@@ -10,7 +10,7 @@ import difference from 'lodash/difference';
 import { t } from '../../../../helpers/export/util';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import Records from '../../Records';
-import { getBool, extractLabel, isNodeRef } from '../../../../helpers/util';
+import { extractLabel, getBool, isNodeRef } from '../../../../helpers/util';
 import DialogManager from '../../../common/dialogs/Manager';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
 
@@ -35,6 +35,12 @@ export function getRef(record) {
   return isNodeRef(record) ? record : record.id || record.recordRef || record.nodeRef;
 }
 
+/**
+ *
+ * @param {ActionResultInfo} info
+ * @param {ActionResultOptions} options
+ * @returns {*} dialog
+ */
 export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
   let buttons = [];
@@ -69,6 +75,9 @@ function formatArrayResult(data) {
   return { type: ResultTypes.RESULTS, data: { results: Array.from(data) } };
 }
 
+/**
+ * @enum {String}
+ */
 export const ResultTypes = {
   LINK: 'link',
   RESULTS: 'results',
@@ -257,14 +266,16 @@ export const DetailActionResult = {
           .load('.disp')
           .then(disp => {
             if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
-              const status = packedActionStatus(get(options, ['statuses', id]));
+              const result = get(options, ['statuses', id]);
+              const status = packedActionStatus(get(result, 'type'));
 
               set(options, ['statusesByRecords', id], t(status));
+              set(options, ['messagesByRecords', id], result.message);
 
-              return setDisplayDataRecord({ id, disp }, t(status));
+              return setDisplayDataRecord({ id, disp }, t(status), result.message);
             }
 
-            return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])));
+            return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])), get(options, ['messagesByRecords', id]));
           })
       )
     );

@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
@@ -17,7 +19,7 @@ class BaseWidget extends Component {
   constructor(props) {
     super(props);
 
-    const lsId = `${props.id}/${props.tabId}`;
+    const lsId = `${props.dashboardId}/${props.id}`;
 
     UserLocalSettingsService.checkOldData(props.id, props.tabId);
 
@@ -28,28 +30,20 @@ class BaseWidget extends Component {
       contentHeight: null,
       width: MIN_WIDTH_DASHLET_SMALL,
       previousHeight: 0,
-      userHeight: UserLocalSettingsService.getDashletHeight(lsId),
-      isCollapsed: UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED)
+      userHeight: UserLocalSettingsService.getDashletHeight(lsId)
     };
     this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
   }
 
   componentDidMount() {
     const { onLoad } = this.props;
-
-    if (typeof onLoad === 'function') {
-      onLoad(this);
-    }
-
+    isFunction(onLoad) && onLoad(this);
     this.updateLocalStorageDate();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { onUpdate } = this.props;
-
-    if (typeof onUpdate === 'function') {
-      onUpdate(this);
-    }
+    isFunction(onUpdate) && onUpdate(this);
 
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.handleUpdate();
@@ -58,6 +52,15 @@ class BaseWidget extends Component {
 
   componentWillUnmount() {
     this.instanceRecord.unwatch(this.#updateWatcher);
+  }
+
+  get isCollapsed() {
+    const { id, dashboardId, config } = this.props;
+    const lsId = `${dashboardId}/${id}`;
+    const isCollapsedByConfig = get(config, 'collapsed');
+    const isCollapsedByLS = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
+
+    return isUndefined(isCollapsedByLS) ? isCollapsedByConfig : isCollapsedByLS;
   }
 
   get instanceRecord() {
@@ -172,7 +175,7 @@ class BaseWidget extends Component {
       contentHeight = 0;
     }
 
-    if (!contentHeight && this.state.userHeight === undefined) {
+    if (!contentHeight && isUndefined(this.state.userHeight)) {
       return;
     }
 
@@ -235,8 +238,8 @@ class BaseWidget extends Component {
   };
 
   handleToggleContent = (isCollapsed = false) => {
-    this.setState({ isCollapsed });
     UserLocalSettingsService.setDashletProperty(this.state.lsId, { isCollapsed });
+    this.forceUpdate();
   };
 
   handleResize = width => {

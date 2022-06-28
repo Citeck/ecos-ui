@@ -204,7 +204,7 @@ class PropertiesDashlet extends BaseWidget {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const { isSmallMode, isEditProps, formIsChanged, isCollapsed, isShowSetting, title: titleForm, previousHeight } = this.state;
+    const { isSmallMode, isEditProps, formIsChanged, isShowSetting, title: titleForm, previousHeight } = this.state;
     const { formId = '', titleAsFormName } = config || {};
     const titleDashlet = t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE);
 
@@ -224,7 +224,7 @@ class PropertiesDashlet extends BaseWidget {
         onChangeHeight={this.handleChangeHeight}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
       >
         <Properties
           ref={this._propertiesRef}

@@ -24,6 +24,7 @@ const mapStateToProps = (state, props) => {
     journalSettings: newState.journalSettings,
     config: selectNewVersionDashletConfig(state, props.stateId),
     grid: newState.grid,
+    recordRef: newState.recordRef,
     selectedRecords: newState.selectedRecords,
     selectedJournals: newState.selectedJournals
   };
@@ -104,7 +105,8 @@ class JournalsDashletToolbar extends Component {
       grid,
       config,
       selectedRecords,
-      lsJournalId
+      lsJournalId,
+      recordRef
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
     const isWide = !isSmall;
@@ -141,6 +143,7 @@ class JournalsDashletToolbar extends Component {
             journalConfig={journalConfig}
             grid={grid}
             dashletConfig={config}
+            recordRef={recordRef}
             selectedItems={selectedRecords}
           />
         )}

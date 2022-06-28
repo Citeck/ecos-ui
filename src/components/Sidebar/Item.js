@@ -9,7 +9,7 @@ import isEqual from 'lodash/isEqual';
 import { setScrollTop, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
-import { getIconObjectWeb } from '../../helpers/icon';
+import { getIconObjectWeb, getIconUpDown } from '../../helpers/icon';
 import { SourcesId } from '../../constants';
 import { ActionTypes } from '../../constants/sidebar';
 import { MenuSettings } from '../../constants/menu';
@@ -156,11 +156,9 @@ class Item extends React.Component {
 
     return this.collapsible ? (
       <Icon
-        className={classNames('ecos-sidebar-item__toggle', {
+        className={classNames('ecos-sidebar-item__toggle', getIconUpDown(isExpanded && (isOpen || inDropdown)), {
           'ecos-sidebar-item__toggle_v': isOpen,
-          'ecos-sidebar-item__toggle_h icon-small-right': !isOpen,
-          'icon-small-down': !isExpanded && (isOpen || inDropdown),
-          'icon-small-up': isExpanded && (isOpen || inDropdown)
+          'ecos-sidebar-item__toggle_h icon-small-right': !isOpen
         })}
       />
     ) : null;

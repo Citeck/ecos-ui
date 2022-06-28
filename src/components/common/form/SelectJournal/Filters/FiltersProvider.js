@@ -82,6 +82,15 @@ export default class FiltersProvider extends Component {
     });
   };
 
+  resetFields = () => {
+    const fields = this.state.fields.map(item => {
+      const { predicateValue, ...newItem } = item;
+      return newItem;
+    });
+
+    this.setState({ fields });
+  };
+
   render() {
     return (
       <FiltersContext.Provider
@@ -89,6 +98,7 @@ export default class FiltersProvider extends Component {
           allFields: this.state.allFields,
           fields: this.state.fields,
           searchText: this.state.searchText,
+          resetFields: this.resetFields,
           updateSearchText: e => {
             this.setState({
               searchText: e.target.value

@@ -1,5 +1,5 @@
 properties([
-    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '7')),
+    buildDiscarder(logRotator(daysToKeepStr: '', numToKeepStr: '3')),
 ])
 timestamps {
   node {
@@ -15,7 +15,7 @@ timestamps {
           doGenerateSubmoduleConfigurations: false,
           extensions: [],
           submoduleCfg: [],
-          userRemoteConfigs: [[credentialsId: 'awx.integrations', url: 'git@bitbucket.org:citeck/pipelines.git']]
+          userRemoteConfigs: [[credentialsId: 'awx.integrations', url: 'git@gitlab.citeck.ru:infrastructure/pipelines.git']]
         ])
       }
     }
@@ -75,8 +75,9 @@ timestamps {
           if (!project_version.contains('snapshot')) {
             mavenRepository = "maven-releases"
           }
-
-          sh "gradle publish -PmavenUser=jenkins -PmavenPass=po098765 -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+          withCredentials([usernamePassword(credentialsId: 'maven.jenkins', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh "gradle publish -PmavenUser=$USERNAME -PmavenPass=$PASSWORD -PmavenUrl='http://127.0.0.1:8081/repository/${mavenRepository}/'"
+          }
         }
       }
 

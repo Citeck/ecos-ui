@@ -152,17 +152,12 @@ class JournalsDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState, snapshot);
 
     const { config: prevConfig } = prevProps;
-    const { id, config, setDashletConfigByParams, onSave, reloadGrid, isActiveLayout } = this.props;
-    const { journalId, runUpdate } = this.state;
+    const { id, config, setDashletConfigByParams, setRecordRef, onSave } = this.props;
+    const { journalId } = this.state;
 
     if (!isEqual(config, prevConfig) && isFunction(onSave)) {
+      setRecordRef(this.recordRef);
       setDashletConfigByParams(id, config, this.recordRef, journalId);
-      !isActiveLayout && this.setState({ runUpdate: true });
-    }
-
-    if (isActiveLayout && runUpdate) {
-      this.setState({ runUpdate: false });
-      reloadGrid();
     }
   }
 
@@ -275,9 +270,8 @@ class JournalsDashlet extends BaseWidget {
 
   renderEditor() {
     const { editorMode, id, config, stateId } = this.props;
-    const { isCollapsed } = this.state;
 
-    if (!editorMode || isCollapsed) {
+    if (!editorMode || this.isCollapsed) {
       return null;
     }
 
@@ -296,9 +290,9 @@ class JournalsDashlet extends BaseWidget {
 
   renderJournal() {
     const { editorMode, stateId } = this.props;
-    const { width, isCollapsed, journalId } = this.state;
+    const { width, journalId } = this.state;
 
-    if (editorMode || isCollapsed) {
+    if (editorMode || this.isCollapsed) {
       return null;
     }
 
@@ -342,7 +336,7 @@ class JournalsDashlet extends BaseWidget {
 
   render() {
     const { journalConfig, className, dragHandleProps, editorMode, config, configJournalId } = this.props;
-    const { width, isCollapsed } = this.state;
+    const { width } = this.state;
 
     if (!journalConfig) {
       return null;
@@ -380,7 +374,7 @@ class JournalsDashlet extends BaseWidget {
         onResize={this.handleResize}
         dragHandleProps={dragHandleProps}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         {warnings.map(msg => (

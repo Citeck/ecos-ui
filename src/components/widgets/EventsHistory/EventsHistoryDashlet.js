@@ -65,7 +65,7 @@ class EventsHistoryDashlet extends BaseWidget {
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isCollapsed } = this.state;
+    const { isSmallMode, runUpdate } = this.state;
 
     return (
       <Dashlet
@@ -81,7 +81,7 @@ class EventsHistoryDashlet extends BaseWidget {
         getFitHeights={this.setFitHeights}
         onResize={this.onResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
         contentMaxHeight={this.dashletMaxHeight}
       >

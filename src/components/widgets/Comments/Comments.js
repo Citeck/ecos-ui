@@ -621,7 +621,6 @@ class Comments extends BaseWidget {
 
   render() {
     const { dragHandleProps, canDragging, fetchIsLoading } = this.props;
-    const { isCollapsed } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
         onClick: this.handleReloadData
@@ -644,7 +643,7 @@ class Comments extends BaseWidget {
           onChangeHeight={this.handleChangeHeight}
           getFitHeights={this.setFitHeights}
           onToggleCollapse={this.handleToggleContent}
-          isCollapsed={isCollapsed}
+          isCollapsed={this.isCollapsed}
         >
           {this.renderHeader()}
           {this.renderComments()}

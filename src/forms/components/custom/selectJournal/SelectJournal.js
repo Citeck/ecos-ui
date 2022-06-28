@@ -2,12 +2,12 @@ import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
 import { trimFields } from '../../../../helpers/util';
-import { SelectJournal } from '../../../../components/common/form';
+import SelectJournal from '../../../../components/common/form/SelectJournal';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { DisplayModes, SortOrderOptions, TableTypes } from './constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -41,7 +41,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         },
         searchField: '',
         ecos: {
-          dataType: 'assoc'
+          dataType: DataTypes.ASSOC
         }
       },
       ...extend
@@ -293,7 +293,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         onError: () => undefined,
         // Cause https://citeck.atlassian.net/browse/ECOSUI-208
         // If component has calculateValue, disable value reset when apply custom predicate
-        disableResetOnApplyCustomPredicate: !!component.calculateValue
+        disableResetOnApplyCustomPredicate: !!component.calculateValue,
+        title: this.modalTitle,
+        dataType: component.ecos.dataType
       };
 
       if (component.customSourceId) {

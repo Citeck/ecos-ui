@@ -36,6 +36,7 @@ class Layout extends Component {
     menuType: PropTypes.string,
     className: PropTypes.string,
     type: PropTypes.string,
+    dashboardId: PropTypes.string,
     onSaveWidget: PropTypes.func,
     onSaveWidgetProps: PropTypes.func,
     canDragging: PropTypes.bool
@@ -192,7 +193,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
-    const { canDragging, tabId, isActiveLayout } = this.props;
+    const { canDragging, tabId, isActiveLayout, dashboardId } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -211,6 +212,7 @@ class Layout extends Component {
       const commonProps = {
         canDragging,
         tabId,
+        dashboardId,
         isActiveLayout,
         onSave: this.props.onSaveWidgetProps,
         onLoad: this.checkWidgets,
