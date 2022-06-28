@@ -1,13 +1,12 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
-import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 import throttle from 'lodash/throttle';
+import get from 'lodash/get';
 
 import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
 import { animateScrollTo } from '../../../../helpers/util';
-import { DocUrls } from '../../../../constants/documentation';
 
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
@@ -40,7 +39,7 @@ export default class TabsComponent extends NestedComponent {
       group: 'layout',
       icon: 'fa fa-folder-o',
       weight: 50,
-      documentation: `${DocUrls.COMPONENT}tabs`,
+      documentation: 'http://help.form.io/userguide/#tabs',
       schema: TabsComponent.schema()
     };
   }

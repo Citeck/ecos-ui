@@ -12,27 +12,8 @@ import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../.
 import { t } from '../../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
-import { DocUrls } from '../../../../constants/documentation';
 
 export default class FileComponent extends FormIOFileComponent {
-  constructor(...params) {
-    super(...params);
-
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
-    this.on('change', this.validateOnChange);
-  }
-
-  get defaultSchema() {
-    return FileComponent.schema();
-  }
-
-  static get builderInfo() {
-    return {
-      ...super.builderInfo,
-      documentation: `${DocUrls.COMPONENT}file`
-    };
-  }
-
   static schema(...extend) {
     return FormIOFileComponent.schema(
       {
@@ -52,6 +33,17 @@ export default class FileComponent extends FormIOFileComponent {
       },
       ...extend
     );
+  }
+
+  constructor(...params) {
+    super(...params);
+
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
+    this.on('change', this.validateOnChange);
+  }
+
+  get defaultSchema() {
+    return FileComponent.schema();
   }
 
   static extractFileRecordRef(file) {

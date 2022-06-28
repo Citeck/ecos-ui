@@ -1,6 +1,5 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
 
-import { DocUrls } from '../../../../constants/documentation';
 import { overrideTriggerChange } from '../misc';
 
 export default class DataGridComponent extends FormIODataGridComponent {
@@ -8,13 +7,6 @@ export default class DataGridComponent extends FormIODataGridComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
-  }
-
-  static get builderInfo() {
-    return {
-      ...super.builderInfo,
-      documentation: `${DocUrls.COMPONENT}data-grid`
-    };
   }
 
   createLastTh = () => {

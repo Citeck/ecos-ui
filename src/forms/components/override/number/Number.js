@@ -6,7 +6,6 @@ import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
 import { getNumberSeparators, reverseString } from '../../../../helpers/util';
-import { DocUrls } from '../../../../constants/documentation';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -21,14 +20,11 @@ export default class NumberComponent extends FormIONumberComponent {
     );
   }
 
-  static get builderInfo() {
-    return {
-      ...super.builderInfo,
-      documentation: `${DocUrls.COMPONENT}number`
-    };
-  }
-
   stringValue = '';
+
+  get defaultSchema() {
+    return NumberComponent.schema();
+  }
 
   constructor(...args) {
     super(...args);
@@ -36,10 +32,6 @@ export default class NumberComponent extends FormIONumberComponent {
     overrideTriggerChange.call(this);
 
     this.initNumberMask();
-  }
-
-  get defaultSchema() {
-    return NumberComponent.schema();
   }
 
   get decimalSeparator() {

@@ -1,6 +1,5 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import { overrideTriggerChange } from '../misc';
-import { DocUrls } from '../../../../constants/documentation';
 
 export default class TextFieldComponent extends FormIOTextFieldComponent {
   static schema(...extend) {
@@ -33,20 +32,13 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     );
   }
 
-  static get builderInfo() {
-    return {
-      ...super.builderInfo,
-      documentation: `${DocUrls.COMPONENT}text-field`
-    };
+  get defaultSchema() {
+    return TextFieldComponent.schema();
   }
 
   constructor(...args) {
     super(...args);
 
     overrideTriggerChange.call(this);
-  }
-
-  get defaultSchema() {
-    return TextFieldComponent.schema();
   }
 }

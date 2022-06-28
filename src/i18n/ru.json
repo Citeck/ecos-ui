@@ -1601,7 +1601,6 @@
   "ecos-form.builder.form-id.label": "ID формы",
 
   "more-about-error.label": "Подробнее об ошибке",
-
   "form-editor.save-button": "Сохранить",
   "form-editor.cancel-button": "Отмена",
   "form-editor.remove-button": "Удалить",
@@ -1699,6 +1698,7 @@
   "form-constructor.tabs-content.useLocaleSettings": "Использовать региональные настройки",
   "form-constructor.tabs-content.allowInput": "Разрешить ручной ввод",
   "form-constructor.tabs-content.format": "Формат",
+  "form-constructor.tabs-content.name": "Название логики",
   "form-constructor.tabs-content.actions": "Действия",
   "form-constructor.tabs-content.any-change": "Любое изменение",
   "form-constructor.tabs-content.enableDate": "Включить ввод даты",
@@ -1780,7 +1780,6 @@
   "form-constructor.tabs-content.size": "Размер",
   "form-constructor.tabs-content.leftIcon": "Левая иконка",
   "form-constructor.tabs-content.block": "Блокировать",
-  "form-constructor.tabs-content.name": "Название логики",
   "form-constructor.tabs-content.disableOnFormInvalid": "Отключить, если форма недействительна",
   "form-constructor.tabs-content.storage": "Хранилище",
   "form-constructor.tabs-content.onFileClick": "Поведение при щелчке элемента файла",
@@ -1891,6 +1890,7 @@
   "form-constructor.tabs.content.source.ajax.method": "Метод:",
   "form-constructor.tabs-content.source.recordsQuery.query-js": "Запрос",
   "form-constructor.tabs-content.wysiwyg": "Настройки редактора",
+  "form-constructor.tabs-content.name": "Название для логики",
   "form-constructor.tabs.content.source.ajax.data-js": "Данные запроса",
   "form-constructor.tabs.content.source.ajax.mapping-js": "Отображение результатов запроса",
   "form-constructor.tabs-content.source.recordsArray.id": "Массив записей",
@@ -2230,6 +2230,8 @@
   "form-constructor.refreshOn.day": "День",
   "form-constructor.attention.include-form": "Компонент позволяет встроить другую форму. Компонент не включает в себя общие настройки. Если значение присутствует, компонент будет заменен полностью.",
   "form-constructor.error.panel.key": "Имя свойства должно содержать только буквенно-цифровые символы, знаки подчеркивания, точки, двоеточия и тире и не должно заканчиваться тире или точкой.",
+
+  "more-about-error.label": "Подробнее об ошибке",
 
   "ecos-form.export.attention": "Вы не можете начать одновременно несколько идентичных действий",
 

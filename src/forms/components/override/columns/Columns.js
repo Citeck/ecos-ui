@@ -1,7 +1,6 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import FormIOColumnsComponent from 'formiojs/components/columns/Columns';
 import _ from 'lodash';
-import { DocUrls } from '../../../../constants/documentation';
 
 export default class ColumnsComponent extends FormIOColumnsComponent {
   static schema(...extend) {
@@ -27,7 +26,6 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
   static get builderInfo() {
     return {
       ...super.builderInfo,
-      documentation: `${DocUrls.COMPONENT}columns`,
       schema: ColumnsComponent.schema()
     };
   }
