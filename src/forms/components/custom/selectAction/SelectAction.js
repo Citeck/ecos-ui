@@ -1,8 +1,7 @@
 import get from 'lodash/get';
 
-import { DocUrls } from '../../../../constants/documentation';
-import Dropdown from '../../../../components/common/form/Dropdown';
 import BaseReactComponent from '../base/BaseReactComponent';
+import Dropdown from '../../../../components/common/form/Dropdown';
 import { Types } from './constants';
 
 export default class SelectActionComponent extends BaseReactComponent {
@@ -29,7 +28,6 @@ export default class SelectActionComponent extends BaseReactComponent {
       icon: 'fa fa-chevron-circle-down',
       group: 'basic',
       weight: 120,
-      documentation: `${DocUrls.COMPONENT}select-action`,
       schema: SelectActionComponent.schema()
     };
   }

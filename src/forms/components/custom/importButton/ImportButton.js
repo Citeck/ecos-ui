@@ -8,8 +8,6 @@ import ecosXhr from '../../../../helpers/ecosXhr';
 import DialogManager from '../../../../components/common/dialogs/Manager';
 import Button from './Button';
 
-import { DocUrls } from '../../../../constants/documentation';
-
 import '../../override/button/button.scss';
 
 const Labels = {
@@ -44,7 +42,6 @@ export default class ImportButtonComponent extends BaseReactComponent {
       icon: 'fa fa-upload',
       group: 'advanced',
       weight: 0,
-      documentation: `${DocUrls.COMPONENT}import-button`,
       schema: ImportButtonComponent.schema()
     };
   }

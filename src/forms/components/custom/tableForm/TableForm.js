@@ -1,6 +1,5 @@
 import _ from 'lodash';
 
-import { DocUrls } from '../../../../constants/documentation';
 import { t } from '../../../../helpers/util';
 import ecosFetch from '../../../../helpers/ecosFetch';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
@@ -82,7 +81,6 @@ export default class TableFormComponent extends BaseReactComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      documentation: `${DocUrls.COMPONENT}table-form`,
       schema: TableFormComponent.schema()
     };
   }

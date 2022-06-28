@@ -4,7 +4,6 @@ import _ from 'lodash';
 import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
-import { DocUrls } from '../../../../constants/documentation';
 import { isNodeRef } from '../../../../helpers/util';
 import { createDocumentUrl } from '../../../../helpers/urls';
 
@@ -61,7 +60,7 @@ export default class SelectComponent extends BaseComponent {
       group: 'basic',
       icon: 'fa fa-th-list',
       weight: 70,
-      documentation: `${DocUrls.COMPONENT}ecos-select`,
+      documentation: 'http://help.form.io/userguide/#select',
       schema: SelectComponent.schema()
     };
   }

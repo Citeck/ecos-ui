@@ -1,6 +1,5 @@
 import BaseReactComponent from '../base/BaseReactComponent';
 import MLText from '../../../../components/common/form/Input/MLText';
-import { DocUrls } from '../../../../constants/documentation';
 import { getCurrentLocale } from '../../../../helpers/export/util';
 import { checkIsEmptyMlField } from '../../../utils';
 
@@ -22,7 +21,6 @@ export default class MLTextComponent extends BaseReactComponent {
       icon: 'fa fa-language',
       group: 'basic',
       weight: 0,
-      documentation: `${DocUrls.COMPONENT}ml-text`,
       schema: MLTextComponent.schema()
     };
   }

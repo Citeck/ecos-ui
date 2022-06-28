@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
-import { DocUrls } from '../../../../constants/documentation';
 import { getTextByLocale, trimFields } from '../../../../helpers/util';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
 import Records from '../../../../components/Records';
@@ -55,7 +54,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
       icon: 'fa fa-th-list',
       group: 'advanced',
       weight: 0,
-      documentation: `${DocUrls.COMPONENT}select-journal`,
       schema: SelectJournalComponent.schema()
     };
   }
