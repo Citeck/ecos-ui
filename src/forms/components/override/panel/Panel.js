@@ -24,8 +24,6 @@ export default class PanelComponent extends FormIOPanelComponent {
   }
 
   build(state) {
-    //todo: check on the prod whether the component is built twice. Then you can delete
-    console.log('build');
     const hidePanels = get(this, 'options.viewAsHtmlConfig.hidePanels', false);
     this.component.hideLabel = hidePanels;
 
