@@ -296,6 +296,8 @@ class Toolbar extends Component {
       return null;
     }
 
+    const controlLabel = `${currentIndex + 1} ${t(Labels.OUT_OF)} ${filesList.length} • ${filesList[currentIndex].fileName}`;
+
     return (
       <div className="ecos-doc-preview__toolbar-group ecos-doc-preview__toolbar-files">
         <Dropdown
@@ -306,7 +308,7 @@ class Toolbar extends Component {
           valueField="recordId"
           titleField="fileName"
           source={filesList}
-          controlLabel={`${currentIndex + 1}/${filesList.length} ${filesList[currentIndex].fileName}`}
+          controlLabel={controlLabel}
           value={fileValue}
           onChange={onFileChange}
           itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
