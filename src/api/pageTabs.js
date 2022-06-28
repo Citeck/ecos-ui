@@ -1,8 +1,9 @@
-import Records from '../components/Records';
-import { SourcesId, USER_GUEST } from '../constants';
+import { USER_GUEST } from '../constants';
 import * as storage from '../helpers/ls';
 import { isNewVersionPage } from '../helpers/urls';
 import { CommonApi } from './common';
+
+import ConfigService, { TABS_ENABLED } from '../services/config/ConfigService';
 
 export class PageTabsApi extends CommonApi {
   #lsKey = storage.generateKey('page-tabs', true);
@@ -32,14 +33,6 @@ export class PageTabsApi extends CommonApi {
     if (!isNewVersionPage()) {
       return Promise.resolve(false);
     }
-
-    return Records.get(`${SourcesId.CONFIG}@tabs-enabled`)
-      .load('value?bool')
-      .then(value => {
-        return value != null ? value : true;
-      })
-      .catch(() => {
-        return false;
-      });
+    return ConfigService.getValue(TABS_ENABLED);
   };
 }

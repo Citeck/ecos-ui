@@ -313,6 +313,8 @@
   "doc-preview.settings.field.show-all-documents": "Show all documents",
   "doc-preview.settings.btn.cancel": "Cancel",
   "doc-preview.settings.btn.save": "Save",
+  "doc-preview.bottom-action.text": "Scroll down to view next document or click the button",
+  "doc-preview.bottom-action.btn": "Next document",
 
   "document-library.title": "Document library",
   "document-library.folders-panel.title": "Folders",
@@ -2261,5 +2263,24 @@
   "model-viewer.zoom.tip-original": "Original",
   "model-viewer.zoom.tip-in": "Zoom In",
   "model-viewer.zoom.tip-out": "Zoom Out",
-  "model-viewer.heatmap.average-value": "Average"
+  "model-viewer.heatmap.average-value": "Average",
+
+  "interval-picker.date-type.relative": "Relative value",
+  "interval-picker.date-type.absolute": "Absolute value",
+  "interval-picker.date-type.custom": "Arbitrary value",
+  "interval-picker.date-type.today": "Today",
+  "interval-picker.date-type.now": "Now",
+  "interval-picker.date-inputs.start": "Start date",
+  "interval-picker.date-inputs.end": "End date",
+  "interval-picker.time-ago.days": "Days ago",
+  "interval-picker.time-ago.hours": "Hours ago",
+  "interval-picker.placeholder": "Select a date",
+  "interval-picker.labels.ago": "{{count}} {{unit}} back",
+
+  "hour-form1": "hour",
+  "hour-form2": "hours",
+  "hour-form3": "hours",
+  "day-form1": "day",
+  "day-form2": "day",
+  "day-form3": "days"
 }

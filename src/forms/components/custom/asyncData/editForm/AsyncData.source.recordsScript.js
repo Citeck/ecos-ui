@@ -39,10 +39,16 @@ export default [
     weight: 200,
     type: 'datamap',
     get label() {
-      return t('form-constructor.tabs.content.source.recordsQuery.attributes');
+      return this._label || t('form-constructor.tabs.content.source.recordsQuery.attributes');
+    },
+    set label(label) {
+      this._label = label;
     },
     get tooltip() {
-      return t('form-constructor.tabs-tooltip.source.recordsQuery.attributes');
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.recordsQuery.attributes');
+    },
+    set tooltip(tooltip) {
+      this._tooltip = tooltip;
     },
     key: 'source.recordsScript.attributes',
     clearOnHide: false,
@@ -50,7 +56,10 @@ export default [
       type: 'textfield',
       key: 'value',
       get label() {
-        return t('form-constructor.tabs-content.source.record.attribute');
+        return this._label || t('form-constructor.tabs-content.source.record.attribute');
+      },
+      set label(label) {
+        this._label = label;
       },
       defaultValue: '',
       input: true

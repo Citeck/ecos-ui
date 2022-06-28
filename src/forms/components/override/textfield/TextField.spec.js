@@ -1,8 +1,9 @@
 import Harness from '../../../test/harness';
 import TextFieldComponent from './TextField';
 import EventEmitter from '../../../EventEmitter';
+import * as util from '../../../../helpers/export/util';
+import en from '../../../../i18n/en';
 
-import { t } from '../../../../helpers/export/util';
 import comp1 from './fixtures/comp1';
 
 describe('TextField Component', () => {
@@ -66,9 +67,10 @@ describe('TextField Builder', () => {
   it('The first tab in the builder must be "Basic"', done => {
     builder.editForm.formReady.then(() => {
       const firstTab = builder.dialog.querySelector('.nav-item');
+      const translation = jest.spyOn(util, 't').mockImplementation(key => en[key]);
 
       expect(firstTab).not.toBeUndefined();
-      expect(firstTab.textContent).toBe(t('form-constructor.tabs.basic'));
+      expect(firstTab.textContent).toBe(translation('form-constructor.tabs.basic'));
       done();
     });
   });

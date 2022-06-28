@@ -4,7 +4,7 @@ import { shallow } from 'enzyme';
 import DevToolsConverter from '../../../dto/devTools';
 
 import { TABS } from '../constants';
-import { JIRA } from '../Commits/constants';
+import { JIRA, BITBUCKET } from '../Commits/constants';
 import { getRepoProject, parseTasksLinks, getHostName } from '../Commits/helpers';
 import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
 import * as DevToolsContext from '../DevToolsContext';
@@ -40,6 +40,7 @@ describe('DevTools tests', () => {
       expect(getRepoProject('git@gitlab.citeck.ru:ecos-ui.git')).toEqual('ecos-ui');
     });
     it('getHostName', () => {
+      expect(getHostName(BITBUCKET)).toEqual('bitbucket.org');
       expect(getHostName('git@bitbucket.org:citeck-projects/ecos-ui.git')).toEqual('bitbucket.org');
       expect(getHostName('git@gitlab.citeck.ru:citeck-uiserv/ecos-ui.git')).toEqual('gitlab.citeck.ru');
     });
