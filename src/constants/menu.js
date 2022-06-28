@@ -4,10 +4,6 @@ export const BASE_LEFT_MENU_ID = 'ecos-left-menu-id';
 
 export const MENU_VERSION = 1;
 
-export const DEFAULT_FEEDBACK_URL = 'https://www.citeck.ru/feedback';
-export const DEFAULT_REPORT_ISSUE_URL =
-  'mailto:support@citeck.ru?subject=Ошибка в работе Citeck ECOS: краткое описание&body=Summary: Короткое описание проблемы (продублировать в теме письма)%0A%0ADescription:%0AПожалуйста, детально опишите возникшую проблему, последовательность действий, которая привела к ней. При необходимости приложите скриншоты.';
-
 export const MenuTypes = {
   LEFT: 'LEFT',
   TOP: 'TOP',

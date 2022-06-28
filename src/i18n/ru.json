@@ -313,6 +313,8 @@
   "doc-preview.settings.field.show-all-documents": "Показывать все документы",
   "doc-preview.settings.btn.cancel": "Отмена",
   "doc-preview.settings.btn.save": "Сохранить",
+  "doc-preview.bottom-action.text": "Для перехода к следующему документу прокрутите страницу вниз или нажмите на кнопку",
+  "doc-preview.bottom-action.btn": "Следующий документ",
 
   "document-library.title": "Библиотека документов",
   "document-library.folders-panel.title": "Папки",
@@ -1660,7 +1662,7 @@
   "form-constructor.tabs-content.clearOnHide": "Очистить значение, если оно скрыто",
   "form-constructor.tabs-content.protected": "Защищенное поле",
   "form-constructor.tabs-content.mask": "Скрыть поле",
-  "form-constructor.tabs-content.dataGridLabel": "Показать этикетку в DataGrid",
+  "form-constructor.tabs-content.dataGridLabel": "Показать заголовок компонента внутри DataGrid",
   "form-constructor.tabs-content.autofocus": "Автофокус",
   "form-constructor.tabs-content.tableView": "Табличное представление",
   "form-constructor.tabs-content.alwaysEnabled": "Всегда доступно",
@@ -1963,7 +1965,7 @@
   "form-constructor.tabs-tooltip.reorder": "Позволяет изменять порядок нескольких значений с помощью перетаскивания",
   "form-constructor.tabs-tooltip.clearOnHide": "Если поле скрыто, очистите значение.",
   "form-constructor.tabs-tooltip.mask": "Скрыть ввод в браузере. Это не шифрует на сервере. Не используйте для паролей.",
-  "form-constructor.tabs-tooltip.dataGridLabel": "Показывать метку, когда в Datagrid.",
+  "form-constructor.tabs-tooltip.dataGridLabel": "Показывать заголовок компонента, если он внутри Datagrid.",
   "form-constructor.tabs-tooltip.dayFirst": "Отображать поле «День» перед полем «Месяц».",
   "form-constructor.tabs-tooltip.fields.day.hide": "Скройте день.",
   "form-constructor.tabs-tooltip.fields.month.hide": "Скройте месяц.",
@@ -2261,5 +2263,24 @@
   "model-viewer.zoom.tip-original": "Оригинальный",
   "model-viewer.zoom.tip-in": "Увеличить",
   "model-viewer.zoom.tip-out": "Уменьшить",
-  "model-viewer.heatmap.average-value": "Среднее значение"
+  "model-viewer.heatmap.average-value": "Среднее значение",
+
+  "interval-picker.date-type.relative": "Относительное значение",
+  "interval-picker.date-type.absolute": "Абсолютное значение",
+  "interval-picker.date-type.custom": "Произвольное значение",
+  "interval-picker.date-type.today": "Сегодня",
+  "interval-picker.date-type.now": "Сейчас",
+  "interval-picker.date-inputs.start": "Дата начала",
+  "interval-picker.date-inputs.end": "Дата окончания",
+  "interval-picker.time-ago.days": "Дней назад",
+  "interval-picker.time-ago.hours": "Часов назад",
+  "interval-picker.placeholder": "Выберите дату",
+  "interval-picker.labels.ago": "{{count}} {{unit}} назад",
+
+  "hour-form1": "час",
+  "hour-form2": "часа",
+  "hour-form3": "часов",
+  "day-form1": "день",
+  "day-form2": "дня",
+  "day-form3": "дней"
 }
