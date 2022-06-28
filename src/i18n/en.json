@@ -585,7 +585,7 @@
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
 
-  "record-action.tasks-actions.task-name-prefix": "Complete task: ",
+  "record-action.tasks-actions.task-name-prefix": "Complete task: \"{{task}}\"",
 
   "record-action.task-outcome.incorrect-action.header": "Incorrect action",
   "record-action.task-outcome.incorrect-action.message": "Incorrect action. Contact your system administrator",
