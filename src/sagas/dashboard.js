@@ -26,6 +26,7 @@ import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/
 function* _parseConfig({ api, logger }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+
   newConfig.widgets = yield call(api.dashboard.getFilteredWidgets, newConfig.widgets, { recordRef });
   const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
 

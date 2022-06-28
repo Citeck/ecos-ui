@@ -27,6 +27,7 @@ import DashboardService from '../../../services/dashboard';
 import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
+import GoToButton from './GoToButton';
 
 import './JournalsDashletEditor.scss';
 
@@ -330,9 +331,7 @@ class JournalsDashletEditor extends Component {
             </Field>
           )}
 
-          <Field label={t(Labels.GO_TO_BUTTON_NAME_FIELD)} isSmall={this.isSmall}>
-            <MLText value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
-          </Field>
+          <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />
         </div>
 
         <div className={classNames('ecos-journal-dashlet-editor__actions', { 'ecos-journal-dashlet-editor__actions_small': this.isSmall })}>

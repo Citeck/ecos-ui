@@ -165,21 +165,23 @@ function* sagaGetDashletConfig({ api, logger, stateId, w }, action) {
 function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
   try {
     const { config = {} } = action.payload;
+    const configByVersion = config[JOURNAL_DASHLET_CONFIG_VERSION];
 
-    if (isEmpty(config) || config.version !== JOURNAL_DASHLET_CONFIG_VERSION) {
+    if (isEmpty(config) || (config.version !== JOURNAL_DASHLET_CONFIG_VERSION && isEmpty(configByVersion))) {
       yield put(setEditorMode(w(true)));
       yield put(setLoading(w(false)));
       return;
     }
 
-    const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = config[JOURNAL_DASHLET_CONFIG_VERSION];
+    yield put(setDashletConfig(w(config)));
+
+    const { journalId, journalSettingId = '', customJournal, customJournalMode, journalsListIds } = configByVersion;
     const { recordRef } = action.payload;
 
     if (customJournalMode && customJournal) {
       const resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
 
       yield put(setEditorMode(w(false)));
-      yield put(setDashletConfig(w(config)));
       yield put(initJournal(w({ journalId: resolvedCustomJournal })));
       return;
     }
@@ -196,7 +198,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
 
     if (journalsListId) {
       yield put(setEditorMode(w(isEmpty(journalsListIds))));
-      yield put(setDashletConfig(w(config)));
+
       if (customJournalMode && customJournal) {
         const resolvedCustomJournal = yield _resolveTemplate(recordRef, customJournal);
         yield put(initJournal(w({ journalId: resolvedCustomJournal })));
@@ -205,6 +207,7 @@ function* sagaSetDashletConfigFromParams({ api, logger, stateId, w }, action) {
       }
     } else {
       yield put(setEditorMode(w(true)));
+      yield put(setLoading(w(false)));
     }
   } catch (e) {
     logger.error('[journals sagaSetDashletConfigFromParams saga error', e);
