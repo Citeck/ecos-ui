@@ -2,6 +2,7 @@ import each from 'lodash/each';
 import get from 'lodash/get';
 import FormIOButtonComponent from 'formiojs/components/button/Button';
 import { flattenComponents } from 'formiojs/utils/formUtils';
+import { DocUrls } from '../../../../constants/documentation';
 
 const MAX_WAITING_TIME = 30000;
 
@@ -14,6 +15,13 @@ export default class ButtonComponent extends FormIOButtonComponent {
       },
       ...extend
     );
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}button`
+    };
   }
 
   _loading = false;

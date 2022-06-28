@@ -1,5 +1,6 @@
 import FormIOPhoneNumberComponent from 'formiojs/components/phonenumber/PhoneNumber';
 import { overrideTriggerChange } from '../misc';
+import { DocUrls } from '../../../../constants/documentation';
 
 export default class PhoneNumberComponent extends FormIOPhoneNumberComponent {
   static schema(...extend) {
@@ -12,6 +13,13 @@ export default class PhoneNumberComponent extends FormIOPhoneNumberComponent {
       },
       ...extend
     );
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}phone-number`
+    };
   }
 
   get defaultSchema() {

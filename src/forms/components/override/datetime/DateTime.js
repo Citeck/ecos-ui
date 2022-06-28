@@ -2,6 +2,7 @@ import isEqual from 'lodash/isEqual';
 import omitBy from 'lodash/omitBy';
 import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 import isEmpty from 'lodash/isEmpty';
+import { DocUrls } from '../../../../constants/documentation';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
   build(state) {
@@ -28,5 +29,12 @@ export default class DateTimeComponent extends FormIODateTimeComponent {
 
       return key === 'widget';
     });
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}date-time`
+    };
   }
 }

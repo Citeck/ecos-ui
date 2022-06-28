@@ -4,6 +4,7 @@ import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
 
 import { overrideTriggerChange } from '../misc';
+import { DocUrls } from '../../../../constants/documentation';
 
 export default class TextAreaComponent extends FormIOTextAreaComponent {
   static schema(...extend) {
@@ -17,6 +18,13 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       },
       ...extend
     );
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}text-area`
+    };
   }
 
   constructor(...args) {

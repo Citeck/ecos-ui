@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import throttle from 'lodash/throttle';
 
 import { t } from '../../../../helpers/export/util';
+import { DocUrls } from '../../../../constants/documentation';
 
 export default class PanelComponent extends FormIOPanelComponent {
   #clearOnHideInProcess = false;
@@ -17,6 +18,13 @@ export default class PanelComponent extends FormIOPanelComponent {
       },
       ...extend
     );
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}panel`
+    };
   }
 
   get defaultSchema() {

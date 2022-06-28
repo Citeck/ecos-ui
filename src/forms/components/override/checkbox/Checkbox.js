@@ -5,6 +5,7 @@ import set from 'lodash/set';
 
 import { getBool, t } from '../../../../helpers/util';
 import Base from '../base/Base';
+import { DocUrls } from '../../../../constants/documentation';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
   static schema(...extend) {
@@ -16,6 +17,13 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       },
       ...extend
     );
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}checkbox`
+    };
   }
 
   #beforeState;

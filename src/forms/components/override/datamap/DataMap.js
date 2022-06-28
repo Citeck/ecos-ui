@@ -4,6 +4,7 @@ import Components from 'formiojs/components/Components';
 import FormIODataMapComponent from 'formiojs/components/datamap/DataMap';
 
 import { t } from '../../../../helpers/export/util';
+import { DocUrls } from '../../../../constants/documentation';
 
 export default class DataMapComponent extends FormIODataMapComponent {
   static schema(...extend) {
@@ -16,6 +17,13 @@ export default class DataMapComponent extends FormIODataMapComponent {
   }
   get defaultSchema() {
     return DataMapComponent.schema();
+  }
+
+  static get builderInfo() {
+    return {
+      ...super.builderInfo,
+      documentation: `${DocUrls.COMPONENT}data-map`
+    };
   }
 
   static optimizeSchema(comp) {
