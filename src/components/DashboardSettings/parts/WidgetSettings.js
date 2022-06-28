@@ -50,8 +50,11 @@ const SettingsBody = props => {
   const predicate = get(widget, 'props.config.widgetDisplayCondition');
   const _columns = DisplayElementService.getModelAttributesLikeColumns(modelAttributes);
   const defaultPredicate = ParserPredicate.getDefaultPredicates(_columns);
+
   const [_predicate, setPredicate] = useState(predicate || defaultPredicate);
   const [individualSettings, setIndividualSettings] = useState(get(widget, ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION], {}));
+  const [collapsed, setCollapsed] = useState(get(widget, 'props.config.collapsed'));
+
   const onGoJournal = () => {
     DialogManager.hideAllDialogs();
     goToJournalsPage({
