@@ -260,7 +260,7 @@ class RecordsComponent {
         hasMore,
         totalCount,
         attributes: queryBody.attributes,
-        errors: messages.filter(msg => msg && msg.level === 'ERROR')
+        errors: messages && messages.filter(msg => msg && msg.level === 'ERROR')
       };
     });
   }
