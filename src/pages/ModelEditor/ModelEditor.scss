@@ -20,3 +20,10 @@
     max-height: 85vh;
   }
 }
+
+.djs-selection-outline {
+  stroke: #0086e6;
+  fill: none;
+  shape-rendering: geometricPrecision;
+  stroke-width: 2px;
+}
