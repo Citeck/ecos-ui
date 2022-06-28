@@ -313,6 +313,8 @@
   "doc-preview.settings.field.show-all-documents": "Show all documents",
   "doc-preview.settings.btn.cancel": "Cancel",
   "doc-preview.settings.btn.save": "Save",
+  "doc-preview.bottom-action.text": "Scroll down to view next document or click the button",
+  "doc-preview.bottom-action.btn": "Next document",
 
   "document-library.title": "Document library",
   "document-library.folders-panel.title": "Folders",
@@ -583,7 +585,7 @@
   "filter-list.filter-group-add": "Add",
   "filter-list.panel-header": "Filter",
 
-  "record-action.tasks-actions.task-name-prefix": "Complete task: ",
+  "record-action.tasks-actions.task-name-prefix": "Complete task: \"{{task}}\"",
 
   "record-action.task-outcome.incorrect-action.header": "Incorrect action",
   "record-action.task-outcome.incorrect-action.message": "Incorrect action. Contact your system administrator",

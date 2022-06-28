@@ -17,7 +17,7 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
     yield put(getTitle({ stateId, record }));
     yield put(getModel({ stateId, record }));
   } catch (e) {
-    logger.error('[bpmnEditor/init saga] error', e.message);
+    logger.error('[bpmnEditor/init saga] error', e);
   }
 }
 
@@ -28,7 +28,7 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
     yield put(setModel({ stateId, model }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
-    logger.error('[bpmnEditor/fetchModel saga] error', e.message);
+    logger.error('[bpmnEditor/fetchModel saga] error', e);
   }
 }
 
@@ -64,7 +64,7 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       title = t('bpmn-editor.error.can-not-save-deploy-model');
     }
     NotificationManager.error(message, title);
-    logger.error('[bpmnEditor/runSaveModel saga] error', e.message);
+    logger.error('[bpmnEditor/runSaveModel saga] error', e);
   }
 }
 
@@ -75,7 +75,7 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
     yield put(setTitle({ stateId, title }));
   } catch (e) {
     yield put(setTitle({ stateId, title: '' }));
-    logger.error('[bpmnEditor/fetchTitle saga] error', e.message);
+    logger.error('[bpmnEditor/fetchTitle saga] error', e);
   }
 }
 
@@ -128,7 +128,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
     yield put(setFormProps({ stateId, formProps: {} }));
 
     NotificationManager.error(t('model-editor.error.form-not-found'), t('error'));
-    logger.error('[bpmnEditor/fetchFormProps saga] error', e.message);
+    logger.error('[bpmnEditor/fetchFormProps saga] error', e);
   }
 }
 

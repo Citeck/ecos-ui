@@ -65,26 +65,3 @@ export const EventListeners = {
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
   DRAG_START: 'drag.start'
 };
-
-export const GATEWAY_TYPES = [
-  'bpmn:ExclusiveGateway',
-  'bpmn:ParallelGateway',
-  'bpmn:InclusiveGateway',
-  'bpmn:ComplexGateway',
-  'bpmn:EventBasedGateway'
-];
-
-export const TASK_TYPES = [
-  'bpmn:Task',
-  'bpmn:SendTask',
-  'bpmn:ReceiveTask',
-  'bpmn:UserTask',
-  'bpmn:ManualTask',
-  'bpmn:BusinessRuleTask',
-  'bpmn:ServiceTask',
-  'bpmn:ScriptTask',
-  'bpmn:CallActivity',
-  'bpmn:SubProcess'
-];
-
-export const SEQUENCE_TYPE = 'bpmn:SequenceFlow';

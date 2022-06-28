@@ -19,7 +19,6 @@ import isUndefined from 'lodash/isUndefined';
 import { AppEditions, SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
 import { Components } from '../../forms/components';
@@ -60,6 +59,7 @@ const getComponentInnerAttSchema = component => {
       return 'assoc';
     case 'datamap':
     case 'mlText':
+    case 'mlTextarea':
       return 'json';
     case 'file':
       return 'as(n:"content-data"){json}';
@@ -197,80 +197,63 @@ export default class EcosFormUtils {
   static editRecord(config) {
     const recordRef = config.recordRef,
       fallback = config.fallback,
-      forceNewForm = config.forceNewForm,
       formKey = config.formKey;
 
     const showForm = recordRef => {
-      if (recordRef) {
-        const params = {
-          attributes: config.attributes || {},
-          onSubmit: config.onSubmit
-        };
+      const params = {
+        attributes: config.attributes || {},
+        onSubmit: config.onSubmit
+      };
 
-        if (formKey) {
-          params.formKey = config.formKey;
-        }
-
-        if (config.onCancel) {
-          params.onCancel = config.onCancel;
-        }
-
-        if (config.onFormCancel) {
-          params.onFormCancel = config.onFormCancel;
-        }
-
-        if (config.contentBefore) {
-          params.contentBefore = config.contentBefore;
-        }
-
-        if (config.contentAfter) {
-          params.contentAfter = config.contentAfter;
-        }
-
-        if (config.options) {
-          params.options = config.options;
-        }
-
-        EcosFormUtils.eform(recordRef, {
-          params,
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true,
-          formContainer: config.formContainer || null
-        });
-      } else {
-        isFunction(fallback) && fallback();
+      if (formKey) {
+        params.formKey = config.formKey;
       }
+
+      if (config.onCancel) {
+        params.onCancel = config.onCancel;
+      }
+
+      if (config.onFormCancel) {
+        params.onFormCancel = config.onFormCancel;
+      }
+
+      if (config.contentBefore) {
+        params.contentBefore = config.contentBefore;
+      }
+
+      if (config.contentAfter) {
+        params.contentAfter = config.contentAfter;
+      }
+
+      if (config.options) {
+        params.options = config.options;
+      }
+
+      EcosFormUtils.eform(recordRef, {
+        params,
+        class: 'ecos-modal_width-lg',
+        isBigHeader: true,
+        formContainer: config.formContainer || null
+      });
     };
 
-    let isFormsEnabled;
-
-    if (!forceNewForm) {
-      isFormsEnabled = Records.get('ecos-config@ecos-forms-enable').load('.bool');
-    } else {
-      isFormsEnabled = Promise.resolve(true);
-    }
-
-    const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
-
-    Promise.all([isFormsEnabled, isShouldDisplay])
-      .then(values => {
-        if (values[0] || values[1]) {
-          EcosFormUtils.hasForm(recordRef).then(result => {
-            if (result) {
-              showForm(recordRef);
-            } else {
-              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
-              throw new Error(`hasForm ${result}`);
-            }
-          });
+    EcosFormUtils.hasForm(recordRef)
+      .then(result => {
+        if (result) {
+          showForm(recordRef);
         } else {
-          NotificationManager.error(t('form-is-not-available'), t('error'));
-          throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+          if (isFunction(fallback)) {
+            fallback();
+          } else {
+            NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+          }
         }
       })
       .catch(e => {
-        console.error(e);
-        showForm();
+        const msg = 'Exception in hasForm request. RecordRef: ' + recordRef;
+        console.error(msg, e);
+        NotificationManager.error(t('form-is-not-available'), t('error'));
+        throw new Error(msg);
       });
   }
 
@@ -420,7 +403,7 @@ export default class EcosFormUtils {
   }
 
   static getNotResolvedFormId(formId) {
-    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.EFORM);
+    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.FORM);
   }
 
   static getResolvedFormId(formId) {

@@ -1,6 +1,7 @@
 import { JIRA } from './constants';
 
-const repoRegex = /(git|ssh|https?|git@([-\w.]+)):(\/\/)?(.*?)(?:\.git)/;
+// eslint-disable-next-line no-useless-escape
+const repoRegex = /^([A-Za-z0-9]+@|http(?:|s)\:\/\/)([A-Za-z0-9.]+(?:\:\d+)?)(?::|\/)(?:(?=([\d\/\w.-]+?)(?:\.git))|(.*))/;
 const taskRegex = /[A-Z]+-[0-9]+/g;
 
 export function matchUrl(url, part = null) {
@@ -11,14 +12,14 @@ export function matchUrl(url, part = null) {
   }
 
   if (typeof part === 'number') {
-    return parts[part];
+    return parts[part] || '';
   }
 
   return parts;
 }
 
 export function getRepoProject(url) {
-  return matchUrl(url, 4);
+  return matchUrl(url, 3);
 }
 
 export function getHostName(url) {
