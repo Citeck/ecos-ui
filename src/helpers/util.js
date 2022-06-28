@@ -417,12 +417,13 @@ export function isPDFbyStr(str) {
  *
  * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
  * @param link ссылка на файл для скачивания
+ * @param filename имя скачиваемого файла
  */
-export function fileDownload(link) {
+export function fileDownload(link, fileName = '') {
   let elLink = document.createElement('a');
 
   elLink.href = link;
-  elLink.download = link;
+  elLink.download = fileName || link;
   elLink.style.display = 'none';
 
   document.body.appendChild(elLink);
@@ -1237,21 +1238,6 @@ export function isJsonObjectString(str) {
   } catch (e) {
     return false;
   }
-}
-
-export function downloadImageAsSVG(svgBlob) {
-  const fileName = 'diagram.svg';
-  const downloadLink = document.createElement('a');
-  downloadLink.download = fileName;
-  downloadLink.href = window.URL.createObjectURL(svgBlob);
-
-  downloadLink.onclick = function(event) {
-    document.body.removeChild(event.target);
-  };
-
-  downloadLink.style.visibility = 'hidden';
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

@@ -194,16 +194,8 @@ class ModelEditorWrapper extends React.Component {
         {editor && (
           <div className="ecos-model-editor__designer-work-zone">
             <div className="ecos-model-editor__designer-child">{editor}</div>
-            <div className="ecos-model-editor__designer-buttons">
-              {this.state.configButtons && (
-                <Tools className={'ecos-model-editor__designer-buttons'} configButtons={this.state.configButtons} />
-              )}
-            </div>
-            <div className="ecos-model-editor__designer-zoom">
-              {this.state.configZoomButtons && (
-                <Tools className={'ecos-model-editor__designer-zoom'} configButtons={this.state.configZoomButtons} />
-              )}
-            </div>
+            <Tools className={'ecos-model-editor__designer-buttons'} configButtons={this.state.configButtons} />
+            <Tools className={'ecos-model-editor__designer-zoom'} configButtons={this.state.configZoomButtons} />
           </div>
         )}
       </div>

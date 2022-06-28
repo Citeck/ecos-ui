@@ -10,7 +10,7 @@ import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
-import { getCurrentLocale, getMLValue, getTextByLocale, t, downloadImageAsSVG } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
@@ -426,7 +426,8 @@ class ModelEditorPage extends React.Component {
         const svgBlob = new Blob([svg], {
           type: 'image/svg+xml'
         });
-        downloadImageAsSVG(svgBlob);
+        const link = window.URL.createObjectURL(svgBlob);
+        fileDownload(link, 'diagram.svg');
       }
     });
   };
