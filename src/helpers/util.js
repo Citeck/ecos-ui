@@ -413,11 +413,9 @@ export function isPDFbyStr(str) {
 }
 
 /**
- * todo: translate to english
- *
- * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
- * @param link ссылка на файл для скачивания
- * @param filename имя скачиваемого файла
+ * Implementation of downloading a file with adding an element to the dom and removing it after a click
+ * @param link link to download file
+ * @param filename name for uploaded file
  */
 export function fileDownload(link, fileName = '') {
   let elLink = document.createElement('a');
