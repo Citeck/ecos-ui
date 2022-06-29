@@ -623,6 +623,11 @@ export default class Record {
 
   isPendingCreate() {
     let baseRecordId = this.getBaseRecord().id;
+
+    if (baseRecordId.startsWith('dict@')) {
+      return true;
+    }
+
     // base record with '@' at the end mean that record is not exists yet and will be created on save
     return baseRecordId.indexOf('@') === baseRecordId.length - 1;
   }
