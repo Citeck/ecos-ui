@@ -137,4 +137,14 @@
     font-size: $font-size-extra-large;
     line-height: $font-size-extra-large;
   }
+
+  &__designer-zoom {
+    position: absolute;
+    bottom: 40px;
+    right: 10px;
+
+    .ecos-btn {
+      margin-bottom: 10px;
+    }
+  }
 }
