@@ -59,6 +59,10 @@ $bottom-pad: 80px;
     overflow: hidden;
   }
 
+  &_loading {
+    min-height: 50px;
+  }
+
   &__content {
     height: 100%;
     width: 100%;
@@ -169,6 +173,15 @@ $bottom-pad: 80px;
       }
     }
 
+    & &-badge {
+      background-color: $color-gray-4;
+      color: $text-color-dark;
+      border-radius: $border-radius-standard;
+      height: 26px;
+      font-size: $font-size-small;
+      font-weight: $font-weight-semi-bold;
+    }
+
     &-select {
       .ecos-btn {
         padding: 0 10px;
@@ -258,20 +271,11 @@ $bottom-pad: 80px;
       overflow-anchor: none;
     }
 
-    &_bottom_action {
-      display: block;
-      margin: auto;
-      text-align: center;
-      margin-bottom: 150px;
-
-      &-text {
-        font-size: 12px;
-        color: $text-color-dark;
-      }
-
-      &-btn {
-        cursor: pointer;
-      }
+    &-doc-transition {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 100px;
     }
 
     &-page {
