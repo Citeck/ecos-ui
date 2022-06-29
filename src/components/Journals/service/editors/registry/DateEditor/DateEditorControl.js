@@ -108,7 +108,10 @@ export default class DateEditorControl extends React.Component {
   }
 
   renderDateInterval() {
-    return <DateIntervalPicker value={this.state.date} onChange={this.onChangeInterval} />;
+    const { isRelativeToParent } = this.props;
+    const { date } = this.state;
+
+    return <DateIntervalPicker value={date} isRelativeToParent={isRelativeToParent} onChange={this.onChangeInterval} />;
   }
 
   render() {
