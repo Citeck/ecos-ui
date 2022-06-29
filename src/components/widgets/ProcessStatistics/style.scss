@@ -43,6 +43,12 @@
 
     border-top: none;
 
+    & .heatmap-canvas {
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
     &_hidden-heatmap {
       .ecos-model-container {
         cursor: move;
@@ -154,8 +160,4 @@
     background: $color-green-dark;
     color: white;
   }
-}
-
-.heatmap-canvas {
-  pointer-events: none;
 }
