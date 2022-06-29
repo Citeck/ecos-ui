@@ -12,6 +12,7 @@ import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import JournalHistory from './JournalHistory';
 import EventsHistorySettings from './EventsHistorySettings';
+import { Labels } from './util';
 
 import './style.scss';
 
@@ -46,7 +47,8 @@ class EventsHistoryDashlet extends BaseWidget {
     this.state = {
       ...this.state,
       isSmallMode: false,
-      isShowSetting: false
+      isShowSetting: false,
+      runCleanFilters: false
     };
   }
 
@@ -75,6 +77,11 @@ class EventsHistoryDashlet extends BaseWidget {
       [DAction.Actions.RELOAD]: {
         onClick: this.reload.bind(this)
       },
+      'clean-filters': {
+        icon: 'icon-filter-clean',
+        text: t(Labels.ACT_CLEAN_FILTER),
+        onClick: this.handleCleanFilters
+      },
       [DAction.Actions.SETTINGS]: {
         onClick: this.toggleSettings
       }
@@ -89,11 +96,11 @@ class EventsHistoryDashlet extends BaseWidget {
     }
   }
 
-  onResize = width => {
+  handleResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
   };
 
-  onSaveConfig = config => {
+  handleSaveConfig = config => {
     isFunction(this.props.onSave) && this.props.onSave(this.props.id, { config });
     this.toggleSettings();
   };
@@ -102,13 +109,17 @@ class EventsHistoryDashlet extends BaseWidget {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
+  handleCleanFilters = () => {
+    this.setState({ runCleanFilters: true }, () => this.setState({ runCleanFilters: false }));
+  };
+
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isShowSetting } = this.state;
+    const { isSmallMode, isShowSetting, runUpdate, runCleanFilters } = this.state;
 
     return (
       <Dashlet
-        title={title || t('events-history-widget.title')}
+        title={title || t(Labels.WIDGET_TITLE)}
         className={classNames('ecos-event-history-dashlet', classNameDashlet)}
         bodyClassName="ecos-event-history-dashlet__body"
         resizable={true}
@@ -118,13 +129,13 @@ class EventsHistoryDashlet extends BaseWidget {
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
-        onResize={this.onResize}
+        onResize={this.handleResize}
         onToggleCollapse={this.handleToggleContent}
         isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
         contentMaxHeight={this.dashletMaxHeight}
       >
-        {isShowSetting && <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.onSaveConfig} />}
+        {isShowSetting && <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.handleSaveConfig} />}
         <JournalHistory
           {...config}
           forwardedRef={this.contentRef}
@@ -133,6 +144,7 @@ class EventsHistoryDashlet extends BaseWidget {
           stateId={this.stateId}
           isSmallMode={isSmallMode}
           runUpdate={runUpdate}
+          runCleanFilters={runCleanFilters}
           maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
           getContentHeight={this.setContentHeight}
           scrollbarProps={this.scrollbarProps}
