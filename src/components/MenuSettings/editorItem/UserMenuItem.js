@@ -63,7 +63,7 @@ class UserMenuItem extends Base {
   getAuthoritiesInfoByName() {
     this.setState({ isFetching: true });
 
-    MenuApi.getAuthoritiesInfoByName(get(this.props, 'item.allowedFor'), 'nodeRef').then(allowedRefs => {
+    MenuApi.getAuthoritiesInfo(get(this.props, 'item.allowedFor'), 'authorityName').then(allowedRefs => {
       if (this.#unmounted) {
         return;
       }

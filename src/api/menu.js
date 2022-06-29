@@ -4,7 +4,7 @@ import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
 
-import { generateSearchTerm, getCurrentUserName, isNodeRef } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
@@ -14,6 +14,7 @@ import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
 import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
+import AuthorityService from '../services/authrority/AuthorityService';
 
 const $4H = 14400000;
 const SITE = 'site';
@@ -210,7 +211,7 @@ export class MenuApi extends CommonApi {
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
     const updUserMenuItems = await fetchExtraItemInfo(lodashGet(config, 'menu.user.items') || [], { label: '.disp' });
-    const updAuthorities = await this.getAuthoritiesInfoByName(lodashGet(config, 'authorities') || []);
+    const updAuthorities = await this.getAuthoritiesInfo(lodashGet(config, 'authorities') || []);
 
     setSectionTitles(updCreateItems, updLeftItems);
     lodashSet(config, 'menu.left.items', updLeftItems);
@@ -231,25 +232,10 @@ export class MenuApi extends CommonApi {
     );
   };
 
-  getAuthoritiesInfoByName = MenuApi.getAuthoritiesInfoByName;
+  getAuthoritiesInfo = MenuApi.getAuthoritiesInfo;
 
-  static getAuthoritiesInfoByName = (authorities, attributes = { name: '.str', ref: 'nodeRef' }) => {
-    const _authorities = (authorities || []).map(auth => `${SourcesId.A_AUTHORITY}@${auth}`);
-
-    return Records.get(_authorities).load(attributes);
-  };
-
-  getAuthoritiesInfoByRef = refs => {
-    return Records.get(refs).load({ ref: '.str', name: 'cm:userName!cm:authorityName', label: '.disp' });
-  };
-
-  getAuthoritiesInfo = async values => {
-    const names = values.filter(val => !isNodeRef(val));
-    const refs = values.filter(val => isNodeRef(val));
-    const infoNames = await this.getAuthoritiesInfoByName(names);
-    const infoRefs = await this.getAuthoritiesInfoByRef(refs);
-
-    return [...infoNames, ...infoRefs];
+  static getAuthoritiesInfo = async (values, attributes = { name: 'authorityName', ref: '?id' }) => {
+    return AuthorityService.getAuthorityAttributes(values, attributes);
   };
 
   getGroupPriority = () => {
