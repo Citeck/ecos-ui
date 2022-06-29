@@ -1606,6 +1606,7 @@
   "form-editor.remove-button": "Удалить",
   "form-editor.preview-button": "Предпросмотр",
   "form-editor.help": "Помощь",
+  "form-editor.open-comp-doc": "Открыть документацию {{name}}",
   "form-editor.submit-button": "Отправить",
 
   "form-constructor.tabs.basic": "Базовые",

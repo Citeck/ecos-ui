@@ -1608,6 +1608,7 @@
   "form-editor.remove-button": "Remove",
   "form-editor.preview-button": "Preview",
   "form-editor.help": "Help",
+  "form-editor.open-comp-doc": "Open documentation {{name}}",
   "form-editor.submit-button": "Submit",
 
   "form-constructor.tabs.basic": "Basic",

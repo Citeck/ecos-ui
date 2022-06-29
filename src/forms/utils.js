@@ -234,6 +234,7 @@ export const prepareComponents = components => {
 
     Object.defineProperty(component, 'builderInfo', {
       get: function() {
+        //set doc-url for all who has documentation in different service
         return { ...builderInfo, documentation: getCompDoc(key) || builderInfo.documentation };
       }
     });

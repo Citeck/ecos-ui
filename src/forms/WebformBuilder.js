@@ -1,15 +1,16 @@
-import _ from 'lodash';
-import Webform from 'formiojs/Webform';
-import WebformBuilder from 'formiojs/WebformBuilder';
 import Components from 'formiojs/components/Components';
 import EventEmitter from 'formiojs/EventEmitter';
 import BuilderUtils from 'formiojs/utils/builder';
 import { getComponent } from 'formiojs/utils/formUtils';
+import Webform from 'formiojs/Webform';
+import WebformBuilder from 'formiojs/WebformBuilder';
+import _ from 'lodash';
 
 import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
 
 const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
+const originAddBuilderComponent = WebformBuilder.prototype.addBuilderComponent;
 
 Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
   get: function() {
@@ -401,15 +402,24 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   this.emit('editComponent', component);
 };
 
-//todo
 WebformBuilder.prototype.addBuilderComponentInfo = function(builderInfo) {
-  console.log(builderInfo);
   return originAddBuilderComponentInfo.call(this, prepareComponentBuilderInfo(builderInfo));
 };
 
-// WebformBuilder.prototype.insertInOrder = function(...props) {
-//   console.log({props})
-//   return originInsertInOrder.call(this, ...props);
-// };
+WebformBuilder.prototype.addBuilderComponent = function(...props) {
+  const component = originAddBuilderComponent.call(this, ...props);
+  if (component.element && component.documentation) {
+    const helper = this.ce('i', {
+      class: 'fa fa-question-circle-o',
+      style: 'right: 5px; position: absolute;font-size: 13px;cursor: pointer;',
+      title: t('form-editor.open-comp-doc', { name: component.title || component.key })
+    });
+
+    this.addEventListener(helper, 'click', () => window.open(component.documentation, '_blank'), true);
+
+    component.element.appendChild(helper);
+  }
+  return component;
+};
 
 export default WebformBuilder;
