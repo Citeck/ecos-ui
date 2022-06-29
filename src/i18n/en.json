@@ -596,6 +596,9 @@
   "group-action.message.started": "Started",
   "group-action.message.in-progress": "In progress",
   "group-action.label.result": "The result of performing a group operation",
+  "group-action.message.processed": "Processed {{count}} out of {{total}}",
+  "group-action.message.done-name": "Action \"{{action}}\" completed",
+  "group-action.message.background-mode": "Processing continues in the background",
 
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",
