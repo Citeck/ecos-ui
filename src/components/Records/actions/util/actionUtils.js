@@ -80,6 +80,7 @@ function formatArrayResult(data) {
 export const ResultTypes = {
   LINK: 'link',
   RESULTS: 'results',
+  MSG: 'msg',
   ERROR: 'error'
 };
 

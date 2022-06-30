@@ -36,6 +36,12 @@ const ExecuteInfoAction = React.memo((props = {}) => {
   ];
 
   switch (get(props, 'type')) {
+    case ResultTypes.MSG: {
+      keyField = 'status';
+      columns = [columns[1], columns[2]];
+      data = [{ ...get(props, 'data', {}) }];
+      break;
+    }
     case ResultTypes.ERROR: {
       keyField = 'status';
       columns = [columns[1], columns[2]];

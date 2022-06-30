@@ -77,6 +77,10 @@ export default class RecordsExportAction extends ActionsExecutor {
         throwError(Labels.NO_RESULT, newAction);
       }
 
+      if (!Object.values(ResultTypes).includes(result.type)) {
+        throwError(Labels.NO_RESULT_TYPE, result);
+      }
+
       if (result.type === ResultTypes.LINK) {
         let url = get(result, 'data.url', '');
 
@@ -96,11 +100,14 @@ export default class RecordsExportAction extends ActionsExecutor {
         }
 
         window.open(url);
-      } else {
-        throwError(Labels.NO_RESULT_TYPE, result);
+        return true;
       }
 
-      return true;
+      if (result.type === ResultTypes.RESULTS && get(result, 'data.results.length') === 1) {
+        return { type: ResultTypes.MSG, data: get(result, 'data.results[0]') };
+      }
+
+      return result;
     } catch (e) {
       return { error: e.message };
     }
