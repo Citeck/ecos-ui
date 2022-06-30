@@ -1,4 +1,6 @@
-import _ from 'lodash';
+import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import NativePromise from 'native-promise-only';
 import Formio from 'formiojs/Formio';
 import FormIOTextAreaComponent from 'formiojs/components/textarea/TextArea';
@@ -29,7 +31,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   setValue(value, flags) {
-    const skipSetting = _.isEqual(value, this.getValue());
+    const skipSetting = isEqual(value, this.getValue());
     value = value || '';
     if (this.options.readOnly || this.htmlView) {
       // For readOnly, just view the contents.
@@ -83,25 +85,26 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addCKE(element, settings, onChange) {
-    settings = _.isEmpty(settings) ? {} : settings;
+    settings = isEmpty(settings) ? {} : settings;
     settings.base64Upload = true;
 
     return new Promise(resolve => {
       window.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
-        if (!element.parentNode) {
+        if (!get(element, 'parentNode')) {
           return NativePromise.reject();
         }
+
         return ckeditor.create(element, settings).then(editor => {
           editor.model.document.on('change', () => onChange(editor.data.get()));
           resolve(editor);
           return editor;
         });
       });
-    });
+    }).catch(err => console.warn(err));
   }
 
   addQuill(element, settings, onChange) {
-    settings = _.isEmpty(settings) ? this.wysiwygDefault : settings;
+    settings = isEmpty(settings) ? this.wysiwygDefault : settings;
 
     // Lazy load the quill css.
     Formio.requireLibrary(
@@ -113,9 +116,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     return new Promise(resolve => {
       window.require(['/js/lib/quill/1.3.6/quill.js'], Quill => {
-        if (!element.parentNode) {
+        if (!get(element, 'parentNode')) {
           return NativePromise.reject();
         }
+
         this.quill = new Quill(element, settings);
 
         /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
@@ -156,6 +160,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   addAce(element) {
     window.require(['/js/lib/ace/1.4.1/ace.js'], () => {
+      if (!element) {
+        return NativePromise.reject();
+      }
+
       const mode = this.component.as || 'javascript';
       this.editor = window.ace.edit(element);
 
@@ -264,18 +272,17 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   show(show, noClear) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
     if (show && this.wysiwygRendered && this.editorReady) {
-      this.editorReady.then(editor => {
-        let parentNode = null;
-        if (this.component.editor === 'ckeditor') {
-          parentNode = _.get(editor, 'sourceElement.parentNode');
-        } else {
-          parentNode = _.get(editor, 'container.parentNode');
-        }
-
-        if (!parentNode) {
-          this.refreshWysiwyg();
-        }
-      });
+      this.editorReady
+        .then(editor => {
+          let parentNode = null;
+          if (this.component.editor === 'ckeditor') {
+            parentNode = get(editor, 'sourceElement.parentNode');
+          } else {
+            parentNode = get(editor, 'container.parentNode');
+          }
+          !parentNode && this.refreshWysiwyg();
+        })
+        .catch(err => console.warn(err));
     }
 
     return super.show(show, noClear);
