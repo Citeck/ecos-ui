@@ -351,11 +351,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     super.createLabel(...params);
 
-    if (this.component.labelPosition) {
-      this.addClass(this.labelElement, 'form-check-label_' + this.component.labelPosition);
-    } else {
-      this.addClass(this.labelElement, 'form-check-label_left-left');
-    }
+    this.addClass(this.labelElement, 'form-check-label_' + (this.component.labelPosition || 'left-left'));
 
     if (this.component.tooltip) {
       this.addClass(this.labelElement, 'form-check-label_has-tip');
