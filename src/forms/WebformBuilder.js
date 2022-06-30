@@ -393,7 +393,9 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
 
     const container = this.element.closest('.modal');
 
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     const target = document.querySelector('.formarea');
     const observer = new MutationObserver(function() {
