@@ -382,9 +382,34 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     if (component.dragEvents && component.dragEvents.onSave) {
       component.dragEvents.onSave(component);
     }
+    const popup = this.element.closest('.modal-dialog');
+    let top = 0;
+    if (popup) {
+      top = Math.round(popup.getBoundingClientRect().top) * -1;
+    }
     this.form = this.schema;
     this.emit('saveComponent', component, originalComponent);
     this.dialog.close();
+
+    const container = this.element.closest('.modal');
+
+    if (!container) return;
+
+    const target = document.querySelector('.formarea');
+    const observer = new MutationObserver(function() {
+      container.scrollTo(0, top);
+      setTimeout(() => {
+        observer.disconnect();
+      }, 100);
+    });
+
+    const config = {
+      childList: true,
+      attributes: true,
+      characterData: true
+    };
+
+    observer.observe(target, config);
   });
 
   this.addEventListener(this.dialog, 'close', () => {
