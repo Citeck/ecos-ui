@@ -55,7 +55,7 @@ class DocPreviewDashlet extends BaseWidget {
       scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(this.state.lsId) || DocScaleOptions.AUTO
     };
     this.observableFieldsToUpdate = [
-      ...new Set([...this.observableFieldsToUpdate, 'version', 'preview-hash', 'cm:content', 'documents[]'])
+      ...new Set([...this.observableFieldsToUpdate, 'version', 'preview-hash', 'cm:content', 'documents[]', 'documents-hash'])
     ];
   }
 

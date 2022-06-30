@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -13,6 +13,7 @@ import { t } from '../../../helpers/util';
 import { InfoText, Loader } from '../../common';
 import { Grid } from '../../common/grid';
 import EventsHistoryCard from './EventsHistoryCard';
+import { Labels } from './util';
 
 import './style.scss';
 
@@ -33,10 +34,6 @@ const mapDispatchToProps = dispatch => ({
   resetEventsHistory: payload => dispatch(resetEventsHistory(payload))
 });
 
-const Labels = {
-  NO_COLS: 'events-history-widget.info.no-columns'
-};
-
 const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
   scrollable ? (
     <Scrollbars
@@ -56,7 +53,7 @@ const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
  * This version works with Journal config only
  * @default default journal config is defined in EventsHistoryService now
  */
-class JournalHistory extends React.Component {
+class JournalHistory extends Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
@@ -94,6 +91,10 @@ class JournalHistory extends React.Component {
 
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getJournalHistory();
+    }
+
+    if (!prevProps.runCleanFilters && this.props.runCleanFilters) {
+      this.setState({ filters: [] }, this.runFilter);
     }
   }
 
@@ -134,18 +135,18 @@ class JournalHistory extends React.Component {
     getJournalHistory({ stateId, record, selectedJournal });
   };
 
-  onFilter = predicates => {
+  runFilter = () => {
+    const predicates = this.state.filters;
     const { filterJournalHistory, record, stateId, columns } = this.props;
 
     filterJournalHistory({ stateId, record, columns, predicates });
   };
 
-  onGridFilter = (newFilters = [], type) => {
-    const { filters } = this.state;
+  handleFilter = (newFilters = [], type) => {
     const newFilter = get(newFilters, '0', {});
-    const upFilters = EventsHistoryService.applyFilters(filters, newFilter, type);
+    const filters = EventsHistoryService.joinFilters(this.state.filters, newFilter, type);
 
-    this.setState({ filters: upFilters }, () => this.onFilter(this.state.filters));
+    this.setState({ filters }, this.runFilter);
   };
 
   renderEnum() {
@@ -178,7 +179,7 @@ class JournalHistory extends React.Component {
         autoHeight
         filterable
         filters={filters}
-        onFilter={this.onGridFilter}
+        onFilter={this.handleFilter}
       />
     );
   }

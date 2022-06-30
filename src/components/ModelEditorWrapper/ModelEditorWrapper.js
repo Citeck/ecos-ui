@@ -23,7 +23,11 @@ const Labels = {
   APPLY: 'model-editor.btn.apply',
   VIEW_XML: 'model-editor.btn.view-xml',
   SAVE_DEPLOY: 'model-editor.btn.save-deploy',
-  CREATE: 'model-editor.btn.create'
+  CREATE: 'model-editor.btn.create',
+  SAVE_AS_SVG: 'model-editor.btn.download-as-svg',
+  RESET_ZOOM: 'model-editor.btn.reset-zoom',
+  ZOOM_IN: 'model-editor.btn.zoom-in',
+  ZOOM_OUT: 'model-editor.btn.zoom-out'
 };
 
 class ModelEditorWrapper extends React.Component {
@@ -38,7 +42,8 @@ class ModelEditorWrapper extends React.Component {
 
   state = {
     rightSidebarOpen: true,
-    configButtons: []
+    configButtons: [],
+    configZoomButtons: []
   };
 
   #sidebarRightRef = null;
@@ -77,7 +82,7 @@ class ModelEditorWrapper extends React.Component {
   };
 
   createConfigTools() {
-    const { onCreate, onViewXml } = this.props;
+    const { onCreate, onViewXml, onSaveAsSVG, onZoomIn, onZoomOut, onZoomReset } = this.props;
 
     this.setState({
       configButtons: [
@@ -112,6 +117,43 @@ class ModelEditorWrapper extends React.Component {
           id: `bpmn-download-btn-${uuidv4()}`,
           trigger: 'hover',
           className: 'ecos-btn_green'
+        },
+        {
+          icon: 'icon-picture',
+          action: onSaveAsSVG,
+          text: t(Labels.SAVE_AS_SVG),
+          id: `bpmn-download-as-svg-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        }
+      ]
+    });
+
+    this.setState({
+      configZoomButtons: [
+        {
+          icon: 'icon-backup',
+          action: onZoomReset,
+          text: t(Labels.RESET_ZOOM),
+          id: `bpmn-zoom-reset-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        },
+        {
+          icon: 'icon-zoom-in',
+          action: onZoomIn,
+          text: t(Labels.ZOOM_IN),
+          id: `bpmn-zoom-in-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
+        },
+        {
+          icon: 'icon-zoom-out',
+          action: onZoomOut,
+          text: t(Labels.ZOOM_OUT),
+          id: `bpmn-zoom-out-btn-${uuidv4()}`,
+          trigger: 'hover',
+          className: ''
         }
       ]
     });
@@ -152,9 +194,8 @@ class ModelEditorWrapper extends React.Component {
         {editor && (
           <div className="ecos-model-editor__designer-work-zone">
             <div className="ecos-model-editor__designer-child">{editor}</div>
-            <div className="ecos-model-editor__designer-buttons">
-              {this.state.configButtons && <Tools configButtons={this.state.configButtons} />}
-            </div>
+            <Tools className={'ecos-model-editor__designer-buttons'} configButtons={this.state.configButtons} />
+            <Tools className={'ecos-model-editor__designer-zoom'} configButtons={this.state.configZoomButtons} />
           </div>
         )}
       </div>

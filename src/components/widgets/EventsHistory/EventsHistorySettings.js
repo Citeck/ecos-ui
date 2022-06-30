@@ -5,15 +5,9 @@ import { t } from '../../../helpers/util';
 import { SystemJournals } from '../../../constants';
 import { Caption, Field, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
+import { Labels } from './util';
 
 import './style.scss';
-
-const Labels = {
-  SETTINGS_TITLE: 'events-history-widget.settings.title',
-  SETTINGS_BTN_CANCEL: 'events-history-widget.settings.btn.cancel',
-  SETTINGS_BTN_SAVE: 'events-history-widget.settings.btn.save',
-  JOURNAL_FIELD: 'events-history-widget.settings.field.journal'
-};
 
 class EventsHistorySettings extends React.Component {
   static propTypes = {

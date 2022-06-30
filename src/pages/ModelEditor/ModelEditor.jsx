@@ -10,7 +10,7 @@ import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
-import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
@@ -262,6 +262,18 @@ class ModelEditorPage extends React.Component {
     this._formsCache[selectedElement.id] = data;
   }
 
+  handleZoomIn = () => {
+    this.designer.zoomIn();
+  };
+
+  handleZoomOut = () => {
+    this.designer.zoomOut();
+  };
+
+  handleZoomReset = () => {
+    this.designer.zoomReset();
+  };
+
   handleSave = (deploy = false) => {
     if (!this.designer) {
       return;
@@ -404,6 +416,22 @@ class ModelEditorPage extends React.Component {
     });
   };
 
+  handleSaveAsSVG = () => {
+    if (!this.designer) {
+      return;
+    }
+
+    this.designer.saveSVG({
+      callback: ({ error, svg }) => {
+        const svgBlob = new Blob([svg], {
+          type: 'image/svg+xml'
+        });
+        const link = window.URL.createObjectURL(svgBlob);
+        fileDownload(link, 'diagram.svg');
+      }
+    });
+  };
+
   handleClickForm = () => {
     this._labelIsEdited = false;
   };
@@ -515,6 +543,10 @@ class ModelEditorPage extends React.Component {
           onApply={this.handleSave}
           onViewXml={this.handleClickViewXml}
           onSaveAndDeploy={this.handleSave}
+          onSaveAsSVG={this.handleSaveAsSVG}
+          onZoomIn={this.handleZoomIn}
+          onZoomOut={this.handleZoomOut}
+          onZoomReset={this.handleZoomReset}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           rightSidebar={

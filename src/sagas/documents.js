@@ -56,6 +56,7 @@ import {
   uploadFiles,
   uploadFilesFinally
 } from '../actions/documents';
+import { getStore } from '../store';
 
 function* fillTypeInfo(api, types = []) {
   const typeKeys = types.map(record => record.type);
@@ -417,7 +418,20 @@ function* formManager({ api, payload, files }) {
         formId: type.formId,
         files,
         createVariants
-      })
+      }),
+      {
+        onModalCancel: () => {
+          const store = getStore();
+
+          store.dispatch(
+            setLoadingStatus({
+              key: payload.key,
+              loadingField: 'isLoading',
+              status: false
+            })
+          );
+        }
+      }
     );
   } catch (e) {
     console.error('[documents formManager error]', e);

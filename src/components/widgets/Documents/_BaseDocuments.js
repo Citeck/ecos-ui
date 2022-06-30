@@ -410,8 +410,9 @@ class BaseDocuments extends BaseWidget {
     this.setState({ isDragFiles: false });
   };
 
-  openForm = (data = {}) => {
+  openForm = (data = {}, options = {}) => {
     FormManager.createRecordByVariant(data, {
+      ...options,
       onSubmit: this.handleSubmitForm
     });
   };

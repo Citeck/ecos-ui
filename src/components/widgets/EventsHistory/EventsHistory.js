@@ -70,8 +70,8 @@ const Scroll = ({ scrollable, children, height = '100%', scrollbarProps }) =>
   );
 
 /**
- * @desc EventsHistory is 1d version of history.
- * @deprecated Use JournalHistory.js
+ * @desc EventsHistory is first version of history.
+ * @deprecated Use JournalHistory.js !
  */
 class EventsHistory extends React.Component {
   static propTypes = {
@@ -262,21 +262,7 @@ class EventsHistory extends React.Component {
   };
 
   applyFiltering = (items, newItem) => {
-    const filtering = item => {
-      if (isEqual(item, newItem)) {
-        return false;
-      }
-
-      return item.att !== newItem.att;
-    };
-
-    const result = items.filter(filtering);
-
-    if (!isEmpty(newItem.val) || !newItem.needValue) {
-      result.push(newItem);
-    }
-
-    return result;
+    return EventsHistoryService.joinFilters(items, newItem);
   };
 
   onGridFilter = (newFilters = [], type) => {

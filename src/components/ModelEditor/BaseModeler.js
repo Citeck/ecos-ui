@@ -20,6 +20,7 @@ export default class BaseModeler {
   static querySelector = 'ecos-model-container';
 
   modeler;
+  zoomScroll;
   events = {};
   _isCustomContainer = false;
   _isDiagramMounted = false;
@@ -70,6 +71,8 @@ export default class BaseModeler {
         const { warnings } = result || {};
 
         this._isDiagramMounted = true;
+        this.zoomScroll = this.modeler.get('zoomScroll');
+
         isFunction(callback) && callback({ mounted: !!this.isDiagramMounted, warnings });
         !!warnings.length && console.warn(warnings);
       } else {
@@ -78,6 +81,30 @@ export default class BaseModeler {
     } catch (err) {
       console.error('Error rendering', err.message, err.warnings);
     }
+  };
+
+  zoomIn = () => {
+    if (!this.zoomScroll) {
+      return;
+    }
+
+    this.zoomScroll.stepZoom(1);
+  };
+
+  zoomOut = () => {
+    if (!this.zoomScroll) {
+      return;
+    }
+
+    this.zoomScroll.stepZoom(-1);
+  };
+
+  zoomReset = () => {
+    if (!this.zoomScroll) {
+      return;
+    }
+
+    this.zoomScroll.reset();
   };
 
   /**
