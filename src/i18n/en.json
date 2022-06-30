@@ -658,6 +658,15 @@
   "record-action.name.edit-password": "Change password",
   "record-action.name.open-submit-form": "Open and submit",
 
+  "record-action.name.export-report": "Export report",
+  "record-action.name.export-report.msg.no-result": "No result",
+  "record-action.name.export-report.msg.no-export-type": "Export type not specified in configuration",
+  "record-action.name.export-report.msg.no-columns": "Columns not specified in configuration",
+  "record-action.name.export-report.msg.no-export-config": "Export action config doesn't found",
+  "record-action.name.export-report.msg.no-handler": "Action handler doesn't exists",
+  "record-action.name.export-report.msg.done-no-url": "Done, but url not specified in result",
+  "record-action.name.export-report.msg.done-no-type": "Unknown type of result",
+
   "record-action.edit-journal-preset.name": "Edit journal template",
   "record-action.edit-journal-preset.msg.saved-success": "Template saved",
   "record-action.edit-journal-preset.msg.saved-error": "Template not saved",

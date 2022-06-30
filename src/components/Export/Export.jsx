@@ -65,7 +65,7 @@ export default class Export extends Component {
       const { journalConfig } = this.props;
       const recordsQuery = await journalsService.getRecordsQuery(journalConfig, this.getJSettings());
       const actionConfig = this.getActionConfig(item);
-      const action = { type: RecordsExportAction.ACTION_ID, config: actionConfig };
+      const action = recordActions.getActionInfo({ type: RecordsExportAction.ACTION_ID, config: actionConfig });
 
       this.textInput.current.value = JSON.stringify(recordsQuery.query);
 

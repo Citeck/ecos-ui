@@ -1,12 +1,24 @@
 import get from 'lodash/get';
 
-import { replacePlaceholders } from '../../../../Journals/service/util';
+import { t } from '../../../../../helpers/util';
 import { SourcesId } from '../../../../../constants';
 import { PROXY_URI } from '../../../../../constants/alfresco';
+import { replacePlaceholders } from '../../../../Journals/service/util';
 import Records from '../../../Records';
 import ActionsExecutor from '../ActionsExecutor';
+import { ResultTypes } from '../../util/actionUtils';
 
 const ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
+
+const Labels = {
+  NO_RESULT: 'record-action.name.export-report.msg.no-result',
+  NO_EXPORT_TYPE: 'record-action.name.export-report.msg.no-export-type',
+  NO_COLUMNS: 'record-action.name.export-report.msg.no-columns',
+  NO_EXPORT_CONFIG: 'record-action.name.export-report.msg.no-export-config',
+  NO_HANDLER: 'record-action.name.export-report.msg.no-handler',
+  NO_RESULT_URL: 'record-action.name.export-report.msg.done-no-url',
+  NO_RESULT_TYPE: 'record-action.name.export-report.msg.done-no-type'
+};
 
 export default class RecordsExportAction extends ActionsExecutor {
   static ACTION_ID = 'records-export';
@@ -20,79 +32,83 @@ export default class RecordsExportAction extends ActionsExecutor {
   }
 
   async _execImpl(actionImpl, action) {
-    const { exportType = null, columns = null, download = true } = action.config || {};
+    try {
+      const { exportType = null, columns = null, download = true } = action.config || {};
 
-    const throwError = msg => {
-      const args = [action];
+      const throwError = msg => {
+        const args = [action];
 
-      for (let i = 1; i < arguments.length; i++) {
-        args.push(arguments[i]);
-      }
-
-      console.error(`[RecordsExportAction] ${msg}`, args);
-      throw new Error(msg);
-    };
-
-    if (!exportType) {
-      throwError('exportType in action.config is empty');
-    }
-
-    if (!columns || columns.length === 0) {
-      throwError('columns in action.config is empty');
-    }
-
-    const exportActionId = ACTION_ID + exportType.toLowerCase();
-    const exportConfig = await Records.get(exportActionId).load('?json', true);
-
-    if (!exportConfig) {
-      throwError("Export action config doesn't found");
-    }
-
-    const handler = this._actionsRegistry.getHandler(exportConfig.type);
-
-    if (!handler) {
-      throwError("Action handler doesn't exists", exportConfig);
-    }
-
-    const newAction = { ...exportConfig };
-
-    newAction.config = replacePlaceholders(newAction.config, { reportColumns: columns });
-
-    const result = await actionImpl(handler, newAction);
-
-    if (!result) {
-      throwError('Empty result', newAction);
-    }
-
-    if (result.type === 'link') {
-      let url = get(result, 'data.url', '');
-
-      if (!url) {
-        throwError('Result is not empty and has type link, but data.url is missing', result);
-      }
-
-      const hasWorkspace = url.includes('workspace://SpacesStore/');
-
-      if (hasWorkspace) {
-        if (download === false) {
-          url += url.includes('?') ? '&' : '?';
-          url += 'download=false';
+        for (let i = 1; i < arguments.length; i++) {
+          args.push(arguments[i]);
         }
 
-        url = PROXY_URI + url;
+        console.error('[RecordsExportAction]', t(msg), args);
+        throw new Error(t(msg));
+      };
+
+      if (!exportType) {
+        throwError(Labels.NO_EXPORT_TYPE);
       }
 
-      window.open(url);
-    } else {
-      throwError('Unknown type of result: ' + result.type);
-    }
+      if (!columns || columns.length === 0) {
+        throwError(Labels.NO_COLUMNS);
+      }
 
-    return false;
+      const exportActionId = ACTION_ID + exportType.toLowerCase();
+      const exportConfig = await Records.get(exportActionId).load('?json', true);
+
+      if (!exportConfig) {
+        throwError(Labels.NO_EXPORT_CONFIG);
+      }
+
+      const handler = this._actionsRegistry.getHandler(exportConfig.type);
+
+      if (!handler) {
+        throwError(Labels.NO_HANDLER, exportConfig);
+      }
+
+      const newAction = { ...exportConfig };
+
+      newAction.config = replacePlaceholders(newAction.config, { reportColumns: columns });
+
+      const result = await actionImpl(handler, newAction);
+
+      if (!result) {
+        throwError(Labels.NO_RESULT, newAction);
+      }
+
+      if (result.type === ResultTypes.LINK) {
+        let url = get(result, 'data.url', '');
+
+        if (!url) {
+          throwError(Labels.NO_RESULT_URL, result);
+        }
+
+        const hasWorkspace = url.includes('workspace://SpacesStore/');
+
+        if (hasWorkspace) {
+          if (download === false) {
+            url += url.includes('?') ? '&' : '?';
+            url += 'download=false';
+          }
+
+          url = PROXY_URI + url;
+        }
+
+        window.open(url);
+      } else {
+        throwError(Labels.NO_RESULT_TYPE, result);
+      }
+
+      return true;
+    } catch (e) {
+      return { error: e.message };
+    }
   }
 
   getDefaultActionModel() {
     return {
-      name: 'Export report',
+      name: 'record-action.name.export-report',
       icon: 'icon-download'
     };
   }
