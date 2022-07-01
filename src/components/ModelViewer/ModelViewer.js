@@ -5,9 +5,9 @@ import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
 
 import { ScaleOptions } from '../common/Scaler/util';
+import BaseModeler from '../ModelEditor/BaseModeler';
 import HeatmapWrapper from './tools/Heatmap.js';
 import Badges from './tools/Badges';
-import BaseModeler from '../ModelEditor/BaseModeler';
 
 const _extendModeler = new BaseModeler();
 

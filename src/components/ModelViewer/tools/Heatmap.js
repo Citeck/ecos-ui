@@ -1,4 +1,5 @@
 import Heatmap from 'heatmap.js';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import includes from 'lodash/includes';
@@ -88,6 +89,18 @@ export default class HeatmapWrapper {
     const canvas = this.#instModel.get('canvas');
     const { H, W } = this.viewboxData;
 
+    /**
+     * todo
+     * ?????????????????
+     * 1 проверять сам элемент
+     * 2 проверять родителя , но родитель другой тип
+     * 3 взять бизнес объект - ид этого родителя
+     * 4 получить эдемент по ид
+     * 5 проверить этот эдемент на открытость
+     */
+    elementRegistry.filter(element => {
+      console.log(isExpanded(element), element.parent && isExpanded(element.parent), element);
+    });
     // get all shapes and connections
     const shapes = elementRegistry.filter(element => !element.hidden && !element.waypoints && element.parent && element.type !== 'label');
     const connections = elementRegistry.filter(
