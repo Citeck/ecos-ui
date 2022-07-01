@@ -5,6 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
@@ -204,6 +205,8 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    // console.warn({ element });
+
     const formFields = this.getFormFields(element);
     /**
      * Events can occur too often.
@@ -225,6 +228,10 @@ class ModelEditorPage extends React.Component {
     Object.keys(get(element, 'businessObject', {})).forEach(key => {
       if (KEY_FIELDS.includes(key)) {
         const value = get(element, ['businessObject', key]);
+
+        if (element.id === 'TextAnnotation_0xu5elw') {
+          console.warn({ element, value, key });
+        }
 
         if (!isUndefined(value)) {
           if (key === KEY_FIELD_NAME) {
@@ -251,6 +258,8 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    // console.warn({ data });
+
     const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
 
     if (selectedElement.id.endsWith(LABEL_POSTFIX)) {
@@ -258,6 +267,8 @@ class ModelEditorPage extends React.Component {
     } else {
       set(this._formsCache, [selectedElement.id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
     }
+
+    console.warn('change form data => ', { id: selectedElement.id, data });
 
     this._formsCache[selectedElement.id] = data;
   }
@@ -315,6 +326,8 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
+    // console.warn('this._formsCache => ', this._formsCache);
+
     const formId = this._determineFormId(selectedElement);
 
     this.props.getFormProps(this.getFormType(formId), selectedElement);
@@ -341,6 +354,7 @@ class ModelEditorPage extends React.Component {
   }
 
   handleFormReady = form => {
+    console.warn('form ready => ', form);
     this._formReady = true;
   };
 
@@ -437,6 +451,8 @@ class ModelEditorPage extends React.Component {
   };
 
   handleChangeLabel = label => {
+    // console.warn({ label });
+
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
 
@@ -455,6 +471,11 @@ class ModelEditorPage extends React.Component {
 
       set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX, getCurrentLocale()], label || '');
     }
+
+    console.warn({
+      clone: cloneDeep(this._formsCache),
+      'this._formsCache': this._formsCache
+    });
   };
 
   handleElementCreateEnd = event => {
@@ -521,7 +542,8 @@ class ModelEditorPage extends React.Component {
     const formData = get(this.props, 'formProps.formData');
     const { selectedElement } = this.state;
 
-    if (!selectedElement || !selectedElement.id || !this._formReady) {
+    if (!selectedElement || !selectedElement.id /* || !this._formReady*/) {
+      console.warn('SORRY => ', { ready: this._formReady, id: get(selectedElement, 'id') });
       return formData;
     }
 
@@ -534,6 +556,8 @@ class ModelEditorPage extends React.Component {
   render() {
     const { title, formProps, isLoading } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
+
+    console.warn('render => ', this.formData);
 
     return (
       <div className="ecos-model-editor__page" ref={this.modelEditorRef}>

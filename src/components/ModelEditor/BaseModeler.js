@@ -169,10 +169,12 @@ export default class BaseModeler {
     const modeling = this.modeler.get('modeling');
     const di = getDi(element);
 
+    console.warn({ element, properties, di });
+
     if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
 
-      labelEditingProvider.update(element, name);
+      labelEditingProvider.update(element, name, name, element.parent);
     }
 
     if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && di) {
