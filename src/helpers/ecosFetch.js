@@ -5,7 +5,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { getCurrentLocale } from './export/util';
 
 const acceptLanguage = getCurrentLocale();
-const timezoneOffset = -new Date().getTimezoneOffset() / 60;
+const timezoneOffset = -new Date().getTimezoneOffset();
 
 export const emitter = new EventEmitter2();
 export const RESET_AUTH_STATE_EVENT = 'set-auth-status-event';
