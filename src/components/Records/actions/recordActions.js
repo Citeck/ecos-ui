@@ -949,7 +949,7 @@ class RecordActions {
    */
   getActionInfo(params) {
     const defaultDesc = RecordActions._getActionsExecutor(params).getDefaultActionModel();
-    return { ...defaultDesc, ...params };
+    return { ...DEFAULT_MODEL, ...defaultDesc, ...params };
   }
 
   /**

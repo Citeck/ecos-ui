@@ -658,6 +658,15 @@
   "record-action.name.edit-password": "Изменить пароль",
   "record-action.name.open-submit-form": "Открыть и рассмотреть",
 
+  "record-action.name.export-report": "Экспорт отчета",
+  "record-action.name.export-report.msg.no-result": "Нет результата",
+  "record-action.name.export-report.msg.no-export-type": "Тип экспорта не указан в конфигурации",
+  "record-action.name.export-report.msg.no-columns": "Столбцы не указаны в конфигурации",
+  "record-action.name.export-report.msg.no-export-config": "Конфигурация действия экспорта не найдена",
+  "record-action.name.export-report.msg.no-handler": "Обработчик действия не существует",
+  "record-action.name.export-report.msg.done-no-url": "Выполнено, но URL не указан в результате",
+  "record-action.name.export-report.msg.done-no-type": "Неизвестный тип результата",
+
   "record-action.edit-journal-preset.name": "Редактировать шаблон настроек журнала",
   "record-action.edit-journal-preset.msg.saved-success": "Шаблон сохранен",
   "record-action.edit-journal-preset.msg.saved-error": "Шаблон не сохранен",
