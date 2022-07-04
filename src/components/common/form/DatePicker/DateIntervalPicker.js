@@ -60,6 +60,7 @@ const Labels = {
 class DateIntervalPicker extends Component {
   static propTypes = {
     value: PropTypes.string,
+    isRelativeToParent: PropTypes.bool,
     onChange: PropTypes.func
   };
 
@@ -433,6 +434,7 @@ class DateIntervalPicker extends Component {
   }
 
   renderIntervalSelector() {
+    const { isRelativeToParent } = this.props;
     const { selectedPart, selectedType } = this.state;
 
     if (!selectedPart) {
@@ -451,7 +453,7 @@ class DateIntervalPicker extends Component {
         target={this.#tooltipId}
         placement="bottom"
         trigger="legacy"
-        container="body"
+        container={isRelativeToParent ? get(this.#componentRef, 'current', document.body) : 'body'}
         toggle={this.handleClosePopover}
       >
         <PopoverHeader>{this.popoverLabel}</PopoverHeader>

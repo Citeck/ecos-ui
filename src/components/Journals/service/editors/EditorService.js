@@ -45,7 +45,8 @@ class EditorService {
     onBlur,
     onCancel,
     scope = EditorScope.OTHER,
-    controlProps
+    controlProps,
+    isRelativeToParent
   }) {
     try {
       let editorConfig = editor.config || {};
@@ -70,6 +71,7 @@ class EditorService {
       return (
         <EditorControlWrapper
           ref={ref}
+          isRelativeToParent={isRelativeToParent}
           forwardedRef={forwardedRef}
           recordRef={recordRef}
           attribute={attribute}
