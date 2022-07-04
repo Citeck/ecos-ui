@@ -89,23 +89,15 @@ export default class HeatmapWrapper {
     const canvas = this.#instModel.get('canvas');
     const { H, W } = this.viewboxData;
 
-    /**
-     * todo
-     * ?????????????????
-     * 1 проверять сам элемент
-     * 2 проверять родителя , но родитель другой тип
-     * 3 взять бизнес объект - ид этого родителя
-     * 4 получить эдемент по ид
-     * 5 проверить этот эдемент на открытость
-     */
-    elementRegistry.filter(element => {
-      console.log(isExpanded(element), element.parent && isExpanded(element.parent), element);
-    });
+    const isParentExpanded = parent => {
+      const parentId = get(parent, 'businessObject.id');
+      return parentId && elementRegistry.get(parentId) && isExpanded(elementRegistry.get(parentId));
+    };
+
+    const isElmExpanded = element => !element.hidden && element.parent && isExpanded(element) && isParentExpanded(element.parent);
     // get all shapes and connections
-    const shapes = elementRegistry.filter(element => !element.hidden && !element.waypoints && element.parent && element.type !== 'label');
-    const connections = elementRegistry.filter(
-      element => !!mapData[element.id] && !element.hidden && !!element.waypoints && element.parent
-    );
+    const shapes = elementRegistry.filter(element => isElmExpanded(element) && !element.waypoints && element.type !== 'label');
+    const connections = elementRegistry.filter(element => !!mapData[element.id] && isElmExpanded(element) && !!element.waypoints);
 
     shapes.forEach(shape => {
       const { x, y, width, height, type, id } = shape;
