@@ -517,7 +517,8 @@ class RecordActions {
       title: getActionResultTitle(action),
       withConfirm: false,
       withoutLoader: byBatch,
-      statusesByRecords
+      statusesByRecords,
+      messagesByRecords: []
     };
 
     const execution = await (async function() {
