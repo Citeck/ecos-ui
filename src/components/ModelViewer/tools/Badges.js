@@ -38,7 +38,7 @@ const Badges = ({ data = {}, keys = [], getElm }) => {
       {data.map(item => {
         const elm = getElm(item.id);
 
-        if (elm.hidden) {
+        if (!elm || elm.hidden) {
           return null;
         }
 

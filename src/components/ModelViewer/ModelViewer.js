@@ -8,6 +8,7 @@ import { ScaleOptions } from '../common/Scaler/util';
 import BaseModeler from '../ModelEditor/BaseModeler';
 import HeatmapWrapper from './tools/Heatmap.js';
 import Badges from './tools/Badges';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 const _extendModeler = new BaseModeler();
 
@@ -144,16 +145,23 @@ export default class ModelViewer {
   };
 
   drawBadges = ({ data = [], keys = [] }) => {
-    const mapData = {};
+    const elementRegistry = this.modeler.get('elementRegistry');
+    const canvas = this.modeler.get('canvas');
+    const root = canvas.getRootElement();
 
-    data && data.forEach(item => (mapData[item.id] = item));
+    const _data =
+      data &&
+      data.filter(item => {
+        const element = elementRegistry.get(item.id);
+        return element && !element.hidden && isExpanded(element) && element.parent === root;
+      });
 
     if (!this.#badges) {
       this.#badges = new Badges();
       this.#badges.create(this.modeler.get('overlays'));
     }
 
-    this.#badges.draw({ data, keys });
+    this.#badges.draw({ data: _data, keys });
   };
 
   destroy = () => {

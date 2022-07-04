@@ -87,17 +87,13 @@ export default class HeatmapWrapper {
     const connectionPoints = [];
     const elementRegistry = this.#instModel.get('elementRegistry');
     const canvas = this.#instModel.get('canvas');
+    const root = canvas.getRootElement();
     const { H, W } = this.viewboxData;
 
-    const isParentExpanded = parent => {
-      const parentId = get(parent, 'businessObject.id');
-      return parentId && elementRegistry.get(parentId) && isExpanded(elementRegistry.get(parentId));
-    };
-
-    const isElmExpanded = element => !element.hidden && element.parent && isExpanded(element) && isParentExpanded(element.parent);
+    const isVisible = element => !element.hidden && isExpanded(element) && element.parent === root;
     // get all shapes and connections
-    const shapes = elementRegistry.filter(element => isElmExpanded(element) && !element.waypoints && element.type !== 'label');
-    const connections = elementRegistry.filter(element => !!mapData[element.id] && isElmExpanded(element) && !!element.waypoints);
+    const shapes = elementRegistry.filter(element => isVisible(element) && !element.waypoints && element.type !== 'label');
+    const connections = elementRegistry.filter(element => !!mapData[element.id] && isVisible(element) && !!element.waypoints);
 
     shapes.forEach(shape => {
       const { x, y, width, height, type, id } = shape;
