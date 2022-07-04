@@ -260,6 +260,7 @@ export default class HeaderFormatter extends Component {
               val: get(predicate, 'val', text)
             }
           }}
+          isRelativeToParent
           onChangeValue={this.handleChangeFilterValue}
           onChangePredicate={this.handleChangeFilterPredicate}
           onFilter={this.handleFilter}
