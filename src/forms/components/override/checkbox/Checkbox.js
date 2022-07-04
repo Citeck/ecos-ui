@@ -4,6 +4,7 @@ import unset from 'lodash/unset';
 import set from 'lodash/set';
 
 import { getBool, t } from '../../../../helpers/util';
+import { DEFAULT_LABEL_POSITION } from '../../../../constants/forms';
 import Base from '../base/Base';
 
 export default class CheckBoxComponent extends FormIOCheckBoxComponent {
@@ -351,7 +352,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
 
     super.createLabel(...params);
 
-    this.addClass(this.labelElement, 'form-check-label_' + this.component.labelPosition);
+    this.addClass(this.labelElement, 'form-check-label_' + (this.component.labelPosition || DEFAULT_LABEL_POSITION));
 
     if (this.component.tooltip) {
       this.addClass(this.labelElement, 'form-check-label_has-tip');
