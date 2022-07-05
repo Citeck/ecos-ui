@@ -641,10 +641,10 @@ Base.prototype.__t = function(content, params) {
 
 Base.prototype.t = function(text, params) {
   if (typeof text === 'string' && text.includes('__t(')) {
-    return this.__t(text, params);
+    return this.__t(text, params) || text;
   }
 
-  return originalT.call(this, getMLValue(text), params);
+  return originalT.call(this, getMLValue(text), params) || text;
 };
 
 Base.prototype.createWidget = function() {
