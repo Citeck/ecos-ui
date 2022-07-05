@@ -703,7 +703,7 @@ export default class SelectJournal extends Component {
   };
 
   renderSelectModal() {
-    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title } = this.props;
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, journalId } = this.props;
     const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
     const extraProps = {};
 
@@ -775,7 +775,10 @@ export default class SelectJournal extends Component {
             {`${t(Labels.MSG_WHOLE_SELECTION)}. ${t(Labels.SELECTED_LABEL, { data: gridData.total })}`}
           </div>
         )}
-        <div className="select-journal__grid-container">
+        <div
+          id={journalId ? `${journalId.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')}-container` : null}
+          className="select-journal__grid-container"
+        >
           {!isGridDataReady && <Loader />}
 
           <Grid
