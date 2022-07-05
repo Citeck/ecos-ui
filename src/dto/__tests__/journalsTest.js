@@ -112,6 +112,35 @@ describe('JournalsConverter', () => {
     });
     const data = [
       {
+        label: 'remove extra spaces',
+        input: [getPredicates('   a   '), columns],
+        output: {
+          t: PREDICATE_AND,
+          val: [
+            {
+              t: PREDICATE_OR,
+              val: [
+                {
+                  t: PREDICATE_CONTAINS,
+                  att: 'tk:kind',
+                  val: 'a'
+                },
+                {
+                  t: PREDICATE_CONTAINS,
+                  att: 'cm:name',
+                  val: 'a'
+                },
+                {
+                  t: PREDICATE_CONTAINS,
+                  att: 'note',
+                  val: 'a'
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
         label: 'phrase in back quotes unchanged if have delimiters',
         input: [getPredicates('`full string`'), columns],
         output: {
