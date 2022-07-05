@@ -3,8 +3,8 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
+import isNil from 'lodash/isNil';
 
-import { isExistValue } from '../../../helpers/util';
 import {
   datePredicateVariables,
   EQUAL_PREDICATES_MAP,
@@ -132,7 +132,7 @@ export default class ParserPredicate {
     }
 
     return val.filter(v => {
-      if (!isExistValue(v)) {
+      if (isNil(v)) {
         return false;
       }
 
@@ -379,6 +379,8 @@ export default class ParserPredicate {
     }
 
     const forEach = arr => {
+      let isExist = false;
+
       arr.forEach(item => {
         if (typeof item === 'string') {
           return;
@@ -391,6 +393,8 @@ export default class ParserPredicate {
         }
 
         if (item.att === newPredicate.att) {
+          isExist = true;
+
           if (isEqual(newPredicate, item)) {
             delete newPredicate.att;
             return;
@@ -399,11 +403,16 @@ export default class ParserPredicate {
           if (isEqual(item.att, newPredicate.att) && (!isEqual(item.val, newPredicate.val) || !isEqual(item.t, newPredicate.t))) {
             item.val = newPredicate.val;
 
-            if (isExistValue(newPredicate.t)) {
+            if (!isNil(newPredicate.t)) {
               item.t = newPredicate.t;
             }
 
             delete newPredicate.att;
+          }
+        } else {
+          if (!isExist) {
+            isExist = true;
+            arr.push(newPredicate);
           }
         }
       });
