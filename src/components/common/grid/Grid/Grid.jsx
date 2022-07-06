@@ -256,8 +256,9 @@ class Grid extends Component {
   };
 
   onSelect = ({ allPage, newSelected, allPossible, newExcluded }) => {
-    const { onSelect } = this.props;
-    const selected = [...new Set(newSelected)];
+    const { onSelect, nonSelectable = [], selected: oldSelected } = this.props;
+    const selectedAndDisabled = oldSelected.filter(item => nonSelectable.includes(item));
+    const selected = [...new Set([...newSelected, ...selectedAndDisabled])];
     const excluded = [...new Set(newExcluded)];
     const props = { selected };
 
