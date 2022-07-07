@@ -764,6 +764,12 @@ export function prepareTooltipId(id = uuidV4()) {
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
 
+export function getHtmlIdByUid(id = uuidV4(), postfix = '') {
+  const htmlId = id + postfix ? `-${postfix}` : '';
+
+  return htmlId.toLowerCase().replace(/\W+/g, '-');
+}
+
 export function prepareReactKey({ id = uuidV4(), prefix = 'key', postfix = '' } = {}) {
   const parts = [];
 

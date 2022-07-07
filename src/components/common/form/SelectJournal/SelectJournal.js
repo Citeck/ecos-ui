@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
 import { Attributes, Permissions } from '../../../../constants';
-import { beArray, isMobileDevice, t } from '../../../../helpers/util';
+import { getHtmlIdByUid, beArray, isMobileDevice, t } from '../../../../helpers/util';
 import { getIconUpDown } from '../../../../helpers/icon';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
@@ -22,7 +22,6 @@ import Records from '../../../Records';
 import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { DialogManager } from '../../dialogs';
 import { matchCardDetailsLinkFormatterColumn } from '../../grid/mapping/Mapper';
-
 import { DataTypes, DisplayModes, Labels } from './constants';
 import InputView from './InputView';
 import ViewMode from './ViewMode';
@@ -703,7 +702,7 @@ export default class SelectJournal extends Component {
   };
 
   renderSelectModal() {
-    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title } = this.props;
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, journalId } = this.props;
     const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
     const extraProps = {};
 
@@ -775,7 +774,7 @@ export default class SelectJournal extends Component {
             {`${t(Labels.MSG_WHOLE_SELECTION)}. ${t(Labels.SELECTED_LABEL, { data: gridData.total })}`}
           </div>
         )}
-        <div className="select-journal__grid-container">
+        <div id={getHtmlIdByUid(journalId, 'container')} className="select-journal__grid-container">
           {!isGridDataReady && <Loader />}
 
           <Grid
