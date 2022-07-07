@@ -50,6 +50,20 @@ export default {
         key: 'totalWithOverride',
         calculateValue: 'value = data.c + data.d;',
         allowCalculateOverride: true
+      },
+      {
+        key: 'hiddenDefault',
+        label: 'hidden (default value)',
+        type: 'hidden',
+        input: true,
+        customDefaultValue: 'value = "default value"'
+      },
+      {
+        key: 'hiddenCalculate',
+        label: 'hidden (calculate value)',
+        type: 'hidden',
+        input: true,
+        calculateValue: 'value = "calculated value";'
       }
     ]
   },
@@ -65,6 +79,7 @@ export default {
         data: {
           a: '10',
           b: '15',
+          hiddenDefault: 'default value',
           total: ''
         }
       });
@@ -80,6 +95,18 @@ export default {
           c: 7,
           d: 13
         }
+      });
+    },
+    'Test Hidden field contains its value in data-object, if defaultValue is set'(form, done) {
+      const value = form.getValue();
+      assert.equal(value.data.hiddenDefault, 'default value');
+      done();
+    },
+    'Test Hidden field contains its value in data-object, if calculateValue is set'(form, done) {
+      form.on('initialized', () => {
+        const value = form.getValue();
+        assert.equal(value.data.hiddenCalculate, 'calculated value');
+        done();
       });
     }
   }
