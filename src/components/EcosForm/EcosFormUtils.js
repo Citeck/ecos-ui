@@ -144,7 +144,7 @@ export default class EcosFormUtils {
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
+        const formMode = config.formMode || recordData.formMode || FORM_MODE_EDIT;
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -197,6 +197,7 @@ export default class EcosFormUtils {
   static editRecord(config) {
     const recordRef = config.recordRef,
       fallback = config.fallback,
+      formMode = config.formMode || FORM_MODE_EDIT,
       formKey = config.formKey;
 
     const showForm = recordRef => {
@@ -233,6 +234,7 @@ export default class EcosFormUtils {
         params,
         class: 'ecos-modal_width-lg',
         isBigHeader: true,
+        formMode,
         formContainer: config.formContainer || null
       });
     };
