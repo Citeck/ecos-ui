@@ -41,4 +41,15 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
 
     overrideTriggerChange.call(this);
   }
+
+  calculateValue(data, flags) {
+    // if (this.key === 'value') {
+    //   console.warn({
+    //     data, flags,
+    //     self: this
+    //   });
+    // }
+
+    return super.calculateValue(data, flags);
+  }
 }

@@ -259,6 +259,10 @@ Base.prototype.calculateValue = function(data, flags) {
     return false;
   }
 
+  if (isUndefined(this.calculatedValue) && this.component.allowCalculateOverride && !isEmpty(this.dataValue)) {
+    return false;
+  }
+
   // // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
@@ -272,6 +276,10 @@ Base.prototype.calculateValue = function(data, flags) {
   );
 
   const changed = modifiedOriginalCalculateValue.call(this, data, flags);
+
+  if (this.key === 'value') {
+    console.warn({ changed });
+  }
 
   if (this.component.triggerChangeWhenCalculate && (changed || hasChanged)) {
     this.triggerChange(flags);
