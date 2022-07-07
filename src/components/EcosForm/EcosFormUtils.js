@@ -220,17 +220,6 @@ export default class EcosFormUtils {
 
       if (config.contentBefore) {
         params.contentBefore = config.contentBefore;
-        EcosFormUtils.eform(recordRef, {
-          params,
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true,
-          formMode,
-          formContainer: config.formContainer || null
-        });
-      } else {
-        if (typeof fallback === 'function') {
-          fallback();
-        }
       }
 
       if (config.contentAfter) {
@@ -245,6 +234,7 @@ export default class EcosFormUtils {
         params,
         class: 'ecos-modal_width-lg',
         isBigHeader: true,
+        formMode,
         formContainer: config.formContainer || null
       });
     };
