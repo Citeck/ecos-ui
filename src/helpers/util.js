@@ -765,7 +765,7 @@ export function prepareTooltipId(id = uuidV4()) {
 }
 
 export function getHtmlIdByUid(id = uuidV4(), postfix = '') {
-  const htmlId = id + postfix ? `-${postfix}` : '';
+  const htmlId = id + (postfix ? `-${postfix}` : '');
 
   return htmlId.toLowerCase().replace(/\W+/g, '-');
 }

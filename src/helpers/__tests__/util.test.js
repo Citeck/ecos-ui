@@ -181,6 +181,14 @@ describe('Util helpers', () => {
     it(input + '>' + output, () => expect(Util.prepareTooltipId(input)).toEqual(output));
   });
 
+  describe.each([
+    ['123 qwerty', 'prefix', '123-qwerty-prefix'],
+    ['2Aw3zA A14s14 F51f35A', undefined, '2aw3za-a14s14-f51f35a'],
+    ['id123qwerty', '8- 4 5-6*/qwerty', 'id123qwerty-8-4-5-6-qwerty']
+  ])('function getHtmlIdByUid', (id, prefix, output) => {
+    it(`getHtmlIdByUid: ${id}`, () => expect(Util.getHtmlIdByUid(id, prefix)).toEqual(output));
+  });
+
   describe('function reverseString', () => {
     const data = [
       {
