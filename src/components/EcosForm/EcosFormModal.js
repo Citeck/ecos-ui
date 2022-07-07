@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
-import get from 'lodash/get';
 
 import { t } from '../../helpers/util';
 import { SourcesId } from '../../constants';
@@ -66,7 +65,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   componentDidMount() {
-    const { record } = this.props;
+    const { record, options } = this.props;
 
     this.checkEditRights();
     this.instanceRecord = Records.get(record);
@@ -75,15 +74,16 @@ export default class EcosFormModal extends React.Component {
         displayName: '.disp'
       })
       .then(recordData => {
+        const { typeRef, formMode } = options || {};
         let typeNamePromise;
-        const typeRef = get(this.props, 'options.typeRef');
+
         if (typeRef) {
           typeNamePromise = Records.get(typeRef).load('name');
         } else {
           typeNamePromise = Promise.resolve(null);
         }
 
-        recordData.formMode = EcosFormUtils.getFormMode(this.instanceRecord);
+        recordData.formMode = formMode || EcosFormUtils.getFormMode(this.instanceRecord);
 
         typeNamePromise.then(typeName => {
           if (typeName) {

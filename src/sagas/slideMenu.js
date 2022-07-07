@@ -1,6 +1,7 @@
 import { LOCATION_CHANGE } from 'connected-react-router';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import set from 'lodash/set';
 
 import {
   fetchSlideMenuItems,
@@ -18,9 +19,10 @@ import SidebarConverter from '../dto/sidebar';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import FormManager from '../components/EcosForm/FormManager';
 import Records from '../components/Records';
+import FormManager from '../components/EcosForm/FormManager';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import { FORM_MODE_CREATE } from '../components/EcosForm';
 
 function* fetchSlideMenu({ api, logger }, action) {
   try {
@@ -98,6 +100,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
         createVariant.formTitle = yield call(api.page.getRecordTitle, recordRef);
         createVariant.recordRef = recordRef;
         createVariant.formRef = yield Records.get(recordRef).load('startFormRef?id');
+        set(createVariant, 'formOptions.formMode', FORM_MODE_CREATE);
 
         if (processDefWithoutPrefix.indexOf('activiti$') !== -1) {
           const hasForm = !!createVariant.formRef || (yield EcosFormUtils.hasForm(recordRef));
