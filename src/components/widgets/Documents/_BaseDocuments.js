@@ -88,6 +88,7 @@ class BaseDocuments extends BaseWidget {
 
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
+    this.observableFieldsToUpdateWithDefault = ['documents-hash'];
   }
 
   componentDidMount() {
