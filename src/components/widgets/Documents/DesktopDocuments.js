@@ -37,6 +37,7 @@ import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, Groupp
 
 class DesktopDocuments extends BaseDocuments {
   scrollPosition = {};
+  #updateWatcherLocal = null;
 
   static propTypes = {
     ...super.propTypes,
@@ -108,6 +109,8 @@ class DesktopDocuments extends BaseDocuments {
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
+
+    this.#updateWatcherLocal = this.instanceRecord.watch(this.observableFieldsToUpdate, this.updateDocList);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -130,6 +133,7 @@ class DesktopDocuments extends BaseDocuments {
   componentWillUnmount() {
     super.componentWillUnmount();
     this.handleRowMouseLeave.cancel();
+    this.instanceRecord.unwatch(this.#updateWatcherLocal);
   }
 
   get contentWidth() {
@@ -530,6 +534,10 @@ class DesktopDocuments extends BaseDocuments {
         {this.renderCountStatus(params[1], 'grid')}
       </div>
     );
+  };
+
+  updateDocList = () => {
+    this.getDocumentsByType(this.state.selectedType);
   };
 
   renderTypes() {
