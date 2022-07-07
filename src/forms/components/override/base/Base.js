@@ -277,10 +277,6 @@ Base.prototype.calculateValue = function(data, flags) {
 
   const changed = modifiedOriginalCalculateValue.call(this, data, flags);
 
-  if (this.key === 'value') {
-    console.warn({ changed });
-  }
-
   if (this.component.triggerChangeWhenCalculate && (changed || hasChanged)) {
     this.triggerChange(flags);
   }
