@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { t } from '../../../../helpers/export/util';
@@ -17,6 +18,14 @@ const Labels = {
 };
 
 const ExecuteInfoAction = React.memo((props = {}) => {
+  const type = get(props, 'type');
+  const renderContent = () => {
+    if (type === ResultTypes.INFO) {
+      return <p>{get(props, 'data')}</p>;
+    }
+
+    return <Grid keyField={keyField} data={data} columns={columns} fixedHeader autoHeight maxHeight="calc(100vh - 200px)" />;
+  };
   let keyField;
   let data;
   let columns = [
@@ -35,7 +44,7 @@ const ExecuteInfoAction = React.memo((props = {}) => {
     }
   ];
 
-  switch (get(props, 'type')) {
+  switch (type) {
     case ResultTypes.MSG: {
       keyField = 'status';
       columns = [columns[1], columns[2]];
@@ -66,6 +75,10 @@ const ExecuteInfoAction = React.memo((props = {}) => {
       data = [{ status: t(Labels.REPORT), link: get(props, 'data.url') }];
       break;
     }
+    case ResultTypes.INFO: {
+      data = get(props, 'data');
+      break;
+    }
     case ResultTypes.RESULTS:
     default: {
       keyField = 'nodeRef';
@@ -78,9 +91,15 @@ const ExecuteInfoAction = React.memo((props = {}) => {
     <>
       {get(props.options, 'isLoading') && <Loader blur rounded />}
       {get(props.options, 'text') && <p className="font-weight-bold">{props.options.text}</p>}
-      <Grid keyField={keyField} data={data} columns={columns} fixedHeader autoHeight maxHeight="calc(100vh - 200px)" />
+      {renderContent()}
     </>
   );
 });
+
+ExecuteInfoAction.propTypes = {
+  type: PropTypes.string,
+  options: PropTypes.object,
+  data: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
+};
 
 export default ExecuteInfoAction;
