@@ -503,7 +503,7 @@ export default class SelectJournal extends Component {
     });
   };
 
-  setValue = (selected, shouldTriggerOnChange = true) => {
+  setValue = (selected, shouldTriggerOnChange = true, flags) => {
     const { onChange, multiple } = this.props;
 
     if (!selected) {
@@ -541,7 +541,7 @@ export default class SelectJournal extends Component {
             },
             () => {
               if (shouldTriggerOnChange && typeof onChange === 'function') {
-                onChange(newValue, selected);
+                onChange(newValue, selected, flags);
               }
               resolve();
             }
@@ -672,7 +672,7 @@ export default class SelectJournal extends Component {
   onValueDelete = id => {
     const newValue = this.state.selectedRows.filter(item => item.id !== id);
 
-    this.setValue(newValue);
+    this.setValue(newValue, true, { changeByUser: true });
   };
 
   onChangePage = _pagination_ => {
