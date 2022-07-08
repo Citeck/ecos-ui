@@ -150,6 +150,7 @@ class BaseWidget extends React.Component {
     return props;
   }
 
+  /** @param {Array<String>} fields */
   set observableFieldsToUpdate(fields) {
     this.#observableFieldsToUpdate = fields;
 
@@ -160,6 +161,11 @@ class BaseWidget extends React.Component {
     if (!isEmpty(fields)) {
       this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
     }
+  }
+
+  /** @param {Array<String>} fields */
+  set observableFieldsToUpdateWithDefault(fields) {
+    this.observableFieldsToUpdate = [...new Set([...fields, ...this.#observableFieldsToUpdate])];
   }
 
   /**
