@@ -63,6 +63,7 @@ export default class JournalsConverter {
     }
 
     val = val.trim();
+    predicate.val = val;
 
     if (isEmpty(val)) {
       return predicate;
