@@ -209,6 +209,7 @@ class Model extends React.Component {
 
   handleChangeHeatmap = legendData => {
     this.setState({ legendData });
+    this.renderBadges();
   };
 
   handleChangeOpacity = value => {

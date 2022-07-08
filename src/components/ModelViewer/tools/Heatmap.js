@@ -1,4 +1,5 @@
 import Heatmap from 'heatmap.js';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import includes from 'lodash/includes';
@@ -86,13 +87,13 @@ export default class HeatmapWrapper {
     const connectionPoints = [];
     const elementRegistry = this.#instModel.get('elementRegistry');
     const canvas = this.#instModel.get('canvas');
+    const root = canvas.getRootElement();
     const { H, W } = this.viewboxData;
 
+    const isVisible = element => !element.hidden && isExpanded(element) && element.parent === root;
     // get all shapes and connections
-    const shapes = elementRegistry.filter(element => !element.hidden && !element.waypoints && element.parent && element.type !== 'label');
-    const connections = elementRegistry.filter(
-      element => !!mapData[element.id] && !element.hidden && !!element.waypoints && element.parent
-    );
+    const shapes = elementRegistry.filter(element => isVisible(element) && !element.waypoints && element.type !== 'label');
+    const connections = elementRegistry.filter(element => !!mapData[element.id] && isVisible(element) && !!element.waypoints);
 
     shapes.forEach(shape => {
       const { x, y, width, height, type, id } = shape;
