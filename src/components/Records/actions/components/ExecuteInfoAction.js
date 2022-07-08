@@ -21,7 +21,7 @@ const ExecuteInfoAction = React.memo((props = {}) => {
   const type = get(props, 'type');
   const renderContent = () => {
     if (type === ResultTypes.INFO) {
-      return <p>{get(props, 'data')}</p>;
+      return <p>{data}</p>;
     }
 
     return <Grid keyField={keyField} data={data} columns={columns} fixedHeader autoHeight maxHeight="calc(100vh - 200px)" />;
