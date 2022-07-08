@@ -14,7 +14,18 @@ class FormManager {
       return;
     }
 
-    let { recordRef: record = '', type, sourceId, formId, formRef, formKey, attributes = {}, destination, formOptions = {} } = variant;
+    let {
+      recordRef: record = '',
+      type,
+      sourceId,
+      formId,
+      formRef,
+      formKey,
+      formMode,
+      attributes = {},
+      destination,
+      formOptions = {}
+    } = variant;
 
     formId = formRef || formId;
 
@@ -33,6 +44,7 @@ class FormManager {
     const props = {
       record,
       formKey,
+      formMode,
       attributes,
       options: {
         ...formOptions

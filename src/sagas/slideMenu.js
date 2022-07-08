@@ -1,7 +1,6 @@
 import { LOCATION_CHANGE } from 'connected-react-router';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
-import set from 'lodash/set';
 
 import {
   fetchSlideMenuItems,
@@ -100,7 +99,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
         createVariant.formTitle = yield call(api.page.getRecordTitle, recordRef);
         createVariant.recordRef = recordRef;
         createVariant.formRef = yield Records.get(recordRef).load('startFormRef?id');
-        set(createVariant, 'formOptions.formMode', FORM_MODE_CREATE);
+        createVariant.formMode = FORM_MODE_CREATE;
 
         if (processDefWithoutPrefix.indexOf('activiti$') !== -1) {
           const hasForm = !!createVariant.formRef || (yield EcosFormUtils.hasForm(recordRef));
