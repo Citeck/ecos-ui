@@ -41,8 +41,8 @@ export const DocCompMap = {
   hidden: 'hidden',
   importButton: 'import-button',
   datagrid: 'data-grid',
-  dataGridAssoc: 'data-grid-assoc',
-  dataMap: 'data-map',
+  datagridAssoc: 'data-grid-assoc',
+  datamap: 'data-map',
   includeForm: 'include-form'
 };
 
