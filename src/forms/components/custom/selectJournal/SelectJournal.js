@@ -268,6 +268,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return this.t(modalTitle);
   }
 
+  onChangeValue = (value, selected = [], flags = {}) => {
+    this.onReactValueChanged(value, {
+      noUpdateEvent: this._isInlineEditingMode,
+      ...flags
+    });
+  };
+
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
@@ -286,7 +293,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         placeholder: getTextByLocale(component.placeholder),
         disabled: component.disabled,
         journalId: journalId,
-        onChange: value => this.onReactValueChanged(value, { noUpdateEvent: this._isInlineEditingMode }),
+        onChange: this.onChangeValue,
         viewOnly: this.viewOnly,
         queryData,
         viewMode: component.source.viewMode,

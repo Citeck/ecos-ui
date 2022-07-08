@@ -503,9 +503,10 @@ export default class SelectJournal extends Component {
   /**
    * @param {String|Array<String>|RecordsQuery} selected - value can be array or string - recordRef or query for selection
    * @param shouldTriggerOnChange - default TRUE
+   * @param flags - default empty object
    * @returns {Promise<unknown>}
    */
-  setValue = (selected, shouldTriggerOnChange = true) => {
+  setValue = (selected, shouldTriggerOnChange = true, flags) => {
     const { onChange, multiple } = this.props;
 
     if (this.isQuery) {
@@ -539,7 +540,7 @@ export default class SelectJournal extends Component {
               }
             }),
             () => {
-              shouldTriggerOnChange && isFunction(onChange) && onChange(newValue, selected);
+              shouldTriggerOnChange && isFunction(onChange) && onChange(newValue, selected, flags);
               resolve();
             }
           );
@@ -657,7 +658,7 @@ export default class SelectJournal extends Component {
       newValue = this.state.selectedRows.filter(item => item.id !== id);
     }
 
-    this.setValue(newValue);
+    this.setValue(newValue, true, { changeByUser: true });
   };
 
   onChangePage = _pagination_ => {
