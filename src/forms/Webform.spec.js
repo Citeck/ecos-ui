@@ -353,7 +353,7 @@ describe('Formio Form Renderer tests', () => {
 
   each(FormTests, formTest => {
     each(formTest.tests, (formTestTest, title) => {
-      it(title, done => {
+      it(`[${formTest.title}]: ${title}`, done => {
         document.cookie = `${COOKIE_KEY_LOCALE}=en`;
         const formElement = document.createElement('div');
         const form = new Webform(formElement, { language: 'en' /*, formMode: 'EDIT'*/ });

@@ -206,7 +206,10 @@ const emptyCalculateValue = Symbol('empty calculate value');
 const modifiedOriginalCalculateValue = function(data, flags) {
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
-  if (!this.component.calculateValue || ((!this.visible || this.component.hidden) && this.component.clearOnHide)) {
+  if (
+    !this.component.calculateValue ||
+    (this.type !== 'hidden' && (!this.visible || this.component.hidden) && this.component.clearOnHide)
+  ) {
     return false;
   }
 
