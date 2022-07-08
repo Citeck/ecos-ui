@@ -3,8 +3,8 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import isString from 'lodash/isString';
 import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
 
 import {
   COLUMN_DATA_TYPE_DATE,
