@@ -170,14 +170,15 @@ export default class SelectComponent extends BaseComponent {
       return this.itemValue(data);
     }
 
+    const label = this.t(data.label || data);
+
     // Perform a fast interpretation if we should not use the template.
     if (data && !this.component.template) {
-      const itemLabel = data.label || data;
-      return typeof itemLabel === 'string' ? this.t(itemLabel) : itemLabel;
+      return label;
     }
 
     if (typeof data === 'string') {
-      return this.t(data);
+      return label;
     }
 
     const template = this.component.template ? this.interpolate(this.component.template, { item: data }) : data.label;
@@ -202,7 +203,7 @@ export default class SelectComponent extends BaseComponent {
 
   /**
    * @param {*} data
-   * @param {boolean} [forceUseValue=false] - if true, return 'value' property of the data
+   * @param {Boolean} forceUseValue default false; if true, return 'value' property of the data
    * @return {*}
    */
   itemValue(data, forceUseValue = false) {
@@ -225,10 +226,10 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /**
-   * Adds an option to the select dropdown.
-   *
+   * Adds an option to the select dropdown
    * @param value
    * @param label
+   * @param attr
    */
   addOption(value, label, attr) {
     const option = {
@@ -948,8 +949,11 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /**
-   * @param {*} value
+   *
+   * @param {Array} values
    * @param {Array} items
+   * @param {String} keyValue
+   * @returns {Boolean}
    */
   addCurrentChoices(values, items, keyValue) {
     if (!values) {
@@ -1142,7 +1146,7 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /**
-   * Ouput this select dropdown as a string value.
+   * Output this select dropdown as a string value.
    * @return {*}
    */
   asString(value) {

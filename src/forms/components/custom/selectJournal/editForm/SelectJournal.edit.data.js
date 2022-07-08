@@ -1,7 +1,7 @@
 import { Attributes } from '../../../../../constants';
 import { t } from '../../../../../helpers/export/util';
 
-import { SortOrderOptions, TableTypes, DisplayModes, DataTypes } from '../constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes } from '../constants';
 
 const CUSTOM_QUERY_DATA_FIELD = 'queryData';
 const CUSTOM_PREDICATE_FIELD = 'customPredicateJs';
@@ -117,7 +117,22 @@ export default [
         searchEnabled: false,
         defaultValue: TableTypes.JOURNAL,
         data: {
-          values: [{ label: 'Journal', value: TableTypes.JOURNAL }, { label: 'Custom', value: TableTypes.CUSTOM }]
+          values: [
+            {
+              label: {
+                ru: 'Журнал',
+                en: 'Journal'
+              },
+              value: TableTypes.JOURNAL
+            },
+            {
+              label: {
+                ru: 'Пользовательский',
+                en: 'Custom'
+              },
+              value: TableTypes.CUSTOM
+            }
+          ]
         },
         conditional: {
           json: {

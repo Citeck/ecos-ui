@@ -17,14 +17,34 @@ export default class SelectComponent extends FormIOSelectComponent {
     );
   }
 
+  static optimizeSchema(comp) {
+    return {
+      ...comp,
+      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
+    };
+  }
+
   get defaultSchema() {
     return SelectComponent.schema();
+  }
+
+  itemTemplate(data) {
+    let newData = _.cloneDeep(data);
+
+    if (data && data.label) {
+      newData.label = this.t(data.label);
+    } else {
+      newData = this.t(data);
+    }
+
+    return super.itemTemplate(newData);
   }
 
   addCurrentChoices(values, items, keyValue) {
     if (!values) {
       return false;
     }
+
     const notFoundValuesToAdd = [];
     const added = values.reduce((defaultAdded, value) => {
       if (!value) {
@@ -43,11 +63,14 @@ export default class SelectComponent extends FormIOSelectComponent {
         _.each(items, choice => {
           if (choice._id && value._id && choice._id === value._id) {
             found = true;
+
             return false;
           }
+
           const itemValue = keyValue ? choice.value : this.itemValue(choice, isSelectOptions);
           found |= _.isEqual(itemValue, value);
-          return found ? false : true;
+
+          return !found;
         });
       }
 
@@ -57,8 +80,10 @@ export default class SelectComponent extends FormIOSelectComponent {
           value: this.itemValue(value),
           label: this.itemTemplate(value)
         });
+
         return true;
       }
+
       return found || defaultAdded;
     }, false);
 
@@ -74,12 +99,5 @@ export default class SelectComponent extends FormIOSelectComponent {
     //   }
     // }
     return added;
-  }
-
-  static optimizeSchema(comp) {
-    return {
-      ...comp,
-      data: _.omitBy(comp.data, (value, key) => key !== comp.dataSrc)
-    };
   }
 }
