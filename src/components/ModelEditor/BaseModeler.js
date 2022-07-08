@@ -172,7 +172,7 @@ export default class BaseModeler {
     if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
 
-      labelEditingProvider.update(element, name);
+      labelEditingProvider.update(element, name, name, element);
     }
 
     if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && di) {

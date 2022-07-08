@@ -228,10 +228,8 @@ class ModelEditorPage extends React.Component {
 
         if (!isUndefined(value)) {
           if (key === KEY_FIELD_NAME) {
-            /**
-             * @todo save values other locales
-             */
             const formData = this.formData;
+
             formFields[key + ML_POSTFIX] = formData[key + ML_POSTFIX];
           } else {
             formFields[key] = value;
@@ -445,15 +443,16 @@ class ModelEditorPage extends React.Component {
     }
 
     if (!isUndefined(label) && this._formWrapperRef.current) {
-      this._labelIsEdited = true;
-      this._formWrapperRef.current.setValue(
-        {
-          [KEY_FIELD_NAME + ML_POSTFIX]: { [getCurrentLocale()]: label || '' }
-        },
-        { noUpdateEvent: true }
-      );
+      const prevLabel = get(this._formWrapperRef.current.form.getValue(), ['data', KEY_FIELD_NAME + ML_POSTFIX]) || {};
+      const newName = {
+        ...prevLabel,
+        [getCurrentLocale()]: label || ''
+      };
 
-      set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX, getCurrentLocale()], label || '');
+      this._labelIsEdited = true;
+      this._formWrapperRef.current.setValue({ [KEY_FIELD_NAME + ML_POSTFIX]: newName }, { noUpdateEvent: true });
+
+      set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
     }
   };
 
@@ -521,7 +520,7 @@ class ModelEditorPage extends React.Component {
     const formData = get(this.props, 'formProps.formData');
     const { selectedElement } = this.state;
 
-    if (!selectedElement || !selectedElement.id || !this._formReady) {
+    if (!selectedElement || !selectedElement.id) {
       return formData;
     }
 
