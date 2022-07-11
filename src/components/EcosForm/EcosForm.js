@@ -493,10 +493,6 @@ class EcosForm extends React.Component {
             resetOutcomeButtonsValues();
           })
           .finally(() => {
-            // TODO This may not be the best solution.
-            //  But at the moment it works for
-            //  https://citeck.atlassian.net/browse/ECOSUI-64
-            sRecord.reset();
             self.toggleLoader(false);
           });
       } else {
