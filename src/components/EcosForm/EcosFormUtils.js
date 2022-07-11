@@ -9,6 +9,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
 import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import uuidV4 from 'uuid/v4';
@@ -204,6 +205,10 @@ export default class EcosFormUtils {
 
         if (config.onFormCancel) {
           params.onFormCancel = config.onFormCancel;
+        }
+
+        if (isBoolean(config.saveOnSubmit)) {
+          params.saveOnSubmit = config.saveOnSubmit;
         }
 
         if (config.contentBefore) {
