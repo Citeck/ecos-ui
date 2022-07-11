@@ -8,6 +8,7 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 import ReactResizeDetector from 'react-resize-detector';
 
 import { DocPreviewApi } from '../../../api/docPreview';
@@ -104,6 +105,23 @@ class DocPreview extends Component {
     if (prevState.wrapperWidth !== this.state.wrapperWidth) {
       const viewerForceUpdate = get(this._viewerRef, 'onUpdate');
       isFunction(viewerForceUpdate) && viewerForceUpdate.call(this._viewerRef);
+    }
+
+    if (!isEqual(get(prevProps, 'toolbarConfig'), get(this.props, 'toolbarConfig'))) {
+      const showAllDocuments = get(this.props, 'toolbarConfig.showAllDocuments');
+      let newState = this.getCleanState();
+
+      if (showAllDocuments) {
+        this.bootstrapLink = false;
+        newState.recordId = this.props.recordId || this.getUrlRecordId();
+      }
+
+      this.setState({ ...newState }, () => {
+        this.getDownloadData();
+        this.loadPDF(this.state.link);
+        this.runGetData();
+        this.showFileBootstrap();
+      });
     }
   }
 
@@ -363,6 +381,7 @@ class DocPreview extends Component {
     }
 
     if (!recordId) {
+      this.setState({ downloadData: {} });
       return;
     }
 
