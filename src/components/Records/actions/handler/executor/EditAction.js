@@ -30,7 +30,7 @@ export default class EditAction extends ActionsExecutor {
             options: {
               actionRecord: record.id
             },
-            saveOnSubmit: action.config.saveOnSubmit !== false,
+            saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
             onSubmit: () => {
               // temp solution
