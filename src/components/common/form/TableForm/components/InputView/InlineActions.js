@@ -34,6 +34,7 @@ const InlineActions = () => {
 
   const renderButtons = useMemo(() => {
     const keyRender = act => `${act.id}-${act.key}`;
+
     let actions = [];
 
     if (isUsedJournalActions) {
@@ -46,6 +47,7 @@ const InlineActions = () => {
             saveOnSubmit: false
           };
         }
+
         return {
           ...act,
           onClick: () => RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction)
