@@ -869,6 +869,10 @@ class RecordActions {
 
     let result;
 
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    }
+
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
       result = await this.execForQueryAsForRecords(query, action, context);
     } else {
@@ -877,10 +881,6 @@ class RecordActions {
 
       if (preResult.configMerged) {
         action.config = preResult.config;
-      }
-
-      if (!isEmpty(confirmed)) {
-        RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
       result = handler.execForQuery(query, action, execContext);
