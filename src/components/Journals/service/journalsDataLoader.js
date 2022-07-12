@@ -35,6 +35,7 @@ class JournalsDataLoader {
         for (let record of records) {
           const newRecord = {
             id: record.id,
+            // attributes as is without aliases
             rawAttributes: {
               recordRef: record.id,
               '?id': record.id,
