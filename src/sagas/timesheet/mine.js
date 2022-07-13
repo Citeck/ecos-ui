@@ -89,7 +89,7 @@ function* sagaModifyStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setStatus(payload.status));
     yield put(setUpdatingStatus(false));
-    yield put(setPopupMessage(e || TimesheetMessages.ERROR_SAVE_STATUS));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
     logger.error('[timesheetMine sagaModifyStatus saga] error', e);
   }
 }
@@ -113,7 +113,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(thirdState));
-    yield put(setPopupMessage(e || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
     logger.error('[timesheetMine sagaModifyStatus saga] error', e);
   }
 }
@@ -130,8 +130,8 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(secondState));
-    yield put(setPopupMessage(e || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetMine sagaResetEventDayHours saga] error', e.message);
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    logger.error('[timesheetMine sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -149,7 +149,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
     yield put(setDelegatedTo(deputy));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
-    logger.error('[timesheetMine sagaDelegateTo saga] error', e.message);
+    logger.error('[timesheetMine sagaDelegateTo saga] error', e);
   }
 }
 
@@ -163,7 +163,7 @@ function* sagaRemoveDelegation({ api, logger }) {
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_REMOVE_DELEGATED_TO));
-    logger.error('[timesheetMine sagaRemoveDelegation saga] error', e.message);
+    logger.error('[timesheetMine sagaRemoveDelegation saga] error', e);
   }
 }
 
