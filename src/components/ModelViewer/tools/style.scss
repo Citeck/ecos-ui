@@ -32,14 +32,17 @@
       display: none;
     }
 
+    position: relative;
+    bottom: 20px;
     padding: 0 2px;
+    min-width: 30px;
+    font-weight: $font-weight-semi-bold;
+    font-size: $font-size-extra-small;
+    text-align: center;
+    border: 1px solid $color-blue-dark;
     border-radius: 10px;
     background: $color-blue-light2;
-    font-weight: $font-weight-semi-bold;
-    font-size: $font-size-small;
-    display: inline-block;
-    text-align: center;
-    min-width: 30px;
+    opacity: 0.8;
 
     &:not(:last-child) {
       margin-right: 5px;

@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Row } from 'reactstrap';
 import moment from 'moment';
+import { NotificationManager } from 'react-notifications';
 
-import { PROXY_URI } from '../../../constants/alfresco';
 import { savePagePosition, updateModels } from '../../../actions/bpmn';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, ViewTypes } from '../../../constants/bpmn';
 import { selectModelsByCategoryId } from '../../../selectors/bpmn';
@@ -14,6 +14,15 @@ import PageService from '../../../services/PageService';
 import recordActions from '../../../components/Records/actions/recordActions';
 
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
+
+import RecordActions from '../../../components/Records/actions/recordActions';
+import { t } from '../../../helpers/export/util';
+
+const OPEN_BPMN_EDITOR_ACTION_REF = 'uiserv/action@open-bpmn-editor';
+
+const Labels = {
+  ACTION_OPEN_PROC_EDITOR_ERROR: 'proc-def-admin.action.open-proc-editor.error'
+};
 
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
@@ -35,17 +44,31 @@ const mapDispatchToProps = dispatch => ({
       })
     );
   },
-  onEditLinkClick: e => {
+  onEditLinkClick: (e, modelId) => {
     e.preventDefault();
 
-    dispatch(
-      savePagePosition({
-        callback: () => {
-          localStorage.setItem(LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, window.location.pathname);
-          window.location.href = e.currentTarget.href;
+    if (modelId.indexOf('alfresco') === 0) {
+      const itemNodeRef = modelId.replace('alfresco/@', '');
+      const recordId = itemNodeRef.replace('workspace://SpacesStore/', '');
+      const flowableEditLink = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
+
+      dispatch(
+        savePagePosition({
+          callback: () => {
+            localStorage.setItem(LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME, window.location.pathname);
+            window.location.href = flowableEditLink;
+          }
+        })
+      );
+    } else {
+      RecordActions.getActionsForRecord(modelId, [OPEN_BPMN_EDITOR_ACTION_REF]).then(actions => {
+        if (!actions || !actions.length) {
+          NotificationManager.error(t(Labels.ACTION_OPEN_PROC_EDITOR_ERROR), t('error'));
+        } else {
+          return RecordActions.execForRecord(modelId, actions[0]);
         }
-      })
-    );
+      });
+    }
   },
   onEditMetaClick: (e, modelId) => {
     e.preventDefault();
@@ -76,30 +99,21 @@ const Models = ({ viewType, items, categoryId, searchText, onViewLinkClick, onEd
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const dt = moment(item.created).calendar();
-      const itemNodeRef = item.id.replace('alfresco/@', '');
-      const recordId = itemNodeRef.replace('workspace://SpacesStore/', '');
-      const editLink = `${EDITOR_PAGE_CONTEXT}#/editor/${recordId}`;
       const viewLink = `/v2/dashboard?recordRef=${item.id}`;
-      let image = null;
-      if (item.hasThumbnail) {
-        // prettier-ignore
-        image = `${PROXY_URI}/citeck/ecos/image/thumbnail?nodeRef=${itemNodeRef}&property=ecosbpm:thumbnail&cached=true&modified=${item.modified}`;
-      }
 
       models.push(
         <ModelComponent
           canWrite={item.canWrite}
           key={item.id}
           viewLink={viewLink}
-          editLink={editLink}
           onViewLinkClick={onViewLinkClick}
-          onEditLinkClick={onEditLinkClick}
+          onEditLinkClick={e => onEditLinkClick(e, item.id)}
           onDeleteModelClick={e => onDeleteModelClick(e, item.id)}
           onEditMetaClick={e => onEditMetaClick(e, item.id)}
           label={item.label}
           author={item.creator}
           datetime={dt}
-          image={image}
+          image={item.previewUrl}
         />
       );
     }

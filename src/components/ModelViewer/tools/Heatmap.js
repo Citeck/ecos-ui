@@ -90,7 +90,16 @@ export default class HeatmapWrapper {
     const root = canvas.getRootElement();
     const { H, W } = this.viewboxData;
 
-    const isVisible = element => !element.hidden && isExpanded(element) && element.parent === root;
+    const isVisible = element => {
+      const { parent = {} } = element;
+
+      if (parent.layer && parent.layer !== root.layer) {
+        return false;
+      }
+
+      return !element.hidden && isExpanded(element);
+    };
+
     // get all shapes and connections
     const shapes = elementRegistry.filter(element => isVisible(element) && !element.waypoints && element.type !== 'label');
     const connections = elementRegistry.filter(element => !!mapData[element.id] && isVisible(element) && !!element.waypoints);

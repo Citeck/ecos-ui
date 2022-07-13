@@ -38,7 +38,19 @@ const InlineActions = () => {
 
     if (isUsedJournalActions) {
       actions = get(journalActions, ['forRecord', inlineToolsOffsets.rowId], []);
-      actions = actions.map(act => ({ ...act, onClick: () => RecordActions.execForRecord(inlineToolsOffsets.rowId, act) }));
+      actions = actions.map(act => {
+        let recordAction = { ...act };
+        if (recordAction.type === 'edit') {
+          recordAction.config = {
+            ...(recordAction.config || {}),
+            saveOnSubmit: false
+          };
+        }
+        return {
+          ...act,
+          onClick: () => RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction)
+        };
+      });
     } else {
       //todo: should use action service for inline buttons
 

@@ -1564,9 +1564,11 @@
   "model-editor.btn.zoom-out": "Zoom out",
   "model-editor.error.form-not-found": "Properties form has not found for this record",
 
+  "bpmn-editor.error.can-not-save-model": "Process can't be saved",
   "bpmn-editor.error.no-model": "Process's not set",
   "bpmn-editor.error.no-selected-element": "You should select some element to edit it",
 
+  "bpmn-editor.success.model-saved": "Process successfully saved",
   "bpmn-editor.success.model-save-deployed": "Process successfully saved and deployed",
   "bpmn-editor.error.can-not-save-deploy-model": "An error occurred while saving and deploying the process",
 
@@ -2296,5 +2298,7 @@
   "hour-form3": "hours",
   "day-form1": "day",
   "day-form2": "day",
-  "day-form3": "days"
+  "day-form3": "days",
+
+  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable"
 }

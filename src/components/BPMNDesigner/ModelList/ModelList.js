@@ -11,7 +11,6 @@ const ModelList = ({
   author,
   datetime,
   viewLink,
-  editLink,
   onViewLinkClick,
   onEditLinkClick,
   onEditMetaClick,
@@ -41,13 +40,7 @@ const ModelList = ({
       >
         <span className={'icon-settings'} />
       </a>,
-      <a
-        href={editLink}
-        key={'edit'}
-        className={styles.editActionIcon}
-        onClick={onEditLinkClick}
-        {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
-      >
+      <a href={'/'} key={'edit'} className={styles.editActionIcon} onClick={onEditLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
         <span className={'icon-edit'} />
       </a>
     ];

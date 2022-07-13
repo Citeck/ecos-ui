@@ -1563,9 +1563,11 @@
   "model-editor.btn.zoom-out": "Уменьшить",
   "model-editor.error.form-not-found": "Форма свойств для этой записи не найдена",
 
+  "bpmn-editor.error.can-not-save-model": "Процесс не может быть сохранен",
   "bpmn-editor.error.no-model": "Процесс не задан",
   "bpmn-editor.error.no-selected-element": "Выберите элемент для его редактирования",
 
+  "bpmn-editor.success.model-saved": "Процесс успешно сохранен",
   "bpmn-editor.success.model-save-deployed": "Процесс успешно сохранен и опубликован",
   "bpmn-editor.error.can-not-save-deploy-model": "Произошла ошибка во время сохранения и публикации процесса",
 
@@ -2295,5 +2297,7 @@
   "hour-form3": "часов",
   "day-form1": "день",
   "day-form2": "дня",
-  "day-form3": "дней"
+  "day-form3": "дней",
+
+  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно"
 }
