@@ -61,7 +61,7 @@ function* doInitRequest({ api, logger }) {
       document.body.scrollTo(0, pagePosition.scrollTop);
     }
   } catch (e) {
-    logger.error('[bpmn doInitRequest saga] error', e.message);
+    logger.error('[bpmn doInitRequest saga] error', e);
   }
 }
 

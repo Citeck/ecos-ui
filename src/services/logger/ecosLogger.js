@@ -1,4 +1,4 @@
-import Logger from 'logplease';
+import Logger from './index';
 
 const logLevel = process.env.NODE_ENV === 'development' ? Logger.LogLevels.DEBUG : Logger.LogLevels.ERROR;
 Logger.setLogLevel(logLevel);
