@@ -13,7 +13,7 @@ import {
   saveCategoryRequest,
   setCategoryCollapseState,
   setIsEditable,
-  showModelCreationForm
+  createModel
 } from '../../../actions/bpmn';
 import { hideModal, showModal } from '../../../actions/modal';
 
@@ -61,7 +61,7 @@ const mapDispatchToProps = (dispatch, props) => ({
     dispatch(createCategory({ parentId: props.itemId }));
   },
   createModel: () => {
-    dispatch(showModelCreationForm(props.itemId));
+    dispatch(createModel({ categoryId: props.itemId }));
   },
   saveEditableCategory: text => {
     dispatch(saveCategoryRequest({ id: props.itemId, label: text }));

@@ -10,6 +10,7 @@ import {
   setIsEditable,
   setIsReady,
   setModels,
+  setCreateVariants,
   setSearchText,
   setViewType
 } from '../actions/bpmn';
@@ -62,6 +63,12 @@ export default handleActions(
       return {
         ...state,
         models: action.payload
+      };
+    },
+    [setCreateVariants]: (state, action) => {
+      return {
+        ...state,
+        createVariants: action.payload
       };
     },
     [createCategory]: (state, action) => {

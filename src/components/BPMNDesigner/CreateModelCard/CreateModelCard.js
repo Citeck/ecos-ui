@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import { Col } from 'reactstrap';
 import { Btn } from '../../common/btns';
 import { t } from '../../../helpers/util';
-import { showModelCreationForm } from '../../../actions/bpmn';
 import './CreateModelCard.scss';
+import { createModel } from '../../../actions/bpmn';
 
 const mapDispatchToProps = (dispatch, props) => ({
-  showModelCreationForm: () => dispatch(showModelCreationForm(props.categoryId))
+  showModelCreationForm: () => {
+    dispatch(createModel({ categoryId: props.categoryId }));
+  }
 });
 
 const CreateModelCard = ({ showModelCreationForm }) => {

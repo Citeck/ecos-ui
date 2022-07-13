@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import endsWith from 'lodash/endsWith';
 
 import { isCategoryHasChildren, compareLastModified, compareOld, compareAZ, compareZA } from '../helpers/bpmn';
-import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA, ROOT_CATEGORY_NODE_REF } from '../constants/bpmn';
+import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA } from '../constants/bpmn';
 
 export const selectSortFilter = state => state.bpmn.sortFilter;
 export const selectSearchText = state => state.bpmn.searchText;
@@ -112,10 +112,6 @@ export const selectIsParentHasNotModels = createSelector(
 export const selectCaseSensitiveCategories = state => {
   return state.bpmn.categories.map(item => {
     let label = item.label;
-    if (endsWith(item.parentId, ROOT_CATEGORY_NODE_REF)) {
-      label = label.toUpperCase();
-    }
-
     return { value: item.id, label: label };
   });
 };

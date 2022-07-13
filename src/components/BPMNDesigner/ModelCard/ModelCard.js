@@ -10,7 +10,6 @@ const ModelCard = ({
   author,
   datetime,
   viewLink,
-  editLink,
   onViewLinkClick,
   onEditLinkClick,
   onEditMetaClick,
@@ -53,7 +52,7 @@ const ModelCard = ({
     );
     buttons.push(
       <a
-        href={editLink}
+        href={'/'}
         key={'editButton'}
         className={styles.cardEditButton}
         onClick={onEditLinkClick}
