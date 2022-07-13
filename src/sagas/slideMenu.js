@@ -43,7 +43,7 @@ function* fetchSlideMenu({ api, logger }, action) {
     yield put(setSlideMenuItems(menuItems));
     yield put(setIsReady(true));
   } catch (e) {
-    logger.error('[fetchSlideMenu saga] error', e.message);
+    logger.error('[fetchSlideMenu saga] error', e);
   }
 }
 
@@ -53,7 +53,7 @@ function* fetchSiteDashboardEnable({ api, logger }) {
 
     yield put(setSiteDashboardEnable(!!res));
   } catch (e) {
-    logger.error('[fetchSiteDashboardEnable saga] error', e.message);
+    logger.error('[fetchSiteDashboardEnable saga] error', e);
   }
 }
 
@@ -61,7 +61,7 @@ function* sagaToggleMenu({ api, logger }, action) {
   try {
     yield call(SidebarService.setOpenState, action.payload);
   } catch (e) {
-    logger.error('[sagaToggleMenu saga] error', e.message);
+    logger.error('[sagaToggleMenu saga] error', e);
   }
 }
 
@@ -78,7 +78,7 @@ function* sagaSetSelectedId({ api, logger }) {
     yield put(setSelectedId(selectedId));
     yield put(setExpandableItems({ selectedId }));
   } catch (e) {
-    logger.error('[sagaSetSelectedId saga] error', e.message);
+    logger.error('[sagaSetSelectedId saga] error', e);
   }
 }
 
@@ -127,7 +127,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
       }
     });
   } catch (e) {
-    logger.error('[sagaSetSelectedId saga] error', e.message);
+    logger.error('[sagaSetSelectedId saga] error', e);
   }
 }
 

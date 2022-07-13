@@ -39,7 +39,7 @@ function* sagaGetComments({ api, logger }, action) {
 
     yield put(fetchEnd(action.payload));
   } catch (e) {
-    logger.error('[comments sagaGetComments saga error', e.message);
+    logger.error('[comments sagaGetComments saga error', e);
   }
 }
 
@@ -69,7 +69,7 @@ function* sagaCreateComment({ api, logger }, action) {
         nodeRef: action.payload.nodeRef
       })
     );
-    logger.error('[comments sagaCreateComment saga error', e.message);
+    logger.error('[comments sagaCreateComment saga error', e);
   }
 }
 
@@ -105,7 +105,7 @@ function* sagaUpdateComment({ api, logger }, action) {
         nodeRef: action.payload.nodeRef
       })
     );
-    logger.error('[comments sagaUpdateComment saga error', e.message);
+    logger.error('[comments sagaUpdateComment saga error', e);
   }
 }
 
@@ -128,7 +128,7 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
     yield put(setActionFailedStatus({ nodeRef: payload.nodeRef, status: true }));
 
-    logger.error('[comments sagaDeleteComment saga error', e.message);
+    logger.error('[comments sagaDeleteComment saga error', e);
   } finally {
     yield put(sendingEnd(payload.nodeRef));
 

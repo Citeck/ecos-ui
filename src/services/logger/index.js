@@ -158,7 +158,7 @@ class Logger {
     }
   }
 
-  _format(level, text) {
+  _format(level) {
     let timestampFormat = '';
     let levelFormat = '';
     let categoryFormat = '';
@@ -198,12 +198,7 @@ class Logger {
     };
   }
 
-  _createLogMessage(level, text, timestampFormat, levelFormat, categoryFormat, textFormat) {
-    timestampFormat = timestampFormat || '';
-    levelFormat = levelFormat || '';
-    categoryFormat = categoryFormat || '';
-    textFormat = textFormat || ': ';
-
+  _createLogMessage(level, text, timestampFormat = '', levelFormat = '', categoryFormat = '', textFormat = '') {
     if (!isNodejs && this.options.useColors) {
       if (this.options.showTimestamp) {
         timestampFormat = '%c';
@@ -249,6 +244,7 @@ class Logger {
     const levels = Object.keys(LogLevels).map(f => LogLevels[f]);
     const index = levels.indexOf(level);
     const levelIdx = levels.indexOf(logLevel);
+
     return index >= levelIdx;
   }
 }

@@ -91,7 +91,7 @@ function* doSaveCategoryRequest({ api, logger }, action) {
     );
   } catch (e) {
     NotificationManager.error(t('bpmn-designer.add-category.failure-message'));
-    logger.error('[bpmn doSaveCategoryRequest saga] error', e.message);
+    logger.error('[bpmn doSaveCategoryRequest saga] error', e);
   }
 }
 
@@ -126,7 +126,7 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
     yield call(api.bpmn.deleteCategory, categoryId);
     yield put(deleteCategory(categoryId));
   } catch (e) {
-    logger.error('[bpmn doDeleteCategoryRequest saga] error', e.message);
+    logger.error('[bpmn doDeleteCategoryRequest saga] error', e);
   }
 }
 
@@ -142,7 +142,7 @@ function* doSaveProcessModelRequest({ api, logger }, action) {
     // const models = yield call(api.bpmn.fetchProcessModels);
     // yield put(setModels(models));
   } catch (e) {
-    logger.error('[bpmn doSaveProcessModelRequest saga] error', e.message);
+    logger.error('[bpmn doSaveProcessModelRequest saga] error', e);
   }
 }
 
@@ -158,7 +158,7 @@ function* doImportProcessModelRequest({ api, logger }, action) {
     // const models = yield call(api.bpmn.fetchProcessModels);
     // yield put(setModels(models));
   } catch (e) {
-    logger.error('[bpmn doImportProcessModelRequest saga] error', e.message);
+    logger.error('[bpmn doImportProcessModelRequest saga] error', e);
   }
 }
 
@@ -199,7 +199,7 @@ function* doShowModelCreationForm({ api, logger }, action) {
       yield put(setModels(models));
     }
   } catch (e) {
-    logger.error('[bpmn doShowModelCreationForm saga] error', e.message);
+    logger.error('[bpmn doShowModelCreationForm saga] error', e);
   }
 }
 
@@ -231,7 +231,7 @@ function* doShowImportModelForm({ api, logger }, action) {
       })
     );
   } catch (e) {
-    logger.error('[bpmn doShowImportModelForm saga] error', e.message);
+    logger.error('[bpmn doShowImportModelForm saga] error', e);
   }
 }
 
@@ -255,7 +255,7 @@ function* doSavePagePosition({ api, logger }, action) {
 
     typeof action.payload.callback === 'function' && action.payload.callback();
   } catch (e) {
-    logger.error('[bpmn doShowImportModelForm saga] error', e.message);
+    logger.error('[bpmn doShowImportModelForm saga] error', e);
   }
 }
 
@@ -264,7 +264,7 @@ function* doUpdateModels({ api, logger }) {
     const models = yield call(api.bpmn.fetchProcessModels);
     yield put(setModels(models));
   } catch (e) {
-    logger.error('[bpmn doUpdateModels saga] error', e.message);
+    logger.error('[bpmn doUpdateModels saga] error', e);
   }
 }
 

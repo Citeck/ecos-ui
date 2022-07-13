@@ -25,7 +25,7 @@ function* sagaGetEventsHistory({ api, logger }, { payload }) {
     yield put(setEventsHistory({ stateId, list: res.data || [], columns: res.columns || [] }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [], columns: [] }));
-    logger.error('[eventHistory sagaGetEventsHistory saga] error', e.message);
+    logger.error('[eventHistory sagaGetEventsHistory saga] error', e);
   }
 }
 
@@ -44,7 +44,7 @@ function* sagaGetJournalHistory({ logger }, { payload }) {
     yield put(setEventsHistory({ stateId, list: res.records || [], columns: journalConfig.columns, journalConfig }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [], columns: [] }));
-    logger.error('[eventHistory sagaGetJournalHistory saga] error', e.message);
+    logger.error('[eventHistory sagaGetJournalHistory saga] error', e);
   }
 }
 
@@ -59,7 +59,7 @@ function* sagaFilterJournalHistory({ logger }, { payload }) {
     yield put(setEventsHistory({ stateId, list: res.records || [] }));
   } catch (e) {
     yield put(setEventsHistory({ stateId, list: [] }));
-    logger.error('[eventHistory sagaFilterJournalHistory saga] error', e.message);
+    logger.error('[eventHistory sagaFilterJournalHistory saga] error', e);
   }
 }
 

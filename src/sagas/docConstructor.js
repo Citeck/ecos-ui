@@ -37,7 +37,7 @@ function* runInitConstructor({ api, logger }, { payload, payload: { stateId, rec
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
     NotificationManager.error(t('doc-constructor-widget.error.get-settings'), t('error'));
-    logger.error('[docConstructor/runInitConstructor saga] error', e.message);
+    logger.error('[docConstructor/runInitConstructor saga] error', e);
   }
 }
 
@@ -47,7 +47,7 @@ function* fetchDocumentParams({ api, logger }, { payload: { stateId, record } })
     yield put(setSettings({ stateId, settings }));
   } catch (e) {
     NotificationManager.error(t('doc-constructor-widget.error.get-settings'), t('error'));
-    logger.error('[docConstructor/fetchDocumentParams saga] error', e.message);
+    logger.error('[docConstructor/fetchDocumentParams saga] error', e);
   }
 }
 
@@ -66,7 +66,7 @@ function* runCreateDocument({ api, logger }, { payload: { stateId, record, templ
     yield call(api.docConstructor.setContractTemplate, { record, templateRef: null });
     yield put(setError({ stateId, error: e.message }));
     NotificationManager.error(t('doc-constructor-widget.error.create-doc-one-file-by-node-with-template'), t('error'));
-    logger.error('[docConstructor/runCreateDocument saga] error', e.message);
+    logger.error('[docConstructor/runCreateDocument saga] error', e);
   } finally {
     yield put(setLoading({ stateId }));
     Records.get(record).update();
@@ -80,7 +80,7 @@ function* runRecreateDocument({ api, logger }, { payload: { stateId, record, tem
     yield put(setError({ stateId }));
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
-    logger.error('[docConstructor/runRecreateDocument saga] error', e.message);
+    logger.error('[docConstructor/runRecreateDocument saga] error', e);
   }
 }
 
@@ -96,7 +96,7 @@ function* runEditDocument({ api, logger }, { payload: { stateId, record } }) {
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
     NotificationManager.error(t('doc-constructor-widget.error.edit-document'), t('error'));
-    logger.error('[docConstructor/runEditDocument saga] error', e.message);
+    logger.error('[docConstructor/runEditDocument saga] error', e);
   }
 }
 
@@ -108,7 +108,7 @@ function* fetchGetDocument({ api, logger }, { payload: { stateId, record } }) {
     yield put(setError({ stateId, error: result ? '' : t('doc-constructor-widget.error.content-not-changed') }));
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
-    logger.error('[docConstructor/fetchGetDocument saga] error', e.message);
+    logger.error('[docConstructor/fetchGetDocument saga] error', e);
   } finally {
     yield put(setLoading({ stateId }));
     Records.get(record).update();
@@ -125,7 +125,7 @@ function* runDeleteDocument({ api, logger }, { payload: { stateId, record } }) {
   } catch (e) {
     yield put(setError({ stateId, error: e.message }));
     NotificationManager.error(t('doc-constructor-widget.error.delete-content-and-doc-one-id'), t('error'));
-    logger.error('[docConstructor/runDeleteDocument saga] error', e.message);
+    logger.error('[docConstructor/runDeleteDocument saga] error', e);
   } finally {
     yield put(setLoading({ stateId }));
     Records.get(record).update();

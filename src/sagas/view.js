@@ -10,7 +10,7 @@ export function* doDetectMobileDevice({ logger }) {
   try {
     yield put(setIsMobile(isMobileDevice()));
   } catch (e) {
-    logger.error('[doDetectMobileDevice saga] error', e.message);
+    logger.error('[doDetectMobileDevice saga] error', e);
   }
 }
 
@@ -35,7 +35,7 @@ export function* loadTheme({ api, logger }, { payload }) {
     const stylesheetUrl = yield select(selectActiveThemeStylesheet);
     yield call(loadStylesheet, stylesheetUrl, onSuccess, onSuccess);
   } catch (e) {
-    logger.error('[loadTheme saga] error', e.message);
+    logger.error('[loadTheme saga] error', e);
   }
 }
 
