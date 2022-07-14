@@ -153,7 +153,14 @@ export default class ModelViewer {
       data &&
       data.filter(item => {
         const element = elementRegistry.get(item.id);
-        return element && !element.hidden && isExpanded(element) && element.parent === root;
+
+        const { parent = {} } = element;
+
+        if (parent.layer && parent.layer !== root.layer) {
+          return false;
+        }
+
+        return element && !element.hidden && isExpanded(element);
       });
 
     if (!this.#badges) {
