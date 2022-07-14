@@ -345,7 +345,7 @@ describe('Formio Form Renderer tests', () => {
 
   each(FormTests, formTest => {
     each(formTest.tests, (formTestTest, title) => {
-      it(title, done => {
+      it(`[${formTest.title}]: ${title}`, done => {
         const formElement = document.createElement('div');
         const form = new Webform(formElement, { language: 'en' });
         form
