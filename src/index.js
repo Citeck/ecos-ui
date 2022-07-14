@@ -19,7 +19,7 @@ import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
 import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
 
-import logger from './services/logger/ecosLogger';
+import logger from './services/logger';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';

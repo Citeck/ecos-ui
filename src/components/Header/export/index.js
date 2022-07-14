@@ -7,7 +7,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import Logger from '../../../services/logger';
+import { Logger } from '../../../services/logger';
 import Header from '../Header';
 
 import { initAppRequest, initAppSettings } from '../../../actions/app';

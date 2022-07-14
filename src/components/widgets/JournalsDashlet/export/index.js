@@ -14,7 +14,7 @@ import { JournalsApi } from '../../../../api/journalsApi';
 import { RecordActionsApi } from '../../../../api/recordActions';
 import JournalsDashlet from '../JournalsDashlet';
 
-import Logger from '../../../../services/logger';
+import { Logger } from '../../../../services/logger';
 
 const logger = Logger.create('JournalsDashlet');
 Logger.setLogLevel(Logger.LogLevels.DEBUG);

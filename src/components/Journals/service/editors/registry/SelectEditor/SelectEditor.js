@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import logger from '../../../../../../services/logger/ecosLogger';
+import logger from '../../../../../../services/logger';
 import ZIndex from '../../../../../../services/ZIndex';
 import { t } from '../../../../../../helpers/export/util';
 import Records from '../../../../../Records';

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { t } from '../../../../helpers/export/util';
-import logger from '../../../../services/logger/ecosLogger';
+import logger from '../../../../services/logger';
 
 import editorRegistry from './registry';
 import EditorScope from './EditorScope';

@@ -8,7 +8,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import Logger from '../../../services/logger';
+import { Logger } from '../../../services/logger';
 import Sidebar from '../Sidebar';
 
 import { configureAPI } from '../../../api';
