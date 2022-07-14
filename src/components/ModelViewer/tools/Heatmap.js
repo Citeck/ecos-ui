@@ -146,7 +146,12 @@ export default class HeatmapWrapper {
     };
 
     let maxV = 0;
-    points.forEach(item => (maxV = item.value > maxV ? item.value : maxV));
+
+    points.forEach(item => {
+      maxV = item.value > maxV ? item.value : maxV;
+
+      item.value = item.value * 100;
+    });
 
     const heatmapData = { max: maxV, min: 0, data: points };
 
