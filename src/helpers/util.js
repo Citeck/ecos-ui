@@ -1044,7 +1044,7 @@ export function reverseString(str = '') {
  * @param locale
  * @returns {{decimal: string, thousand: string}}
  */
-export function getNumberSeparators(locale) {
+export function getNumberSeparators(locale = getCurrentLocale()) {
   const result = {
     decimal: '.',
     thousand: ''
