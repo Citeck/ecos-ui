@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
-import { getNumberSeparators, reverseString } from '../../../../helpers/util';
+import { getCurrentLocale, getNumberSeparators, reverseString } from '../../../../helpers/util';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -357,7 +357,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
   _applyThousandsSeparator = value => {
     const [mainPart, decimalPart] = value.split(this.decimalSeparator);
-    let newValue = parseInt(mainPart).toLocaleString();
+    let newValue = parseInt(mainPart).toLocaleString(this.options.language || getCurrentLocale());
 
     if (this.component.delimiterValue) {
       const { thousand } = getNumberSeparators();
