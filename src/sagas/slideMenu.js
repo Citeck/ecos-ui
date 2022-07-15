@@ -18,9 +18,10 @@ import SidebarConverter from '../dto/sidebar';
 import { goToCardDetailsPage } from '../helpers/urls';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import FormManager from '../components/EcosForm/FormManager';
 import Records from '../components/Records';
+import FormManager from '../components/EcosForm/FormManager';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
+import { FORM_MODE_CREATE } from '../components/EcosForm';
 
 function* fetchSlideMenu({ api, logger }, action) {
   try {
@@ -98,6 +99,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
         createVariant.formTitle = yield call(api.page.getRecordTitle, processDef);
         createVariant.recordRef = processRecordRef;
         createVariant.formRef = yield Records.get(processDef).load('startFormRef?id');
+        createVariant.formMode = FORM_MODE_CREATE;
 
         if (processId.indexOf('activiti$') !== -1) {
           const alfProcDef = `${SourcesId.A_WORKFLOW}@def_${processId}`;
