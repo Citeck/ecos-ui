@@ -262,6 +262,10 @@ Base.prototype.calculateValue = function(data, flags) {
     return false;
   }
 
+  if (isUndefined(this.calculatedValue) && this.component.allowCalculateOverride && !isEmpty(this.dataValue)) {
+    return false;
+  }
+
   // // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
