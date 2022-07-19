@@ -17,7 +17,8 @@ const Labels = {
   NO_EXPORT_CONFIG: 'record-action.name.export-report.msg.no-export-config',
   NO_HANDLER: 'record-action.name.export-report.msg.no-handler',
   NO_RESULT_URL: 'record-action.name.export-report.msg.done-no-url',
-  NO_RESULT_TYPE: 'record-action.name.export-report.msg.done-no-type'
+  NO_RESULT_TYPE: 'record-action.name.export-report.msg.done-no-type',
+  SENDING_TO_EMAIL: 'record-action.name.export-report.msg.sending-to-email'
 };
 
 export default class RecordsExportAction extends ActionsExecutor {
@@ -34,7 +35,6 @@ export default class RecordsExportAction extends ActionsExecutor {
   async _execImpl(actionImpl, action) {
     try {
       const { exportType = null, columns = null, download = true } = action.config || {};
-
       const throwError = msg => {
         const args = [action];
 
@@ -79,6 +79,13 @@ export default class RecordsExportAction extends ActionsExecutor {
 
       if (!Object.values(ResultTypes).includes(result.type)) {
         throwError(Labels.NO_RESULT_TYPE, result);
+      }
+
+      if (get(exportConfig, 'config.params.output.type') === 'email') {
+        return {
+          type: ResultTypes.INFO,
+          data: t(Labels.SENDING_TO_EMAIL)
+        };
       }
 
       if (result.type === ResultTypes.LINK) {

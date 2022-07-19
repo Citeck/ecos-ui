@@ -28,7 +28,8 @@ const Labels = {
   CONFIRM: 'journals.action.confirm.title',
   CONFIRM_REPLACE: 'journals.action.change-value.message',
   BTN_CANCEL: 'btn.cancel.label',
-  BTN_CONFIRM: 'btn.confirm.label'
+  BTN_CONFIRM: 'btn.confirm.label',
+  BTN_OK: 'button.ok'
 };
 
 export function getRef(record) {
@@ -42,7 +43,7 @@ export function getRef(record) {
  */
 export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
-  let buttons = [];
+  let buttons = [{ label: Labels.BTN_OK, onClick: () => callback && callback(true), className: 'ecos-btn_blue' }];
 
   if (withConfirm) {
     buttons = [
@@ -81,7 +82,8 @@ export const ResultTypes = {
   LINK: 'link',
   RESULTS: 'results',
   MSG: 'msg',
-  ERROR: 'error'
+  ERROR: 'error',
+  INFO: 'info'
 };
 
 export function notifySuccess(msg, timeOut = 5000, ...extra) {
