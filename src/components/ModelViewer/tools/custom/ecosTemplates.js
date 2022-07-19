@@ -36,15 +36,8 @@ export function getLineTemplate(line, radius, blur) {
   const tplCanvas = document.createElement('canvas');
   const tplCtx = tplCanvas.getContext('2d');
 
-  const Xs = line.map(p => p.x);
-  const Ys = line.map(p => p.y);
-  const x0 = Math.min(...Xs);
-  const x1 = Math.max(...Xs);
-  const y0 = Math.min(...Ys);
-  const y1 = Math.max(...Ys);
-
-  tplCanvas.width = Math.max(x1 - x0, radius);
-  tplCanvas.height = Math.max(y1 - y0, radius);
+  tplCanvas.width = window.innerWidth;
+  tplCanvas.height = window.innerHeight;
 
   if (blur === 1) {
     const [head, ...linesTo] = line;
