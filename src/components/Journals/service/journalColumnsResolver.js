@@ -1,6 +1,5 @@
 import isFunction from 'lodash/isFunction';
 import isObject from 'lodash/isObject';
-import cloneDeep from 'lodash/cloneDeep';
 
 import { getTextByLocale, t } from '../../../helpers/util';
 import EditorService from '../service/editors/EditorService';
@@ -65,7 +64,7 @@ class JournalColumnsResolver {
   }
 
   _resolveColumn(data) {
-    const column = cloneDeep(data);
+    const column = { ...data };
 
     ['name', 'attribute', 'schema'].forEach(attr => {
       if (column[attr] === 'id') {
