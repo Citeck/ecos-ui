@@ -8,9 +8,9 @@ import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR
 import { convertAttributeValues } from '../../Records/predicates/util';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
-import journalsService from './journalsService';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
+import { RECORD_ID_ALIAS } from './constants';
 
 class JournalsDataLoader {
   /**
@@ -200,10 +200,6 @@ class JournalsDataLoader {
     }
   };
 
-  get idAlias() {
-    return journalsService.recordIdAlias;
-  }
-
   /**
    * @private
    * @param {JournalConfig} journalConfig
@@ -218,7 +214,7 @@ class JournalsDataLoader {
 
     for (let column of columns) {
       !!column.name && (attributesMap[column.name] = column.attSchema);
-      attributesMap[this.idAlias] = '?id';
+      attributesMap[RECORD_ID_ALIAS] = '?id';
     }
 
     for (let att in settingsAttributes) {

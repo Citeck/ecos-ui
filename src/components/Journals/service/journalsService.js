@@ -320,8 +320,6 @@ class JournalsService {
   getPredicates = async (journalConfig, settings) => {
     return journalDataLoader.getPredicates(journalConfig, settings);
   };
-
-  recordIdAlias = '__id__';
 }
 
 window.Citeck = window.Citeck || {};

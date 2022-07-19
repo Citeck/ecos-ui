@@ -29,7 +29,7 @@ import {
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
 import { selectOriginGridPredicates } from '../../../selectors/journals';
-import journalService from '../service/journalsService';
+import { RECORD_ID_ALIAS } from '../service/constants';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
@@ -185,7 +185,7 @@ class JournalsDashletGrid extends Component {
       ];
     }
 
-    const currentRow = this.selectedRow[journalService.recordIdAlias] || this.selectedRow.id;
+    const currentRow = this.selectedRow[RECORD_ID_ALIAS] || this.selectedRow.id;
     const recordActions = get(forRecord, this.selectedRow.id, []);
 
     return recordActions.map(action => ({ ...action, onClick: () => execRecordsAction(currentRow, action) }));
