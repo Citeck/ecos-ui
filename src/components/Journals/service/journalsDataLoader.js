@@ -10,7 +10,6 @@ import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 import computedService from './computed/computedService';
 import { COMPUTED_ATT_PREFIX } from './util';
-import { RECORD_ID_ALIAS } from './constants';
 
 class JournalsDataLoader {
   /**
@@ -214,7 +213,6 @@ class JournalsDataLoader {
 
     for (let column of columns) {
       !!column.name && (attributesMap[column.name] = column.attSchema);
-      attributesMap[RECORD_ID_ALIAS] = '?id';
     }
 
     for (let att in settingsAttributes) {
