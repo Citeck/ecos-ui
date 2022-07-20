@@ -1270,6 +1270,10 @@ export function getMedian(source) {
 }
 
 export function normalize(source, byField) {
+  if (isEmpty(source)) {
+    return [];
+  }
+
   const arr = cloneDeep(source);
   const median = getMedian(byField ? arr.map(i => i[byField]) : arr);
   const distribution = 0.5;
