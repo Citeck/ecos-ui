@@ -597,7 +597,7 @@ class RecordActions {
       if (byBatch) {
         const chunks = chunk(allowedRecords, execForRecordsBatchSize);
 
-        allowedRecords.every(r => chunkedRecords.push(getRef(r)));
+        allowedRecords.forEach(r => chunkedRecords.push(getRef(r)));
 
         const executeChunks = async chunks => {
           let results = {};
@@ -781,10 +781,6 @@ class RecordActions {
       ? popupExecution && popupExecution.hide()
       : !ungearedPopups && (await DetailActionResult.showResult(execution, resultOptions));
 
-    if (this._chunkedRecords.length > 0 && this._chunkedRecords.length % 10 !== 0) {
-      this._clearRecordsCollection();
-    }
-
     if (withTimeoutError) {
       RecordActions._showTimeoutMessageDialog();
     }
@@ -944,6 +940,10 @@ class RecordActions {
       processedCount += data.records.length;
 
       await this.execForRecords(data.records, preparedAction, preparedContext);
+
+      if (data.totalCount <= processedCount) {
+        this._clearRecordsCollection();
+      }
 
       showProcess &&
         info(

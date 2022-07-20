@@ -733,7 +733,7 @@ function* sagaSelectJournal({ api, logger, stateId, w }, action) {
   }
 }
 
-function* sagaExecRecordsAction({ api, logger, stateId, w }, action) {
+function* sagaExecRecordsAction({ api, logger, w }, action) {
   try {
     const actionResult = yield call(api.recordActions.executeAction, action.payload);
     const check = isArray(actionResult) ? actionResult.some(res => res !== false) : actionResult !== false;
