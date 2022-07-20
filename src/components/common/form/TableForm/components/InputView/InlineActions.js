@@ -41,10 +41,11 @@ const InlineActions = () => {
       actions = get(journalActions, ['forRecord', inlineToolsOffsets.rowId], []);
       actions = actions.map(act => {
         let recordAction = { ...act };
+
         if (recordAction.type === 'edit') {
           recordAction.config = {
             ...(recordAction.config || {}),
-            saveOnSubmit: false
+            saveOnSubmit: true
           };
         }
 
