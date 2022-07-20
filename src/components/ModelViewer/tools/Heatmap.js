@@ -157,10 +157,11 @@ export default class HeatmapWrapper {
     };
 
     const normalized = this.getNormalizedData(points);
+    const normalizedValues = normalized.map(item => item.value);
 
     const heatmapData = {
-      max: Math.max(...normalized.map(i => i.value)),
-      min: Math.min(...normalized.map(i => i.value)),
+      max: Math.max(...normalizedValues),
+      min: Math.min(...normalizedValues),
       data: normalized
     };
 
@@ -174,7 +175,7 @@ export default class HeatmapWrapper {
     if (normalizedData.has(key)) {
       normalized = normalizedData.get(key);
     } else {
-      normalized = normalize(cloneDeep(data), 'value');
+      normalized = normalize(data, 'value');
       normalizedData.set(key, normalized);
     }
 
