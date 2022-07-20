@@ -1244,5 +1244,50 @@ export function isJsonObjectString(str) {
   }
 }
 
+export function getMedian(source) {
+  if (isEmpty(source)) {
+    return 0;
+  }
+
+  if (source.length === 1) {
+    return source[0];
+  }
+
+  const arr = [...source];
+
+  arr.sort((a, b) => a - b);
+
+  const middleIndex = Math.floor(arr.length / 2);
+  let median;
+
+  if (arr.length % 2 !== 0) {
+    median = arr[middleIndex];
+  } else {
+    median = (arr[middleIndex - 1] + arr[middleIndex]) / 2;
+  }
+
+  return median;
+}
+
+export function normalize(source, byField) {
+  const arr = cloneDeep(source);
+  const median = getMedian(byField ? arr.map(i => i[byField]) : arr);
+  const distribution = 0.5;
+  const minValue = median * (1 - distribution);
+  const maxValue = median * (1 + distribution);
+
+  for (let idx in arr) {
+    let value = byField ? arr[idx][byField] : arr[idx];
+
+    if (value > maxValue) {
+      byField ? (arr[idx][byField] = maxValue) : (arr[idx] = maxValue);
+    } else if (value < minValue) {
+      byField ? (arr[idx][byField] = minValue) : (arr[idx] = minValue);
+    }
+  }
+
+  return arr;
+}
+
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
