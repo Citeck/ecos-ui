@@ -952,7 +952,11 @@ class RecordActions {
         );
     };
 
-    await iterator.iterate(callback);
+    try {
+      await iterator.iterate(callback);
+    } finally {
+      this._clearRecordsCollection();
+    }
 
     info('success', t('group-action.message.done-name', { action: action.name }), true);
 
