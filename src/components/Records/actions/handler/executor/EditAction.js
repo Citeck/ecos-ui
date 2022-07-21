@@ -12,7 +12,6 @@ export default class EditAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
-
     let recordId = config.recordId || record.id;
 
     switch (true) {
