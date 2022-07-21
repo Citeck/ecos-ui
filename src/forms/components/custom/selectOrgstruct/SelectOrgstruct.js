@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
@@ -12,6 +13,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
@@ -247,49 +249,31 @@ export default class SelectOrgstructComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
+    if (isEqual(value, this.dataValue) && !isEmpty(value)) {
+      return;
+    }
+
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
       isEqual(value, this.emptyValue) &&
       this.component.currentUserByDefault &&
       !this.viewOnly &&
-      this.options.formMode === 'CREATE'
+      this.options.formMode === FORM_MODE_CREATE
     ) {
-      if (Array.isArray(value)) {
-        value = [Formio.getUser()];
-      } else {
-        value = Formio.getUser();
-      }
+      const currentUser = (Formio.getUser() || '').toLowerCase();
+
+      value = Array.isArray(value) ? [currentUser] : currentUser;
     }
 
-    if (isEqual(value, this.dataValue)) {
-      return null;
-    }
-
-    let self = this;
-
-    let setValueImpl = function(value) {
-      if (self.reactContainer && value !== self.dataValue) {
-        ReactDOM.unmountComponentAtNode(self.reactContainer);
-      }
-
-      self.dataValue = value || self.component.defaultValue || self.emptyValue;
-      self.refreshDOM();
-
-      return self.updateValue(flags);
+    const setValueImpl = v => {
+      const val = v || this.component.defaultValue || this.emptyValue;
+      this.updateValue(flags, val);
+      this.refreshDOM();
     };
 
     if (Array.isArray(value)) {
-      let promises = [];
-      for (let auth of value) {
-        promises.push(
-          new Promise(resolve => {
-            this._getAuthorityRef(auth, resolve);
-          })
-        );
-      }
-      Promise.all(promises).then(values => {
-        setValueImpl(values);
-      });
+      const promises = value.map(auth => new Promise(resolve => this._getAuthorityRef(auth, resolve)));
+      Promise.all(promises).then(setValueImpl);
     } else {
       this._getAuthorityRef(value, setValueImpl);
     }
