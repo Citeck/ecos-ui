@@ -124,13 +124,13 @@ export default class HeatmapWrapper {
       }
     });
 
-    connections.forEach(con =>
+    connections.forEach(con => {
       connectionPoints.push({
         line: con.waypoints.map(item => ({ x: Math.abs(item.x), y: Math.abs(item.y) })),
         value: get(mapData, [con.id, 'value']) || 0,
         radius: 13
-      })
-    );
+      });
+    });
 
     const points = shapePoints.concat(connectionPoints);
     const maxV = Math.max(...points.map(i => i.value));
