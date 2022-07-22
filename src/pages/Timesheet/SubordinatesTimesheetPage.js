@@ -49,6 +49,21 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
     return '';
   }
 
+  get isAvailable() {
+    const { delegatedToRef } = this.props;
+    const { key } = this.selectedStatus;
+    const unavailableStatuses = [
+      ServerStatusKeys.APPROVED_BY_MANAGER,
+      ServerStatusKeys.APPROVED_BY_HR,
+      ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM
+    ];
+
+    return (
+      !delegatedToRef &&
+      (Array.isArray(key) ? key.filter(k => unavailableStatuses.includes(k)).length === 0 : !unavailableStatuses.includes(key))
+    );
+  }
+
   get configGroupBtns() {
     const first = 0;
     const second = 1;
@@ -148,7 +163,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
         groupBy={'user'}
         eventTypes={mergedList}
         daysOfMonth={daysOfMonth}
-        isAvailable={!delegatedToRef}
+        isAvailable={this.isAvailable}
         lockedMessage={this.lockDescription}
         configGroupBtns={this.configGroupBtns}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}

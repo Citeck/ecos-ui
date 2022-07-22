@@ -482,7 +482,7 @@ class GrouppedTimesheet extends BaseTimesheet {
   }
 
   renderCalendar() {
-    const { daysOfMonth } = this.props;
+    const { daysOfMonth, isAvailable } = this.props;
 
     return (
       <Scrollbars
@@ -492,7 +492,11 @@ class GrouppedTimesheet extends BaseTimesheet {
         renderThumbVertical={props => <div {...props} hidden />}
         ref={this._scrollbar}
       >
-        <div className="ecos-timesheet__table-calendar">
+        <div
+          className={classNames('ecos-timesheet__table-calendar', {
+            'ecos-timesheet__table-calendar_not-available': !isAvailable
+          })}
+        >
           <Header daysOfMonth={daysOfMonth} byGroup />
           {this.renderEvents()}
         </div>
