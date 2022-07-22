@@ -66,6 +66,21 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
     this.props.resetDelegatedTimesheet();
   }
 
+  get isAvailable() {
+    const { isDelegated } = this.state;
+    const { key = "" } = this.selectedStatus;
+    const unavailableStatuses = [
+      ServerStatusKeys.APPROVED_BY_MANAGER,
+      ServerStatusKeys.APPROVED_BY_HR,
+      ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM
+    ];
+
+    return (
+      !isDelegated &&
+      (Array.isArray(key) ? key.filter(k => unavailableStatuses.includes(k)).length === 0 : !unavailableStatuses.includes(key))
+    );
+  }
+
   get selectedDType() {
     const { delegationTypeTabs } = this.state;
 
@@ -201,7 +216,7 @@ class DelegatedTimesheetsPage extends BaseTimesheetPage {
         configGroupBtns={this.configGroupBtns}
         eventTypes={mergedList}
         daysOfMonth={daysOfMonth}
-        isAvailable={!isDelegated}
+        isAvailable={this.isAvailable}
         lockedMessage={this.lockDescription}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
         onResetHours={this.handleResetEventDayHours.bind(this)}

@@ -38,6 +38,13 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
     this.props.resetVerificationTimesheet();
   }
 
+  get isAvailable() {
+    const { key = "" } = this.selectedStatus;
+    const unavailableStatuses = [ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM];
+
+    return Array.isArray(key) ? key.filter(k => unavailableStatuses.includes(k)).length === 0 : !unavailableStatuses.includes(key);
+  }
+
   get configGroupBtns() {
     const status = this.selectedStatus;
 
@@ -121,7 +128,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
         eventTypes={mergedList}
         daysOfMonth={daysOfMonth}
         configGroupBtns={this.configGroupBtns}
-        isAvailable
+        isAvailable={this.isAvailable}
         loadingOnTimesheet={loadingOnTimesheet}
         onChangeHours={this.handleChangeEventDayHours.bind(this)}
         onResetHours={this.handleResetEventDayHours.bind(this)}
