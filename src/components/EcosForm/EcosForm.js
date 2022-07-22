@@ -130,10 +130,10 @@ class EcosForm extends React.Component {
         return null;
       }
 
-      const formContainer = this._formContainer.current;
+      const container = get(this._formContainer, 'current');
 
-      if (formContainer) {
-        const modal = formContainer.closest('.ecos-modal');
+      if (container) {
+        const modal = container.closest('.ecos-modal');
 
         if (modal && formData.width && formData.width !== 'default') {
           modal.classList.remove('ecos-modal_width-lg');
