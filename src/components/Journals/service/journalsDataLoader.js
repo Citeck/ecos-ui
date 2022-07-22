@@ -29,7 +29,6 @@ class JournalsDataLoader {
         const resultRecords = [];
         const records = result.records || [];
         const attributesMap = attributes.attributesMap;
-
         const computedPromises = [];
 
         for (let record of records) {
@@ -79,6 +78,7 @@ class JournalsDataLoader {
           }
 
           result.records = resultRecords;
+
           return result;
         });
       });

@@ -129,11 +129,16 @@ class EcosForm extends React.Component {
         onFormLoadingFailure();
         return null;
       }
-      const modal = this._formContainer.current.closest('.ecos-modal');
 
-      if (modal && formData.width && formData.width !== 'default') {
-        modal.classList.remove('ecos-modal_width-lg');
-        modal.classList.add(`ecos-modal_width-${formData.width}`);
+      const container = get(this._formContainer, 'current');
+
+      if (container) {
+        const modal = container.closest('.ecos-modal');
+
+        if (modal && formData.width && formData.width !== 'default') {
+          modal.classList.remove('ecos-modal_width-lg');
+          modal.classList.add(`ecos-modal_width-${formData.width}`);
+        }
       }
 
       const customModulePromise = new Promise(function(resolve) {
