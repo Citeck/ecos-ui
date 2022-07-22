@@ -68,6 +68,20 @@ class KanbanView extends React.Component {
     this.setState({ isClose: true });
   }
 
+  get boardId() {
+    const id = get(this.props, 'boardConfig.id');
+
+    if (!id) {
+      return id;
+    }
+
+    if (id.indexOf(SourcesId.BOARD) === 0) {
+      return id;
+    }
+
+    return `${SourcesId.BOARD}@${id}`;
+  }
+
   getSelectedBoard() {
     const { urlParams = {}, boardList } = this.props;
     return urlParams.boardId || get(boardList, '[0].id');
@@ -122,13 +136,13 @@ class KanbanView extends React.Component {
       urlParams,
       isActivePage
     } = this.props;
-    const { name, id } = boardConfig || {};
+    const { name } = boardConfig || {};
     const maxHeight = getMaxHeight();
 
     return (
       <div hidden={!isKanban(viewMode)} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
-          <Header title={name} config={boardConfig} configRec={id && `${SourcesId.BOARD}@${id}`} />
+          <Header title={name} config={boardConfig} configRec={this.boardId} />
           <Bar
             urlParams={urlParams}
             isActivePage={isActivePage}
