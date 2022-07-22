@@ -105,7 +105,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
     yield put(setMergedList(newMergedList));
   } catch (e) {
     yield put(setLoading(false));
-    yield put(setPopupMessage(e || TimesheetMessages.ERROR_SAVE_STATUS));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
     logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e);
   }
 }
@@ -164,7 +164,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
     const thirdState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(thirdState));
-    yield put(setPopupMessage(e || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
     logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e);
   }
 }
@@ -181,7 +181,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
     const secondState = CommonTimesheetService.setUpdatingHours(updatingHoursState, { ...payload, hasError: true });
 
     yield put(setUpdatingEventDayHours(secondState));
-    yield put(setPopupMessage(e || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
+    yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
     logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e);
   }
 }
