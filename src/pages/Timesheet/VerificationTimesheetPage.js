@@ -39,7 +39,7 @@ class VerificationTimesheetPage extends BaseTimesheetPage {
   }
 
   get isAvailable() {
-    const { key } = this.selectedStatus;
+    const { key = "" } = this.selectedStatus;
     const unavailableStatuses = [ServerStatusKeys.SENT_TO_ACCOUNTING_SYSTEM];
 
     return Array.isArray(key) ? key.filter(k => unavailableStatuses.includes(k)).length === 0 : !unavailableStatuses.includes(key);

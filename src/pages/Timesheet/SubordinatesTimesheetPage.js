@@ -51,7 +51,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   get isAvailable() {
     const { delegatedToRef } = this.props;
-    const { key } = this.selectedStatus;
+    const { key = "" } = this.selectedStatus;
     const unavailableStatuses = [
       ServerStatusKeys.APPROVED_BY_MANAGER,
       ServerStatusKeys.APPROVED_BY_HR,
