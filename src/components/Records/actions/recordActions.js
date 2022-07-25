@@ -507,6 +507,7 @@ class RecordActions {
   _chunkedRecords = [];
   _statusesByRecords = [];
   _messagesByRecords = [];
+  _lastExecutionalActionId = '';
 
   /**
    * @param {Array<String>|Array<Record>} records
@@ -516,8 +517,14 @@ class RecordActions {
    */
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
-
     const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
+
+    if (this._lastExecutionalActionId !== action.id) {
+      this._clearRecordsCollection();
+    }
+
+    this._lastExecutionalActionId = action.id;
+
     const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
 
@@ -950,10 +957,6 @@ class RecordActions {
       processedCount += data.records.length;
 
       await this.execForRecords(data.records, preparedAction, preparedContext);
-
-      if (data.totalCount <= processedCount) {
-        this._clearRecordsCollection();
-      }
 
       showProcess &&
         info(
