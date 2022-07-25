@@ -60,6 +60,7 @@ const Labels = {
 class DateIntervalPicker extends Component {
   static propTypes = {
     value: PropTypes.string,
+    showTimeInput: PropTypes.bool,
     isRelativeToParent: PropTypes.bool,
     onChange: PropTypes.func
   };
@@ -205,6 +206,12 @@ class DateIntervalPicker extends Component {
     return this.parseToLabel(get(this.state, [DateInputs.END]));
   }
 
+  get dateFormat() {
+    const { showTimeInput } = this.props;
+
+    return showTimeInput ? DateFormats.DATETIME : DateFormats.DATE;
+  }
+
   createDateEditorContainer = () => {
     const div = document.createElement('div');
 
@@ -255,7 +262,7 @@ class DateIntervalPicker extends Component {
     }
 
     if (this.checkIsISO8601(date)) {
-      return moment(date).format(DateFormats.DATETIME);
+      return moment(date).format(this.dateFormat);
     }
 
     if (date === DateTypes.TODAY) {
@@ -374,7 +381,7 @@ class DateIntervalPicker extends Component {
     const { selectedPart } = this.state;
     let result = value;
 
-    if (!selectedPart) {
+    if (!selectedPart || value === '') {
       return;
     }
 
@@ -402,13 +409,20 @@ class DateIntervalPicker extends Component {
   };
 
   renderInput() {
+    const { showTimeInput } = this.props;
     const { selectedTimeAgo } = this.state;
 
     switch (this.selectedType) {
       case DateTypes.RELATIVE:
         return (
           <>
-            <Input narrow type="number" value={this.getNumberFromDate()} onChange={event => this.handleSelectDate(event.target.value)} />
+            <Input
+              narrow
+              min={0}
+              type="number"
+              value={this.getNumberFromDate()}
+              onChange={event => this.handleSelectDate(event.target.value)}
+            />
             <Select narrow options={this.timeAgoOptions} value={selectedTimeAgo} onChange={this.handleChangeTimeAgo} />
           </>
         );
@@ -416,7 +430,7 @@ class DateIntervalPicker extends Component {
         return (
           <DatePicker
             inline
-            showTimeSelect
+            showTimeSelect={showTimeInput}
             selected={this.date}
             placeholderText={t(Labels.DATEPICKER_PLACEHOLDER)}
             popperContainer={({ children }) => ReactDOM.createPortal(children, this.portal)}
@@ -424,8 +438,9 @@ class DateIntervalPicker extends Component {
           />
         );
       case DateTypes.NOW:
-      case DateTypes.TODAY:
         return <Input readOnly narrow disabled value={moment().format(DateFormats.DATETIME)} />;
+      case DateTypes.TODAY:
+        return <Input readOnly narrow disabled value={moment().format(DateFormats.DATE)} />;
       case DateTypes.CUSTOM:
         return <Input narrow value={this.date} onChange={event => this.handleSelectDate(event.target.value)} />;
       default:
@@ -456,7 +471,7 @@ class DateIntervalPicker extends Component {
         container={isRelativeToParent ? get(this.#componentRef, 'current', document.body) : 'body'}
         toggle={this.handleClosePopover}
       >
-        <PopoverHeader>{this.popoverLabel}</PopoverHeader>
+        <PopoverHeader className="text-body">{this.popoverLabel}</PopoverHeader>
         <PopoverBody
           className={classNames(
             'ecos-dp-interval__popover-content',
