@@ -111,7 +111,14 @@ export default class DateEditorControl extends React.Component {
     const { isRelativeToParent } = this.props;
     const { date } = this.state;
 
-    return <DateIntervalPicker value={date} isRelativeToParent={isRelativeToParent} onChange={this.onChangeInterval} />;
+    return (
+      <DateIntervalPicker
+        value={date}
+        showTimeInput={get(this.extraProps, 'showTimeInput')}
+        isRelativeToParent={isRelativeToParent}
+        onChange={this.onChangeInterval}
+      />
+    );
   }
 
   render() {

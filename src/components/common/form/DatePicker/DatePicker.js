@@ -22,6 +22,7 @@ export default class DatePicker extends Component {
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     showIcon: PropTypes.bool,
     showTimeInput: PropTypes.bool,
+    showTimeSelect: PropTypes.bool,
     narrow: PropTypes.bool,
     wrapperClasses: PropTypes.oneOfType([PropTypes.object, PropTypes.string])
   };
@@ -118,7 +119,9 @@ export default class DatePicker extends Component {
           customInput={<CustomInput forwardedRef={el => (this.datePickerInput = el)} narrow={narrow} />}
           selected={this.selected}
           className={classNames('ecos-input_hover', className)}
-          calendarClassName="ecos-datepicker__calendar"
+          calendarClassName={classNames('ecos-datepicker__calendar', {
+            'ecos-datepicker__calendar_time-select': otherProps.showTimeSelect
+          })}
           onSelect={this.setInputFocus}
           onInputClick={this.handleInputClick}
         />
