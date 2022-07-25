@@ -14,7 +14,7 @@ function* runInit({ api, logger }, { payload }) {
     yield* sagaGetCurrentTasks({ api, logger }, { payload });
     yield* sagaGetActions({ api, logger }, { payload });
   } catch (e) {
-    logger.error('[current-tasks/runInit saga] error', e.message);
+    logger.error('[current-tasks/runInit saga] error', e);
   }
 }
 
@@ -36,7 +36,7 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.get-tasks'), t('error'));
-    logger.error('[current-tasks/sagaGetCurrentTasks saga] error', e.message);
+    logger.error('[current-tasks/sagaGetCurrentTasks saga] error', e);
   }
 }
 
@@ -52,7 +52,7 @@ function* sagaGetActions({ api, logger }, { payload }) {
     }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.get-actions'), t('error'));
-    logger.error('[current-tasks/sagaGetActions saga] error', e.message);
+    logger.error('[current-tasks/sagaGetActions saga] error', e);
   }
 }
 
@@ -68,7 +68,7 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
     Records.get(record).update();
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.execute-action'), t('error'));
-    logger.error('[current-tasks/sagaExecuteAction saga] error', e.message);
+    logger.error('[current-tasks/sagaExecuteAction saga] error', e);
   }
 }
 

@@ -30,7 +30,7 @@ function* sagaGetVersions({ api, logger }, { payload }) {
       })
     );
   } catch (e) {
-    logger.error('[versionJournal/sagaGetVersions saga] error', e.message);
+    logger.error('[versionJournal/sagaGetVersions saga] error', e);
   }
 }
 
@@ -48,7 +48,7 @@ function* sagaAddNewVersion({ api, logger }, { payload }) {
       yield put(addNewVersionError({ message: result.message, id: payload.id }));
     }
   } catch (e) {
-    logger.error('[versionJournal/sagaAddNewVersion saga] error', e.message);
+    logger.error('[versionJournal/sagaAddNewVersion saga] error', e);
     yield put(addNewVersionError({ message: e.message, id: payload.id }));
   }
 }
@@ -60,7 +60,7 @@ function* sagaSetNewVersion({ api, logger }, { payload }) {
     yield put(getVersions({ record: payload.record, id: payload.id }));
     Records.get(payload.record).update();
   } catch (e) {
-    logger.error('[versionJournal/sagaSetNewVersion saga] error', e.message);
+    logger.error('[versionJournal/sagaSetNewVersion saga] error', e);
     yield put(setActiveVersionError({ message: e.message, id: payload.id }));
   }
 }
@@ -72,7 +72,7 @@ function* sagaGetVersionsComparison({ api, logger }, { payload }) {
 
     yield put(setVersionsComparison({ record: payload.record, id: payload.id, comparison }));
   } catch (e) {
-    logger.error('[versionJournal/sagaGetVersionsComparison saga] error', e.message);
+    logger.error('[versionJournal/sagaGetVersionsComparison saga] error', e);
   }
 }
 
@@ -82,7 +82,7 @@ function* sagaGetWritePermission({ api, logger }, { payload }) {
 
     yield put(setWritePermission({ record: payload.record, id: payload.id, hasWritePermission }));
   } catch (e) {
-    logger.error('[versionJournal/sagaGetWritePermission saga] error', e.message);
+    logger.error('[versionJournal/sagaGetWritePermission saga] error', e);
   }
 }
 

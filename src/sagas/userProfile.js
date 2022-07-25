@@ -32,7 +32,7 @@ function* sagaGetUserData({ api, logger }, { payload }) {
     yield put(setUserPhoto({ thumbnail: data.thumbnail, stateId }));
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.get-profile-data')));
-    logger.error('[userProfile/sagaGetUserData saga] error', e.message);
+    logger.error('[userProfile/sagaGetUserData saga] error', e);
   }
 }
 
@@ -73,7 +73,7 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     NotificationManager[response.success ? 'success' : 'error'](message);
   } catch (e) {
     yield put(setNotificationMessage(t('user-profile-widget.error.upload-profile-photo')));
-    logger.error('[userProfile/sagaChangePhoto saga] error', e.message);
+    logger.error('[userProfile/sagaChangePhoto saga] error', e);
   } finally {
     yield put(setUserData({ stateId, isLoadingPhoto: false }));
   }
@@ -87,7 +87,7 @@ function* fetchAppUserData({ api, logger }) {
     yield put(getAppUserThumbnail());
     set(window, 'Alfresco.constants.USERNAME', get(resp.payload, 'userName'));
   } catch (e) {
-    logger.error('[user/getUpdUserData saga] error', e.message);
+    logger.error('[user/getUpdUserData saga] error', e);
   }
 }
 
@@ -104,7 +104,7 @@ function* fetchAppUserThumbnail({ api, logger }) {
       yield put(setAppUserThumbnail(thumbnail));
     }
   } catch (e) {
-    logger.error('[user/getUpdUserData saga] error', e.message);
+    logger.error('[user/getUpdUserData saga] error', e);
   }
 }
 

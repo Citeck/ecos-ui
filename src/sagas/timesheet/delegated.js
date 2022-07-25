@@ -60,7 +60,7 @@ function* sagaGetDelegatedTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setDelegatedTimesheetByParams({ mergedList, innerCounts }));
   } catch (e) {
-    logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e.message);
+    logger.error('[timesheetDelegated sagaGetDelegatedTimesheetByParams saga] error', e);
   }
 }
 
@@ -119,7 +119,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetDelegated sagaModifyStatus saga] error', e.message);
+    logger.error('[timesheetDelegated sagaModifyStatus saga] error', e);
   }
 }
 
@@ -136,7 +136,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetDelegated sagaResetEventDayHours saga] error', e.message);
+    logger.error('[timesheetDelegated sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -160,7 +160,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e.message);
+    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
   }
 }
 
@@ -196,7 +196,7 @@ function* sagaDeclineDelegation({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e.message);
+    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
   }
 }
 
@@ -213,7 +213,7 @@ function* sagaGetDelegatedDeputies({ api, logger }, { payload }) {
     yield put(setDelegatedDeputies(deputyList));
   } catch (e) {
     yield put(setDelegatedDeputies([]));
-    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e.message);
+    logger.error('[timesheetDelegated sagaModifyTaskStatus saga] error', e);
   }
 }
 

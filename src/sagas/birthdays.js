@@ -20,7 +20,7 @@ function* sagaGetBirthdays({ api, logger }, action) {
         data: e.message || t(Labels.ERROR_DEFAULT_MESSAGE)
       })
     );
-    logger.error('[birthdays sagaGetBirthdays saga error', e.message);
+    logger.error('[birthdays sagaGetBirthdays saga error', e);
   }
 }
 

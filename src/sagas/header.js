@@ -41,7 +41,7 @@ function* fetchCreateCaseWidget({ api, logger }) {
     yield put(setCreateCaseWidgetItems(config));
     yield put(setCreateCaseWidgetIsCascade(createMenuView === 'cascad'));
   } catch (e) {
-    logger.error('[fetchCreateCaseWidget saga] error', e.message);
+    logger.error('[fetchCreateCaseWidget saga] error', e);
   }
 }
 
@@ -75,7 +75,7 @@ function* fetchUserMenu({ api, logger }) {
     yield put(setUserMenuItems(items));
     yield put(getAppUserThumbnail());
   } catch (e) {
-    logger.error('[fetchUserMenu saga] error', e.message);
+    logger.error('[fetchUserMenu saga] error', e);
   }
 }
 
@@ -95,7 +95,7 @@ function* fetchSiteMenu({ logger }) {
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[fetchSiteMenu saga] error', e.message);
+    logger.error('[fetchSiteMenu saga] error', e);
   }
 }
 
@@ -124,7 +124,7 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
 
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
-    logger.error('[filterSiteMenu saga] error', e.message);
+    logger.error('[filterSiteMenu saga] error', e);
   }
 }
 
@@ -135,7 +135,7 @@ function* goToPageSiteMenu({ logger }, { payload }) {
 
     PageService.changeUrlLink(link, { openNewTab: true });
   } catch (e) {
-    logger.error('[header goToPageSiteMenu saga] error', e.message);
+    logger.error('[header goToPageSiteMenu saga] error', e);
   }
 }
 
@@ -148,7 +148,7 @@ function* sagaRunSearchAutocomplete({ api, logger }, { payload }) {
 
     yield put(setSearchAutocompleteItems({ documents, sites, people, noResults }));
   } catch (e) {
-    logger.error('[sagaRunSearchAutocomplete saga] error', e.message);
+    logger.error('[sagaRunSearchAutocomplete saga] error', e);
   }
 }
 
