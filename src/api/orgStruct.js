@@ -7,8 +7,9 @@ import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList, getGroupName, getGroupRef, getPersonRef } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName, isNodeRef } from '../helpers/util';
+import { CommonApi } from './common';
 
-export class OrgStructApi {
+export class OrgStructApi extends CommonApi {
   _loadedAuthorities = {};
   _loadedGroups = {};
 
