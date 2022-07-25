@@ -212,6 +212,34 @@ class DateIntervalPicker extends Component {
     return showTimeInput ? DateFormats.DATETIME : DateFormats.DATE;
   }
 
+  get maxDate() {
+    if (this.selectedType !== DateTypes.ABSOLUTE) {
+      return '';
+    }
+
+    const { selectedPart, end } = this.state;
+
+    if (selectedPart === DateInputs.START && end) {
+      return new Date(end);
+    }
+
+    return '';
+  }
+
+  get minDate() {
+    if (this.selectedType !== DateTypes.ABSOLUTE) {
+      return '';
+    }
+
+    const { selectedPart, start } = this.state;
+
+    if (selectedPart === DateInputs.END && start) {
+      return new Date(start);
+    }
+
+    return '';
+  }
+
   createDateEditorContainer = () => {
     const div = document.createElement('div');
 
@@ -430,6 +458,8 @@ class DateIntervalPicker extends Component {
         return (
           <DatePicker
             inline
+            maxDate={this.maxDate}
+            minDate={this.minDate}
             showTimeSelect={showTimeInput}
             selected={this.date}
             placeholderText={t(Labels.DATEPICKER_PLACEHOLDER)}

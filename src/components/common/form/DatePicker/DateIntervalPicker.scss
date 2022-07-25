@@ -80,6 +80,13 @@
               }
             }
           }
+
+          &__day {
+            &--disabled {
+              color: $color-gray-11;
+              cursor: not-allowed;
+            }
+          }
         }
       }
 
