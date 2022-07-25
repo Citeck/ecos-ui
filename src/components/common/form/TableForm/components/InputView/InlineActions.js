@@ -4,6 +4,8 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
+import Records from '../../../../../../components/Records';
+
 import { t } from '../../../../../../helpers/export/util';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
 import InlineToolsDisconnected from '../../../../grid/InlineTools/InlineToolsDisconnected';
@@ -14,6 +16,7 @@ const InlineActions = () => {
   const {
     deleteSelectedItem,
     showEditForm,
+    onEditFormSubmit,
     runCloneRecord,
     showPreview,
     showViewOnlyForm,
@@ -44,13 +47,28 @@ const InlineActions = () => {
         if (recordAction.type === 'edit') {
           recordAction.config = {
             ...(recordAction.config || {}),
-            saveOnSubmit: true
+            saveOnSubmit: false
           };
         }
 
         return {
           ...act,
-          onClick: () => RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction)
+          onClick: async () => {
+            if (recordAction.type === 'edit') {
+              const record = Records.getRecordToEdit(inlineToolsOffsets.rowId);
+              const execution = await RecordActions.execForRecord(record, recordAction);
+
+              if (execution) {
+                onEditFormSubmit(record);
+
+                if (viewOnly) {
+                  record.save();
+                }
+              }
+            } else {
+              await RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction);
+            }
+          }
         };
       });
     } else {

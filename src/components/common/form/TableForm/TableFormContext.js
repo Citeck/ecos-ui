@@ -265,7 +265,7 @@ export const TableFormContextProvider = props => {
 
         onCreateFormSubmit,
 
-        onEditFormSubmit: (record, form) => {
+        onEditFormSubmit: record => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
