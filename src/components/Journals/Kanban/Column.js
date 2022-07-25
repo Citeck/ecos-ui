@@ -1,11 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import { Droppable } from 'react-beautiful-dnd';
 
 import { t } from '../../../helpers/export/util';
-import { runAction } from '../../../actions/kanban';
 import { selectColumnProps } from '../../../selectors/kanban';
 import { Loader } from '../../common';
 import { Labels } from '../constants';
@@ -13,6 +13,20 @@ import { isDropDisabled } from './utils';
 import Card from './Card';
 
 class Column extends React.PureComponent {
+  static propTypes = {
+    runAction: PropTypes.func,
+    columnInfo: PropTypes.shape({ id: PropTypes.string, name: PropTypes.string }),
+    records: PropTypes.array,
+    error: PropTypes.string,
+    actions: PropTypes.object,
+    formProps: PropTypes.object,
+    readOnly: PropTypes.bool,
+    isLoading: PropTypes.bool,
+    isFiltered: PropTypes.bool,
+    isLoadingCol: PropTypes.bool,
+    isFirstLoading: PropTypes.bool
+  };
+
   handleAction = (...data) => {
     this.props.runAction(...data);
   };
@@ -99,11 +113,11 @@ class Column extends React.PureComponent {
   };
 
   render() {
-    const { records = [], data, isLoadingCol } = this.props;
+    const { records = [], columnInfo, isLoadingCol } = this.props;
     const isDropDisabled = this.getIsColumnDropDisabled();
 
     return (
-      <Droppable droppableId={data.id} isDropDisabled={isDropDisabled}>
+      <Droppable droppableId={columnInfo.id} isDropDisabled={isDropDisabled}>
         {(provided, { draggingFromThisWith, isDraggingOver }) => {
           const isColumnOwner = records.some(rec => rec.cardId === draggingFromThisWith);
 
@@ -134,13 +148,4 @@ function mapStateToProps(state, props) {
   return selectColumnProps(state, props.stateId, props.columnIndex);
 }
 
-function mapDispatchToProps(dispatch, props) {
-  return {
-    runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
-  };
-}
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Column);
+export default connect(mapStateToProps)(Column);
