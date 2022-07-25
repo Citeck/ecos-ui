@@ -9,7 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected, getAuthRef } from './helpers';
+import { handleResponse, prepareSelected, prepareRecordRef } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -99,7 +99,7 @@ export const SelectOrgstructProvider = props => {
         break;
       }
       case dataType === DataTypes.AUTHORITY: {
-        value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
+        value = getVal(selectedList.map(item => prepareRecordRef(item)));
         break;
       }
       default: {

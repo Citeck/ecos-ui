@@ -1,4 +1,5 @@
 import isNil from 'lodash/isNil';
+import get from 'lodash/get';
 
 import { SourcesId } from '../../../../constants';
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
@@ -24,6 +25,28 @@ export function handleResponse(result) {
   }));
 }
 
+export function prepareRecordRef(item) {
+  const { attributes = {} } = item;
+
+  if (attributes.authorityType === AUTHORITY_TYPE_GROUP) {
+    return attributes.fullName || item.id;
+  }
+
+  if (attributes.authorityType === AUTHORITY_TYPE_USER) {
+    return attributes.fullName || item.shortName || item.id;
+  }
+
+  if (get(attributes, 'userName')) {
+    return attributes.userName;
+  }
+
+  if (get(attributes, 'authorityName')) {
+    return getGroupRef(getGroupName(attributes.authorityName));
+  }
+
+  return item.id;
+}
+
 export function prepareSelected(selectedItem) {
   return {
     ...selectedItem,
@@ -36,8 +59,8 @@ export function prepareSelected(selectedItem) {
 export function converterUserList(source) {
   return source.map(item => ({
     id: item.id,
-    label: item.displayName,
-    extraLabel: item.fullName,
+    label: item.fullName,
+    extraLabel: item.userName,
     attributes: item
   }));
 }

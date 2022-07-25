@@ -1,11 +1,10 @@
 import * as queryString from 'query-string';
-import get from 'lodash/get';
 
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
+import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
-import { converterUserList, getGroupName, getGroupRef, getPersonRef } from '../components/common/form/SelectOrgstruct/helpers';
+import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName, isNodeRef } from '../helpers/util';
 import { CommonApi } from './common';
 
@@ -91,55 +90,6 @@ export class OrgStructApi extends CommonApi {
   fetchAuthorityByName = async (authName = '') => {
     const nodeRef = await Records.get(`${SourcesId.A_AUTHORITY}@${authName}`).load('nodeRef?str');
     return this.fetchAuthorityByRef(nodeRef);
-  };
-
-  static prepareRecordRef = async recordRef => {
-    const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
-
-    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
-      return {
-        recordRef,
-        authorityType
-      };
-    }
-
-    if (recordRef.includes('workspace://SpacesStore')) {
-      const attributes = await Records.get(recordRef).load({
-        userName: 'cm:userName',
-        authorityName: 'cm:authorityName'
-      });
-
-      if (get(attributes, 'userName')) {
-        return {
-          authorityType,
-          recordRef: `${SourcesId.PERSON}@${attributes.userName}`
-        };
-      }
-
-      if (get(attributes, 'authorityName')) {
-        return {
-          recordRef: getGroupRef(getGroupName(attributes.authorityName)),
-          authorityType: AUTHORITY_TYPE_GROUP
-        };
-      }
-
-      return {
-        authorityType,
-        recordRef: getPersonRef(recordRef)
-      };
-    }
-
-    if (recordRef.includes(`${AUTHORITY_TYPE_GROUP}_`)) {
-      return {
-        recordRef: getGroupRef(getGroupName(recordRef)),
-        authorityType: AUTHORITY_TYPE_GROUP
-      };
-    }
-
-    return {
-      recordRef: getPersonRef(recordRef),
-      authorityType
-    };
   };
 
   static async getGlobalSearchFields() {
