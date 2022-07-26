@@ -72,13 +72,58 @@ ModalWrapper.propTypes = {
 };
 
 class Modal {
+  create = (Component, props) => {
+    if (!Component) {
+      return;
+    }
+
+    this.onHideModal = () => {
+      this.destroy();
+
+      if (isFunction(props.onHideModal)) {
+        props.onHideModal();
+      }
+    };
+
+    this.mountContainer();
+
+    let modal = ReactDOM.render(
+      <Component
+        {...props}
+        onAfterHideModal={() => {
+          if (isFunction(props.onAfterHideModal)) {
+            props.onAfterHideModal();
+          }
+
+          this.destroy();
+          modal = null;
+        }}
+      />,
+      this.el
+    );
+
+    this.modal = {
+      close: () => {
+        if (modal && isFunction(modal.hide)) {
+          modal.hide.call(modal);
+        }
+      }
+    };
+  };
+
+  mountContainer = () => {
+    if (!this.el) {
+      this.el = document.createElement('div');
+    }
+
+    document.body.appendChild(this.el);
+  };
+
   open = (node, config = {}, callback) => {
     const contentBefore = get(config, 'params.contentBefore', null);
     const contentAfter = get(config, 'params.contentAfter', null);
 
-    this.el = document.createElement('div');
-
-    document.body.appendChild(this.el);
+    this.mountContainer();
 
     if (config.rawHtml) {
       node = <div dangerouslySetInnerHTML={{ __html: node }} />;
@@ -87,7 +132,7 @@ class Modal {
     this.onHideModal = () => {
       this.destroy();
 
-      if (config.onHideModal) {
+      if (isFunction(config.onHideModal)) {
         config.onHideModal();
       }
     };
@@ -117,8 +162,13 @@ class Modal {
   };
 
   destroy = () => {
+    if (!this.el) {
+      return;
+    }
+
     ReactDOM.unmountComponentAtNode(this.el);
     document.body.removeChild(this.el);
+    this.el = null;
   };
 }
 

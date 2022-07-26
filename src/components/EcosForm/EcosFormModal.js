@@ -111,18 +111,18 @@ export default class EcosFormModal extends React.Component {
   }
 
   handleCancel = () => {
-    const { onCancelModal } = this.props;
-    const { isAuthenticated } = this.state;
+    this.setState({ isModalOpen: false }, () => {
+      const { onCancelModal } = this.props;
+      const { isAuthenticated } = this.state;
 
-    if (typeof onCancelModal === 'function') {
-      onCancelModal();
-    }
+      if (typeof onCancelModal === 'function') {
+        onCancelModal();
+      }
 
-    this.setState({ isModalOpen: false });
-
-    if (!isAuthenticated) {
-      window.location.reload();
-    }
+      if (!isAuthenticated) {
+        window.location.reload();
+      }
+    });
   };
 
   hide() {

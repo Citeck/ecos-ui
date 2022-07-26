@@ -1,5 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import moment from 'moment';
 import uuidV4 from 'uuid/v4';
 import { NotificationManager } from 'react-notifications';
@@ -11,6 +9,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
 import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
@@ -25,8 +24,8 @@ import { Components } from '../../forms/components';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import Records from '../Records';
-import EcosForm from './EcosForm';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
+import EcosFormModal from './EcosFormModal';
 
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
@@ -104,84 +103,54 @@ export default class EcosFormUtils {
     }
 
     const modal = config.formContainer ? null : new Modal();
-    const formParams = Object.assign({ record }, config.params || {});
-    const configParams = config.params || {};
 
-    formParams['options'] = configParams.options || {};
+    modal.create(EcosFormModal, {
+      record,
+      formId: config.formId,
+      isModalOpen: true,
+      onFormCancel: (record, form) => {
+        const onFormCancel = lodashGet(config, 'params.onFormCancel');
+        const onCancel = lodashGet(config, 'params.onCancel');
 
-    formParams['onSubmit'] = function(record, form, alias) {
-      if (modal) {
-        modal.close();
-      }
-
-      if (configParams.onSubmit) {
-        configParams.onSubmit(record, form, alias);
-      }
-    };
-
-    formParams['onFormCancel'] = function(record, form) {
-      if (modal) {
-        modal.close();
-      }
-
-      if (configParams.onFormCancel) {
-        configParams.onFormCancel(record, form);
-      }
-    };
-
-    formParams['onReady'] = function() {
-      setTimeout(function(record, form) {
-        if (configParams.onReady) {
-          configParams.onReady(record, form);
-        }
-      }, 100);
-    };
-
-    const instanceRec = Records.get(record);
-    instanceRec
-      .load({
-        displayName: '.disp',
-        formMode: '_formMode'
-      })
-      .then(function(recordData) {
-        const formMode = config.formMode || recordData.formMode || FORM_MODE_EDIT;
-
-        if (formMode === FORM_MODE_CREATE) {
-          Records.get(record).reset();
+        if (modal) {
+          modal.close();
         }
 
-        const options = formParams.options || {};
-
-        options.formMode = formMode;
-        formParams.options = options;
-
-        const formInstance = React.createElement(EcosForm, formParams);
-
-        config.header = EcosFormUtils.getFormTitle(recordData);
-
-        if (config.formContainer) {
-          let container = config.formContainer;
-
-          if (isString(config.formContainer)) {
-            container = document.getElementById(config.formContainer);
-          }
-
-          ReactDOM.render(formInstance, container);
-        } else {
-          if (configParams.onFormCancel || configParams.onCancel) {
-            config.onHideModal = () => {
-              if (configParams.onFormCancel) {
-                configParams.onFormCancel();
-              }
-              if (configParams.onCancel) {
-                configParams.onCancel();
-              }
-            };
-          }
-
-          modal.open(formInstance, config);
+        if (isFunction(onFormCancel)) {
+          onFormCancel(record, form);
         }
-      });
+
+        if (isFunction(onCancel)) {
+          onCancel(record, form);
+        }
+      },
+      onSubmit: (record, form, alias) => {
+        const onSubmit = lodashGet(config, 'params.onSubmit');
+
+        if (isFunction(onSubmit)) {
+          onSubmit(record, form, alias);
+        }
+      },
+      onCancelModal: function() {
+        const onHideModal = lodashGet(config, 'onHideModal');
+        const onCancel = lodashGet(config, 'onCancel');
+
+        if (modal) {
+          modal.close();
+        }
+
+        if (isFunction(onHideModal)) {
+          onHideModal();
+        }
+
+        if (isFunction(onCancel)) {
+          onCancel();
+        }
+      },
+      options: { formMode: FORM_MODE_EDIT },
+      contentBefore: config.contentBefore,
+      contentAfter: config.contentAfter
+    });
   }
 
   static getButtonComponents(form) {
@@ -208,6 +177,14 @@ export default class EcosFormUtils {
 
       if (formKey) {
         params.formKey = config.formKey;
+      }
+
+      if (isBoolean(config.saveOnSubmit)) {
+        params.saveOnSubmit = config.saveOnSubmit;
+      }
+
+      if (config.contentBefore) {
+        params.contentBefore = config.contentBefore;
       }
 
       if (config.onCancel) {

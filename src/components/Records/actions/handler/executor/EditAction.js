@@ -12,7 +12,6 @@ export default class EditAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
-
     let recordId = config.recordId || record.id;
 
     switch (true) {
@@ -29,7 +28,10 @@ export default class EditAction extends ActionsExecutor {
           let wasClosed = false;
           EcosFormUtils.editRecord({
             recordRef: recordId,
-            options: { actionRecord: recordId },
+            options: {
+              actionRecord: recordId
+            },
+            saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
             onSubmit: () => {
               // temp solution
