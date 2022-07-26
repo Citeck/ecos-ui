@@ -47,7 +47,7 @@ const InlineActions = () => {
         if (recordAction.type === 'edit') {
           recordAction.config = {
             ...(recordAction.config || {}),
-            saveOnSubmit: false
+            saveOnSubmit: viewOnly
           };
         }
 
@@ -56,14 +56,10 @@ const InlineActions = () => {
           onClick: async () => {
             if (recordAction.type === 'edit') {
               const record = Records.getRecordToEdit(inlineToolsOffsets.rowId);
-              const execution = await RecordActions.execForRecord(record, recordAction);
+              const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
 
-              if (execution) {
+              if (recordWasChanged) {
                 onEditFormSubmit(record);
-
-                if (viewOnly) {
-                  record.save();
-                }
               }
             } else {
               await RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction);
