@@ -212,61 +212,40 @@ class DateIntervalPicker extends Component {
     return showTimeInput ? DateFormats.DATETIME : DateFormats.DATE;
   }
 
-  get maxDate() {
-    if (this.selectedType !== DateTypes.ABSOLUTE) {
-      return undefined;
-    }
-
-    const { selectedPart, end } = this.state;
-
-    if (selectedPart === DateInputs.START && end) {
-      return new Date(end);
-    }
-
-    return undefined;
-  }
-
-  get minDate() {
-    if (this.selectedType !== DateTypes.ABSOLUTE) {
-      return undefined;
-    }
-
-    const { selectedPart, start } = this.state;
-
-    if (selectedPart === DateInputs.END && start) {
-      return new Date(start);
-    }
-
-    return undefined;
-  }
-
   get dateSettings() {
     const { showTimeInput } = this.props;
+    const { selectedPart, start, end } = this.state;
     const settings = {};
 
-    if (this.minDate) {
-      const { end } = this.state;
+    if (selectedPart === DateInputs.END && start) {
+      settings.minDate = new Date(start);
 
-      settings.minDate = this.minDate;
+      const startInMoment = moment(start);
+      const endInMoment = moment(end);
 
-      if (showTimeInput && moment(end).isSame(moment(settings.minDate), 'day')) {
-        settings.minTime = settings.minDate;
-        settings.maxTime = moment(settings.maxDate)
+      if (showTimeInput && startInMoment.isSame(endInMoment, 'day')) {
+        settings.maxTime = moment(startInMoment)
           .set({ hours: 23, minutes: 59, seconds: 59 })
+          .toDate();
+        settings.minTime = moment(startInMoment)
+          .set({ minutes: startInMoment.minutes() + 1 })
           .toDate();
       }
     }
 
-    if (this.maxDate) {
-      const { start } = this.state;
+    if (selectedPart === DateInputs.START && end) {
+      settings.maxDate = new Date(end);
 
-      settings.maxDate = this.maxDate;
+      const startInMoment = moment(start);
+      const endInMoment = moment(end);
 
-      if (showTimeInput && moment(start).isSame(moment(settings.maxDate), 'day')) {
-        settings.minTime = moment(settings.maxDate)
+      if (showTimeInput && startInMoment.isSame(endInMoment, 'day')) {
+        settings.maxTime = moment(endInMoment)
+          .set({ minutes: endInMoment.minutes() - 1 })
+          .toDate();
+        settings.minTime = moment(startInMoment)
           .set({ hours: 0, minutes: 0, seconds: 0 })
           .toDate();
-        settings.maxTime = settings.maxDate;
       }
     }
 
@@ -459,6 +438,36 @@ class DateIntervalPicker extends Component {
         break;
       }
       case DateTypes.ABSOLUTE: {
+        const { start, end } = this.state;
+
+        if (selectedPart === DateInputs.START && end) {
+          const startInMoment = moment(result);
+          const endInMoment = moment(end);
+
+          if (startInMoment.isSame(endInMoment, 'day') && startInMoment.isSameOrAfter(endInMoment)) {
+            result = startInMoment
+              .set({
+                hours: endInMoment.hours(),
+                minutes: endInMoment.minutes() - 30
+              })
+              .toDate();
+          }
+        }
+
+        if (selectedPart === DateInputs.END && start) {
+          const startInMoment = moment(start);
+          const endInMoment = moment(result);
+
+          if (startInMoment.isSame(endInMoment, 'day') && endInMoment.isSameOrBefore(startInMoment)) {
+            result = endInMoment
+              .set({
+                hours: startInMoment.hours(),
+                minutes: startInMoment.minutes() + 30
+              })
+              .toDate();
+          }
+        }
+
         result = moment(result).toISOString();
         break;
       }
