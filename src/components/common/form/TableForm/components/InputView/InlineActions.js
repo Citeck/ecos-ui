@@ -47,7 +47,7 @@ const InlineActions = () => {
         if (recordAction.type === 'edit') {
           recordAction.config = {
             ...(recordAction.config || {}),
-            saveOnSubmit: viewOnly
+            saveOnSubmit: !!viewOnly
           };
         }
 
