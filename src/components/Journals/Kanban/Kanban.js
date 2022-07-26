@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
@@ -9,7 +10,7 @@ import isNil from 'lodash/isNil';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import { getNextPage, moveCard } from '../../../actions/kanban';
+import { getNextPage, moveCard, runAction } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
 import { t } from '../../../helpers/util';
 import { InfoText, Loader, PointsLoader } from '../../common';
@@ -26,11 +27,18 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch, props) {
   return {
     getNextPage: () => dispatch(getNextPage({ stateId: props.stateId })),
-    moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data }))
+    moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data })),
+    runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
   };
 }
 
 class Kanban extends React.Component {
+  static propTypes = {
+    getNextPage: PropTypes.func,
+    moveCard: PropTypes.func,
+    runAction: PropTypes.func
+  };
+
   refBody = React.createRef();
   refScroll = React.createRef();
 
@@ -64,7 +72,7 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
-    if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+    if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
       this.props.getNextPage();
     }
   };
@@ -91,16 +99,23 @@ class Kanban extends React.Component {
     this.props.moveCard({ cardIndex, fromColumnRef, toColumnRef });
   };
 
+  /**
+   * @param {KanbanColumnData} data
+   * @param {Number} index
+   * @returns {JSX.Element}
+   */
   renderColumn = (data, index) => {
+    const { stateId, runAction } = this.props;
     const { isDragging } = this.state;
-    const { stateId } = this.props;
 
-    return <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} isDragging={isDragging} />;
+    return (
+      <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} isDragging={isDragging} runAction={runAction} />
+    );
   };
 
   render() {
-    const { isDragging } = this.state;
     const { columns, dataCards = [], isLoading, isFirstLoading, page } = this.props;
+    const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
     const cols = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
 
@@ -122,12 +137,7 @@ class Kanban extends React.Component {
         >
           <div className="ecos-kanban__head">
             {cols.map((data, index) => (
-              <HeaderColumn
-                key={`head_${data.id}`}
-                isReady={!isFirstLoading}
-                data={data}
-                totalCount={get(dataCards, [index, 'totalCount'], '⭯')}
-              />
+              <HeaderColumn key={`head_${data.id}`} isReady={!isFirstLoading} totalCount={get(dataCards, [index, 'totalCount'], '⭯')} />
             ))}
           </div>
           <div
