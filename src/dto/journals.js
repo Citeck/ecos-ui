@@ -109,12 +109,27 @@ export default class JournalsConverter {
 
     const quote = string.match(/["|'](.*?)["|']/);
 
+    if (
+      isEmpty(delimiters) ||
+      !delimiters.some((symbol, index) => {
+        let str = string;
+
+        if (quote) {
+          str = string.slice(0, quote.index) + string.slice(quote.index + quote[0].length);
+        }
+
+        return str.includes(symbol);
+      })
+    ) {
+      return [string];
+    }
+
     if (quote) {
       return [
         quote[0],
         ...JournalsConverter._splitStringByDelimiters(string.slice(0, quote.index), delimiters),
         ...JournalsConverter._splitStringByDelimiters(string.slice(quote.index + quote[0].length), delimiters)
-      ];
+      ].filter(str => !!str);
     }
 
     const subStrings = string.split(delimiters[0]).filter(item => !!item.trim());
@@ -287,3 +302,5 @@ export default class JournalsConverter {
     return predicate;
   }
 }
+
+window.JournalsConverter = JournalsConverter;

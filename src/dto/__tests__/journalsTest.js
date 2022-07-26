@@ -73,6 +73,22 @@ describe('JournalsConverter', () => {
         label: 'split string by multiple delimiters with support phrases in double quotes',
         input: ['string, with "mu  ltiple" delimi,ters!', [' ', ',']],
         output: ['"mu  ltiple"', 'string', 'with', 'delimi', 'ters!']
+      },
+      {
+        label:
+          'returns the original value in the array if there is a delimeter, but it is not in the string and there is a phrase in quotes',
+        input: ['OOO "MY-COMPANY"', [',']],
+        output: ['OOO "MY-COMPANY"']
+      },
+      {
+        label: 'splits the string if there is a delimiter and a quoted phrase that does not contain any delimiter',
+        input: ['OOO "MY-COMPANY"', [',', ' ', '-']],
+        output: ['"MY-COMPANY"', 'OOO']
+      },
+      {
+        label: 'ignores all delimiters in a quoted phrase',
+        input: ['OOO "MY-COMPANY"', ['-']],
+        output: ['OOO "MY-COMPANY"']
       }
     ];
 
@@ -135,6 +151,11 @@ describe('JournalsConverter', () => {
                   att: 'note',
                   val: 'a'
                 }
+                /*{
+                  t: PREDICATE_CONTAINS,
+                  att: 'statuses',
+                  val: 'a'
+                }*/
               ]
             }
           ]
@@ -276,6 +297,45 @@ describe('JournalsConverter', () => {
         label: 'return an empty object if the predicate and columns is empty',
         input: [],
         output: {}
+      },
+      {
+        label: 'phrase in double quotes in the search string',
+        input: [getPredicates('OOO "MY-COMPANY"'), columns],
+        output: {
+          t: PREDICATE_AND,
+          val: [
+            {
+              t: PREDICATE_OR,
+              val: [
+                {
+                  t: PREDICATE_OR,
+                  val: [
+                    {
+                      att: 'tk:kind',
+                      t: PREDICATE_CONTAINS,
+                      val: '"MY-COMPANY"'
+                    },
+                    {
+                      att: 'tk:kind',
+                      t: PREDICATE_CONTAINS,
+                      val: 'OOO'
+                    }
+                  ]
+                },
+                {
+                  t: PREDICATE_CONTAINS,
+                  att: 'cm:name',
+                  val: 'OOO "MY-COMPANY"'
+                },
+                {
+                  t: PREDICATE_CONTAINS,
+                  att: 'note',
+                  val: 'OOO "MY-COMPANY"'
+                }
+              ]
+            }
+          ]
+        }
       }
     ];
 

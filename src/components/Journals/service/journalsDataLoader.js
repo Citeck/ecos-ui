@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import filter from 'lodash/filter';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
