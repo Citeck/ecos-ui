@@ -214,7 +214,7 @@ class DateIntervalPicker extends Component {
 
   get maxDate() {
     if (this.selectedType !== DateTypes.ABSOLUTE) {
-      return '';
+      return undefined;
     }
 
     const { selectedPart, end } = this.state;
@@ -223,12 +223,12 @@ class DateIntervalPicker extends Component {
       return new Date(end);
     }
 
-    return '';
+    return undefined;
   }
 
   get minDate() {
     if (this.selectedType !== DateTypes.ABSOLUTE) {
-      return '';
+      return undefined;
     }
 
     const { selectedPart, start } = this.state;
@@ -237,7 +237,40 @@ class DateIntervalPicker extends Component {
       return new Date(start);
     }
 
-    return '';
+    return undefined;
+  }
+
+  get dateSettings() {
+    const { showTimeInput } = this.props;
+    const settings = {};
+
+    if (this.minDate) {
+      const { end } = this.state;
+
+      settings.minDate = this.minDate;
+
+      if (showTimeInput && moment(end).isSame(moment(settings.minDate), 'day')) {
+        settings.minTime = settings.minDate;
+        settings.maxTime = moment(settings.maxDate)
+          .set({ hours: 23, minutes: 59, seconds: 59 })
+          .toDate();
+      }
+    }
+
+    if (this.maxDate) {
+      const { start } = this.state;
+
+      settings.maxDate = this.maxDate;
+
+      if (showTimeInput && moment(start).isSame(moment(settings.maxDate), 'day')) {
+        settings.minTime = moment(settings.maxDate)
+          .set({ hours: 0, minutes: 0, seconds: 0 })
+          .toDate();
+        settings.maxTime = settings.maxDate;
+      }
+    }
+
+    return settings;
   }
 
   createDateEditorContainer = () => {
@@ -458,8 +491,7 @@ class DateIntervalPicker extends Component {
         return (
           <DatePicker
             inline
-            maxDate={this.maxDate}
-            minDate={this.minDate}
+            {...this.dateSettings}
             showTimeSelect={showTimeInput}
             selected={this.date}
             placeholderText={t(Labels.DATEPICKER_PLACEHOLDER)}

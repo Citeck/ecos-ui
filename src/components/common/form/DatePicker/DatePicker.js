@@ -19,8 +19,10 @@ export default class DatePicker extends Component {
   static propTypes = {
     className: PropTypes.string,
     dateFormat: PropTypes.string,
-    maxDate: PropTypes.string,
-    minDate: PropTypes.string,
+    maxDate: PropTypes.instanceOf(Date),
+    minDate: PropTypes.instanceOf(Date),
+    maxTime: PropTypes.instanceOf(Date),
+    minTime: PropTypes.instanceOf(Date),
     selected: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     showIcon: PropTypes.bool,
     showTimeInput: PropTypes.bool,
