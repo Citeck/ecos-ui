@@ -151,11 +151,6 @@ describe('JournalsConverter', () => {
                   att: 'note',
                   val: 'a'
                 }
-                /*{
-                  t: PREDICATE_CONTAINS,
-                  att: 'statuses',
-                  val: 'a'
-                }*/
               ]
             }
           ]
