@@ -103,52 +103,33 @@ export default class JournalsConverter {
    * @private
    */
   static _splitStringByDelimiters(string, delimiters = []) {
+    string = (string || '').trim();
+
+    if (isEmpty(delimiters) || isEmpty(string)) {
+      return [string];
+    }
+
     if (string[0] === '`' && string[string.length - 1] === '`') {
       return [string.slice(1, string.length - 1)];
     }
 
-    const quote = string.match(/["|'](.*?)["|']/);
+    const regPattern = `${delimiters[0]}(?=(?:[^'"]|'[^']*'|"[^"]*")*$)`;
+    const regExp = new RegExp(regPattern, 'g');
+    const splittingResult = string.split(regExp);
 
-    if (
-      isEmpty(delimiters) ||
-      !delimiters.some((symbol, index) => {
-        let str = string;
+    if (splittingResult.length) {
+      return splittingResult
+        .reduce((prev, str) => {
+          const result = this._splitStringByDelimiters(str, delimiters.slice(1));
 
-        if (quote) {
-          str = string.slice(0, quote.index) + string.slice(quote.index + quote[0].length);
-        }
+          prev.push(...result);
 
-        return str.includes(symbol);
-      })
-    ) {
-      return [string];
+          return prev;
+        }, [])
+        .filter(item => !!item.trim());
     }
 
-    if (quote) {
-      return [
-        quote[0],
-        ...JournalsConverter._splitStringByDelimiters(string.slice(0, quote.index), delimiters),
-        ...JournalsConverter._splitStringByDelimiters(string.slice(quote.index + quote[0].length), delimiters)
-      ].filter(str => !!str);
-    }
-
-    const subStrings = string.split(delimiters[0]).filter(item => !!item.trim());
-
-    if (subStrings.length < 2 && isEmpty(delimiters)) {
-      return subStrings;
-    }
-
-    return subStrings.reduce((result, current) => {
-      const text = current.trim();
-
-      if (!text) {
-        return result;
-      }
-
-      result.push(...JournalsConverter._splitStringByDelimiters(text, delimiters.slice(1)));
-
-      return result;
-    }, []);
+    return [string];
   }
 
   static optimizePredicate(predicate) {

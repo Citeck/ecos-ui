@@ -67,12 +67,12 @@ describe('JournalsConverter', () => {
       {
         label: 'split string by multiple delimiters with support phrases in single quotes',
         input: ["string, with 'mu  ltiple' delimi,ters!", [' ', ',']],
-        output: ["'mu  ltiple'", 'string', 'with', 'delimi', 'ters!']
+        output: ['string', 'with', "'mu  ltiple'", 'delimi', 'ters!']
       },
       {
         label: 'split string by multiple delimiters with support phrases in double quotes',
         input: ['string, with "mu  ltiple" delimi,ters!', [' ', ',']],
-        output: ['"mu  ltiple"', 'string', 'with', 'delimi', 'ters!']
+        output: ['string', 'with', '"mu  ltiple"', 'delimi', 'ters!']
       },
       {
         label:
@@ -83,12 +83,32 @@ describe('JournalsConverter', () => {
       {
         label: 'splits the string if there is a delimiter and a quoted phrase that does not contain any delimiter',
         input: ['OOO "MY-COMPANY"', [',', ' ', '-']],
-        output: ['"MY-COMPANY"', 'OOO']
+        output: ['OOO', '"MY-COMPANY"']
       },
       {
         label: 'ignores all delimiters in a quoted phrase',
         input: ['OOO "MY-COMPANY"', ['-']],
         output: ['OOO "MY-COMPANY"']
+      },
+      {
+        label: 'split the string at a delimiter that is present in the phrase, but the phrase must remain unchanged',
+        input: ['O-OO "MY-COMPANY"', ['-']],
+        output: ['O', 'OO "MY-COMPANY"']
+      },
+      {
+        label: 'split the string by the delimiter, considering that there can be several phrases in quotes in the string',
+        input: ['OOO "MY-COMPANY", OOO "Roga and CO"', [',']],
+        output: ['OOO "MY-COMPANY"', 'OOO "Roga and CO"']
+      },
+      {
+        label: 'return an array with an empty string if an empty string is passed',
+        input: ['', [',']],
+        output: ['']
+      },
+      {
+        label: 'return an array with an empty string if no arguments are passed',
+        input: [],
+        output: ['']
       }
     ];
 
@@ -308,12 +328,12 @@ describe('JournalsConverter', () => {
                     {
                       att: 'tk:kind',
                       t: PREDICATE_CONTAINS,
-                      val: '"MY-COMPANY"'
+                      val: 'OOO'
                     },
                     {
                       att: 'tk:kind',
                       t: PREDICATE_CONTAINS,
-                      val: 'OOO'
+                      val: '"MY-COMPANY"'
                     }
                   ]
                 },
