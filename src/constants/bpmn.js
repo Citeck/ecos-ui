@@ -17,6 +17,12 @@ export const ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER = ['bpmn:IntermediateCatc
 
 export const ELEMENT_TYPES_FORM_DETERMINER_MAP = new Map([['bpmn:TimerEventDefinition', 'bpmn:TimerEvent']]);
 
+export const LOOP_CHARACTERISTICS = {
+  LOOP: 'loop',
+  SEQUENCE: 'sequence',
+  PARALLEL: 'parallel'
+};
+
 export const GATEWAY_TYPES = [
   'bpmn:ExclusiveGateway',
   'bpmn:ParallelGateway',
