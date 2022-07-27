@@ -137,7 +137,12 @@ class Kanban extends React.Component {
         >
           <div className="ecos-kanban__head">
             {cols.map((data, index) => (
-              <HeaderColumn key={`head_${data.id}`} isReady={!isFirstLoading} totalCount={get(dataCards, [index, 'totalCount'], '⭯')} />
+              <HeaderColumn
+                key={`head_${data.id}`}
+                isReady={!isFirstLoading}
+                data={data}
+                totalCount={get(dataCards, [index, 'totalCount'], '⭯')}
+              />
             ))}
           </div>
           <div

@@ -26,7 +26,8 @@ import {
   SEQUENCE_TYPE,
   TASK_TYPES,
   ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER,
-  ELEMENT_TYPES_FORM_DETERMINER_MAP
+  ELEMENT_TYPES_FORM_DETERMINER_MAP,
+  LOOP_CHARACTERISTICS
 } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
@@ -123,6 +124,37 @@ class ModelEditorPage extends React.Component {
     return null;
   }
 
+  getElement(element = {}) {
+    return this.designer.modeler.get('elementRegistry').find(e => e.id === element.id);
+  }
+
+  #getMultiInstanceType = () => {
+    const { selectedElement } = this.state;
+    const element = this.getElement(selectedElement);
+
+    if (!element) {
+      return null;
+    }
+
+    const loopCharacteristics = get(element, 'di.bpmnElement.loopCharacteristics');
+
+    if (!loopCharacteristics) {
+      return null;
+    }
+
+    if (loopCharacteristics.isSequential) {
+      return LOOP_CHARACTERISTICS.SEQUENCE;
+    }
+
+    if (isUndefined(loopCharacteristics.isSequential)) {
+      return LOOP_CHARACTERISTICS.LOOP;
+    }
+
+    if (!loopCharacteristics.isSequential) {
+      return LOOP_CHARACTERISTICS.PARALLEL;
+    }
+  };
+
   #getIncomingOutcomes = () => {
     const { selectedElement } = this.state;
     const isSequenceFlow = get(selectedElement, 'type') === SEQUENCE_TYPE;
@@ -131,7 +163,7 @@ class ModelEditorPage extends React.Component {
       return [];
     }
 
-    const element = this.designer.modeler.get('elementRegistry').find(e => e.id === selectedElement.id);
+    const element = this.getElement(selectedElement);
 
     if (!GATEWAY_TYPES.includes(get(element, 'source.type', ''))) {
       return [];
@@ -173,7 +205,8 @@ class ModelEditorPage extends React.Component {
     return {
       editor: {
         getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`),
-        getIncomingOutcomes: this.#getIncomingOutcomes
+        getIncomingOutcomes: this.#getIncomingOutcomes,
+        getMultiInstanceType: this.#getMultiInstanceType
       }
     };
   }
