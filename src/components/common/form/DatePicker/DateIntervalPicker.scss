@@ -72,13 +72,28 @@
               width: 100% !important;
             }
           }
+
+          &:not(.ecos-datepicker__calendar_time-select) {
+            .react-datepicker__month {
+              &-container {
+                float: none;
+              }
+            }
+          }
+
+          &__day {
+            &--disabled {
+              color: $color-gray-11;
+              cursor: not-allowed;
+            }
+          }
         }
       }
 
       &_relative {
         grid-template-columns: 1fr 20% 1fr;
       }
-      &_cistom {
+      &_custom {
       }
     }
   }
