@@ -48,6 +48,7 @@ class ModelEditorPage extends React.Component {
     xmlViewerXml: '',
     xmlViewerIsOpen: false
   };
+
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
@@ -57,6 +58,8 @@ class ModelEditorPage extends React.Component {
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
+
+  #prevMultiInstanceType = null;
 
   componentDidMount() {
     this.initModeler();
@@ -245,6 +248,18 @@ class ModelEditorPage extends React.Component {
     if (this._formWrapperRef.current && !isEmpty(formFields) && !isEqual(this._prevValue, formFields)) {
       this._prevValue = { ...formFields };
       this._formWrapperRef.current.setValue(formFields);
+
+      return;
+    }
+
+    const currentMultiInstanceType = this.#getMultiInstanceType();
+
+    /**
+     * If the multi instance type has changed, manually redraw the form
+     */
+    if (!isEqual(currentMultiInstanceType, this.#prevMultiInstanceType)) {
+      this.#prevMultiInstanceType = currentMultiInstanceType;
+      this._formWrapperRef.current.update();
     }
   };
 

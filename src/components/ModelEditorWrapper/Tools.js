@@ -8,16 +8,16 @@ import { ToolsInterface } from './propsInterfaces';
 const Tools = ({ configButtons, className }) =>
   configButtons ? (
     <div className={className}>
-      {configButtons.map(item => {
-        return (
+      {configButtons.map(
+        item =>
           item.action && (
             <div key={item.id}>
-              <IcoBtn icon={item.icon} onClick={item.action} className={item.className} id={item.id} />
-              <Tooltip trigger={item.trigger} target={item.id} text={item.text} />
+              <Tooltip text={item.text} target={item.id} trigger={item.trigger}>
+                <IcoBtn id={item.id} icon={item.icon} onClick={item.action} className={item.className} />
+              </Tooltip>
             </div>
           )
-        );
-      })}
+      )}
     </div>
   ) : null;
 
