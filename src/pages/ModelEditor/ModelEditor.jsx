@@ -241,18 +241,19 @@ class ModelEditorPage extends React.Component {
     }
 
     const formFields = this.getFormFields(element);
+    const currentMultiInstanceType = this.#getMultiInstanceType();
+
     /**
      * Events can occur too often.
      * In order not to provoke extra renders, additionally compare the previous and current value.
      */
     if (this._formWrapperRef.current && !isEmpty(formFields) && !isEqual(this._prevValue, formFields)) {
       this._prevValue = { ...formFields };
+      this.#prevMultiInstanceType = currentMultiInstanceType;
       this._formWrapperRef.current.setValue(formFields);
 
       return;
     }
-
-    const currentMultiInstanceType = this.#getMultiInstanceType();
 
     /**
      * If the multi instance type has changed, manually redraw the form
