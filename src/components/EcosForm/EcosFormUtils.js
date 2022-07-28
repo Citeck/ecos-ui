@@ -15,7 +15,7 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isUndefined from 'lodash/isUndefined';
 
-import { AppEditions, SourcesId } from '../../constants';
+import { SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
 import { UserApi } from '../../api/user';
@@ -1038,13 +1038,7 @@ export default class EcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
-  static async isConfigurableForm() {
-    const edition = await EcosFormUtils._apiApp.getAppEdition();
-
-    if (edition !== AppEditions.ENTERPRISE) {
-      return false;
-    }
-
+  static isConfigurableForm() {
     return EcosFormUtils._apiUser.isUserAdmin();
   }
 
