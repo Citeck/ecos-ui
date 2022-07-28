@@ -30,6 +30,7 @@ import { NotificationManager } from 'react-notifications';
 import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
+import plugins from './plugins';
 
 import './styles/index.scss';
 
@@ -82,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
 if (!window.Citeck) {
   window.Citeck = {};
 }
+window.Citeck.Plugins = plugins;
 window.Citeck.NotificationManager = NotificationManager;
 window.Citeck.Base64 = Base64;
 
