@@ -1,3 +1,4 @@
+import React from 'react';
 import moment from 'moment';
 import uuidV4 from 'uuid/v4';
 import { NotificationManager } from 'react-notifications';
@@ -25,6 +26,7 @@ import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import Records from '../Records';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
+import EcosForm from './EcosForm';
 import EcosFormModal from './EcosFormModal';
 
 const SOURCE_DIVIDER = '@';
@@ -103,54 +105,93 @@ export default class EcosFormUtils {
     }
 
     const modal = config.formContainer ? null : new Modal();
+    const formParams = Object.assign({ record }, config.params || {});
+    const configParams = config.params || {};
 
-    modal.create(EcosFormModal, {
-      record,
-      formId: config.formId,
-      isModalOpen: true,
-      onFormCancel: (record, form) => {
-        const onFormCancel = lodashGet(config, 'params.onFormCancel');
-        const onCancel = lodashGet(config, 'params.onCancel');
+    Records.get(record)
+      .load({
+        displayName: '.disp',
+        formMode: '_formMode'
+      })
+      .then(function(recordData) {
+        const formMode = config.formMode || recordData.formMode || FORM_MODE_EDIT;
 
-        if (modal) {
-          modal.close();
+        if (formMode === FORM_MODE_CREATE) {
+          Records.get(record).reset();
         }
 
-        if (isFunction(onFormCancel)) {
-          onFormCancel(record, form);
-        }
+        const options = formParams.options || {};
 
-        if (isFunction(onCancel)) {
-          onCancel(record, form);
-        }
-      },
-      onSubmit: (record, form, alias) => {
-        const onSubmit = lodashGet(config, 'params.onSubmit');
+        options.formMode = formMode;
+        formParams.options = options;
 
-        if (isFunction(onSubmit)) {
-          onSubmit(record, form, alias);
-        }
-      },
-      onCancelModal: function() {
-        const onHideModal = lodashGet(config, 'onHideModal');
-        const onCancel = lodashGet(config, 'onCancel');
+        const formInstance = React.createElement(EcosForm, formParams);
 
-        if (modal) {
-          modal.close();
-        }
+        config.header = EcosFormUtils.getFormTitle(recordData);
 
-        if (isFunction(onHideModal)) {
-          onHideModal();
-        }
+        if (config.formContainer) {
+          modal.create(EcosFormModal, {
+            record,
+            formId: config.formId,
+            isModalOpen: true,
+            onFormCancel: (record, form) => {
+              const onFormCancel = lodashGet(config, 'params.onFormCancel');
+              const onCancel = lodashGet(config, 'params.onCancel');
 
-        if (isFunction(onCancel)) {
-          onCancel();
+              if (modal) {
+                modal.close();
+              }
+
+              if (isFunction(onFormCancel)) {
+                onFormCancel(record, form);
+              }
+
+              if (isFunction(onCancel)) {
+                onCancel(record, form);
+              }
+            },
+            onSubmit: (record, form, alias) => {
+              const onSubmit = lodashGet(config, 'params.onSubmit');
+
+              if (isFunction(onSubmit)) {
+                onSubmit(record, form, alias);
+              }
+            },
+            onCancelModal: () => {
+              const onHideModal = lodashGet(config, 'onHideModal');
+              const onCancel = lodashGet(config, 'onCancel');
+
+              if (modal) {
+                modal.close();
+              }
+
+              if (isFunction(onHideModal)) {
+                onHideModal();
+              }
+
+              if (isFunction(onCancel)) {
+                onCancel();
+              }
+            },
+            options: { formMode },
+            contentBefore: config.contentBefore,
+            contentAfter: config.contentAfter
+          });
+        } else {
+          if (configParams.onFormCancel || configParams.onCancel) {
+            config.onHideModal = () => {
+              if (configParams.onFormCancel) {
+                configParams.onFormCancel();
+              }
+              if (configParams.onCancel) {
+                configParams.onCancel();
+              }
+            };
+          }
+
+          modal.open(formInstance, config);
         }
-      },
-      options: { formMode: FORM_MODE_EDIT },
-      contentBefore: config.contentBefore,
-      contentAfter: config.contentAfter
-    });
+      });
   }
 
   static getButtonComponents(form) {
