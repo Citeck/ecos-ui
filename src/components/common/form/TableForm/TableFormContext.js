@@ -52,7 +52,6 @@ export const TableFormContextProvider = props => {
     isFunction(onChange) && onChange(rows.map(item => item.id));
     isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
   };
-  let idKey = 'id';
 
   useEffect(() => {
     if (isEmpty(defaultValue) || isEmpty(columns)) {
@@ -113,8 +112,6 @@ export const TableFormContextProvider = props => {
               continue;
             }
 
-            idKey = attSchema.includes(LOCAL_ID) ? LOCAL_ID : 'id';
-
             if (noNeedParseIndices.includes(currentAttIndex)) {
               fetchedAtts[attSchema] = result[attSchema];
             } else {
@@ -130,7 +127,7 @@ export const TableFormContextProvider = props => {
             currentAttIndex++;
           }
 
-          return { ...fetchedAtts, [idKey]: rec };
+          return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
         })
       )
         .then(result => {
