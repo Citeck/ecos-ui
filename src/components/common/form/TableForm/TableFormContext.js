@@ -13,6 +13,7 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
+import { LOCAL_ID } from '../../../../constants/journal';
 
 export const TableFormContext = React.createContext();
 
@@ -51,6 +52,7 @@ export const TableFormContextProvider = props => {
     isFunction(onChange) && onChange(rows.map(item => item.id));
     isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
   };
+  let idKey = 'id';
 
   useEffect(() => {
     if (isEmpty(defaultValue) || isEmpty(columns)) {
@@ -87,7 +89,6 @@ export const TableFormContextProvider = props => {
         atts.push(schema);
         attsAsIs.push(attribute);
       });
-
       Promise.all(
         initValue.map(async rec => {
           const record = Records.get(rec);
@@ -112,6 +113,8 @@ export const TableFormContextProvider = props => {
               continue;
             }
 
+            idKey = attSchema.includes(LOCAL_ID) ? LOCAL_ID : 'id';
+
             if (noNeedParseIndices.includes(currentAttIndex)) {
               fetchedAtts[attSchema] = result[attSchema];
             } else {
@@ -127,7 +130,7 @@ export const TableFormContextProvider = props => {
             currentAttIndex++;
           }
 
-          return { ...fetchedAtts, id: rec };
+          return { ...fetchedAtts, [idKey]: rec };
         })
       )
         .then(result => {
@@ -195,6 +198,7 @@ export const TableFormContextProvider = props => {
         ...gridRows,
         {
           id: record.id,
+          [LOCAL_ID]: record.id,
           ...attributes
         }
       ];
@@ -278,7 +282,7 @@ export const TableFormContextProvider = props => {
           let newGridRows = [...gridRows];
 
           record.toJsonAsync(true).then(res => {
-            const newRow = { ...res['attributes'], id: editRecordId };
+            const newRow = { ...res['attributes'], id: editRecordId, [LOCAL_ID]: editRecordId };
 
             if (isAlias) {
               // replace base record row by newRow in values list
