@@ -1,10 +1,11 @@
 import Records from '../../components/Records/Records';
 import * as authorityApi from './authorityApi';
 
+export const GROUP_PREFIX = 'GROUP_';
+
 const PERSON_SOURCE_ID = 'emodel/person';
 const GROUPS_SOURCE_ID = 'emodel/authority-group';
 
-const GROUP_PREFIX = 'GROUP_';
 const ALFRESCO_PREFIX = 'alfresco/@';
 
 class AuthorityService {
