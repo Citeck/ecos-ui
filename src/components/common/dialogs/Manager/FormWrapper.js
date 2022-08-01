@@ -101,6 +101,14 @@ class FormWrapper extends React.Component {
     });
   }
 
+  update = () => {
+    if (!this._form) {
+      return;
+    }
+
+    this._form.redraw();
+  };
+
   setValue = (data, flags) => {
     if (!this._form) {
       return;

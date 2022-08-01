@@ -48,6 +48,7 @@ class ModelEditorPage extends React.Component {
     xmlViewerXml: '',
     xmlViewerIsOpen: false
   };
+
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
@@ -57,6 +58,8 @@ class ModelEditorPage extends React.Component {
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
+
+  #prevMultiInstanceType = null;
 
   componentDidMount() {
     this.initModeler();
@@ -238,13 +241,26 @@ class ModelEditorPage extends React.Component {
     }
 
     const formFields = this.getFormFields(element);
+    const currentMultiInstanceType = this.#getMultiInstanceType();
+
     /**
      * Events can occur too often.
      * In order not to provoke extra renders, additionally compare the previous and current value.
      */
     if (this._formWrapperRef.current && !isEmpty(formFields) && !isEqual(this._prevValue, formFields)) {
       this._prevValue = { ...formFields };
+      this.#prevMultiInstanceType = currentMultiInstanceType;
       this._formWrapperRef.current.setValue(formFields);
+
+      return;
+    }
+
+    /**
+     * If the multi instance type has changed, manually redraw the form
+     */
+    if (!isEqual(currentMultiInstanceType, this.#prevMultiInstanceType)) {
+      this.#prevMultiInstanceType = currentMultiInstanceType;
+      this._formWrapperRef.current.update();
     }
   };
 
