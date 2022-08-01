@@ -56,11 +56,7 @@ export default class TasksService {
   }
 
   static isGroupAuthorityName(authorityName) {
-    if (!authorityName) {
-      return false;
-    }
-
-    return authorityName.startsWith(GROUP_PREFIX);
+    return !!authorityName && authorityName.startsWith(GROUP_PREFIX);
   }
 
   static getUsersOfGroupStr(value) {
