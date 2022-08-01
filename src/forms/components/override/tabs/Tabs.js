@@ -525,6 +525,8 @@ export default class TabsComponent extends NestedComponent {
     if (tabId !== undefined) {
       this.#tabs.set(tabId, component);
     }
+
+    return component;
   }
 
   /**
