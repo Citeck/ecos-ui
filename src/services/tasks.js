@@ -7,7 +7,7 @@ import { selectStateTasksById } from '../selectors/tasks';
 import { getIndexObjectByKV } from '../helpers/arrayOfObjects';
 import { isExistIndex } from '../helpers/util';
 import { USER_CURRENT } from '../constants';
-import { GROUP_PREFIX } from './authrority/AuthorityService';
+import authorityService from './authrority/AuthorityService';
 
 export default class TasksService {
   static updateList = function*({ stateId, taskId, updatedFields, ownerUserName }) {
@@ -49,14 +49,10 @@ export default class TasksService {
     }
 
     if (isArray(value)) {
-      return value.some(item => this.isGroupAuthorityName(item.authorityName));
+      return value.some(item => authorityService.isAuthorityGroup(item.authorityName));
     }
 
-    return this.isGroupAuthorityName(value.authorityName);
-  }
-
-  static isGroupAuthorityName(authorityName) {
-    return !!authorityName && authorityName.startsWith(GROUP_PREFIX);
+    return authorityService.isAuthorityGroup(value.authorityName);
   }
 
   static getUsersOfGroupStr(value) {

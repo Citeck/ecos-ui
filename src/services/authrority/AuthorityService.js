@@ -1,5 +1,6 @@
 import Records from '../../components/Records/Records';
 import * as authorityApi from './authorityApi';
+import isString from 'lodash/isString';
 
 export const GROUP_PREFIX = 'GROUP_';
 
@@ -39,8 +40,14 @@ class AuthorityService {
     return authority;
   }
 
+  isAuthorityGroup(authority) {
+    if (!authority || !isString(authority)) {
+      return false;
+    }
+    return authority.startsWith(GROUPS_SOURCE_ID) || authority.startsWith(GROUP_PREFIX);
+  }
+
   async getAuthorityAttributes(authority, attributes) {
-    console.log('getAuthorityAttributes', authority, attributes);
     if (!authority) {
       return null;
     }
