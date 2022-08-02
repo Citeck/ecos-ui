@@ -4,15 +4,14 @@ import { NotificationManager } from 'react-notifications';
 
 import recordActions from '../components/Records/actions/recordActions';
 import Records from '../components/Records/Records';
-import { executeAction, getActions, getCurrentTaskList, initCurrentTasks, setActions, setCurrentTaskList } from '../actions/currentTasks';
+import { executeAction, getCurrentTaskList, initCurrentTasks, setCurrentTaskList } from '../actions/currentTasks';
 import { t } from '../helpers/util';
-import { AssignActions, TaskActions } from '../constants/tasks';
+import { AssignActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
 
 function* runInit({ api, logger }, { payload }) {
   try {
     yield* sagaGetCurrentTasks({ api, logger }, { payload });
-    yield* sagaGetActions({ api, logger }, { payload });
   } catch (e) {
     logger.error('[current-tasks/runInit saga] error', e.message);
   }
@@ -21,38 +20,31 @@ function* runInit({ api, logger }, { payload }) {
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
   try {
     const { record: document, stateId } = payload;
-    const res = yield call(api.tasks.getCurrentTasksForUser, { document });
+    const isAdmin = yield select(state => state.user.isAdmin);
+    const result = yield call(api.tasks.getCurrentTasksForUser, { document });
 
-    if (isEmpty(res)) {
+    if (isEmpty(result)) {
       NotificationManager.error(t('current-tasks-widget.error.get-tasks'), t('error'));
     } else {
+      const currentTasksList = TasksConverter.getCurrentTaskListForWeb(result.records);
+      for (let currentTask of currentTasksList) {
+        currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
+          taskId: currentTask.id,
+          reassignable: currentTask.reassignable,
+          isAdmin
+        });
+      }
       yield put(
         setCurrentTaskList({
           stateId,
-          list: TasksConverter.getCurrentTaskListForWeb(res.records),
-          totalCount: res.totalCount || 0
+          list: currentTasksList,
+          totalCount: result.totalCount || 0
         })
       );
     }
   } catch (e) {
     NotificationManager.error(t('current-tasks-widget.error.get-tasks'), t('error'));
     logger.error('[current-tasks/sagaGetCurrentTasks saga] error', e.message);
-  }
-}
-
-function* sagaGetActions({ api, logger }, { payload }) {
-  try {
-    const { record, stateId } = payload;
-    const isAdmin = yield select(state => state.user.isAdmin);
-
-    if (isAdmin) {
-      const actions = yield recordActions.getActionsForRecord(record, TaskActions, {});
-
-      yield put(setActions({ stateId, actions }));
-    }
-  } catch (e) {
-    NotificationManager.error(t('current-tasks-widget.error.get-actions'), t('error'));
-    logger.error('[current-tasks/sagaGetActions saga] error', e.message);
   }
 }
 
@@ -75,7 +67,6 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
 function* tasksSaga(ea) {
   yield takeEvery(initCurrentTasks().type, runInit, ea);
   yield takeEvery(getCurrentTaskList().type, sagaGetCurrentTasks, ea);
-  yield takeEvery(getActions().type, sagaGetActions, ea);
   yield takeEvery(executeAction().type, sagaExecuteAction, ea);
 }
 

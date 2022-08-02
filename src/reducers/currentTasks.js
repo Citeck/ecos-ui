@@ -5,7 +5,6 @@ import {
   getCurrentTaskList,
   initCurrentTasks,
   resetCurrentTaskList,
-  setActions,
   setCurrentTaskList,
   setInlineTools,
   setSettings
@@ -31,7 +30,6 @@ export default handleActions(
       }),
     [getCurrentTaskList]: (state, { payload: { stateId } }) => updateState(state, stateId, { list: [], totalCount: 0, isLoading: true }),
     [setCurrentTaskList]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, { ...data, isLoading: false }),
-    [setActions]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),
     [setInlineTools]: (state, { payload: { stateId, ...data } }) => updateState(state, stateId, data),
     [resetCurrentTaskList]: (state, { payload: { stateId } }) => deleteStateById(state, stateId),
     [setSettings]: (state, { payload: { stateId, settings } }) => updateState(state, stateId, { settings })
