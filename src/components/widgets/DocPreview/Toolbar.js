@@ -4,11 +4,13 @@ import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
+import isFunction from 'lodash/isFunction';
 
 import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
 import { getScaleModes, t } from '../../../helpers/util';
 import { Labels } from './util';
+import { DocScaleOptions } from '../../../constants';
 
 const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
@@ -61,7 +63,6 @@ class Toolbar extends Component {
 
     let foundScale = this.zoomOptions.find(el => el.scale === scale);
     foundScale = foundScale || { id: CUSTOM, scale };
-
     this.onChangeZoomOption(foundScale);
   }
 
@@ -187,6 +188,16 @@ class Toolbar extends Component {
     this.props.onChangeSettings(output);
   };
 
+  onFileChange = data => {
+    const { onFileChange } = this.props;
+
+    if (isFunction(onFileChange)) {
+      onFileChange(data);
+    }
+
+    this.onChangeZoomOption({ id: DocScaleOptions.AUTO, scale: 1 });
+  };
+
   renderPager() {
     const { currentPage } = this.state;
     const { totalPages } = this.props;
@@ -284,7 +295,7 @@ class Toolbar extends Component {
   }
 
   renderFilesList() {
-    const { filesList, fileValue, onFileChange, config } = this.props;
+    const { filesList, fileValue, config } = this.props;
 
     if (!config.showAllDocuments || !Array.isArray(filesList) || filesList.length <= 1) {
       return null;
@@ -310,7 +321,7 @@ class Toolbar extends Component {
           source={filesList}
           controlLabel={controlLabel}
           value={fileValue}
-          onChange={onFileChange}
+          onChange={this.onFileChange}
           itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
         />
       </div>

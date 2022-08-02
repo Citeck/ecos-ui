@@ -76,7 +76,7 @@ class DocPreview extends Component {
 
     this.state = {
       pdf: {},
-      settings: {},
+      settings: { scale: props.scale },
       isLoading: true,
       scrollPage: props.firstPageNumber,
       recordId: props.recordId || this.getUrlRecordId(),
@@ -218,6 +218,10 @@ class DocPreview extends Component {
       props.getContainerPageHeight = this.props.getContainerPageHeight;
     }
 
+    if (!this.isLastDocument) {
+      props.onNextDocument = this.handleNextDocument;
+    }
+
     return props;
   }
 
@@ -287,7 +291,7 @@ class DocPreview extends Component {
 
   getCleanState = () => ({
     pdf: {},
-    settings: {},
+    settings: { scale: this.props.scale },
     isLoading: true,
     scrollPage: 1,
     recordId: '',
@@ -496,16 +500,7 @@ class DocPreview extends Component {
     const { maxHeight, forwardedRef } = this.props;
     const { pdf } = this.state;
 
-    return (
-      <Pdf
-        pdf={pdf}
-        forwardedRef={forwardedRef}
-        defHeight={maxHeight}
-        onScrollPage={this.handleScrollPage}
-        onNextDocument={!this.isLastDocument && this.handleNextDocument}
-        {...this.commonProps}
-      />
-    );
+    return <Pdf pdf={pdf} forwardedRef={forwardedRef} defHeight={maxHeight} onScrollPage={this.handleScrollPage} {...this.commonProps} />;
   }
 
   imgViewer() {
@@ -518,7 +513,6 @@ class DocPreview extends Component {
         forwardedRef={forwardedRef}
         resizable={resizable}
         isLastDocument={this.isLastDocument}
-        onNextDocument={!this.isLastDocument && this.handleNextDocument}
         {...this.commonProps}
         onError={error => {
           console.error(error);
