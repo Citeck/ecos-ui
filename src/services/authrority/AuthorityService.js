@@ -2,7 +2,7 @@ import Records from '../../components/Records/Records';
 import * as authorityApi from './authorityApi';
 import isString from 'lodash/isString';
 
-export const GROUP_PREFIX = 'GROUP_';
+const GROUP_PREFIX = 'GROUP_';
 
 const PERSON_SOURCE_ID = 'emodel/person';
 const GROUPS_SOURCE_ID = 'emodel/authority-group';
