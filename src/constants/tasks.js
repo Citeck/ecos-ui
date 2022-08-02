@@ -10,4 +10,6 @@ export const AssignTo = {
   UNASSIGNED: 'none'
 };
 
-export const TaskActions = ['uiserv/action@edit-task-assignee', 'uiserv/action@view-business-process'];
+export const ReassignTaskAction = 'uiserv/action@edit-task-assignee';
+export const ViewBusinessProcessTaskAction = 'uiserv/action@view-business-process';
+export const TaskActions = [ReassignTaskAction, ViewBusinessProcessTaskAction];

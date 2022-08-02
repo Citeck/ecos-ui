@@ -41,6 +41,7 @@ export default class TasksConverter {
     target.title = source.title || '';
     target.actors = TasksService.getActorsDisplayNameStr(actors[0]);
     target.deadline = source.dueDate;
+    target.reassignable = source.reassignable;
 
     if (source.actors.length > 1) {
       actors.shift();
