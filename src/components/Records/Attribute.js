@@ -181,6 +181,7 @@ export default class Attribute {
     scalar = scalar || mapValueToScalar(value);
 
     let persisted = this.getPersistedValue(scalar, _.isArray(value), true);
+
     const updateValue = currentValue => {
       this._readyToSave = true;
 

@@ -58,7 +58,7 @@ export default class Record {
     return this._baseRecord || this;
   }
 
-  toJson(withDisplayNames, additionalAttrs = {}) {
+  toJson(withDisplayNames) {
     let attributes = {};
 
     if (this._baseRecord) {
@@ -127,10 +127,13 @@ export default class Record {
     const json = this.toJson(withDisplayNames);
     const keys = Object.keys(json.attributes);
     const promises = [];
+
     for (let key of keys) {
       const att = json.attributes[key];
+
       if (att && att.then) {
         const promise = att.then(res => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
+
         promises.push(promise);
       }
     }
@@ -234,6 +237,7 @@ export default class Record {
 
     return this._watchers.some(watcher => {
       const attrs = watcher.getWatchedAttributes();
+
       if (Array.isArray(attrs)) {
         return attrs.some(checkConditions);
       }
