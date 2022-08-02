@@ -5,6 +5,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isArray from 'lodash/isArray';
+import isString from 'lodash/isString';
 import isNil from 'lodash/isNil';
 
 import ecosFetch from '../../../../helpers/ecosFetch';
@@ -357,8 +358,18 @@ export default class AsyncDataComponent extends BaseComponent {
     }
   }, 200);
 
+  #isValidData = data => {
+    const type = get(this.component, 'source.type', '');
+
+    if (type === SourceTypes.recordsScript) {
+      return isString(data) || isArray(data);
+    }
+
+    return data !== null;
+  };
+
   _evalAsyncValue(dataField, data, action, defaultValue, forceUpdate) {
-    if (data === null) {
+    if (!this.#isValidData(data)) {
       return;
     }
 

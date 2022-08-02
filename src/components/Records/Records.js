@@ -38,12 +38,14 @@ class RecordsComponent {
         return Promise.all(this.map(r => r.load.apply(r, arguments)));
       };
       return result;
-    } else {
+    } else if (isString(id)) {
       record = this._records[id];
       if (!record) {
         record = new Record(id, this);
         this._records[id] = record;
       }
+    } else {
+      record = new Record('', this);
     }
 
     if (owner) {
