@@ -64,7 +64,6 @@ export const TableFormContextProvider = props => {
     } else {
       initValue = [...defaultValue];
     }
-
     if (initValue) {
       const atts = [];
       const attsAsIs = [];
@@ -199,7 +198,6 @@ export const TableFormContextProvider = props => {
           ...attributes
         }
       ];
-
       setGridRows(newGridRows);
       onChangeHandler(newGridRows);
     });

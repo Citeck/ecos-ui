@@ -58,7 +58,7 @@ export default class Record {
     return this._baseRecord || this;
   }
 
-  toJson(withDisplayNames) {
+  toJson(withDisplayNames, additionalAttrs = {}) {
     let attributes = {};
 
     if (this._baseRecord) {
@@ -71,7 +71,7 @@ export default class Record {
     }
 
     const isPersistedAssocValue = value => {
-      return _.isString(value) && value.includes('workspace://') && !value.includes('alias');
+      return _.isString(value) && (value.includes('workspace://') || value.includes('emodel/')) && !value.includes('alias');
     };
 
     let recId = this.id;
@@ -125,7 +125,6 @@ export default class Record {
     await this._getWhenReadyToSave();
 
     const json = this.toJson(withDisplayNames);
-
     const keys = Object.keys(json.attributes);
     const promises = [];
     for (let key of keys) {
@@ -235,7 +234,6 @@ export default class Record {
 
     return this._watchers.some(watcher => {
       const attrs = watcher.getWatchedAttributes();
-
       if (Array.isArray(attrs)) {
         return attrs.some(checkConditions);
       }
