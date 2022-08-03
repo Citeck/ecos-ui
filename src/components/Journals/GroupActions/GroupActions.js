@@ -54,7 +54,7 @@ const GroupActions = React.memo(
     const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
 
-    const labelRecActions = () => t(Labels.SELECTED_SHORT, { data: labelRecActionsCount });
+    const labelRecActions = useCallback(() => t(Labels.SELECTED_SHORT, { data: labelRecActionsCount }), [total, selected]);
 
     useEffect(() => {
       setLabel(labelRecActions);
@@ -64,7 +64,7 @@ const GroupActions = React.memo(
       if (isFilterOn && selectedRecords.length === 0) {
         setLabel(t(Labels.SELECTED_SHORT, { data: grid.total }));
       } else {
-        setLabel(labelRecActions());
+        setLabel(labelRecActions);
       }
     }, [grid.total, selectedRecords, isFilterOn]);
 
