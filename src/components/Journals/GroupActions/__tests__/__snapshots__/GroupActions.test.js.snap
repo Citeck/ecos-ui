@@ -83,7 +83,7 @@ ShallowWrapper {
             placement="top"
             showAsNeeded={true}
             target="group-actions-1-rec"
-            text="journal.group-actions.selected-records.label_short"
+            text=""
             uncontrolled={true}
           >
             <IcoBtn
@@ -95,7 +95,7 @@ ShallowWrapper {
               loaderType="points"
               loading={false}
             >
-              journal.group-actions.selected-records.label_short
+              
             </IcoBtn>
           </Tooltip>
         </DropdownOuter>,
@@ -120,7 +120,7 @@ ShallowWrapper {
             placement="top"
             showAsNeeded={true}
             target="group-actions-1-rec"
-            text="journal.group-actions.selected-records.label_short"
+            text=""
             uncontrolled={true}
           >
             <IcoBtn
@@ -132,7 +132,7 @@ ShallowWrapper {
               loaderType="points"
               loading={false}
             >
-              journal.group-actions.selected-records.label_short
+              
             </IcoBtn>
           </Tooltip>,
           "className": "ecos-group-actions__dropdown",
@@ -182,7 +182,7 @@ ShallowWrapper {
               loaderType="points"
               loading={false}
             >
-              journal.group-actions.selected-records.label_short
+              
             </IcoBtn>,
             "contentComponent": "journal.group-actions.selected-records.label-count",
             "delay": 0,
@@ -192,7 +192,7 @@ ShallowWrapper {
             "placement": "top",
             "showAsNeeded": true,
             "target": "group-actions-1-rec",
-            "text": "journal.group-actions.selected-records.label_short",
+            "text": "",
             "uncontrolled": true,
           },
           "ref": null,
@@ -201,7 +201,7 @@ ShallowWrapper {
             "key": undefined,
             "nodeType": "class",
             "props": Object {
-              "children": "journal.group-actions.selected-records.label_short",
+              "children": "",
               "className": "ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control",
               "disabled": true,
               "icon": "ecos-btn__i_right icon-small-down",
@@ -211,7 +211,7 @@ ShallowWrapper {
               "loading": false,
             },
             "ref": null,
-            "rendered": "journal.group-actions.selected-records.label_short",
+            "rendered": "",
             "type": [Function],
           },
           "type": [Function],
@@ -275,7 +275,7 @@ ShallowWrapper {
               placement="top"
               showAsNeeded={true}
               target="group-actions-1-rec"
-              text="journal.group-actions.selected-records.label_short"
+              text=""
               uncontrolled={true}
             >
               <IcoBtn
@@ -287,7 +287,7 @@ ShallowWrapper {
                 loaderType="points"
                 loading={false}
               >
-                journal.group-actions.selected-records.label_short
+                
               </IcoBtn>
             </Tooltip>
           </DropdownOuter>,
@@ -312,7 +312,7 @@ ShallowWrapper {
               placement="top"
               showAsNeeded={true}
               target="group-actions-1-rec"
-              text="journal.group-actions.selected-records.label_short"
+              text=""
               uncontrolled={true}
             >
               <IcoBtn
@@ -324,7 +324,7 @@ ShallowWrapper {
                 loaderType="points"
                 loading={false}
               >
-                journal.group-actions.selected-records.label_short
+                
               </IcoBtn>
             </Tooltip>,
             "className": "ecos-group-actions__dropdown",
@@ -374,7 +374,7 @@ ShallowWrapper {
                 loaderType="points"
                 loading={false}
               >
-                journal.group-actions.selected-records.label_short
+                
               </IcoBtn>,
               "contentComponent": "journal.group-actions.selected-records.label-count",
               "delay": 0,
@@ -384,7 +384,7 @@ ShallowWrapper {
               "placement": "top",
               "showAsNeeded": true,
               "target": "group-actions-1-rec",
-              "text": "journal.group-actions.selected-records.label_short",
+              "text": "",
               "uncontrolled": true,
             },
             "ref": null,
@@ -393,7 +393,7 @@ ShallowWrapper {
               "key": undefined,
               "nodeType": "class",
               "props": Object {
-                "children": "journal.group-actions.selected-records.label_short",
+                "children": "",
                 "className": "ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control",
                 "disabled": true,
                 "icon": "ecos-btn__i_right icon-small-down",
@@ -403,7 +403,7 @@ ShallowWrapper {
                 "loading": false,
               },
               "ref": null,
-              "rendered": "journal.group-actions.selected-records.label_short",
+              "rendered": "",
               "type": [Function],
             },
             "type": [Function],
