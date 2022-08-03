@@ -41,10 +41,6 @@
     &__fields {
       margin: 10px 20px;
       color: $text-color-dark;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
     }
 
     &__separator {
@@ -80,6 +76,12 @@
 
       &_none {
         color: $color-gray-5;
+      }
+    }
+
+    &:last-child {
+      #{$card}__fields {
+        margin-bottom: 0;
       }
     }
   }

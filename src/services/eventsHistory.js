@@ -33,7 +33,7 @@ export default class EventsHistoryService {
   static config = {
     columns: [
       {
-        attribute: 'event:date',
+        attribute: 'creationTime',
         formatter: {
           name: 'DateTimeFormatter',
           params: {
@@ -48,7 +48,7 @@ export default class EventsHistoryService {
         }
       },
       {
-        attribute: 'event:name',
+        attribute: 'eventType',
         formatter: {
           name: 'FunctionFormatter',
           params: {
@@ -63,7 +63,7 @@ export default class EventsHistoryService {
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        attribute: 'event:documentVersion',
+        attribute: 'version',
         text: t('dochist.header.version'),
         newEditor: {
           config: {},
