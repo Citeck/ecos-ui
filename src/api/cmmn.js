@@ -30,7 +30,7 @@ export default class CmmnApi {
   };
 
   getModel = procDef => {
-    return Records.get(procDef).load('cm:content');
+    return Records.get(procDef).load('definition');
   };
 
   getHeatmapData = (procDef, predicates = []) => {
