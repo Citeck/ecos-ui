@@ -507,7 +507,7 @@ class RecordActions {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
 
-    if (this._lastExecutionalActionId !== action.id) {
+    if (this._isEqualRecordsCollection(records, action)) {
       this._clearRecordsCollection();
     }
 
@@ -996,6 +996,18 @@ class RecordActions {
       result[key] = (records[key] & recordMask) !== 0;
     }
     return result;
+  }
+
+  _isEqualRecordsCollection(records = [], action) {
+    if (this._chunkedRecords.length > 0 && records.includes(this._chunkedRecords[0])) {
+      return true;
+    }
+
+    if (this._lastExecutionalActionId !== action.id) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
