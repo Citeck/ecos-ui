@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep';
 
-import AsyncDataComponent from './AsyncData';
+import AsyncDataComponent from './';
 import Records from '../../../../components/Records';
 import ecosFetch from '../../../../helpers/ecosFetch';
 

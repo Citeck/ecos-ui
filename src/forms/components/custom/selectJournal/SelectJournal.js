@@ -271,6 +271,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return this.t(modalTitle);
   }
 
+  onChangeValue = (value, selected = [], flags = {}) => {
+    this.onReactValueChanged(value, flags);
+  };
+
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
@@ -288,7 +292,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         placeholder: component.placeholder,
         disabled: component.disabled,
         journalId: journalId,
-        onChange: this.onReactValueChanged,
+        onChange: this.onChangeValue,
         viewOnly: this.viewOnly,
         queryData,
         viewMode: component.source.viewMode,

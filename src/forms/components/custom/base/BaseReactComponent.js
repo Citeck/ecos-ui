@@ -12,31 +12,31 @@ export default class BaseReactComponent extends BaseComponent {
     return BaseComponent.schema({ defaultValue: '' }, ...extend);
   }
 
-  #react = {};
+  react = {};
   #viewOnlyPrev = {};
 
   get reactComponent() {
-    return this.#react;
+    return this.react;
   }
 
   build() {
     if (!isEqual(this.#viewOnlyPrev, this.viewOnly)) {
       super.clear();
-      this.#react = {};
+      this.react = {};
       this.#viewOnlyPrev = this.viewOnly;
     }
 
-    const firstBuild = isEmpty(this.#react);
+    const firstBuild = isEmpty(this.react);
 
-    this.#react.wrapper = new Promise(resolveComponent => (this.#react.resolve = resolveComponent)).then(component => {
-      this.#react.wrapper = component;
-      this.#react.resolve = null;
+    this.react.wrapper = new Promise(resolveComponent => (this.react.resolve = resolveComponent)).then(component => {
+      this.react.wrapper = component;
+      this.react.resolve = null;
 
       return component;
     });
 
-    this.#react.innerPromise = new Promise(innerResolve => (this.#react.innerResolve = innerResolve)).then(comp => {
-      this.#react.innerResolve = null;
+    this.react.innerPromise = new Promise(innerResolve => (this.react.innerResolve = innerResolve)).then(comp => {
+      this.react.innerResolve = null;
 
       return comp;
     });
@@ -90,14 +90,14 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   embedReactContainer(container, tag) {
-    if (!this.#react.container) {
-      this.#react.container = this.ce(tag);
-      container.appendChild(this.#react.container);
+    if (!this.react.container) {
+      this.react.container = this.ce(tag);
+      container.appendChild(this.react.container);
     }
   }
 
   setContainerStyles() {
-    const input = this.#react.container;
+    const input = this.react.container;
 
     if (this.labelOnTheLeftOrRight(this.component.labelPosition)) {
       const totalLabelWidth = this.getLabelWidth() + this.getLabelMargin();
@@ -118,28 +118,28 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   updateReactComponent(updateFunc) {
-    this.#react.innerPromise.then(comp => {
+    this.react.innerPromise.then(comp => {
       isFunction(updateFunc) && updateFunc(comp);
     });
   }
 
   replaceReactComponent(component) {
-    this.#react.wrapper.setComponent(component);
+    this.react.wrapper.setComponent(component);
   }
 
   setReactProps(props) {
-    if (!isEmpty(this.#react.resolve)) {
-      this.#react.waitingProps = { ...(this.#react.waitingProps || {}), ...props };
+    if (!isEmpty(this.react.resolve)) {
+      this.react.waitingProps = { ...(this.react.waitingProps || {}), ...props };
 
-      !isEmpty(this.#react.wrapper) &&
-        this.#react.wrapper.then(w => {
-          w.setProps(this.#react.waitingProps);
-          this.#react.waitingProps = {};
+      !isEmpty(this.react.wrapper) &&
+        this.react.wrapper.then(w => {
+          w.setProps(this.react.waitingProps);
+          this.react.waitingProps = {};
         });
     } else {
       // is this checking required?
-      if (!isEmpty(this.#react.wrapper)) {
-        this.#react.wrapper.setProps(props);
+      if (!isEmpty(this.react.wrapper)) {
+        this.react.wrapper.setProps(props);
       }
     }
   }
@@ -153,33 +153,33 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   renderReactComponent(firstBuild = true) {
-    if (this.#react.resolve) {
+    if (this.react.resolve) {
       const doRender = props => {
         const updateLoadingState = () => {
-          if (this.#react.isMounted && this.#react.innerComponent && this.#react.innerResolve) {
-            this.#react.innerResolve(this.#react.innerComponent);
+          if (this.react.isMounted && this.react.innerComponent && this.react.innerResolve) {
+            this.react.innerResolve(this.react.innerComponent);
           }
         };
 
         ReactDOM.render(
           <RawHtmlWrapper
             onMounted={() => {
-              this.#react.isMounted = true;
+              this.react.isMounted = true;
               updateLoadingState();
             }}
             onComponentLoaded={comp => {
-              this.#react.innerComponent = comp;
+              this.react.innerComponent = comp;
               updateLoadingState();
             }}
             component={this.getComponentToRender()}
-            ref={this.#react.resolve}
+            ref={this.react.resolve}
             props={props}
           />,
-          this.#react.container
+          this.react.container
         );
 
-        if (!firstBuild && this.#react.innerComponent.setProps && !isEqual(this.#react.innerComponent.props, props)) {
-          this.#react.innerComponent.setProps(props);
+        if (!firstBuild && this.react.innerComponent.setProps && !isEqual(this.react.innerComponent.props, props)) {
+          this.react.innerComponent.setProps(props);
         }
       };
 
@@ -194,9 +194,9 @@ export default class BaseReactComponent extends BaseComponent {
   }
 
   destroy() {
-    if (this.#react.container) {
-      ReactDOM.unmountComponentAtNode(this.#react.container);
-      this.#react.wrapper = null;
+    if (this.react.container) {
+      ReactDOM.unmountComponentAtNode(this.react.container);
+      this.react.wrapper = null;
     }
 
     return super.destroy();
@@ -229,9 +229,9 @@ export default class BaseReactComponent extends BaseComponent {
     }
   }
 
-  onReactValueChanged = value => {
+  onReactValueChanged = (value, flags = {}) => {
     this.setPristine(false);
-    this.setValue(value, { skipReactWrapperUpdating: true });
+    this.setValue(value, { skipReactWrapperUpdating: true, ...flags });
   };
 
   setValue(value, flags) {

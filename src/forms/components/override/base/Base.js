@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
 import Base from 'formiojs/components/base/Base';
 import { flattenComponents } from 'formiojs/utils/utils';
 
@@ -82,6 +83,10 @@ Base.prototype.onChange = function(flags, fromRoot) {
       (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
   }
 
+  if (get(flags, 'changeByUser')) {
+    this.valueChangedByUser = true;
+  }
+
   return originalOnChange.call(this, flags, fromRoot);
 };
 Base.prototype.isEmptyValue = function(value) {
@@ -132,7 +137,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   const allowOverride = this.component.allowCalculateOverride;
 
   // First pass, the calculatedValue is undefined.
-  if (this.calculatedValue === undefined) {
+  if (isUndefined(this.calculatedValue)) {
     this.calculatedValue = emptyCalculateValue;
   }
 
@@ -145,9 +150,10 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     },
     'value'
   );
+
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-  if (!this.calculatedValueWasCalculated) {
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
     this.valueChangedByUser =
       (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
 
@@ -571,7 +577,7 @@ Base.prototype.createWidget = function() {
   settings.language = this.options.language;
 
   const widget = new Widgets[settings.type](settings, this.component);
-  widget.on('update', () => this.updateValue(), true);
+  widget.on('update', () => this.updateValue({ changeByUser: true }), true);
   widget.on('redraw', () => this.redraw(), true);
   this._widget = widget;
   return widget;
