@@ -214,7 +214,8 @@ export const SystemJournals = {
 
 export const DateFormats = {
   DATE: 'DD.MM.YYYY',
-  DATETIME: 'DD.MM.YYYY HH:mm'
+  DATETIME: 'DD.MM.YYYY HH:mm',
+  TIME: 'HH:mm'
 };
 
 window.Citeck = window.Citeck || {};

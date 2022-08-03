@@ -49,7 +49,7 @@ function* sagaGetVerificationTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setVerificationTimesheetByParams({ mergedList }));
   } catch (e) {
-    logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e.message);
+    logger.error('[timesheetVerification sagaGetVerificationTimesheetByParams saga error', e);
   }
 }
 
@@ -84,7 +84,7 @@ function* updateEvents({ value, number, userName, eventType }) {
 
     yield put(setMergedList(list));
   } catch (e) {
-    console.error('[timesheetVerification updateEvents] error', e.message);
+    console.error('[timesheetVerification updateEvents] error', e);
   }
 }
 
@@ -108,7 +108,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetVerification sagaModifyStatus saga] error', e.message);
+    logger.error('[timesheetVerification sagaModifyStatus saga] error', e);
   }
 }
 
@@ -125,7 +125,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetVerification sagaResetEventDayHours saga] error', e.message);
+    logger.error('[timesheetVerification sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -148,7 +148,7 @@ function* sagaGetCalendarEvents({ api, logger }, { payload }) {
     yield put(setVerificationTimesheetByParams({ mergedList: currentList }));
   } catch (e) {
     yield put(setLoading(false));
-    logger.error('[timesheetVerification sagaGetCalendarEvents saga] error', e.message);
+    logger.error('[timesheetVerification sagaGetCalendarEvents saga] error', e);
   }
 }
 
@@ -173,7 +173,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetVerification sagaModifyTaskStatus saga] error', e.message);
+    logger.error('[timesheetVerification sagaModifyTaskStatus saga] error', e);
   }
 }
 

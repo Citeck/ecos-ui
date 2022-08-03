@@ -6,13 +6,15 @@ import includes from 'lodash/includes';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 
-import { t } from '../../../helpers/util';
+import { normalize, t } from '../../../helpers/util';
 import { Labels } from '../util';
 import { getTaskShapePoints, getUnknownShapePoints } from './util';
 import Tooltip from './Tooltip';
 import EcosPlugin from './custom/ecosPlugin';
 
 Heatmap.register('ecos', EcosPlugin);
+
+const normalizedData = new Map();
 
 export default class HeatmapWrapper {
   instance;
@@ -27,6 +29,7 @@ export default class HeatmapWrapper {
     this.origData = cloneDeep({ data, hasTooltip, onChange, onMounted });
 
     const info = this.getPreparedData({ data, onChange });
+
     this.draw({ info, onMounted });
 
     hasTooltip && this.drawTooltip();
@@ -121,15 +124,16 @@ export default class HeatmapWrapper {
       }
     });
 
-    connections.forEach(con =>
+    connections.forEach(con => {
       connectionPoints.push({
         line: con.waypoints.map(item => ({ x: Math.abs(item.x), y: Math.abs(item.y) })),
         value: get(mapData, [con.id, 'value']) || 0,
         radius: 13
-      })
-    );
+      });
+    });
 
     const points = shapePoints.concat(connectionPoints);
+    const maxV = Math.max(...points.map(i => i.value));
 
     this.#container = canvas._container;
 
@@ -142,20 +146,40 @@ export default class HeatmapWrapper {
       minOpacity: 0,
       blur: 0.75,
       plugin: 'ecos',
-      onExtremaChange: data => this.instance && isFunction(onChange) && onChange(data)
+      onExtremaChange: data =>
+        this.instance &&
+        isFunction(onChange) &&
+        onChange({
+          ...data,
+          min: 0,
+          max: maxV
+        })
     };
 
-    let maxV = 0;
+    const normalized = this.getNormalizedData(points);
+    const normalizedValues = normalized.map(item => item.value);
 
-    points.forEach(item => {
-      maxV = item.value > maxV ? item.value : maxV;
-
-      item.value = item.value * 100;
-    });
-
-    const heatmapData = { max: maxV, min: 0, data: points };
+    const heatmapData = {
+      max: Math.max(...normalizedValues),
+      min: Math.min(...normalizedValues),
+      data: normalized
+    };
 
     return { config, heatmapData };
+  }
+
+  getNormalizedData(data) {
+    const key = JSON.stringify(data);
+    let normalized;
+
+    if (normalizedData.has(key)) {
+      normalized = normalizedData.get(key);
+    } else {
+      normalized = normalize(data, 'value');
+      normalizedData.set(key, normalized);
+    }
+
+    return normalized;
   }
 
   draw = ({ info, onMounted }) => {

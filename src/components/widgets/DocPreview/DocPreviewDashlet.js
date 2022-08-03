@@ -88,7 +88,10 @@ class DocPreviewDashlet extends BaseWidget {
   }
 
   setUserScale = scale => {
-    scale && !isMobile && UserLocalSettingsService.setDashletScale(this.state.lsId, scale);
+    if (scale && !isMobile) {
+      UserLocalSettingsService.setDashletScale(this.state.lsId, scale);
+      this.setState({ scale });
+    }
   };
 
   setContainerPageHeight = height => {

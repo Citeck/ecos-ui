@@ -41,9 +41,7 @@ class ModelEditorWrapper extends React.Component {
   };
 
   state = {
-    rightSidebarOpen: true,
-    configButtons: [],
-    configZoomButtons: []
+    rightSidebarOpen: true
   };
 
   #sidebarRightRef = null;
@@ -65,8 +63,102 @@ class ModelEditorWrapper extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.createConfigTools();
+  get configButtons() {
+    const { onCreate, onViewXml, onSaveAsSVG } = this.props;
+    const configButtons = [];
+
+    if (isFunction(onCreate)) {
+      configButtons.push({
+        icon: 'icon-small-plus',
+        action: onCreate,
+        text: t(Labels.CREATE),
+        id: `bpmn-create-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
+
+    configButtons.push({
+      icon: 'fa fa-save',
+      action: this.onApply,
+      text: t(Labels.APPLY),
+      id: `bpmn-save-btn-${uuidv4()}`,
+      trigger: 'hover',
+      className: ''
+    });
+
+    if (isFunction(onViewXml)) {
+      configButtons.push({
+        icon: 'icon-document-view',
+        action: onViewXml,
+        text: t(Labels.VIEW_XML),
+        id: `bpmn-view-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: 'ecos-btn_blue'
+      });
+    }
+
+    configButtons.push({
+      icon: 'fa fa-cloud-upload',
+      action: this.onSaveAndDeploy,
+      text: t(Labels.SAVE_DEPLOY),
+      id: `bpmn-download-btn-${uuidv4()}`,
+      trigger: 'hover',
+      className: 'ecos-btn_green'
+    });
+
+    if (isFunction(onSaveAsSVG)) {
+      configButtons.push({
+        icon: 'icon-picture',
+        action: onSaveAsSVG,
+        text: t(Labels.SAVE_AS_SVG),
+        id: `bpmn-download-as-svg-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
+
+    return configButtons;
+  }
+
+  get configZoomButtons() {
+    const { onZoomIn, onZoomOut, onZoomReset } = this.props;
+    const configZoomButtons = [];
+
+    if (isFunction(onZoomReset)) {
+      configZoomButtons.push({
+        icon: 'icon-backup',
+        action: onZoomReset,
+        text: t(Labels.RESET_ZOOM),
+        id: `bpmn-zoom-reset-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
+
+    if (isFunction(onZoomIn)) {
+      configZoomButtons.push({
+        icon: 'icon-zoom-in',
+        action: onZoomIn,
+        text: t(Labels.ZOOM_IN),
+        id: `bpmn-zoom-in-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
+
+    if (isFunction(onZoomOut)) {
+      configZoomButtons.push({
+        icon: 'icon-zoom-out',
+        action: onZoomOut,
+        text: t(Labels.ZOOM_OUT),
+        id: `bpmn-zoom-out-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: ''
+      });
+    }
+
+    return configZoomButtons;
   }
 
   onApply = () => {
@@ -80,84 +172,6 @@ class ModelEditorWrapper extends React.Component {
       this.props.onSaveAndDeploy(true);
     }
   };
-
-  createConfigTools() {
-    const { onCreate, onViewXml, onSaveAsSVG, onZoomIn, onZoomOut, onZoomReset } = this.props;
-
-    this.setState({
-      configButtons: [
-        {
-          icon: 'icon-small-plus',
-          action: onCreate,
-          text: t(Labels.CREATE),
-          id: `bpmn-create-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: ''
-        },
-        {
-          icon: 'fa fa-save',
-          action: this.onApply,
-          text: t(Labels.APPLY),
-          id: `bpmn-save-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: ''
-        },
-        {
-          icon: 'icon-document-view',
-          action: onViewXml,
-          text: t(Labels.VIEW_XML),
-          id: `bpmn-view-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: 'ecos-btn_blue'
-        },
-        {
-          icon: 'fa fa-cloud-upload',
-          action: this.onSaveAndDeploy,
-          text: t(Labels.SAVE_DEPLOY),
-          id: `bpmn-download-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: 'ecos-btn_green'
-        },
-        {
-          icon: 'icon-picture',
-          action: onSaveAsSVG,
-          text: t(Labels.SAVE_AS_SVG),
-          id: `bpmn-download-as-svg-${uuidv4()}`,
-          trigger: 'hover',
-          className: ''
-        }
-      ]
-    });
-
-    this.setState({
-      configZoomButtons: [
-        {
-          icon: 'icon-backup',
-          action: onZoomReset,
-          text: t(Labels.RESET_ZOOM),
-          id: `bpmn-zoom-reset-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: ''
-        },
-        {
-          icon: 'icon-zoom-in',
-          action: onZoomIn,
-          text: t(Labels.ZOOM_IN),
-          id: `bpmn-zoom-in-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: ''
-        },
-        {
-          icon: 'icon-zoom-out',
-          action: onZoomOut,
-          text: t(Labels.ZOOM_OUT),
-          id: `bpmn-zoom-out-btn-${uuidv4()}`,
-          trigger: 'hover',
-          className: ''
-        }
-      ]
-    });
-  }
 
   togglePropertiesOpen = () => {
     this.setState(({ rightSidebarOpen }) => ({ rightSidebarOpen: !rightSidebarOpen }));
@@ -194,8 +208,8 @@ class ModelEditorWrapper extends React.Component {
         {editor && (
           <div className="ecos-model-editor__designer-work-zone">
             <div className="ecos-model-editor__designer-child">{editor}</div>
-            <Tools className={'ecos-model-editor__designer-buttons'} configButtons={this.state.configButtons} />
-            <Tools className={'ecos-model-editor__designer-zoom'} configButtons={this.state.configZoomButtons} />
+            <Tools className={'ecos-model-editor__designer-buttons'} configButtons={this.configButtons} />
+            <Tools className={'ecos-model-editor__designer-zoom'} configButtons={this.configZoomButtons} />
           </div>
         )}
       </div>

@@ -10,7 +10,7 @@ function* sagaGetFormList({ api, logger }, { payload }) {
 
     yield put(setFormList({ list, totalCount, stateId }));
   } catch (e) {
-    logger.error('[properties/sagaGetFormList saga] error', e.message);
+    logger.error('[properties/sagaGetFormList saga] error', e);
   }
 }
 

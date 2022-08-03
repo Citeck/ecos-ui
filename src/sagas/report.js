@@ -20,7 +20,7 @@ function* sagaGetReportData({ api, logger }, action) {
 
     yield put(setReportData({ stateId: action.payload, reportData }));
   } catch (e) {
-    logger.error('[report sagaGetReportData saga error', e.message);
+    logger.error('[report sagaGetReportData saga error', e);
   }
 }
 

@@ -77,7 +77,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.get-config'), t('error'));
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
+    logger.error('[dashboard/ doGetDashboardRequest saga] error', e);
   }
 }
 
@@ -90,7 +90,7 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard.error.get-title'), t('error'));
-    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
+    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e);
   }
 }
 
@@ -167,7 +167,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.save-config'), t('error'));
-    logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
+    logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e);
   }
 }
 

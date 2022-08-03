@@ -1,4 +1,4 @@
-import AuthorityService from '../AuthorityService';
+import authorityService from '../AuthorityService';
 jest.mock('../authorityApi');
 
 describe('Authority Service Test', () => {
@@ -13,8 +13,18 @@ describe('Authority Service Test', () => {
     [['admin', 'GROUP_test-group', 'people@admin'], ['emodel/person@admin', 'emodel/authority-group@test-group', 'emodel/person@admin']]
   ])('getAuthorityRefTest', (srcRef, expectedRef) => {
     it(srcRef + ' > ' + expectedRef, async () => {
-      let resRef = await AuthorityService.getAuthorityRef(srcRef);
+      const resRef = await authorityService.getAuthorityRef(srcRef);
       expect(resRef).toEqual(expectedRef);
     });
   });
+
+  describe.each([['admin', false], ['emodel/authority-group@test-group', true], ['GROUP_group', true], [null, false], ['', false]])(
+    'isAuthorityGroupTest',
+    (authority, expectedRes) => {
+      it(authority + ' > ' + expectedRes, () => {
+        const result = authorityService.isAuthorityGroup(authority);
+        expect(result).toEqual(expectedRes);
+      });
+    }
+  );
 });

@@ -278,6 +278,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
+      const isInlineEditDisabled =
+        this.options.readOnly && (_.get(this, 'options.disableInlineEdit', false) || component.disableInlineEdit);
       const isModalMode = !!(this.element && this.element.closest('.modal'));
       const presetFilterPredicates = component.presetFilterPredicatesJs
         ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
@@ -298,9 +300,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         queryData,
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
-        hideCreateButton: component.hideCreateButton,
-        hideEditRowButton: component.hideEditRowButton,
-        hideDeleteRowButton: component.hideDeleteRowButton,
+        hideCreateButton: isInlineEditDisabled || component.hideCreateButton,
+        hideEditRowButton: isInlineEditDisabled || component.hideEditRowButton,
+        hideDeleteRowButton: isInlineEditDisabled || component.hideDeleteRowButton,
         isSelectedValueAsText: component.isSelectedValueAsText,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
         isInlineEditingMode: this._isInlineEditingMode,

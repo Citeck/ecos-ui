@@ -13,6 +13,7 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
+import { LOCAL_ID } from '../../../../constants/journal';
 
 export const TableFormContext = React.createContext();
 
@@ -87,7 +88,6 @@ export const TableFormContextProvider = props => {
         atts.push(schema);
         attsAsIs.push(attribute);
       });
-
       Promise.all(
         initValue.map(async rec => {
           const record = Records.get(rec);
@@ -127,7 +127,7 @@ export const TableFormContextProvider = props => {
             currentAttIndex++;
           }
 
-          return { ...fetchedAtts, id: rec };
+          return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
         })
       )
         .then(result => {
@@ -195,6 +195,7 @@ export const TableFormContextProvider = props => {
         ...gridRows,
         {
           id: record.id,
+          [LOCAL_ID]: record.id,
           ...attributes
         }
       ];
@@ -272,13 +273,13 @@ export const TableFormContextProvider = props => {
 
         onCreateFormSubmit,
 
-        onEditFormSubmit: (record, form) => {
+        onEditFormSubmit: record => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
           record.toJsonAsync(true).then(res => {
-            const newRow = { ...res['attributes'], id: editRecordId };
+            const newRow = { ...res['attributes'], id: editRecordId, [LOCAL_ID]: editRecordId };
 
             if (isAlias) {
               // replace base record row by newRow in values list

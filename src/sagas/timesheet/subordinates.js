@@ -81,7 +81,7 @@ function* sagaGetSubordinatesTimesheetByParams({ api, logger }, { payload }) {
 
     yield put(setSubordinatesTimesheetByParams({ mergedList, deputy }));
   } catch (e) {
-    logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e.message);
+    logger.error('[timesheetSubordinates sagaGetSubordinatesTimesheetByParams saga] error', e);
   }
 }
 
@@ -106,7 +106,7 @@ function* sagaModifyTaskStatus({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading(false));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_STATUS));
-    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e.message);
+    logger.error('[timesheetSubordinates sagaModifyTaskStatus saga] error', e);
   }
 }
 
@@ -141,7 +141,7 @@ function* updateEvents({ value, number, userName, eventType }) {
 
     yield put(setMergedList(list));
   } catch (e) {
-    console.error('[timesheetSubordinates updateEvents] error', e.message);
+    console.error('[timesheetSubordinates updateEvents] error', e);
   }
 }
 
@@ -165,7 +165,7 @@ function* sagaModifyEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(thirdState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e.message);
+    logger.error('[timesheetSubordinates sagaModifyStatus saga] error', e);
   }
 }
 
@@ -182,7 +182,7 @@ function* sagaResetEventDayHours({ api, logger }, { payload }) {
 
     yield put(setUpdatingEventDayHours(secondState));
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_SAVE_EVENT_HOURS));
-    logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e.message);
+    logger.error('[timesheetSubordinates sagaResetEventDayHours saga] error', e);
   }
 }
 
@@ -200,7 +200,7 @@ function* sagaDelegateTo({ api, logger }, { payload }) {
     yield put(setDelegatedTo(deputy));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_DELEGATE_TO));
-    logger.error('[timesheetSubordinates sagaDelegateTo saga] error', e.message);
+    logger.error('[timesheetSubordinates sagaDelegateTo saga] error', e);
   }
 }
 
@@ -214,7 +214,7 @@ function* sagaRemoveDelegation({ api, logger }) {
     yield put(setDelegatedTo(DelegationTimesheetConverter.getDeputyData()));
   } catch (e) {
     yield put(setPopupMessage(e.message || TimesheetMessages.ERROR_REMOVE_DELEGATED_TO));
-    logger.error('[timesheetSubordinates sagaRemoveDelegation saga] error', e.message);
+    logger.error('[timesheetSubordinates sagaRemoveDelegation saga] error', e);
   }
 }
 
