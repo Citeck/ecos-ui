@@ -27,6 +27,7 @@ export default class EditJsonAction extends ActionsExecutor {
         options: {
           contentAttribute
         },
+        saveOnSubmit: false,
         onSubmit: async (rec, form) => {
           try {
             const jsonData = get(form, 'data.configuration');
