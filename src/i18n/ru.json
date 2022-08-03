@@ -862,7 +862,7 @@
   "journal.table.no-columns": "Не заданы колонки. Проверьте настройки журнала или шаблона",
   "journal.generated-field.editor.not-exist": "Редактора не существует",
   "journal.group-actions.selected-records.label": "Выбранные записи: {{data}}",
-  "journal.group-actions.selected-records.label_short": "Выбрано: {{data}}",
+  "journal.group-actions.selected-records.label_short": "Действия над {{data}}",
   "journal.group-actions.selected-records.label-count": "{{selected}} из {{total}}",
   "journal.group-actions.filter-result": "Результат фильтрации",
   "journals-selector.assocs-load-error": "Ошибка загрузки связей",
