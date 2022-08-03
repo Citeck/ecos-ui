@@ -163,6 +163,8 @@ export default class Filter extends Component {
     return 'icon-delete';
   }
 
+  getEditor = column => column.newEditor;
+
   setControlRef = ref => {
     if (ref) {
       this.#controlRef = ref;
@@ -184,14 +186,15 @@ export default class Filter extends Component {
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow =
       !ParserPredicate.predicatesWithoutValue.includes(getPredicateValue(predicate)) && get(selectedPredicate, 'needValue', true);
-    const editorType = get(column, 'newEditor.type');
+    const editor = this.getEditor(column);
+    const editorType = get(editor, 'type');
 
     if (isShow && EditorService.isRegistered(editorType)) {
       const control = EditorService.getEditorControl({
         recordRef: metaRecord,
         forwardedRef,
         attribute: column.attribute,
-        editor: column.newEditor,
+        editor,
         value,
         scope: EditorScope.FILTER,
         onUpdate: this.onChangeValue,
