@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 
 import Filter from './Filter';
 import { IcoBtn } from '../../common/btns';
@@ -76,6 +77,10 @@ class InlineFilter extends Filter {
   get deleteActionIcon() {
     return 'icon-small-close';
   }
+
+  getEditor = column => {
+    return isEmpty(column.headerFilterEditor) ? column.newEditor : column.headerFilterEditor;
+  };
 
   onConfirmAction = e => {
     const { onFilter, onToggle } = this.props;
