@@ -8,7 +8,6 @@ export const getActions = createAction(prefix + 'GET_ACTIONS');
 export const executeAction = createAction(prefix + 'EXECUTE_ACTION');
 
 export const setCurrentTaskList = createAction(prefix + 'SET_CURRENT_TASK_LIST');
-export const setActions = createAction(prefix + 'SET_ACTIONS');
 export const setInlineTools = createAction(prefix + 'SET_INLINE_TOOLS');
 export const resetCurrentTaskList = createAction(prefix + 'RESET_CURRENT_TASK_LIST');
 export const setSettings = createAction(prefix + 'SET_SETTINGS');

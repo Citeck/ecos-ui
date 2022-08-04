@@ -46,8 +46,8 @@ class CurrentTaskList extends React.Component {
     return null;
   }
 
-  getActions({ id: taskId }) {
-    const { actions, executeAction } = this.props;
+  getActions({ id: taskId, actions: actions }) {
+    const { executeAction } = this.props;
     const upAct = action => ({ ...action, config: { ...action.config, noResultModal: true } });
 
     return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(upAct(act), { taskId }) }));
@@ -167,12 +167,10 @@ class CurrentTaskList extends React.Component {
 
 const mapStateToProps = (state, context) => {
   const currentTasksState = selectStateCurrentTasksById(state, context.stateId) || {};
-
   return {
     isLoading: currentTasksState.isLoading,
     isMobile: state.view.isMobile,
-    currentTasks: currentTasksState.list || [],
-    actions: currentTasksState.actions || []
+    currentTasks: currentTasksState.list || []
   };
 };
 
@@ -181,7 +179,4 @@ const mapDispatchToProps = (dispatch, { stateId, record }) => ({
   executeAction: (action, data) => dispatch(executeAction({ stateId, action, record, ...data }))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CurrentTaskList);
+export default connect(mapStateToProps, mapDispatchToProps)(CurrentTaskList);
