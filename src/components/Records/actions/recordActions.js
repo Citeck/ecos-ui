@@ -519,7 +519,7 @@ class RecordActions {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
 
-    if (this._isEqualRecordsCollection(records, action)) {
+    if (this._isEqualRecordsCollection(action)) {
       this._clearRecordsCollection();
     }
 
@@ -537,8 +537,8 @@ class RecordActions {
       title: getActionResultTitle(action),
       withConfirm: false,
       withoutLoader: byBatch,
-      statusesByRecords: this._statusesByRecords,
-      messagesByRecords: this._messagesByRecords
+      statusesByRecords: isQueryRecords ? this._statusesByRecords : [],
+      messagesByRecords: isQueryRecords ? this._messagesByRecords : []
     };
 
     const chunkedRecords = this._chunkedRecords;
@@ -616,7 +616,9 @@ class RecordActions {
       if (byBatch) {
         const chunks = chunk(allowedRecords, execForRecordsBatchSize);
 
-        allowedRecords.forEach(r => chunkedRecords.push(getRef(r)));
+        if (isQueryRecords) {
+          allowedRecords.forEach(r => chunkedRecords.push(getRef(r)));
+        }
 
         const executeChunks = async chunks => {
           let results = {};
@@ -1008,11 +1010,7 @@ class RecordActions {
     return result;
   }
 
-  _isEqualRecordsCollection(records = [], action) {
-    if (this._chunkedRecords.length > 0 && records.includes(this._chunkedRecords[0])) {
-      return true;
-    }
-
+  _isEqualRecordsCollection(action) {
     if (this._lastExecutionalActionId !== action.id) {
       return true;
     }
