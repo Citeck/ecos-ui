@@ -863,7 +863,7 @@
   "journal.table.no-columns": "No columns specified. Check your journal or template settings",
   "journal.generated-field.editor.not-exist": "Editor doesn't exist",
   "journal.group-actions.selected-records.label": "Selected records: {{data}}",
-  "journal.group-actions.selected-records.label_short": "Selected: {{data}}",
+  "journal.group-actions.selected-records.label_short": "Actions over {{data}}",
   "journal.group-actions.selected-records.label-count": "{{selected}} out of {{total}}",
   "journal.group-actions.filter-result": "Filter Result",
   "journals-selector.assocs-load-error": "Connection loading error",
