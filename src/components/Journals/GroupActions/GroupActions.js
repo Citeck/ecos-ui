@@ -80,7 +80,7 @@ const GroupActions = React.memo(
       action => {
         const context = { excludedRecords };
 
-        if (isFilterOn && selectedRecords.length === 0) {
+        if (selectAllRecordsVisible || (isFilterOn && selectedRecords.length === 0)) {
           execRecordsAction(grid.query, action, context);
         } else {
           execRecordsAction(selectedRecords, action);
