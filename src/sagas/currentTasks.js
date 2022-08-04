@@ -2,7 +2,6 @@ import { call, put, select, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
-import recordActions from '../components/Records/actions/recordActions';
 import Records from '../components/Records/Records';
 import { executeAction, getCurrentTaskList, initCurrentTasks, setCurrentTaskList } from '../actions/currentTasks';
 import { t } from '../helpers/util';

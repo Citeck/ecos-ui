@@ -46,7 +46,7 @@ class CurrentTaskList extends React.Component {
     return null;
   }
 
-  getActions({ id: taskId, actions: actions }) {
+  getActions({ id: taskId, actions }) {
     const { executeAction } = this.props;
     const upAct = action => ({ ...action, config: { ...action.config, noResultModal: true } });
 
@@ -179,4 +179,7 @@ const mapDispatchToProps = (dispatch, { stateId, record }) => ({
   executeAction: (action, data) => dispatch(executeAction({ stateId, action, record, ...data }))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(CurrentTaskList);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CurrentTaskList);
