@@ -48,28 +48,37 @@ export const checkIsEmptyMlField = field => {
   return false;
 };
 
-export const runTransform = (config, tabs) => {
-  const advancedConfig = config || {
-    display: {
-      label: { weight: 0 },
-      hideLabel: { weight: 200 },
-      tooltip: { weight: 400 },
-      multiple: { weight: 500 },
-      disabled: { weight: 600 },
-      hidden: { weight: 700 },
-      isSelectedValueAsText: { weight: 300 }
-    },
-    api: {
-      key: { weight: 100 }
-    },
-    validation: {
-      'validate.required': { weight: 800 }
-    },
-    conditional: {
-      'simple-conditional': { weight: 900 }
-    }
-  };
+// config for Base tab (a new tab consisting of parts of other tabs)
+const getBaseTabConfig = () => ({
+  display: {
+    label: { weight: 0 },
+    hideLabel: { weight: 200 },
+    tooltip: { weight: 400 },
+    multiple: { weight: 500 },
+    disabled: { weight: 600 },
+    hidden: { weight: 700 },
+    isSelectedValueAsText: { weight: 300 },
+    action: { weight: 110 },
+    state: { weight: 111 },
+    showValidations: { weight: 112 },
+    event: { weight: 113 },
+    custom: { weight: 114 },
+    url: { weight: 115 },
+    headers: { weight: 116 }
+  },
+  api: {
+    key: { weight: 100 }
+  },
+  validation: {
+    'validate.required': { weight: 800 }
+  },
+  conditional: {
+    'simple-conditional': { weight: 900 }
+  }
+});
 
+export const runTransform = (config, tabs) => {
+  const advancedConfig = config || getBaseTabConfig();
   const tabsByKey = tabs || [
     { key: 'display', components: cloneDeep(BaseEditDisplay) },
     { key: 'data', components: cloneDeep(BaseEditData) },
