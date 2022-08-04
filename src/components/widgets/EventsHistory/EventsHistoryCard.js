@@ -1,10 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
+
 import { Separator } from '../../common/index';
 import { Headline } from '../../common/form/index';
 import { t } from '../../../helpers/util';
-import { isEmpty } from 'lodash';
+import formatterRegistry from '../../Journals/service/formatters/registry';
+
+const Exclusion = ['creationTime', 'version', 'eventType'];
 
 class EventsHistoryCard extends React.Component {
   static propTypes = {
@@ -17,14 +23,34 @@ class EventsHistoryCard extends React.Component {
     columns: []
   };
 
-  renderValue(column = {}, className = '', defV = '') {
+  get filteredColumns() {
+    const { columns } = this.props;
+
+    return columns.filter(item => !Exclusion.includes(item.dataField));
+  }
+
+  getColumnByField = field => {
+    const { columns } = this.props;
+
+    return columns.find(item => item.dataField === field);
+  };
+
+  renderValue(column = {}, className = '', defaultValue = '') {
     const { event } = this.props;
     const formatExtraData = column.formatExtraData || {};
-    const Formatter = formatExtraData.formatter;
     let cell = event[column.dataField];
     const empty = isEmpty(cell);
+    let Formatter = formatExtraData.formatter;
 
-    cell = !empty ? cell : defV || t('events-history-widget.info.no-data');
+    if (isEmpty(Formatter) || !isFunction(Formatter)) {
+      const formatter = formatterRegistry.getFormatter(get(column, 'newFormatter.type'));
+
+      if (formatter) {
+        Formatter = formatter.format.bind(formatter);
+      }
+    }
+
+    cell = !empty ? cell : defaultValue || t('events-history-widget.info.no-data');
 
     return (
       <div className={classNames('ecos-event-history-card-value', className, { 'ecos-event-history-card-value_none': empty })}>
@@ -34,21 +60,18 @@ class EventsHistoryCard extends React.Component {
   }
 
   render() {
-    const { event, columns } = this.props;
-    const exclusion = ['event:date', 'event:documentVersion', 'event:name'];
-    const [date, version, status] = exclusion;
-    const fColumns = columns.filter(item => !exclusion.includes(item.dataField));
-    const sItem = key => columns.find(item => item.dataField === key);
+    const { event } = this.props;
+    const [date, version, status] = Exclusion;
 
     return (
       <div className="ecos-event-history-card">
         <Headline>
-          {this.renderValue(sItem(version), 'ecos-event-history-card-value_version', '—')}
-          {this.renderValue(sItem(date), 'ecos-event-history-card-value_date')}
+          {this.renderValue(this.getColumnByField(version), 'ecos-event-history-card-value_version', '—')}
+          {this.renderValue(this.getColumnByField(date), 'ecos-event-history-card-value_date')}
         </Headline>
         <div className="ecos-event-history-card__fields">
-          {this.renderValue(sItem(status), `ecos-event-history-card-value_status`)}
-          {fColumns.map(item => (
+          {this.renderValue(this.getColumnByField(status), `ecos-event-history-card-value_status`)}
+          {this.filteredColumns.map(item => (
             <React.Fragment key={event.id + item.dataField}>
               <Separator noIndents className="ecos-event-history-card__separator" />
               <div className="ecos-event-history-card-label">{item.text}</div>
