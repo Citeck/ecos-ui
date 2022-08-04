@@ -474,7 +474,8 @@ export default class Record {
   async _getChildAssocAttributes() {
     let attributes = [];
     for (let attName in this._attributes) {
-      if (!this._attributes.hasOwnProperty(attName) || !attName || attName[0] === '_') {
+      // _ECM_ - prefix for attributes mirrored from document to task
+      if (!this._attributes.hasOwnProperty(attName) || !attName || (attName[0] === '_' && !attName.startsWith('_ECM_'))) {
         continue;
       }
       let attribute = this._attributes[attName];
