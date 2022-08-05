@@ -5,7 +5,6 @@ properties:
   image:
     configVersion: v5
   builds:
-    - enterprise: false
     - enterprise: true
       plugins:
         - heatmap:1.0.0-snapshot
