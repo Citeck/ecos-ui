@@ -285,7 +285,7 @@ class Model extends React.Component {
         >
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
-          {isModelMounted && (
+          {isModelMounted && this.designer.heatmap && (
             <div className="ecos-process-statistics-model__panel">
               <Scaler onClick={this.handleClickZoom} />
               <div className="ecos-process-statistics__delimiter" />
@@ -303,7 +303,7 @@ class Model extends React.Component {
                 onMouseUp={this.handleMouseUp}
                 onWheel={this.handleWheel}
               />
-              {!isLoading && displayHeatmapToolbar && (
+              {!isLoading && displayHeatmapToolbar && this.designer.heatmap && (
                 <div
                   className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
                     invisible: !isTempHeatmapOff && !isHeatmapMounted
