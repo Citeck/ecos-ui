@@ -26,7 +26,6 @@ if (project.hasProperty("mavenUrl")) {
       uiBuild(MavenPublication) {
         version = packageVersion
         groupId = 'ru.citeck.ecos.ui'
-        project.getProperty("mavenUser")
         artifactId = artifactId
         artifact source: assembleArtifact, extension: 'zip'
       }
