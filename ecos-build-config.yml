@@ -1,6 +1,5 @@
 ---
 type: ecos-ui
-silentMode: true
 properties:
   image:
     configVersion: v5
@@ -8,4 +7,4 @@ properties:
     - enterprise: true
       plugins:
         - heatmap:1.0.0-snapshot
-
+    - enterprise: false
