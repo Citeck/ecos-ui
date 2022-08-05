@@ -221,7 +221,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   }
 
   // Calculate the new value.
-  const calculatedValue = this.evaluate(
+  let calculatedValue = this.evaluate(
     this.component.calculateValue,
     {
       value: this.defaultValue,
@@ -242,8 +242,12 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
     this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
 
-    if (!isCreateMode && allowOverride && !this.isEmptyValue(calculatedValue)) {
+    if (allowOverride && !this.isEmptyValue(calculatedValue)) {
       this.valueChangedByUser = false;
+
+      if (!this.viewOnly && !isCreateMode) {
+        this.valueChangedByUser = true;
+      }
     }
 
     this.calculatedValueWasCalculated = true;
