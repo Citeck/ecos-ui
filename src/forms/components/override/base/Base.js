@@ -239,19 +239,22 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   flags = flags || {};
   flags.noCheck = true;
 
-  if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
+    this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
+
+    if (!isCreateMode && allowOverride && !this.isEmptyValue(calculatedValue)) {
+      this.valueChangedByUser = false;
+    }
+
+    this.calculatedValueWasCalculated = true;
+  }
+
+  if (!allowOverride || (allowOverride && !this.valueChangedByUser)) {
     changed = this.setValue(calculatedValue, flags);
 
     if (changed) {
       this.calculatedValue = this.dataValue;
     }
-  }
-
-  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
-
-    this.calculatedValueWasCalculated = true;
   }
 
   return changed;
@@ -307,7 +310,7 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
 
 Base.prototype.setValue = function(value, flags) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
-  if (this.viewOnly) {
+  if (this.viewOnly && !this.calculatedValueWasCalculated) {
     this.dataValue = value;
   }
 
