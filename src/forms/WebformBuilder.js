@@ -250,7 +250,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
               {
                 style: 'margin-top: 10px;'
               },
-              [saveButton, cancelButton, removeButton]
+              [removeButton, cancelButton, saveButton]
             )
           ]
         )
