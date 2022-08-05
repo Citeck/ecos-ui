@@ -6,8 +6,7 @@ import isNumber from 'lodash/isNumber';
 
 import { ScaleOptions } from '../common/Scaler/util';
 import BaseModeler from '../ModelEditor/BaseModeler';
-import HeatmapWrapper from './tools/Heatmap.js';
-import Badges from './tools/Badges';
+import plugins from '../../../src/plugins';
 import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 const _extendModeler = new BaseModeler();
@@ -134,7 +133,11 @@ export default class ModelViewer {
    * @param onMounted {Function}
    */
   drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip }) => {
-    this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
+    const { HeatmapWrapper } = plugins;
+
+    if (HeatmapWrapper) {
+      this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
+    }
   };
 
   redrawHeatmap = () => {
@@ -145,6 +148,12 @@ export default class ModelViewer {
   };
 
   drawBadges = ({ data = [], keys = [] }) => {
+    const { Badges } = plugins;
+
+    if (!Badges) {
+      return;
+    }
+
     const elementRegistry = this.modeler.get('elementRegistry');
     const canvas = this.modeler.get('canvas');
     const root = canvas.getRootElement();
