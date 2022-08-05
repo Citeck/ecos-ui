@@ -105,16 +105,23 @@ class Kanban extends React.Component {
    * @returns {JSX.Element}
    */
   renderColumn = (data, index) => {
-    const { stateId, runAction } = this.props;
+    const { stateId, runAction, selectedBoard } = this.props;
     const { isDragging } = this.state;
 
     return (
-      <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} isDragging={isDragging} runAction={runAction} />
+      <Column
+        key={`col_${selectedBoard}-${data.id}`}
+        data={data}
+        stateId={stateId}
+        columnIndex={index}
+        isDragging={isDragging}
+        runAction={runAction}
+      />
     );
   };
 
   render() {
-    const { columns, dataCards = [], isLoading, isFirstLoading, page } = this.props;
+    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard } = this.props;
     const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
     const cols = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
@@ -138,7 +145,7 @@ class Kanban extends React.Component {
           <div className="ecos-kanban__head">
             {cols.map((data, index) => (
               <HeaderColumn
-                key={`head_${data.id}`}
+                key={`head_${selectedBoard}-${data.id}`}
                 isReady={!isFirstLoading}
                 data={data}
                 totalCount={get(dataCards, [index, 'totalCount'], '⭯')}

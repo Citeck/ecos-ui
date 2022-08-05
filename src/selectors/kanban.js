@@ -55,7 +55,8 @@ export const selectKanbanProps = createSelector(
     totalCount: data.totalCount,
     isLoading: data.isLoading,
     isFirstLoading: data.isFirstLoading,
-    page: data.pagination.page
+    page: data.pagination.page,
+    selectedBoard: get(data, 'boardConfig.name')
   })
 );
 

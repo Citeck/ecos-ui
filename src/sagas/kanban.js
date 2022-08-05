@@ -71,6 +71,7 @@ export function* sagaGetBoardConfig({ api, logger }, { payload }) {
     const { boardId, stateId } = payload;
     const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
     const boardConfig = KanbanConverter.prepareConfig(config);
+
     config && boardId && (boardConfig.id = boardId);
 
     yield put(setBoardConfig({ boardConfig, stateId }));
@@ -115,11 +116,13 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
 
     if (!!boardConfig.journalRef && (isEmpty(journalConfig) || isEqual(journalConfig, emptyJournalConfig))) {
       const w = wrapArgs(stateId);
+
       journalConfig = yield getJournalConfig({ api, w, force: true }, boardConfig.journalRef);
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
     const pagination = DEFAULT_PAGINATION;
+
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));

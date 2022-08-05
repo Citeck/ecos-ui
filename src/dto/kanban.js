@@ -14,10 +14,22 @@ export default class KanbanConverter {
       target.readOnly = !!source.readOnly;
       target.name = source.name || t('kanban.label.no-name');
       target.actions = source.actions || [];
-      target.columns = source.columns || [];
+      target.columns = KanbanConverter.prepareColumns(source.columns || []);
     }
 
     return target;
+  }
+
+  static prepareColumns(source = []) {
+    const target = {};
+
+    source.forEach(item => {
+      if (!target[item.id]) {
+        target[item.id] = { ...item };
+      }
+    });
+
+    return Object.keys(target).map(id => target[id]);
   }
 
   static preparePredicate(column) {
