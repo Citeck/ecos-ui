@@ -27,7 +27,7 @@ if (project.hasProperty("mavenUrl")) {
         version = packageVersion
         groupId = 'ru.citeck.ecos.ui'
         project.getProperty("mavenUser")
-        artifactId = 'ecos-ui'
+        artifactId = artifactId
         artifact source: assembleArtifact, extension: 'zip'
       }
     }
