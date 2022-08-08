@@ -5670,6 +5670,17 @@ cheerio@^1.0.0-rc.3:
     lodash "^4.15.0"
     parse5 "^3.0.1"
 
+choices.js@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/choices.js/-/choices.js-6.0.3.tgz#487fc42942e21b386f3de9f20fb1f86bc0030395"
+  integrity sha512-ATsvH/VwjEvbLrM49n+uo87P59iSna3IW+sViadLml5/OKcpRdF3UUUhHlc7TDNVDpD1tDJFB2vfqHga9B28jQ==
+  dependencies:
+    classnames "^2.2.6"
+    custom-event-polyfill "^0.3.0"
+    deepmerge "^2.2.1"
+    fuse.js "3.4.2"
+    redux "^3.3.1"
+
 choices.js@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/choices.js/-/choices.js-7.0.0.tgz#8db4ff8baaffac5e321960dbf8aeb9519f58351c"
@@ -6826,6 +6837,11 @@ currently-unhandled@^0.4.1:
   integrity sha1-mI3zP+qxke95mmE2nddsF635V+o=
   dependencies:
     array-find-index "^1.0.1"
+
+custom-event-polyfill@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/custom-event-polyfill/-/custom-event-polyfill-0.3.0.tgz#99807839be62edb446b645832e0d80ead6fa1888"
+  integrity sha512-dgGyHwa3sJVUVgnF1IQmPnco4SdAJKllCDXL2W7wyw70vchJTSubthvyjlrxUagc4QZrHq31Dz7p6tzukJ0OgA==
 
 custom-event-polyfill@^1.0.7:
   version "1.0.7"
