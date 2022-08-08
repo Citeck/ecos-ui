@@ -235,6 +235,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   this.calculatedValue = calculatedValue;
 
   let changed;
+  let hasBlockChanges = false;
 
   flags = flags || {};
   flags.noCheck = true;
@@ -242,20 +243,23 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
     this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
 
+    const isParentCreateMode = get(this.options, 'parentForm.options.formMode') === FORM_MODE_CREATE;
+
     if (allowOverride && !this.isEmptyValue(calculatedValue)) {
       this.valueChangedByUser = false;
 
       const isModal = get(this.options, 'initiator.type', '') === 'modal';
 
-      if (!this.viewOnly && !isCreateMode && isModal) {
-        this.valueChangedByUser = true;
+      this.calculatedValueWasCalculated = true;
+
+      if (!isParentCreateMode && !isCreateMode && isModal) {
+        hasBlockChanges = true;
+        this.calculatedValueWasCalculated = false;
       }
     }
-
-    this.calculatedValueWasCalculated = true;
   }
 
-  if (!allowOverride || (allowOverride && !this.valueChangedByUser)) {
+  if (!allowOverride || (allowOverride && !this.valueChangedByUser && !hasBlockChanges)) {
     changed = this.setValue(calculatedValue, flags);
 
     if (changed) {
