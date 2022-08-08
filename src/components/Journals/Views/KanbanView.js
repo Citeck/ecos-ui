@@ -142,7 +142,7 @@ class KanbanView extends React.Component {
     return (
       <div hidden={!isKanban(viewMode)} className={classNames('ecos-journal-view__kanban', bodyClassName)}>
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
-          <Header title={name} config={boardConfig} configRec={this.boardId} stateId={stateId} />
+          <Header title={name} config={boardConfig} configRec={this.boardId} />
           <Bar
             urlParams={urlParams}
             isActivePage={isActivePage}
