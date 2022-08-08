@@ -28,6 +28,18 @@
     }
   }
 
+  &__search {
+    &-block {
+      height: 50px;
+      padding-bottom: 10px;
+    }
+
+    &-field {
+      height: 100%;
+      width: 100%;
+    }
+  }
+
   &__btn {
     &-opener {
       position: absolute !important;

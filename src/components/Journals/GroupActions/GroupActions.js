@@ -36,6 +36,7 @@ const GroupActions = React.memo(
     const [targetPrefix] = useState(uniqueId('group-actions-'));
     const [recordsActions, setRecordsActions] = useState([]);
     const [queryActions, setQueryActions] = useState([]);
+    const [label, setLabel] = useState('');
 
     const {
       isMobile,
@@ -43,6 +44,7 @@ const GroupActions = React.memo(
       selectAllRecordsVisible,
       selectedRecords,
       execRecordsAction,
+      isFilterOn,
       isSeparateActionListForQuery,
       excludedRecords
     } = props;
@@ -51,15 +53,24 @@ const GroupActions = React.memo(
     const selectedLen = selectedRecords.length;
     const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
-    const labelRecActions = t(Labels.SELECTED_SHORT, { data: labelRecActionsCount });
+
+    const labelRecActions = useCallback(() => t(Labels.SELECTED_SHORT, { data: labelRecActionsCount }), [total, selected]);
+
+    useEffect(() => {
+      setLabel(labelRecActions);
+    }, []);
+
+    useEffect(() => {
+      if (isFilterOn && selectedRecords.length === 0) {
+        setLabel(t(Labels.SELECTED_SHORT, { data: grid.total }));
+      } else {
+        setLabel(labelRecActions);
+      }
+    }, [grid.total, selectedRecords, isFilterOn]);
 
     useEffect(() => {
       const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
       const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.QUERY }));
-
-      if (!isSeparateActionListForQuery) {
-        recordsActions.push(...queryActions);
-      }
 
       setRecordsActions(recordsActions);
       setQueryActions(queryActions);
@@ -69,61 +80,57 @@ const GroupActions = React.memo(
       action => {
         const context = { excludedRecords };
 
-        if (action._typeAct === TYPE_ACT.QUERY) {
+        if (selectAllRecordsVisible || (isFilterOn && selectedRecords.length === 0)) {
           execRecordsAction(grid.query, action, context);
-        } else if (action._typeAct === TYPE_ACT.RECORDS) {
+        } else {
           execRecordsAction(selectedRecords, action);
         }
       },
-      [grid, selectedRecords, excludedRecords]
+      [grid, isFilterOn, selectedRecords, excludedRecords]
     );
 
     const getItemClassName = useCallback(
       action => {
-        const disabled = action._typeAct === TYPE_ACT.RECORDS && (selectAllRecordsVisible || !selectedLen);
+        const disabled = !isFilterOn && (selectAllRecordsVisible || !selectedLen);
+
         return classNames('ecos-group-actions__dropdown-item', {
           'ecos-group-actions__dropdown-item_disabled': disabled,
           'ecos-group-actions__dropdown-item_query': action._typeAct === TYPE_ACT.QUERY
         });
       },
-      [selectAllRecordsVisible, !!selectedLen]
+      [selectAllRecordsVisible, isFilterOn, !!selectedLen]
     );
 
     const iconOpener = useCallback(flag => classNames('ecos-btn__i_right', { 'icon-small-up': flag, 'icon-small-down': !flag }), []);
 
     return (
       <>
-        {!isEmpty(recordsActions) && (
-          <DropdownOuter
-            isStatic
-            valueField={'id'}
-            titleField={'pluralName'}
-            keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
-            source={recordsActions}
-            className="ecos-group-actions__dropdown"
-            menuClassName="ecos-group-actions__dropdown-menu"
-            getStateOpen={setOpenRecActions}
-            onChange={handleExecuteAction}
-            itemClassName={getItemClassName}
-          >
-            <Tooltip
-              uncontrolled
-              showAsNeeded
-              target={targetPrefix + '-rec'}
-              text={labelRecActions}
-              contentComponent={labelRecActionsCount}
+        <DropdownOuter
+          isStatic
+          valueField="id"
+          titleField="pluralName"
+          keyFields={['id', 'formRef', 'pluralName', '_typeAct']}
+          source={recordsActions}
+          className="ecos-group-actions__dropdown"
+          menuClassName="ecos-group-actions__dropdown-menu"
+          itemClassName={getItemClassName}
+          getStateOpen={setOpenRecActions}
+          disabled={isEmpty(recordsActions)}
+          onChange={handleExecuteAction}
+        >
+          <Tooltip uncontrolled showAsNeeded target={targetPrefix + '-rec'} text={label} contentComponent={labelRecActionsCount}>
+            <IcoBtn
+              invert
+              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+              icon={iconOpener(isOpenRecActions)}
+              id={targetPrefix + '-rec'}
+              disabled={isEmpty(recordsActions)}
             >
-              <IcoBtn
-                invert
-                className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
-                icon={iconOpener(isOpenRecActions)}
-                id={targetPrefix + '-rec'}
-              >
-                {labelRecActions}
-              </IcoBtn>
-            </Tooltip>
-          </DropdownOuter>
-        )}
+              {label}
+            </IcoBtn>
+          </Tooltip>
+        </DropdownOuter>
+
         {isSeparateActionListForQuery && !isEmpty(queryActions) && (
           <DropdownOuter
             isStatic
@@ -134,8 +141,8 @@ const GroupActions = React.memo(
             className="ecos-group-actions__dropdown"
             controlClassName="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
             menuClassName="ecos-group-actions__dropdown-menu"
-            onChange={handleExecuteAction}
             getStateOpen={setOpenQueryActions}
+            onChange={handleExecuteAction}
           >
             <TwoIcoBtn
               className={classNames('ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control', {
@@ -175,6 +182,8 @@ const mapDispatchToProps = (dispatch, props) => {
     execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
   };
 };
+
+export { GroupActions };
 
 export default connect(
   mapStateToProps,

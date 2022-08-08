@@ -1,3 +1,5 @@
+import { t } from '../../../../../helpers/export/util';
+
 export default [
   {
     type: 'checkbox',
@@ -19,7 +21,10 @@ export default [
     components: [
       {
         type: 'textfield',
-        label: 'Upload URL',
+        label: {
+          ru: 'URL для загрузки',
+          en: 'Upload URL'
+        },
         input: true,
         key: 'import.uploadUrl',
         validate: {
@@ -28,7 +33,10 @@ export default [
       },
       {
         type: 'textarea',
-        label: 'Response handler',
+        label: {
+          ru: 'Обработчик ответов',
+          en: 'Response handler'
+        },
         input: true,
         key: 'import.responseHandler',
         placeholder: 'result = resp.success ? resp.result : new Error(resp.errorMessage)',
@@ -41,7 +49,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content: `<p>Enter custom javascript code. You must assign the <strong>result</strong> variable.</p> The <strong>resp</strong> (or <strong>response</strong>) variable is available here.`
+        get content() {
+          return t('form-constructor.html.import');
+        }
       }
     ]
   }

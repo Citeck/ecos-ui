@@ -4,8 +4,8 @@ import { shallow } from 'enzyme';
 import DevToolsConverter from '../../../dto/devTools';
 
 import { TABS } from '../constants';
-import { JIRA } from '../Commits/constants';
-import { getRepoProject, parseTasksLinks } from '../Commits/helpers';
+import { JIRA, BITBUCKET } from '../Commits/constants';
+import { getRepoProject, parseTasksLinks, getHostName } from '../Commits/helpers';
 import { input1, output1, input2, output2, input3_4, output3, output4 } from '../__fixtures__/DevTools.fixtures';
 import * as DevToolsContext from '../DevToolsContext';
 import ErrorText from '../ErrorText';
@@ -37,6 +37,12 @@ describe('DevTools tests', () => {
     it('getRepoProject', () => {
       expect(getRepoProject('git@bitbucket.org:citeck/ecos-ui.git')).toEqual('citeck/ecos-ui');
       expect(getRepoProject('git@bitbucket.org:citeck/ecos-uiserv.git')).toEqual('citeck/ecos-uiserv');
+      expect(getRepoProject('git@gitlab.citeck.ru:ecos-ui.git')).toEqual('ecos-ui');
+    });
+    it('getHostName', () => {
+      expect(getHostName(BITBUCKET)).toEqual('bitbucket.org');
+      expect(getHostName('git@bitbucket.org:citeck-projects/ecos-ui.git')).toEqual('bitbucket.org');
+      expect(getHostName('git@gitlab.citeck.ru:citeck-uiserv/ecos-ui.git')).toEqual('gitlab.citeck.ru');
     });
     it('parseTasksLinks', () => {
       const input1 = 'ECOSCOM-3940 - category-document-type does not have "Delete" and "View in browser" actions';

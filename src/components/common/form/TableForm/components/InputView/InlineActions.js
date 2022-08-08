@@ -4,6 +4,8 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
+import Records from '../../../../../../components/Records';
+
 import { t } from '../../../../../../helpers/export/util';
 import { getFitnesseClassName } from '../../../../../../helpers/tools';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
@@ -15,6 +17,7 @@ const InlineActions = () => {
   const {
     deleteSelectedItem,
     showEditForm,
+    onEditFormSubmit,
     runCloneRecord,
     showPreview,
     showViewOnlyForm,
@@ -34,11 +37,37 @@ const InlineActions = () => {
 
   const renderButtons = useMemo(() => {
     const keyRender = act => `${act.id}-${act.key}`;
+
     let actions = [];
 
     if (isUsedJournalActions) {
       actions = get(journalActions, ['forRecord', inlineToolsOffsets.rowId], []);
-      actions = actions.map(act => ({ ...act, onClick: () => RecordActions.execForRecord(inlineToolsOffsets.rowId, act) }));
+      actions = actions.map(act => {
+        let recordAction = { ...act };
+
+        if (recordAction.type === 'edit') {
+          recordAction.config = {
+            ...(recordAction.config || {}),
+            saveOnSubmit: !!viewOnly
+          };
+        }
+
+        return {
+          ...act,
+          onClick: async () => {
+            if (recordAction.type === 'edit') {
+              const record = Records.getRecordToEdit(inlineToolsOffsets.rowId);
+              const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
+
+              if (recordWasChanged) {
+                onEditFormSubmit(record);
+              }
+            } else {
+              await RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction);
+            }
+          }
+        };
+      });
     } else {
       //todo: should use action service for inline buttons
 

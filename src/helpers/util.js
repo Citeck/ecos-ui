@@ -26,7 +26,8 @@ const BYTES_GB = 1073741824;
 
 const LOCALE_EN = 'en';
 
-export const isDevEnv = () => process.env.NODE_ENV === 'development';
+export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
+export const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 
 export function setCookie(name, value, options = {}) {
   options = {
@@ -412,16 +413,15 @@ export function isPDFbyStr(str) {
 }
 
 /**
- * todo: translate to english
- *
- * Реализация скачивания файла с добавлением в dom элемента и его удалением после скрипт-нажатия
- * @param link ссылка на файл для скачивания
+ * Implementation of downloading a file with adding an element to the dom and removing it after a click
+ * @param link link to download file
+ * @param filename name for uploaded file
  */
-export function fileDownload(link) {
+export function fileDownload(link, fileName = '') {
   let elLink = document.createElement('a');
 
   elLink.href = link;
-  elLink.download = link;
+  elLink.download = fileName || link;
   elLink.style.display = 'none';
 
   document.body.appendChild(elLink);
@@ -453,24 +453,22 @@ export function getScaleModes() {
 }
 
 /**
- * todo: translate to english
- *
- * Вычисление масштабирования для строковых режимов
- * @param scale {Number|String} - режим см getScaleModes
- * @param paramsContainer {Object} - ширина и высота объекта масштабирования
- * @param paramsPage {Object} - ширина и высота контейнера
- * @param ratioAuto
- * @returns {Number} масштаб
+ * @desc Calculation of Scale for stringe modes
+ * @requires @param {Number|String} scale mode @see getScaleModes
+ * @requires @param {Object} paramsContainer width and height of the zoom object
+ * @requires @param {Object} paramsPage width and height of container
+ * @param {Number} ratioAuto
+ * @returns {Number}
  */
 export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
-  let { origW, origH, scaleW } = paramsPage || {};
-  let { width: cW, height: cH } = paramsContainer || {};
+  const { width: cW, height: cH } = paramsContainer || {};
+  const { origW, origH, scaleW } = paramsPage || {};
 
-  let calcScale = (c, so) => {
+  const calcScale = (c, so) => {
     return +Number(c / so).toFixed(2);
   };
 
-  let fit = ratio => {
+  const fit = ratio => {
     if (Math.min(cH, cW) === cH) {
       return calcScale(cH + ratio, origH);
     }
@@ -766,6 +764,12 @@ export function prepareTooltipId(id = uuidV4()) {
   return `${id}`.replace(/[^\d\w-]/g, '');
 }
 
+export function getHtmlIdByUid(id = uuidV4(), postfix = '') {
+  const htmlId = id + (postfix ? `-${postfix}` : '');
+
+  return htmlId.toLowerCase().replace(/\W+/g, '-');
+}
+
 export function prepareReactKey({ id = uuidV4(), prefix = 'key', postfix = '' } = {}) {
   const parts = [];
 
@@ -909,7 +913,7 @@ export function getTimezoneValue() {
 }
 
 export function isHiddenElement(el) {
-  return el.style.display === 'none' || el.style.visibility === 'hidden';
+  return el.style.display === 'none' || el.style.visibility === 'hidden' || el.hidden;
 }
 
 /**
@@ -921,7 +925,7 @@ export function isHiddenElement(el) {
 export function isClosestHidden(el = null) {
   let node = el;
 
-  if (typeof node === 'string') {
+  if (isString(node)) {
     node = document.querySelector(el);
   }
 
@@ -1025,7 +1029,7 @@ export function isInViewport(element, container) {
 }
 
 export function reverseString(str = '') {
-  if (typeof str !== 'string') {
+  if (!isString(str)) {
     return str;
   }
 
@@ -1040,7 +1044,7 @@ export function reverseString(str = '') {
  * @param locale
  * @returns {{decimal: string, thousand: string}}
  */
-export function getNumberSeparators(locale) {
+export function getNumberSeparators(locale = getCurrentLocale()) {
   const result = {
     decimal: '.',
     thousand: ''
@@ -1205,6 +1209,88 @@ export function beArray(data) {
  */
 export function getFirstNotNil(...array) {
   return array.find(val => !isNil(val));
+}
+
+/**
+ * Formats an object into a string without deep nesting, making the key bold
+ * @param object
+ * @returns {string|*}
+ */
+export function objectByString(object) {
+  if (isString(object)) {
+    return object;
+  }
+
+  return Object.keys(object).reduce((res, key) => {
+    if (!!object[key]) {
+      res += `<b>${key}: </b> ${JSON.stringify(object[key])}\n`;
+    }
+
+    return res;
+  }, '');
+}
+
+export function isJsonObjectString(str) {
+  if (isEmpty(str)) {
+    return false;
+  }
+
+  try {
+    const result = JSON.parse(str);
+
+    return typeof result === 'object';
+  } catch (e) {
+    return false;
+  }
+}
+
+export function getMedian(source) {
+  if (isEmpty(source)) {
+    return 0;
+  }
+
+  if (source.length === 1) {
+    return source[0];
+  }
+
+  const arr = [...source];
+
+  arr.sort((a, b) => a - b);
+
+  const middleIndex = Math.floor(arr.length / 2);
+  let median;
+
+  if (arr.length % 2 !== 0) {
+    median = arr[middleIndex];
+  } else {
+    median = (arr[middleIndex - 1] + arr[middleIndex]) / 2;
+  }
+
+  return median;
+}
+
+export function normalize(source, byField) {
+  if (isEmpty(source)) {
+    return [];
+  }
+
+  const arr = cloneDeep(source);
+  const median = getMedian(byField ? arr.map(i => i[byField]) : arr);
+  const distribution = 0.5;
+  const minValue = median * (1 - distribution);
+  const maxValue = median * (1 + distribution);
+
+  for (let idx in arr) {
+    let value = byField ? arr[idx][byField] : arr[idx];
+
+    if (value > maxValue) {
+      byField ? (arr[idx][byField] = maxValue) : (arr[idx] = maxValue);
+    } else if (value < minValue) {
+      byField ? (arr[idx][byField] = minValue) : (arr[idx] = minValue);
+    }
+  }
+
+  return arr;
 }
 
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);

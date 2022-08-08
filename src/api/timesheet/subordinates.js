@@ -33,7 +33,7 @@ export class TimesheetSubordinatesApi extends RecordService {
         query: `@ggodic:geSupervisorId:${userName}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: SourcesId.PEOPLE,
+        sourceId: SourcesId.PERSON,
         debug: false
       },
       {

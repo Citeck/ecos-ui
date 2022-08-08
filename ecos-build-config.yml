@@ -1,0 +1,10 @@
+---
+type: ecos-ui
+properties:
+  image:
+    configVersion: v5
+  builds:
+    - enterprise: true
+      plugins:
+        - heatmap:1.1.0
+    - enterprise: false

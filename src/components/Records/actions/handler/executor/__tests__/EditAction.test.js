@@ -6,6 +6,7 @@ import Records from '../../../../Records';
 import actionsRegistry from '../../../actionsRegistry';
 import '../../../index';
 import EditAction from '../EditAction';
+import { SourcesId } from '../../../../../../constants';
 
 const RecordIds = {
   TASK_REF: 'workspace://SpacesStore/test-task',
@@ -23,13 +24,6 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
           id: RecordIds.TASK_REF,
           attributes: {
             'cm:name?str': RecordIds.TASK_ID
-          }
-        };
-      case 'ecos-config@default-ui-main-menu':
-        return {
-          id: RecordIds.TASK_REF,
-          attributes: {
-            '.str': 'left'
           }
         };
       default:
@@ -71,7 +65,7 @@ describe('Edit Action', () => {
     window.open = () => undefined;
 
     EcosFormUtils.editRecord = config => {
-      expect(config.recordRef).toEqual('wftask@' + RecordIds.TASK_ID);
+      expect(config.recordRef).toEqual(`${SourcesId.TASK}@${RecordIds.TASK_ID}`);
       config.onSubmit();
     };
 

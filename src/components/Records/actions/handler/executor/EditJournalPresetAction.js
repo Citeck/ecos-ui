@@ -16,7 +16,7 @@ export default class EditJournalPresetAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     return new Promise(async resolve => {
-      const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PEOPLE}@${getCurrentUserName()}`);
+      const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PERSON}@${getCurrentUserName()}`);
       const data = get(action, 'config.data') || {};
       const rec = Records.get(record);
       const isEditing = rec.id.split('@').length > 1;

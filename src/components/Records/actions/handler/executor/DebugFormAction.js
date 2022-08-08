@@ -12,7 +12,6 @@ export default class DebugFormAction extends ActionsExecutor {
     const { recordRef, parser = {} } = action.config || {};
     const options = get(action, 'config.options') || {};
     let className;
-
     if (!recordRef && !options.formMode) {
       options.formMode = FORM_MODE_CREATE;
     }

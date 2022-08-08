@@ -240,7 +240,8 @@ class JournalsDashletGrid extends Component {
       onOpenSettings,
       query,
       isGrouped,
-      originPredicates
+      originPredicates,
+      isResetGridSettings
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -299,6 +300,7 @@ class JournalsDashletGrid extends Component {
               scrollPosition={this.scrollPosition}
               selectorContainer={selectorContainer}
               onOpenSettings={onOpenSettings}
+              isResetSettings={isResetGridSettings}
             />
           </HeightCalculation>
         </div>
@@ -318,6 +320,7 @@ JournalsDashletGrid.propTypes = {
   autoHeight: PropTypes.bool,
   doInlineToolsOnRowClick: PropTypes.bool,
   isWidget: PropTypes.bool,
+  isResetGridSettings: PropTypes.bool,
   onRowClick: PropTypes.func,
   onOpenSettings: PropTypes.func
 };

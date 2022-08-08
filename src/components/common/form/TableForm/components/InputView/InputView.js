@@ -9,7 +9,15 @@ import './InputView.scss';
 
 const InputView = () => {
   const context = useContext(TableFormContext);
-  const { placeholder, viewOnly, isSelectableRows, nonSelectableRows, selectedRows, noColHeaders } = context.controlProps;
+  const {
+    placeholder,
+    viewOnly,
+    isSelectableRows,
+    nonSelectableRows,
+    selectedRows,
+    noColHeaders,
+    noHorizontalScroll
+  } = context.controlProps;
   const { gridRows, columns, error, setInlineToolsOffsets, onSelectGridItem } = context;
   const wrapperRef = useRef(null);
 
@@ -42,6 +50,7 @@ const InputView = () => {
         nonSelectableRows={nonSelectableRows}
         setInlineToolsOffsets={setInlineToolsOffsets}
         noHeader={noColHeaders}
+        noHorizontalScroll={noHorizontalScroll}
       />
       {!error && (
         <div className="ecos-table-form__buttons-wrapper">

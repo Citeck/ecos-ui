@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import moment from 'moment';
 import uuidV4 from 'uuid/v4';
 import { NotificationManager } from 'react-notifications';
@@ -11,23 +10,24 @@ import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
 import omitBy from 'lodash/omitBy';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isUndefined from 'lodash/isUndefined';
 
-import { AppEditions, SourcesId } from '../../constants';
+import { SourcesId } from '../../constants';
 import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
 import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
-import { checkFunctionalAvailabilityForUser } from '../../helpers/export/userInGroupsHelper';
 import { UserApi } from '../../api/user';
 import { AppApi } from '../../api/app';
 import { Components } from '../../forms/components';
 import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
 import Modal from '../common/EcosModal/CiteckEcosModal';
 import Records from '../Records';
-import EcosForm from './EcosForm';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
+import EcosForm from './EcosForm';
+import EcosFormModal from './EcosFormModal';
 
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
@@ -39,10 +39,14 @@ const getComponentInnerAttSchema = component => {
     dataType = lodashGet(component, 'properties.dataType', '');
   }
 
-  if (dataType === 'json') {
-    return 'json';
-  } else if (dataType === 'bool') {
-    return 'bool';
+  switch (dataType) {
+    case 'json':
+    case 'query':
+      return 'json';
+    case 'bool':
+      return 'bool';
+    default:
+      break;
   }
 
   switch (component.type) {
@@ -56,6 +60,7 @@ const getComponentInnerAttSchema = component => {
       return 'assoc';
     case 'datamap':
     case 'mlText':
+    case 'mlTextarea':
       return 'json';
     case 'file':
       return 'as(n:"content-data"){json}';
@@ -103,44 +108,13 @@ export default class EcosFormUtils {
     const formParams = Object.assign({ record }, config.params || {});
     const configParams = config.params || {};
 
-    formParams['options'] = configParams.options || {};
-
-    formParams['onSubmit'] = function(record, form, alias) {
-      if (modal) {
-        modal.close();
-      }
-
-      if (configParams.onSubmit) {
-        configParams.onSubmit(record, form, alias);
-      }
-    };
-
-    formParams['onFormCancel'] = function(record, form) {
-      if (modal) {
-        modal.close();
-      }
-
-      if (configParams.onFormCancel) {
-        configParams.onFormCancel(record, form);
-      }
-    };
-
-    formParams['onReady'] = function() {
-      setTimeout(function(record, form) {
-        if (configParams.onReady) {
-          configParams.onReady(record, form);
-        }
-      }, 100);
-    };
-
-    const instanceRec = Records.get(record);
-    instanceRec
+    Records.get(record)
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
+        const formMode = config.formMode || recordData.formMode || FORM_MODE_EDIT;
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -151,18 +125,66 @@ export default class EcosFormUtils {
         options.formMode = formMode;
         formParams.options = options;
 
+        formParams['onSubmit'] = function(record, form, alias) {
+          if (modal) {
+            modal.close();
+          }
+
+          const onSubmit = lodashGet(config, 'params.onSubmit');
+
+          if (isFunction(onSubmit)) {
+            onSubmit(record, form, alias);
+          }
+        };
+
+        formParams['onFormCancel'] = function(record, form) {
+          if (modal) {
+            modal.close();
+          }
+
+          if (configParams.onFormCancel) {
+            configParams.onFormCancel(record, form);
+          }
+        };
+
+        formParams['onCancelModal'] = function() {
+          const onHideModal = lodashGet(config, 'onHideModal');
+          const onCancel = lodashGet(config, 'onCancel');
+
+          if (modal) {
+            modal.close();
+          }
+
+          if (isFunction(onHideModal)) {
+            onHideModal();
+          }
+
+          if (isFunction(onCancel)) {
+            onCancel();
+          }
+        };
+
+        formParams['onReady'] = function() {
+          setTimeout(function(record, form) {
+            if (configParams.onReady) {
+              configParams.onReady(record, form);
+            }
+          }, 100);
+        };
+
         const formInstance = React.createElement(EcosForm, formParams);
 
         config.header = EcosFormUtils.getFormTitle(recordData);
 
         if (config.formContainer) {
-          let container = config.formContainer;
-
-          if (isString(config.formContainer)) {
-            container = document.getElementById(config.formContainer);
-          }
-
-          ReactDOM.render(formInstance, container);
+          modal.create(EcosFormModal, {
+            ...formParams,
+            record,
+            formId: config.formId,
+            isModalOpen: true,
+            contentBefore: config.contentBefore,
+            contentAfter: config.contentAfter
+          });
         } else {
           if (configParams.onFormCancel || configParams.onCancel) {
             config.onHideModal = () => {
@@ -193,80 +215,73 @@ export default class EcosFormUtils {
   static editRecord(config) {
     const recordRef = config.recordRef,
       fallback = config.fallback,
-      forceNewForm = config.forceNewForm,
+      formMode = config.formMode || FORM_MODE_EDIT,
       formKey = config.formKey;
 
     const showForm = recordRef => {
-      if (recordRef) {
-        const params = {
-          attributes: config.attributes || {},
-          onSubmit: config.onSubmit
-        };
+      const params = {
+        attributes: config.attributes || {},
+        onSubmit: config.onSubmit
+      };
 
-        if (formKey) {
-          params.formKey = config.formKey;
-        }
-
-        if (config.onCancel) {
-          params.onCancel = config.onCancel;
-        }
-
-        if (config.onFormCancel) {
-          params.onFormCancel = config.onFormCancel;
-        }
-
-        if (config.contentBefore) {
-          params.contentBefore = config.contentBefore;
-        }
-
-        if (config.contentAfter) {
-          params.contentAfter = config.contentAfter;
-        }
-
-        if (config.options) {
-          params.options = config.options;
-        }
-
-        EcosFormUtils.eform(recordRef, {
-          params,
-          class: 'ecos-modal_width-lg',
-          isBigHeader: true,
-          formContainer: config.formContainer || null
-        });
-      } else {
-        isFunction(fallback) && fallback();
+      if (formKey) {
+        params.formKey = config.formKey;
       }
+
+      if (isBoolean(config.saveOnSubmit)) {
+        params.saveOnSubmit = config.saveOnSubmit;
+      }
+
+      if (config.contentBefore) {
+        params.contentBefore = config.contentBefore;
+      }
+
+      if (config.onCancel) {
+        params.onCancel = config.onCancel;
+      }
+
+      if (config.onFormCancel) {
+        params.onFormCancel = config.onFormCancel;
+      }
+
+      if (config.contentBefore) {
+        params.contentBefore = config.contentBefore;
+      }
+
+      if (config.contentAfter) {
+        params.contentAfter = config.contentAfter;
+      }
+
+      if (config.options) {
+        params.options = config.options;
+      }
+
+      EcosFormUtils.eform(recordRef, {
+        params,
+        class: 'ecos-modal_width-lg',
+        isBigHeader: true,
+        formMode,
+        formContainer: config.formContainer || null
+      });
     };
 
-    let isFormsEnabled;
-
-    if (!forceNewForm) {
-      isFormsEnabled = Records.get('ecos-config@ecos-forms-enable').load('.bool');
-    } else {
-      isFormsEnabled = Promise.resolve(true);
-    }
-
-    const isShouldDisplay = checkFunctionalAvailabilityForUser('default-ui-new-forms-access-groups');
-
-    Promise.all([isFormsEnabled, isShouldDisplay])
-      .then(values => {
-        if (values[0] || values[1]) {
-          EcosFormUtils.hasForm(recordRef).then(result => {
-            if (result) {
-              showForm(recordRef);
-            } else {
-              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
-              throw new Error(`hasForm ${result}`);
-            }
-          });
+    EcosFormUtils.hasForm(recordRef)
+      .then(result => {
+        if (result) {
+          showForm(recordRef);
         } else {
-          NotificationManager.error(t('form-is-not-available'), t('error'));
-          throw new Error(`isFormsEnabled, isShouldDisplay: ${values.join()}`);
+          if (isFunction(fallback)) {
+            fallback();
+          } else {
+            NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+          }
         }
       })
       .catch(e => {
-        console.error(e);
-        showForm();
+        const msg = 'Exception in hasForm request. RecordRef: ' + recordRef;
+        console.error(msg, e);
+        NotificationManager.error(t('form-is-not-available'), t('error'));
+        throw new Error(msg);
       });
   }
 
@@ -416,7 +431,7 @@ export default class EcosFormUtils {
   }
 
   static getNotResolvedFormId(formId) {
-    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.EFORM);
+    return EcosFormUtils.getFormIdWithSource(formId, SourcesId.FORM);
   }
 
   static getResolvedFormId(formId) {
@@ -918,6 +933,7 @@ export default class EcosFormUtils {
     if (!recordId) {
       return Promise.resolve({});
     }
+
     const { inputByKey, attributes } = EcosFormUtils.preProcessingAttrs(inputs);
 
     const recordInstance = Records.get(recordId);
@@ -1071,13 +1087,7 @@ export default class EcosFormUtils {
     return component && component.type === 'button' && component.key.startsWith(OUTCOME_BUTTONS_PREFIX);
   }
 
-  static async isConfigurableForm() {
-    const edition = await EcosFormUtils._apiApp.getAppEdition();
-
-    if (edition !== AppEditions.ENTERPRISE) {
-      return false;
-    }
-
+  static isConfigurableForm() {
     return EcosFormUtils._apiUser.isUserAdmin();
   }
 

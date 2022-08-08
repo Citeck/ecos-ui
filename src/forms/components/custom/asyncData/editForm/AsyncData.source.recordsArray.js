@@ -1,11 +1,23 @@
+import { t } from '../../../../../helpers/export/util';
+
 export default [
   {
     weight: 0,
     type: 'textfield',
     input: true,
     key: 'source.recordsArray.id',
-    label: 'Records array',
-    tooltip: 'Records array to retrieve data',
+    get label() {
+      return this._label || t('form-constructor.tabs-content.source.recordsArray.id');
+    },
+    set label(label) {
+      this._label = label;
+    },
+    get tooltip() {
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.recordsArray.id');
+    },
+    set tooltip(tooltip) {
+      this._tooltip = tooltip;
+    },
     validate: {
       required: true
     }
@@ -13,14 +25,29 @@ export default [
   {
     weight: 200,
     type: 'datamap',
-    label: 'Attributes',
-    tooltip: 'Attributes to load',
+    get label() {
+      return this._label || t('form-constructor.tabs-content.source.recordsArray.attributes');
+    },
+    set label(label) {
+      this._label = label;
+    },
+    get tooltip() {
+      return this._tooltip || t('form-constructor.tabs-tooltip.source.recordsArray.attributes');
+    },
+    set tooltip(tooltip) {
+      this._tooltip = tooltip;
+    },
     key: 'source.recordsArray.attributes',
     clearOnHide: false,
     valueComponent: {
       type: 'textfield',
       key: 'value',
-      label: 'Attribute',
+      get label() {
+        return t('form-constructor.tabs-content.source.record.attribute');
+      },
+      set label(label) {
+        this._label = label;
+      },
       defaultValue: '',
       input: true
     },

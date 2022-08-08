@@ -2,14 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { isMobileDevice, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import { DocScaleOptions, MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import UserLocalSettingsService from '../../../services/userLocalSettings';
+import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet/Dashlet';
-import DocPreview from './DocPreview';
 import BaseWidget from '../BaseWidget';
+import DocPreview from './DocPreview';
+import Settings from './Settings';
+import { Labels } from './util';
 
 import './style.scss';
 
@@ -25,7 +29,7 @@ class DocPreviewDashlet extends BaseWidget {
     classNamePreview: PropTypes.string,
     classNameDashlet: PropTypes.string,
     config: PropTypes.shape({
-      link: PropTypes.string.isRequired
+      link: PropTypes.string
     }),
     dragHandleProps: PropTypes.object,
     canDragging: PropTypes.bool,
@@ -47,9 +51,25 @@ class DocPreviewDashlet extends BaseWidget {
     this.stateId = getStateId(props);
     this.state = {
       ...this.state,
+      isShowSetting: false,
       scale: isMobile ? DocScaleOptions.PAGE_WHOLE : UserLocalSettingsService.getDashletScale(this.state.lsId) || DocScaleOptions.AUTO
     };
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'version', 'preview-hash', 'cm:content'])];
+
+    this.observableFieldsToUpdateWithDefault = ['version', 'preview-hash', 'cm:content', 'documents[]', 'documents-hash'];
+  }
+
+  get dashletActions() {
+    const { isShowSetting } = this.state;
+
+    if (isShowSetting || !this.props.config) {
+      return {};
+    }
+
+    return {
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.handleToggleSettings
+      }
+    };
   }
 
   get otherHeight() {
@@ -62,8 +82,16 @@ class DocPreviewDashlet extends BaseWidget {
     }
   };
 
+  get toolbarConfig() {
+    const { showAllDocuments } = this.props.config || {};
+    return { showAllDocuments };
+  }
+
   setUserScale = scale => {
-    scale && !isMobile && UserLocalSettingsService.setDashletScale(this.state.lsId, scale);
+    if (scale && !isMobile) {
+      UserLocalSettingsService.setDashletScale(this.state.lsId, scale);
+      this.setState({ scale });
+    }
   };
 
   setContainerPageHeight = height => {
@@ -78,50 +106,62 @@ class DocPreviewDashlet extends BaseWidget {
     }
   };
 
-  onResize = width => {
+  handleResize = width => {
     !!width && this.setState({ width });
+  };
+
+  handleToggleSettings = () => {
+    this.setState(state => ({ isShowSetting: !state.isShowSetting }));
+  };
+
+  handleSaveConfig = config => {
+    const { onSave, id } = this.props;
+
+    isFunction(onSave) && onSave(id, { config });
+    this.handleToggleSettings();
   };
 
   render() {
     const { title, config, classNamePreview, classNameDashlet, dragHandleProps, canDragging, fileName } = this.props;
-    const { width, scale, isCollapsed, runUpdate } = this.state;
-    const classesDashlet = classNames('ecos-doc-preview-dashlet', classNameDashlet, {
-      'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
-      'ecos-doc-preview-dashlet_mobile': isMobile,
-      'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
-    });
+    const { width, scale, runUpdate, isShowSetting } = this.state;
 
     return (
       <Dashlet
-        title={title || t('doc-preview.preview')}
+        title={title || t(Labels.WG_TITLE)}
         bodyClassName="ecos-doc-preview-dashlet__body"
-        className={classesDashlet}
-        noActions
+        className={classNames('ecos-doc-preview-dashlet', classNameDashlet, {
+          'ecos-doc-preview-dashlet_small': width < MIN_WIDTH_DASHLET_LARGE && !isMobile,
+          'ecos-doc-preview-dashlet_mobile': isMobile,
+          'ecos-doc-preview-dashlet_mobile_small': isMobile && width < 400
+        })}
+        actionConfig={this.dashletActions}
         needGoTo={false}
         canDragging={canDragging}
-        onResize={this.onResize}
+        onResize={this.handleResize}
         onChangeHeight={this.handleChangeHeight}
         dragHandleProps={dragHandleProps}
         resizable
         contentMaxHeight={this.clientHeight + this.otherHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
+        {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <DocPreview
           forwardedRef={this.contentRef}
-          link={config.link}
-          className={classNamePreview}
+          link={config.link || ''}
+          className={classNames(classNamePreview, { 'd-none': isShowSetting })}
           scale={scale}
           fileName={fileName}
           setUserScale={this.setUserScale}
           getContainerPageHeight={this.setContainerPageHeight}
           resizable
-          isCollapsed={isCollapsed}
+          isCollapsed={this.isCollapsed}
           runUpdate={runUpdate}
           scrollbarProps={this.scrollbarProps}
           setToolbarRef={this.setToolbarRef}
+          toolbarConfig={this.toolbarConfig}
         />
       </Dashlet>
     );

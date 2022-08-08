@@ -1,5 +1,6 @@
 import Choices from 'choices.js/public/assets/scripts/choices.js';
 import _ from 'lodash';
+
 import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
@@ -169,14 +170,15 @@ export default class SelectComponent extends BaseComponent {
       return this.itemValue(data);
     }
 
+    const label = this.t(data.label || data);
+
     // Perform a fast interpretation if we should not use the template.
     if (data && !this.component.template) {
-      const itemLabel = data.label || data;
-      return typeof itemLabel === 'string' ? this.t(itemLabel) : itemLabel;
+      return label;
     }
 
     if (typeof data === 'string') {
-      return this.t(data);
+      return label;
     }
 
     const template = this.component.template ? this.interpolate(this.component.template, { item: data }) : data.label;
@@ -201,7 +203,7 @@ export default class SelectComponent extends BaseComponent {
 
   /**
    * @param {*} data
-   * @param {boolean} [forceUseValue=false] - if true, return 'value' property of the data
+   * @param {Boolean} forceUseValue default false; if true, return 'value' property of the data
    * @return {*}
    */
   itemValue(data, forceUseValue = false) {
@@ -224,10 +226,10 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /**
-   * Adds an option to the select dropdown.
-   *
+   * Adds an option to the select dropdown
    * @param value
    * @param label
+   * @param attr
    */
   addOption(value, label, attr) {
     const option = {
@@ -343,6 +345,32 @@ export default class SelectComponent extends BaseComponent {
         console.warn(err.message);
         items = [];
       }
+    }
+
+    // Helps to remove unnecessary updates, get rid of looping
+    if (_.isEmpty(items) && _.isEmpty(this.currentItems)) {
+      return;
+    }
+
+    const isFound = _.find(items, item => {
+      if (_.isEmpty(item)) {
+        return false;
+      }
+
+      if (_.isString(item)) {
+        return item === this.dataValue;
+      }
+
+      if (_.isArray(this.dataValue) && !_.isEmpty(this.dataValue)) {
+        return this.dataValue.includes(_.get(item, 'value'));
+      }
+
+      return _.get(item, 'value') === this.dataValue;
+    });
+
+    // Reset the selected value if it is not in the list
+    if (this.dataValue && !isFound) {
+      this.setValue('');
     }
 
     // Allow js processing (needed for form builder)
@@ -855,9 +883,11 @@ export default class SelectComponent extends BaseComponent {
       }
       this.update();
     });
+
     if (placeholderValue && this.choices._isSelectOneElement) {
       this.addEventListener(input, 'removeItem', () => {
         const items = this.choices._store.activeItems;
+
         if (!items.length) {
           this.choices._addItem(placeholderValue, placeholderValue, 0, -1, null, true, null);
         }
@@ -868,6 +898,13 @@ export default class SelectComponent extends BaseComponent {
     if (this.addValueOptions()) {
       this.restoreValue();
     }
+
+    this.addEventListener(input, 'change', () => {
+      if (_.get(this.choices, '_store.activeItems', []).length === 0) {
+        this.deleteValue();
+        this.refresh('');
+      }
+    });
 
     // Force the disabled state with getters and setters.
     this.disabled = this.disabled;
@@ -912,8 +949,11 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /**
-   * @param {*} value
+   *
+   * @param {Array} values
    * @param {Array} items
+   * @param {String} keyValue
+   * @returns {Boolean}
    */
   addCurrentChoices(values, items, keyValue) {
     if (!values) {
@@ -1008,6 +1048,10 @@ export default class SelectComponent extends BaseComponent {
   }
 
   setValue(value, flags) {
+    if (_.isUndefined(value)) {
+      return false;
+    }
+
     flags = this.getFlags.apply(this, arguments);
     const previousValue = this.dataValue;
     if (this.component.multiple && !Array.isArray(value)) {
@@ -1102,7 +1146,7 @@ export default class SelectComponent extends BaseComponent {
   }
 
   /**
-   * Ouput this select dropdown as a string value.
+   * Output this select dropdown as a string value.
    * @return {*}
    */
   asString(value) {

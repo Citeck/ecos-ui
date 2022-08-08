@@ -1,3 +1,4 @@
+import { t } from '../../../../../helpers/export/util';
 import {
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
@@ -32,11 +33,15 @@ export default [
       values: [
         {
           value: TabTypes.USERS,
-          label: 'All users'
+          get label() {
+            return t('form-constructor.select.all-users');
+          }
         },
         {
           value: TabTypes.LEVELS,
-          label: 'By levels'
+          get label() {
+            return t('form-constructor.select.by-levels');
+          }
         }
       ]
     },

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { DragDropContext } from 'react-beautiful-dnd';
 import ReactResizeDetector from 'react-resize-detector';
 import get from 'lodash/get';
+import merge from 'lodash/merge';
 import isEmpty from 'lodash/isEmpty';
 
 import { LayoutTypes } from '../../constants/layout';
@@ -36,6 +37,7 @@ class Layout extends Component {
     menuType: PropTypes.string,
     className: PropTypes.string,
     type: PropTypes.string,
+    dashboardId: PropTypes.string,
     onSaveWidget: PropTypes.func,
     onSaveWidgetProps: PropTypes.func,
     canDragging: PropTypes.bool
@@ -192,7 +194,7 @@ class Layout extends Component {
   };
 
   renderWidgets(widgets = [], columnName) {
-    const { canDragging, tabId, isActiveLayout } = this.props;
+    const { canDragging, tabId, isActiveLayout, dashboardId } = this.props;
     const { recordRef } = getSearchParams();
     const components = [];
 
@@ -211,12 +213,18 @@ class Layout extends Component {
       const commonProps = {
         canDragging,
         tabId,
+        dashboardId,
         isActiveLayout,
         onSave: this.props.onSaveWidgetProps,
         onLoad: this.checkWidgets,
         onUpdate: this.checkWidgets
       };
-      const baseProps = Components.getProps(widget.name);
+
+      const props = {};
+      merge(props, Components.getProps(widget.name));
+      merge(props, widget.props);
+      merge(props, commonProps);
+
       let Widget = this.#loadedWidgets[widget.name];
 
       if (pageTabService.isActiveTab(tabId)) {
@@ -232,7 +240,7 @@ class Layout extends Component {
         components.push(
           <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
             <Suspense fallback={<Loader type="points" />}>
-              <Widget {...baseProps} {...widget.props} {...commonProps} id={widget.props.id} />
+              <Widget {...props} id={widget.props.id} />
             </Suspense>
           </DragItem>
         );
@@ -240,7 +248,7 @@ class Layout extends Component {
         components.push(
           <div key={key} className="ecos-layout__element">
             <Suspense fallback={<Loader type="points" />}>
-              <Widget {...baseProps} {...widget.props} {...commonProps} />
+              <Widget {...props} {...commonProps} />
             </Suspense>
           </div>
         );

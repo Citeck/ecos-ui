@@ -8,6 +8,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { IcoBtn, TwoIcoBtn } from '../../btns';
 import { getPropByStringKey, getTextByLocale } from '../../../../helpers/util';
+import { getIconUpDown } from '../../../../helpers/icon';
 import MenuItem from './MenuItem';
 
 import './Dropdown.scss';
@@ -105,11 +106,7 @@ export default class Dropdown extends Component {
       }
 
       return (
-        <IcoBtn
-          className={classNames('ecos-dropdown__toggle_selected', controlClassName)}
-          invert
-          icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'}
-        >
+        <IcoBtn className={classNames('ecos-dropdown__toggle_selected', controlClassName)} invert icon={getIconUpDown(dropdownOpen)}>
           {label}
         </IcoBtn>
       );
@@ -129,7 +126,7 @@ export default class Dropdown extends Component {
     if (!children) {
       return (
         <TwoIcoBtn
-          icons={[controlIcon, dropdownOpen ? 'icon-small-up' : 'icon-small-down']}
+          icons={[controlIcon, getIconUpDown(dropdownOpen)]}
           label={controlLabel}
           className={classNames('ecos-dropdown__toggle_static', controlClassName)}
         >
@@ -216,13 +213,13 @@ export default class Dropdown extends Component {
   };
 
   render() {
-    const { full, className, toggleClassName, direction } = this.props;
+    const { full, className, toggleClassName, direction, disabled } = this.props;
     const { dropdownOpen } = this.state;
     const cssClasses = classNames('ecos-dropdown', className, { 'ecos-dropdown_full-width': full });
     const cssDropdownToggle = classNames('ecos-dropdown__toggle', toggleClassName);
 
     return (
-      <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction}>
+      <Drd className={cssClasses} isOpen={dropdownOpen} toggle={this.toggle} direction={direction} disabled={disabled}>
         <DropdownToggle onClick={this.toggle} data-toggle="dropdown" aria-expanded={dropdownOpen} className={cssDropdownToggle} tag="span">
           {this.renderToggle()}
         </DropdownToggle>

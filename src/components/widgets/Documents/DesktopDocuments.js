@@ -37,6 +37,7 @@ import { AvailableTypeInterface, DocumentInterface, DynamicTypeInterface, Groupp
 
 class DesktopDocuments extends BaseDocuments {
   scrollPosition = {};
+  #updateWatcherLocal = null;
 
   static propTypes = {
     ...super.propTypes,
@@ -108,6 +109,8 @@ class DesktopDocuments extends BaseDocuments {
     this._typesList = React.createRef();
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
+
+    this.#updateWatcherLocal = this.instanceRecord.watch(this.observableFieldsToUpdate, this.updateDocList);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -130,6 +133,7 @@ class DesktopDocuments extends BaseDocuments {
   componentWillUnmount() {
     super.componentWillUnmount();
     this.handleRowMouseLeave.cancel();
+    this.instanceRecord.unwatch(this.#updateWatcherLocal);
   }
 
   get contentWidth() {
@@ -485,7 +489,7 @@ class DesktopDocuments extends BaseDocuments {
     let hasTooltip = false;
     let hasError = false;
 
-    if (type.type === selectedTypeForLoading.type) {
+    if (type.type === get(selectedTypeForLoading, 'type')) {
       if (uploadError) {
         label = t(Labels.ERROR_UPLOAD);
         hasTooltip = true;
@@ -532,6 +536,10 @@ class DesktopDocuments extends BaseDocuments {
         {this.renderCountStatus(params[1], 'grid')}
       </div>
     );
+  };
+
+  updateDocList = () => {
+    this.getDocumentsByType(this.state.selectedType);
   };
 
   renderTypes() {
@@ -786,7 +794,6 @@ class DesktopDocuments extends BaseDocuments {
 
   render() {
     const { dragHandleProps, canDragging } = this.props;
-    const { isCollapsed } = this.state;
 
     return (
       <div>
@@ -803,7 +810,7 @@ class DesktopDocuments extends BaseDocuments {
           onChangeHeight={this.handleChangeHeight}
           getFitHeights={this.setFitHeights}
           onToggleCollapse={this.handleToggleContent}
-          isCollapsed={isCollapsed}
+          isCollapsed={this.isCollapsed}
           setRef={this.setDashletRef}
         >
           <div className="ecos-docs__container">

@@ -1,12 +1,40 @@
-import _ from 'lodash';
-import Webform from 'formiojs/Webform';
-import WebformBuilder from 'formiojs/WebformBuilder';
 import Components from 'formiojs/components/Components';
 import EventEmitter from 'formiojs/EventEmitter';
 import BuilderUtils from 'formiojs/utils/builder';
 import { getComponent } from 'formiojs/utils/formUtils';
+import Webform from 'formiojs/Webform';
+import WebformBuilder from 'formiojs/WebformBuilder';
+import _ from 'lodash';
 
+import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
+
+const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
+const originAddBuilderComponent = WebformBuilder.prototype.addBuilderComponent;
+
+Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
+  get: function() {
+    return {
+      basic: {
+        title: t('form-constructor.builder.basic'),
+        weight: 0,
+        default: true
+      },
+      advanced: {
+        title: t('form-constructor.builder.advanced'),
+        weight: 10
+      },
+      layout: {
+        title: t('form-constructor.builder.layout'),
+        weight: 20
+      },
+      data: {
+        title: t('form-constructor.builder.data'),
+        weight: 30
+      }
+    };
+  }
+});
 
 WebformBuilder.prototype.updateComponent = function(component) {
   // Update the preview.
@@ -99,7 +127,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
       class: 'btn btn-success',
       style: 'margin-right: 10px;'
     },
-    this.t('Save')
+    t('form-editor.save-button')
   );
 
   const cancelButton = this.ce(
@@ -108,7 +136,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
       class: 'btn btn-default',
       style: 'margin-right: 10px;'
     },
-    this.t('Cancel')
+    t('form-editor.cancel-button')
   );
 
   const removeButton = this.ce(
@@ -116,7 +144,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     {
       class: 'btn btn-danger'
     },
-    this.t('Remove')
+    t('form-editor.remove-button')
   );
 
   const componentEdit = this.ce('div', {}, [
@@ -162,7 +190,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
                   {
                     class: this.iconClass('new-window')
                   },
-                  ` ${this.t('Help')}`
+                  t('form-editor.help')
                 )
               )
             )
@@ -205,7 +233,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
                     {
                       class: 'card-title panel-title mb-0'
                     },
-                    this.t('Preview')
+                    t('form-editor.preview-button')
                   )
                 ),
                 this.ce(
@@ -345,9 +373,6 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   });
 
   this.addEventListener(saveButton, 'click', event => {
-    if (!this.editForm.checkValidity(this.editForm.data, true)) {
-      return;
-    }
     event.preventDefault();
     const originalComponent = component.schema;
     component.isNew = false;
@@ -360,9 +385,36 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     if (component.dragEvents && component.dragEvents.onSave) {
       component.dragEvents.onSave(component);
     }
+    const popup = this.element.closest('.modal-dialog');
+    let top = 0;
+    if (popup) {
+      top = Math.round(popup.getBoundingClientRect().top) * -1;
+    }
     this.form = this.schema;
     this.emit('saveComponent', component, originalComponent);
     this.dialog.close();
+
+    const container = this.element.closest('.modal');
+
+    if (!container) {
+      return;
+    }
+
+    const target = document.querySelector('.formarea');
+    const observer = new MutationObserver(function() {
+      container.scrollTo(0, top);
+      setTimeout(() => {
+        observer.disconnect();
+      }, 100);
+    });
+
+    const config = {
+      childList: true,
+      attributes: true,
+      characterData: true
+    };
+
+    observer.observe(target, config);
   });
 
   this.addEventListener(this.dialog, 'close', () => {
@@ -377,10 +429,24 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   this.emit('editComponent', component);
 };
 
-const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
-
 WebformBuilder.prototype.addBuilderComponentInfo = function(builderInfo) {
   return originAddBuilderComponentInfo.call(this, prepareComponentBuilderInfo(builderInfo));
+};
+
+WebformBuilder.prototype.addBuilderComponent = function(...props) {
+  const component = originAddBuilderComponent.call(this, ...props);
+  if (component.element && component.documentation) {
+    const helper = this.ce('i', {
+      class: 'fa fa-question-circle-o',
+      style: 'right: 5px; position: absolute;font-size: 13px;cursor: pointer;',
+      title: t('form-editor.open-comp-doc', { name: component.title || component.key })
+    });
+
+    this.addEventListener(helper, 'click', () => window.open(component.documentation, '_blank'), true);
+
+    component.element.appendChild(helper);
+  }
+  return component;
 };
 
 export default WebformBuilder;

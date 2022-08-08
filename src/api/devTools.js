@@ -27,14 +27,6 @@ export class DevToolsApi extends CommonApi {
     } catch (e) {
       console.error('build info fetch error', e);
     }
-    if (!res || !res.records || !res.records.length) {
-      res = await Records.query(
-        {
-          sourceId: SourcesId.UISERV_BUILD_INFO
-        },
-        atts
-      );
-    }
     if (res && res.records && atts.commits) {
       res.records.forEach(r => {
         if (r.commits && r.commits.length === 1 && Array.isArray(r.commits[0])) {
@@ -81,8 +73,8 @@ export class DevToolsApi extends CommonApi {
   };
 
   getIsAccessiblePage = () => {
-    return Records.get(`${SourcesId.PEOPLE}@${getCurrentUserName()}`)
-      .load({ isAdmin: 'isAdmin?bool', isDevAdmin: '.att(n:"authorities"){has(n:"GROUP_DEV_TOOLS_ADMIN")}' })
+    return Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`)
+      .load({ isAdmin: 'isAdmin?bool', isDevAdmin: 'authorities._has.GROUP_DEV_TOOLS_ADMIN?bool' })
       .then(({ isAdmin, isDevAdmin }) => isAdmin || isDevAdmin);
   };
 }

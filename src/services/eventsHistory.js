@@ -1,14 +1,39 @@
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
+
 import { cellMsg, t } from '../helpers/util';
-import { AUTHORITY_TYPE_USER } from '../components/common/form/SelectOrgstruct/constants';
-import OrgstructEditor from '../components/Journals/service/editors/registry/OrgstructEditor';
-import DateTimeEditor from '../components/Journals/service/editors/registry/DateTimeEditor';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING } from '../components/Journals/service/util';
+import OrgstructEditor from '../components/Journals/service/editors/registry/OrgstructEditor';
+import { AUTHORITY_TYPE_USER } from '../components/common/form/SelectOrgstruct/constants';
 
 export default class EventsHistoryService {
+  static defaultJournal = 'history-records-widget';
+
+  static joinFilters(items, newItem) {
+    const filtering = item => {
+      if (isEqual(item, newItem)) {
+        return false;
+      }
+
+      return item.att !== newItem.att;
+    };
+
+    const result = items.filter(filtering);
+
+    if (!isEmpty(newItem.val) || !newItem.needValue) {
+      result.push(newItem);
+    }
+
+    return result;
+  }
+
+  /**
+   * @deprecated Use journal config
+   */
   static config = {
     columns: [
       {
-        attribute: 'event:date',
+        attribute: 'creationTime',
         formatter: {
           name: 'DateTimeFormatter',
           params: {
@@ -19,11 +44,11 @@ export default class EventsHistoryService {
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.DATETIME,
         newEditor: {
           config: {},
-          type: DateTimeEditor.TYPE
+          type: 'datetime'
         }
       },
       {
-        attribute: 'event:name',
+        attribute: 'eventType',
         formatter: {
           name: 'FunctionFormatter',
           params: {
@@ -38,7 +63,7 @@ export default class EventsHistoryService {
         type: COLUMN_TYPE_NEW_TO_LEGACY_MAPPING.TEXT
       },
       {
-        attribute: 'event:documentVersion',
+        attribute: 'version',
         text: t('dochist.header.version'),
         newEditor: {
           config: {},

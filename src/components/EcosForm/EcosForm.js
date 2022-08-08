@@ -18,6 +18,7 @@ import Records from '../Records';
 import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
+import { LANGUAGE_EN } from '../../constants/lang';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -26,7 +27,7 @@ import '../../forms/style.scss';
 let formCounter = 0;
 
 class EcosForm extends React.Component {
-  _formBuilderModal = React.createRef();
+  _formBuilderModal = null;
   _formContainer = React.createRef();
   _form = null;
   _containerHeightTimerId = null;
@@ -76,6 +77,12 @@ class EcosForm extends React.Component {
     };
   }
 
+  setRefFormBuilderModal = element => {
+    if (element) {
+      this._formBuilderModal = element;
+    }
+  };
+
   initForm(newFormDefinition = this.state.formDefinition) {
     const alfConstants = get(window, 'Alfresco.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
@@ -122,11 +129,16 @@ class EcosForm extends React.Component {
         onFormLoadingFailure();
         return null;
       }
-      const modal = this._formContainer.current.closest('.ecos-modal');
 
-      if (modal && formData.width && formData.width !== 'default') {
-        modal.classList.remove('ecos-modal_width-lg');
-        modal.classList.add(`ecos-modal_width-${formData.width}`);
+      const container = get(this._formContainer, 'current');
+
+      if (container) {
+        const modal = container.closest('.ecos-modal');
+
+        if (modal && formData.width && formData.width !== 'default') {
+          modal.classList.remove('ecos-modal_width-lg');
+          modal.classList.add(`ecos-modal_width-${formData.width}`);
+        }
       }
 
       const customModulePromise = new Promise(function(resolve) {
@@ -141,6 +153,10 @@ class EcosForm extends React.Component {
       const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
       this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
+
+      if (this._formBuilderModal) {
+        this._formBuilderModal.setStateData({ formId: formData.formId });
+      }
 
       const inputs = EcosFormUtils.getFormInputs(formDefinition);
       const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
@@ -195,7 +211,7 @@ class EcosForm extends React.Component {
             currentLangTranslate = translate;
           }
 
-          if (key === 'en') {
+          if (key === LANGUAGE_EN) {
             enTranslate = translate;
           }
 
@@ -345,11 +361,11 @@ class EcosForm extends React.Component {
   };
 
   onShowFormBuilder = async callback => {
-    if (this._formBuilderModal.current) {
+    if (this._formBuilderModal) {
       const { formId } = this.state;
       const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
-      this._formBuilderModal.current.show(definitionToEdit, form => {
+      this._formBuilderModal.show(definitionToEdit, form => {
         EcosFormUtils.saveFormBuilder(form, formId).then(() => {
           EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
             this.initForm(newFormDef);
@@ -482,10 +498,6 @@ class EcosForm extends React.Component {
             resetOutcomeButtonsValues();
           })
           .finally(() => {
-            // TODO This may not be the best solution.
-            //  But at the moment it works for
-            //  https://citeck.atlassian.net/browse/ECOSUI-64
-            sRecord.reset();
             self.toggleLoader(false);
           });
       } else {
@@ -530,7 +542,7 @@ class EcosForm extends React.Component {
     return (
       <div className={className}>
         <div id={containerId} ref={this._formContainer} />
-        <EcosFormBuilderModal ref={this._formBuilderModal} />
+        <EcosFormBuilderModal ref={this.setRefFormBuilderModal} />
       </div>
     );
   }

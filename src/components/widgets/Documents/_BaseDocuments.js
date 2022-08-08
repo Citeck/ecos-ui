@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import head from 'lodash/head';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
@@ -80,16 +81,14 @@ class BaseDocuments extends BaseWidget {
       typesFilter: '',
       tableFilter: '',
       statusFilter: statusesKeys.ALL,
-      typesStatuses: typeStatusesByFields.map(type => ({
-        ...type,
-        value: t(type.value)
-      })),
+      typesStatuses: typeStatusesByFields.map(type => ({ ...type, value: t(type.value) })),
       isLoadingUploadingModal: true,
       needRefreshGrid: false
     };
 
     this._emptyStubRef = React.createRef();
     this._counterRef = React.createRef();
+    this.observableFieldsToUpdateWithDefault = ['documents-hash'];
   }
 
   componentDidMount() {
@@ -105,11 +104,11 @@ class BaseDocuments extends BaseWidget {
     }
 
     if (!state.selectedType && props.dynamicTypes.length === 1) {
-      newState.selectedType = props.dynamicTypes[0].type;
+      newState.selectedType = head(props.dynamicTypes).type;
     }
 
     if (!state.selectedTypeForLoading && props.dynamicTypes.length === 1) {
-      newState.selectedTypeForLoading = props.dynamicTypes[0];
+      newState.selectedTypeForLoading = head(props.dynamicTypes);
     }
 
     if (!props.isLoadingSettings && state.isOpenSettings && state.isSentSettingsToSave) {
@@ -118,7 +117,7 @@ class BaseDocuments extends BaseWidget {
     }
 
     if (state.selectedTypeForLoading) {
-      const selectedType = props.dynamicTypes.find(item => item.type === state.selectedTypeForLoading.type);
+      const selectedType = props.dynamicTypes.find(item => item.type === get(state.selectedTypeForLoading, 'type'));
 
       if (!isEqual(state.selectedTypeForLoading, selectedType)) {
         newState.selectedTypeForLoading = selectedType;
@@ -187,7 +186,7 @@ class BaseDocuments extends BaseWidget {
     const { dynamicTypes } = this.props;
 
     if (dynamicTypes.length === 1) {
-      return dynamicTypes[0].name;
+      return head(dynamicTypes).name;
     }
 
     return t(Labels.TITLE);
@@ -321,12 +320,12 @@ class BaseDocuments extends BaseWidget {
     const { selectedTypeForLoading } = this.state;
 
     if (this.getFormId(selectedTypeForLoading)) {
-      this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, openForm: this.openForm, callback });
+      this.props.onUploadFiles({ files, type: get(selectedTypeForLoading, 'type'), openForm: this.openForm, callback });
 
       return;
     }
 
-    this.props.onUploadFiles({ files, type: selectedTypeForLoading.type, callback });
+    this.props.onUploadFiles({ files, type: get(selectedTypeForLoading, 'type'), callback });
   };
 
   handleUploadedFiles = () => {
@@ -336,7 +335,7 @@ class BaseDocuments extends BaseWidget {
   handleSubmitForm = () => {
     const { selectedTypeForLoading } = this.state;
 
-    this.props.getDocuments(selectedTypeForLoading.type);
+    this.props.getDocuments(get(selectedTypeForLoading, 'type'));
     this.uploadingComplete();
     NotificationManager.success(t('documents-widget.notification.add-one.success'));
   };
@@ -412,8 +411,9 @@ class BaseDocuments extends BaseWidget {
     this.setState({ isDragFiles: false });
   };
 
-  openForm = (data = {}) => {
+  openForm = (data = {}, options = {}) => {
     FormManager.createRecordByVariant(data, {
+      ...options,
       onSubmit: this.handleSubmitForm
     });
   };

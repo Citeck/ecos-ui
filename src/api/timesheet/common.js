@@ -88,7 +88,7 @@ export class TimesheetCommonApi extends RecordService {
         query: `${queryNames}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: SourcesId.PEOPLE,
+        sourceId: SourcesId.PERSON,
         debug: false
       },
       {

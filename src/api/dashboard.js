@@ -301,7 +301,7 @@ export class DashboardApi {
       });
   };
 
-  static getIsAvailableWidget = (record, condition) => {
+  static getIsAvailableWidget = (record = '', condition) => {
     if (!condition) {
       return Promise.resolve(true);
     }

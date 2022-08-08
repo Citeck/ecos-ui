@@ -43,14 +43,12 @@ export const pagesWithOnlyContent = [
 
 export const SourcesId = {
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
-  UISERV_BUILD_INFO: 'uiserv/build-info',
   EAPPS_BUILD_INFO: 'eapps/build-info',
   DASHBOARD: 'uiserv/dashboard',
   DOCLIB: 'alfresco/doclib',
   RESOLVED_FORM: 'uiserv/rform',
-  EFORM: 'uiserv/form',
+  FORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',
-  CONFIG: 'uiserv/config',
   MENU: 'uiserv/menu',
   RESOLVED_MENU: 'uiserv/rmenu',
   ICON: 'uiserv/icon',
@@ -67,7 +65,6 @@ export const SourcesId = {
   A_AUTHORITY: 'alfresco/authority',
   A_META: 'alfresco/meta',
   A_WORKFLOW: 'alfresco/workflow',
-  ECOS_CONFIG: 'ecos-config',
   HISTORY: 'history',
   STATUS: 'status',
   LEGACY_COMMENT: 'comment',
@@ -76,16 +73,34 @@ export const SourcesId = {
   PEOPLE: 'people',
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
-  TASK: 'wftask',
+  TASK: 'eproc/wftask',
+  TASK_FORM: 'uiserv/task-form',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
+  BPMN_PROC: 'eproc/bpmn-proc',
+  BPMN_STAT: 'eproc/bpmn-process-elements',
   ACTION: 'uiserv/action',
-  PRESETS: 'uiserv/journal-settings'
+  PRESETS: 'uiserv/journal-settings',
+  GROUP: 'emodel/authority-group',
+  PERSON: 'emodel/person',
+  PROC_TASK: 'eproc/proc-task',
+  get CURRENT_USER() {
+    return `${SourcesId.PERSON}@CURRENT`;
+  },
+  get HISTORY_REC() {
+    return `${SourcesId.HISTORY}/history-record`;
+  }
+};
+
+export const QueryLanguages = {
+  TASKS: 'tasks',
+  FORM: 'form'
 };
 
 export const EmodelTypes = {
   USER_DASHBOARD: 'emodel/type@user-dashboard',
-  BASE: 'emodel/type@base'
+  BASE: 'emodel/type@base',
+  HISTORY_REC: 'emodel/type@history-record'
 };
 
 export const ActionModes = {
@@ -193,12 +208,14 @@ export const SystemJournals = {
   TYPES: 'ecos-types',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
-  PROCESS: 'bpmn-process-def'
+  PROCESS: 'bpmn-process-def',
+  PROCESS_ELMS: 'bpmn-process-elements'
 };
 
 export const DateFormats = {
   DATE: 'DD.MM.YYYY',
-  DATETIME: 'DD.MM.YYYY HH:mm'
+  DATETIME: 'DD.MM.YYYY HH:mm',
+  TIME: 'HH:mm'
 };
 
 window.Citeck = window.Citeck || {};

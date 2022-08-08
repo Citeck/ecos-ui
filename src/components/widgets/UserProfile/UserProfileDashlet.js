@@ -77,7 +77,6 @@ class UserProfileDashlet extends BaseWidget {
       message,
       isCurrentAdmin
     } = this.props;
-    const { isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -89,7 +88,7 @@ class UserProfileDashlet extends BaseWidget {
         isLoading={isLoading}
         setRef={this.setDashletRef}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
       >
         <Scrollbars {...this.scrollbarProps}>
           {!isLoading && (

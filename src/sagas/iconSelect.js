@@ -21,7 +21,7 @@ function* fetchGetCustomIcons({ api, logger }, { payload: { family } }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.get-custom-icons'), t('error'));
-    logger.error('[menu-settings / fetchGetCustomIcons]', e.message);
+    logger.error('[menu-settings / fetchGetCustomIcons]', e);
   }
 }
 
@@ -33,7 +33,7 @@ function* fetchGetFontIcons({ api, logger }, { payload: prefix }) {
     yield put(setFontIcons(prefix ? icons.filter(item => item.value.startsWith(prefix)) : icons));
   } catch (e) {
     NotificationManager.error(t('icon-select.error.get-font-icons'), t('error'));
-    logger.error('[menu-settings / fetchGetFontIcons]', e.message);
+    logger.error('[menu-settings / fetchGetFontIcons]', e);
   }
 }
 
@@ -56,7 +56,7 @@ function* runUploadCustomIcon({ api, logger }, { payload: { file, family } }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.upload-custom-icon'), t('error'));
-    logger.error('[menu-settings / runUploadCustomIcon]', e.message);
+    logger.error('[menu-settings / runUploadCustomIcon]', e);
   }
 }
 
@@ -72,7 +72,7 @@ function* runDeleteCustomIcon({ api, logger }, { payload: deleted }) {
   } catch (e) {
     yield put(setLoading(false));
     NotificationManager.error(t('icon-select.error.delete-custom-icon'), t('error'));
-    logger.error('[menu-settings / runDeleteCustomIcon]', e.message);
+    logger.error('[menu-settings / runDeleteCustomIcon]', e);
   }
 }
 

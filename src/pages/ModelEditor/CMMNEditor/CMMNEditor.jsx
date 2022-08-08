@@ -43,7 +43,7 @@ class CMMNEditorPage extends ModelEditor {
   }
 
   get formId() {
-    return this.formType ? `${SourcesId.EFORM}${PREFIX_FORM_ELM}${this.formType}` : null;
+    return this.formType ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${this.formType}` : null;
   }
 
   _getBusinessObjectByDiagramElement(element) {

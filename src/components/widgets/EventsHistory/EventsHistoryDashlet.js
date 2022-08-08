@@ -1,13 +1,18 @@
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 
 import { isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
+import DAction from '../../../services/DashletActionService';
+import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
-import EventsHistory from './EventsHistory';
-import { MAX_DEFAULT_HEIGHT_DASHLET } from '../../../constants';
+import JournalHistory from './JournalHistory';
+import EventsHistorySettings from './EventsHistorySettings';
+import { Labels } from './util';
 
 import './style.scss';
 
@@ -41,7 +46,9 @@ class EventsHistoryDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      isSmallMode: false
+      isSmallMode: false,
+      isShowSetting: false,
+      runCleanFilters: false
     };
   }
 
@@ -59,40 +66,85 @@ class EventsHistoryDashlet extends BaseWidget {
     return height;
   }
 
-  onResize = width => {
+  get dashletActions() {
+    const { isShowSetting } = this.state;
+
+    if (isShowSetting || !this.props.config) {
+      return {};
+    }
+
+    return {
+      [DAction.Actions.RELOAD]: {
+        onClick: this.reload.bind(this)
+      },
+      'clean-filters': {
+        icon: 'icon-filter-clean',
+        text: t(Labels.ACT_CLEAN_FILTER),
+        onClick: this.handleCleanFilters
+      },
+      [DAction.Actions.SETTINGS]: {
+        onClick: this.toggleSettings
+      }
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    super.componentDidUpdate(prevProps, prevState, snapshot);
+
+    if (!isEqual(prevProps.config, this.props.config)) {
+      this.reload();
+    }
+  }
+
+  handleResize = width => {
     !!width && this.setState({ isSmallMode: isSmallMode(width) });
+  };
+
+  handleSaveConfig = config => {
+    isFunction(this.props.onSave) && this.props.onSave(this.props.id, { config });
+    this.toggleSettings();
+  };
+
+  toggleSettings = () => {
+    this.setState(state => ({ isShowSetting: !state.isShowSetting }));
+  };
+
+  handleCleanFilters = () => {
+    this.setState({ runCleanFilters: true }, () => this.setState({ runCleanFilters: false }));
   };
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isCollapsed } = this.state;
+    const { isSmallMode, isShowSetting, runUpdate, runCleanFilters } = this.state;
 
     return (
       <Dashlet
-        title={title || t('events-history-widget.title')}
+        title={title || t(Labels.WIDGET_TITLE)}
         className={classNames('ecos-event-history-dashlet', classNameDashlet)}
         bodyClassName="ecos-event-history-dashlet__body"
         resizable={true}
-        noActions
+        actionConfig={this.dashletActions}
         needGoTo={false}
         canDragging={canDragging}
         dragHandleProps={dragHandleProps}
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
-        onResize={this.onResize}
+        onResize={this.handleResize}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
         contentMaxHeight={this.dashletMaxHeight}
       >
-        <EventsHistory
+        {isShowSetting && <EventsHistorySettings config={config} onCancel={this.toggleSettings} onSave={this.handleSaveConfig} />}
+        <JournalHistory
           {...config}
           forwardedRef={this.contentRef}
-          className={classNameContent}
+          className={classNames({ 'd-none': isShowSetting }, classNameContent)}
           record={record}
           stateId={this.stateId}
           isSmallMode={isSmallMode}
           runUpdate={runUpdate}
+          runCleanFilters={runCleanFilters}
           maxHeight={MAX_DEFAULT_HEIGHT_DASHLET - this.otherHeight}
           getContentHeight={this.setContentHeight}
           scrollbarProps={this.scrollbarProps}

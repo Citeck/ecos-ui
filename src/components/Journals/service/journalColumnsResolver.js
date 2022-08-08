@@ -15,6 +15,7 @@ import {
 import EditorScope from './editors/EditorScope';
 import { DEFAULT_TYPE } from './constants';
 import { ASSOC_DEFAULT_INNER_SCHEMA } from '../../Records/constants';
+import { LOCAL_ID } from '../../../constants/journal';
 
 const NOT_SORTABLE_TYPES = [
   COLUMN_DATA_TYPE_ASSOC,
@@ -63,7 +64,15 @@ class JournalColumnsResolver {
     return columns.map(c => this._resolveColumn(c));
   }
 
-  _resolveColumn(column) {
+  _resolveColumn(data) {
+    const column = { ...data };
+
+    ['name', 'attribute', 'schema'].forEach(attr => {
+      if (column[attr] === 'id') {
+        column[attr] = LOCAL_ID;
+      }
+    });
+
     const type = column.type || DEFAULT_TYPE;
     const name = column.name || column.attribute;
     const label = this._getLabel(column);

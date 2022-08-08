@@ -22,7 +22,7 @@ export class TimesheetDelegatedApi extends RecordService {
         query: `TYPE:'timesheet:Request' ${queryType} ${queryStatuses} ${queryTime}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: SourcesId.PEOPLE,
+        sourceId: SourcesId.PERSON,
         debug: false
       },
       attributes: {
@@ -44,7 +44,7 @@ export class TimesheetDelegatedApi extends RecordService {
         query: `TYPE:'timesheet:Request' ${queryType} ${queryStatuses} ${queryTime}`,
         language: 'fts-alfresco',
         maxItems: 100,
-        sourceId: SourcesId.PEOPLE,
+        sourceId: SourcesId.PERSON,
         debug: false
       },
       attributes: { _tc: '_tc' }

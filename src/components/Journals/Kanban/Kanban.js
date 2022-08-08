@@ -1,16 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
 
-import { getNextPage, moveCard } from '../../../actions/kanban';
+import { getNextPage, moveCard, runAction } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
-import { isExistValue, t } from '../../../helpers/util';
+import { t } from '../../../helpers/util';
 import { InfoText, Loader, PointsLoader } from '../../common';
 import { Labels } from '../constants';
 import HeaderColumn from './HeaderColumn';
@@ -25,11 +27,18 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch, props) {
   return {
     getNextPage: () => dispatch(getNextPage({ stateId: props.stateId })),
-    moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data }))
+    moveCard: data => dispatch(moveCard({ stateId: props.stateId, ...data })),
+    runAction: (recordRef, action) => dispatch(runAction({ recordRef, action, stateId: props.stateId }))
   };
 }
 
 class Kanban extends React.Component {
+  static propTypes = {
+    getNextPage: PropTypes.func,
+    moveCard: PropTypes.func,
+    runAction: PropTypes.func
+  };
+
   refBody = React.createRef();
   refScroll = React.createRef();
 
@@ -63,7 +72,7 @@ class Kanban extends React.Component {
   };
 
   handleScrollFrame = (scroll = {}) => {
-    if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
+    if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
       this.props.getNextPage();
     }
   };
@@ -83,24 +92,32 @@ class Kanban extends React.Component {
     const fromColumnRef = get(result, 'source.droppableId');
     const toColumnRef = get(result, 'destination.droppableId');
 
-    if (fromColumnRef === toColumnRef || !isExistValue(toColumnRef)) {
+    if (fromColumnRef === toColumnRef || isNil(toColumnRef)) {
       return;
     }
 
     this.props.moveCard({ cardIndex, fromColumnRef, toColumnRef });
   };
 
+  /**
+   * @param {KanbanColumnData} data
+   * @param {Number} index
+   * @returns {JSX.Element}
+   */
   renderColumn = (data, index) => {
+    const { stateId, runAction } = this.props;
     const { isDragging } = this.state;
-    const { stateId } = this.props;
 
-    return <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} isDragging={isDragging} />;
+    return (
+      <Column key={`col_${data.id}`} data={data} stateId={stateId} columnIndex={index} isDragging={isDragging} runAction={runAction} />
+    );
   };
 
   render() {
+    const { columns, dataCards = [], isLoading, isFirstLoading, page } = this.props;
     const { isDragging } = this.state;
-    const { columns = [], dataCards = [], isLoading, isFirstLoading, page } = this.props;
     const bodyStyle = { minHeight: this.getHeight(-70) };
+    const cols = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
 
     if (isDragging) {
       bodyStyle.height = bodyStyle.minHeight;
@@ -108,7 +125,7 @@ class Kanban extends React.Component {
     }
 
     return (
-      <div className="ecos-kanban" style={{ '--count-col': columns.length || 1 }}>
+      <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
         <Scrollbars
           autoHeight
           autoHeightMin={this.getHeight()}
@@ -119,7 +136,7 @@ class Kanban extends React.Component {
           ref={this.refScroll}
         >
           <div className="ecos-kanban__head">
-            {columns.map((data, index) => (
+            {cols.map((data, index) => (
               <HeaderColumn
                 key={`head_${data.id}`}
                 isReady={!isFirstLoading}
@@ -136,10 +153,10 @@ class Kanban extends React.Component {
             style={bodyStyle}
             ref={this.refBody}
           >
-            {isLoading && isEmpty(columns) && <Loader />}
-            {!isLoading && isEmpty(columns) && <InfoText className="ecos-kanban__info" text={t(Labels.Kanban.NO_COLUMNS)} />}
+            {isLoading && isEmpty(cols) && <Loader />}
+            {!isLoading && isEmpty(cols) && <InfoText className="ecos-kanban__info" text={t(Labels.Kanban.NO_COLUMNS)} />}
             <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
-              {columns.map(this.renderColumn)}
+              {cols.map(this.renderColumn)}
             </DragDropContext>
           </div>
         </Scrollbars>

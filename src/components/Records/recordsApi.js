@@ -46,7 +46,9 @@ function recordsFetch(url, body) {
         checkRespMessages(body.messages);
         return body;
       }
-
+      if (body.messages) {
+        checkRespMessages(body.messages);
+      }
       if (body.message) {
         throw new Error(body.message);
       } else {

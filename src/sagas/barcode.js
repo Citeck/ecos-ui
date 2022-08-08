@@ -11,7 +11,7 @@ function* sagaInit({ api, logger }, { payload: { stateId, record, config } }) {
     yield put(setAllowedTypes({ stateId, allowedTypes }));
   } catch (e) {
     yield put(setError({ stateId, error: t('barcode-widget.saga.error1') }));
-    logger.error('[barcode/sagaInit saga] error', e.message);
+    logger.error('[barcode/sagaInit saga] error', e);
   }
 }
 
@@ -31,7 +31,7 @@ function* sagaGetBase64Barcode({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setError({ stateId, error: t('barcode-widget.saga.error1') }));
-    logger.error('[barcode/sagaGetBase64Barcode saga] error', e.message);
+    logger.error('[barcode/sagaGetBase64Barcode saga] error', e);
   }
 }
 

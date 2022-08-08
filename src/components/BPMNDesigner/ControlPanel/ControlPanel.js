@@ -4,25 +4,16 @@ import { Col, Row } from 'reactstrap';
 
 import { t } from '../../../helpers/export/util';
 import { Labels } from '../../../constants/bpmn';
-import { showImportModelForm, showModelCreationForm } from '../../../actions/bpmn';
-import BPMNDesignerService from '../../../services/BPMNDesignerService';
 import { Dropdown } from '../../common/form';
 import Search from './Search';
 import ViewSwitcher from './ViewSwitcher';
+import { createModel } from '../../../actions/bpmn';
 
 import '../style.scss';
 
-const ControlPanel = ({ showModelCreationForm, showImportModelForm, totalModels, isReady }) => {
-  const createVariants = BPMNDesignerService.getCreateVariants();
-
+const ControlPanel = ({ createModel, totalModels, isReady, createVariants }) => {
   const handlerCreateVariant = variant => {
-    if (variant.id === 'bpmn-designer-create-model') {
-      showModelCreationForm();
-    } else if (variant.id === 'bpmn-designer-import-model') {
-      showImportModelForm();
-    } else {
-      console.warn('Unknown variant');
-    }
+    createModel(variant);
   };
 
   return (
@@ -34,7 +25,7 @@ const ControlPanel = ({ showModelCreationForm, showImportModelForm, totalModels,
             isStatic
             source={createVariants}
             valueField="id"
-            titleField="title"
+            titleField="name"
             onChange={handlerCreateVariant}
             controlIcon="icon-small-plus"
             controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
@@ -55,12 +46,12 @@ const ControlPanel = ({ showModelCreationForm, showImportModelForm, totalModels,
 
 const mapStateToProps = state => ({
   totalModels: state.bpmn.models.length,
-  isReady: state.bpmn.isReady
+  isReady: state.bpmn.isReady,
+  createVariants: state.bpmn.createVariants
 });
 
 const mapDispatchToProps = dispatch => ({
-  showModelCreationForm: () => dispatch(showModelCreationForm()),
-  showImportModelForm: () => dispatch(showImportModelForm())
+  createModel: createVariant => dispatch(createModel({ createVariant }))
 });
 
 export default connect(

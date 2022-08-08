@@ -4,7 +4,7 @@
  */
 class ActionsRegistry {
   /**
-   * @type {object<string, ActionsHandler>}
+   * @type {Object<String, ActionsHandler>}
    */
   #registry = {};
 

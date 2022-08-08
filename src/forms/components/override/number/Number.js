@@ -6,6 +6,7 @@ import { createNumberMask } from 'text-mask-addons';
 
 import { overrideTriggerChange } from '../misc';
 import { getNumberSeparators, reverseString } from '../../../../helpers/util';
+import { LANGUAGE_RU } from '../../../../constants/lang';
 
 export default class NumberComponent extends FormIONumberComponent {
   static schema(...extend) {
@@ -60,6 +61,12 @@ export default class NumberComponent extends FormIONumberComponent {
       this.initNumberMask();
     }
   }
+
+  get delimiter() {
+    return this.component.delimiter ? this.component.delimiterValue || ' ' : '';
+  }
+
+  set delimiter(delimiter) {}
 
   initNumberMask = () => {
     this.numberMask = createNumberMask({
@@ -268,6 +275,7 @@ export default class NumberComponent extends FormIONumberComponent {
     }
 
     value = this.parseNumber(this.getView(value));
+
     if (isNaN(value)) {
       renderValue(this.defaultViewOnlyValue);
       return;
@@ -357,7 +365,7 @@ export default class NumberComponent extends FormIONumberComponent {
 
   _applyThousandsSeparator = value => {
     const [mainPart, decimalPart] = value.split(this.decimalSeparator);
-    let newValue = parseInt(mainPart).toLocaleString();
+    let newValue = parseInt(mainPart).toLocaleString(LANGUAGE_RU);
 
     if (this.component.delimiterValue) {
       const { thousand } = getNumberSeparators();

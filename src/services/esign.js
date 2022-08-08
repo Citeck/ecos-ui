@@ -7,7 +7,7 @@ import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
-import { t } from '../helpers/util';
+import { t, objectByString } from '../helpers/util';
 
 class Esign {
   static #queryParams = {};
@@ -111,9 +111,10 @@ class Esign {
       console.error('[EsignService init] error ', e.message);
 
       return Promise.reject({
-        messageTitle: hasPlugin ? t(Labels.ERROR) : t(Labels.ADD_PLUGIN),
+        messageTitle: hasPlugin ? t(Labels.EDS_ERROR) : t(Labels.ADD_PLUGIN),
         messageDescription: hasPlugin ? e.message : t(Labels.ADD_PLUGIN_MESSAGE),
-        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN)
+        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN),
+        formattedError: e.formattedError || Esign.formatErrorMessage(e)
       });
     }
   };
@@ -133,7 +134,8 @@ class Esign {
       if (!certificates.length) {
         return Promise.reject({
           messageTitle: t(Labels.NO_CERTIFICATES_MESSAGE),
-          messageDescription: ''
+          messageDescription: '',
+          formattedError: Esign.formatErrorMessage({}, t(Labels.ACTION_GET_CERT))
         });
       }
 
@@ -144,11 +146,16 @@ class Esign {
       console.error('[EsignService getCertificates] error ', e.message);
 
       return Promise.reject({
-        messageTitle: hasPlugin ? t(Labels.ERROR) : t(Labels.ADD_PLUGIN),
+        messageTitle: hasPlugin ? t(Labels.EDS_ERROR) : t(Labels.ADD_PLUGIN),
         messageDescription: hasPlugin ? e.message : t(Labels.ADD_PLUGIN_MESSAGE),
-        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN)
+        errorType: hasPlugin ? t(ErrorTypes.DEFAULT) : t(ErrorTypes.NO_CADESPLUGIN),
+        formattedError: e.formattedError || Esign.formatErrorMessage(e)
       });
     }
+  };
+
+  static formatErrorMessage = (error, action) => {
+    return objectByString({ action: action ? t(Labels.ACTION, { action }) : '', ...error });
   };
 
   static signDocumentByNode = async (thumbprint, document) => {
@@ -157,7 +164,8 @@ class Esign {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.NO_CERTIFICATE_THUMBPRINT_MESSAGE),
-          errorType: t(ErrorTypes.DEFAULT)
+          errorType: t(ErrorTypes.DEFAULT),
+          formattedError: Esign.formatErrorMessage({}, t(Labels.ACTION_CHECK_THUMB))
         });
       }
 
@@ -168,7 +176,14 @@ class Esign {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.NO_BASE64_DOC_MESSAGE),
-          errorType: t(ErrorTypes.DEFAULT)
+          errorType: t(ErrorTypes.DEFAULT),
+          formattedError: Esign.formatErrorMessage(
+            {
+              ...documentResponse,
+              document
+            },
+            t(Labels.ACTION_BASE64)
+          )
         });
       }
 
@@ -179,7 +194,15 @@ class Esign {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.SIGN_FAILED_VERIFICATION_MESSAGE),
-          errorType: t(ErrorTypes.DEFAULT)
+          errorType: t(ErrorTypes.DEFAULT),
+          formattedError: Esign.formatErrorMessage(
+            {
+              ...documentResponse,
+              document,
+              signedMessage
+            },
+            t(Labels.ACTION_VERIFICATION)
+          )
         });
       }
 
@@ -193,9 +216,10 @@ class Esign {
       console.error('[EsignService signDocumentByNode] error ', e.message);
 
       return Promise.reject({
-        messageTitle: t(Labels.ERROR),
-        messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
-        errorType: t(ErrorTypes.DEFAULT)
+        messageTitle: t(Labels.EDS_ERROR),
+        messageDescription: e.messageDescription || t(Labels.SIGN_FAILED_MESSAGE),
+        errorType: t(ErrorTypes.DEFAULT),
+        formattedError: e.formattedError || Esign.formatErrorMessage(e)
       });
     }
   };
@@ -226,7 +250,13 @@ class Esign {
         return Promise.reject({
           messageTitle: t(Labels.ERROR),
           messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
-          errorType: t(ErrorTypes.DEFAULT)
+          errorType: t(ErrorTypes.DEFAULT),
+          formattedError: Esign.formatErrorMessage(
+            {
+              notSignedDocuments: documents.filter((d, i) => !signStatuses[i])
+            },
+            t(Labels.ACTION_SIGN_DOCS)
+          )
         });
       }
 
@@ -235,9 +265,10 @@ class Esign {
       console.error('[EsignService signDocument] error ', e.message);
 
       return Promise.reject({
-        messageTitle: t(Labels.ERROR),
-        messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
-        errorType: t(ErrorTypes.DEFAULT)
+        messageTitle: t(Labels.EDS_ERROR),
+        messageDescription: e.messageDescription || t(Labels.SIGN_FAILED_MESSAGE),
+        errorType: t(ErrorTypes.DEFAULT),
+        formattedError: e.formattedError || Esign.formatErrorMessage(e)
       });
     }
   };

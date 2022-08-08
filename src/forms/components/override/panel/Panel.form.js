@@ -15,7 +15,7 @@ export default function(...extend) {
             type: 'checkbox',
             input: true,
             key: 'scrollableContent',
-            weight: 49,
+            weight: 655,
             defaultValue: false
           }
         ]

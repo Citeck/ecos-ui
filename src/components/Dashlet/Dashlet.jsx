@@ -6,9 +6,10 @@ import ReactResizeDetector from 'react-resize-detector';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
+import isFunction from 'lodash/isFunction';
 
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_DEFAULT_HEIGHT_DASHLET } from '../../constants';
-import { t, getDOMElementMeasurer } from '../../helpers/util';
+import { getDOMElementMeasurer, t } from '../../helpers/util';
 import { Loader, Panel, ResizableBox } from '../common';
 import { Btn } from '../common/btns';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -17,7 +18,8 @@ import Header from './Header';
 import './Dashlet.scss';
 
 const Labels = {
-  ERROR_BOUNDARY_MSG: 'dashlet.error-boundary.msg'
+  ERROR_BOUNDARY_MSG: 'dashlet.error-boundary.msg',
+  COLLAPSE_BTN: 'dashlet.collapse.title'
 };
 
 class Dashlet extends Component {
@@ -27,6 +29,7 @@ class Dashlet extends Component {
     bodyClassName: PropTypes.string,
     titleClassName: PropTypes.string,
     badgeText: PropTypes.string,
+    goToButtonName: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     noHeader: PropTypes.bool,
     noBody: PropTypes.bool,
     needGoTo: PropTypes.bool,
@@ -144,35 +147,29 @@ class Dashlet extends Component {
   setDashletRef = ref => {
     if (ref) {
       this.#dashletRef = ref;
-
-      if (typeof this.props.setRef === 'function') {
-        this.props.setRef(ref);
-      }
+      isFunction(this.props.setRef) && this.props.setRef(ref);
     }
   };
 
   onGoTo = () => {
     const { onGoTo } = this.props;
-
-    if (typeof onGoTo === 'function') {
-      onGoTo.call(this);
-    }
+    isFunction(onGoTo) && onGoTo();
   };
 
   onChangeHeight = height => {
     const { onChangeHeight, contentMaxHeight, getFitHeights } = this.props;
 
-    if (typeof onChangeHeight === 'function') {
+    if (isFunction(onChangeHeight)) {
       onChangeHeight(contentMaxHeight && height > contentMaxHeight ? contentMaxHeight : height);
 
-      getFitHeights && getFitHeights(this.fitHeightChildren);
+      isFunction(getFitHeights) && getFitHeights(this.fitHeightChildren);
     }
   };
 
   onToggle = () => {
     const { onToggleCollapse, isCollapsed } = this.props;
 
-    onToggleCollapse(!isCollapsed);
+    isFunction(onToggleCollapse) && onToggleCollapse(!isCollapsed);
   };
 
   renderContent() {
@@ -203,7 +200,7 @@ class Dashlet extends Component {
     return (
       <div className="dashlet__body-actions">
         <Btn className="ecos-btn_full-width ecos-btn_sq_sm" onClick={this.onToggle}>
-          Свернуть
+          {t(Labels.COLLAPSE_BTN)}
         </Btn>
       </div>
     );
@@ -227,6 +224,7 @@ class Dashlet extends Component {
       titleClassName,
       badgeText,
       needGoTo,
+      goToButtonName,
       actionDrag,
       onResize,
       dragHandleProps,
@@ -261,6 +259,7 @@ class Dashlet extends Component {
                 title={title}
                 needGoTo={needGoTo}
                 onGoTo={this.onGoTo}
+                goToButtonName={goToButtonName}
                 onToggleCollapse={this.onToggle}
                 actionDrag={actionDrag && canDragging}
                 dragHandleProps={dragHandleProps}

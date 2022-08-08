@@ -181,6 +181,14 @@ describe('Util helpers', () => {
     it(input + '>' + output, () => expect(Util.prepareTooltipId(input)).toEqual(output));
   });
 
+  describe.each([
+    ['123 qwerty', 'prefix', '123-qwerty-prefix'],
+    ['2Aw3zA A14s14 F51f35A', undefined, '2aw3za-a14s14-f51f35a'],
+    ['id123qwerty', '8- 4 5-6*/qwerty', 'id123qwerty-8-4-5-6-qwerty']
+  ])('function getHtmlIdByUid', (id, prefix, output) => {
+    it(`getHtmlIdByUid: ${id}`, () => expect(Util.getHtmlIdByUid(id, prefix)).toEqual(output));
+  });
+
   describe('function reverseString', () => {
     const data = [
       {
@@ -271,5 +279,119 @@ describe('Util helpers', () => {
     ['obj', {}, 0, 0, 'prefix_', {}]
   ])('fun strSplice %s', (title, input, start, del, str, output) => {
     it(input + '>' + output, () => expect(Util.strSplice(input, start, del, str)).toEqual(output));
+  });
+
+  describe('function isJsonObjectString', () => {
+    const data = [
+      {
+        title: 'Without arguments - will returned false',
+        input: [],
+        output: false
+      },
+      {
+        title: 'Failed json - will returned false',
+        input: ['simple string'],
+        output: false
+      },
+      {
+        title: 'In json non-object value - will returned false',
+        input: ['true'],
+        output: false
+      },
+      {
+        title: 'In json valid value - will returned true',
+        input: ['{"key": "username", "value": "qwerty123"}'],
+        output: true
+      }
+    ];
+
+    check(data, 'isJsonObjectString');
+  });
+
+  describe('function normalize', () => {
+    const data = [
+      {
+        title: 'Without arguments - will return empty array',
+        input: [],
+        output: []
+      },
+      {
+        title: 'Array of numbers as input',
+        input: [[1, 23, 44, 99999]],
+        output: [16.75, 23, 44, 50.25]
+      },
+      {
+        title: 'Array of objects as input, without field name for value - will return the original array',
+        input: [
+          [
+            { id: 'q', value: 12 },
+            { id: 'w', value: 468 },
+            { id: 'e', value: 126 },
+            { id: 'r', value: 3 },
+            { id: 't', value: 999999 },
+            { id: 'y', value: 777 }
+          ]
+        ],
+        output: [
+          { id: 'q', value: 12 },
+          { id: 'w', value: 468 },
+          { id: 'e', value: 126 },
+          { id: 'r', value: 3 },
+          { id: 't', value: 999999 },
+          { id: 'y', value: 777 }
+        ]
+      },
+      {
+        title: 'Array of objects as input, with field name for value',
+        input: [
+          [
+            { id: 'q', value: 12 },
+            { id: 'w', value: 468 },
+            { id: 'e', value: 126 },
+            { id: 'r', value: 3 },
+            { id: 't', value: 999999 },
+            { id: 'y', value: 777 }
+          ],
+          'value'
+        ],
+        output: [
+          { id: 'q', value: 148.5 },
+          { id: 'w', value: 445.5 },
+          { id: 'e', value: 148.5 },
+          { id: 'r', value: 148.5 },
+          { id: 't', value: 445.5 },
+          { id: 'y', value: 445.5 }
+        ]
+      }
+    ];
+
+    check(data, 'normalize');
+  });
+
+  describe('function getMedian', () => {
+    const data = [
+      {
+        title: 'Without arguments - will return 0',
+        input: [],
+        output: 0
+      },
+      {
+        title: 'Array with one item - will return a single element',
+        input: [[16]],
+        output: 16
+      },
+      {
+        title: 'Array with many numbers',
+        input: [[16, 38, 999, 492, 19377182, 0, 34]],
+        output: 38
+      },
+      {
+        title: 'Array with many numbers (positive and negative)',
+        input: [[16, 38, -999, 492, 19377182, 0, 34, -234234, 2234, -2331211233, 0.45]],
+        output: 16
+      }
+    ];
+
+    check(data, 'getMedian');
   });
 });

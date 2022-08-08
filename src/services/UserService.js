@@ -2,12 +2,11 @@ import { createThumbnailUrl } from '../helpers/urls';
 
 export default class UserService {
   /**
-   * @param ref
-   * @param modified - use to exclude deprecated img from cache
+   * @param url
    * @param props - extra for url
    * @return {string} correct avatar url. Use all props
    */
-  static getAvatarUrl(ref, modified, props) {
-    return createThumbnailUrl(ref, { t: modified, ...props });
+  static getAvatarUrl(url, props) {
+    return createThumbnailUrl(url, { ...props });
   }
 }

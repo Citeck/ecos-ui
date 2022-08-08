@@ -4,7 +4,7 @@ import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import head from 'lodash/head';
 
-import { generateSearchTerm, getCurrentUserName, isNodeRef } from '../helpers/util';
+import { generateSearchTerm, getCurrentUserName } from '../helpers/util';
 import { SourcesId, URL } from '../constants';
 import { ActionTypes } from '../constants/sidebar';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
@@ -13,6 +13,8 @@ import MenuConverter from '../dto/export/menu';
 import Records from '../components/Records';
 import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
+import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
+import AuthorityService from '../services/authrority/AuthorityService';
 
 const $4H = 14400000;
 const SITE = 'site';
@@ -91,17 +93,6 @@ export class MenuApi extends CommonApi {
       });
   };
 
-  getCustomCreateVariants = () => {
-    return Records.get(`${SourcesId.CONFIG}@custom-create-buttons`)
-      .load('value[]?json', true)
-      .then(res => lodashGet(res, '[0]', []))
-      .then(res => (Array.isArray(res) ? res : []))
-      .catch(e => {
-        console.error(e);
-        return [];
-      });
-  };
-
   getLiveSearchDocuments = (terms, startIndex) => {
     const url = `${PROXY_URI}slingshot/live-search-docs?t=${generateSearchTerm(terms)}&maxResults=5&startIndex=${startIndex}`;
     return this.getJson(url);
@@ -166,13 +157,8 @@ export class MenuApi extends CommonApi {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('totalCount?num!0');
   };
 
-  getMenuConfig = (disabledCache = false) => {
-    return Records.get(`${SourcesId.CONFIG}@menu-config`)
-      .load('value?json', disabledCache)
-      .catch(e => {
-        console.error(e);
-        return {};
-      });
+  getMenuConfig = () => {
+    throw new Error('Should be removed');
   };
 
   /**
@@ -196,24 +182,16 @@ export class MenuApi extends CommonApi {
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
-    const record = Records.get(`${SourcesId.CONFIG}@menu-config`);
-
-    record.att('value?json', config);
-    record.att('title', title);
-    record.att('description', description);
-
-    return record.save();
+    throw new Error('Should be removed');
   };
 
   checkSiteDashboardEnable = () => {
-    return Records.get(`${SourcesId.CONFIG}@site-dashboard-enable`).load('value?bool');
+    return ConfigService.getValue(SITE_DASHBOARD_ENABLE);
   };
 
   getUserMenuConfig = async () => {
     const user = getCurrentUserName();
-    const configVersion = await Records.get(`${SourcesId.ECOS_CONFIG}@default-ui-main-menu`)
-      .load('.str')
-      .catch(e => console.error(e));
+    const configVersion = await ConfigService.getValue(MAIN_MENU_TYPE);
     const version = configVersion && configVersion.includes('left-v') ? +configVersion.replace('left-v', '') : 0;
     const id = await Records.queryOne({ sourceId: SourcesId.MENU, query: { user, version } }, 'id').catch(e => console.error(e));
 
@@ -233,7 +211,7 @@ export class MenuApi extends CommonApi {
     const updLeftItems = await fetchExtraItemInfo(lodashGet(config, 'menu.left.items') || [], { label: '.disp' });
     const updCreateItems = await fetchExtraItemInfo(lodashGet(config, 'menu.create.items') || [], { label: '.disp' });
     const updUserMenuItems = await fetchExtraItemInfo(lodashGet(config, 'menu.user.items') || [], { label: '.disp' });
-    const updAuthorities = await this.getAuthoritiesInfoByName(lodashGet(config, 'authorities') || []);
+    const updAuthorities = await this.getAuthoritiesInfo(lodashGet(config, 'authorities') || []);
 
     setSectionTitles(updCreateItems, updLeftItems);
     lodashSet(config, 'menu.left.items', updLeftItems);
@@ -254,29 +232,14 @@ export class MenuApi extends CommonApi {
     );
   };
 
-  getAuthoritiesInfoByName = MenuApi.getAuthoritiesInfoByName;
+  getAuthoritiesInfo = MenuApi.getAuthoritiesInfo;
 
-  static getAuthoritiesInfoByName = (authorities, attributes = { name: '.str', ref: 'nodeRef' }) => {
-    const _authorities = (authorities || []).map(auth => `${SourcesId.A_AUTHORITY}@${auth}`);
-
-    return Records.get(_authorities).load(attributes);
-  };
-
-  getAuthoritiesInfoByRef = refs => {
-    return Records.get(refs).load({ ref: '.str', name: 'cm:userName!cm:authorityName', label: '.disp' });
-  };
-
-  getAuthoritiesInfo = async values => {
-    const names = values.filter(val => !isNodeRef(val));
-    const refs = values.filter(val => isNodeRef(val));
-    const infoNames = await this.getAuthoritiesInfoByName(names);
-    const infoRefs = await this.getAuthoritiesInfoByRef(refs);
-
-    return [...infoNames, ...infoRefs];
+  static getAuthoritiesInfo = async (values, attributes = { name: 'authorityName', ref: '?id' }) => {
+    return AuthorityService.getAuthorityAttributes(values, attributes);
   };
 
   getGroupPriority = () => {
-    return Records.get(`${SourcesId.CONFIG}@menu-group-priority`).load('value[]?json![]');
+    return ConfigService.getValue(MENU_GROUP_PRIORITY);
   };
 
   getFullGroupPriority = async ({ authorities }) => {
@@ -317,9 +280,7 @@ export class MenuApi extends CommonApi {
   };
 
   saveGroupPriority = ({ groupPriority }) => {
-    const rec = Records.get(`${SourcesId.CONFIG}@menu-group-priority`);
-    rec.att('value', groupPriority);
-    return rec.save();
+    return ConfigService.setServerValue(MENU_GROUP_PRIORITY, groupPriority);
   };
 
   removeSettings = ({ id }) => {

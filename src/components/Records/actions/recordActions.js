@@ -6,13 +6,13 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
-import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
-import { replaceAttributeValues } from '../utils/recordUtils';
-import { getFitnesseClassName } from '../../../helpers/tools';
-import Records from '../Records';
+import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
+import { replaceAttributeValues } from '../utils/recordUtils';
+import { getFitnesseClassName } from '../../../helpers/tools';
 import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess, ResultTypes } from './util/actionUtils';
+import Records from '../Records';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
@@ -25,7 +25,8 @@ const ACTION_CONTEXT_KEY = '__act_ctx__';
 const Labels = {
   RECORDS_NOT_ALLOWED_TITLE: 'records-actions.dialog.all-records-not-allowed.title',
   RECORDS_NOT_ALLOWED_TEXT: 'records-actions.dialog.all-records-not-allowed.text',
-  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed'
+  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed',
+  MESSAGE_BACKGROUND_MODE: 'records-actions.background-mode.message'
 };
 
 export const DEFAULT_MODEL = {
@@ -228,7 +229,9 @@ class RecordActions {
   }
 
   /**
-   * @param {Array<String>|Array<Record>|undefined} records
+   * Run external js module and prepare config / records ...
+   *
+   * @param {Array<String|Record>|undefined} records
    * @param {RecordAction} action
    * @param context
    * @param {String} nameFunction
@@ -458,7 +461,8 @@ class RecordActions {
       return false;
     }
 
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+    /** @type {RecordActionCtxData} */
+    const actionContext = get(action, [ACTION_CONTEXT_KEY, 'context']) || {};
     const execContext = {
       ...actionContext,
       ...context
@@ -500,6 +504,11 @@ class RecordActions {
     return actResult;
   }
 
+  _chunkedRecords = [];
+  _statusesByRecords = [];
+  _messagesByRecords = [];
+  _lastExecutionalActionId = '';
+
   /**
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
@@ -509,23 +518,30 @@ class RecordActions {
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
+
+    if (this._isEqualRecordsCollection(action)) {
+      this._clearRecordsCollection();
+    }
+
+    this._lastExecutionalActionId = action.id;
+
     const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
+
+    let withTimeoutError = false;
     let popupExecution;
+
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
-    const statusesByRecords = records.reduce(
-      (result, current) => ({
-        ...result,
-        [current]: ''
-      }),
-      {}
-    );
+
     const resultOptions = {
       title: getActionResultTitle(action),
       withConfirm: false,
       withoutLoader: byBatch,
-      statusesByRecords
+      statusesByRecords: isQueryRecords ? this._statusesByRecords : [],
+      messagesByRecords: isQueryRecords ? this._messagesByRecords : []
     };
+
+    const chunkedRecords = this._chunkedRecords;
 
     const execution = await (async function() {
       if (!records || !records.length) {
@@ -533,6 +549,7 @@ class RecordActions {
       }
 
       const handler = RecordActions._getActionsExecutor(action);
+
       if (handler == null) {
         return false;
       }
@@ -585,18 +602,26 @@ class RecordActions {
         }
 
         if (!ungearedPopups) {
-          popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+          if (!ungearedPopups) {
+            popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+          }
         }
       }
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
+
       let preResult;
       let actResult;
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1562
       if (byBatch) {
         const chunks = chunk(allowedRecords, execForRecordsBatchSize);
+
+        if (isQueryRecords) {
+          allowedRecords.forEach(r => chunkedRecords.push(getRef(r)));
+        }
+
         const executeChunks = async chunks => {
           let results = {};
 
@@ -608,7 +633,7 @@ class RecordActions {
             }
 
             if (!isEmpty(preResult.preProcessedRecords)) {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.showPreviewRecords(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(preResult, 'results', []).map(item => getRef(item))
@@ -620,14 +645,17 @@ class RecordActions {
               : chunks[i];
 
             if (!isEmpty(preResult.preProcessedRecords) && isEmpty(filteredRecords)) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: preResult.preProcessedRecords,
                 statuses: preResult.results.reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: 'ERROR'
+                    [getRef(current)]: {
+                      type: 'ERROR',
+                      message: current.message || ''
+                    }
                   }),
                   {}
                 )
@@ -647,16 +675,23 @@ class RecordActions {
             const result = await handler.execForRecords(filteredRecords, action, execContext);
             const error = get(result, 'error');
 
+            if (get(result, 'code') === 504) {
+              withTimeoutError = true;
+            }
+
             // Cause: https://citeck.atlassian.net/browse/ECOSUI-1578
             if (error) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: filteredRecords.map(item => getRef(item)),
                 statuses: filteredRecords.reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: 'ERROR'
+                    [getRef(current)]: {
+                      type: 'ERROR',
+                      message: error || current.message
+                    }
                   }),
                   {}
                 )
@@ -680,7 +715,7 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.showPreviewRecords(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(result, 'data.results', []).map(item => getRef(item))
@@ -694,14 +729,17 @@ class RecordActions {
                 }
               };
 
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(result, 'data.results', []).map(item => getRef(item)),
                 statuses: get(result, 'data.results', []).reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: current.status
+                    [getRef(current)]: {
+                      type: current.status,
+                      message: current.message || ''
+                    }
                   }),
                   {}
                 )
@@ -742,13 +780,19 @@ class RecordActions {
         const filteredRecords = preResult.preProcessedRecords
           ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
           : allowedRecords;
-        const result = handler.execForRecords(filteredRecords, action, execContext);
+        const result = handler.execForRecords(filteredRecords, action, execContext).catch(error => {
+          RecordActions._showTimeoutMessageDialog(error);
+        });
 
         actResult = await RecordActions._wrapResultIfRequired(result);
       }
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
-        actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        if (get(actResult, 'error')) {
+          RecordActions._showTimeoutMessageDialog(actResult);
+        } else {
+          actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        }
       }
 
       RecordActions._updateRecords(allowedRecords, true);
@@ -760,7 +804,25 @@ class RecordActions {
       ? popupExecution && popupExecution.hide()
       : !ungearedPopups && (await DetailActionResult.showResult(execution, resultOptions));
 
+    if (withTimeoutError) {
+      RecordActions._showTimeoutMessageDialog();
+    }
+
     return execution;
+  }
+
+  _clearRecordsCollection() {
+    this._chunkedRecords = [];
+    this._statusesByRecords = [];
+    this._messagesByRecords = [];
+  }
+
+  static _showTimeoutMessageDialog(data) {
+    let message = get(data, 'timeoutErrorMessage');
+
+    message = message ? getMLValue(message) : Labels.MESSAGE_BACKGROUND_MODE;
+
+    DialogManager.showInfoDialog({ text: t(message) });
   }
 
   async _getActionAllowedInfoForRecords(records, action, context) {
@@ -843,6 +905,10 @@ class RecordActions {
 
     let result;
 
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    }
+
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
       result = await this.execForQueryAsForRecords(query, action, context);
     } else {
@@ -851,10 +917,6 @@ class RecordActions {
 
       if (preResult.configMerged) {
         action.config = preResult.config;
-      }
-
-      if (!isEmpty(confirmed)) {
-        RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
       result = handler.execForQuery(query, action, execContext);
@@ -909,7 +971,11 @@ class RecordActions {
         );
     };
 
-    await iterator.iterate(callback);
+    try {
+      await iterator.iterate(callback);
+    } finally {
+      this._clearRecordsCollection();
+    }
 
     info('success', t('group-action.message.done-name', { action: action.name }), true);
 
@@ -923,7 +989,7 @@ class RecordActions {
    */
   getActionInfo(params) {
     const defaultDesc = RecordActions._getActionsExecutor(params).getDefaultActionModel();
-    return { ...defaultDesc, ...params };
+    return { ...DEFAULT_MODEL, ...defaultDesc, ...params };
   }
 
   /**
@@ -946,6 +1012,14 @@ class RecordActions {
       result[key] = (records[key] & recordMask) !== 0;
     }
     return result;
+  }
+
+  _isEqualRecordsCollection(action) {
+    if (this._lastExecutionalActionId !== action.id) {
+      return true;
+    }
+
+    return false;
   }
 
   /**

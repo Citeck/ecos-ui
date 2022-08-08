@@ -1,0 +1,100 @@
+@import '../../../../styles/constants';
+
+.ecos-dp-interval {
+  &__inputs {
+    display: flex;
+
+    &-item {
+      height: 26px;
+
+      &_start {
+        border-right: none;
+        border-radius: 6px 0 0 6px;
+      }
+
+      &_end {
+        border-left: none;
+        border-radius: 0 6px 6px 0;
+      }
+
+      &_selected {
+        border-bottom-color: $color-blue-dark;
+      }
+    }
+
+    & > div:first-child {
+      &:after {
+        content: '-';
+        position: absolute;
+        right: -2px;
+        top: 2px;
+        z-index: 3;
+        font-weight: bold;
+        color: $text-color-dark;
+      }
+    }
+  }
+
+  &__popover {
+    &-popper.popover {
+      min-width: 400px;
+    }
+
+    &-inner.popover-inner {
+    }
+
+    &-arrow {
+      left: calc(50% - 50px) !important;
+
+      &_end.arrow {
+        left: unset !important;
+        right: calc(50% - 50px) !important;
+      }
+    }
+
+    &-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 10px;
+
+      &_absolute {
+        grid-template-columns: 1fr;
+
+        .react-datepicker {
+          width: 100%;
+
+          &__time {
+            &-container {
+              width: 30% !important;
+            }
+
+            &-box {
+              width: 100% !important;
+            }
+          }
+
+          &:not(.ecos-datepicker__calendar_time-select) {
+            .react-datepicker__month {
+              &-container {
+                float: none;
+              }
+            }
+          }
+
+          &__day {
+            &--disabled {
+              color: $color-gray-11;
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+
+      &_relative {
+        grid-template-columns: 1fr 20% 1fr;
+      }
+      &_custom {
+      }
+    }
+  }
+}

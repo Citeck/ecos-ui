@@ -43,3 +43,7 @@ export function extractIcon(icon) {
 
   return data.value;
 }
+
+export function getIconUpDown(up) {
+  return up ? 'icon-small-up' : 'icon-small-down';
+}

@@ -178,7 +178,7 @@ export default class Filter extends Component {
   };
 
   ValueControl = React.memo((props, context) => {
-    const { value, predicate, column, metaRecord, forwardedRef, onKeyDown } = props;
+    const { value, predicate, column, metaRecord, forwardedRef, onKeyDown, isRelativeToParent } = props;
     const predicates = getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow =
@@ -195,7 +195,8 @@ export default class Filter extends Component {
         scope: EditorScope.FILTER,
         onUpdate: this.onChangeValue,
         onKeyDown,
-        controlProps: { predicate: omit(predicate, 'val') }
+        controlProps: { predicate: omit(predicate, 'val') },
+        isRelativeToParent
       });
 
       if (this.type === 'base') {

@@ -1,10 +1,10 @@
 import endsWith from 'lodash/endsWith';
+import get from 'lodash/get';
 
 import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
-import { RecordService } from './recordService';
 
-export class DocPreviewApi extends RecordService {
+export class DocPreviewApi {
   static getPreviewLinkByRecord = recordRef => {
     return Records.get(recordRef)
       .load(
@@ -20,26 +20,9 @@ export class DocPreviewApi extends RecordService {
 
         const fileName = resp.fileName || '';
         const version = resp.version || '1.0';
-        const { url = '', ext = '', originalUrl = '' } = resp.info || {};
-        let link = url || originalUrl;
-
-        // Cause: https://citeck.atlassian.net/browse/ECOSUI-415
-        if (link.includes('?')) {
-          link += `&version=${version}`;
-        } else {
-          link += `?version=${version}`;
-        }
-
-        if (link && ext) {
-          const extWithDot = '.' + ext;
-          const withFileName = fileName ? `|${fileName}.${ext}` : '';
-
-          return endsWith(link, extWithDot) ? `${link}${withFileName}` : `${link}#.${ext}${withFileName}`;
-        }
-
-        return '';
+        return formatLink(resp.info, fileName, version);
       })
-      .then(url => (url || '').replace('alfresco/', PROXY_URI))
+      .then(replaceUri)
       .catch(e => {
         console.error(e);
         return '';
@@ -87,7 +70,7 @@ export class DocPreviewApi extends RecordService {
         resp = resp || {};
 
         const { originalUrl, originalName, originalExt } = resp.info || {};
-        const link = (originalUrl || '').replace('alfresco/', PROXY_URI);
+        const link = replaceUri(originalUrl);
 
         let fileName = originalName || resp.fileName;
 
@@ -102,4 +85,74 @@ export class DocPreviewApi extends RecordService {
         return {};
       });
   };
+
+  /**
+   * @param recordRef
+   * @returns {Promise<Array<Object>>}
+   */
+  static getFilesList = recordRef => {
+    return Records.queryOne(
+      {
+        sourceId: 'alfresco/documents',
+        language: 'types-documents',
+        query: {
+          recordRef,
+          types: ['emodel/type@user-base']
+        }
+      },
+      {
+        documents: 'documents[]{recordId:?id,fileName:?disp,info:previewInfo?json}'
+      }
+    )
+      .then(resp => {
+        const documents = get(resp, 'documents') || [];
+
+        return documents.map(({ recordId, fileName, info }) => {
+          let link = formatLink(info, fileName);
+          link = replaceUri(link);
+
+          return { recordId, fileName, link };
+        });
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
+  };
+}
+
+function replaceUri(url) {
+  return (url || '').replace('alfresco/', PROXY_URI);
+}
+
+function formatLink(info, fileName, version) {
+  const { url = '', ext = '', originalUrl = '' } = info || {};
+  let link = url || originalUrl;
+
+  if (!link) {
+    return '';
+  }
+
+  // Cause: https://citeck.atlassian.net/browse/ECOSUI-415
+  if (version) {
+    if (link.includes('?')) {
+      link += `&version=${version}`;
+    } else {
+      link += `?version=${version}`;
+    }
+  }
+
+  if (ext) {
+    const EXT = `.${ext}`;
+    let name = '';
+
+    if (fileName) {
+      name = `|${fileName}`;
+      name += endsWith(fileName, EXT) ? '' : EXT;
+    }
+
+    return endsWith(link, EXT) ? `${link}${name}` : `${link}#${EXT}${name}`;
+  }
+
+  return link;
 }

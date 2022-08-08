@@ -4,15 +4,22 @@ import get from 'lodash/get';
 
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
-import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { DEFAULT_EIS, SourcesId, URL } from '../constants';
+import { DEFAULT_EIS, SourcesId } from '../constants';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
-import { DEFAULT_FEEDBACK_URL, DEFAULT_REPORT_ISSUE_URL } from '../constants/menu';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
 import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
+import ConfigService, {
+  RESTRICT_ACCESS_TO_EDIT_DASHBOARD,
+  ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME,
+  FOOTER_CONTENT,
+  CUSTOM_REPORT_ISSUE_URL,
+  CUSTOM_FEEDBACK_URL,
+  SEPARATE_ACTION_LIST_FOR_QUERY,
+  LOGIN_PAGE_REDIRECT_URL
+} from '../services/config/ConfigService';
 
 export class AppApi extends CommonApi {
   #isAuthenticated = true;
@@ -25,15 +32,8 @@ export class AppApi extends CommonApi {
     });
   }
 
-  getEcosConfig = configName => {
-    const url = `${CITECK_URI}ecosConfig/ecos-config-value?configName=${configName}`;
-    return this.getJson(url)
-      .then(resp => resp.value)
-      .catch(() => '');
-  };
-
-  touch = () => {
-    if (!this.#isAuthenticated) {
+  touch = (isCancelTouch = false) => {
+    if (!this.#isAuthenticated || document.hidden || isCancelTouch) {
       return Promise.resolve();
     }
 
@@ -42,10 +42,7 @@ export class AppApi extends CommonApi {
   };
 
   getOrgstructAllUsersGroupName = () => {
-    return Records.get(`${SourcesId.CONFIG}@orgstruct-allUsers-group-shortName`)
-      .load('value')
-      .then(resp => resp || ALL_USERS_GROUP_SHORT_NAME)
-      .catch(() => ALL_USERS_GROUP_SHORT_NAME);
+    return ConfigService.getValue(ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME).then(resp => resp || ALL_USERS_GROUP_SHORT_NAME);
   };
 
   uploadFile = (data, callback) => {
@@ -63,11 +60,8 @@ export class AppApi extends CommonApi {
 
   isDashboardEditable = ({ username }) => {
     return Promise.all([
-      Records.get(`${SourcesId.CONFIG}@restrict-access-to-edit-dashboard`)
-        .load('value?bool')
-        .then(value => (isExistValue(value) ? value : true))
-        .catch(() => true),
-      Records.get(`${SourcesId.PEOPLE}@${username}`)
+      ConfigService.getValue(RESTRICT_ACCESS_TO_EDIT_DASHBOARD),
+      Records.get(`${SourcesId.PERSON}@${username}`)
         .load('isAdmin?bool')
         .catch(() => false)
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
@@ -79,18 +73,14 @@ export class AppApi extends CommonApi {
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = error => reject(error);
-    })
-      .then(result => result)
-      .catch(err => {
-        console.error(err);
-        return {};
-      });
+    }).catch(err => {
+      console.error(err);
+      return {};
+    });
   };
 
-  getFooter = (params = 'value?str') => {
-    return Records.get(`${SourcesId.CONFIG}@footer-content`)
-      .load(params)
-      .catch(() => null);
+  getFooter = () => {
+    return ConfigService.getValue(FOOTER_CONTENT);
   };
 
   static getDictionaryLocal(lang) {
@@ -135,10 +125,7 @@ export class AppApi extends CommonApi {
   }
 
   isForceOldUserDashboardEnabled() {
-    return Records.get(`${SourcesId.ECOS_CONFIG}@force-old-user-dashboard-enabled`)
-      .load('.bool')
-      .then(res => res === true)
-      .catch(() => false);
+    return false;
   }
 
   recordIsExist(recordRef, showNotification = false) {
@@ -181,26 +168,15 @@ export class AppApi extends CommonApi {
       });
   }
 
-  getHomeLink() {
-    return Records.get(`${SourcesId.CONFIG}@home-link-url`)
-      .load('value?str')
-      .then(link => {
-        if (!link) {
-          return URL.DASHBOARD;
-        }
-        return link;
-      })
-      .catch(() => URL.DASHBOARD);
-  }
-
   getLoginPageUrl = () => {
-    return Records.get(`${SourcesId.CONFIG}@login-page-redirect-url`)
-      .load('value?str', true)
-      .catch(() => null);
+    return ConfigService.getValue(LOGIN_PAGE_REDIRECT_URL);
   };
 
   getAppEdition = () => {
-    return Records.get(`${SourcesId.A_META}@`).load('attributes.edition');
+    return Records.get(`${SourcesId.A_META}@`)
+      .load('attributes.edition')
+      .then(r => r || 'community')
+      .catch(() => 'community');
   };
 
   getIsExternalIDP = () => {
@@ -214,9 +190,7 @@ export class AppApi extends CommonApi {
   };
 
   getSeparateActionListForQuery() {
-    return Records.get(`${SourcesId.CONFIG}@separate-action-list-for-query`)
-      .load('value?bool!false')
-      .catch(() => false);
+    return ConfigService.getValue(SEPARATE_ACTION_LIST_FOR_QUERY);
   }
 
   static doLogOut = async () => {
@@ -249,16 +223,10 @@ export class AppApi extends CommonApi {
   };
 
   static getCustomFeedbackUrl = () => {
-    return Records.get(`${SourcesId.CONFIG}@custom-feedback-url`)
-      .load('value?str')
-      .then(value => value || DEFAULT_FEEDBACK_URL)
-      .catch(() => DEFAULT_FEEDBACK_URL);
+    return ConfigService.getValue(CUSTOM_FEEDBACK_URL);
   };
 
   static getCustomReportIssueUrl = () => {
-    return Records.get(`${SourcesId.CONFIG}@custom-report-issue-url`)
-      .load('value?str', true)
-      .then(value => value || DEFAULT_REPORT_ISSUE_URL)
-      .catch(() => DEFAULT_REPORT_ISSUE_URL);
+    return ConfigService.getValue(CUSTOM_REPORT_ISSUE_URL);
   };
 }

@@ -47,6 +47,13 @@
  */
 
 /**
+ * @typedef {Object} ErrorDialog
+ * @property {?Array} buttons
+ * @property {?String} descriptionClassNames
+ * @property error
+ */
+
+/**
  * @typedef {Object} LoaderDialog
  * @property {?Boolean} isVisible
  * @property {?String} text

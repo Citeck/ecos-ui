@@ -1,5 +1,5 @@
 import TextArea from './TextArea';
-import TextAreaEditor from 'formiojs/components/textarea/TextArea.form';
+import TextAreaEditor from './TextArea.form';
 
 TextArea.editForm = TextAreaEditor;
 

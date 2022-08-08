@@ -12,7 +12,7 @@ const initialState = {
   groupSectionList: [],
   activeSection: {},
   isAccessible: undefined,
-  isOpenMenu: false,
+  isOpenMenu: true,
   isInitiated: false,
   sectionState: {}
 };

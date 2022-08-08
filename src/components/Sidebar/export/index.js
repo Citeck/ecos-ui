@@ -6,9 +6,9 @@ import 'react-app-polyfill/ie11';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Logger from 'logplease';
 import { Provider } from 'react-redux';
 
+import { Logger } from '../../../services/logger';
 import Sidebar from '../Sidebar';
 
 import { configureAPI } from '../../../api';

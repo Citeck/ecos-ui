@@ -7,15 +7,17 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isUndefined from 'lodash/isUndefined';
 import Base from 'formiojs/components/base/Base';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
-import { getCurrentLocale, getMLValue, getTextByLocale, t } from '../../../../helpers/util';
+import { getCurrentLocale, getMLValue, getTextByLocale } from '../../../../helpers/util';
 import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
 import Widgets from '../../../widgets';
+import { t } from '../../../../helpers/export/util';
 
 // >>> Methods
 const originalCreateViewOnlyValue = Base.prototype.createViewOnlyValue;
@@ -34,6 +36,7 @@ const originalSetupValueElement = Base.prototype.setupValueElement;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
 const originalCreateModal = Base.prototype.createModal;
+const originalOnChange = Base.prototype.onChange;
 // Methods <<<
 
 // >>> PropertyDescriptors
@@ -79,6 +82,50 @@ Base.schema = (...extend) => {
   );
 };
 
+Object.defineProperty(Base.prototype, 'valueChangedByUser', {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: false
+});
+Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
+  enumerable: true,
+  configurable: true,
+  writable: true,
+  value: false
+});
+Base.prototype.onChange = function(flags, fromRoot) {
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+
+  if (get(flags, 'modified') || get(flags, 'skipReactWrapperUpdating')) {
+    this.valueChangedByUser =
+      (!isCreateMode && !this.customIsEqual(this.dataValue, this.calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+  }
+
+  if (get(flags, 'changeByUser')) {
+    this.valueChangedByUser = true;
+  }
+
+  return originalOnChange.call(this, flags, fromRoot);
+};
+Base.prototype.isEmptyValue = function(value) {
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+
+  if (isCreateMode) {
+    return this.isEmpty(value);
+  }
+
+  return !isBoolean(value) && this.isEmpty(value);
+};
+Base.prototype.customIsEqual = function(val1, val2) {
+  if (typeof val1 === 'number' || typeof val2 === 'number') {
+    return parseFloat(val1) === parseFloat(val2);
+  }
+
+  return isEqual(val1, val2);
+};
+
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-166
 Object.defineProperty(Base.prototype, 'className', {
   get: function() {
     let className = originalGetClassName.get.call(this);
@@ -156,13 +203,6 @@ Object.defineProperty(Base.prototype, 'name', {
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-208
 const emptyCalculateValue = Symbol('empty calculate value');
 
-const customIsEqual = (val1, val2) => {
-  if (typeof val1 === 'number' || typeof val2 === 'number') {
-    return parseFloat(val1) === parseFloat(val2);
-  }
-  return isEqual(val1, val2);
-};
-
 const modifiedOriginalCalculateValue = function(data, flags) {
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
@@ -173,27 +213,15 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     return false;
   }
 
-  // Get the dataValue.
-  let firstPass = false;
-  let dataValue = null;
   const allowOverride = this.component.allowCalculateOverride;
-  if (allowOverride) {
-    dataValue = this.dataValue;
-  }
 
   // First pass, the calculatedValue is undefined.
-  if (this.calculatedValue === undefined) {
-    firstPass = true;
+  if (isUndefined(this.calculatedValue)) {
     this.calculatedValue = emptyCalculateValue;
   }
 
-  // Check to ensure that the calculated value is different than the previously calculated value.
-  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !customIsEqual(dataValue, this.calculatedValue)) {
-    return false;
-  }
-
   // Calculate the new value.
-  const calculatedValue = this.evaluate(
+  let calculatedValue = this.evaluate(
     this.component.calculateValue,
     {
       value: this.defaultValue,
@@ -202,31 +230,38 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     'value'
   );
 
-  const formOptions = this.options;
-  const formMode = formOptions.formMode;
-  const isEmptyValue = value => {
-    if (formMode === FORM_MODE_CREATE) {
-      return this.isEmpty(value);
-    }
-    return !isBoolean(value) && this.isEmpty(value);
-  };
-  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
-  if (allowOverride && firstPass && !isEmptyValue(dataValue) && !customIsEqual(dataValue, calculatedValue)) {
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
-    if (formMode && formMode !== FORM_MODE_CREATE && isEmptyValue(calculatedValue)) {
-      this.calculatedValue = undefined;
-      return false;
-    }
+  const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
-    // Return that we have a change so it will perform another pass.
-    this.calculatedValue = calculatedValue;
-    return true;
-  }
+  this.calculatedValue = calculatedValue;
+
+  let changed;
 
   flags = flags || {};
   flags.noCheck = true;
-  const changed = this.setValue(calculatedValue, flags);
-  this.calculatedValue = this.dataValue;
+
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
+    this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
+
+    if (allowOverride && !this.isEmptyValue(calculatedValue)) {
+      this.valueChangedByUser = false;
+
+      const isModal = get(this.options, 'initiator.type', '') === 'modal';
+
+      if (!this.viewOnly && !isCreateMode && isModal) {
+        this.valueChangedByUser = true;
+      }
+    }
+
+    this.calculatedValueWasCalculated = true;
+  }
+
+  if (!allowOverride || (allowOverride && !this.valueChangedByUser)) {
+    changed = this.setValue(calculatedValue, flags);
+
+    if (changed) {
+      this.calculatedValue = this.dataValue;
+    }
+  }
 
   return changed;
 };
@@ -235,7 +270,12 @@ Base.prototype.calculateValue = function(data, flags) {
   if (!this.component.calculateValue) {
     return false;
   }
-  // TODO: check, it seems redundant
+
+  if (isUndefined(this.calculatedValue) && this.component.allowCalculateOverride && !isEmpty(this.dataValue)) {
+    return false;
+  }
+
+  // // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
       this.component.calculateValue,
@@ -276,7 +316,7 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
 
 Base.prototype.setValue = function(value, flags) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
-  if (this.viewOnly) {
+  if (this.viewOnly && !this.calculatedValueWasCalculated) {
     this.dataValue = value;
   }
 
@@ -305,7 +345,7 @@ Base.prototype.createTooltip = function(container, component, classes) {
 
   this.tooltip = new Tooltip(ttElement, {
     trigger: 'hover click',
-    placement: 'right',
+    placement: 'top',
     html: true,
     title: this.interpolate(this.t(getTextByLocale(component.tooltip))).replace(/(?:\r\n|\r|\n)/g, '<br />')
   });
@@ -387,7 +427,7 @@ Base.prototype.createInlineEditButton = function(container) {
       container.classList.add(INLINE_EDITING_CLASSNAME);
       editButton.removeEventListener('click', onEditClick);
 
-      if (typeof this.prepareToInlineEditMode === 'function') {
+      if (isFunction(this.prepareToInlineEditMode)) {
         this.prepareToInlineEditMode();
       }
 
@@ -549,7 +589,7 @@ Base.prototype.build = function(state) {
 };
 
 Base.prototype.checkValidity = function(data, dirty, rowData) {
-  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue)) {
+  if (this.component.optionalWhenDisabled && this.component.validate.required && isEmpty(this.dataValue) && this.component.disabled) {
     return true;
   }
 
@@ -617,10 +657,10 @@ Base.prototype.__t = function(content, params) {
 
 Base.prototype.t = function(text, params) {
   if (typeof text === 'string' && text.includes('__t(')) {
-    return this.__t(text, params);
+    return this.__t(text, params) || text;
   }
 
-  return originalT.call(this, getMLValue(text), params);
+  return originalT.call(this, getMLValue(text), params) || text;
 };
 
 Base.prototype.createWidget = function() {
@@ -644,7 +684,7 @@ Base.prototype.createWidget = function() {
   settings.language = this.options.language;
 
   const widget = new Widgets[settings.type](settings, this.component);
-  widget.on('update', () => this.updateValue(), true);
+  widget.on('update', () => this.updateValue({ changeByUser: true }), true);
   widget.on('redraw', () => this.redraw(), true);
   this._widget = widget;
   return widget;

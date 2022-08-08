@@ -28,7 +28,8 @@ const Labels = {
   CONFIRM: 'journals.action.confirm.title',
   CONFIRM_REPLACE: 'journals.action.change-value.message',
   BTN_CANCEL: 'btn.cancel.label',
-  BTN_CONFIRM: 'btn.confirm.label'
+  BTN_CONFIRM: 'btn.confirm.label',
+  BTN_OK: 'button.ok'
 };
 
 export function getRef(record) {
@@ -36,14 +37,13 @@ export function getRef(record) {
 }
 
 /**
- *
  * @param {ActionResultInfo} info
  * @param {ActionResultOptions} options
  * @returns {*} dialog
  */
 export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
-  let buttons = [];
+  let buttons = [{ label: Labels.BTN_OK, onClick: () => callback && callback(true), className: 'ecos-btn_blue' }];
 
   if (withConfirm) {
     buttons = [
@@ -81,7 +81,9 @@ function formatArrayResult(data) {
 export const ResultTypes = {
   LINK: 'link',
   RESULTS: 'results',
-  ERROR: 'error'
+  MSG: 'msg',
+  ERROR: 'error',
+  INFO: 'info'
 };
 
 export function notifySuccess(msg, timeOut = 5000, ...extra) {
@@ -266,14 +268,23 @@ export const DetailActionResult = {
           .load('.disp')
           .then(disp => {
             if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
-              const status = packedActionStatus(get(options, ['statuses', id]));
+              const result = get(options, ['statuses', id]);
+              const status = packedActionStatus(result.type);
 
               set(options, ['statusesByRecords', id], t(status));
+              set(options, ['messagesByRecords', id], result.message);
 
-              return setDisplayDataRecord({ id, disp }, t(status));
+              return setDisplayDataRecord({ id, disp }, t(status), result.message);
             }
 
-            return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])));
+            return setDisplayDataRecord(
+              {
+                id,
+                disp
+              },
+              t(get(options, ['statusesByRecords', id])),
+              get(options, ['messagesByRecords', id])
+            );
           })
       )
     );

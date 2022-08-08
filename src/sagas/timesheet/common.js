@@ -16,7 +16,7 @@ function* sagaGetTotalCounts({ api, logger }, { payload }) {
 
     yield put(setTotalCounts({ [TimesheetTypes.DELEGATED]: delegatedCount }));
   } catch (e) {
-    logger.error('[timesheetCommon sagaGetTotalCounts saga] error', e.message);
+    logger.error('[timesheetCommon sagaGetTotalCounts saga] error', e);
   }
 }
 

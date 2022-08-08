@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import omit from 'lodash/omit';
@@ -11,8 +12,10 @@ import BaseEditApi from 'formiojs/components/base/editForm/Base.edit.api';
 import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.validation';
 import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
 
+import { getCompDoc } from '../constants/documentation';
+
 export const checkIsEmptyMlField = field => {
-  if ((typeof field === 'string' && isEmpty(field)) || field === undefined) {
+  if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
     return true;
   }
 
@@ -179,8 +182,7 @@ export const disabledComponents = Object.freeze([
   'editgrid',
   'nested',
   'form',
-  'unknown',
-  'includeForm'
+  'unknown'
 ]);
 
 export const prepareComponentBuilderInfo = builderInfo => {
@@ -228,6 +230,14 @@ export const prepareComponentBuilderInfo = builderInfo => {
 export const prepareComponents = components => {
   Object.keys(components).forEach(key => {
     const component = components[key];
+    const builderInfo = component.builderInfo || {};
+
+    Object.defineProperty(component, 'builderInfo', {
+      get: function() {
+        //set doc-url for all who has documentation in different service
+        return { ...builderInfo, documentation: getCompDoc(key) || builderInfo.documentation };
+      }
+    });
 
     _expandEditForm(component);
   });

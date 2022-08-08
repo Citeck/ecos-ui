@@ -116,7 +116,7 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns, columns, selected } = this.props;
+    const { resizableColumns, columns, selected, isResetSettings } = this.props;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -132,6 +132,11 @@ class Grid extends Component {
 
     if (!isEqual(prevProps.columns.map(i => i.id), columns.map(i => i.id))) {
       this.setState({ needCellUpdate: true }, () => this.setState({ needCellUpdate: false }));
+    }
+
+    if (!prevProps.isResetSettings && isResetSettings) {
+      this.#columnsSizes = {};
+      this.setState({ selected: [] });
     }
 
     this.setColumnsSizes();
@@ -250,8 +255,9 @@ class Grid extends Component {
   };
 
   onSelect = ({ allPage, newSelected, allPossible, newExcluded }) => {
-    const { onSelect } = this.props;
-    const selected = [...new Set(newSelected)];
+    const { onSelect, nonSelectable = [], selected: oldSelected } = this.props;
+    const selectedAndDisabled = oldSelected.filter(item => nonSelectable.includes(item));
+    const selected = [...new Set([...newSelected, ...selectedAndDisabled])];
     const excluded = [...new Set(newExcluded)];
     const props = { selected };
 
@@ -482,7 +488,7 @@ class Grid extends Component {
     this._tr = tr;
 
     if (!isScrolling) {
-      trigger.call(this, 'onChangeTrOptions', { row, ...style });
+      trigger.call(this, 'onChangeTrOptions', { row, position: tr.rowIndex - 1, ...style });
     }
   };
 
@@ -581,17 +587,19 @@ class Grid extends Component {
     this.onSelect({ allPage: false, newSelected });
   };
 
-  createMultiSelectionCheckboxes(props) {
-    const selected = props.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
+  createMultiSelectionCheckboxes(gridProps) {
+    const selected = gridProps.selectAll ? this.getSelectedPageItems() : this.state.selected || [];
 
     return {
       mode: BootstrapTableConst.ROW_SELECT_MULTIPLE,
       classes: 'ecos-grid__tr_selected',
       selected,
-      nonSelectable: props.nonSelectable || [],
+      nonSelectable: gridProps.nonSelectable || [],
       onSelect: this.handleSelectCheckbox,
       onSelectAll: this.handleSelectAllCheckbox,
-      selectionHeaderRenderer: props => <SelectorHeader {...props} hasMenu onClickMenu={this.handleClickMenuCheckbox} />,
+      selectionHeaderRenderer: props => (
+        <SelectorHeader {...props} hasMenu={!gridProps.noSelectorMenu} onClickMenu={this.handleClickMenuCheckbox} />
+      ),
       selectionRenderer: props => <Selector {...props} />
     };
   }
@@ -1014,7 +1022,7 @@ class Grid extends Component {
   }
 
   render() {
-    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable } = this.props;
+    const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
 
     if (isEmpty(columns)) {
       return null;
@@ -1032,6 +1040,7 @@ class Grid extends Component {
           'ecos-grid_selectable': this.hasCheckboxes,
           'ecos-grid_selectable_multi': multiSelectable,
           'ecos-grid_no-top-border': noTopBorder,
+          'ecos-grid_no-scroll_h': noHorizontalScroll,
           [className]: !!className
         })}
         onMouseLeave={this.onMouseLeave}
@@ -1068,6 +1077,7 @@ Grid.propTypes = {
   singleSelectable: PropTypes.bool,
   freezeCheckboxes: PropTypes.bool,
   selectAll: PropTypes.bool,
+  noSelectorMenu: PropTypes.bool,
   fixedHeader: PropTypes.bool,
   noHeader: PropTypes.bool,
   noTopBorder: PropTypes.bool,
@@ -1076,7 +1086,10 @@ Grid.propTypes = {
   autoHeight: PropTypes.bool,
   byContentHeight: PropTypes.bool,
   sortable: PropTypes.bool,
+  withDateFilter: PropTypes.bool,
+  isResetSettings: PropTypes.bool,
   resizableColumns: PropTypes.bool,
+  noHorizontalScroll: PropTypes.bool,
   maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 

@@ -197,7 +197,6 @@ class MobileDocuments extends BaseDocuments {
 
   render() {
     const { dragHandleProps, canDragging, widgetTitle } = this.props;
-    const { isCollapsed } = this.state;
 
     return (
       <Dashlet
@@ -211,7 +210,7 @@ class MobileDocuments extends BaseDocuments {
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
         onToggleCollapse={this.handleToggleContent}
-        isCollapsed={isCollapsed}
+        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
         {this.renderPanel()}

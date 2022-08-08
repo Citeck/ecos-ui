@@ -115,6 +115,16 @@ export default class UserLocalSettingsService {
     });
   }
 
+  static setDataByKey(key, data = {}) {
+    const dataFromLS = getData(key);
+
+    setData(key, {
+      ...dataFromLS,
+      ...data,
+      lastUsedDate: Date.now()
+    });
+  }
+
   static getDashletProperty(dashletId, propertyName) {
     const key = self.getDashletKey(dashletId);
     const data = getDashletSettings(key);

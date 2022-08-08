@@ -44,7 +44,7 @@ function* fetchSlideMenu({ api, logger }, action) {
     yield put(setSlideMenuItems(menuItems));
     yield put(setIsReady(true));
   } catch (e) {
-    logger.error('[fetchSlideMenu saga] error', e.message);
+    logger.error('[fetchSlideMenu saga] error', e);
   }
 }
 
@@ -54,7 +54,7 @@ function* fetchSiteDashboardEnable({ api, logger }) {
 
     yield put(setSiteDashboardEnable(!!res));
   } catch (e) {
-    logger.error('[fetchSiteDashboardEnable saga] error', e.message);
+    logger.error('[fetchSiteDashboardEnable saga] error', e);
   }
 }
 
@@ -62,7 +62,7 @@ function* sagaToggleMenu({ api, logger }, action) {
   try {
     yield call(SidebarService.setOpenState, action.payload);
   } catch (e) {
-    logger.error('[sagaToggleMenu saga] error', e.message);
+    logger.error('[sagaToggleMenu saga] error', e);
   }
 }
 
@@ -79,7 +79,7 @@ function* sagaSetSelectedId({ api, logger }) {
     yield put(setSelectedId(selectedId));
     yield put(setExpandableItems({ selectedId }));
   } catch (e) {
-    logger.error('[sagaSetSelectedId saga] error', e.message);
+    logger.error('[sagaSetSelectedId saga] error', e);
   }
 }
 
@@ -93,18 +93,19 @@ function* sagaPerformAction({ api, logger }, { payload }) {
         break;
       case MenuSettings.ItemTypes.START_WORKFLOW:
         const processDef = get(payload, 'config.processDef', '');
-        const processDefWithoutPrefix = processDef.replace(`${SourcesId.BPMN_DEF}@`, '');
-        const recordRef = `${SourcesId.A_WORKFLOW}@def_${processDefWithoutPrefix}`;
+        const processId = processDef.replace(`${SourcesId.BPMN_DEF}@`, '');
+        const processRecordRef = `${SourcesId.BPMN_PROC}@${processId}`;
 
-        createVariant.formTitle = yield call(api.page.getRecordTitle, recordRef);
-        createVariant.recordRef = recordRef;
-        createVariant.formRef = yield Records.get(recordRef).load('startFormRef?id');
+        createVariant.formTitle = yield call(api.page.getRecordTitle, processDef);
+        createVariant.recordRef = processRecordRef;
+        createVariant.formRef = yield Records.get(processDef).load('startFormRef?id');
         createVariant.formMode = FORM_MODE_CREATE;
 
-        if (processDefWithoutPrefix.indexOf('activiti$') !== -1) {
-          const hasForm = !!createVariant.formRef || (yield EcosFormUtils.hasForm(recordRef));
+        if (processId.indexOf('activiti$') !== -1) {
+          const alfProcDef = `${SourcesId.A_WORKFLOW}@def_${processId}`;
+          const hasForm = !!createVariant.formRef || (yield EcosFormUtils.hasForm(alfProcDef));
           if (!hasForm) {
-            window.open('/share/page/start-specified-workflow?workflowId=' + processDefWithoutPrefix, '_self');
+            window.open('/share/page/start-specified-workflow?workflowId=' + processId, '_self');
             return;
           }
         }
@@ -128,7 +129,7 @@ function* sagaPerformAction({ api, logger }, { payload }) {
       }
     });
   } catch (e) {
-    logger.error('[sagaSetSelectedId saga] error', e.message);
+    logger.error('[sagaSetSelectedId saga] error', e);
   }
 }
 

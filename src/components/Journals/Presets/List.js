@@ -23,10 +23,17 @@ class List extends React.Component {
     this.props.editJournalSetting(item.id);
   };
 
+  filterList = () => {
+    const { searchText, journalSettings = [] } = this.props;
+    const compare = item => new RegExp(`(${searchText})`, 'ig').test(get(item, 'displayName'));
+    return !searchText ? journalSettings : journalSettings.filter(compare);
+  };
+
   get renderList() {
     const { journalSettings = [] } = this.props;
-
-    return journalSettings.map(item => <ListItem onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />);
+    return this.filterList(journalSettings).map(item => (
+      <ListItem key={get(item, 'id')} onClick={this.onSelect} onDelete={this.onDelete} onEdit={this.onEdit} item={item} />
+    ));
   }
 
   get selectedIndex() {

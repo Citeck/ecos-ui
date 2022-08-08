@@ -285,9 +285,10 @@ export const selectCommonJournalPageProps = createSelector(
 );
 
 export const selectGroupActionsProps = createSelector(
-  selectJournalData,
-  ownState => ({
+  [selectJournalData, selectIsFilterOn],
+  (ownState, isFilterOn) => ({
     grid: ownState.grid || {},
+    isFilterOn: isFilterOn || false,
     columnsSetup: ownState.columnsSetup,
     selectedRecords: ownState.selectedRecords || [],
     excludedRecords: ownState.excludedRecords || [],

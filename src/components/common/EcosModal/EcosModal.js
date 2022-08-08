@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { ModalBody, ModalHeader } from 'reactstrap';
 import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
+import isUndefined from 'lodash/isUndefined';
 
 import { isMobileDevice, t, trigger } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
@@ -36,7 +37,7 @@ export default class EcosModal extends Component {
       newState = {
         ...newState,
         isOpen: props.isOpen,
-        level: openModalsCounter
+        level: isUndefined(props.customLevel) ? openModalsCounter : props.customLevel
       };
     }
 
@@ -131,7 +132,8 @@ export default class EcosModal extends Component {
     const modalClassName = classNames('ecos-modal', className, {
       'ecos-modal_draggable': draggableState !== null,
       [`ecos-modal_level-${modalLevel}`]: !!modalLevel,
-      'ecos-modal_mobile': isMobileDevice()
+      'ecos-modal_mobile': isMobileDevice(),
+      'ecos-modal_small-screen': window.innerWidth < 720
     });
 
     const draggableProps = {

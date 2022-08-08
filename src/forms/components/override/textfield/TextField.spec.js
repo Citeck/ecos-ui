@@ -1,6 +1,8 @@
 import Harness from '../../../test/harness';
 import TextFieldComponent from './TextField';
 import EventEmitter from '../../../EventEmitter';
+import * as util from '../../../../helpers/export/util';
+import en from '../../../../i18n/en';
 
 import comp1 from './fixtures/comp1';
 
@@ -9,6 +11,30 @@ describe('TextField Component', () => {
     Harness.testCreate(TextFieldComponent, comp1).then(component => {
       Harness.testElements(component, 'input[type="text"]', 1);
       done();
+    });
+  });
+
+  it('Should be user value instead calculated value', done => {
+    Harness.testCreate(TextFieldComponent, {
+      ...comp1,
+      allowCalculateOverride: true,
+      calculateValue: "value = 'calculated value';"
+    }).then(component => {
+      expect(component.valueChangedByUser).toEqual(false);
+      expect(component.calculatedValueWasCalculated).toEqual(false);
+
+      component.calculateValue();
+      expect(component.calculatedValue).toEqual('calculated value');
+      component.onChange({ modified: true });
+
+      Harness.testSetGet(component, 'user value');
+      component.onChange({ modified: true });
+
+      component.on('componentChange', () => {
+        expect(component.getValue()).toEqual('user value');
+
+        done();
+      });
     });
   });
 });
@@ -41,9 +67,10 @@ describe('TextField Builder', () => {
   it('The first tab in the builder must be "Basic"', done => {
     builder.editForm.formReady.then(() => {
       const firstTab = builder.dialog.querySelector('.nav-item');
+      const translation = jest.spyOn(util, 't').mockImplementation(key => en[key]);
 
       expect(firstTab).not.toBeUndefined();
-      expect(firstTab.textContent).toBe('Basic');
+      expect(firstTab.textContent).toBe(translation('form-constructor.tabs.basic'));
       done();
     });
   });

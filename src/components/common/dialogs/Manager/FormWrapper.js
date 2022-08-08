@@ -3,6 +3,8 @@ import uuidv4 from 'uuid/v4';
 import Formio from 'formiojs/Formio';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 import classNames from 'classnames';
 
 import { getCurrentLocale } from '../../../../helpers/export/util';
@@ -36,8 +38,13 @@ class FormWrapper extends React.Component {
     }
   }
 
+  get form() {
+    return this._form;
+  }
+
   initForm() {
     if (this._form) {
+      this._form.formReadyReject();
       this._form.destroy();
       this._form = null;
     }
@@ -69,19 +76,61 @@ class FormWrapper extends React.Component {
     options.language = language;
 
     const processedDefinition = EcosFormUtils.preProcessFormDefinition(formDefinition, options);
-
     const formPromise = Formio.createForm(containerElement, processedDefinition, options);
+
     formPromise.then(form => {
-      this._form = form;
+      let data = {};
+
       this.setEvents(form, { onSubmit });
 
       if (this.props.formData) {
-        form.submission = {
-          data: this.props.formData
+        data = {
+          ...this.props.formData
         };
       }
+
+      if (!isEmpty(data)) {
+        form.setValue({ data });
+      }
+
+      form.formReady.then(() => {
+        isFunction(this.props.onFormReady) && this.props.onFormReady(this._form);
+      });
+
+      this._form = form;
     });
   }
+
+  update = () => {
+    if (!this._form) {
+      return;
+    }
+
+    this._form.redraw();
+  };
+
+  setValue = (data, flags) => {
+    if (!this._form) {
+      return;
+    }
+
+    /**
+     * @todo Maybe should think about optimization. For example, check previous and current values
+     * @todo Or set values with a delay, accumulating frequent changes into a separate object
+     */
+    const formData = this._form.getValue();
+
+    this._form.setValue(
+      {
+        ...formData,
+        data: {
+          ...formData.data,
+          ...data
+        }
+      },
+      flags
+    );
+  };
 
   setEvents(form, extra = {}) {
     form.on('submit', submission => {
@@ -101,26 +150,29 @@ class FormWrapper extends React.Component {
 
     if (this.props.onFormChange) {
       form.on('change', (...args) => {
-        this.props.onFormChange(...args);
+        this.props.onFormChange(...args, form);
       });
     }
   }
 
   render() {
-    return <div className={classNames('formio-form', this.props.className)} id={this.state.containerId} />;
+    return <div id={this.state.containerId} className={classNames('formio-form', this.props.className)} onClick={this.props.onClick} />;
   }
 }
 
 FormWrapper.propTypes = {
+  id: PropTypes.string,
   className: PropTypes.string,
   isVisible: PropTypes.bool,
   formDefinition: PropTypes.object,
   formOptions: PropTypes.object,
   formI18n: PropTypes.object,
   formData: PropTypes.object,
+  onClick: PropTypes.func,
   onSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
-  onFormChange: PropTypes.func
+  onFormChange: PropTypes.func,
+  onFormReady: PropTypes.func
 };
 
 export default FormWrapper;

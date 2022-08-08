@@ -12,13 +12,14 @@ export default class EditAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
+    let recordId = config.recordId || record.id;
 
     switch (true) {
       case config.mode === 'task':
         return runEditTask(record, config);
-      case DashboardService.isDashboardRecord(record.id):
+      case DashboardService.isDashboardRecord(recordId):
         DashboardService.openEditModal({
-          dashboardId: DashboardService.formShortId(record.id)
+          dashboardId: DashboardService.formShortId(recordId)
         });
         return;
       default:
@@ -26,8 +27,11 @@ export default class EditAction extends ActionsExecutor {
           let submitted = false;
           let wasClosed = false;
           EcosFormUtils.editRecord({
-            recordRef: record.id,
-            options: { actionRecord: record.id },
+            recordRef: recordId,
+            options: {
+              actionRecord: recordId
+            },
+            saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
             onSubmit: () => {
               // temp solution

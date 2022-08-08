@@ -1,4 +1,5 @@
 import isEmpty from 'lodash/isEmpty';
+import queryString from 'query-string';
 
 import { URL } from '../constants';
 import { BASE_LEFT_MENU_ID, MenuTypes } from '../constants/menu';
@@ -58,9 +59,7 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'SETTINGS_DASHBOARD',
       label: 'header.site-menu.page-settings',
-      onClick: params => {
-        DashboardService.openEditModal(params);
-      }
+      onClick: params => DashboardService.openEditModal(params)
     },
     // {
     //   id: 'SETTINGS_DASHBOARD',
@@ -71,14 +70,12 @@ export function makeSiteMenu(params = {}) {
     {
       id: 'SETTINGS_MENU',
       label: 'header.site-menu.menu-settings',
-      onClick: () => {
-        MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW);
-      }
+      onClick: () => MenuSettingsService.emitter.emit(MenuSettingsService.Events.SHOW)
     },
     {
       id: 'GO_ADMIN_PAGE',
       label: 'header.site-menu.admin-page',
-      targetUrl: URL.ADMIN_PAGE,
+      targetUrl: queryString.stringifyUrl({ url: URL.ADMIN_PAGE, query: { type: 'DEV_TOOLS' } }),
       targetUrlType: 'FULL_PATH'
     }
   ];

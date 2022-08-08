@@ -4,6 +4,8 @@ import set from 'lodash/set';
 import Harness from '../harness';
 import EventEmitter from '../../EventEmitter';
 import { disabledComponents } from '../../utils';
+import * as util from '../../../helpers/export/util';
+import en from '../../../i18n/en';
 
 export const basicSectionTest = Component => {
   const type = Component.type || Component.schema().type;
@@ -49,9 +51,11 @@ export const basicSectionTest = Component => {
 
       builder.editForm.formReady.then(() => {
         const firstTab = builder.dialog.querySelector('.nav-item');
+        const translation = jest.spyOn(util, 't').mockImplementation(key => en[key]);
 
         expect(firstTab).not.toBeUndefined();
-        expect(firstTab.textContent).toBe('Basic');
+        expect(firstTab.textContent).toBe(translation('form-constructor.tabs.basic'));
+        translation.mockRestore();
         done();
       });
     });
@@ -70,7 +74,6 @@ export const basicSectionTest = Component => {
           builder.showErrors(builder.editForm.errors, true);
 
           const error = builder.editForm.element.querySelector('.formio-component-key > .formio-errors');
-
           expect(builder.editForm.submission.data.key).toBe(keys.correct);
           expect(error).toBeNull();
 

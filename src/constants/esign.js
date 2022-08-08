@@ -7,6 +7,14 @@ export const ErrorTypes = {
 
 export const Labels = {
   ERROR: 'esign.error',
+  ACTION: 'esign.action.title',
+  ACTION_BASE64: 'esign.action.base64.title',
+  ACTION_VERIFICATION: 'esign.action.verification.title',
+  ACTION_CHECK_DOC: 'esign.action.check-document.title',
+  ACTION_GET_CERT: 'esign.action.get-certificates.title',
+  ACTION_CHECK_THUMB: 'esign.action.check-thumb.title',
+  ACTION_SIGN_DOCS: 'esign.action.sign-docs.title',
+  EDS_ERROR: 'esign.eds-error',
   ADD_PLUGIN: 'esign.add-plugin.title',
   ADD_PLUGIN_MESSAGE: 'esign.message.add-plugin',
   NODE_NOT_FOUND_MESSAGE: 'esign.message.node-not-found',

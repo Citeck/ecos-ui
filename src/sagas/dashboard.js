@@ -26,6 +26,7 @@ import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/
 function* _parseConfig({ api, logger }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
+
   newConfig.widgets = yield call(api.dashboard.getFilteredWidgets, newConfig.widgets, { recordRef });
   const widgetsById = yield select(() => selectSelectedWidgetsById(newConfig));
 
@@ -76,7 +77,7 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.get-config'), t('error'));
-    logger.error('[dashboard/ doGetDashboardRequest saga] error', e.message);
+    logger.error('[dashboard/ doGetDashboardRequest saga] error', e);
   }
 }
 
@@ -89,7 +90,7 @@ function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
     yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard.error.get-title'), t('error'));
-    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e.message);
+    logger.error('[dashboard/ doGetDashboardTitleRequest saga] error', e);
   }
 }
 
@@ -166,7 +167,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.save-config'), t('error'));
-    logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e.message);
+    logger.error('[dashboard/ doSaveDashboardConfigRequest saga] error', e);
   }
 }
 

@@ -4,12 +4,13 @@ import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 
-import { fetchGroupSectionList, toggleMenu, toggleSection } from '../../../actions/adminSection';
 import { t } from '../../../helpers/util';
+import { fetchGroupSectionList, toggleMenu, toggleSection } from '../../../actions/adminSection';
 import { Labels } from '../../../constants/adminSection';
+import { usePrevious } from '../../../hooks';
+import { Search } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import SectionList from './SectionList';
-import { usePrevious } from '../../../hooks';
 
 import './style.scss';
 
@@ -28,6 +29,7 @@ const AdminMenu = React.memo(
   }) => {
     const sidebarRef = useRef(null);
     const [topHeight, setTopHeight] = useState(500);
+    const [searchText, setSearchText] = useState('');
     const [needRecalculateSize, setNeedRecalculateSize] = useState(false);
     const prevActiveSection = usePrevious(activeSection);
     const prevIsInitiated = usePrevious(isInitiated);
@@ -58,6 +60,11 @@ const AdminMenu = React.memo(
       }
     }, [sidebarRef, isOpen, needRecalculateSize]);
 
+    const filterList = list => {
+      const compare = item => new RegExp(`(${searchText})`, 'ig').test(get(item, 'label'));
+      return !searchText ? list : list.filter(compare);
+    };
+
     return (
       <>
         <IcoBtn
@@ -84,10 +91,13 @@ const AdminMenu = React.memo(
             >
               {isMobile ? t(Labels.HIDE_MENU_sm) : t(Labels.HIDE_MENU)}
             </IcoBtn>
+            <div className="ecos-admin-menu__search-block">
+              <Search cleaner liveSearch searchWithEmpty onSearch={setSearchText} className="ecos-admin-menu__search-field" />
+            </div>
             {groupSectionList.map(item => (
               <SectionList
                 key={item.id}
-                list={item.sections}
+                list={filterList(item.sections)}
                 title={item.label}
                 isOpen={get(sectionState, [item.id], true)}
                 onToggle={isOpen => toggleSection(item.id, isOpen)}

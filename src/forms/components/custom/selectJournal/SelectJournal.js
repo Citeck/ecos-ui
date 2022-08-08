@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
 
-import { trimFields } from '../../../../helpers/util';
-import { SelectJournal } from '../../../../components/common/form';
+import { getTextByLocale, trimFields } from '../../../../helpers/util';
+import SelectJournal from '../../../../components/common/form/SelectJournal';
 import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { DisplayModes, SortOrderOptions, TableTypes } from './constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -41,7 +41,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         },
         searchField: '',
         ecos: {
-          dataType: 'assoc'
+          dataType: DataTypes.ASSOC
         }
       },
       ...extend
@@ -251,9 +251,35 @@ export default class SelectJournalComponent extends BaseReactComponent {
     });
   };
 
+  get modalTitle() {
+    let modalTitle = _.cloneDeep(this.component.modalTitle);
+
+    if (!modalTitle) {
+      return null;
+    }
+
+    if (modalTitle.includes('{{') && modalTitle.includes('}}')) {
+      const value = modalTitle.substring(modalTitle.indexOf('{{') + 2, modalTitle.lastIndexOf('}}'));
+      const title = this.t(_.get(this, value));
+
+      modalTitle = modalTitle.replace(`{{${value}}}`, title);
+    }
+
+    return this.t(modalTitle);
+  }
+
+  onChangeValue = (value, selected = [], flags = {}) => {
+    this.onReactValueChanged(value, {
+      noUpdateEvent: this._isInlineEditingMode,
+      ...flags
+    });
+  };
+
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
+      const isInlineEditDisabled =
+        this.options.readOnly && (_.get(this, 'options.disableInlineEdit', false) || component.disableInlineEdit);
       const isModalMode = !!(this.element && this.element.closest('.modal'));
       const presetFilterPredicates = component.presetFilterPredicatesJs
         ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
@@ -266,17 +292,17 @@ export default class SelectJournalComponent extends BaseReactComponent {
         defaultValue: this.dataValue,
         isCompact: component.isCompact,
         multiple: component.multiple,
-        placeholder: component.placeholder,
+        placeholder: getTextByLocale(component.placeholder),
         disabled: component.disabled,
         journalId: journalId,
-        onChange: value => this.onReactValueChanged(value, { noUpdateEvent: this._isInlineEditingMode }),
+        onChange: this.onChangeValue,
         viewOnly: this.viewOnly,
         queryData,
         viewMode: component.source.viewMode,
         displayColumns: component.displayColumns,
-        hideCreateButton: component.hideCreateButton,
-        hideEditRowButton: component.hideEditRowButton,
-        hideDeleteRowButton: component.hideDeleteRowButton,
+        hideCreateButton: isInlineEditDisabled || component.hideCreateButton,
+        hideEditRowButton: isInlineEditDisabled || component.hideEditRowButton,
+        hideDeleteRowButton: isInlineEditDisabled || component.hideDeleteRowButton,
         isSelectedValueAsText: component.isSelectedValueAsText,
         isFullScreenWidthModal: component.isFullScreenWidthModal,
         isInlineEditingMode: this._isInlineEditingMode,
@@ -293,7 +319,9 @@ export default class SelectJournalComponent extends BaseReactComponent {
         onError: () => undefined,
         // Cause https://citeck.atlassian.net/browse/ECOSUI-208
         // If component has calculateValue, disable value reset when apply custom predicate
-        disableResetOnApplyCustomPredicate: !!component.calculateValue
+        disableResetOnApplyCustomPredicate: !!component.calculateValue,
+        title: this.modalTitle,
+        dataType: component.ecos.dataType
       };
 
       if (component.customSourceId) {
@@ -400,17 +428,26 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   updateValue(flags, value) {
     const changed = super.updateValue(flags, value);
+    const props = _.get(this.react, 'wrapper.props.props', {});
 
     this.refreshElementHasValueClasses();
 
     if (changed) {
-      _.set(this.react, 'waitingProps.defaultValue', value);
+      props.defaultValue = value;
     }
 
-    this.setReactProps(_.get(this.react, 'wrapper.props.props', {}));
+    this.delayedSettingProps(props);
 
     return changed;
   }
+
+  delayedSettingProps = _.debounce(
+    props => {
+      this.setReactProps(props);
+    },
+    250,
+    { maxWait: 500, trailing: true }
+  );
 
   refreshElementHasValueClasses() {
     if (!this.element) {

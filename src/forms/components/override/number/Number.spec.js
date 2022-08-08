@@ -29,38 +29,38 @@ describe('Number Component', () => {
       Harness.testSetInput(component, 0, 0, '0');
       Harness.testSetInput(component, 1, 1, '1');
       Harness.testSetInput(component, -1, -1, '-1');
-      Harness.testSetInput(component, 1000, 1000, '1,000');
-      Harness.testSetInput(component, -1000, -1000, '-1,000');
-      Harness.testSetInput(component, 1000.0, 1000, '1,000');
-      Harness.testSetInput(component, -1000.0, -1000, '-1,000');
-      Harness.testSetInput(component, 1000.01, 1000.01, '1,000.01');
-      Harness.testSetInput(component, -1000.01, -1000.01, '-1,000.01');
-      Harness.testSetInput(component, 1000.001, 1000.001, '1,000.001');
-      Harness.testSetInput(component, -1000.001, -1000.001, '-1,000.001');
-      Harness.testSetInput(component, 1234567890.12, 1234567890.12, '1,234,567,890.12');
-      Harness.testSetInput(component, -1234567890.12, -1234567890.12, '-1,234,567,890.12');
+      Harness.testSetInput(component, 1000, 1000, '1 000');
+      Harness.testSetInput(component, -1000, -1000, '-1 000');
+      Harness.testSetInput(component, 1000.0, 1000, '1 000');
+      Harness.testSetInput(component, -1000.0, -1000, '-1 000');
+      Harness.testSetInput(component, 1000.01, 1000.01, '1 000.01');
+      Harness.testSetInput(component, -1000.01, -1000.01, '-1 000.01');
+      Harness.testSetInput(component, 1000.001, 1000.001, '1 000.001');
+      Harness.testSetInput(component, -1000.001, -1000.001, '-1 000.001');
+      Harness.testSetInput(component, 1234567890.12, 1234567890.12, '1 234 567 890.12');
+      Harness.testSetInput(component, -1234567890.12, -1234567890.12, '-1 234 567 890.12');
       Harness.testSetInput(component, 12.123456789, 12.123456789, '12.123456789');
       Harness.testSetInput(component, -12.123456789, -12.123456789, '-12.123456789');
       // These tests run into the maximum number of significant digits for floats.
-      Harness.testSetInput(component, 123456789.123456789, 123456789.123456789, '123,456,789.12345679');
-      Harness.testSetInput(component, -123456789.123456789, -123456789.123456789, '-123,456,789.12345679');
+      Harness.testSetInput(component, 123456789.123456789, 123456789.123456789, '123 456 789.12345679');
+      Harness.testSetInput(component, -123456789.123456789, -123456789.123456789, '-123 456 789.12345679');
       Harness.testSetInput(component, '0', 0, '0');
       Harness.testSetInput(component, '1', 1, '1');
       Harness.testSetInput(component, '-1', -1, '-1');
-      Harness.testSetInput(component, '1000', 1000, '1,000');
-      Harness.testSetInput(component, '-1000', -1000, '-1,000');
-      Harness.testSetInput(component, '1000.01', 1000.01, '1,000.01');
-      Harness.testSetInput(component, '-1000.01', -1000.01, '-1,000.01');
-      Harness.testSetInput(component, '1000.00', 1000, '1,000');
-      Harness.testSetInput(component, '-1000.00', -1000, '-1,000');
-      Harness.testSetInput(component, '1000.001', 1000.001, '1,000.001');
-      Harness.testSetInput(component, '-1000.001', -1000.001, '-1,000.001');
-      Harness.testSetInput(component, '1234567890.12', 1234567890.12, '1,234,567,890.12');
-      Harness.testSetInput(component, '-1234567890.12', -1234567890.12, '-1,234,567,890.12');
+      Harness.testSetInput(component, '1000', 1000, '1 000');
+      Harness.testSetInput(component, '-1000', -1000, '-1 000');
+      Harness.testSetInput(component, '1000.01', 1000.01, '1 000.01');
+      Harness.testSetInput(component, '-1000.01', -1000.01, '-1 000.01');
+      Harness.testSetInput(component, '1000.00', 1000, '1 000');
+      Harness.testSetInput(component, '-1000.00', -1000, '-1 000');
+      Harness.testSetInput(component, '1000.001', 1000.001, '1 000.001');
+      Harness.testSetInput(component, '-1000.001', -1000.001, '-1 000.001');
+      Harness.testSetInput(component, '1234567890.12', 1234567890.12, '1 234 567 890.12');
+      Harness.testSetInput(component, '-1234567890.12', -1234567890.12, '-1 234 567 890.12');
       Harness.testSetInput(component, '12.123456789', 12.123456789, '12.123456789');
       Harness.testSetInput(component, '-12.123456789', -12.123456789, '-12.123456789');
-      Harness.testSetInput(component, '123456789.123456789', 123456789.123456789, '123,456,789.12345679');
-      Harness.testSetInput(component, '-123456789.123456789', -123456789.123456789, '-123,456,789.12345679');
+      Harness.testSetInput(component, '123456789.123456789', 123456789.123456789, '123 456 789.12345679');
+      Harness.testSetInput(component, '-123456789.123456789', -123456789.123456789, '-123 456 789.12345679');
       done();
     });
     /* eslint-enable max-statements */
@@ -72,16 +72,16 @@ describe('Number Component', () => {
       Harness.testSetInput(component, 0, 0, '0');
       Harness.testSetInput(component, 1, 1, '1');
       Harness.testSetInput(component, -1, -1, '-1');
-      Harness.testSetInput(component, 1000, 1000, '1,000');
-      Harness.testSetInput(component, -1000, -1000, '-1,000');
-      Harness.testSetInput(component, 1000.0, 1000, '1,000');
-      Harness.testSetInput(component, -1000.0, -1000, '-1,000');
-      Harness.testSetInput(component, 1000.01, 1000.01, '1,000.01');
-      Harness.testSetInput(component, -1000.01, -1000.01, '-1,000.01');
-      Harness.testSetInput(component, 1000.001, 1000.001, '1,000.001');
-      Harness.testSetInput(component, -1000.001, -1000.001, '-1,000.001');
-      Harness.testSetInput(component, 1234567890.12, 1234567890.12, '1,234,567,890.12');
-      Harness.testSetInput(component, -1234567890.12, -1234567890.12, '-1,234,567,890.12');
+      Harness.testSetInput(component, 1000, 1000, '1 000');
+      Harness.testSetInput(component, -1000, -1000, '-1 000');
+      Harness.testSetInput(component, 1000.0, 1000, '1 000');
+      Harness.testSetInput(component, -1000.0, -1000, '-1 000');
+      Harness.testSetInput(component, 1000.01, 1000.01, '1 000.01');
+      Harness.testSetInput(component, -1000.01, -1000.01, '-1 000.01');
+      Harness.testSetInput(component, 1000.001, 1000.001, '1 000.001');
+      Harness.testSetInput(component, -1000.001, -1000.001, '-1 000.001');
+      Harness.testSetInput(component, 1234567890.12, 1234567890.12, '1 234 567 890.12');
+      Harness.testSetInput(component, -1234567890.12, -1234567890.12, '-1 234 567 890.12');
       Harness.testSetInput(component, 12.123456789, 12.123456789, '12.123456789');
       Harness.testSetInput(component, -12.123456789, -12.123456789, '-12.123456789');
       done();
@@ -96,15 +96,16 @@ describe('Number Component', () => {
   });
 
   it('Should display default decimal value', done => {
-    const TEST_VAL = 4.2;
+    const TEST_VAL = 4563.2;
     const comp = _.cloneDeep(comp3);
 
     comp.defaultValue = TEST_VAL;
     comp.decimalLimit = 2;
+    comp.delimiterValue = ',';
     comp.requireDecimal = true;
 
     Harness.testCreate(NumberComponent, comp).then(number => {
-      expect(_.get(number, ['inputs', '0', 'value'])).toBe('4.20');
+      expect(_.get(number, ['inputs', '0', 'value'])).toBe('4,563.20');
       done();
     });
   });
@@ -148,19 +149,20 @@ describe('Number Component', () => {
     comp.requireDecimal = true;
     comp.delimiter = true;
     comp.defaultValue = '';
+    comp.decimalValue = ',';
 
     /* eslint-disable max-statements */
     Harness.testCreate(NumberComponent, comp).then(number => {
       const testset = [
         // [inv, outv, display]
-        ['42', 42, '42.00'],
-        ['42.1', 42.1, '42.10'],
-        ['42.01', 42.01, '42.01'],
-        ['4200', 4200, '4,200.00'],
-        ['4200.4', 4200.4, '4,200.40'],
-        ['4200.42', 4200.42, '4,200.42'],
-        ['4200.', 4200, '4,200.00'],
-        ['99999999.', 99999999, '99,999,999.00']
+        ['42', 42, '42,00'],
+        ['42.1', 42.1, '42,10'],
+        ['42.01', 42.01, '42,01'],
+        ['4200', 4200, '4 200,00'],
+        ['4200.4', 4200.4, '4 200,40'],
+        ['4200.42', 4200.42, '4 200,42'],
+        ['4200.', 4200, '4 200,00'],
+        ['99999999.', 99999999, '99 999 999,00']
       ];
 
       testset.forEach((set, index) => {
@@ -176,16 +178,20 @@ describe('Number Component', () => {
   });
 
   it('Should add trailing zeros on blur with `multiple` flag', done => {
-    Harness.testCreate(NumberComponent, comp4).then(number => {
+    const comp = _.cloneDeep(comp4);
+
+    comp.delimiter = false;
+
+    Harness.testCreate(NumberComponent, comp).then(number => {
       const testset = [
         ['42', 42, '42.00'],
         ['42.1', 42.1, '42.10'],
         ['42.01', 42.01, '42.01'],
-        ['4200', 4200, '4,200.00'],
-        ['4200.4', 4200.4, '4,200.40'],
-        ['4200.42', 4200.42, '4,200.42'],
-        ['4200.', 4200, '4,200.00'],
-        ['99999999.', 99999999, '99,999,999.00']
+        ['4200', 4200, '4200.00'],
+        ['4200.4', 4200.4, '4200.40'],
+        ['4200.42', 4200.42, '4200.42'],
+        ['4200.', 4200, '4200.00'],
+        ['99999999.', 99999999, '99999999.00']
       ];
 
       testset.forEach((set, index) => {
@@ -211,9 +217,9 @@ describe('Number Component', () => {
     comp.isBigNumber = false;
 
     Harness.testCreate(NumberComponent, comp).then(component => {
-      Harness.testSetInput(component, '3333333333333333313331', 3.3333333333333335e21, '3,333,333,333,333,333,500,000.00');
-      Harness.testSetInput(component, 222222222222222222, 222222222222222200, '222,222,222,222,222,200.00');
-      Harness.testSetInput(component, '1234578902345678901234567890', 1.234578902345679e27, '1,234,578,902,345,679,000,000,000,000.00');
+      Harness.testSetInput(component, '3333333333333333313331', 3.3333333333333335e21, '3 333 333 333 333 333 500 000.00');
+      Harness.testSetInput(component, 222222222222222222, 222222222222222200, '222 222 222 222 222 200.00');
+      Harness.testSetInput(component, '1234578902345678901234567890', 1.234578902345679e27, '1 234 578 902 345 679 000 000 000 000.00');
       done();
     });
   });
@@ -264,6 +270,39 @@ describe('Number Component', () => {
         '-91111111111111111111111111111.00'
       );
       Harness.testSetInput(component, '92222222222222222222222222222', '92222222222222222222222222222', '92222222222222222222222222222.00');
+      Harness.testSetInput(component, 942, 942, '942.00');
+      done();
+    });
+  });
+
+  it('"Big number" settings enabled with delimiter (by default)', done => {
+    const comp = _.cloneDeep(comp3);
+
+    comp.defaultValue = '';
+    comp.isBigNumber = true;
+    comp.decimalLimit = 2;
+    comp.requireDecimal = true;
+    comp.delimiter = true;
+
+    Harness.testCreate(NumberComponent, comp).then(component => {
+      Harness.testSetInput(
+        component,
+        '91111111111111111111111111111',
+        '91111111111111111111111111111',
+        '91 111 111 111 111 111 111 111 111 111.00'
+      );
+      Harness.testSetInput(
+        component,
+        '-91111111111111111111111111111',
+        '-91111111111111111111111111111',
+        '-91 111 111 111 111 111 111 111 111 111.00'
+      );
+      Harness.testSetInput(
+        component,
+        '92222222222222222222222222222',
+        '92222222222222222222222222222',
+        '92 222 222 222 222 222 222 222 222 222.00'
+      );
       Harness.testSetInput(component, 942, 942, '942.00');
       done();
     });
@@ -321,8 +360,8 @@ describe('Number Component', () => {
 
     Harness.testCreate(NumberComponent, comp).then(component => {
       Harness.testSetInput(component, 123, 123, '123');
-      Harness.testSetInput(component, 12345678, 12345678, '12,345,678');
-      Harness.testSetInput(component, 12345678.03, 12345678.03, '12,345,678.03');
+      Harness.testSetInput(component, 12345678, 12345678, '12 345 678');
+      Harness.testSetInput(component, 12345678.03, 12345678.03, '12 345 678.03');
       done();
     });
   });

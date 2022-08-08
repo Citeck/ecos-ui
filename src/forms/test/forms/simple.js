@@ -144,6 +144,15 @@ export default {
         optionalWhenDisabled: true
       },
       {
+        type: 'textfield',
+        key: 'notDisabledButRequiredAndEmpty',
+        label: 'Not Disabled, but Required and Empty field',
+        defaultValue: '',
+        validate: { required: true },
+        disabled: false,
+        optionalWhenDisabled: true
+      },
+      {
         type: 'button',
         theme: 'primary',
         disableOnInvalid: false,
@@ -189,7 +198,7 @@ export default {
   },
   tests: {
     'Test valid submission'(form, done) {
-      Harness.testElements(form, 'input[type="text"]', 4);
+      Harness.testElements(form, 'input[type="text"]', 5);
       Harness.testSubmission(form, {
         data: {
           firstName: 'Joe',
@@ -199,6 +208,7 @@ export default {
           verifyPassword: '123test',
           date: Harness.getDate(),
           disabledRequiredEmpty: '',
+          notDisabledButRequiredAndEmpty: '',
           submit: false
         }
       });
@@ -211,6 +221,7 @@ export default {
           data: {
             date: Harness.getDate(),
             disabledRequiredEmpty: '',
+            notDisabledButRequiredAndEmpty: '',
             firstName: 'test',
             lastName: 'test2',
             email: 'bademail',
@@ -240,6 +251,52 @@ export default {
             verifyPassword: '123test',
             date: Harness.getDate(),
             disabledRequiredEmpty: '',
+            notDisabledButRequiredAndEmpty: 'test',
+            submit: false
+          }
+        },
+        [],
+        done
+      );
+    },
+    'Test not disabled but required and empty field with active option: optionalWhenDisabled'(form, done) {
+      Harness.testErrors(
+        form,
+        {
+          data: {
+            firstName: 'Joe',
+            lastName: 'Smith',
+            email: 'test@example.com',
+            password: '123test',
+            verifyPassword: '123test',
+            date: Harness.getDate(),
+            disabledRequiredEmpty: '',
+            notDisabledButRequiredAndEmpty: '',
+            submit: false
+          }
+        },
+        [
+          {
+            component: 'notDisabledButRequiredAndEmpty',
+            message: 'Not Disabled, but Required and Empty field is required'
+          }
+        ],
+        done
+      );
+    },
+    'Test not disabled but required and not empty field with active option: optionalWhenDisabled'(form, done) {
+      Harness.testErrors(
+        form,
+        {
+          data: {
+            firstName: 'Joe',
+            lastName: 'Smith',
+            email: 'test@example.com',
+            password: '123test',
+            verifyPassword: '123test',
+            date: Harness.getDate(),
+            disabledRequiredEmpty: '',
+            notDisabledButRequiredAndEmpty: 'not empty',
             submit: false
           }
         },

@@ -13,6 +13,7 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
+import { LOCAL_ID } from '../../../../constants/journal';
 
 export const TableFormContext = React.createContext();
 
@@ -38,6 +39,7 @@ export const TableFormContextProvider = props => {
   const [record, setRecord] = useState(null);
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
+  const [rowPosition, setRowPosition] = useState(0);
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
     top: 0,
@@ -86,7 +88,6 @@ export const TableFormContextProvider = props => {
         atts.push(schema);
         attsAsIs.push(attribute);
       });
-
       Promise.all(
         initValue.map(async rec => {
           const record = Records.get(rec);
@@ -126,7 +127,7 @@ export const TableFormContextProvider = props => {
             currentAttIndex++;
           }
 
-          return { ...fetchedAtts, id: rec };
+          return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
         })
       )
         .then(result => {
@@ -194,6 +195,7 @@ export const TableFormContextProvider = props => {
         ...gridRows,
         {
           id: record.id,
+          [LOCAL_ID]: record.id,
           ...attributes
         }
       ];
@@ -222,6 +224,7 @@ export const TableFormContextProvider = props => {
         inlineToolsOffsets,
         createVariants,
         computed,
+        rowPosition,
 
         toggleModal: () => {
           setIsModalFormOpen(!isModalFormOpen);
@@ -236,42 +239,47 @@ export const TableFormContextProvider = props => {
           setCreateVariant(createVariant);
           setFormMode(FORM_MODE_CREATE);
           setIsModalFormOpen(true);
+          setRowPosition(rowPosition);
+          setRowPosition(null);
         },
 
-        showEditForm: record => {
+        showEditForm: (record, rowPosition = null) => {
           setIsViewOnlyForm(false);
           setRecord(record);
           setClonedRecord(null);
           setCreateVariant(null);
           setFormMode(FORM_MODE_EDIT);
           setIsModalFormOpen(true);
+          setRowPosition(rowPosition);
         },
 
         runCloneRecord: record => {
           setClonedRecord(record);
         },
 
-        showViewOnlyForm: record => {
+        showViewOnlyForm: (record, rowPosition = null) => {
           setIsViewOnlyForm(true);
           setCreateVariant(null);
           setRecord(record);
           setFormMode(FORM_MODE_VIEW);
           setIsModalFormOpen(true);
+          setRowPosition(rowPosition);
         },
 
-        showPreview: recordId => {
+        showPreview: (recordId, rowPosition = null) => {
           WidgetService.openPreviewModal({ recordId });
+          setRowPosition(rowPosition);
         },
 
         onCreateFormSubmit,
 
-        onEditFormSubmit: (record, form) => {
+        onEditFormSubmit: record => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
           record.toJsonAsync(true).then(res => {
-            const newRow = { ...res['attributes'], id: editRecordId };
+            const newRow = { ...res['attributes'], id: editRecordId, [LOCAL_ID]: editRecordId };
 
             if (isAlias) {
               // replace base record row by newRow in values list
@@ -302,6 +310,7 @@ export const TableFormContextProvider = props => {
         deleteSelectedItem: id => {
           const newGridRows = gridRows.filter(item => item.id !== id);
           setGridRows([...newGridRows]);
+          setRowPosition(null);
 
           onChangeHandler(newGridRows);
         },
@@ -317,7 +326,8 @@ export const TableFormContextProvider = props => {
             setInlineToolsOffsets({
               height: offsets.height,
               top: offsets.top,
-              rowId: offsets.row.id || null
+              rowId: offsets.row.id || null,
+              position: offsets.position || 0
             });
           }
         },

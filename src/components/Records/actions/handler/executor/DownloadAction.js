@@ -1,5 +1,6 @@
 import ActionsExecutor from '../ActionsExecutor';
 import { getDownloadContentUrl } from '../../../../../helpers/urls';
+import isString from 'lodash/isString';
 
 export default class DownloadAction extends ActionsExecutor {
   static ACTION_ID = 'download';
@@ -42,13 +43,33 @@ export default class DownloadAction extends ActionsExecutor {
         )
         .then(data => {
           let filename = fileName || data.moduleId || data.module_id || data.title || data.name;
-          filename = filename.replace(/[^a-zA-Zа-яА-Я0-9.]+/g, '_');
+          filename = filename.replace(/[^-a-zA-Z\d._]+/g, '_');
 
           if (!filename.endsWith('.json')) {
             filename += '.json';
           }
           DownloadAction._downloadText(JSON.stringify(data.json, null, '  '), filename, 'text/json');
         });
+    } else if (config.downloadType === 'text') {
+      const attribute = config.attribute || '?json';
+      const extension = config.extension || 'json';
+
+      record.load(attribute, true).then(data => {
+        let name = fileName;
+        if (!name) {
+          name = record.id;
+          let sourceIdDelimIdx = name.indexOf('@');
+          if (sourceIdDelimIdx > 0 && sourceIdDelimIdx < name.length - 1) {
+            name = name.substring(sourceIdDelimIdx + 1);
+          }
+        }
+        name = name.replace(/[^-a-zA-Z\d._]+/g, '_') + '.' + extension;
+        let value = data;
+        if (!isString(value)) {
+          value = JSON.stringify(value, null, '  ');
+        }
+        DownloadAction._downloadText(value, name, 'text/plain');
+      });
     } else {
       const name = fileName || 'file';
       DownloadAction._downloadByUrl(config.url, name, record);

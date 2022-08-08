@@ -1,6 +1,6 @@
 export default [
   {
-    weight: 149,
+    weight: 159,
     type: 'checkbox',
     label: 'In-line columns',
     tooltip: 'Display columns as in-line blocks',
@@ -69,5 +69,14 @@ export default [
     key: 'hideOnChildrenHidden',
     tooltip: 'Check this if you would like to hide any column when the children within that column are also hidden',
     input: true
+  },
+  {
+    label: 'One column in Panel when View mode',
+    tooltip: 'If checked, content will be in one column irregardless the edit layout',
+    labelPosition: 'left-left',
+    type: 'checkbox',
+    input: true,
+    key: 'oneColumnInViewMode',
+    weight: 162
   }
 ];

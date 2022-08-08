@@ -1,7 +1,10 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import throttle from 'lodash/throttle';
+import get from 'lodash/get';
 
+import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
 import { animateScrollTo } from '../../../../helpers/util';
 
@@ -282,6 +285,38 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
+      const tabLabel = isEqual(t(`form-constructor.tabs.${tab.key}`), `form-constructor.tabs.${tab.key}`)
+        ? tab.label
+        : t(`form-constructor.tabs.${tab.key}`);
+
+      if (get(tab, 'components')) {
+        tab.components.forEach(el => {
+          if (this.checkTranslation('label', 'content', el)) {
+            el.label = t(`form-constructor.tabs-content.${el.key}`);
+          }
+
+          if (this.checkTranslation('placeholder', 'placeholder', el)) {
+            el.placeholder = t(`form-constructor.tabs-placeholder.${el.key}`);
+          }
+
+          if (this.checkTranslation('tooltip', 'tooltip', el)) {
+            el.tooltip = t(`form-constructor.tabs-tooltip.${el.key}`);
+          }
+
+          if (this.checkTranslation('description', 'description', el)) {
+            el.description = t(`form-constructor.tabs-description.${el.key}`);
+          }
+
+          if (el.components) {
+            el.components.forEach(item => {
+              if (this.checkTranslation('label', 'content', item)) {
+                item.label = t(`form-constructor.tabs-content.${item.key}`);
+              }
+            });
+          }
+        });
+      }
+
       const tabLink = this.ce(
         'a',
         {
@@ -289,7 +324,7 @@ export default class TabsComponent extends NestedComponent {
           href: `#${tab.key}`,
           [IGNORE_TABS_HANDLER_ATTR_NAME]: true
         },
-        tab.label
+        tabLabel
       );
       this.addEventListener(tabLink, 'click', event => {
         event.preventDefault();
@@ -304,6 +339,7 @@ export default class TabsComponent extends NestedComponent {
         tabLink
       );
       tabElement.tabLink = tabLink;
+
       this.tabsBar.appendChild(tabElement);
       this.tabLinks.push(tabElement);
       this.tabsBarScrollWrapper.appendChild(this.tabsBar);
@@ -377,6 +413,10 @@ export default class TabsComponent extends NestedComponent {
       window.removeEventListener('resize', this._calculateTabsContentHeightThrottled);
     }
   }
+
+  checkTranslation = (propName, keyName, el) => {
+    return !isEqual(t(`form-constructor.tabs-${keyName}.${el.key}`), `form-constructor.tabs-${keyName}.${el.key}`) && `el.${propName}`;
+  };
 
   detectScroll = () => {
     const containerWidth = this.tabsBar.getBoundingClientRect()['width'];
@@ -485,6 +525,8 @@ export default class TabsComponent extends NestedComponent {
     if (tabId !== undefined) {
       this.#tabs.set(tabId, component);
     }
+
+    return component;
   }
 
   /**

@@ -1,6 +1,7 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isUndefined from 'lodash/isUndefined';
 
 import {
   getAvailableWidgets,
@@ -30,12 +31,13 @@ import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
 import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 import DashboardConverter from '../dto/dashboard';
+import UserLocalSettingsService from '../services/userLocalSettings';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
     yield put(getDashboardConfig(payload));
   } catch (e) {
-    logger.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e.message);
+    logger.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e);
   }
 }
 
@@ -70,7 +72,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
     yield put(getDashboardKeys({ ...payload, recordRef: recordRef || _recordRef }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-config'), t('error'));
-    logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e.message);
+    logger.error('[dashboard-settings/ doGetDashboardConfigRequest saga] error', e);
   } finally {
     yield put(setLoading({ key: payload.key, status: false }));
   }
@@ -83,7 +85,7 @@ function* doGetWidgetsRequest({ api, logger }, { payload }) {
     yield put(setAvailableWidgets({ widgets, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-widget-list'), t('error'));
-    logger.error('[dashboard-settings/ doGetWidgetsRequest saga] error', e.message);
+    logger.error('[dashboard-settings/ doGetWidgetsRequest saga] error', e);
   }
 }
 
@@ -103,7 +105,7 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
     yield put(setDashboardKeys({ keys, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.get-board-key'), t('error'));
-    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e);
   } finally {
     yield put(setLoadingKeys({ status: false, key: payload.key }));
   }
@@ -142,7 +144,7 @@ function* doCheckUpdatedSettings({ api, logger }, { payload }) {
     yield put(setCheckUpdatedDashboardConfig({ saveWay, dashboardId, key: payload.key }));
   } catch (e) {
     NotificationManager.error(t('dashboard-settings.error.check-updates'), t('error'));
-    logger.error('[dashboard-settings/ doCheckUpdatedSettings saga] error', e.message);
+    logger.error('[dashboard-settings/ doCheckUpdatedSettings saga] error', e);
   }
 }
 
@@ -189,6 +191,26 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
       dashboardId: parseDashboard.dashboardId
     };
 
+    Object.keys(get(payload, 'widgets')).forEach(key => {
+      const widgets = get(payload, ['widgets', key], []);
+      const clearWidgetLSData = widget => {
+        if (Array.isArray(widget)) {
+          widget.forEach(clearWidgetLSData);
+          return;
+        }
+
+        const dashletKey = UserLocalSettingsService.getDashletKey(newIdentification.id, widget.id);
+        const isCollapsed = get(widget, 'props.config.collapsed');
+        const isCollapsedFromLS = UserLocalSettingsService.getDashletProperty(dashletKey, 'isCollapsed');
+
+        if (!isUndefined(isCollapsedFromLS) && isCollapsed !== isCollapsedFromLS) {
+          UserLocalSettingsService.setDataByKey(dashletKey, { isCollapsed: undefined });
+        }
+      };
+
+      widgets.forEach(clearWidgetLSData);
+    });
+
     yield call(api.dashboard.deleteFromCache, [
       DashboardService.getCacheKey({ type: identification.key, user: identification.user }),
       DashboardService.getCacheKey({ type: newIdentification.key, user: newIdentification.user })
@@ -197,7 +219,7 @@ function* doSaveSettingsRequest({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard-settings.error.save-config'), t('error'));
-    logger.error('[dashboard-settings/ doSaveSettingsRequest saga] error', e.message);
+    logger.error('[dashboard-settings/ doSaveSettingsRequest saga] error', e);
   }
 }
 
@@ -216,7 +238,7 @@ function* doResetConfigToDefault({ api, logger }, { payload }) {
   } catch (e) {
     yield put(setLoading({ key, status: false }));
     NotificationManager.error(t('dashboard-settings.error.reset-config'), t('error'));
-    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e.message);
+    logger.error('[dashboard-settings/ doGetDashboardKeys saga] error', e);
   }
 }
 

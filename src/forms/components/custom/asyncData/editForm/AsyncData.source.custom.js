@@ -1,10 +1,14 @@
+import { t } from '../../../../../helpers/export/util';
+
 const SYNC_DATA_PROP = 'source.custom.syncData';
 const ASYNC_DATA_PROP = 'source.custom.asyncData';
 
 export default [
   {
     type: 'panel',
-    title: 'Sync Data',
+    get title() {
+      return t('form-constructor.tabs-content.source.custom.syncData-js');
+    },
     collapsible: true,
     collapsed: false,
     style: {
@@ -26,15 +30,17 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>' +
-          '<p>Async data will be calculated only when sync data changes</p>'
+        get content() {
+          return t('form-constructor.html.source.custom.syncData-js');
+        }
       }
     ]
   },
   {
     type: 'panel',
-    title: 'Async Data',
+    get title() {
+      return t('form-constructor.tabs-content.source.custom.asyncData-js');
+    },
     collapsible: true,
     collapsed: false,
     style: {
@@ -56,10 +62,9 @@ export default [
       {
         type: 'htmlelement',
         tag: 'div',
-        content:
-          '<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>' +
-          '<p>You can assign a <strong>Promise</strong> to the <strong>value</strong></p>' +
-          '<p><strong>data</strong> - value from Sync Data field</p>'
+        get content() {
+          return t('form-constructor.html.source.custom.asyncData-js');
+        }
       }
     ]
   }
