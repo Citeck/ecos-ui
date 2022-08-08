@@ -7,6 +7,7 @@ import { t } from '../../../helpers/util';
 import { Caption, Checkbox, Field, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
+import plugins from '../../../plugins';
 
 import './style.scss';
 
@@ -55,6 +56,8 @@ export default class Settings extends React.Component {
   render() {
     const { selectedJournal } = this.state;
 
+    const { HeatmapWrapper } = plugins;
+
     return (
       <div className="ecos-process-statistics-settings">
         <Caption middle className="ecos-process-statistics-settings__title">
@@ -69,15 +72,19 @@ export default class Settings extends React.Component {
             onChange={selectedJournal => this.setState({ selectedJournal })}
           />
         </Field>
-        <Caption small className="ecos-process-statistics-settings__title">
-          {t(Labels.SETTINGS_DEFAULT_FLAGS)}
-        </Caption>
-        {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
+        {!!HeatmapWrapper && (
+          <>
+            <Caption small className="ecos-process-statistics-settings__title">
+              {t(Labels.SETTINGS_DEFAULT_FLAGS)}
+            </Caption>
+            {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
 
-        <Caption small className="ecos-process-statistics-settings__title">
-          {t(Labels.SETTINGS_READ_OUT)}
-        </Caption>
-        {this.renderFlags(['displayHeatmapToolbar'])}
+            <Caption small className="ecos-process-statistics-settings__title">
+              {t(Labels.SETTINGS_READ_OUT)}
+            </Caption>
+            {this.renderFlags(['displayHeatmapToolbar'])}
+          </>
+        )}
         <div className="ecos-process-statistics-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>
             {t(Labels.SETTINGS_BTN_CANCEL)}

@@ -1,5 +1,4 @@
 apply plugin: "base"
-apply plugin: "maven"
 apply plugin: "maven-publish"
 
 import groovy.json.JsonSlurper
@@ -16,28 +15,35 @@ task assembleArtifact(type: Zip) {
   destinationDir(file('build'))
 }
 
-publishing {
-  publications {
-    uiBuild(MavenPublication) {
-      version = packageVersion
-      groupId = 'ru.citeck.ecos.ui'
-      artifactId = 'ecos-ui'
-      artifact source: assembleArtifact, extension: 'zip'
-    }
+if (project.hasProperty("mavenUrl")) {
+
+  def mavenArtifactId = "ecos-ui"
+  if (project.hasProperty("mavenArtifactId")) {
+    mavenArtifactId = project.getProperty("mavenArtifactId")
   }
-  repositories {
-    maven {
-      name 'maven-repo'
-      credentials {
-        username project.getProperty("mavenUser")
-        password project.getProperty("mavenPass")
+  publishing {
+    publications {
+      uiBuild(MavenPublication) {
+        version = packageVersion
+        groupId = 'ru.citeck.ecos.ui'
+        artifactId = mavenArtifactId
+        artifact source: assembleArtifact, extension: 'zip'
       }
-      url project.getProperty("mavenUrl")
+    }
+    repositories {
+      maven {
+        name 'maven-repo'
+        credentials {
+          username project.getProperty("mavenUser")
+          password project.getProperty("mavenPass")
+        }
+        url project.getProperty("mavenUrl")
+      }
     }
   }
+
+  assemble.dependsOn assembleArtifact
+  build.dependsOn assemble
+
+  publish.dependsOn build
 }
-
-assemble.dependsOn assembleArtifact
-build.dependsOn assemble
-
-publish.dependsOn build

@@ -504,6 +504,11 @@ class RecordActions {
     return actResult;
   }
 
+  _chunkedRecords = [];
+  _statusesByRecords = [];
+  _messagesByRecords = [];
+  _lastExecutionalActionId = '';
+
   /**
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
@@ -513,25 +518,30 @@ class RecordActions {
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
     const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
+
+    if (this._isEqualRecordsCollection(action)) {
+      this._clearRecordsCollection();
+    }
+
+    this._lastExecutionalActionId = action.id;
+
     const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
+
     let withTimeoutError = false;
     let popupExecution;
+
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
-    const statusesByRecords = records.reduce(
-      (result, current) => ({
-        ...result,
-        [current]: ''
-      }),
-      {}
-    );
+
     const resultOptions = {
       title: getActionResultTitle(action),
       withConfirm: false,
       withoutLoader: byBatch,
-      statusesByRecords,
-      messagesByRecords: []
+      statusesByRecords: isQueryRecords ? this._statusesByRecords : [],
+      messagesByRecords: isQueryRecords ? this._messagesByRecords : []
     };
+
+    const chunkedRecords = this._chunkedRecords;
 
     const execution = await (async function() {
       if (!records || !records.length) {
@@ -598,12 +608,18 @@ class RecordActions {
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
+
       let preResult;
       let actResult;
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1562
       if (byBatch) {
         const chunks = chunk(allowedRecords, execForRecordsBatchSize);
+
+        if (isQueryRecords) {
+          allowedRecords.forEach(r => chunkedRecords.push(getRef(r)));
+        }
+
         const executeChunks = async chunks => {
           let results = {};
 
@@ -615,7 +631,7 @@ class RecordActions {
             }
 
             if (!isEmpty(preResult.preProcessedRecords)) {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.showPreviewRecords(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(preResult, 'results', []).map(item => getRef(item))
@@ -627,7 +643,7 @@ class RecordActions {
               : chunks[i];
 
             if (!isEmpty(preResult.preProcessedRecords) && isEmpty(filteredRecords)) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: preResult.preProcessedRecords,
@@ -663,7 +679,7 @@ class RecordActions {
 
             // Cause: https://citeck.atlassian.net/browse/ECOSUI-1578
             if (error) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: filteredRecords.map(item => getRef(item)),
@@ -697,7 +713,7 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.showPreviewRecords(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(result, 'data.results', []).map(item => getRef(item))
@@ -711,7 +727,7 @@ class RecordActions {
                 }
               };
 
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(result, 'data.results', []).map(item => getRef(item)),
@@ -791,6 +807,12 @@ class RecordActions {
     }
 
     return execution;
+  }
+
+  _clearRecordsCollection() {
+    this._chunkedRecords = [];
+    this._statusesByRecords = [];
+    this._messagesByRecords = [];
   }
 
   static _showTimeoutMessageDialog(data) {
@@ -945,7 +967,11 @@ class RecordActions {
         );
     };
 
-    await iterator.iterate(callback);
+    try {
+      await iterator.iterate(callback);
+    } finally {
+      this._clearRecordsCollection();
+    }
 
     info('success', t('group-action.message.done-name', { action: action.name }), true);
 
@@ -982,6 +1008,14 @@ class RecordActions {
       result[key] = (records[key] & recordMask) !== 0;
     }
     return result;
+  }
+
+  _isEqualRecordsCollection(action) {
+    if (this._lastExecutionalActionId !== action.id) {
+      return true;
+    }
+
+    return false;
   }
 
   /**

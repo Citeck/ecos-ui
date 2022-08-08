@@ -550,6 +550,21 @@ export default class DialogManager {
     return showDialog(LOADER_DIALOG_ID, { ...props, isVisible });
   }
 
+  /**
+   * @returns dialog instances
+   */
+  static getAllDialogs() {
+    return dialogs;
+  }
+
+  /**
+   * @param {FormDialog & BaseDialog} id
+   * @returns dialog instance
+   */
+  static getDialogById(id) {
+    return dialogs[id];
+  }
+
   static hideAllDialogs() {
     for (let id in dialogs) {
       dialogs[id].hide && dialogs[id].hide();

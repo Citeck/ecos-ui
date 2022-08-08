@@ -221,7 +221,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   }
 
   // Calculate the new value.
-  const calculatedValue = this.evaluate(
+  let calculatedValue = this.evaluate(
     this.component.calculateValue,
     {
       value: this.defaultValue,
@@ -239,19 +239,28 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   flags = flags || {};
   flags.noCheck = true;
 
-  if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
+  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
+    this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
+
+    if (allowOverride && !this.isEmptyValue(calculatedValue)) {
+      this.valueChangedByUser = false;
+
+      const isModal = get(this.options, 'initiator.type', '') === 'modal';
+
+      if (!this.viewOnly && !isCreateMode && isModal) {
+        this.valueChangedByUser = true;
+      }
+    }
+
+    this.calculatedValueWasCalculated = true;
+  }
+
+  if (!allowOverride || (allowOverride && !this.valueChangedByUser)) {
     changed = this.setValue(calculatedValue, flags);
 
     if (changed) {
       this.calculatedValue = this.dataValue;
     }
-  }
-
-  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
-
-    this.calculatedValueWasCalculated = true;
   }
 
   return changed;
@@ -307,7 +316,7 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
 
 Base.prototype.setValue = function(value, flags) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
-  if (this.viewOnly) {
+  if (this.viewOnly && !this.calculatedValueWasCalculated) {
     this.dataValue = value;
   }
 
