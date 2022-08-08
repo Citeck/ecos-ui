@@ -8,7 +8,8 @@ export default class SelectComponent extends FormIOSelectComponent {
     return FormIOSelectComponent.schema(
       {
         unavailableItems: {
-          isActive: false
+          isActive: false,
+          code: ''
         },
         refreshOnEvent: false,
         selectThreshold: 0.3
@@ -28,6 +29,16 @@ export default class SelectComponent extends FormIOSelectComponent {
     return SelectComponent.schema();
   }
 
+  get unavailableItems() {
+    const { code: items, isActive } = _.get(this.component, 'unavailableItems', {});
+
+    if (!isActive) {
+      return [];
+    }
+
+    return this.evaluate(items, {}, 'value', true);
+  }
+
   itemTemplate(data) {
     let newData = _.cloneDeep(data);
 
@@ -38,6 +49,36 @@ export default class SelectComponent extends FormIOSelectComponent {
     }
 
     return super.itemTemplate(newData);
+  }
+
+  addOption(value, label, attr) {
+    const option = {
+      value: value,
+      label: label,
+      disabled: this.unavailableItems.includes(value),
+      // TODO: unable to add multiple custom properties
+      customProperties: this.unavailableItems.includes(value)
+    };
+
+    if (value) {
+      this.selectOptions.push(option);
+    }
+    if (this.choices) {
+      return;
+    }
+
+    option.element = document.createElement('option');
+    if (this.dataValue === option.value) {
+      option.element.setAttribute('selected', 'selected');
+      option.element.selected = 'selected';
+    }
+    option.element.innerHTML = label;
+    if (attr) {
+      _.each(attr, (value, key) => {
+        option.element.setAttribute(key, value);
+      });
+    }
+    this.selectInput.appendChild(option.element);
   }
 
   addCurrentChoices(values, items, keyValue) {

@@ -75,6 +75,7 @@ export default class MLTextComponent extends BaseReactComponent {
 
   handleChange = value => {
     this.setPristine(false);
+    this.valueChangedByUser = true;
     this.setValue(value);
   };
 

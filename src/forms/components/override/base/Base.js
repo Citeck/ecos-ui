@@ -262,7 +262,7 @@ Base.prototype.calculateValue = function(data, flags) {
     return false;
   }
 
-  if (isUndefined(this.calculatedValue) && this.component.allowCalculateOverride && !isEmpty(this.dataValue)) {
+  if (isUndefined(this.calculatedValue) && this.component.allowCalculateOverride && !this.isEmpty(this.dataValue)) {
     return false;
   }
 
