@@ -245,7 +245,9 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     if (allowOverride && !this.isEmptyValue(calculatedValue)) {
       this.valueChangedByUser = false;
 
-      if (!this.viewOnly && !isCreateMode) {
+      const isModal = get(this.options, 'initiator.type', '') === 'modal';
+
+      if (!this.viewOnly && !isCreateMode && isModal) {
         this.valueChangedByUser = true;
       }
     }
