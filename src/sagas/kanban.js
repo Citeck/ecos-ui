@@ -11,7 +11,7 @@ import { JournalUrlParams, KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { wrapArgs } from '../helpers/redux';
+import { wrapArgs, wrapSaga } from '../helpers/redux';
 import {
   applyFilter,
   getBoardConfig,
@@ -36,7 +36,7 @@ import {
   setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
-import { setJournalSetting, setPredicate } from '../actions/journals';
+import { execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData } from '../selectors/journals';
 import { selectKanban, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -63,6 +63,15 @@ export function* sagaGetBoardList({ api, logger }, { payload }) {
     }
   } catch (e) {
     logger.error('[kanban/sagaGetBoardList saga] error', e);
+  }
+}
+
+export function* sagaRecordActionComplete({ logger, stateId, w, ...otherProps }, { payload, ...extra }) {
+  try {
+    yield put(setLoading({ stateId, isLoading: true }));
+    yield put(getBoardData({ stateId, boardId: payload.records }));
+  } catch (e) {
+    logger.error('[kanban/sagaGetBoardConfig saga] error', e);
   }
 }
 
@@ -396,6 +405,7 @@ export function* docStatusSaga(ea) {
   yield takeEvery(resetFilter().type, sagaResetFilter, ea);
   yield takeEvery(runSearchCard().type, sagaRunSearchCard, ea);
   yield takeEvery(reloadBoardData().type, sagaReloadBoardData, ea);
+  yield takeEvery(execRecordsActionComplete().type, wrapSaga, { ...ea, saga: sagaRecordActionComplete });
 }
 
 export default docStatusSaga;

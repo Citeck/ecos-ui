@@ -22,6 +22,7 @@ export const reloadGrid = createAction(prefix + 'RELOAD_GRID');
 export const reloadTreeGrid = createAction(prefix + 'RELOAD_TREE_GRID');
 
 export const execRecordsAction = createAction(prefix + 'EXEC_RECORDS_ACTION');
+export const execRecordsActionComplete = createAction(prefix + 'EXEC_RECORDS_ACTION_COMPLETE');
 export const deleteRecords = createAction(prefix + 'DELETE_RECORDS');
 export const saveRecords = createAction(prefix + 'SAVE_RECORDS');
 export const setSelectedRecords = createAction(prefix + 'SET_SELECTED_RECORDS');
