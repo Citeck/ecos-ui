@@ -231,11 +231,11 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   );
 
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+  const isModal = get(this.options, 'initiator.type', '') === 'modal';
 
   this.calculatedValue = calculatedValue;
 
   let changed;
-  let hasBlockChanges = false;
 
   flags = flags || {};
   flags.noCheck = true;
@@ -243,23 +243,18 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
     this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
 
-    const isParentCreateMode = get(this.options, 'parentForm.options.formMode') === FORM_MODE_CREATE;
-
-    if (allowOverride && !this.isEmptyValue(calculatedValue)) {
+    if (isCreateMode && isModal && !this.isEmptyValue(this.dataValue)) {
       this.valueChangedByUser = false;
-
-      const isModal = get(this.options, 'initiator.type', '') === 'modal';
-
-      this.calculatedValueWasCalculated = true;
-
-      if (!isParentCreateMode && !isCreateMode && isModal) {
-        hasBlockChanges = true;
-        this.calculatedValueWasCalculated = false;
-      }
     }
+
+    if (!get(this.options, 'formMode')) {
+      this.valueChangedByUser = false;
+    }
+
+    this.calculatedValueWasCalculated = true;
   }
 
-  if (!allowOverride || (allowOverride && !this.valueChangedByUser && !hasBlockChanges)) {
+  if (!allowOverride || (allowOverride && !this.valueChangedByUser)) {
     changed = this.setValue(calculatedValue, flags);
 
     if (changed) {
