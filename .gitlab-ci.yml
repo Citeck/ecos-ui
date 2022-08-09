@@ -12,7 +12,7 @@ testing:
     - if: ($CI_PIPELINE_SOURCE == 'merge_request_event') && ($CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT)
 
 mirror:
-  tags: 
+  tags:
     - shell
   stage: mirror
   variables:
@@ -23,9 +23,9 @@ mirror:
     - master
     - develop
   script:
-    - mkdir -p ~/.ssh                                              
-    - echo $GITHUB_MIRROR_PRIVATE | base64 -d > ~/.ssh/id_rsa      
-    - echo $GITHUB_MIRROR_PUBLIC > ~/.ssh/id_rsa.pub               
+    - mkdir -p ~/.ssh
+    - echo $GITHUB_MIRROR_PRIVATE | base64 -d > ~/.ssh/id_rsa
+    - echo $GITHUB_MIRROR_PUBLIC > ~/.ssh/id_rsa.pub
     - ssh-keyscan -t rsa,dsa,ecdsa github.com >> ~/.ssh/known_hosts
     - chmod -R go-rwx ~/.ssh
     - git remote add mirror $TARGET_REPO

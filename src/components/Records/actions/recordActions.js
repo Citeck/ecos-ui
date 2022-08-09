@@ -602,7 +602,9 @@ class RecordActions {
         }
 
         if (!ungearedPopups) {
-          popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+          if (!ungearedPopups) {
+            popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+          }
         }
       }
 
@@ -887,7 +889,9 @@ class RecordActions {
     if (!action.config) {
       action.config = {};
     }
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+
+    /** @type {RecordActionCtxData} */
+    const actionContext = get(action, [ACTION_CONTEXT_KEY, 'context']) || {};
     const execContext = {
       ...actionContext,
       ...context

@@ -77,7 +77,6 @@ export default class ButtonComponent extends FormIOButtonComponent {
     this.removeEventListener(this.buttonElement, 'click');
 
     this.addEventListener(this.buttonElement, 'click', event => {
-      this.triggerReCaptcha();
       this.dataValue = true;
 
       if (this.component.action !== 'submit' && this.component.showValidations) {

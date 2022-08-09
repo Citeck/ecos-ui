@@ -28,3 +28,17 @@
     }
   }
 }
+
+.formcomponent {
+  $comp: &;
+
+  &__doc {
+    visibility: hidden;
+  }
+
+  &:hover {
+    #{$comp}__doc {
+      visibility: visible;
+    }
+  }
+}

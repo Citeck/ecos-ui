@@ -213,11 +213,23 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     return false;
   }
 
+  // Get the dataValue.
+  let firstPass = false;
+  let dataValue = null;
   const allowOverride = this.component.allowCalculateOverride;
+  if (allowOverride) {
+    dataValue = this.dataValue;
+  }
 
   // First pass, the calculatedValue is undefined.
   if (isUndefined(this.calculatedValue)) {
+    firstPass = true;
     this.calculatedValue = emptyCalculateValue;
+  }
+
+  // Check to ensure that the calculated value is different than the previously calculated value.
+  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !this.customIsEqual(dataValue, this.calculatedValue)) {
+    return false;
   }
 
   // Calculate the new value.
@@ -231,51 +243,36 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   );
 
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+  const isEmptyValue = value => {
+    if (isCreateMode) {
+      return this.isEmpty(value);
+    }
+    return !isBoolean(value) && this.isEmpty(value);
+  };
+  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+  if (allowOverride && firstPass && !isEmptyValue(dataValue) && !this.customIsEqual(dataValue, calculatedValue)) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
+    if (!isCreateMode && isEmptyValue(calculatedValue)) {
+      this.calculatedValue = undefined;
+      return false;
+    }
 
-  this.calculatedValue = calculatedValue;
-
-  let changed;
-  let hasBlockChanges = false;
+    // Return that we have a change so it will perform another pass.
+    this.calculatedValue = calculatedValue;
+    return true;
+  }
 
   flags = flags || {};
   flags.noCheck = true;
 
-  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
-    this.valueChangedByUser = !isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue);
-
-    const isParentCreateMode = get(this.options, 'parentForm.options.formMode') === FORM_MODE_CREATE;
-
-    if (allowOverride && !this.isEmptyValue(calculatedValue)) {
-      this.valueChangedByUser = false;
-
-      const isModal = get(this.options, 'initiator.type', '') === 'modal';
-
-      this.calculatedValueWasCalculated = true;
-
-      if (!isParentCreateMode && !isCreateMode && isModal) {
-        hasBlockChanges = true;
-        this.calculatedValueWasCalculated = false;
-      }
-    }
-  }
-
-  if (!allowOverride || (allowOverride && !this.valueChangedByUser && !hasBlockChanges)) {
-    changed = this.setValue(calculatedValue, flags);
-
-    if (changed) {
-      this.calculatedValue = this.dataValue;
-    }
-  }
+  const changed = this.setValue(calculatedValue, flags);
+  this.calculatedValue = this.dataValue;
 
   return changed;
 };
 
 Base.prototype.calculateValue = function(data, flags) {
   if (!this.component.calculateValue) {
-    return false;
-  }
-
-  if (isUndefined(this.calculatedValue) && this.component.allowCalculateOverride && !isEmpty(this.dataValue)) {
     return false;
   }
 
@@ -320,7 +317,7 @@ Base.prototype.applyActions = function(actions, result, data, newComponent) {
 
 Base.prototype.setValue = function(value, flags) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2980
-  if (this.viewOnly && !this.calculatedValueWasCalculated) {
+  if (this.viewOnly /* && !this.calculatedValueWasCalculated*/) {
     this.dataValue = value;
   }
 

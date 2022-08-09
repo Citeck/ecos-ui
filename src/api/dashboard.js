@@ -111,7 +111,7 @@ export class DashboardApi {
 
   getDashboardByOneOf = ({ dashboardId, recordRef }) => {
     if (!isEmpty(dashboardId)) {
-      return this.getDashboardById(dashboardId);
+      return this.getDashboardById(dashboardId, true);
     }
 
     return this.getDashboardByRecordRef(recordRef);

@@ -60,20 +60,28 @@ class Toolbar extends Component {
 
   componentDidMount() {
     const { scale } = this.state;
-
     let foundScale = this.zoomOptions.find(el => el.scale === scale);
+
     foundScale = foundScale || { id: CUSTOM, scale };
     this.onChangeZoomOption(foundScale);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { scrollPage: currentPage, calcScale: scale } = this.props;
+    const { scrollPage: currentPage, calcScale, scale } = this.props;
 
     if (!isNil(currentPage) && currentPage !== prevState.currentPage) {
       this.setState({ currentPage });
     }
 
-    if (!Number.isNaN(scale) && !isNil(scale) && scale !== prevProps.calcScale && scale !== prevState.scale) {
+    if (!Number.isNaN(calcScale) && !isNil(calcScale) && calcScale !== prevProps.calcScale && calcScale !== prevState.scale) {
+      this.setState({ scale: calcScale });
+    }
+
+    if (!Number.isNaN(scale) && scale !== prevState.scale && scale !== prevProps.scale) {
+      if (scale === DocScaleOptions.AUTO) {
+        this.setState({ selectedZoom: scale });
+      }
+
       this.setState({ scale });
     }
   }
