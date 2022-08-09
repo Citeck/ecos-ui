@@ -493,8 +493,11 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       t('error')
     );
   } finally {
+    yield put(setLoadingStatus({ key: payload.key, loadingField: 'isLoading', status: true }));
     yield put(uploadFilesFinally(payload.key));
     yield put(getDocumentsByTypes({ ...payload, delay: 1000 }));
+    yield put(getDocumentsByType({ ...payload }));
+    yield put(setLoadingStatus({ key: payload.key, loadingField: 'isLoading', status: false }));
   }
 }
 
@@ -534,6 +537,13 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
   const isMobile = yield select(selectIsMobile);
 
   if ((!isNil(payload.loadTypesForAll) && !payload.loadTypesForAll) || !isMobile) {
+    yield put(
+      setLoadingStatus({
+        key: payload.key,
+        loadingField: 'isLoading',
+        status: false
+      })
+    );
     return;
   }
 
