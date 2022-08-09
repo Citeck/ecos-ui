@@ -20,6 +20,9 @@ task assembleArtifact(type: Zip) {
   destinationDir(file('build'))
 }
 
+assemble.dependsOn assembleArtifact
+build.dependsOn assemble
+
 if (project.hasProperty("mavenUrl")) {
   publishing {
     publications {
@@ -41,9 +44,5 @@ if (project.hasProperty("mavenUrl")) {
       }
     }
   }
-
-  assemble.dependsOn assembleArtifact
-  build.dependsOn assemble
-
   publish.dependsOn build
 }
