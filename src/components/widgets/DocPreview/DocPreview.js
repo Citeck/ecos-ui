@@ -467,6 +467,14 @@ class DocPreview extends Component {
       const nextFile = filesList[currentIndex + 1];
 
       nextFile && this.handleFileChange(nextFile);
+
+      this.setState(state => ({
+        settings: {
+          ...state.settings,
+          scale: DocScaleOptions.AUTO
+        }
+      }));
+      isFunction(this.props.setUserScale) && this.props.setUserScale(DocScaleOptions.AUTO);
     }
   };
 
