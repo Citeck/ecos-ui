@@ -135,9 +135,12 @@ export function removeNotify(notify) {
 export function showForm(recordRef, params, className = '') {
   const _class = `${!className.includes('ecos-modal_width') && 'ecos-modal_width-lg'} ${className}`;
 
+  const { options = {} } = params;
+
   EcosFormUtils.eform(recordRef, {
     params,
     class: _class,
+    formMode: options.formMode,
     isBigHeader: true
   });
 }
