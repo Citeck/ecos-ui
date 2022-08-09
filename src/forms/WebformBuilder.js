@@ -250,7 +250,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
               {
                 style: 'margin-top: 10px;'
               },
-              [saveButton, cancelButton, removeButton]
+              [removeButton, cancelButton, saveButton]
             )
           ]
         )
@@ -437,7 +437,7 @@ WebformBuilder.prototype.addBuilderComponent = function(...props) {
   const component = originAddBuilderComponent.call(this, ...props);
   if (component.element && component.documentation) {
     const helper = this.ce('i', {
-      class: 'fa fa-question-circle-o',
+      class: 'fa fa-question-circle-o formcomponent__doc',
       style: 'right: 5px; position: absolute;font-size: 13px;cursor: pointer;',
       title: t('form-editor.open-comp-doc', { name: component.title || component.key })
     });

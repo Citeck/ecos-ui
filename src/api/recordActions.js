@@ -57,14 +57,16 @@ export class RecordActionsApi extends CommonApi {
       const err = await error.response.json();
       const errorResp = { error };
 
-      return {
+      const errorObject = {
         error: {
           message: err.message || get(errorResp, 'error.response.statusText'),
           response: {
-            status: get(err, 'status.code')
+            status: err.status.code
           }
         }
       };
+
+      return errorObject;
     });
   };
 }

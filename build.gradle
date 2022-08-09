@@ -7,20 +7,23 @@ def packageSlurper = new JsonSlurper()
 def packageJson = packageSlurper.parse(file('package.json'))
 def packageVersion = packageJson.version.toUpperCase()
 
+def mavenArtifactId = "ecos-ui"
+if (project.hasProperty("mavenArtifactId")) {
+  mavenArtifactId = project.getProperty("mavenArtifactId")
+}
+
 task assembleArtifact(type: Zip) {
   from 'build/'
   include '**/*'
   exclude '*.zip'
-  archiveName "ecos-ui-${packageVersion}.zip"
+  archiveName "${mavenArtifactId}-${packageVersion}.zip"
   destinationDir(file('build'))
 }
 
-if (project.hasProperty("mavenUrl")) {
+assemble.dependsOn assembleArtifact
+build.dependsOn assemble
 
-  def mavenArtifactId = "ecos-ui"
-  if (project.hasProperty("mavenArtifactId")) {
-    mavenArtifactId = project.getProperty("mavenArtifactId")
-  }
+if (project.hasProperty("mavenUrl")) {
   publishing {
     publications {
       uiBuild(MavenPublication) {
@@ -41,9 +44,5 @@ if (project.hasProperty("mavenUrl")) {
       }
     }
   }
-
-  assemble.dependsOn assembleArtifact
-  build.dependsOn assemble
-
   publish.dependsOn build
 }
