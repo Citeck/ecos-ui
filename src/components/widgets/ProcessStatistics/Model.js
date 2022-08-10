@@ -167,6 +167,10 @@ class Model extends React.Component {
             if (this.isFirstBoot) {
               this.handleClickZoom(ScaleOptions.FIT);
               this.isFirstBoot = false;
+
+              // fix for correct rendering of calculated and overridden positions
+              this.designer.heatmap.destroy();
+              this.renderHeatmap();
             }
           }, 100)();
         },
