@@ -2,7 +2,7 @@ import Records from '../components/Records';
 import { RecordService } from './recordService';
 import recordActions from '../components/Records/actions/recordActions';
 import { SourcesId, USER_CURRENT } from '../constants';
-import { ReassignTaskAction, ViewBusinessProcessTaskAction } from '../constants/tasks';
+import { ReassignTaskAction, TaskActions } from '../constants/tasks';
 
 export class TasksApi extends RecordService {
   static getTask = (taskId, attrs) => {
@@ -61,15 +61,15 @@ export class TasksApi extends RecordService {
       title: 'title',
       dueDate: 'dueDate',
       actors: 'actors[]?json',
-      reassignable: 'reassignable?bool'
+      hasPermissionReassign: 'permissions?has("Reassign")'
     });
   };
 
-  getCurrentTaskActionsForUser = ({ taskId, reassignable, isAdmin }) => {
-    const defaultActions = reassignable ? [ReassignTaskAction] : [];
+  getCurrentTaskActionsForUser = ({ taskId, reassignAvailable, isAdmin }) => {
     if (isAdmin) {
-      defaultActions.push(ViewBusinessProcessTaskAction);
+      return Promise.resolve(recordActions.getActionsForRecord(taskId, TaskActions, {}));
     }
+    const defaultActions = reassignAvailable ? [ReassignTaskAction] : [];
     return Promise.resolve(recordActions.getActionsForRecord(taskId, defaultActions, {}));
   };
 
