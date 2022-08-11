@@ -46,7 +46,7 @@ class CurrentTaskList extends React.Component {
     return null;
   }
 
-  getActions({ id: taskId, actions: actions }) {
+  getActions({ id: taskId, actions }) {
     const { executeAction } = this.props;
     const upAct = action => ({ ...action, config: { ...action.config, noResultModal: true } });
 
