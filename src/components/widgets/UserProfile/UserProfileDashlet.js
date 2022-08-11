@@ -129,10 +129,12 @@ const mapStateToProps = (state, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
   const profile = get(state, ['userProfile', stateId], {}) || {};
-  let userId = state.user.id;
+  let userId = get(state, 'user.id');
 
   if (userId.indexOf(ALFRESCO) === 0 && record.indexOf(ALFRESCO) === -1) {
     userId = userId.slice(ALFRESCO.length + 1);
+  } else {
+    userId = get(state, 'user.recordRef');
   }
 
   const isCurrentUser = userId === record;
