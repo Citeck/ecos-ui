@@ -129,15 +129,7 @@ const mapStateToProps = (state, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
   const profile = get(state, ['userProfile', stateId], {}) || {};
-  let userId = get(state, 'user.id');
-
-  if (userId.indexOf(ALFRESCO) === 0 && record.indexOf(ALFRESCO) === -1) {
-    userId = userId.slice(ALFRESCO.length + 1);
-  } else {
-    userId = get(state, 'user.recordRef');
-  }
-
-  const isCurrentUser = userId === record;
+  const isCurrentUser = get(state, 'user.recordRef') === record;
 
   return {
     isLoading: profile.isLoading,
@@ -145,7 +137,7 @@ const mapStateToProps = (state, context) => {
     profile: profile.data || {},
     message: profile.message,
     isCurrentUser,
-    isMobile: state.view.isMobile,
+    isMobile: get(state, 'view.isMobile', false),
     isCurrentAdmin: get(state, 'user.isAdmin', false)
   };
 };
