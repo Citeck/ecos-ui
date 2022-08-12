@@ -43,6 +43,7 @@ class Model extends React.Component {
     width: PropTypes.number,
     showModelDefault: PropTypes.bool,
     runUpdate: PropTypes.bool,
+    isLoading: PropTypes.bool,
     heatmapData: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
@@ -93,6 +94,10 @@ class Model extends React.Component {
     if (!!prevProps.heatmapData && !isEqual(prevProps.heatmapData, this.props.heatmapData)) {
       this.reRenderHeatmap();
       this.renderBadges();
+    }
+
+    if (prevProps.isLoading && !this.props.isLoading) {
+      this.refreshHeatmapElementsPosition();
     }
   }
 
@@ -147,7 +152,18 @@ class Model extends React.Component {
   };
 
   renderBadges = () => {
-    this.designer.drawBadges({ data: this.props.heatmapData, keys: ['activeCount', 'completedCount'] });
+    const { isActiveCount, isCompletedCount } = this.state;
+    const keys = [];
+
+    if (isActiveCount) {
+      keys.push('activeCount');
+    }
+
+    if (isCompletedCount) {
+      keys.push('completedCount');
+    }
+
+    this.designer.drawBadges({ data: this.props.heatmapData, keys });
   };
 
   renderHeatmap = () => {
@@ -168,14 +184,20 @@ class Model extends React.Component {
               this.handleClickZoom(ScaleOptions.FIT);
               this.isFirstBoot = false;
 
-              // fix for correct rendering of calculated and overridden positions
-              this.designer.heatmap.destroy();
-              this.renderHeatmap();
+              this.refreshHeatmapElementsPosition();
             }
           }, 100)();
         },
         hasTooltip: false
       });
+    }
+  };
+
+  // fix for correct rendering of calculated and overridden positions
+  refreshHeatmapElementsPosition = () => {
+    if (this.designer.heatmap) {
+      this.designer.heatmap.destroy();
+      this.renderHeatmap();
     }
   };
 
@@ -222,10 +244,11 @@ class Model extends React.Component {
 
   handleClickZoom = value => {
     this.designer.setZoom(value);
+    this.refreshHeatmapElementsPosition();
   };
 
   handleChangeCountFlag = data => {
-    this.setState(data, this.reRenderHeatmap);
+    this.setState(data, this.refreshHeatmapElementsPosition);
   };
 
   handleChangeSection = opened => {
@@ -234,17 +257,19 @@ class Model extends React.Component {
     }
   };
 
+  handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
+
   renderSwitches = () => {
     const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isShowCounters} onClick={() => this.setState({ isShowCounters: !isShowCounters })} />
+        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
+          <ControlledCheckbox checked={isShowCounters} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
         </div>
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} onClick={this.handleToggleHeatmap} />
+        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
+          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
         </div>
       </div>
@@ -256,12 +281,18 @@ class Model extends React.Component {
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isActiveCount} onClick={isActiveCount => this.handleChangeCountFlag({ isActiveCount })} />
+        <div
+          className="ecos-process-statistics-model__checkbox"
+          onClick={() => this.handleChangeCountFlag({ isActiveCount: !isActiveCount })}
+        >
+          <ControlledCheckbox checked={isActiveCount} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_ACTIVE_COUNT)}</span>
         </div>
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isCompletedCount} onClick={isCompletedCount => this.handleChangeCountFlag({ isCompletedCount })} />
+        <div
+          className="ecos-process-statistics-model__checkbox"
+          onClick={() => this.handleChangeCountFlag({ isCompletedCount: !isCompletedCount })}
+        >
+          <ControlledCheckbox checked={isCompletedCount} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COMPLETED_COUNT)}</span>
         </div>
       </div>
