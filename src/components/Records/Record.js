@@ -125,13 +125,15 @@ export default class Record {
     await this._getWhenReadyToSave();
 
     const json = this.toJson(withDisplayNames);
-
     const keys = Object.keys(json.attributes);
     const promises = [];
+
     for (let key of keys) {
       const att = json.attributes[key];
+
       if (att && att.then) {
         const promise = att.then(res => (json.attributes[key] = res)).catch(() => (json.attributes[key] = null));
+
         promises.push(promise);
       }
     }

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 import { mapValueToScalar } from './utils/attStrUtils';
 
 const convertToFullAttributeName = (name, scalar, multiple) => {
@@ -94,6 +95,7 @@ export default class Attribute {
     this._newValueScalar = null;
     this._wasChanged = false;
     this._readyToSave = true;
+    this._multiple = false;
   }
 
   getName() {
@@ -116,7 +118,7 @@ export default class Attribute {
     return this._newValueScalar;
   }
 
-  getPersistedValue(scalar, multiple, withLoading, forceReload) {
+  getPersistedValue(scalar = this._newValueScalar, multiple = this._multiple, withLoading, forceReload) {
     if (!scalar) {
       if (Object.keys(this._persisted).length === 0) {
         return multiple ? [] : null;
@@ -167,7 +169,7 @@ export default class Attribute {
     this._wasChanged = false;
   }
 
-  getValue(scalar, multiple, withLoading, forceReload) {
+  getValue(scalar = this._newValueScalar, multiple = this._multiple, withLoading, forceReload) {
     if (this._wasChanged) {
       return this._newValue;
     } else {
@@ -187,10 +189,12 @@ export default class Attribute {
         this._newValue = _.cloneDeep(value);
         this._newValueScalar = scalar;
         this._wasChanged = true;
+        this._multiple = _.isArray(value);
       } else {
         this._newValue = null;
         this._newValueScalar = null;
         this._wasChanged = false;
+        this._multiple = _.isArray(currentValue);
       }
       return value;
     };
