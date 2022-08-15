@@ -29,7 +29,7 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
       for (let currentTask of currentTasksList) {
         currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
           taskId: currentTask.id,
-          reassignable: currentTask.reassignable,
+          reassignAvailable: currentTask.hasPermissionReassign,
           isAdmin
         });
       }
