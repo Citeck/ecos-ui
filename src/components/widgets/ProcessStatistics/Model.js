@@ -70,7 +70,8 @@ class Model extends React.Component {
       isActiveCount: true,
       isCompletedCount: true,
       legendData: {},
-      isTempHeatmapOff: false
+      isTempHeatmapOff: false,
+      opacity: DefSets.OPACITY
     };
   }
 
@@ -97,7 +98,7 @@ class Model extends React.Component {
     }
 
     if (prevProps.isLoading && !this.props.isLoading) {
-      this.refreshHeatmapElementsPosition();
+      this.reRenderHeatmap();
     }
   }
 
@@ -147,8 +148,7 @@ class Model extends React.Component {
   handleMouseUp = debounce(() => this.state.isTempHeatmapOff && this.toggleTempHeatmap(false), 100);
 
   handleWheel = () => {
-    this.handleMouseDown();
-    this.handleMouseUp();
+    this.reRenderHeatmap();
   };
 
   renderBadges = () => {
@@ -183,21 +183,11 @@ class Model extends React.Component {
             if (this.isFirstBoot) {
               this.handleClickZoom(ScaleOptions.FIT);
               this.isFirstBoot = false;
-
-              this.refreshHeatmapElementsPosition();
             }
           }, 100)();
         },
         hasTooltip: false
       });
-    }
-  };
-
-  // fix for correct rendering of calculated and overridden positions
-  refreshHeatmapElementsPosition = () => {
-    if (this.designer.heatmap) {
-      this.designer.heatmap.destroy();
-      this.renderHeatmap();
     }
   };
 
@@ -207,6 +197,7 @@ class Model extends React.Component {
     }
 
     const data = this.getPreparedHeatData();
+
     this.designer.heatmap.updateData(data);
   };
 
@@ -220,11 +211,10 @@ class Model extends React.Component {
 
         switch (true) {
           case isHeatmapMounted && !isShowHeatmap:
-            this.designer.heatmap.destroy();
-            this.setState({ isHeatmapMounted: false });
+            this.designer.heatmap.updateData([]);
             break;
-          case !isHeatmapMounted && isShowHeatmap && isModelMounted:
-            this.renderHeatmap();
+          case isShowHeatmap && isModelMounted:
+            this.reRenderHeatmap();
             break;
           default:
             break;
@@ -239,16 +229,17 @@ class Model extends React.Component {
   };
 
   handleChangeOpacity = value => {
+    this.setState({ opacity: Number(value) });
     this.designer.heatmap && this.designer.heatmap.setOpacity(value);
   };
 
   handleClickZoom = value => {
     this.designer.setZoom(value);
-    this.refreshHeatmapElementsPosition();
+    this.reRenderHeatmap();
   };
 
   handleChangeCountFlag = data => {
-    this.setState(data, this.refreshHeatmapElementsPosition);
+    this.setState(data, this.reRenderHeatmap);
   };
 
   handleChangeSection = opened => {
@@ -301,7 +292,16 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar } = this.props;
-    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, isTempHeatmapOff, legendData } = this.state;
+    const {
+      isModelMounted,
+      isModelMounting,
+      isHeatmapMounted,
+      isShowHeatmap,
+      isShowCounters,
+      isTempHeatmapOff,
+      legendData,
+      opacity
+    } = this.state;
 
     return (
       <div
@@ -344,7 +344,7 @@ class Model extends React.Component {
                     invisible: !isTempHeatmapOff && !isHeatmapMounted
                   })}
                 >
-                  <Range value={DefSets.OPACITY} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
+                  <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
                   <Legend {...legendData} />
