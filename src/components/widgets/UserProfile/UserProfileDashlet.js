@@ -14,7 +14,6 @@ import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import RecordActions from '../../Records/actions/recordActions';
 import { ActionTypes } from '../../Records/actions';
-import { ALFRESCO } from '../../../constants/alfresco';
 
 import './style.scss';
 
