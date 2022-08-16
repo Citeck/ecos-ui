@@ -1,6 +1,6 @@
 const WORKSPACE_PREFIX = 'workspace://SpacesStore/';
 
-export const getAuthorityNameFromAlfresco = nodeRef => {
+export const getAuthorityNameFromAlfresco = async nodeRef => {
   let workspacePrefixIdx = nodeRef.indexOf(WORKSPACE_PREFIX);
   if (workspacePrefixIdx === -1) {
     return nodeRef;

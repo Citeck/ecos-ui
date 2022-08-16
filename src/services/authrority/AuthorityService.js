@@ -24,7 +24,7 @@ class AuthorityService {
       if (authority.indexOf(ALFRESCO_PREFIX) === -1) {
         authority = ALFRESCO_PREFIX + authority;
       }
-      const authName = authorityApi.getAuthorityNameFromAlfresco(authority);
+      const authName = await authorityApi.getAuthorityNameFromAlfresco(authority);
       if (authName.indexOf(GROUP_PREFIX) !== -1) {
         return GROUPS_SOURCE_ID + '@' + authName.substring(GROUP_PREFIX.length);
       } else {
