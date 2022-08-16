@@ -49,40 +49,6 @@
       transition: opacity 0.3s ease-in-out;
     }
 
-    & .bjs-breadcrumbs {
-      position: absolute;
-      padding: 0 10px;
-      top: 0;
-      background: rgba(255, 255, 255, 0.5);
-      display: flex;
-
-      li {
-        &:only-child {
-          display: none;
-        }
-
-        &:not(:first-child) {
-          &::before {
-            content: ' / ';
-            padding: 5px;
-          }
-        }
-
-        .bjs-crumb {
-          color: $color-blue-dark;
-          cursor: pointer;
-        }
-
-        & a[title=' '] {
-          &::after {
-            content: '—';
-            cursor: default;
-            color: $text-color-gray;
-          }
-        }
-      }
-    }
-
     &_hidden-heatmap {
       .ecos-model-container {
         cursor: move;

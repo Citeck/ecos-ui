@@ -1,3 +1,5 @@
+@import '../../styles/constants';
+
 .ecos-model-editor {
   &__page {
     height: 100%;
@@ -10,6 +12,16 @@
     & a.bjs-powered-by {
       bottom: 10px !important;
       right: 10px !important;
+    }
+  }
+
+  & .bjs-breadcrumbs {
+    top: 0;
+    left: 0;
+    padding: 10px 20px 5px;
+
+    &-shown .djs-palette {
+      top: 50px;
     }
   }
 }
