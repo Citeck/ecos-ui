@@ -4,8 +4,10 @@ import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
-import additionalModules from './modules';
+import customModules from './modules';
 import './patches';
+
+import ecosTask from './moddle/ecosTask.json';
 
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
@@ -13,7 +15,10 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({
-      additionalModules,
+      additionalModules: [customModules],
+      moddleExtensions: {
+        ecosTask: ecosTask
+      },
       keyboard: { bindTo: document }
     });
   };

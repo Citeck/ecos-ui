@@ -1,0 +1,28 @@
+{
+  "name": "Ecos Bpmn",
+  "uri": "http://www.citeck.ru/ecos/bpmn/1.0",
+  "prefix": "ecos",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "types": [
+    {
+      "name": "ecosTask",
+      "extends": ["bpmn:Task"],
+      "properties": [
+        {
+          "name": "taskType",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "status",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "emumerations": [],
+  "associations": []
+}

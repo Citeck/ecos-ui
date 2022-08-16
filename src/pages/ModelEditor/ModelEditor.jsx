@@ -26,7 +26,8 @@ import {
   SEQUENCE_TYPE,
   TASK_TYPES,
   ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER,
-  ELEMENT_TYPES_FORM_DETERMINER_MAP,
+  ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP,
+  ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP,
   LOOP_CHARACTERISTICS
 } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
@@ -37,6 +38,7 @@ import { SourcesId } from '../../constants';
 import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
+import _ from 'lodash';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -375,8 +377,13 @@ class ModelEditorPage extends React.Component {
 
     if (ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER.includes(elementType)) {
       let eventDefType = get(selectedElement, 'businessObject.eventDefinitions[0].$type');
-      if (ELEMENT_TYPES_FORM_DETERMINER_MAP.has(eventDefType)) {
-        return ELEMENT_TYPES_FORM_DETERMINER_MAP.get(eventDefType);
+      if (!_.isEmpty(eventDefType) && ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.has(eventDefType)) {
+        return ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.get(eventDefType);
+      }
+
+      let ecosTaskType = get(selectedElement, 'businessObject.taskType');
+      if (!_.isEmpty(ecosTaskType) && ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.has(ecosTaskType)) {
+        return ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.get(ecosTaskType);
       }
     }
 

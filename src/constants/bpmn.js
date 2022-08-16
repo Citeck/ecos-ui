@@ -13,9 +13,16 @@ export const ViewTypes = {
   TABLE: 'table'
 };
 
-export const ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER = ['bpmn:IntermediateCatchEvent', 'bpmn:StartEvent', 'bpmn:BoundaryEvent'];
+export const ECOS_TASK_TYPE_SET_STATUS = 'setStatus';
 
-export const ELEMENT_TYPES_FORM_DETERMINER_MAP = new Map([['bpmn:TimerEventDefinition', 'bpmn:TimerEvent']]);
+export const ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER = [
+  'bpmn:IntermediateCatchEvent',
+  'bpmn:StartEvent',
+  'bpmn:BoundaryEvent',
+  'bpmn:Task'
+];
+export const ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP = new Map([['bpmn:TimerEventDefinition', 'bpmn:TimerEvent']]);
+export const ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP = new Map([[ECOS_TASK_TYPE_SET_STATUS, 'bpmn:EcosTaskSetStatus']]);
 
 export const LOOP_CHARACTERISTICS = {
   LOOP: 'loop',
@@ -58,3 +65,6 @@ export const LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME = 'BpmnRefererPagePathName'
 
 export const PREFIX_FORM_ELM = '@bpmn-type-';
 export const TYPE_BPMN_PROCESS = 'bpmn:Process';
+export const TYPE_BPMN_TASK = 'bpmn:Task';
+export const TYPE_BPMN_SEQUENCE_FLOW = 'bpmn:SequenceFlow';
+export const ECOS_TASK_BASE_ELEMENT = TYPE_BPMN_TASK;
