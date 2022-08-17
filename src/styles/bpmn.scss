@@ -1,0 +1,48 @@
+@import './constants';
+
+.bjs-breadcrumbs {
+  $this: &;
+
+  position: absolute;
+  padding: 0 10px 5px;
+  top: 0;
+  background: rgba(255, 255, 255, 0.5);
+  width: 100%;
+  background: white;
+  border-bottom: 2px solid $color-gray-4;
+  flex-wrap: wrap;
+
+  display: none;
+
+  &-shown {
+    #{$this} {
+      display: flex;
+    }
+  }
+
+  li {
+    &:only-child {
+      display: none;
+    }
+
+    &:not(:first-child) {
+      &::before {
+        content: ' / ';
+        padding: 5px;
+      }
+    }
+
+    .bjs-crumb {
+      color: $color-blue-dark;
+      cursor: pointer;
+    }
+
+    & a[title=' '] {
+      &::after {
+        content: '—';
+        cursor: default;
+        color: $text-color-gray;
+      }
+    }
+  }
+}
