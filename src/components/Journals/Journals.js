@@ -448,7 +448,15 @@ class Journals extends React.Component {
     const { selectAllRecordsVisible } = this.props;
 
     const data = selectAllRecordsVisible ? get(this.props, 'grid.query') : get(this.props, 'selectedRecords', []);
-    this.props.execRecordsAction(data, action);
+    const forceActionType = get(action, 'config.forceActionType');
+
+    try {
+      this.props.execRecordsAction(data, action);
+    } finally {
+      if (forceActionType === 'delete') {
+        this.onResetAllRecords();
+      }
+    }
   };
 
   getJournalContentMaxHeight = () => {
