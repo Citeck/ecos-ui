@@ -3,11 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 import { ScaleOptions } from '../common/Scaler/util';
 import BaseModeler from '../ModelEditor/BaseModeler';
 import plugins from '../../../src/plugins';
-import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 const _extendModeler = new BaseModeler();
 
@@ -162,8 +162,7 @@ export default class ModelViewer {
       data &&
       data.filter(item => {
         const element = elementRegistry.get(item.id);
-
-        const { parent = {} } = element;
+        const parent = get(element, 'parent') || {};
 
         if (parent.layer && parent.layer !== root.layer) {
           return false;
