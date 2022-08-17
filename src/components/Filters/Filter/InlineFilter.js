@@ -79,7 +79,7 @@ class InlineFilter extends Filter {
   }
 
   getEditor = column => {
-    return isEmpty(column.headerFilterEditor) ? column.newEditor : column.headerFilterEditor;
+    return isEmpty(get(column, 'headerFilterEditor.type')) ? column.newEditor : column.headerFilterEditor;
   };
 
   onConfirmAction = e => {
