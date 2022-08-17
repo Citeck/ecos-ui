@@ -29,11 +29,20 @@ export class DocPreviewApi {
       });
   };
 
-  static getFileName = recordRef => {
+  static getFileName = async recordRef => {
+    const typeRef = await Records.get(recordRef).load('_type?id');
+    let previewPath = (await Records.get(typeRef).load('contentConfig.previewPath')) || '';
+
+    if (previewPath) {
+      previewPath += '.';
+    }
+
+    previewPath += 'previewInfo?json';
+
     return Records.get(recordRef)
       .load(
         {
-          json: 'previewInfo?json',
+          json: previewPath,
           fileName: '.disp'
         },
         true
