@@ -5,11 +5,13 @@ import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
 
 export class DocPreviewApi {
-  static getPreviewLinkByRecord = recordRef => {
+  static getPreviewLinkByRecord = async recordRef => {
+    const previewPath = await getPreviewInfo(recordRef);
+
     return Records.get(recordRef)
       .load(
         {
-          info: 'previewInfo?json',
+          info: previewPath,
           fileName: '.disp',
           version: 'version'
         },
@@ -29,20 +31,11 @@ export class DocPreviewApi {
       });
   };
 
-  static getFileName = async recordRef => {
-    const typeRef = await Records.get(recordRef).load('_type?id');
-    let previewPath = (await Records.get(typeRef).load('contentConfig.previewPath')) || '';
-
-    if (previewPath) {
-      previewPath += '.';
-    }
-
-    previewPath += 'previewInfo?json';
-
+  static getFileName = recordRef => {
     return Records.get(recordRef)
       .load(
         {
-          json: previewPath,
+          json: 'previewInfo?json',
           fileName: '.disp'
         },
         true
@@ -66,11 +59,13 @@ export class DocPreviewApi {
       });
   };
 
-  static getDownloadData = recordRef => {
+  static getDownloadData = async recordRef => {
+    const previewPath = await getPreviewInfo(recordRef);
+
     return Records.get(recordRef)
       .load(
         {
-          info: 'previewInfo?json',
+          info: previewPath,
           fileName: '.disp'
         },
         true
@@ -128,6 +123,20 @@ export class DocPreviewApi {
         return [];
       });
   };
+}
+
+async function getPreviewInfo(recordRef) {
+  const typeRef = await Records.get(recordRef).load('_type?id');
+
+  let previewPath = (await Records.get(typeRef).load('contentConfig.previewPath')) || '';
+
+  if (previewPath) {
+    previewPath += '.';
+  }
+
+  previewPath += 'previewInfo?json';
+
+  return previewPath;
 }
 
 function replaceUri(url) {
