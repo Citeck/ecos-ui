@@ -91,7 +91,7 @@ export default class Widget extends BaseWidget {
       >
         {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <div className={classNames({ 'd-none': isShowSetting }, classNameContent)}>
-          <Model {...config} record={record} stateId={this.stateId} width={width} runUpdate={runUpdate} />
+          <Model {...config} showModelDefault={!isShowSetting} record={record} stateId={this.stateId} width={width} runUpdate={runUpdate} />
           {config.selectedJournal && (
             <Journal
               {...config}
