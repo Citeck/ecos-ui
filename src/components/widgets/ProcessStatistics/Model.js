@@ -43,6 +43,7 @@ class Model extends React.Component {
     width: PropTypes.number,
     showModelDefault: PropTypes.bool,
     runUpdate: PropTypes.bool,
+    isLoading: PropTypes.bool,
     heatmapData: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
@@ -69,7 +70,8 @@ class Model extends React.Component {
       isActiveCount: true,
       isCompletedCount: true,
       legendData: {},
-      isTempHeatmapOff: false
+      isTempHeatmapOff: false,
+      opacity: DefSets.OPACITY
     };
   }
 
@@ -93,6 +95,10 @@ class Model extends React.Component {
     if (!!prevProps.heatmapData && !isEqual(prevProps.heatmapData, this.props.heatmapData)) {
       this.reRenderHeatmap();
       this.renderBadges();
+    }
+
+    if (prevProps.isLoading && !this.props.isLoading) {
+      this.reRenderHeatmap();
     }
   }
 
@@ -142,12 +148,22 @@ class Model extends React.Component {
   handleMouseUp = debounce(() => this.state.isTempHeatmapOff && this.toggleTempHeatmap(false), 100);
 
   handleWheel = () => {
-    this.handleMouseDown();
-    this.handleMouseUp();
+    this.reRenderHeatmap();
   };
 
   renderBadges = () => {
-    this.designer.drawBadges({ data: this.props.heatmapData, keys: ['activeCount', 'completedCount'] });
+    const { isActiveCount, isCompletedCount } = this.state;
+    const keys = [];
+
+    if (isActiveCount) {
+      keys.push('activeCount');
+    }
+
+    if (isCompletedCount) {
+      keys.push('completedCount');
+    }
+
+    this.designer.drawBadges({ data: this.props.heatmapData, keys });
   };
 
   renderHeatmap = () => {
@@ -167,10 +183,6 @@ class Model extends React.Component {
             if (this.isFirstBoot) {
               this.handleClickZoom(ScaleOptions.FIT);
               this.isFirstBoot = false;
-
-              // fix for correct rendering of calculated and overridden positions
-              this.designer.heatmap.destroy();
-              this.renderHeatmap();
             }
           }, 100)();
         },
@@ -185,6 +197,7 @@ class Model extends React.Component {
     }
 
     const data = this.getPreparedHeatData();
+
     this.designer.heatmap.updateData(data);
   };
 
@@ -198,11 +211,10 @@ class Model extends React.Component {
 
         switch (true) {
           case isHeatmapMounted && !isShowHeatmap:
-            this.designer.heatmap.destroy();
-            this.setState({ isHeatmapMounted: false });
+            this.designer.heatmap.updateData([]);
             break;
-          case !isHeatmapMounted && isShowHeatmap && isModelMounted:
-            this.renderHeatmap();
+          case isShowHeatmap && isModelMounted:
+            this.reRenderHeatmap();
             break;
           default:
             break;
@@ -217,11 +229,13 @@ class Model extends React.Component {
   };
 
   handleChangeOpacity = value => {
+    this.setState({ opacity: Number(value) });
     this.designer.heatmap && this.designer.heatmap.setOpacity(value);
   };
 
   handleClickZoom = value => {
     this.designer.setZoom(value);
+    this.reRenderHeatmap();
   };
 
   handleChangeCountFlag = data => {
@@ -234,17 +248,19 @@ class Model extends React.Component {
     }
   };
 
+  handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
+
   renderSwitches = () => {
     const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isShowCounters} onClick={() => this.setState({ isShowCounters: !isShowCounters })} />
+        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
+          <ControlledCheckbox checked={isShowCounters} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
         </div>
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} onClick={this.handleToggleHeatmap} />
+        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
+          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
         </div>
       </div>
@@ -256,12 +272,18 @@ class Model extends React.Component {
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isActiveCount} onClick={isActiveCount => this.handleChangeCountFlag({ isActiveCount })} />
+        <div
+          className="ecos-process-statistics-model__checkbox"
+          onClick={() => this.handleChangeCountFlag({ isActiveCount: !isActiveCount })}
+        >
+          <ControlledCheckbox checked={isActiveCount} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_ACTIVE_COUNT)}</span>
         </div>
-        <div className="ecos-process-statistics-model__checkbox">
-          <ControlledCheckbox checked={isCompletedCount} onClick={isCompletedCount => this.handleChangeCountFlag({ isCompletedCount })} />
+        <div
+          className="ecos-process-statistics-model__checkbox"
+          onClick={() => this.handleChangeCountFlag({ isCompletedCount: !isCompletedCount })}
+        >
+          <ControlledCheckbox checked={isCompletedCount} />
           <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COMPLETED_COUNT)}</span>
         </div>
       </div>
@@ -270,7 +292,16 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar } = this.props;
-    const { isModelMounted, isModelMounting, isHeatmapMounted, isShowHeatmap, isShowCounters, isTempHeatmapOff, legendData } = this.state;
+    const {
+      isModelMounted,
+      isModelMounting,
+      isHeatmapMounted,
+      isShowHeatmap,
+      isShowCounters,
+      isTempHeatmapOff,
+      legendData,
+      opacity
+    } = this.state;
 
     return (
       <div
@@ -313,7 +344,7 @@ class Model extends React.Component {
                     invisible: !isTempHeatmapOff && !isHeatmapMounted
                   })}
                 >
-                  <Range value={DefSets.OPACITY} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
+                  <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
                   <Legend {...legendData} />

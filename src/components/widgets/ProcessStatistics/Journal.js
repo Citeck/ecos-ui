@@ -79,13 +79,14 @@ class Journal extends React.Component {
 
   filterJournal = () => {
     const { filters, pagination } = this.state;
-    const predicates = filters.map(({ att, t, val, needValue }) => {
-      const item = { att, t };
-      needValue && (item.val = val);
-      return item;
-    });
+    const predicates = filters.map(({ att, t, val, needValue }) => ({
+      att,
+      t,
+      ...(needValue ? { val } : {})
+    }));
 
     const { filterJournal, record, stateId } = this.props;
+
     filterJournal({ stateId, record, predicates, pagination });
   };
 
