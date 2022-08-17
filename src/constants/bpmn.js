@@ -17,11 +17,23 @@ export const ECOS_TASK_TYPE_SET_STATUS = 'setStatus';
 
 export const ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER = [
   'bpmn:IntermediateCatchEvent',
+  'bpmn:IntermediateThrowEvent',
   'bpmn:StartEvent',
+  'bpmn:EndEvent',
   'bpmn:BoundaryEvent',
   'bpmn:Task'
 ];
-export const ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP = new Map([['bpmn:TimerEventDefinition', 'bpmn:TimerEvent']]);
+export const ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP = new Map([
+  ['bpmn:TimerEventDefinition', 'bpmn:TimerEvent'],
+  ['bpmn:MessageEventDefinition', 'bpmn:MessageEvent'],
+  ['bpmn:SignalEventDefinition', 'bpmn:SignalEvent'],
+  ['bpmn:ConditionalEventDefinition', 'bpmn:ConditionalEvent'],
+  ['bpmn:LinkEventDefinition', 'bpmn:LinkEvent'],
+  ['bpmn:CompensateEventDefinition', 'bpmn:CompensateEvent'],
+  ['bpmn:EscalationEventDefinition', 'bpmn:EscalationEvent'],
+  ['bpmn:TerminateEventDefinition', 'bpmn:TerminateEvent'],
+  ['bpmn:ErrorEventDefinition', 'bpmn:ErrorEvent']
+]);
 export const ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP = new Map([[ECOS_TASK_TYPE_SET_STATUS, 'bpmn:EcosTaskSetStatus']]);
 
 export const LOOP_CHARACTERISTICS = {
@@ -63,6 +75,8 @@ export const EDITOR_PAGE_CONTEXT = '/share/page/bpmn-editor/';
 export const LOCAL_STORAGE_KEY_PAGE_POSITION = 'BpmnPagePosition';
 export const LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME = 'BpmnRefererPagePathName';
 
+export const BPMN_DELIMITER = ':';
+export const BPMN_PREFIX_UNDERLINE = 'bpmn_';
 export const PREFIX_FORM_ELM = '@bpmn-type-';
 export const TYPE_BPMN_PROCESS = 'bpmn:Process';
 export const TYPE_BPMN_TASK = 'bpmn:Task';

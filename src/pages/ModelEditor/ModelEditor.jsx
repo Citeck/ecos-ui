@@ -21,15 +21,7 @@ import {
   ML_POSTFIX,
   PREFIX_FIELD
 } from '../../constants/cmmn';
-import {
-  GATEWAY_TYPES,
-  SEQUENCE_TYPE,
-  TASK_TYPES,
-  ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER,
-  ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP,
-  ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP,
-  LOOP_CHARACTERISTICS
-} from '../../constants/bpmn';
+import { GATEWAY_TYPES, SEQUENCE_TYPE, TASK_TYPES, LOOP_CHARACTERISTICS } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -38,7 +30,6 @@ import { SourcesId } from '../../constants';
 import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
-import _ from 'lodash';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -364,31 +355,11 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
-    const formId = this._determineFormId(selectedElement);
-
-    this.props.getFormProps(this.getFormType(formId), selectedElement);
+    this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
 
     this.setState({ selectedElement, selectedDiagramElement: element });
     this._labelIsEdited = false;
   };
-
-  _determineFormId(selectedElement) {
-    const elementType = selectedElement.$type || selectedElement.type;
-
-    if (ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER.includes(elementType)) {
-      let eventDefType = get(selectedElement, 'businessObject.eventDefinitions[0].$type');
-      if (!_.isEmpty(eventDefType) && ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.has(eventDefType)) {
-        return ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.get(eventDefType);
-      }
-
-      let ecosTaskType = get(selectedElement, 'businessObject.taskType');
-      if (!_.isEmpty(ecosTaskType) && ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.has(ecosTaskType)) {
-        return ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.get(ecosTaskType);
-      }
-    }
-
-    return elementType;
-  }
 
   _getBusinessObjectByDiagramElement(element) {
     return element;
