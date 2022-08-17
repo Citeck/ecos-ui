@@ -548,6 +548,14 @@ class ModelEditorPage extends React.Component {
     this.setState({ selectedElement, selectedDiagramElement: start.shape });
   };
 
+  handleSetRoot = ({ element }) => {
+    if (!element || !element.di) {
+      return;
+    }
+
+    this.handleSelectItem(element);
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -563,7 +571,8 @@ class ModelEditorPage extends React.Component {
             [EventListeners.CREATE_END]: this.handleElementCreateEnd,
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
-            [EventListeners.DRAG_START]: this.handleDragStart
+            [EventListeners.DRAG_START]: this.handleDragStart,
+            [EventListeners.ROOT_SET]: this.handleSetRoot
           }}
         />
       );

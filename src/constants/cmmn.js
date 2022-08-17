@@ -1,6 +1,7 @@
 export const PREFIX_FIELD = 'ecos:';
 export const ML_POSTFIX = '_ml';
 export const LABEL_POSTFIX = '_label';
+export const PLANE_POSTFIX = '_plane';
 export const DI_POSTFIX = '_di';
 
 export const PREFIX_FORM_ELM = '@cmmn-type-';
@@ -63,5 +64,6 @@ export const EventListeners = {
   CREATE_END: 'create.end',
   ELEMENT_UPDATE_ID: 'element.updateId',
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
-  DRAG_START: 'drag.start'
+  DRAG_START: 'drag.start',
+  ROOT_SET: 'root.set'
 };

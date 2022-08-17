@@ -5,7 +5,7 @@ import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 
-import { DI_POSTFIX, LABEL_POSTFIX } from '../../constants/cmmn';
+import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
 
 /**
  * Expansion for Modeler
@@ -175,7 +175,7 @@ export default class BaseModeler {
       labelEditingProvider.update(element, name, name, element);
     }
 
-    if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && di) {
+    if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && !id.endsWith(PLANE_POSTFIX) && di) {
       if (!this.idAssigned(id, element.businessObject)) {
         data.id = id;
         modeling.updateModdleProperties(element, di, { id: id + DI_POSTFIX });
