@@ -1,4 +1,4 @@
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, TYPE_BPMN_SEQUENCE_FLOW } from '../../../../../constants/bpmn';
+import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS } from '../../../../../constants/bpmn';
 
 export default class CustomContextPad {
   constructor(bpmnFactory, config, contextPad, create, elementFactory, injector, translate) {
@@ -17,7 +17,7 @@ export default class CustomContextPad {
   getContextPadEntries(element) {
     const { autoPlace, bpmnFactory, create, elementFactory, translate } = this;
 
-    if (element.type === TYPE_BPMN_SEQUENCE_FLOW) {
+    if (DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS.includes(element.type)) {
       return {};
     }
 

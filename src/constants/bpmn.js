@@ -81,4 +81,8 @@ export const PREFIX_FORM_ELM = '@bpmn-type-';
 export const TYPE_BPMN_PROCESS = 'bpmn:Process';
 export const TYPE_BPMN_TASK = 'bpmn:Task';
 export const TYPE_BPMN_SEQUENCE_FLOW = 'bpmn:SequenceFlow';
+export const TYPE_BPMN_END_EVENT = 'bpmn:EndEvent';
+export const TYPE_BPMN_LABEL = 'label';
 export const ECOS_TASK_BASE_ELEMENT = TYPE_BPMN_TASK;
+
+export const DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS = [TYPE_BPMN_END_EVENT, TYPE_BPMN_SEQUENCE_FLOW, TYPE_BPMN_LABEL];
