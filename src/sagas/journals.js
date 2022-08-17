@@ -19,6 +19,7 @@ import {
   editJournalSetting,
   execJournalAction,
   execRecordsAction,
+  execRecordsActionComplete,
   getDashletConfig,
   getDashletEditorData,
   getJournalsData,
@@ -1078,12 +1079,13 @@ function* sagaCheckConfig({ logger, w, stateId }, { payload }) {
   }
 }
 
-function* sagaExecJournalAction({ api, logger, w, stateId }, { payload }) {
+function* sagaExecJournalAction({ api, logger, w }, { payload }) {
   try {
     const actionResult = yield call(api.recordActions.executeAction, payload);
 
     if (actionResult) {
       yield put(getJournalsData(w({ force: true })));
+      yield put(execRecordsActionComplete(w({ ...payload })));
     }
   } catch (e) {
     logger.error('[journals sagaExecJournalAction saga error', e);

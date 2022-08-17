@@ -11,7 +11,7 @@ import { JournalUrlParams, KanbanUrlParams } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
-import { wrapArgs } from '../helpers/redux';
+import { wrapArgs, wrapSaga } from '../helpers/redux';
 import {
   applyFilter,
   getBoardConfig,
@@ -36,7 +36,7 @@ import {
   setResolvedActions,
   setTotalCount
 } from '../actions/kanban';
-import { setJournalSetting, setPredicate } from '../actions/journals';
+import { execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData } from '../selectors/journals';
 import { selectKanban, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -66,11 +66,21 @@ export function* sagaGetBoardList({ api, logger }, { payload }) {
   }
 }
 
+export function* sagaRecordActionComplete({ logger, stateId, w, ...otherProps }, { payload, ...extra }) {
+  try {
+    yield put(setLoading({ stateId, isLoading: true }));
+    yield put(getBoardData({ stateId, boardId: payload.records }));
+  } catch (e) {
+    logger.error('[kanban/sagaGetBoardConfig saga] error', e);
+  }
+}
+
 export function* sagaGetBoardConfig({ api, logger }, { payload }) {
   try {
     const { boardId, stateId } = payload;
     const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
     const boardConfig = KanbanConverter.prepareConfig(config);
+
     config && boardId && (boardConfig.id = boardId);
 
     yield put(setBoardConfig({ boardConfig, stateId }));
@@ -115,11 +125,13 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
 
     if (!!boardConfig.journalRef && (isEmpty(journalConfig) || isEqual(journalConfig, emptyJournalConfig))) {
       const w = wrapArgs(stateId);
+
       journalConfig = yield getJournalConfig({ api, w, force: true }, boardConfig.journalRef);
       journalSetting = yield getJournalSettingFully(api, { journalConfig, stateId }, w);
     }
 
     const pagination = DEFAULT_PAGINATION;
+
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));
@@ -393,6 +405,7 @@ export function* docStatusSaga(ea) {
   yield takeEvery(resetFilter().type, sagaResetFilter, ea);
   yield takeEvery(runSearchCard().type, sagaRunSearchCard, ea);
   yield takeEvery(reloadBoardData().type, sagaReloadBoardData, ea);
+  yield takeEvery(execRecordsActionComplete().type, wrapSaga, { ...ea, saga: sagaRecordActionComplete });
 }
 
 export default docStatusSaga;
