@@ -38,7 +38,7 @@ export default class WidgetService {
   }
 
   static openSelectOrgstructModal(params = {}) {
-    const { defaultValue, onSelect } = params;
+    const { defaultValue, onSelect, orgstructParams = {} } = params;
     const container = document.createElement('div');
     let timer;
 
@@ -65,6 +65,7 @@ export default class WidgetService {
         defaultValue={defaultValue}
         onChange={handleSelect}
         onCancelSelect={handleCancel}
+        userSearchExtraFields={orgstructParams.userSearchExtraFields}
         className="select-orgstruct-modal"
         modalTitle={t('select-orgstruct.modal.title.edit-task-assignee')}
         allowedAuthorityTypes={[AUTHORITY_TYPE_USER]}
