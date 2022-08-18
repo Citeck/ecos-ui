@@ -140,7 +140,7 @@ export default class EcosFormUtils {
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
+        const formMode = config.formMode || recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -153,7 +153,7 @@ export default class EcosFormUtils {
 
         const formInstance = React.createElement(EcosForm, formParams);
 
-        config.header = EcosFormUtils.getFormTitle(recordData);
+        config.header = EcosFormUtils.getFormTitle({ ...recordData, formMode });
 
         if (config.formContainer) {
           let container = config.formContainer;
@@ -194,6 +194,7 @@ export default class EcosFormUtils {
     const recordRef = config.recordRef,
       fallback = config.fallback,
       forceNewForm = config.forceNewForm,
+      formMode = config.formMode || FORM_MODE_EDIT,
       formKey = config.formKey;
 
     const showForm = recordRef => {
@@ -231,6 +232,7 @@ export default class EcosFormUtils {
           params,
           class: 'ecos-modal_width-lg',
           isBigHeader: true,
+          formMode,
           formContainer: config.formContainer || null
         });
       } else {
@@ -1127,10 +1129,14 @@ export default class EcosFormUtils {
     const baseRecordId = instanceRec.getBaseRecord().id || SOURCE_DIVIDER;
 
     if (isString(baseRecordId)) {
+      if (baseRecordId.startsWith('workflow@def_') || baseRecordId.startsWith('dict@')) {
+        return FORM_MODE_CREATE;
+      }
+
       return baseRecordId.endsWith(SOURCE_DIVIDER) ? FORM_MODE_CREATE : FORM_MODE_EDIT;
     }
 
-    return undefined;
+    return FORM_MODE_EDIT;
   }
 }
 
