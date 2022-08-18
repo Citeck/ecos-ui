@@ -52,6 +52,7 @@ const RULES = [
 export default class PasswordField extends React.Component {
   static propTypes = {
     className: PropTypes.string,
+    inputClassName: PropTypes.string,
     keyValue: PropTypes.string,
     value: PropTypes.string,
     onChange: PropTypes.func,
@@ -166,7 +167,20 @@ export default class PasswordField extends React.Component {
   }
 
   render() {
-    const { className, keyValue, autocomplete, verifiable, value, valid, errMsgs, forwardedRef, name, validator, ...addProps } = this.props;
+    const {
+      className,
+      inputClassName,
+      keyValue,
+      autocomplete,
+      verifiable,
+      value,
+      valid,
+      errMsgs,
+      forwardedRef,
+      name,
+      validator,
+      ...addProps
+    } = this.props;
     const { isShowWord, touched } = this.state;
     const check = BASE_RULE.test(String(value || ''));
 
@@ -180,7 +194,7 @@ export default class PasswordField extends React.Component {
             defaultValue={value}
             type={this.type}
             name={name}
-            className={classNames('ecos-password-field__input ecos-input_focus ecos-input_hover', {
+            className={classNames('ecos-password-field__input ecos-input_focus ecos-input_hover', inputClassName, {
               'ecos-password-field__input_invalid':
                 (verifiable && touched && !check) || this.messages.some(msg => msg.type === MsgTypes.ERROR),
               'ecos-password-field__input_valid': verifiable && touched && check,

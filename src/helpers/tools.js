@@ -15,7 +15,20 @@ export function showModalJson(data, title = 'Configuration') {
   });
 }
 
-export function getFitnesseClassName(actionId) {
+/**
+ * @param postfix {string}
+ * @param prefix {string|undefined}
+ * @returns {string}
+ */
+export function getFitnesseClassName(postfix, prefix) {
+  if (!prefix) {
+    return getFitnesseInlineToolsClassName(postfix);
+  }
+
+  return `fitnesse-${prefix}__${postfix}`.toLowerCase();
+}
+
+export function getFitnesseInlineToolsClassName(actionId) {
   const classNames = [`fitnesse-inline-tools-actions-btn__${actionId}`];
 
   if (actionId === 'view') {
