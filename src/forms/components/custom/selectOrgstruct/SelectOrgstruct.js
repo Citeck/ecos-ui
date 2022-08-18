@@ -4,6 +4,7 @@ import Formio from 'formiojs/Formio';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
+import isString from 'lodash/isString';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
@@ -249,10 +250,33 @@ export default class SelectOrgstructComponent extends BaseComponent {
       value = Array.isArray(value) ? [Formio.getUser()] : Formio.getUser();
     }
 
+    const refToAuthName = async ref => {
+      if (Array.isArray(ref)) {
+        return Promise.all(ref.map(v => refToAuthName(v)));
+      }
+      if (isString(ref) && isNodeRef(ref)) {
+        return Records.get(ref)
+          .load({
+            authName: 'cm:authorityName',
+            userName: 'cm:userName'
+          })
+          .then(atts => {
+            return atts.authName || atts.userName || ref;
+          });
+      }
+      return ref;
+    };
     const setValueImpl = v => {
       const val = v || this.component.defaultValue || this.emptyValue;
-      this.updateValue(flags, val);
-      this.refreshDOM();
+      if (this.component.dataType === DataTypes.AUTHORITY) {
+        refToAuthName(val).then(authNames => {
+          this.updateValue(flags, authNames);
+          this.refreshDOM();
+        });
+      } else {
+        this.updateValue(flags, val);
+        this.refreshDOM();
+      }
     };
 
     if (Array.isArray(value)) {
