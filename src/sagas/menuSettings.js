@@ -27,6 +27,7 @@ import {
   setUserMenuItems
 } from '../actions/menuSettings';
 import { selectMenuByType } from '../selectors/menu';
+import { getMenuConfig } from '../actions/menu';
 
 function* fetchSettingsConfig({ api, logger }) {
   try {
@@ -67,6 +68,13 @@ function* runSaveMenuSettings(props, action) {
   const resultGlobal = yield runSaveGlobalSettings(props, action);
 
   if (![resultMenu, resultGlobal].includes(false)) {
+    const id = yield resultMenu.load('id');
+    const prevId = yield select(state => state.menuSettings.editedId);
+
+    if (id !== prevId) {
+      yield put(getMenuConfig());
+    }
+
     MenuSettingsService.emitter.emit(MenuSettingsService.Events.HIDE);
     NotificationManager.success(t('menu-settings.success.save-all-menu-settings'), t('success'));
   }
