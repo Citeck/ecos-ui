@@ -8,13 +8,10 @@ export default class EditTaskAssignee extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { actionOfAssignment, config = {} } = action;
-    const { params = {} } = config;
+    const { orgstructParams = {} } = config;
     const taskId = record.id;
     const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
-    let userSearchExtraFieldsStr = params.userSearchExtraFields || '';
-    const userSearchExtraFields = userSearchExtraFieldsStr.length > 0 ? userSearchExtraFieldsStr.split(',').map(item => item.trim()) : [];
 
-    const orgstructParams = { userSearchExtraFields: userSearchExtraFields };
     const _selectPromise = defaultValue =>
       new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve, orgstructParams }));
 
