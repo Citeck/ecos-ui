@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 
 import { Avatar, Icon, Separator } from '../common';
+import { getFitnesseClassName } from '../../helpers/tools';
 
 export default class SearchItem extends React.PureComponent {
   static propTypes = {
@@ -58,7 +59,11 @@ export default class SearchItem extends React.PureComponent {
       <li className="ecos-header-search-result ecos-header-search-result__group-name">{groupName}</li>
     ) : (
       <li onClick={this.onClick} className="ecos-header-search-result" data-separator={!isLast} ref={this.checkStyle}>
-        <div className={classNames('ecos-header-search-result__content', { 'ecos-header-search-result__content_last': isLast })}>
+        <div
+          className={classNames('ecos-header-search-result__content', getFitnesseClassName('header-search-result', 'item'), {
+            'ecos-header-search-result__content_last': isLast
+          })}
+        >
           <div className="ecos-header-search-result__content-left">
             {icon && <Icon className={`${icon} ecos-header-search-result__content-icon`} />}
             {isAvatar && <Avatar url={avatarUrl} className="ecos-header-search-result__content-avatar" />}

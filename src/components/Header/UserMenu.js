@@ -56,7 +56,7 @@ class UserMenu extends React.Component {
     return (
       <button
         key={item.id || key}
-        className={classNames('ecos-header-user__menu-item', getFitnesseClassName(item.type, 'header-user-menu'))}
+        className={classNames('ecos-header-user__menu-item', getFitnesseClassName('header-user-menu', item.type))}
         onClick={() => MenuService.getUserMenuCallback(item)}
         {...extraProps}
       >
@@ -76,7 +76,7 @@ class UserMenu extends React.Component {
       'ecos-btn_tight',
       'ecos-btn_r_6',
       'ecos-btn_blue-classic',
-      getFitnesseClassName('toggle-button', 'header-user-menu'),
+      getFitnesseClassName('header-user-menu', 'toggle-button'),
       {
         [`ecos-btn_theme_${theme}`]: !mob && !!theme,
         'ecos-btn_no-back ecos-btn_width_auto': mob

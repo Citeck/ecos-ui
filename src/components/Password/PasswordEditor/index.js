@@ -7,9 +7,9 @@ import { t } from '../../../helpers/util';
 import { EcosModal } from '../../common';
 import { Btn } from '../../common/btns';
 import PasswordField from '../PasswordField';
+import { getFitnesseClassName } from '../../../helpers/tools';
 
 import './style.scss';
-import { getFitnesseClassName } from '../../../helpers/tools';
 
 const Labels = {
   Titles: {
@@ -169,7 +169,7 @@ class PasswordEditor extends React.Component {
             verifiable
             type={passwordType}
             className="ecos-password-editor__filed"
-            inputClassName={getFitnesseClassName('input-new', 'user-profile-password')}
+            inputClassName={getFitnesseClassName('user-profile-password', 'input-new')}
             keyValue="newWord"
             value={newWord.value}
             onChange={this.onChangeWord}
@@ -180,7 +180,7 @@ class PasswordEditor extends React.Component {
           <PasswordField
             type={passwordType}
             className="ecos-password-editor__filed"
-            inputClassName={getFitnesseClassName('input-new-repeat', 'user-profile-password')}
+            inputClassName={getFitnesseClassName('user-profile-password', 'input-new-repeat')}
             keyValue="repeatWord"
             value={repeatWord.value}
             onChange={this.onChangeWord}
@@ -192,7 +192,7 @@ class PasswordEditor extends React.Component {
           <Btn onClick={this.hideModal}>{t(Labels.Buttons.CANCEL)}</Btn>
           <Btn
             onClick={this.onConfirmChangePassword}
-            className={classNames('ecos-btn_blue', getFitnesseClassName('save-button', 'user-profile-password'))}
+            className={classNames('ecos-btn_blue', getFitnesseClassName('user-profile-password', 'save-button'))}
             disabled={!this.checkWords()}
           >
             {t(Labels.Buttons.CHANGE)}

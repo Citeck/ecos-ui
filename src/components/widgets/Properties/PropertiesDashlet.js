@@ -14,6 +14,7 @@ import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
 import { PropertiesApi } from '../../../api/properties';
+import { getFitnesseClassName } from '../../../helpers/tools';
 
 import './style.scss';
 
@@ -93,14 +94,20 @@ class PropertiesDashlet extends BaseWidget {
       return {};
     }
 
+    const formId = get(this.props, 'config.formId');
+    const formType = get(formId.split('@'), '1') || '';
+
     const actions = {
       [DAction.Actions.RELOAD]: {
+        className: getFitnesseClassName('properties-widget', formType, DAction.Actions.RELOAD),
         onClick: this.onReloadDashlet
       },
       [DAction.Actions.SETTINGS]: {
+        className: getFitnesseClassName('properties-widget', formType, DAction.Actions.SETTINGS),
         onClick: this.toggleDisplayFormSettings
       },
       [DAction.Actions.BUILDER]: {
+        className: getFitnesseClassName('properties-widget', formType, DAction.Actions.BUILDER),
         icon: 'icon-forms',
         text: t(Labels.BTN_BUILD_TIP),
         onClick: this.onClickShowFormBuilder
@@ -109,6 +116,7 @@ class PropertiesDashlet extends BaseWidget {
 
     if (canEditRecord) {
       actions[DAction.Actions.EDIT] = {
+        className: getFitnesseClassName('properties-widget', formType, DAction.Actions.EDIT),
         text: t(Labels.BTN_EDIT_TIP),
         onClick: this.openModal
       };

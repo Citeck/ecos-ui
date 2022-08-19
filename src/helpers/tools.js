@@ -16,16 +16,14 @@ export function showModalJson(data, title = 'Configuration') {
 }
 
 /**
- * @param postfix {string}
- * @param prefix {string|undefined}
+ * @param args
  * @returns {string}
  */
-export function getFitnesseClassName(postfix, prefix) {
-  if (!prefix) {
-    return getFitnesseInlineToolsClassName(postfix);
-  }
+export function getFitnesseClassName(...args) {
+  const postfix = args.pop();
+  const parts = [args.join('-'), postfix].filter(item => !!item);
 
-  return `fitnesse-${prefix}__${postfix}`.toLowerCase();
+  return `fitnesse-${parts.join('__')}`.toLowerCase();
 }
 
 export function getFitnesseInlineToolsClassName(actionId) {

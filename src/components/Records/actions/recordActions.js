@@ -10,7 +10,7 @@ import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helper
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import { replaceAttributeValues } from '../utils/recordUtils';
-import { getFitnesseClassName } from '../../../helpers/tools';
+import { getFitnesseInlineToolsClassName } from '../../../helpers/tools';
 import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess, ResultTypes } from './util/actionUtils';
 import Records from '../Records';
 import actionsApi from './recordActionsApi';
@@ -151,7 +151,7 @@ class RecordActions {
   }
 
   static _expandActionConfig = action => {
-    action.className = getFitnesseClassName(action.id);
+    action.className = getFitnesseInlineToolsClassName(action.id);
 
     return action;
   };
