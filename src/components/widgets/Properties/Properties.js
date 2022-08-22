@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -100,7 +101,7 @@ class Properties extends React.Component {
   };
 
   renderForm() {
-    const { record, isSmallMode, formId, isDraft, onUpdate, onInlineEditSave } = this.props;
+    const { record, isSmallMode, formId, isDraft, isMobile, onUpdate, onInlineEditSave } = this.props;
     const { isReadySubmit, loaded, isLoading } = this.state;
     const isShow = isReadySubmit;
     const isLoaded = loaded && !isLoading;
@@ -128,6 +129,7 @@ class Properties extends React.Component {
           onToggleLoader={this.onToggleLoader}
           className={classNames('ecos-properties__formio', {
             'ecos-properties__formio_small': isSmallMode,
+            'ecos-properties__formio_mobile': isMobile,
             'd-none': !isShow || !isLoaded
           })}
           getTitle={this.getTitle}
@@ -173,4 +175,8 @@ class Properties extends React.Component {
   }
 }
 
-export default Properties;
+const mapStateToProps = state => {
+  return { isMobile: state.view.isMobile };
+};
+
+export default connect(mapStateToProps)(Properties);

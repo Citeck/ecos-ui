@@ -31,6 +31,14 @@
       }
     }
 
+    &_mobile {
+      dl {
+        dd {
+          width: calc(60% - 30px);
+        }
+      }
+    }
+
     > div {
       > div {
         &:last-child {
