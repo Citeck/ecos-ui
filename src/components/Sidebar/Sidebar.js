@@ -23,21 +23,7 @@ class Sidebar extends React.Component {
   };
 
   componentDidMount() {
-    const { getSiteDashboardEnable, idMenu } = this.props;
-    let record = idMenu.replace(SourcesId.RESOLVED_MENU, SourcesId.MENU);
-
-    if (record.indexOf(SourcesId.MENU) !== 0) {
-      record = `${SourcesId.MENU}@${record}`;
-    }
-
-    getSiteDashboardEnable();
-    this.fetchItems();
-
-    this.slideMenuToggle = document.getElementById('slide-menu-toggle');
-    this.recordMenu = Records.get(record);
-    this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
-      this.fetchItems(true);
-    });
+    this.init();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -46,9 +32,40 @@ class Sidebar extends React.Component {
     if (!prevProps.isReady && this.props.isReady && this.slideMenuToggle) {
       this.slideMenuToggle.addEventListener('click', this.toggleSlideMenu);
     }
+
+    if (prevProps.idMenu !== this.props.idMenu) {
+      this.reInit();
+    }
   }
 
   componentWillUnmount() {
+    this.cleanUp();
+  }
+
+  init(forceFetching = false) {
+    const { getSiteDashboardEnable, idMenu } = this.props;
+    let record = idMenu.replace(SourcesId.RESOLVED_MENU, SourcesId.MENU);
+
+    if (record.indexOf(SourcesId.MENU) !== 0) {
+      record = `${SourcesId.MENU}@${record}`;
+    }
+
+    getSiteDashboardEnable();
+    this.fetchItems(forceFetching);
+
+    this.slideMenuToggle = document.getElementById('slide-menu-toggle');
+    this.recordMenu = Records.get(record);
+    this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
+      this.fetchItems(true);
+    });
+  }
+
+  reInit() {
+    this.cleanUp();
+    this.init(true);
+  }
+
+  cleanUp() {
     if (this.slideMenuToggle) {
       this.slideMenuToggle.removeEventListener('click', this.toggleSlideMenu);
     }
