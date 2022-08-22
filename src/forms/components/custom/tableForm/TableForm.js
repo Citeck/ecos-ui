@@ -147,10 +147,8 @@ export default class TableFormComponent extends BaseReactComponent {
           return;
         }
 
-        if (!_.isEqual(createVariants, this._createVariants)) {
-          this._createVariants = createVariants;
-          this.setReactProps({ createVariants });
-        }
+        this._createVariants = createVariants;
+        this.setReactProps({ createVariants });
       });
     }
 
