@@ -15,7 +15,6 @@ const Section = ({ isLoading, title, children, opened, onChange }) => {
     setOpened(!isOpened);
     isFunction(onChange) && onChange(!isOpened);
   }, [onChange, isOpened]);
-
   return (
     <>
       {isLoading && <Loader blur />}
