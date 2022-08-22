@@ -65,6 +65,8 @@ ShallowWrapper {
             }
           }
           onChange={[Function]}
+          outClassName="ecos-dropdown-outer-tooltip"
+          placement="bottom-start"
           source={Array []}
           titleField="pluralName"
           trigger="click"
@@ -156,6 +158,8 @@ ShallowWrapper {
             },
           },
           "onChange": [Function],
+          "outClassName": "ecos-dropdown-outer-tooltip",
+          "placement": "bottom-start",
           "source": Array [],
           "titleField": "pluralName",
           "trigger": "click",
@@ -253,6 +257,8 @@ ShallowWrapper {
               }
             }
             onChange={[Function]}
+            outClassName="ecos-dropdown-outer-tooltip"
+            placement="bottom-start"
             source={Array []}
             titleField="pluralName"
             trigger="click"
@@ -344,6 +350,8 @@ ShallowWrapper {
               },
             },
             "onChange": [Function],
+            "outClassName": "ecos-dropdown-outer-tooltip",
+            "placement": "bottom-start",
             "source": Array [],
             "titleField": "pluralName",
             "trigger": "click",

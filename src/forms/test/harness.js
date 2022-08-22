@@ -296,6 +296,7 @@ const Harness = {
         return done(new Error('Validation Error'));
       }
       testBad = false;
+      console.log(error);
       assert.equal(error.component.key, test.bad.field);
       assert.equal(error.message, test.bad.error);
       component.setValue(test.good.value);
