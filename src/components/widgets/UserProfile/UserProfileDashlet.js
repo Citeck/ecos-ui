@@ -14,6 +14,7 @@ import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import RecordActions from '../../Records/actions/recordActions';
 import { ActionTypes } from '../../Records/actions';
+import { getFitnesseClassName } from '../../../helpers/tools';
 
 import './style.scss';
 
@@ -103,12 +104,15 @@ class UserProfileDashlet extends BaseWidget {
               {[isCurrentUser, isCurrentAdmin].some(flag => flag) && (
                 <div className={classNames('ecos-user-profile__actions', { 'ecos-user-profile__actions_mobile': isMobile })}>
                   <BtnUpload
+                    className={getFitnesseClassName('user-profile-widget', 'change-photo')}
                     label={t(Labels.Btns.CHANGE_PHOTO)}
                     loading={isLoadingPhoto}
                     onSelected={this.onChangePhoto}
                     accept="image/*"
                   />
-                  <Btn onClick={this.onChangePassword}>{t(Labels.Btns.CHANGE_PW)}</Btn>
+                  <Btn className={getFitnesseClassName('user-profile-widget', 'change-password')} onClick={this.onChangePassword}>
+                    {t(Labels.Btns.CHANGE_PW)}
+                  </Btn>
                 </div>
               )}
               {message && (

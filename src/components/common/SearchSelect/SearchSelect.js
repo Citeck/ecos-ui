@@ -10,6 +10,7 @@ import { Input } from '../form';
 import { Icon, Loader } from '../';
 
 import './style.scss';
+import { getFitnesseClassName } from '../../../helpers/tools';
 
 export default class SearchSelect extends React.Component {
   static propTypes = {
@@ -236,7 +237,7 @@ export default class SearchSelect extends React.Component {
                 onClick={this.onLoupe}
               />
               <Input
-                className={classNames('ecos-input-search__input', {
+                className={classNames('ecos-input-search__input', getFitnesseClassName('header-search', 'input'), {
                   'ecos-input-search__input_empty': !searchText,
                   'ecos-input-search__input_hidden': isSearchCollapsed
                 })}

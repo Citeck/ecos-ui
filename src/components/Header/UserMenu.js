@@ -10,6 +10,7 @@ import MenuService from '../../services/MenuService';
 import UserService from '../../services/UserService';
 import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
 import { IcoBtn } from '../common/btns';
+import { getFitnesseClassName } from '../../helpers/tools';
 
 const mapStateToProps = state => ({
   userFullName: state.user.fullName,
@@ -55,7 +56,7 @@ class UserMenu extends React.Component {
     return (
       <button
         key={item.id || key}
-        className="ecos-header-user__menu-item"
+        className={classNames('ecos-header-user__menu-item', getFitnesseClassName('header-user-menu', item.type))}
         onClick={() => MenuService.getUserMenuCallback(item)}
         {...extraProps}
       >
@@ -70,10 +71,17 @@ class UserMenu extends React.Component {
     const { userFullName, items, isMobile, widthParent, userPhotoUrl, theme, isLoading } = this.props;
     const medium = widthParent > 600 && widthParent < 910;
     const mob = isMobile || medium;
-    const classNameIcoBtn = classNames('ecos-header-user__btn', 'ecos-btn_tight', 'ecos-btn_r_6', 'ecos-btn_blue-classic', {
-      [`ecos-btn_theme_${theme}`]: !mob && !!theme,
-      'ecos-btn_no-back ecos-btn_width_auto': mob
-    });
+    const classNameIcoBtn = classNames(
+      'ecos-header-user__btn',
+      'ecos-btn_tight',
+      'ecos-btn_r_6',
+      'ecos-btn_blue-classic',
+      getFitnesseClassName('header-user-menu', 'toggle-button'),
+      {
+        [`ecos-btn_theme_${theme}`]: !mob && !!theme,
+        'ecos-btn_no-back ecos-btn_width_auto': mob
+      }
+    );
 
     return (
       <>

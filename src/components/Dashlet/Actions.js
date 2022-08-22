@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import { isMobileDevice, t } from '../../helpers/util';
 import DashletActionService from '../../services/DashletActionService';
@@ -8,7 +9,7 @@ import { IcoBtn } from '../common/btns';
 import DropdownActions from './DropdownActions/DropdownActions';
 import { Labels } from './util';
 
-const BtnAction = ({ id, text, icon, onClick, component }) => {
+const BtnAction = ({ id, text, icon, className, onClick, component }) => {
   if (component) {
     return component;
   }
@@ -18,7 +19,7 @@ const BtnAction = ({ id, text, icon, onClick, component }) => {
       <IcoBtn
         id={id}
         icon={icon}
-        className="ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue"
+        className={classNames('ecos-btn_i dashlet__btn_hidden ecos-btn_grey2 ecos-btn_width_auto ecos-btn_hover_t-light-blue', className)}
         onClick={onClick}
       />
     </Tooltip>
@@ -145,6 +146,7 @@ Actions.propTypes = {
   actionConfig: PropTypes.objectOf(
     PropTypes.shape({
       icon: PropTypes.string,
+      className: PropTypes.string,
       onClick: PropTypes.func,
       text: PropTypes.string
     })
