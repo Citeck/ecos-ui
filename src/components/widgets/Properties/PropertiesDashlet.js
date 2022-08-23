@@ -95,7 +95,7 @@ class PropertiesDashlet extends BaseWidget {
     }
 
     const formId = get(this.props, 'config.formId');
-    const formType = get(formId.split('@'), '1') || '';
+    const formType = formId ? get(formId.split('@'), '1', '') : '';
 
     const actions = {
       [DAction.Actions.RELOAD]: {
