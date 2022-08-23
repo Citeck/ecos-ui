@@ -24,6 +24,8 @@
   "page.error-loading.log": "Журнал ошибки",
   "page.error.logout.no-url": "Недостаточно параметров. Обратитесь к администратору",
 
+  "page-error-widget-loading.title": "Во время загрузки виджета произошла ошибка.",
+
   "record.permission-denied.message": "У вас недостаточно прав для просмотра данного документа. Обратитесь к администратору.",
   "record.not-found.message": "Документ удален или еще не создан.",
 

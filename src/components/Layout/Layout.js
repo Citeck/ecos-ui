@@ -17,6 +17,13 @@ import { Loader } from '../../components/common';
 import pageTabService from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
+import { WidgetErrorBoundary } from '../WidgetErrorBoundary';
+import { t } from '../../helpers/util';
+
+const Labels = {
+  WIDGET_ERROR_TITLE: 'page-error-widget-loading.title',
+  WIDGET_ERROR_MSG: 'page.error-loading.message'
+};
 
 class Layout extends Component {
   static propTypes = {
@@ -238,19 +245,23 @@ class Layout extends Component {
 
       if (canDragging) {
         components.push(
-          <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
-            <Suspense fallback={<Loader type="points" />}>
-              <Widget {...props} id={widget.props.id} />
-            </Suspense>
-          </DragItem>
+          <WidgetErrorBoundary title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
+            <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
+              <Suspense fallback={<Loader type="points" />}>
+                <Widget {...props} id={widget.props.id} />
+              </Suspense>
+            </DragItem>
+          </WidgetErrorBoundary>
         );
       } else {
         components.push(
-          <div key={key} className="ecos-layout__element">
-            <Suspense fallback={<Loader type="points" />}>
-              <Widget {...props} {...commonProps} />
-            </Suspense>
-          </div>
+          <WidgetErrorBoundary title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
+            <div key={key} className="ecos-layout__element">
+              <Suspense fallback={<Loader type="points" />}>
+                <Widget {...props} {...commonProps} />
+              </Suspense>
+            </div>
+          </WidgetErrorBoundary>
         );
       }
     });
