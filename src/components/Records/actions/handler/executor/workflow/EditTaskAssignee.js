@@ -7,12 +7,13 @@ export default class EditTaskAssignee extends ActionsExecutor {
   static ACTION_ID = 'edit-task-assignee';
 
   async execForRecord(record, action, context) {
-    const { actionOfAssignment } = action;
+    const { actionOfAssignment, config = {} } = action;
+    const { orgstructParams = {} } = config;
     const taskId = record.id;
     const actorsPromise = TasksApi.getTask(taskId, 'actors[]?id');
 
     const _selectPromise = defaultValue =>
-      new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve }));
+      new Promise(resolve => WidgetService.openSelectOrgstructModal({ defaultValue, onSelect: resolve, orgstructParams }));
 
     const _assignPromise = owner => {
       // Temporary fix for https://citeck.atlassian.net/browse/ECOSUI-976
