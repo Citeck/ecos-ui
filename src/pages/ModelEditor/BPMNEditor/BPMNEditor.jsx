@@ -1,5 +1,3 @@
-import { getBusinessObject } from 'bpmn-js/lib/util/ModelUtil';
-
 import { SourcesId } from '../../../constants';
 import { PREFIX_FORM_ELM, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
 import BPMNModeler from '../../../components/ModelEditor/BPMNModeler';
