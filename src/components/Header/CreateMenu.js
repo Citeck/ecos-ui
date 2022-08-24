@@ -33,6 +33,7 @@ class CreateMenu extends React.Component {
   };
 
   onClickItem = data => {
+    this.setState({ dropdownOpen: false });
     this.props.performAction(data);
   };
 
