@@ -241,7 +241,8 @@ class JournalsDashletGrid extends Component {
       query,
       isGrouped,
       originPredicates,
-      isResetGridSettings
+      isResetGridSettings,
+      deselectAllRecords
     } = this.props;
 
     const { data, sortBy, pagination, groupBy, total = 0, editingRules } = grid || {};
@@ -301,6 +302,7 @@ class JournalsDashletGrid extends Component {
               selectorContainer={selectorContainer}
               onOpenSettings={onOpenSettings}
               isResetSettings={isResetGridSettings}
+              deselectAllRecords={deselectAllRecords}
             />
           </HeightCalculation>
         </div>

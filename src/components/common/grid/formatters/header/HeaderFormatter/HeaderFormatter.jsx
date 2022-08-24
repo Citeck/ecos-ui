@@ -181,7 +181,15 @@ export default class HeaderFormatter extends Component {
   }, 150);
 
   handleFilter = data => {
-    const { onFilter, predicate, column } = this.props;
+    const { onFilter, predicate, column, deselectAllRecords, clearSelectedState } = this.props;
+
+    if (isFunction(deselectAllRecords)) {
+      deselectAllRecords();
+    }
+
+    if (isFunction(clearSelectedState)) {
+      clearSelectedState();
+    }
 
     onFilter(
       [
@@ -418,5 +426,8 @@ HeaderFormatter.propTypes = {
   isComplexFilter: PropTypes.bool,
   predicate: PropTypes.object,
   originPredicate: PropTypes.object,
-  onOpenSettings: PropTypes.func
+  onOpenSettings: PropTypes.func,
+
+  deselectAllRecords: PropTypes.func,
+  clearSelectedState: PropTypes.func
 };
