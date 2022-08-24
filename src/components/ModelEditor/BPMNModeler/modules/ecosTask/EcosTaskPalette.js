@@ -30,7 +30,7 @@ export default class CustomPalette {
     return {
       'create.task-set-status': {
         group: 'activity',
-        className: 'bpmn-icon-intermediate-event-throw-link',
+        className: 'bpmn-icon-set-status',
         title: translate('Set document status'),
         action: {
           dragstart: createEcosTask(ECOS_TASK_TYPE_SET_STATUS),

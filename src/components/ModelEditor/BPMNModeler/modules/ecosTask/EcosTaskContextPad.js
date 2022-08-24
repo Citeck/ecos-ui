@@ -56,7 +56,7 @@ export default class CustomContextPad {
     return {
       'append.task-set-status': {
         group: 'model',
-        className: 'bpmn-icon-intermediate-event-throw-link',
+        className: 'bpmn-icon-set-status',
         title: translate('Append Set document status'),
         action: {
           click: appendEcosTask(ECOS_TASK_TYPE_SET_STATUS),
