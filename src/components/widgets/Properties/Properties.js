@@ -22,6 +22,7 @@ class Properties extends React.Component {
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    componentRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onInlineEditSave: PropTypes.func,
     scrollProps: PropTypes.object,
@@ -179,4 +180,11 @@ const mapStateToProps = state => {
   return { isMobile: state.view.isMobile };
 };
 
-export default connect(mapStateToProps)(Properties);
+export default connect(
+  mapStateToProps,
+  null,
+  null,
+  {
+    withRef: true
+  }
+)(Properties);
