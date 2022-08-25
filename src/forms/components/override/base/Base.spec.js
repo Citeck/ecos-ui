@@ -62,7 +62,7 @@ describe('Base Component', () => {
           bad: {
             value: '',
             field: 'firstName',
-            error: 'First Name is required'
+            error: 'required'
           },
           good: {
             value: 'te'
@@ -86,7 +86,7 @@ describe('Base Component', () => {
           bad: {
             value: 't',
             field: 'firstName',
-            error: 'First Name must be longer than 1 characters.'
+            error: 'minLength'
           },
           good: {
             value: 'te'
@@ -110,7 +110,7 @@ describe('Base Component', () => {
           bad: {
             value: 'testte',
             field: 'firstName',
-            error: 'First Name must be shorter than 5 characters.'
+            error: 'maxLength'
           },
           good: {
             value: 'te'
