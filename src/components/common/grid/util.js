@@ -6,10 +6,6 @@ export const SELECTOR_MENU_KEY = {
 
 export const SELECTOR_MENU = [
   {
-    title: 'grid.tools.select-all',
-    id: SELECTOR_MENU_KEY.ALL
-  },
-  {
     title: 'grid.tools.select-all-page',
     id: SELECTOR_MENU_KEY.PAGE
   },
