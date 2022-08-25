@@ -1,0 +1,445 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GroupActions tests <GroupActions /> should render GroupActions component 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <UNDEFINED
+    columnsSetup={Object {}}
+    excludedRecords={Array []}
+    grid={
+      Object {
+        "actions": Object {
+          "forRecords": Object {
+            "actions": Array [],
+          },
+        },
+      }
+    }
+    isMobile={false}
+    isSeparateActionListForQuery={false}
+    selectAllPageRecords={false}
+    selectAllRecordsVisible={false}
+    selectedRecords={Array []}
+    source={Array []}
+  />,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "function",
+    "props": Object {
+      "children": Array [
+        <DropdownOuter
+          className="ecos-group-actions__dropdown"
+          disabled={true}
+          getStateOpen={[Function]}
+          isStatic={true}
+          itemClassName={[Function]}
+          keyFields={
+            Array [
+              "id",
+              "formRef",
+              "pluralName",
+              "_typeAct",
+            ]
+          }
+          menuClassName="ecos-group-actions__dropdown-menu"
+          modifiers={
+            Object {
+              "flip": Object {
+                "behavior": Array [
+                  "bottom",
+                  "top",
+                  "right",
+                  "left",
+                ],
+              },
+            }
+          }
+          onChange={[Function]}
+          outClassName="ecos-dropdown-outer-tooltip"
+          placement="bottom-start"
+          source={Array []}
+          titleField="pluralName"
+          trigger="click"
+          valueField="id"
+        >
+          <Tooltip
+            autohide={false}
+            boundariesElement="window"
+            contentComponent="journal.group-actions.selected-records.label-count"
+            delay={0}
+            hideArrow={false}
+            isOpen={false}
+            minWidthByContent={false}
+            placement="top"
+            showAsNeeded={true}
+            target="group-actions-1-rec"
+            text="journal.group-actions.selected-records.label_short"
+            uncontrolled={true}
+          >
+            <IcoBtn
+              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+              disabled={true}
+              icon="ecos-btn__i_right icon-small-down"
+              id="group-actions-1-rec"
+              invert={true}
+              loaderType="points"
+              loading={false}
+            >
+              journal.group-actions.selected-records.label_short
+            </IcoBtn>
+          </Tooltip>
+        </DropdownOuter>,
+        false,
+      ],
+    },
+    "ref": null,
+    "rendered": Array [
+      Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {
+          "children": <Tooltip
+            autohide={false}
+            boundariesElement="window"
+            contentComponent="journal.group-actions.selected-records.label-count"
+            delay={0}
+            hideArrow={false}
+            isOpen={false}
+            minWidthByContent={false}
+            placement="top"
+            showAsNeeded={true}
+            target="group-actions-1-rec"
+            text="journal.group-actions.selected-records.label_short"
+            uncontrolled={true}
+          >
+            <IcoBtn
+              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+              disabled={true}
+              icon="ecos-btn__i_right icon-small-down"
+              id="group-actions-1-rec"
+              invert={true}
+              loaderType="points"
+              loading={false}
+            >
+              journal.group-actions.selected-records.label_short
+            </IcoBtn>
+          </Tooltip>,
+          "className": "ecos-group-actions__dropdown",
+          "disabled": true,
+          "getStateOpen": [Function],
+          "isStatic": true,
+          "itemClassName": [Function],
+          "keyFields": Array [
+            "id",
+            "formRef",
+            "pluralName",
+            "_typeAct",
+          ],
+          "menuClassName": "ecos-group-actions__dropdown-menu",
+          "modifiers": Object {
+            "flip": Object {
+              "behavior": Array [
+                "bottom",
+                "top",
+                "right",
+                "left",
+              ],
+            },
+          },
+          "onChange": [Function],
+          "outClassName": "ecos-dropdown-outer-tooltip",
+          "placement": "bottom-start",
+          "source": Array [],
+          "titleField": "pluralName",
+          "trigger": "click",
+          "valueField": "id",
+        },
+        "ref": null,
+        "rendered": Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "autohide": false,
+            "boundariesElement": "window",
+            "children": <IcoBtn
+              className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+              disabled={true}
+              icon="ecos-btn__i_right icon-small-down"
+              id="group-actions-1-rec"
+              invert={true}
+              loaderType="points"
+              loading={false}
+            >
+              journal.group-actions.selected-records.label_short
+            </IcoBtn>,
+            "contentComponent": "journal.group-actions.selected-records.label-count",
+            "delay": 0,
+            "hideArrow": false,
+            "isOpen": false,
+            "minWidthByContent": false,
+            "placement": "top",
+            "showAsNeeded": true,
+            "target": "group-actions-1-rec",
+            "text": "journal.group-actions.selected-records.label_short",
+            "uncontrolled": true,
+          },
+          "ref": null,
+          "rendered": Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "children": "journal.group-actions.selected-records.label_short",
+              "className": "ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control",
+              "disabled": true,
+              "icon": "ecos-btn__i_right icon-small-down",
+              "id": "group-actions-1-rec",
+              "invert": true,
+              "loaderType": "points",
+              "loading": false,
+            },
+            "ref": null,
+            "rendered": "journal.group-actions.selected-records.label_short",
+            "type": [Function],
+          },
+          "type": [Function],
+        },
+        "type": [Function],
+      },
+      false,
+    ],
+    "type": Symbol(react.fragment),
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {
+        "children": Array [
+          <DropdownOuter
+            className="ecos-group-actions__dropdown"
+            disabled={true}
+            getStateOpen={[Function]}
+            isStatic={true}
+            itemClassName={[Function]}
+            keyFields={
+              Array [
+                "id",
+                "formRef",
+                "pluralName",
+                "_typeAct",
+              ]
+            }
+            menuClassName="ecos-group-actions__dropdown-menu"
+            modifiers={
+              Object {
+                "flip": Object {
+                  "behavior": Array [
+                    "bottom",
+                    "top",
+                    "right",
+                    "left",
+                  ],
+                },
+              }
+            }
+            onChange={[Function]}
+            outClassName="ecos-dropdown-outer-tooltip"
+            placement="bottom-start"
+            source={Array []}
+            titleField="pluralName"
+            trigger="click"
+            valueField="id"
+          >
+            <Tooltip
+              autohide={false}
+              boundariesElement="window"
+              contentComponent="journal.group-actions.selected-records.label-count"
+              delay={0}
+              hideArrow={false}
+              isOpen={false}
+              minWidthByContent={false}
+              placement="top"
+              showAsNeeded={true}
+              target="group-actions-1-rec"
+              text="journal.group-actions.selected-records.label_short"
+              uncontrolled={true}
+            >
+              <IcoBtn
+                className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+                disabled={true}
+                icon="ecos-btn__i_right icon-small-down"
+                id="group-actions-1-rec"
+                invert={true}
+                loaderType="points"
+                loading={false}
+              >
+                journal.group-actions.selected-records.label_short
+              </IcoBtn>
+            </Tooltip>
+          </DropdownOuter>,
+          false,
+        ],
+      },
+      "ref": null,
+      "rendered": Array [
+        Object {
+          "instance": null,
+          "key": undefined,
+          "nodeType": "class",
+          "props": Object {
+            "children": <Tooltip
+              autohide={false}
+              boundariesElement="window"
+              contentComponent="journal.group-actions.selected-records.label-count"
+              delay={0}
+              hideArrow={false}
+              isOpen={false}
+              minWidthByContent={false}
+              placement="top"
+              showAsNeeded={true}
+              target="group-actions-1-rec"
+              text="journal.group-actions.selected-records.label_short"
+              uncontrolled={true}
+            >
+              <IcoBtn
+                className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+                disabled={true}
+                icon="ecos-btn__i_right icon-small-down"
+                id="group-actions-1-rec"
+                invert={true}
+                loaderType="points"
+                loading={false}
+              >
+                journal.group-actions.selected-records.label_short
+              </IcoBtn>
+            </Tooltip>,
+            "className": "ecos-group-actions__dropdown",
+            "disabled": true,
+            "getStateOpen": [Function],
+            "isStatic": true,
+            "itemClassName": [Function],
+            "keyFields": Array [
+              "id",
+              "formRef",
+              "pluralName",
+              "_typeAct",
+            ],
+            "menuClassName": "ecos-group-actions__dropdown-menu",
+            "modifiers": Object {
+              "flip": Object {
+                "behavior": Array [
+                  "bottom",
+                  "top",
+                  "right",
+                  "left",
+                ],
+              },
+            },
+            "onChange": [Function],
+            "outClassName": "ecos-dropdown-outer-tooltip",
+            "placement": "bottom-start",
+            "source": Array [],
+            "titleField": "pluralName",
+            "trigger": "click",
+            "valueField": "id",
+          },
+          "ref": null,
+          "rendered": Object {
+            "instance": null,
+            "key": undefined,
+            "nodeType": "class",
+            "props": Object {
+              "autohide": false,
+              "boundariesElement": "window",
+              "children": <IcoBtn
+                className="ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control"
+                disabled={true}
+                icon="ecos-btn__i_right icon-small-down"
+                id="group-actions-1-rec"
+                invert={true}
+                loaderType="points"
+                loading={false}
+              >
+                journal.group-actions.selected-records.label_short
+              </IcoBtn>,
+              "contentComponent": "journal.group-actions.selected-records.label-count",
+              "delay": 0,
+              "hideArrow": false,
+              "isOpen": false,
+              "minWidthByContent": false,
+              "placement": "top",
+              "showAsNeeded": true,
+              "target": "group-actions-1-rec",
+              "text": "journal.group-actions.selected-records.label_short",
+              "uncontrolled": true,
+            },
+            "ref": null,
+            "rendered": Object {
+              "instance": null,
+              "key": undefined,
+              "nodeType": "class",
+              "props": Object {
+                "children": "journal.group-actions.selected-records.label_short",
+                "className": "ecos-btn_hover_blue2 ecos-btn_grey3 ecos-group-actions__control",
+                "disabled": true,
+                "icon": "ecos-btn__i_right icon-small-down",
+                "id": "group-actions-1-rec",
+                "invert": true,
+                "loaderType": "points",
+                "loading": false,
+              },
+              "ref": null,
+              "rendered": "journal.group-actions.selected-records.label_short",
+              "type": [Function],
+            },
+            "type": [Function],
+          },
+          "type": [Function],
+        },
+        false,
+      ],
+      "type": Symbol(react.fragment),
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromError": true,
+          "getDerivedStateFromProps": Object {
+            "hasShouldComponentUpdateBug": false,
+          },
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+    Symbol(enzyme.__providerValues__): undefined,
+  },
+  Symbol(enzyme.__providerValues__): Map {},
+}
+`;
