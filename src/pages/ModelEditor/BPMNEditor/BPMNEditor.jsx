@@ -69,8 +69,6 @@ class BPMNEditorPage extends ModelEditor {
   _determineElementType(selectedElement) {
     const elementType = selectedElement.$type || selectedElement.type;
 
-    console.log(selectedElement);
-
     if (ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER.includes(elementType)) {
       let eventDefType = get(selectedElement, 'businessObject.eventDefinitions[0].$type');
       if (!_.isEmpty(eventDefType) && ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.has(eventDefType)) {

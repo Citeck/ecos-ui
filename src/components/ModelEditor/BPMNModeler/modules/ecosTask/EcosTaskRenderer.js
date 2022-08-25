@@ -24,11 +24,19 @@ export default class CustomRenderer extends BaseRenderer {
 
   drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
+    const statusImage = svgCreate('image', {
+      x: 5,
+      y: 5,
+      width: '20px',
+      height: '20px',
+      opacity: '0.8',
+      href: '/bpmn-editor/images/change_status_icon.svg'
+    });
 
     const statusName = this.getStatusName(element);
 
     if (!isNil(statusName)) {
-      var text = svgCreate('text');
+      const text = svgCreate('text');
 
       svgAttr(text, {
         fill: '#077683',
@@ -38,9 +46,10 @@ export default class CustomRenderer extends BaseRenderer {
       svgClasses(text).add('djs-label');
 
       svgAppend(text, document.createTextNode(statusName));
-
       svgAppend(parentNode, text);
     }
+
+    svgAppend(parentNode, statusImage);
 
     return shape;
   }
