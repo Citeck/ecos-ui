@@ -15,3 +15,9 @@
 .formio-form {
   transition: height 0.5s;
 }
+
+@media (max-width: 600px) {
+  .formio-component-columns.formio-component-columns5 {
+    flex-direction: column-reverse;
+  }
+}
