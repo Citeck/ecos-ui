@@ -466,7 +466,7 @@ export default class DocumentsConverter {
           }
 
           if (key === 'newFormatter') {
-            return get(columns, [findIndex, key, 'type']);
+            return get(columns, [findIndex, key, 'newType']);
           }
 
           return false;
