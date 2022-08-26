@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { isSmallMode, objectCompare, t } from '../../../helpers/util';
 import { isTaskDashboard } from '../../../helpers/urls';
@@ -152,12 +153,12 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   onReloadDashlet = withSaveData => {
-    const onUpdate = get(this._propertiesRef, 'current.onUpdateForm');
+    const onUpdate = get(this._propertiesRef, 'current.wrappedInstance.onUpdateForm');
 
     this.checkPermissions();
     this.setPreviousHeight();
 
-    if (typeof onUpdate !== 'function') {
+    if (!isFunction(onUpdate)) {
       return;
     }
 
@@ -179,9 +180,9 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onClickShowFormBuilder = () => {
-    const onShowBuilder = get(this._propertiesRef, 'current.onShowBuilder');
+    const onShowBuilder = get(this._propertiesRef, 'current.wrappedInstance.onShowBuilder');
 
-    if (typeof onShowBuilder === 'function') {
+    if (isFunction(onShowBuilder)) {
       onShowBuilder();
     }
   };

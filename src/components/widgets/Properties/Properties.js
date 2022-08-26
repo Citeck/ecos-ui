@@ -179,4 +179,11 @@ const mapStateToProps = state => {
   return { isMobile: state.view.isMobile };
 };
 
-export default connect(mapStateToProps)(Properties);
+export default connect(
+  mapStateToProps,
+  null,
+  null,
+  {
+    withRef: true
+  }
+)(Properties);
