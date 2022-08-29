@@ -459,7 +459,7 @@ export default class EcosFormUtils {
 
     return variantsPromise.then(async variants => {
       if (isEmpty(variants)) {
-        const formVariants = await recordInstance.load('#' + attribute + '?createVariants');
+        const formVariants = (await recordInstance.load('#' + attribute + '?createVariants')) || [];
 
         const hasFormPromises = formVariants.map(v => EcosFormUtils.getForm(v.recordRef, v.formKey, 'formKey'));
 
