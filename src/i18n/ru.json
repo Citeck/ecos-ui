@@ -157,6 +157,7 @@
   "current-tasks-widget.settings.date-format.title": "Формат даты",
   "current-tasks-widget.settings.info.more.label": "Подробнее...",
   "current-tasks-widget.settings.info.description": "Примеры формата данных для moment.js",
+  "current-tasks-widget.settings.invalid-format": "Введён некорректный формат",
 
   "dashboard.error.get-config": "Конфигурация дашборда не получена",
   "dashboard.error.get-title": "Заголовок дашборда не получен",

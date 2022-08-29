@@ -21,7 +21,8 @@ const Labels = {
   EXAMPLE_DATE_FORMAT: 'current-tasks-widget.settings.example-format',
   DATE_FORMAT_TITLE: 'current-tasks-widget.settings.date-format.title',
   MORE_LABEL: 'current-tasks-widget.settings.info.more.label',
-  INFO_DESCRIPTION: 'current-tasks-widget.settings.info.description'
+  INFO_DESCRIPTION: 'current-tasks-widget.settings.info.description',
+  INVALID_FORMAT: 'current-tasks-widget.settings.invalid-format'
 };
 
 class Settings extends React.Component {
@@ -41,9 +42,13 @@ class Settings extends React.Component {
   constructor(props) {
     super(props);
 
+    const initialDateFormat = get(props, 'settings.dateFormat', DateFormats.DATE);
+
     this.state = {
-      dateFormat: get(props, 'settings.dateFormat', DateFormats.DATE),
-      isOpenInfo: false
+      dateFormat: initialDateFormat,
+      isValidDateFormat: this.isValidDateFormat(initialDateFormat),
+      isOpenInfo: false,
+      exampleText: this.makeExampleText(initialDateFormat)
     };
   }
 
@@ -60,10 +65,22 @@ class Settings extends React.Component {
     return `format-${this.#key}`;
   }
 
+  makeExampleText(dateFormat) {
+    return moment().format(dateFormat);
+  }
+
+  isValidDateFormat(format) {
+    const validFormat = /^((Y{4}|M{2}|D{2})([.:-\s]?)(Y{4}|M{2}|D{2})([.:-\s]?)(Y{4}|M{2}|D{2}))$/;
+
+    const isValid = format.match(validFormat);
+    return isValid;
+  }
+
   handleChangeFormat = e => {
     const dateFormat = get(e, 'target.value', '');
-
-    this.setState({ dateFormat });
+    const isValid = this.isValidDateFormat(dateFormat);
+    const exampleText = isValid ? this.makeExampleText(dateFormat) : t(Labels.INVALID_FORMAT);
+    this.setState({ dateFormat, isValidDateFormat: isValid, exampleText });
   };
 
   handleToggleInfo = () => {
@@ -72,9 +89,9 @@ class Settings extends React.Component {
 
   handleSaveSettings = () => {
     const { onSave } = this.props;
-    const { dateFormat } = this.state;
+    const { dateFormat, isValidDateFormat } = this.state;
 
-    if (isFunction(onSave)) {
+    if (isFunction(onSave) && isValidDateFormat) {
       onSave({ dateFormat });
     }
   };
@@ -118,7 +135,7 @@ class Settings extends React.Component {
 
   render() {
     const { isOpen, onHide } = this.props;
-    const { dateFormat } = this.state;
+    const { dateFormat, isValidDateFormat, exampleText } = this.state;
 
     return (
       <EcosModal
@@ -136,15 +153,17 @@ class Settings extends React.Component {
 
           {this.renderInfo()}
 
-          <Input id={this.formatElementId} value={dateFormat} onChange={this.handleChangeFormat} clear />
-          <FormText color="muted">{t(Labels.EXAMPLE_DATE_FORMAT, { format: moment().format(dateFormat) })}</FormText>
+          <Input id={this.formatElementId} value={dateFormat} isValid={isValidDateFormat} onChange={this.handleChangeFormat} clear />
+          <FormText color="muted" className={!isValidDateFormat ? 'ecos-current-task-settings__invalid-date-format' : ''}>
+            {isValidDateFormat ? t(Labels.EXAMPLE_DATE_FORMAT, { format: exampleText }) : exampleText}
+          </FormText>
         </FormGroup>
 
         <FormGroup className="d-flex justify-content-end mb-0">
           <Btn onClick={onHide} className="mr-3">
             {t(Labels.CANCEL_BUTTON)}
           </Btn>
-          <Btn onClick={this.handleSaveSettings} className="ecos-btn_blue">
+          <Btn onClick={this.handleSaveSettings} className="ecos-btn_blue" disabled={!isValidDateFormat}>
             {t(Labels.OK_BUTTON)}
           </Btn>
         </FormGroup>

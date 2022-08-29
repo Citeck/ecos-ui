@@ -88,6 +88,10 @@
       color: $color-gray-12;
     }
   }
+
+  &_not-valid-value {
+    border: 2px solid red;
+  }
 }
 
 .ecos-ml-text {
