@@ -322,7 +322,10 @@ export default class TableFormComponent extends BaseReactComponent {
             let columns = journalConfig.columns;
 
             this.#journalConfig = journalConfig;
-            this._createVariants = journalConfig.meta.createVariants || [];
+
+            if (!this._createVariants) {
+              this._createVariants = journalConfig.meta.createVariants || [];
+            }
 
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
               columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
