@@ -1,7 +1,6 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import FormIOColumnsComponent from 'formiojs/components/columns/Columns';
 import _ from 'lodash';
-import Webform from 'formiojs/Webform';
 
 export default class ColumnsComponent extends FormIOColumnsComponent {
   static schema(...extend) {
@@ -65,29 +64,6 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
     return schema;
   }
 
-  _isSubmitColumn() {
-    if (this.parent.constructor.name === 'Webform') {
-      function checkComponents(elements) {
-        try {
-          const result = elements.reduce((result, component) => {
-            if (component.info.attr.name.includes('data[submit]')) {
-              console.log('here', component);
-              return true;
-            } else {
-              if (!result) {
-                return checkComponents(component.components);
-              }
-            }
-          }, false);
-          return result;
-        } catch {}
-      }
-      console.log('components = ', this.parent.components);
-      return checkComponents(this.parent.components);
-    }
-    return false;
-  }
-
   get className() {
     // exclude this.options.fullWidthColumns case / caused by ECOSENT-902
     if (this.component.inlineColumns) {
@@ -95,11 +71,6 @@ export default class ColumnsComponent extends FormIOColumnsComponent {
     }
 
     const classList = ['row'];
-
-    if (this._isSubmitColumn()) {
-      console.log('in push block', classList);
-      classList.push('ecos-form-submit-button-container');
-    }
 
     if (this.options.fullWidthColumns) {
       classList.push('m-0', 'p-0');
