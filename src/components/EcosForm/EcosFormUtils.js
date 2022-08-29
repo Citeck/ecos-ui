@@ -452,8 +452,8 @@ export default class EcosFormUtils {
   }
 
   static getCreateVariants(record, attribute) {
-    let recordInstance = isString(record) ? Records.get(record) : record;
-    let variantsPromise = recordInstance.load('#' + attribute + '?createVariants');
+    const recordInstance = isString(record) ? Records.get(record) : record;
+    const variantsPromise = recordInstance.load(`attributeById.${attribute}.config.typeRef._as.ref.createVariants[]?json`);
 
     return variantsPromise.then(variants => {
       if (!variants) {
