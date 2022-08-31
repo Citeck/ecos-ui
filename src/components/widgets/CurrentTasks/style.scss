@@ -263,5 +263,9 @@
         }
       }
     }
+
+    &__invalid-date-format {
+      color: red !important;
+    }
   }
 }

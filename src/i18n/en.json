@@ -157,6 +157,7 @@
   "current-tasks-widget.settings.date-format.title": "Date format",
   "current-tasks-widget.settings.info.more.label": "More details...",
   "current-tasks-widget.settings.info.description": "Examples of data format for moment.js",
+  "current-tasks-widget.settings.invalid-format": "Input format is not valid",
 
   "dashboard.error.get-config": "Dashboard config hasn't gotten",
   "dashboard.error.get-title": "Dashboard title hasn't gotten",

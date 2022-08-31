@@ -5,6 +5,12 @@ import classNames from 'classnames';
 import { Icon } from '../../index';
 
 import './Input.scss';
+import { t } from '../../../../helpers/util';
+import Tooltip from '../../Tooltip';
+
+const Labels = {
+  INVALID_FORMAT: 'current-tasks-widget.settings.invalid-format'
+};
 
 export default class Input extends Component {
   static propTypes = {
@@ -17,7 +23,8 @@ export default class Input extends Component {
     readonly: PropTypes.bool,
     narrow: PropTypes.bool,
     autoSelect: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
+    isValid: PropTypes.bool
   };
 
   static defaultProps = {
@@ -99,14 +106,15 @@ export default class Input extends Component {
   }
 
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, ...props } = this.props;
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, isValid, ...props } = this.props;
+    const isValidClass = isValid ? '' : 'ecos-input_not-valid-value';
 
     return (
       <div className="position-relative">
         <input
           ref={this.setRef}
           {...props}
-          className={classNames('ecos-input', className, `ecos-input_${align}`, {
+          className={classNames('ecos-input', className, `ecos-input_${align}`, isValidClass, {
             'ecos-input_narrow': narrow
           })}
         />
