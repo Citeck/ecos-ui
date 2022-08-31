@@ -5,12 +5,6 @@ import classNames from 'classnames';
 import { Icon } from '../../index';
 
 import './Input.scss';
-import { t } from '../../../../helpers/util';
-import Tooltip from '../../Tooltip';
-
-const Labels = {
-  INVALID_FORMAT: 'current-tasks-widget.settings.invalid-format'
-};
 
 export default class Input extends Component {
   static propTypes = {
