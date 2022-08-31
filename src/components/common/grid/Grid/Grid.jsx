@@ -254,6 +254,10 @@ class Grid extends Component {
     }
   };
 
+  clearSelectedState = () => {
+    this.setState({ selected: [] });
+  };
+
   onSelect = ({ allPage, newSelected, allPossible, newExcluded }) => {
     const { onSelect, nonSelectable = [], selected: oldSelected } = this.props;
     const selectedAndDisabled = oldSelected.filter(item => nonSelectable.includes(item));
@@ -530,7 +534,7 @@ class Grid extends Component {
   };
 
   setHeaderFormatter = (column, filterable, sortable) => {
-    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef } = this.props;
+    const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const isSortable = sortable && isFunction(onSort);
 
@@ -558,6 +562,8 @@ class Grid extends Component {
           colIndex={colIndex}
           onDividerMouseDown={this.getStartDividerPosition}
           onOpenSettings={onOpenSettings}
+          deselectAllRecords={deselectAllRecords}
+          clearSelectedState={this.clearSelectedState}
         />
       );
     };
@@ -1117,7 +1123,9 @@ Grid.propTypes = {
   onChangeTrOptions: PropTypes.func,
   onScrolling: PropTypes.func,
   onOpenSettings: PropTypes.func,
-  inlineTools: PropTypes.func
+  inlineTools: PropTypes.func,
+
+  deselectAllRecords: PropTypes.func
 };
 
 Grid.defaultProps = {
