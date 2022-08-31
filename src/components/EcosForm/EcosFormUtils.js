@@ -451,31 +451,31 @@ export default class EcosFormUtils {
     return sourceId + SOURCE_DIVIDER + formId;
   }
 
-  static async getCreateVariants(record, attribute) {
-    const typeRef = await Records.get(record).load('typeRef?id');
+  static async getCreateVariants(record, attribute, typeRef = null) {
+    if (isEmpty(typeRef)) {
+      typeRef = await Records.get(record).load('_type?id');
+    }
 
-    const recordInstance = typeRef ? Records.get(`emodel/type@${typeRef}`) : isString(record) ? Records.get(record) : record;
-    const variantsPromise = recordInstance.load(`attributeById.${attribute}.config.typeRef._as.ref.createVariants[]?json`);
+    const variants = await Records.get(typeRef).load(`attributeById.${attribute}.config.typeRef._as.ref.createVariants[]?json`);
 
-    return variantsPromise.then(async variants => {
-      if (isEmpty(variants)) {
-        const formVariants = (await recordInstance.load('#' + attribute + '?createVariants')) || [];
-
-        const hasFormPromises = formVariants.map(v => EcosFormUtils.getForm(v.recordRef, v.formKey, 'formKey'));
-
-        return Promise.all(hasFormPromises).then(hasForms => {
-          return formVariants.filter((v, idx) => {
-            let formKey = hasForms[idx];
-            if (!formKey) {
-              return false;
-            }
-            v.formKey = formKey;
-            return true;
-          });
-        });
-      }
-
+    if (!isEmpty(variants)) {
       return variants;
+    }
+
+    const recordInstance = isString(record) ? Records.get(record) : record;
+    const formVariants = (await recordInstance.load('#' + attribute + '?createVariants')) || [];
+    const hasFormPromises = formVariants.map(v => EcosFormUtils.getForm(v.recordRef, v.formKey, 'formKey'));
+
+    return Promise.all(hasFormPromises).then(hasForms => {
+      return formVariants.filter((v, idx) => {
+        let formKey = hasForms[idx];
+
+        if (!formKey) {
+          return false;
+        }
+        v.formKey = formKey;
+        return true;
+      });
     });
   }
 
