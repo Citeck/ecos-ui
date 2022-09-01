@@ -215,10 +215,6 @@ export default class TableFormComponent extends BaseReactComponent {
     return changed;
   }
 
-  getAttributeToEdit() {
-    return (this.component.properties || {}).attribute;
-  }
-
   refreshElementHasValueClasses() {
     if (!this.element) {
       return;
@@ -299,6 +295,8 @@ export default class TableFormComponent extends BaseReactComponent {
       }
 
       const attribute = this.getAttributeToEdit();
+      const typeRef = _.get(this, 'options.typeRef');
+
       const _catch = (e, msg, val) => {
         console.error(`[TableForm] ${msg}`, e);
         return val;
@@ -339,6 +337,7 @@ export default class TableFormComponent extends BaseReactComponent {
           break;
         case TableTypes.CUSTOM:
           const record = this.getRecord();
+
           const columns = (_.get(source, 'custom.columns') || []).map((item = {}) => {
             const col = { ...item };
 
@@ -354,8 +353,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
           if (customCreateVariants) {
             createVariantsPromise = Promise.resolve(customCreateVariants);
-          } else if (attribute) {
-            const typeRef = _.get(this, 'options.typeRef');
+          } else if (attribute || typeRef) {
             createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute, typeRef);
           }
 
@@ -381,7 +379,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
             if (!_.get(createVariants, 'length', 0)) {
               if (customCreateVariants && attribute) {
-                spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute).catch(e =>
+                spareCreateVariants = await EcosFormUtils.getCreateVariants(record, attribute, typeRef).catch(e =>
                   _catch(e, 'Spare create variants', [])
                 );
               }
