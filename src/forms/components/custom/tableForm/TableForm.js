@@ -353,7 +353,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
           if (customCreateVariants) {
             createVariantsPromise = Promise.resolve(customCreateVariants);
-          } else if (attribute || typeRef) {
+          } else if (attribute) {
             createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute, typeRef);
           }
 
