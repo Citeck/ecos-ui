@@ -322,7 +322,10 @@ export default class TableFormComponent extends BaseReactComponent {
             let columns = journalConfig.columns;
 
             this.#journalConfig = journalConfig;
-            this._createVariants = journalConfig.meta.createVariants || [];
+
+            if (!this._createVariants) {
+              this._createVariants = journalConfig.meta.createVariants || [];
+            }
 
             if (Array.isArray(displayColumns) && displayColumns.length > 0) {
               columns = columns.map(item => ({ ...item, default: displayColumns.indexOf(item.attribute) !== -1 }));
@@ -352,7 +355,8 @@ export default class TableFormComponent extends BaseReactComponent {
           if (customCreateVariants) {
             createVariantsPromise = Promise.resolve(customCreateVariants);
           } else if (attribute) {
-            createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute);
+            const typeRef = _.get(this, 'options.typeRef');
+            createVariantsPromise = EcosFormUtils.getCreateVariants(record, attribute, typeRef);
           }
 
           try {
