@@ -1646,6 +1646,7 @@
   "form-constructor.tabs.file-reworked": "File",
   "form-constructor.tabs.import-reworked": "Import",
   "form-constructor.tabs.async-data": "Async Data",
+  "form-constructor.tabs.main": "Main",
   "form-constructor.tabs.advanced": "Advanced",
   "form-constructor.tabs.api": "API",
   "form-constructor.tabs.tab2": "Tab 1",

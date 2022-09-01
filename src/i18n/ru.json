@@ -1643,6 +1643,7 @@
   "form-constructor.tabs.file-reworked": "Файл",
   "form-constructor.tabs.import-reworked": "Импорт",
   "form-constructor.tabs.async-data": "Aсинхронные данные",
+  "form-constructor.tabs.main": "Основные",
   "form-constructor.tabs.advanced": "Расширенные настройки",
   "form-constructor.tabs.api": "API",
   "form-constructor.tabs.tab2": "Tab 1",
