@@ -151,7 +151,16 @@ const _expandEditForm = component => {
       ...tabsByKey.map(item => ({
         ...item,
         key: `${item.key}-reworked`
-      }))
+      })),
+      {
+        key: 'conditional-reworked',
+        components: [
+          {
+            key: 'customConditionalPanel',
+            collapsed: false
+          }
+        ]
+      }
     ]);
 
     _removeDuplicateComponents(get(result, 'components.0.components', []));
