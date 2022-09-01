@@ -18,11 +18,13 @@ export default class Input extends Component {
     narrow: PropTypes.bool,
     autoSelect: PropTypes.string,
     className: PropTypes.string,
-    isValid: PropTypes.bool
+    isValid: PropTypes.bool,
+    needValidCheck: PropTypes.bool
   };
 
   static defaultProps = {
-    align: 'left'
+    align: 'left',
+    needValidCheck: false
   };
 
   constructor(props) {
@@ -99,9 +101,14 @@ export default class Input extends Component {
     return <Icon className="icon-small-close ecos-input__icon ecos-input__icon_clear" onClick={this.handleClear} />;
   }
 
+  isValidClass() {
+    const { isValid } = this.props;
+    return isValid ? '' : 'ecos-input_not-valid-value';
+  }
+
   render() {
-    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, isValid, ...props } = this.props;
-    const isValidClass = isValid ? '' : 'ecos-input_not-valid-value';
+    const { getInputRef, className, autoSelect, forwardedRef, align, clear, narrow, needValidCheck, ...props } = this.props;
+    const isValidClass = needValidCheck ? this.isValidClass() : '';
 
     return (
       <div className="position-relative">
