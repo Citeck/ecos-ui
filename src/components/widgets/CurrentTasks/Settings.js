@@ -70,8 +70,7 @@ class Settings extends React.Component {
   }
 
   isValidDateFormat(format) {
-    const validFormat = /^((Y{4}|M{2}|D{2})([.:-\s]?)(Y{4}|M{2}|D{2})([.:-\s]?)(Y{4}|M{2}|D{2}))$/;
-
+    const validFormat = /^([a-zA-Z\s\-\:\_\|\~\.\,\/\\])+$/g;
     const isValid = format.match(validFormat);
     return isValid;
   }
@@ -79,8 +78,7 @@ class Settings extends React.Component {
   handleChangeFormat = e => {
     const dateFormat = get(e, 'target.value', '');
     const isValid = this.isValidDateFormat(dateFormat);
-    const exampleText = isValid ? this.makeExampleText(dateFormat) : t(Labels.INVALID_FORMAT);
-    this.setState({ dateFormat, isValidDateFormat: isValid, exampleText });
+    this.setState({ dateFormat, isValidDateFormat: isValid });
   };
 
   handleToggleInfo = () => {
@@ -155,7 +153,7 @@ class Settings extends React.Component {
 
           <Input id={this.formatElementId} value={dateFormat} isValid={isValidDateFormat} onChange={this.handleChangeFormat} clear />
           <FormText color="muted" className={!isValidDateFormat ? 'ecos-current-task-settings__invalid-date-format' : ''}>
-            {isValidDateFormat ? t(Labels.EXAMPLE_DATE_FORMAT, { format: exampleText }) : exampleText}
+            {t(Labels.EXAMPLE_DATE_FORMAT, { format: exampleText })}
           </FormText>
         </FormGroup>
 
