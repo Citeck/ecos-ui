@@ -8,19 +8,52 @@ const PERSON_SOURCE_ID = 'emodel/person';
 const GROUPS_SOURCE_ID = 'emodel/authority-group';
 
 const ALFRESCO_PREFIX = 'alfresco/@';
+const ALFRESCO_WORKSPACE_SPACES_STORE = 'workspace://SpacesStore/';
 
 class AuthorityService {
+  async getAuthorityName(authority) {
+    if (!authority) {
+      return '';
+    }
+    if (Array.isArray(authority)) {
+      return Promise.all(authority.map(a => this.getAuthorityName(a)));
+    }
+    if (!isString(authority)) {
+      return '';
+    }
+    if (!authority || authority.indexOf(GROUP_PREFIX) === 0) {
+      return authority;
+    }
+    let localIdDelim = authority.indexOf('@');
+    if (localIdDelim === -1 && authority.indexOf(ALFRESCO_WORKSPACE_SPACES_STORE) === -1) {
+      return authority;
+    }
+    let ref = (await this.getAuthorityRef(authority)) || '';
+    localIdDelim = ref.indexOf('@');
+    if (localIdDelim > 0) {
+      if (ref.indexOf(PERSON_SOURCE_ID) === 0) {
+        return ref.substring(localIdDelim + 1);
+      } else if (ref.indexOf(GROUPS_SOURCE_ID) === 0) {
+        return GROUP_PREFIX + ref.substring(localIdDelim + 1);
+      }
+    }
+    return authority;
+  }
+
   async getAuthorityRef(authority) {
     if (!authority) {
-      return authority;
+      return '';
     }
     if (Array.isArray(authority)) {
       return Promise.all(authority.map(a => this.getAuthorityRef(a)));
     }
+    if (!isString(authority)) {
+      return '';
+    }
     if (authority.indexOf(GROUP_PREFIX) === 0) {
       return GROUPS_SOURCE_ID + '@' + authority.substring(GROUP_PREFIX.length);
     }
-    if (authority.indexOf('workspace://SpacesStore/') !== -1) {
+    if (authority.indexOf(ALFRESCO_WORKSPACE_SPACES_STORE) !== -1) {
       if (authority.indexOf(ALFRESCO_PREFIX) === -1) {
         authority = ALFRESCO_PREFIX + authority;
       }

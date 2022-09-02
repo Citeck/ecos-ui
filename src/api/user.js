@@ -88,7 +88,8 @@ export class UserApi extends CommonApi {
   changePhoto({ record, data }) {
     const user = Records.get(record);
 
-    if (record.includes(`${SourcesId.PEOPLE}@`)) {
+    if (record.includes('people@')) {
+      // Legacy persons. This 'then' branch can be removed in version 2.9.0+
       user.att('ecos:photo?str', { ...data });
     } else {
       user.att('photo', [{ ...data }]);

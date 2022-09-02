@@ -343,9 +343,7 @@ async function fetchExtraGroupItemInfo(data = []) {
       const target = { ...item };
 
       if (item.id) {
-        target.label = await Records.get(`${SourcesId.A_AUTHORITY}@${item.id}`)
-          .load('.disp')
-          .catch(_ => '');
+        target.label = await AuthorityService.getAuthorityAttributes(item.id, '?disp').catch(_ => '');
       }
 
       return target;

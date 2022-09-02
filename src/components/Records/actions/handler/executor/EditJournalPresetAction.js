@@ -5,18 +5,15 @@ import ActionsExecutor from '../ActionsExecutor';
 import { PresetsServiceApi } from '../../../../Journals/service';
 import { SourcesId } from '../../../../../constants';
 import { getCurrentUserName } from '../../../../../helpers/util';
-import { UserApi } from '../../../../../api/user';
 import Records from '../../../Records';
 import { notifySuccess, notifyFailure } from '../../util/actionUtils';
+import AuthorityService from '../../../../../services/authrority/AuthorityService';
 
 export default class EditJournalPresetAction extends ActionsExecutor {
   static ACTION_ID = 'edit-journal-preset';
 
-  #userApi = new UserApi();
-
   async execForRecord(record, action, context) {
     return new Promise(async resolve => {
-      const authUserData = await this.#userApi.getUserDataByRef(`${SourcesId.PERSON}@${getCurrentUserName()}`);
       const data = get(action, 'config.data') || {};
       const rec = Records.get(record);
       const isEditing = rec.id.split('@').length > 1;
@@ -25,14 +22,14 @@ export default class EditJournalPresetAction extends ActionsExecutor {
         : 'record-action.edit-journal-preset.modal.title.create';
 
       if (!data.authority) {
-        data.authority = authUserData.userName;
+        data.authority = getCurrentUserName();
       }
 
-      const authorityRef = await Records.get(`${SourcesId.A_AUTHORITY}@${data.authority}`).load('nodeRef');
+      const authorityRef = await AuthorityService.getAuthorityRef(data.authority);
 
       const onClose = () => modal.destroy();
       const onSave = async newData => {
-        const authority = await Records.get(newData.authorityRef).load('cm:authorityName!cm:userName');
+        const authority = await AuthorityService.getAuthorityName(newData.authorityRef);
         const preset = await PresetsServiceApi.savePreset({ id: rec.id, ...data, ...newData, authority });
 
         if (preset && preset.id) {
@@ -45,7 +42,9 @@ export default class EditJournalPresetAction extends ActionsExecutor {
         onClose();
       };
 
-      const modal = WidgetService.openEditorJournalPreset({ onSave, onClose, title, isAdmin: authUserData.isAdmin, authorityRef, data });
+      let isCurrentUserAdmin = await Records.get(SourcesId.PERSON + '@' + getCurrentUserName()).load('isAdmin?bool!false');
+
+      const modal = WidgetService.openEditorJournalPreset({ onSave, onClose, title, isAdmin: isCurrentUserAdmin, authorityRef, data });
     });
   }
 
