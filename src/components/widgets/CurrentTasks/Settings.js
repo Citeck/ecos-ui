@@ -153,7 +153,14 @@ class Settings extends React.Component {
 
           {this.renderInfo()}
 
-          <Input id={this.formatElementId} value={dateFormat} isValid={isValidDateFormat} onChange={this.handleChangeFormat} clear />
+          <Input
+            id={this.formatElementId}
+            value={dateFormat}
+            isValid={isValidDateFormat}
+            onChange={this.handleChangeFormat}
+            clear
+            needValidCheck={true}
+          />
           <FormText color="muted" className={!isValidDateFormat ? 'ecos-current-task-settings__invalid-date-format' : ''}>
             {isValidDateFormat ? t(Labels.EXAMPLE_DATE_FORMAT, { format: exampleText }) : exampleText}
           </FormText>
