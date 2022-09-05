@@ -715,11 +715,15 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(chunkedRecords, {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item))
-              });
+              const previewRecords = isQueryRecords ? chunkedRecords : allowedRecords.map(r => getRef(r));
+
+              if (!isEmpty(previewRecords)) {
+                await DetailActionResult.showPreviewRecords(previewRecords, {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item))
+                });
+              }
 
               actResult = {
                 ...(actResult || {}),
