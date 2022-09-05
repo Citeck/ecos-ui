@@ -20,6 +20,10 @@
     &::after {
       background-size: inherit;
     }
+
+    &:hover::after {
+      filter: invert(0.45) sepia(0.6) saturate(5) hue-rotate(175deg);
+    }
   }
 }
 
