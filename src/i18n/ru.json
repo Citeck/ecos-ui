@@ -171,6 +171,9 @@
   "widget-settings.collapsed-by-default": "Свёрнут по умолчанию",
   "widget-settings.collapsed-by-default-info": "Не работает, если пользователь сам изменил состояние - свернув или развернув виджет.",
   "widget-settings.display-condition.element-title": "Условие отображения элемента \"{{title}}\"",
+  "widget-settings.form-condition.edit": "Режим редактирования",
+  "widget-settings.form-condition.view": "Режим просмотра",
+  "widget-settings.form-condition.label": "Режим отображения формы",
 
   "dashboard-settings.config.default": "По умолчанию",
   "dashboard-settings.config.custom": "Пользовательские",
@@ -248,6 +251,7 @@
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
   "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
+  "dashlet.submit.button": "Сохранить",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти",
@@ -1033,6 +1037,7 @@
   "priority.high": "Высокий",
   "priority.low": "Низкий",
   "priority.medium": "Средний",
+  "properties-widget.action-submit.title": "Сохранить",
   "properties-widget.action-edit.title": "Редактировать данные формы",
   "properties-widget.action-settings.title": "Настроить виджет",
   "properties-widget.action-constructor.title": "Перейти в конструктор форм",

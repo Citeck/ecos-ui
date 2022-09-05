@@ -171,6 +171,9 @@
   "widget-settings.collapsed-by-default": "Collapsed by default",
   "widget-settings.collapsed-by-default-info": "Doesn't work if the user himself changed the state by minimizing or expanding the widget.",
   "widget-settings.display-condition.element-title": "Element display condition \"{{title}}\"",
+  "widget-settings.form-condition.edit": "Edit mode",
+  "widget-settings.form-condition.view": "View mode",
+  "widget-settings.form-condition.label": "Form view mode",
 
   "dashboard-settings.config.default": "Default",
   "dashboard-settings.config.custom": "Custom",
@@ -248,6 +251,7 @@
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
 
   "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
+  "dashlet.submit.button": "Submit",
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
   "dashlet.goto": "Go to",
@@ -1034,6 +1038,7 @@
   "priority.high": "High",
   "priority.low": "Low",
   "priority.medium": "Medium",
+  "properties-widget.action-submit.title": "Submit",
   "properties-widget.action-edit.title": "Edit data form",
   "properties-widget.action-settings.title": "Set widget",
   "properties-widget.action-constructor.title": "Go to form builder",

@@ -11,7 +11,7 @@ import { Labels } from './util';
 
 const BtnAction = ({ id, text, icon, className, onClick, component }) => {
   if (component) {
-    return component;
+    return React.cloneElement(component, { id, className, onClick });
   }
 
   return (
@@ -61,6 +61,9 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable,
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const outputActions = [];
   const actions = {
+    submit: {
+      component: <button type="button">{t(Labels.ACT_SUBMIT)}</button>
+    },
     edit: {
       icon: 'icon-edit',
       onClick: null,

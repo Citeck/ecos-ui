@@ -13,11 +13,12 @@ import DisplayElementService from '../../../services/DisplayElementService';
 import { DialogManager } from '../../../components/common/dialogs';
 import { Btn, IcoBtn } from '../../../components/common/btns';
 import { InfoText, Loader } from '../../../components/common';
-import { Checkbox } from '../../../components/common/form';
+import { Checkbox, Select } from '../../../components/common/form';
 import { ParserPredicate } from '../../../components/Filters/predicates';
 import Filters from '../../../components/Filters/Filters';
 import Components from '../../widgets/Components';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
+import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../EcosForm';
 
 const Labels = {
   MODAL_TITLE: 'widget-settings.title',
@@ -28,7 +29,12 @@ const Labels = {
   DISPLAY_CONDITION_NO_ATTR: 'widget-settings.dc-no-attributes',
   DISPLAY_CONDITION_NO_RULES: 'widget-settings.dc-no-rules',
   COLLAPSED_BY_DEFAULT_LABEL: 'widget-settings.collapsed-by-default',
-  COLLAPSED_BY_DEFAULT_INFO: 'widget-settings.collapsed-by-default-info'
+  COLLAPSED_BY_DEFAULT_INFO: 'widget-settings.collapsed-by-default-info',
+  FORM_MODE_DEFAULT_LABEL: 'widget-settings.collapsed-by-default',
+  FORM_MODE_DEFAULT_INFO: 'widget-settings.collapsed-by-default-info',
+  FORM_MODE_SELECT_LABEL: 'widget-settings.form-condition.label',
+  FORM_MODE_EDIT_LABEL: 'widget-settings.form-condition.edit',
+  FORM_MODE_VIEW_LABEL: 'widget-settings.form-condition.view'
 };
 
 export const openWidgetSettings = props => {
@@ -47,12 +53,21 @@ let loadedWidgetSettings = {};
 
 const SettingsBody = props => {
   const { widget, executors, modelAttributes, hideModal } = props;
-  const predicate = get(widget, 'props.config.widgetDisplayCondition');
+
+  const propertiesOptions = [
+    { value: FORM_MODE_VIEW, label: t(Labels.FORM_MODE_VIEW_LABEL) },
+    { value: FORM_MODE_EDIT, label: t(Labels.FORM_MODE_EDIT_LABEL) }
+  ];
+
   const _columns = DisplayElementService.getModelAttributesLikeColumns(modelAttributes);
   const defaultPredicate = ParserPredicate.getDefaultPredicates(_columns);
+
+  const predicate = get(widget, 'props.config.widgetDisplayCondition');
   const [_predicate, setPredicate] = useState(predicate || defaultPredicate);
   const [individualSettings, setIndividualSettings] = useState(get(widget, ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION], {}));
   const [collapsed, setCollapsed] = useState(get(widget, 'props.config.collapsed'));
+  const [formMode, setFormMode] = useState(get(widget, 'props.config.formMode', FORM_MODE_VIEW));
+
   const onGoJournal = () => {
     DialogManager.hideAllDialogs();
     goToJournalsPage({
@@ -74,6 +89,7 @@ const SettingsBody = props => {
     );
     set(updWidget, 'props.config.version', JOURNAL_DASHLET_CONFIG_VERSION);
     set(updWidget, 'props.config.collapsed', collapsed);
+    set(updWidget, 'props.config.formMode', formMode);
 
     executors.edit(updWidget);
     hideModal();
@@ -102,8 +118,20 @@ const SettingsBody = props => {
       >
         {t(Labels.COLLAPSED_BY_DEFAULT_LABEL)}
       </Checkbox>
-
       <InfoText className="justify-content-start pl-0 pt-0" text={t(Labels.COLLAPSED_BY_DEFAULT_INFO)} />
+
+      {widget.name === 'properties' && (
+        <div className="ecos-ds-widget-settings mb-3">
+          <label className="ecos-dashboard-settings__container-subtitle w-100">
+            {t(Labels.FORM_MODE_SELECT_LABEL)}
+            <Select
+              value={propertiesOptions.find(i => i.value === formMode)}
+              options={propertiesOptions}
+              onChange={({ value }) => setFormMode(value)}
+            />
+          </label>
+        </div>
+      )}
 
       <div className="ecos-ds-widget-settings__title">
         {t(Labels.DISPLAY_CONDITION_TITLE)}

@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import isEmpty from 'lodash/isEmpty';
+
 import SS from '../../../services/sidebar';
 
 class ItemLink extends React.Component {
@@ -17,6 +19,11 @@ class ItemLink extends React.Component {
 
   render() {
     const { children, data, extraParams, ...props } = this.props;
+
+    if (isEmpty(data)) {
+      return null;
+    }
+
     const { targetUrl, attributes } = SS.getPropsUrl(data, extraParams);
 
     return (

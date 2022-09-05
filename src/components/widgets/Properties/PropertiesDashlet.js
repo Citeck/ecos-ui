@@ -21,6 +21,7 @@ import './style.scss';
 
 const Labels = {
   WIDGET_TITLE: 'properties-widget.title',
+  BTN_SUBMIT_TIP: 'properties-widget.action-submit.title',
   BTN_EDIT_TIP: 'properties-widget.action-edit.title',
   BTN_SET_TIP: 'properties-widget.action-settings.title',
   BTN_BUILD_TIP: 'properties-widget.action-constructor.title'
@@ -97,8 +98,9 @@ class PropertiesDashlet extends BaseWidget {
 
     const formId = get(this.props, 'config.formId');
     const formType = formId ? get(formId.split('@'), '1', '') : '';
+    const formMode = get(this.props, 'config.formMode');
 
-    const actions = {
+    let actions = {
       [DAction.Actions.RELOAD]: {
         className: getFitnesseClassName('properties-widget', formType, DAction.Actions.RELOAD),
         onClick: this.onReloadDashlet
@@ -123,6 +125,19 @@ class PropertiesDashlet extends BaseWidget {
       };
     }
 
+    if (formMode === 'EDIT' && this.state.formIsChanged) {
+      actions = {
+        [DAction.Actions.SUBMIT]: {
+          className: getFitnesseClassName(
+            'properties-widget btn btn-primary btn-md eform-edit-form-btn mr-3',
+            formType,
+            DAction.Actions.SUBMIT
+          ),
+          onClick: this.submitForm
+        }
+      };
+    }
+
     return actions;
   }
 
@@ -141,7 +156,10 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   onInlineEditSave = () => {
-    this.setState({ wasLastModifiedWithInlineEditor: true });
+    this.setState({
+      formIsChanged: true,
+      wasLastModifiedWithInlineEditor: true
+    });
   };
 
   handleUpdate() {
@@ -168,6 +186,20 @@ class PropertiesDashlet extends BaseWidget {
   onResize = width => {
     if (width > 0) {
       this.setState({ isSmallMode: isSmallMode(width) });
+    }
+  };
+
+  submitForm = () => {
+    const form = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
+    const submission = form._form;
+
+    if (isFunction(form.submitForm)) {
+      try {
+        form.submitForm(form, submission);
+      } finally {
+        this.setState({ formIsChanged: false });
+        this.onReloadDashlet();
+      }
     }
   };
 
@@ -225,6 +257,8 @@ class PropertiesDashlet extends BaseWidget {
     const { formId = '', titleAsFormName } = config || {};
     const titleDashlet = t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE);
 
+    const formMode = get(this.props, 'config.formMode', 'VIEW');
+
     return (
       <Dashlet
         setRef={this.setDashletRef}
@@ -257,6 +291,7 @@ class PropertiesDashlet extends BaseWidget {
           getTitle={this.setTitle}
           scrollProps={this.scrollbarProps}
           isDraft={isDraft}
+          formMode={formMode}
         />
         {isShowSetting && (
           <PropertiesSettings
