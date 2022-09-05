@@ -18,6 +18,7 @@ class Properties extends React.Component {
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
+    formMode: PropTypes.string.isRequired,
     formId: PropTypes.string,
     className: PropTypes.string,
     isSmallMode: PropTypes.bool,
@@ -101,7 +102,7 @@ class Properties extends React.Component {
   };
 
   renderForm() {
-    const { record, isSmallMode, formId, isDraft, isMobile, onUpdate, onInlineEditSave } = this.props;
+    const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate, onInlineEditSave } = this.props;
     const { isReadySubmit, loaded, isLoading } = this.state;
     const isShow = isReadySubmit;
     const isLoaded = loaded && !isLoading;
@@ -120,10 +121,11 @@ class Properties extends React.Component {
             viewAsHtmlConfig: {
               hidePanels: isSmallMode
             },
-            formMode: FORM_MODE_EDIT,
+            formMode,
             saveDraft: isDraft,
             onInlineEditSave
           }}
+          saveOnSubmit={formMode !== FORM_MODE_EDIT}
           onFormSubmitDone={onUpdate}
           onReady={this.onReady}
           onToggleLoader={this.onToggleLoader}
@@ -143,7 +145,7 @@ class Properties extends React.Component {
           ref={this._hiddenEcosForm}
           record={record}
           formId={formId}
-          options={{ formMode: FORM_MODE_EDIT }}
+          options={{ formMode }}
           onSubmit={this.onSubmitForm}
           onFormSubmitDone={onUpdate}
           className="d-none"

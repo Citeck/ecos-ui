@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import cloneDeep from 'lodash/cloneDeep';
+import isArray from 'lodash/isArray';
 
 import { t, trigger } from '../../helpers/util';
 import { RemoveDialog } from '../common/dialogs';
@@ -228,6 +229,7 @@ class Filters extends Component {
   render() {
     const { isDialogShow, dialogTitle, dialogText } = this.state;
     const { sourceId, metaRecord, className, groups } = this.props;
+
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
 
@@ -235,13 +237,14 @@ class Filters extends Component {
       <ErrorBoundary>
         <div className={classNames('ecos-filters', className)}>
           <DragDropContext onDragEnd={this.onDragEnd}>
-            {groups.map((group, idx) => {
-              if (idx > 0) {
-                return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
-              } else {
-                return this.createGroup(group, true, idx, sourceId, metaRecord);
-              }
-            })}
+            {isArray(groups) &&
+              groups.map((group, idx) => {
+                if (idx > 0) {
+                  return this.createSubGroup(group, lastIdx !== idx, idx, sourceId, metaRecord);
+                } else {
+                  return this.createGroup(group, true, idx, sourceId, metaRecord);
+                }
+              })}
           </DragDropContext>
 
           <RemoveDialog
@@ -260,6 +263,7 @@ class Filters extends Component {
 }
 
 Filters.propTypes = {
+  groups: PropTypes.array,
   predicate: PropTypes.object,
   columns: PropTypes.array,
   sourceId: PropTypes.string,
@@ -268,6 +272,10 @@ Filters.propTypes = {
   classNameGroup: PropTypes.string,
   textEmpty: PropTypes.string,
   onChange: PropTypes.func
+};
+
+Filters.defautProps = {
+  groups: []
 };
 
 export default Filters;

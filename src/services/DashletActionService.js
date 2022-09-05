@@ -2,6 +2,7 @@ import { AppEditions } from '../constants';
 
 export default class DashletActionService {
   static Actions = {
+    SUBMIT: 'submit',
     EDIT: 'edit',
     HELP: 'help',
     RELOAD: 'reload',
