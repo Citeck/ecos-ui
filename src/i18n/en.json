@@ -2158,7 +2158,7 @@
   "form-constructor.title": "Advanced Conditions",
   "form-constructor.panel.data-example": "Example:",
   "form-constructor.panel.custom-default-value": "Custom Default Value",
-  "form-constructor.panel.simple-conditional": "View simple logic",
+  "form-constructor.panel.simple-conditional": "Simple display logic",
   "form-constructor.panel.customDefaultValue-js": "JavaScript",
   "form-constructor.panel.customDefaultValue-json": "JSONLogic",
   "form-constructor.panel.customDefaultValuePanel": "Custom Default Value",
