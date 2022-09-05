@@ -77,16 +77,6 @@ class Sidebar extends React.Component {
     if ((isExistValue(this.props.versionMenu) && !this.state.fetchItems) || force) {
       this.setState({ fetchItems: true }, () => {
         this.props.fetchSlideMenuItems();
-
-        // if (force) {
-        //   const { isOpen } = this.props;
-        //
-        //   if (isOpen) {
-        //     this.props.setExpandableItems(true);
-        //   } else {
-        //     this.props.collapseAllItems();
-        //   }
-        // }
       });
     }
   }
