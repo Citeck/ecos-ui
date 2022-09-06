@@ -115,6 +115,7 @@ export default class Export extends Component {
     return {
       exportType: item.type,
       columns,
+      title: item.title,
       download: item.download,
       reportTitle
     };
