@@ -193,7 +193,7 @@ class Item extends React.Component {
           'ecos-sidebar-item_line-separator': !isOpen && isClosedSeparator,
           'ecos-sidebar-item_hidden': hiddenLabel
         })}
-        title={!isOpen && !noIcon ? get(data, 'label', '') : ''}
+        title={!isOpen && !noIcon ? extractLabel(get(data, 'label', '')) : ''}
         {...events}
       >
         {this.renderLabel()}

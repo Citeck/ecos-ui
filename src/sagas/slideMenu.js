@@ -43,6 +43,8 @@ function* fetchSlideMenu({ api, logger }, action) {
     yield put(toggleIsOpen(isOpen));
     yield put(setSlideMenuItems(menuItems));
     yield put(setIsReady(true));
+
+    yield put(setExpandableItems({ force: isOpen }));
   } catch (e) {
     logger.error('[fetchSlideMenu saga] error', e);
   }
