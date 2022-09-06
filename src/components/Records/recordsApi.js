@@ -98,6 +98,21 @@ const pendingRequests = new Set();
 const getPendingKey = (recordId, attsKeys) => `${recordId}|${attsKeys.join('|')}`;
 
 export function loadAttribute(recordId, attribute) {
+  if (attribute === '?id' || attribute === '_id' || attribute === '?assoc' || attribute === '_assoc') {
+    return recordId;
+  }
+  if (attribute === '?localId' || attribute === '_localId') {
+    const localIdDelimIdx = recordId.indexOf('@');
+    if (localIdDelimIdx !== -1) {
+      if (localIdDelimIdx === recordId.length - 1) {
+        return '';
+      } else {
+        return recordId.substring(localIdDelimIdx + 1);
+      }
+    } else {
+      return recordId;
+    }
+  }
   let attributesBatch = attributesQueryBatch[recordId];
   let isNewBatch = false;
   if (!attributesBatch) {

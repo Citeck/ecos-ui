@@ -22,6 +22,7 @@ import {
   SEARCH_EQUAL_PREDICATES_MAP
 } from '../../Records/predicates/predicates';
 import { FilterPredicate, GroupPredicate, Predicate } from './';
+import { getAttFromPredicate } from '../../Journals/service/util';
 
 export default class ParserPredicate {
   static get predicatesWithoutValue() {
@@ -91,11 +92,26 @@ export default class ParserPredicate {
     return values;
   }
 
-  static getDefaultPredicates(columns, extra) {
+  static getDefaultPredicates(columns, extra, defaultPredicatesList) {
+    const defaultPredicatesByAtt = {};
+    if (defaultPredicatesList && defaultPredicatesList.length) {
+      for (let pred of defaultPredicatesList) {
+        let att = getAttFromPredicate(pred);
+        if (att) {
+          defaultPredicatesByAtt[att] = pred;
+        }
+      }
+    }
+
     let val = [];
 
     for (let i = 0; i < get(columns, 'length', 0); i++) {
       const column = columns[i] || {};
+
+      if (defaultPredicatesByAtt.hasOwnProperty(column.attribute)) {
+        val.push(defaultPredicatesByAtt[column.attribute]);
+        continue;
+      }
 
       if ((column.searchable && column.default) || (extra && extra.includes(column.attribute))) {
         const predicates = getPredicates(column);

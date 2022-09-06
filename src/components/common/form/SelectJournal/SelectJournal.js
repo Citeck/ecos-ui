@@ -14,6 +14,7 @@ import { getHtmlIdByUid, beArray, isMobileDevice, t } from '../../../../helpers/
 import { getIconUpDown } from '../../../../helpers/icon';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
+import { mergeFilters } from '../../../Journals/service/util';
 import { EcosModal, Icon, Loader, Pagination } from '../../../common';
 import { Btn, IcoBtn } from '../../../common/btns';
 import { Grid } from '../../../common/grid';
@@ -84,7 +85,7 @@ export default class SelectJournal extends Component {
     return this.props.dataType === DataTypes.QUERY;
   }
 
-  get presetFilterPredicates() {
+  _getPresetFilterPredicates(journalConfig) {
     const { presetFilterPredicates } = this.props;
     const { value } = this.state;
     const filters = presetFilterPredicates || [];
@@ -94,7 +95,7 @@ export default class SelectJournal extends Component {
       filters.push(...queryFilters);
     }
 
-    return filters;
+    return mergeFilters(journalConfig.defaultFilters, filters);
   }
 
   componentDidMount() {
@@ -263,7 +264,7 @@ export default class SelectJournal extends Component {
 
       this.setState(
         state => ({
-          filterPredicate: this.presetFilterPredicates,
+          filterPredicate: this._getPresetFilterPredicates(journalConfig),
           displayedColumns,
           journalConfig,
           isJournalConfigFetched: true,
@@ -873,7 +874,7 @@ export default class SelectJournal extends Component {
         <FiltersProvider
           columns={journalConfig.columns}
           sourceId={journalConfig.sourceId}
-          presetFilterPredicates={this.presetFilterPredicates}
+          presetFilterPredicates={this._getPresetFilterPredicates(journalConfig)}
           metaRecord={journalConfig.metaRecord}
         >
           {this.renderSelectModal()}

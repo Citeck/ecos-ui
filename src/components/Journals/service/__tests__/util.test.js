@@ -1,6 +1,19 @@
 import * as Util from '../util';
 
 describe('Journal util', () => {
+  it('fun mergeFilters', async () => {
+    let result = Util.mergeFilters(
+      [{ t: 'eq', a: 'field', v: 'value1' }],
+      [{ t: 'contains', a: 'field', v: 'value2' }, { t: 'eq', att: 'abc', val: 'def' }],
+      [{ t: 'contains', a: 'field2', v: 'value3' }]
+    );
+    expect(result).toEqual([
+      { t: 'contains', a: 'field', v: 'value2' },
+      { t: 'eq', att: 'abc', val: 'def' },
+      { t: 'contains', a: 'field2', v: 'value3' }
+    ]);
+  });
+
   it('fun getCreateVariantKeyField', async () => {
     let fields = Util.getCreateVariantKeyField({
       _object: {},

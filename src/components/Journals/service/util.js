@@ -24,6 +24,52 @@ export function valueOrNull(value) {
   return value === undefined ? null : value;
 }
 
+export function mergeFilters(filters0, filters1) {
+  const filtersIdxMap = {};
+  const allFilters = [];
+
+  for (let filters of arguments) {
+    if (!filters) {
+      continue;
+    }
+
+    if (!Array.isArray(filters)) {
+      if (_.isObject(filters)) {
+        filters = [filters];
+      } else {
+        continue;
+      }
+    }
+    for (let filter of filters) {
+      const att = getAttFromPredicate(filter);
+      if (!att) {
+        continue;
+      }
+      if (!filtersIdxMap.hasOwnProperty(att)) {
+        filtersIdxMap[att] = allFilters.length;
+        allFilters.push(filter);
+      } else {
+        allFilters[filtersIdxMap[att]] = filter;
+      }
+    }
+  }
+  return allFilters;
+}
+
+export function getAttFromPredicate(predicate) {
+  return _getPropFromPredicate('a', 'att', predicate);
+}
+
+function _getPropFromPredicate(shortName, longName, predicate) {
+  if (predicate.hasOwnProperty(shortName)) {
+    return predicate[shortName];
+  } else if (predicate.hasOwnProperty(longName)) {
+    return predicate[longName];
+  } else {
+    return '';
+  }
+}
+
 export function replacePlaceholders(object, values, keyPreProc) {
   if (_.isEmpty(object) || _.isEmpty(values)) {
     return object;

@@ -6,6 +6,7 @@ import EcosFormUtils from '../../../../EcosForm/EcosFormUtils';
 import { notifyFailure } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
 import DashboardService from '../../../../../services/dashboard';
+import Records from '../../../Records';
 
 export default class EditAction extends ActionsExecutor {
   static ACTION_ID = 'edit';
@@ -14,16 +15,21 @@ export default class EditAction extends ActionsExecutor {
     const { config = {} } = action;
     let recordId = config.recordId || record.id;
 
-    switch (true) {
-      case config.mode === 'task':
-        return runEditTask(record, config);
-      case DashboardService.isDashboardRecord(recordId):
-        DashboardService.openEditModal({
-          dashboardId: DashboardService.formShortId(recordId)
-        });
-        return;
-      default:
-        return new Promise(resolve => {
+    let actionResult = new Promise((resolve, reject) => {
+      switch (true) {
+        case config.mode === 'task':
+          runEditTask(record, config)
+            .then(resolve)
+            .catch(reject);
+          break;
+        case DashboardService.isDashboardRecord(recordId):
+          DashboardService.openEditModal({
+            dashboardId: DashboardService.formShortId(recordId),
+            onSave: () => resolve(true),
+            onClose: () => resolve(false)
+          });
+          break;
+        default:
           let submitted = false;
           let wasClosed = false;
           EcosFormUtils.editRecord({
@@ -49,8 +55,17 @@ export default class EditAction extends ActionsExecutor {
               }
             }
           });
-        });
-    }
+      }
+    });
+    return actionResult.then(somethingWasChanged => {
+      if (somethingWasChanged) {
+        const recordsToReset = config.recordsToReset || [];
+        for (let recId of recordsToReset) {
+          Records.get(recId).reset();
+        }
+      }
+      return somethingWasChanged;
+    });
   }
 
   getDefaultActionModel() {
@@ -61,26 +76,25 @@ export default class EditAction extends ActionsExecutor {
   }
 }
 
-function runEditTask(record, config) {
-  return record.load('cm:name?str').then(taskId => {
-    if (!taskId) {
-      // console.error('Task ID is not found for record', record);
-      notifyFailure();
-      return false;
-    }
+async function runEditTask(record, config) {
+  const taskId = await record.load('cm:name?str');
+  if (!taskId) {
+    // console.error('Task ID is not found for record', record);
+    notifyFailure();
+    return false;
+  }
 
-    const taskRecordId = `${SourcesId.TASK}@${taskId}`;
-    const contentBefore = () => <TaskAssignmentPanel narrow taskId={taskRecordId} />;
+  const taskRecordId = `${SourcesId.TASK}@${taskId}`;
+  const contentBefore = () => <TaskAssignmentPanel narrow taskId={taskRecordId} />;
 
-    return new Promise(resolve => {
-      EcosFormUtils.editRecord({
-        recordRef: taskRecordId,
-        attributes: config.attributes || {},
-        fallback: () => resolve(false),
-        contentBefore: contentBefore(),
-        onSubmit: () => resolve(true),
-        onFormCancel: () => resolve(false)
-      });
+  return new Promise(resolve => {
+    EcosFormUtils.editRecord({
+      recordRef: taskRecordId,
+      attributes: config.attributes || {},
+      fallback: () => resolve(false),
+      contentBefore: contentBefore(),
+      onSubmit: () => resolve(true),
+      onFormCancel: () => resolve(false)
     });
   });
 }

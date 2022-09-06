@@ -247,7 +247,7 @@ export default class DashboardService {
     const Settings = lazy(() => import('../components/DashboardSettings/Settings'));
     const store = getStore();
     const modalRef = React.createRef();
-    let { title, ...otherProps } = props;
+    let { title, onSave = () => {}, onClose = () => {}, ...otherProps } = props;
 
     const dialog = DialogManager.showCustomDialog({
       isVisible: true,
@@ -264,8 +264,14 @@ export default class DashboardService {
               modalRef={modalRef}
               tabId={PageTabList.activeTabId}
               onSetDialogProps={props => dialog.updateProps(props)}
-              onSave={() => dialog.setVisible(false)}
-              onClose={() => dialog.setVisible(false)}
+              onSave={() => {
+                dialog.setVisible(false);
+                onSave();
+              }}
+              onClose={() => {
+                dialog.setVisible(false);
+                onClose();
+              }}
               {...otherProps}
             />
           </Suspense>
