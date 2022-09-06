@@ -129,3 +129,9 @@
     }
   }
 }
+
+@media (max-width: 600px) {
+  .ecos-form-buttons-container-manual {
+    flex-direction: column-reverse;
+  }
+}
