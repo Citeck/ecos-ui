@@ -529,7 +529,7 @@ class RecordActions {
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
 
     let withTimeoutError = false;
-    let popupExecution;
+    let popupExecution = false;
 
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
 
@@ -602,8 +602,10 @@ class RecordActions {
         }
 
         if (!ungearedPopups) {
-          if (!ungearedPopups) {
-            popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+          const popupRecords = allowedRecords.map(r => getRef(r));
+
+          if (!isEmpty(popupRecords)) {
+            popupExecution = await DetailActionResult.showPreviewRecords(popupRecords, resultOptions);
           }
         }
       }
@@ -632,7 +634,7 @@ class RecordActions {
               action.config = preResult.config;
             }
 
-            if (!isEmpty(preResult.preProcessedRecords)) {
+            if (!isEmpty(preResult.preProcessedRecords) && !isEmpty(chunkedRecords)) {
               await DetailActionResult.showPreviewRecords(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
@@ -715,15 +717,11 @@ class RecordActions {
                 }
               };
             } else {
-              const previewRecords = isQueryRecords ? chunkedRecords : allowedRecords.map(r => getRef(r));
-
-              if (!isEmpty(previewRecords)) {
-                await DetailActionResult.showPreviewRecords(previewRecords, {
-                  ...resultOptions,
-                  withoutLoader: true,
-                  forRecords: get(result, 'data.results', []).map(item => getRef(item))
-                });
-              }
+              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+                ...resultOptions,
+                withoutLoader: true,
+                forRecords: get(result, 'data.results', []).map(item => getRef(item))
+              });
 
               actResult = {
                 ...(actResult || {}),
@@ -733,21 +731,23 @@ class RecordActions {
                 }
               };
 
-              await DetailActionResult.setStatus(chunkedRecords, {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item)),
-                statuses: get(result, 'data.results', []).reduce(
-                  (result, current) => ({
-                    ...result,
-                    [getRef(current)]: {
-                      type: current.status,
-                      message: current.message || ''
-                    }
-                  }),
-                  {}
-                )
-              });
+              if (!isEmpty(chunkedRecords)) {
+                await DetailActionResult.setStatus(chunkedRecords, {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item)),
+                  statuses: get(result, 'data.results', []).reduce(
+                    (result, current) => ({
+                      ...result,
+                      [getRef(current)]: {
+                        type: current.status,
+                        message: current.message || ''
+                      }
+                    }),
+                    {}
+                  )
+                });
+              }
             }
 
             results = {

@@ -302,11 +302,12 @@ export const DetailActionResult = {
     const prepRecords = records.map(id => {
       if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
         set(options, ['statusesByRecords', id], t(Labels.STARTED));
+        set(options, ['messagesByRecords', id], '');
 
         return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(Labels.STARTED));
       }
 
-      return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(get(options, ['statusesByRecords', id])));
+      return setDisplayDataRecord({ id, disp: t(Labels.FETCH_DATA) }, t(get(options, ['statusesByRecords', id])), '');
     });
     showDetailActionResult(res(prepRecords), DetailActionResult.options);
 
@@ -317,8 +318,9 @@ export const DetailActionResult = {
           .then(disp => {
             if (!isEmpty(options.forRecords) && options.forRecords.includes(id)) {
               set(options, ['statusesByRecords', id], t(Labels.IN_PROGRESS));
+              set(options, ['messagesByRecords', id], '');
 
-              return setDisplayDataRecord({ id, disp }, t(Labels.IN_PROGRESS));
+              return setDisplayDataRecord({ id, disp }, t(Labels.IN_PROGRESS), '');
             }
 
             return setDisplayDataRecord({ id, disp }, t(get(options, ['statusesByRecords', id])));
