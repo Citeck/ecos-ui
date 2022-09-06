@@ -188,12 +188,15 @@ export default class FiltersGroup extends Component {
                 'ecos-select_blue': first,
                 'ecos-select_grey': !first
               })}
-              placeholder={t('filter-list.criterion')}
+              placeholder={<span title={t('filter-list.criterion')}>{t('filter-list.criterion')}</span>}
               options={columns}
               getOptionLabel={option => option.text}
               getOptionValue={option => option.attribute}
               onChange={this.handleAddFilter}
-              styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+              styles={{
+                menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }),
+                placeholder: base => ({ ...base, width: '100%' })
+              }}
               menuPortalTarget={document.body}
               menuPlacement="auto"
               closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
@@ -202,12 +205,15 @@ export default class FiltersGroup extends Component {
             {first && (
               <Select
                 className="ecos-filters-group__select select_narrow ecos-select_blue ecosZIndexAnchor"
-                placeholder={t('filter-list.condition-group')}
+                placeholder={<span title={t('filter-list.condition-group')}>{t('filter-list.condition-group')}</span>}
                 options={groupConditions}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
                 onChange={this.handleAddGroup}
-                styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+                styles={{
+                  menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }),
+                  placeholder: base => ({ ...base, width: '100%' })
+                }}
                 menuPortalTarget={document.body}
                 menuPlacement="auto"
                 closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
