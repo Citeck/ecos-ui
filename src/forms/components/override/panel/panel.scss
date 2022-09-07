@@ -75,3 +75,8 @@ $theme-title-dark-color: 'info', 'default';
 #bd .yui-gc:not(.grid) > .yui-u .document-details-panel .formio-form .panel-body {
   padding: 13px 0 5px 0;
 }
+
+.tab-pane.active .card-body.panel-body.panel-body_scrollable,
+.tab-pane.active .card-body.panel-body.panel-body_scrollable table {
+  overflow: visible;
+}
