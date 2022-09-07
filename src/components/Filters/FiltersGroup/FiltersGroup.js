@@ -16,6 +16,7 @@ import { Filter, FiltersCondition } from '../';
 import ListItem from './ListItem';
 
 import './FiltersGroup.scss';
+import Popper from '../../common/Popper';
 
 export default class FiltersGroup extends Component {
   #filters = new Map();
@@ -137,6 +138,12 @@ export default class FiltersGroup extends Component {
     this.removeDraggableContainer();
   }
 
+  getPlaceholder = text => (
+    <Popper showAsNeeded text={text} popupClassName="ecos-formatter-popper" contentComponent={<span className="d-flex py-2">{text}</span>}>
+      {text}
+    </Popper>
+  );
+
   renderFilter = React.memo(props => {
     const { idx, filter, sourceId, metaRecord, needUpdate, groupConditions } = props;
 
@@ -188,9 +195,10 @@ export default class FiltersGroup extends Component {
                 'ecos-select_blue': first,
                 'ecos-select_grey': !first
               })}
-              placeholder={<span title={t('filter-list.criterion')}>{t('filter-list.criterion')}</span>}
+              placeholder={this.getPlaceholder(t('filter-list.criterion'))}
               options={columns}
-              getOptionLabel={option => option.text}
+              getOptionLabel={option => option.label}
+              formatOptionLabel={(option, { context } = {}) => (context === 'value' ? this.getPlaceholder(option.text) : option.text)}
               getOptionValue={option => option.attribute}
               onChange={this.handleAddFilter}
               styles={{
@@ -205,9 +213,10 @@ export default class FiltersGroup extends Component {
             {first && (
               <Select
                 className="ecos-filters-group__select select_narrow ecos-select_blue ecosZIndexAnchor"
-                placeholder={<span title={t('filter-list.condition-group')}>{t('filter-list.condition-group')}</span>}
+                placeholder={this.getPlaceholder(t('filter-list.condition-group'))}
                 options={groupConditions}
                 getOptionLabel={option => option.label}
+                formatOptionLabel={(option, { context } = {}) => (context === 'value' ? this.getPlaceholder(option.label) : option.label)}
                 getOptionValue={option => option.value}
                 onChange={this.handleAddGroup}
                 styles={{
