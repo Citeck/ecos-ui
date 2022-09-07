@@ -92,3 +92,9 @@ export const settingsInfoExamples = [
     description: t(`Seconds`)
   }
 ];
+
+export const isValidDateFormat = format => {
+  const validFormat = /^([a-zA-Z\s-:_|~./,\\])+$/g;
+  const isValid = format.match(validFormat);
+  return isValid;
+};

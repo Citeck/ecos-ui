@@ -1,28 +1,28 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { FormGroup, Collapse, Alert, Table, FormText } from 'reactstrap';
-import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
-import isFunction from 'lodash/isFunction';
-import moment from 'moment';
+import React from "react";
+import PropTypes from "prop-types";
+import { FormGroup, Collapse, Alert, Table, FormText } from "reactstrap";
+import get from "lodash/get";
+import isEqual from "lodash/isEqual";
+import isFunction from "lodash/isFunction";
+import moment from "moment";
 
-import { EcosModal, Icon } from '../../common';
-import { Input, Label } from '../../common/form';
-import { getId, t } from '../../../helpers/util';
-import { Btn } from '../../common/btns';
-import { DateFormats } from '../../../constants';
-import { settingsInfoExamples } from './utils';
+import { EcosModal, Icon } from "../../common";
+import { Input, Label } from "../../common/form";
+import { getId, t } from "../../../helpers/util";
+import { Btn } from "../../common/btns";
+import { DateFormats } from "../../../constants";
+import { isValidDateFormat, settingsInfoExamples } from "./utils";
 
 const Labels = {
-  WIDGET_NAME: 'current-tasks-widget.title',
-  WIDGET_LABEL: 'widget-settings.title',
-  CANCEL_BUTTON: 'btn.cancel.label',
-  OK_BUTTON: 'btn.apply.label',
-  EXAMPLE_DATE_FORMAT: 'current-tasks-widget.settings.example-format',
-  DATE_FORMAT_TITLE: 'current-tasks-widget.settings.date-format.title',
-  MORE_LABEL: 'current-tasks-widget.settings.info.more.label',
-  INFO_DESCRIPTION: 'current-tasks-widget.settings.info.description',
-  INVALID_FORMAT: 'current-tasks-widget.settings.invalid-format'
+  WIDGET_NAME: "current-tasks-widget.title",
+  WIDGET_LABEL: "widget-settings.title",
+  CANCEL_BUTTON: "btn.cancel.label",
+  OK_BUTTON: "btn.apply.label",
+  EXAMPLE_DATE_FORMAT: "current-tasks-widget.settings.example-format",
+  DATE_FORMAT_TITLE: "current-tasks-widget.settings.date-format.title",
+  MORE_LABEL: "current-tasks-widget.settings.info.more.label",
+  INFO_DESCRIPTION: "current-tasks-widget.settings.info.description",
+  INVALID_FORMAT: "current-tasks-widget.settings.invalid-format"
 };
 
 class Settings extends React.Component {
@@ -42,11 +42,11 @@ class Settings extends React.Component {
   constructor(props) {
     super(props);
 
-    const initialDateFormat = get(props, 'settings.dateFormat', DateFormats.DATE);
+    const initialDateFormat = get(props, "settings.dateFormat", DateFormats.DATE);
 
     this.state = {
       dateFormat: initialDateFormat,
-      isValidDateFormat: this.isValidDateFormat(initialDateFormat),
+      isValidDateFormat: isValidDateFormat(initialDateFormat),
       isOpenInfo: false,
       exampleText: this.makeExampleText(initialDateFormat)
     };
@@ -69,15 +69,9 @@ class Settings extends React.Component {
     return moment().format(dateFormat);
   }
 
-  isValidDateFormat(format) {
-    const validFormat = /^([a-zA-Z\s\-\:\_\|\~\.\,\/\\])+$/g;
-    const isValid = format.match(validFormat);
-    return isValid;
-  }
-
   handleChangeFormat = e => {
-    const dateFormat = get(e, 'target.value', '');
-    const isValid = this.isValidDateFormat(dateFormat);
+    const dateFormat = get(e, "target.value", "");
+    const isValid = isValidDateFormat(dateFormat);
     this.setState({ dateFormat, isValidDateFormat: isValid });
   };
 
@@ -159,7 +153,7 @@ class Settings extends React.Component {
             clear
             needValidCheck={true}
           />
-          <FormText color="muted" className={!isValidDateFormat ? 'ecos-current-task-settings__invalid-date-format' : ''}>
+          <FormText color="muted" className={!isValidDateFormat ? "ecos-current-task-settings__invalid-date-format" : ""}>
             {t(Labels.EXAMPLE_DATE_FORMAT, { format: exampleText })}
           </FormText>
         </FormGroup>
