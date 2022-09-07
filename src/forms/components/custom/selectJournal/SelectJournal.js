@@ -84,7 +84,21 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   fetchAsyncProperties = source => {
+    let customActionButtons = null;
+
+    if (this.component.customActionButtons) {
+      try {
+        customActionButtons = this.evaluate(this.component.customActionButtons, {}, 'value', true);
+      } catch (e) {
+        console.error("[SelectJournal fetchAsyncProperties] Can't fetch Custom action buttons", e);
+      }
+    }
+
     return new Promise(async resolve => {
+      if (customActionButtons) {
+        customActionButtons = EcosFormUtils.getCustomButtons(customActionButtons);
+      }
+
       if (!source || source.viewMode !== DisplayModes.TABLE) {
         return resolve([]);
       }
@@ -125,7 +139,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         if (customCreateVariants) {
           let fetchCustomCreateVariantsPromise;
 
-          if (customCreateVariants.then) {
+          if (_.isFunction(customCreateVariants.then)) {
             fetchCustomCreateVariantsPromise = customCreateVariants;
           } else {
             fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
@@ -214,7 +228,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
           }
 
-          Promise.all([columnsInfoPromise, inputsPromise])
+          Promise.all([columnsInfoPromise, inputsPromise, ...customActionButtons])
             .then(columnsAndInputs => {
               const [columns, inputs] = columnsAndInputs;
 
@@ -243,10 +257,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
             });
         } catch (e) {
           console.warn("[SelectJournal fetchAsyncProperties] Can't fetch Create variants", e);
-          return resolve([]);
+          return resolve([...customActionButtons]);
         }
       } else {
-        resolve([]);
+        resolve([...customActionButtons]);
       }
     });
   };

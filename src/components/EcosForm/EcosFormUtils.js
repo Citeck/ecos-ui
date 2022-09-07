@@ -479,6 +479,20 @@ export default class EcosFormUtils {
     });
   }
 
+  static getCustomButtons(buttons) {
+    return buttons.map(action => {
+      const label = Records.get(action).load('.disp');
+
+      return {
+        text: label,
+        attribute: action,
+        multiple: true,
+        default: true,
+        type: 'button'
+      };
+    });
+  }
+
   static preProcessFormDefinition(formDefinition, formOptions) {
     const newFormDefinition = cloneDeep(formDefinition);
 
