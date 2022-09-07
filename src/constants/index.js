@@ -216,6 +216,8 @@ export const DateFormats = {
   TIME: 'HH:mm'
 };
 
+export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };

@@ -5,6 +5,7 @@ import isFunction from 'lodash/isFunction';
 import { Input } from '../../../../../common/form';
 import EditorScope from '../../EditorScope';
 import BaseEditor from '../BaseEditor';
+import { IGNORED_EVENT_ATTRIBUTE } from '../../../../../../constants';
 
 export default class TextEditor extends BaseEditor {
   static TYPE = 'text';
@@ -49,6 +50,9 @@ export default class TextEditor extends BaseEditor {
           onChange={onInputChange}
           onBlur={sendDate}
           onKeyDown={_onKeyDown}
+          onMouseDown={e => {
+            e[IGNORED_EVENT_ATTRIBUTE] = true;
+          }}
           autoFocus={isCell}
         />
       );
