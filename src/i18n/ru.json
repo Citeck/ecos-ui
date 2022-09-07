@@ -674,6 +674,7 @@
   "record-action.name.export-report.msg.no-handler": "Обработчик действия не существует",
   "record-action.name.export-report.msg.done-no-url": "Выполнено, но URL не указан в результате",
   "record-action.name.export-report.msg.done-no-type": "Неизвестный тип результата",
+  "record-action.name.export-report.msg.server-error-type": "Ошибка сервера",
   "record-action.name.export-report.msg.sending-to-email": "Выгрузка генерируется и будет отправлена на адрес электронной почты, указанный в вашем профиле ECOS",
 
   "record-action.edit-journal-preset.name": "Редактировать шаблон настроек журнала",
