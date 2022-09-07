@@ -1,8 +1,8 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 import lodashGet from 'lodash/get';
 import isEqual from 'lodash/isEqual';
+import isObject from 'lodash/isObject';
 import throttle from 'lodash/throttle';
-import get from 'lodash/get';
 
 import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
@@ -282,14 +282,21 @@ export default class TabsComponent extends NestedComponent {
       class: classNames.join(' ')
     });
 
+    const getLabel = label => {
+      if (isObject(label) && this.options.language) {
+        return label[this.options.language];
+      }
+      return label;
+    };
+
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
       const tabLabel = isEqual(t(`form-constructor.tabs.${tab.key}`), `form-constructor.tabs.${tab.key}`)
-        ? tab.label
+        ? getLabel(tab.label)
         : t(`form-constructor.tabs.${tab.key}`);
 
-      if (get(tab, 'components')) {
+      if (lodashGet(tab, 'components')) {
         tab.components.forEach(el => {
           if (this.checkTranslation('label', 'content', el)) {
             el.label = t(`form-constructor.tabs-content.${el.key}`);
