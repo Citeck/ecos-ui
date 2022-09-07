@@ -1203,7 +1203,6 @@ export const tableFormCase = {
       triggerChangeWhenCalculate: false,
       eventName: '',
       customCreateVariantsJs: '',
-      customActionButtons: '',
       isStaticModalTitle: false,
       customStringForConcatWithStaticTitle: '',
       isSelectableRows: false,

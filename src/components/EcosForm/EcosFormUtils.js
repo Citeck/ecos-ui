@@ -480,8 +480,8 @@ export default class EcosFormUtils {
   }
 
   static getCustomButtons(buttons) {
-    return buttons.map(action => {
-      const label = Records.get(action).load('.disp');
+    return buttons.map(async action => {
+      const label = await Records.get(action).load('.disp');
 
       return {
         text: label,
