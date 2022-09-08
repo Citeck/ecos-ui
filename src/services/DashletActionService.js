@@ -7,7 +7,8 @@ export default class DashletActionService {
     HELP: 'help',
     RELOAD: 'reload',
     SETTINGS: 'settings',
-    BUILDER: 'builder'
+    BUILDER: 'builder',
+    CANCEL: 'cancel'
   };
 
   static uneditable = [DashletActionService.Actions.SETTINGS, DashletActionService.Actions.BUILDER];

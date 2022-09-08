@@ -56,13 +56,14 @@ export default class ButtonComponent extends FormIOButtonComponent {
     super.build();
 
     this.bindEvents();
-
     if (this.component.removeIndents && this.parent) {
       const parentEl = this.parent.element;
-
       if (!parentEl.classList.contains('col-12-manual')) {
         this.element.classList.remove('form-group');
         this.buttonElement.classList.add('btn_without-indents');
+        if (this.parent.parent) {
+          this.parent.parent.element.classList.add('ecos-form-buttons-container-manual');
+        }
       }
     }
 

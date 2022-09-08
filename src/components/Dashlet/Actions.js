@@ -61,6 +61,9 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable,
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const outputActions = [];
   const actions = {
+    cancel: {
+      component: <button type="button">{t(Labels.ACT_CANCEL)}</button>
+    },
     submit: {
       component: <button type="button">{t(Labels.ACT_SUBMIT)}</button>
     },

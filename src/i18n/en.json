@@ -252,6 +252,7 @@
 
   "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
   "dashlet.submit.button": "Submit",
+  "dashlet.cancel.button": "Cancel",
   "dashlet.edit.title": "Edit data",
   "dashlet.edit.tooltip": "Edit data",
   "dashlet.goto": "Go to",

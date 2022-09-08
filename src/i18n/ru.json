@@ -252,6 +252,7 @@
 
   "dashlet.error-boundary.msg": "При работе виджета произошла ошибка. Попробуйте обновить виджет или страницу. Если ошибка повторится, обратитесь к администратору",
   "dashlet.submit.button": "Сохранить",
+  "dashlet.cancel.button": "Отменить",
   "dashlet.edit.title": "Редактировать данные",
   "dashlet.edit.tooltip": "Редактировать данные",
   "dashlet.goto": "Перейти",
