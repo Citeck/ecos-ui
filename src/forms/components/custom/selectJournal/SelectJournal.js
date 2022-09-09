@@ -275,6 +275,24 @@ export default class SelectJournalComponent extends BaseReactComponent {
     });
   };
 
+  async getJournalId(journalId) {
+    if (!_.isEmpty(journalId)) {
+      return journalId;
+    }
+
+    let typeRef = _.get(this.root, 'options.typeRef');
+
+    if (!typeRef) {
+      typeRef = await this.getRecord().load('_type?id');
+    }
+
+    if (!typeRef) {
+      return null;
+    }
+
+    return await Records.get(typeRef).load(`attributeById.${this.key}.config.typeRef._as.ref.journalRef?localId`);
+  }
+
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
@@ -294,7 +312,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         multiple: component.multiple,
         placeholder: getTextByLocale(component.placeholder),
         disabled: component.disabled,
-        journalId: journalId,
+        journalId,
         onChange: this.onChangeValue,
         viewOnly: this.viewOnly,
         queryData,
@@ -336,8 +354,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
     };
 
     const journalId = this.component.journalId;
-    const fetchPropertiesAndResolve = journalId =>
-      this.fetchAsyncProperties(this.component.source).then(columns => resolveProps(journalId, columns));
+    const fetchPropertiesAndResolve = async journalId => {
+      const columns = await this.fetchAsyncProperties(this.component.source);
+
+      journalId = await this.getJournalId(journalId);
+
+      return resolveProps(journalId, columns);
+    };
 
     if (!journalId) {
       const attribute = this.getAttributeToEdit();

@@ -305,11 +305,23 @@ export default class TableFormComponent extends BaseReactComponent {
       switch (source.type) {
         case TableTypes.JOURNAL:
           const { journal } = source;
-          const journalId = await (journal.journalId ||
+          const displayColumns = journal.columns;
+          let journalId = await (journal.journalId ||
             this.getRecord()
               .loadEditorKey(attribute)
               .catch(() => null));
-          const displayColumns = journal.columns;
+
+          if (_.isEmpty(journalId)) {
+            let typeRef = _.get(this.root, 'options.typeRef');
+
+            if (!typeRef) {
+              typeRef = await this.getRecord().load('_type?id');
+            }
+
+            if (typeRef) {
+              journalId = await Records.get(typeRef).load(`attributeById.${this.key}.config.typeRef._as.ref.journalRef?localId`);
+            }
+          }
 
           if (!journalId) {
             return resolve({ error: new Error(t(Labels.MSG_NO_J_ID)) });
