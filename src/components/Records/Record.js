@@ -521,7 +521,7 @@ export default class Record {
     return [...linkedRecords, ...nestedLinkedRecordsFlatten];
   }
 
-  save() {
+  save(attributes) {
     if (this.isVirtual()) {
       return;
     }
@@ -536,9 +536,11 @@ export default class Record {
     return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
+
         if (record._mutClientData) {
           await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
         }
+
         if (!_.isEmpty(attributesToSave)) {
           let baseId = record.getBaseRecord().id;
           requestRecords.push({
@@ -553,7 +555,16 @@ export default class Record {
       }
 
       return recordsMutateFetch({ records: requestRecords }).then(response => {
+        let clientAttrs = {};
         let attributesToLoad = {};
+
+        if (_.isString(attributes)) {
+          clientAttrs[attributes] = attributes;
+        }
+
+        if (typeof attributes === 'object' && !_.isEmpty(attributes)) {
+          clientAttrs = { ...attributes };
+        }
 
         for (let record of requestRecords) {
           let recAtts = attributesToLoad[record.id] || {};
@@ -564,7 +575,7 @@ export default class Record {
             }
           }
 
-          attributesToLoad[record.id] = recAtts;
+          attributesToLoad[record.id] = { ...recAtts, ...clientAttrs };
         }
 
         let loadPromises = [];
@@ -579,12 +590,17 @@ export default class Record {
           }
         }
 
-        return Promise.all(loadPromises).then(() => {
+        return Promise.all(loadPromises).then(result => {
           for (let recordId of Object.keys(attributesToLoad)) {
             let record = this._records.get(recordId);
             record.events.emit(EVENT_CHANGE);
             record.update();
           }
+
+          if (!_.isEmpty(attributes)) {
+            return _.get(result, '0', {});
+          }
+
           let resultId = ((response.records || [])[0] || {}).id;
           return resultId ? this._records.get(resultId) : self;
         });
