@@ -133,7 +133,14 @@ class PropertiesDashlet extends BaseWidget {
             formType,
             DAction.Actions.CANCEL
           ),
-          onClick: () => this.setState({ formIsChanged: false }, this.onReloadDashlet)
+          onClick: () =>
+            this.setState({ formIsChanged: false }, () => {
+              const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
+
+              PropertiesApi.resetPropertipesDashlet(currentForm.state.recordId).then(() => {
+                this.onReloadDashlet();
+              });
+            })
         },
         [DAction.Actions.SUBMIT]: {
           className: getFitnesseClassName(
@@ -198,17 +205,16 @@ class PropertiesDashlet extends BaseWidget {
   };
 
   submitForm = () => {
-    const form = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
-    const submission = form._form;
+    const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
 
-    if (isFunction(form.submitForm)) {
-      try {
-        form.submitForm(form, submission);
-      } finally {
-        this.setState({ formIsChanged: false });
-        this.onReloadDashlet();
-      }
-    }
+    this.setState({ formIsChanged: false }, () => {
+      currentForm.submitForm.cancel();
+
+      const submission = currentForm._form;
+      const baseForm = get(this._propertiesRef, 'current.wrappedInstance._hiddenEcosForm.current._form');
+
+      currentForm.submitForm(baseForm, submission, true);
+    });
   };
 
   openModal = () => {

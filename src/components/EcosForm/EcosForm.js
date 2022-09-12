@@ -378,7 +378,7 @@ class EcosForm extends React.Component {
   };
 
   submitForm = debounce(
-    (form, submission) => {
+    (form, submission, forceSave = false) => {
       const self = this;
       const { recordId, containerId } = this.state;
       const inputs = EcosFormUtils.getFormInputs(form.component);
@@ -487,7 +487,7 @@ class EcosForm extends React.Component {
 
       self.toggleLoader(true);
 
-      if (this.props.saveOnSubmit !== false) {
+      if (forceSave || this.props.saveOnSubmit !== false) {
         sRecord
           .save()
           .then(persistedRecord => {
