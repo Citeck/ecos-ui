@@ -78,7 +78,7 @@ export default class RecordsExportAction extends ActionsExecutor {
         throwError(Labels.NO_RESULT, newAction);
       }
 
-      if (!result.type && result.code && result.code !== 200) {
+      if (!result.type && result.code && result.code >= 500) {
         throwError(result.error || Labels.SERVER_ERROR_TYPE, result);
       }
 
