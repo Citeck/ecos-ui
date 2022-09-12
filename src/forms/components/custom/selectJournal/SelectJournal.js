@@ -17,6 +17,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: '',
+        customActionButtonsJs: '',
         queryData: null,
         queryDataJs: '',
         presetFilterPredicatesJs: '',
@@ -84,21 +85,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
   }
 
   fetchAsyncProperties = source => {
-    let customActionButtons = null;
-
-    if (this.component.customActionButtons) {
-      try {
-        customActionButtons = this.evaluate(this.component.customActionButtons, {}, 'value', true);
-      } catch (e) {
-        console.error("[SelectJournal fetchAsyncProperties] Can't fetch Custom action buttons", e);
-      }
-    }
-
     return new Promise(async resolve => {
-      if (customActionButtons) {
-        customActionButtons = EcosFormUtils.getCustomButtons(customActionButtons);
-      }
-
       if (!source || source.viewMode !== DisplayModes.TABLE) {
         return resolve([]);
       }
@@ -228,7 +215,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
             inputsPromise = EcosFormUtils.getRecordFormInputsMap(cvRecordRef);
           }
 
-          Promise.all([columnsInfoPromise, inputsPromise, ...customActionButtons])
+          Promise.all([columnsInfoPromise, inputsPromise])
             .then(columnsAndInputs => {
               const [columns, inputs] = columnsAndInputs;
 
@@ -257,10 +244,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
             });
         } catch (e) {
           console.warn("[SelectJournal fetchAsyncProperties] Can't fetch Create variants", e);
-          return resolve([...customActionButtons]);
+          return resolve([]);
         }
       } else {
-        resolve([...customActionButtons]);
+        resolve([]);
       }
     });
   };
@@ -290,11 +277,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
   };
 
   getInitialReactProps() {
-    const resolveProps = (journalId, columns = []) => {
+    const resolveProps = async (journalId, columns = []) => {
       const component = this.component;
       const isInlineEditDisabled =
         this.options.readOnly && (_.get(this, 'options.disableInlineEdit', false) || component.disableInlineEdit);
       const isModalMode = !!(this.element && this.element.closest('.modal'));
+      const customActionButtons = component.customActionButtonsJs
+        ? this.evaluate(component.customActionButtonsJs, { dataValue: this.dataValue }, 'customActions', true)
+        : null;
       const presetFilterPredicates = component.presetFilterPredicatesJs
         ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
         : null;
@@ -327,6 +317,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
           attribute: component.sortAttribute,
           ascending: component.sortAscending !== SortOrderOptions.DESC.value
         },
+        customActionButtons: !isInlineEditDisabled ? EcosFormUtils.getCustomButtons(customActionButtons) : [],
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },

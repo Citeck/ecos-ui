@@ -2183,6 +2183,7 @@
   "form-constructor.panel.dataPreProcessingCode-panel": "Data pre-processing",
   "form-constructor.title.executionCondition-js": "Execution condition",
   "form-constructor.panel.executionCondition": "<p>Enter custom javascript code. You must assign the <strong>value</strong> variable.</p>",
+  "form-constructor.panel.actionExecutionCondition": "<p>Enter custom javascript code. You must assign the <strong>customActions</strong> variable.</p>",
   "form-constructor.html.custom-validation-code": "<small><p>Enter custom validation code. </p></br><p>You must assign the <strong>valid</strong> variable as either <strong>true</strong> or an error message if validation fails.</p></br><h5>Example:</h5><pre>valid = (input === 'Joe') ? true : 'Your name must be \"Joe\"';</pre></small>",
   "form-constructor.html.secret-validation.label": "Secret Validation",
   "form-constructor.html.secret-validation.description": "Check this if you wish to perform the validation ONLY on the server side. This keeps your validation logic private and secret.",

@@ -1,3 +1,7 @@
+import { t } from '../../../../../helpers/export/util';
+
+const CUSTOM_ACTIONS_BUTTON_FIELD = 'customActionButtonsJs';
+
 export default [
   {
     type: 'textfield',
@@ -14,5 +18,34 @@ export default [
 
 All of these options go through the localization function.
     `
+  },
+  {
+    weight: 27,
+    type: 'panel',
+    title: {
+      ru: 'Дополнительные кнопки действий',
+      en: 'Custom action buttons'
+    },
+    collapsible: true,
+    collapsed: true,
+    customClass: 'mb-3',
+    key: ''.concat(CUSTOM_ACTIONS_BUTTON_FIELD, '-js'),
+    components: [
+      {
+        type: 'textarea',
+        key: CUSTOM_ACTIONS_BUTTON_FIELD,
+        rows: 5,
+        editor: 'ace',
+        hideLabel: true,
+        input: true
+      },
+      {
+        type: 'htmlelement',
+        tag: 'div',
+        get content() {
+          return t('form-constructor.panel.actionExecutionCondition');
+        }
+      }
+    ]
   }
 ];

@@ -817,6 +817,7 @@ export default class SelectJournal extends Component {
       inputViewClass,
       autoFocus,
       onBlur,
+      customActionButtons,
       renderView,
       isSelectedValueAsText,
       isInlineEditingMode,
@@ -846,6 +847,7 @@ export default class SelectJournal extends Component {
       isInlineEditingMode,
       isModalMode,
       viewMode,
+      customActionButtons,
       selectedQueryInfo,
       gridData: {
         columns: this.getColumns(),
@@ -909,6 +911,7 @@ SelectJournal.propTypes = {
   initCustomPredicate: PropTypes.oneOfType([PropTypes.arrayOf(predicateShape), predicateShape]),
   disableResetOnApplyCustomPredicate: PropTypes.bool,
   viewOnly: PropTypes.bool,
+  customActionButtons: PropTypes.array,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
   viewMode: PropTypes.string,
@@ -923,6 +926,7 @@ SelectJournal.propTypes = {
 };
 
 SelectJournal.defaultProps = {
+  customActionButtons: [],
   isSelectModalOpen: false,
   presetFilterPredicates: []
 };

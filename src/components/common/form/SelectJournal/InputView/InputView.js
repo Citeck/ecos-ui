@@ -5,6 +5,8 @@ import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../../../helpers/util';
+import Records from '../../../../../components/Records';
+import actionsRegistry from '../../../../../components/Records/actions/actionsRegistry';
 import { createDocumentUrl } from '../../../../../helpers/urls';
 import { Tooltip } from '../../../../common';
 import { Btn, IcoBtn } from '../../../../common/btns';
@@ -12,6 +14,7 @@ import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDiscon
 import { Grid } from '../../../../common/grid';
 import { AssocLink } from '../../AssocLink';
 import { Labels } from '../constants';
+import EditAction from '../../../../Records/actions/handler/executor/EditAction';
 
 import './InputView.scss';
 
@@ -279,6 +282,37 @@ class InputView extends Component {
     );
   }
 
+  renderCustomButtons() {
+    const { customActionButtons, viewMode, selectedRows } = this.props;
+
+    if (viewMode === 'default' && customActionButtons.length > 0) {
+      return (
+        <>
+          {customActionButtons.map(button => (
+            <Btn
+              key={button.action}
+              className="ecos-btn ecos-btn_blue ecos-btn_narrow"
+              onClick={() => {
+                const action = actionsRegistry.getHandler(EditAction.ACTION_ID);
+                console.log(selectedRows);
+                action.execForRecord(Records.get(button.action), {
+                  config: {
+                    formRef: button.action,
+                    recordsToReset: []
+                  }
+                });
+              }}
+            >
+              {button.text}
+            </Btn>
+          ))}
+        </>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { error, isCompact, className } = this.props;
     const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
@@ -290,6 +324,7 @@ class InputView extends Component {
         {error && <p className="select-journal__error">{error.message}</p>}
 
         {this.renderActionButton()}
+        {this.renderCustomButtons()}
 
         {this.renderCompactList()}
       </div>
@@ -305,12 +340,13 @@ InputView.propTypes = {
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
+  hideActionButton: PropTypes.bool,
   editValue: PropTypes.func,
   deleteValue: PropTypes.func,
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
-  hideActionButton: PropTypes.bool,
+  customActionButtons: PropTypes.array,
   isSelectedValueAsText: PropTypes.bool,
   isInlineEditingMode: PropTypes.bool,
   gridData: PropTypes.object,
