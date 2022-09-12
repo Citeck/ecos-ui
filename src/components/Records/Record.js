@@ -314,9 +314,9 @@ export default class Record {
     return watcher;
   }
 
-  async load(attributes, force) {
-    let attsAliases = [];
-    let attsToLoad = [];
+  async _preProcessAttsToLoadWithClient(attributes) {
+    const attsAliases = [];
+    const attsToLoad = [];
 
     const isSingleAttribute = _.isString(attributes);
     prepareAttsToLoad(attributes, attsToLoad, attsAliases);
@@ -337,29 +337,45 @@ export default class Record {
       }
     }
 
-    let loadedAtts = await Promise.all(attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
+    return {
+      attsAliases,
+      attsToLoad,
+      attsToLoadLengthWithoutClient,
+      isSingleAttribute,
+      clientData
+    };
+  }
+
+  async _postProcessLoadedAttsWithClient(loadedAttsArr, attsLoadingCtx) {
+    const { attsAliases, attsToLoad, attsToLoadLengthWithoutClient, isSingleAttribute, clientData } = attsLoadingCtx;
 
     if (clientData) {
       const clientAtts = {};
       for (let i = attsToLoadLengthWithoutClient; i < attsToLoad.length; i++) {
-        clientAtts[attsAliases[i]] = loadedAtts[i];
+        clientAtts[attsAliases[i]] = loadedAttsArr[i];
       }
-      const mutClientData = await recordsClientManager.postProcessAtts(loadedAtts, clientAtts, clientData);
+      const mutClientData = await recordsClientManager.postProcessAtts(loadedAttsArr, clientAtts, clientData);
       if (mutClientData) {
         this._mutClientData = mutClientData;
       }
     }
 
     if (isSingleAttribute) {
-      return loadedAtts[0];
+      return loadedAttsArr[0];
     }
 
     let attsResultMap = {};
     for (let i = 0; i < attsToLoadLengthWithoutClient; i++) {
-      attsResultMap[attsAliases[i]] = loadedAtts[i];
+      attsResultMap[attsAliases[i]] = loadedAttsArr[i];
     }
 
     return attsResultMap;
+  }
+
+  async load(attributes, force) {
+    const attsLoadingCtx = await this._preProcessAttsToLoadWithClient(attributes);
+    let loadedAtts = await Promise.all(attsLoadingCtx.attsToLoad.map(att => this._loadAttWithCacheImpl(att, force)));
+    return this._postProcessLoadedAttsWithClient(loadedAtts, attsLoadingCtx);
   }
 
   async _loadAttWithCacheImpl(att, force) {
@@ -521,7 +537,81 @@ export default class Record {
     return [...linkedRecords, ...nestedLinkedRecordsFlatten];
   }
 
-  save() {
+  async _saveWithAtts(attributes) {
+    const loadAttsCtx = await this._preProcessAttsToLoadWithClient(attributes);
+    if (this.isVirtual()) {
+      return this._postProcessLoadedAttsWithClient(loadAttsCtx.attsToLoad.map(() => null), loadAttsCtx);
+    }
+
+    const recordsToSave = await this._getWhenReadyToSave().then(baseRecordToSave => {
+      return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
+    });
+    let requestRecords = [];
+
+    for (let record of recordsToSave) {
+      let attributesToSave = record.getAttributesToSave();
+
+      if (record._mutClientData) {
+        await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
+      }
+
+      if (!_.isEmpty(attributesToSave)) {
+        let baseId = record.getBaseRecord().id;
+        requestRecords.push({
+          id: baseId,
+          attributes: attributesToSave
+        });
+      }
+    }
+
+    let requestAttributes = {};
+    for (let idx = 0; idx < loadAttsCtx.attsToLoad.length; idx++) {
+      requestAttributes[idx] = loadAttsCtx.attsToLoad[idx];
+    }
+
+    const mutResponse = await recordsMutateFetch({
+      records: requestRecords,
+      attributes: requestAttributes
+    });
+
+    for (let record of requestRecords) {
+      this._records.get(record.id).reset();
+    }
+    const loadedAtts = [];
+    const respMainRecordData = _.get(mutResponse, 'records[0]', {});
+    if (respMainRecordData.id && respMainRecordData.attributes) {
+      const respMainRecord = this._records.get(respMainRecordData.id);
+      for (let attIdx in respMainRecordData.attributes) {
+        const loadedValue = respMainRecordData.attributes[attIdx];
+        loadedAtts[attIdx] = loadedValue;
+        const att = loadAttsCtx.attsToLoad[attIdx];
+        if (att) {
+          respMainRecord.persistedAtt(att, loadedValue);
+        }
+      }
+    }
+
+    const resAtts = await this._postProcessLoadedAttsWithClient(loadedAtts, loadAttsCtx);
+
+    for (let idx = requestRecords.length - 1; idx >= 0; idx--) {
+      const recordData = requestRecords[idx];
+      const record = this._records.get(recordData.id);
+      record.events.emit(EVENT_CHANGE);
+      record.update();
+    }
+
+    return resAtts;
+  }
+
+  /**
+   * Send to server in-memory changes made by method att(name, value)
+   * @param attsToLoad attributes to load from result after mutation.
+   * @returns {Promise<*|{}|*[]>}
+   */
+  async save(attsToLoad) {
+    if (attsToLoad) {
+      return this._saveWithAtts(attsToLoad);
+    }
     if (this.isVirtual()) {
       return;
     }
@@ -536,9 +626,11 @@ export default class Record {
     return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
+
         if (record._mutClientData) {
           await recordsClientManager.prepareMutation(attributesToSave, record._mutClientData);
         }
+
         if (!_.isEmpty(attributesToSave)) {
           let baseId = record.getBaseRecord().id;
           requestRecords.push({
