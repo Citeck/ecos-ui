@@ -16,6 +16,7 @@ import { getPredicates, getPredicateValue, PREDICATE_LIST_WITH_CLEARED_VALUES } 
 import EditorService from '../../Journals/service/editors/EditorService';
 import EditorScope from '../../Journals/service/editors/EditorScope';
 import { ParserPredicate } from '../predicates';
+import { IGNORED_EVENT_ATTRIBUTE } from '../../../constants';
 
 import './Filter.scss';
 
@@ -170,11 +171,11 @@ export default class Filter extends Component {
     }
   };
 
-  handleMouseDown = () => {
+  handleMouseDown = e => {
     const { value } = this.state;
     const controlValue = get(this.#controlRef, 'value');
 
-    if (controlValue !== undefined && value !== controlValue) {
+    if (controlValue !== undefined && value !== controlValue && !e[IGNORED_EVENT_ATTRIBUTE]) {
       this.onChangeValue(controlValue);
     }
   };
