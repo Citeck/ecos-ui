@@ -562,7 +562,7 @@ export default class Record {
           clientAttrs[attributes] = attributes;
         }
 
-        if (typeof attributes === 'object' && !_.isEmpty(attributes)) {
+        if (_.isObject(attributes) && !_.isEmpty(attributes)) {
           clientAttrs = { ...attributes };
         }
 
