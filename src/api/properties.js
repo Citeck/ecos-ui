@@ -6,6 +6,12 @@ export class PropertiesApi {
     return Records.get(record).load('invariants:isDraft?bool', true);
   };
 
+  static resetPropertipesDashlet = async record => {
+    const isReset = await Records.get(record).reset();
+
+    return isReset;
+  };
+
   getFormList = async function({ record }) {
     const typeRef = await Records.get(record).load('_etype?id');
 
