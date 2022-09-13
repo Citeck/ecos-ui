@@ -340,7 +340,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         reactComponentProps.initCustomPredicate = this.customPredicateValue;
       }
 
-      return _.cloneDeep(reactComponentProps);
+      return reactComponentProps;
     };
 
     const journalId = this.component.journalId;
