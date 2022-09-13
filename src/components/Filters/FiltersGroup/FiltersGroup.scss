@@ -10,12 +10,10 @@
 
   &__tools {
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
     padding: 13px 20px 10px 20px;
-
-    & :not(:last-child) {
-      margin-right: 10px;
-    }
 
     &-label {
       color: $text-color-gray;
@@ -38,7 +36,8 @@
   }
 
   &__select {
-    width: 160px;
+    min-width: 160px;
+    width: 200px;
   }
 
   &__empty {
