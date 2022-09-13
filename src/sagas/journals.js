@@ -125,7 +125,8 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
     predicates,
-    pagination: { ...pagination }
+    pagination: { ...pagination },
+    grouping: journalSetting.grouping
   };
 }
 
@@ -250,7 +251,6 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
 function* getJournalSettings(api, journalId, w, stateId) {
   const settings = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], { journalId });
   const journalConfig = yield select(selectJournalConfig, stateId);
-
   if (isArray(settings)) {
     settings.forEach(preset => {
       set(preset, 'settings.columns', JournalsConverter.filterColumnsByConfig(get(preset, 'columns'), journalConfig.columns));
@@ -307,10 +307,6 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       journalSetting = sharedSettings;
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;
-
-      if (!journalSettingId) {
-        journalSettingId = yield call(api.journals.getLsJournalSettingId, journalConfig.id);
-      }
 
       if (journalSettingId) {
         const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
@@ -638,7 +634,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       yield getJournalSettings(api, journalConfig.id, w, stateId);
 
       const settings = yield select(selectJournalSettings, stateId);
-      const selectedPreset = settings.find(setting => setting.id === stateId);
+      const selectedPreset = settings.find(setting => setting.id === journalSettingId);
 
       if (isEmpty(selectedPreset)) {
         journalSettingId = get(settings, '0.id', '');

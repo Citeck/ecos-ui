@@ -131,7 +131,7 @@ export default class JournalsConverter {
 
     const configColumnsIds = (configColumns || []).map(item => item.attribute || item.name || item.schema);
 
-    return columns.filter(item => configColumnsIds.includes(item.attribute || item.name || item.schema));
+    return columns.filter(item => configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item)));
   }
 
   static filterPredicatesByConfigColumns(predicate, configColumns) {
