@@ -22,6 +22,7 @@
   }
 
   counter-set: count-page 1;
+  margin-top: 4px;
 
   & .formio-form_view-mode dt,
   & .formio-form_view-mode dd {
@@ -186,6 +187,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 15px;
+      margin-top: -4px;
 
       &-caption {
         font-weight: $font-weight-semi-bold;

@@ -785,7 +785,9 @@ export default class SelectJournal extends Component {
             multiSelectable={multiple}
             onSelect={this.onSelectGridItem}
             className={classNames('select-journal__grid', { 'select-journal__grid_transparent': !isGridDataReady })}
-            scrollable={false}
+            scrollable
+            autoHeight
+            byContentHeight
             onRowDoubleClick={this.onRowDoubleClick}
             {...extraProps}
           />
