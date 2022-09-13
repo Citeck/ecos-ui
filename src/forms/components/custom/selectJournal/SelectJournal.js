@@ -275,6 +275,33 @@ export default class SelectJournalComponent extends BaseReactComponent {
     });
   };
 
+  getComponentAttributes = () => {
+    const comp = this.component;
+
+    return {
+      isCompact: comp.isCompact,
+      multiple: comp.multiple,
+      placeholder: getTextByLocale(comp.placeholder),
+      disabled: comp.disabled,
+      viewOnly: this.viewOnly,
+      viewMode: comp.source.viewMode,
+      displayColumns: comp.displayColumns,
+      isSelectedValueAsText: comp.isSelectedValueAsText,
+      isFullScreenWidthModal: comp.isFullScreenWidthModal,
+      isInlineEditingMode: this._isInlineEditingMode,
+      searchField: comp.searchField,
+      sortBy: {
+        attribute: comp.sortAttribute,
+        ascending: comp.sortAscending !== SortOrderOptions.DESC.value
+      },
+      // Cause https://citeck.atlassian.net/browse/ECOSUI-208
+      // If component has calculateValue, disable value reset when apply custom predicate
+      disableResetOnApplyCustomPredicate: !!comp.calculateValue,
+      title: this.modalTitle,
+      dataType: this.component.ecos.dataType
+    };
+  };
+
   getInitialReactProps() {
     const resolveProps = (journalId, columns = []) => {
       const component = this.component;
@@ -290,38 +317,19 @@ export default class SelectJournalComponent extends BaseReactComponent {
       const reactComponentProps = {
         columns: columns.length ? trimFields(columns) : undefined,
         defaultValue: this.dataValue,
-        isCompact: component.isCompact,
-        multiple: component.multiple,
-        placeholder: getTextByLocale(component.placeholder),
-        disabled: component.disabled,
         journalId: journalId,
         onChange: this.onChangeValue,
-        viewOnly: this.viewOnly,
         queryData,
-        viewMode: component.source.viewMode,
-        displayColumns: component.displayColumns,
         hideCreateButton: isInlineEditDisabled || component.hideCreateButton,
         hideEditRowButton: isInlineEditDisabled || component.hideEditRowButton,
         hideDeleteRowButton: isInlineEditDisabled || component.hideDeleteRowButton,
-        isSelectedValueAsText: component.isSelectedValueAsText,
-        isFullScreenWidthModal: component.isFullScreenWidthModal,
-        isInlineEditingMode: this._isInlineEditingMode,
         isModalMode,
         presetFilterPredicates,
-        searchField: component.searchField,
-        sortBy: {
-          attribute: component.sortAttribute,
-          ascending: component.sortAscending !== SortOrderOptions.DESC.value
-        },
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
         onError: () => undefined,
-        // Cause https://citeck.atlassian.net/browse/ECOSUI-208
-        // If component has calculateValue, disable value reset when apply custom predicate
-        disableResetOnApplyCustomPredicate: !!component.calculateValue,
-        title: this.modalTitle,
-        dataType: component.ecos.dataType
+        ...this.getComponentAttributes()
       };
 
       if (component.customSourceId) {
@@ -332,7 +340,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         reactComponentProps.initCustomPredicate = this.customPredicateValue;
       }
 
-      return reactComponentProps;
+      return _.cloneDeep(reactComponentProps);
     };
 
     const journalId = this.component.journalId;
@@ -443,7 +451,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   delayedSettingProps = _.debounce(
     props => {
-      this.setReactProps(props);
+      this.setReactProps({
+        ...props,
+        ...this.getComponentAttributes()
+      });
     },
     250,
     { maxWait: 500, trailing: true }
