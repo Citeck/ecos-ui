@@ -32,7 +32,6 @@ const originalSetInputMask = Base.prototype.setInputMask;
 const originalCreateLabel = Base.prototype.createLabel;
 const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
-const originalSetupValueElement = Base.prototype.setupValueElement;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
 const originalCreateModal = Base.prototype.createModal;
@@ -793,7 +792,11 @@ Base.prototype.setupValueElement = function(element) {
     return;
   }
 
-  originalSetupValueElement.call(this, element);
+  let value = this.getValue();
+
+  value = this.isEmpty(value) ? this.defaultViewOnlyValue : this.getView(value);
+
+  element.textContent = value;
 };
 
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-963
