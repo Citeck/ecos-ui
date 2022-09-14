@@ -1,6 +1,5 @@
-import { t } from '../../../../../helpers/export/util';
-
-const CUSTOM_ACTIONS_BUTTON_FIELD = 'customActionButtonsJs';
+const CUSTOM_ACTIONS_BUTTON_FIELD = 'hasActionButtons';
+const CREATE_VARIANT_ACTIONS_FIELD = 'createVariantActions';
 
 export default [
   {
@@ -20,32 +19,28 @@ All of these options go through the localization function.
     `
   },
   {
-    weight: 27,
-    type: 'panel',
-    title: {
-      ru: 'Дополнительные кнопки действий',
-      en: 'Custom action buttons'
+    label: {
+      ru: 'Дополнительные действия',
+      en: 'Additional actions'
     },
-    collapsible: true,
-    collapsed: true,
-    customClass: 'mb-3',
-    key: ''.concat(CUSTOM_ACTIONS_BUTTON_FIELD, '-js'),
-    components: [
-      {
-        type: 'textarea',
-        key: CUSTOM_ACTIONS_BUTTON_FIELD,
-        rows: 5,
-        editor: 'ace',
-        hideLabel: true,
-        input: true
-      },
-      {
-        type: 'htmlelement',
-        tag: 'div',
-        get content() {
-          return t('form-constructor.panel.actionExecutionCondition');
-        }
-      }
-    ]
+    journalId: 'ui-actions',
+    multiple: true,
+    displayColumns: ['moduleId', 'name', 'type'],
+    key: CUSTOM_ACTIONS_BUTTON_FIELD,
+    type: 'selectJournal',
+    refreshOn: [],
+    weight: 24,
+    input: true
+  },
+  {
+    label: {
+      ru: 'Отобразить вариаты создания в компоненте',
+      en: 'Show creation options in component'
+    },
+    type: 'checkbox',
+    input: true,
+    key: CREATE_VARIANT_ACTIONS_FIELD,
+    defaultValue: false,
+    weight: 24
   }
 ];

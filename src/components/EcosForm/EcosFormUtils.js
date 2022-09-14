@@ -479,27 +479,6 @@ export default class EcosFormUtils {
     });
   }
 
-  static async getCustomButtons(buttons) {
-    if (!isArray(buttons)) {
-      return [];
-    }
-
-    const customButtons = await Promise.all(
-      buttons.map(async action => {
-        const label = await Records.get(action).load('.disp');
-
-        return {
-          text: label,
-          action,
-          multiple: false,
-          type: 'button'
-        };
-      })
-    );
-
-    return customButtons;
-  }
-
   static preProcessFormDefinition(formDefinition, formOptions) {
     const newFormDefinition = cloneDeep(formDefinition);
 

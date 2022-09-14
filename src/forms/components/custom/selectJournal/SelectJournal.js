@@ -17,13 +17,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: '',
-        customActionButtonsJs: '',
+        hasActionButtons: [],
         queryData: null,
         queryDataJs: '',
         presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
+        createVariantActions: false,
         isFullScreenWidthModal: false,
         isSelectedValueAsText: false,
         isTableMode: false,
@@ -277,14 +278,11 @@ export default class SelectJournalComponent extends BaseReactComponent {
   };
 
   getInitialReactProps() {
-    const resolveProps = async (journalId, columns = []) => {
+    const resolveProps = (journalId, columns = []) => {
       const component = this.component;
       const isInlineEditDisabled =
         this.options.readOnly && (_.get(this, 'options.disableInlineEdit', false) || component.disableInlineEdit);
       const isModalMode = !!(this.element && this.element.closest('.modal'));
-      const customActionButtons = component.customActionButtonsJs
-        ? this.evaluate(component.customActionButtonsJs, { dataValue: this.dataValue }, 'customActions', true)
-        : null;
       const presetFilterPredicates = component.presetFilterPredicatesJs
         ? this.evaluate(component.presetFilterPredicatesJs, {}, 'value', true)
         : null;
@@ -317,7 +315,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
           attribute: component.sortAttribute,
           ascending: component.sortAscending !== SortOrderOptions.DESC.value
         },
-        customActionButtons: !isInlineEditDisabled ? EcosFormUtils.getCustomButtons(customActionButtons) : [],
         computed: {
           valueDisplayName: value => SelectJournalComponent.getValueDisplayName(this.component, value)
         },
@@ -328,6 +325,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
         title: this.modalTitle,
         dataType: component.ecos.dataType
       };
+
+      if (component.createVariantActions) {
+        reactComponentProps.createVariantActions = component.createVariantActions;
+      }
+
+      if (component.hasActionButtons) {
+        reactComponentProps.hasActionButtons = component.hasActionButtons;
+      }
 
       if (component.customSourceId) {
         reactComponentProps.customSourceId = component.customSourceId;
