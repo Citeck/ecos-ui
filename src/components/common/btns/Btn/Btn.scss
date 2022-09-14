@@ -707,4 +707,11 @@ button {
       visibility: hidden;
     }
   }
+
+  &.btn-xsm {
+    height: 26px;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-standard;
+    line-height: 0;
+  }
 }
