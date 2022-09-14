@@ -13,6 +13,7 @@ import { createDocumentUrl } from '../../../../../helpers/urls';
 import { DialogManager } from '../../../dialogs';
 import { Tooltip } from '../../../../common';
 import Select from '../../../../common/form/Select';
+import FormManager from '../../../../EcosForm/FormManager';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
@@ -20,7 +21,6 @@ import { AssocLink } from '../../AssocLink';
 import { Labels } from '../constants';
 
 import './InputView.scss';
-import FormManager from '../../../../EcosForm/FormManager';
 
 class InputView extends Component {
   #toolsRef = React.createRef();
