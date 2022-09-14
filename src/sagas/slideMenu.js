@@ -1,4 +1,3 @@
-import { LOCATION_CHANGE } from 'connected-react-router';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 
@@ -7,6 +6,7 @@ import {
   getSiteDashboardEnable,
   performAction,
   setExpandableItems,
+  setInitialSelectedId,
   setIsReady,
   setSelectedId,
   setSiteDashboardEnable,
@@ -140,7 +140,7 @@ function* headerSaga(ea) {
   yield takeLatest(getSiteDashboardEnable().type, fetchSiteDashboardEnable, ea);
   yield takeLatest(toggleIsOpen().type, sagaToggleMenu, ea);
   yield takeLatest(performAction().type, sagaPerformAction, ea);
-  yield takeLatest([setIsReady().type, LOCATION_CHANGE], sagaSetSelectedId, ea);
+  yield takeLatest([setIsReady().type, setInitialSelectedId], sagaSetSelectedId, ea);
 }
 
 export default headerSaga;
