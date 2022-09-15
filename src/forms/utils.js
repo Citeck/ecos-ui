@@ -156,9 +156,8 @@ const _expandEditForm = component => {
 
     const tabs = result.components ? result.components.find(item => item.type === 'tabs') : {};
     const filtered = tabs && tabs.components ? tabs.components.filter(item => item.key !== 'condition-reworked') : [];
-
-    const basic = tabs.components ? tabs.components.find(item => item.key === 'basic') : {};
-    const simpleLogic = basic.components ? basic.components.find(item => item.key === 'simple-conditional') : {};
+    const basic = tabs.components && tabs.components.find(item => item.key === 'basic');
+    const simpleLogic = basic && basic.components ? basic.components.find(item => item.key === 'simple-conditional') : {};
 
     if (tabs && filtered) {
       tabs.components = filtered;
