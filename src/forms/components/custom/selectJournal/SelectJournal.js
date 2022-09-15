@@ -17,14 +17,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: '',
-        hasActionButtons: [],
+        customActionRefs: [],
         queryData: null,
         queryDataJs: '',
         presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
-        createVariantActions: false,
+        enableCreateButton: false,
         isFullScreenWidthModal: false,
         isSelectedValueAsText: false,
         isTableMode: false,
@@ -326,12 +326,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
         dataType: component.ecos.dataType
       };
 
-      if (component.createVariantActions) {
-        reactComponentProps.createVariantActions = component.createVariantActions;
+      if (component.enableCreateButton) {
+        reactComponentProps.enableCreateButton = component.enableCreateButton;
       }
 
-      if (component.hasActionButtons) {
-        reactComponentProps.hasActionButtons = component.hasActionButtons;
+      if (component.customActionRefs) {
+        reactComponentProps.customActionRefs = component.customActionRefs;
       }
 
       if (component.customSourceId) {

@@ -1,5 +1,5 @@
-const CUSTOM_ACTIONS_BUTTON_FIELD = 'hasActionButtons';
-const CREATE_VARIANT_ACTIONS_FIELD = 'createVariantActions';
+const CUSTOM_ACTIONS_BUTTON_FIELD = 'customActionRefs';
+const CREATE_VARIANT_ACTIONS_FIELD = 'enableCreateButton';
 
 export default [
   {

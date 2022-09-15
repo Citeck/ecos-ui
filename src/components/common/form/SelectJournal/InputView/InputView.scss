@@ -105,32 +105,22 @@
     max-width: 7rem;
   }
 
-  .select-journal__create-variants {
+  .ecos-dropdown {
     flex: auto;
     margin: 0 0 0 10px;
-    max-height: 26px;
-    justify-content: space-between;
 
-    .select__control {
-      max-height: 26px;
-      min-height: auto;
-      font-size: 12px;
+    .ecos-dropdown__toggle {
+      display: block;
+      user-select: none;
 
-      .select__value-container {
-        display: block;
-        position: initial;
+      button {
+        padding: 0 20px;
         max-height: 26px;
-        padding-top: 0;
-        padding-bottom: 0;
-      }
-
-      .select__indicators {
-        max-height: 26px;
-
-        .select__dropdown-indicator {
-          height: 24px;
-          padding: 0 8px;
-        }
+        font-size: 12px;
+        font-weight: 600;
+        font-style: normal;
+        line-height: 20px;
+        border-radius: 6px;
       }
     }
   }

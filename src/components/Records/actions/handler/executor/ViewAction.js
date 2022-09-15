@@ -40,6 +40,7 @@ export default class ViewAction extends ActionsExecutor {
 
   isAllowedInContext(context) {
     const { mode = '' } = context;
+    console.log(context);
     return mode !== ActionModes.DASHBOARD;
   }
 
