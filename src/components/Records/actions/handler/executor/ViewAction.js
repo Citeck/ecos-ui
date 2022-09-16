@@ -9,9 +9,11 @@ export default class ViewAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
+    const { newBrowserTab = false } = context;
+
     const openInBackground = config.background === true;
     const updateUrl = config.reopen === true;
-    const openNewBrowserTab = config.newBrowserTab === true;
+    const openNewBrowserTab = newBrowserTab || config.newBrowserTab === true;
     const reopenBrowserTab = config.reopenBrowserTab === true;
     const openNewTab = openInBackground || !config.reopen;
     const openParams = {
@@ -40,7 +42,7 @@ export default class ViewAction extends ActionsExecutor {
 
   isAllowedInContext(context) {
     const { mode = '' } = context;
-    console.log(context);
+
     return mode !== ActionModes.DASHBOARD;
   }
 

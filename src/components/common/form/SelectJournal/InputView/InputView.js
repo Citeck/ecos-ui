@@ -9,7 +9,6 @@ import { getMLValue, t } from '../../../../../helpers/util';
 import Records from '../../../../../components/Records/Records';
 import RecordActions from '../../../../../components/Records/actions/recordActions';
 import { createDocumentUrl } from '../../../../../helpers/urls';
-import { DialogManager } from '../../../dialogs';
 import { Tooltip } from '../../../../common';
 import CreateVariants from '../CreateVariants';
 import { Btn, IcoBtn } from '../../../../common/btns';
@@ -105,8 +104,6 @@ class InputView extends Component {
       await RecordActions.execForRecord(recordRef, action);
     } catch {
       NotificationManager.error(t('journals.formatter.action.execution-error'));
-    } finally {
-      DialogManager.hideAllDialogs();
     }
   };
 
@@ -127,9 +124,12 @@ class InputView extends Component {
   };
 
   fetchActionButtons = records => {
-    const { customActionRefs } = this.props;
+    const refs = this.props.customActionRefs;
+    const options = {
+      newBrowserTab: this.props.isModalMode
+    };
 
-    RecordActions.getActionsForRecords(records, customActionRefs).then(({ forRecord }) => {
+    RecordActions.getActionsForRecords(records, refs, options).then(({ forRecord }) => {
       if (!isEmpty(forRecord)) {
         this.setState({ aditionalButtons: forRecord });
       }
