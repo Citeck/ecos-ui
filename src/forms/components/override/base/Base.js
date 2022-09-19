@@ -838,17 +838,16 @@ Object.defineProperty(Base.prototype, 'component', {
 
 Base.prototype.evalContext = function(additional) {
   const context = originalEvalContext.call(this, additional);
+  const utils = {
+    ...context.utils,
+    getTextByLocale,
+    getCurrentLocale
+  };
 
   return {
     ...context,
-    utils: {
-      ...context.utils,
-      getTextByLocale
-    },
-    util: {
-      ...context.utils,
-      getTextByLocale
-    }
+    utils,
+    util: utils
   };
 };
 
