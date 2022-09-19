@@ -265,6 +265,11 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} {...basePageProps} withoutFooter />}
             />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.ORGSTRUCTURE}
+              render={props => <Page pageKey={Pages.ORGSTRUCTURE} {...props} {...basePageProps} withoutFooter />}
+            />
             {/* --- TIMESHEETs end */}
 
             {/* temporary routes */}
@@ -308,6 +313,7 @@ class App extends Component {
               path={URL.TIMESHEET_IFRAME_DELEGATED}
               render={props => <Page pageKey={Pages.TIMESHEET_DELEGATED} {...props} withoutFooter />}
             />
+            <Route path={URL.ORGSTRUCTURE} render={props => <Page pageKey={Pages.ORGSTRUCTURE} {...props} withoutFooter />} />
             {/* --- TIMESHEETs end */}
 
             {/* temporary routes */}

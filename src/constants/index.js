@@ -27,7 +27,8 @@ export const URL = {
   TIMESHEET_IFRAME_SUBORDINATES: '/v2/pure-timesheet/subordinates',
   TIMESHEET_IFRAME_FOR_VERIFICATION: '/v2/pure-timesheet/for-verification',
   TIMESHEET_IFRAME_DELEGATED: '/v2/pure-timesheet/delegated',
-  FORM_COMPONENTS: '/v2/debug/formio-develop'
+  FORM_COMPONENTS: '/v2/debug/formio-develop',
+  ORGSTRUCTURE: '/v2/orgstructure'
 };
 
 export const RELOCATED_URL = {
@@ -171,7 +172,8 @@ export const Pages = {
   DEBUG_CMMN: 'debug-cmnne',
   CMMN_EDITOR: 'cmmn-editor',
   BPMN_EDITOR: 'bpmn-editor',
-  DEV_TOOLS: 'dev-tools'
+  DEV_TOOLS: 'dev-tools',
+  ORGSTRUCTURE: 'orgstructure'
 };
 
 export const AppEditions = {

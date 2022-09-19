@@ -205,6 +205,8 @@ class Layout extends Component {
     const { recordRef } = getSearchParams();
     const components = [];
 
+    console.log('widgets layout = ', widgets);
+
     widgets.forEach((widget, index) => {
       const column = JSON.parse(columnName);
       const dataWidget = {
@@ -240,6 +242,7 @@ class Layout extends Component {
 
       if (!Widget) {
         Widget = Components.get(widget.name);
+        console.log('Widget = ', Widget);
         this.#loadedWidgets[widget.name] = Widget;
       }
 
