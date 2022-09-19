@@ -20,6 +20,8 @@ export function showModalJson(data, title = 'Configuration') {
  * @returns {string}
  */
 export function getFitnesseClassName(...args) {
+  args = args.filter(item => !!item);
+
   const postfix = args.pop();
   const parts = [args.join('-'), postfix].filter(item => !!item);
 

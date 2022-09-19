@@ -128,10 +128,9 @@ class PropertiesDashlet extends BaseWidget {
     if (formMode === 'EDIT' && this.state.formIsChanged) {
       actions = {
         [DAction.Actions.CANCEL]: {
-          className: getFitnesseClassName(
-            'properties-widget btn btn-secondary btn-md eform-edit-form-btn mr-3',
-            formType,
-            DAction.Actions.CANCEL
+          className: classNames(
+            getFitnesseClassName('properties-widget', formType, DAction.Actions.CANCEL),
+            'btn btn-secondary btn-xsm eform-edit-form-btn'
           ),
           onClick: () =>
             this.setState({ formIsChanged: false }, () => {
@@ -143,10 +142,9 @@ class PropertiesDashlet extends BaseWidget {
             })
         },
         [DAction.Actions.SUBMIT]: {
-          className: getFitnesseClassName(
-            'properties-widget btn btn-primary btn-md eform-edit-form-btn mr-3',
-            formType,
-            DAction.Actions.SUBMIT
+          className: classNames(
+            getFitnesseClassName('properties-widget', formType, DAction.Actions.SUBMIT),
+            'btn btn-primary btn-xsm eform-edit-form-btn'
           ),
           onClick: this.submitForm
         }

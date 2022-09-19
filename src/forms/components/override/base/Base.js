@@ -523,6 +523,9 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         .catch(e => {
           form.showErrors(e, true);
           this.inlineEditRollback();
+        })
+        .finally(() => {
+          form.loading = false;
         });
     };
 
