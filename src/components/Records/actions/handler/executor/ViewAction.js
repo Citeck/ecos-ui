@@ -7,7 +7,7 @@ import ActionsExecutor from '../ActionsExecutor';
 export default class ViewAction extends ActionsExecutor {
   static ACTION_ID = 'view';
 
-  async execForRecord(record, action, context) {
+  async execForRecord(record, action, context = {}) {
     const { config = {} } = action;
     const { newBrowserTab = false } = context;
 
