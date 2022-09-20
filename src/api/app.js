@@ -21,6 +21,8 @@ import ConfigService, {
   LOGIN_PAGE_REDIRECT_URL
 } from '../services/config/ConfigService';
 
+let customLogoutAction = null;
+
 export class AppApi extends CommonApi {
   #isAuthenticated = true;
 
@@ -30,6 +32,10 @@ export class AppApi extends CommonApi {
     emitter.on(RESET_AUTH_STATE_EVENT, () => {
       this.#isAuthenticated = false;
     });
+  }
+
+  setCustomLogoutAction(action) {
+    customLogoutAction = action;
   }
 
   touch = (isCancelTouch = false) => {
@@ -195,6 +201,11 @@ export class AppApi extends CommonApi {
 
   static doLogOut = async () => {
     const DEF_LOGOUT = `/logout`;
+
+    if (customLogoutAction != null) {
+      customLogoutAction();
+      return;
+    }
 
     const url = await ecosFetch('/eis.json')
       .then(r => r.json())
