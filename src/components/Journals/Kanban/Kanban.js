@@ -41,6 +41,7 @@ class Kanban extends React.Component {
 
   refBody = React.createRef();
   refScroll = React.createRef();
+  refHeader = React.createRef();
 
   state = {
     isDragging: false
@@ -58,6 +59,12 @@ class Kanban extends React.Component {
       if (this.getHeight() > height && !this.isNoMore()) {
         this.props.getNextPage();
       }
+    }
+
+    const headerElement = get(this.refHeader, 'current');
+
+    if (headerElement) {
+      headerElement.style.width = `${headerElement.scrollWidth}px`;
     }
   }
 
@@ -142,7 +149,7 @@ class Kanban extends React.Component {
           onScrollFrame={this.handleScrollFrame}
           ref={this.refScroll}
         >
-          <div className="ecos-kanban__head">
+          <div className="ecos-kanban__head" ref={this.refHeader}>
             {cols.map((data, index) => (
               <HeaderColumn
                 key={`head_${selectedBoard}-${data.id}`}
