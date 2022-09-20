@@ -14,6 +14,8 @@ import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgs
 import { CommonApi } from './common';
 import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 
+let customLogoutAction = null;
+
 export class AppApi extends CommonApi {
   #isAuthenticated = true;
 
@@ -31,6 +33,10 @@ export class AppApi extends CommonApi {
       .then(resp => resp.value)
       .catch(() => '');
   };
+
+  setCustomLogoutAction(action) {
+    customLogoutAction = action;
+  }
 
   touch = () => {
     if (!this.#isAuthenticated) {
@@ -221,6 +227,11 @@ export class AppApi extends CommonApi {
 
   static doLogOut = async () => {
     const DEF_LOGOUT = `/logout`;
+
+    if (customLogoutAction != null) {
+      customLogoutAction();
+      return;
+    }
 
     const url = await ecosFetch('/eis.json')
       .then(r => r.json())
