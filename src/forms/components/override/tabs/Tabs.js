@@ -316,8 +316,10 @@ export default class TabsComponent extends NestedComponent {
 
           if (el.components) {
             el.components.forEach(item => {
-              if (this.checkTranslation('label', 'content', item)) {
-                item.label = t(`form-constructor.tabs-content.${item.key}`);
+              if (!isObject(item.label)) {
+                if (this.checkTranslation('label', 'content', item)) {
+                  item.label = t(`form-constructor.tabs-content.${item.key}`);
+                }
               }
             });
           }
