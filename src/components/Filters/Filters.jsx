@@ -228,7 +228,7 @@ class Filters extends Component {
 
   render() {
     const { isDialogShow, dialogTitle, dialogText } = this.state;
-    const { sourceId, metaRecord, className, groups } = this.props;
+    const { sourceId, metaRecord, className, groups = [] } = this.props;
 
     const length = groups.length;
     const lastIdx = length ? length - 1 : 0;
