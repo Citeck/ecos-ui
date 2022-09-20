@@ -4,7 +4,14 @@ import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
 
-import { collapseAllItems, fetchSlideMenuItems, getSiteDashboardEnable, setExpandableItems, toggleIsOpen } from '../../actions/slideMenu';
+import {
+  collapseAllItems,
+  fetchSlideMenuItems,
+  getSiteDashboardEnable,
+  setExpandableItems,
+  setInitialSelectedId,
+  toggleIsOpen
+} from '../../actions/slideMenu';
 import { isExistValue } from '../../helpers/util';
 import { SourcesId } from '../../constants';
 import Records from '../Records';
@@ -43,7 +50,7 @@ class Sidebar extends React.Component {
   }
 
   init(forceFetching = false) {
-    const { getSiteDashboardEnable, idMenu } = this.props;
+    const { getSiteDashboardEnable, idMenu, setInitialSelectedId } = this.props;
     let record = idMenu.replace(SourcesId.RESOLVED_MENU, SourcesId.MENU);
 
     if (record.indexOf(SourcesId.MENU) !== 0) {
@@ -58,6 +65,8 @@ class Sidebar extends React.Component {
     this.updateWatcher = this.recordMenu.watch('subMenu.left?json', () => {
       this.fetchItems(true);
     });
+
+    setInitialSelectedId();
   }
 
   reInit() {
@@ -143,7 +152,8 @@ const mapDispatchToProps = dispatch => ({
   toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
   getSiteDashboardEnable: () => dispatch(getSiteDashboardEnable()),
   setExpandableItems: force => dispatch(setExpandableItems({ force })),
-  collapseAllItems: () => dispatch(collapseAllItems())
+  collapseAllItems: () => dispatch(collapseAllItems()),
+  setInitialSelectedId: () => dispatch(setInitialSelectedId())
 });
 
 export default connect(
