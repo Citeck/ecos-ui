@@ -102,7 +102,9 @@ class InputView extends Component {
   onCustomActionClick = async (recordRef, action) => {
     try {
       await RecordActions.execForRecord(recordRef, action);
-    } catch {
+    } catch (e) {
+      console.error(`Exception while execForRecord. RecordRef: ${recordRef}, Action: ${action}`, e);
+
       NotificationManager.error(t('journals.formatter.action.execution-error'));
     }
   };
@@ -118,7 +120,9 @@ class InputView extends Component {
         ...variant,
         title: getMLValue(variant.name)
       }));
-    } catch {
+    } catch (e) {
+      console.error(`Error during loading journals(${journalId}) create variants`, e);
+
       return [];
     }
   };
@@ -129,11 +133,15 @@ class InputView extends Component {
       newBrowserTab: this.props.isModalMode
     };
 
-    RecordActions.getActionsForRecords(records, refs, options).then(({ forRecord }) => {
-      if (!isEmpty(forRecord)) {
-        this.setState({ aditionalButtons: forRecord });
-      }
-    });
+    RecordActions.getActionsForRecords(records, refs, options)
+      .then(({ forRecord }) => {
+        if (!isEmpty(forRecord)) {
+          this.setState({ aditionalButtons: forRecord });
+        }
+      })
+      .catch(e => {
+        console.error(`Error during loading action buttons(${refs.join(',')})`, e);
+      });
   };
 
   isNewOffsets = offsets => {
