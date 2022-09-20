@@ -56,6 +56,10 @@ class AuthService {
     };
   };
 
+  logout = () => {
+    this._kc.logout();
+  };
+
   init = () => {
     return this._loadConfig().then(eisConfig => {
       if (eisConfig.realmId === KC_REALM_ID_DEFAULT_VALUE) {

@@ -83,7 +83,7 @@ class JournalsDataLoader {
     }
     recordsQuery.sortBy = sortBy;
 
-    const attributes = this._getAttributes(journalConfig, settings);
+    const attributes = this.#getAttributes(journalConfig, settings);
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
