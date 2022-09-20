@@ -1,3 +1,6 @@
+const CUSTOM_ACTIONS_BUTTON_FIELD = 'customActionRefs';
+const CREATE_VARIANT_ACTIONS_FIELD = 'enableCreateButton';
+
 export default [
   {
     type: 'textfield',
@@ -14,5 +17,30 @@ export default [
 
 All of these options go through the localization function.
     `
+  },
+  {
+    label: {
+      ru: 'Дополнительные действия',
+      en: 'Additional actions'
+    },
+    journalId: 'ui-actions',
+    multiple: true,
+    displayColumns: ['moduleId', 'name', 'type'],
+    key: CUSTOM_ACTIONS_BUTTON_FIELD,
+    type: 'selectJournal',
+    refreshOn: [],
+    weight: 24,
+    input: true
+  },
+  {
+    label: {
+      ru: 'Отобразить вариаты создания в компоненте',
+      en: 'Show creation options in component'
+    },
+    type: 'checkbox',
+    input: true,
+    key: CREATE_VARIANT_ACTIONS_FIELD,
+    defaultValue: false,
+    weight: 24
   }
 ];

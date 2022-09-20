@@ -809,6 +809,7 @@ export default class SelectJournal extends Component {
 
   render() {
     const {
+      journalId,
       multiple,
       isCompact,
       viewOnly,
@@ -819,7 +820,9 @@ export default class SelectJournal extends Component {
       inputViewClass,
       autoFocus,
       onBlur,
+      customActionRefs,
       renderView,
+      enableCreateButton,
       isSelectedValueAsText,
       isInlineEditingMode,
       isModalMode,
@@ -829,6 +832,7 @@ export default class SelectJournal extends Component {
     const selectedQueryInfo = this.isQuery && !isEmpty(value) && t(Labels.SELECTED_LABEL, { data: gridData.total });
 
     const inputViewProps = {
+      journalId,
       disabled,
       isCompact,
       multiple,
@@ -848,6 +852,8 @@ export default class SelectJournal extends Component {
       isInlineEditingMode,
       isModalMode,
       viewMode,
+      customActionRefs,
+      enableCreateButton,
       selectedQueryInfo,
       gridData: {
         columns: this.getColumns(),
@@ -904,6 +910,7 @@ SelectJournal.propTypes = {
   isCompact: PropTypes.bool,
   isFullScreenWidthModal: PropTypes.bool,
   hideCreateButton: PropTypes.bool,
+  enableCreateButton: PropTypes.bool,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
   displayColumns: PropTypes.array,
@@ -911,6 +918,7 @@ SelectJournal.propTypes = {
   initCustomPredicate: PropTypes.oneOfType([PropTypes.arrayOf(predicateShape), predicateShape]),
   disableResetOnApplyCustomPredicate: PropTypes.bool,
   viewOnly: PropTypes.bool,
+  customActionRefs: PropTypes.array,
   renderView: PropTypes.func,
   searchField: PropTypes.string,
   viewMode: PropTypes.string,
@@ -925,6 +933,8 @@ SelectJournal.propTypes = {
 };
 
 SelectJournal.defaultProps = {
+  enableCreateButton: false,
+  customActionRefs: [],
   isSelectModalOpen: false,
   presetFilterPredicates: []
 };

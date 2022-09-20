@@ -165,9 +165,9 @@ export default class SidebarService {
           targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
           break;
         case ATypes.STATIC_LINK: {
-          targetUrl = params.url;
+          targetUrl = params.url || '';
           attributes.target = '_blank';
-          ignoreTabHandler = params.url.indexOf(NEW_VERSION_PREFIX) !== 0;
+          ignoreTabHandler = targetUrl.indexOf(NEW_VERSION_PREFIX) !== 0;
           break;
         }
         default:

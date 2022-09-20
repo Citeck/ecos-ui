@@ -17,12 +17,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
         key: 'selectJournal',
         type: 'selectJournal',
         customPredicateJs: '',
+        customActionRefs: [],
         queryData: null,
         queryDataJs: '',
         presetFilterPredicatesJs: '',
         hideCreateButton: false,
         hideEditRowButton: false,
         hideDeleteRowButton: false,
+        enableCreateButton: false,
         isFullScreenWidthModal: false,
         isSelectedValueAsText: false,
         isTableMode: false,
@@ -125,7 +127,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
         if (customCreateVariants) {
           let fetchCustomCreateVariantsPromise;
 
-          if (customCreateVariants.then) {
+          if (_.isFunction(customCreateVariants.then)) {
             fetchCustomCreateVariantsPromise = customCreateVariants;
           } else {
             fetchCustomCreateVariantsPromise = Promise.resolve(customCreateVariants);
@@ -331,6 +333,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
         onError: () => undefined,
         ...this.getComponentAttributes()
       };
+
+      if (component.enableCreateButton) {
+        reactComponentProps.enableCreateButton = component.enableCreateButton;
+      }
+
+      if (component.customActionRefs) {
+        reactComponentProps.customActionRefs = component.customActionRefs;
+      }
 
       if (component.customSourceId) {
         reactComponentProps.customSourceId = component.customSourceId;

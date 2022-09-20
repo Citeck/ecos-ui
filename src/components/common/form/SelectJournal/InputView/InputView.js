@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
+import { NotificationManager } from 'react-notifications';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 
-import { t } from '../../../../../helpers/util';
+import { getMLValue, t } from '../../../../../helpers/util';
+import Records from '../../../../../components/Records/Records';
+import RecordActions from '../../../../../components/Records/actions/recordActions';
 import { createDocumentUrl } from '../../../../../helpers/urls';
 import { Tooltip } from '../../../../common';
+import CreateVariants from '../CreateVariants';
 import { Btn, IcoBtn } from '../../../../common/btns';
 import InlineToolsDisconnected from '../../../grid/InlineTools/InlineToolsDisconnected';
 import { Grid } from '../../../../common/grid';
@@ -21,12 +25,35 @@ class InputView extends Component {
   #scrollPosition = {};
 
   state = {
+    aditionalButtons: [],
+    createVariants: [],
     inlineToolsOffsets: { height: 0, top: 0, row: {} },
     targetId: uniqueId('SelectJournal')
   };
 
   gridWrapperRef = null;
   stopBlur = false;
+
+  componentDidMount() {
+    const { createVariants } = this.state;
+
+    if (this.props.enableCreateButton && createVariants.length === 0) {
+      this.fetchCreateVariants().then(variants => {
+        this.setState({ createVariants: variants });
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps, _prevState) {
+    const { customActionRefs, selectedRows } = this.props;
+    const { aditionalButtons } = this.state;
+
+    if (customActionRefs.length > 0 && aditionalButtons.length === 0) {
+      if (prevProps.selectedRows !== selectedRows) {
+        this.fetchActionButtons(selectedRows.map(row => row.id));
+      }
+    }
+  }
 
   componentWillUnmount() {
     if (this.gridWrapperRef) {
@@ -70,6 +97,51 @@ class InputView extends Component {
       this.stopBlur = true;
       openSelectModal.call(this);
     }
+  };
+
+  onCustomActionClick = async (recordRef, action) => {
+    try {
+      await RecordActions.execForRecord(recordRef, action);
+    } catch (e) {
+      console.error(`Exception while execForRecord. RecordRef: ${recordRef}, Action: ${action}`, e);
+
+      NotificationManager.error(t('journals.formatter.action.execution-error'));
+    }
+  };
+
+  fetchCreateVariants = async () => {
+    const { journalId } = this.props;
+    const recordRef = `uiserv/rjournal@${journalId}`;
+
+    try {
+      const variants = (await Records.get(recordRef).load('createVariants[]?json', true)) || [];
+
+      return variants.map(variant => ({
+        ...variant,
+        title: getMLValue(variant.name)
+      }));
+    } catch (e) {
+      console.error(`Error during loading journals(${journalId}) create variants`, e);
+
+      return [];
+    }
+  };
+
+  fetchActionButtons = records => {
+    const refs = this.props.customActionRefs;
+    const options = {
+      newBrowserTab: this.props.isModalMode
+    };
+
+    RecordActions.getActionsForRecords(records, refs, options)
+      .then(({ forRecord }) => {
+        if (!isEmpty(forRecord)) {
+          this.setState({ aditionalButtons: forRecord });
+        }
+      })
+      .catch(e => {
+        console.error(`Error during loading action buttons(${refs.join(',')})`, e);
+      });
   };
 
   isNewOffsets = offsets => {
@@ -196,6 +268,8 @@ class InputView extends Component {
       selectedQueryInfo
     } = this.props;
 
+    const { aditionalButtons } = this.state;
+
     if (isCompact) {
       return null;
     }
@@ -206,6 +280,15 @@ class InputView extends Component {
           <div>{selectedQueryInfo}</div>
           {!disabled && (
             <div className="select-journal__values-list-actions">
+              {!isEmpty(aditionalButtons[selectedQueryInfo.id]) &&
+                aditionalButtons[selectedQueryInfo.id].map(button => (
+                  <span
+                    key={button.id}
+                    data-id={button.id}
+                    className={`icon ${button.icon}`}
+                    onClick={() => this.onCustomActionClick(selectedQueryInfo.id, button)}
+                  />
+                ))}
               {!hideDeleteRowButton && <span className="icon icon-delete" onClick={deleteValue} />}
             </div>
           )}
@@ -243,8 +326,18 @@ class InputView extends Component {
         {selectedRows.map(item => (
           <li key={item.id}>
             {this.renderSelectedValue(item)}
+
             {!disabled && (
               <div className="select-journal__values-list-actions">
+                {!isEmpty(aditionalButtons[item.id]) &&
+                  aditionalButtons[item.id].map(button => (
+                    <span
+                      key={button.id}
+                      data-id={button.id}
+                      className={`icon ${button.icon}`}
+                      onClick={() => this.onCustomActionClick(item.id, button)}
+                    />
+                  ))}
                 {!(!item.canEdit || hideEditRowButton) && (
                   <span data-id={item.id} className="icon icon-edit" onClick={() => editValue(item.id)} />
                 )}
@@ -279,6 +372,16 @@ class InputView extends Component {
     );
   }
 
+  renderCustomButtons() {
+    const { createVariants } = this.state;
+
+    if (!this.props.multiple && createVariants.length > 0) {
+      return <CreateVariants items={createVariants} />;
+    }
+
+    return null;
+  }
+
   render() {
     const { error, isCompact, className } = this.props;
     const wrapperClasses = classNames('select-journal__input-view', { 'select-journal__input-view_compact': isCompact }, className);
@@ -289,7 +392,10 @@ class InputView extends Component {
 
         {error && <p className="select-journal__error">{error.message}</p>}
 
-        {this.renderActionButton()}
+        <div className="select-journal__actions">
+          {this.renderActionButton()}
+          {this.renderCustomButtons()}
+        </div>
 
         {this.renderCompactList()}
       </div>
@@ -298,6 +404,7 @@ class InputView extends Component {
 }
 
 InputView.propTypes = {
+  journalId: PropTypes.string.isRequired,
   selectedRows: PropTypes.array,
   placeholder: PropTypes.string,
   viewMode: PropTypes.string,
@@ -305,12 +412,14 @@ InputView.propTypes = {
   disabled: PropTypes.bool,
   multiple: PropTypes.bool,
   isCompact: PropTypes.bool,
+  enableCreateButton: PropTypes.bool,
+  hideActionButton: PropTypes.bool,
   editValue: PropTypes.func,
   deleteValue: PropTypes.func,
   openSelectModal: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
-  hideActionButton: PropTypes.bool,
+  customActionRefs: PropTypes.array,
   isSelectedValueAsText: PropTypes.bool,
   isInlineEditingMode: PropTypes.bool,
   gridData: PropTypes.object,
