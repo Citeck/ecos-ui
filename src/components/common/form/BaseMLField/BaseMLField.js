@@ -208,9 +208,9 @@ class BaseMLField extends Component {
     }
   };
 
-  handleClickLang = selectedLang => {
+  handleClickLang(selectedLang) {
     this.setState({ selectedLang, cursorPosition: null });
-  };
+  }
 
   handleToggleTooltip = (isShowTooltip = !this.state.isShowTooltip) => {
     if (isShowTooltip) {

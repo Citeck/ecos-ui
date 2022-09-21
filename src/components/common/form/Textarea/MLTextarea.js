@@ -1,6 +1,7 @@
 import React from 'react';
 import AceEditor from 'react-ace';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import Textarea from './Textarea';
 import BaseMLField from '../BaseMLField';
@@ -22,14 +23,15 @@ class MlTextarea extends BaseMLField {
     inputClassName: 'textarea__ml-input'
   };
 
-  #editorId = getHtmlIdByUid('ml-textarea');
+  #editorId = getHtmlIdByUid(undefined, 'ml-textarea');
 
   constructor(props) {
     super(props);
 
     this.state = {
       ...this.state,
-      isLoadedEditor: false
+      isLoadedEditor: false,
+      currentValue: ''
     };
 
     if (props.editor) {
@@ -53,26 +55,30 @@ class MlTextarea extends BaseMLField {
     window.require(
       [
         `/js/lib/ace/1.4.1/mode-${this.props.editorLang}.js`,
-        '/js/lib/ace/1.4.1/theme-monokai.js',
         '/js/lib/ace/1.4.1/ext-language_tools.js',
+        '/js/lib/ace/1.4.1/ext-searchbox.js',
         `/js/lib/ace/1.4.1/snippets/${this.props.editorLang}.js`
       ],
-      () => {
-        this.setState({ isLoadedEditor: true });
-      }
+      () => this.setState({ isLoadedEditor: true })
     );
   }
 
   handleChangeEditor = (value, event) => {
-    console.warn({
-      value,
-      event
-    });
-    this.handleChangeText({ target: { value } });
+    this.setState({ currentValue: value });
+    this.handleChangeText({ target: { value: this.state.currentValue } });
   };
+
+  handleClickLang(selectedLang) {
+    const { value } = this.props;
+
+    super.handleClickLang(selectedLang);
+
+    this.setState({ currentValue: get(value, selectedLang, '') });
+  }
 
   renderEditor() {
     const { editorLang } = this.props;
+    const { currentValue } = this.state;
 
     if (!this.state.isLoadedEditor) {
       return null;
@@ -81,7 +87,8 @@ class MlTextarea extends BaseMLField {
     return (
       <AceEditor
         mode={editorLang}
-        value={this.value}
+        value={currentValue}
+        enableSnippets
         enableBasicAutocompletion
         enableLiveAutocompletion
         setOptions={{
@@ -90,12 +97,11 @@ class MlTextarea extends BaseMLField {
           enableLiveAutocompletion: true,
           showLineNumbers: true
         }}
-        debounceChangePeriod={300}
-        editorProps={{ $blockScrolling: true }}
+        editorProps={{
+          $blockScrolling: true
+        }}
         name={this.#editorId}
         onChange={this.handleChangeEditor}
-        // todo: возможно, стоит перенести работу над editor сюда (темы, сниппеты, тулзы)
-        onLoad={(...data) => console.warn(data)}
       />
     );
   }
