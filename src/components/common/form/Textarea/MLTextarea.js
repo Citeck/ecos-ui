@@ -1,7 +1,8 @@
 import React from 'react';
-import AceEditor from 'react-ace';
 import PropTypes from 'prop-types';
+import AceEditor from 'react-ace';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 import Textarea from './Textarea';
 import BaseMLField from '../BaseMLField';
@@ -31,7 +32,7 @@ class MlTextarea extends BaseMLField {
     this.state = {
       ...this.state,
       isLoadedEditor: false,
-      currentValue: ''
+      currentValue: this.value
     };
 
     if (props.editor) {
@@ -40,10 +41,20 @@ class MlTextarea extends BaseMLField {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { value, editor } = this.props;
+
     super.componentDidUpdate(prevProps, prevState);
 
-    if (this.props.editor && !prevProps.editor) {
+    if (editor && !prevProps.editor) {
       this.loadEditor();
+    }
+
+    if (
+      editor &&
+      Object.keys(prevProps.value).every(key => isEmpty(prevProps.value[key])) &&
+      Object.keys(value).some(key => !isEmpty(value[key]))
+    ) {
+      this.setState({ currentValue: this.value });
     }
   }
 
