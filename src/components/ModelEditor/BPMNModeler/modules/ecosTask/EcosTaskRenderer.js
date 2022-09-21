@@ -29,9 +29,6 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   drawShape(parentNode, element) {
-    const rootProcces = this.getParentProccess(element).$parent;
-    const type = this.getEcosType(rootProcces);
-
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const statusImage = svgCreate('image', {
       x: 5,
@@ -42,21 +39,25 @@ export default class CustomRenderer extends BaseRenderer {
       href: '/bpmn-editor/images/change_status_icon.svg'
     });
 
+    const rootProcces = this.getRootProccess(element);
     const statusName = this.getStatusName(element);
 
     if (!isNil(statusName) && _.isEmpty(this.getName(element))) {
-      Records.get(type)
+      Records.get(this.getEcosType(rootProcces))
         .load('model.statuses[]{value:id,label:name}', false)
         .then(statuses => {
           if (!_.isEmpty(statuses)) {
-            const label = statuses.find(field => field.value === statusName)['label'];
-            const text = `${t('dashboard-settings.widget.doc-status')}: "${label}"`;
+            const status = statuses.find(field => field.value === statusName);
 
-            this.renderLabel(parentNode, text, {
-              align: 'center-middle',
-              box: element,
-              padding: 5
-            });
+            if (status) {
+              const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
+
+              this.renderLabel(parentNode, text, {
+                align: 'center-middle',
+                box: element,
+                padding: 5
+              });
+            }
           }
         });
     }
@@ -66,8 +67,14 @@ export default class CustomRenderer extends BaseRenderer {
     return shape;
   }
 
+  getRootProccess(element) {
+    const parent = this.getParentProccess(element);
+
+    return _.get(parent, '$parent', getBusinessObject(element));
+  }
+
   getParentProccess(element) {
-    return getBusinessObject(element).$parent;
+    return _.get(getBusinessObject(element), '$parent');
   }
 
   getName(element) {
@@ -83,7 +90,7 @@ export default class CustomRenderer extends BaseRenderer {
       return element.$attrs['ecos:ecosType'];
     }
 
-    return this.getEcosType(getBusinessObject(element).$parent);
+    return this.getEcosType(this.getRootProccess(element));
   }
 
   renderLabel(parentGfx, label, options) {
