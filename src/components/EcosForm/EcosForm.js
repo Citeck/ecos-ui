@@ -19,6 +19,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { LANGUAGE_EN } from '../../constants/lang';
+import { FORM_MODE_EDIT } from './constants';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -260,6 +261,14 @@ class EcosForm extends React.Component {
           form.ecos = { custom: customModule };
           form.setValue({ data });
           form.on('submit', submission => this.submitForm(form, submission));
+          form.on(
+            'change',
+            debounce(submission => {
+              if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
+                isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission);
+              }
+            }, 1000)
+          );
 
           Object.keys(this.props)
             .filter(key => key.startsWith(HANDLER_PREFIX))

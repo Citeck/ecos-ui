@@ -33,6 +33,10 @@ export default class BaseComponent extends FormIOBase {
     return true;
   }
 
+  toString() {
+    return this.constructor.name;
+  }
+
   /**
    * Create an evaluation context for all script executions and interpolations.
    *
