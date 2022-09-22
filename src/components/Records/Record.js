@@ -603,9 +603,14 @@ export default class Record {
     return resAtts;
   }
 
-  async save(attributes) {
-    if (attributes) {
-      return this._saveWithAtts(attributes);
+  /**
+   * Send to server in-memory changes made by method att(name, value)
+   * @param attsToLoad attributes to load from result after mutation.
+   * @returns {Promise<*|{}|*[]>}
+   */
+  async save(attsToLoad) {
+    if (attsToLoad) {
+      return this._saveWithAtts(attsToLoad);
     }
     if (this.isVirtual()) {
       return;
