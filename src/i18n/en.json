@@ -634,6 +634,7 @@
 
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
+  "record-action.name.download-by-template": "Download by template",
   "record-action.name.create": "Create",
   "record-action.name.edit": "Edit",
   "record-action.name.show": "View document",

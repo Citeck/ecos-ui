@@ -40,6 +40,7 @@ import DebugFormAction from './handler/executor/DebugFormAction';
 import EditJsonAction from './handler/executor/EditJsonAction';
 import RecordsExport from './handler/executor/RecordsExport';
 import EditJournalPresetAction from './handler/executor/EditJournalPresetAction';
+import DownloadByTemplateAction from './handler/executor/DownloadByTemplateAction';
 
 export { default } from './recordActions';
 
@@ -85,6 +86,7 @@ actionsRegistry.register(new DebugFormAction());
 actionsRegistry.register(new EditJsonAction());
 actionsRegistry.register(new RecordsExport());
 actionsRegistry.register(new EditJournalPresetAction());
+actionsRegistry.register(new DownloadByTemplateAction());
 
 // Executors - Case
 

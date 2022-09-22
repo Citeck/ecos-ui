@@ -634,6 +634,7 @@
 
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
+  "record-action.name.download-by-template": "Скачать по шаблону",
   "record-action.name.create": "Создать",
   "record-action.name.edit": "Редактировать",
   "record-action.name.show": "Смотреть документ",
