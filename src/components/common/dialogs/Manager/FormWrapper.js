@@ -44,6 +44,12 @@ class FormWrapper extends React.Component {
 
   initForm() {
     if (this._form) {
+      const { onBeforeFormDestroy } = this.props;
+
+      if (isFunction(onBeforeFormDestroy)) {
+        onBeforeFormDestroy(this._form.getValue());
+      }
+
       this._form.formReadyReject();
       this._form.destroy();
       this._form = null;

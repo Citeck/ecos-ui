@@ -351,8 +351,6 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    this.cacheFormData();
-
     this._formReady = false;
 
     this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
@@ -369,6 +367,28 @@ class ModelEditorPage extends React.Component {
     this._formReady = true;
   };
 
+  handleBeforeFormDestroy = ({ data }) => {
+    const { selectedElement } = this.state;
+    let id = selectedElement.id;
+
+    if (data.id !== id) {
+      delete this._formsCache[id];
+      delete this._formsCache[id + LABEL_POSTFIX];
+      id = data.id;
+      this.designer.updateProps(selectedElement, { id });
+    }
+
+    const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
+
+    if (id.endsWith(LABEL_POSTFIX)) {
+      set(this._formsCache, [id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
+    } else {
+      set(this._formsCache, [id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
+    }
+
+    this._formsCache[id] = data;
+  };
+
   handleFormChange = (info, form) => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
@@ -381,41 +401,43 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    if (info.changed && selectedElement) {
-      const modelData = {};
-      const ecosType = get(info, 'data.ecosType');
+    if (!info.changed || !selectedElement) {
+      return;
+    }
 
-      if (!isUndefined(ecosType)) {
-        this._tempFormData = { ecosType };
+    const modelData = {};
+    const ecosType = get(info, 'data.ecosType');
+
+    if (!isUndefined(ecosType)) {
+      this._tempFormData = { ecosType };
+    }
+
+    const componentsByKey = flattenComponents(form.components);
+
+    for (let key in info.data) {
+      if (isUndefined(info.data[key]) || IGNORED_VALUE_COMPONENTS.includes(get(componentsByKey, [key, 'type']))) {
+        continue;
       }
 
-      const componentsByKey = flattenComponents(form.components);
+      const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+      const rawValue = info.data[key];
+      let valueAsText = rawValue;
 
-      for (let key in info.data) {
-        if (isUndefined(info.data[key]) || IGNORED_VALUE_COMPONENTS.includes(get(componentsByKey, [key, 'type']))) {
-          continue;
-        }
-
-        const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
-        const rawValue = info.data[key];
-        let valueAsText = rawValue;
-
-        if (valueAsText != null && !isString(valueAsText)) {
-          valueAsText = JSON.stringify(valueAsText);
-        }
-
-        modelData[fieldKey] = valueAsText;
-
-        if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
-          modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
-        }
+      if (valueAsText != null && !isString(valueAsText)) {
+        valueAsText = JSON.stringify(valueAsText);
       }
 
-      this.designer.updateProps(selectedElement, modelData);
+      modelData[fieldKey] = valueAsText;
 
-      if (selectedDiagramElement) {
-        this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
+      if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
+        modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
       }
+    }
+
+    this.designer.updateProps(selectedElement, modelData);
+
+    if (selectedDiagramElement) {
+      this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
     }
   };
 
@@ -601,6 +623,7 @@ class ModelEditorPage extends React.Component {
                   onClick={this.handleClickForm}
                   onFormChange={this.handleFormChange}
                   onFormReady={this.handleFormReady}
+                  onBeforeFormDestroy={this.handleBeforeFormDestroy}
                 />
               )}
             </>
