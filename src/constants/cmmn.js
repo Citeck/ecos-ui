@@ -65,5 +65,7 @@ export const EventListeners = {
   ELEMENT_UPDATE_ID: 'element.updateId',
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
   DRAG_START: 'drag.start',
-  ROOT_SET: 'root.set'
+  ROOT_SET: 'root.set',
+  COPY_ELEMENT: 'copyPaste.copyElement',
+  PASTE_ELEMENT: 'copyPaste.pasteElement'
 };
