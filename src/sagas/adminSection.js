@@ -54,9 +54,6 @@ function* updateActiveSection({ logger }) {
   try {
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
-
-    console.warn({ activeSection, sectionsGroup });
-
     yield put(setActiveSection(activeSection));
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e);
