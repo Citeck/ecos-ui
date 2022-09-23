@@ -14,8 +14,12 @@ const HIGH_PRIORITY = 1500;
 const LABEL_STYLE = {
   fontFamily: 'Arial, sans-serif',
   fontSize: '12px',
+  lineHeight: '1.2',
   color: '#444444'
 };
+
+const STATUS_CHANGE_ICON_PATH =
+  'm22 2zm-5 4.67c0 0 0 4.66 0 4.66 0 0 2.39-2.27 2.39-2.27 0 0 .94.94 .94.94 0 0-4 4-4 4 0 0-4-4-4-4 0 0 .95-.94.95-.94 0 0 2.39 2.27 2.39 2.27 0 0 0-4.66 0-4.66 0-.37-.3-.67-.67-.67 0 0-8 0-8 0-.37 0-.67.3-.67.67 0 0 0 7.33 0 7.33 0 0-1.33 0-1.33 0 0 0 0-7.33 0-7.33 0-1.11.9-2 2-2 0 0 8 0 8 0 1.1 0 2 .89 2 2 0 0 0 0 0 0zm-.67 15.33c-1.84 0-3.33-1.49-3.33-3.33 0-1.84 1.49-3.34 3.33-3.34 1.84 0 3.34 1.5 3.34 3.34-.01 1.84-1.5 3.33-3.34 3.33 0 0 0 0 0 0zm0-5.33c-1.1 0-2 .89-2 2 0 1.1.9 2 2 2 1.11 0 2-.9 2-2 0-1.11-.89-2-2-2 0 0 0 0 0 0zm-10.66 5.33c-1.84 0-3.34-1.49-3.34-3.33 0-1.84 1.5-3.34 3.34-3.34 1.84 0 3.33 1.5 3.33 3.34 0 1.84-1.49 3.33-3.33 3.33 0 0 0 0 0 0zm0-5.33c-1.11 0-2 .89-2 2 0 1.1.89 2 2 2 1.1 0 2-.9 2-2 0-1.11-.9-2-2-2 0 0 0 0 0 0z';
 
 export default class CustomRenderer extends BaseRenderer {
   constructor(eventBus, bpmnRenderer) {
@@ -30,13 +34,11 @@ export default class CustomRenderer extends BaseRenderer {
 
   drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
-    const statusImage = svgCreate('image', {
-      x: 5,
-      y: 5,
-      width: '20px',
-      height: '20px',
+    const statusImage = svgCreate('path', {
+      d: STATUS_CHANGE_ICON_PATH,
       opacity: '0.8',
-      href: '/bpmn-editor/images/change_status_icon.svg'
+      stroke: 'none',
+      fill: 'black'
     });
 
     const rootProcces = this.getRootProccess(element);
