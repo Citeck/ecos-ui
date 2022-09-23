@@ -8,6 +8,10 @@ export default function(...extend) {
       {
         key: 'display',
         components: [
+          {
+            type: 'mlText',
+            key: 'title'
+          },
           ...PanelEditDisplay,
           {
             label: 'Scrollable content',
@@ -24,8 +28,8 @@ export default function(...extend) {
         key: 'data',
         components: [
           // Remove component with 'defaultValue' key. Cause: https://citeck.atlassian.net/browse/ECOSCOM-2637
-          // В поле defaultValue выводилось содержимое панели, включая потомков, обязательных к заполнению.
-          // При нажатии на кнопку "Save" срабатывала валидация, форма не могла засабмититься из-за незаполненных полей.
+          // In the defaultValue field, the contents of the panel were displayed, including descendants, which must be filled in.
+          // When clicking on the "Save" button, validation was triggered, the form could not be submitted due to empty fields.
           { key: 'defaultValue', ignore: true }
         ]
       }
