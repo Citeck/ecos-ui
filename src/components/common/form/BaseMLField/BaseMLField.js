@@ -108,19 +108,13 @@ class BaseMLField extends Component {
     return get(value, selectedLang, '');
   }
 
+  get ignoredProps() {
+    return ['onChange', 'style', 'lang', 'languages', 'className', 'setWrapperProps', 'imgClassName', 'inputClassName', 'viewOnly'];
+  }
+
   get inputProps() {
     const { inputClassName, ...props } = this.props;
-    const inputProps = omit(props, [
-      'onChange',
-      'style',
-      'lang',
-      'languages',
-      'className',
-      'setWrapperProps',
-      'imgClassName',
-      'inputClassName',
-      'viewOnly'
-    ]);
+    const inputProps = omit(props, this.ignoredProps);
 
     return {
       ...inputProps,
@@ -214,9 +208,9 @@ class BaseMLField extends Component {
     }
   };
 
-  handleClickLang = selectedLang => {
+  handleClickLang(selectedLang) {
     this.setState({ selectedLang, cursorPosition: null });
-  };
+  }
 
   handleToggleTooltip = (isShowTooltip = !this.state.isShowTooltip) => {
     if (isShowTooltip) {

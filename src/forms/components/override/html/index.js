@@ -1,5 +1,5 @@
 import HTML from './HTML';
-import HTMLEditor from 'formiojs/components/html/HTML.form';
+import HTMLEditor from './HTML.form';
 
 HTML.editForm = HTMLEditor;
 
