@@ -45,6 +45,10 @@ export default class PageService {
       return PageTypes.TIMESHEET;
     }
 
+    if (type.indexOf(PageTypes.BPMN_EDITOR) === 0) {
+      return PageTypes.BPMN_EDITOR;
+    }
+
     if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
       return PageTypes.ADMIN_PAGE;
     }
@@ -60,6 +64,7 @@ export default class PageService {
     switch (_type) {
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
+      case PageTypes.BPMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
