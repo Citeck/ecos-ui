@@ -4,8 +4,24 @@ import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
+import TextUtil from 'diagram-js/lib/util/Text';
 
 import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
+
+// const originCreateText = TextUtil.prototype.createText;
+//
+// console.warn({ TextUtil });
+//
+// TextUtil.prototype.createText = function(text, options) {
+//   const res = originCreateText.call(this, text, options);
+//
+//   console.warn({
+//     res,
+//     text, options
+//   });
+//
+//   return res;
+// }
 
 /**
  * Expansion for Modeler
@@ -171,6 +187,8 @@ export default class BaseModeler {
 
     if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
+
+      // console.warn({ name });
 
       labelEditingProvider.update(element, name, name, element);
     }
