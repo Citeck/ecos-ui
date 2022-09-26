@@ -513,6 +513,7 @@ class EcosForm extends React.Component {
   );
 
   onReload(withSaveState) {
+    console.log('I am here');
     if (withSaveState) {
       this.initForm(this.state.formDefinition);
     } else {

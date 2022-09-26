@@ -12,8 +12,19 @@
   &__search {
     &__container {
       margin: 0px 20px;
-      padding: 16px;
+      padding: 16px 15px;
       background-color: #e8edef;
+    }
+    &__input-container {
+      display: flex;
+      flex-direction: row;
+      background-color: #e8edef;
+      flex-wrap: nowrap;
+    }
+  }
+  &__body {
+    &__container {
+      margin: 0 24px 12px 20px;
     }
   }
 }

@@ -2311,5 +2311,7 @@
   "day-form2": "дня",
   "day-form3": "дней",
 
-  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно"
+  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно",
+
+  "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя"
 }

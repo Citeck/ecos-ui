@@ -56,6 +56,7 @@ class PropertiesDashlet extends BaseWidget {
     super(props);
 
     this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
+    this.ref = this;
 
     this.state = {
       ...this.state,
@@ -80,6 +81,9 @@ class PropertiesDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState);
 
     if (!objectCompare(prevProps.config, this.props.config)) {
+      this.reload();
+    }
+    if (prevProps.record !== this.props.record) {
       this.reload();
     }
   }

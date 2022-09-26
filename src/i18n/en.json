@@ -2312,5 +2312,7 @@
   "day-form2": "day",
   "day-form3": "days",
 
-  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable"
+  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable",
+
+  "orgstructure-page-no-picked-person-text": "Pick user profile"
 }

@@ -11,7 +11,7 @@ import './SelectOrgstruct.scss';
 const orgStructApi = new OrgStructApi();
 
 const SelectOrgstruct = props => {
-  console.log('select orgstruct', props);
+  console.log('props = ', props);
   return (
     <SelectOrgstructProvider controlProps={props} orgStructApi={orgStructApi}>
       <SelectOrgstructRoot />

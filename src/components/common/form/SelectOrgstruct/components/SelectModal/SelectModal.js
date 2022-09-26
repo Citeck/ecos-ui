@@ -32,8 +32,6 @@ const SelectModal = () => {
     onChangePage
   } = context;
 
-  console.log('pagintation', pagination);
-
   return (
     <EcosModal
       title={modalTitle || t(Labels.TITLE)}

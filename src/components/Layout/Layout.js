@@ -234,6 +234,8 @@ class Layout extends Component {
       merge(props, widget.props);
       merge(props, commonProps);
 
+      console.log('widget props = ', props);
+
       let Widget = this.#loadedWidgets[widget.name];
 
       if (pageTabService.isActiveTab(tabId)) {

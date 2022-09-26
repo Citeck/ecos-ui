@@ -12,7 +12,8 @@ import Records from '../Records/Records';
 
 class BaseWidget extends React.Component {
   #dashletRef = null;
-  #observableFieldsToUpdate = ['_modified'];
+  #observableFieldsToUpdate = ['_modified', 'props'];
+
   #updateWatcher = null;
 
   contentRef = React.createRef();
@@ -45,7 +46,7 @@ class BaseWidget extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { onUpdate } = this.props;
     isFunction(onUpdate) && onUpdate(this);
-
+    this.updateLocalStorageDate();
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.handleUpdate();
     }
@@ -70,6 +71,10 @@ class BaseWidget extends React.Component {
 
   get instanceRecord() {
     return Records.get(this.props.record);
+  }
+
+  set instanceRecord(record) {
+    this.instanceRecord = Records.get(record);
   }
 
   get clientHeight() {

@@ -1,53 +1,59 @@
-import React, { createRef } from 'react';
-import { Icon } from '../../../components/common';
-import { Input } from '../../../components/common/form';
-import { t } from '../../../helpers/util';
+import React, { useState } from 'react';
+import { OrgStructApi } from '../../../api/orgStruct';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  DataTypes,
+  GroupTypes,
+  ROOT_GROUP_NAME,
+  TabTypes
+} from '../../../components/common/form/SelectOrgstruct/constants';
+import { SelectOrgstructProvider } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import OrgstructBody from './OrgstructBody';
+import OrgstructureSearch from './OrgstructureSearch';
+import PropTypes from 'prop-types';
 
 import './style.scss';
 
-const Labels = {
-  PLACEHOLDER: 'select-orgstruct.search.placeholder'
+const api = new OrgStructApi();
+
+const controlProps = {
+  label: 'SelectOrgstruct',
+  key: 'selectOrgstruct',
+  type: 'selectOrgstruct',
+  allowedAuthorityTypes: [AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP].join(', '),
+  allowedGroupTypes: [GroupTypes.ROLE, GroupTypes.BRANCH].join(', '),
+  rootGroupName: ROOT_GROUP_NAME,
+  allowedGroupSubTypes: [],
+  currentUserByDefault: false,
+  excludeAuthoritiesByName: '',
+  excludeAuthoritiesByType: [],
+  modalTitle: null,
+  isSelectedValueAsText: false,
+  hideTabSwitcher: false,
+  defaultTab: TabTypes.LEVELS,
+  dataType: DataTypes.NODE_REF,
+  userSearchExtraFields: '',
+  isIncludedAdminGroup: false,
+  onError: console.error,
+  onChange: () => {},
+  multiple: false
 };
 
-class Structure extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { searchValue: '' };
-  }
+const Structure = () => {
+  const [load, setReload] = useState(false);
 
-  //   onSearchIconClick() {
-  //     this.inputRef.current.focus();
-  //   }
+  const reload = () => {
+    setReload(!load);
+  };
 
-  handleSearch(value) {
-    this.setState({ searchValue: value });
-  }
-
-  onKeyDown(e) {
-    if (e.key === 'Enter') {
-      // onSubmitSearchForm();
-    }
-  }
-
-  render() {
-    const { searchValue } = this.state;
-    return (
-      <React.Fragment>
-        <div className="orgstructure-page__structure__header">Оргструктура</div>
-        <div className="orgstructure-page__search__container">
-          {/* <Icon className="icon icon-search select-orgstruct__search-icon" onClick={this.onSearchIconClick} /> */}
-          <Input
-            // getInputRef={el => (this.inputRef.current = el.current)}
-            placeholder={t(Labels.PLACEHOLDER)}
-            onKeyDown={this.onKeyDown}
-            className="select-orgstruct__search-input"
-            value={searchValue}
-            onChange={this.handleSearch}
-          />
-        </div>
-      </React.Fragment>
-    );
-  }
-}
+  return (
+    <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
+      <div className="orgstructure-page__structure__header">Оргструктура</div>
+      <OrgstructureSearch />
+      <OrgstructBody reloadList={reload} />
+    </SelectOrgstructProvider>
+  );
+};
 
 export default Structure;

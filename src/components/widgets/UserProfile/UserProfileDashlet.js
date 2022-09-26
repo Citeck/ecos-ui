@@ -42,10 +42,14 @@ class UserProfileDashlet extends BaseWidget {
     super.componentDidMount();
 
     const { getUserData } = this.props;
-
     getUserData();
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.record !== this.props.record) {
+      getUserData();
+    }
+  }
   onChangePhoto = files => {
     if (files && files.length) {
       this.props.changePhoto(files[0]);
@@ -59,7 +63,6 @@ class UserProfileDashlet extends BaseWidget {
   handleUpdate() {
     super.handleUpdate();
     this.props.getUserData();
-
     if (this.props.isCurrentUser) {
       this.props.updAppUserData();
     }
@@ -131,7 +134,9 @@ class UserProfileDashlet extends BaseWidget {
 const mapStateToProps = (state, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
+  // здесь - берется из стора, там только первый
   const profile = get(state, ['userProfile', stateId], {}) || {};
+  console.log('profile = ', profile);
   const isCurrentUser = get(state, 'user.recordRef') === record;
 
   return {

@@ -1,0 +1,35 @@
+@import '../../../../../styles/constants';
+
+.select-orgstruct__list-item-label.orgstructure-page {
+  width: 100%;
+}
+
+.orgstructure-page__list-item-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.orgstructure-page__list-item-icons .icon-user-away::before {
+  color: #ff5721;
+}
+
+.orgstructure-page__list-item-icons .icon-user-normal::before {
+  color: #756f5d;
+}
+
+.orgstructure-page__list-item-icons .icon-users.orange::before {
+  color: #ff5721;
+}
+
+.orgstructure-page__list-item-icons .icon-users.green::before {
+  color: #00c308;
+}
+
+.orgstructure-page__list-item-icons .icon-user-online::before {
+  color: #00c308;
+}
+
+.orgstructure-page-modal {
+  width: 45vw;
+}
