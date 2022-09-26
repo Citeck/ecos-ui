@@ -47,6 +47,10 @@
       }
     }
 
+    div[class*='formio-component-submit'] {
+      display: none;
+    }
+
     & .formio-form .card .card-body {
       padding-top: 10px;
     }

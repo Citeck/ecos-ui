@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { t } from '../../../helpers/util';
 import EcosForm from '../../EcosForm/EcosForm';
@@ -25,6 +28,7 @@ class Properties extends React.Component {
     minHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     forwardedRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
     onInlineEditSave: PropTypes.func,
+    onFormIsChanged: PropTypes.func.isRequired,
     scrollProps: PropTypes.object,
     isDraft: PropTypes.bool
   };
@@ -42,6 +46,7 @@ class Properties extends React.Component {
     loaded: false,
     isLoading: false,
     isReadySubmit: true,
+    initData: {},
     contentHeight: 0
   };
 
@@ -62,7 +67,13 @@ class Properties extends React.Component {
   };
 
   onReady = debounce(() => {
-    this.setState({ loaded: true });
+    const formData = get(this._ecosForm, 'current._form.data');
+    const initData = cloneDeep(formData);
+
+    this.setState({
+      initData,
+      loaded: true
+    });
   }, 350);
 
   onToggleLoader = (isLoading = !this.state.isLoading) => {
@@ -72,10 +83,20 @@ class Properties extends React.Component {
   onShowBuilder = () => {
     const onShowFormBuilder = get(this._hiddenEcosForm, 'current.onShowFormBuilder');
 
-    if (typeof onShowFormBuilder === 'function') {
+    if (isFunction(onShowFormBuilder)) {
       onShowFormBuilder(() => {
         this.setState({ isReadySubmit: false }, () => this.setState({ isReadySubmit: true }));
       });
+    }
+  };
+
+  onFormChanged = submission => {
+    const { initData } = this.state;
+
+    if (isFunction(this.props.onFormIsChanged)) {
+      const isChanged = !isEqual(initData, submission.data);
+
+      this.props.onFormIsChanged(isChanged);
     }
   };
 
@@ -115,7 +136,7 @@ class Properties extends React.Component {
           record={record}
           formId={formId}
           options={{
-            readOnly: true,
+            readOnly: formMode !== FORM_MODE_EDIT,
             viewAsHtml: true,
             fullWidthColumns: isSmallMode,
             viewAsHtmlConfig: {
@@ -125,8 +146,8 @@ class Properties extends React.Component {
             saveDraft: isDraft,
             onInlineEditSave
           }}
-          saveOnSubmit={formMode !== FORM_MODE_EDIT}
           onFormSubmitDone={onUpdate}
+          onFormChanged={this.onFormChanged}
           onReady={this.onReady}
           onToggleLoader={this.onToggleLoader}
           className={classNames('ecos-properties__formio', {

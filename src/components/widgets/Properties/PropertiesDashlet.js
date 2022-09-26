@@ -202,6 +202,10 @@ class PropertiesDashlet extends BaseWidget {
     }
   };
 
+  onFormIsChanged = (trigger, callback) => {
+    this.setState({ formIsChanged: !!trigger }, callback);
+  };
+
   submitForm = () => {
     const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
 
@@ -298,6 +302,7 @@ class PropertiesDashlet extends BaseWidget {
           stateId={id}
           minHeight={previousHeight}
           onUpdate={this.onPropertiesUpdate}
+          onFormIsChanged={this.onFormIsChanged}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}

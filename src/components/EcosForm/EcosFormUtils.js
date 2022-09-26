@@ -1152,6 +1152,24 @@ export default class EcosFormUtils {
 
     return FORM_MODE_EDIT;
   }
+
+  static isFormChangedByUser({ changed }) {
+    if (!changed) {
+      return false;
+    }
+
+    const { instance } = changed;
+
+    if (!instance) {
+      return false;
+    }
+
+    if (instance.toString() === 'AsyncDataComponent') {
+      return false;
+    }
+
+    return true;
+  }
 }
 
 window.Citeck = window.Citeck || {};
