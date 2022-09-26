@@ -53,6 +53,7 @@ class ModelEditorPage extends React.Component {
   _formsCache = {};
 
   #prevMultiInstanceType = null;
+  #copiedElements = new Map();
 
   componentDidMount() {
     this.initModeler();
@@ -72,6 +73,7 @@ class ModelEditorPage extends React.Component {
 
   componentWillUnmount() {
     this.designer && this.designer.destroy();
+    this.#copiedElements.clear();
   }
 
   initModeler = () => {};
@@ -121,7 +123,48 @@ class ModelEditorPage extends React.Component {
   }
 
   getElement(element = {}) {
-    return this.designer.modeler.get('elementRegistry').find(e => e.id === element.id);
+    return this.designer.modeler.get('elementRegistry').get(element.id);
+  }
+
+  /**
+   * Need for custom copy-paste
+   * https://github.com/nikku/bpmn-js-copy-paste-example
+   * @returns {*}
+   */
+  get clipboard() {
+    return this.designer.modeler.get('clipboard');
+  }
+
+  /**
+   * Need for custom copy-paste
+   * https://github.com/nikku/bpmn-js-copy-paste-example
+   * @returns {*}
+   */
+  get copyPaste() {
+    return this.designer.modeler.get('copyPaste');
+  }
+
+  /**
+   * Need for custom copy-paste
+   * https://github.com/nikku/bpmn-js-copy-paste-example
+   * @returns {*}
+   */
+  get moddle() {
+    return this.designer.modeler.get('moddle');
+  }
+
+  get formData() {
+    const formData = get(this.props, 'formProps.formData');
+    const { selectedElement } = this.state;
+
+    if (!selectedElement || !selectedElement.id) {
+      return formData;
+    }
+
+    return {
+      ...formData,
+      ...get(this._formsCache, selectedElement.id, {})
+    };
   }
 
   #getMultiInstanceType = () => {
@@ -214,7 +257,7 @@ class ModelEditorPage extends React.Component {
     };
   }
 
-  handleReadySheet = (...data) => {
+  handleReadySheet = () => {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
@@ -527,6 +570,15 @@ class ModelEditorPage extends React.Component {
     this.handleSelectItem(element);
   };
 
+  handleCopyElement = event => {
+    this.#copiedElements.set(event.element.id, get(event, 'element.businessObject.$attrs') || {});
+  };
+
+  handlePasteElement = event => {
+    this.designer.updateProps(event.descriptor, this.#copiedElements.get(event.descriptor.id));
+    this.#copiedElements.delete(event.descriptor.id);
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -543,7 +595,9 @@ class ModelEditorPage extends React.Component {
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
             [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.ROOT_SET]: this.handleSetRoot
+            [EventListeners.ROOT_SET]: this.handleSetRoot,
+            [EventListeners.COPY_ELEMENT]: this.handleCopyElement,
+            [EventListeners.PASTE_ELEMENT]: this.handlePasteElement
           }}
         />
       );
@@ -551,20 +605,6 @@ class ModelEditorPage extends React.Component {
       return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;
     }
   };
-
-  get formData() {
-    const formData = get(this.props, 'formProps.formData');
-    const { selectedElement } = this.state;
-
-    if (!selectedElement || !selectedElement.id) {
-      return formData;
-    }
-
-    return {
-      ...formData,
-      ...get(this._formsCache, selectedElement.id, {})
-    };
-  }
 
   render() {
     const { title, formProps, isLoading } = this.props;
