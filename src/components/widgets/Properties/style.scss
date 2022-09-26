@@ -47,8 +47,7 @@
       }
     }
 
-    .formio-component-submit,
-    .formio-component-submit2 {
+    div[class*='formio-component-submit'] {
       display: none;
     }
 
