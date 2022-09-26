@@ -375,7 +375,7 @@ class InputView extends Component {
   renderCustomButtons() {
     const { createVariants } = this.state;
 
-    if (!this.props.multiple && createVariants.length > 0) {
+    if (createVariants.length > 0) {
       return <CreateVariants items={createVariants} />;
     }
 
