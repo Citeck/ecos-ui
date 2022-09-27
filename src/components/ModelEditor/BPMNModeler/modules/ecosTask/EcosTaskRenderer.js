@@ -34,6 +34,7 @@ export default class CustomRenderer extends BaseRenderer {
 
   drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
+
     const statusImage = svgCreate('path', {
       d: STATUS_CHANGE_ICON_PATH,
       opacity: '0.8',
@@ -41,32 +42,34 @@ export default class CustomRenderer extends BaseRenderer {
       fill: 'black'
     });
 
-    const rootProcces = this.getRootProccess(element);
-    const statusName = this.getStatusName(element);
-
-    if (!isNil(statusName) && _.isEmpty(this.getName(element))) {
-      Records.get(this.getEcosType(rootProcces))
-        .load('model.statuses[]{value:id,label:name}', false)
-        .then(statuses => {
-          if (!_.isEmpty(statuses)) {
-            const status = statuses.find(field => field.value === statusName);
-
-            if (status) {
-              const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
-
-              this.renderLabel(parentNode, text, {
-                align: 'center-middle',
-                box: element,
-                padding: 5
-              });
-            }
-          }
-        });
-    }
-
     svgAppend(parentNode, statusImage);
 
-    return shape;
+    if (is(element, ECOS_TASK_BASE_ELEMENT)) {
+      const rootProcces = this.getRootProccess(element);
+      const statusName = this.getStatusName(element);
+
+      if (!isNil(statusName) && _.isEmpty(this.getName(element))) {
+        Records.get(this.getEcosType(rootProcces))
+          .load('model.statuses[]{value:id,label:name}', false)
+          .then(statuses => {
+            if (!_.isEmpty(statuses)) {
+              const status = statuses.find(field => field.value === statusName);
+
+              if (status) {
+                const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
+
+                this.renderLabel(parentNode, text, {
+                  align: 'center-middle',
+                  box: element,
+                  padding: 5
+                });
+              }
+            }
+          });
+      }
+
+      return shape;
+    }
   }
 
   getRootProccess(element) {
@@ -100,7 +103,7 @@ export default class CustomRenderer extends BaseRenderer {
       style: LABEL_STYLE
     });
 
-    const text = textUtil.createText(label || '', options);
+    const text = textUtil.createText(label, options);
     const textNode = svgSelect(parentGfx, 'text');
 
     svgRemove(textNode);
