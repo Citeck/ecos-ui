@@ -1,4 +1,7 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 import { overrideTriggerChange } from '../misc';
 
 export default class TextFieldComponent extends FormIOTextFieldComponent {
@@ -26,6 +29,12 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
           minWords: '',
           maxWords: '',
           pattern: ''
+        },
+        isTypeahead: false,
+        data: {
+          custom: '',
+          values: '',
+          json: ''
         }
       },
       ...extend
@@ -40,5 +49,34 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+  }
+
+  get typeahead() {
+    const { data } = this.component;
+
+    if (!isEmpty(data.custom)) {
+      return this.evaluate(
+        data.custom,
+        {
+          values: []
+        },
+        'values'
+      );
+    }
+
+    if (!isEmpty(data.values)) {
+      return data.values;
+    }
+
+    if (!isEmpty(data.json)) {
+      return JSON.parse(data.json);
+    }
+
+    return [];
+  }
+
+  onChange(...data) {
+    console.warn(this.typeahead);
+    super.onChange.call(this, ...data);
   }
 }
