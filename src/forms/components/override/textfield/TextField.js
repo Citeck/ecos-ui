@@ -1,5 +1,6 @@
 import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 
 import { overrideTriggerChange } from '../misc';
@@ -75,8 +76,85 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     return [];
   }
 
+  clearTypeahead() {
+    if (this.component.isTypeahead) {
+      this.typeaheadElement.classList.add('d-none');
+      this.typeaheadElement.innerHTML = null;
+    }
+  }
+
+  createTypeaheadElement() {
+    if (!this.component.isTypeahead || !this.input) {
+      return;
+    }
+
+    this.typeaheadElement = this.ce('ul', {
+      class: 'd-none formio-component-textfield__typeahead'
+    });
+
+    if (this.element.lastChild.isSameNode(this.input)) {
+      this.element.appendChild(this.typeaheadElement);
+    } else {
+      this.element.insertBefore(this.typeaheadElement, this.input.nextSibling);
+    }
+
+    this.typeaheadElement.addEventListener('click', this.onClickTypeahead, { capture: true });
+  }
+
+  createInput(container) {
+    this.input = super.createInput(container);
+
+    this.createTypeaheadElement();
+
+    this.addEventListener(this.input, 'blur', this.onInputBlur);
+    this.addEventListener(this.input, 'focus', () => {
+      this.onInputBlur.cancel();
+      this.calculateTypeahead();
+    });
+
+    return this.input;
+  }
+
+  calculateTypeahead() {
+    if (!this.component.isTypeahead) {
+      return;
+    }
+
+    if (!isEmpty(this.typeahead) && Array.isArray(this.typeahead)) {
+      this.typeaheadElement.innerHTML = null;
+      this.typeahead.forEach(item => {
+        if (String(item).includes(this.dataValue)) {
+          this.typeaheadElement.appendChild(
+            this.ce(
+              'li',
+              {
+                class: 'formio-component-textfield__typeahead-item'
+              },
+              item
+            )
+          );
+        }
+      });
+      this.typeaheadElement.classList.remove('d-none');
+    }
+
+    if (isEmpty(this.dataValue)) {
+      this.clearTypeahead();
+    }
+  }
+
+  onInputBlur = debounce(() => {
+    this.clearTypeahead();
+  }, 300);
+
+  onClickTypeahead = event => {
+    this.setValue(get(event, 'target.innerText'));
+    this.input.focus();
+  };
+
   onChange(...data) {
-    console.warn(this.typeahead);
+    this.calculateTypeahead();
+
     super.onChange.call(this, ...data);
   }
 }

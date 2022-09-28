@@ -1,0 +1,41 @@
+@import '../../../constants';
+
+.formio-component-textfield {
+  $textfield: &;
+
+  //& > input {
+  //  &:hover, &:focus {
+  //    #{$textfield}__typeahead {
+  //      border-top-color: $color-blue-light;
+  //    }
+  //  }
+  //}
+
+  & > input {
+    position: relative;
+    z-index: 2;
+  }
+
+  &__typeahead {
+    position: absolute;
+    background: white;
+    padding-top: 3px;
+    width: 100%;
+    top: 93%;
+    z-index: 1;
+    border: 2px $color-gray-6 solid;
+    border-top: none;
+    border-bottom-left-radius: $border-radius-standard;
+    border-bottom-right-radius: $border-radius-standard;
+
+    &-item {
+      padding: 5px 10px;
+      cursor: pointer;
+
+      &:hover {
+        background: $color-blue-light;
+        color: white;
+      }
+    }
+  }
+}
