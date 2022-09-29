@@ -125,7 +125,7 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
       this.typeahead.forEach(item => {
         const text = String(item);
 
-        if (text.includes(this.dataValue) && text !== this.dataValue) {
+        if (text.includes(this.dataValue)) {
           this.typeaheadElement.appendChild(
             this.ce(
               'li',
