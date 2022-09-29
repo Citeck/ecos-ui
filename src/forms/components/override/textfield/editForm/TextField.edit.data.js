@@ -10,6 +10,10 @@ export default [
     label: {
       en: 'Typeahead',
       ru: 'Упреждающий ввод'
+    },
+    tooltip: {
+      ru: 'Подсказка при вводе - выпадающий список с подходящими под введённые символы вариантами',
+      en: 'Prompt when entering - a drop-down list with options suitable for the entered characters'
     }
   },
   {
@@ -41,7 +45,7 @@ export default [
     editor: 'ace',
     weight: 107,
     input: true,
-    key: 'data.json',
+    key: 'hintData.json',
     label: 'Data Source Raw JSON',
     tooltip: 'A raw JSON array to use as a data source.',
     clearOnHide: true,
@@ -54,7 +58,7 @@ export default [
   {
     type: 'textarea',
     input: true,
-    key: 'data.custom',
+    key: 'hintData.custom',
     label: 'Custom Values',
     editor: 'ace',
     rows: 10,
@@ -75,7 +79,7 @@ export default [
     label: 'Data Source Values',
     storeas: 'array',
     clearOnHide: true,
-    key: 'data.values',
+    key: 'hintData.values',
     conditional: {
       json: { '===': [{ var: 'data.dataSrc' }, 'values'] }
     }

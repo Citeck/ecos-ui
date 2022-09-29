@@ -32,7 +32,7 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
           pattern: ''
         },
         isTypeahead: false,
-        data: {
+        hintData: {
           custom: '',
           values: '',
           json: ''
@@ -53,11 +53,11 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
   }
 
   get typeahead() {
-    const { data } = this.component;
+    const { hintData } = this.component;
 
-    if (!isEmpty(data.custom)) {
+    if (!isEmpty(hintData.custom)) {
       return this.evaluate(
-        data.custom,
+        hintData.custom,
         {
           values: []
         },
@@ -65,12 +65,12 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
       );
     }
 
-    if (!isEmpty(data.values)) {
-      return data.values;
+    if (!isEmpty(hintData.values)) {
+      return hintData.values;
     }
 
-    if (!isEmpty(data.json)) {
-      return JSON.parse(data.json);
+    if (!isEmpty(hintData.json)) {
+      return JSON.parse(hintData.json);
     }
 
     return [];
@@ -123,7 +123,9 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     if (!isEmpty(this.typeahead) && Array.isArray(this.typeahead)) {
       this.typeaheadElement.innerHTML = null;
       this.typeahead.forEach(item => {
-        if (String(item).includes(this.dataValue)) {
+        const text = String(item);
+
+        if (text.includes(this.dataValue) && text !== this.dataValue) {
           this.typeaheadElement.appendChild(
             this.ce(
               'li',
