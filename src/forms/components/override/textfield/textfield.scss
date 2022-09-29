@@ -1,16 +1,6 @@
 @import '../../../constants';
 
 .formio-component-textfield {
-  $textfield: &;
-
-  //& > input {
-  //  &:hover, &:focus {
-  //    #{$textfield}__typeahead {
-  //      border-top-color: $color-blue-light;
-  //    }
-  //  }
-  //}
-
   & > input {
     position: relative;
     z-index: 2;
