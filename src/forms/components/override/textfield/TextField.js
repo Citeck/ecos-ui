@@ -2,6 +2,7 @@ import FormIOTextFieldComponent from 'formiojs/components/textfield/TextField';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -92,10 +93,18 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
       class: 'd-none formio-component-textfield__typeahead'
     });
 
+    const wrapper = this.ce(
+      'div',
+      {
+        style: 'position:relative;'
+      },
+      this.typeaheadElement
+    );
+
     if (this.element.lastChild.isSameNode(this.input)) {
-      this.element.appendChild(this.typeaheadElement);
+      this.element.appendChild(wrapper);
     } else {
-      this.element.insertBefore(this.typeaheadElement, this.input.nextSibling);
+      this.element.insertBefore(wrapper, this.input.nextSibling);
     }
 
     this.typeaheadElement.addEventListener('click', this.onClickTypeahead, { capture: true });
@@ -107,25 +116,43 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
     this.createTypeaheadElement();
 
     this.addEventListener(this.input, 'blur', this.onInputBlur);
-    this.addEventListener(this.input, 'focus', () => {
+    this.addEventListener(this.input, 'focus', event => {
       this.onInputBlur.cancel();
-      this.calculateTypeahead();
+      this.calculateTypeahead(event.target.value);
     });
 
     return this.input;
   }
 
-  calculateTypeahead() {
-    if (!this.component.isTypeahead) {
+  async calculateTypeahead(value) {
+    if (!this.component.isTypeahead || !this.typeaheadElement) {
       return;
     }
 
-    if (!isEmpty(this.typeahead) && Array.isArray(this.typeahead)) {
+    const isEmptyDataValue = isEmpty(value);
+
+    if (isEmptyDataValue) {
+      this.clearTypeahead();
+    }
+
+    let data = this.typeahead;
+
+    if (isFunction(get(data, 'then'))) {
+      data = await data;
+    }
+
+    if (isEmpty(data)) {
+      this.clearTypeahead();
+      return;
+    }
+
+    if (Array.isArray(data)) {
       this.typeaheadElement.innerHTML = null;
-      this.typeahead.forEach(item => {
+
+      data.forEach(item => {
         const text = String(item);
 
-        if (text.includes(this.dataValue)) {
+        if (isEmptyDataValue || text.includes(value)) {
           this.typeaheadElement.appendChild(
             this.ce(
               'li',
@@ -139,10 +166,6 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
       });
       this.typeaheadElement.classList.remove('d-none');
     }
-
-    if (isEmpty(this.dataValue)) {
-      this.clearTypeahead();
-    }
   }
 
   onInputBlur = debounce(() => {
@@ -155,7 +178,7 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
   };
 
   onChange(...data) {
-    this.calculateTypeahead();
+    this.calculateTypeahead(this.dataValue);
 
     super.onChange.call(this, ...data);
   }
