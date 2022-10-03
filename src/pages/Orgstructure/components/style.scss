@@ -25,8 +25,13 @@
   &__body {
     &__container {
       position: relative;
-      height: 70%;
+      height: 75%;
       margin: 0 24px 12px 20px;
     }
   }
+}
+
+.orgstructure-page__body__container .select-orgstruct__list-wrapper {
+  width: max-content;
+  min-width: 100%;
 }

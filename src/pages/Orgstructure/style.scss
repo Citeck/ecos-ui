@@ -1,3 +1,6 @@
+.app-content.orgstructure-page {
+  overflow: hidden;
+}
 .orgstructure-page {
   &__grid {
     &__container {
@@ -7,22 +10,30 @@
       grid-column-gap: 24px;
       grid-row-gap: 0px;
       padding-top: 23px;
+      height: 100%;
     }
     &__main {
       position: relative;
       margin-left: 12px;
       width: 100%;
-      height: 85vh;
+      height: 100%;
       overflow: hidden;
       background-color: white;
       border-radius: 12px;
+      overflow-y: hidden;
     }
     &__widgets {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-column-gap: 10px;
-      grid-row-gap: 10px;
-      padding-right: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      grid-gap: 10px;
+      padding-right: 10px;
+      overflow: auto;
+    }
+    &__widgets-block {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+      padding-bottom: 20px;
     }
     &__empty-widgets {
       display: flex;
