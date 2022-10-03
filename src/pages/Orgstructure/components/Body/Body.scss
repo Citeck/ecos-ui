@@ -1,5 +1,10 @@
 .select-orgstruct__body {
   margin: 10px -15px;
+  height: 100%;
+
+  .slide-menu-list {
+    max-height: max-content;
+  }
 }
 
 .select-orgstruct__list-wrapper {

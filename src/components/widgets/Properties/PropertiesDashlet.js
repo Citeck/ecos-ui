@@ -83,6 +83,7 @@ class PropertiesDashlet extends BaseWidget {
     if (!objectCompare(prevProps.config, this.props.config)) {
       this.reload();
     }
+
     if (prevProps.record !== this.props.record) {
       this.reload();
     }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import { OrgStructApi } from '../../../api/orgStruct';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -9,13 +10,17 @@ import {
   TabTypes
 } from '../../../components/common/form/SelectOrgstruct/constants';
 import { SelectOrgstructProvider } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { t } from '../../../helpers/util';
 import OrgstructBody from './OrgstructBody';
 import OrgstructureSearch from './OrgstructureSearch';
-import PropTypes from 'prop-types';
 
 import './style.scss';
 
 const api = new OrgStructApi();
+
+const Labels = {
+  TITLE: 'orgstructure-page-title'
+};
 
 const controlProps = {
   label: 'SelectOrgstruct',
@@ -49,7 +54,7 @@ const Structure = () => {
 
   return (
     <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
-      <div className="orgstructure-page__structure__header">Оргструктура</div>
+      <div className="orgstructure-page__structure__header">{t(Labels.TITLE)}</div>
       <OrgstructureSearch />
       <OrgstructBody reloadList={reload} />
     </SelectOrgstructProvider>

@@ -1,15 +1,17 @@
 import React, { useContext, useEffect } from 'react';
-import { Loader, Pagination } from '../../../components/common';
-import Body from './Body';
+import PropTypes from 'prop-types';
+
+import { Pagination } from '../../../components/common';
 import { PAGINATION_SIZES } from '../../../components/common/form/SelectOrgstruct/constants';
 import { SelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
-import PropTypes from 'prop-types';
+import Body from './Body';
 
 import './style.scss';
 
 const OrgstructBody = ({ reloadList }) => {
   const context = useContext(SelectOrgstructContext);
-  const { toggleSelectModal, pagination, onChangePage, isLoading, onSelect, selectedRows } = context;
+
+  const { toggleSelectModal, pagination, onChangePage } = context;
 
   useEffect(() => {
     toggleSelectModal();
@@ -26,7 +28,6 @@ const OrgstructBody = ({ reloadList }) => {
         sizes={PAGINATION_SIZES}
         onChange={onChangePage}
       />
-      {/* <button onClick={onSelect} /> */}
     </div>
   );
 };

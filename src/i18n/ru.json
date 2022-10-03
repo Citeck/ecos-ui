@@ -2313,5 +2313,13 @@
 
   "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно",
 
-  "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя"
+  "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя",
+  "orgstructure-page-title": "Оргструктура",
+  "orgstructure-delete-modal-title-person": "Удаление пользователя",
+  "orgstructure-delete-modal-title-group": "Удаление группы",
+  "orgstructure-delete-modal-body-person": "Вы действительно хотите удалить этого пользователя?",
+  "orgstructure-delete-modal-body-group": "Вы действительно хотите удалить эту группу?",
+  "orgstructure-delete-modal-full-delete": "Удалить полностью",
+  "orgstructure-delete-modal-group-delete": "Удалить из группы",
+  "orgstructure-delete-modal-cancel": "Отмена"
 }

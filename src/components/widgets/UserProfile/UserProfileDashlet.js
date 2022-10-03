@@ -46,10 +46,13 @@ class UserProfileDashlet extends BaseWidget {
   }
 
   componentDidUpdate(prevProps) {
+    const { getUserData } = this.props;
+
     if (prevProps.record !== this.props.record) {
       getUserData();
     }
   }
+
   onChangePhoto = files => {
     if (files && files.length) {
       this.props.changePhoto(files[0]);
@@ -57,7 +60,9 @@ class UserProfileDashlet extends BaseWidget {
   };
 
   onChangePassword = () => {
-    RecordActions.execForRecord(this.props.record, { type: ActionTypes.EDIT_PASSWORD }).catch(console.error);
+    RecordActions.execForRecord(this.props.record, {
+      type: ActionTypes.EDIT_PASSWORD
+    }).catch(console.error);
   };
 
   handleUpdate() {
@@ -134,9 +139,8 @@ class UserProfileDashlet extends BaseWidget {
 const mapStateToProps = (state, context) => {
   const { record, tabId } = context;
   const stateId = getStateId({ tabId, id: record });
-  // здесь - берется из стора, там только первый
   const profile = get(state, ['userProfile', stateId], {}) || {};
-  console.log('profile = ', profile);
+
   const isCurrentUser = get(state, 'user.recordRef') === record;
 
   return {

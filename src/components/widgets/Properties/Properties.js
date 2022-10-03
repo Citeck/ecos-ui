@@ -81,7 +81,6 @@ class Properties extends React.Component {
 
   onUpdateForm = withSaveData => {
     const form = get(this._ecosForm, 'current');
-    console.log('here');
 
     if (!form) {
       return;

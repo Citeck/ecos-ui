@@ -9,7 +9,6 @@ const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);
   const { controlProps } = context;
   const { isCompact, viewOnly, className, isLoading } = controlProps;
-  console.log(controlProps);
 
   const wrapperClasses = classNames('select-orgstruct', className, {
     'select-orgstruct_compact': isCompact,

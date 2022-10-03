@@ -1,17 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-
 import get from 'lodash/get';
 
 import UserProfileDashlet from '../../../components/widgets/UserProfile/UserProfileDashlet';
 import PropertiesDashlet from '../../../components/widgets/Properties/PropertiesDashlet';
 import { t } from '../../../helpers/util';
-
-const mapStateToProps = state => {
-  const personId = get(state, ['orgstructure', 'id']);
-
-  return { personId };
-};
 
 const WIDGETS_CONFIG = [
   { formId: 'uiserv/form@person_general', title: 'Основное' },
@@ -27,22 +20,14 @@ const Labels = {
 };
 
 const Widgets = ({ personId }) => {
-  const update = () => true;
-  const refOnDashlet = React.createRef();
-  useEffect(() => {
-    // if (personId && refOnDashlet && refOnDashlet.current) {
-    //   const onReload = get(refOnDashlet, "current.wrappedInstance._ecosForm.onReload");
-    //   onReload();
-    // }
-  }, [personId]);
-
   if (!personId) {
     return <div className="orgstructure-page__grid__empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
   }
 
   return (
     <div className="orgstructure-page__grid__widgets">
-      <UserProfileDashlet record={personId} onUpdate={update} />
+      <UserProfileDashlet record={personId} />
+
       {WIDGETS_CONFIG.map(element => (
         <PropertiesDashlet
           record={personId}
@@ -50,12 +35,16 @@ const Widgets = ({ personId }) => {
           id={element.formId}
           config={{ formId: element.formId, titleAsFormName: true }}
           title={element.title}
-          onUpdate={update}
-          ref={refOnDashlet}
         />
       ))}
     </div>
   );
+};
+
+const mapStateToProps = state => {
+  const { id } = get(state, ['orgstructure']);
+
+  return { personId: id };
 };
 
 export default connect(mapStateToProps)(Widgets);

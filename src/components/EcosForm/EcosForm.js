@@ -36,30 +36,41 @@ class EcosForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const record = Records.getRecordToEdit(this.props.record);
-
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
-      recordId: record.id,
       ...this.initState
     };
   }
 
   componentWillUnmount() {
     Records.releaseAll(this.state.containerId);
+
     if (this._form) {
       this._form.destroy();
     }
+
     window.clearTimeout(this._containerHeightTimerId);
   }
 
   componentDidMount() {
-    this.initForm();
+    const record = Records.getRecordToEdit(this.props.record);
+
+    this.setState({ recordId: record }, () => {
+      this.initForm();
+    });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
       this.setState({ ...this.initState }, this.initForm);
+    }
+
+    if (prevProps.record !== this.props.record) {
+      const record = Records.getRecordToEdit(this.props.record);
+
+      this.setState({ recordId: record }, () => {
+        this.initForm();
+      });
     }
   }
 
@@ -513,7 +524,6 @@ class EcosForm extends React.Component {
   );
 
   onReload(withSaveState) {
-    console.log('I am here');
     if (withSaveState) {
       this.initForm(this.state.formDefinition);
     } else {

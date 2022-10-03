@@ -1,13 +1,17 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
+
 import ListItem, { itemPropType } from '../ListItem';
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
-import './List.scss';
 import Records from '../../../../../components/Records';
 
-const List = ({ items, nestingLevel = 0, reloadList }) => {
+import './List.scss';
+import { useState } from 'react';
+
+const List = ({ items, nestingLevel = 0 }) => {
   const context = useContext(SelectOrgstructContext);
+  const [selectedId, setSelectedId] = useState('');
 
   const deleteItem = item => Records.remove(item);
 
@@ -15,6 +19,7 @@ const List = ({ items, nestingLevel = 0, reloadList }) => {
     <ul className={'select-orgstruct__list'}>
       {items.map(item => {
         let nestedList = null;
+
         if (item.hasChildren) {
           const { currentTab, tabItems } = context;
           const children = tabItems[currentTab].filter(i => i.parentId === item.id);
@@ -31,8 +36,9 @@ const List = ({ items, nestingLevel = 0, reloadList }) => {
             item={item}
             nestingLevel={nestingLevel}
             nestedList={nestedList}
-            reloadList={reloadList}
             deleteItem={deleteItem}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
           />
         );
       })}

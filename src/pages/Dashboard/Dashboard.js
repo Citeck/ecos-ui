@@ -224,12 +224,7 @@ class Dashboard extends Component {
     const search = decodeLink(data);
     const searchParams = queryString.parse(search);
     const { recordRef, dashboardId, dashboardKey } = searchParams;
-    console.log('ref = ', {
-      recordRef,
-      dashboardId,
-      dashboardKey,
-      search
-    });
+
     return {
       recordRef,
       dashboardId,
@@ -501,7 +496,6 @@ class Dashboard extends Component {
   }
 
   renderLayout = React.memo(props => {
-    console.log('props = ', props);
     return <Layout className={classNames({ 'ecos-layout_mobile': props.isMobile })} {...props} />;
   });
 

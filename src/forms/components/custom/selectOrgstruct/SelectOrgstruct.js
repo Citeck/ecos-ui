@@ -147,8 +147,6 @@ export default class SelectOrgstructComponent extends BaseComponent {
         return;
       }
 
-      console.log('comp = ', this.component);
-
       ReactDOM.render(
         <SelectOrgstruct
           defaultValue={this.dataValue}

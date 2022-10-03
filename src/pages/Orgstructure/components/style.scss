@@ -24,6 +24,8 @@
   }
   &__body {
     &__container {
+      position: relative;
+      height: 70%;
       margin: 0 24px 12px 20px;
     }
   }

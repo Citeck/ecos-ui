@@ -17,7 +17,7 @@ const Body = ({ reloadList }) => {
 
   return (
     <div className="select-orgstruct__body">
-      <Scrollbars className="slide-menu-list" autoHide autoHeight autoHeightMin={0} autoHeightMax={400}>
+      <Scrollbars className="slide-menu-list">
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}

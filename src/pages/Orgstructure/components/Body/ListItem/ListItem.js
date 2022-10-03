@@ -2,16 +2,27 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TabTypes } from '../../../../../components/common/form/SelectOrgstruct/constants';
+import connect from 'react-redux/es/connect/connect';
 
-import './ListItem.scss';
+import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../../../components/common/form/SelectOrgstruct/constants';
 import { EcosModal } from '../../../../../components/common';
 import FormManager from '../../../../../components/EcosForm/FormManager';
-import Records from '../../../../../components/Records';
 import ModalContent from '../ModalContent';
 import { setSelectedPerson } from '../../../../../actions/orgstructure';
-import connect from 'react-redux/es/connect/connect';
+
+import './ListItem.scss';
+import { t } from '../../../../../helpers/util';
+
+const Labels = {
+  TITLE_PERSON: 'orgstructure-delete-modal-title-person',
+  TITLE_GROUP: 'orgstructure-delete-modal-title-group',
+  BODY_PERSON: 'orgstructure-delete-modal-body-person',
+  BODY_GROUP: 'orgstructure-delete-modal-body-group',
+  FULL_DELETE: 'orgstructure-delete-modal-full-delete',
+  GROUP_DELETE: 'orgstructure-delete-modal-group-delete',
+  CANCEL: 'orgstructure-delete-modal-cancel'
+};
 
 const FORM_CONFIG = {
   AUTHORITY_GROUP: {
@@ -36,13 +47,28 @@ const FORM_CONFIG = {
   }
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, deleteItem }) => {
-  const context = useContext(SelectOrgstructContext);
+const renderListItem = (item, nestingLevel) => {
+  if (item.extraLabel) {
+    const levelClass = nestingLevel === 0 ? 'orgstructure-page__list-item-label-with-extra__fullwidth' : '';
+    return (
+      <div className={`orgstructure-page__list-item-label-with-extra ${levelClass}`}>
+        <span className="orgstructure-page__list-item-label">{item.label}</span>
+        <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
+      </div>
+    );
+  }
+
+  return <span className="orgstructure-page__list-item-label">{item.label}</span>;
+};
+
+const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson }) => {
+  const { controlProps = {}, onToggleCollapse, onToggleSelectItem, initList } = useContext(SelectOrgstructContext);
+
   const [hovered, setHovered] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-  const { controlProps = {}, renderListItem } = context;
   const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
+  const selected = selectedPerson === item.id;
 
   const itemAuthorityType = get(item, 'attributes.authorityType');
   const itemGroupType = get(item, 'attributes.groupType', '').toUpperCase();
@@ -57,14 +83,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
 
   const onClickLabel = () => {
     if (item.hasChildren) {
-      context.onToggleCollapse(item);
+      onToggleCollapse(item);
     }
   };
 
   const onDoubleClick = e => {
     if (isAllowedSelect) {
       e.stopPropagation();
-      context.onToggleSelectItem(item, true);
+      onToggleSelectItem(item, true);
     }
   };
 
@@ -102,8 +128,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
   };
 
   const reload = () => {
-    // TODO заменить на перезагрузку данных
-    reloadList();
+    initList();
   };
 
   const createForm = formConfig => e => {
@@ -116,6 +141,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
       }
     });
   };
+
   const createPerson = createForm(FORM_CONFIG.PERSON);
   const createGroup = createForm(FORM_CONFIG.AUTHORITY_GROUP);
 
@@ -128,6 +154,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
   const closeModal = e => {
     e.stopPropagation();
     setModalOpen(false);
+    reload();
   };
 
   const openPersonModal = openModal('person');
@@ -136,45 +163,45 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
   const fullDelete = e => {
     closeModal(e);
     deleteItem({ ...item });
-    // reload();
+    reload();
   };
 
   const groupConfig = {
-    text: 'Вы действительно хотите удалить эту группу?',
+    text: t(Labels.BODY_GROUP),
     buttons: [
       {
-        text: 'Отмена',
+        text: t(Labels.CANCEL),
         className: 'gray',
         handleClick: closeModal
       },
       {
-        text: 'Удалить полностью',
+        text: t(Labels.FULL_DELETE),
         className: 'red',
         handleClick: fullDelete
       },
       {
-        text: 'Удалить из группы',
+        text: t(Labels.GROUP_DELETE),
         className: 'green',
         handleClick: closeModal
       }
     ]
   };
-  // TODO добавить локализацию
+
   const personConfig = {
-    text: 'Вы действительно хотите удалить этого пользователя?',
+    text: t(Labels.BODY_PERSON),
     buttons: [
       {
-        text: 'Отмена',
+        text: t(Labels.CANCEL),
         className: 'gray',
         handleClick: closeModal
       },
       {
-        text: 'Удалить полностью',
+        text: t(Labels.FULL_DELETE),
         className: 'red',
         handleClick: fullDelete
       },
       {
-        text: 'Удалить из группы',
+        text: t(Labels.GROUP_DELETE),
         className: 'green',
         handleClick: closeModal
       }
@@ -183,10 +210,10 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
 
   let modalTitle = '';
   if (modalType === 'group') {
-    modalTitle = 'Удаление группы';
+    modalTitle = t(Labels.TITLE_GROUP);
   }
   if (modalType === 'person') {
-    modalTitle = 'Удаление пользователя';
+    modalTitle = t(Labels.TITLE_PERSON);
   }
 
   const renderModalContent = () => {
@@ -208,10 +235,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
     dispatch(setSelectedPerson(item.id));
   };
 
-  console.log('item = ', item);
-
-  const isPerson = item.id.includes('emodel/person') || !item.hasChildren;
-  const isGroup = item.id.includes('emodel/authority-group') && item.hasChildren;
+  const isPerson = item.id.includes('emodel/person');
+  const isGroup = item.id.includes('emodel/authority-group');
 
   return (
     <li>
@@ -220,12 +245,14 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, reloadList, delete
           <div className="orgstructure-page__list-item-container">
             <div>
               {renderCollapseHandler()}
-              {renderListItem(item)}
+              {renderListItem(item, nestingLevel)}
             </div>
             {hovered ? (
               <div className="orgstructure-page__list-item-icons">
                 {isPerson ? <span className="icon-user-away" onClick={openPersonModal} /> : null}
-                {isPerson ? <span className="icon-user-normal" onClick={selectPerson} /> : null}
+                {isPerson ? (
+                  <span className={classNames(['icon-user-normal', { 'icon-user-normal__clicked': selected }])} onClick={selectPerson} />
+                ) : null}
                 {isGroup ? <span className="icon-users orange" onClick={openGroupModal} /> : null}
                 {isGroup ? <span className="icon-users green" onClick={createGroup} /> : null}
                 {isGroup ? <span className="icon-user-online" onClick={createPerson} /> : null}
@@ -269,4 +296,8 @@ ListItem.propTypes = {
   nestedList: PropTypes.node
 };
 
-export default connect()(ListItem);
+const mapStateToProps = state => ({
+  selectedPerson: get(state, 'orgstructure.id', '')
+});
+
+export default connect(mapStateToProps)(ListItem);

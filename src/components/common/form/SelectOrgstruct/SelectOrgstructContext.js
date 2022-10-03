@@ -117,6 +117,41 @@ export const SelectOrgstructProvider = props => {
     toggleSelectModal(false);
   };
 
+  const initList = () => {
+    const trimSearchText = (searchText || '').trim();
+    let livePromise = true;
+
+    setIsSearching(true);
+    orgStructApi
+      .fetchGroup({
+        query: {
+          groupName: rootGroupName,
+          searchText: trimSearchText
+        },
+        excludeAuthoritiesByName,
+        excludeAuthoritiesByType,
+        isIncludedAdminGroup
+      })
+      .then(handleResponse)
+      .then(items => {
+        if (!livePromise) {
+          return;
+        }
+
+        setTabItems({
+          ...tabItems,
+          [TabTypes.LEVELS]: items
+            .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+            .map(item => setSelectedItem(item))
+        });
+        checkIsAllUsersGroupExists();
+        setIsRootGroupsFetched(true);
+        setIsSearching(false);
+      });
+
+    return () => (livePromise = false);
+  };
+
   // fetch root group list
   useEffect(() => {
     const trimSearchText = (searchText || '').trim();
@@ -486,7 +521,8 @@ export const SelectOrgstructProvider = props => {
         onChangePage: ({ page, maxItems }) => {
           setPagination({ ...pagination, page, count: maxItems });
           setIsAllUsersGroupFetched(false);
-        }
+        },
+        initList
       }}
     >
       {props.children}

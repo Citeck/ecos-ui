@@ -19,7 +19,6 @@ const OrgstructureSearch = () => {
   };
 
   const onKeyDown = e => {
-    console.log(e.key);
     if (e.key === 'Enter') {
       onSubmitSearchForm();
     }
