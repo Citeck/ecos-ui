@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { EcosModal, Search } from '../../../common';
 import { Btn } from '../../../common/btns';
 import Tree from './Tree';
 import TypeSettings from './TypeSettings';
 import { GrouppedTypeInterface, TypeSettingsInterface } from '../propsInterfaces';
-import { arrayCompare, deepClone, t } from '../../../../helpers/util';
+import { arrayCompare, t } from '../../../../helpers/util';
 import { Checkbox } from '../../../common/form';
 
 const Labels = {
@@ -93,11 +94,13 @@ class Settings extends Component {
     }
 
     const check = originTypes => {
-      const types = deepClone(originTypes);
+      const types = cloneDeep(originTypes);
       const checkName = type => type.name.toLowerCase().includes(filter);
 
       return types
         .map(type => {
+          type.filter = filter;
+
           if (!type.items.length) {
             if (checkName(type)) {
               return type;
@@ -169,7 +172,7 @@ class Settings extends Component {
       return;
     }
 
-    const types = deepClone(this.state.types);
+    const types = cloneDeep(this.state.types);
     const checkItem = item => {
       if (item.id === id) {
         Object.keys(data).forEach(key => {
@@ -199,8 +202,8 @@ class Settings extends Component {
   };
 
   handleClickSave = () => {
-    const { isLoadChecklist } = this.state;
-    const types = deepClone(this.state.types);
+    const { isLoadChecklist, types: originTypes } = this.state;
+    const types = cloneDeep(originTypes);
     const selected = [];
 
     const checkStatus = item => {
@@ -248,7 +251,7 @@ class Settings extends Component {
 
   render() {
     const { isOpen, title, isLoading, isLoadingTypeSettings } = this.props;
-    const { editableType, isLoadChecklist } = this.state;
+    const { editableType, isLoadChecklist, filter } = this.state;
 
     return (
       <>
@@ -265,7 +268,12 @@ class Settings extends Component {
 
           <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />
           <div className="ecos-docs__modal-settings-field">
-            <Tree data={this.availableTypes} onToggleSelect={this.handleToggleSelectType} onOpenSettings={this.handleToggleTypeSettings} />
+            <Tree
+              data={this.availableTypes}
+              isOpenAll={!isEmpty(filter)}
+              onToggleSelect={this.handleToggleSelectType}
+              onOpenSettings={this.handleToggleTypeSettings}
+            />
           </div>
 
           <div className="ecos-docs__modal-settings-footer">

@@ -41,6 +41,7 @@ GrouppedTypeInterface = {
   mandatory: PropTypes.bool,
   multiple: PropTypes.bool,
   locked: PropTypes.bool,
+  filter: PropTypes.string,
   countDocuments: PropTypes.number,
   items: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface))
 };
