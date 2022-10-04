@@ -82,6 +82,7 @@ export const SourcesId = {
   GROUP: 'emodel/authority-group',
   PERSON: 'emodel/person',
   PROC_TASK: 'eproc/proc-task',
+  PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
   },

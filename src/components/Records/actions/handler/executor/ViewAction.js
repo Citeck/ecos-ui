@@ -56,7 +56,7 @@ export default class ViewAction extends ActionsExecutor {
 
 const goToTaskView = async (task, params) => {
   let fixedTaskId = task;
-  if (!fixedTaskId.startsWith(`${SourcesId.PROC_TASK}`)) {
+  if (!fixedTaskId.startsWith(`${SourcesId.PROC_TASK}`) && !fixedTaskId.startsWith(`${SourcesId.PROC_HISTORIC_TASK}`)) {
     fixedTaskId = `${SourcesId.PROC_TASK}@${task}`;
   }
 
