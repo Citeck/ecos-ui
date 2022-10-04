@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -10,6 +10,7 @@ import Export from '../../Export/Export';
 import GroupActions from '../GroupActions';
 import ViewTabs from '../ViewTabs';
 import CreateMenu from './CreateMenu';
+import { Predicate } from '../../Filters/predicates';
 
 import './JournalsSettingsBar.scss';
 
@@ -21,11 +22,37 @@ const Labels = {
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del'
 };
 
+const checkIsDefault = predicate => {
+  if (!predicate) {
+    return true;
+  }
+
+  function getVal(predicateVal) {
+    if (predicateVal[0] instanceof Predicate && predicateVal.length > 1) {
+      return predicateVal;
+    }
+    return getVal(predicateVal[0].val);
+  }
+
+  const predicates = getVal(predicate.val);
+
+  if (!predicates) {
+    return true;
+  }
+
+  const checkVal = val => {
+    return val === '' || val === null || val === undefined;
+  };
+
+  return predicates.every(pred => checkVal(pred.val));
+};
+
 const JournalsSettingsBar = ({
   stateId,
   targetId,
   grid,
   journalConfig,
+  predicate,
   searchText,
   selectedRecords,
 
@@ -50,6 +77,8 @@ const JournalsSettingsBar = ({
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const noCreateMenu = isMobile || isEmpty(createVariants);
   const target = str => `${targetId}-${str}`;
+  const filterOnClass = 'ecos-btn-settings-filter-on';
+  const isDefaultSettings = useMemo(() => checkIsDefault(predicate), [predicate]);
 
   return (
     <>
@@ -61,7 +90,9 @@ const JournalsSettingsBar = ({
             <IcoBtn
               id={target('settings')}
               icon={'icon-settings'}
-              className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content')}
+              className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', {
+                [filterOnClass]: !isDefaultSettings
+              })}
               onClick={onToggleSettings}
               loading={isLoading}
             />

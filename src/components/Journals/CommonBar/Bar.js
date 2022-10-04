@@ -105,6 +105,7 @@ class Bar extends Component {
       noGroupActions,
       noCreateBtn,
       journalConfig = {},
+      predicate = {},
       grid = {},
       settingsData = {},
       settingsFiltersData = {},
@@ -141,6 +142,7 @@ class Bar extends Component {
           targetId={this.targetId}
           grid={grid}
           journalConfig={journalConfig}
+          predicate={predicate}
           searchText={searchText}
           selectedRecords={selectedRecords}
           viewMode={viewMode}
