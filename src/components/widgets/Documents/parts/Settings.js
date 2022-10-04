@@ -120,9 +120,7 @@ class Settings extends Component {
       const types = cloneDeep(originTypes);
       const checkName = type => type.name.toLowerCase().includes(filter);
 
-      // console.time();
-
-      const res = types
+      return types
         .map(type => {
           type.filter = filter;
 
@@ -158,10 +156,6 @@ class Settings extends Component {
 
           return true;
         });
-
-      // console.timeEnd();
-
-      return res;
     };
 
     return check(types);

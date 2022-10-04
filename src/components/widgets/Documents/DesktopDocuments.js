@@ -11,7 +11,7 @@ import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
 
 import Dashlet from '../../Dashlet';
-import { Loader, ResizeBoxes, Tooltip } from '../../common';
+import { Loader, Popper, ResizeBoxes, Tooltip } from '../../common';
 import { Grid, InlineTools } from '../../common/grid';
 import DropZone from './parts/DropZone';
 import DocumentsConverter from '../../../dto/documents';
@@ -582,6 +582,32 @@ class DesktopDocuments extends BaseDocuments {
     );
   }
 
+  renderTypeInfo = type => {
+    if (isEmpty(type.breadcrumbs) || !Array.isArray(type.breadcrumbs)) {
+      return null;
+    }
+
+    const breadcrumbs = [...type.breadcrumbs, type.name];
+
+    return (
+      <Popper
+        icon="icon-group"
+        className="ecos-docs__types-item-bc"
+        popupClassName="ecos-docs__types-item-bc-popper"
+        withoutText
+        contentComponent={
+          <>
+            {breadcrumbs.map((text, index) => (
+              <div className="ecos-docs__types-item-bc-element" key={text} style={{ marginLeft: `${index * 17}px` }}>
+                {text}
+              </div>
+            ))}
+          </>
+        }
+      />
+    );
+  };
+
   renderType = item => {
     const { selectedType } = this.state;
     const id = prepareTooltipId(`type-${this.props.stateId}-${item.type}`);
@@ -600,6 +626,7 @@ class DesktopDocuments extends BaseDocuments {
           </div>
         </Tooltip>
 
+        {this.renderTypeInfo(item)}
         {this.renderCountStatus(item)}
       </div>
     );

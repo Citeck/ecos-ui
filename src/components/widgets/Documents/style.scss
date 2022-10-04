@@ -157,9 +157,38 @@
         background: $color-gray-25;
       }
 
+      &-bc {
+        margin-right: 10px;
+
+        &-element {
+          &:not(:first-child) {
+            position: relative;
+            padding-left: 2px;
+
+            &:before {
+              content: '⮡';
+              font-size: 18px;
+              position: absolute;
+              left: -15px;
+              top: -3px;
+              font-weight: normal;
+            }
+          }
+
+          &:last-child {
+            font-weight: bold;
+          }
+        }
+
+        &-popper {
+          padding: 5px 10px;
+        }
+      }
+
       &-label {
         @extend %ellipsis;
 
+        flex-grow: 1;
         font-style: normal;
         font-weight: bold;
         font-size: 14px;
