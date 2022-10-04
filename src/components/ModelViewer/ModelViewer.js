@@ -8,6 +8,8 @@ import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 import { ScaleOptions } from '../common/Scaler/util';
 import BaseModeler from '../ModelEditor/BaseModeler';
 import plugins from '../../../src/plugins';
+import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
+import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
 
 const _extendModeler = new BaseModeler();
 
@@ -23,13 +25,10 @@ export default class ModelViewer {
     isFunction(onInit) && onInit(true);
 
     this.modeler = new NavigatedViewer({
-      additionalModules: [
-        //minimapModule, //diagram-js-minimap
-        {
-          //moveCanvas: ['value', ''], //destroy
-          //zoomScroll: ['value', ''] //destroy
-        }
-      ]
+      moddleExtensions: {
+        ecosTask: ecosTask
+      },
+      additionalModules: [onlyRenderer]
     });
 
     if (container) {
