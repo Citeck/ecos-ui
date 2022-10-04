@@ -1,5 +1,5 @@
 import TextField from './TextField';
-import TextFieldEditor from 'formiojs/components/textfield/TextField.form';
+import TextFieldEditor from './TextField.form';
 
 TextField.editForm = TextFieldEditor;
 
