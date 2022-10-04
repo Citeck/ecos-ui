@@ -3,19 +3,21 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import { EcosModal, Search } from '../../../common';
 import { Btn } from '../../../common/btns';
 import Tree from './Tree';
 import TypeSettings from './TypeSettings';
 import { GrouppedTypeInterface, TypeSettingsInterface } from '../propsInterfaces';
-import { arrayCompare, t } from '../../../../helpers/util';
+import { arrayFlat, t } from '../../../../helpers/util';
 import { Checkbox } from '../../../common/form';
 
 const Labels = {
   CANCEL_BUTTON: 'documents-widget.settings-modal.button.cancel',
   OK_BUTTON: 'documents-widget.settings-modal.button.ok',
-  CHECKLIST: 'documents-widget.settings-modal.checklist'
+  CHECKLIST: 'documents-widget.settings-modal.checklist',
+  SHOW_ONLY_CHECKED: 'documents-widget.settings-modal.show-only-checked'
 };
 
 class Settings extends Component {
@@ -51,6 +53,7 @@ class Settings extends Component {
       types: props.types,
       filter: '',
       isLoadChecklist: props.isLoadChecklist,
+      isOnlySelected: props.isOnlySelected,
       editableType: null,
       customizedTypeSettings: new Map()
     };
@@ -59,7 +62,7 @@ class Settings extends Component {
   static getDerivedStateFromProps(props, state) {
     const newState = {};
 
-    if (!props.isOpen && !arrayCompare(props.types, state.types)) {
+    if (!props.isOpen && !isEqual(props.types, state.types)) {
       newState.types = props.types;
     }
 
@@ -87,7 +90,27 @@ class Settings extends Component {
   }
 
   get availableTypes() {
-    const { filter, types } = this.state;
+    const { filter, types, isOnlySelected } = this.state;
+
+    if (isOnlySelected) {
+      const flatArray = arrayFlat({ data: types, byField: 'items', withParent: true }) || [];
+
+      return cloneDeep(flatArray).filter(item => {
+        if (item.isSelected) {
+          item.items = [];
+
+          if (filter) {
+            item.filter = filter;
+
+            return item.name.toLowerCase().includes(filter);
+          }
+
+          return true;
+        }
+
+        return false;
+      });
+    }
 
     if (!filter) {
       return types;
@@ -97,7 +120,9 @@ class Settings extends Component {
       const types = cloneDeep(originTypes);
       const checkName = type => type.name.toLowerCase().includes(filter);
 
-      return types
+      // console.time();
+
+      const res = types
         .map(type => {
           type.filter = filter;
 
@@ -122,7 +147,21 @@ class Settings extends Component {
             items
           };
         })
-        .filter(item => item !== null);
+        .filter(item => {
+          if (item === null) {
+            return false;
+          }
+
+          if (isOnlySelected) {
+            return item.isSelected;
+          }
+
+          return true;
+        });
+
+      // console.timeEnd();
+
+      return res;
     };
 
     return check(types);
@@ -226,6 +265,17 @@ class Settings extends Component {
   };
 
   handleFilterTypes = (filter = '') => {
+    const { filter: oldFilter } = this.state;
+
+    if (oldFilter && filter) {
+      // needed for expand previously collapsed tree elements
+      this.setState({ filter: '' }, () => {
+        this.setState({ filter: filter.toLowerCase() });
+      });
+
+      return;
+    }
+
     this.setState({ filter: filter.toLowerCase() });
   };
 
@@ -249,9 +299,13 @@ class Settings extends Component {
     this.setState({ isLoadChecklist: checked });
   };
 
+  handleToggleShowOnly = ({ checked }) => {
+    this.setState({ isOnlySelected: checked });
+  };
+
   render() {
     const { isOpen, title, isLoading, isLoadingTypeSettings } = this.props;
-    const { editableType, isLoadChecklist, filter } = this.state;
+    const { editableType, isLoadChecklist, filter, isOnlySelected } = this.state;
 
     return (
       <>
@@ -264,6 +318,10 @@ class Settings extends Component {
         >
           <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>
             {t(Labels.CHECKLIST)}
+          </Checkbox>
+
+          <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleShowOnly} checked={isOnlySelected}>
+            {t(Labels.SHOW_ONLY_CHECKED)}
           </Checkbox>
 
           <Search cleaner liveSearch searchWithEmpty onSearch={this.handleFilterTypes} className="ecos-docs__modal-settings-search" />

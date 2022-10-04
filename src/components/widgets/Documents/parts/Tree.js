@@ -1,15 +1,13 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
-import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 
 import { Icon } from '../../../common';
 import { Badge, Checkbox } from '../../../common/form';
 import { arrayFlat, t } from '../../../../helpers/util';
 import { GrouppedTypeInterface } from '../propsInterfaces';
-import Highlight from './Highlight';
+import Highlighter from '../../../common/Highlighter';
 
 const Labels = {
   EMPTY: 'documents-widget.tree.empty',
@@ -19,7 +17,7 @@ const Labels = {
   OF: 'documents-widget.tree.selected-inside-of'
 };
 
-class TreeItem extends React.PureComponent {
+class TreeItem extends PureComponent {
   static propTypes = {
     item: PropTypes.shape(GrouppedTypeInterface),
     isChild: PropTypes.bool,
@@ -46,28 +44,11 @@ class TreeItem extends React.PureComponent {
     };
   }
 
-  // componentDidUpdate(prevProps, prevState, snapshot) {
-  //   if ((!prevProps.isOpen && this.props.isOpen) || (!this.state.isOpen && this.props.isOpen)) {
-  //     this.setState({ isOpen: true });
-  //   }
-  // }
-
-  // shouldComponentUpdate(nextProps, nextState, nextContext) {
-  //   const { item, isChild } = this.props;
-  //   const { isOpen } = this.state;
-  //
-  //   if (
-  //     nextState.isOpen !== isOpen ||
-  //     !isEqual(nextProps.item.items, item.items) ||
-  //     nextProps.item.id !== item.id ||
-  //     nextProps.item.isSelected !== item.isSelected ||
-  //     nextProps.isChild !== isChild
-  //   ) {
-  //     return true;
-  //   }
-  //
-  //   return false;
-  // }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.isOpenAll && this.props.isOpenAll) {
+      this.setState({ isOpen: true });
+    }
+  }
 
   get title() {
     const { item } = this.props;
@@ -206,7 +187,7 @@ class TreeItem extends React.PureComponent {
       return item.name;
     }
 
-    return <Highlight originText={item.name} highlightedText={item.filter} />;
+    return <Highlighter key={item.name} originText={item.name} highlightedText={item.filter} />;
   }
 
   render() {
@@ -249,7 +230,7 @@ class TreeItem extends React.PureComponent {
   }
 }
 
-class Tree extends Component {
+class Tree extends PureComponent {
   static propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     groupBy: PropTypes.string,
