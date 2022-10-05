@@ -32,6 +32,8 @@
 }
 
 .select-journal-select-modal__buttons {
+  $btns: &;
+
   margin-top: 15px;
   display: flex;
 
@@ -53,6 +55,14 @@
 
     & > :nth-child(n) {
       margin-right: unset;
+    }
+
+    #{$btns}-ok {
+      order: 1;
+    }
+
+    #{$btns}-cancel {
+      order: 2;
     }
   }
 }
