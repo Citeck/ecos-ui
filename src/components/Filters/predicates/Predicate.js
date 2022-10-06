@@ -5,6 +5,10 @@ import isString from 'lodash/isString';
  * @type Predicate
  */
 export default class Predicate {
+  static isPredicate(predicate) {
+    return predicate instanceof Predicate;
+  }
+
   constructor({ att, t, val }) {
     this.att = att;
     this.t = t;
