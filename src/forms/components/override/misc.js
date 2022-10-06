@@ -16,6 +16,7 @@ export function overrideTriggerChange() {
    * @type {function} - Call to trigger a change in this component.
    */
   let lastChanged = null;
+  const originTriggerChange = this.triggerChange;
 
   const _triggerChange = debounce((...args) => {
     if (this.root) {
@@ -33,6 +34,12 @@ export function overrideTriggerChange() {
   }, TRIGGER_CHANGE_DEBOUNCE_WAIT);
 
   this.triggerChange = (...args) => {
+    // because the field is blocked, there is no need to increase the timeout for recalculation
+    if (this.disabled) {
+      originTriggerChange.call(this, ...args);
+      return;
+    }
+
     if (args[1]) {
       // Make sure that during the debounce that we always track lastChanged component, even if they
       // don't provide one later.

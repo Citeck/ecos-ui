@@ -47,8 +47,8 @@ export default class DevToolsConverter {
       .map(app => {
         return app.commits.map(commit => ({
           ...commit,
-          repo: app.repo,
-          id: commit.commit
+          id: commit.commit,
+          repo: app.repo
         }));
       })
       .reduce((acc, val) => acc.concat(val))

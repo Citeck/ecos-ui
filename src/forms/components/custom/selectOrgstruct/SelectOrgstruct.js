@@ -17,10 +17,17 @@ import {
 import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
+import UnreadableLabel from '../../UnreadableLabel';
 
 let authorityRefsByName = {};
 
-const _array = str => split(str, ',').map(item => item.trim());
+const _array = (str, checkForEmpty) => {
+  if (checkForEmpty && !str) {
+    return [];
+  }
+
+  return split(str, ',').map(item => item.trim());
+};
 
 export default class SelectOrgstructComponent extends BaseComponent {
   static schema(...extend) {
@@ -132,36 +139,45 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     const allowedAuthorityTypes = _array(allowedAuthorityType);
     const allowedGroupTypes = _array(allowedGroupType);
-    const allowedGroupSubTypes = allowedGroupSubType ? _array(allowedGroupSubType) : [];
-    const userSearchExtraFields = userSearchExtraFieldsStr ? _array(userSearchExtraFieldsStr) : [];
-    const excludeAuthoritiesByType = comp.excludeAuthoritiesByType ? _array(comp.excludeAuthoritiesByType) : [];
+    const allowedGroupSubTypes = _array(allowedGroupSubType, true);
+    const userSearchExtraFields = _array(userSearchExtraFieldsStr, true);
+    const excludeAuthoritiesByType = _array(comp.excludeAuthoritiesByType, true);
 
-    ReactDOM.render(
-      <SelectOrgstruct
-        defaultValue={this.dataValue}
-        isCompact={comp.isCompact}
-        multiple={comp.multiple}
-        placeholder={comp.placeholder}
-        disabled={comp.disabled}
-        allowedAuthorityTypes={allowedAuthorityTypes}
-        allowedGroupTypes={allowedGroupTypes}
-        rootGroupName={comp.rootGroupName || ROOT_GROUP_NAME}
-        allowedGroupSubTypes={allowedGroupSubTypes}
-        excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
-        excludeAuthoritiesByType={excludeAuthoritiesByType}
-        userSearchExtraFields={userSearchExtraFields}
-        viewOnly={this.viewOnly}
-        hideTabSwitcher={comp.hideTabSwitcher}
-        defaultTab={comp.defaultTab}
-        dataType={comp.dataType}
-        modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
-        isSelectedValueAsText={comp.isSelectedValueAsText}
-        isIncludedAdminGroup={comp.isIncludedAdminGroup}
-        onChange={this.onValueChange}
-        onError={console.error}
-      />,
-      this.reactContainer
-    );
+    const renderControl = () => {
+      if (comp.unreadable) {
+        ReactDOM.render(<UnreadableLabel />, this.reactContainer);
+        return;
+      }
+
+      ReactDOM.render(
+        <SelectOrgstruct
+          defaultValue={this.dataValue}
+          isCompact={comp.isCompact}
+          multiple={comp.multiple}
+          placeholder={comp.placeholder}
+          disabled={comp.disabled}
+          allowedAuthorityTypes={allowedAuthorityTypes}
+          allowedGroupTypes={allowedGroupTypes}
+          rootGroupName={comp.rootGroupName || ROOT_GROUP_NAME}
+          allowedGroupSubTypes={allowedGroupSubTypes}
+          excludeAuthoritiesByName={comp.excludeAuthoritiesByName}
+          excludeAuthoritiesByType={excludeAuthoritiesByType}
+          userSearchExtraFields={userSearchExtraFields}
+          viewOnly={this.viewOnly}
+          hideTabSwitcher={comp.hideTabSwitcher}
+          defaultTab={comp.defaultTab}
+          dataType={comp.dataType}
+          modalTitle={comp.modalTitle ? this.t(comp.modalTitle) : null}
+          isSelectedValueAsText={comp.isSelectedValueAsText}
+          isIncludedAdminGroup={comp.isIncludedAdminGroup}
+          onChange={this.onValueChange}
+          onError={console.error}
+        />,
+        this.reactContainer
+      );
+    };
+
+    renderControl();
   };
 
   refreshDOM = () => {
@@ -169,7 +185,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
   };
 
   onValueChange = value => {
-    this.updateValue({}, value);
+    this.updateValue({ modified: true, changeByUser: true }, value);
     this.refreshDOM();
   };
 
