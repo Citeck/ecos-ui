@@ -362,6 +362,10 @@ export default class ParserPredicate {
           if (!isArray(item.val) && (!!item.val || item.val === false || item.val === 0 || ParserPredicate.isWithoutValue(item))) {
             out.push(item);
           } else if (isArray(item.val)) {
+            if (isEmpty(item.val)) {
+              return;
+            }
+
             if (item.val.every(v => typeof v === 'string')) {
               out.push(item);
               return;
