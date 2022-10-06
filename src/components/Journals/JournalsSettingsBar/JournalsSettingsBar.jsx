@@ -10,7 +10,7 @@ import Export from '../../Export/Export';
 import GroupActions from '../GroupActions';
 import ViewTabs from '../ViewTabs';
 import CreateMenu from './CreateMenu';
-import { Predicate } from '../../Filters/predicates';
+import { ParserPredicate } from '../../Filters/predicates';
 
 import './JournalsSettingsBar.scss';
 
@@ -20,48 +20,6 @@ const Labels = {
   BTN_EXPORT: 'journals.bar.btn.export',
   BTN_UPDATE: 'journals.bar.btn.update',
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del'
-};
-
-function getVal(predicate) {
-  if (Array.isArray(predicate)) {
-    if (Predicate.isPredicate(predicate[0]) && predicate.length > 1) {
-      return predicate;
-    }
-
-    return getVal(predicate[0].val);
-  }
-
-  if (Predicate.isPredicate(predicate)) {
-    return getVal(predicate.val);
-  }
-
-  return predicate;
-}
-
-const checkIsEmptyValue = predicate => {
-  return predicate.val === '' || predicate.val === null || predicate.val === undefined;
-};
-
-const checkIsDefault = predicate => {
-  if (!predicate) {
-    return true;
-  }
-
-  const predicates = getVal(get(predicate, 'val'));
-
-  if (!predicates) {
-    return true;
-  }
-
-  if (Array.isArray(predicates)) {
-    return predicates.every(checkIsEmptyValue);
-  }
-
-  if (Predicate.isPredicate(predicates)) {
-    return checkIsEmptyValue(predicates);
-  }
-
-  return predicates === '' || predicates === null || predicates === undefined;
 };
 
 const JournalsSettingsBar = ({
@@ -94,7 +52,7 @@ const JournalsSettingsBar = ({
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const noCreateMenu = isMobile || isEmpty(createVariants);
   const target = str => `${targetId}-${str}`;
-  const isDefaultSettings = useMemo(() => checkIsDefault(predicate), [predicate]);
+  const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [predicate]);
 
   return (
     <>
