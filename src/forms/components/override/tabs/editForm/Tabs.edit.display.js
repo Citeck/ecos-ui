@@ -1,3 +1,5 @@
+import { getMLValue } from '../../../../../helpers/util';
+
 const config = [
   {
     label: 'Scrollable content',
@@ -31,7 +33,11 @@ const config = [
         calculateValue: {
           _camelCase: [
             {
-              var: 'row.label'
+              getMLValue: [
+                {
+                  var: 'row.label'
+                }
+              ]
             }
           ]
         }
