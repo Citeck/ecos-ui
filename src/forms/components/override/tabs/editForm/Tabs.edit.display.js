@@ -1,5 +1,3 @@
-import { getMLValue } from '../../../../../helpers/util';
-
 const config = [
   {
     label: 'Scrollable content',
