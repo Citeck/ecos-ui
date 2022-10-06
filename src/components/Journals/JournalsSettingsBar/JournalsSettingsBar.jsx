@@ -22,29 +22,46 @@ const Labels = {
   BTN_FILTER_DEL: 'journals.bar.btn.filter-del'
 };
 
+function getVal(predicate) {
+  if (Array.isArray(predicate)) {
+    if (Predicate.isPredicate(predicate[0]) && predicate.length > 1) {
+      return predicate;
+    }
+
+    return getVal(predicate[0].val);
+  }
+
+  if (Predicate.isPredicate(predicate)) {
+    return getVal(predicate.val);
+  }
+
+  return predicate;
+}
+
+const checkIsEmptyValue = predicate => {
+  return predicate.val === '' || predicate.val === null || predicate.val === undefined;
+};
+
 const checkIsDefault = predicate => {
   if (!predicate) {
     return true;
   }
 
-  function getVal(predicateVal) {
-    if (predicateVal[0] instanceof Predicate && predicateVal.length > 1) {
-      return predicateVal;
-    }
-    return getVal(predicateVal[0].val);
-  }
-
-  const predicates = getVal(predicate.val);
+  const predicates = getVal(get(predicate, 'val'));
 
   if (!predicates) {
     return true;
   }
 
-  const checkVal = val => {
-    return val === '' || val === null || val === undefined;
-  };
+  if (Array.isArray(predicates)) {
+    return predicates.every(checkIsEmptyValue);
+  }
 
-  return predicates.every(pred => checkVal(pred.val));
+  if (Predicate.isPredicate(predicates)) {
+    return checkIsEmptyValue(predicates);
+  }
+
+  return predicates === '' || predicates === null || predicates === undefined;
 };
 
 const JournalsSettingsBar = ({
@@ -77,7 +94,6 @@ const JournalsSettingsBar = ({
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const noCreateMenu = isMobile || isEmpty(createVariants);
   const target = str => `${targetId}-${str}`;
-  const filterOnClass = 'ecos-btn-settings-filter-on';
   const isDefaultSettings = useMemo(() => checkIsDefault(predicate), [predicate]);
 
   return (
@@ -91,7 +107,7 @@ const JournalsSettingsBar = ({
               id={target('settings')}
               icon={'icon-settings'}
               className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', {
-                [filterOnClass]: !isDefaultSettings
+                'ecos-btn-settings-filter-on': !isDefaultSettings
               })}
               onClick={onToggleSettings}
               loading={isLoading}
