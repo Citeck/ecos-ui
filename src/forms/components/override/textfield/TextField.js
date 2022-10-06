@@ -89,6 +89,8 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
       return;
     }
 
+    this.input.setAttribute('autocomplete', 'off');
+
     this.typeaheadElement = this.ce('ul', {
       class: 'd-none formio-component-textfield__typeahead'
     });
