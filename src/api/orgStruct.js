@@ -2,7 +2,7 @@ import * as queryString from 'query-string';
 
 import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
-import { SourcesId } from '../constants';
+import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName, isNodeRef } from '../helpers/util';
@@ -92,7 +92,7 @@ export class OrgStructApi extends CommonApi {
     return this.fetchAuthorityByRef(nodeRef);
   };
 
-  static async getGlobalSearchFields() {
+  static async fetchGlobalSearchFields() {
     return Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-extra-fields`)
       .load('value?str')
       .then(searchFields => {
@@ -103,6 +103,36 @@ export class OrgStructApi extends CommonApi {
         return searchFields.split(',');
       })
       .catch(() => []);
+  }
+
+  static async fetchIsHideDisabledField() {
+    try {
+      const result = await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
+  }
+
+  static async fetchIsAdmin(userName) {
+    try {
+      const result = await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
+  }
+
+  static async fetchIsSearchUserMiddleName() {
+    try {
+      const result = await Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-middle-name`).load('value');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
   }
 
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
@@ -123,16 +153,18 @@ export class OrgStructApi extends CommonApi {
       val: 'true'
     };
 
-    const isHideForAll = Boolean(await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool'));
+    const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
+
     if (isHideForAll) {
       queryVal.push(predicateNotDisabled);
     } else {
-      const userName = getCurrentUserName();
-      const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
+      const isAdmin = await OrgStructApi.fetchIsAdmin(getCurrentUserName());
+
       if (!isAdmin) {
         const showInactiveUserOnlyForAdmin = Boolean(
           await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
         );
+
         if (showInactiveUserOnlyForAdmin) {
           queryVal.push(predicateNotDisabled);
         }
@@ -140,18 +172,26 @@ export class OrgStructApi extends CommonApi {
     }
 
     if (searchText) {
-      const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName'];
+      let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+
       const addExtraFields = (fields = []) => {
         searchFields.push(...fields.map(field => field.trim()));
       };
 
-      const globalSearchConfig = await OrgStructApi.getGlobalSearchFields();
+      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
       if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
         addExtraFields(globalSearchConfig);
       }
 
       if (Array.isArray(extraFields) && extraFields.length > 0) {
         addExtraFields(extraFields);
+      }
+
+      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+
+      if (isSearchUserMiddleName) {
+        addExtraFields(['middleName']);
       }
 
       if (val.length < 2) {
