@@ -11,7 +11,7 @@ import {
 import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
 import { getCurrentUserName } from '../helpers/util';
-import { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
+import ConfigService, { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { CommonApi } from './common';
 
@@ -207,16 +207,7 @@ export class OrgStructApi extends CommonApi {
   };
 
   static async fetchGlobalSearchFields() {
-    return Records.get(`${SourcesId.CONFIG}@${ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS}`)
-      .load('value?str')
-      .then(searchFields => {
-        if (typeof searchFields !== 'string' || !searchFields.trim().length) {
-          return [];
-        }
-
-        return searchFields.split(',');
-      })
-      .catch(() => []);
+    return ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
   }
 
   static async fetchIsHideDisabledField() {
