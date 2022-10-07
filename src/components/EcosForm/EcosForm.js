@@ -263,11 +263,15 @@ class EcosForm extends React.Component {
           form.on('submit', submission => this.submitForm(form, submission));
           form.on(
             'change',
-            debounce(submission => {
-              if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
-                isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission);
-              }
-            }, 1000)
+            debounce(
+              submission => {
+                if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
+                  isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission);
+                }
+              },
+              1000,
+              { trailing: true }
+            )
           );
 
           Object.keys(this.props)

@@ -1167,6 +1167,8 @@ export default class EcosFormUtils {
     if (instance.toString() === 'AsyncDataComponent') {
       return false;
     }
+    //TODO: remove after debug
+    console.log('changed input data: ', instance);
 
     return true;
   }

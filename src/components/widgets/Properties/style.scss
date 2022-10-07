@@ -51,6 +51,11 @@
       display: none;
     }
 
+    .btn-block[type='button'],
+    .btn-block[type='submit'] {
+      display: none !important;
+    }
+
     & .formio-form .card .card-body {
       padding-top: 10px;
     }
