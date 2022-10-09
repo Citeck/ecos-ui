@@ -266,4 +266,27 @@ describe('Sidebar Service', () => {
       });
     });
   });
+
+  describe('Method treeFindSuitableItem', () => {
+    it('exact value', () => {
+      const value = 'exact value';
+      const item = SidebarService.treeFindSuitableItem([{ test: value }], 'test', value);
+
+      expect(item.test).toBe(value);
+    });
+
+    it('suitable value', () => {
+      const value = 'suitable value';
+      const item = SidebarService.treeFindSuitableItem([{ test: 'test suitable value' }], 'test', value);
+
+      expect(item.test.includes(value)).toBeTruthy();
+    });
+
+    it('no suitable value', () => {
+      const value = 'no suitable value';
+      const item = SidebarService.treeFindSuitableItem([{ test: 'test suitable value' }], 'test', value);
+
+      expect(item).toBeUndefined();
+    });
+  });
 });
