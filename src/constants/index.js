@@ -1,4 +1,5 @@
 import { CITECK_URI } from './alfresco';
+import { SectionTypes } from './adminSection';
 
 export const DEFAULT_EIS = Object.freeze({
   EIS_ID: 'EIS_ID',
@@ -32,6 +33,12 @@ export const URL = {
 
 export const RELOCATED_URL = {
   [URL.BPMN_DESIGNER]: URL.ADMIN_PAGE
+};
+
+export const URL_MATCHING = {
+  [URL.DEV_TOOLS]: URL.ADMIN_PAGE,
+  [`${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`]: URL.BPMN_DESIGNER,
+  [URL.BPMN_DESIGNER]: `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`
 };
 
 export const pagesWithOnlyContent = [
