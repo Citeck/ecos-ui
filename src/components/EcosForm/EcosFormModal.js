@@ -12,7 +12,7 @@ import EcosModal from '../common/EcosModal';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
-import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
+import { FORM_MODE_EDIT } from './constants';
 
 import './EcosFormModal.scss';
 
@@ -62,12 +62,7 @@ export default class EcosFormModal extends React.Component {
         } else {
           typeNamePromise = Promise.resolve(null);
         }
-        const baseRecordId = this.instanceRecord.getBaseRecord().id;
-        if (baseRecordId[baseRecordId.length - 1] === '@') {
-          recordData.formMode = FORM_MODE_CREATE;
-        } else {
-          recordData.formMode = FORM_MODE_EDIT;
-        }
+        recordData.formMode = EcosFormUtils.getFormMode(this.instanceRecord);
 
         typeNamePromise.then(typeName => {
           if (typeName) {

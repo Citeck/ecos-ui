@@ -135,13 +135,14 @@ export default class EcosFormUtils {
       }, 100);
     };
 
-    Records.get(record)
+    const instanceRec = Records.get(record);
+    instanceRec
       .load({
         displayName: '.disp',
         formMode: '_formMode'
       })
       .then(function(recordData) {
-        const formMode = config.formMode || recordData.formMode || FORM_MODE_EDIT;
+        const formMode = config.formMode || recordData.formMode || EcosFormUtils.getFormMode(instanceRec);
 
         if (formMode === FORM_MODE_CREATE) {
           Records.get(record).reset();
@@ -1080,6 +1081,14 @@ export default class EcosFormUtils {
 
       check();
     });
+  }
+
+  static getFormMode(instanceRec) {
+    const baseRecordId = instanceRec.getBaseRecord().id;
+
+    if (isString(baseRecordId)) {
+      return baseRecordId.endsWith('@') ? FORM_MODE_CREATE : FORM_MODE_EDIT;
+    }
   }
 }
 
