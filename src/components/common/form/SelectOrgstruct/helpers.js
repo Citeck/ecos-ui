@@ -60,6 +60,7 @@ export function converterUserList(source) {
   return source.map(item => ({
     id: item.id,
     label: item.fullName,
+    personDisabled: !!item.personDisabled,
     extraLabel: item.userName,
     attributes: item
   }));

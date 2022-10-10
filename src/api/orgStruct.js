@@ -12,15 +12,30 @@ export class OrgStructApi extends CommonApi {
   _loadedAuthorities = {};
   _loadedGroups = {};
 
-  getUsers = (searchText = '') => {
-    let url = `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
-    if (searchText) {
-      url += `&filter=${searchText}`;
+  getUsers = async (searchText = '') => {
+    const useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+    const searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
+
+    let url = queryString.stringifyUrl({
+      url: `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false`,
+      query: {
+        user: true,
+        recurse: true,
+        excludeAuthorities: 'all_users',
+        useMiddleName,
+        searchExtraFields,
+        group: false
+      }
+    });
+
+    if (searchText.length > 0) {
+      url += `&filter=${encodeURI(searchText)}`;
     }
+
     return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
+  fetchGroup = async ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
     excludeAuthoritiesByName = excludeAuthoritiesByName
       .split(',')
       .map(item => item.trim())
@@ -38,10 +53,13 @@ export class OrgStructApi extends CommonApi {
     if (searchText) {
       urlQuery.filter = searchText;
       urlQuery.recurse = true;
+      urlQuery.useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+      urlQuery.searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
+      urlQuery.user = true;
     }
 
     const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
+      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true`,
       query: urlQuery
     });
 
@@ -179,22 +197,21 @@ export class OrgStructApi extends CommonApi {
       };
 
       const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
-
-      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-        addExtraFields(globalSearchConfig);
-      }
-
-      if (Array.isArray(extraFields) && extraFields.length > 0) {
-        addExtraFields(extraFields);
-      }
-
       const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
 
-      if (isSearchUserMiddleName) {
-        addExtraFields(['middleName']);
-      }
-
       if (val.length < 2) {
+        if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+          addExtraFields(globalSearchConfig);
+        }
+
+        if (Array.isArray(extraFields) && extraFields.length > 0) {
+          addExtraFields(extraFields);
+        }
+
+        if (isSearchUserMiddleName) {
+          addExtraFields(['middleName']);
+        }
+
         queryVal.push({
           t: 'or',
           val: searchFields.map(att => ({
@@ -236,6 +253,44 @@ export class OrgStructApi extends CommonApi {
           ]
         };
 
+        if (isSearchUserMiddleName) {
+          lastFirst.val = [
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:middleName',
+              val: val[1]
+            },
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[2]
+            }
+          ];
+
+          firstLast.val = [
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:middleName',
+              val: val[1]
+            },
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[2]
+            }
+          ];
+        }
+
         queryVal.push({
           t: 'or',
           val: [firstLast, lastFirst]
@@ -255,7 +310,8 @@ export class OrgStructApi extends CommonApi {
       },
       {
         fullName: '.disp',
-        userName: 'userName'
+        userName: 'userName',
+        personDisabled: 'ecos:isPersonDisabled?bool'
       }
     ).then(result => ({
       items: converterUserList(result.records),
