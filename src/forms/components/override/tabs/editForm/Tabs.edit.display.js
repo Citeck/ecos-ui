@@ -31,7 +31,11 @@ const config = [
         calculateValue: {
           _camelCase: [
             {
-              var: 'row.label'
+              getMLValue: [
+                {
+                  var: 'row.label'
+                }
+              ]
             }
           ]
         }

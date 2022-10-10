@@ -1,4 +1,9 @@
 import Formio from 'formiojs/Formio';
+import { jsonLogic } from 'formiojs/utils/utils';
+
+import { getMLValue } from '../helpers/util';
+
+jsonLogic.add_operation('getMLValue', value => getMLValue(value));
 
 function getLocalLibraryUrl(src) {
   const replaceUrlMap = {
