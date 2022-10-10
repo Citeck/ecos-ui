@@ -71,7 +71,8 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
 
   const listItemLabelClassNames = classNames('select-orgstruct__list-item-label', {
     'select-orgstruct__list-item-label_clickable': item.hasChildren,
-    'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
+    'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren,
+    'select-orgstruct__list-item-label_disabled': item.isPersonDisabled
   });
 
   return (
