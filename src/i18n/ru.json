@@ -1351,6 +1351,7 @@
   "documents-widget.settings-modal.button.cancel": "Отмена",
   "documents-widget.settings-modal.button.ok": "Готово",
   "documents-widget.settings-modal.checklist": "Подгружать типы документов из чек-листов",
+  "documents-widget.settings-modal.show-only-checked": "Отображать только выбранные",
   "documents-widget.type-settings.allow-file-upload": "Разрешить загрузку файлов",
   "documents-widget.upload.title": "Добавить файлы",
   "documents-widget.upload.message": "Перетяните сюда файл",

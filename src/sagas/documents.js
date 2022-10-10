@@ -150,6 +150,29 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
       yield put(getDocumentsByType({ ...payload, type: combinedTypes[0].type }));
     }
 
+    combinedTypes = yield Promise.all(
+      combinedTypes.map(async item => {
+        const getParents = async type => {
+          const parents = [];
+          const parent = await api.documents.getParent(type);
+
+          if (parent.id) {
+            const parentOfParent = await getParents(parent.id);
+
+            parents.push(parent.name, ...parentOfParent);
+          }
+
+          return parents;
+        };
+        const parent = await getParents(item.type);
+
+        return {
+          ...item,
+          breadcrumbs: parent.reverse()
+        };
+      })
+    );
+
     const countByTypes = documents.map(record => record.documents);
     const filledTypes = DocumentsConverter.getDynamicTypes({ types: combinedTypes, countByTypes });
 

@@ -1352,6 +1352,7 @@
   "documents-widget.settings-modal.button.cancel": "Cancel",
   "documents-widget.settings-modal.button.ok": "Done",
   "documents-widget.settings-modal.checklist": "Download document types from checklists",
+  "documents-widget.settings-modal.show-only-checked": "Show only selected",
   "documents-widget.type-settings.allow-file-upload": "Allow file uploads",
   "documents-widget.upload.title": "Add files",
   "documents-widget.upload.message": "Drag the file here",
