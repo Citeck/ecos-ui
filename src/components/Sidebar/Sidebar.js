@@ -27,7 +27,7 @@ import './style.scss';
 class Sidebar extends React.Component {
   static propTypes = {
     idMenu: PropTypes.string,
-    versionMenu: PropTypes.string,
+    versionMenu: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     isOpen: PropTypes.bool,
     isReady: PropTypes.bool,
     items: PropTypes.array,

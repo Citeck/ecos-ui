@@ -24,7 +24,7 @@ export default class Export extends Component {
   static propTypes = {
     className: PropTypes.string,
     classNameBtn: PropTypes.string,
-    recordRef: PropTypes.string,
+    recordRef: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     dashletConfig: PropTypes.object,
     journalConfig: PropTypes.object,
     grid: PropTypes.object,

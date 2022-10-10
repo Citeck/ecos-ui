@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import SS from '../../../services/sidebar';
 
@@ -20,7 +21,7 @@ class ItemLink extends React.Component {
   };
 
   render() {
-    const { children, data, extraParams, ...props } = this.props;
+    const { children, data, extraParams, handleClick, ...props } = this.props;
 
     if (isEmpty(data)) {
       return null;
@@ -28,12 +29,17 @@ class ItemLink extends React.Component {
 
     const { targetUrl, attributes } = SS.getPropsUrl(data, extraParams);
 
-    const handleClick = () => {
-      this.props.handleClick(data.id);
-    };
-
     return (
-      <a href={targetUrl} {...attributes} {...props} disabled={!targetUrl} className="ecos-sidebar-item__link" onClick={handleClick}>
+      <a
+        href={targetUrl}
+        {...attributes}
+        {...props}
+        disabled={!targetUrl}
+        className="ecos-sidebar-item__link"
+        onClick={() => {
+          isFunction(handleClick) && handleClick(data.id);
+        }}
+      >
         {children}
       </a>
     );

@@ -65,7 +65,6 @@ export default class Popper extends Component {
 
     if (!element || !this.needPopper) {
       this.state.needPopover && this.setState({ needPopover: false });
-
       return;
     }
 
@@ -83,7 +82,15 @@ export default class Popper extends Component {
   setTextRef = ref => {
     if (ref) {
       this.#textRef = ref;
-      setTimeout(this.checkNeedShowPopper, 0);
+
+      if (!ref || !this.needPopper) {
+        this.state.needPopover && this.setState({ needPopover: false });
+        return;
+      }
+
+      this.setState({
+        needPopover: 0 > ref.clientWidth - ref.scrollWidth
+      });
     }
   };
 
