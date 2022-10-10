@@ -4,14 +4,13 @@ import classNames from 'classnames';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { t } from '../../helpers/util';
-import { SourcesId } from '../../constants';
+import { SourcesId, FORM_MODE_EDIT } from '../../constants';
 import Records from '../Records';
 import IcoBtn from '../common/btns/IcoBtn';
 import EcosModal from '../common/EcosModal';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
-import { FORM_MODE_EDIT } from './constants';
 import { emitter, RESET_AUTH_STATE_EVENT } from '../../helpers/ecosFetch';
 import DialogManager from '../common/dialogs/Manager';
 

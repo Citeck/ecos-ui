@@ -268,6 +268,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       }
       return ref;
     };
+
     const setValueImpl = v => {
       const val = v || this.component.defaultValue || this.emptyValue;
       if (this.component.dataType === DataTypes.AUTHORITY) {
