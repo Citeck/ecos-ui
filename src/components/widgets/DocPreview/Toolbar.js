@@ -312,6 +312,7 @@ class Toolbar extends Component {
           value={fileValue}
           onChange={onFileChange}
           itemClassName={item => (item.link ? '' : 'ecos-doc-preview__toolbar-select-item_disabled')}
+          labelIsDiv
         />
       </div>
     );

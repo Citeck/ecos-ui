@@ -36,6 +36,7 @@ ShallowWrapper {
           isButton={true}
           isLinks={false}
           isStatic={true}
+          labelIsDiv={false}
           menuClassName=""
           onChange={[Function]}
           placeholder=""
@@ -118,6 +119,7 @@ ShallowWrapper {
           "isButton": true,
           "isLinks": false,
           "isStatic": true,
+          "labelIsDiv": false,
           "menuClassName": "",
           "onChange": [Function],
           "placeholder": "",
@@ -225,6 +227,7 @@ ShallowWrapper {
             isButton={true}
             isLinks={false}
             isStatic={true}
+            labelIsDiv={false}
             menuClassName=""
             onChange={[Function]}
             placeholder=""
@@ -307,6 +310,7 @@ ShallowWrapper {
             "isButton": true,
             "isLinks": false,
             "isStatic": true,
+            "labelIsDiv": false,
             "menuClassName": "",
             "onChange": [Function],
             "placeholder": "",
