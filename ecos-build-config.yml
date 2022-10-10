@@ -6,5 +6,5 @@ properties:
   builds:
     - enterprise: true
       plugins:
-        - heatmap:1.2.0
+        - heatmap:1.4.0
     - enterprise: false

@@ -43,6 +43,7 @@ import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import kanban from './kanban';
 import processStatistics from './processStatistics';
+import orgstructure from './orgstructure';
 
 const reducers = {
   app,
@@ -86,7 +87,8 @@ const reducers = {
   adminSection,
   cmmnEditor,
   kanban,
-  processStatistics
+  processStatistics,
+  orgstructure
 };
 
 export default history =>

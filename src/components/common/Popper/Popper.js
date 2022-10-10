@@ -17,6 +17,7 @@ export default class Popper extends Component {
     text: PropTypes.string,
     icon: PropTypes.string,
     showAsNeeded: PropTypes.bool,
+    withoutText: PropTypes.bool,
     contentComponent: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]),
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
   };
@@ -37,7 +38,11 @@ export default class Popper extends Component {
   }
 
   get needPopper() {
-    const { text, contentComponent } = this.props;
+    const { text, contentComponent, withoutText } = this.props;
+
+    if (withoutText) {
+      return !isNil(contentComponent);
+    }
 
     return !isNil(getFirstNotNil(text, contentComponent));
   }
@@ -96,7 +101,12 @@ export default class Popper extends Component {
   handleResize = debounce(() => this.checkNeedShowPopper(), 350);
 
   renderText = () => {
-    const { icon, text, contentComponent, children } = this.props;
+    const { icon, text, contentComponent, children, withoutText } = this.props;
+
+    if (withoutText) {
+      return null;
+    }
+
     const extraProps = {};
 
     if (!icon && this.canShowPopover) {

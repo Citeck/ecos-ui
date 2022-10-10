@@ -254,7 +254,7 @@ export default class JournalsConverter {
 
     const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
 
-    return columns.filter(item => configColumnsIds.includes(JournalsConverter.getColumnId(item)));
+    return columns.filter(item => configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item)));
   }
 
   /**

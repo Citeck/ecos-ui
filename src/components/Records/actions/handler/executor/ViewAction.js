@@ -7,11 +7,13 @@ import ActionsExecutor from '../ActionsExecutor';
 export default class ViewAction extends ActionsExecutor {
   static ACTION_ID = 'view';
 
-  async execForRecord(record, action, context) {
+  async execForRecord(record, action, context = {}) {
     const { config = {} } = action;
+    const { newBrowserTab = false } = context;
+
     const openInBackground = config.background === true;
     const updateUrl = config.reopen === true;
-    const openNewBrowserTab = config.newBrowserTab === true;
+    const openNewBrowserTab = newBrowserTab || config.newBrowserTab === true;
     const reopenBrowserTab = config.reopenBrowserTab === true;
     const openNewTab = openInBackground || !config.reopen;
     const openParams = {
@@ -40,6 +42,7 @@ export default class ViewAction extends ActionsExecutor {
 
   isAllowedInContext(context) {
     const { mode = '' } = context;
+
     return mode !== ActionModes.DASHBOARD;
   }
 
@@ -53,7 +56,7 @@ export default class ViewAction extends ActionsExecutor {
 
 const goToTaskView = async (task, params) => {
   let fixedTaskId = task;
-  if (!fixedTaskId.startsWith(`${SourcesId.PROC_TASK}`)) {
+  if (!fixedTaskId.startsWith(`${SourcesId.PROC_TASK}`) && !fixedTaskId.startsWith(`${SourcesId.PROC_HISTORIC_TASK}`)) {
     fixedTaskId = `${SourcesId.PROC_TASK}@${task}`;
   }
 

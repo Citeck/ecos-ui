@@ -19,6 +19,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { LANGUAGE_EN } from '../../constants/lang';
+import { FORM_MODE_EDIT } from './constants';
 
 import './formio.full.min.css';
 import './glyphicon-to-fa.scss';
@@ -36,30 +37,41 @@ class EcosForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const record = Records.getRecordToEdit(this.props.record);
-
     this.state = {
       containerId: 'ecos-ui-form-' + formCounter++,
-      recordId: record.id,
       ...this.initState
     };
   }
 
   componentWillUnmount() {
     Records.releaseAll(this.state.containerId);
+
     if (this._form) {
       this._form.destroy();
     }
+
     window.clearTimeout(this._containerHeightTimerId);
   }
 
   componentDidMount() {
-    this.initForm();
+    const record = Records.getRecordToEdit(this.props.record);
+
+    this.setState({ recordId: record }, () => {
+      this.initForm();
+    });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
       this.setState({ ...this.initState }, this.initForm);
+    }
+
+    if (prevProps.record !== this.props.record) {
+      const record = Records.getRecordToEdit(this.props.record);
+
+      this.setState({ recordId: record }, () => {
+        this.initForm();
+      });
     }
   }
 
@@ -260,6 +272,18 @@ class EcosForm extends React.Component {
           form.ecos = { custom: customModule };
           form.setValue({ data });
           form.on('submit', submission => this.submitForm(form, submission));
+          form.on(
+            'change',
+            debounce(
+              submission => {
+                if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
+                  isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission);
+                }
+              },
+              1000,
+              { trailing: true }
+            )
+          );
 
           Object.keys(this.props)
             .filter(key => key.startsWith(HANDLER_PREFIX))
@@ -378,7 +402,7 @@ class EcosForm extends React.Component {
   };
 
   submitForm = debounce(
-    (form, submission) => {
+    (form, submission, forceSave = false) => {
       const self = this;
       const { recordId, containerId } = this.state;
       const inputs = EcosFormUtils.getFormInputs(form.component);
@@ -487,7 +511,7 @@ class EcosForm extends React.Component {
 
       self.toggleLoader(true);
 
-      if (this.props.saveOnSubmit !== false) {
+      if (forceSave || this.props.saveOnSubmit !== false) {
         sRecord
           .save()
           .then(persistedRecord => {

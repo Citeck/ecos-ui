@@ -634,6 +634,7 @@
 
   "record-action.name.details": "Details",
   "record-action.name.download": "Download",
+  "record-action.name.download-by-template": "Download by template",
   "record-action.name.create": "Create",
   "record-action.name.edit": "Edit",
   "record-action.name.show": "View document",
@@ -674,6 +675,7 @@
   "record-action.name.export-report.msg.no-handler": "Action handler doesn't exists",
   "record-action.name.export-report.msg.done-no-url": "Done, but url not specified in result",
   "record-action.name.export-report.msg.done-no-type": "Unknown type of result",
+  "record-action.name.export-report.msg.server-error-type": "Server error",
   "record-action.name.export-report.msg.sending-to-email": "The upload is generated and will be sent to the email address specified in your ECOS profile",
 
   "record-action.edit-journal-preset.name": "Edit journal template",
@@ -1350,6 +1352,7 @@
   "documents-widget.settings-modal.button.cancel": "Cancel",
   "documents-widget.settings-modal.button.ok": "Done",
   "documents-widget.settings-modal.checklist": "Download document types from checklists",
+  "documents-widget.settings-modal.show-only-checked": "Show only selected",
   "documents-widget.type-settings.allow-file-upload": "Allow file uploads",
   "documents-widget.upload.title": "Add files",
   "documents-widget.upload.message": "Drag the file here",
@@ -1487,8 +1490,8 @@
   "menu-settings.editor-items.action.show": "Show",
   "menu-settings.editor-items.action.delete": "Delete",
   "menu-settings.editor-items.action.edit-icon": "Update icon",
-  "menu-settings.editor-items.action.count-on": "On counter",
-  "menu-settings.editor-items.action.count-off": "Off counter",
+  "menu-settings.editor-items.action.count-on": "Enable counter",
+  "menu-settings.editor-items.action.count-off": "Disable counter",
   "menu-settings.editor-item.field.name.label": "Name",
   "menu-settings.editor-item.field.checkbox.hide-name": "Hide name",
   "menu-settings.editor-item.field.url.label": "URL",
@@ -2311,5 +2314,15 @@
   "day-form2": "day",
   "day-form3": "days",
 
-  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable"
+  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable",
+
+  "orgstructure-page-no-picked-person-text": "Pick user profile",
+  "orgstructure-page-title": "Orgstructure",
+  "orgstructure-delete-modal-title-person": "Person delete",
+  "orgstructure-delete-modal-title-group": "Group delete",
+  "orgstructure-delete-modal-body-person": "Do you really want to delete this person?",
+  "orgstructure-delete-modal-body-group": "Do you really want to delete this group?",
+  "orgstructure-delete-modal-full-delete": "Delete completely",
+  "orgstructure-delete-modal-group-delete": "Delete from group",
+  "orgstructure-delete-modal-cancel": "Cancel"
 }

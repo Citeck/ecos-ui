@@ -6,7 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isEqual from 'lodash/isEqual';
 
-import { setScrollTop, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
+import { setScrollTop, setSelectedId, toggleExpanded, toggleIsOpen } from '../../actions/slideMenu';
 import { extractLabel } from '../../helpers/util';
 import { isNewVersionPage } from '../../helpers/export/urls';
 import { getIconObjectWeb, getIconUpDown } from '../../helpers/icon';
@@ -118,7 +118,7 @@ class Item extends React.Component {
   });
 
   renderLabel() {
-    const { isSiteDashboardEnable, data, isOpen, styleProps, isNewUIAvailable } = this.props;
+    const { isSiteDashboardEnable, data, isOpen, styleProps, isNewUIAvailable, handleClick } = this.props;
     const extraParams = { isSiteDashboardEnable, isNewUIAvailable };
     const contentProps = { data, isOpen, styleProps };
 
@@ -139,7 +139,7 @@ class Item extends React.Component {
     }
 
     return (
-      <ItemLink data={data} extraParams={extraParams}>
+      <ItemLink data={data} extraParams={extraParams} handleClick={handleClick}>
         <this.renderContent {...contentProps} />
       </ItemLink>
     );
@@ -214,7 +214,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   toggleExpanded: item => dispatch(toggleExpanded(item)),
   setScrollTop: value => dispatch(setScrollTop(value)),
-  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen))
+  toggleIsOpen: isOpen => dispatch(toggleIsOpen(isOpen)),
+  handleClick: id => dispatch(setSelectedId(id))
 });
 
 export default connect(

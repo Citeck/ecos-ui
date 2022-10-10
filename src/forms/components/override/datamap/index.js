@@ -1,5 +1,5 @@
 import DataMap from './DataMap';
-import DataMapEditor from 'formiojs/components/datamap/DataMap.form';
+import DataMapEditor from './DataMap.form';
 
 DataMap.editForm = DataMapEditor;
 

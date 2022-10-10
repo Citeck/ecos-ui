@@ -53,6 +53,7 @@ class ModelEditorPage extends React.Component {
   _formsCache = {};
 
   #prevMultiInstanceType = null;
+  #copiedElements = new Map();
 
   componentDidMount() {
     this.initModeler();
@@ -72,6 +73,7 @@ class ModelEditorPage extends React.Component {
 
   componentWillUnmount() {
     this.designer && this.designer.destroy();
+    this.#copiedElements.clear();
   }
 
   initModeler = () => {};
@@ -121,7 +123,48 @@ class ModelEditorPage extends React.Component {
   }
 
   getElement(element = {}) {
-    return this.designer.modeler.get('elementRegistry').find(e => e.id === element.id);
+    return this.designer.modeler.get('elementRegistry').get(element.id);
+  }
+
+  /**
+   * Need for custom copy-paste
+   * https://github.com/nikku/bpmn-js-copy-paste-example
+   * @returns {*}
+   */
+  get clipboard() {
+    return this.designer.modeler.get('clipboard');
+  }
+
+  /**
+   * Need for custom copy-paste
+   * https://github.com/nikku/bpmn-js-copy-paste-example
+   * @returns {*}
+   */
+  get copyPaste() {
+    return this.designer.modeler.get('copyPaste');
+  }
+
+  /**
+   * Need for custom copy-paste
+   * https://github.com/nikku/bpmn-js-copy-paste-example
+   * @returns {*}
+   */
+  get moddle() {
+    return this.designer.modeler.get('moddle');
+  }
+
+  get formData() {
+    const formData = get(this.props, 'formProps.formData');
+    const { selectedElement } = this.state;
+
+    if (!selectedElement || !selectedElement.id) {
+      return formData;
+    }
+
+    return {
+      ...formData,
+      ...get(this._formsCache, selectedElement.id, {})
+    };
   }
 
   #getMultiInstanceType = () => {
@@ -214,7 +257,7 @@ class ModelEditorPage extends React.Component {
     };
   }
 
-  handleReadySheet = (...data) => {
+  handleReadySheet = () => {
     this.handleSelectItem(this.designer.elementDefinitions);
   };
 
@@ -351,8 +394,6 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    this.cacheFormData();
-
     this._formReady = false;
 
     this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
@@ -369,6 +410,28 @@ class ModelEditorPage extends React.Component {
     this._formReady = true;
   };
 
+  handleBeforeFormDestroy = ({ data }) => {
+    const { selectedElement } = this.state;
+    let id = selectedElement.id;
+
+    if (data.id !== id) {
+      delete this._formsCache[id];
+      delete this._formsCache[id + LABEL_POSTFIX];
+      id = data.id;
+      this.designer.updateProps(selectedElement, { id });
+    }
+
+    const mlNameKey = KEY_FIELD_NAME + ML_POSTFIX;
+
+    if (id.endsWith(LABEL_POSTFIX)) {
+      set(this._formsCache, [id.replace(LABEL_POSTFIX, ''), mlNameKey], data[mlNameKey]);
+    } else {
+      set(this._formsCache, [id + LABEL_POSTFIX, mlNameKey], data[mlNameKey]);
+    }
+
+    this._formsCache[id] = data;
+  };
+
   handleFormChange = (info, form) => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
@@ -381,41 +444,43 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    if (info.changed && selectedElement) {
-      const modelData = {};
-      const ecosType = get(info, 'data.ecosType');
+    if (!info.changed || !selectedElement) {
+      return;
+    }
 
-      if (!isUndefined(ecosType)) {
-        this._tempFormData = { ecosType };
+    const modelData = {};
+    const ecosType = get(info, 'data.ecosType');
+
+    if (!isUndefined(ecosType)) {
+      this._tempFormData = { ecosType };
+    }
+
+    const componentsByKey = flattenComponents(form.components);
+
+    for (let key in info.data) {
+      if (isUndefined(info.data[key]) || IGNORED_VALUE_COMPONENTS.includes(get(componentsByKey, [key, 'type']))) {
+        continue;
       }
 
-      const componentsByKey = flattenComponents(form.components);
+      const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+      const rawValue = info.data[key];
+      let valueAsText = rawValue;
 
-      for (let key in info.data) {
-        if (isUndefined(info.data[key]) || IGNORED_VALUE_COMPONENTS.includes(get(componentsByKey, [key, 'type']))) {
-          continue;
-        }
-
-        const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
-        const rawValue = info.data[key];
-        let valueAsText = rawValue;
-
-        if (valueAsText != null && !isString(valueAsText)) {
-          valueAsText = JSON.stringify(valueAsText);
-        }
-
-        modelData[fieldKey] = valueAsText;
-
-        if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
-          modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
-        }
+      if (valueAsText != null && !isString(valueAsText)) {
+        valueAsText = JSON.stringify(valueAsText);
       }
 
-      this.designer.updateProps(selectedElement, modelData);
+      modelData[fieldKey] = valueAsText;
 
-      if (selectedDiagramElement) {
-        this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
+      if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
+        modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
       }
+    }
+
+    this.designer.updateProps(selectedElement, modelData);
+
+    if (selectedDiagramElement) {
+      this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
     }
   };
 
@@ -527,6 +592,15 @@ class ModelEditorPage extends React.Component {
     this.handleSelectItem(element);
   };
 
+  handleCopyElement = event => {
+    this.#copiedElements.set(event.element.id, get(event, 'element.businessObject.$attrs') || {});
+  };
+
+  handlePasteElement = event => {
+    this.designer.updateProps(event.descriptor, this.#copiedElements.get(event.descriptor.id));
+    this.#copiedElements.delete(event.descriptor.id);
+  };
+
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -543,7 +617,9 @@ class ModelEditorPage extends React.Component {
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
             [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.ROOT_SET]: this.handleSetRoot
+            [EventListeners.ROOT_SET]: this.handleSetRoot,
+            [EventListeners.COPY_ELEMENT]: this.handleCopyElement,
+            [EventListeners.PASTE_ELEMENT]: this.handlePasteElement
           }}
         />
       );
@@ -551,20 +627,6 @@ class ModelEditorPage extends React.Component {
       return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;
     }
   };
-
-  get formData() {
-    const formData = get(this.props, 'formProps.formData');
-    const { selectedElement } = this.state;
-
-    if (!selectedElement || !selectedElement.id) {
-      return formData;
-    }
-
-    return {
-      ...formData,
-      ...get(this._formsCache, selectedElement.id, {})
-    };
-  }
 
   render() {
     const { title, formProps, isLoading } = this.props;
@@ -601,6 +663,7 @@ class ModelEditorPage extends React.Component {
                   onClick={this.handleClickForm}
                   onFormChange={this.handleFormChange}
                   onFormReady={this.handleFormReady}
+                  onBeforeFormDestroy={this.handleBeforeFormDestroy}
                 />
               )}
             </>

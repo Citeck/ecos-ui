@@ -115,6 +115,7 @@ const runApp = () => {
 
 if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
   authService.init().then(runApp);
+  api.app.setCustomLogoutAction(() => authService.logout());
 } else {
   runApp();
 }

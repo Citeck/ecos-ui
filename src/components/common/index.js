@@ -28,3 +28,4 @@ export { default as EcosIcon } from './EcosIcon';
 export { default as Popper } from './Popper';
 export { default as Legend } from './Legend';
 export { default as Scaler } from './Scaler';
+export { default as Highlighter } from './Highlighter';

@@ -56,6 +56,7 @@ class PropertiesDashlet extends BaseWidget {
     super(props);
 
     this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
+    this.ref = this;
 
     this.state = {
       ...this.state,
@@ -80,6 +81,10 @@ class PropertiesDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState);
 
     if (!objectCompare(prevProps.config, this.props.config)) {
+      this.reload();
+    }
+
+    if (prevProps.record !== this.props.record) {
       this.reload();
     }
   }
@@ -128,18 +133,23 @@ class PropertiesDashlet extends BaseWidget {
     if (formMode === 'EDIT' && this.state.formIsChanged) {
       actions = {
         [DAction.Actions.CANCEL]: {
-          className: getFitnesseClassName(
-            'properties-widget btn btn-secondary btn-md eform-edit-form-btn mr-3',
-            formType,
-            DAction.Actions.CANCEL
+          className: classNames(
+            getFitnesseClassName('properties-widget', formType, DAction.Actions.CANCEL),
+            'btn btn-secondary btn-xsm eform-edit-form-btn'
           ),
-          onClick: () => this.setState({ formIsChanged: false }, this.onReloadDashlet)
+          onClick: () =>
+            this.setState({ formIsChanged: false }, () => {
+              const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
+
+              PropertiesApi.resetPropertipesDashlet(currentForm.state.recordId).then(() => {
+                this.onReloadDashlet();
+              });
+            })
         },
         [DAction.Actions.SUBMIT]: {
-          className: getFitnesseClassName(
-            'properties-widget btn btn-primary btn-md eform-edit-form-btn mr-3',
-            formType,
-            DAction.Actions.SUBMIT
+          className: classNames(
+            getFitnesseClassName('properties-widget', formType, DAction.Actions.SUBMIT),
+            'btn btn-primary btn-xsm eform-edit-form-btn'
           ),
           onClick: this.submitForm
         }
@@ -197,18 +207,21 @@ class PropertiesDashlet extends BaseWidget {
     }
   };
 
-  submitForm = () => {
-    const form = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
-    const submission = form._form;
+  onFormIsChanged = (trigger, callback) => {
+    this.setState({ formIsChanged: !!trigger }, callback);
+  };
 
-    if (isFunction(form.submitForm)) {
-      try {
-        form.submitForm(form, submission);
-      } finally {
-        this.setState({ formIsChanged: false });
-        this.onReloadDashlet();
-      }
-    }
+  submitForm = () => {
+    const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
+
+    this.setState({ formIsChanged: false }, () => {
+      currentForm.submitForm.cancel();
+
+      const submission = currentForm._form;
+      const baseForm = get(this._propertiesRef, 'current.wrappedInstance._hiddenEcosForm.current._form');
+
+      currentForm.submitForm(baseForm, submission, true);
+    });
   };
 
   openModal = () => {
@@ -294,6 +307,7 @@ class PropertiesDashlet extends BaseWidget {
           stateId={id}
           minHeight={previousHeight}
           onUpdate={this.onPropertiesUpdate}
+          onFormIsChanged={this.onFormIsChanged}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
           getTitle={this.setTitle}

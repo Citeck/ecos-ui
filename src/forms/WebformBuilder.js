@@ -8,6 +8,7 @@ import _ from 'lodash';
 
 import { t } from '../helpers/export/util';
 import { prepareComponentBuilderInfo } from './utils';
+import { getMLValue } from '../helpers/util';
 
 const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
 const originAddBuilderComponent = WebformBuilder.prototype.addBuilderComponent;
@@ -67,7 +68,9 @@ WebformBuilder.prototype.updateComponent = function(component) {
   // Ensure this component has a key.
   if (component.isNew) {
     if (!component.keyModified) {
-      component.component.key = _.camelCase(component.component.label || component.component.placeholder || component.component.type);
+      component.component.key = _.camelCase(
+        getMLValue(component.component.label || component.component.placeholder || component.component.type)
+      );
     }
 
     // Set a unique key for this component.
@@ -311,7 +314,8 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   const editFormOptions = _.get(this, 'options.editForm', {});
   this.editForm = new Webform(formioForm, {
     language: this.options.language,
-    ...editFormOptions
+    ...editFormOptions,
+    _webform: this
   });
 
   // Set the form to the edit form.

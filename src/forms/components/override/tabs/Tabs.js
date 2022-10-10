@@ -6,7 +6,7 @@ import throttle from 'lodash/throttle';
 
 import { t } from '../../../../helpers/export/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, SCROLL_STEP } from '../../../../constants/pageTabs';
-import { animateScrollTo } from '../../../../helpers/util';
+import { animateScrollTo, getMLValue } from '../../../../helpers/util';
 
 const SCROLLABLE_CLASS = 'formio-component-tabs_scrollable';
 
@@ -282,18 +282,11 @@ export default class TabsComponent extends NestedComponent {
       class: classNames.join(' ')
     });
 
-    const getLabel = label => {
-      if (isObject(label) && this.options.language) {
-        return label[this.options.language];
-      }
-      return label;
-    };
-
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
       const tabLabel = isEqual(t(`form-constructor.tabs.${tab.key}`), `form-constructor.tabs.${tab.key}`)
-        ? getLabel(tab.label)
+        ? getMLValue(tab.label)
         : t(`form-constructor.tabs.${tab.key}`);
 
       if (lodashGet(tab, 'components')) {
@@ -316,8 +309,10 @@ export default class TabsComponent extends NestedComponent {
 
           if (el.components) {
             el.components.forEach(item => {
-              if (this.checkTranslation('label', 'content', item)) {
-                item.label = t(`form-constructor.tabs-content.${item.key}`);
+              if (!isObject(item.label)) {
+                if (this.checkTranslation('label', 'content', item)) {
+                  item.label = t(`form-constructor.tabs-content.${item.key}`);
+                }
               }
             });
           }

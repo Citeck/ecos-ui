@@ -5,10 +5,10 @@ import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
 import { getJournalPageUrl } from '../helpers/urls';
-import { hasChildWithId } from '../helpers/util';
+import { arrayFlat, hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
-import { treeFindFirstItem, treeFindSuitableItem } from '../helpers/arrayOfObjects';
-import { RELOCATED_URL, SourcesId, URL } from '../constants';
+import { treeFindFirstItem } from '../helpers/arrayOfObjects';
+import { SourcesId, URL, URL_MATCHING } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../constants/pageTabs';
 import { MenuSettings } from '../constants/menu';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
@@ -44,12 +44,6 @@ export default class SidebarService {
     const query = queryString.parse(search);
     let value, key;
 
-    Object.keys(RELOCATED_URL).forEach(key => {
-      if (pathname === RELOCATED_URL[key]) {
-        pathname = key;
-      }
-    });
-
     if (pathname === URL.JOURNAL) {
       value = SourcesId.JOURNAL + '@' + query.journalId;
       key = 'config.recordRef';
@@ -60,9 +54,48 @@ export default class SidebarService {
 
     const reverse = !value.includes(URL.ADMIN_PAGE);
     const onlyExact = value.includes(URL.DASHBOARD);
-    const selected = treeFindSuitableItem(items, key, value, { reverse, onlyExact });
+    const selected = SidebarService.treeFindSuitableItem(items, key, value, { reverse, onlyExact });
 
     return get(selected, 'id');
+  }
+
+  /**
+   * If there is exact in array, it'll return exact item, else suitable item or undefined
+   * @param items {Array} data array
+   * @param key {String} key path field
+   * @param value {String} compared value
+   * @param props {Object} props: reverse - reverse comparison value with
+   * @return {Object | undefined} found item
+   */
+  static treeFindSuitableItem(items = [], key, value, props) {
+    const reverse = get(props, 'reverse', false);
+    const onlyExact = get(props, 'onlyExact', false);
+    const flatArray = arrayFlat({ data: cloneDeep(items), byField: 'items', withParent: true });
+
+    let exact, suitable;
+
+    for (let item of flatArray) {
+      let { targetUrl } = SidebarService.getPropsUrl(item);
+
+      if (!targetUrl) {
+        targetUrl = get(item, key);
+      }
+
+      const _exact = targetUrl === value || value === URL_MATCHING[targetUrl];
+
+      if (_exact) {
+        exact = item;
+        break;
+      }
+
+      const _suitable = reverse ? String(value).includes(get(item, key)) : String(get(item, key)).includes(value);
+
+      if ((!onlyExact && _suitable) || value.includes(URL_MATCHING[targetUrl])) {
+        suitable = item;
+      }
+    }
+
+    return exact || suitable;
   }
 
   static isExpanded(expandableItems = [], itemId) {
@@ -165,9 +198,9 @@ export default class SidebarService {
           targetUrl = `${URL.DASHBOARD}?recordRef=site@${params.siteName}`;
           break;
         case ATypes.STATIC_LINK: {
-          targetUrl = params.url;
+          targetUrl = params.url || '';
           attributes.target = '_blank';
-          ignoreTabHandler = params.url.indexOf(NEW_VERSION_PREFIX) !== 0;
+          ignoreTabHandler = targetUrl.indexOf(NEW_VERSION_PREFIX) !== 0;
           break;
         }
         default:

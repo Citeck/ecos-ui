@@ -8,6 +8,7 @@ export const toggleIsOpen = createAction(prefix + 'TOGGLE_IS_OPEN');
 export const toggleExpanded = createAction(prefix + 'TOGGLE_EXPANDED');
 export const collapseAllItems = createAction(prefix + 'COLLAPSE_ALL_ITEMS');
 export const setSelectedId = createAction(prefix + 'SET_SELECTED_ID');
+export const setInitialSelectedId = createAction(prefix + 'SET_INITIAL_SELECTED_ID');
 export const fetchSlideMenuItems = createAction(prefix + 'FETCH_SLIDE_MENU_ITEMS');
 export const setScrollTop = createAction(prefix + 'SET_SCROLL_TOP');
 export const setIsReady = createAction(prefix + 'SET_IS_READY');

@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import omit from 'lodash/omit';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import { NotificationManager } from 'react-notifications';
 
 import { instUserConfigApi as api } from '../../api/userConfig';
 import { URL } from '../../constants';
@@ -56,6 +57,7 @@ export default class Export extends Component {
 
   handleExport = async item => {
     if (this.#actionsDoing.get(item.id)) {
+      NotificationManager.warning(t('ecos-form.export.attention'));
       return;
     }
 

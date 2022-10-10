@@ -913,16 +913,16 @@ class RecordActions {
       RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
+    /** @type {PreProcessActionResult} */
+    const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
+
+    if (preResult.configMerged) {
+      action.config = preResult.config;
+    }
+
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
       result = await this.execForQueryAsForRecords(query, action, context);
     } else {
-      /** @type {PreProcessActionResult} */
-      const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
-
-      if (preResult.configMerged) {
-        action.config = preResult.config;
-      }
-
       result = handler.execForQuery(query, action, execContext);
     }
 

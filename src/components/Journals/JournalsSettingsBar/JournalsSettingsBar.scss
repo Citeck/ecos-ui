@@ -101,3 +101,17 @@
     }
   }
 }
+
+.ecos-btn-settings-filter-on i::before {
+  color: $color-blue-light;
+  background-color: $color-white;
+}
+
+.ecos-btn-settings-filter-on:hover i::before {
+  color: $color-blue-dark;
+  background-color: $color-white;
+}
+
+.ecos-btn-settings-filter-on:hover {
+  background-color: $color-white !important;
+}

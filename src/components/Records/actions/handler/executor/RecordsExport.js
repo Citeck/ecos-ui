@@ -18,6 +18,7 @@ const Labels = {
   NO_HANDLER: 'record-action.name.export-report.msg.no-handler',
   NO_RESULT_URL: 'record-action.name.export-report.msg.done-no-url',
   NO_RESULT_TYPE: 'record-action.name.export-report.msg.done-no-type',
+  SERVER_ERROR_TYPE: 'record-action.name.export-report.msg.done-no-type',
   SENDING_TO_EMAIL: 'record-action.name.export-report.msg.sending-to-email'
 };
 
@@ -75,6 +76,10 @@ export default class RecordsExportAction extends ActionsExecutor {
 
       if (!result) {
         throwError(Labels.NO_RESULT, newAction);
+      }
+
+      if (!result.type && result.code && result.code >= 500) {
+        throwError(result.error || Labels.SERVER_ERROR_TYPE, result);
       }
 
       if (!Object.values(ResultTypes).includes(result.type)) {

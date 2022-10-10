@@ -634,6 +634,7 @@
 
   "record-action.name.details": "Детальная информация",
   "record-action.name.download": "Скачать",
+  "record-action.name.download-by-template": "Скачать по шаблону",
   "record-action.name.create": "Создать",
   "record-action.name.edit": "Редактировать",
   "record-action.name.show": "Смотреть документ",
@@ -674,6 +675,7 @@
   "record-action.name.export-report.msg.no-handler": "Обработчик действия не существует",
   "record-action.name.export-report.msg.done-no-url": "Выполнено, но URL не указан в результате",
   "record-action.name.export-report.msg.done-no-type": "Неизвестный тип результата",
+  "record-action.name.export-report.msg.server-error-type": "Ошибка сервера",
   "record-action.name.export-report.msg.sending-to-email": "Выгрузка генерируется и будет отправлена на адрес электронной почты, указанный в вашем профиле ECOS",
 
   "record-action.edit-journal-preset.name": "Редактировать шаблон настроек журнала",
@@ -1349,6 +1351,7 @@
   "documents-widget.settings-modal.button.cancel": "Отмена",
   "documents-widget.settings-modal.button.ok": "Готово",
   "documents-widget.settings-modal.checklist": "Подгружать типы документов из чек-листов",
+  "documents-widget.settings-modal.show-only-checked": "Отображать только выбранные",
   "documents-widget.type-settings.allow-file-upload": "Разрешить загрузку файлов",
   "documents-widget.upload.title": "Добавить файлы",
   "documents-widget.upload.message": "Перетяните сюда файл",
@@ -2310,5 +2313,15 @@
   "day-form2": "дня",
   "day-form3": "дней",
 
-  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно"
+  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно",
+
+  "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя",
+  "orgstructure-page-title": "Оргструктура",
+  "orgstructure-delete-modal-title-person": "Удаление пользователя",
+  "orgstructure-delete-modal-title-group": "Удаление группы",
+  "orgstructure-delete-modal-body-person": "Вы действительно хотите удалить этого пользователя?",
+  "orgstructure-delete-modal-body-group": "Вы действительно хотите удалить эту группу?",
+  "orgstructure-delete-modal-full-delete": "Удалить полностью",
+  "orgstructure-delete-modal-group-delete": "Удалить из группы",
+  "orgstructure-delete-modal-cancel": "Отмена"
 }

@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 import classNames from 'classnames';
 
 import { Icon } from '../../../common';
 import { Badge, Checkbox } from '../../../common/form';
-import { arrayCompare, arrayFlat, t } from '../../../../helpers/util';
+import { arrayFlat, t } from '../../../../helpers/util';
 import { GrouppedTypeInterface } from '../propsInterfaces';
+import Highlighter from '../../../common/Highlighter';
 
 const Labels = {
   EMPTY: 'documents-widget.tree.empty',
@@ -16,10 +17,12 @@ const Labels = {
   OF: 'documents-widget.tree.selected-inside-of'
 };
 
-class TreeItem extends Component {
+class TreeItem extends PureComponent {
   static propTypes = {
     item: PropTypes.shape(GrouppedTypeInterface),
     isChild: PropTypes.bool,
+    isDefaultOpen: PropTypes.bool,
+    isOpenAll: PropTypes.bool,
     className: PropTypes.string,
     onOpenSettings: PropTypes.func,
     onToggleSelect: PropTypes.func
@@ -27,29 +30,24 @@ class TreeItem extends Component {
 
   static defaultProps = {
     item: {},
+    isOpenAll: false,
+    isDefaultOpen: false,
     isChild: false,
     className: ''
   };
 
-  state = {
-    isOpen: false
-  };
+  constructor(props) {
+    super(props);
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    const { item, isChild } = this.props;
-    const { isOpen } = this.state;
+    this.state = {
+      isOpen: props.isDefaultOpen || props.isOpenAll || false
+    };
+  }
 
-    if (
-      nextState.isOpen !== isOpen ||
-      !arrayCompare(nextProps.item.items, item.items) ||
-      nextProps.item.id !== item.id ||
-      nextProps.item.isSelected !== item.isSelected ||
-      nextProps.isChild !== isChild
-    ) {
-      return true;
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!prevProps.isOpenAll && this.props.isOpenAll) {
+      this.setState({ isOpen: true });
     }
-
-    return false;
   }
 
   get title() {
@@ -116,7 +114,7 @@ class TreeItem extends Component {
   }
 
   renderChildren() {
-    const { item, onToggleSelect, onOpenSettings } = this.props;
+    const { item, onToggleSelect, onOpenSettings, isOpenAll } = this.props;
     const { isOpen } = this.state;
 
     if (!item.items.length) {
@@ -126,7 +124,14 @@ class TreeItem extends Component {
     return (
       <Collapse isOpen={isOpen} className="ecos-docs-tree__item-element-children">
         {item.items.map(item => (
-          <TreeItem item={item} isChild key={item.id} onToggleSelect={onToggleSelect} onOpenSettings={onOpenSettings} />
+          <TreeItem
+            item={item}
+            isChild
+            key={item.id}
+            isOpenAll={isOpenAll}
+            onToggleSelect={onToggleSelect}
+            onOpenSettings={onOpenSettings}
+          />
         ))}
       </Collapse>
     );
@@ -175,6 +180,16 @@ class TreeItem extends Component {
     );
   }
 
+  renderName() {
+    const { item } = this.props;
+
+    if (!item.filter) {
+      return item.name;
+    }
+
+    return <Highlighter key={item.name} originText={item.name} highlightedText={item.filter} />;
+  }
+
   render() {
     const { isChild, item } = this.props;
     const { isOpen } = this.state;
@@ -204,7 +219,7 @@ class TreeItem extends Component {
               'ecos-docs-tree__item-element-label_locked': item.locked
             })}
           >
-            {item.name}
+            {this.renderName()}
           </div>
           {this.renderBadge()}
           {this.renderSettings()}
@@ -215,11 +230,12 @@ class TreeItem extends Component {
   }
 }
 
-class Tree extends Component {
+class Tree extends PureComponent {
   static propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape(GrouppedTypeInterface)),
     groupBy: PropTypes.string,
     className: PropTypes.string,
+    isOpenAll: PropTypes.bool,
     onOpenSettings: PropTypes.func,
     onToggleSelect: PropTypes.func
   };
@@ -228,6 +244,7 @@ class Tree extends Component {
     data: [],
     groupBy: '',
     className: '',
+    isOpenAll: false,
     onOpenSettings: () => {},
     onToggleSelect: () => {}
   };
@@ -271,7 +288,7 @@ class Tree extends Component {
   }
 
   renderTree() {
-    const { onToggleSelect } = this.props;
+    const { isOpenAll, onToggleSelect } = this.props;
     const data = this.formattedTree;
 
     if (!data.length) {
@@ -279,7 +296,14 @@ class Tree extends Component {
     }
 
     return data.map(item => (
-      <TreeItem item={item} key={item.id} onToggleSelect={onToggleSelect} onOpenSettings={this.props.onOpenSettings} />
+      <TreeItem
+        item={item}
+        key={item.id}
+        isDefaultOpen={data.length === 1}
+        isOpenAll={isOpenAll}
+        onToggleSelect={onToggleSelect}
+        onOpenSettings={this.props.onOpenSettings}
+      />
     ));
   }
 

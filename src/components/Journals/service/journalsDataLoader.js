@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import filter from 'lodash/filter';
+import isEmpty from 'lodash/isEmpty';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
@@ -206,13 +207,22 @@ class JournalsDataLoader {
    * @returns {{attributesMap: Object, attributesSet: Array}}
    */
   #getAttributes = (journalConfig, settings) => {
-    const groupBy = journalConfig.groupBy || [];
     const columns = journalConfig.columns || [];
+    const settingsColumns = settings.columns || [];
     const settingsAttributes = settings.attributes || {};
     const attributesMap = {};
+    let groupBy = journalConfig.groupBy || [];
+
+    if (isEmpty(groupBy)) {
+      groupBy = settings.groupBy || [];
+    }
 
     for (let column of columns) {
       !!column.name && (attributesMap[column.name] = column.attSchema);
+    }
+
+    for (let item of settingsColumns) {
+      !!item.column && (attributesMap[item.attribute] = item.schema);
     }
 
     for (let att in settingsAttributes) {

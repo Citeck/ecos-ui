@@ -41,7 +41,10 @@ function* doFetchGroupSectionList({ api, logger }) {
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
 
     yield put(setGroupSectionList(sectionsGroup));
-    yield put(setActiveSection(activeSection));
+
+    if (activeSection) {
+      yield put(setActiveSection(activeSection));
+    }
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e);
   }
@@ -51,7 +54,6 @@ function* updateActiveSection({ logger }) {
   try {
     const sectionsGroup = yield select(state => state.adminSection.groupSectionList || []);
     const activeSection = AdminSectionService.getActiveSectionInGroups(sectionsGroup);
-
     yield put(setActiveSection(activeSection));
   } catch (e) {
     logger.error('[adminSection doFetchGroupSectionList saga] error', e);

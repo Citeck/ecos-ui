@@ -3,6 +3,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import getFirst from 'lodash/first';
 import set from 'lodash/set';
+import omit from 'lodash/omit';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -126,7 +127,8 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
     predicates,
-    pagination: { ...pagination }
+    pagination: { ...pagination },
+    grouping: journalSetting.grouping
   };
 }
 
@@ -250,7 +252,6 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
 function* getJournalSettings(api, journalId, w, stateId) {
   const settings = yield call([PresetsServiceApi, PresetsServiceApi.getJournalPresets], { journalId });
   const journalConfig = yield select(selectJournalConfig, stateId);
-
   if (isArray(settings)) {
     settings.forEach(preset => {
       set(preset, 'settings.columns', JournalsConverter.filterColumnsByConfig(get(preset, 'columns'), journalConfig.columns));
@@ -307,10 +308,6 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
       journalSetting = sharedSettings;
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;
-
-      if (!journalSettingId) {
-        journalSettingId = yield call(api.journals.getLsJournalSettingId, journalConfig.id);
-      }
 
       if (journalSettingId) {
         const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
@@ -565,6 +562,11 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setLoading(w(true)));
 
     const journalData = yield select(selectJournalData, stateId);
+
+    if (get(payload, 'predicates')) {
+      yield put(setGrid(w({ predicates: payload.predicates })));
+    }
+
     const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
     const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
     const params = { ...grid, ...payload, searchPredicate };
@@ -638,7 +640,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       yield getJournalSettings(api, journalConfig.id, w, stateId);
 
       const settings = yield select(selectJournalSettings, stateId);
-      const selectedPreset = settings.find(setting => setting.id === stateId);
+      const selectedPreset = settings.find(setting => setting.id === journalSettingId);
 
       if (isEmpty(selectedPreset)) {
         journalSettingId = get(settings, '0.id', '');
@@ -891,6 +893,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
+    const url = yield select(selectUrl, stateId);
 
     yield put(setJournalSetting(w(settings)));
     yield put(setPredicate(w(predicate)));
@@ -899,6 +902,15 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     yield put(setGrouping(w(grouping)));
     const newCols = grouping.groupBy.length ? grouping.columns : columns;
     yield put(setGrid(w({ columns: newCols })));
+
+    yield put(
+      setUrl(
+        w({
+          ...omit(url, 'search')
+        })
+      )
+    );
+
     yield put(
       reloadGrid(
         w({
@@ -1117,7 +1129,7 @@ function* saga(ea) {
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
   yield takeEvery(initJournal().type, wrapSaga, { ...ea, saga: sagaInitJournal });
 
-  yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
+  yield takeLatest(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });

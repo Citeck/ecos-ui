@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -10,6 +10,7 @@ import Export from '../../Export/Export';
 import GroupActions from '../GroupActions';
 import ViewTabs from '../ViewTabs';
 import CreateMenu from './CreateMenu';
+import { ParserPredicate } from '../../Filters/predicates';
 
 import './JournalsSettingsBar.scss';
 
@@ -26,6 +27,7 @@ const JournalsSettingsBar = ({
   targetId,
   grid,
   journalConfig,
+  predicate,
   searchText,
   selectedRecords,
 
@@ -50,6 +52,7 @@ const JournalsSettingsBar = ({
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const noCreateMenu = isMobile || isEmpty(createVariants);
   const target = str => `${targetId}-${str}`;
+  const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [predicate]);
 
   return (
     <>
@@ -61,7 +64,9 @@ const JournalsSettingsBar = ({
             <IcoBtn
               id={target('settings')}
               icon={'icon-settings'}
-              className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content')}
+              className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', {
+                'ecos-btn-settings-filter-on': !isDefaultSettings
+              })}
               onClick={onToggleSettings}
               loading={isLoading}
             />

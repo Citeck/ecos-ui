@@ -157,12 +157,14 @@ const _expandEditForm = component => {
     const tabs = result.components ? result.components.find(item => item.type === 'tabs') : {};
     const filtered = tabs && tabs.components ? tabs.components.filter(item => item.key !== 'condition-reworked') : [];
 
-    const basic = tabs.components ? tabs.components.find(item => item.key === 'basic') : {};
-    const simpleLogic = basic.components ? basic.components.find(item => item.key === 'simple-conditional') : {};
-
     if (tabs && filtered) {
       tabs.components = filtered;
+    } else {
+      return result;
     }
+
+    const basic = tabs.components && tabs.components.find(item => item.key === 'basic');
+    const simpleLogic = basic && basic.components ? basic.components.find(item => item.key === 'simple-conditional') : {};
 
     if (tabs && basic && simpleLogic) {
       basic.components = basic.components.filter(item => item.key !== 'simple-conditional');
@@ -301,4 +303,26 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
   });
 
   return tabsByKey;
+};
+
+/**
+ * Changing the configuration of a component by reference
+ * @param {Array} components
+ * @param {String} componentKey
+ * @param {Object} newConfig
+ */
+export const replaceComponentConfig = (components = [], componentKey = '', newConfig = {}) => {
+  if (isEmpty(components) || isEmpty(componentKey)) {
+    return;
+  }
+
+  const component = components.find(item => item.key === componentKey);
+
+  if (isEmpty(component)) {
+    return;
+  }
+
+  for (const key in newConfig) {
+    component[key] = newConfig[key];
+  }
 };

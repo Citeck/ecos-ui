@@ -31,6 +31,13 @@ export class DocumentsApi {
     );
   };
 
+  getParent = type => {
+    return Records.get(type).load({
+      id: 'parent?id',
+      name: 'parent?disp'
+    });
+  };
+
   getDynamicTypes = recordRef => {
     return Records.query(
       {
