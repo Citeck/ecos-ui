@@ -5,7 +5,7 @@ import { TMP_ICON_EMPTY } from '../../../../constants';
 import { IcoBtn } from '../../btns';
 import { Tooltip } from '../../index';
 
-export const renderAction = (action, idx, withTooltip = false) => {
+export const renderAction = (action, idx, withTooltip = false, modifiers = {}) => {
   if (action.hidden) {
     return null;
   }
@@ -22,7 +22,21 @@ export const renderAction = (action, idx, withTooltip = false) => {
   }
 
   return (
-    <Tooltip key={idx} target={id} uncontrolled text={action.name}>
+    <Tooltip
+      key={idx}
+      target={id}
+      uncontrolled
+      text={action.name}
+      modifiers={{
+        offset: {
+          name: 'offset',
+          enabled: true,
+          offset: '0, 5px'
+        },
+        ...modifiers
+      }}
+      delay={{ show: 0, hide: 250 }}
+    >
       <IcoBtn id={id} icon={icon} onClick={action.onClick} className={classes} />
     </Tooltip>
   );
