@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { TMP_ICON_EMPTY } from '../../../../constants';
 import { IcoBtn } from '../../btns';
 import { Tooltip } from '../../index';
+import { baseModifiers } from '../../Tooltip';
 
 export const renderAction = (action, idx, withTooltip = false, modifiers = {}) => {
   if (action.hidden) {
@@ -28,14 +29,9 @@ export const renderAction = (action, idx, withTooltip = false, modifiers = {}) =
       uncontrolled
       text={action.name}
       modifiers={{
-        offset: {
-          name: 'offset',
-          enabled: true,
-          offset: '0, 5px'
-        },
+        ...baseModifiers,
         ...modifiers
       }}
-      delay={{ show: 0, hide: 250 }}
     >
       <IcoBtn id={id} icon={icon} onClick={action.onClick} className={classes} />
     </Tooltip>

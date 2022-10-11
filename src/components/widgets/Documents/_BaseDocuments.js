@@ -434,7 +434,7 @@ class BaseDocuments extends BaseWidget {
           offset: {
             name: 'offset',
             enabled: true,
-            offset: '0, 5px'
+            offset: '0, 10px'
           }
         }}
       >
