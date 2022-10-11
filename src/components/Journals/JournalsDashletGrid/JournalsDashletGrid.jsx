@@ -214,11 +214,6 @@ class JournalsDashletGrid extends Component {
     this.setState({ isDialogShow: false });
   };
 
-  onScrolling = e => {
-    this.scrollPosition = e;
-    this.hideGridInlineToolSettings();
-  };
-
   render() {
     const {
       selectedRecords,
@@ -290,7 +285,6 @@ class JournalsDashletGrid extends Component {
               onRowClick={doInlineToolsOnRowClick ? this.onRowClick : null}
               onMouseLeave={!doInlineToolsOnRowClick ? this.hideGridInlineToolSettings : null}
               onChangeTrOptions={this.showGridInlineToolSettings}
-              onScrolling={this.onScrolling}
               onEdit={saveRecords}
               selected={selectedRecords}
               excluded={excludedRecords}
