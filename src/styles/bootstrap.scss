@@ -51,3 +51,16 @@
     white-space: break-spaces;
   }
 }
+
+.tooltip.bs-tooltip {
+  &-auto[x-placement^='top'] {
+    padding: 0;
+    //margin: $tooltip-arrow-height;
+
+    .arrow:before {
+      cursor: unset;
+      pointer-events: none;
+      top: 0 !important;
+    }
+  }
+}

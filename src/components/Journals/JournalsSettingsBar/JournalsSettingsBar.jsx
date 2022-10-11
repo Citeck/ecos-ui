@@ -63,8 +63,7 @@ const JournalsSettingsBar = ({
   const tooltipSettings = {
     off: isMobile,
     modifiers: tooltipModifiers,
-    uncontrolled: true,
-    delay: { show: 0, hide: 250 }
+    uncontrolled: true
   };
 
   return (
@@ -115,7 +114,7 @@ const JournalsSettingsBar = ({
           )}
         </Export>
 
-        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings}>
+        <Tooltip target={`${targetId}-update`} text={t(Labels.BTN_UPDATE)} {...tooltipSettings} modifiers={{}}>
           <IcoBtn
             id={`${targetId}-update`}
             icon={'icon-reload'}
