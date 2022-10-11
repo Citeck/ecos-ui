@@ -55,7 +55,6 @@
 .tooltip.bs-tooltip {
   &-auto[x-placement^='top'] {
     padding: 0;
-    //margin: $tooltip-arrow-height;
 
     .arrow:before {
       cursor: unset;
