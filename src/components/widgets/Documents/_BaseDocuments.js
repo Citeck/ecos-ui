@@ -424,7 +424,20 @@ class BaseDocuments extends BaseWidget {
     const status = typesStatuses[this.getTypeStatus(type)];
 
     return (
-      <Tooltip target={target} text={t(status)} uncontrolled showAsNeeded autohide>
+      <Tooltip
+        target={target}
+        text={t(status)}
+        uncontrolled
+        showAsNeeded
+        autohide
+        modifiers={{
+          offset: {
+            name: 'offset',
+            enabled: true,
+            offset: '0, 5px'
+          }
+        }}
+      >
         <Badge type={type} target={target} forwardedRef={this._counterRef} />
       </Tooltip>
     );
