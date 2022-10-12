@@ -162,10 +162,6 @@ class DateIntervalPicker extends Component {
       {
         label: t(Labels.DATE_TYPE_NOW),
         value: DateTypes.NOW
-      },
-      {
-        label: t(Labels.DATE_TYPE_CUSTOM),
-        value: DateTypes.CUSTOM
       }
     ];
   }
