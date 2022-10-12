@@ -199,8 +199,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
   }
 
   addAce(element, settings, props) {
-    Formio.requireLibrary('ace', 'ace', '/js/lib/ace/1.4.1/ace.js', true)
-      .then(() => {
+    try {
+      window.require(['/js/lib/ace/1.4.1/ace.js', '/js/lib/ace/1.4.1/ext-searchbox.js'], () => {
         if (!element) {
           return NativePromise.reject();
         }
@@ -230,11 +230,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         }
 
         return this.editor;
-      })
-      .catch(error => {
-        console.error('TextAreaComponent.addAce | cant load Ace editor', error);
-        return {};
       });
+    } catch (error) {
+      console.error('TextAreaComponent.addAce | cant load Ace editor', error);
+      return {};
+    }
   }
 
   enableWysiwyg() {
