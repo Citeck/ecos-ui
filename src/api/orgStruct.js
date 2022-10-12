@@ -16,17 +16,20 @@ export class OrgStructApi extends CommonApi {
     const useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
     const searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
 
-    let url = queryString.stringifyUrl({
-      url: `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false`,
-      query: {
-        user: true,
-        recurse: true,
-        excludeAuthorities: 'all_users',
-        useMiddleName,
-        searchExtraFields,
-        group: false
-      }
-    });
+    let url = queryString.stringifyUrl(
+      {
+        url: `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false`,
+        query: {
+          user: true,
+          recurse: true,
+          excludeAuthorities: 'all_users',
+          useMiddleName,
+          searchExtraFields,
+          group: false
+        }
+      },
+      { arrayFormat: 'comma' }
+    );
 
     if (searchText.length > 0) {
       url += `&filter=${encodeURI(searchText)}`;
@@ -58,10 +61,13 @@ export class OrgStructApi extends CommonApi {
       urlQuery.user = true;
     }
 
-    const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true`,
-      query: urlQuery
-    });
+    const url = queryString.stringifyUrl(
+      {
+        url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true`,
+        query: urlQuery
+      },
+      { arrayFormat: 'comma' }
+    );
 
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
@@ -189,38 +195,128 @@ export class OrgStructApi extends CommonApi {
       }
     }
 
+    const attributes = {
+      fullName: '.disp',
+      userName: 'userName',
+      personDisabled: 'ecos:isPersonDisabled?bool'
+    };
+
     if (searchText) {
       let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
-      const addExtraFields = (fields = []) => {
-        searchFields.push(...fields.map(field => field.trim()));
-      };
-
-      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
       const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
 
-      if (val.length < 2) {
-        if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-          addExtraFields(globalSearchConfig);
-        }
-
-        if (Array.isArray(extraFields) && extraFields.length > 0) {
-          addExtraFields(extraFields);
-        }
-
+      if (val.length === 2) {
         if (isSearchUserMiddleName) {
-          addExtraFields(['middleName']);
-        }
+          const lastFirst = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                }
+              ]
+            }
+          ];
 
-        queryVal.push({
-          t: 'or',
-          val: searchFields.map(att => ({
-            t: 'contains',
-            att: att,
-            val: val[0]
-          }))
-        });
-      } else {
+          const firstLast = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                }
+              ]
+            }
+          ];
+
+          queryVal.push({
+            t: 'or',
+            val: [...lastFirst, ...firstLast]
+          });
+        } else {
+          const firstLast = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[1]
+              }
+            ]
+          };
+
+          const lastFirst = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[1]
+              }
+            ]
+          };
+
+          queryVal.push({
+            t: 'or',
+            val: [lastFirst, firstLast]
+          });
+        }
+      } else if (val.length === 3) {
         const firstLast = {
           t: 'and',
           val: [
@@ -295,6 +391,39 @@ export class OrgStructApi extends CommonApi {
           t: 'or',
           val: [firstLast, lastFirst]
         });
+      } else {
+        const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
+        const addExtraFields = (fields = []) => {
+          searchFields.push(...fields.map(field => field.trim()));
+        };
+
+        if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+          addExtraFields(globalSearchConfig);
+        }
+
+        if (Array.isArray(extraFields) && extraFields.length > 0) {
+          addExtraFields(extraFields);
+        }
+
+        if (isSearchUserMiddleName) {
+          addExtraFields(['middleName']);
+        }
+
+        queryVal.push({
+          t: 'or',
+          val: searchFields.map(att => ({
+            t: 'contains',
+            att: att,
+            val: val[0]
+          }))
+        });
+      }
+
+      if (Array.isArray(searchFields) && searchFields.length > 0) {
+        searchFields.forEach(attribute => {
+          attributes[attribute] = attribute;
+        });
       }
     }
 
@@ -309,9 +438,7 @@ export class OrgStructApi extends CommonApi {
         }
       },
       {
-        fullName: '.disp',
-        userName: 'userName',
-        personDisabled: 'ecos:isPersonDisabled?bool'
+        ...attributes
       }
     ).then(result => ({
       items: converterUserList(result.records),
