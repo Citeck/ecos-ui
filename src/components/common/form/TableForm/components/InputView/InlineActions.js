@@ -61,6 +61,14 @@ const InlineActions = () => {
               if (recordWasChanged) {
                 onEditFormSubmit(record);
               }
+            } else if (recordAction.type === 'delete') {
+              const record = Records.get(inlineToolsOffsets.rowId);
+              const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
+
+              if (recordWasChanged) {
+                setInlineToolsOffsets({ height: 0, top: 0, row: {} });
+                deleteSelectedItem(inlineToolsOffsets.rowId);
+              }
             } else {
               await RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction);
             }
