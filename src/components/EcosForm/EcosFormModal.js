@@ -206,6 +206,13 @@ export default class EcosFormModal extends React.Component {
           className="ecos-modal-tooltip ecos-base-tooltip"
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
+          modifiers={{
+            offset: {
+              name: 'offset',
+              enabled: true,
+              offset: '0, 10px'
+            }
+          }}
         >
           {t(Labels.CONSTRUCTOR_BTN_TOOLTIP)}
         </UncontrolledTooltip>

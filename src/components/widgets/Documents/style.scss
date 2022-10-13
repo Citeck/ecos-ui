@@ -7,6 +7,8 @@
 }
 
 .ecos-docs {
+  $ed: &;
+
   &__body {
     display: flex;
     height: 100%;
@@ -197,7 +199,21 @@
               color: darken($color-blue-light2, 5%);
             }
           }
+
+          &-bc {
+            & > .icon {
+              color: $color-gray-4;
+
+              &:hover {
+                color: $color-white;
+              }
+            }
+          }
         }
+      }
+
+      & > #{$ed}__badge {
+        cursor: unset;
       }
     }
   }
