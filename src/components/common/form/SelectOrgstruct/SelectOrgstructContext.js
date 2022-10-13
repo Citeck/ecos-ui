@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected } from './helpers';
+import { handleResponse, prepareSelected, getAuthRef } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -81,32 +83,32 @@ export const SelectOrgstructProvider = props => {
 
   const onChangeValue = selectedList => {
     const { onChange } = controlProps;
-    let valuePromise;
+    let value;
 
     function getVal(arr = []) {
+      if (isEmpty(arr)) {
+        return null;
+      }
+
       return multiple ? arr : arr[0] || '';
     }
 
     switch (true) {
       case getFullData: {
-        valuePromise = Promise.resolve(getVal(selectedList));
+        value = getVal(selectedList);
         break;
       }
       case dataType === DataTypes.AUTHORITY: {
-        valuePromise = Promise.all(selectedList.map(item => item.id && orgStructApi.fetchAuthName(item.id))).then(getVal);
+        value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
         break;
       }
       default: {
-        valuePromise = Promise.resolve(getVal(selectedList.map(item => item.id)));
+        value = getVal(selectedList.map(item => item.id));
         break;
       }
     }
 
-    valuePromise.then(value => {
-      if (typeof onChange === 'function') {
-        onChange(value, selectedList);
-      }
-    });
+    isFunction(onChange) && onChange(value, selectedList);
   };
 
   const onSelect = () => {
@@ -293,9 +295,7 @@ export const SelectOrgstructProvider = props => {
           toggleSelectModal(!isSelectModalOpen);
 
           if (isSelectModalOpen) {
-            if (typeof onCancelSelect === 'function') {
-              onCancelSelect();
-            }
+            isFunction(onCancelSelect) && onCancelSelect();
           }
         },
 
