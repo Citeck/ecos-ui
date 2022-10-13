@@ -33,7 +33,8 @@ export const documentFields = {
   id: '__id',
   name: '__name',
   modified: '__modified',
-  loadedBy: '__loadedBy'
+  loadedBy: '__loadedBy',
+  countDocuments: 'countDocuments'
 };
 
 export const tableFields = {
@@ -51,7 +52,7 @@ export const tableFields = {
       label: 'documents-widget.table-fields.updated-at'
     },
     {
-      name: 'count',
+      name: documentFields.countDocuments,
       label: ''
     }
   ],
