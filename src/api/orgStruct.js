@@ -325,7 +325,7 @@ export class OrgStructApi extends CommonApi {
             {
               t: 'contains',
               att: 'cm:lastName',
-              val: val[1]
+              val: val[2]
             }
           ]
         };
@@ -341,10 +341,48 @@ export class OrgStructApi extends CommonApi {
             {
               t: 'contains',
               att: 'cm:firstName',
-              val: val[1]
+              val: val[2]
             }
           ]
         };
+
+        if (isSearchUserMiddleName) {
+          lastFirst.val = [
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:middleName',
+              val: val[1]
+            },
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[2]
+            }
+          ];
+
+          firstLast.val = [
+            {
+              t: 'contains',
+              att: 'cm:firstName',
+              val: val[0]
+            },
+            {
+              t: 'contains',
+              att: 'cm:middleName',
+              val: val[1]
+            },
+            {
+              t: 'contains',
+              att: 'cm:lastName',
+              val: val[2]
+            }
+          ];
+        }
 
         queryVal.push({
           t: 'or',

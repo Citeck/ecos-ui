@@ -203,6 +203,8 @@ export const DateFormats = {
 
 export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
 
+export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['cm:userName', 'cm:firstName', 'cm:lastName'];
+
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};
 window.Citeck.constants = { ...window.Citeck.constants, URL, SourcesId };
