@@ -6,9 +6,9 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { Icon } from '../../common';
 import ClickOutside from '../../ClickOutside';
+import { cleanTaskId } from './utils';
 
 import './style.scss';
-import { cleanTaskId } from './utils';
 
 export default class BtnTooltipInfo extends React.Component {
   static propTypes = {
@@ -81,6 +81,13 @@ export default class BtnTooltipInfo extends React.Component {
             className="ecos-base-tooltip ecos-current-task__tooltip"
             innerClassName="ecos-base-tooltip-inner"
             arrowClassName="ecos-base-tooltip-arrow"
+            modifiers={{
+              offset: {
+                name: 'offset',
+                enabled: true,
+                offset: '0, 14px'
+              }
+            }}
           >
             <div className="ecos-current-task__tooltip-text">
               <Scrollbars
