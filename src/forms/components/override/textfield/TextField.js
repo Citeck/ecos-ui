@@ -180,7 +180,9 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
   };
 
   onChange(...data) {
-    this.calculateTypeahead(this.dataValue);
+    if (this.root.focusedComponent === this) {
+      this.calculateTypeahead(this.dataValue);
+    }
 
     super.onChange.call(this, ...data);
   }
