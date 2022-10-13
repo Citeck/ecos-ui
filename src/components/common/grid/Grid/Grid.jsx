@@ -198,6 +198,12 @@ class Grid extends Component {
   };
 
   checkScrollPosition() {
+    const { isScrolling } = this.state;
+
+    if (isScrolling) {
+      return;
+    }
+
     const { scrollPosition = {} } = this.props;
     const { scrollLeft, scrollTop } = scrollPosition;
 
@@ -806,11 +812,16 @@ class Grid extends Component {
   };
 
   onScrollStart = e => {
+    const { onScrollStart } = this.props;
+
     this.setState({ isScrolling: true });
-    trigger.call(this, 'onScrollStart', e);
+
+    isFunction(onScrollStart) && onScrollStart(e);
   };
 
   onScrollFrame = e => {
+    const { onScrolling } = this.props;
+
     this._scrollValues = e;
 
     if (this.fixedHeader) {
@@ -821,38 +832,43 @@ class Grid extends Component {
       set(this._firstHeaderCellNode, 'style.display', e.scrollLeft > 0 ? 'none' : 'block');
     }
 
-    trigger.call(this, 'onScrolling', e);
+    isFunction(onScrolling) && onScrolling(e);
   };
 
   onScrollStop = e => {
-    this.setState({ isScrolling: false });
+    const { onScrollStop } = this.props;
 
-    trigger.call(this, 'onScrollStop', e);
+    this.setState({ isScrolling: false });
+    isFunction(onScrollStop) && onScrollStop(e || this._scrollRef.getValues());
   };
 
   onDragOver = e => {
-    if (this.props.onRowDrop) {
+    const { onRowDrop, onDragOver } = this.props;
+
+    if (onRowDrop) {
       e.preventDefault();
       e.stopPropagation();
       return false;
     }
 
-    if (!this.props.onDragOver) {
+    if (!onDragOver) {
       return false;
     }
 
-    trigger.call(this, 'onDragOver', e);
+    isFunction(onDragOver) && onDragOver(e);
   };
 
   checkDropPermission = tr => {
-    if (isFunction(this.props.onCheckDropPermission)) {
-      const item = this.props.data[tr.rowIndex - 1];
+    const { onCheckDropPermission, data } = this.props;
+
+    if (isFunction(onCheckDropPermission)) {
+      const item = data[tr.rowIndex - 1];
 
       if (!item) {
         return false;
       }
 
-      const canDrop = this.props.onCheckDropPermission(item);
+      const canDrop = onCheckDropPermission(item);
 
       if (!canDrop) {
         this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
