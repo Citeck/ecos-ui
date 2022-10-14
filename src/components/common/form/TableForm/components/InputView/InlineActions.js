@@ -5,7 +5,8 @@ import isEmpty from 'lodash/isEmpty';
 
 import RecordActions from '../../../../../Records/actions/recordActions';
 import Records from '../../../../../../components/Records';
-
+import EditAction from '../../../../../../components/Records/actions/handler/executor/EditAction';
+import DeleteAction from '../../../../../../components/Records/actions/handler/executor/DeleteAction';
 import { t } from '../../../../../../helpers/export/util';
 import { getFitnesseInlineToolsClassName } from '../../../../../../helpers/tools';
 import { renderAction } from '../../../../grid/InlineTools/helpers';
@@ -55,12 +56,20 @@ const InlineActions = () => {
         return {
           ...act,
           onClick: async () => {
-            if (recordAction.type === 'edit') {
+            if (recordAction.type === EditAction.ACTION_ID) {
               const record = Records.getRecordToEdit(inlineToolsOffsets.rowId);
               const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
 
               if (recordWasChanged) {
                 onEditFormSubmit(record);
+              }
+            } else if (recordAction.type === DeleteAction.ACTION_ID) {
+              const record = Records.get(inlineToolsOffsets.rowId);
+              const recordWasChanged = await RecordActions.execForRecord(record, recordAction);
+
+              if (recordWasChanged) {
+                setInlineToolsOffsets({ height: 0, top: 0, row: {} });
+                deleteSelectedItem(inlineToolsOffsets.rowId);
               }
             } else {
               await RecordActions.execForRecord(inlineToolsOffsets.rowId, recordAction);
