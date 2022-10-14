@@ -22,9 +22,11 @@ const disabledReplaceMenuForEvents = [
   'replace-with-compensation-intermediate-throw', // Compensation Intermediate Throw Event
   'replace-with-link-intermediate-throw' // Link Intermediate Throw Event
 ];
-const disabledHeaderEntries = {
+const disabledHeaderEntries = [
+  'toggle-loop' // Loop
+];
+const disabledHeaderEntriesByElements = {
   'bpmn:SubProcess': [
-    'toggle-loop', // Loop
     'toggle-adhoc' // Ad-hoc
   ]
 };
@@ -44,9 +46,9 @@ ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions)
 ReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
   let entries = originGetHeaderEntries.call(this, element);
 
-  if (Object.keys(disabledHeaderEntries).includes(element.type)) {
-    entries = entries.filter(item => !disabledHeaderEntries[element.type].includes(item.id));
+  if (Object.keys(disabledHeaderEntriesByElements).includes(element.type)) {
+    entries = entries.filter(item => !disabledHeaderEntriesByElements[element.type].includes(item.id));
   }
 
-  return entries;
+  return entries.filter(item => !disabledHeaderEntries.includes(item.id));
 };
