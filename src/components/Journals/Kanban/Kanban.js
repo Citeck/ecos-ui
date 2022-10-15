@@ -9,6 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { DragDropContext } from 'react-beautiful-dnd';
+import ReactResizeDetector from 'react-resize-detector';
 
 import { getNextPage, moveCard, runAction } from '../../../actions/kanban';
 import { selectKanbanProps } from '../../../selectors/kanban';
@@ -81,6 +82,15 @@ class Kanban extends React.Component {
     return totalCount !== 0 && totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
   };
 
+  handleResize = () => {
+    const headerElement = get(this.refHeader, 'current');
+
+    if (headerElement) {
+      headerElement.style.width = 0;
+      this.forceUpdate();
+    }
+  };
+
   handleScrollFrame = (scroll = {}) => {
     if (!this.props.isLoading && !this.isNoMore() && scroll.scrollTop && scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight) {
       this.props.getNextPage();
@@ -142,43 +152,45 @@ class Kanban extends React.Component {
     }
 
     return (
-      <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
-        <Scrollbars
-          autoHeight
-          autoHeightMin={this.getHeight()}
-          autoHeightMax={this.getHeight()}
-          renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
-          renderTrackHorizontal={props => <div {...props} className="ecos-kanban__scroll_h" />}
-          onScrollFrame={this.handleScrollFrame}
-          ref={this.refScroll}
-        >
-          <div className="ecos-kanban__head" ref={this.refHeader}>
-            {cols.map((data, index) => (
-              <HeaderColumn
-                key={`head_${selectedBoard}-${data.id}`}
-                isReady={!isFirstLoading}
-                data={data}
-                totalCount={get(dataCards, [index, 'totalCount'], '⭯')}
-              />
-            ))}
-          </div>
-          <div
-            className={classNames('ecos-kanban__body', {
-              'ecos-kanban__body_dragging': isDragging,
-              'ecos-kanban__body_end': this.isNoMore()
-            })}
-            style={bodyStyle}
-            ref={this.refBody}
+      <ReactResizeDetector handleWidth onResize={this.handleResize}>
+        <div className="ecos-kanban" style={{ '--count-col': cols.length || 1 }}>
+          <Scrollbars
+            autoHeight
+            autoHeightMin={this.getHeight()}
+            autoHeightMax={this.getHeight()}
+            renderThumbVertical={props => <div {...props} className="ecos-kanban__scroll_v" />}
+            renderTrackHorizontal={props => <div {...props} className="ecos-kanban__scroll_h" />}
+            onScrollFrame={this.handleScrollFrame}
+            ref={this.refScroll}
           >
-            {isLoading && isEmpty(cols) && <Loader />}
-            {!isLoading && isEmpty(cols) && <InfoText className="ecos-kanban__info" text={t(Labels.Kanban.NO_COLUMNS)} />}
-            <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
-              {cols.map(this.renderColumn)}
-            </DragDropContext>
-          </div>
-        </Scrollbars>
-        {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
-      </div>
+            <div className="ecos-kanban__head" ref={this.refHeader}>
+              {cols.map((data, index) => (
+                <HeaderColumn
+                  key={`head_${selectedBoard}-${data.id}`}
+                  isReady={!isFirstLoading}
+                  data={data}
+                  totalCount={get(dataCards, [index, 'totalCount'], '⭯')}
+                />
+              ))}
+            </div>
+            <div
+              className={classNames('ecos-kanban__body', {
+                'ecos-kanban__body_dragging': isDragging,
+                'ecos-kanban__body_end': this.isNoMore()
+              })}
+              style={bodyStyle}
+              ref={this.refBody}
+            >
+              {isLoading && isEmpty(cols) && <Loader />}
+              {!isLoading && isEmpty(cols) && <InfoText className="ecos-kanban__info" text={t(Labels.Kanban.NO_COLUMNS)} />}
+              <DragDropContext onDragEnd={this.handleDragEnd} onDragStart={this.handleDragStart}>
+                {cols.map(this.renderColumn)}
+              </DragDropContext>
+            </div>
+          </Scrollbars>
+          {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
+        </div>
+      </ReactResizeDetector>
     );
   }
 }
