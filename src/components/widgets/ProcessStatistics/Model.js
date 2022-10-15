@@ -80,9 +80,11 @@ class Model extends React.Component {
   componentDidMount() {
     this.getModel();
     this.designer = new ModelViewer();
+    document.addEventListener('mouseup', this.handleMouseUp);
   }
 
   componentWillUnmount() {
+    document.removeEventListener('mouseup', this.handleMouseUp);
     this.handleMouseDown.cancel();
     this.handleMouseUp.cancel();
   }
@@ -143,9 +145,13 @@ class Model extends React.Component {
     this.handleToggleHeatmap();
   };
 
-  handleMouseDown = throttle(() => this.state.isShowHeatmap && this.toggleTempHeatmap(true), 100);
+  handleMouseDown = throttle(() => {
+    this.state.isShowHeatmap && this.toggleTempHeatmap(true);
+  }, 100);
 
-  handleMouseUp = debounce(() => this.state.isTempHeatmapOff && this.toggleTempHeatmap(false), 100);
+  handleMouseUp = debounce(() => {
+    this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
+  }, 100);
 
   handleWheel = () => {
     this.reRenderHeatmap();
