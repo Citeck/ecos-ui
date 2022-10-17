@@ -9,16 +9,15 @@ import isEmpty from 'lodash/isEmpty';
 
 import { LayoutTypes } from '../../constants/layout';
 import { getMinWidthColumn } from '../../helpers/layout';
-import { getSearchParams } from '../../helpers/util';
+import { t, getSearchParams } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
 import { Loader } from '../../components/common';
 import pageTabService from '../../services/pageTabs/PageTabList';
+import { WidgetErrorBoundary } from '../WidgetErrorBoundary';
 
 import './style.scss';
-import { WidgetErrorBoundary } from '../WidgetErrorBoundary';
-import { t } from '../../helpers/util';
 
 const Labels = {
   WIDGET_ERROR_TITLE: 'page-error-widget-loading.title',
@@ -245,8 +244,8 @@ class Layout extends Component {
 
       if (canDragging) {
         components.push(
-          <WidgetErrorBoundary title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
-            <DragItem key={key} draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
+          <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
+            <DragItem draggableId={id} isWrapper getPositionAdjusment={this.draggablePositionAdjustment}>
               <Suspense fallback={<Loader type="points" />}>
                 <Widget {...props} id={widget.props.id} />
               </Suspense>
@@ -255,8 +254,8 @@ class Layout extends Component {
         );
       } else {
         components.push(
-          <WidgetErrorBoundary title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
-            <div key={key} className="ecos-layout__element">
+          <WidgetErrorBoundary key={key} title={t(Labels.WIDGET_ERROR_TITLE)} message={t(Labels.WIDGET_ERROR_MSG)}>
+            <div className="ecos-layout__element">
               <Suspense fallback={<Loader type="points" />}>
                 <Widget {...props} {...commonProps} />
               </Suspense>

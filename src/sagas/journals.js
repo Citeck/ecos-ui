@@ -3,6 +3,7 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import getFirst from 'lodash/first';
 import set from 'lodash/set';
+import omit from 'lodash/omit';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -561,6 +562,11 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setLoading(w(true)));
 
     const journalData = yield select(selectJournalData, stateId);
+
+    if (get(payload, 'predicates')) {
+      yield put(setGrid(w({ predicates: payload.predicates })));
+    }
+
     const { grid, selectAllRecordsVisible, selectedRecords, excludedRecords } = journalData;
     const searchPredicate = get(payload, 'searchPredicate') || (yield getSearchPredicate({ logger, stateId }));
     const params = { ...grid, ...payload, searchPredicate };
@@ -887,6 +893,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
+    const url = yield select(selectUrl, stateId);
 
     yield put(setJournalSetting(w(settings)));
     yield put(setPredicate(w(predicate)));
@@ -895,6 +902,15 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     yield put(setGrouping(w(grouping)));
     const newCols = grouping.groupBy.length ? grouping.columns : columns;
     yield put(setGrid(w({ columns: newCols })));
+
+    yield put(
+      setUrl(
+        w({
+          ...omit(url, 'search')
+        })
+      )
+    );
+
     yield put(
       reloadGrid(
         w({
@@ -1113,7 +1129,7 @@ function* saga(ea) {
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
   yield takeEvery(initJournal().type, wrapSaga, { ...ea, saga: sagaInitJournal });
 
-  yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
+  yield takeLatest(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });

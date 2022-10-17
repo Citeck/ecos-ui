@@ -787,18 +787,20 @@ export function arrayFlat({ data = [], depth = Infinity, byField = '', withParen
     return [];
   }
 
-  const array = deepClone(data);
+  const array = cloneDeep(data);
 
   if (!byField) {
     return array.flat(depth);
   }
 
   const getChildren = child => {
-    if (!child[byField].length) {
+    const childItems = lodashGet(child, byField);
+
+    if (isEmpty(childItems) || !Array.isArray(childItems)) {
       return child;
     }
 
-    const children = child[byField].map(getChildren);
+    const children = childItems.map(getChildren);
 
     if (withParent) {
       children.push(child);

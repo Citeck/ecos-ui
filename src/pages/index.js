@@ -17,6 +17,8 @@ const FormIOPage = lazy(() => import('./debug/FormIOPage'));
 const TreePage = lazy(() => import('./debug/Tree'));
 const CmmnPage = lazy(() => import('./debug/CmmnPage'));
 
+const OrgstructurePage = lazy(() => import('./Orgstructure/Orgstructure'));
+
 export default ({ pageKey, withoutFooter, ...props }) => {
   const [footerRef, setFooterRef] = useState(null);
   let Page = null;
@@ -58,6 +60,9 @@ export default ({ pageKey, withoutFooter, ...props }) => {
       break;
     case Pages.DEBUG_CMMN:
       Page = CmmnPage;
+      break;
+    case Pages.ORGSTRUCTURE:
+      Page = OrgstructurePage;
       break;
     default:
   }

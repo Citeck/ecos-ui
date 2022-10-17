@@ -1,0 +1,32 @@
+.orgstructure-page {
+  &__structure {
+    &__header {
+      font-family: 'Open Sans';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 22px;
+      padding: 16px 24px;
+    }
+  }
+  &__search {
+    &__container {
+      margin: 0px 20px;
+      padding: 16px 15px;
+      background-color: #e8edef;
+    }
+    &__input-container {
+      display: flex;
+      flex-direction: row;
+      background-color: #e8edef;
+      flex-wrap: nowrap;
+    }
+  }
+  &__body {
+    &__container {
+      position: relative;
+      height: 70%;
+      margin: 0 24px 12px 20px;
+    }
+  }
+}

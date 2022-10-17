@@ -18,6 +18,7 @@ export const PageTypes = {
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
   BPMN_DESIGNER: 'bpmn-designer',
+  ORGSTRUCTURE: 'orgstructure',
   DEV_TOOLS: 'dev-tools',
   TIMESHEET: 'timesheet'
 };
@@ -39,6 +40,10 @@ export default class PageService {
 
     if (!type) {
       return PageTypes.DASHBOARD;
+    }
+
+    if (type.indexOf(PageTypes.ORGSTRUCTURE) === 0) {
+      return PageTypes.ORGSTRUCTURE;
     }
 
     if (type.indexOf(PageTypes.TIMESHEET) === 0) {
@@ -126,6 +131,9 @@ export default class PageService {
     },
     [PageTypes.TIMESHEET]: {
       getTitle: () => staticTitle(TITLE.TIMESHEET)
+    },
+    [PageTypes.ORGSTRUCTURE]: {
+      getTitle: () => staticTitle(TITLE.ORGSTRUCTURE)
     },
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])

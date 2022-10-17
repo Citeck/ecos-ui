@@ -487,7 +487,12 @@ class DocPreview extends Component {
   }, 350);
 
   handleScrollPage = (scrollPage = this.props.firstPageNumber) => {
-    this.setState({ scrollPage, settings: this.updSettings('currentPage', scrollPage) });
+    const { pdf, settings } = this.state;
+    const pages = get(pdf, '_pdfInfo.numPages', 0);
+    const isUnderLastPage = settings.currentPage && settings.currentPage === pages && scrollPage === 1;
+    if (!isUnderLastPage) {
+      this.setState({ scrollPage, settings: this.updSettings('currentPage', scrollPage) });
+    }
   };
 
   setCalcScale = calcScale => {

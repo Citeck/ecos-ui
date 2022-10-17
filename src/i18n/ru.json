@@ -958,6 +958,7 @@
   "page-tabs.admin-page": "Раздел администратора",
   "page-tabs.dashboard-settings": "Настройка",
   "page-tabs.home-page": "Домашняя страница",
+  "page-tabs.orgstructure": "Оргструктура",
   "page-tabs.journal": "Журнал",
   "page-tabs.new-tab": "Новая вкладка",
   "page-tabs.loading": "Загрузка",
@@ -1351,6 +1352,7 @@
   "documents-widget.settings-modal.button.cancel": "Отмена",
   "documents-widget.settings-modal.button.ok": "Готово",
   "documents-widget.settings-modal.checklist": "Подгружать типы документов из чек-листов",
+  "documents-widget.settings-modal.show-only-checked": "Отображать только выбранные",
   "documents-widget.type-settings.allow-file-upload": "Разрешить загрузку файлов",
   "documents-widget.upload.title": "Добавить файлы",
   "documents-widget.upload.message": "Перетяните сюда файл",
@@ -2312,5 +2314,15 @@
   "day-form2": "дня",
   "day-form3": "дней",
 
-  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно"
+  "proc-def-admin.action.open-proc-editor.error": "Действие для перехода в редактор недоступно",
+
+  "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя",
+  "orgstructure-page-title": "Оргструктура",
+  "orgstructure-delete-modal-title-person": "Удаление пользователя",
+  "orgstructure-delete-modal-title-group": "Удаление группы",
+  "orgstructure-delete-modal-body-person": "Вы действительно хотите удалить этого пользователя?",
+  "orgstructure-delete-modal-body-group": "Вы действительно хотите удалить эту группу?",
+  "orgstructure-delete-modal-full-delete": "Удалить полностью",
+  "orgstructure-delete-modal-group-delete": "Удалить из группы",
+  "orgstructure-delete-modal-cancel": "Отмена"
 }

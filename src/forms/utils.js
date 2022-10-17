@@ -304,3 +304,25 @@ export const processEditFormConfig = (advancedConfig, tabsByKey) => {
 
   return tabsByKey;
 };
+
+/**
+ * Changing the configuration of a component by reference
+ * @param {Array} components
+ * @param {String} componentKey
+ * @param {Object} newConfig
+ */
+export const replaceComponentConfig = (components = [], componentKey = '', newConfig = {}) => {
+  if (isEmpty(components) || isEmpty(componentKey)) {
+    return;
+  }
+
+  const component = components.find(item => item.key === componentKey);
+
+  if (isEmpty(component)) {
+    return;
+  }
+
+  for (const key in newConfig) {
+    component[key] = newConfig[key];
+  }
+};

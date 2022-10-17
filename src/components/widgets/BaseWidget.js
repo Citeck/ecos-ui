@@ -13,6 +13,7 @@ import Records from '../Records/Records';
 class BaseWidget extends React.Component {
   #dashletRef = null;
   #observableFieldsToUpdate = ['_modified'];
+
   #updateWatcher = null;
 
   contentRef = React.createRef();
@@ -45,7 +46,6 @@ class BaseWidget extends React.Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { onUpdate } = this.props;
     isFunction(onUpdate) && onUpdate(this);
-
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.handleUpdate();
     }

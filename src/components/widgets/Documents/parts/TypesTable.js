@@ -1,9 +1,9 @@
 import React from 'react';
+import classNames from 'classnames';
 
-import { tableFields } from '../../../../constants/documents';
+import { documentFields, tableFields } from '../../../../constants/documents';
 import { t } from '../../../../helpers/export/util';
 import { Grid } from '../../../common/grid';
-import classNames from 'classnames';
 import { objectCompare } from '../../../../helpers/util';
 
 export default React.memo(
@@ -18,7 +18,7 @@ export default React.memo(
       const { name, label, ...other } = item;
       const extended = {};
 
-      if (name === 'count') {
+      if (name === documentFields.countDocuments) {
         extended.customFormatter = countFormatter;
       }
 

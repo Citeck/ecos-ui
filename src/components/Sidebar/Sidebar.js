@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -19,34 +20,69 @@ import Logo from './Logo';
 import List from './List';
 import { selectActiveThemeImage } from '../../selectors/view';
 import { DefaultImages } from '../../constants/theme';
+import { Events } from '../../services/PageService';
 
 import './style.scss';
 
 class Sidebar extends React.Component {
+  static propTypes = {
+    idMenu: PropTypes.string,
+    versionMenu: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    isOpen: PropTypes.bool,
+    isReady: PropTypes.bool,
+    items: PropTypes.array,
+    smallLogoSrc: PropTypes.string,
+    largeLogoSrc: PropTypes.string,
+    expandableItems: PropTypes.array,
+    homeLink: PropTypes.string,
+    locationKey: PropTypes.string,
+
+    fetchSlideMenuItems: PropTypes.func,
+    toggleIsOpen: PropTypes.func,
+    getSiteDashboardEnable: PropTypes.func,
+    setExpandableItems: PropTypes.func,
+    collapseAllItems: PropTypes.func,
+    setInitialSelectedId: PropTypes.func
+  };
+
   slideMenuToggle = null;
 
   state = {
-    fetchItems: false
+    fetchItems: false,
+    needCheckSelected: false
   };
 
   componentDidMount() {
     this.init();
+    document.addEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { isReady, idMenu, locationKey, setInitialSelectedId } = this.props;
+
     this.fetchItems();
 
-    if (!prevProps.isReady && this.props.isReady && this.slideMenuToggle) {
+    if (!prevProps.isReady && isReady && this.slideMenuToggle) {
       this.slideMenuToggle.addEventListener('click', this.toggleSlideMenu);
     }
 
-    if (prevProps.idMenu !== this.props.idMenu) {
+    if (prevProps.idMenu !== idMenu) {
       this.reInit();
+    }
+
+    if (prevProps.locationKey !== locationKey) {
+      this.setState({ needCheckSelected: true });
+    }
+
+    if (!prevState.needCheckSelected && this.state.needCheckSelected) {
+      setInitialSelectedId();
+      this.setState({ needCheckSelected: false });
     }
   }
 
   componentWillUnmount() {
     this.cleanUp();
+    document.removeEventListener(Events.CHANGE_URL_LINK_EVENT, this.props.setInitialSelectedId);
   }
 
   init(forceFetching = false) {
@@ -144,7 +180,8 @@ const mapStateToProps = state => ({
   smallLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_SMALL),
   largeLogoSrc: selectActiveThemeImage(state, DefaultImages.MENU_LEFT_LOGO_LARGE),
   expandableItems: get(state, 'slideMenu.expandableItems'),
-  homeLink: get(state, 'app.homeLink')
+  homeLink: get(state, 'app.homeLink'),
+  locationKey: get(state, 'router.location.key')
 });
 
 const mapDispatchToProps = dispatch => ({

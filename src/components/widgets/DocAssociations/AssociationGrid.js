@@ -27,14 +27,13 @@ class AssociationGrid extends Component {
   state = {
     key: uuid(),
     scrollLeft: 0,
-    inlineToolsOffsets: { height: 0, top: 0, rowId: null }
+    inlineToolsOffsets: { height: 0, top: 0, rowId: null },
+    scrollPosition: {}
   };
 
   #wrapperRef = React.createRef();
   #toolsRef = React.createRef();
   #tableRef = React.createRef();
-
-  #scrollPosition = {};
 
   componentDidMount() {
     const wrapper = this.#wrapperRef.current;
@@ -79,13 +78,15 @@ class AssociationGrid extends Component {
     this.handleSetInlineToolsOffsets({ height: 0, top: 0, row: {} });
   };
 
-  handleScrollingTable = event => {
-    this.#scrollPosition = event;
+  handleScrollStart = () => this.setState({ scrollPosition: {} });
 
+  handleScrollingTable = event => {
     if (this.#toolsRef.current) {
       this.#toolsRef.current.style.left = `${event.scrollLeft}px`;
     }
   };
+
+  handleScrollStop = scrollPosition => this.setState({ scrollPosition });
 
   handleClickAction = (callback, data) => {
     callback(data);
@@ -109,22 +110,17 @@ class AssociationGrid extends Component {
 
   renderInlineTools = () => {
     const { actions } = this.props;
-    const { inlineToolsOffsets } = this.state;
+    const { inlineToolsOffsets, scrollPosition } = this.state;
     const buttons = actions.map(this.renderButton);
 
     return (
-      <InlineToolsDisconnected
-        forwardedRef={this.#toolsRef}
-        tools={buttons}
-        {...inlineToolsOffsets}
-        left={this.#scrollPosition.scrollLeft}
-      />
+      <InlineToolsDisconnected forwardedRef={this.#toolsRef} tools={buttons} {...inlineToolsOffsets} left={scrollPosition.scrollLeft} />
     );
   };
 
   render() {
     const { title, columns, associations } = this.props;
-    const { key } = this.state;
+    const { key, scrollPosition } = this.state;
 
     return (
       <div key={`document-list-${key}`} ref={this.#wrapperRef} className="ecos-doc-associations__group">
@@ -144,8 +140,10 @@ class AssociationGrid extends Component {
           columns={columns}
           inlineTools={this.renderInlineTools}
           onChangeTrOptions={this.handleSetInlineToolsOffsets}
+          onScrollStart={this.handleScrollStart}
           onScrolling={this.handleScrollingTable}
-          scrollPosition={this.#scrollPosition}
+          onScrollStop={this.handleScrollStop}
+          scrollPosition={scrollPosition}
         />
       </div>
     );

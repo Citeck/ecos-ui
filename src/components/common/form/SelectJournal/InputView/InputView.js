@@ -46,12 +46,9 @@ class InputView extends Component {
 
   componentDidUpdate(prevProps, _prevState) {
     const { customActionRefs, selectedRows } = this.props;
-    const { aditionalButtons } = this.state;
 
-    if (customActionRefs.length > 0 && aditionalButtons.length === 0) {
-      if (prevProps.selectedRows !== selectedRows) {
-        this.fetchActionButtons(selectedRows.map(row => row.id));
-      }
+    if (!isEmpty(customActionRefs) && prevProps.selectedRows !== selectedRows) {
+      this.fetchActionButtons(selectedRows.map(row => row.id));
     }
   }
 

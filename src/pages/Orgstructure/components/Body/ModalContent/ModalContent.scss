@@ -1,0 +1,41 @@
+.orgstructure-page-modal {
+  &__container {
+    width: 100%;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  &__text {
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+    margin-top: 2vh;
+    margin-bottom: 6vh;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  &__button {
+    width: 12vw;
+    height: 6vh;
+    border-radius: 8px;
+    box-sizing: border-box;
+    border: 0px;
+  }
+
+  &__gray {
+    background-color: #e8edef;
+  }
+
+  &__red {
+    background-color: #ff5721;
+    color: white;
+  }
+
+  &__green {
+    background-color: green;
+  }
+}

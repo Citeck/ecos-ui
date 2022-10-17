@@ -959,6 +959,7 @@
   "page-tabs.admin-page": "Admin section",
   "page-tabs.dashboard-settings": "Settings",
   "page-tabs.home-page": "Home page",
+  "page-tabs.orgstructure": "Orgstructure",
   "page-tabs.journal": "Journal",
   "page-tabs.new-tab": "New tab",
   "page-tabs.loading": "Loading",
@@ -1352,6 +1353,7 @@
   "documents-widget.settings-modal.button.cancel": "Cancel",
   "documents-widget.settings-modal.button.ok": "Done",
   "documents-widget.settings-modal.checklist": "Download document types from checklists",
+  "documents-widget.settings-modal.show-only-checked": "Show only selected",
   "documents-widget.type-settings.allow-file-upload": "Allow file uploads",
   "documents-widget.upload.title": "Add files",
   "documents-widget.upload.message": "Drag the file here",
@@ -2313,5 +2315,15 @@
   "day-form2": "day",
   "day-form3": "days",
 
-  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable"
+  "proc-def-admin.action.open-proc-editor.error": "Open editor action is unavailable",
+
+  "orgstructure-page-no-picked-person-text": "Pick user profile",
+  "orgstructure-page-title": "Orgstructure",
+  "orgstructure-delete-modal-title-person": "Person delete",
+  "orgstructure-delete-modal-title-group": "Group delete",
+  "orgstructure-delete-modal-body-person": "Do you really want to delete this person?",
+  "orgstructure-delete-modal-body-group": "Do you really want to delete this group?",
+  "orgstructure-delete-modal-full-delete": "Delete completely",
+  "orgstructure-delete-modal-group-delete": "Delete from group",
+  "orgstructure-delete-modal-cancel": "Cancel"
 }

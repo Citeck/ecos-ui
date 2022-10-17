@@ -6,7 +6,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import throttle from 'lodash/throttle';
 import isUndefined from 'lodash/isUndefined';
 
-import { isMobileDevice, t, trigger } from '../../../helpers/util';
+import { getMLValue, isMobileDevice, t, trigger } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
 import Modal from './ModalDraggable';
 import { Icon } from '../';
@@ -119,7 +119,7 @@ export default class EcosModal extends Component {
           'ecos-modal-header_divider': isTopDivider
         })}
       >
-        {!isEmptyTitle && title && <div className="ecos-modal-header__title">{title}</div>}
+        {!isEmptyTitle && title && <div className="ecos-modal-header__title">{getMLValue(title)}</div>}
         {!!customButtons && !!customButtons.length && <div className="ecos-modal-header__buttons">{customButtons}</div>}
       </ModalHeader>
     );
@@ -193,7 +193,7 @@ EcosModal.propTypes = {
   noHeader: PropTypes.bool,
   hideModal: PropTypes.func,
   reactstrapProps: PropTypes.object,
-  title: PropTypes.string,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   onResize: PropTypes.func,
   customButtons: PropTypes.array
 };

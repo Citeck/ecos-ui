@@ -361,6 +361,10 @@ Base.prototype.addInputError = function(message, dirty) {
     return;
   }
 
+  if (this.viewOnly) {
+    return;
+  }
+
   if (this.errorElement) {
     const errorMessage = this.ce('p', {
       class: 'help-block'
@@ -515,7 +519,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
           if (!this.options.saveDraft) {
             form.showErrors('', true);
           }
-
+          this.removeClass(this.element, 'has-error');
           if (isFunction(this.options.onInlineEditSave)) {
             this.options.onInlineEditSave();
           }
