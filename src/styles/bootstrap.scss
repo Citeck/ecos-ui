@@ -58,6 +58,7 @@
 
     .arrow:before {
       top: 0 !important;
+      pointer-events: none;
       cursor: unset;
     }
   }
