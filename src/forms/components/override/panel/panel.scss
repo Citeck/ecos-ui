@@ -1,4 +1,4 @@
-@import "../../../constants";
+@import '../../../constants';
 
 :root {
   --title-background-color: white;
@@ -6,14 +6,14 @@
 }
 
 $theme-title-back: (
-  "default": $color-yellow-1,
-  "primary": $primary,
-  "info": $color-blue-light2,
-  "success": $success,
-  "danger": $danger,
-  "warning": $warning
+  'default': $color-yellow-1,
+  'primary': $primary,
+  'info': $color-blue-light2,
+  'success': $success,
+  'danger': $danger,
+  'warning': $warning
 );
-$theme-title-dark-color: "info", "default";
+$theme-title-dark-color: 'info', 'default';
 
 .formio-dialog-content .preview-panel,
 .formio-form {
@@ -74,9 +74,4 @@ $theme-title-dark-color: "info", "default";
 // fix for legacy card-details page
 #bd .yui-gc:not(.grid) > .yui-u .document-details-panel .formio-form .panel-body {
   padding: 13px 0 5px 0;
-}
-
-.tab-content .tab-pane.active#attributes .card-body.panel-body.panel-body_scrollable,
-.tab-content .tab-pane.active#attributes .card-body.panel-body.panel-body_scrollable table {
-  overflow: visible;
 }
