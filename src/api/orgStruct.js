@@ -11,7 +11,12 @@ import {
 import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
 import { getCurrentUserName } from '../helpers/util';
-import ConfigService, { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
+import ConfigService, {
+  ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
+  ORGSTRUCT_HIDE_DISABLED_USERS,
+  ORGSTRUCT_SEARCH_USER_MIDLLE_NAME,
+  ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN
+} from '../services/config/ConfigService';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { CommonApi } from './common';
 
@@ -207,17 +212,15 @@ export class OrgStructApi extends CommonApi {
   };
 
   static async fetchGlobalSearchFields() {
-    return ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
+    return await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
   }
 
   static async fetchIsHideDisabledField() {
-    try {
-      const result = await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool');
+    return await ConfigService.getValue(ORGSTRUCT_HIDE_DISABLED_USERS);
+  }
 
-      return Boolean(result);
-    } catch {
-      return false;
-    }
+  static async fetchIsShowDisabledUser() {
+    return await ConfigService.getValue(ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN);
   }
 
   static async fetchIsAdmin(userName) {
@@ -231,13 +234,7 @@ export class OrgStructApi extends CommonApi {
   }
 
   static async fetchIsSearchUserMiddleName() {
-    try {
-      const result = await Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-middle-name`).load('value');
-
-      return Boolean(result);
-    } catch {
-      return false;
-    }
+    return await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_MIDLLE_NAME);
   }
 
   static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS) => {
@@ -305,9 +302,8 @@ export class OrgStructApi extends CommonApi {
       const isAdmin = await OrgStructApi.fetchIsAdmin(getCurrentUserName());
 
       if (!isAdmin) {
-        const showInactiveUserOnlyForAdmin = Boolean(
-          await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
-        );
+        const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
+
         if (showInactiveUserOnlyForAdmin) {
           queryVal.push(predicateNotDisabled);
         }
