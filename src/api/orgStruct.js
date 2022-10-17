@@ -195,7 +195,7 @@ export class OrgStructApi extends CommonApi {
     const attributes = {
       fullName: '.disp',
       userName: 'userName',
-      personDisabled: 'ecos:isPersonDisabled?bool'
+      personDisabled: 'isPersonDisabled?bool'
     };
 
     if (searchText) {
@@ -217,6 +217,36 @@ export class OrgStructApi extends CommonApi {
                 {
                   t: 'contains',
                   att: 'cm:middleName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
                   val: val[1]
                 }
               ]
@@ -250,6 +280,36 @@ export class OrgStructApi extends CommonApi {
                 {
                   t: 'contains',
                   att: 'cm:middleName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
                   val: val[1]
                 }
               ]
@@ -314,80 +374,178 @@ export class OrgStructApi extends CommonApi {
           });
         }
       } else if (val.length === 3) {
-        const firstLast = {
-          t: 'and',
-          val: [
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[0]
-            },
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[2]
-            }
-          ]
-        };
-
-        const lastFirst = {
-          t: 'and',
-          val: [
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[0]
-            },
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[2]
-            }
-          ]
-        };
-
         if (isSearchUserMiddleName) {
-          lastFirst.val = [
+          const lastFirst = [
             {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[0]
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[2]
+                }
+              ]
             },
             {
-              t: 'contains',
-              att: 'cm:middleName',
-              val: val[1]
-            },
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[2]
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[2]
+                }
+              ]
             }
           ];
 
-          firstLast.val = [
+          const firstLast = [
             {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[0]
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[2]
+                }
+              ]
             },
             {
-              t: 'contains',
-              att: 'cm:middleName',
-              val: val[1]
-            },
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[2]
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[2]
+                }
+              ]
             }
           ];
+
+          const middleLast = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[2]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[2]
+                }
+              ]
+            }
+          ];
+
+          queryVal.push({
+            t: 'or',
+            val: [...lastFirst, ...middleLast, ...firstLast]
+          });
+        } else {
+          const firstLast = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[1]
+              }
+            ]
+          };
+
+          const lastFirst = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[1]
+              }
+            ]
+          };
+
+          queryVal.push({
+            t: 'or',
+            val: [firstLast, lastFirst]
+          });
         }
-
-        queryVal.push({
-          t: 'or',
-          val: [firstLast, lastFirst]
-        });
       } else {
         const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
 
