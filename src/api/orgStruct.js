@@ -199,7 +199,7 @@ export class OrgStructApi extends CommonApi {
     };
 
     if (searchText) {
-      let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+      const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
       const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
 
@@ -550,7 +550,9 @@ export class OrgStructApi extends CommonApi {
         const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
 
         const addExtraFields = (fields = []) => {
-          searchFields.push(...fields.map(field => field.trim()));
+          const attributes = fields.map(field => field.trim());
+
+          searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
         };
 
         if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
