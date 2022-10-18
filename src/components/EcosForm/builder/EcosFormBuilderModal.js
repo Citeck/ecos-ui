@@ -30,7 +30,7 @@ export default class EcosFormBuilderModal extends React.Component {
       isDebugModalOpen: false,
       isOpenDependencies: true,
       isOpenInfluence: true,
-      formId: null
+      formId: props.formId || null
     };
   }
 
