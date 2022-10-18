@@ -38,6 +38,7 @@ export function converterUserList(source) {
     id: item.id,
     label: item.displayName,
     extraLabel: item.fullName,
+    isPersonDisabled: !!item.isPersonDisabled,
     attributes: item
   }));
 }

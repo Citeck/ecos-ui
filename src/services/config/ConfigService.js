@@ -33,6 +33,9 @@ export const CREATE_MENU_TYPE = 'create-menu-type';
 
 export const ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME = 'orgstruct-allUsers-group-shortName';
 export const ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS = 'orgstruct-search-user-extra-fields';
+export const ORGSTRUCT_HIDE_DISABLED_USERS = 'hide-disabled-users-for-everyone';
+export const ORGSTRUCT_SEARCH_USER_MIDLLE_NAME = 'orgstruct-search-user-middle-name';
+export const ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN = 'orgstruct-show-inactive-user-only-for-admin';
 
 export const RESTRICT_ACCESS_TO_EDIT_DASHBOARD = 'restrict-access-to-edit-dashboard';
 export const HOME_LINK_URL = 'home-link-url';
@@ -54,6 +57,18 @@ const CONFIG_PROPS = {
   },
   [ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME]: {
     defaultValue: 'all'
+  },
+  [ORGSTRUCT_HIDE_DISABLED_USERS]: {
+    type: TYPE_BOOLEAN,
+    defaultValue: true
+  },
+  [ORGSTRUCT_SEARCH_USER_MIDLLE_NAME]: {
+    type: TYPE_BOOLEAN,
+    defaultValue: false
+  },
+  [ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN]: {
+    type: TYPE_BOOLEAN,
+    defaultValue: false
   },
   [ACTIVE_THEME]: {
     defaultValue: 'ecos'

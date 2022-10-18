@@ -65,6 +65,10 @@
   margin-left: 10px;
 }
 
+.select-orgstruct__list-item-label_disabled {
+  opacity: 0.5;
+}
+
 .select-orgstruct__select-handler.icon {
   cursor: pointer;
   color: $color-white;
