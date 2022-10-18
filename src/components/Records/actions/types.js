@@ -31,13 +31,17 @@
  * @property {String} icon
  * @property {String} name
  * @property {String} pluralName
- * @property {Object} config
+ * @property {RecordActionConfig} config
  * @property {?ConfirmAction} confirm
  * @property {Number} execForRecordsBatchSize
  * @property {Number} execForRecordsParallelBatchesCount
  * @property {RecordActionFeatures} features
  * @property {ExecForQueryOptions} execForQueryConfig
  * @property {String} preActionModule
+ */
+
+/**
+ * @typedef {TaskOutcomeActionConfig | Object} RecordActionConfig
  */
 
 /**

@@ -1,50 +1,65 @@
-import ActionsExecutor from '../../ActionsExecutor';
-import Records from '../../../../Records';
-import DialogManager from '../../../../../common/dialogs/Manager';
-import lodashGet from 'lodash/get';
+import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
+
 import { getCurrentLocale, t } from '../../../../../../helpers/export/util';
-import dialogManager from '../../../../../common/dialogs/Manager/DialogManager';
+import { QueryLanguages, SourcesId } from '../../../../../../constants';
+import DialogManager from '../../../../../common/dialogs/Manager';
+import EcosFormUtils from '../../../../../EcosForm/EcosFormUtils';
+import Records from '../../../../Records';
+import { notifySuccess } from '../../../util/actionUtils';
+import ActionsExecutor from '../../ActionsExecutor';
+
+/**
+ * @typedef {Object} TaskOutcomeActionConfig
+ * @property {String} label
+ * @property {String} outcome
+ * @property {String} formRef
+ * @property {String} taskRef
+ * @property {?Boolean} hideConfirmEmptyForm
+ */
 
 export default class TaskOutcomeAction extends ActionsExecutor {
   static ACTION_ID = 'task-outcome';
 
   async execForRecord(record, action, context) {
     const {
-      config: { label, outcome, formRef, taskRef }
+      config: { label, outcome, formRef, taskRef, hideConfirmEmptyForm }
     } = action;
 
     if (!outcome || !formRef || !taskRef) {
       console.error('Incorrect action', action);
+
       DialogManager.showInfoDialog({
         title: 'record-action.task-outcome.incorrect-action.header',
         text: 'record-action.task-outcome.incorrect-action.message'
       });
+
       return false;
     }
 
     const formDefRes = await Records.query(
       {
-        sourceId: 'uiserv/task-form',
-        language: 'form',
+        sourceId: SourcesId.TASK_FORM,
+        language: QueryLanguages.FORM,
         query: { formRef }
       },
       '.json'
     );
 
-    const formDef = lodashGet(formDefRes, 'records[0][".json"]');
+    const formDef = get(formDefRes, 'records[0][".json"]');
 
-    if (!formDef || !formDef.definition) {
+    if (!get(formDef, 'definition')) {
       console.error('Form is not defined', formDefRes);
+
       DialogManager.showInfoDialog({
         title: 'record-action.task-outcome.form-not-found.header',
         text: 'record-action.task-outcome.form-not-found.message'
       });
+
       return false;
     }
 
-    let formInputs = EcosFormUtils.getFormInputs(formDef.definition);
+    const formInputs = EcosFormUtils.getFormInputs(formDef.definition);
     let formI18n = await this.getFormI18n(taskRef, formInputs, formDef.i18n);
     formI18n = { [getCurrentLocale()]: formI18n };
 
@@ -74,18 +89,26 @@ export default class TaskOutcomeAction extends ActionsExecutor {
         task
           .save()
           .then(() => {
+            notifySuccess();
             resolve(true);
           })
           .catch(e => {
             console.error(e);
-            dialogManager.showInfoDialog({
+
+            DialogManager.showInfoDialog({
               title: 'record-action.delete.dialog.title.error',
               text: e.message || 'record-action.delete.dialog.msg.error',
               onClose: () => resolve(false)
             });
+
             resolve(false);
           });
       };
+
+      if (hideConfirmEmptyForm && !formInputs.length) {
+        completeAction({});
+        return;
+      }
 
       let messageWithOutcome = t('record-action.task-outcome.complete-task.message', { outcome: label });
 
@@ -96,20 +119,22 @@ export default class TaskOutcomeAction extends ActionsExecutor {
           onNo: () => resolve(false),
           onYes: () => completeAction({})
         });
-      } else {
-        DialogManager.showFormDialog({
-          title: messageWithOutcome,
-          showDefaultButtons: true,
-          formDefinition: formDef.definition,
-          formOptions: {
-            recordId: taskRef,
-            outcome
-          },
-          formI18n,
-          onCancel: () => resolve(false),
-          onSubmit: async submission => completeAction(submission.data)
-        });
+
+        return;
       }
+
+      DialogManager.showFormDialog({
+        title: messageWithOutcome,
+        showDefaultButtons: true,
+        formDefinition: formDef.definition,
+        formOptions: {
+          recordId: taskRef,
+          outcome
+        },
+        formI18n,
+        onCancel: () => resolve(false),
+        onSubmit: async submission => completeAction(submission.data)
+      });
     });
   }
 
