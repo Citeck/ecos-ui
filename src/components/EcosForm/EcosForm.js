@@ -89,6 +89,10 @@ class EcosForm extends React.Component {
     };
   }
 
+  get form() {
+    return this._form;
+  }
+
   setRefFormBuilderModal = element => {
     if (element) {
       this._formBuilderModal = element;
@@ -277,7 +281,7 @@ class EcosForm extends React.Component {
             debounce(
               submission => {
                 if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
-                  isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission);
+                  isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
                 }
               },
               1000,

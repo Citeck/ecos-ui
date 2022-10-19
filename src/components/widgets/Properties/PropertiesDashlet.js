@@ -68,7 +68,8 @@ class PropertiesDashlet extends BaseWidget {
       isShowSetting: false,
       wasLastModifiedWithInlineEditor: false,
       title: '',
-      isDraft: false
+      isDraft: false,
+      formIsValid: false
     };
   }
 
@@ -95,7 +96,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   get dashletActions() {
-    const { canEditRecord, isShowSetting } = this.state;
+    const { canEditRecord, isShowSetting, formIsValid, formIsChanged } = this.state;
 
     if (isShowSetting) {
       return {};
@@ -130,7 +131,7 @@ class PropertiesDashlet extends BaseWidget {
       };
     }
 
-    if (formMode === 'EDIT' && this.state.formIsChanged) {
+    if (formMode === 'EDIT' && formIsChanged) {
       actions = {
         [DAction.Actions.CANCEL]: {
           className: classNames(
@@ -149,7 +150,10 @@ class PropertiesDashlet extends BaseWidget {
         [DAction.Actions.SUBMIT]: {
           className: classNames(
             getFitnesseClassName('properties-widget', formType, DAction.Actions.SUBMIT),
-            'btn btn-primary btn-xsm eform-edit-form-btn'
+            'btn btn-primary btn-xsm eform-edit-form-btn',
+            {
+              'disabled btn_disabled': !formIsValid
+            }
           ),
           onClick: this.submitForm
         }
@@ -207,11 +211,20 @@ class PropertiesDashlet extends BaseWidget {
     }
   };
 
-  onFormIsChanged = (trigger, callback) => {
-    this.setState({ formIsChanged: !!trigger }, callback);
+  onFormIsChanged = (trigger, formIsValid) => {
+    this.setState({
+      formIsChanged: !!trigger,
+      formIsValid
+    });
   };
 
   submitForm = () => {
+    const { formIsValid } = this.state;
+
+    if (!formIsValid) {
+      return;
+    }
+
     const currentForm = get(this._propertiesRef, 'current.wrappedInstance._ecosForm.current');
 
     this.setState({ formIsChanged: false }, () => {

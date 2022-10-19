@@ -90,13 +90,14 @@ class Properties extends React.Component {
     }
   };
 
-  onFormChanged = submission => {
+  onFormChanged = (submission, form) => {
+    const { onFormIsChanged } = this.props;
     const { initData } = this.state;
 
-    if (isFunction(this.props.onFormIsChanged)) {
+    if (isFunction(onFormIsChanged)) {
       const isChanged = !isEqual(initData, submission.data);
 
-      this.props.onFormIsChanged(isChanged);
+      onFormIsChanged(isChanged, form.isValid(submission));
     }
   };
 
