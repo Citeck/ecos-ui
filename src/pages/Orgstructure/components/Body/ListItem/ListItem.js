@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import noop from 'lodash/noop';
 import connect from 'react-redux/es/connect/connect';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../../../../components/common/form/SelectOrgstruct/constants';
 import { EcosModal } from '../../../../../components/common';
 import FormManager from '../../../../../components/EcosForm/FormManager';
 import ModalContent from '../ModalContent';
@@ -62,35 +62,16 @@ const renderListItem = (item, nestingLevel) => {
 };
 
 const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson }) => {
-  const { controlProps = {}, onToggleCollapse, onToggleSelectItem, initList } = useContext(SelectOrgstructContext);
+  const { onToggleCollapse, initList } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-  const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
+
   const selected = selectedPerson === item.id;
-
-  const itemAuthorityType = get(item, 'attributes.authorityType');
-  const itemGroupType = get(item, 'attributes.groupType', '').toUpperCase();
-  const itemGroupSubType = get(item, 'attributes.groupSubType', '');
-
-  const isAllowedSelect =
-    allowedAuthorityTypes.includes(itemAuthorityType) &&
-    (itemAuthorityType === AUTHORITY_TYPE_USER ||
-      (itemAuthorityType === AUTHORITY_TYPE_GROUP &&
-        allowedGroupTypes.includes(itemGroupType) &&
-        (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.includes(itemGroupSubType))));
-
   const onClickLabel = () => {
     if (item.hasChildren) {
       onToggleCollapse(item);
-    }
-  };
-
-  const onDoubleClick = e => {
-    if (isAllowedSelect) {
-      e.stopPropagation();
-      onToggleSelectItem(item, true);
     }
   };
 
@@ -240,7 +221,12 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   return (
     <li>
-      <div className={listItemClassNames} onDoubleClick={onDoubleClick} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <div
+        className={listItemClassNames}
+        onClick={isPerson ? selectPerson : noop}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <div className={listItemLabelClassNames} onClick={onClickLabel}>
           <div className="orgstructure-page__list-item-container">
             <div>

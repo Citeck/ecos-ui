@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React, { lazy, useState } from 'react';
 
 import { Pages } from '../constants';
@@ -69,7 +70,7 @@ export default ({ pageKey, withoutFooter, ...props }) => {
 
   return (
     <>
-      <div className="app-content">
+      <div className={classNames('app-content', { 'orgstructure-page': pageKey === Pages.ORGSTRUCTURE })}>
         <Page {...props} footerRef={footerRef} />
       </div>
       {!withoutFooter && <Footer forwardedRef={setFooterRef} />}

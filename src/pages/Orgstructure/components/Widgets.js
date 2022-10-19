@@ -6,17 +6,33 @@ import UserProfileDashlet from '../../../components/widgets/UserProfile/UserProf
 import PropertiesDashlet from '../../../components/widgets/Properties/PropertiesDashlet';
 import { t } from '../../../helpers/util';
 
-const WIDGETS_CONFIG = [
-  { formId: 'uiserv/form@person_general', title: 'Основное' },
-  { formId: 'uiserv/form@person_contacts', title: 'Контакты' },
-  { formId: 'uiserv/form@person_other', title: 'Прочее' },
-  { formId: 'uiserv/form@cm_person_user_groups', title: 'Группы' }
-];
+const Labels = {
+  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text',
+  GENERAL_TITLE: 'orgstructure-widget-main',
+  CONTACTS_TITLE: 'orgstructure-widget-contacts',
+  OTHER_TITLE: 'orgstructure-widget-others',
+  GROUPS_TITLE: 'orgstructure-widget-groups'
+};
+
+const WIDGETS_CONFIG = {
+  GENERAL: { formId: 'uiserv/form@person_general', title: t(Labels.GENERAL_TITLE) },
+  CONTACTS: { formId: 'uiserv/form@person_contacts', title: t(Labels.CONTACTS_TITLE) },
+  OTHER: { formId: 'uiserv/form@person_other', title: t(Labels.OTHER_TITLE) },
+  GROUPS: { formId: 'uiserv/form@cm_person_user_groups', title: t(Labels.GROUPS_TITLE) }
+};
 
 const DASHBOARD_ID = 'person-dashboard';
 
-const Labels = {
-  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text'
+const renderWidget = (element, record) => {
+  return (
+    <PropertiesDashlet
+      record={record}
+      dashboardId={DASHBOARD_ID}
+      id={element.formId}
+      config={{ formId: element.formId, titleAsFormName: true }}
+      title={element.title}
+    />
+  );
 };
 
 const Widgets = ({ personId }) => {
@@ -26,17 +42,15 @@ const Widgets = ({ personId }) => {
 
   return (
     <div className="orgstructure-page__grid__widgets">
-      <UserProfileDashlet record={personId} />
-
-      {WIDGETS_CONFIG.map(element => (
-        <PropertiesDashlet
-          record={personId}
-          dashboardId={DASHBOARD_ID}
-          id={element.formId}
-          config={{ formId: element.formId, titleAsFormName: true }}
-          title={element.title}
-        />
-      ))}
+      <div className="orgstructure-page__grid__widgets-block">
+        <UserProfileDashlet record={personId} />
+        {renderWidget(WIDGETS_CONFIG.OTHER, personId)}
+      </div>
+      <div className="orgstructure-page__grid__widgets-block">
+        {renderWidget(WIDGETS_CONFIG.GENERAL, personId)}
+        {renderWidget(WIDGETS_CONFIG.GROUPS, personId)}
+      </div>
+      <div className="orgstructure-page__grid__widgets-block">{renderWidget(WIDGETS_CONFIG.CONTACTS, personId)}</div>
     </div>
   );
 };

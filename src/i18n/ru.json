@@ -2324,5 +2324,10 @@
   "orgstructure-delete-modal-body-group": "Вы действительно хотите удалить эту группу?",
   "orgstructure-delete-modal-full-delete": "Удалить полностью",
   "orgstructure-delete-modal-group-delete": "Удалить из группы",
-  "orgstructure-delete-modal-cancel": "Отмена"
+  "orgstructure-delete-modal-cancel": "Отмена",
+
+  "orgstructure-widget-main": "Основное",
+  "orgstructure-widget-contacts": "Контакты",
+  "orgstructure-widget-others": "Прочее",
+  "orgstructure-widget-groups": "Группы"
 }

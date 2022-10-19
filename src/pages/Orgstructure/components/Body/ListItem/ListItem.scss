@@ -1,4 +1,4 @@
-@import '../../../../../styles/constants';
+@import "../../../../../styles/constants";
 
 .select-orgstruct__list-item-label.orgstructure-page {
   width: 100%;
@@ -47,13 +47,12 @@
   width: 45vw;
 }
 
-.orgstructure-page__list-item-label-with-extra {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 80%;
-}
-
 .orgstructure-page__list-item-label-with-extra__fullwidth {
   width: 100%;
+}
+
+.select-orgstruct__list-item.orgstructure-page {
+  width: 100%;
+  min-width: fit-content;
+  cursor: pointer;
 }
