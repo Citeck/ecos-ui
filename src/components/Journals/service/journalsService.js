@@ -178,6 +178,8 @@ class JournalsService {
     result.newType = column.type;
     result.visible = column.hidden !== true;
     result.editable = column.editable !== false;
+    result.searchConfig = column.searchConfig || {};
+    result.headerFilterEditor = column.headerFilterEditor || {};
 
     return result;
   }

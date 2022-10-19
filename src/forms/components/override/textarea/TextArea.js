@@ -79,7 +79,15 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
       return;
     }
 
-    super.setupValueElement(element);
+    let value = this.getValue();
+
+    value = this.isEmpty(value) ? this.defaultViewOnlyValue : this.getView(value);
+
+    if (this.component.wysiwyg) {
+      value = this.interpolate(value);
+    }
+
+    element.textContent = value;
   }
 
   addCKE(element, settings, onChange) {
