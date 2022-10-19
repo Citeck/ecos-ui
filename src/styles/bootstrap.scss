@@ -57,9 +57,9 @@
     padding: 0;
 
     .arrow:before {
-      cursor: unset;
-      pointer-events: none;
       top: 0 !important;
+      pointer-events: none;
+      cursor: unset;
     }
   }
 }

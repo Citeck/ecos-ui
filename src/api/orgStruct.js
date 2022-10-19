@@ -11,11 +11,16 @@ import {
 import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
 import { getCurrentUserName } from '../helpers/util';
-import { SourcesId } from '../constants';
-import { RecordService } from './recordService';
-import ConfigService, { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
+import ConfigService, {
+  ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
+  ORGSTRUCT_HIDE_DISABLED_USERS,
+  ORGSTRUCT_SEARCH_USER_MIDLLE_NAME,
+  ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN
+} from '../services/config/ConfigService';
+import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
+import { CommonApi } from './common';
 
-export class OrgStructApi extends RecordService {
+export class OrgStructApi extends CommonApi {
   get groupAttributes() {
     return {
       displayName: '?disp',
@@ -206,11 +211,33 @@ export class OrgStructApi extends RecordService {
       .then(this._prepareGroups);
   };
 
-  static async getGlobalSearchFields() {
-    return ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
+  static async fetchGlobalSearchFields() {
+    return await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
   }
 
-  static getSearchQuery = (search = '', searchFields = ['id', '_name']) => {
+  static async fetchIsHideDisabledField() {
+    return await ConfigService.getValue(ORGSTRUCT_HIDE_DISABLED_USERS);
+  }
+
+  static async fetchIsShowDisabledUser() {
+    return await ConfigService.getValue(ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN);
+  }
+
+  static async fetchIsAdmin(userName) {
+    try {
+      const result = await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
+  }
+
+  static async fetchIsSearchUserMiddleName() {
+    return await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_MIDLLE_NAME);
+  }
+
+  static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS) => {
     const valRaw = search.trim();
     const val = valRaw.split(' ').filter(item => !!item);
     const queryVal = [
@@ -259,7 +286,6 @@ export class OrgStructApi extends RecordService {
   };
 
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
-    const searchFields = ['id', '_name'];
     let queryVal = [];
 
     const predicateNotDisabled = {
@@ -268,34 +294,43 @@ export class OrgStructApi extends RecordService {
       val: 'true'
     };
 
-    const isHideForAll = Boolean(await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool'));
+    const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
+
     if (isHideForAll) {
       queryVal.push(predicateNotDisabled);
     } else {
-      const userName = getCurrentUserName();
-      const isAdmin = Boolean(await Records.get(getPersonRef(userName)).load('isAdmin?bool'));
+      const isAdmin = await OrgStructApi.fetchIsAdmin(getCurrentUserName());
+
       if (!isAdmin) {
-        const showInactiveUserOnlyForAdmin = Boolean(
-          await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
-        );
+        const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
+
         if (showInactiveUserOnlyForAdmin) {
           queryVal.push(predicateNotDisabled);
         }
       }
     }
 
+    let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+
     if (searchText) {
       const addExtraFields = (fields = []) => {
         searchFields.push(...fields.map(field => field.trim()).filter(field => !!field));
       };
 
-      const globalSearchConfig = await OrgStructApi.getGlobalSearchFields();
+      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
       if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
         addExtraFields(globalSearchConfig);
       }
 
       if (Array.isArray(extraFields) && extraFields.length > 0) {
         addExtraFields(extraFields);
+      }
+
+      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+
+      if (isSearchUserMiddleName) {
+        addExtraFields(['middleName']);
       }
     }
 

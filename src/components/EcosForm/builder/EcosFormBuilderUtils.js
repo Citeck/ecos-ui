@@ -9,14 +9,21 @@ const builders = {};
 
 export class EcosFormBuilderUtils {
   static showBuilderForRecord(formRecord) {
-    let record = Records.get(formRecord);
+    const record = Records.get(formRecord);
 
-    let processFormDefinition = function(loadedFormDefinition) {
-      let onSubmit = formDefinition => record.att('definition?json', formDefinition);
-      EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilder, loadedFormDefinition, onSubmit);
+    const processFormDefinition = function(loadedFormDefinition) {
+      const onSubmit = formDefinition => record.att('definition?json', formDefinition);
+
+      const formId = record.getBaseRecord().id;
+      const definition = {
+        ...loadedFormDefinition,
+        formId: formId.substring(formId.indexOf('@') + 1)
+      };
+
+      EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilder, definition, onSubmit);
     };
 
-    let defAtts = {
+    const defAtts = {
       definition: 'definition?json'
     };
 
@@ -49,11 +56,20 @@ export class EcosFormBuilderUtils {
       builders[componentKey].show(showData, onSubmit);
     } else {
       let container = document.createElement('div');
+
+      const reactProps = {};
+
       container.id = 'EcosFormBuilderUtils-' + componentKey + '-' + formPanelIdx++;
+
+      if (showData.formId) {
+        reactProps.formId = showData.formId;
+      }
+
       document.body.appendChild(container);
 
-      const componentInstance = React.createElement(component);
+      const componentInstance = React.createElement(component, reactProps);
       const editor = ReactDOM.render(componentInstance, container);
+
       builders[componentKey] = editor;
       editor.show(showData, onSubmit);
     }

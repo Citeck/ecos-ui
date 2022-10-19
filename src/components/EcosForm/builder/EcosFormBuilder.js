@@ -28,7 +28,7 @@ export default class EcosFormBuilder extends React.Component {
 
   async makeDefaultForm() {
     const data = await this.getDefaultForm();
-    console.log(data);
+
     window.Formio.builder(document.getElementById(this.contentId), {
       components: data.components
     }).then(editorForm => {

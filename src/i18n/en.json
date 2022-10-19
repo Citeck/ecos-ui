@@ -2327,5 +2327,10 @@
   "orgstructure-delete-modal-body-group": "Do you really want to delete this group?",
   "orgstructure-delete-modal-full-delete": "Delete completely",
   "orgstructure-delete-modal-group-delete": "Delete from group",
-  "orgstructure-delete-modal-cancel": "Cancel"
+  "orgstructure-delete-modal-cancel": "Cancel",
+
+  "orgstructure-widget-main": "General",
+  "orgstructure-widget-contacts": "Contacts",
+  "orgstructure-widget-others": "Others",
+  "orgstructure-widget-groups": "Groups"
 }
