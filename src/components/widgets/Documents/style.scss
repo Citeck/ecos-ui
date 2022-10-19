@@ -155,8 +155,14 @@
       padding: 9px 12px 9px 15px;
       border-radius: 6px;
 
-      &:hover:not(&_selected) {
-        background: $color-gray-25;
+      &:hover {
+        &:not(&_selected) {
+          background: $color-gray-25;
+        }
+
+        #{$item}-label-context {
+          color: unset;
+        }
       }
 
       &-bc {
@@ -168,12 +174,14 @@
             padding-left: 2px;
 
             &:before {
-              content: '⮡';
-              font-size: 18px;
+              font-family: 'citeck', serif;
+              content: '\e852';
+              font-size: 16px;
               position: absolute;
               left: -15px;
-              top: -3px;
+              top: -1px;
               font-weight: normal;
+              transform: rotate(180deg);
             }
           }
 
@@ -197,6 +205,12 @@
         line-height: 23px;
         color: $text-color-dark;
         padding-right: 12px;
+
+        &-context {
+          color: $color-gray-6;
+          font-size: $font-size-small;
+          margin-left: 10px;
+        }
       }
 
       &-settings {
@@ -213,6 +227,10 @@
         #{$item} {
           &-label {
             color: $color-white;
+
+            &-context {
+              color: $color-white;
+            }
           }
 
           &-status {

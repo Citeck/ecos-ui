@@ -307,7 +307,7 @@ class Settings extends Component {
           title={title}
           isOpen={isOpen}
           isLoading={isLoading}
-          className="ecos-docs__modal-settings"
+          className="ecos-docs__modal-settings ecos-modal_width-extra-lg"
           hideModal={this.handleCloseModal}
         >
           <Checkbox className="ecos-docs__modal-checkbox" onChange={this.handleToggleLoadChecklist} checked={isLoadChecklist}>

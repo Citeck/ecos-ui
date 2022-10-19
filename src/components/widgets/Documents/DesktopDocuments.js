@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import last from 'lodash/last';
 
 import Dashlet from '../../Dashlet';
 import { Loader, Popper, ResizeBoxes, Tooltip } from '../../common';
@@ -598,7 +599,7 @@ class DesktopDocuments extends BaseDocuments {
         contentComponent={
           <>
             {breadcrumbs.map((text, index) => (
-              <div className="ecos-docs__types-item-bc-element" key={text} style={{ marginLeft: `${index * 17}px` }}>
+              <div className="ecos-docs__types-item-bc-element" key={text} style={{ marginLeft: `${index * 20}px` }}>
                 {text}
               </div>
             ))}
@@ -611,6 +612,13 @@ class DesktopDocuments extends BaseDocuments {
   renderType = item => {
     const { selectedType } = this.state;
     const id = prepareTooltipId(`type-${this.props.stateId}-${item.type}`);
+    let name = t(item.name);
+    let parent = last(get(item, 'breadcrumbs') || []);
+
+    if (parent) {
+      parent = `(${parent})`;
+      name = `${name} ${parent}`;
+    }
 
     return (
       <div
@@ -620,9 +628,10 @@ class DesktopDocuments extends BaseDocuments {
           'ecos-docs__types-item_selected': selectedType === item.type
         })}
       >
-        <Tooltip target={id} text={t(item.name)} uncontrolled showAsNeeded autohide>
+        <Tooltip target={id} text={name} uncontrolled showAsNeeded autohide>
           <div id={id} className="ecos-docs__types-item-label">
             {t(item.name)}
+            <span className="ecos-docs__types-item-label-context">{parent}</span>
           </div>
         </Tooltip>
 
