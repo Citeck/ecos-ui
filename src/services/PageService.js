@@ -8,6 +8,7 @@ import { getCurrentUserName, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
+import Records from '../components/Records';
 
 const pageApi = new PageApi();
 
@@ -29,6 +30,14 @@ export const Events = {
 
 const CHANGE_URL = document.createEvent('Event');
 CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
+
+const TYPES = { TYPE: 'emodel/type@type', BOARD: 'emodel/type@board', FORM: 'emodel/type@form' };
+
+const TYPE_TITLES = {
+  [TYPES.TYPE]: TITLE.TYPE,
+  [TYPES.BOARD]: TITLE.BOARD,
+  [TYPES.FORM]: TITLE.FORM
+};
 
 export default class PageService {
   static eventIsDispatched = false;
@@ -110,14 +119,30 @@ export default class PageService {
     return PageService.pageTypes[_type] || getDefaultPage(link);
   }
 
+  static getTypeTitle(recordRef, typeTitle) {
+    return pageApi.getRecordTitle(recordRef).then(title => `${t(typeTitle)} "${convertTitle(title)}"`);
+  }
+
+  static async getDashboardTitle(recordRef) {
+    if (!recordRef) {
+      return staticTitle(TITLE.HOMEPAGE);
+    }
+    const type = await Records.get(recordRef).load('_type?id');
+    const title = TYPE_TITLES[type];
+    if (title) {
+      return PageService.getTypeTitle(recordRef, title);
+    }
+
+    return pageApi.getRecordTitle(recordRef).then(convertTitle);
+  }
+
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
       getTitle: ({ recordRef }, link) => {
         if (!recordRef) {
           recordRef = PageService.getRef(link);
         }
-
-        return recordRef ? pageApi.getRecordTitle(recordRef).then(convertTitle) : staticTitle(TITLE.HOMEPAGE);
+        return PageService.getDashboardTitle(recordRef);
       }
     },
     [PageTypes.JOURNALS]: {
