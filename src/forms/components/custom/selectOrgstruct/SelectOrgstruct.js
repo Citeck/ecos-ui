@@ -6,7 +6,6 @@ import isEmpty from 'lodash/isEmpty';
 import split from 'lodash/split';
 import isString from 'lodash/isString';
 
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import SelectOrgstruct from '../../../../components/common/form/SelectOrgstruct';
 import {
   AUTHORITY_TYPE_GROUP,
@@ -16,6 +15,7 @@ import {
   ROOT_GROUP_NAME,
   TabTypes
 } from '../../../../components/common/form/SelectOrgstruct/constants';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import { isNodeRef } from '../../../../helpers/util';
 import Records from '../../../../components/Records';
 import BaseComponent from '../base/BaseComponent';
@@ -247,7 +247,9 @@ export default class SelectOrgstructComponent extends BaseComponent {
       !this.viewOnly &&
       this.options.formMode === FORM_MODE_CREATE
     ) {
-      value = Array.isArray(value) ? [Formio.getUser()] : Formio.getUser();
+      const currentUser = (Formio.getUser() || '').toLowerCase();
+
+      value = Array.isArray(value) ? [currentUser] : currentUser;
     }
 
     const refToAuthName = async ref => {
@@ -266,6 +268,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
       }
       return ref;
     };
+
     const setValueImpl = v => {
       const val = v || this.component.defaultValue || this.emptyValue;
       if (this.component.dataType === DataTypes.AUTHORITY) {

@@ -10,6 +10,15 @@ import ZIndex from '../../../services/ZIndex';
 
 import './style.scss';
 
+export const baseModifiers = {
+  offset: {
+    name: 'offset',
+    enabled: true,
+    offset: '0, 5px'
+  }
+};
+export const baseDelay = { show: 250, hide: 0 };
+
 class Tooltip extends Component {
   /**
    * @param children - The element to which the tooltip is attached
@@ -68,7 +77,8 @@ class Tooltip extends Component {
     text: '',
     delay: 0,
     placement: 'top',
-    boundariesElement: 'window'
+    boundariesElement: 'window',
+    modifiers: { ...baseModifiers }
   };
 
   static getDerivedStateFromProps(props, state) {

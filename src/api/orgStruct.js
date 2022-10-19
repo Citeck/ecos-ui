@@ -2,25 +2,42 @@ import * as queryString from 'query-string';
 
 import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
-import { SourcesId } from '../constants';
+import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { converterUserList } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName, isNodeRef } from '../helpers/util';
-import { RecordService } from './recordService';
+import { CommonApi } from './common';
 
-export class OrgStructApi extends RecordService {
+export class OrgStructApi extends CommonApi {
   _loadedAuthorities = {};
   _loadedGroups = {};
 
-  getUsers = (searchText = '') => {
-    let url = `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false&group=false&user=true&recurse=true&excludeAuthorities=all_users`;
-    if (searchText) {
-      url += `&filter=${searchText}`;
+  getUsers = async (searchText = '') => {
+    const useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+    const searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
+
+    let url = queryString.stringifyUrl(
+      {
+        url: `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false`,
+        query: {
+          user: true,
+          recurse: true,
+          excludeAuthorities: 'all_users',
+          useMiddleName,
+          searchExtraFields,
+          group: false
+        }
+      },
+      { arrayFormat: 'comma' }
+    );
+
+    if (searchText.length > 0) {
+      url += `&filter=${encodeURI(searchText)}`;
     }
     return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
+  fetchGroup = async ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
     excludeAuthoritiesByName = excludeAuthoritiesByName
       .split(',')
       .map(item => item.trim())
@@ -38,12 +55,18 @@ export class OrgStructApi extends RecordService {
     if (searchText) {
       urlQuery.filter = searchText;
       urlQuery.recurse = true;
+      urlQuery.useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+      urlQuery.searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
+      urlQuery.user = true;
     }
 
-    const url = queryString.stringifyUrl({
-      url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true&user=true`,
-      query: urlQuery
-    });
+    const url = queryString.stringifyUrl(
+      {
+        url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true`,
+        query: urlQuery
+      },
+      { arrayFormat: 'comma' }
+    );
 
     // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
@@ -92,7 +115,7 @@ export class OrgStructApi extends RecordService {
     return this.fetchAuthorityByRef(nodeRef);
   };
 
-  static async getGlobalSearchFields() {
+  static async fetchGlobalSearchFields() {
     return Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-extra-fields`)
       .load('value?str')
       .then(searchFields => {
@@ -103,6 +126,36 @@ export class OrgStructApi extends RecordService {
         return searchFields.split(',');
       })
       .catch(() => []);
+  }
+
+  static async fetchIsHideDisabledField() {
+    try {
+      const result = await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
+  }
+
+  static async fetchIsAdmin(userName) {
+    try {
+      const result = await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
+  }
+
+  static async fetchIsSearchUserMiddleName() {
+    try {
+      const result = await Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-middle-name`).load('value');
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
   }
 
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
@@ -139,22 +192,381 @@ export class OrgStructApi extends RecordService {
       }
     }
 
+    const attributes = {
+      fullName: '.disp',
+      userName: 'userName',
+      personDisabled: 'isPersonDisabled?bool'
+    };
+
     if (searchText) {
-      const searchFields = ['cm:userName', 'cm:firstName', 'cm:lastName'];
-      const addExtraFields = (fields = []) => {
-        searchFields.push(...fields.map(field => field.trim()));
-      };
+      const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
-      const globalSearchConfig = await OrgStructApi.getGlobalSearchFields();
-      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-        addExtraFields(globalSearchConfig);
-      }
+      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
 
-      if (Array.isArray(extraFields) && extraFields.length > 0) {
-        addExtraFields(extraFields);
-      }
+      if (val.length === 2) {
+        if (isSearchUserMiddleName) {
+          const lastFirst = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                }
+              ]
+            }
+          ];
 
-      if (val.length < 2) {
+          const firstLast = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                }
+              ]
+            }
+          ];
+
+          queryVal.push({
+            t: 'or',
+            val: [...lastFirst, ...firstLast]
+          });
+        } else {
+          const firstLast = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[1]
+              }
+            ]
+          };
+
+          const lastFirst = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[1]
+              }
+            ]
+          };
+
+          queryVal.push({
+            t: 'or',
+            val: [lastFirst, firstLast]
+          });
+        }
+      } else if (val.length === 3) {
+        if (isSearchUserMiddleName) {
+          const lastFirst = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[2]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[2]
+                }
+              ]
+            }
+          ];
+
+          const firstLast = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[2]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[2]
+                }
+              ]
+            }
+          ];
+
+          const middleLast = [
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[2]
+                }
+              ]
+            },
+            {
+              t: 'and',
+              val: [
+                {
+                  t: 'contains',
+                  att: 'cm:middleName',
+                  val: val[0]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:lastName',
+                  val: val[1]
+                },
+                {
+                  t: 'contains',
+                  att: 'cm:firstName',
+                  val: val[2]
+                }
+              ]
+            }
+          ];
+
+          queryVal.push({
+            t: 'or',
+            val: [...lastFirst, ...middleLast, ...firstLast]
+          });
+        } else {
+          const firstLast = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[1]
+              }
+            ]
+          };
+
+          const lastFirst = {
+            t: 'and',
+            val: [
+              {
+                t: 'contains',
+                att: 'cm:lastName',
+                val: val[0]
+              },
+              {
+                t: 'contains',
+                att: 'cm:firstName',
+                val: val[1]
+              }
+            ]
+          };
+
+          queryVal.push({
+            t: 'or',
+            val: [firstLast, lastFirst]
+          });
+        }
+      } else {
+        const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
+        const addExtraFields = (fields = []) => {
+          const attributes = fields.map(field => field.trim());
+
+          searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
+        };
+
+        if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+          addExtraFields(globalSearchConfig);
+        }
+
+        if (Array.isArray(extraFields) && extraFields.length > 0) {
+          addExtraFields(extraFields);
+        }
+
+        if (isSearchUserMiddleName) {
+          addExtraFields(['middleName']);
+        }
+
         queryVal.push({
           t: 'or',
           val: searchFields.map(att => ({
@@ -163,42 +575,11 @@ export class OrgStructApi extends RecordService {
             val: val[0]
           }))
         });
-      } else {
-        const firstLast = {
-          t: 'and',
-          val: [
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[0]
-            },
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[1]
-            }
-          ]
-        };
+      }
 
-        const lastFirst = {
-          t: 'and',
-          val: [
-            {
-              t: 'contains',
-              att: 'cm:lastName',
-              val: val[0]
-            },
-            {
-              t: 'contains',
-              att: 'cm:firstName',
-              val: val[1]
-            }
-          ]
-        };
-
-        queryVal.push({
-          t: 'or',
-          val: [firstLast, lastFirst]
+      if (Array.isArray(searchFields) && searchFields.length > 0) {
+        searchFields.forEach(attribute => {
+          attributes[attribute] = attribute;
         });
       }
     }
@@ -214,8 +595,7 @@ export class OrgStructApi extends RecordService {
         }
       },
       {
-        fullName: '.disp',
-        userName: 'userName'
+        ...attributes
       }
     ).then(result => ({
       items: converterUserList(result.records),

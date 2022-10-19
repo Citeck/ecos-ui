@@ -77,10 +77,16 @@ export const SourcesId = {
   BIRTHDAYS: 'birthdays',
   REPORT: 'reports-data',
   TASK: 'wftask',
+  TASK_FORM: 'uiserv/task-form',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings'
+};
+
+export const QueryLanguages = {
+  TASKS: 'tasks',
+  FORM: 'form'
 };
 
 export const EmodelTypes = {
@@ -202,6 +208,8 @@ export const DateFormats = {
 };
 
 export const IGNORED_EVENT_ATTRIBUTE = '_isIgnoredEvent';
+
+export const DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS = ['cm:userName', 'cm:firstName', 'cm:lastName'];
 
 window.Citeck = window.Citeck || {};
 window.Citeck.constants = window.Citeck.constants || {};

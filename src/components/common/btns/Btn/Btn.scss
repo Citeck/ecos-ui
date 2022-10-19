@@ -36,6 +36,10 @@ button {
       box-shadow: none;
       outline: 0;
     }
+
+    & > .ecos-btn__i {
+      border: none;
+    }
   }
 
   /*Elements*/

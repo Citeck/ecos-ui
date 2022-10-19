@@ -11,9 +11,9 @@ import EcosModal from '../common/EcosModal';
 import TaskAssignmentPanel from '../TaskAssignmentPanel';
 import EcosFormUtils from './EcosFormUtils';
 import EcosForm from './EcosForm';
-import { FORM_MODE_EDIT } from './constants';
 import { emitter, RESET_AUTH_STATE_EVENT } from '../../helpers/ecosFetch';
 import DialogManager from '../common/dialogs/Manager';
+import { FORM_MODE_EDIT } from './constants';
 
 import './EcosFormModal.scss';
 
@@ -207,6 +207,13 @@ export default class EcosFormModal extends React.Component {
           className="ecos-modal-tooltip ecos-base-tooltip"
           innerClassName="ecos-base-tooltip-inner"
           arrowClassName="ecos-base-tooltip-arrow"
+          modifiers={{
+            offset: {
+              name: 'offset',
+              enabled: true,
+              offset: '0, 10px'
+            }
+          }}
         >
           {t(Labels.CONSTRUCTOR_BTN_TOOLTIP)}
         </UncontrolledTooltip>
