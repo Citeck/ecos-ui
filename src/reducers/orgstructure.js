@@ -1,7 +1,8 @@
 import { handleActions } from 'redux-actions';
+
 import { setSelectedPerson } from '../actions/orgstructure';
 
-const initialState = { id: '' };
+export const initialState = { id: '' };
 
 Object.freeze(initialState);
 

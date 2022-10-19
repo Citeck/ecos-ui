@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { EcosModal } from '../../../../../components/common';
