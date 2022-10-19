@@ -47,7 +47,8 @@ export default class Dropdown extends Component {
     scrollbarHeightMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     CustomItem: PropTypes.element,
     getStateOpen: PropTypes.func,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    labelIsDiv: PropTypes.bool
   };
 
   static defaultProps = {
@@ -69,7 +70,8 @@ export default class Dropdown extends Component {
     scrollbarHeightMin: '100%',
     scrollbarHeightMax: '100%',
     CustomItem: null,
-    getStateOpen: () => null
+    getStateOpen: () => null,
+    labelIsDiv: false
   };
 
   constructor(props) {
@@ -132,6 +134,20 @@ export default class Dropdown extends Component {
     });
   };
 
+  getLabel = () => {
+    const { labelIsDiv, controlLabel = '' } = this.props;
+    if (!labelIsDiv) {
+      return <span className="ecos-dropdown__toggle-label">{controlLabel}</span>;
+    }
+    if (labelIsDiv) {
+      return (
+        <div className="ecos-dropdown__toggle-label" title={controlLabel}>
+          {controlLabel}
+        </div>
+      );
+    }
+  };
+
   getStaticControl = () => {
     const { children, controlLabel = '', controlIcon = '', controlClassName } = this.props;
     const { dropdownOpen } = this.state;
@@ -143,7 +159,7 @@ export default class Dropdown extends Component {
           label={controlLabel}
           className={classNames('ecos-dropdown__toggle_static', controlClassName)}
         >
-          {controlLabel && <span className="ecos-dropdown__toggle-label">{controlLabel}</span>}
+          {controlLabel && this.getLabel()}
         </TwoIcoBtn>
       );
     }
