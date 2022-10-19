@@ -1245,6 +1245,7 @@
   "versions-journal-widget.current-version": "Актуальная версия",
   "versions-journal-widget.diff": "Сравнить",
   "versions-journal-widget.download": "Скачать",
+  "versions-journal-widget.edit": "Редактировать",
   "versions-journal-widget.modal.add": "Добавить",
   "versions-journal-widget.modal.cancel": "Отмена",
   "versions-journal-widget.modal.comment_placeholder_characters": "символов",
@@ -1268,6 +1269,7 @@
   "versions-journal-widget.set-current-version": "Сделать актуальной версию",
   "versions-journal-widget.title": "Журнал версий",
   "versions-journal-widget.version": "Версия",
+  "versions-journal-widget.tag.deployed": "Опубликовано",
 
   "web-page-widget.title": "Веб-страница",
   "web-page-widget.empty": "Содержимого нет. Укажите в настройках адрес веб-страницы.",

@@ -30,6 +30,8 @@ export default class VersionsJournalConverter {
     target.id = source.id || '';
     target.url = source.downloadUrl || '';
     target.avatar = UserService.getAvatarUrl(source.avatarUrl, { width: 50 });
+    target.tags = source.tags || [];
+    target.editLink = source.editLink || '';
 
     return target;
   }
