@@ -490,7 +490,11 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       const saveButtonClassList = this._inlineEditSaveButton.classList;
 
       if (saveButtonClassList.contains(DISABLED_SAVE_BUTTON_CLASSNAME)) {
-        return;
+        if (!this.checkValidity(this.dataValue)) {
+          return;
+        }
+
+        saveButtonClassList.remove(DISABLED_SAVE_BUTTON_CLASSNAME);
       }
 
       const form = get(this, 'root');
@@ -506,7 +510,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         submitAttributes.push(false);
         submitAttributes.push({ state: 'draft' });
       } else {
-        if (!this.root.checkValidity(this.data, true)) {
+        if (!this.checkValidity(this.dataValue)) {
           return;
         }
       }

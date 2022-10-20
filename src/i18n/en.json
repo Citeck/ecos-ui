@@ -17,6 +17,8 @@
   "btn.apply.label": "Apply",
   "btn.save.label": "Save",
 
+  "variable-not-found": "Variable \"{{var}}\" not found",
+
   "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
 
   "page.error-loading.title": "The error occurred while loading the page",
