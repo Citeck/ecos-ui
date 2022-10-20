@@ -12,7 +12,6 @@ import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../.
 import { t } from '../../../../helpers/util';
 import { IGNORE_TABS_HANDLER_ATTR_NAME } from '../../../../constants/pageTabs';
 import { FILE_CLICK_ACTION_DOWNLOAD, FILE_CLICK_ACTION_NOOP, FILE_CLICK_ACTION_OPEN_DASHBOARD } from './editForm/File.edit.file';
-import _ from 'lodash';
 
 export default class FileComponent extends FormIOFileComponent {
   static schema(...extend) {
@@ -127,7 +126,6 @@ export default class FileComponent extends FormIOFileComponent {
                   event.preventDefault();
                   this.splice(index);
                   this.refreshDOM();
-                  console.warn({ self: this });
                 }
               })
             : null
