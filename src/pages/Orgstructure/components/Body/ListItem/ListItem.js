@@ -3,16 +3,17 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
-import connect from 'react-redux/es/connect/connect';
+import { connect } from 'react-redux';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { EcosModal } from '../../../../../components/common';
 import FormManager from '../../../../../components/EcosForm/FormManager';
 import ModalContent from '../ModalContent';
 import { setSelectedPerson } from '../../../../../actions/orgstructure';
+import { t } from '../../../../../helpers/util';
+import { updateCurrentUrl } from '../../../../../helpers/urls';
 
 import './ListItem.scss';
-import { t } from '../../../../../helpers/util';
 
 const Labels = {
   TITLE_PERSON: 'orgstructure-delete-modal-title-person',
@@ -85,20 +86,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
       return <span className={collapseHandlerClassNames} />;
     }
   };
-
-  const listItemClassNames = classNames(
-    'select-orgstruct__list-item',
-    `select-orgstruct__list-item_level-${nestingLevel}`,
-    'orgstructure-page',
-    {
-      'select-orgstruct__list-item_strong': item.isStrong
-    }
-  );
-
-  const listItemLabelClassNames = classNames('select-orgstruct__list-item-label', 'orgstructure-page', {
-    'select-orgstruct__list-item-label_clickable': item.hasChildren,
-    'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
-  });
 
   const handleMouseEnter = () => {
     setHovered(true);
@@ -214,6 +201,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const selectPerson = e => {
     e.stopPropagation();
     dispatch(setSelectedPerson(item.id));
+    updateCurrentUrl({ recordRef: item.id });
   };
 
   const isPerson = item.id.includes('emodel/person');
@@ -222,12 +210,20 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   return (
     <li>
       <div
-        className={listItemClassNames}
+        className={classNames('select-orgstruct__list-item', `select-orgstruct__list-item_level-${nestingLevel}`, 'orgstructure-page', {
+          'select-orgstruct__list-item_strong': item.isStrong
+        })}
         onClick={isPerson ? selectPerson : noop}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className={listItemLabelClassNames} onClick={onClickLabel}>
+        <div
+          className={classNames('select-orgstruct__list-item-label', 'orgstructure-page', {
+            'select-orgstruct__list-item-label_clickable': item.hasChildren,
+            'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
+          })}
+          onClick={onClickLabel}
+        >
           <div className="orgstructure-page__list-item-container">
             <div>
               {renderCollapseHandler()}
