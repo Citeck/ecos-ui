@@ -7,7 +7,7 @@ import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
-import { usePrevious } from '../../../../hooks/usePrevious';
+import { usePrevious } from '../../../../hooks';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
 import { handleResponse, prepareSelected, getAuthRef } from './helpers';
 
@@ -59,8 +59,8 @@ export const SelectOrgstructProvider = props => {
   const prevDefaultValue = usePrevious(defaultValue);
 
   const onSubmitSearchForm = () => {
-    currentTab === TabTypes.LEVELS && setIsRootGroupsFetched(false);
-    currentTab === TabTypes.USERS && setIsAllUsersGroupFetched(false);
+    setIsRootGroupsFetched(false);
+    setIsAllUsersGroupFetched(false);
     setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
