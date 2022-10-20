@@ -1,5 +1,16 @@
 @import '../../../styles/constants';
 
+@mixin show_buttons {
+  div[class*='formio-component-submit'] {
+    display: block !important;
+  }
+
+  .btn-block[type='button'],
+  .btn-block[type='submit'] {
+    display: block !important;
+  }
+}
+
 .ecos-properties {
   $root: &;
 
@@ -47,13 +58,19 @@
       }
     }
 
-    div[class*='formio-component-submit'] {
-      display: none;
+    .formio-component-columns_theme_ecos {
+      div[class*='formio-component-submit'] {
+        display: none;
+      }
+
+      .btn-block[type='button'],
+      .btn-block[type='submit'] {
+        display: none !important;
+      }
     }
 
-    .btn-block[type='button'],
-    .btn-block[type='submit'] {
-      display: none !important;
+    .ecos-form-buttons-container-manual {
+      @include show_buttons;
     }
 
     & .formio-form .card .card-body {
@@ -128,5 +145,15 @@
 
   &__loader {
     min-height: 50px;
+  }
+}
+
+.card {
+  table.formio-data-grid {
+    @include show_buttons;
+  }
+
+  .panel-default {
+    @include show_buttons;
   }
 }
