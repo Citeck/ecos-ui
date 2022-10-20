@@ -6,10 +6,6 @@ import { PROXY_URI } from '../constants/alfresco';
 
 export class VersionsJournalApi extends CommonApi {
   getVersions = record => {
-    if (record.indexOf('alfresco') !== 0 && record.indexOf('workspace') === -1) {
-      // todo: add versions support for non-alfresco records
-      return { records: [] };
-    }
     return Records.query(
       {
         sourceId: SourcesId.VERSION,
@@ -25,7 +21,9 @@ export class VersionsJournalApi extends CommonApi {
         name: 'name',
         logo: 'logo',
         modifierId: 'modifier.id',
-        avatarUrl: 'modifier.avatarUrl'
+        avatarUrl: 'modifier.avatarUrl',
+        tags: 'tags[]',
+        editLink: 'editLink'
       }
     );
   };
@@ -54,7 +52,7 @@ export class VersionsJournalApi extends CommonApi {
   getVersionsComparison = ({ first, second }) => {
     return Records.query(
       {
-        sourceId: 'version-diff',
+        sourceId: SourcesId.VERSION_DIFF,
         query: { first, second }
       },
       { diff: 'diff' }

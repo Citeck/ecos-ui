@@ -5,6 +5,7 @@ import { UncontrolledTooltip } from 'reactstrap';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import _ from 'lodash';
 
 import {
   addNewVersion,
@@ -27,6 +28,7 @@ import Dashlet from '../../Dashlet/Dashlet';
 import AddModal from './AddModal';
 import ChangeVersionModal from './ChangeVersionModal';
 import ComparisonModal from './ComparisonModal';
+import PageService from '../../../services/PageService';
 import { getStateId } from '../../../helpers/redux';
 
 import './style.scss';
@@ -87,7 +89,9 @@ class VersionsJournal extends BaseWidget {
         name: PropTypes.string,
         id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         url: PropTypes.string.isRequired,
-        avatar: PropTypes.string
+        avatar: PropTypes.string,
+        tags: PropTypes.arrayOf(PropTypes.string),
+        editLink: PropTypes.string
       })
     ),
     versionsLabels: PropTypes.arrayOf(
@@ -303,6 +307,30 @@ class VersionsJournal extends BaseWidget {
           'ecos-vj__version-actions_mobile': isMobile
         })}
       >
+        {!_.isEmpty(version.editLink) && (
+          <>
+            <i id={`${TOOLTIP.EDIT_VERSION}-${key}`}>
+              <Icon
+                className="icon-edit ecos-vj__version-actions-item"
+                onClick={() =>
+                  PageService.changeUrlLink(version.editLink, {
+                    openNewTab: true
+                  })
+                }
+              />
+            </i>
+            <UncontrolledTooltip
+              placement="top"
+              boundariesElement="window"
+              innerClassName="ecos-vj__tooltip"
+              arrowClassName="ecos-vj__tooltip-arrow"
+              target={`${TOOLTIP.EDIT_VERSION}-${key}`}
+            >
+              {t('versions-journal-widget.edit')}
+            </UncontrolledTooltip>
+          </>
+        )}
+
         <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
@@ -372,6 +400,17 @@ class VersionsJournal extends BaseWidget {
               {version.comment}
             </div>
           )}
+
+          <div>
+            {version.tags.map(tag => {
+              return (
+                <div className={classNames('ecos-vj__version-tag ecos-badge ecos-badge_small ecos-badge_info')}>
+                  {t('versions-journal-widget.tag.' + tag)}
+                </div>
+              );
+            })}
+          </div>
+
           {showActions && isMobile && this.renderVersionActions(version, isMobile)}
         </div>
       </div>
