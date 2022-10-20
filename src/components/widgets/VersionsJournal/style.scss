@@ -86,6 +86,7 @@
         cursor: pointer;
         color: $color-brown-2;
         font-size: 20px;
+        margin-left: 5px;
 
         &:not(:last-child) {
           margin-right: 10px;
@@ -194,6 +195,11 @@
       &_mobile {
         margin-left: 0;
       }
+    }
+
+    &-tag {
+      margin-top: 10px;
+      margin-left: 5px;
     }
 
     &-date {
@@ -652,6 +658,7 @@
       padding: 20px 17px;
       word-break: break-word;
       box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 3px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+      white-space: pre-wrap;
 
       &-content {
         .DELETE {

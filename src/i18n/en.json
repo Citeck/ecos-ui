@@ -1246,6 +1246,7 @@
   "versions-journal-widget.current-version": "Current version",
   "versions-journal-widget.diff": "Compare",
   "versions-journal-widget.download": "Download",
+  "versions-journal-widget.edit": "Edit",
   "versions-journal-widget.modal.add": "Add",
   "versions-journal-widget.modal.cancel": "Cancel",
   "versions-journal-widget.modal.comment_placeholder_characters": "characters",
@@ -1269,6 +1270,7 @@
   "versions-journal-widget.set-current-version": "Set current version",
   "versions-journal-widget.title": "Versions journal",
   "versions-journal-widget.version": "Version",
+  "versions-journal-widget.tag.deployed": "Deployed",
 
   "web-page-widget.title": "Web Page",
   "web-page-widget.empty": "No content. Specify the address of the web page in the settings.",
