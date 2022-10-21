@@ -212,7 +212,13 @@ export class OrgStructApi extends CommonApi {
   };
 
   static async fetchGlobalSearchFields() {
-    return await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
+    const fields = await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
+
+    if (typeof searchFields !== 'string' || !fields.trim().length) {
+      return [];
+    }
+
+    return fields.split(',');
   }
 
   static async fetchIsHideDisabledField() {
