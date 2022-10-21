@@ -24,8 +24,6 @@ import {
   tableFormCaseOptimized
 } from '../__fixtures__/EcosFormUtils.fixtures';
 import Records from '../../Records';
-import * as util from '../../../helpers/export/util';
-import Record from '../../Records/Record';
 
 function runTests(tests, method) {
   tests.forEach(item => {
