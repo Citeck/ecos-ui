@@ -314,7 +314,9 @@ export class OrgStructApi extends CommonApi {
 
     if (searchText) {
       const addExtraFields = (fields = []) => {
-        searchFields.push(...fields.map(field => field.trim()).filter(field => !!field));
+        const attributes = fields.map(field => field.trim()).filter(field => !!field);
+
+        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
       };
 
       const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
