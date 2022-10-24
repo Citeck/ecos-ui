@@ -84,6 +84,10 @@ class JournalsService {
       return config;
     }
 
+    if (config.defaultSortBy && !config.sortBy) {
+      config.sortBy = config.defaultSortBy;
+    }
+
     const params = _.cloneDeep(config.properties || {});
     if (config.sortBy && config.sortBy.length) {
       params['defaultSortBy'] = JSON.stringify(
