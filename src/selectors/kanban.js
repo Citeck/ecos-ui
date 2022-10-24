@@ -38,6 +38,7 @@ export const selectKanbanPageProps = createSelector(
   selectKanban,
   data => ({
     boardList: data.boardList,
+    templateList: data.templateList,
     boardConfig: data.boardConfig,
     isLoading: data.isLoading,
     isEnabled: data.isEnabled,
