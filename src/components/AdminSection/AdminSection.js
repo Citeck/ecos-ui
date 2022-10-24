@@ -63,7 +63,7 @@ class AdminSection extends React.PureComponent {
   };
 
   handleClickCaption = event => {
-    if (event.ctrlKey && event.shiftKey) {
+    if ((event.ctrlKey && event.shiftKey) || (event.metaKey && event.shiftKey)) {
       const { journalStateId } = this.state;
 
       showModalJson(get(this.props, ['journals', journalStateId, 'journalConfig'], {}), 'Config');

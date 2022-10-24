@@ -421,7 +421,7 @@ class Dashboard extends Component {
   };
 
   handleShowConfig = event => {
-    if (event.ctrlKey && event.shiftKey) {
+    if ((event.ctrlKey && event.shiftKey) || (event.metaKey && event.shiftKey)) {
       event.stopPropagation();
       showModalJson(this.props.originalConfig);
     }
