@@ -37,5 +37,9 @@ export default [
         and: [{ '==': [{ var: 'data.source.viewMode' }, DisplayModes.DEFAULT] }]
       }
     }
+  },
+  {
+    key: 'reorder',
+    ignore: true
   }
 ];
