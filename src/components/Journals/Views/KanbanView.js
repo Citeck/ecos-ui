@@ -6,14 +6,14 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
-import { getBoardData, reloadBoardData, selectBoardId } from '../../../actions/kanban';
+import { getBoardData, reloadBoardData, selectBoardId, selectTemplateId } from '../../../actions/kanban';
 import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { t } from '../../../helpers/export/util';
 import { getSearchParams } from '../../../helpers/urls';
 import { Dropdown } from '../../common/form';
-import { isKanban, Labels } from '../constants';
+import { isKanban, KANBAN_SELECTOR_MODE, Labels } from '../constants';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
@@ -35,7 +35,8 @@ function mapDispatchToProps(dispatch, props) {
   return {
     getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
     reloadBoardData: () => dispatch(reloadBoardData({ stateId })),
-    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId }))
+    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId })),
+    selectTemplateId: templateId => dispatch(selectTemplateId({ templateId, stateId, type: KANBAN_SELECTOR_MODE.TEMPLATES }))
   };
 }
 
@@ -54,9 +55,12 @@ class KanbanView extends React.Component {
     if (
       !isEqualWith(boardList, prevProps.boardList, isEqual) ||
       (!isEmpty(boardList) && this.state.isClose) ||
-      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID])
+      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID]) ||
+      urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
     ) {
-      this.setState({ isClose: false }, () => this.props.getBoardData(this.getSelectedBoard()));
+      this.setState({ isClose: false }, () => {
+        this.props.getBoardData(this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.BOARD));
+      });
     }
 
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
@@ -82,13 +86,27 @@ class KanbanView extends React.Component {
     return `${SourcesId.BOARD}@${id}`;
   }
 
-  getSelectedBoard() {
-    const { urlParams = {}, boardList } = this.props;
-    return urlParams.boardId || get(boardList, '[0].id');
+  getSelectedFromUrl(type) {
+    const { urlParams = {}, boardList, templateList } = this.props;
+
+    switch (type) {
+      case KANBAN_SELECTOR_MODE.BOARD:
+        return urlParams.boardId || get(boardList, '[0].id');
+      case KANBAN_SELECTOR_MODE.TEMPLATES:
+        return urlParams.templateId || get(templateList, '[0].id');
+      default:
+        console.error('KanbanView. Invalid type');
+    }
   }
 
   handleChangeBoard = board => {
     this.props.selectBoardId(board.id);
+  };
+
+  handleChangeTemplate = template => {
+    if (template) {
+      this.props.selectTemplateId(template.id);
+    }
   };
 
   RightBarChild = () => {
@@ -97,21 +115,35 @@ class KanbanView extends React.Component {
   };
 
   LeftBarChild = () => {
-    const { boardList } = this.props;
+    const { boardList, templateList } = this.props;
 
     return (
-      <Dropdown
-        isButton
-        isStatic
-        source={boardList}
-        value={this.getSelectedBoard()}
-        valueField={'id'}
-        titleField={'name'}
-        onChange={this.handleChangeBoard}
-        controlLabel={t(Labels.Kanban.BOARD_LIST)}
-        controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
-        menuClassName="ecos-kanban__dropdown-menu"
-      />
+      <>
+        <Dropdown
+          isButton
+          isStatic
+          source={boardList}
+          value={this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.BOARD)}
+          valueField={'id'}
+          titleField={'name'}
+          onChange={this.handleChangeBoard}
+          controlLabel={t(Labels.Kanban.BOARD_LIST)}
+          controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
+          menuClassName="ecos-kanban__dropdown-menu"
+        />
+        <Dropdown
+          isButton
+          isStatic
+          source={templateList}
+          value={this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.TEMPLATES)}
+          valueField={'id'}
+          titleField={'name'}
+          onChange={this.handleChangeTemplate}
+          controlLabel={t(Labels.Kanban.TEMPLATE_LIST)}
+          controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
+          menuClassName="ecos-kanban__dropdown-menu"
+        />
+      </>
     );
   };
 

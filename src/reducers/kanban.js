@@ -27,6 +27,7 @@ export const initialState = {
   isFiltered: false,
   boardConfig: undefined,
   boardList: undefined,
+  boardTemplates: [],
   formProps: null,
   totalCount: 0,
   dataCards: [],
@@ -68,8 +69,8 @@ export default handleActions(
       return updateState(state, stateId, { formProps }, initialState);
     },
     [setBoardList]: (state, { payload }) => {
-      const { stateId, boardList } = payload;
-      return updateState(state, stateId, { boardList }, initialState);
+      const { stateId, boardList, templateList } = payload;
+      return updateState(state, stateId, { boardList, templateList }, initialState);
     },
     [setIsEnabled]: (state, { payload }) => {
       const { stateId, isEnabled } = payload;

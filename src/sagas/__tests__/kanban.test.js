@@ -31,6 +31,7 @@ import * as kanban from '../kanban';
 const journalId = 'journalId',
   stateId = 'stateId',
   boardId = 'boardId',
+  templateId = 'templateId',
   formId = 'formId';
 
 const api = {
@@ -71,7 +72,7 @@ async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
     },
     sagaFun,
     { api, logger },
-    { payload: { stateId, boardId, ...payload } }
+    { payload: { stateId, boardId, templateId, ...payload } }
   ).done;
 
   return dispatched;
@@ -86,6 +87,7 @@ describe('kanban sagas tests', () => {
     expect(second.type).toEqual(setBoardList().type);
     expect(first.payload.isEnabled).toBeTruthy();
     expect(second.payload.boardList).toEqual(data.boardList);
+    expect(second.payload.templateList).toEqual(data.templateList);
 
     expect(logger.error).not.toHaveBeenCalled();
 
@@ -229,7 +231,7 @@ describe('kanban sagas tests', () => {
     const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
-    expect(_boardConfig.payload.boardConfig).toEqual({});
+    expect(_boardConfig.payload.boardConfig).toEqual({ templateId: 'templateId' });
     expect(_formProps.type).toEqual(setFormProps().type);
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
@@ -296,13 +298,29 @@ describe('kanban sagas tests', () => {
     expect(dispatched).toHaveLength(1);
   });
 
-  it('sagaSelectBoard > there is _boardId', async () => {
+  it('sagaSelectFromUrl > there is _boardId', async () => {
     window.location = { pathname: '/test' };
 
-    const dispatched = await wrapRunSaga(kanban.sagaSelectBoard, { text: boardId });
+    const dispatched = await wrapRunSaga(kanban.sagaSelectFromUrl, { text: boardId });
 
     expect(spyChangeUrlLink).toHaveBeenCalledTimes(1);
     expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?boardId=boardId', { updateUrl: true });
+    expect(logger.error).not.toHaveBeenCalled();
+    expect(first(dispatched).type).toEqual(setLoading().type);
+    expect(first(dispatched).payload.isLoading).toBeTruthy();
+
+    expect(dispatched).toHaveLength(1);
+  });
+
+  it('sagaSelectFromUrl > there is _templateId', async () => {
+    window.location = { pathname: '/test' };
+
+    const dispatched = await wrapRunSaga(kanban.sagaSelectFromUrl, {
+      text: templateId,
+      type: 'templates'
+    });
+
+    expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?templateId=templateId', { updateUrl: true });
     expect(logger.error).not.toHaveBeenCalled();
     expect(first(dispatched).type).toEqual(setLoading().type);
     expect(first(dispatched).payload.isLoading).toBeTruthy();

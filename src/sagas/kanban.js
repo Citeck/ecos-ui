@@ -24,6 +24,7 @@ import {
   runAction,
   runSearchCard,
   selectBoardId,
+  selectTemplateId,
   setBoardConfig,
   setBoardList,
   setDataCards,
@@ -47,19 +48,28 @@ import RecordActions from '../components/Records/actions/recordActions';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { DEFAULT_PAGINATION, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
 
 export function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
     const { journalId, stateId } = payload;
+
     const boardList = yield call(api.kanban.getBoardList, { journalId });
+    const templateList = yield call(api.kanban.getBoardSettings, journalId);
+
     const isEnabled = !isEmpty(boardList);
 
     yield put(setIsEnabled({ isEnabled, stateId }));
 
     if (isEnabled) {
-      yield put(setBoardList({ boardList: KanbanConverter.prepareList(boardList), stateId }));
+      yield put(
+        setBoardList({
+          templateList,
+          boardList: KanbanConverter.prepareList(boardList),
+          stateId
+        })
+      );
     }
   } catch (e) {
     logger.error('[kanban/sagaGetBoardList saga] error', e);
@@ -77,11 +87,14 @@ export function* sagaRecordActionComplete({ logger, stateId, w, ...otherProps },
 
 export function* sagaGetBoardConfig({ api, logger }, { payload }) {
   try {
-    const { boardId, stateId } = payload;
-    const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId });
+    const { boardId, templateId, stateId } = payload;
+    const { boardDef, ...config } = yield call(api.kanban.getBoardConfig, { boardId, templateId });
     const boardConfig = KanbanConverter.prepareConfig(config);
 
-    config && boardId && (boardConfig.id = boardId);
+    if (config) {
+      boardId && (boardConfig.id = boardId);
+      templateId && (boardConfig.templateId = templateId);
+    }
 
     yield put(setBoardConfig({ boardConfig, stateId }));
 
@@ -230,13 +243,16 @@ export function* sagaGetActions({ api, logger }, { payload }) {
   }
 }
 
-export function* sagaSelectBoard({ api, logger }, { payload }) {
+export function* sagaSelectFromUrl({ api, logger }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
-    const { boardId, stateId } = payload;
+    const { boardId, stateId, templateId, type = KANBAN_SELECTOR_MODE.BOARD } = payload;
 
-    if (boardId && get(urlData, ['query', KanbanUrlParams.BOARD_ID]) !== boardId) {
-      set(urlData, ['query', KanbanUrlParams.BOARD_ID], boardId);
+    const path = type === KANBAN_SELECTOR_MODE.TEMPLATES ? KanbanUrlParams.TEMPLATE_ID : KanbanUrlParams.BOARD_ID;
+    const toggleId = type === KANBAN_SELECTOR_MODE.TEMPLATES ? templateId : boardId;
+
+    if (toggleId && get(urlData, ['query', path]) !== toggleId) {
+      set(urlData, ['query', path], toggleId);
     }
 
     if (!isEqual(getSearchParams(), urlData.query)) {
@@ -397,7 +413,8 @@ export function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
   yield takeEvery(getBoardData().type, sagaGetBoardData, ea);
-  yield takeEvery(selectBoardId().type, sagaSelectBoard, ea);
+  yield takeEvery(selectBoardId().type, sagaSelectFromUrl, { ...ea });
+  yield takeEvery(selectTemplateId().type, sagaSelectFromUrl, { ...ea });
   yield takeEvery(getNextPage().type, sagaGetNextPage, ea);
   yield takeEvery(runAction().type, sagaRunAction, ea);
   yield takeEvery(moveCard().type, sagaMoveCard, ea);

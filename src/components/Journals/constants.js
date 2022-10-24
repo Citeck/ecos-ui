@@ -24,6 +24,11 @@ export const JOURNAL_VIEW_MODE = {
   KANBAN: 'kanban'
 };
 
+export const KANBAN_SELECTOR_MODE = {
+  BOARD: 'board',
+  TEMPLATES: 'templates'
+};
+
 export const Labels = {
   Journal: {
     SHOW_MENU: 'journals.action.show-menu',
@@ -43,6 +48,7 @@ export const Labels = {
     DND_NOT_MOVE_HERE: 'kanban.label.dnd.cant-move-here',
     DND_ALREADY_HERE: 'kanban.label.dnd.already-here',
     BOARD_LIST: 'kanban.label.board-list',
+    TEMPLATE_LIST: 'kanban.label.template-list',
     BTN_SETTINGS: 'kanban.label.btn-settings',
     ERROR_FETCH_DATA: 'kanban.error.get-column-data'
   },

@@ -8,6 +8,7 @@ export class KanbanApi {
 
   getBoardConfig({ boardId = '' }) {
     const id = boardId.replace(SourcesId.BOARD, SourcesId.RESOLVED_BOARD);
+
     return Records.get(id).load(
       {
         actions: 'actions[]?id![]',
@@ -20,6 +21,18 @@ export class KanbanApi {
       },
       true
     );
+  }
+
+  getBoardSettings(journalId) {
+    return Records.query(
+      {
+        sourceId: SourcesId.PRESETS,
+        query: { journalId }
+      },
+      {
+        name: '.disp'
+      }
+    ).then(result => result.records);
   }
 
   moveRecord({ recordRef, columnId }) {

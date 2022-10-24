@@ -22,6 +22,7 @@ export const runSearchCard = createAction(prefix + 'RUN_SEARCH_CARD');
 export const reloadBoardData = createAction(prefix + 'RELOAD_BOARD_DATA');
 
 export const selectBoardId = createAction(prefix + 'SELECT_BOARD_ID');
+export const selectTemplateId = createAction(prefix + 'SELECT_TEMPLATE_ID');
 export const setLoading = createAction(prefix + 'SET_LOADING');
 export const setLoadingColumns = createAction(prefix + 'SET_LOADING_COLUMNS');
 export const setIsFiltered = createAction(prefix + 'SET_IS_FILTERED');
