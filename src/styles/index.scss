@@ -64,3 +64,11 @@ ul {
     text-decoration: underline;
   }
 }
+
+.btn {
+  $btn: &;
+
+  &#{$btn}_disabled {
+    cursor: not-allowed;
+  }
+}

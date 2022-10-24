@@ -137,6 +137,16 @@ export default class FileComponent extends FormIOFileComponent {
     );
   }
 
+  isValid(data, dirty) {
+    let result = super.isValid(data, dirty);
+
+    if (result && this.component.validate.required) {
+      result = Boolean((this.dataValue || []).length);
+    }
+
+    return result;
+  }
+
   createTypeSelect(index, fileInfo) {
     return this.ce(
       'select',
