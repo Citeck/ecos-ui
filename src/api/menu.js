@@ -314,7 +314,7 @@ async function fetchExtraItemInfo(data = [], attributes) {
           if (attrs === undefined) {
             attrs = {};
           }
-          lodashSet(attrs, 'label', `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}}`);
+          lodashSet(attrs, 'label', `createVariantsById.${lodashGet(item, 'config.variantId')}.name{ru,en}`);
         }
 
         target._remoteData_ = await Records.get(ref).load(attrs);
