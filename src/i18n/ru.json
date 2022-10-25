@@ -17,6 +17,8 @@
   "btn.apply.label": "Применить",
   "btn.save.label": "Сохранить",
 
+  "variable-not-found": "Переменная \"{{var}}\" не найдена",
+
   "server-error-occurred-with-code": "Произошла ошибка на сервере. Код ошибки: {{code}}",
 
   "page.error-loading.title": "Во время загрузки страницы произошла ошибка.",

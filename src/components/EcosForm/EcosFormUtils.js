@@ -352,6 +352,10 @@ export default class EcosFormUtils {
   }
 
   static async getForm(record, formKey = null, attributes = null) {
+    if (!record) {
+      return Promise.reject(t('variable-not-found', { var: 'record' }));
+    }
+
     const recordInstance = isString(record) ? Records.get(record) : record;
     const baseRecord = recordInstance.getBaseRecord();
 

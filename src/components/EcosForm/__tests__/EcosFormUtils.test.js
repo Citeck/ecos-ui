@@ -23,6 +23,7 @@ import {
   tableFormCase,
   tableFormCaseOptimized
 } from '../__fixtures__/EcosFormUtils.fixtures';
+import Records from '../../Records';
 
 function runTests(tests, method) {
   tests.forEach(item => {
@@ -154,6 +155,41 @@ describe('EcosFormUtils', () => {
 
       expect(spy).toHaveBeenCalledTimes(3);
       expect(result).toBeFalsy();
+    });
+  });
+
+  describe('getForm method', () => {
+    const spy = [];
+
+    afterEach(() => {
+      spy.forEach(item => {
+        item && item.mockClear();
+      });
+    });
+
+    it('error if record not found', () => {
+      return EcosFormUtils.getForm().catch(e => {
+        expect(e).toEqual('variable-not-found');
+      });
+    });
+
+    it('record is string, without formKey', () => {
+      const recordId = 'record-id';
+      const load = async attrs => ({ ...attrs, id: recordId });
+      const get = id => ({
+        id,
+        getBaseRecord: () => ({ id, load }),
+        get,
+        load
+      });
+
+      spy.push(jest.spyOn(Records, 'get').mockImplementation(get));
+      spy.push(jest.spyOn(EcosFormUtils, 'isFormId').mockImplementation(() => true));
+      spy.push(jest.spyOn(EcosFormUtils, 'getFormById').mockImplementation(() => ({ id: recordId })));
+
+      return EcosFormUtils.getForm(recordId).then(result => {
+        expect(result.id).toBe(recordId);
+      });
     });
   });
 });

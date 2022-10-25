@@ -275,6 +275,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
       noUpdateEvent: this._isInlineEditingMode,
       ...flags
     });
+
+    !_.get(this.root, 'options.saveDraft') && this.checkValidity(this.dataValue);
   };
 
   async getJournalId(journalId) {

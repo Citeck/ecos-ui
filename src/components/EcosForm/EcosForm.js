@@ -317,6 +317,7 @@ class EcosForm extends React.Component {
           });
 
           this._form = form;
+
           isFunction(customModule.init) && customModule.init({ form });
         });
       });
