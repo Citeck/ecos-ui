@@ -28,9 +28,19 @@ set(
   keyComponent,
   'hintData.custom',
   `
+  const getAttrs = (form) => {
+    const parent = form.parentForm;
+    const attrs = _.get(parent, 'data.modelAttributes');
+
+    if (_.isUndefined(attrs) && parent) {
+      return getAttrs(parent);
+    }
+
+    return attrs;
+  };
   const formId = _.get(instance, 'root.editForm.formId', '');
 
-  values = [];
+  values = (getAttrs(instance.root) || []).map(item => item.id);
 
   if (formId && _.isEmpty(values)) {
     const formRef = '${SourcesId.RESOLVED_FORM}@' + formId;

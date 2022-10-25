@@ -30,14 +30,16 @@ export default class EcosFormBuilderModal extends React.Component {
       isDebugModalOpen: false,
       isOpenDependencies: true,
       isOpenInfluence: true,
-      formId: props.formId || null
+      formId: props.formId || null,
+      options: {}
     };
   }
 
-  show(formDefinition, onSubmit) {
+  show(formDefinition, onSubmit, options = {}) {
     this.setState({
       isModalOpen: true,
       formDefinition: cloneDeep(formDefinition),
+      options,
       onSubmit
     });
   }
@@ -131,7 +133,7 @@ export default class EcosFormBuilderModal extends React.Component {
   }
 
   render() {
-    const { isModalOpen, formDefinition } = this.state;
+    const { isModalOpen, formDefinition, options } = this.state;
 
     return (
       <>
@@ -148,7 +150,7 @@ export default class EcosFormBuilderModal extends React.Component {
           customButtons={this.renderCustomButtons()}
         >
           {this.renderTitle()}
-          <EcosFormBuilder formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
+          <EcosFormBuilder options={options} formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
         </EcosModal>
 
         {this.renderDebugModal()}

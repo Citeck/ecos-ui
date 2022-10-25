@@ -6,6 +6,7 @@ import { t } from '../../../helpers/export/util';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import Records from '../../Records';
+import Formio from '../../../forms/Formio';
 
 let formPanelIdx = 0;
 
@@ -27,27 +28,23 @@ export default class EcosFormBuilder extends React.Component {
   }
 
   async makeDefaultForm() {
+    const { options } = this.props;
     const data = await this.getDefaultForm();
 
-    window.Formio.builder(document.getElementById(this.contentId), {
-      components: data.components
-    }).then(editorForm => {
-      this.setState({
-        editorForm: editorForm
-      });
+    Formio.builder(document.getElementById(this.contentId), { components: data.components }, options).then(editorForm => {
+      this.setState({ editorForm });
     });
   }
 
   componentDidMount() {
+    const { options, formDefinition } = this.props;
     const isDefault = this.isDefaultForm();
 
     if (isDefault) {
       this.makeDefaultForm();
     } else {
-      window.Formio.builder(document.getElementById(this.contentId), this.props.formDefinition).then(editorForm => {
-        this.setState({
-          editorForm: editorForm
-        });
+      Formio.builder(document.getElementById(this.contentId), formDefinition, options).then(editorForm => {
+        this.setState({ editorForm });
       });
     }
   }

@@ -12,6 +12,7 @@ import { getMLValue } from '../helpers/util';
 
 const originAddBuilderComponentInfo = WebformBuilder.prototype.addBuilderComponentInfo;
 const originAddBuilderComponent = WebformBuilder.prototype.addBuilderComponent;
+const originDestroy = WebformBuilder.prototype.destroy;
 
 Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
   get: function() {
@@ -36,6 +37,14 @@ Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
     };
   }
 });
+
+WebformBuilder.prototype.destroy = function() {
+  const state = originDestroy.call(this);
+
+  console.warn(this.id, Object.keys(window.Formio.forms));
+
+  return state;
+};
 
 WebformBuilder.prototype.updateComponent = function(component) {
   // Update the preview.
@@ -315,6 +324,7 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   this.editForm = new Webform(formioForm, {
     language: this.options.language,
     ...editFormOptions,
+    parentId: this.id,
     _webform: this
   });
 
