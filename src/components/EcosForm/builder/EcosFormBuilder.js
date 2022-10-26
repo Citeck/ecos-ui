@@ -1,12 +1,14 @@
 import React from 'react';
 import 'formiojs/FormBuilder';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import EcosFormUtils from '../EcosFormUtils';
 import { t } from '../../../helpers/export/util';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 import Records from '../../Records';
 import Formio from '../../../forms/Formio';
+import { clearFormFromCache } from '../../../forms/utils';
+import { SourcesId } from '../../../constants';
 
 let formPanelIdx = 0;
 
@@ -24,7 +26,7 @@ export default class EcosFormBuilder extends React.Component {
   }
 
   async getDefaultForm() {
-    return await Records.get('uiserv/form@DEFAULT').load('definition?json');
+    return await Records.get(`${SourcesId.FORM}@DEFAULT`).load('definition?json');
   }
 
   async makeDefaultForm() {
@@ -47,6 +49,10 @@ export default class EcosFormBuilder extends React.Component {
         this.setState({ editorForm });
       });
     }
+  }
+
+  componentWillUnmount() {
+    clearFormFromCache(get(this.state, 'editorForm.id'));
   }
 
   onCancel() {

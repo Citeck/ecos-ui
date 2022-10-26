@@ -15,7 +15,7 @@ import Tooltip from 'tooltip.js';
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { getCurrentLocale, getMLValue, getTextByLocale } from '../../../../helpers/util';
 import ZIndex from '../../../../services/ZIndex';
-import { checkIsEmptyMlField } from '../../../utils';
+import { checkIsEmptyMlField, clearFormFromCache } from '../../../utils';
 import Widgets from '../../../widgets';
 import { t } from '../../../../helpers/export/util';
 
@@ -877,7 +877,15 @@ Object.defineProperty(Base.prototype, 'originalComponent', {
 
 Base.prototype.createModal = function(...params) {
   const modal = originalCreateModal.call(this, ...params);
+  const originClose = modal.close;
+
   modal.classList.add('ecosZIndexAnchor');
+
+  modal.close = () => {
+    clearFormFromCache(this.editForm.id);
+
+    originClose.call(this);
+  };
 
   ZIndex.calcZ();
   ZIndex.setZ(modal);

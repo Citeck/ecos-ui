@@ -24,7 +24,6 @@ function getLocalLibraryUrl(src) {
 
 const originalRequireLibrary = Formio.requireLibrary;
 Formio.requireLibrary = (name, property, src, polling) => {
-  console.warn('updated');
   src = Array.isArray(src) ? src : [src];
   src = src.map(lib => {
     if (typeof lib === 'string') {
@@ -40,5 +39,7 @@ Formio.requireLibrary = (name, property, src, polling) => {
 };
 
 Formio.forms = {};
+
+window.Formio = Formio;
 
 export default Formio;

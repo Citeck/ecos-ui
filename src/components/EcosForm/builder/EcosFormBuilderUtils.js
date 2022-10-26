@@ -10,6 +10,11 @@ let formPanelIdx = 0;
 const builders = {};
 
 export class EcosFormBuilderUtils {
+  /**
+   *
+   * @param formRecord {String}
+   * @param form {Webform} - form instance
+   */
   static showBuilderForRecord(formRecord, form) {
     const record = Records.get(formRecord);
 
@@ -59,6 +64,15 @@ export class EcosFormBuilderUtils {
     });
   }
 
+  /**
+   *
+   * @param componentKey {String}
+   * @param component {ReactElement} - react-component for render
+   * @param showData {Object} - form definition data
+   * @param onSubmit {Function}
+   * @param options {FormOptions} - advanced options for form (such as parentId)
+   * @private
+   */
   static __showEditorComponent(componentKey, component, showData, onSubmit, options) {
     if (builders[componentKey]) {
       builders[componentKey].show(showData, onSubmit);

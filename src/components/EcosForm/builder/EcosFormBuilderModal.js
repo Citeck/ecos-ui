@@ -11,6 +11,7 @@ import DialogManager from '../../common/dialogs/Manager';
 import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';
 import DebugModal from './DebugModal';
+import { clearFormFromCache } from '../../../forms/utils';
 
 import './style.scss';
 
@@ -35,6 +36,12 @@ export default class EcosFormBuilderModal extends React.Component {
     };
   }
 
+  /**
+   *
+   * @param formDefinition {String|Object} - The src of the form, or a form object.
+   * @param onSubmit {Function}
+   * @param options {FormOptions}
+   */
   show(formDefinition, onSubmit, options = {}) {
     this.setState({
       isModalOpen: true,
@@ -86,6 +93,8 @@ export default class EcosFormBuilderModal extends React.Component {
         this.setState(({ isModalOpen }) => ({
           isModalOpen: !isModalOpen
         }));
+
+        clearFormFromCache(this.props.formId);
       }
     });
   };
