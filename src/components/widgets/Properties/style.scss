@@ -69,8 +69,10 @@
       }
     }
 
-    .ecos-form-buttons-container-manual {
-      @include show_buttons;
+    table {
+      .ecos-form-buttons-container-manual {
+        @include show_buttons;
+      }
     }
 
     & .formio-form .card .card-body {
