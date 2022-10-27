@@ -14,8 +14,14 @@ export default class ScriptAction extends ActionsExecutor {
       return new Promise(resolve => {
         window.require(
           [config.module],
-          module => {
+          async module => {
             const result = module.default.execute({ record, action, context });
+
+            if (config.fn) {
+              // eslint-disable-next-line no-eval
+              await eval(`(function() { ${config.fn} })();`);
+            }
+
             if (result) {
               if (result.then) {
                 result
