@@ -374,7 +374,7 @@ export default [
         type: 'htmlelement',
         tag: 'div',
         get content() {
-          return t('form-constructor.panel.executionCondition');
+          return t('form-constructor.panel.executionValueDisplayName');
         }
       }
     ]
