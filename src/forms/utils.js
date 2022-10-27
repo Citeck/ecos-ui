@@ -329,6 +329,5 @@ export const replaceComponentConfig = (components = [], componentKey = '', newCo
 };
 
 export const clearFormFromCache = formId => {
-  console.warn(formId);
   delete Formio.forms[formId];
 };
