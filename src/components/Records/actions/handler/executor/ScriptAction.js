@@ -13,18 +13,24 @@ export default class ScriptAction extends ActionsExecutor {
     const config = get(action, 'config', {});
 
     if (config.fn) {
-      // eslint-disable-next-line no-eval
-      const result = await eval(`(function() { ${config.fn} })();`);
+      try {
+        // eslint-disable-next-line no-eval
+        const result = await eval(`(function(record, action, context) { ${config.fn} })();`);
 
-      if (isBoolean(result)) {
-        return Boolean(result);
+        if (isBoolean(result)) {
+          return Boolean(result);
+        }
+
+        if (isUndefined(result)) {
+          return true;
+        }
+
+        return result;
+      } catch (e) {
+        console.error('ScriptAction. Error when javascript evaluete', record, e);
+
+        return false;
       }
-
-      if (isUndefined(result)) {
-        return true;
-      }
-
-      return result;
     }
 
     if (config.module) {
