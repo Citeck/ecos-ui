@@ -1,4 +1,6 @@
 import get from 'lodash/get';
+import isBoolean from 'lodash/isBoolean';
+import isUndefined from 'lodash/isUndefined';
 
 import { t } from '../../../../../helpers/export/util';
 import { notifyFailure } from '../../util/actionUtils';
@@ -14,7 +16,15 @@ export default class ScriptAction extends ActionsExecutor {
       // eslint-disable-next-line no-eval
       const result = await eval(`(function() { ${config.fn} })();`);
 
-      return !!result;
+      if (isBoolean(result)) {
+        return Boolean(result);
+      }
+
+      if (isUndefined(result)) {
+        return true;
+      }
+
+      return result;
     }
 
     if (config.module) {
