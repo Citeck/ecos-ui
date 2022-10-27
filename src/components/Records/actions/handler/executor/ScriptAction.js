@@ -27,7 +27,7 @@ export default class ScriptAction extends ActionsExecutor {
 
         return result;
       } catch (e) {
-        console.error('ScriptAction. Error when javascript evaluete', record, e);
+        console.error('ScriptAction. Error when javascript evaluated', record, e);
 
         return false;
       }
