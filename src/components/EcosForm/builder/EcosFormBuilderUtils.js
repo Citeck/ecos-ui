@@ -61,7 +61,7 @@ export class EcosFormBuilderUtils {
 
       container.id = 'EcosFormBuilderUtils-' + componentKey + '-' + formPanelIdx++;
 
-      if (showData.formId) {
+      if (showData && showData.formId) {
         reactProps.formId = showData.formId;
       }
 
