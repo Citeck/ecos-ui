@@ -12,7 +12,7 @@ import Base from 'formiojs/components/base/Base';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
 
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 import { getCurrentLocale, getMLValue, getTextByLocale } from '../../../../helpers/util';
 import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
@@ -75,9 +75,7 @@ Base.schema = (...extend) => {
         custom: '',
         customPrivate: false
       },
-      get addAnother() {
-        return t('ecos.forms.btn.add-another');
-      }
+      addAnother: t('ecos.forms.btn.add-another')
     },
     ...extend
   );
@@ -848,6 +846,10 @@ Object.defineProperty(Base.prototype, 'component', {
   },
 
   set: function(component) {
+    if (component.addAnother) {
+      component.addAnother = t(component.addAnother);
+    }
+
     this._component = extendingOfComponent(component);
   }
 });
