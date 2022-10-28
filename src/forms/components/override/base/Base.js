@@ -12,7 +12,7 @@ import Base from 'formiojs/components/base/Base';
 import { flattenComponents, getInputMask } from 'formiojs/utils/utils';
 import Tooltip from 'tooltip.js';
 
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { getCurrentLocale, getMLValue, getTextByLocale } from '../../../../helpers/util';
 import ZIndex from '../../../../services/ZIndex';
 import { checkIsEmptyMlField } from '../../../utils';
