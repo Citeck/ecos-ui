@@ -75,7 +75,9 @@ Base.schema = (...extend) => {
         custom: '',
         customPrivate: false
       },
-      addAnother: t('ecos.forms.btn.add-another')
+      get addAnother() {
+        return t('ecos.forms.btn.add-another');
+      }
     },
     ...extend
   );
