@@ -5,7 +5,6 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
 import { overrideTriggerChange } from '../misc';
-import { t } from '../../../../helpers/util';
 
 export default class TextFieldComponent extends FormIOTextFieldComponent {
   static schema(...extend) {
@@ -38,9 +37,6 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
           custom: '',
           values: '',
           json: ''
-        },
-        get addAnother() {
-          return t('ecos.forms.btn.add-another');
         }
       },
       ...extend
