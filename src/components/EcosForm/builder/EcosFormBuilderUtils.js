@@ -1,18 +1,26 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 import EcosFormBuilder from './EcosFormBuilderModal';
 import EcosFormLocaleEditor from '../locale/FormLocaleEditorModal';
 import Records from '../../Records/Records';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import Formio from '../../../forms/Formio';
 
 let formPanelIdx = 0;
 const builders = {};
 
 export class EcosFormBuilderUtils {
-  static showBuilderForRecord(formRecord) {
+  /**
+   *
+   * @param formRecord {String}
+   * @param form {Webform} - form instance
+   */
+  static showBuilderForRecord(formRecord, form) {
     const record = Records.get(formRecord);
 
     const processFormDefinition = function(loadedFormDefinition) {
       const onSubmit = formDefinition => record.att('definition?json', formDefinition);
+      const options = {};
 
       const formId = record.getBaseRecord().id;
       const definition = {
@@ -20,7 +28,12 @@ export class EcosFormBuilderUtils {
         formId: formId.substring(formId.indexOf('@') + 1)
       };
 
-      EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilder, definition, onSubmit);
+      if (form) {
+        options.parentId = form.id;
+        Formio.forms[form.id] = form;
+      }
+
+      EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilder, definition, onSubmit, options);
     };
 
     const defAtts = {
@@ -51,7 +64,16 @@ export class EcosFormBuilderUtils {
     });
   }
 
-  static __showEditorComponent(componentKey, component, showData, onSubmit) {
+  /**
+   *
+   * @param componentKey {String}
+   * @param component {ReactElement} - react-component for render
+   * @param showData {Object} - form definition data
+   * @param onSubmit {Function}
+   * @param options {FormOptions} - advanced options for form (such as parentId)
+   * @private
+   */
+  static __showEditorComponent(componentKey, component, showData, onSubmit, options) {
     if (builders[componentKey]) {
       builders[componentKey].show(showData, onSubmit);
     } else {
@@ -71,7 +93,7 @@ export class EcosFormBuilderUtils {
       const editor = ReactDOM.render(componentInstance, container);
 
       builders[componentKey] = editor;
-      editor.show(showData, onSubmit);
+      editor.show(showData, onSubmit, options);
     }
   }
 }

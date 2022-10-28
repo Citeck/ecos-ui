@@ -38,4 +38,8 @@ Formio.requireLibrary = (name, property, src, polling) => {
   return originalRequireLibrary(name, property, src, polling);
 };
 
+Formio.forms = {};
+
+window.Formio = Formio;
+
 export default Formio;

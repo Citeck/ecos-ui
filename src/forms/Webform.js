@@ -1,14 +1,42 @@
 import Webform from 'formiojs/Webform';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
 import merge from 'lodash/merge';
 
 import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
 import { getCurrentLocale } from '../helpers/export/util';
+import Formio from './Formio';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalSubmit = Webform.prototype.submit;
+const originalBuild = Webform.prototype.build;
 const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
+
+Webform.prototype.build = function(state) {
+  Formio.forms[this.id] = this;
+
+  return originalBuild.call(this, state);
+};
+
+Object.defineProperty(Webform.prototype, 'parentForm', {
+  get: function() {
+    const parentId = get(this, 'options.parentId');
+    const keys = Object.keys(Formio.forms);
+    const prevFormKey = keys.findIndex(i => i === this.id);
+    let penultimateForm = null;
+
+    if (prevFormKey !== -1) {
+      penultimateForm = get(Formio, ['forms', keys.slice(prevFormKey - 1, prevFormKey)[0]]) || null;
+    }
+
+    if (penultimateForm && penultimateForm.id === this.id) {
+      penultimateForm = null;
+    }
+
+    return parentId ? get(Formio, ['forms', parentId]) : penultimateForm;
+  }
+});
 
 Object.defineProperty(Webform.prototype, 'language', {
   set: function(lang) {

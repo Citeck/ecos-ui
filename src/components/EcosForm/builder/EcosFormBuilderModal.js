@@ -11,6 +11,7 @@ import DialogManager from '../../common/dialogs/Manager';
 import { t } from '../../../helpers/export/util';
 import { Icon } from '../../common';
 import DebugModal from './DebugModal';
+import { clearFormFromCache } from '../../../forms/utils';
 
 import './style.scss';
 
@@ -30,14 +31,22 @@ export default class EcosFormBuilderModal extends React.Component {
       isDebugModalOpen: false,
       isOpenDependencies: true,
       isOpenInfluence: true,
-      formId: props.formId || null
+      formId: props.formId || null,
+      options: {}
     };
   }
 
-  show(formDefinition, onSubmit) {
+  /**
+   *
+   * @param formDefinition {String|Object} - The src of the form, or a form object.
+   * @param onSubmit {Function}
+   * @param options {FormOptions}
+   */
+  show(formDefinition, onSubmit, options = {}) {
     this.setState({
       isModalOpen: true,
       formDefinition: cloneDeep(formDefinition),
+      options,
       onSubmit
     });
   }
@@ -84,6 +93,8 @@ export default class EcosFormBuilderModal extends React.Component {
         this.setState(({ isModalOpen }) => ({
           isModalOpen: !isModalOpen
         }));
+
+        clearFormFromCache(this.props.formId);
       }
     });
   };
@@ -131,7 +142,7 @@ export default class EcosFormBuilderModal extends React.Component {
   }
 
   render() {
-    const { isModalOpen, formDefinition } = this.state;
+    const { isModalOpen, formDefinition, options } = this.state;
 
     return (
       <>
@@ -148,7 +159,7 @@ export default class EcosFormBuilderModal extends React.Component {
           customButtons={this.renderCustomButtons()}
         >
           {this.renderTitle()}
-          <EcosFormBuilder formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
+          <EcosFormBuilder options={options} formDefinition={formDefinition} onSubmit={this.onSubmit} onCancel={this.toggleVisibility} />
         </EcosModal>
 
         {this.renderDebugModal()}
