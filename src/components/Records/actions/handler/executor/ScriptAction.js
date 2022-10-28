@@ -15,7 +15,9 @@ export default class ScriptAction extends ActionsExecutor {
     if (config.fn) {
       try {
         // eslint-disable-next-line no-eval
-        const result = await eval(`(function(record, action, context) { ${config.fn} })();`);
+        const result = await eval(`
+          (function(record, action, context) { ${config.fn} })();
+        `)(record, action, context);
 
         if (isBoolean(result)) {
           return Boolean(result);
