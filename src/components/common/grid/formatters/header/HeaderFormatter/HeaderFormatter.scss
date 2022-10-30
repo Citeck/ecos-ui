@@ -119,11 +119,11 @@
     position: absolute;
     width: 12px;
     height: 12px;
-    bottom: 1px;
+    top: 40px;
     background-color: $color-white;
     transform: rotate(-45deg);
     box-shadow: $box-shadow-tooltip-arrow-top;
-    z-index: 2;
+    z-index: -10;
 
     &::before {
       border-top-color: $color-white;
@@ -201,4 +201,8 @@
       }
     }
   }
+}
+
+.ecos-th__filter-tooltip .tooltip.bs-tooltip-auto[x-placement^='top'] {
+  top: -8px !important;
 }
