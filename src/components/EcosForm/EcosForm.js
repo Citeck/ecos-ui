@@ -56,7 +56,7 @@ class EcosForm extends React.Component {
   componentDidMount() {
     const record = Records.getRecordToEdit(this.props.record);
 
-    this.setState({ recordId: record }, () => {
+    this.setState({ recordId: record.id }, () => {
       this.initForm();
     });
   }
