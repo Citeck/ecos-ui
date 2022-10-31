@@ -13,6 +13,7 @@ import {
   setRequestResultDashboard,
   setWarningMessage
 } from '../actions/dashboard';
+import { getDashboardConfig as getOrgstructureDashboardConfig } from '../actions/orgstructure';
 
 const initialState = {
   isLoading: false,
@@ -47,6 +48,22 @@ export { initialState };
 export default handleActions(
   {
     [getDashboardConfig]: (state, { payload }) => {
+      let ownState = { ...initialState };
+
+      if (state[payload.key]) {
+        ownState = { ...ownState, ...state[payload.key] };
+      }
+
+      return {
+        ...state,
+        [payload.key]: {
+          ...ownState,
+          reset: false,
+          isLoading: true
+        }
+      };
+    },
+    [getOrgstructureDashboardConfig]: (state, { payload }) => {
       let ownState = { ...initialState };
 
       if (state[payload.key]) {

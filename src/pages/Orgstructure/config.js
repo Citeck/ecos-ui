@@ -100,31 +100,6 @@ export const ORGSTRUCTURE_CONFIG = {
             ]
           }
         ]
-      },
-      {
-        id: 'layout_2e5973c9-de99-48ca-8bda-b33590106022',
-        tab: {
-          label: 'Документы',
-          idLayout: 'layout_2e5973c9-de99-48ca-8bda-b33590106022'
-        },
-        type: 'adaptive',
-        columns: [
-          {
-            widgets: [
-              {
-                name: 'documents',
-                label: 'dashboard-settings.widget.documents',
-                dndId: '7f75ec6e-114b-49d3-83f8-3f8a0ea07e83',
-                id: 'e8ac84e1-c36b-46a1-87c8-c04a70d98dd5',
-                props: {
-                  id: 'e8ac84e1-c36b-46a1-87c8-c04a70d98dd5',
-                  config: {}
-                },
-                description: 'Документы'
-              }
-            ]
-          }
-        ]
       }
     ],
     mobile: [
@@ -215,31 +190,6 @@ export const ORGSTRUCTURE_CONFIG = {
                   config: {}
                 },
                 description: 'Информация'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'layout_2e5973c9-de99-48ca-8bda-b33590106022',
-        tab: {
-          label: 'Документы',
-          idLayout: 'layout_2e5973c9-de99-48ca-8bda-b33590106022'
-        },
-        type: 'mobile',
-        columns: [
-          {
-            widgets: [
-              {
-                name: 'documents',
-                label: 'dashboard-settings.widget.documents',
-                dndId: '7f75ec6e-114b-49d3-83f8-3f8a0ea07e83',
-                id: 'e8ac84e1-c36b-46a1-87c8-c04a70d98dd5',
-                props: {
-                  id: 'e8ac84e1-c36b-46a1-87c8-c04a70d98dd5',
-                  config: {}
-                },
-                description: 'Документы'
               }
             ]
           }

@@ -23,7 +23,7 @@ import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
-function* _parseConfig({ api, logger }, { recordRef, config }) {
+export function* _parseConfig({ api, logger }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
 

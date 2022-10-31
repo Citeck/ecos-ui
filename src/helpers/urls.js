@@ -300,7 +300,7 @@ export const getLinkWithout = params => {
 
 export const isDashboard = (url = window.location.href) => {
   if (isNewVersionPage()) {
-    return hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+    return (hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS)) || hasInString(url, URL.ORGSTRUCTURE);
   }
 
   return false;

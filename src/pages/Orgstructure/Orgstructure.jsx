@@ -1,55 +1,90 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 import Structure from './components/Structure';
-import Widgets from './components/Widgets';
-import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
+import { getDashboardConfig, setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
 import { getSearchParams } from '../../helpers/urls';
-import Dashboard from '../Dashboard';
+import { setDashboardConfig, setDashboardIdentification } from '../../actions/dashboard';
+import Layout from '../../components/Layout';
+import classNames from 'classnames';
+import PageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
-import { ORGSTRUCTURE_CONFIG, ATTRIBUTES } from './config';
-import { setDashboardConfig, setDashboardIdentification } from '../../actions/dashboard';
+
+// todo: после изменения recordRef, виджеты подгружают данные и не всегда их позиции и
+//  размеры корректно подсчитываются. Необходимо обновлять весь Layout для того, чтобы всё спозиционировалось
+//  корректно
 
 class Orgstructure extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.props.getDashboardConfig();
+  }
+
   componentDidMount() {
-    const { onSelectPerson, setDashboardConfig, setDashboardIdentification } = this.props;
+    const { onSelectPerson } = this.props;
     const { recordRef } = getSearchParams() || {};
-
-    const key = this.props.tabId;
-
-    const payload = {
-      key,
-      originalConfig: ORGSTRUCTURE_CONFIG.config,
-      config: ORGSTRUCTURE_CONFIG.config.layouts,
-      modelAttributes: ATTRIBUTES
-    };
-    const identification = { id: 'orgstructure', key: 'emodel/type@person', type: 'profile-details' };
-    console.log('here');
-    setDashboardIdentification({ key, identification });
-    setDashboardConfig(payload);
 
     if (recordRef) {
       onSelectPerson(recordRef);
     }
   }
 
+  renderDashboard() {
+    const { recordRef, config } = this.props;
+
+    if (!recordRef || !config) {
+      return null;
+    }
+
+    const { menuType, isMobile, tabId, identificationId } = this.props;
+    const { columns, type } = get(config, '0') || {};
+
+    return (
+      <div>
+        <Layout
+          className={classNames({ 'ecos-layout_mobile': isMobile })}
+          menuType={menuType}
+          isMobile={isMobile}
+          columns={columns}
+          type={type}
+          tabId={tabId}
+          recordRef={recordRef}
+          dashboardId={identificationId}
+          isActiveLayout={PageTabList.isActiveTab(tabId)}
+          // todo: обработчики ниже реализовать по аналогии с Dashboard
+          // onSaveWidget={this.prepareWidgetsConfig}
+          // onSaveWidgetProps={this.handleSaveWidgetProps}
+        />
+        ;
+      </div>
+    );
+  }
+
   render() {
-    const { tabId } = this.props;
-    console.log('tabId = ', tabId);
     return (
       <div className="orgstructure-page__grid__container">
         <div className="orgstructure-page__grid__main">
           <Structure />
         </div>
-        <Dashboard tabId={tabId} />
-        {/* <Widgets /> */}
+
+        {this.renderDashboard()}
       </div>
     );
   }
 }
 
-const mapDispatchToProps = dispatch => ({
+const mapStateToProps = (state, ownProps) => {
+  return {
+    recordRef: get(state, 'orgstructure.id'),
+    config: get(state, ['dashboard', ownProps.tabId, 'config'])
+  };
+};
+
+const mapDispatchToProps = (dispatch, state) => ({
+  getDashboardConfig: () => dispatch(getDashboardConfig({ key: state.tabId })),
   onSelectPerson: recordRef => dispatch(setSelectedPerson(recordRef)),
   setOrgstructureConfig: config => dispatch(setOrgstructureConfig(config)),
   setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload)),
@@ -57,6 +92,6 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Orgstructure);
