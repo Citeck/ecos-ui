@@ -69,7 +69,7 @@ class EcosForm extends React.Component {
     if (prevProps.record !== this.props.record) {
       const record = Records.getRecordToEdit(this.props.record);
 
-      this.setState({ recordId: record }, () => {
+      this.setState({ recordId: record.id }, () => {
         this.initForm();
       });
     }
