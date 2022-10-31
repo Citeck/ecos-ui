@@ -1,5 +1,7 @@
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isArray from 'lodash/isArray';
+import isString from 'lodash/isString';
 
 import {
   AUTHORITY_TYPE_GROUP,
@@ -66,7 +68,7 @@ export class OrgStructApi extends CommonApi {
     return (groups || []).map(replace);
   };
 
-  fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
+  fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
     const filterByType = items =>
       items.filter(item => {
@@ -99,6 +101,8 @@ export class OrgStructApi extends CommonApi {
         });
       });
     }
+
+    const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
 
     const groups = Records.query(
       {
@@ -134,7 +138,7 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: queryVal },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes }
+      { ...OrgStructApi.userAttributes, ...globalSearchConfig }
     ).then(r => get(r, 'records', []));
 
     return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
@@ -214,11 +218,11 @@ export class OrgStructApi extends CommonApi {
   static async fetchGlobalSearchFields() {
     const fields = await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
 
-    if (typeof searchFields !== 'string' || !fields.trim().length) {
+    if (!isArray(fields) || (isString(fields[0]) && !fields[0].trim().length)) {
       return [];
     }
 
-    return fields.split(',');
+    return fields[0].split(',');
   }
 
   static async fetchIsHideDisabledField() {
@@ -354,7 +358,7 @@ export class OrgStructApi extends CommonApi {
         },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes }
+      { ...OrgStructApi.userAttributes, ...searchFields }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount
