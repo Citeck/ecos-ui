@@ -49,7 +49,6 @@ export default class TextFieldComponent extends FormIOTextFieldComponent {
 
   constructor(...args) {
     super(...args);
-
     overrideTriggerChange.call(this);
   }
 

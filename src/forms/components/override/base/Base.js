@@ -846,6 +846,10 @@ Object.defineProperty(Base.prototype, 'component', {
   },
 
   set: function(component) {
+    if (component.addAnother) {
+      component.addAnother = t(component.addAnother);
+    }
+
     this._component = extendingOfComponent(component);
   }
 });
