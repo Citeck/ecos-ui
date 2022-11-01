@@ -15,16 +15,14 @@ const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder
 
   const _onClick = (item, e) => {
     const currentId = item.id;
+
     if (!currentId) {
       return;
     }
 
-    const ctrlKey = e.ctrlKey;
-    const shiftKey = e.shiftKey;
-
     switch (true) {
       case isMobile:
-      case ctrlKey:
+      case e.ctrlKey || e.metaKey:
         if (selected.includes(currentId)) {
           setSelected(selected.filter(id => id !== currentId));
           break;
@@ -32,7 +30,7 @@ const FileList = ({ isMobile, items = [], selected = [], lastClicked, openFolder
 
         setSelected([...selected, currentId]);
         break;
-      case shiftKey:
+      case e.shiftKey:
         const currentIndex = items.findIndex(item => item.id === currentId);
         let lastClickedIndex = items.findIndex(item => item.id === lastClicked);
         if (lastClickedIndex === -1) {

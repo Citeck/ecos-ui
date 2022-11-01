@@ -419,9 +419,9 @@ class PageTabs extends React.Component {
     this.setState({ draggableNode: null });
   };
 
-  handleContextMenu = ({ tab, position, x, y, ctrlKey, shiftKey }) => {
+  handleContextMenu = ({ tab, position, x, y, ctrlKey, shiftKey, metaKey }) => {
     this.setState({
-      contextMenu: { tab, position, x, y, ctrlKey, shiftKey }
+      contextMenu: { tab, position, x, y, ctrlKey, shiftKey, metaKey }
     });
   };
 
@@ -587,7 +587,7 @@ class PageTabs extends React.Component {
     }
 
     const { tabs } = this.props;
-    const { position, x, y, ctrlKey, shiftKey } = contextMenu;
+    const { position, x, y, ctrlKey, shiftKey, metaKey } = contextMenu;
     const actions = [
       {
         title: t(Labels.CONTEXT_COPY_LINK),
@@ -636,7 +636,7 @@ class PageTabs extends React.Component {
       });
     }
 
-    if ((IS_DEV_ENV || (ctrlKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
+    if ((IS_DEV_ENV || (ctrlKey && shiftKey) || (metaKey && shiftKey)) && get(this.state, 'contextMenu.tab.isActive')) {
       actions.push({
         title: `Go to ${IS_DEV_ENV ? process.env.REACT_APP_SHARE_PROXY_URL : 'local'}`,
         onClick: () => this.handleClickContextMenuItem(ContextMenuTypes.GO_SOURCE_HOST)
