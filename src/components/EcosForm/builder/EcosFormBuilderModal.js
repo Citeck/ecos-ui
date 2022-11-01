@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 
 import EcosModal from '../../common/EcosModal';
@@ -100,7 +101,7 @@ export default class EcosFormBuilderModal extends React.Component {
   };
 
   onSubmit = form => {
-    if (this.state.onSubmit) {
+    if (isFunction(this.state.onSubmit)) {
       this.state.onSubmit(form);
     }
     this.hide();

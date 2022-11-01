@@ -75,7 +75,7 @@ export class EcosFormBuilderUtils {
    */
   static __showEditorComponent(componentKey, component, showData, onSubmit, options) {
     if (builders[componentKey]) {
-      builders[componentKey].show(showData, onSubmit);
+      builders[componentKey].show(showData, onSubmit, options);
     } else {
       let container = document.createElement('div');
 
