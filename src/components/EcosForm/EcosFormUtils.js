@@ -104,7 +104,7 @@ export default class EcosFormUtils {
       config.reactstrapProps.keyboard = false;
     }
 
-    const modal = config.formContainer ? null : new Modal();
+    const modal = new Modal();
     const formParams = Object.assign({ record }, config.params || {});
     const configParams = config.params || {};
 

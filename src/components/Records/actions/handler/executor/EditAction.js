@@ -39,6 +39,7 @@ export default class EditAction extends ActionsExecutor {
             },
             saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
+            formContainer: true,
             onSubmit: () => {
               // temp solution
               submitted = true;
@@ -91,6 +92,7 @@ async function runEditTask(record, config) {
     EcosFormUtils.editRecord({
       recordRef: taskRecordId,
       attributes: config.attributes || {},
+      formContainer: true,
       fallback: () => resolve(false),
       contentBefore: contentBefore(),
       onSubmit: () => resolve(true),
