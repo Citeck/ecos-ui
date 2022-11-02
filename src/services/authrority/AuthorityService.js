@@ -1,11 +1,12 @@
 import Records from '../../components/Records/Records';
 import * as authorityApi from './authorityApi';
 import isString from 'lodash/isString';
+import { SourcesId } from '../../constants';
 
 const GROUP_PREFIX = 'GROUP_';
 
-const PERSON_SOURCE_ID = 'emodel/person';
-const GROUPS_SOURCE_ID = 'emodel/authority-group';
+const PERSON_SOURCE_ID = SourcesId.PERSON;
+const GROUPS_SOURCE_ID = SourcesId.GROUP;
 
 const ALFRESCO_PREFIX = 'alfresco/@';
 const ALFRESCO_WORKSPACE_SPACES_STORE = 'workspace://SpacesStore/';

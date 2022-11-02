@@ -39,7 +39,7 @@ export class BirthdaysApi extends RecordService {
 
     return Records.query(
       {
-        sourceId: 'emodel/person',
+        sourceId: SourcesId.PERSON,
         language: 'predicate',
         query: { t: 'and', v: predicates }
       },

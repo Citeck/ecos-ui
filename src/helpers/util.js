@@ -1302,7 +1302,15 @@ export function normalize(source, byField) {
  *
  * @returns {{start: number, end: number}}
  */
-export function getMonthPeriodByDate(date = new Date()) {
+export function getMonthPeriodByDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date();
+  }
+
+  if (isNaN(date)) {
+    date = new Date();
+  }
+
   const monthDay = (date.getMonth() + 1) * 100 + date.getDate();
 
   return {
@@ -1311,5 +1319,6 @@ export function getMonthPeriodByDate(date = new Date()) {
   };
 }
 
+lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
