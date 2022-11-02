@@ -24,6 +24,8 @@ function* sagaGetUserData({ api, logger }, { payload }) {
   try {
     const data = yield call(api.user.getUserDataByRef, record);
 
+    console.log('here', data);
+
     if (isEmpty(data)) {
       return;
     }

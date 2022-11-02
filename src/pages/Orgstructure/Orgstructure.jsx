@@ -12,10 +12,6 @@ import PageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
 
-// todo: после изменения recordRef, виджеты подгружают данные и не всегда их позиции и
-//  размеры корректно подсчитываются. Необходимо обновлять весь Layout для того, чтобы всё спозиционировалось
-//  корректно
-
 class Orgstructure extends React.Component {
   constructor(props) {
     super(props);
@@ -39,8 +35,10 @@ class Orgstructure extends React.Component {
       return null;
     }
 
-    const { menuType, isMobile, tabId, identificationId } = this.props;
+    const { menuType, isMobile, tabId, identificationId, isLoading } = this.props;
     const { columns, type } = get(config, '0') || {};
+
+    console.log('isLoading = ', isLoading);
 
     return (
       <div>
@@ -54,6 +52,7 @@ class Orgstructure extends React.Component {
           recordRef={recordRef}
           dashboardId={identificationId}
           isActiveLayout={PageTabList.isActiveTab(tabId)}
+          isLoading={isLoading}
           // todo: обработчики ниже реализовать по аналогии с Dashboard
           // onSaveWidget={this.prepareWidgetsConfig}
           // onSaveWidgetProps={this.handleSaveWidgetProps}
@@ -67,7 +66,7 @@ class Orgstructure extends React.Component {
     return (
       <div className="orgstructure-page__grid__container">
         <div className="orgstructure-page__grid__main">
-          <Structure />
+          <Structure tabId={this.props.tabId} />
         </div>
 
         {this.renderDashboard()}
@@ -79,13 +78,14 @@ class Orgstructure extends React.Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     recordRef: get(state, 'orgstructure.id'),
-    config: get(state, ['dashboard', ownProps.tabId, 'config'])
+    config: get(state, ['dashboard', ownProps.tabId, 'config']),
+    isLoading: get(state, ['dashboard', ownProps.tabId, 'isLoading'])
   };
 };
 
 const mapDispatchToProps = (dispatch, state) => ({
   getDashboardConfig: () => dispatch(getDashboardConfig({ key: state.tabId })),
-  onSelectPerson: recordRef => dispatch(setSelectedPerson(recordRef)),
+  onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId })),
   setOrgstructureConfig: config => dispatch(setOrgstructureConfig(config)),
   setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload)),
   setDashboardConfig: payload => dispatch(setDashboardConfig(payload))

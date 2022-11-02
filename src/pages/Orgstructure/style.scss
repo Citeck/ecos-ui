@@ -1,6 +1,5 @@
 .app-content.orgstructure-page {
-  // todo: иначе скролл на странце пропадает и не получается прокручивать часть с виджетами
-  //overflow: hidden;
+  overflow: hidden;
 }
 .orgstructure-page {
   &__grid {
@@ -44,4 +43,8 @@
       color: #767676;
     }
   }
+}
+
+.orgstructure-page__grid__container div:nth-child(2) {
+  overflow-y: auto;
 }

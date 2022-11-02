@@ -45,7 +45,7 @@ const controlProps = {
   multiple: false
 };
 
-const Structure = () => {
+const Structure = ({ tabId }) => {
   const [load, setReload] = useState(false);
 
   const reload = () => {
@@ -56,7 +56,7 @@ const Structure = () => {
     <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
       <div className="orgstructure-page__structure__header">{t(Labels.TITLE)}</div>
       <OrgstructureSearch />
-      <OrgstructBody reloadList={reload} />
+      <OrgstructBody reloadList={reload} tabId={tabId} />
     </SelectOrgstructProvider>
   );
 };

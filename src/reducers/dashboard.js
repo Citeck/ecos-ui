@@ -13,7 +13,8 @@ import {
   setRequestResultDashboard,
   setWarningMessage
 } from '../actions/dashboard';
-import { getDashboardConfig as getOrgstructureDashboardConfig } from '../actions/orgstructure';
+import { getDashboardConfig as getOrgstructureDashboardConfig, setSelectedPerson } from '../actions/orgstructure';
+import { setUserData } from '../actions/user';
 
 const initialState = {
   isLoading: false,
@@ -201,6 +202,16 @@ export default handleActions(
           warningMessage: payload.message
         }
       };
+    },
+
+    [setSelectedPerson]: (state, { payload }) => {
+      const { key } = payload;
+      return { ...state, [key]: { ...state[key], isLoading: true } };
+    },
+    [setUserData]: (state, { payload }) => {
+      // todo подумать, как получать key более универсально
+      const key = payload.stateId.split(']-')[0].replace('[', '');
+      return { ...state, [key]: { ...state[key], isLoading: false } };
     }
   },
   {}

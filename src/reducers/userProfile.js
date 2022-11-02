@@ -14,7 +14,6 @@ export default handleActions(
     [getUserData]: startLoading(initialState),
     [setUserData]: (state, { payload }) => {
       const { stateId, ...res } = payload;
-
       return {
         ...state,
         [stateId]: {

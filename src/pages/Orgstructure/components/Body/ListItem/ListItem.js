@@ -62,13 +62,12 @@ const renderListItem = (item, nestingLevel) => {
   return <span className="orgstructure-page__list-item-label">{item.label}</span>;
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson }) => {
+const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {
   const { onToggleCollapse, initList } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-
   const selected = selectedPerson === item.id;
   const onClickLabel = () => {
     if (item.hasChildren) {
@@ -200,7 +199,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const selectPerson = e => {
     e.stopPropagation();
-    dispatch(setSelectedPerson(item.id));
+    dispatch(setSelectedPerson({ recordRef: item.id, key: tabId }));
     updateCurrentUrl({ recordRef: item.id });
   };
 

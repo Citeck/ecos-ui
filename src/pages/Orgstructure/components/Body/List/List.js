@@ -9,7 +9,7 @@ import Records from '../../../../../components/Records';
 import './List.scss';
 import { useState } from 'react';
 
-const List = ({ items, nestingLevel = 0 }) => {
+const List = ({ items, nestingLevel = 0, tabId }) => {
   const context = useContext(SelectOrgstructContext);
   const [selectedId, setSelectedId] = useState('');
 
@@ -26,7 +26,7 @@ const List = ({ items, nestingLevel = 0 }) => {
 
           nestedList = (
             <Collapse isOpen={item.isOpen}>
-              <List items={children} nestingLevel={nestingLevel + 1} />
+              <List items={children} nestingLevel={nestingLevel + 1} tabId={tabId} />
             </Collapse>
           );
         }
@@ -39,6 +39,7 @@ const List = ({ items, nestingLevel = 0 }) => {
             deleteItem={deleteItem}
             selectedId={selectedId}
             setSelectedId={setSelectedId}
+            tabId={tabId}
           />
         );
       })}
