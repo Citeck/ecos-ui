@@ -104,7 +104,7 @@ export default class CheckBoxComponent extends FormIOCheckBoxComponent {
       this.labelElement.appendChild(child);
     }
 
-    if (this.labelSpan) {
+    if (this.labelSpan && this.labelSpan.innerText) {
       this.labelSpan.innerHTML = this.labelSpan.innerText;
     }
   }
