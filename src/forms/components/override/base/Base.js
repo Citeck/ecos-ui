@@ -176,7 +176,7 @@ Object.defineProperty(Base.prototype, 'label', {
     this.component.label = value;
 
     if (this.labelElement) {
-      this.labelElement.innerText = getTextByLocale(value);
+      this.labelElement.innerHTML = getTextByLocale(value);
     }
   },
 
