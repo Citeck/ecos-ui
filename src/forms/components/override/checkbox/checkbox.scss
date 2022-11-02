@@ -29,6 +29,18 @@ $positions: (
   .formio-component-checkbox {
     padding-left: 0;
     display: flex;
+    flex-wrap: wrap;
+
+    .help-block {
+      width: 100%;
+      flex-direction: column;
+      margin-top: 10px;
+
+      & > ul {
+        list-style: inside;
+        padding-left: 1em;
+      }
+    }
 
     .form-check-input {
       position: absolute;
