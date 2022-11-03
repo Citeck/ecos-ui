@@ -31,7 +31,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
       const dateInMoment = moment(value, format);
 
-      if (dateInMoment.format(format) !== value && !format.includes('A') && !format.includes('a')) {
+      if (dateInMoment.format(format) !== value && !format.toLowerCase().includes('a')) {
         this.calendar.setDate(this.calendar._input.value, true, this.settings.altFormat);
       }
 
