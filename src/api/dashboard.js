@@ -38,12 +38,12 @@ export class DashboardApi {
     return Components.getComponentsFullData(type);
   };
 
-  getDashboardTypes = async options => {
+  getDashboardTypes = async (options, selectedType) => {
     const { dashboardId, recordRef } = options || {};
     let type;
 
     if (recordRef) {
-      type = await Records.get(recordRef).load('_etype?id');
+      type = await Records.get(recordRef).load('_type?id');
     } else if (dashboardId) {
       const id = Helper.parseDashboardId(dashboardId);
       type = await Records.get(id).load('typeRef?id');
@@ -51,39 +51,38 @@ export class DashboardApi {
       type = EmodelTypes.USER_DASHBOARD;
     }
 
-    const types = await DashboardApi.getAvailableTypes(type);
+    const types = await DashboardApi.getAvailableTypes(type, selectedType);
 
     return types.map(({ id: key, disp: displayName }) => ({ key, displayName }));
   };
 
-  static getAvailableTypes = async type => {
+  static getAvailableTypes = async (type, selectedType) => {
     const types = [];
-    let disp;
+    const disp = await Helper.getDisp(type || EmodelTypes.BASE);
 
     if (type) {
-      disp = await Helper.getDisp(type);
       types.push({ id: type, disp });
 
       if (type === EmodelTypes.USER_DASHBOARD) {
         return types;
       }
 
-      const typeParents = await Records.get(type).load('.atts(n:"parents"){id, disp}');
+      const typeParents = await Records.get(type).load('parents[]{id:.id, disp:.disp}');
 
-      types.push(...typeParents);
+      types.push(...typeParents.filter(t => ![type, EmodelTypes.BASE].includes(t.id)));
 
-      const repeatedI = types.findIndex(t => t.id === type);
+      if (selectedType && isExistIndex(types.findIndex(t => t.id === selectedType))) {
+        const dashboardType = await Records.get(selectedType).load('_type{id:.id,disp:.disp}');
 
-      if (isExistIndex(repeatedI)) {
-        types.splice(repeatedI, 1);
+        types.unshift(dashboardType);
       }
 
       if (type !== EmodelTypes.BASE) {
         const baseI = types.findIndex(t => t.id === EmodelTypes.BASE);
+
         isExistIndex(baseI) && types.splice(baseI, 1);
       }
     } else {
-      disp = await Helper.getDisp(EmodelTypes.BASE);
       types.push({ id: EmodelTypes.BASE, disp });
     }
 
