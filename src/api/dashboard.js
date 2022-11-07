@@ -67,14 +67,14 @@ export class DashboardApi {
         return types;
       }
 
-      const typeParents = await Records.get(type).load('parents[]{id:.id, disp:.disp}');
+      const typeParents = await Records.get(type).load('parents[]{id:?id, disp:?disp}');
 
       types.push(...typeParents.filter(t => ![type, EmodelTypes.BASE].includes(t.id)));
 
-      if (selectedType && isExistIndex(types.findIndex(t => t.id === selectedType))) {
-        const dashboardType = await Records.get(selectedType).load('_type{id:.id,disp:.disp}');
+      if (selectedType && !isExistIndex(types.findIndex(t => t.id === selectedType))) {
+        const disp = await Records.get(selectedType).load('?disp');
 
-        types.unshift(dashboardType);
+        types.unshift({ id: selectedType, disp });
       }
 
       if (type !== EmodelTypes.BASE) {
