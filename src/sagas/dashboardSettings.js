@@ -29,7 +29,13 @@ import { RequestStatuses } from '../constants';
 import DashboardService from '../services/dashboard';
 import DashboardSettingsConverter from '../dto/dashboardSettings';
 import { CONFIG_VERSION } from '../constants/dashboard';
-import { selectNewVersionConfig, selectOriginalConfig, selectRecordRef, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
+import {
+  selectIdentification,
+  selectNewVersionConfig,
+  selectOriginalConfig,
+  selectRecordRef,
+  selectSelectedWidgetsById
+} from '../selectors/dashboardSettings';
 import DashboardConverter from '../dto/dashboard';
 import UserLocalSettingsService from '../services/userLocalSettings';
 
@@ -93,7 +99,8 @@ function* doGetDashboardKeys({ api, logger }, { payload }) {
   try {
     yield put(setLoadingKeys({ status: true, key: payload.key }));
 
-    const keys = yield call(api.dashboard.getDashboardTypes, payload);
+    const identification = yield select(state => selectIdentification(state, payload.key));
+    const keys = yield call(api.dashboard.getDashboardTypes, payload, identification.key);
     const recordRef = yield select(state => selectRecordRef(state, payload.key));
 
     if (recordRef) {
