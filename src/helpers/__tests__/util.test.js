@@ -1,9 +1,11 @@
+import moment from 'moment';
+
 import * as Util from '../util';
 
-function check(data, nameFun) {
+function check(data, functionName) {
   data.forEach(item => {
     it(item.title, () => {
-      const isValid = Util[nameFun](...item.input);
+      const isValid = Util[functionName](...item.input);
 
       expect(isValid).toEqual(item.output);
     });
@@ -393,5 +395,76 @@ describe('Util helpers', () => {
     ];
 
     check(data, 'getMedian');
+  });
+
+  describe('function getMonthPeriodByDate', () => {
+    const data = [
+      {
+        title: 'Valid date with a month greater than 9',
+        input: [moment('11.11', 'DD.MM').toDate()],
+        output: {
+          start: 1111,
+          end: 1211
+        }
+      },
+      {
+        title: 'Valid date with month less than 10',
+        input: [moment('05.02', 'DD.MM').toDate()],
+        output: {
+          start: 205,
+          end: 305
+        }
+      },
+      {
+        title: 'If there is no argument, the current date is used',
+        input: [],
+        output: {
+          start: parseInt(moment().format('MMDD')),
+          end: parseInt(
+            moment()
+              .add(1, 'month')
+              .format('MMDD')
+          )
+        }
+      },
+      {
+        title: 'If the date in the argument is not valid, the current date is used',
+        input: [moment('00.00', 'DD.MM').toDate()],
+        output: {
+          start: parseInt(moment().format('MMDD')),
+          end: parseInt(
+            moment()
+              .add(1, 'month')
+              .format('MMDD')
+          )
+        }
+      },
+      {
+        title: 'If the argument is a number, the current date is used',
+        input: [23],
+        output: {
+          start: parseInt(moment().format('MMDD')),
+          end: parseInt(
+            moment()
+              .add(1, 'month')
+              .format('MMDD')
+          )
+        }
+      },
+      {
+        title: 'If the argument is a string, the current date is used',
+        input: ['12.05'],
+        output: {
+          start: parseInt(moment().format('MMDD')),
+          end: parseInt(
+            moment()
+              .add(1, 'month')
+              .format('MMDD')
+          )
+        }
+      }
+    ];
+
+    check(data, 'getMonthPeriodByDate');
   });
 });
