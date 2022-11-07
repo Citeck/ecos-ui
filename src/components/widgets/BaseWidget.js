@@ -223,6 +223,7 @@ class BaseWidget extends React.Component {
   }, 400);
 
   reload = debounce(() => {
+    console.warn('reload');
     this.setState(
       {
         runUpdate: true,

@@ -9,9 +9,22 @@ import Formio from './Formio';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalSubmit = Webform.prototype.submit;
+const originalSubmitForm = Webform.prototype.submitForm;
 const originalBuild = Webform.prototype.build;
 const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
+
+Webform.prototype.submitForm = function(options) {
+  const result = originalSubmitForm.call(this, options);
+
+  this.__withoutLoader = get(options, 'withoutLoader');
+  // if (get(options, 'withoutLoader')) {
+  //   this.loading = false;
+  //   console.warn('loading false')
+  // }
+
+  return result;
+};
 
 Webform.prototype.build = function(state) {
   Formio.forms[this.id] = this;

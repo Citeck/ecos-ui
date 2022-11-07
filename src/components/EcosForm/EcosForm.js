@@ -519,7 +519,9 @@ class EcosForm extends React.Component {
         }
       };
 
-      self.toggleLoader(true);
+      console.warn("get(options, 'withoutLoader') => ", form.__withoutLoader);
+
+      !form.__withoutLoader && self.toggleLoader(true);
 
       if (forceSave || this.props.saveOnSubmit !== false) {
         sRecord

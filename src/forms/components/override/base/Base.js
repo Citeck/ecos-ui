@@ -414,7 +414,27 @@ Base.prototype.createInlineEditButton = function(container) {
   const editButton = this.ce('button', { class: editButtonClassesList.join(' ') }, editButtonIcon);
 
   if (!isComponentDisabled) {
-    const onEditClick = () => {
+    const onEditClick = async () => {
+      const components = flattenComponents(this.root.components);
+
+      console.warn({ components });
+
+      await Promise.all(
+        Object.keys(components).map(key => {
+          const component = components[key];
+
+          return component.silentSaveForm.call(component);
+        })
+      );
+
+      // for (const key in components) {
+      //   if (components.hasOwnProperty(key)) {
+      //     const component = components[key];
+      //
+      //     component.inlineEditRollback.call(component);
+      //   }
+      // }
+
       const currentValue = this.getValue();
       this._valueBeforeEdit = isObject(currentValue) ? clone(currentValue) : currentValue;
 
@@ -466,6 +486,56 @@ Base.prototype.createViewOnlyElement = function() {
   this.errorContainer = element;
 
   return element;
+};
+
+Base.prototype.silentSaveForm = function() {
+  if (!this._isInlineEditingMode) {
+    return Promise.resolve();
+  }
+
+  const form = get(this, 'root');
+
+  // if (form.changing) {
+  //   return;
+  // }
+
+  const submitAttributes = [];
+  const options = { withoutLoader: true };
+  let before;
+
+  if (this.options.saveDraft) {
+    before = false;
+    options.state = 'draft';
+    // submitAttributes.push(false);
+    // submitAttributes.push({ state: 'draft' });
+  } else {
+    if (!this.checkValidity(this.dataValue)) {
+      return Promise.reject();
+    }
+  }
+
+  console.warn({ submitAttributes, form });
+
+  return form
+    .submit(before, options)
+    .then(() => {
+      this.switchToViewOnlyMode();
+
+      if (!this.options.saveDraft) {
+        form.showErrors('', true);
+      }
+      this.removeClass(this.element, 'has-error');
+      // if (isFunction(this.options.onInlineEditSave)) {
+      //   this.options.onInlineEditSave();
+      // }
+    })
+    .catch(e => {
+      form.showErrors(e, true);
+      this.inlineEditRollback();
+    })
+    .finally(() => {
+      form.loading = false;
+    });
 };
 
 Base.prototype.createInlineEditSaveAndCancelButtons = function() {

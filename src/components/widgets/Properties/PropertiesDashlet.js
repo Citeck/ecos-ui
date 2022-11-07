@@ -71,6 +71,8 @@ class PropertiesDashlet extends BaseWidget {
       isDraft: false,
       formIsValid: false
     };
+
+    this.observableFieldsToUpdate = [];
   }
 
   componentDidMount() {
@@ -82,10 +84,11 @@ class PropertiesDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState);
 
     if (!objectCompare(prevProps.config, this.props.config)) {
-      this.reload();
+      // this.reload();
     }
 
     if (prevProps.record !== this.props.record) {
+      console.warn(prevProps.record, this.props.record);
       this.reload();
     }
   }
