@@ -217,7 +217,7 @@ class Esign {
 
       return Promise.reject({
         messageTitle: t(Labels.EDS_ERROR),
-        messageDescription: e.messageDescription || t(Labels.SIGN_FAILED_MESSAGE),
+        messageDescription: e.messageDescription || e.message || t(Labels.SIGN_FAILED_MESSAGE),
         errorType: t(ErrorTypes.DEFAULT),
         formattedError: e.formattedError || Esign.formatErrorMessage(e)
       });
