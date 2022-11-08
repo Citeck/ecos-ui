@@ -87,12 +87,14 @@ Object.defineProperty(Base.prototype, 'valueChangedByUser', {
   writable: true,
   value: false
 });
+
 Object.defineProperty(Base.prototype, 'calculatedValueWasCalculated', {
   enumerable: true,
   configurable: true,
   writable: true,
   value: false
 });
+
 Base.prototype.onChange = function(flags, fromRoot) {
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
@@ -107,6 +109,7 @@ Base.prototype.onChange = function(flags, fromRoot) {
 
   return originalOnChange.call(this, flags, fromRoot);
 };
+
 Base.prototype.isEmptyValue = function(value) {
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
 
@@ -116,6 +119,7 @@ Base.prototype.isEmptyValue = function(value) {
 
   return !isBoolean(value) && this.isEmpty(value);
 };
+
 Base.prototype.customIsEqual = function(val1, val2) {
   if (typeof val1 === 'number' || typeof val2 === 'number') {
     return parseFloat(val1) === parseFloat(val2);
@@ -246,6 +250,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
     if (isCreateMode) {
       return this.isEmpty(value);
     }
+
     return !isBoolean(value) && this.isEmpty(value);
   };
   // If this is the firstPass, and the dataValue is different than to the calculatedValue.
@@ -265,6 +270,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   flags.noCheck = true;
 
   const changed = this.setValue(calculatedValue, flags);
+
   this.calculatedValue = this.dataValue;
 
   return changed;
@@ -275,7 +281,6 @@ Base.prototype.calculateValue = function(data, flags) {
     return false;
   }
 
-  // // TODO: check, it seems redundant
   const hasChanged = this.hasChanged(
     this.evaluate(
       this.component.calculateValue,
@@ -388,21 +393,22 @@ Base.prototype.createInlineEditButton = function(container) {
   }
 
   const isComponentDisabled = this.disabled || this.component.disabled;
-
   const isInlineEditDisabled = get(this, 'options.disableInlineEdit', false) || this.component.disableInlineEdit;
+
   if (isInlineEditDisabled) {
     return;
   }
 
   const canWrite = get(this, 'options.canWrite', false);
+
   if (!canWrite) {
     return;
   }
 
   const isMobileDevice = get(this, 'options.isMobileDevice', false);
-
   const editButtonIcon = this.ce('span', { class: 'icon icon-edit' });
   let editButtonClassesList = ['ecos-btn ecos-btn_i ecos-btn_grey2 ecos-btn_width_auto ecos-form__inline-edit-button'];
+
   if (isComponentDisabled) {
     editButtonClassesList.push('ecos-form__inline-edit-button_disabled');
   } else {
@@ -411,13 +417,12 @@ Base.prototype.createInlineEditButton = function(container) {
       editButtonClassesList.push('ecos-form__inline-edit-button_mobile');
     }
   }
+
   const editButton = this.ce('button', { class: editButtonClassesList.join(' ') }, editButtonIcon);
 
   if (!isComponentDisabled) {
     const onEditClick = async () => {
       const components = flattenComponents(this.root.components);
-
-      console.warn({ components });
 
       await Promise.all(
         Object.keys(components).map(key => {
@@ -426,14 +431,6 @@ Base.prototype.createInlineEditButton = function(container) {
           return component.silentSaveForm.call(component);
         })
       );
-
-      // for (const key in components) {
-      //   if (components.hasOwnProperty(key)) {
-      //     const component = components[key];
-      //
-      //     component.inlineEditRollback.call(component);
-      //   }
-      // }
 
       const currentValue = this.getValue();
       this._valueBeforeEdit = isObject(currentValue) ? clone(currentValue) : currentValue;
@@ -488,6 +485,7 @@ Base.prototype.createViewOnlyElement = function() {
   return element;
 };
 
+// Cause: https://citeck.atlassian.net/browse/ECOSUI-2231
 Base.prototype.silentSaveForm = function() {
   if (!this._isInlineEditingMode) {
     return Promise.resolve();
@@ -499,22 +497,17 @@ Base.prototype.silentSaveForm = function() {
   //   return;
   // }
 
-  const submitAttributes = [];
   const options = { withoutLoader: true };
   let before;
 
   if (this.options.saveDraft) {
     before = false;
     options.state = 'draft';
-    // submitAttributes.push(false);
-    // submitAttributes.push({ state: 'draft' });
   } else {
     if (!this.checkValidity(this.dataValue)) {
       return Promise.reject();
     }
   }
-
-  console.warn({ submitAttributes, form });
 
   return form
     .submit(before, options)

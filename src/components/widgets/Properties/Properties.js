@@ -56,6 +56,10 @@ class Properties extends React.Component {
     }
   }
 
+  get form() {
+    return get(this._ecosForm, 'current.form') || {};
+  }
+
   onSubmitForm = () => {
     const onReload = get(this._ecosForm, 'current.onReload');
 

@@ -71,8 +71,6 @@ class PropertiesDashlet extends BaseWidget {
       isDraft: false,
       formIsValid: false
     };
-
-    this.observableFieldsToUpdate = [];
   }
 
   componentDidMount() {
@@ -84,11 +82,10 @@ class PropertiesDashlet extends BaseWidget {
     super.componentDidUpdate(prevProps, prevState);
 
     if (!objectCompare(prevProps.config, this.props.config)) {
-      // this.reload();
+      this.reload();
     }
 
     if (prevProps.record !== this.props.record) {
-      console.warn(prevProps.record, this.props.record);
       this.reload();
     }
   }
@@ -166,6 +163,14 @@ class PropertiesDashlet extends BaseWidget {
     return actions;
   }
 
+  reload() {
+    if (get(this._propertiesRef, 'current.wrappedInstance.form')) {
+      return;
+    }
+
+    super.reload();
+  }
+
   checkPermissions = () => {
     const { record } = this.props;
 
@@ -180,7 +185,8 @@ class PropertiesDashlet extends BaseWidget {
     });
   };
 
-  onInlineEditSave = () => {
+  onInlineEditSave = (...data) => {
+    console.warn('onInlineEditSave => ', ...data);
     this.setState({
       formIsChanged: true,
       wasLastModifiedWithInlineEditor: true
@@ -270,7 +276,7 @@ class PropertiesDashlet extends BaseWidget {
     this.onReloadDashlet();
   };
 
-  onPropertiesUpdate = () => {
+  onPropertiesUpdate = (...data) => {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 

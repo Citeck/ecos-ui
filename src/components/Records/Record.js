@@ -279,7 +279,7 @@ export default class Record {
   debounceUpdate = _.debounce(() => this.update(), 400);
 
   unwatch(watcher) {
-    for (let i = 0; i < this._watchers; i++) {
+    for (let i = 0; i < this._watchers.length; i++) {
       if (this._watchers[i] === watcher) {
         this._watchers.splice(i, 1);
         break;
