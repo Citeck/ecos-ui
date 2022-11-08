@@ -196,7 +196,7 @@ class Esign {
 
       return Promise.reject({
         messageTitle: t(Labels.ERROR),
-        messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
+        messageDescription: e.message || t(Labels.SIGN_FAILED_MESSAGE),
         errorType: t(ErrorTypes.DEFAULT)
       });
     }
