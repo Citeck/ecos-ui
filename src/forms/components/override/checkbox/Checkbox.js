@@ -3,7 +3,7 @@ import get from 'lodash/get';
 import unset from 'lodash/unset';
 import set from 'lodash/set';
 
-import { getBool, getTextByLocale, t } from '../../../../helpers/util';
+import { getBool, t } from '../../../../helpers/util';
 import { DEFAULT_LABEL_POSITION } from '../../../../constants/forms';
 import Base from '../base/Base';
 
