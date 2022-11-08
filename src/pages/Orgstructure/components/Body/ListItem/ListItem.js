@@ -14,6 +14,7 @@ import { t } from '../../../../../helpers/util';
 import { updateCurrentUrl } from '../../../../../helpers/urls';
 
 import './ListItem.scss';
+import { getDashboardConfig } from '../../../../../actions/dashboard';
 
 const Labels = {
   TITLE_PERSON: 'orgstructure-delete-modal-title-person',
@@ -199,7 +200,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const selectPerson = e => {
     e.stopPropagation();
-    dispatch(setSelectedPerson({ recordRef: item.id, key: tabId }));
+    dispatch(setSelectedPerson({ recordRef: item.id }));
+    dispatch(getDashboardConfig({ recordRef: item.id }));
     updateCurrentUrl({ recordRef: item.id });
   };
 

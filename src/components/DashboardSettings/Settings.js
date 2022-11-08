@@ -143,7 +143,7 @@ class Settings extends Component {
   }
 
   componentWillUnmount() {
-    this.props.resetConfigState();
+    // this.props.resetConfigState();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -310,7 +310,6 @@ class Settings extends Component {
           if (isEmpty(recordRef)) {
             recordRef = get(this.getPathInfo(), 'recordRef');
           }
-
           updateDashboard ? getDashboardConfig({ recordRef }) : resetAllDashboardsConfig(identification);
           typeof onSave === 'function' && onSave();
 
@@ -366,6 +365,8 @@ class Settings extends Component {
   get availableWidgets() {
     const { availableWidgets, selectedWidgets, tabs } = this.state;
     const isMobile = this.isSelectedMobileVer;
+
+    console.log('widgets = ', availableWidgets, selectedWidgets);
 
     if (!isMobile) {
       return availableWidgets;
@@ -743,6 +744,8 @@ class Settings extends Component {
   }
 
   render() {
+    console.log('identification = ', this.props.identification);
+
     return (
       <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">
         {this.renderLoader()}

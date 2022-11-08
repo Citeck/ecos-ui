@@ -3,42 +3,137 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 
 import Structure from './components/Structure';
-import { getDashboardConfig, setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
+import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
 import { getSearchParams } from '../../helpers/urls';
-import { setDashboardConfig, setDashboardIdentification } from '../../actions/dashboard';
+import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
 import classNames from 'classnames';
 import PageTabList from '../../services/pageTabs/PageTabList';
 
 import './style.scss';
+import cloneDeep from 'lodash/cloneDeep';
+import isArray from 'lodash/isArray';
+
+import { DndUtils } from '../../components/Drag-n-Drop';
+import Records from '../../components/Records';
+import { t } from '../../helpers/util';
+import DashboardService from '../../services/dashboard';
+
+const Labels = {
+  NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text'
+};
+
+const getStateId = state => {
+  return state.enableCache ? state.tabId || DashboardService.key : null;
+};
 
 class Orgstructure extends React.Component {
   constructor(props) {
     super(props);
-
-    this.props.getDashboardConfig();
+    const { recordRef } = getSearchParams() || {};
+    this.instanceRecord = Records.get(recordRef);
   }
 
   componentDidMount() {
-    const { onSelectPerson } = this.props;
+    const { onSelectPerson, getDashboardConfig, getDashboardTitle } = this.props;
     const { recordRef } = getSearchParams() || {};
+
+    getDashboardConfig({ recordRef });
+    getDashboardTitle({ recordRef });
 
     if (recordRef) {
       onSelectPerson(recordRef);
     }
   }
 
-  renderDashboard() {
-    const { recordRef, config } = this.props;
+  prepareWidgetsConfig = (data, dnd) => {
+    const activeLayout = cloneDeep(this.activeLayout);
+    const columns = activeLayout.columns || [];
 
-    if (!recordRef || !config) {
-      return null;
+    const { isWidget, columnFrom, columnTo } = data;
+    const { source, destination } = dnd;
+
+    if (isWidget) {
+      let widgetsFrom = columns[columnFrom].widgets || [];
+      let widgetsTo = columns[columnTo].widgets || [];
+      let result = [];
+
+      if (+columnFrom !== +columnTo) {
+        result = DndUtils.move(widgetsFrom, widgetsTo, source, destination);
+        widgetsFrom = result[source.droppableId];
+        widgetsTo = result[destination.droppableId];
+
+        activeLayout.columns[columnTo].widgets = widgetsTo;
+        activeLayout.columns[columnFrom].widgets = widgetsFrom;
+      } else {
+        widgetsFrom = DndUtils.reorder(widgetsFrom, data.positionFrom, data.positionTo);
+        activeLayout.columns[columnFrom].widgets = widgetsFrom;
+      }
     }
 
-    const { menuType, isMobile, tabId, identificationId, isLoading } = this.props;
-    const { columns, type } = get(config, '0') || {};
+    const config = this.updateActiveConfig(activeLayout);
 
-    console.log('isLoading = ', isLoading);
+    this.saveDashboardConfig({ config });
+  };
+
+  handleSaveWidgetProps = (id, props = {}) => {
+    const { configVersion } = this.props;
+
+    if (configVersion) {
+      const originalConfig = cloneDeep(this.props.originalConfig);
+      const widgets = get(originalConfig, [configVersion, 'widgets'], []);
+      const widget = widgets.find(widget => widget.id === id);
+      const { recordRef } = this.getPathInfo();
+
+      if (widget) {
+        widget.props = {
+          ...widget.props,
+          ...props
+        };
+      }
+
+      this.saveDashboardConfig({ config: originalConfig, recordRef });
+
+      return;
+    }
+
+    const activeLayout = cloneDeep(this.activeLayout);
+    const columns = activeLayout.columns || [];
+    const eachColumns = column => {
+      const index = column.widgets.findIndex(widget => widget.id === id);
+
+      if (index !== -1) {
+        column.widgets[index].props = { ...column.widgets[index].props, ...props };
+        return false;
+      }
+
+      return true;
+    };
+
+    columns.forEach(column => {
+      if (isArray(column)) {
+        column.forEach(eachColumns);
+      } else {
+        eachColumns(column);
+      }
+    });
+    activeLayout.columns = columns;
+
+    const config = this.updateActiveConfig(activeLayout);
+
+    this.saveDashboardConfig({ config });
+  };
+
+  renderDashboard() {
+    const { config } = this.props;
+    const { recordRef } = getSearchParams() || {};
+
+    if (!recordRef || !config) {
+      return <div className="orgstructure-page__grid__empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
+    }
+
+    const { menuType, isMobile, tabId, isLoading } = this.props;
+    const { columns, type } = get(config, '0') || {};
 
     return (
       <div>
@@ -50,14 +145,13 @@ class Orgstructure extends React.Component {
           type={type}
           tabId={tabId}
           recordRef={recordRef}
-          dashboardId={identificationId}
+          dashboardId={tabId}
           isActiveLayout={PageTabList.isActiveTab(tabId)}
           isLoading={isLoading}
           // todo: обработчики ниже реализовать по аналогии с Dashboard
-          // onSaveWidget={this.prepareWidgetsConfig}
-          // onSaveWidgetProps={this.handleSaveWidgetProps}
+          onSaveWidget={this.prepareWidgetsConfig}
+          onSaveWidgetProps={this.handleSaveWidgetProps}
         />
-        ;
       </div>
     );
   }
@@ -88,7 +182,7 @@ const mapDispatchToProps = (dispatch, state) => ({
   onSelectPerson: recordRef => dispatch(setSelectedPerson({ recordRef: recordRef, key: state.tabId })),
   setOrgstructureConfig: config => dispatch(setOrgstructureConfig(config)),
   setDashboardIdentification: payload => dispatch(setDashboardIdentification(payload)),
-  setDashboardConfig: payload => dispatch(setDashboardConfig(payload))
+  getDashboardTitle: payload => dispatch(getDashboardTitle({ ...payload, key: getStateId(state) }))
 });
 
 export default connect(

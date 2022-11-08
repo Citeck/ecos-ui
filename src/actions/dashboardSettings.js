@@ -6,6 +6,7 @@ export const initDashboardSettings = createAction(prefix + 'INIT_DASHBOARD_SETTI
 export const setAvailableWidgets = createAction(prefix + 'SET_AVAILABLE_WIDGETS');
 export const setDashboardKeys = createAction(prefix + 'SET_DASHBOARD_KEYS');
 export const setDashboardConfig = createAction(prefix + 'SET_DASHBOARD_CONFIG');
+export const setDashboardSettings = createAction(prefix + 'SET_DASHBOARD_SETTINGS');
 export const setRequestResultDashboard = createAction(prefix + 'SET_REQUEST_RESULT_DASHBOARD');
 export const setCheckUpdatedDashboardConfig = createAction(prefix + 'SET_CHECK_UPDATED_DASHBOARD_CONFIG');
 export const resetDashboardConfig = createAction(prefix + 'RESET_DASHBOARD_CONFIG');

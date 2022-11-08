@@ -249,6 +249,8 @@ export default class DashboardService {
     const modalRef = React.createRef();
     let { title, onSave = () => {}, onClose = () => {}, ...otherProps } = props;
 
+    console.log('props = ', props);
+
     const dialog = DialogManager.showCustomDialog({
       isVisible: true,
       title,

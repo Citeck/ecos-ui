@@ -35,6 +35,7 @@ import UserLocalSettingsService from '../services/userLocalSettings';
 
 function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
   try {
+    // добавить проверку: если конфиг уже есть, не отправлять
     yield put(getDashboardConfig(payload));
   } catch (e) {
     logger.error('[dashboard-settings/ doInitDashboardSettingsRequest saga] error', e);
@@ -68,6 +69,7 @@ function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
 
     yield put(setDashboardData({ key, recordRef: recordRef || _recordRef }));
     yield put(setDashboardConfig({ ...webConfigs, key, originalConfig: config, modelAttributes }));
+
     yield put(getAvailableWidgets({ type: data.type, key }));
     yield put(getDashboardKeys({ ...payload, recordRef: recordRef || _recordRef }));
   } catch (e) {

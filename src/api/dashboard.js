@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, isExistIndex, t } from '../helpers/util';
+import { getCurrentUserName, getSearchParams, isExistIndex, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';
@@ -144,7 +144,10 @@ export class DashboardApi {
     if (!recType) {
       recType = recordRef ? EmodelTypes.BASE : EmodelTypes.USER_DASHBOARD;
     }
-
+    const url = window.location.pathname;
+    if (url.includes('orgstructure')) {
+      recType = 'emodel/type@orgstructure-person-dashboard';
+    }
     const user = getCurrentUserName();
     const key = await Records.queryOne(
       {

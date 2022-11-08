@@ -5,11 +5,11 @@ import { NotificationManager } from 'react-notifications';
 import { getDashboardConfig } from '../actions/orgstructure';
 import { t } from '../helpers/export/util';
 import { ORGSTRUCTURE_CONFIG } from '../pages/Orgstructure/config';
-import { setDashboardConfig, setDashboardIdentification } from '../actions/dashboard';
+import { setDashboardConfig, setDashboardIdentification, setLoading, setWarningMessage } from '../actions/dashboard';
+import { _parseConfig } from './dashboard';
 
 function* sagaGetDashboardConfig({ api, logger }, { payload }) {
   try {
-    // todo: здесь должен быть запрос конфига
     const result = ORGSTRUCTURE_CONFIG;
 
     yield put(
@@ -27,7 +27,12 @@ function* sagaGetDashboardConfig({ api, logger }, { payload }) {
       setDashboardConfig({
         config: get(result, 'config.layouts', []),
         originalConfig: result.config,
-        key: payload.key
+        key: payload.key,
+        identification: {
+          id: 'orgstructure',
+          key: 'emodel/type@orgstructure-person-dashboard',
+          type: 'orgstructure-person-dashboard'
+        }
       })
     );
   } catch (e) {
