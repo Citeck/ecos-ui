@@ -492,11 +492,6 @@ Base.prototype.silentSaveForm = function() {
   }
 
   const form = get(this, 'root');
-
-  // if (form.changing) {
-  //   return;
-  // }
-
   const options = { withoutLoader: true };
   let before;
 
@@ -518,16 +513,10 @@ Base.prototype.silentSaveForm = function() {
         form.showErrors('', true);
       }
       this.removeClass(this.element, 'has-error');
-      // if (isFunction(this.options.onInlineEditSave)) {
-      //   this.options.onInlineEditSave();
-      // }
     })
     .catch(e => {
       form.showErrors(e, true);
       this.inlineEditRollback();
-    })
-    .finally(() => {
-      form.loading = false;
     });
 };
 

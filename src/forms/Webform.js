@@ -17,11 +17,7 @@ const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, '
 Webform.prototype.submitForm = function(options) {
   const result = originalSubmitForm.call(this, options);
 
-  this.__withoutLoader = get(options, 'withoutLoader');
-  // if (get(options, 'withoutLoader')) {
-  //   this.loading = false;
-  //   console.warn('loading false')
-  // }
+  this.withoutLoader = get(options, 'withoutLoader');
 
   return result;
 };
@@ -60,6 +56,16 @@ Object.defineProperty(Webform.prototype, 'language', {
     }
 
     originalSetLanguage.set.call(this, lang);
+  }
+});
+
+Object.defineProperty(Webform.prototype, 'withoutLoader', {
+  set: function(withoutLoader) {
+    this.__withoutLoader = withoutLoader;
+  },
+
+  get: function() {
+    return this.__withoutLoader;
   }
 });
 

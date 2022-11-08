@@ -386,6 +386,11 @@ class EcosForm extends React.Component {
 
   toggleLoader = state => {
     const { onToggleLoader } = this.props;
+
+    if (state && get(this.form, 'withoutLoader')) {
+      return;
+    }
+
     isFunction(onToggleLoader) && onToggleLoader(state);
   };
 
@@ -519,9 +524,7 @@ class EcosForm extends React.Component {
         }
       };
 
-      console.warn("get(options, 'withoutLoader') => ", form.__withoutLoader);
-
-      !form.__withoutLoader && self.toggleLoader(true);
+      self.toggleLoader(true);
 
       if (forceSave || this.props.saveOnSubmit !== false) {
         sRecord

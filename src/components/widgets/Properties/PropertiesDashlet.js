@@ -185,8 +185,7 @@ class PropertiesDashlet extends BaseWidget {
     });
   };
 
-  onInlineEditSave = (...data) => {
-    console.warn('onInlineEditSave => ', ...data);
+  onInlineEditSave = () => {
     this.setState({
       formIsChanged: true,
       wasLastModifiedWithInlineEditor: true
@@ -276,7 +275,7 @@ class PropertiesDashlet extends BaseWidget {
     this.onReloadDashlet();
   };
 
-  onPropertiesUpdate = (...data) => {
+  onPropertiesUpdate = () => {
     this.setState({ formIsChanged: true }, () => this.setState({ formIsChanged: false }));
   };
 
