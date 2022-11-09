@@ -21,4 +21,18 @@ describe('SelectOrgstruct Component', () => {
 
     Harness.testCreate(SelectOrgstructComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
   });
+
+  it('set-get value test', done => {
+    Harness.testCreate(SelectOrgstructComponent, comp1).then(component => {
+      Harness.testSetGet(component, 'workspace://SpacesStore/record@record-1');
+
+      component.setValue('workspace://SpacesStore/record@record-2');
+
+      component.on('componentChange', () => {
+        expect(component.getValue()).toEqual('workspace://SpacesStore/record@record-2');
+
+        done();
+      });
+    });
+  });
 });
