@@ -207,7 +207,7 @@ export const DocLibUrlParams = {
 
 export const KanbanUrlParams = {
   BOARD_ID: 'boardId',
-  TEMPLATE_ID: 'templateId',
+  TEMPLATE_ID: JournalUrlParams.JOURNAL_SETTING_ID,
   SEARCH: 'kbSearch'
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import isEmpty from 'lodash/isEmpty';
 
 import { Tooltip } from '../../common';
 import { Badge } from '../../common/form';
@@ -7,6 +8,10 @@ import { extractLabel, t } from '../../../helpers/util';
 import { Labels } from '../constants';
 
 function HeaderColumn({ data, totalCount, isReady }) {
+  if (isEmpty(data)) {
+    return null;
+  }
+
   const targetCap = `head-caption_${data.id}`;
   const badge = String(totalCount);
 

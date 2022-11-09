@@ -27,6 +27,7 @@ import KanbanApi from '../__mocks__/kanbanApi';
 import data from '../__mocks__/kanbanData';
 import JournalApi from '../__mocks__/journalApi';
 import * as kanban from '../kanban';
+import { KanbanUrlParams } from '../../constants';
 
 const journalId = 'journalId',
   stateId = 'stateId',
@@ -320,7 +321,9 @@ describe('kanban sagas tests', () => {
       type: 'templates'
     });
 
-    expect(spyChangeUrlLink).toHaveBeenCalledWith('/test?templateId=templateId', { updateUrl: true });
+    const url = `/test?${KanbanUrlParams.TEMPLATE_ID}=templateId`;
+
+    expect(spyChangeUrlLink).toHaveBeenCalledWith(url, { updateUrl: true });
     expect(logger.error).not.toHaveBeenCalled();
     expect(first(dispatched).type).toEqual(setLoading().type);
     expect(first(dispatched).payload.isLoading).toBeTruthy();
