@@ -279,6 +279,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     const setValueImpl = v => {
       const val = v || this.component.defaultValue || this.emptyValue;
+
       if (this.component.dataType === DataTypes.AUTHORITY) {
         refToAuthName(val).then(authNames => {
           this.updateValue(flags, authNames);
