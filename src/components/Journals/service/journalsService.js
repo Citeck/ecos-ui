@@ -338,6 +338,25 @@ class JournalsService {
 
     return value;
   }
+
+  /**
+   *
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   */
+  getRecordsQuery = async (journalConfig, settings) => {
+    return journalDataLoader.getRecordsQuery(journalConfig, settings);
+  };
+
+  /**
+   * Get picked predicates
+   * @param {JournalConfig} journalConfig
+   * @param {JournalSettings} settings
+   * @returns
+   */
+  getPredicates = async (journalConfig, settings) => {
+    return journalDataLoader.getPredicates(journalConfig, settings);
+  };
 }
 
 window.Citeck = window.Citeck || {};

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { extractLabel, t } from '../../helpers/util';
-import { extractIcon, getIconObjectWeb } from '../../helpers/icon';
+import { extractIcon, getIconObjectWeb, getIconUpDown } from '../../helpers/icon';
 import MenuService from '../../services/MenuService';
 import { Avatar, EcosDropdownMenu, Tooltip, EcosIcon } from '../common';
 import { IcoBtn } from '../common/btns';
@@ -81,7 +81,7 @@ class UserMenu extends React.Component {
           <DropdownToggle tag="div" className="ecos-header-dropdown__toggle" id="ecos-header-dropdown--user-name">
             <Tooltip target="ecos-header-dropdown--user-name" text={userFullName} placement={'left'} uncontrolled showAsNeeded>
               {mob ? <Avatar className="ecos-header-user-avatar" theme={theme} url={userPhotoUrl} /> : null}
-              <IcoBtn invert={true} icon={dropdownOpen ? 'icon-small-up' : 'icon-small-down'} className={classNameIcoBtn}>
+              <IcoBtn invert={true} icon={getIconUpDown(dropdownOpen)} className={classNameIcoBtn}>
                 {!mob && userFullName}
               </IcoBtn>
             </Tooltip>

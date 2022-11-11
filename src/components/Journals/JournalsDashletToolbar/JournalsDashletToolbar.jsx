@@ -21,6 +21,7 @@ const mapStateToProps = (state, props) => {
   const config = selectNewVersionDashletConfig(state, props.stateId);
 
   return {
+    recordRef: ownState.recordRef,
     journals: ownState.journals,
     journalConfig: ownState.journalConfig,
     journalSettings: ownState.journalSettings,
@@ -106,7 +107,8 @@ class JournalsDashletToolbar extends Component {
       grid,
       config,
       selectedRecords,
-      lsJournalId
+      lsJournalId,
+      recordRef
     } = this.props;
     const nodeRef = get(this.props, 'journalConfig.meta.nodeRef', '');
     const isWide = !isSmall;
@@ -137,9 +139,14 @@ class JournalsDashletToolbar extends Component {
           )}
 
           {isWide && (
-            <div className="ecos-journal-dashlet__group-actions">
-              <GroupActions stateId={stateId} />
-            </div>
+            <Export
+              className="ecos-journal-dashlet__action-export"
+              journalConfig={journalConfig}
+              grid={grid}
+              dashletConfig={config}
+              recordRef={recordRef}
+              selectedItems={selectedRecords}
+            />
           )}
 
           {isWide && (

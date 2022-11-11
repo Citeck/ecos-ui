@@ -60,3 +60,5 @@ export class UserConfigApi extends CommonApi {
       });
   };
 }
+
+export const instUserConfigApi = new UserConfigApi();
