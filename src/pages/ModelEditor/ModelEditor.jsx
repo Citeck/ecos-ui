@@ -9,6 +9,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
 import {
@@ -21,7 +22,14 @@ import {
   ML_POSTFIX,
   PREFIX_FIELD
 } from '../../constants/cmmn';
-import { GATEWAY_TYPES, SEQUENCE_TYPE, TASK_TYPES, LOOP_CHARACTERISTICS } from '../../constants/bpmn';
+import {
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  LOOP_CHARACTERISTICS,
+  COLLABORATION_TYPE,
+  TYPE_BPMN_PROCESS
+} from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
@@ -386,6 +394,14 @@ class ModelEditorPage extends React.Component {
       });
   };
 
+  getCollaborationRoot = () => {
+    const elementRegistry = this.designer.modeler.get('elementRegistry');
+    const processes = elementRegistry.filter(element => is(element, TYPE_BPMN_PROCESS));
+
+    // support only one process in BPMN scheme
+    return processes[0];
+  };
+
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
@@ -396,9 +412,21 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
-    this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+    if (selectedElement.type === COLLABORATION_TYPE) {
+      const root = this.getCollaborationRoot();
+      const selected = this._getBusinessObjectByDiagramElement(root);
 
-    this.setState({ selectedElement, selectedDiagramElement: element });
+      const type = this.getFormType(root);
+
+      this.props.getFormProps(type, selected);
+
+      this.setState({ selectedElement: selected, selectedDiagramElement: root });
+    } else {
+      this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+
+      this.setState({ selectedElement, selectedDiagramElement: element });
+    }
+
     this._labelIsEdited = false;
   };
 
@@ -464,6 +492,13 @@ class ModelEditorPage extends React.Component {
 
       const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
       const rawValue = info.data[key];
+
+      if (selectedDiagramElement && key === 'processDefId') {
+        this.designer.updateProps(selectedDiagramElement, {
+          id: rawValue
+        });
+      }
+
       let valueAsText = rawValue;
 
       if (valueAsText != null && !isString(valueAsText)) {
