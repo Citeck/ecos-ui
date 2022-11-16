@@ -143,30 +143,71 @@ $bottom-pad: 80px;
 
   &__toolbar {
     @extend %base-flex;
-    justify-content: center;
-    background-color: transparent;
+    width: 100%;
     min-height: 45px;
-    min-width: 250px;
+    background-color: transparent;
 
     &-wrapper {
       display: flex;
-      padding: 5px;
+      margin: 0 auto;
+      gap: 10px;
+      padding: 0;
+      width: 100%;
+      flex-basis: fit-content;
     }
 
     &-wrapper &-group {
-      padding: 0 10px;
+      flex: 0 0 auto; /* fixed width */
+      padding: 0;
+
+      button {
+        margin: 0;
+      }
 
       &:not(:last-child) {
+        padding-right: 10px;
         border-right: 1px solid $border-toolbar;
+      }
+
+      &:last-child {
+        flex: 0 0 auto; /* fixed width */
+        padding-right: 0;
+      }
+
+      &:first-child {
+        flex: 1 1 auto; /* dynamic width */
+        padding-left: 0;
+        width: 30%;
+
+        .dropdown {
+          width: 100%;
+          margin: 0;
+          max-width: unset !important;
+
+          span {
+            display: flex;
+            position: relative;
+
+            .ecos-dropdown__toggle-label {
+              display: block;
+              position: relative;
+              flex: 1 1 auto; /* dynamic width */
+              max-width: unset;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            }
+
+            i.ecos-btn__i {
+              flex: 0 0 auto; /* fixed width */
+            }
+          }
+        }
       }
     }
 
     &-group {
       @extend %base-flex;
-
-      & > * {
-        margin: 0 5px;
-      }
 
       &:empty {
         display: none;
@@ -183,10 +224,15 @@ $bottom-pad: 80px;
     }
 
     &-select {
+      position: relative;
+
       .ecos-btn {
-        padding: 0 10px;
+        margin: 0;
+        padding: 0 5px;
+        width: -webkit-fill-available;
         height: 26px;
         font-size: $font-size-small;
+        max-width: unset;
 
         .icon {
           font-size: $font-size-small;
@@ -229,23 +275,15 @@ $bottom-pad: 80px;
           margin: 0 5px;
         }
       }
-
-      &-prev {
-      }
-
-      &-next {
-      }
     }
 
     &-zoom {
+      gap: 5px;
+
       &-selector {
         @extend %base-flex;
-
         max-width: 145px;
       }
-    }
-
-    &-extra-btns {
     }
   }
 
