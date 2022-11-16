@@ -13,7 +13,7 @@ class JournalsServiceApi {
     );
   }
 
-  async getJournalConfig(journalId, force) {
+  async getJournalConfig(journalId, force = true) {
     return Records.get(`${SourcesId.RESOLVED_JOURNAL}@${journalId}`).load('.json', force);
   }
 

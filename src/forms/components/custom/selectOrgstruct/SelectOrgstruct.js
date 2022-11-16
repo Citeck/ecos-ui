@@ -185,6 +185,14 @@ export default class SelectOrgstructComponent extends BaseComponent {
     this.refreshDOM();
   };
 
+  updateValue(flags, value) {
+    if (value === null) {
+      this.dataValue = this.emptyValue;
+    }
+
+    return super.updateValue(flags, value);
+  }
+
   _getAuthorityRef = (authority, callback) => {
     this._requestedAuthority = authority;
 
@@ -271,6 +279,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
 
     const setValueImpl = v => {
       const val = v || this.component.defaultValue || this.emptyValue;
+
       if (this.component.dataType === DataTypes.AUTHORITY) {
         refToAuthName(val).then(authNames => {
           this.updateValue(flags, authNames);

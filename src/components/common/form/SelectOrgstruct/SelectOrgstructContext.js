@@ -169,7 +169,9 @@ export const SelectOrgstructProvider = props => {
 
           setTabItems({
             ...tabItems,
-            [TabTypes.USERS]: items.map(item => setSelectedItem(item))
+            [TabTypes.USERS]: items.map(item =>
+              setSelectedItem(item, tabItems[TabTypes.SELECTED], { id: item.id.replace('alfresco/@', '') })
+            )
           });
           checkIsAllUsersGroupExists();
           setIsAllUsersGroupFetched(true);
