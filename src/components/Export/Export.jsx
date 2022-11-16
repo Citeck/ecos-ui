@@ -36,6 +36,8 @@ export default class Export extends Component {
     dashletConfig: {}
   };
 
+  #actionsDoing = new Map();
+
   constructor(props) {
     super(props);
     this.textInput = React.createRef();
