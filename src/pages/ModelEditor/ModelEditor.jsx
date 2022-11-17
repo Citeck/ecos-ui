@@ -28,7 +28,8 @@ import {
   TASK_TYPES,
   LOOP_CHARACTERISTICS,
   COLLABORATION_TYPE,
-  TYPE_BPMN_PROCESS
+  TYPE_BPMN_PROCESS,
+  PARTICIPANT_TYPE
 } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
@@ -413,7 +414,7 @@ class ModelEditorPage extends React.Component {
     this._formReady = false;
 
     if (selectedElement.type === COLLABORATION_TYPE) {
-      const root = this.getCollaborationRoot();
+      const root = this.designer.modeler.getDefinitions();
       const selected = this._getBusinessObjectByDiagramElement(root);
 
       const type = this.getFormType(root);
@@ -585,6 +586,23 @@ class ModelEditorPage extends React.Component {
 
   handleElementCreateEnd = event => {
     const element = get(event, 'elements.0');
+
+    if (element.type === PARTICIPANT_TYPE) {
+      const root = this.designer.modeler.getDefinitions();
+      const participant = this._getBusinessObjectByDiagramElement(root);
+      const type = participant.$attrs['ecos:ecosType'];
+
+      if (participant) {
+        this.designer.updateProps(participant, {
+          'ecos:processRef': participant.$attrs['ecos:processDefId'],
+          'ecos:ecosType': isEmpty(type) ? this.getFormType(root) : type
+        });
+
+        this.designer.getEventBus().fire('element.changed', {
+          element: participant
+        });
+      }
+    }
 
     element && this.handleSelectItem(element);
   };
