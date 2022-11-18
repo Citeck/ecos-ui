@@ -9,7 +9,6 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
-import { is } from 'bpmn-js/lib/util/ModelUtil';
 
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
 import {
@@ -22,21 +21,13 @@ import {
   ML_POSTFIX,
   PREFIX_FIELD
 } from '../../constants/cmmn';
-import {
-  GATEWAY_TYPES,
-  SEQUENCE_TYPE,
-  TASK_TYPES,
-  LOOP_CHARACTERISTICS,
-  COLLABORATION_TYPE,
-  TYPE_BPMN_PROCESS,
-  PARTICIPANT_TYPE
-} from '../../constants/bpmn';
+import { GATEWAY_TYPES, SEQUENCE_TYPE, TASK_TYPES, LOOP_CHARACTERISTICS, COLLABORATION_TYPE, PARTICIPANT_TYPE } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
-import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
+import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
 
@@ -395,14 +386,6 @@ class ModelEditorPage extends React.Component {
       });
   };
 
-  getCollaborationRoot = () => {
-    const elementRegistry = this.designer.modeler.get('elementRegistry');
-    const processes = elementRegistry.filter(element => is(element, TYPE_BPMN_PROCESS));
-
-    // support only one process in BPMN scheme
-    return processes[0];
-  };
-
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
@@ -500,6 +483,15 @@ class ModelEditorPage extends React.Component {
         });
       }
 
+      if (selectedDiagramElement && selectedDiagramElement.type === PARTICIPANT_TYPE && key === 'processRef') {
+        const proccess = get(selectedDiagramElement, 'businessObject.processRef');
+
+        this.designer.updateProps(proccess, {
+          id: rawValue,
+          'ecos:processRef': rawValue
+        });
+      }
+
       let valueAsText = rawValue;
 
       if (valueAsText != null && !isString(valueAsText)) {
@@ -589,18 +581,16 @@ class ModelEditorPage extends React.Component {
 
     if (element.type === PARTICIPANT_TYPE) {
       const root = this.designer.modeler.getDefinitions();
-      const participant = this._getBusinessObjectByDiagramElement(root);
-      const type = participant.$attrs['ecos:ecosType'];
+      const participant = this._getBusinessObjectByDiagramElement(element);
+      const type = getEcosType(participant);
 
       if (participant) {
-        this.designer.updateProps(participant, {
-          'ecos:processRef': participant.$attrs['ecos:processDefId'],
-          'ecos:ecosType': isEmpty(type) ? this.getFormType(root) : type
+        this.designer.updateProps(element, {
+          'ecos:processRef': get(participant, 'businessObject.processRef.id'),
+          'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
         });
 
-        this.designer.getEventBus().fire('element.changed', {
-          element: participant
-        });
+        this.designer.getEventBus().fire('element.changed', { element });
       }
     }
 
