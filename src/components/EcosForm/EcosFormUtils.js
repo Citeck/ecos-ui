@@ -132,7 +132,7 @@ export default class EcosFormUtils {
             modal.close();
           }
 
-          const onSubmit = lodashGet(config, 'params.onSubmit');
+          const onSubmit = lodashGet(configParams, 'onSubmit');
 
           if (isFunction(onSubmit)) {
             onSubmit(record, form, alias);
@@ -144,14 +144,14 @@ export default class EcosFormUtils {
             modal.close();
           }
 
-          if (configParams.onFormCancel) {
+          if (isFunction(configParams.onFormCancel)) {
             configParams.onFormCancel(record, form);
           }
         };
 
         formParams['onCancelModal'] = function() {
-          const onHideModal = lodashGet(config, 'onHideModal');
-          const onCancel = lodashGet(config, 'onCancel');
+          const onHideModal = lodashGet(configParams, 'onHideModal');
+          const onCancel = lodashGet(configParams, 'onCancel');
 
           if (modal) {
             modal.close();
@@ -168,7 +168,7 @@ export default class EcosFormUtils {
 
         formParams['onReady'] = function() {
           setTimeout(function(record, form) {
-            if (configParams.onReady) {
+            if (isFunction(configParams.onReady)) {
               configParams.onReady(record, form);
             }
           }, 100);
@@ -244,6 +244,10 @@ export default class EcosFormUtils {
 
       if (config.onFormCancel) {
         params.onFormCancel = config.onFormCancel;
+      }
+
+      if (config.onCancelModal) {
+        params.onCancelModal = config.onCancelModal;
       }
 
       if (config.contentBefore) {
