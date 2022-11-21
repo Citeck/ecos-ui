@@ -123,9 +123,11 @@ export default class Dropdown extends Component {
 
   getLabel = () => {
     const { labelIsDiv, controlLabel = '' } = this.props;
+
     if (!labelIsDiv) {
       return <span className="ecos-dropdown__toggle-label">{controlLabel}</span>;
     }
+
     if (labelIsDiv) {
       return (
         <div className="ecos-dropdown__toggle-label" title={controlLabel}>
@@ -231,6 +233,7 @@ export default class Dropdown extends Component {
   render() {
     const { full, className, toggleClassName, direction, disabled } = this.props;
     const { dropdownOpen } = this.state;
+
     const cssClasses = classNames('ecos-dropdown', className, { 'ecos-dropdown_full-width': full });
     const cssDropdownToggle = classNames('ecos-dropdown__toggle', toggleClassName);
 

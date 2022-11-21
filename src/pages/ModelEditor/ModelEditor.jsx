@@ -21,13 +21,13 @@ import {
   ML_POSTFIX,
   PREFIX_FIELD
 } from '../../constants/cmmn';
-import { GATEWAY_TYPES, SEQUENCE_TYPE, TASK_TYPES, LOOP_CHARACTERISTICS } from '../../constants/bpmn';
+import { GATEWAY_TYPES, SEQUENCE_TYPE, TASK_TYPES, LOOP_CHARACTERISTICS, COLLABORATION_TYPE, PARTICIPANT_TYPE } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
-import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
+import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
 
@@ -396,9 +396,21 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
-    this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+    if (selectedElement.type === COLLABORATION_TYPE) {
+      const root = this.designer.modeler.getDefinitions();
+      const selected = this._getBusinessObjectByDiagramElement(root);
 
-    this.setState({ selectedElement, selectedDiagramElement: element });
+      const type = this.getFormType(root);
+
+      this.props.getFormProps(type, selected);
+
+      this.setState({ selectedElement: selected, selectedDiagramElement: root });
+    } else {
+      this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+
+      this.setState({ selectedElement, selectedDiagramElement: element });
+    }
+
     this._labelIsEdited = false;
   };
 
@@ -464,6 +476,22 @@ class ModelEditorPage extends React.Component {
 
       const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
       const rawValue = info.data[key];
+
+      if (selectedDiagramElement && key === 'processDefId') {
+        this.designer.updateProps(selectedDiagramElement, {
+          id: rawValue
+        });
+      }
+
+      if (selectedDiagramElement && selectedDiagramElement.type === PARTICIPANT_TYPE && key === 'processRef') {
+        const proccess = get(selectedDiagramElement, 'businessObject.processRef');
+
+        this.designer.updateProps(proccess, {
+          id: rawValue,
+          'ecos:processRef': rawValue
+        });
+      }
+
       let valueAsText = rawValue;
 
       if (valueAsText != null && !isString(valueAsText)) {
@@ -550,6 +578,21 @@ class ModelEditorPage extends React.Component {
 
   handleElementCreateEnd = event => {
     const element = get(event, 'elements.0');
+
+    if (element.type === PARTICIPANT_TYPE) {
+      const root = this.designer.modeler.getDefinitions();
+      const participant = this._getBusinessObjectByDiagramElement(element);
+      const type = getEcosType(participant);
+
+      if (participant) {
+        this.designer.updateProps(element, {
+          'ecos:processRef': get(participant, 'businessObject.processRef.id'),
+          'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
+        });
+
+        this.designer.getEventBus().fire('element.changed', { element });
+      }
+    }
 
     element && this.handleSelectItem(element);
   };
