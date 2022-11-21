@@ -29,6 +29,10 @@ class BPMNEditorPage extends ModelEditor {
 
   getFormType(selectedElement) {
     const elementType = this._determineElementType(selectedElement);
+
+    //TODO: remove
+    console.log('Second Type: ' + elementType);
+
     return elementType ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${elementType}` : null;
   }
 
@@ -68,6 +72,10 @@ class BPMNEditorPage extends ModelEditor {
 
   _determineElementType(selectedElement) {
     const elementType = selectedElement.$type || selectedElement.type;
+
+    //TODO: remove
+    console.log(selectedElement);
+    console.log('First Type: ' + elementType);
 
     if (ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER.includes(elementType)) {
       let eventDefType = get(selectedElement, 'businessObject.eventDefinitions[0].$type');
