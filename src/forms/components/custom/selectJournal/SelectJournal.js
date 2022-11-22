@@ -280,10 +280,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
   };
 
   async getJournalId(journalId) {
-    if (!_.isEmpty(journalId)) {
-      return journalId;
-    }
-
+    const key = this.getAttributeToEdit();
     let typeRef = _.get(this.root, 'options.typeRef');
 
     if (!typeRef) {
@@ -291,10 +288,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     if (!typeRef) {
-      return null;
+      return journalId;
     }
 
-    return await Records.get(typeRef).load(`attributeById.${this.key}.config.typeRef._as.ref.journalRef?localId`);
+    const foundJournalId = await Records.get(typeRef).load(`attributeById.${key}.config.typeRef._as.ref.journalRef?localId`);
+
+    return foundJournalId || journalId || null;
   }
 
   getComponentAttributes = () => {
