@@ -1,10 +1,10 @@
 import Modeler from 'bpmn-js/lib/Modeler';
-// import from "cmmn-js" because ModelingUtil.getParent from "bpmn-js" package returns null
 import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
 import customModules from './modules';
+import { linting } from './modules/linter';
 import './patches';
 
 import ecosTask from './moddle/ecosTask.json';
@@ -15,11 +15,10 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({
-      additionalModules: [customModules],
-      moddleExtensions: {
-        ecosTask: ecosTask
-      },
-      keyboard: { bindTo: document }
+      additionalModules: [...customModules],
+      moddleExtensions: { ecosTask },
+      keyboard: { bindTo: document },
+      linting
     });
   };
 
