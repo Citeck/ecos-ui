@@ -9,7 +9,7 @@ export default class OpenUrlAction extends ActionsExecutor {
   async execForRecord(record, action, context) {
     const { config = {} } = action;
     //todo: this is not required. RecordActions service should replace it before call execForRecord. Check and remove it
-    let url = config.url.replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
+    let url = (config.url || '').replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
 
     if (!url) {
       console.error(action);

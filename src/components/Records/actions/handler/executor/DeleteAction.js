@@ -41,7 +41,7 @@ export default class DeleteAction extends ActionsExecutor {
     }
 
     return new Promise(resolve => {
-      dialogManager.showRemoveDialog({
+      return dialogManager.showRemoveDialog({
         title: dialogTitle,
         text: dialogText,
         isWaitResponse,
