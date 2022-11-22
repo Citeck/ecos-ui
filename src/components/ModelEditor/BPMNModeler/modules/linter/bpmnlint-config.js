@@ -698,24 +698,26 @@ function throttle(fn, interval) {
 function bind(fn, target) {
   return fn.bind(target);
 }
-
+// eslint-disable-next-line
 function _typeof(obj) {
   '@babel/helpers - typeof';
 
   if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
+    // eslint-disable-next-line
     _typeof = function(obj) {
       return typeof obj;
     };
   } else {
+    // eslint-disable-next-line
     _typeof = function(obj) {
       return obj && typeof Symbol === 'function' && obj.constructor === Symbol && obj !== Symbol.prototype ? 'symbol' : typeof obj;
     };
   }
-
+  // eslint-disable-next-line
   return _typeof(obj);
 }
-
 function _extends() {
+  // eslint-disable-next-line
   _extends =
     Object.assign ||
     function(target) {
