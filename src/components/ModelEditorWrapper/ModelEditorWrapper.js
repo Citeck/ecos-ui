@@ -6,6 +6,7 @@ import uniqueId from 'lodash/uniqueId';
 import uuidv4 from 'uuid/v4';
 import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../helpers/util';
 import { Icon, InfoText, ResizeBoxes } from '../common';
@@ -37,7 +38,10 @@ class ModelEditorWrapper extends React.Component {
     rightSidebarTitle: PropTypes.string,
     onApply: PropTypes.func,
     onCreate: PropTypes.func,
-    configButtons: PropTypes.arrayOf(PropTypes.shape(ToolsInterface))
+    extraButtons: PropTypes.shape({
+      config: PropTypes.arrayOf(PropTypes.shape(ToolsInterface)),
+      zoom: PropTypes.arrayOf(PropTypes.shape(ToolsInterface))
+    })
   };
 
   state = {
@@ -64,8 +68,9 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configButtons() {
-    const { onCreate, onViewXml, onSaveAsSVG } = this.props;
+    const { extraButtons, onCreate, onViewXml, onSaveAsSVG } = this.props;
     const configButtons = [];
+    const extra = get(extraButtons, 'config');
 
     if (isFunction(onCreate)) {
       configButtons.push({
@@ -118,12 +123,17 @@ class ModelEditorWrapper extends React.Component {
       });
     }
 
+    if (!isEmpty(extra) && Array.isArray(extra)) {
+      configButtons.push(...extra);
+    }
+
     return configButtons;
   }
 
   get configZoomButtons() {
-    const { onZoomIn, onZoomOut, onZoomReset } = this.props;
+    const { extraButtons, onZoomIn, onZoomOut, onZoomReset } = this.props;
     const configZoomButtons = [];
+    const extra = get(extraButtons, 'zoom');
 
     if (isFunction(onZoomReset)) {
       configZoomButtons.push({
@@ -156,6 +166,10 @@ class ModelEditorWrapper extends React.Component {
         trigger: 'hover',
         className: ''
       });
+    }
+
+    if (!isEmpty(extra) && Array.isArray(extra)) {
+      configZoomButtons.push(...extra);
     }
 
     return configZoomButtons;

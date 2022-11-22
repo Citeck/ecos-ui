@@ -50,7 +50,9 @@ class ModelEditorPage extends React.Component {
     formFields: [],
     recordData: null,
     xmlViewerXml: '',
-    xmlViewerIsOpen: false
+    xmlViewerIsOpen: false,
+    errors: 0,
+    warnings: 0
   };
 
   designer;
@@ -230,6 +232,13 @@ class ModelEditorPage extends React.Component {
         getMultiInstanceType: this.#getMultiInstanceType
       }
     };
+  }
+
+  get editorExtraButtons() {
+    const config = [];
+    const zoom = [];
+
+    return { config, zoom };
   }
 
   set tempFormData(data) {
@@ -665,6 +674,7 @@ class ModelEditorPage extends React.Component {
           onZoomReset={this.handleZoomReset}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
+          extraButtons={this.editorExtraButtons}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}

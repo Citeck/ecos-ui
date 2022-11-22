@@ -1,11 +1,12 @@
 import Modeler from 'bpmn-js/lib/Modeler';
-// import from "cmmn-js" because ModelingUtil.getParent from "bpmn-js" package returns null
 import { getParent } from 'cmmn-js/lib/features/modeling/util/ModelingUtil';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
 import customModules from './modules';
 import NativeCopyModule from './modules/NativeCopyModule';
+import { linting } from './modules/linter';
+
 import './patches';
 
 import ecosTask from './moddle/ecosTask.json';
@@ -20,7 +21,8 @@ export default class BPMNModeler extends BaseModeler {
       moddleExtensions: {
         ecosTask: ecosTask
       },
-      keyboard: { bindTo: document }
+      keyboard: { bindTo: document },
+      linting
     });
   };
 
