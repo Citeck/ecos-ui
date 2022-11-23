@@ -12,7 +12,6 @@ export default class OpenUrlAction extends ActionsExecutor {
     let url = (config.url || '').replace('${recordRef}', record.id); // eslint-disable-line no-template-curly-in-string
 
     if (!url) {
-      console.error(action);
       throw new Error('URL is a mandatory parameter! Record: ' + record.id + ' Action: ' + action.id);
     }
 
