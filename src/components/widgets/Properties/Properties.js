@@ -106,7 +106,19 @@ class Properties extends React.Component {
     const { initData } = this.state;
 
     if (isFunction(onFormIsChanged)) {
-      const isChanged = !isEqual(initData, submission.data);
+      const submissionData = cloneDeep(submission.data);
+      const clonedInitData = cloneDeep(initData);
+
+      form.getAllComponents().forEach(c => {
+        const { persistent, key } = c.component;
+
+        if (persistent === 'client-only' || !persistent) {
+          delete submissionData[key];
+          delete clonedInitData[key];
+        }
+      });
+
+      const isChanged = !isEqual(submissionData, clonedInitData);
 
       onFormIsChanged(isChanged, form.isValid(submission));
     }
