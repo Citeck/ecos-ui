@@ -37,6 +37,16 @@ BaseEditLogic.push({
 // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3287
 set(actionTypeProperty, 'data.json', [
   { label: 'Persistent', value: 'persistent', type: 'boolean' },
+  {
+    label: { ru: 'Скрыть надпись', en: 'Hide Label' },
+    value: 'hideLabel',
+    type: 'boolean'
+  },
+  {
+    label: { ru: 'Отключить инлайн-редактирование', en: 'Disable inline-edit' },
+    value: 'disableInlineEdit',
+    type: 'boolean'
+  },
   ...get(actionTypeProperty, 'data.json', [])
 ]);
 
