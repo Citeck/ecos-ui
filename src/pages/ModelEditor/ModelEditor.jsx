@@ -604,7 +604,15 @@ class ModelEditorPage extends React.Component {
     }
   };
 
-  handleDragStart = (start, end) => {
+  handleDragStart = start => {
+    const isCreateEvent = !isEmpty(get(start, 'elements'));
+
+    // If this is a creation event (drag and drop from a palette or copy-paste),
+    // then it is not necessary to cache the form or change the state
+    if (isCreateEvent) {
+      return;
+    }
+
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(start.shape);
 
