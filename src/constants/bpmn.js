@@ -64,6 +64,8 @@ export const TASK_TYPES = [
 ];
 
 export const SEQUENCE_TYPE = 'bpmn:SequenceFlow';
+export const COLLABORATION_TYPE = 'bpmn:Collaboration';
+export const PARTICIPANT_TYPE = 'bpmn:Participant';
 
 export const SORT_FILTER_LAST_MODIFIED = 0;
 export const SORT_FILTER_OLD = 1;

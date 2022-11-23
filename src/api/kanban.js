@@ -30,7 +30,8 @@ export class KanbanApi {
         query: { journalId }
       },
       {
-        name: '.disp'
+        name: '.disp',
+        settings: 'settings?json'
       }
     ).then(result => result.records);
   }

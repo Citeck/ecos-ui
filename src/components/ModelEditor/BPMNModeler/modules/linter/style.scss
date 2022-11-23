@@ -1,0 +1,68 @@
+@import '../../../../../styles/constants';
+
+.bjsl {
+  &-icon {
+    display: flex;
+
+    & svg {
+      margin: auto;
+    }
+
+    &-warning {
+      background-color: $warning;
+    }
+
+    &-error {
+      background-color: $danger;
+    }
+  }
+
+  &-issues {
+    .icon {
+      line-height: 15px;
+    }
+
+    a {
+      font-weight: 600;
+    }
+
+    .error .icon svg {
+      color: $danger;
+    }
+
+    .warning .icon svg {
+      color: $warning;
+    }
+  }
+
+  &-button {
+    left: 10px;
+    bottom: 55px;
+    border-radius: 8px;
+    outline: none !important;
+    transform: unset !important;
+    color: $color-gray-12;
+    height: $form-input-height;
+
+    span {
+      line-height: 1em;
+    }
+
+    &-inactive {
+      background: $color-gray-4;
+
+      &:hover {
+        background: darken($color-gray-4, 10);
+      }
+    }
+
+    &-error {
+      background: $danger;
+      color: $color-white;
+
+      &:hover {
+        background: darken($danger, 10);
+      }
+    }
+  }
+}

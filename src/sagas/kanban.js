@@ -246,7 +246,7 @@ export function* sagaGetActions({ api, logger }, { payload }) {
 export function* sagaSelectFromUrl({ api, logger }, { payload }) {
   try {
     const urlData = queryString.parseUrl(getUrlWithoutOrigin());
-    const { boardId, stateId, templateId, type = KANBAN_SELECTOR_MODE.BOARD } = payload;
+    const { boardId, stateId, templateId, type = KANBAN_SELECTOR_MODE.BOARD, settings } = payload;
 
     const path = type === KANBAN_SELECTOR_MODE.TEMPLATES ? KanbanUrlParams.TEMPLATE_ID : KanbanUrlParams.BOARD_ID;
     const toggleId = type === KANBAN_SELECTOR_MODE.TEMPLATES ? templateId : boardId;
@@ -257,6 +257,11 @@ export function* sagaSelectFromUrl({ api, logger }, { payload }) {
 
     if (!isEqual(getSearchParams(), urlData.query)) {
       yield put(setLoading({ stateId, isLoading: true }));
+
+      if (type === KANBAN_SELECTOR_MODE.TEMPLATES && settings) {
+        yield sagaApplyFilter({ api, logger }, { payload });
+      }
+
       yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
     }
   } catch (e) {
@@ -413,8 +418,8 @@ export function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
   yield takeEvery(getBoardData().type, sagaGetBoardData, ea);
-  yield takeEvery(selectBoardId().type, sagaSelectFromUrl, { ...ea });
-  yield takeEvery(selectTemplateId().type, sagaSelectFromUrl, { ...ea });
+  yield takeEvery(selectBoardId().type, sagaSelectFromUrl, ea);
+  yield takeEvery(selectTemplateId().type, sagaSelectFromUrl, ea);
   yield takeEvery(getNextPage().type, sagaGetNextPage, ea);
   yield takeEvery(runAction().type, sagaRunAction, ea);
   yield takeEvery(moveCard().type, sagaMoveCard, ea);

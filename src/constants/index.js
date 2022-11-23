@@ -92,6 +92,7 @@ export const SourcesId = {
   PERSON: 'emodel/person',
   PROC_TASK: 'eproc/proc-task',
   PROC_HISTORIC_TASK: 'eproc/proc-historic-task',
+  PROC_PROCESS: 'eproc/process',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;
   },
@@ -207,7 +208,7 @@ export const DocLibUrlParams = {
 
 export const KanbanUrlParams = {
   BOARD_ID: 'boardId',
-  TEMPLATE_ID: 'templateId',
+  TEMPLATE_ID: JournalUrlParams.JOURNAL_SETTING_ID,
   SEARCH: 'kbSearch'
 };
 

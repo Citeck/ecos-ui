@@ -316,7 +316,8 @@ export default class TableFormComponent extends BaseReactComponent {
               .loadEditorKey(attribute)
               .catch(() => null));
 
-          if (_.isEmpty(journalId)) {
+          {
+            let foundJournalId;
             let typeRef = _.get(this.root, 'options.typeRef');
 
             if (!typeRef) {
@@ -324,8 +325,12 @@ export default class TableFormComponent extends BaseReactComponent {
             }
 
             if (typeRef) {
-              journalId = await Records.get(typeRef).load(`attributeById.${this.key}.config.typeRef._as.ref.journalRef?localId`);
+              foundJournalId = await Records.get(typeRef).load(
+                `attributeById.${this.getAttributeToEdit()}.config.typeRef._as.ref.journalRef?localId`
+              );
             }
+
+            journalId = foundJournalId || journalId;
           }
 
           if (!journalId) {

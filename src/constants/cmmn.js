@@ -66,6 +66,6 @@ export const EventListeners = {
   CS_ELEMENT_DELETE_POST: 'commandStack.elements.delete.postExecuted',
   DRAG_START: 'drag.start',
   ROOT_SET: 'root.set',
-  COPY_ELEMENT: 'copyPaste.copyElement',
+  COPY_ELEMENTS: 'copyPaste.elementsCopied',
   PASTE_ELEMENT: 'copyPaste.pasteElement'
 };

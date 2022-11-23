@@ -48,7 +48,8 @@ export default class EcosFormBuilderModal extends React.Component {
       isModalOpen: true,
       formDefinition: cloneDeep(formDefinition),
       options,
-      onSubmit
+      onSubmit,
+      formId: get(formDefinition, 'formId')
     });
   }
 

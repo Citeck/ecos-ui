@@ -81,6 +81,12 @@ Base.schema = (...extend) => {
   );
 };
 
+Base.prototype.callFunction = function(functionName, ...args) {
+  if (isFunction(this[functionName])) {
+    this[functionName].call(this, ...args);
+  }
+};
+
 Object.defineProperty(Base.prototype, 'valueChangedByUser', {
   enumerable: true,
   configurable: true,
