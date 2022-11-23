@@ -38,7 +38,6 @@ import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
-import { handleCopyElement } from '../../components/ModelEditor/BPMNModeler/modules/nativeCopyModule';
 
 import './ModelEditor.scss';
 
@@ -625,11 +624,6 @@ class ModelEditorPage extends React.Component {
     this.handleSelectItem(element);
   };
 
-  handleCopyElement = debounce(event => {
-    event.preventDefault();
-    handleCopyElement(event);
-  }, 1000);
-
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -646,8 +640,7 @@ class ModelEditorPage extends React.Component {
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
             [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.ROOT_SET]: this.handleSetRoot,
-            [EventListeners.COPY_ELEMENTS]: this.handleCopyElement
+            [EventListeners.ROOT_SET]: this.handleSetRoot
           }}
         />
       );
