@@ -4,7 +4,6 @@ import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 
 import BaseModeler from '../BaseModeler';
 import customModules from './modules';
-import NativeCopyModule from './modules/NativeCopyModule';
 import { linting } from './modules/linter';
 
 import './patches';
@@ -17,7 +16,7 @@ import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {
     this.modeler = new Modeler({
-      additionalModules: [customModules, NativeCopyModule],
+      additionalModules: [customModules],
       moddleExtensions: {
         ecosTask: ecosTask
       },

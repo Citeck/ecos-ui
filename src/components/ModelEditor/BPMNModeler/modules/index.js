@@ -2,6 +2,7 @@ import EcosTaskPalette from './ecosTask/EcosTaskPalette';
 import EcosTaskRenderer from './ecosTask/EcosTaskRenderer';
 import EcosTaskContextPad from './ecosTask/EcosTaskContextPad';
 import lintModule from './linter';
+import nativeCopyModule from './nativeCopyModule';
 
 export const onlyRenderer = {
   __init__: ['customRenderer'],
@@ -15,5 +16,6 @@ export default [
     customPalette: ['type', EcosTaskPalette],
     customRenderer: ['type', EcosTaskRenderer]
   },
+  nativeCopyModule,
   lintModule
 ];

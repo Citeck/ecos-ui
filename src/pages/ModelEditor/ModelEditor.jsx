@@ -38,7 +38,7 @@ import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
-import { handleCopyElement } from '../../components/ModelEditor/BPMNModeler/modules/NativeCopyModule';
+import { handleCopyElement } from '../../components/ModelEditor/BPMNModeler/modules/nativeCopyModule';
 
 import './ModelEditor.scss';
 
