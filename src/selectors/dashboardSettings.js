@@ -84,3 +84,8 @@ export const selectRecordRef = createSelector(
   selectState,
   ownState => get(ownState, 'recordRef')
 );
+
+export const selectIdentification = createSelector(
+  selectState,
+  ownState => get(ownState, 'identification')
+);

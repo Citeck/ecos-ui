@@ -13,9 +13,9 @@ export default class EditAction extends ActionsExecutor {
 
   async execForRecord(record, action, context) {
     const { config = {} } = action;
-    let recordId = config.recordId || record.id;
+    const recordId = config.recordId || record.id;
 
-    let actionResult = new Promise((resolve, reject) => {
+    const actionResult = new Promise((resolve, reject) => {
       switch (true) {
         case config.mode === 'task':
           runEditTask(record, config)
@@ -29,16 +29,16 @@ export default class EditAction extends ActionsExecutor {
             onClose: () => resolve(false)
           });
           break;
-        default:
+        default: {
           let submitted = false;
           let wasClosed = false;
+
           EcosFormUtils.editRecord({
             recordRef: recordId,
-            options: {
-              actionRecord: recordId
-            },
+            options: { actionRecord: recordId },
             saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
+            formContainer: true,
             onSubmit: () => {
               // temp solution
               submitted = true;
@@ -55,8 +55,10 @@ export default class EditAction extends ActionsExecutor {
               }
             }
           });
+        }
       }
     });
+
     return actionResult.then(somethingWasChanged => {
       if (somethingWasChanged) {
         const recordsToReset = config.recordsToReset || [];
@@ -79,7 +81,6 @@ export default class EditAction extends ActionsExecutor {
 async function runEditTask(record, config) {
   const taskId = await record.load('cm:name?str');
   if (!taskId) {
-    // console.error('Task ID is not found for record', record);
     notifyFailure();
     return false;
   }
@@ -91,6 +92,7 @@ async function runEditTask(record, config) {
     EcosFormUtils.editRecord({
       recordRef: taskRecordId,
       attributes: config.attributes || {},
+      formContainer: true,
       fallback: () => resolve(false),
       contentBefore: contentBefore(),
       onSubmit: () => resolve(true),

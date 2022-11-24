@@ -62,7 +62,8 @@ export default class SelectJournal extends Component {
     selectedRows: [],
     error: null,
     customPredicate: null,
-    value: undefined
+    value: undefined,
+    isLoading: false
   };
 
   liveComponent = true;
@@ -510,10 +511,12 @@ export default class SelectJournal extends Component {
   setValue = (selected, shouldTriggerOnChange = true, flags) => {
     const { onChange, multiple } = this.props;
 
+    this.setState({ isLoading: true });
+
     if (this.isQuery) {
       !this.state.gridData.total && this.getJournalConfig().then(this.refreshGridData);
       return new Promise(resolve => {
-        this.setState({ value: selected }, () => shouldTriggerOnChange && isFunction(onChange) && onChange(selected));
+        this.setState({ value: selected, isLoading: false }, () => shouldTriggerOnChange && isFunction(onChange) && onChange(selected));
         resolve();
       });
     }
@@ -538,7 +541,8 @@ export default class SelectJournal extends Component {
               gridData: {
                 ...prevState.gridData,
                 selected: selected.map(item => item.id)
-              }
+              },
+              isLoading: false
             }),
             () => {
               shouldTriggerOnChange && isFunction(onChange) && onChange(newValue, selected, flags);
@@ -676,6 +680,10 @@ export default class SelectJournal extends Component {
       }),
       this.refreshGridData
     );
+  };
+
+  onCreate = record => {
+    this.setValue(record.id);
   };
 
   getColumns = () => {
@@ -828,7 +836,7 @@ export default class SelectJournal extends Component {
       isModalMode,
       viewMode
     } = this.props;
-    const { journalConfig, selectedRows, error, gridData, value } = this.state;
+    const { journalConfig, selectedRows, error, gridData, value, isLoading } = this.state;
     const selectedQueryInfo = this.isQuery && !isEmpty(value) && t(Labels.SELECTED_LABEL, { data: gridData.total });
 
     const inputViewProps = {
@@ -866,7 +874,8 @@ export default class SelectJournal extends Component {
         selectAllRecordsVisible: null,
         className: 'select-journal__grid',
         scrollable: false
-      }
+      },
+      onCreate: this.onCreate
     };
     const DefaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
 
@@ -878,6 +887,8 @@ export default class SelectJournal extends Component {
         })}
       >
         {isFunction(renderView) ? renderView(inputViewProps) : DefaultView}
+
+        {isLoading && <Loader blur />}
 
         <FiltersProvider
           columns={journalConfig.columns}

@@ -81,7 +81,7 @@ class Dashlet extends Component {
     getFitHeights: () => null
   };
 
-  #dashletRef = null;
+  _dashletRef = null;
 
   resizableRef = React.createRef();
 
@@ -110,7 +110,7 @@ class Dashlet extends Component {
   }
 
   checkBusyHeights = () => {
-    const elDashlet = this.#dashletRef || {};
+    const elDashlet = this._dashletRef || {};
     const headerH = get(elDashlet.querySelector('.dashlet__header-wrapper'), ['offsetHeight'], 0);
 
     if (headerH) {
@@ -129,7 +129,7 @@ class Dashlet extends Component {
   }
 
   get busyDashletHeight() {
-    const elDashlet = this.#dashletRef || {};
+    const elDashlet = this._dashletRef || {};
     const content = elDashlet.querySelector('.dashlet__body-content');
 
     if (!content) {
@@ -146,7 +146,7 @@ class Dashlet extends Component {
 
   setDashletRef = ref => {
     if (ref) {
-      this.#dashletRef = ref;
+      this._dashletRef = ref;
       isFunction(this.props.setRef) && this.props.setRef(ref);
     }
   };
@@ -255,7 +255,7 @@ class Dashlet extends Component {
           header={
             !noHeader && (
               <Header
-                measurer={getDOMElementMeasurer(this.#dashletRef)}
+                measurer={getDOMElementMeasurer(this._dashletRef)}
                 title={title}
                 needGoTo={needGoTo}
                 onGoTo={this.onGoTo}

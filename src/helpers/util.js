@@ -1295,5 +1295,30 @@ export function normalize(source, byField) {
   return arr;
 }
 
+/**
+ * Returns a period equal to one month from the specified date
+ *
+ * @param date {Date}
+ *
+ * @returns {{start: number, end: number}}
+ */
+export function getMonthPeriodByDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date();
+  }
+
+  if (isNaN(date)) {
+    date = new Date();
+  }
+
+  const monthDay = (date.getMonth() + 1) * 100 + date.getDate();
+
+  return {
+    start: monthDay,
+    end: monthDay + 100
+  };
+}
+
+lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);

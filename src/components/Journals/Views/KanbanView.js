@@ -36,7 +36,15 @@ function mapDispatchToProps(dispatch, props) {
     getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
     reloadBoardData: () => dispatch(reloadBoardData({ stateId })),
     selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId })),
-    selectTemplateId: templateId => dispatch(selectTemplateId({ templateId, stateId, type: KANBAN_SELECTOR_MODE.TEMPLATES }))
+    selectTemplateId: template =>
+      dispatch(
+        selectTemplateId({
+          templateId: template.id,
+          stateId,
+          type: KANBAN_SELECTOR_MODE.TEMPLATES,
+          settings: template.settings
+        })
+      )
   };
 }
 
@@ -73,7 +81,7 @@ class KanbanView extends React.Component {
   }
 
   get boardId() {
-    const id = get(this.props, 'boardConfig.id');
+    const id = get(this.props, 'boardConfig.id') || '';
 
     if (!id) {
       return id;
@@ -100,12 +108,14 @@ class KanbanView extends React.Component {
   }
 
   handleChangeBoard = board => {
-    this.props.selectBoardId(board.id);
+    if (board) {
+      this.props.selectBoardId(board.id);
+    }
   };
 
   handleChangeTemplate = template => {
     if (template) {
-      this.props.selectTemplateId(template.id);
+      this.props.selectTemplateId(template);
     }
   };
 

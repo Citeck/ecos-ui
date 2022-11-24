@@ -13,6 +13,7 @@ import BaseEditValidation from 'formiojs/components/base/editForm/Base.edit.vali
 import BaseEditConditional from 'formiojs/components/base/editForm/Base.edit.conditional';
 
 import { getCompDoc } from '../constants/documentation';
+import Formio from './Formio';
 
 export const checkIsEmptyMlField = field => {
   if ((typeof field === 'string' && isEmpty(field)) || isNil(field)) {
@@ -325,4 +326,8 @@ export const replaceComponentConfig = (components = [], componentKey = '', newCo
   for (const key in newConfig) {
     component[key] = newConfig[key];
   }
+};
+
+export const clearFormFromCache = formId => {
+  delete Formio.forms[formId];
 };

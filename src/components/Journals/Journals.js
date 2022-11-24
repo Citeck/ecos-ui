@@ -304,9 +304,11 @@ class Journals extends React.Component {
   };
 
   handleDisplayConfigPopup = (event, props) => {
-    if (event.ctrlKey && event.shiftKey) {
-      const { config } = props;
+    if (event.shiftKey && (event.ctrlKey || event.metaKey)) {
       event.stopPropagation();
+
+      const { config } = props;
+
       !!config && showModalJson(config, 'Config');
     }
   };

@@ -370,10 +370,11 @@ class InputView extends Component {
   }
 
   renderCustomButtons() {
+    const { onCreate } = this.props;
     const { createVariants } = this.state;
 
     if (createVariants.length > 0) {
-      return <CreateVariants items={createVariants} />;
+      return <CreateVariants items={createVariants} onCreateFormSubmit={onCreate} />;
     }
 
     return null;
@@ -414,6 +415,7 @@ InputView.propTypes = {
   editValue: PropTypes.func,
   deleteValue: PropTypes.func,
   openSelectModal: PropTypes.func,
+  onCreate: PropTypes.func,
   hideEditRowButton: PropTypes.bool,
   hideDeleteRowButton: PropTypes.bool,
   customActionRefs: PropTypes.array,

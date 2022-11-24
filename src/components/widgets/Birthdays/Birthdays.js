@@ -36,7 +36,6 @@ class Birthdays extends BaseWidget {
         date: PropTypes.string,
         name: PropTypes.string,
         avatar: PropTypes.string,
-        nodeRef: PropTypes.string,
         url: PropTypes.string
       })
     ).isRequired,

@@ -11,10 +11,8 @@ import UserLocalSettingsService, { DashletProps } from '../../services/userLocal
 import Records from '../Records/Records';
 
 class BaseWidget extends React.Component {
-  #dashletRef = null;
-  #observableFieldsToUpdate = ['_modified'];
-
-  #updateWatcher = null;
+  _dashletRef = null;
+  _observableFieldsToUpdate = ['_modified'];
 
   contentRef = React.createRef();
 
@@ -34,25 +32,28 @@ class BaseWidget extends React.Component {
       previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId)
     };
-    this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
+    this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
   }
 
   componentDidMount() {
     const { onLoad } = this.props;
+
     isFunction(onLoad) && onLoad(this);
     this.updateLocalStorageDate();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { onUpdate } = this.props;
+
     isFunction(onUpdate) && onUpdate(this);
+
     if (this.state.runUpdate && !prevState.runUpdate) {
       this.handleUpdate();
     }
   }
 
   componentWillUnmount() {
-    this.instanceRecord.unwatch(this.#updateWatcher);
+    this.instanceRecord.unwatch(this._updateWatcher);
   }
 
   get isCollapsed() {
@@ -93,20 +94,20 @@ class BaseWidget extends React.Component {
   }
 
   get observableFieldsToUpdate() {
-    return this.#observableFieldsToUpdate;
+    return this._observableFieldsToUpdate;
   }
 
   get dashletHeight() {
-    return get(this.#dashletRef, 'offsetHeight', 0);
+    return get(this._dashletRef, 'offsetHeight', 0);
   }
 
   get dashletOtherHeight() {
-    if (!this.#dashletRef) {
+    if (!this._dashletRef) {
       return 0;
     }
 
-    const body = this.#dashletRef.querySelector('.dashlet__body');
-    const header = this.#dashletRef.querySelector('.dashlet__header-wrapper');
+    const body = this._dashletRef.querySelector('.dashlet__body');
+    const header = this._dashletRef.querySelector('.dashlet__header-wrapper');
     const styles = window.getComputedStyle(body, null);
     let paddingBottom = parseInt(styles.getPropertyValue('padding-bottom'), 10) || 0;
     let paddingTop = parseInt(styles.getPropertyValue('padding-top'), 10) || 0;
@@ -125,7 +126,7 @@ class BaseWidget extends React.Component {
   /**
    * props for Scrollbar component
    *
-   * @returns {{}}
+   * @returns {Object}
    */
   get scrollbarProps() {
     const { maxHeightByContent, fixedHeight } = this.props;
@@ -152,20 +153,21 @@ class BaseWidget extends React.Component {
 
   /** @param {Array<String>} fields */
   set observableFieldsToUpdate(fields) {
-    this.#observableFieldsToUpdate = fields;
+    this._observableFieldsToUpdate = fields;
 
-    if (this.#updateWatcher) {
-      this.instanceRecord.unwatch(this.#updateWatcher);
+    if (this._updateWatcher) {
+      this.instanceRecord.unwatch(this._updateWatcher);
+      this._updateWatcher = null;
     }
 
     if (!isEmpty(fields)) {
-      this.#updateWatcher = this.instanceRecord.watch(this.#observableFieldsToUpdate, this.reload);
+      this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
     }
   }
 
   /** @param {Array<String>} fields */
   set observableFieldsToUpdateWithDefault(fields) {
-    this.observableFieldsToUpdate = [...new Set([...fields, ...this.#observableFieldsToUpdate])];
+    this.observableFieldsToUpdate = [...new Set([...fields, ...this._observableFieldsToUpdate])];
   }
 
   /**
@@ -175,7 +177,7 @@ class BaseWidget extends React.Component {
    */
   setDashletRef = ref => {
     if (ref) {
-      this.#dashletRef = ref;
+      this._dashletRef = ref;
     }
   };
 
@@ -222,7 +224,11 @@ class BaseWidget extends React.Component {
     }
   }, 400);
 
-  reload = debounce(() => {
+  reload() {
+    this._debouncedReload();
+  }
+
+  _debouncedReload = debounce(() => {
     this.setState(
       {
         runUpdate: true,

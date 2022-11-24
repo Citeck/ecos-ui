@@ -163,6 +163,14 @@ class PropertiesDashlet extends BaseWidget {
     return actions;
   }
 
+  reload() {
+    if (get(this._propertiesRef, 'current.wrappedInstance.form')) {
+      return;
+    }
+
+    super.reload();
+  }
+
   checkPermissions = () => {
     const { record } = this.props;
 

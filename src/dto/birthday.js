@@ -12,9 +12,8 @@ export const getBirthdayDateForWeb = (source = {}) => {
     return target;
   }
 
-  target.date = moment(get(source, 'birthDate', '')).format(dateFormat);
+  target.date = moment(get(source, 'birthDay', '')).format(dateFormat);
   target.name = get(source, 'displayName', '');
-  target.nodeRef = get(source, 'userId', '');
   target.id = get(source, 'id', '');
   target.avatar = UserService.getAvatarUrl(get(source, 'avatarUrl'), { width: 150, height: 150 });
   target.url = createProfileUrl(get(source, 'userName', ''));

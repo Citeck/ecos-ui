@@ -56,7 +56,7 @@ class EcosForm extends React.Component {
   componentDidMount() {
     const record = Records.getRecordToEdit(this.props.record);
 
-    this.setState({ recordId: record }, () => {
+    this.setState({ recordId: record.id }, () => {
       this.initForm();
     });
   }
@@ -69,7 +69,7 @@ class EcosForm extends React.Component {
     if (prevProps.record !== this.props.record) {
       const record = Records.getRecordToEdit(this.props.record);
 
-      this.setState({ recordId: record }, () => {
+      this.setState({ recordId: record.id }, () => {
         this.initForm();
       });
     }
@@ -386,23 +386,33 @@ class EcosForm extends React.Component {
 
   toggleLoader = state => {
     const { onToggleLoader } = this.props;
+
+    if (state && get(this.form, 'withoutLoader')) {
+      return;
+    }
+
     isFunction(onToggleLoader) && onToggleLoader(state);
   };
 
   onShowFormBuilder = async callback => {
     if (this._formBuilderModal) {
+      const { options, onFormSubmitDone } = this.props;
       const { formId } = this.state;
       const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
-      this._formBuilderModal.show(definitionToEdit, form => {
-        EcosFormUtils.saveFormBuilder(form, formId).then(() => {
-          EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
-            this.initForm(newFormDef);
-            this.props.onFormSubmitDone();
-            isFunction(callback) && callback(newFormDef);
+      this._formBuilderModal.show(
+        definitionToEdit,
+        form => {
+          EcosFormUtils.saveFormBuilder(form, formId).then(() => {
+            EcosFormUtils.getFormById(formId, 'definition?json', true).then(newFormDef => {
+              this.initForm(newFormDef);
+              isFunction(onFormSubmitDone) && onFormSubmitDone();
+              isFunction(callback) && callback(newFormDef);
+            });
           });
-        });
-      });
+        },
+        options
+      );
     }
   };
 

@@ -5,10 +5,12 @@ import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import isEqual from 'lodash/isEqual';
+import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 
 import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '../../helpers/util';
 import {
@@ -21,13 +23,21 @@ import {
   ML_POSTFIX,
   PREFIX_FIELD
 } from '../../constants/cmmn';
-import { GATEWAY_TYPES, SEQUENCE_TYPE, TASK_TYPES, LOOP_CHARACTERISTICS } from '../../constants/bpmn';
+import {
+  GATEWAY_TYPES,
+  SEQUENCE_TYPE,
+  TASK_TYPES,
+  LOOP_CHARACTERISTICS,
+  COLLABORATION_TYPE,
+  PARTICIPANT_TYPE,
+  TYPE_BPMN_PROCESS
+} from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import Records from '../../components/Records';
 import { SourcesId } from '../../constants';
-import { getValue } from '../../components/ModelEditor/CMMNModeler/utils';
+import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
 
@@ -39,7 +49,9 @@ class ModelEditorPage extends React.Component {
     formFields: [],
     recordData: null,
     xmlViewerXml: '',
-    xmlViewerIsOpen: false
+    xmlViewerIsOpen: false,
+    errors: 0,
+    warnings: 0
   };
 
   designer;
@@ -53,7 +65,6 @@ class ModelEditorPage extends React.Component {
   _formsCache = {};
 
   #prevMultiInstanceType = null;
-  #copiedElements = new Map();
 
   componentDidMount() {
     this.initModeler();
@@ -73,19 +84,18 @@ class ModelEditorPage extends React.Component {
 
   componentWillUnmount() {
     this.designer && this.designer.destroy();
-    this.#copiedElements.clear();
   }
 
   initModeler = () => {};
 
-  setHeight = () => {
+  setHeight = debounce(() => {
     const elEditor = this.modelEditorRef.current && this.modelEditorRef.current.querySelector('.ecos-model-container');
 
     if (elEditor) {
       const indentation = elEditor.getBoundingClientRect().top;
       elEditor.setAttribute('style', `height: calc(100vh - 20px - ${indentation}px)`);
     }
-  };
+  }, 1000);
 
   get modelType() {
     return this.constructor.modelType;
@@ -124,33 +134,6 @@ class ModelEditorPage extends React.Component {
 
   getElement(element = {}) {
     return this.designer.modeler.get('elementRegistry').get(element.id);
-  }
-
-  /**
-   * Need for custom copy-paste
-   * https://github.com/nikku/bpmn-js-copy-paste-example
-   * @returns {*}
-   */
-  get clipboard() {
-    return this.designer.modeler.get('clipboard');
-  }
-
-  /**
-   * Need for custom copy-paste
-   * https://github.com/nikku/bpmn-js-copy-paste-example
-   * @returns {*}
-   */
-  get copyPaste() {
-    return this.designer.modeler.get('copyPaste');
-  }
-
-  /**
-   * Need for custom copy-paste
-   * https://github.com/nikku/bpmn-js-copy-paste-example
-   * @returns {*}
-   */
-  get moddle() {
-    return this.designer.modeler.get('moddle');
   }
 
   get formData() {
@@ -248,6 +231,13 @@ class ModelEditorPage extends React.Component {
         getMultiInstanceType: this.#getMultiInstanceType
       }
     };
+  }
+
+  get editorExtraButtons() {
+    const config = [];
+    const zoom = [];
+
+    return { config, zoom };
   }
 
   set tempFormData(data) {
@@ -396,17 +386,25 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
-    this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+    if (selectedElement.type === COLLABORATION_TYPE) {
+      const root = this.designer.modeler.getDefinitions();
+      const selected = this._getBusinessObjectByDiagramElement(root);
 
-    this.setState({ selectedElement, selectedDiagramElement: element });
+      const type = this.getFormType(root);
+
+      this.props.getFormProps(type, selected);
+
+      this.setState({ selectedElement: selected, selectedDiagramElement: root });
+    } else {
+      this.props.getFormProps(this.getFormType(selectedElement), selectedElement);
+
+      this.setState({ selectedElement, selectedDiagramElement: element });
+    }
+
     this._labelIsEdited = false;
   };
 
-  _getBusinessObjectByDiagramElement(element) {
-    return element;
-  }
-
-  handleFormReady = form => {
+  handleFormReady = () => {
     this._formReady = true;
   };
 
@@ -464,6 +462,25 @@ class ModelEditorPage extends React.Component {
 
       const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
       const rawValue = info.data[key];
+
+      if (selectedDiagramElement && key === 'processDefId') {
+        this.designer.updateProps(selectedDiagramElement, {
+          id: rawValue
+        });
+      }
+
+      if (is(selectedDiagramElement, PARTICIPANT_TYPE) && key === 'processRef') {
+        const process = get(selectedDiagramElement, 'businessObject.processRef');
+
+        if (is(process, TYPE_BPMN_PROCESS)) {
+          const modeling = this.designer.modeler.get('modeling');
+
+          modeling.updateModdleProperties(selectedDiagramElement, process, {
+            id: rawValue
+          });
+        }
+      }
+
       let valueAsText = rawValue;
 
       if (valueAsText != null && !isString(valueAsText)) {
@@ -551,6 +568,21 @@ class ModelEditorPage extends React.Component {
   handleElementCreateEnd = event => {
     const element = get(event, 'elements.0');
 
+    if (element.type === PARTICIPANT_TYPE) {
+      const root = this.designer.modeler.getDefinitions();
+      const participant = this._getBusinessObjectByDiagramElement(element);
+      const type = getEcosType(participant);
+
+      if (participant) {
+        this.designer.updateProps(element, {
+          'ecos:processRef': get(participant, 'businessObject.processRef.id'),
+          'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
+        });
+
+        this.designer.getEventBus().fire('element.changed', { element });
+      }
+    }
+
     element && this.handleSelectItem(element);
   };
 
@@ -572,7 +604,15 @@ class ModelEditorPage extends React.Component {
     }
   };
 
-  handleDragStart = (start, end) => {
+  handleDragStart = start => {
+    const isCreateEvent = !isEmpty(get(start, 'elements'));
+
+    // If this is a creation event (drag and drop from a palette or copy-paste),
+    // then it is not necessary to cache the form or change the state
+    if (isCreateEvent) {
+      return;
+    }
+
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(start.shape);
 
@@ -592,15 +632,6 @@ class ModelEditorPage extends React.Component {
     this.handleSelectItem(element);
   };
 
-  handleCopyElement = event => {
-    this.#copiedElements.set(event.element.id, get(event, 'element.businessObject.$attrs') || {});
-  };
-
-  handlePasteElement = event => {
-    this.designer.updateProps(event.descriptor, this.#copiedElements.get(event.descriptor.id));
-    this.#copiedElements.delete(event.descriptor.id);
-  };
-
   renderEditor = () => {
     const { savedModel } = this.props;
 
@@ -617,9 +648,7 @@ class ModelEditorPage extends React.Component {
             [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
             [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
             [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.ROOT_SET]: this.handleSetRoot,
-            [EventListeners.COPY_ELEMENT]: this.handleCopyElement,
-            [EventListeners.PASTE_ELEMENT]: this.handlePasteElement
+            [EventListeners.ROOT_SET]: this.handleSetRoot
           }}
         />
       );
@@ -646,6 +675,7 @@ class ModelEditorPage extends React.Component {
           onZoomReset={this.handleZoomReset}
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
+          extraButtons={this.editorExtraButtons}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
