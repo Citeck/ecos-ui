@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, getSearchParams, isExistIndex, t } from '../helpers/util';
+import { getCurrentUserName, isExistIndex, t } from '../helpers/util';
 import Cache from '../helpers/cache';
 import { getRefWithAlfrescoPrefix } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';

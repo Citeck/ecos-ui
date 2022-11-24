@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
-import { connect } from 'react-redux';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { EcosModal } from '../../../../../components/common';
@@ -12,13 +12,15 @@ import ModalContent from '../ModalContent';
 import { setSelectedPerson } from '../../../../../actions/orgstructure';
 import { t } from '../../../../../helpers/util';
 import { updateCurrentUrl } from '../../../../../helpers/urls';
+import { getDashboardConfig } from '../../../../../actions/dashboard';
 
 import './ListItem.scss';
-import { getDashboardConfig } from '../../../../../actions/dashboard';
 
 const Labels = {
   TITLE_PERSON: 'orgstructure-delete-modal-title-person',
   TITLE_GROUP: 'orgstructure-delete-modal-title-group',
+  TITLE_EDIT_PERSON: 'orgstructure-edit-modal-title-person',
+  TITLE_EDIT_GROUP: 'orgstructure-edit-modal-title-group',
   BODY_PERSON: 'orgstructure-delete-modal-body-person',
   BODY_GROUP: 'orgstructure-delete-modal-body-group',
   FULL_DELETE: 'orgstructure-delete-modal-full-delete',
@@ -101,13 +103,20 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const createForm = formConfig => e => {
     e.stopPropagation();
-    FormManager.createRecordByVariant(formConfig, {
-      onSubmit: reload,
-      initiator: {
-        type: 'form-component',
-        name: 'CreateVariants'
+
+    const isPersonTitle = item.id.includes('emodel/person');
+
+    FormManager.createRecordByVariant(
+      { ...formConfig, recordRef: item.id },
+      {
+        title: isPersonTitle ? t(Labels.TITLE_EDIT_PERSON) : t(Labels.TITLE_EDIT_GROUP),
+        onSubmit: reload,
+        initiator: {
+          type: 'form-component',
+          name: 'CreateVariants'
+        }
       }
-    });
+    );
   };
 
   const createPerson = createForm(FORM_CONFIG.PERSON);
@@ -177,9 +186,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   };
 
   let modalTitle = '';
+
   if (modalType === 'group') {
     modalTitle = t(Labels.TITLE_GROUP);
   }
+
   if (modalType === 'person') {
     modalTitle = t(Labels.TITLE_PERSON);
   }
@@ -188,9 +199,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     if (modalType === 'person') {
       return <ModalContent config={personConfig} />;
     }
+
     if (modalType === 'group') {
       return <ModalContent config={groupConfig} />;
     }
+
     return null;
   };
 

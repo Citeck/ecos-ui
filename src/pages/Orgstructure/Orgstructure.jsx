@@ -1,23 +1,22 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import cloneDeep from 'lodash/cloneDeep';
+import isArray from 'lodash/isArray';
+import classNames from 'classnames';
 
 import Structure from './components/Structure';
 import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
 import { getSearchParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
 import Layout from '../../components/Layout';
-import classNames from 'classnames';
 import PageTabList from '../../services/pageTabs/PageTabList';
-
-import './style.scss';
-import cloneDeep from 'lodash/cloneDeep';
-import isArray from 'lodash/isArray';
-
 import { DndUtils } from '../../components/Drag-n-Drop';
 import Records from '../../components/Records';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
+
+import './style.scss';
 
 const Labels = {
   NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text'
@@ -30,7 +29,9 @@ const getStateId = state => {
 class Orgstructure extends React.Component {
   constructor(props) {
     super(props);
+
     const { recordRef } = getSearchParams() || {};
+
     this.instanceRecord = Records.get(recordRef);
   }
 
@@ -136,7 +137,7 @@ class Orgstructure extends React.Component {
     const { columns, type } = get(config, '0') || {};
 
     return (
-      <div>
+      <div className="orgstructure-page__grid__layout">
         <Layout
           className={classNames({ 'ecos-layout_mobile': isMobile })}
           menuType={menuType}

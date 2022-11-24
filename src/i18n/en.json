@@ -2328,6 +2328,8 @@
 
   "orgstructure-page-no-picked-person-text": "Pick user profile",
   "orgstructure-page-title": "Orgstructure",
+  "orgstructure-edit-modal-title-person": "Add a person to a group",
+  "orgstructure-edit-modal-title-group": "Add to subgroup",
   "orgstructure-delete-modal-title-person": "Person delete",
   "orgstructure-delete-modal-title-group": "Group delete",
   "orgstructure-delete-modal-body-person": "Do you really want to delete this person?",

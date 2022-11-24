@@ -54,7 +54,9 @@ const Structure = ({ tabId }) => {
 
   return (
     <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
-      <div className="orgstructure-page__structure__header">{t(Labels.TITLE)}</div>
+      <div className="orgstructure-page__structure__header">
+        <h1>{t(Labels.TITLE)}</h1>
+      </div>
       <OrgstructureSearch />
       <OrgstructBody reloadList={reload} tabId={tabId} />
     </SelectOrgstructProvider>
