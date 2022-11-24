@@ -324,7 +324,7 @@ export class DashboardApi {
     return Records.queryOne({ sourceId: SourcesId.PREDICATE, query }, 'result?bool')
       .then(response => (Array.isArray(response) ? response.every(flag => !!flag) : response))
       .catch(e => {
-        console.log(e);
+        console.error(e);
         return false;
       });
   };

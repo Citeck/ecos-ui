@@ -366,8 +366,6 @@ class Settings extends Component {
     const { availableWidgets, selectedWidgets, tabs } = this.state;
     const isMobile = this.isSelectedMobileVer;
 
-    console.log('widgets = ', availableWidgets, selectedWidgets);
-
     if (!isMobile) {
       return availableWidgets;
     }
@@ -744,8 +742,6 @@ class Settings extends Component {
   }
 
   render() {
-    console.log('identification = ', this.props.identification);
-
     return (
       <Container className="ecos-dashboard-settings ecos-dashboard-settings_modal">
         {this.renderLoader()}
