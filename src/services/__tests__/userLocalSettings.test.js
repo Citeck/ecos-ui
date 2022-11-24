@@ -9,7 +9,7 @@ const KEY = 'test-key';
 describe('User Local Settings Service', () => {
   delete window.localStorage;
   window.localStorage = new LocalStorageMock(jest);
-  set(window, 'Alfresco.constants.USERNAME', USERNAME);
+  set(window, 'Citeck.constants.USERNAME', USERNAME);
 
   beforeEach(window.localStorage.clear);
 

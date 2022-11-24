@@ -85,7 +85,7 @@ function* fetchAppUserData({ api, logger }) {
 
     yield put(validateUserSuccess(resp.payload));
     yield put(getAppUserThumbnail());
-    set(window, 'Alfresco.constants.USERNAME', get(resp.payload, 'userName'));
+    set(window, 'Citeck.constants.USERNAME', get(resp.payload, 'userName'));
   } catch (e) {
     logger.error('[user/getUpdUserData saga] error', e);
   }
