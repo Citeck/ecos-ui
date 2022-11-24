@@ -386,6 +386,11 @@ class EcosForm extends React.Component {
 
   toggleLoader = state => {
     const { onToggleLoader } = this.props;
+
+    if (state && get(this.form, 'withoutLoader')) {
+      return;
+    }
+
     isFunction(onToggleLoader) && onToggleLoader(state);
   };
 

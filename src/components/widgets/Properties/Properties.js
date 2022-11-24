@@ -67,6 +67,10 @@ class Properties extends React.Component {
     window.removeEventListener('scroll', this.onScrollWindow, true);
   }
 
+  get form() {
+    return get(this._ecosForm, 'current.form') || {};
+  }
+
   onSubmitForm = () => {
     const onReload = get(this._ecosForm, 'current.onReload');
 
