@@ -12,7 +12,7 @@ const Tools = ({ configButtons, className }) =>
         item =>
           item.action && (
             <div key={item.id}>
-              <Tooltip text={item.text} target={item.id} trigger={item.trigger}>
+              <Tooltip contentComponent={item.contentComponent} text={item.text} target={item.id} trigger={item.trigger}>
                 <IcoBtn id={item.id} icon={item.icon} onClick={item.action} className={item.className} />
               </Tooltip>
             </div>

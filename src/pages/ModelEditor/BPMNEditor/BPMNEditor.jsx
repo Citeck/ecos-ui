@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from 'react';
+import uuidv4 from 'uuid/v4';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
+
 import { SourcesId } from '../../../constants';
 import { PREFIX_FORM_ELM, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
 import BPMNModeler from '../../../components/ModelEditor/BPMNModeler';
@@ -11,8 +16,6 @@ import {
 } from '../../../constants/bpmn';
 
 import { t } from '../../../helpers/export/util';
-import _ from 'lodash';
-import get from 'lodash/get';
 
 import ModelEditor from '../ModelEditor';
 
@@ -23,8 +26,66 @@ class BPMNEditorPage extends ModelEditor {
     this.designer = new BPMNModeler();
   };
 
+  get linter() {
+    if (!this.designer) {
+      return null;
+    }
+
+    return get(this, 'designer.modeler.get', () => null)('linting');
+  }
+
   get formId() {
     return this.formType ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${this.formType}` : null;
+  }
+
+  Component = ({ linterResult }) => {
+    const [errors, setErrors] = useState(linterResult.errors || 0);
+    const [warnings, setWarnings] = useState(linterResult.warnings || 0);
+    const [text, setText] = useState(t('bpmn-linter.toggle') || '');
+
+    useEffect(() => {
+      if (errors !== linterResult.errors) {
+        setErrors(linterResult.errors);
+      }
+    }, [linterResult.errors]);
+
+    useEffect(() => {
+      if (warnings !== linterResult.warnings) {
+        setWarnings(linterResult.warnings);
+      }
+    }, [linterResult.warnings]);
+
+    useEffect(() => {
+      let newText = t('bpmn-linter.toggle');
+
+      if (warnings || errors) {
+        newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
+      }
+
+      if (text !== newText) {
+        setText(newText);
+      }
+    }, [warnings, errors]);
+
+    return <div>{text}</div>;
+  };
+
+  get editorExtraButtons() {
+    const extraButtons = super.editorExtraButtons;
+    const linter = this.linter;
+
+    if (linter) {
+      extraButtons.config.push({
+        icon: 'icon-bug',
+        action: this.handleToggleLinter,
+        id: `bpmn-linter-toggle-${uuidv4()}`,
+        trigger: 'hover',
+        className: linter.isActive() ? 'ecos-btn_red' : '',
+        contentComponent: () => <this.Component linterResult={this.linter.getLintResult()} />
+      });
+    }
+
+    return extraButtons;
   }
 
   getFormType(selectedElement) {
@@ -79,12 +140,12 @@ class BPMNEditorPage extends ModelEditor {
 
     if (ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER.includes(elementType)) {
       let eventDefType = get(selectedElement, 'businessObject.eventDefinitions[0].$type');
-      if (!_.isEmpty(eventDefType) && ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.has(eventDefType)) {
+      if (!isEmpty(eventDefType) && ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.has(eventDefType)) {
         return ELEMENT_TYPES_FORM_DETERMINER_BY_DEF_TYPE_MAP.get(eventDefType);
       }
 
       let ecosTaskType = get(selectedElement, 'businessObject.taskType');
-      if (!_.isEmpty(ecosTaskType) && ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.has(ecosTaskType)) {
+      if (!isEmpty(ecosTaskType) && ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.has(ecosTaskType)) {
         return ELEMENT_TYPES_FORM_DETERMINER_BY_ECOS_TASK_TYPE_MAP.get(ecosTaskType);
       }
     }
@@ -99,6 +160,19 @@ class BPMNEditorPage extends ModelEditor {
 
     return element;
   }
+
+  handleToggleLinter = event => {
+    const linter = this.linter;
+
+    event.persist();
+
+    if (linter) {
+      linter.toggle.call(linter, !linter.isActive());
+
+      event.currentTarget.classList.toggle('ecos-btn_red');
+      linter._eventBus.fire('linting.completed');
+    }
+  };
 }
 
 export default BPMNEditorPage;

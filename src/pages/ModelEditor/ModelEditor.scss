@@ -24,12 +24,12 @@
       top: 50px;
     }
   }
-}
 
-.ecos-model-editor-page {
-  &__xml-viewer {
-    overflow: auto;
-    max-height: 85vh;
+  &-page {
+    &__xml-viewer {
+      overflow: auto;
+      max-height: 85vh;
+    }
   }
 }
 
