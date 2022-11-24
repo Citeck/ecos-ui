@@ -70,6 +70,7 @@ export const SourcesId = {
   RESOLVED_TYPE: 'emodel/rtype',
   TYPE: 'emodel/type',
   FONT_ICON: 'ui/icon',
+  MODEL_META: 'emodel/meta',
   A_META: 'alfresco/meta',
   A_WORKFLOW: 'alfresco/workflow',
   HISTORY: 'history',
@@ -187,6 +188,7 @@ export const Pages = {
 };
 
 export const AppEditions = {
+  COMMUNITY: 'community',
   ENTERPRISE: 'enterprise'
 };
 
