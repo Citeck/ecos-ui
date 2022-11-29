@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import { t } from '../helpers/export/util';
-import { DEFAULT_EIS, SourcesId } from '../constants';
+import { AppEditions, DEFAULT_EIS, SourcesId } from '../constants';
 import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
@@ -179,10 +179,10 @@ export class AppApi extends CommonApi {
   };
 
   getAppEdition = () => {
-    return Records.get(`${SourcesId.A_META}@`)
-      .load('attributes.edition')
-      .then(r => r || 'community')
-      .catch(() => 'community');
+    return Records.get(`${SourcesId.MODEL_META}@`)
+      .load('$license.enterprise?bool')
+      .then(result => (result ? AppEditions.ENTERPRISE : AppEditions.COMMUNITY))
+      .catch(() => AppEditions.COMMUNITY);
   };
 
   getIsExternalIDP = () => {
