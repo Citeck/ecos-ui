@@ -149,7 +149,6 @@ class Orgstructure extends React.Component {
           dashboardId={tabId}
           isActiveLayout={PageTabList.isActiveTab(tabId)}
           isLoading={isLoading}
-          // todo: обработчики ниже реализовать по аналогии с Dashboard
           onSaveWidget={this.prepareWidgetsConfig}
           onSaveWidgetProps={this.handleSaveWidgetProps}
         />

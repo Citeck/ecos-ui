@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 
@@ -7,13 +7,18 @@ import { SelectOrgstructContext } from '../../../../../components/common/form/Se
 import Records from '../../../../../components/Records';
 
 import './List.scss';
-import { useState } from 'react';
 
 const List = ({ items, nestingLevel = 0, tabId }) => {
   const context = useContext(SelectOrgstructContext);
+
   const [selectedId, setSelectedId] = useState('');
 
-  const deleteItem = item => Records.remove(item);
+  const deleteItem = item => {
+    const record = Records.get(item.id);
+
+    record.att('att_rem_authorityGroups', item.parentId);
+    record.save();
+  };
 
   return (
     <ul className={'select-orgstruct__list'}>

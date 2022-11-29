@@ -13,6 +13,8 @@ import { setSelectedPerson } from '../../../../../actions/orgstructure';
 import { t } from '../../../../../helpers/util';
 import { updateCurrentUrl } from '../../../../../helpers/urls';
 import { getDashboardConfig } from '../../../../../actions/dashboard';
+import GroupIcon from './GroupIcon';
+// import Records from '../../../../../components/Records';
 
 import './ListItem.scss';
 
@@ -137,7 +139,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const openPersonModal = openModal('person');
   const openGroupModal = openModal('group');
 
-  const fullDelete = e => {
+  const deleteFromGroup = e => {
     closeModal(e);
     deleteItem({ ...item });
     reload();
@@ -151,14 +153,18 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         className: 'gray',
         handleClick: closeModal
       },
-      {
-        text: t(Labels.FULL_DELETE),
-        className: 'red',
-        handleClick: fullDelete
-      },
+      // {
+      //   text: t(Labels.FULL_DELETE),
+      //   className: 'red',
+      //   handleClick: (e) => {
+      //     closeModal(e);
+
+      //     Records.remove(item.id);
+      //   }
+      // },
       {
         text: t(Labels.GROUP_DELETE),
-        className: 'green',
+        // className: 'green',
         handleClick: closeModal
       }
     ]
@@ -173,14 +179,9 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         handleClick: closeModal
       },
       {
-        text: t(Labels.FULL_DELETE),
-        className: 'red',
-        handleClick: fullDelete
-      },
-      {
         text: t(Labels.GROUP_DELETE),
-        className: 'green',
-        handleClick: closeModal
+        // className: 'green',
+        handleClick: deleteFromGroup
       }
     ]
   };
@@ -249,9 +250,10 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 {isPerson ? (
                   <span className={classNames(['icon-user-normal', { 'icon-user-normal__clicked': selected }])} onClick={selectPerson} />
                 ) : null}
-                {isGroup ? <span className="icon-users orange" onClick={openGroupModal} /> : null}
-                {isGroup ? <span className="icon-users green" onClick={createGroup} /> : null}
-                {isGroup ? <span className="icon-user-online" onClick={createPerson} /> : null}
+                {isGroup ? <GroupIcon title={modalTitle} className="icon-users orange" onClick={openGroupModal} /> : null}
+                {isGroup ? <GroupIcon title={modalTitle} className="icon-users green" onClick={createGroup} /> : null}
+                {isGroup ? <GroupIcon title={modalTitle} className="icon-user-online" onClick={createPerson} /> : null}
+
                 <EcosModal
                   className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
                   isOpen={modalOpen}
