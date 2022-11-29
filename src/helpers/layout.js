@@ -63,11 +63,19 @@ export function getLayouts(dashboardType) {
     return Layouts;
   }
 
-  return Layouts.filter(layout => {
+  const allowedTypes = Layouts.filter(layout => {
     if (!layout.allowedDashboards.length) {
       return true;
     }
 
     return layout.allowedDashboards.includes(dashboardType);
+  });
+
+  return allowedTypes.filter(layout => {
+    if (!layout.forbiddenDashboards.length) {
+      return true;
+    }
+
+    return !layout.forbiddenDashboards.includes(dashboardType);
   });
 }

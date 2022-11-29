@@ -326,7 +326,6 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
 
       if (!journalSetting && hasInString(window.location.href, JournalUrlParams.JOURNAL_SETTING_ID)) {
         const url = removeUrlSearchParams(window.location.href, JournalUrlParams.JOURNAL_SETTING_ID);
-
         window.history.replaceState({ path: url }, '', url);
 
         journalSetting = getDefaultJournalSetting(journalConfig);

@@ -15,7 +15,8 @@ import {
   setLoading,
   setLoadingKeys,
   setRequestResultDashboard,
-  setDashboardData
+  setDashboardData,
+  setDashboardSettings
 } from '../actions/dashboardSettings';
 
 export const initialState = {
@@ -72,7 +73,20 @@ export default handleActions(
 
     [setDashboardConfig]: (state, { payload }) => {
       const { identification, config, key, originalConfig, modelAttributes } = payload;
-
+      return {
+        ...state,
+        [key]: {
+          ...state[key],
+          config,
+          originalConfig,
+          identification,
+          modelAttributes,
+          isLoading: false
+        }
+      };
+    },
+    [setDashboardSettings]: (state, { payload }) => {
+      const { identification, config, key, originalConfig, modelAttributes } = payload;
       return {
         ...state,
         [key]: {

@@ -39,6 +39,7 @@ import cmmnEditor from './cmmnEditor';
 import customEvent from './customEvent';
 import kanban from './kanban';
 import processStatistics from './processStatistics';
+import orgstructure from './orgstructure';
 
 export default function* rootSaga(extraArguments) {
   yield all([
@@ -81,6 +82,7 @@ export default function* rootSaga(extraArguments) {
     cmmnEditor(extraArguments),
     customEvent(extraArguments),
     kanban(extraArguments),
-    processStatistics(extraArguments)
+    processStatistics(extraArguments),
+    orgstructure(extraArguments)
   ]);
 }

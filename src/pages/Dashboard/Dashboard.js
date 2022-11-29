@@ -241,7 +241,6 @@ class Dashboard extends Component {
     }
 
     const { recordRef } = this.getPathInfo(search);
-
     getDashboardConfig({ recordRef });
     getDashboardTitle({ recordRef });
 

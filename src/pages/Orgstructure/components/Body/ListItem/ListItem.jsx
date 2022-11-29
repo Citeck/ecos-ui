@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
-import { connect } from 'react-redux';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { EcosModal } from '../../../../../components/common';
@@ -12,12 +12,17 @@ import ModalContent from '../ModalContent';
 import { setSelectedPerson } from '../../../../../actions/orgstructure';
 import { t } from '../../../../../helpers/util';
 import { updateCurrentUrl } from '../../../../../helpers/urls';
+import { getDashboardConfig } from '../../../../../actions/dashboard';
+import GroupIcon from './GroupIcon';
+// import Records from '../../../../../components/Records';
 
 import './ListItem.scss';
 
 const Labels = {
   TITLE_PERSON: 'orgstructure-delete-modal-title-person',
   TITLE_GROUP: 'orgstructure-delete-modal-title-group',
+  TITLE_EDIT_PERSON: 'orgstructure-edit-modal-title-person',
+  TITLE_EDIT_GROUP: 'orgstructure-edit-modal-title-group',
   BODY_PERSON: 'orgstructure-delete-modal-body-person',
   BODY_GROUP: 'orgstructure-delete-modal-body-group',
   FULL_DELETE: 'orgstructure-delete-modal-full-delete',
@@ -62,13 +67,12 @@ const renderListItem = (item, nestingLevel) => {
   return <span className="orgstructure-page__list-item-label">{item.label}</span>;
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson }) => {
+const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {
   const { onToggleCollapse, initList } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-
   const selected = selectedPerson === item.id;
   const onClickLabel = () => {
     if (item.hasChildren) {
@@ -101,13 +105,20 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const createForm = formConfig => e => {
     e.stopPropagation();
-    FormManager.createRecordByVariant(formConfig, {
-      onSubmit: reload,
-      initiator: {
-        type: 'form-component',
-        name: 'CreateVariants'
+
+    const isPersonTitle = item.id.includes('emodel/person');
+
+    FormManager.createRecordByVariant(
+      { ...formConfig, recordRef: item.id },
+      {
+        title: isPersonTitle ? t(Labels.TITLE_EDIT_PERSON) : t(Labels.TITLE_EDIT_GROUP),
+        onSubmit: reload,
+        initiator: {
+          type: 'form-component',
+          name: 'CreateVariants'
+        }
       }
-    });
+    );
   };
 
   const createPerson = createForm(FORM_CONFIG.PERSON);
@@ -128,7 +139,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const openPersonModal = openModal('person');
   const openGroupModal = openModal('group');
 
-  const fullDelete = e => {
+  const deleteFromGroup = e => {
     closeModal(e);
     deleteItem({ ...item });
     reload();
@@ -142,14 +153,18 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         className: 'gray',
         handleClick: closeModal
       },
-      {
-        text: t(Labels.FULL_DELETE),
-        className: 'red',
-        handleClick: fullDelete
-      },
+      // {
+      //   text: t(Labels.FULL_DELETE),
+      //   className: 'red',
+      //   handleClick: (e) => {
+      //     closeModal(e);
+
+      //     Records.remove(item.id);
+      //   }
+      // },
       {
         text: t(Labels.GROUP_DELETE),
-        className: 'green',
+        // className: 'green',
         handleClick: closeModal
       }
     ]
@@ -164,22 +179,19 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         handleClick: closeModal
       },
       {
-        text: t(Labels.FULL_DELETE),
-        className: 'red',
-        handleClick: fullDelete
-      },
-      {
         text: t(Labels.GROUP_DELETE),
-        className: 'green',
-        handleClick: closeModal
+        // className: 'green',
+        handleClick: deleteFromGroup
       }
     ]
   };
 
   let modalTitle = '';
+
   if (modalType === 'group') {
     modalTitle = t(Labels.TITLE_GROUP);
   }
+
   if (modalType === 'person') {
     modalTitle = t(Labels.TITLE_PERSON);
   }
@@ -188,9 +200,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     if (modalType === 'person') {
       return <ModalContent config={personConfig} />;
     }
+
     if (modalType === 'group') {
       return <ModalContent config={groupConfig} />;
     }
+
     return null;
   };
 
@@ -200,7 +214,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const selectPerson = e => {
     e.stopPropagation();
-    dispatch(setSelectedPerson(item.id));
+    dispatch(setSelectedPerson({ recordRef: item.id }));
+    dispatch(getDashboardConfig({ recordRef: item.id }));
     updateCurrentUrl({ recordRef: item.id });
   };
 
@@ -235,9 +250,10 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 {isPerson ? (
                   <span className={classNames(['icon-user-normal', { 'icon-user-normal__clicked': selected }])} onClick={selectPerson} />
                 ) : null}
-                {isGroup ? <span className="icon-users orange" onClick={openGroupModal} /> : null}
-                {isGroup ? <span className="icon-users green" onClick={createGroup} /> : null}
-                {isGroup ? <span className="icon-user-online" onClick={createPerson} /> : null}
+                {isGroup ? <GroupIcon title={modalTitle} className="icon-users orange" onClick={openGroupModal} /> : null}
+                {isGroup ? <GroupIcon title={modalTitle} className="icon-users green" onClick={createGroup} /> : null}
+                {isGroup ? <GroupIcon title={modalTitle} className="icon-user-online" onClick={createPerson} /> : null}
+
                 <EcosModal
                   className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
                   isOpen={modalOpen}

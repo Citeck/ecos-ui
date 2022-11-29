@@ -92,6 +92,7 @@ export class DashboardApi {
   saveDashboardConfig = ({ identification, config, recordRef = false }) => {
     const { key, user } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@`);
+    const url = window.location.pathname;
 
     record.att('config?json', config);
     record.att('authority?str', user);
@@ -100,6 +101,10 @@ export class DashboardApi {
     if (recordRef) {
       record.att('appliedToRef?str', recordRef);
       record.att('typeRef', null);
+    }
+
+    if (url.includes('orgstructure')) {
+      record.att('scope', 'orgstructure');
     }
 
     return record.save().then(response => {
@@ -121,6 +126,7 @@ export class DashboardApi {
   };
 
   getDashboardByUserAndType = (user, typeRef, recordRef) => {
+    const url = window.location.pathname;
     const query = {
       typeRef,
       authority: user
@@ -128,6 +134,10 @@ export class DashboardApi {
 
     if (recordRef) {
       query.recordRef = recordRef;
+    }
+
+    if (url.includes('orgstructure')) {
+      query['scope'] = 'orgstructure';
     }
 
     return Records.queryOne({ sourceId: SourcesId.DASHBOARD, query }, { ...defaultAttr });
@@ -145,14 +155,22 @@ export class DashboardApi {
     }
 
     const user = getCurrentUserName();
+    const query = {
+      typeRef: recType,
+      authority: user,
+      recordRef
+    };
+
+    const url = window.location.pathname;
+
+    if (url.includes('orgstructure')) {
+      recType = 'emodel/type@person';
+    }
+
     const key = await Records.queryOne(
       {
         sourceId: SourcesId.DASHBOARD,
-        query: {
-          typeRef: recType,
-          authority: user,
-          recordRef
-        }
+        query
       },
       'typeRef?id'
     );
@@ -321,7 +339,7 @@ export class DashboardApi {
     return Records.queryOne({ sourceId: SourcesId.PREDICATE, query }, 'result?bool')
       .then(response => (Array.isArray(response) ? response.every(flag => !!flag) : response))
       .catch(e => {
-        console.log(e);
+        console.error(e);
         return false;
       });
   };

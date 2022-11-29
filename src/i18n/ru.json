@@ -2327,6 +2327,8 @@
 
   "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя",
   "orgstructure-page-title": "Оргструктура",
+  "orgstructure-edit-modal-title-person": "Добавить человека в группу",
+  "orgstructure-edit-modal-title-group": "Добавить подгруппу",
   "orgstructure-delete-modal-title-person": "Удаление пользователя",
   "orgstructure-delete-modal-title-group": "Удаление группы",
   "orgstructure-delete-modal-body-person": "Вы действительно хотите удалить этого пользователя?",

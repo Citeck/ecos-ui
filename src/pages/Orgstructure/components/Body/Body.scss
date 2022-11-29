@@ -1,5 +1,6 @@
 .select-orgstruct__body {
-  margin: 10px -15px;
+  margin: 0;
+  padding-top: 10px;
   height: 100%;
   overflow-x: auto;
 
@@ -9,7 +10,6 @@
 }
 
 .select-orgstruct__list-wrapper {
-  min-height: 50px;
-  padding-left: 15px;
+  padding-left: 0;
   padding-right: 15px;
 }

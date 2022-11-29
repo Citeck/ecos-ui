@@ -46,35 +46,40 @@ export const Layouts = [
     type: LayoutTypes.TWO_COLUMNS_BS,
     isActive: true,
     columns: [{}, { width: '25%' }],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 1,
     type: LayoutTypes.TWO_COLUMNS_SB,
     isActive: false,
     columns: [{ width: '25%' }, {}],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 2,
     type: LayoutTypes.THREE_COLUMNS_CB,
     isActive: false,
     columns: [{ width: '20%' }, {}, { width: '20%' }],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 3,
     type: LayoutTypes.FOUR_COLUMNS,
     isActive: false,
     columns: [{}, {}, {}, {}],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 4,
     type: LayoutTypes.ONE_COLUMN,
     isActive: false,
     columns: [{}],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
 
   {
@@ -83,7 +88,8 @@ export const Layouts = [
     isActive: false,
     excluded: false,
     columns: [[{}, { width: '25%' }], [{ height: '20%' }]],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 6,
@@ -91,35 +97,40 @@ export const Layouts = [
     isActive: false,
     excluded: false,
     columns: [[{ width: '25%' }, {}], [{}]],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 7,
     type: LayoutTypes.THREE_COLUMNS_CB_FOOTER,
     isActive: false,
     columns: [[{ width: '20%' }, {}, { width: '20%' }], [{}]],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 8,
     type: LayoutTypes.FOUR_COLUMNS_FOOTER,
     isActive: false,
     columns: [[{}, {}, {}, {}], [{}]],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 9,
     type: LayoutTypes.CLASSIC_SITE,
     isActive: false,
     columns: [[{}], [{}, {}, {}], [{}]],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   },
   {
     position: 10,
     type: LayoutTypes.ADAPTIVE,
     isActive: false,
     columns: [{}],
-    allowedDashboards: [DashboardTypes.PROFILE]
+    allowedDashboards: [DashboardTypes.PROFILE, DashboardTypes.ORGSTRUCTURE],
+    forbiddenDashboards: []
   },
 
   {
@@ -128,6 +139,7 @@ export const Layouts = [
     isActive: false,
     excluded: true,
     columns: [{}],
-    allowedDashboards: []
+    allowedDashboards: [],
+    forbiddenDashboards: [DashboardTypes.ORGSTRUCTURE]
   }
 ];
