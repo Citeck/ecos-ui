@@ -398,6 +398,7 @@ describe('Util helpers', () => {
   });
 
   describe('function getMonthPeriodByDate', () => {
+    const currentDate = parseInt(moment().format('MMDD'));
     const data = [
       {
         title: 'Valid date with a month greater than 9',
@@ -419,48 +420,32 @@ describe('Util helpers', () => {
         title: 'If there is no argument, the current date is used',
         input: [],
         output: {
-          start: parseInt(moment().format('MMDD')),
-          end: parseInt(
-            moment()
-              .add(1, 'month')
-              .format('MMDD')
-          )
+          start: currentDate,
+          end: currentDate + 100
         }
       },
       {
         title: 'If the date in the argument is not valid, the current date is used',
         input: [moment('00.00', 'DD.MM').toDate()],
         output: {
-          start: parseInt(moment().format('MMDD')),
-          end: parseInt(
-            moment()
-              .add(1, 'month')
-              .format('MMDD')
-          )
+          start: currentDate,
+          end: currentDate + 100
         }
       },
       {
         title: 'If the argument is a number, the current date is used',
         input: [23],
         output: {
-          start: parseInt(moment().format('MMDD')),
-          end: parseInt(
-            moment()
-              .add(1, 'month')
-              .format('MMDD')
-          )
+          start: currentDate,
+          end: currentDate + 100
         }
       },
       {
         title: 'If the argument is a string, the current date is used',
         input: ['12.05'],
         output: {
-          start: parseInt(moment().format('MMDD')),
-          end: parseInt(
-            moment()
-              .add(1, 'month')
-              .format('MMDD')
-          )
+          start: currentDate,
+          end: currentDate + 100
         }
       }
     ];
