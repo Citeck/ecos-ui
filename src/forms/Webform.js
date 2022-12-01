@@ -9,9 +9,18 @@ import Formio from './Formio';
 
 const originalSetElement = Webform.prototype.setElement;
 const originalSubmit = Webform.prototype.submit;
+const originalSubmitForm = Webform.prototype.submitForm;
 const originalBuild = Webform.prototype.build;
 const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
+
+Webform.prototype.submitForm = function(options) {
+  const result = originalSubmitForm.call(this, options);
+
+  this.withoutLoader = get(options, 'withoutLoader');
+
+  return result;
+};
 
 Webform.prototype.build = function(state) {
   Formio.forms[this.id] = this;
@@ -47,6 +56,16 @@ Object.defineProperty(Webform.prototype, 'language', {
     }
 
     originalSetLanguage.set.call(this, lang);
+  }
+});
+
+Object.defineProperty(Webform.prototype, 'withoutLoader', {
+  set: function(withoutLoader) {
+    this.__withoutLoader = withoutLoader;
+  },
+
+  get: function() {
+    return this.__withoutLoader;
   }
 });
 

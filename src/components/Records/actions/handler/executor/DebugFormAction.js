@@ -4,6 +4,8 @@ import set from 'lodash/set';
 import { FORM_MODE_CREATE } from '../../../../EcosForm';
 import ActionsExecutor from '../ActionsExecutor';
 import { showForm } from '../../util/actionUtils';
+import Records from '../../../Records';
+import { SourcesId } from '../../../../../constants';
 
 export default class DebugFormAction extends ActionsExecutor {
   static ACTION_ID = 'debug-form';
@@ -38,6 +40,8 @@ export default class DebugFormAction extends ActionsExecutor {
       default:
         break;
     }
+
+    Records.get(record.id.replace(SourcesId.FORM, SourcesId.RESOLVED_FORM)).reset();
 
     showForm(recordRef, { formId: record.id, options }, className);
   }

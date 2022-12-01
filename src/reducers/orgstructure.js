@@ -10,7 +10,7 @@ export default handleActions(
   {
     [setSelectedPerson]: (state, action) => ({
       ...state,
-      id: action.payload
+      id: action.payload.recordRef
     })
   },
   initialState

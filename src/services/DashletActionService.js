@@ -12,9 +12,7 @@ export default class DashletActionService {
   };
 
   static uneditable = [DashletActionService.Actions.SETTINGS, DashletActionService.Actions.BUILDER];
-
   static enterprise = [DashletActionService.Actions.BUILDER];
-
   static administrative = [DashletActionService.Actions.BUILDER];
 
   static baseOrder = [
@@ -24,7 +22,7 @@ export default class DashletActionService {
     DashletActionService.Actions.SETTINGS
   ];
 
-  static checkForEdition(edition, key) {
+  static checkForEdition(edition = AppEditions.COMMUNITY, key) {
     if (edition !== AppEditions.ENTERPRISE) {
       return !DashletActionService.enterprise.includes(key);
     }
@@ -34,6 +32,7 @@ export default class DashletActionService {
 
   static isAvailable(key, { dashboardEditable, appEdition, isAdmin }) {
     const available = DashletActionService.checkForEdition(appEdition, key);
+
     const editable = dashboardEditable || !DashletActionService.uneditable.includes(key);
     const administrative = isAdmin || !DashletActionService.administrative.includes(key);
 

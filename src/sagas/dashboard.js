@@ -23,7 +23,7 @@ import DashboardConverter from '../dto/dashboard';
 import DashboardService from '../services/dashboard';
 import { selectNewVersionConfig, selectSelectedWidgetsById } from '../selectors/dashboardSettings';
 
-function* _parseConfig({ api, logger }, { recordRef, config }) {
+export function* _parseConfig({ api, logger }, { recordRef, config }) {
   const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
   const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));
 
@@ -53,7 +53,6 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
       return;
     }
-
     const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef: getRefWithAlfrescoPrefix(recordRef) });
     const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
@@ -63,7 +62,6 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
     if (isReset) {
       throw new Error('info: Dashboard is unmounted');
     }
-
     yield put(setDashboardIdentification({ ...webKeyInfo, key: payload.key }));
     yield put(
       setDashboardConfig({

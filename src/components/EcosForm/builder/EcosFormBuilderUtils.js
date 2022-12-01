@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import EcosFormBuilder from './EcosFormBuilderModal';
 import EcosFormLocaleEditor from '../locale/FormLocaleEditorModal';
 import Records from '../../Records/Records';
-import Formio from '../../../forms/Formio';
 
 let formPanelIdx = 0;
 const builders = {};
@@ -12,14 +11,21 @@ const builders = {};
 export class EcosFormBuilderUtils {
   /**
    *
-   * @param formRecord {String}
-   * @param form {Webform} - form instance
+   * @param formRecord {String|Object}
+   * @param forceSubmit {Boolean}
    */
-  static showBuilderForRecord(formRecord, form) {
+  static showBuilderForRecord(formRecord, forceSubmit = false) {
     const record = Records.get(formRecord);
 
     const processFormDefinition = function(loadedFormDefinition) {
-      const onSubmit = formDefinition => record.att('definition?json', formDefinition);
+      const onSubmit = formDefinition => {
+        record.att('definition?json', formDefinition);
+
+        if (forceSubmit) {
+          record.save();
+        }
+      };
+
       const options = {};
 
       const formId = record.getBaseRecord().id;
@@ -27,11 +33,6 @@ export class EcosFormBuilderUtils {
         ...loadedFormDefinition,
         formId: formId.substring(formId.indexOf('@') + 1)
       };
-
-      if (form) {
-        options.parentId = form.id;
-        Formio.forms[form.id] = form;
-      }
 
       EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilder, definition, onSubmit, options);
     };
@@ -55,11 +56,23 @@ export class EcosFormBuilderUtils {
       });
   }
 
-  static showLocaleEditorForRecord(formRecord) {
-    let record = Records.get(formRecord);
+  /**
+   *
+   * @param formRecord {String|Object}
+   * @param forceSubmit {Boolean}
+   */
+  static showLocaleEditorForRecord(formRecord, forceSubmit = false) {
+    const record = Records.get(formRecord);
 
     record.load('i18n?json').then(i18n => {
-      let onSubmit = i18n => record.att('i18n?json', i18n);
+      const onSubmit = i18n => {
+        record.att('i18n?json', i18n);
+
+        if (forceSubmit) {
+          record.save();
+        }
+      };
+
       EcosFormBuilderUtils.__showEditorComponent('localeEditor', EcosFormLocaleEditor, i18n, onSubmit);
     });
   }

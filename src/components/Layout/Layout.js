@@ -46,7 +46,8 @@ class Layout extends Component {
     dashboardId: PropTypes.string,
     onSaveWidget: PropTypes.func,
     onSaveWidgetProps: PropTypes.func,
-    canDragging: PropTypes.bool
+    canDragging: PropTypes.bool,
+    isLoading: PropTypes.bool
   };
 
   static defaultProps = {
@@ -71,7 +72,9 @@ class Layout extends Component {
   }
 
   componentDidUpdate() {
-    this.checkWrapperStyle();
+    if (!this.props.isLoading) {
+      this.checkWrapperStyle();
+    }
   }
 
   get className() {

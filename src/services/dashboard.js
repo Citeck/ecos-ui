@@ -247,6 +247,7 @@ export default class DashboardService {
     const Settings = lazy(() => import('../components/DashboardSettings/Settings'));
     const store = getStore();
     const modalRef = React.createRef();
+
     let { title, onSave = () => {}, onClose = () => {}, ...otherProps } = props;
 
     const dialog = DialogManager.showCustomDialog({

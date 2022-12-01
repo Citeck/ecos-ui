@@ -23,14 +23,14 @@ import { changeTab } from '../actions/pageTabs';
 import { setLeftMenuEditable } from '../actions/app';
 import { selectIdentificationForView } from '../selectors/dashboard';
 import { makeSiteMenu } from '../helpers/menu';
-import { hasInString } from '../helpers/util';
 import { getIconObjectWeb } from '../helpers/icon';
-import { SourcesId, URL } from '../constants';
+import { SourcesId } from '../constants';
 import { DefaultUserMenu } from '../constants/menu';
 import MenuService from '../services/MenuService';
 import PageService from '../services/PageService';
 import configService, { CREATE_MENU_TYPE } from '../services/config/ConfigService';
 import MenuConverter from '../dto/menu';
+import { isDashboard } from '../helpers/urls';
 
 function* fetchCreateCaseWidget({ api, logger }) {
   try {
@@ -91,7 +91,7 @@ function* fetchSiteMenu({ logger }) {
   try {
     const params = yield fetchInfluentialParams();
     const url = document.location.href;
-    const isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+    const isDashboardPage = isDashboard(url);
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
     yield put(setSiteMenuItems(menuItems));
   } catch (e) {
@@ -117,7 +117,7 @@ function* filterSiteMenu({ logger }, { payload = {} }) {
     }
 
     if (url) {
-      isDashboardPage = hasInString(url, URL.DASHBOARD) && !hasInString(url, URL.DASHBOARD_SETTINGS);
+      isDashboardPage = isDashboard(url);
     }
 
     const menuItems = makeSiteMenu({ isDashboardPage, ...params });
