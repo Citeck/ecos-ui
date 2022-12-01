@@ -116,7 +116,7 @@ class Properties extends React.Component {
       form.getAllComponents().forEach(c => {
         const { persistent, key } = c.component;
 
-        if (persistent === 'client-only' || !persistent || ['ecosEdition'].includes(key)) {
+        if (persistent === 'client-only' || !persistent) {
           delete submissionData[key];
           delete clonedInitData[key];
         }
