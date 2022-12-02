@@ -3,6 +3,8 @@ import Records from '../../../Records';
 import DialogManager from '../../../../common/dialogs/Manager';
 import isUndefined from 'lodash/isUndefined';
 
+const NOT_EXISTS_ATT = '_notExists?bool';
+
 export default class RecordCopyAction extends ActionsExecutor {
   static ACTION_ID = 'record-copy';
 
@@ -30,7 +32,7 @@ export default class RecordCopyAction extends ActionsExecutor {
           const recordLocalId = submission.data.id;
           const newRecId = record.id.replace(currentModuleId, recordLocalId);
 
-          const notExists = await Records.get(newRecId).load('_notExists?bool', true);
+          const notExists = await Records.get(newRecId).load(NOT_EXISTS_ATT, true);
 
           if (notExists !== true) {
             throw new Error('Модуль с таким ID уже существует');
@@ -38,6 +40,7 @@ export default class RecordCopyAction extends ActionsExecutor {
 
           record.att('id', recordLocalId);
           const newRec = await record.save();
+          newRec.removeAtt(NOT_EXISTS_ATT);
 
           let actionResult = true;
           if (context.onRecordCreated) {
