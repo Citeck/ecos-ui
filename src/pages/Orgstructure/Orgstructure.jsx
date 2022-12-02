@@ -130,14 +130,14 @@ class Orgstructure extends React.Component {
     const { recordRef } = getSearchParams() || {};
 
     if (!recordRef || !config) {
-      return <div className="orgstructure-page__grid__empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
+      return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
     }
 
     const { menuType, isMobile, tabId, isLoading } = this.props;
     const { columns, type } = get(config, '0') || {};
 
     return (
-      <div className="orgstructure-page__grid__layout">
+      <div className="orgstructure-page__grid-layout">
         <Layout
           className={classNames({ 'ecos-layout_mobile': isMobile })}
           menuType={menuType}
@@ -158,8 +158,8 @@ class Orgstructure extends React.Component {
 
   render() {
     return (
-      <div className="orgstructure-page__grid__container">
-        <div className="orgstructure-page__grid__main">
+      <div className="orgstructure-page__grid-container">
+        <div className="orgstructure-page__grid-main">
           <Structure tabId={this.props.tabId} />
         </div>
 
