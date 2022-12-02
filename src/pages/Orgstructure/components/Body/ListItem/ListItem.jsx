@@ -23,8 +23,9 @@ const Labels = {
   TITLE_PERSON_DELETE: 'orgstructure-delete-modal-title-person',
   TITLE_PERSON_SELECT: 'orgstructure-page-no-picked-person-text',
   TITLE_GROUP_DELETE: 'orgstructure-delete-modal-title-group',
+  TITLE_GROUP_EDIT: 'orgstructure-edit-modal-title-group',
   TITLE_PERSON_ADD: 'orgstructure-edit-modal-title-person',
-  TITLE_SUBGROUP_CREATE: 'orgstructure-edit-modal-title-group',
+  TITLE_SUBGROUP_CREATE: 'orgstructure-add-modal-title-group',
   CONFIRM_PERSON_DELETE: 'orgstructure-delete-modal-body-person',
   CONFIRM_GROUP_DELETE: 'orgstructure-delete-modal-body-group',
   FULL_DELETE: 'orgstructure-delete-modal-full-delete',
@@ -105,26 +106,31 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     initList();
   };
 
-  const createForm = formConfig => e => {
+  const createForm = formConfig => (e, isEditMode = false) => {
     e.stopPropagation();
 
     const isPerson = formConfig.sourceId === SourcesId.PERSON;
     const extraConfig = {};
+    let title;
+
+    set(extraConfig, 'attributes.authorityGroups', [item.id]);
 
     if (isPerson) {
       extraConfig.recordRef = null;
-      set(extraConfig, 'attributes.authorityGroups', [item.id]);
+
+      title = t(Labels.TITLE_PERSON_ADD);
     } else {
+      title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
+    }
+
+    if (isEditMode) {
       extraConfig.recordRef = item.id;
     }
 
     FormManager.createRecordByVariant(
+      { ...formConfig, ...extraConfig },
       {
-        ...formConfig,
-        ...extraConfig
-      },
-      {
-        title: isPerson ? t(Labels.TITLE_PERSON_ADD) : t(Labels.TITLE_SUBGROUP_CREATE),
+        title,
         onSubmit: reload,
         initiator: {
           type: 'form-component',
@@ -271,6 +277,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                   onClick={selectPerson}
                 />
               ) : null}
+              {isGroup ? <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} className="icon-edit" onClick={e => createGroup(e, true)} /> : null}
               {isGroup ? <GroupIcon title={t(Labels.TITLE_GROUP_DELETE)} className="icon-users orange" onClick={openGroupModal} /> : null}
               {isGroup ? <GroupIcon title={t(Labels.TITLE_SUBGROUP_CREATE)} className="icon-users green" onClick={createGroup} /> : null}
               {isGroup ? <GroupIcon title={t(Labels.TITLE_PERSON_ADD)} className="icon-user-online" onClick={createPerson} /> : null}
