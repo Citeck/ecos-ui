@@ -206,7 +206,7 @@ class Esign {
         });
       }
 
-      const user = await get(window, 'Alfresco.constants.USERNAME', '');
+      const user = await get(window, 'Citeck.constants.USERNAME', '');
       const signResponse = await api.sendSignedDocument(
         EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user })
       );

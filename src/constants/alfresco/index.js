@@ -7,13 +7,13 @@ export const ALFRESCO = 'alfresco';
 export const COOKIE_KEY_LOCALE = 'alf_share_locale';
 export const COOKIE_KEY_LOCALE_MAX_AGE = 30 * 24 * 60 * 60;
 
-window.Alfresco = window.Alfresco || {};
-window.Alfresco.constants = window.Alfresco.constants || {};
+window.Citeck = window.Citeck || {};
+window.Citeck.constants = window.Citeck.constants || {};
 
-window.Alfresco.constants = {
+window.Citeck.constants = {
   PROXY_URI,
   MICRO_URI,
-  ...window.Alfresco.constants
+  ...window.Citeck.constants
 };
 
 /**

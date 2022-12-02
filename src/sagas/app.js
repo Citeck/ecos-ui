@@ -44,7 +44,7 @@ export function* initApp({ api, logger }, { payload }) {
         yield put(validateUserSuccess(resp.payload));
 
         // TODO remove in future: see src/helpers/util.js getCurrentUserName()
-        lodashSet(window, 'Alfresco.constants.USERNAME', lodashGet(resp.payload, 'userName'));
+        lodashSet(window, 'Citeck.constants.USERNAME', lodashGet(resp.payload, 'userName'));
       }
 
       const isNewUIAvailable = true;

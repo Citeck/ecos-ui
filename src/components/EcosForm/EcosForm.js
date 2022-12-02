@@ -100,7 +100,7 @@ class EcosForm extends React.Component {
   };
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const alfConstants = get(window, 'Alfresco.constants') || {};
+    const constants = get(window, 'Citeck.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const options = cloneDeep(propsOptions);
@@ -129,8 +129,8 @@ class EcosForm extends React.Component {
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
 
-    if (alfConstants.USERNAME) {
-      Formio.setUser(alfConstants.USERNAME);
+    if (constants.USERNAME) {
+      Formio.setUser(constants.USERNAME);
     }
 
     const onFormLoadingFailure = () => {
