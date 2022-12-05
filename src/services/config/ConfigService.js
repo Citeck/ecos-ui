@@ -45,7 +45,7 @@ export const CUSTOM_FEEDBACK_URL = 'custom-feedback-url';
 export const CUSTOM_REPORT_ISSUE_URL = 'custom-report-issue-url';
 export const SEPARATE_ACTION_LIST_FOR_QUERY = 'separate-action-list-for-query';
 export const SITE_DASHBOARD_ENABLE = 'site-dashboard-enable';
-export const TOUCH_URI = 'app/gateway$touch-uri';
+export const TOUCH_CONFIG = 'app/gateway$touch';
 
 const CONFIG_PROPS = {
   [MAIN_MENU_TYPE]: {
@@ -112,8 +112,11 @@ const CONFIG_PROPS = {
   [TABS_ENABLED]: {
     defaultValue: true
   },
-  [TOUCH_URI]: {
-    defaultValue: `${CITECK_URI}ecos/touch`
+  [TOUCH_CONFIG]: {
+    defaultValue: {
+      enabled: true,
+      uri: `${CITECK_URI}ecos/touch`
+    }
   }
 };
 

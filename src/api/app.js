@@ -19,7 +19,7 @@ import ConfigService, {
   CUSTOM_FEEDBACK_URL,
   SEPARATE_ACTION_LIST_FOR_QUERY,
   LOGIN_PAGE_REDIRECT_URL,
-  TOUCH_URI
+  TOUCH_CONFIG
 } from '../services/config/ConfigService';
 
 let customLogoutAction = null;
@@ -43,12 +43,11 @@ export class AppApi extends CommonApi {
     if (!this.#isAuthenticated || document.hidden || isCancelTouch) {
       return Promise.resolve();
     }
-    return ConfigService.getValue(TOUCH_URI).then(uri => {
-      if (uri) {
-        return ecosFetch(uri).then(r => r.text());
-      } else {
+    return ConfigService.getValue(TOUCH_CONFIG).then(config => {
+      if (!config.enabled || !config.uri) {
         return Promise.resolve('OK');
       }
+      return ecosFetch(config.uri).then(r => r.text());
     });
   };
 
