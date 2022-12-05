@@ -72,9 +72,9 @@ window.requirejs.config({
 
 document.addEventListener('DOMContentLoaded', () => {
   import('./constants/alfresco/util').then(({ default: util }) => {
-    window.Alfresco.util = window.Alfresco.util || {};
-    window.Alfresco.util = {
-      ...window.Alfresco.util,
+    window.Citeck.util = window.Citeck.util || {};
+    window.Citeck.util = {
+      ...window.Citeck.util,
       ...util
     };
   });
