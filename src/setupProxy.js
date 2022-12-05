@@ -126,6 +126,7 @@ module.exports = function(app) {
       [
         '/gateway/**',
         '/share/**',
+        '/alfresco/**',
         '!/gateway/api/records/**',
         '!**/card-details-new',
         '!**/bpmn-designer',

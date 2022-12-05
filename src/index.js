@@ -1,45 +1,40 @@
 import 'react-app-polyfill/ie9';
 import 'regenerator-runtime/runtime.js';
 import './helpers/polyfills';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import debounce from 'lodash/debounce';
 import * as serviceWorker from './serviceWorker';
-
-import { i18nInit } from './i18n';
-
+import preval from 'preval.macro';
+import { NotificationManager } from 'react-notifications';
 import moment from 'moment';
 import 'moment/locale/ru';
 import 'moment/locale/en-gb';
-import { registerLocale, setDefaultLocale } from 'react-datepicker';
+import { Base64 } from 'js-base64';
 import datePickerLocaleEn from 'date-fns/locale/en-GB';
 import datePickerLocaleRu from 'date-fns/locale/ru';
-import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
 
+import { getCurrentLocale, isMobileAppWebView } from './helpers/util';
 import logger from './services/logger';
 import authService from './services/auth';
 import configureStore, { getHistory } from './store';
 import { initAppRequest } from './actions/app';
 import { setIsAuthenticated } from './actions/user';
 import { loadThemeRequest } from './actions/view';
-import { NotificationManager } from 'react-notifications';
-
 import { configureAPI } from './api';
 import App from './components/App';
 import IdleTimer from './components/IdleTimer';
 import plugins from './plugins';
-
-import './styles/index.scss';
-
 import './build-info';
 import './services/esign';
-import preval from 'preval.macro';
 import './services/EcosModules';
-import { Base64 } from 'js-base64';
 import { RESET_AUTH_STATE_EVENT, emitter } from './helpers/ecosFetch';
+import { i18nInit } from './i18n';
+
+import './styles/index.scss';
 
 /* set moment locale */
 const currentLocale = getCurrentLocale();
@@ -70,19 +65,10 @@ window.requirejs.config({
   }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  import('./constants/alfresco/util').then(({ default: util }) => {
-    window.Alfresco.util = window.Alfresco.util || {};
-    window.Alfresco.util = {
-      ...window.Alfresco.util,
-      ...util
-    };
-  });
-});
-
 if (!window.Citeck) {
   window.Citeck = {};
 }
+
 window.Citeck.Plugins = plugins;
 window.Citeck.NotificationManager = NotificationManager;
 window.Citeck.Base64 = Base64;
