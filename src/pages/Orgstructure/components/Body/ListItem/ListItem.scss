@@ -16,6 +16,10 @@
   font-size: 16px;
   background: linear-gradient(to right, rgba(255, 255, 255, 0), #ffffff 15%);
   z-index: 10;
+
+  &_hidden {
+    display: none;
+  }
 }
 
 .orgstructure-page__list-item-icons .icon-user-away::before {
