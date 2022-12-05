@@ -13,7 +13,7 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
 
   const [selectedId, setSelectedId] = useState('');
 
-  const deleteItem = item => {
+  const deletePersonItem = item => {
     const record = Records.get(item.id);
 
     record.att('att_rem_authorityGroups', item.parentId);
@@ -35,13 +35,14 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
             </Collapse>
           );
         }
+
         return (
           <ListItem
             key={item.id}
             item={item}
             nestingLevel={nestingLevel}
             nestedList={nestedList}
-            deleteItem={deleteItem}
+            deleteItem={deletePersonItem}
             selectedId={selectedId}
             setSelectedId={setSelectedId}
             tabId={tabId}

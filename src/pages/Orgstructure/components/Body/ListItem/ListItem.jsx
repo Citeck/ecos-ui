@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import noop from 'lodash/noop';
+import { NotificationManager } from 'react-notifications';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { EcosModal } from '../../../../../components/common';
@@ -156,37 +157,17 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   };
 
   const openPersonModal = openModal('person');
-  const openGroupModal = openModal('group');
 
   const deleteFromGroup = e => {
     closeModal(e);
-    deleteItem({ ...item });
-    reload();
-  };
 
-  const groupConfig = {
-    text: t(Labels.CONFIRM_GROUP_DELETE),
-    buttons: [
-      {
-        text: t(Labels.CANCEL),
-        className: 'gray',
-        handleClick: closeModal
-      },
-      // {
-      //   text: t(Labels.FULL_DELETE),
-      //   className: 'red',
-      //   handleClick: (e) => {
-      //     closeModal(e);
-
-      //     Records.remove(item.id);
-      //   }
-      // },
-      {
-        text: t(Labels.GROUP_DELETE),
-        // className: 'green',
-        handleClick: closeModal
-      }
-    ]
+    try {
+      deleteItem({ ...item });
+    } catch (e) {
+      NotificationManager.error(t('user-profile-widget.error.delete-profile-data'));
+    } finally {
+      reload();
+    }
   };
 
   const personConfig = {
@@ -199,7 +180,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
       },
       {
         text: t(Labels.GROUP_DELETE),
-        // className: 'green',
         handleClick: deleteFromGroup
       }
     ]
@@ -218,10 +198,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const renderModalContent = () => {
     if (modalType === 'person') {
       return <ModalContent config={personConfig} />;
-    }
-
-    if (modalType === 'group') {
-      return <ModalContent config={groupConfig} />;
     }
 
     return null;
@@ -269,7 +245,9 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 'orgstructure-page__list-item-icons_hidden': !hovered
               })}
             >
-              {isPerson ? <span title={t(Labels.TITLE_PERSON_DELETE)} className="icon-user-away" onClick={openPersonModal} /> : null}
+              {isPerson && item.parentId ? (
+                <span title={t(Labels.TITLE_PERSON_DELETE)} className="icon-user-away" onClick={openPersonModal} />
+              ) : null}
               {isPerson ? (
                 <span
                   title={t(Labels.TITLE_PERSON_SELECT)}
@@ -278,7 +256,6 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
                 />
               ) : null}
               {isGroup ? <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} className="icon-edit" onClick={e => createGroup(e, true)} /> : null}
-              {isGroup ? <GroupIcon title={t(Labels.TITLE_GROUP_DELETE)} className="icon-users orange" onClick={openGroupModal} /> : null}
               {isGroup ? <GroupIcon title={t(Labels.TITLE_SUBGROUP_CREATE)} className="icon-users green" onClick={createGroup} /> : null}
               {isGroup ? <GroupIcon title={t(Labels.TITLE_PERSON_ADD)} className="icon-user-online" onClick={createPerson} /> : null}
 

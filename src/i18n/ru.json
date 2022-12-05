@@ -1411,6 +1411,7 @@
   "user-profile-widget.button.change-photo": "Изменить фото",
   "user-profile-widget.button.change-password": "Изменить пароль",
   "user-profile-widget.error.get-profile-data": "Ошибка получения данных профиля",
+  "user-profile-widget.error.delete-profile-data": "Ошибка удаления пользователя",
   "user-profile-widget.error.upload-profile-photo": "Ошибка загрузки фотографии. Попробуйте ещё раз",
   "user-profile-widget.success.change-photo": "Фотография профиля успешно изменена",
 
