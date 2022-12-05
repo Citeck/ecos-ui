@@ -1,17 +1,15 @@
 import Records from '../../components/Records/Records';
 
+const META_RECORD = 'uiserv/meta@';
 const CONFIG_SOURCE_ID_PREFIX = 'uiserv/cfg@';
 
 export async function loadConfigs(configsMap) {
-  const result = {};
-  const promisesList = [];
+  const attributesToLoad = {};
   for (let configKey in configsMap) {
-    const promise = Records.get(CONFIG_SOURCE_ID_PREFIX + configKey).load(configsMap[configKey]);
-    promisesList.push(promise.then(res => (result[configKey] = res)));
+    const innerValue = configsMap[configKey].replace('value?', '?');
+    attributesToLoad[configKey] = '$cfg.' + configKey + innerValue;
   }
-  await Promise.all(promisesList);
-
-  return result;
+  return Records.get(META_RECORD).load(attributesToLoad);
 }
 
 export async function saveConfig(configKey, value) {

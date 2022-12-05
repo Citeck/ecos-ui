@@ -6,7 +6,7 @@ import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import { t } from '../helpers/export/util';
 import { AppEditions, DEFAULT_EIS, SourcesId } from '../constants';
-import { CITECK_URI, PROXY_URI, UISERV_API } from '../constants/alfresco';
+import { PROXY_URI, UISERV_API } from '../constants/alfresco';
 import Records from '../components/Records/Records';
 import { ALL_USERS_GROUP_SHORT_NAME } from '../components/common/form/SelectOrgstruct/constants';
 import { CommonApi } from './common';
@@ -18,7 +18,8 @@ import ConfigService, {
   CUSTOM_REPORT_ISSUE_URL,
   CUSTOM_FEEDBACK_URL,
   SEPARATE_ACTION_LIST_FOR_QUERY,
-  LOGIN_PAGE_REDIRECT_URL
+  LOGIN_PAGE_REDIRECT_URL,
+  TOUCH_URI
 } from '../services/config/ConfigService';
 
 let customLogoutAction = null;
@@ -42,9 +43,13 @@ export class AppApi extends CommonApi {
     if (!this.#isAuthenticated || document.hidden || isCancelTouch) {
       return Promise.resolve();
     }
-
-    const url = `${CITECK_URI}ecos/touch`;
-    return this.getJson(url);
+    return ConfigService.getValue(TOUCH_URI).then(uri => {
+      if (uri) {
+        return ecosFetch(uri).then(r => r.text());
+      } else {
+        return Promise.resolve('OK');
+      }
+    });
   };
 
   getOrgstructAllUsersGroupName = () => {
