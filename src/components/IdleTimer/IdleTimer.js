@@ -1,75 +1,83 @@
-import isFunction from 'lodash/isFunction';
+import throttle from 'lodash/throttle';
 
 class IdleTimer {
   #timer = null;
-  #idleTime = 0;
-  #checkInterval = 60000;
-  #idleTimeOut = 60000 * 30;
-  #idleCallback;
-  #noIdleCallback;
-  #resetIdleCallback;
+  #isIdle = false;
+  #callbackRepeatTime = null;
+  #idleTimeOut = 60 * 60 * 1000; // 1h
+  #callback = () => {};
 
-  setCheckInterval = ms => {
-    this.#checkInterval = ms;
+  #lastActive = new Date().getTime();
+  #callbackRepeatCounter = 0;
+  #lastStateChangedTime = this.#lastActive;
+
+  setCallback(callback) {
+    this.#callback = callback;
     return this;
-  };
+  }
+
+  setCallbackRepeatTime(repeatTime) {
+    this.#callbackRepeatTime = repeatTime;
+    return this;
+  }
 
   setIdleTimeout = ms => {
     this.#idleTimeOut = ms;
     return this;
   };
 
-  setIdleCallback = callback => {
-    this.#idleCallback = callback;
-    return this;
-  };
-
-  setNoIdleCallback = callback => {
-    this.#noIdleCallback = callback;
-    return this;
-  };
-
-  setResetIdleCallback = callback => {
-    this.#resetIdleCallback = callback;
-    return this;
-  };
-
-  resetIdleTime = () => {
-    this.#idleTime = 0;
-
-    isFunction(this.#resetIdleCallback) && this.#resetIdleCallback();
-  };
+  _updateActiveTime = throttle(() => {
+    this.#lastActive = new Date().getTime();
+    if (this.#isIdle) {
+      this._setIdleState(false);
+    }
+  }, 3000);
 
   run = () => {
+    this.#lastActive = new Date().getTime();
+
     this.#timer = setInterval(() => {
-      this.#idleTime += this.#checkInterval;
+      const idleTime = new Date().getTime() - this.#lastActive;
 
-      if (this.#idleTime >= this.#idleTimeOut) {
-        isFunction(this.#idleCallback) && this.#idleCallback();
-      } else {
-        isFunction(this.#noIdleCallback) && this.#noIdleCallback();
+      if (idleTime >= this.#idleTimeOut && !this.#isIdle) {
+        this._setIdleState(true);
       }
-    }, this.#checkInterval);
 
-    window.addEventListener('mousemove', this.resetIdleTime);
-    window.addEventListener('mousedown', this.resetIdleTime);
-    window.addEventListener('click', this.resetIdleTime);
-    window.addEventListener('wheel', this.resetIdleTime);
-    window.addEventListener('keypress', this.resetIdleTime);
+      if (this.#callbackRepeatTime && this.#callbackRepeatTime > 0) {
+        const currentStateTime = new Date().getTime() - this.#lastStateChangedTime;
+        const newCallbackRepeatCounter = Math.floor(currentStateTime / this.#callbackRepeatTime);
+        if (this.#callbackRepeatCounter < newCallbackRepeatCounter) {
+          this.#callbackRepeatCounter = newCallbackRepeatCounter;
+          this.#callback(this.#isIdle);
+        }
+      }
+    }, 5000);
+
+    window.addEventListener('mousemove', this._updateActiveTime);
+    window.addEventListener('mousedown', this._updateActiveTime);
+    window.addEventListener('click', this._updateActiveTime);
+    window.addEventListener('wheel', this._updateActiveTime);
+    window.addEventListener('keypress', this._updateActiveTime);
 
     return this;
   };
 
+  _setIdleState(idle) {
+    this.#lastStateChangedTime = new Date().getTime();
+    this.#callbackRepeatCounter = 0;
+    this.#isIdle = idle;
+    this.#callback(idle);
+  }
+
   stop = () => {
-    window.removeEventListener('mousemove', this.resetIdleTime);
-    window.removeEventListener('mousedown', this.resetIdleTime);
-    window.removeEventListener('click', this.resetIdleTime);
-    window.removeEventListener('wheel', this.resetIdleTime);
-    window.removeEventListener('keypress', this.resetIdleTime);
+    window.removeEventListener('mousemove', this._updateActiveTime);
+    window.removeEventListener('mousedown', this._updateActiveTime);
+    window.removeEventListener('click', this._updateActiveTime);
+    window.removeEventListener('wheel', this._updateActiveTime);
+    window.removeEventListener('keypress', this._updateActiveTime);
 
     clearInterval(this.#timer);
     this.#timer = null;
-    this.#idleTime = 0;
 
     return this;
   };

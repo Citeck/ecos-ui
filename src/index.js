@@ -6,7 +6,6 @@ import ReactDOM from 'react-dom';
 import { registerLocale, setDefaultLocale } from 'react-datepicker';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import debounce from 'lodash/debounce';
 import * as serviceWorker from './serviceWorker';
 import preval from 'preval.macro';
 import { NotificationManager } from 'react-notifications';
@@ -106,35 +105,14 @@ if (process.env.NODE_ENV === 'development' && !isMobileAppWebView()) {
   runApp();
 }
 
-const cancelTouchTimer = new IdleTimer();
-let cancelTouch = false;
-const rerunCancelTouchTimer = debounce(
-  () => {
-    cancelTouchTimer.stop().run();
-  },
-  500,
-  { leading: true, trailing: true, maxWait: 60000 }
-);
-
-cancelTouchTimer
-  .setCheckInterval(60000)
-  .setIdleTimeout(60000 * 3)
-  .setResetIdleCallback(() => {
-    cancelTouch = false;
-    rerunCancelTouchTimer();
-  })
-  .setIdleCallback(() => {
-    cancelTouch = true;
-  })
-  .run();
-
-const getCancelTouchStatus = () => cancelTouch;
 const idleTimer = new IdleTimer();
 idleTimer
-  .setCheckInterval(60000)
-  .setIdleTimeout(60000 * 60 * 3)
-  .setNoIdleCallback(() => {
-    api.app.touch(getCancelTouchStatus()).catch(() => {});
+  .setCallbackRepeatTime(30 * 1000) // 30s
+  .setIdleTimeout(60 * 60 * 1000) // 1h
+  .setCallback(idle => {
+    if (!idle) {
+      api.app.touch().catch(() => {});
+    }
   })
   .run();
 

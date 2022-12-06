@@ -39,8 +39,8 @@ export class AppApi extends CommonApi {
     customLogoutAction = action;
   }
 
-  touch = (isCancelTouch = false) => {
-    if (!this.#isAuthenticated || document.hidden || isCancelTouch) {
+  touch = () => {
+    if (!this.#isAuthenticated || document.hidden) {
       return Promise.resolve();
     }
     return ConfigService.getValue(TOUCH_CONFIG).then(config => {

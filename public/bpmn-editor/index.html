@@ -309,13 +309,15 @@
     });
   });
 
-  require(['ecosui!idle-timer'], function(IdleTimer) {
+  require(['ecosui!idle-timer', 'ecosui!ecos-fetch'], function(IdleTimer, ecosFetch) {
     const idleTimer = new IdleTimer.default();
     idleTimer
-      .setCheckInterval(60000)
-      .setIdleTimeout(60000 * 60 * 3)
-      .setNoIdleCallback(() => {
-        fetch('/gateway/alfresco/alfresco/s/citeck/ecos/touch', { credentials: 'include' });
+      .setCallbackRepeatTime(30 * 1000) // 30s
+      .setIdleTimeout(60 * 60 * 1000) // 1h
+      .setCallback((idle) => {
+        if (!idle) {
+          ecosFetch('/gateway/alfresco/alfresco/s/citeck/ecos/touch', { credentials: 'include' });
+        }
       })
       .run();
   });
