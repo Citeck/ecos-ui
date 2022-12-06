@@ -316,7 +316,7 @@
       .setIdleTimeout(60 * 60 * 1000) // 1h
       .setCallback((idle) => {
         if (!idle) {
-          ecosFetch.default('/gateway/alfresco/alfresco/s/citeck/ecos/touch').catch(() => {});
+          ecosFetch.default('/gateway/alfresco/alfresco/s/citeck/ecos/touch').then(r => r.text()).catch(() => {});
         }
       })
       .run();
