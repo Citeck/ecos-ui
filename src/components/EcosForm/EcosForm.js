@@ -109,7 +109,7 @@ class EcosForm extends React.Component {
   initForm(newFormDefinition = this.state.formDefinition) {
     // creating a queue because there is no way to cancel an already running fetch
     if (this._isStartedInit) {
-      this._initializationQueue.push(newFormDefinition);
+      this._initializationQueue = [newFormDefinition];
       return;
     }
 
