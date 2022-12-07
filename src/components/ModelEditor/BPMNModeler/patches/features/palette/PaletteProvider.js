@@ -4,8 +4,7 @@ const originGetPaletteEntries = PaletteProvider.prototype.getPaletteEntries;
 const disabledPaletteElements = [
   'create.group', // Create-a-group
   'create.data-store', // Data Store
-  'create.data-object', // Data Store
-  'create.intermediate-event'
+  'create.data-object' // Data Store
 ];
 
 PaletteProvider.prototype.getPaletteEntries = function() {

@@ -1,5 +1,11 @@
+import { getBusinessObject, is } from 'bpmn-js/lib/util/ModelUtil';
 import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
+import get from 'lodash/get';
+
+import { PARTICIPANT_TYPE } from '../../../constants/bpmn';
+import { KEY_FIELD_NAME, ML_POSTFIX, PREFIX_FIELD } from '../../../constants/cmmn';
+import * as CmmnUtils from '../CMMNModeler/utils';
 
 export function createReviver(moddle) {
   const elCache = {};
@@ -40,4 +46,20 @@ export function createReviver(moddle) {
 
     return object;
   };
+}
+
+export function getValue(element, key) {
+  if (!element || !key) {
+    return;
+  }
+
+  if (key === KEY_FIELD_NAME || (key.endsWith(ML_POSTFIX) && key.replace(ML_POSTFIX, '') === KEY_FIELD_NAME)) {
+    return CmmnUtils.getName(element, key);
+  }
+
+  if (is(element, PARTICIPANT_TYPE) && key === 'processRef') {
+    return get(getBusinessObject(element), 'processRef.id', '');
+  }
+
+  return getBusinessObject(element).get(PREFIX_FIELD + key);
 }

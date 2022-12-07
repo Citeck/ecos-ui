@@ -1,5 +1,4 @@
 import ReplaceMenuProvider from 'bpmn-js/lib/features/popup-menu/ReplaceMenuProvider';
-import PaletteProvider from 'bpmn-js/lib/features/palette/PaletteProvider';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import { filter } from 'min-dash';
 import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
@@ -7,16 +6,12 @@ import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
 import { GATEWAY_TYPES, TASK_TYPES } from '../../../../../../constants/bpmn';
 import { END_EVENT, INTERMEDIATE_EVENT, START_EVENT } from './ReplaceEventOptions';
 
-const originGetPaletteEntries = PaletteProvider.prototype.getPaletteEntries;
 const originGetEntries = ReplaceMenuProvider.prototype.getEntries;
 const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
 const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
 
 const disabledReplaceMenuForTasks = [
   'replace-with-rule-task', // Business rule
-  'replace-with-conditional-intermediate-catch', // Conditional Intermediate Catch Event
-  'replace-with-compensation-intermediate-throw', // Compensation Intermediate Throw Event
-  'replace-with-link-intermediate-catch', // Link Intermediate Catch Event
   'replace-with-call-activity', // Call Activity
   'replace-with-manual-task', // Manual Task
   'replace-with-service-task', // Service task
@@ -44,8 +39,6 @@ const disabledReplaceMenuForGateway = [
   'replace-with-event-based-gateway' // Event based Gateway
 ];
 
-const disabledPaletteElements = ['create.intermediate-event'];
-
 const disabledHeaderEntries = [
   'toggle-loop' // Loop
 ];
@@ -54,16 +47,6 @@ const disabledHeaderEntriesByElements = {
   'bpmn:SubProcess': [
     'toggle-adhoc' // Ad-hoc
   ]
-};
-
-PaletteProvider.prototype.getPaletteEntries = function() {
-  const entries = originGetPaletteEntries.apply(this);
-
-  disabledPaletteElements.forEach(key => {
-    delete entries[key];
-  });
-
-  return entries;
 };
 
 ReplaceMenuProvider.prototype.getEntries = function(element) {

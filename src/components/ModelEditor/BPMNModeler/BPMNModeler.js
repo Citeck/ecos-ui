@@ -5,6 +5,7 @@ import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
 import BaseModeler from '../BaseModeler';
 import customModules from './modules';
 import { linting } from './modules/linter';
+import { DEFINITON_TYPE } from '../../../constants/bpmn';
 
 import './patches';
 
@@ -29,7 +30,7 @@ export default class BPMNModeler extends BaseModeler {
     const searchProvider = this.modeler.get('bpmnSearch');
     const root = searchProvider._canvas.getRootElement();
 
-    return getParent(getBusinessObject(root), 'bpmn:Definitions');
+    return getParent(getBusinessObject(root), DEFINITON_TYPE);
   }
 
   saveXML = ({ callback }) => {
