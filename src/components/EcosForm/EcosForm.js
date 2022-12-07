@@ -34,6 +34,8 @@ class EcosForm extends React.Component {
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
   _cachedFormComponents = [];
+  _isStartedInit = false;
+  _initializationQueue = [];
 
   constructor(props) {
     super(props);
@@ -105,6 +107,12 @@ class EcosForm extends React.Component {
   };
 
   initForm(newFormDefinition = this.state.formDefinition) {
+    // creating a queue because there is no way to cancel an already running fetch
+    if (this._isStartedInit) {
+      this._initializationQueue.push(newFormDefinition);
+      return;
+    }
+
     const constants = get(window, 'Citeck.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
@@ -120,6 +128,8 @@ class EcosForm extends React.Component {
 
     let formLoadingPromise;
     let proxyUri = PROXY_URI || '/';
+
+    this._isStartedInit = true;
 
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
@@ -143,190 +153,199 @@ class EcosForm extends React.Component {
       isFunction(this.props.onReady) && this.props.onReady();
     };
 
-    formLoadingPromise.then(formData => {
-      isFunction(getTitle) && !!get(formData, 'title') && getTitle(formData.title);
+    formLoadingPromise
+      .then(formData => {
+        isFunction(getTitle) && !!get(formData, 'title') && getTitle(formData.title);
 
-      if (!formData || !formData.definition) {
-        onFormLoadingFailure();
-        return null;
-      }
-
-      const container = get(this._formContainer, 'current');
-
-      if (container) {
-        const modal = container.closest('.ecos-modal');
-
-        if (modal && formData.width && formData.width !== 'default') {
-          modal.classList.remove('ecos-modal_width-lg');
-          modal.classList.add(`ecos-modal_width-${formData.width}`);
-        }
-      }
-
-      const customModulePromise = new Promise(function(resolve) {
-        if (formData.customModule) {
-          window.require([formData.customModule], Module => resolve(new Module.default({ recordId })));
-        } else {
-          resolve({});
-        }
-      });
-
-      const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
-      const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
-
-      this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
-
-      if (this._formBuilderModal) {
-        this._formBuilderModal.setStateData({ formId: formData.formId });
-      }
-
-      const inputs = EcosFormUtils.getFormInputs(formDefinition);
-      const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
-      const isDebugModeOn = options.ecosIsDebugOn || localStorage.getItem('enableLoggerForNewForms') === 'true';
-
-      let canWritePromise = false;
-
-      if (options.readOnly && options.viewAsHtml) {
-        canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
-      }
-
-      if (isDebugModeOn) {
-        options.isDebugModeOn = isDebugModeOn;
-      }
-
-      Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
-        if (canWrite) {
-          options.canWrite = canWrite;
+        if (!formData || !formData.definition) {
+          onFormLoadingFailure();
+          return null;
         }
 
-        const attributesTitles = {};
+        const container = get(this._formContainer, 'current');
 
-        for (let input of recordData.inputs) {
-          if (input.component && input.edge) {
-            if (input.edge.protected) {
-              input.component.disabled = true;
-            }
+        if (container) {
+          const modal = container.closest('.ecos-modal');
 
-            if (input.edge.unreadable) {
-              input.component.disabled = true;
-              input.component.unreadable = true;
-            }
-
-            if (input.edge.title) {
-              attributesTitles[getMLValue(input.component.label)] = input.edge.title;
-            }
+          if (modal && formData.width && formData.width !== 'default') {
+            modal.classList.remove('ecos-modal_width-lg');
+            modal.classList.add(`ecos-modal_width-${formData.width}`);
           }
         }
 
-        const i18n = options.i18n || {};
-        const language = options.language || getCurrentLocale();
-        const defaultI18N = i18n[language] || {};
-        let currentLangTranslate = {};
-        let enTranslate = {};
-
-        // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
-        const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
-        const translations = translateKeys.reduce((result, key) => {
-          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
-
-          if (key === language) {
-            currentLangTranslate = translate;
+        const customModulePromise = new Promise(function(resolve) {
+          if (formData.customModule) {
+            window.require([formData.customModule], Module => resolve(new Module.default({ recordId })));
+          } else {
+            resolve({});
           }
-
-          if (key === LANGUAGE_EN) {
-            enTranslate = translate;
-          }
-
-          return {
-            ...result,
-            ...translate
-          };
-        }, {});
-
-        i18n[language] = {
-          ...translations,
-          ...enTranslate,
-          ...currentLangTranslate
-        };
-
-        options.theme = EcosFormUtils.getThemeName();
-        options.language = language;
-        options.i18n = i18n;
-        options.events = new CustomEventEmitter({
-          wildcard: false,
-          maxListeners: 0,
-          loadLimit: 200,
-          onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.infinite-loop'))
         });
-        options.initiator = initiator;
 
-        const containerElement = document.getElementById(containerId);
+        const originalFormDefinition = Object.keys(newFormDefinition).length ? newFormDefinition : formData.definition;
+        const formDefinition = EcosFormUtils.preProcessFormDefinition(originalFormDefinition, options);
 
-        if (!containerElement) {
-          return;
+        this.setState({ originalFormDefinition, formDefinition, formId: formData.formId });
+
+        if (this._formBuilderModal) {
+          this._formBuilderModal.setStateData({ formId: formData.formId });
         }
 
-        this._recoverComponentsProperties(formDefinition);
+        const inputs = EcosFormUtils.getFormInputs(formDefinition);
+        const recordDataPromise = EcosFormUtils.getData(clonedRecord || recordId, inputs, containerId);
+        const isDebugModeOn = options.ecosIsDebugOn || localStorage.getItem('enableLoggerForNewForms') === 'true';
 
-        const formPromise = Formio.createForm(containerElement, formDefinition, options);
+        let canWritePromise = false;
 
-        Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
-          const data = {
-            ...this._evalOptionsInitAttributes(recordData.inputs, options),
-            ...(this.props.attributes || {}),
-            ...recordData.submission
-          };
-          const [form, customModule] = formAndCustom;
-          const HANDLER_PREFIX = 'onForm';
+        if (options.readOnly && options.viewAsHtml) {
+          canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
+        }
 
-          form.ecos = { custom: customModule };
-          form.setValue({ data });
-          form.on('submit', submission => this.submitForm(form, submission));
-          form.on(
-            'change',
-            debounce(
-              submission => {
-                if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
-                  isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
-                }
-              },
-              1000,
-              { trailing: true }
-            )
-          );
+        if (isDebugModeOn) {
+          options.isDebugModeOn = isDebugModeOn;
+        }
 
-          Object.keys(this.props)
-            .filter(key => key.startsWith(HANDLER_PREFIX))
-            .map(prop => {
-              const str = prop.replace(HANDLER_PREFIX, '');
-              const event = strSplice(str, 0, 1, str[0].toLowerCase());
-              return { prop, event };
-            })
-            .forEach(o => {
-              if (o.event !== 'submit') {
-                form.on(o.event, data => {
-                  const fun = this.props[o.prop];
-                  isFunction(fun) && fun.apply(form, [...arguments, data]);
-                });
-              } else {
-                console.warn('Please use onSubmit handler instead of onFormSubmit');
+        Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
+          if (canWrite) {
+            options.canWrite = canWrite;
+          }
+
+          const attributesTitles = {};
+
+          for (let input of recordData.inputs) {
+            if (input.component && input.edge) {
+              if (input.edge.protected) {
+                input.component.disabled = true;
               }
+
+              if (input.edge.unreadable) {
+                input.component.disabled = true;
+                input.component.unreadable = true;
+              }
+
+              if (input.edge.title) {
+                attributesTitles[getMLValue(input.component.label)] = input.edge.title;
+              }
+            }
+          }
+
+          const i18n = options.i18n || {};
+          const language = options.language || getCurrentLocale();
+          const defaultI18N = i18n[language] || {};
+          let currentLangTranslate = {};
+          let enTranslate = {};
+
+          // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
+          const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
+          const translations = translateKeys.reduce((result, key) => {
+            const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
+
+            if (key === language) {
+              currentLangTranslate = translate;
+            }
+
+            if (key === LANGUAGE_EN) {
+              enTranslate = translate;
+            }
+
+            return {
+              ...result,
+              ...translate
+            };
+          }, {});
+
+          i18n[language] = {
+            ...translations,
+            ...enTranslate,
+            ...currentLangTranslate
+          };
+
+          options.theme = EcosFormUtils.getThemeName();
+          options.language = language;
+          options.i18n = i18n;
+          options.events = new CustomEventEmitter({
+            wildcard: false,
+            maxListeners: 0,
+            loadLimit: 200,
+            onOverload: () => !!this._form && this._form.showErrors(t('ecos-form.infinite-loop'))
+          });
+          options.initiator = initiator;
+
+          const containerElement = document.getElementById(containerId);
+
+          if (!containerElement) {
+            return;
+          }
+
+          this._recoverComponentsProperties(formDefinition);
+
+          const formPromise = Formio.createForm(containerElement, formDefinition, options);
+
+          Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+            const data = {
+              ...this._evalOptionsInitAttributes(recordData.inputs, options),
+              ...(this.props.attributes || {}),
+              ...recordData.submission
+            };
+            const [form, customModule] = formAndCustom;
+            const HANDLER_PREFIX = 'onForm';
+
+            form.ecos = { custom: customModule };
+            form.setValue({ data });
+            form.on('submit', submission => this.submitForm(form, submission));
+            form.on(
+              'change',
+              debounce(
+                submission => {
+                  if (options.formMode === FORM_MODE_EDIT && EcosFormUtils.isFormChangedByUser(submission)) {
+                    isFunction(this.props.onFormChanged) && this.props.onFormChanged(submission, this.form);
+                  }
+                },
+                1000,
+                { trailing: true }
+              )
+            );
+
+            Object.keys(this.props)
+              .filter(key => key.startsWith(HANDLER_PREFIX))
+              .map(prop => {
+                const str = prop.replace(HANDLER_PREFIX, '');
+                const event = strSplice(str, 0, 1, str[0].toLowerCase());
+                return { prop, event };
+              })
+              .forEach(o => {
+                if (o.event !== 'submit') {
+                  form.on(o.event, data => {
+                    const fun = this.props[o.prop];
+                    isFunction(fun) && fun.apply(form, [...arguments, data]);
+                  });
+                } else {
+                  console.warn('Please use onSubmit handler instead of onFormSubmit');
+                }
+              });
+
+            form.formReady.then(() => {
+              isFunction(this.props.onReady) && this.props.onReady(form);
+
+              this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
+
+              isFunction(this.props.onReadyToSubmit) &&
+                EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
             });
 
-          form.formReady.then(() => {
-            isFunction(this.props.onReady) && this.props.onReady(form);
+            this._form = form;
 
-            this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
-
-            isFunction(this.props.onReadyToSubmit) &&
-              EcosFormUtils.isComponentsReadyWaiting(form.components).then(state => this.props.onReadyToSubmit(form, state));
+            isFunction(customModule.init) && customModule.init({ form });
           });
-
-          this._form = form;
-
-          isFunction(customModule.init) && customModule.init({ form });
         });
+      }, onFormLoadingFailure)
+      .finally(() => {
+        this._isStartedInit = false;
+
+        // todo: maybe need to use AbortController (or other analogs) to cancel an already running fetch
+        if (!isEmpty(this._initializationQueue)) {
+          this.initForm(this._initializationQueue.shift());
+        }
       });
-    }, onFormLoadingFailure);
   }
 
   _evalOptionsInitAttributes(inputs, options) {
