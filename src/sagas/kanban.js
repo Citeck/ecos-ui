@@ -7,7 +7,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 
-import { JournalUrlParams, KanbanUrlParams } from '../constants';
+import { JournalUrlParams, KanbanUrlParams, SourcesId } from '../constants';
 import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
@@ -78,8 +78,13 @@ export function* sagaGetBoardList({ api, logger }, { payload }) {
 
 export function* sagaRecordActionComplete({ logger, stateId, w, ...otherProps }, { payload, ...extra }) {
   try {
-    yield put(setLoading({ stateId, isLoading: true }));
-    yield put(getBoardData({ stateId, boardId: payload.records }));
+    const { records } = payload || {};
+    const isBoard = records && (records.startsWith(SourcesId.BOARD) || records.startsWith(SourcesId.RESOLVED_BOARD));
+
+    if (isBoard) {
+      yield put(setLoading({ stateId, isLoading: true }));
+      yield put(getBoardData({ stateId, boardId: payload.records }));
+    }
   } catch (e) {
     logger.error('[kanban/sagaGetBoardConfig saga] error', e);
   }

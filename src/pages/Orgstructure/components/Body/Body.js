@@ -9,7 +9,7 @@ import List from './List';
 
 import './Body.scss';
 
-const Body = ({ reloadList }) => {
+const Body = ({ reloadList, tabId }) => {
   const context = useContext(SelectOrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
@@ -21,7 +21,7 @@ const Body = ({ reloadList }) => {
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
-          <List items={children} reloadList={reloadList} />
+          <List items={children} reloadList={reloadList} tabId={tabId} />
         </div>
       </Scrollbars>
     </div>

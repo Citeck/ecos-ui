@@ -3,6 +3,7 @@ import { loadConfigs, saveConfig } from './configApi';
 import _ from 'lodash';
 import { URL } from '../../constants';
 import { getCurrentLocale } from '../../helpers/export/util';
+import { CITECK_URI } from '../../constants/alfresco';
 
 const LOCAL_STORAGE_KEY = 'ecos-ui-config';
 
@@ -44,6 +45,7 @@ export const CUSTOM_FEEDBACK_URL = 'custom-feedback-url';
 export const CUSTOM_REPORT_ISSUE_URL = 'custom-report-issue-url';
 export const SEPARATE_ACTION_LIST_FOR_QUERY = 'separate-action-list-for-query';
 export const SITE_DASHBOARD_ENABLE = 'site-dashboard-enable';
+export const TOUCH_CONFIG = 'app/gateway$touch';
 
 const CONFIG_PROPS = {
   [MAIN_MENU_TYPE]: {
@@ -109,6 +111,12 @@ const CONFIG_PROPS = {
   },
   [TABS_ENABLED]: {
     defaultValue: true
+  },
+  [TOUCH_CONFIG]: {
+    defaultValue: {
+      enabled: true,
+      uri: `${CITECK_URI}ecos/touch`
+    }
   }
 };
 

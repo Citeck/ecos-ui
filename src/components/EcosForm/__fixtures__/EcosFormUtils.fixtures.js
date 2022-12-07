@@ -696,7 +696,6 @@ export const asyncDataCase = {
       defaultValue: null,
       protected: false,
       unique: false,
-      persistent: true,
       hidden: false,
       clearOnHide: true,
       dataGridLabel: false,

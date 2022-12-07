@@ -503,7 +503,7 @@ export function getScale(scale, paramsContainer, paramsPage, ratioAuto = 50) {
 }
 
 export function getCurrentUserName() {
-  return lodashGet(window, 'Alfresco.constants.USERNAME', '');
+  return lodashGet(window, 'Citeck.constants.USERNAME', '');
 }
 
 export const isSmallMode = width => width <= MIN_WIDTH_DASHLET_LARGE;

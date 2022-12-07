@@ -125,9 +125,11 @@ class InputView extends Component {
   };
 
   fetchActionButtons = records => {
+    const onCreate = this.props.onCreate;
     const refs = this.props.customActionRefs;
     const options = {
-      newBrowserTab: this.props.isModalMode
+      newBrowserTab: this.props.isModalMode,
+      onRecordCreated: onCreate
     };
 
     RecordActions.getActionsForRecords(records, refs, options)

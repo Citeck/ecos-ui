@@ -53,10 +53,19 @@ Choices.prototype.showDropdown = function(preventInputFocus) {
   }
 
   const containerSizes = this.containerInner.element.getBoundingClientRect();
+  const modal = this.containerInner.element.closest('.modal-content');
+  let { left, top } = containerSizes;
+
+  if (modal) {
+    const modalSizes = modal.getBoundingClientRect();
+
+    left = left - modalSizes.left;
+    top = top - modalSizes.top;
+  }
 
   this.dropdown.element.style.position = 'fixed';
-  this.dropdown.element.style.left = `${containerSizes.left}px`;
-  this.dropdown.element.style.top = `${containerSizes.top + containerSizes.height}px`;
+  this.dropdown.element.style.left = `${left}px`;
+  this.dropdown.element.style.top = `${top + containerSizes.height}px`;
   this.dropdown.element.style.width = `${containerSizes.width}px`;
   this.dropdown.element.style.minHeight = `${(this.choiceList.element.offsetHeight + this.input.element.offsetHeight || 300) + 20}px`;
 

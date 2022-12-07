@@ -1412,6 +1412,7 @@
   "user-profile-widget.button.change-photo": "Change Photo",
   "user-profile-widget.button.change-password": "Change Password",
   "user-profile-widget.error.get-profile-data": "Failure to fetch profile data",
+  "user-profile-widget.error.delete-profile-data": "User removal error",
   "user-profile-widget.error.upload-profile-photo": "Failure to upload profile photo. Try again",
   "user-profile-widget.success.change-photo": "Profile photo successfully changed",
 
@@ -2328,8 +2329,11 @@
 
   "orgstructure-page-no-picked-person-text": "Pick user profile",
   "orgstructure-page-title": "Orgstructure",
+  "orgstructure-edit-modal-title-person": "Add a person to a group",
+  "orgstructure-add-modal-title-group": "Add to subgroup",
   "orgstructure-delete-modal-title-person": "Person delete",
   "orgstructure-delete-modal-title-group": "Group delete",
+  "orgstructure-edit-modal-title-group": "Group edit",
   "orgstructure-delete-modal-body-person": "Do you really want to delete this person?",
   "orgstructure-delete-modal-body-group": "Do you really want to delete this group?",
   "orgstructure-delete-modal-full-delete": "Delete completely",

@@ -33,6 +33,7 @@ class EcosForm extends React.Component {
   _form = null;
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
+  _cachedFormComponents = [];
 
   constructor(props) {
     super(props);
@@ -51,6 +52,7 @@ class EcosForm extends React.Component {
     }
 
     window.clearTimeout(this._containerHeightTimerId);
+    window.removeEventListener('scroll', this.onScrollWindow, true);
   }
 
   componentDidMount() {
@@ -59,11 +61,14 @@ class EcosForm extends React.Component {
     this.setState({ recordId: record.id }, () => {
       this.initForm();
     });
+
+    window.addEventListener('scroll', this.onScrollWindow, true);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId || !isEqual(prevProps.options, this.props.options)) {
       this.setState({ ...this.initState }, this.initForm);
+      this._cachedFormComponents = [];
     }
 
     if (prevProps.record !== this.props.record) {
@@ -100,7 +105,7 @@ class EcosForm extends React.Component {
   };
 
   initForm(newFormDefinition = this.state.formDefinition) {
-    const alfConstants = get(window, 'Alfresco.constants') || {};
+    const constants = get(window, 'Citeck.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
     const options = cloneDeep(propsOptions);
@@ -129,8 +134,8 @@ class EcosForm extends React.Component {
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
 
-    if (alfConstants.USERNAME) {
-      Formio.setUser(alfConstants.USERNAME);
+    if (constants.USERNAME) {
+      Formio.setUser(constants.USERNAME);
     }
 
     const onFormLoadingFailure = () => {
@@ -394,6 +399,32 @@ class EcosForm extends React.Component {
     isFunction(onToggleLoader) && onToggleLoader(state);
   };
 
+  onScrollWindow = event => {
+    if (event.target && event.target.classList.contains('choices__list')) {
+      return;
+    }
+
+    this.onScrollStart();
+  };
+
+  onScrollStart = debounce(
+    () => {
+      if (!this.form) {
+        return;
+      }
+
+      if (isEmpty(this._cachedFormComponents)) {
+        this._cachedFormComponents = this.getComponents(this.form, true);
+      }
+
+      this._cachedFormComponents.forEach(item => {
+        item.callFunction('hideDropdown');
+      });
+    },
+    500,
+    { leading: true }
+  );
+
   onShowFormBuilder = async callback => {
     if (this._formBuilderModal) {
       const { options, onFormSubmitDone } = this.props;
@@ -557,6 +588,7 @@ class EcosForm extends React.Component {
     } else {
       this.setState({ ...this.initState });
       this.initForm({});
+      this._cachedFormComponents = [];
     }
 
     this.toggleContainerHeight(true);
@@ -569,6 +601,54 @@ class EcosForm extends React.Component {
       container.style.height = toSave ? `${container.offsetHeight}px` : 'auto';
     }
   }
+
+  getComponents = (component, ignoreSelf = false) => {
+    const components = [];
+
+    if (!ignoreSelf) {
+      components.push(component);
+    }
+
+    if (component.components) {
+      components.push(...this.getInternalComponents(component));
+    }
+
+    if (component.rows) {
+      components.push(...this.getInternalRows(component));
+    }
+
+    return components;
+  };
+
+  getInternalComponents = component => {
+    const components = [];
+
+    if (isEmpty(component.components)) {
+      return components;
+    }
+
+    for (let i = 0; i < component.components.length; i++) {
+      components.push(...this.getComponents(component.components[i]));
+    }
+
+    return components;
+  };
+
+  getInternalRows = component => {
+    const components = [];
+
+    if (!component.rows) {
+      return components;
+    }
+
+    for (let i = 0; i < component.rows.length; i++) {
+      Object.keys(component.rows[i]).forEach(key => {
+        components.push(...this.getComponents(component.rows[i][key]));
+      });
+    }
+
+    return components;
+  };
 
   render() {
     const { className } = this.props;

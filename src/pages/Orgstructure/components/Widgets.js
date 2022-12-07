@@ -37,20 +37,20 @@ const renderWidget = (element, record) => {
 
 const Widgets = ({ personId }) => {
   if (!personId) {
-    return <div className="orgstructure-page__grid__empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
+    return <div className="orgstructure-page__grid-empty-widgets">{t(Labels.NO_DATA_TEXT)}</div>;
   }
 
   return (
-    <div className="orgstructure-page__grid__widgets">
-      <div className="orgstructure-page__grid__widgets-block">
+    <div className="orgstructure-page__grid-widgets">
+      <div className="orgstructure-page__grid-widgets-block">
         <UserProfileDashlet record={personId} />
         {renderWidget(WIDGETS_CONFIG.OTHER, personId)}
       </div>
-      <div className="orgstructure-page__grid__widgets-block">
+      <div className="orgstructure-page__grid-widgets-block">
         {renderWidget(WIDGETS_CONFIG.GENERAL, personId)}
         {renderWidget(WIDGETS_CONFIG.GROUPS, personId)}
       </div>
-      <div className="orgstructure-page__grid__widgets-block">{renderWidget(WIDGETS_CONFIG.CONTACTS, personId)}</div>
+      <div className="orgstructure-page__grid-widgets-block">{renderWidget(WIDGETS_CONFIG.CONTACTS, personId)}</div>
     </div>
   );
 };

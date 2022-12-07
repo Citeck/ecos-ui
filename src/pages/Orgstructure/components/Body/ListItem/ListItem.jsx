@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
+import set from 'lodash/set';
 import noop from 'lodash/noop';
-import { connect } from 'react-redux';
+import { NotificationManager } from 'react-notifications';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { EcosModal } from '../../../../../components/common';
@@ -12,14 +14,21 @@ import ModalContent from '../ModalContent';
 import { setSelectedPerson } from '../../../../../actions/orgstructure';
 import { t } from '../../../../../helpers/util';
 import { updateCurrentUrl } from '../../../../../helpers/urls';
+import { getDashboardConfig } from '../../../../../actions/dashboard';
+import GroupIcon from './GroupIcon';
+import { SourcesId } from '../../../../../constants';
 
 import './ListItem.scss';
 
 const Labels = {
-  TITLE_PERSON: 'orgstructure-delete-modal-title-person',
-  TITLE_GROUP: 'orgstructure-delete-modal-title-group',
-  BODY_PERSON: 'orgstructure-delete-modal-body-person',
-  BODY_GROUP: 'orgstructure-delete-modal-body-group',
+  TITLE_PERSON_DELETE: 'orgstructure-delete-modal-title-person',
+  TITLE_PERSON_SELECT: 'orgstructure-page-no-picked-person-text',
+  TITLE_GROUP_DELETE: 'orgstructure-delete-modal-title-group',
+  TITLE_GROUP_EDIT: 'orgstructure-edit-modal-title-group',
+  TITLE_PERSON_ADD: 'orgstructure-edit-modal-title-person',
+  TITLE_SUBGROUP_CREATE: 'orgstructure-add-modal-title-group',
+  CONFIRM_PERSON_DELETE: 'orgstructure-delete-modal-body-person',
+  CONFIRM_GROUP_DELETE: 'orgstructure-delete-modal-body-group',
   FULL_DELETE: 'orgstructure-delete-modal-full-delete',
   GROUP_DELETE: 'orgstructure-delete-modal-group-delete',
   CANCEL: 'orgstructure-delete-modal-cancel'
@@ -32,9 +41,9 @@ const FORM_CONFIG = {
       ru: 'Группа',
       en: 'Group'
     },
-    sourceId: 'emodel/authority-group',
-    typeRef: 'emodel/type@authority-group',
-    formRef: 'uiserv/form@authority-group-form'
+    sourceId: SourcesId.GROUP,
+    typeRef: `${SourcesId.TYPE}@authority-group`,
+    formRef: `${SourcesId.FORM}@authority-group-form`
   },
   PERSON: {
     id: 'DEFAULT',
@@ -42,9 +51,9 @@ const FORM_CONFIG = {
       ru: 'Пользователь',
       en: 'Person'
     },
-    sourceId: 'emodel/person',
-    typeRef: 'emodel/type@person',
-    formRef: 'uiserv/form@person-form'
+    sourceId: SourcesId.PERSON,
+    typeRef: `${SourcesId.TYPE}@person`,
+    formRef: `${SourcesId.FORM}@person-form`
   }
 };
 
@@ -62,13 +71,12 @@ const renderListItem = (item, nestingLevel) => {
   return <span className="orgstructure-page__list-item-label">{item.label}</span>;
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson }) => {
+const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {
   const { onToggleCollapse, initList } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
-
   const selected = selectedPerson === item.id;
   const onClickLabel = () => {
     if (item.hasChildren) {
@@ -99,15 +107,38 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     initList();
   };
 
-  const createForm = formConfig => e => {
+  const createForm = formConfig => (e, isEditMode = false) => {
     e.stopPropagation();
-    FormManager.createRecordByVariant(formConfig, {
-      onSubmit: reload,
-      initiator: {
-        type: 'form-component',
-        name: 'CreateVariants'
+
+    const isPerson = formConfig.sourceId === SourcesId.PERSON;
+    const extraConfig = {};
+    let title;
+
+    set(extraConfig, 'attributes.authorityGroups', [item.id]);
+
+    if (isPerson) {
+      extraConfig.recordRef = null;
+
+      title = t(Labels.TITLE_PERSON_ADD);
+    } else {
+      title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
+    }
+
+    if (isEditMode) {
+      extraConfig.recordRef = item.id;
+    }
+
+    FormManager.createRecordByVariant(
+      { ...formConfig, ...extraConfig },
+      {
+        title,
+        onSubmit: reload,
+        initiator: {
+          type: 'form-component',
+          name: 'CreateVariants'
+        }
       }
-    });
+    );
   };
 
   const createPerson = createForm(FORM_CONFIG.PERSON);
@@ -126,37 +157,21 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   };
 
   const openPersonModal = openModal('person');
-  const openGroupModal = openModal('group');
 
-  const fullDelete = e => {
+  const deleteFromGroup = e => {
     closeModal(e);
-    deleteItem({ ...item });
-    reload();
-  };
 
-  const groupConfig = {
-    text: t(Labels.BODY_GROUP),
-    buttons: [
-      {
-        text: t(Labels.CANCEL),
-        className: 'gray',
-        handleClick: closeModal
-      },
-      {
-        text: t(Labels.FULL_DELETE),
-        className: 'red',
-        handleClick: fullDelete
-      },
-      {
-        text: t(Labels.GROUP_DELETE),
-        className: 'green',
-        handleClick: closeModal
-      }
-    ]
+    try {
+      deleteItem({ ...item });
+    } catch (e) {
+      NotificationManager.error(t('user-profile-widget.error.delete-profile-data'));
+    } finally {
+      reload();
+    }
   };
 
   const personConfig = {
-    text: t(Labels.BODY_PERSON),
+    text: t(Labels.CONFIRM_PERSON_DELETE),
     buttons: [
       {
         text: t(Labels.CANCEL),
@@ -164,33 +179,27 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
         handleClick: closeModal
       },
       {
-        text: t(Labels.FULL_DELETE),
-        className: 'red',
-        handleClick: fullDelete
-      },
-      {
         text: t(Labels.GROUP_DELETE),
-        className: 'green',
-        handleClick: closeModal
+        handleClick: deleteFromGroup
       }
     ]
   };
 
   let modalTitle = '';
+
   if (modalType === 'group') {
-    modalTitle = t(Labels.TITLE_GROUP);
+    modalTitle = t(Labels.TITLE_GROUP_DELETE);
   }
+
   if (modalType === 'person') {
-    modalTitle = t(Labels.TITLE_PERSON);
+    modalTitle = t(Labels.TITLE_PERSON_DELETE);
   }
 
   const renderModalContent = () => {
     if (modalType === 'person') {
       return <ModalContent config={personConfig} />;
     }
-    if (modalType === 'group') {
-      return <ModalContent config={groupConfig} />;
-    }
+
     return null;
   };
 
@@ -200,12 +209,13 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
 
   const selectPerson = e => {
     e.stopPropagation();
-    dispatch(setSelectedPerson(item.id));
+    dispatch(setSelectedPerson({ recordRef: item.id }));
+    dispatch(getDashboardConfig({ recordRef: item.id }));
     updateCurrentUrl({ recordRef: item.id });
   };
 
-  const isPerson = item.id.includes('emodel/person');
-  const isGroup = item.id.includes('emodel/authority-group');
+  const isPerson = item.id.includes(SourcesId.PERSON);
+  const isGroup = item.id.includes(SourcesId.GROUP);
 
   return (
     <li>
@@ -229,26 +239,36 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               {renderCollapseHandler()}
               {renderListItem(item, nestingLevel)}
             </div>
-            {hovered ? (
-              <div className="orgstructure-page__list-item-icons">
-                {isPerson ? <span className="icon-user-away" onClick={openPersonModal} /> : null}
-                {isPerson ? (
-                  <span className={classNames(['icon-user-normal', { 'icon-user-normal__clicked': selected }])} onClick={selectPerson} />
-                ) : null}
-                {isGroup ? <span className="icon-users orange" onClick={openGroupModal} /> : null}
-                {isGroup ? <span className="icon-users green" onClick={createGroup} /> : null}
-                {isGroup ? <span className="icon-user-online" onClick={createPerson} /> : null}
-                <EcosModal
-                  className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
-                  isOpen={modalOpen}
-                  title={modalTitle}
-                  hideModal={closeModal}
-                  onClick={handleModalClick}
-                >
-                  {renderModalContent()}
-                </EcosModal>
-              </div>
-            ) : null}
+
+            <div
+              className={classNames('orgstructure-page__list-item-icons', {
+                'orgstructure-page__list-item-icons_hidden': !hovered
+              })}
+            >
+              {isPerson && item.parentId ? (
+                <span title={t(Labels.TITLE_PERSON_DELETE)} className="icon-user-away" onClick={openPersonModal} />
+              ) : null}
+              {isPerson ? (
+                <span
+                  title={t(Labels.TITLE_PERSON_SELECT)}
+                  className={classNames(['icon-user-normal', { 'icon-user-normal__clicked': selected }])}
+                  onClick={selectPerson}
+                />
+              ) : null}
+              {isGroup ? <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} className="icon-edit" onClick={e => createGroup(e, true)} /> : null}
+              {isGroup ? <GroupIcon title={t(Labels.TITLE_SUBGROUP_CREATE)} className="icon-users green" onClick={createGroup} /> : null}
+              {isGroup ? <GroupIcon title={t(Labels.TITLE_PERSON_ADD)} className="icon-user-online" onClick={createPerson} /> : null}
+
+              <EcosModal
+                className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
+                isOpen={modalOpen}
+                title={modalTitle}
+                hideModal={closeModal}
+                onClick={handleModalClick}
+              >
+                {renderModalContent()}
+              </EcosModal>
+            </div>
           </div>
         </div>
       </div>

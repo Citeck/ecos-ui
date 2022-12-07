@@ -8,7 +8,6 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
-import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/util';
 import EcosForm from '../../EcosForm/EcosForm';
@@ -42,7 +41,6 @@ class Properties extends React.Component {
 
   _ecosForm = React.createRef();
   _hiddenEcosForm = React.createRef();
-  _cachedFormComponents = [];
 
   state = {
     loaded: false,
@@ -52,19 +50,10 @@ class Properties extends React.Component {
     contentHeight: 0
   };
 
-  componentDidMount() {
-    window.addEventListener('scroll', this.onScrollWindow, true);
-  }
-
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.formId !== this.props.formId) {
       this.setState({ loaded: false });
-      this._cachedFormComponents = [];
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('scroll', this.onScrollWindow, true);
   }
 
   get form() {
@@ -110,7 +99,19 @@ class Properties extends React.Component {
     const { initData } = this.state;
 
     if (isFunction(onFormIsChanged)) {
-      const isChanged = !isEqual(initData, submission.data);
+      const submissionData = cloneDeep(submission.data);
+      const clonedInitData = cloneDeep(initData);
+
+      form.getAllComponents().forEach(c => {
+        const { persistent, key } = c.component;
+
+        if (persistent === 'client-only' || !persistent) {
+          delete submissionData[key];
+          delete clonedInitData[key];
+        }
+      });
+
+      const isChanged = !isEqual(submissionData, clonedInitData);
 
       onFormIsChanged(isChanged, form.isValid(submission));
     }
@@ -137,82 +138,6 @@ class Properties extends React.Component {
   getTitle = title => {
     this.props.getTitle && this.props.getTitle(title);
   };
-
-  getComponents = (component, ignoreSelf = false) => {
-    const components = [];
-
-    if (!ignoreSelf) {
-      components.push(component);
-    }
-
-    if (component.components) {
-      components.push(...this.getInternalComponents(component));
-    }
-
-    if (component.rows) {
-      components.push(...this.getInternalRows(component));
-    }
-
-    return components;
-  };
-
-  getInternalComponents = component => {
-    const components = [];
-
-    if (isEmpty(component.components)) {
-      return components;
-    }
-
-    for (let i = 0; i < component.components.length; i++) {
-      components.push(...this.getComponents(component.components[i]));
-    }
-
-    return components;
-  };
-
-  getInternalRows = component => {
-    const components = [];
-
-    if (!component.rows) {
-      return components;
-    }
-
-    for (let i = 0; i < component.rows.length; i++) {
-      Object.keys(component.rows[i]).forEach(key => {
-        components.push(...this.getComponents(component.rows[i][key]));
-      });
-    }
-
-    return components;
-  };
-
-  onScrollWindow = event => {
-    if (event.target && event.target.classList.contains('choices__list')) {
-      return;
-    }
-
-    this.onScrollStart();
-  };
-
-  onScrollStart = debounce(
-    () => {
-      const form = get(this, '_ecosForm.current.form');
-
-      if (!form) {
-        return;
-      }
-
-      if (isEmpty(this._cachedFormComponents)) {
-        this._cachedFormComponents = this.getComponents(form, true);
-      }
-
-      this._cachedFormComponents.forEach(item => {
-        item.callFunction('hideDropdown');
-      });
-    },
-    500,
-    { leading: true }
-  );
 
   renderForm() {
     const { record, isSmallMode, formId, formMode, isDraft, isMobile, onUpdate, onInlineEditSave } = this.props;
@@ -280,7 +205,6 @@ class Properties extends React.Component {
         className={classNames('ecos-properties__scroll', className)}
         renderTrackVertical={props => <div {...props} className="ecos-properties__scroll_v" />}
         hideTracksWhenNotNeeded
-        onScrollStart={this.onScrollStart}
         {...scrollProps}
       >
         <div ref={forwardedRef} style={{ minHeight: minHeight || '50px' }}>

@@ -3,7 +3,8 @@ export const DashboardTypes = {
   USER: 'user-dashboard',
   SITE: 'site-details',
   PROFILE: 'profile-details',
-  PROCESS: 'process-dashboard'
+  PROCESS: 'process-dashboard',
+  ORGSTRUCTURE: 'orgstructure-person-dashboard'
 };
 
 export const DeviceTabs = [

@@ -3,39 +3,53 @@
 }
 .orgstructure-page {
   &__grid {
-    &__container {
+    &-container {
       display: grid;
-      grid-template-columns: 1fr 3fr;
+      grid-template-columns: minmax(300px, 1fr) 3fr;
       grid-template-rows: 1fr;
       grid-column-gap: 24px;
       grid-row-gap: 0px;
-      padding-top: 23px;
       height: 100%;
     }
-    &__main {
+
+    &-main {
       position: relative;
+      margin-top: 23px;
       margin-left: 12px;
       width: 100%;
       height: 100%;
       overflow: hidden;
       background-color: white;
       border-radius: 12px;
-      overflow-y: hidden;
     }
-    &__widgets {
+
+    &-layout {
+      display: block;
+      position: relative;
+      padding-top: 23px;
+      overflow-y: scroll;
+
+      .ecos-layout {
+        padding: 0 18px 0 4px;
+      }
+    }
+
+    &-widgets {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       grid-gap: 10px;
       padding-right: 10px;
       overflow: auto;
+
+      &-block {
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        padding-bottom: 20px;
+      }
     }
-    &__widgets-block {
-      display: flex;
-      gap: 10px;
-      flex-direction: column;
-      padding-bottom: 20px;
-    }
-    &__empty-widgets {
+
+    &-empty-widgets {
       display: flex;
       justify-content: center;
       align-items: center;

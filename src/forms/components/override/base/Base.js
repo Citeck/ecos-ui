@@ -491,6 +491,17 @@ Base.prototype.createViewOnlyElement = function() {
   return element;
 };
 
+/**
+ * Update cached data only for components, opened for inline editing
+ *
+ * @param data
+ */
+Base.prototype.updateCachedData = function(data = {}) {
+  if (!isEmpty(this._cachedData)) {
+    this._cachedData = cloneDeep(data);
+  }
+};
+
 // Cause: https://citeck.atlassian.net/browse/ECOSUI-2231
 Base.prototype.silentSaveForm = function() {
   if (!this._isInlineEditingMode) {
@@ -518,7 +529,16 @@ Base.prototype.silentSaveForm = function() {
       if (!this.options.saveDraft) {
         form.showErrors('', true);
       }
+
       this.removeClass(this.element, 'has-error');
+
+      const components = flattenComponents(this.root.components);
+
+      Object.keys(components).forEach(key => {
+        const component = components[key];
+
+        component.updateCachedData(this.data);
+      });
     })
     .catch(e => {
       form.showErrors(e, true);

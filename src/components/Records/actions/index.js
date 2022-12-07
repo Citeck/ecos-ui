@@ -41,6 +41,7 @@ import EditJsonAction from './handler/executor/EditJsonAction';
 import RecordsExport from './handler/executor/RecordsExport';
 import EditJournalPresetAction from './handler/executor/EditJournalPresetAction';
 import DownloadByTemplateAction from './handler/executor/DownloadByTemplateAction';
+import RecordCopyAction from './handler/executor/RecordCopyAction';
 
 export { default } from './recordActions';
 
@@ -87,6 +88,7 @@ actionsRegistry.register(new EditJsonAction());
 actionsRegistry.register(new RecordsExport());
 actionsRegistry.register(new EditJournalPresetAction());
 actionsRegistry.register(new DownloadByTemplateAction());
+actionsRegistry.register(new RecordCopyAction());
 
 // Executors - Case
 

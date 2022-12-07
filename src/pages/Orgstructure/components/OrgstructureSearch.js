@@ -1,8 +1,10 @@
-import classNames from 'classnames';
 import React, { useContext, useRef } from 'react';
+import classNames from 'classnames';
+
 import { Input } from '../../../components/common/form';
 import { SelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import { t } from '../../../helpers/util';
+
 import './style.scss';
 
 const Labels = {

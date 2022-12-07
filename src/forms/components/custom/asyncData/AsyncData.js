@@ -64,7 +64,8 @@ export default class AsyncDataComponent extends BaseComponent {
           event: '',
           rate: 100,
           force: false
-        }
+        },
+        persistent: 'client-only'
       },
       ...extend
     );

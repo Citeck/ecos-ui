@@ -159,13 +159,13 @@ export default class Components {
     [ComponentKeys.DOCUMENTS]: {
       load: () => lazy(() => import('./Documents')),
       label: 'dashboard-settings.widget.documents',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE],
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE, DashboardTypes.ORGSTRUCTURE],
       props: {}
     },
     [ComponentKeys.USER_PROFILE]: {
       load: () => lazy(() => import('./UserProfile')),
       label: 'dashboard-settings.widget.user-basic-info',
-      supportedDashboardTypes: [DashboardTypes.PROFILE],
+      supportedDashboardTypes: [DashboardTypes.PROFILE, DashboardTypes.ORGSTRUCTURE],
       props: {}
     },
     [ComponentKeys.DOC_CONSTRUCTOR]: {
@@ -226,6 +226,7 @@ export default class Components {
 
   static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
     const components = new Map();
+    console.log('dashType = ', dashboardType);
 
     Components.widgetsForAllDasboards.forEach(component => {
       components.set(component.name, component.label);
