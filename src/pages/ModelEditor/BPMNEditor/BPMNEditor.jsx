@@ -90,7 +90,6 @@ class BPMNEditorPage extends ModelEditor {
 
   getFormType(selectedElement) {
     const elementType = this._determineElementType(selectedElement);
-
     return elementType ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${elementType}` : null;
   }
 
