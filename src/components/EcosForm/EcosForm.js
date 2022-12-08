@@ -122,7 +122,7 @@ class EcosForm extends React.Component {
     let formLoadingPromise;
     let proxyUri = PROXY_URI || '/';
 
-    this._lastFormOptions = cloneDeep(propsOptions);
+    this._lastFormOptions = propsOptions;
 
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
@@ -147,7 +147,7 @@ class EcosForm extends React.Component {
     };
 
     formLoadingPromise.then(formData => {
-      if (!isEqual(this._lastFormOptions, propsOptions)) {
+      if (this._lastFormOptions !== propsOptions) {
         return;
       }
 
@@ -201,7 +201,7 @@ class EcosForm extends React.Component {
       }
 
       Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
-        if (!isEqual(this._lastFormOptions, propsOptions)) {
+        if (this._lastFormOptions !== propsOptions) {
           return;
         }
 
@@ -281,7 +281,7 @@ class EcosForm extends React.Component {
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
-          if (!isEqual(this._lastFormOptions, propsOptions)) {
+          if (this._lastFormOptions !== propsOptions) {
             return;
           }
 
@@ -328,7 +328,7 @@ class EcosForm extends React.Component {
             });
 
           form.formReady.then(() => {
-            if (!isEqual(this._lastFormOptions, propsOptions)) {
+            if (this._lastFormOptions !== propsOptions) {
               return;
             }
 
