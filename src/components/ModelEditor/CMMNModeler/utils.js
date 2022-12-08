@@ -7,7 +7,7 @@ export function getEcosType(element) {
   return definition && definition.get ? definition.get(TYPE_CUSTOM) : '';
 }
 
-function getName(element, key) {
+export function getName(element, key) {
   element = ModelUtil.getBusinessObject(element);
 
   if (ModelUtil.is(element, 'cmmndi:CMMNEdge') && element.cmmnElementRef) {

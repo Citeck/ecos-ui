@@ -24,6 +24,7 @@ import {
   PREFIX_FIELD
 } from '../../constants/cmmn';
 import {
+  DEFINITON_TYPE,
   GATEWAY_TYPES,
   SEQUENCE_TYPE,
   TASK_TYPES,
@@ -463,7 +464,7 @@ class ModelEditorPage extends React.Component {
       const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
       const rawValue = info.data[key];
 
-      if (selectedDiagramElement && key === 'processDefId') {
+      if (is(selectedDiagramElement, DEFINITON_TYPE) && key === 'processDefId') {
         this.designer.updateProps(selectedDiagramElement, {
           id: rawValue
         });

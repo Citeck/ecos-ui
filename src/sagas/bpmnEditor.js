@@ -7,7 +7,7 @@ import { getFormProps, getModel, getTitle, initData, saveModel, setFormProps, se
 import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
-import * as CmmnUtils from '../components/ModelEditor/CMMNModeler/utils';
+import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
 import { isJsonObjectString } from '../helpers/util';
 import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
@@ -107,8 +107,8 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
 
         const inputType = component.type;
         const isMultiple = component.multiple;
-        let value = CmmnUtils.getValue(element, att);
 
+        let value = BpmnUtils.getValue(element, att);
         if (value != null && value !== '' && (isMultiple === true || JSON_VALUE_COMPONENTS.includes(inputType))) {
           value = isJsonObjectString(value) ? JSON.parse(value) : value;
         }

@@ -63,6 +63,7 @@ export const TASK_TYPES = [
   'bpmn:SubProcess'
 ];
 
+export const DEFINITON_TYPE = 'bpmn:Definitions';
 export const SEQUENCE_TYPE = 'bpmn:SequenceFlow';
 export const COLLABORATION_TYPE = 'bpmn:Collaboration';
 export const PARTICIPANT_TYPE = 'bpmn:Participant';
