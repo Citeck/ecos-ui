@@ -1,6 +1,6 @@
-import Choices from 'choices.js/public/assets/scripts/choices.js';
 import _ from 'lodash';
 
+import Choices from '../../../Choices';
 import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 
