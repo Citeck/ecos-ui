@@ -4,7 +4,7 @@ import { filter } from 'min-dash';
 import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
 
 import { GATEWAY_TYPES, TASK_TYPES } from '../../../../../../constants/bpmn';
-import { END_EVENT, INTERMEDIATE_EVENT, START_EVENT } from './ReplaceEventOptions';
+import { BOUNDARY_EVENT, END_EVENT, INTERMEDIATE_EVENT, START_EVENT } from './ReplaceEventOptions';
 
 const originGetEntries = ReplaceMenuProvider.prototype.getEntries;
 const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
@@ -57,6 +57,12 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 
   if (is(businessObject, 'bpmn:IntermediateCatchEvent') || is(businessObject, 'bpmn:IntermediateThrowEvent')) {
     entries = filter(INTERMEDIATE_EVENT, differentType);
+
+    return this._createEntries(element, entries);
+  }
+
+  if (is(businessObject, 'bpmn:BoundaryEvent')) {
+    entries = filter(BOUNDARY_EVENT, differentType);
 
     return this._createEntries(element, entries);
   }
