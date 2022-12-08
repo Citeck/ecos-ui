@@ -277,3 +277,25 @@ export const TASK = [
     }
   }
 ];
+
+export const BOUNDARY_EVENT = [
+  {
+    label: 'Timer Boundary Event',
+    actionName: 'replace-with-timer-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-timer',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:TimerEventDefinition'
+    }
+  },
+  {
+    label: 'Timer Boundary Event (non-interrupting)',
+    actionName: 'replace-with-non-interrupting-timer-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-non-interrupting-timer',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:TimerEventDefinition',
+      cancelActivity: false
+    }
+  }
+];

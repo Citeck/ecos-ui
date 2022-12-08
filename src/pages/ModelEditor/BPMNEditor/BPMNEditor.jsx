@@ -89,7 +89,8 @@ class BPMNEditorPage extends ModelEditor {
   }
 
   getFormType(selectedElement) {
-    const elementType = this._determineElementType(selectedElement);
+    const elementType = this._determineElementType(selectedElement || {});
+
     return elementType ? `${SourcesId.FORM}${PREFIX_FORM_ELM}${elementType}` : null;
   }
 
@@ -97,10 +98,11 @@ class BPMNEditorPage extends ModelEditor {
     if (!this.formType || !this.state.selectedElement) {
       return null;
     }
-    const selectedElement = this.state.selectedElement;
 
+    const selectedElement = this.state.selectedElement;
     const sourceType = selectedElement.$type || selectedElement.type;
-    let type = this._determineElementType(selectedElement);
+
+    let type = this._determineElementType(selectedElement || {});
 
     if (sourceType !== type) {
       const sourceTypeValue = sourceType.split(BPMN_DELIMITER).pop();

@@ -387,7 +387,7 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
-    if (selectedElement.type === COLLABORATION_TYPE) {
+    if (selectedElement && selectedElement.type === COLLABORATION_TYPE) {
       const root = this.designer.modeler.getDefinitions();
       const selected = this._getBusinessObjectByDiagramElement(root);
 
