@@ -178,6 +178,32 @@ class ModelEditorPage extends React.Component {
     }
   };
 
+  #getElementType = () => {
+    return this.formType;
+  };
+
+  #getElementParentType = () => {
+    const { selectedElement } = this.state;
+    const element = this.getElement(selectedElement);
+
+    if (!element) {
+      return undefined;
+    }
+
+    return get(element, 'businessObject.$parent.$type');
+  };
+
+  #elementIsNonInterrupting = () => {
+    const { selectedElement } = this.state;
+    const element = this.getElement(selectedElement);
+
+    if (!element) {
+      return undefined;
+    }
+
+    return get(element, 'businessObject.cancelActivity') === false || get(element, 'businessObject.isInterrupting') === false;
+  };
+
   #getIncomingOutcomes = () => {
     const { selectedElement } = this.state;
     const isSequenceFlow = get(selectedElement, 'type') === SEQUENCE_TYPE;
@@ -227,9 +253,14 @@ class ModelEditorPage extends React.Component {
 
     return {
       editor: {
-        getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`),
+        getEcosType: () => {
+          return ecosType;
+        },
         getIncomingOutcomes: this.#getIncomingOutcomes,
-        getMultiInstanceType: this.#getMultiInstanceType
+        getMultiInstanceType: this.#getMultiInstanceType,
+        getElementType: this.#getElementType,
+        getElementParentType: this.#getElementParentType,
+        elementIsNonInterrupting: this.#elementIsNonInterrupting
       }
     };
   }
