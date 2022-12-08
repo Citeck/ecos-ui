@@ -124,8 +124,6 @@ class EcosForm extends React.Component {
 
     this._lastFormOptions = cloneDeep(propsOptions);
 
-    this._isStartedInit = true;
-
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
     } else {
