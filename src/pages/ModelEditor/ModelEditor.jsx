@@ -36,8 +36,6 @@ import {
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import Records from '../../components/Records';
-import { SourcesId } from '../../constants';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';

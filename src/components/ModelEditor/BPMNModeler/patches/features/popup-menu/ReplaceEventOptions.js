@@ -31,6 +31,15 @@ export const START_EVENT = [
       type: 'bpmn:StartEvent',
       eventDefinitionType: 'bpmn:ConditionalEventDefinition'
     }
+  },
+  {
+    label: 'Signal Start Event',
+    actionName: 'replace-with-signal-start',
+    className: 'bpmn-icon-start-event-signal',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition'
+    }
   }
 ];
 
@@ -110,6 +119,24 @@ export const INTERMEDIATE_EVENT = [
       type: 'bpmn:IntermediateThrowEvent',
       eventDefinitionType: 'bpmn:CompensateEventDefinition'
     }
+  },
+  {
+    label: 'Signal Intermediate Catch Event',
+    actionName: 'replace-with-signal-intermediate-catch',
+    className: 'bpmn-icon-intermediate-event-catch-signal',
+    target: {
+      type: 'bpmn:IntermediateCatchEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition'
+    }
+  },
+  {
+    label: 'Signal Intermediate Throw Event',
+    actionName: 'replace-with-signal-intermediate-throw',
+    className: 'bpmn-icon-intermediate-event-throw-signal',
+    target: {
+      type: 'bpmn:IntermediateThrowEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition'
+    }
   }
 ];
 
@@ -172,6 +199,15 @@ export const END_EVENT = [
     target: {
       type: 'bpmn:EndEvent',
       eventDefinitionType: 'bpmn:CompensateEventDefinition'
+    }
+  },
+  {
+    label: 'Signal End Event',
+    actionName: 'replace-with-signal-end',
+    className: 'bpmn-icon-end-event-signal',
+    target: {
+      type: 'bpmn:EndEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition'
     }
   },
   {
@@ -295,6 +331,25 @@ export const BOUNDARY_EVENT = [
     target: {
       type: 'bpmn:BoundaryEvent',
       eventDefinitionType: 'bpmn:TimerEventDefinition',
+      cancelActivity: false
+    }
+  },
+  {
+    label: 'Signal Boundary Event',
+    actionName: 'replace-with-signal-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-signal',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition'
+    }
+  },
+  {
+    label: 'Signal Boundary Event (non-interrupting)',
+    actionName: 'replace-with-non-interrupting-signal-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-non-interrupting-signal',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition',
       cancelActivity: false
     }
   }
