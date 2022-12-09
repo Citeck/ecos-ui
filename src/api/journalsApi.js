@@ -3,6 +3,7 @@ import { debounce } from '../helpers/util';
 import * as ls from '../helpers/ls';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
+import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
@@ -85,7 +86,7 @@ export class JournalsApi extends RecordService {
    */
   checkRowEditRules = recordRef => {
     return Records.get(recordRef)
-      .load('.att(n:"permissions"){has(n:"Write")}')
+      .load(PERMISSION_WRITE_ATTR)
       .catch(() => null);
   };
 
