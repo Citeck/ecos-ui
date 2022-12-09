@@ -43,6 +43,104 @@ export const START_EVENT = [
   }
 ];
 
+export const PARTICIPANT = [
+  {
+    label: 'Expanded Pool',
+    actionName: 'replace-with-expanded-pool',
+    className: 'bpmn-icon-participant',
+    target: {
+      type: 'bpmn:Participant',
+      isExpanded: true
+    }
+  },
+  {
+    label: function(element) {
+      let label = 'Empty Pool';
+
+      if (element.children && element.children.length) {
+        label += ' (removes content)';
+      }
+
+      return label;
+    },
+    actionName: 'replace-with-collapsed-pool',
+
+    className: 'bpmn-icon-lane',
+    target: {
+      type: 'bpmn:Participant',
+      isExpanded: false
+    }
+  }
+];
+
+export const EVENT_SUB_PROCESS_START_EVENT = [
+  {
+    label: 'Timer Start Event',
+    actionName: 'replace-with-timer-start',
+    className: 'bpmn-icon-start-event-timer',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:TimerEventDefinition'
+    }
+  },
+  {
+    label: 'Signal Start Event',
+    actionName: 'replace-with-signal-start',
+    className: 'bpmn-icon-start-event-signal',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition'
+    }
+  },
+  {
+    label: 'Timer Start Event (non-interrupting)',
+    actionName: 'replace-with-non-interrupting-timer-start',
+    className: 'bpmn-icon-start-event-non-interrupting-timer',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:TimerEventDefinition',
+      isInterrupting: false
+    }
+  },
+  {
+    label: 'Signal Start Event (non-interrupting)',
+    actionName: 'replace-with-non-interrupting-signal-start',
+    className: 'bpmn-icon-start-event-non-interrupting-signal',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:SignalEventDefinition',
+      isInterrupting: false
+    }
+  }
+];
+
+export const START_EVENT_SUB_PROCESS = [
+  {
+    label: 'Start Event',
+    actionName: 'replace-with-none-start',
+    className: 'bpmn-icon-start-event-none',
+    target: {
+      type: 'bpmn:StartEvent'
+    }
+  },
+  {
+    label: 'Intermediate Throw Event',
+    actionName: 'replace-with-none-intermediate-throwing',
+    className: 'bpmn-icon-intermediate-event-none',
+    target: {
+      type: 'bpmn:IntermediateThrowEvent'
+    }
+  },
+  {
+    label: 'End Event',
+    actionName: 'replace-with-none-end',
+    className: 'bpmn-icon-end-event-none',
+    target: {
+      type: 'bpmn:EndEvent'
+    }
+  }
+];
+
 export const INTERMEDIATE_EVENT = [
   {
     label: 'Start Event',
@@ -352,5 +450,142 @@ export const BOUNDARY_EVENT = [
       eventDefinitionType: 'bpmn:SignalEventDefinition',
       cancelActivity: false
     }
+  }
+];
+
+export const GATEWAY = [
+  {
+    label: 'Exclusive Gateway',
+    actionName: 'replace-with-exclusive-gateway',
+    className: 'bpmn-icon-gateway-xor',
+    target: {
+      type: 'bpmn:ExclusiveGateway'
+    }
+  },
+  {
+    label: 'Parallel Gateway',
+    actionName: 'replace-with-parallel-gateway',
+    className: 'bpmn-icon-gateway-parallel',
+    target: {
+      type: 'bpmn:ParallelGateway'
+    }
+  },
+  {
+    label: 'Inclusive Gateway',
+    actionName: 'replace-with-inclusive-gateway',
+    className: 'bpmn-icon-gateway-or',
+    target: {
+      type: 'bpmn:InclusiveGateway'
+    }
+  },
+  {
+    label: 'Complex Gateway',
+    actionName: 'replace-with-complex-gateway',
+    className: 'bpmn-icon-gateway-complex',
+    target: {
+      type: 'bpmn:ComplexGateway'
+    }
+  },
+  {
+    label: 'Event based Gateway',
+    actionName: 'replace-with-event-based-gateway',
+    className: 'bpmn-icon-gateway-eventbased',
+    target: {
+      type: 'bpmn:EventBasedGateway',
+      instantiate: false,
+      eventGatewayType: 'Exclusive'
+    }
+  }
+];
+
+export const TRANSACTION = [
+  {
+    label: 'Sub Process',
+    actionName: 'replace-with-subprocess',
+    className: 'bpmn-icon-subprocess-expanded',
+    target: {
+      type: 'bpmn:SubProcess',
+      isExpanded: true
+    }
+  },
+  {
+    label: 'Event Sub Process',
+    actionName: 'replace-with-event-subprocess',
+    className: 'bpmn-icon-event-subprocess-expanded',
+    target: {
+      type: 'bpmn:SubProcess',
+      triggeredByEvent: true,
+      isExpanded: true
+    }
+  }
+];
+
+export const EVENT_SUB_PROCESS = [
+  {
+    label: 'Sub Process',
+    actionName: 'replace-with-subprocess',
+    className: 'bpmn-icon-subprocess-expanded',
+    target: {
+      type: 'bpmn:SubProcess',
+      isExpanded: true
+    }
+  },
+  {
+    label: 'Transaction',
+    actionName: 'replace-with-transaction',
+    className: 'bpmn-icon-transaction',
+    target: {
+      type: 'bpmn:Transaction',
+      isExpanded: true
+    }
+  }
+];
+
+export const SUBPROCESS_EXPANDED = [
+  {
+    label: 'Transaction',
+    actionName: 'replace-with-transaction',
+    className: 'bpmn-icon-transaction',
+    target: {
+      type: 'bpmn:Transaction',
+      isExpanded: true
+    }
+  },
+  {
+    label: 'Event Sub Process',
+    actionName: 'replace-with-event-subprocess',
+    className: 'bpmn-icon-event-subprocess-expanded',
+    target: {
+      type: 'bpmn:SubProcess',
+      triggeredByEvent: true,
+      isExpanded: true
+    }
+  },
+  {
+    label: 'Sub Process (collapsed)',
+    actionName: 'replace-with-collapsed-subprocess',
+    className: 'bpmn-icon-subprocess-collapsed',
+    target: {
+      type: 'bpmn:SubProcess',
+      isExpanded: false
+    }
+  }
+];
+
+export const SEQUENCE_FLOW = [
+  {
+    label: 'Sequence Flow',
+    actionName: 'replace-with-sequence-flow',
+    className: 'bpmn-icon-connection'
+  },
+  {
+    label: 'Default Flow',
+    actionName: 'replace-with-default-flow',
+    className: 'bpmn-icon-default-flow'
+  },
+  {
+    label: 'Conditional Flow',
+    actionName: 'replace-with-conditional-flow',
+    className: 'bpmn-icon-conditional-flow'
   }
 ];
