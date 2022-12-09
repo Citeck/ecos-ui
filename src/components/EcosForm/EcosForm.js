@@ -34,6 +34,7 @@ class EcosForm extends React.Component {
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
   _cachedFormComponents = [];
+  _lastFormOptions = null;
 
   constructor(props) {
     super(props);
@@ -121,6 +122,8 @@ class EcosForm extends React.Component {
     let formLoadingPromise;
     let proxyUri = PROXY_URI || '/';
 
+    this._lastFormOptions = propsOptions;
+
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
     } else {
@@ -144,6 +147,10 @@ class EcosForm extends React.Component {
     };
 
     formLoadingPromise.then(formData => {
+      if (this._lastFormOptions !== propsOptions) {
+        return;
+      }
+
       isFunction(getTitle) && !!get(formData, 'title') && getTitle(formData.title);
 
       if (!formData || !formData.definition) {
@@ -194,6 +201,10 @@ class EcosForm extends React.Component {
       }
 
       Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
+        if (this._lastFormOptions !== propsOptions) {
+          return;
+        }
+
         if (canWrite) {
           options.canWrite = canWrite;
         }
@@ -270,6 +281,10 @@ class EcosForm extends React.Component {
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+          if (this._lastFormOptions !== propsOptions) {
+            return;
+          }
+
           const data = {
             ...this._evalOptionsInitAttributes(recordData.inputs, options),
             ...(this.props.attributes || {}),
@@ -313,6 +328,10 @@ class EcosForm extends React.Component {
             });
 
           form.formReady.then(() => {
+            if (this._lastFormOptions !== propsOptions) {
+              return;
+            }
+
             isFunction(this.props.onReady) && this.props.onReady(form);
 
             this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);

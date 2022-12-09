@@ -30,6 +30,7 @@ import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
+import { PERMISSION_WRITE_ATTR } from '../../../Records/constants';
 
 import './SelectJournal.scss';
 
@@ -394,7 +395,7 @@ export default class SelectJournal extends Component {
 
   fillCanEdit = rows => {
     return Records.get(rows.map(r => r.id))
-      .load('.att(n:"permissions"){has(n:"Write")}')
+      .load(PERMISSION_WRITE_ATTR)
       .then(permissions => {
         let result = [];
 
