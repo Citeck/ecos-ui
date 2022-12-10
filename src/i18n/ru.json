@@ -249,6 +249,7 @@
   "dashboard-settings.widget.user-basic-info": "Профиль",
   "dashboard-settings.widget.doc-constructor": "Doc.One",
   "dashboard-settings.widget.process-statistics": "Статистика процесса",
+  "dashboard-settings.widget.stages": "Стадии",
   "dashboard-settings.widget.with-config": "У данного виджета есть настройки. При удалении виджета, настройки будут утеряны",
   "dashboard-settings.layout.tooltip.adaptive": "Количество колонок подстраивается под размер окна браузера",
 
@@ -2343,6 +2344,9 @@
   "orgstructure-widget-contacts": "Контакты",
   "orgstructure-widget-others": "Прочее",
   "orgstructure-widget-groups": "Группы",
+
+  "stages-widget.title": "Стадии",
+  "stages-widget.empty.label": "Стадии не заданы для отображения",
 
   "bpmn-linter.all-errors": "Ошибок: {{errors}}; Предупреждений: {{warnings}}",
   "bpmn-linter.element.not-connected": "Элемент не подключён",

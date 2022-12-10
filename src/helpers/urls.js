@@ -414,3 +414,7 @@ export const getUrlWithoutOrigin = (location = window.location) => {
 
   return `${pathname}${search}`;
 };
+
+export const getRecordRef = (sourceUrl = window.location.href) => {
+  return get(queryString.parseUrl(sourceUrl), 'query.recordRef', '');
+};

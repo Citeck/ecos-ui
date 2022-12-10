@@ -28,7 +28,8 @@ export const ComponentKeys = {
   DOCUMENTS: 'documents',
   USER_PROFILE: 'user-profile',
   DOC_CONSTRUCTOR: 'doc-constructor',
-  PROCESS_STATISTICS: 'process-statistics'
+  PROCESS_STATISTICS: 'process-statistics',
+  STAGES: 'stages'
 };
 
 /**
@@ -187,6 +188,17 @@ export default class Components {
           displayHeatmapToolbar: true
         }
       }
+    },
+    [ComponentKeys.STAGES]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.StagesWidget', () => null)
+          }))
+        ),
+      label: 'dashboard-settings.widget.stages',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
+      props: {}
     }
   });
 
