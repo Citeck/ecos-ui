@@ -17,6 +17,7 @@ import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
   ORGSTRUCT_SEARCH_USER_MIDLLE_NAME,
+  ORGSTRUCT_SHOW_USERNAME_MASK,
   ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN
 } from '../services/config/ConfigService';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
@@ -231,6 +232,11 @@ export class OrgStructApi extends CommonApi {
 
   static async fetchIsShowDisabledUser() {
     return await ConfigService.getValue(ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN);
+  }
+
+  static async fetchUsernameMask() {
+    // eslint-disable-next-line no-template-curly-in-string
+    return await ConfigService.getValue(ORGSTRUCT_SHOW_USERNAME_MASK);
   }
 
   static async fetchIsAdmin(userName) {

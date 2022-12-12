@@ -42,3 +42,23 @@ export function converterUserList(source) {
     attributes: item
   }));
 }
+
+export function renderUsernameString(str, obj) {
+  const indexString = (obj, is, value) => {
+    if (typeof is == 'string') {
+      is = is.split('.');
+    }
+
+    if (is.length === 1 && value !== undefined) {
+      return (obj[is[0]] = value);
+    } else if (is.length === 0) {
+      return obj;
+    }
+
+    return indexString(obj[is[0]], is.slice(1), value);
+  };
+
+  return str.replace(/\$\{.+?\}/g, match => {
+    return indexString(obj, match);
+  });
+}
