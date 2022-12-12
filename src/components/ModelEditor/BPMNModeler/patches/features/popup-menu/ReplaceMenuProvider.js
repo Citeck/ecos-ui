@@ -51,9 +51,7 @@ const disabledReplaceMenuForEvents = [
 ];
 
 const disabledReplaceMenuForGateway = [
-  'replace-with-inclusive-gateway', // Inclusive Gateway
-  'replace-with-complex-gateway', // Complex Gateway
-  'replace-with-event-based-gateway' // Event based Gateway
+  'replace-with-complex-gateway' // Complex Gateway
 ];
 
 const disabledHeaderEntries = [
