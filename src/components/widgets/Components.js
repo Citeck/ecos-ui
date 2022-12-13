@@ -3,6 +3,7 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import uuidV4 from 'uuid/v4';
 
 import { t } from '../../helpers/util';
@@ -48,9 +49,13 @@ export const ComponentKeys = {
  */
 export default class Components {
   /**
-   * @props: - общие параметры виджета:
-   * maxHeightByContent (bool) - высота виджета по контенту
-   * fixedHeight (bool) - фиксированная макимальнодоступная высота виджета вне зависимости от высоты контента
+   * @props {Object} - general widget options:
+   * maxHeightByContent (bool) - content widget height
+   * fixedHeight (bool) - fixed maximum available widget height regardless of content height
+   * @load {Function} - widget loading function using lazy
+   * @settings {Function} - function to load widget settings (required for modal dashboard settings window)
+   * @checkIsAvailable {Function} - a function that returns a boolean value (widget available or not)
+   * @supportedDashboardTypes {Array} - types of dashboards where this widget is available. If empty - available everywhere
    */
   static components = Object.freeze({
     [ComponentKeys.DOC_PREVIEW]: {
@@ -202,6 +207,7 @@ export default class Components {
             default: get(plugins, 'default.StagesWidgetSettings', () => null)
           }))
         ),
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.StagesWidget')),
       label: 'dashboard-settings.widget.stages',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
       props: {
@@ -250,7 +256,6 @@ export default class Components {
 
   static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
     const components = new Map();
-    console.log('dashType = ', dashboardType);
 
     Components.widgetsForAllDasboards.forEach(component => {
       components.set(component.name, component.label);
@@ -259,6 +264,10 @@ export default class Components {
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes && component.supportedDashboardTypes.includes(dashboardType)) {
         components.set(name, component.label);
+      }
+
+      if (isFunction(component.checkIsAvailable) && !component.checkIsAvailable()) {
+        components.delete(name);
       }
     });
 
