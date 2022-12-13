@@ -235,7 +235,6 @@ export class OrgStructApi extends CommonApi {
   }
 
   static async fetchUsernameMask() {
-    // eslint-disable-next-line no-template-curly-in-string
     return await ConfigService.getValue(ORGSTRUCT_SHOW_USERNAME_MASK);
   }
 
