@@ -1,4 +1,5 @@
 import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
 
 import { SourcesId } from '../../../../constants';
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
@@ -43,22 +44,20 @@ export function converterUserList(source) {
   }));
 }
 
-export function renderUsernameString(str, obj) {
-  const indexString = (obj, is, value) => {
-    if (typeof is == 'string') {
-      is = is.split('.');
-    }
+export function renderUsernameString(str, replacements) {
+  const regex = /\${[^{]+}/g;
 
-    if (is.length === 1 && value !== undefined) {
-      return (obj[is[0]] = value);
-    } else if (is.length === 0) {
-      return obj;
-    }
+  function interpolate(template, variables, fallback) {
+    return template.replace(regex, match => {
+      const path = match.slice(2, -1).trim();
 
-    return indexString(obj[is[0]], is.slice(1), value);
-  };
+      return getObjPath(path, variables, fallback);
+    });
+  }
 
-  return str.replace(/\$\{.+?\}/g, match => {
-    return indexString(obj, match);
-  });
+  function getObjPath(path, obj, fallback = '') {
+    return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+  }
+
+  return interpolate(str, replacements);
 }
