@@ -2348,6 +2348,7 @@
 
   "stages-widget.title": "Stages",
   "stages-widget.empty.label": "Stages not set to display",
+  "stages-widget.settings.fill-prev-stages.label": "Select all stages that are located before the current one",
 
   "bpmn-linter.all-errors": "{{errors}} Errors, {{warnings}} Warnings",
   "bpmn-linter.element.not-connected": "Element is not connected",

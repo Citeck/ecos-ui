@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import uuidV4 from 'uuid/v4';
 
 import { t } from '../../helpers/util';
-import { DashboardTypes } from '../../constants/dashboard';
+import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
 
 export const ComponentKeys = {
   PAGINATION: 'pagination',
@@ -196,9 +196,21 @@ export default class Components {
             default: get(plugins, 'default.StagesWidget', () => null)
           }))
         ),
+      settings: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.StagesWidgetSettings', () => null)
+          }))
+        ),
       label: 'dashboard-settings.widget.stages',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS],
-      props: {}
+      props: {
+        config: {
+          [CONFIG_VERSION]: {
+            fillPrevStages: true
+          }
+        }
+      }
     }
   });
 

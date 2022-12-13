@@ -2347,6 +2347,7 @@
 
   "stages-widget.title": "Стадии",
   "stages-widget.empty.label": "Стадии не заданы для отображения",
+  "stages-widget.settings.fill-prev-stages.label": "Выделить все стадии, которые расположены до текущей",
 
   "bpmn-linter.all-errors": "Ошибок: {{errors}}; Предупреждений: {{warnings}}",
   "bpmn-linter.element.not-connected": "Элемент не подключён",
