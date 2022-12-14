@@ -136,7 +136,7 @@ export default class SelectComponent extends BaseComponent {
   }
 
   get emptyValue() {
-    return '';
+    return this.component.multiple ? [] : '';
   }
 
   get unavailableItems() {

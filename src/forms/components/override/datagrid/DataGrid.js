@@ -1,4 +1,5 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
+import isEqual from 'lodash/isEqual';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -7,6 +8,36 @@ export default class DataGridComponent extends FormIODataGridComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+  }
+
+  build(state) {
+    super.build(state);
+
+    requestAnimationFrame(() => {
+      if (!this.dataValue.length) {
+        this.addValue();
+      }
+    });
+  }
+
+  get baseEmptyValue() {
+    return (this.rows || []).map(row => {
+      return Object.keys(row).reduce((res, cur) => {
+        res[cur] = row[cur].emptyValue;
+
+        return res;
+      }, {});
+    });
+  }
+
+  checkValidity(data, dirty, rowData) {
+    let isValid = super.checkValidity(data, dirty, rowData);
+
+    if (!isValid && isEqual(this.dataValue, this.baseEmptyValue)) {
+      isValid = true;
+    }
+
+    return isValid;
   }
 
   createLastTh = () => {
