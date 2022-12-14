@@ -1,5 +1,6 @@
 import Records from '../../Records/Records';
 import { SourcesId } from '../../../constants';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 
 class ID {
   static includes(id = '') {
@@ -27,7 +28,7 @@ class PresetsServiceApi {
         journalId: 'journalId',
         displayName: '?disp',
         settings: 'settings?json',
-        editable: 'permissions._has.Write?bool!false'
+        editable: PERMISSION_WRITE_ATTR
       }
     ).then(result => result.records);
   }
@@ -39,7 +40,7 @@ class PresetsServiceApi {
       name: 'name?json',
       displayName: '?disp',
       settings: 'settings?json',
-      editable: 'permissions._has.Write?bool!false'
+      editable: PERMISSION_WRITE_ATTR
     });
   }
 

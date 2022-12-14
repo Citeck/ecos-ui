@@ -45,7 +45,7 @@ export default class SelectComponent extends FormIOSelectComponent {
   }
 
   hideDropdown() {
-    if (!this.choices.dropdown.isActive) {
+    if (!_.get(this, 'choices.dropdown.isActive')) {
       return false;
     }
 

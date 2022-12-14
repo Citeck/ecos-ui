@@ -63,3 +63,7 @@ export function getValue(element, key) {
 
   return getBusinessObject(element).get(PREFIX_FIELD + key);
 }
+
+export function isEventSubProcess(element) {
+  return element && !!getBusinessObject(element).triggeredByEvent;
+}

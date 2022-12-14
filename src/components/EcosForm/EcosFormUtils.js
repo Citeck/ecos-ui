@@ -28,6 +28,7 @@ import Records from '../Records';
 import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
 import EcosForm from './EcosForm';
 import EcosFormModal from './EcosFormModal';
+import { PERMISSION_WRITE_ATTR } from '../Records/constants';
 
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
@@ -796,7 +797,8 @@ export default class EcosFormUtils {
   }
 
   static async hasWritePermission(recordId, force) {
-    let res = await Records.get(recordId).load('.att(n:"permissions"){has(n:"Write")}', force);
+    const res = await Records.get(recordId).load(PERMISSION_WRITE_ATTR, force);
+
     return res == null ? true : res;
   }
 

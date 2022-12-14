@@ -36,8 +36,6 @@ import {
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import Records from '../../components/Records';
-import { SourcesId } from '../../constants';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
@@ -418,7 +416,7 @@ class ModelEditorPage extends React.Component {
 
     this._formReady = false;
 
-    if (selectedElement.type === COLLABORATION_TYPE) {
+    if (selectedElement && selectedElement.type === COLLABORATION_TYPE) {
       const root = this.designer.modeler.getDefinitions();
       const selected = this._getBusinessObjectByDiagramElement(root);
 

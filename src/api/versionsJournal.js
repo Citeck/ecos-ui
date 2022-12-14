@@ -3,6 +3,7 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import ecosXhr from '../helpers/ecosXhr';
 import { PROXY_URI } from '../constants/alfresco';
+import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 
 export class VersionsJournalApi extends CommonApi {
   getVersions = record => {
@@ -61,7 +62,7 @@ export class VersionsJournalApi extends CommonApi {
 
   hasWritePermission = record => {
     return Records.get(record)
-      .load('.att(n:"permissions"){has(n:"Write")}')
+      .load(PERMISSION_WRITE_ATTR)
       .catch(() => false);
   };
 }
