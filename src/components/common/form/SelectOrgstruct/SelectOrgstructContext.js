@@ -318,7 +318,7 @@ export const SelectOrgstructProvider = props => {
 
         renderListItem: item => {
           if (userMask) {
-            return renderUsernameString(userMask, { ...item.attributes });
+            return renderUsernameString(userMask, { ...(item.attributes || {}) });
           }
 
           if (typeof renderListItem === 'function') {
