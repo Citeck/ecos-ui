@@ -58,17 +58,20 @@ const FORM_CONFIG = {
 };
 
 const renderListItem = (item, nestingLevel) => {
-  if (item.extraLabel) {
-    const levelClass = nestingLevel === 0 ? 'orgstructure-page__list-item-label-with-extra__fullwidth' : '';
-    return (
-      <div className={`orgstructure-page__list-item-label-with-extra ${levelClass}`}>
-        <span className="orgstructure-page__list-item-label">{item.label}</span>
-        <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
-      </div>
-    );
+  if (!item.extraLabel) {
+    return <span className="orgstructure-page__list-item-label">{item.label}</span>;
   }
 
-  return <span className="orgstructure-page__list-item-label">{item.label}</span>;
+  return (
+    <div
+      className={classNames('orgstructure-page__list-item-label-with-extra', {
+        'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
+      })}
+    >
+      <span className="orgstructure-page__list-item-label">{item.label}</span>
+      <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
+    </div>
+  );
 };
 
 const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {

@@ -4,61 +4,84 @@
   width: 100%;
 }
 
-.orgstructure-page__list-item-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
+.orgstructure-page {
+  &__list {
+    &-item {
+      &-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
 
-.orgstructure-page__list-item-icons {
-  position: absolute;
-  right: 12px;
-  //right: 8px;
-  font-size: 16px;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0), #ffffff 15%);
-  z-index: 10;
+      &-icons {
+        position: absolute;
+        right: 12px;
+        font-size: 16px;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0), #ffffff 15%);
+        z-index: 10;
 
-  &_hidden {
-    display: none;
+        &_hidden {
+          display: none;
+        }
+
+        & .icon-user {
+          &-away {
+            &:before {
+              color: $color-red-1;
+              cursor: pointer;
+            }
+          }
+
+          &-normal {
+            &:before {
+              color: #756f5d;
+              cursor: pointer;
+            }
+
+            &__clicked {
+              &:before {
+                color: $color-brown-2;
+              }
+            }
+          }
+
+          &-online {
+            &:before {
+              color: $color-green1;
+            }
+          }
+        }
+
+        & .icon-users {
+          &.orange {
+            &:before {
+              color: $color-red-1;
+            }
+          }
+
+          &.green {
+            &:before {
+              color: $color-green1;
+            }
+          }
+        }
+      }
+
+      &-label-with-extra {
+        &_fullwidth {
+          width: 100%;
+        }
+      }
+
+      &.orgstructure-page {
+        width: 100%;
+        min-width: fit-content;
+        cursor: pointer;
+      }
+    }
   }
-}
 
-.orgstructure-page__list-item-icons .icon-user-away::before {
-  color: $color-red-1;
-  cursor: pointer;
-}
-
-.orgstructure-page__list-item-icons .icon-user-normal::before {
-  color: #756f5d;
-  cursor: pointer;
-}
-
-.orgstructure-page__list-item-icons .icon-user-normal__clicked::before {
-  color: $color-brown-2;
-}
-
-.orgstructure-page__list-item-icons .icon-users.orange::before {
-  color: $color-red-1;
-}
-
-.orgstructure-page__list-item-icons .icon-users.green::before {
-  color: $color-green1;
-}
-
-.orgstructure-page__list-item-icons .icon-user-online::before {
-  color: $color-green1;
-}
-
-.orgstructure-page-modal {
-  width: 45vw;
-}
-
-.orgstructure-page__list-item-label-with-extra__fullwidth {
-  width: 100%;
-}
-
-.select-orgstruct__list-item.orgstructure-page {
-  width: 100%;
-  min-width: fit-content;
-  cursor: pointer;
+  &-modal {
+    width: 45vw;
+  }
 }
