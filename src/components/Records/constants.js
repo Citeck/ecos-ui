@@ -7,4 +7,4 @@ export const MUTATE_URL = `${BASE_URL}mutate`;
 
 export const ASSOC_DEFAULT_INNER_SCHEMA = '{disp:?disp,value:?assoc}';
 
-export const PERMISSION_WRITE_ATTR = 'permissions._has.Write?bool!false';
+export const PERMISSION_WRITE_ATTR = 'permissions._has.Write?bool!true';
