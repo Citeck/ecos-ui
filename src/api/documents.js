@@ -1,5 +1,5 @@
 import Records from '../components/Records';
-import { DEFAULT_REF, documentFields } from '../constants/documents';
+import { documentFields } from '../constants/documents';
 import { SourcesId } from '../constants';
 import journalsService from '../components/Journals/service/journalsService';
 
@@ -41,7 +41,7 @@ export class DocumentsApi {
   getDynamicTypes = recordRef => {
     return Records.query(
       {
-        sourceId: 'alfresco/documents',
+        sourceId: SourcesId.DOCUMENTS,
         language: 'document-types',
         query: { recordRef }
       },
@@ -63,7 +63,7 @@ export class DocumentsApi {
       .catch(() => null);
   };
 
-  uploadFilesWithNodes = (data = {}, recordRef = DEFAULT_REF) => {
+  uploadFilesWithNodes = (data = {}, recordRef) => {
     const record = Records.getRecordToEdit(recordRef);
 
     Object.keys(data).forEach(key => {
@@ -73,20 +73,29 @@ export class DocumentsApi {
     return record.save();
   };
 
-  getDocumentsByTypes = (recordRef = '', data = [], attributes = '') => {
-    const baseAttrs = `recordRef:id,${documentFields.id}:id,${documentFields.name}:att(n:"name"){disp},${
-      documentFields.modified
-    }:att(n:"_modified"){disp},${documentFields.loadedBy}:att(n:"_modifier"){disp}`;
+  getDocumentsByTypes = (recordRef = '', data = [], attributes = {}) => {
+    const baseAttrs = {
+      recordRef: '?id',
+      [documentFields.id]: '?id',
+      [documentFields.name]: '?disp',
+      [documentFields.modified]: '_modified',
+      [documentFields.loadedBy]: '_modifier',
+      ...attributes
+    };
+    let attsToRequestStr = '';
+    for (let alias in baseAttrs) {
+      attsToRequestStr += alias + ':' + baseAttrs[alias] + ',';
+    }
+    // remove last comma
+    attsToRequestStr = attsToRequestStr.substring(0, attsToRequestStr.length - 1);
 
     let types = data;
-
     if (typeof types === 'string') {
       types = [types];
     }
-
     return Records.query(
       {
-        sourceId: 'alfresco/documents',
+        sourceId: SourcesId.DOCUMENTS,
         query: {
           recordRef,
           types
@@ -94,7 +103,7 @@ export class DocumentsApi {
         language: 'types-documents'
       },
       {
-        documents: `.atts(n:"documents"){${[baseAttrs, attributes].join(',')}}`,
+        documents: `documents[]{${attsToRequestStr}}`,
         type: 'type'
       }
     );

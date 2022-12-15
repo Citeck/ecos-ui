@@ -55,6 +55,20 @@ export class AppApi extends CommonApi {
     return ConfigService.getValue(ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME).then(resp => resp || ALL_USERS_GROUP_SHORT_NAME);
   };
 
+  // upload file without alfresco
+  uploadFileV2 = (data, callback) => {
+    return ecosXhr('/gateway/emodel/api/ecos/webapp/content', {
+      method: 'POST',
+      body: data,
+      handleProgress: callback
+    }).then(
+      response => response,
+      error => {
+        throw error;
+      }
+    );
+  };
+
   uploadFile = (data, callback) => {
     return ecosXhr(`${PROXY_URI}eform/file`, {
       method: 'POST',

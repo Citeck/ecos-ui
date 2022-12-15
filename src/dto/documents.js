@@ -4,7 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import lodashClone from 'lodash/cloneDeep';
 
 import { deepClone, getTextByLocale, isExistValue, t } from '../helpers/util';
-import { DATE_FORMAT, DEFAULT_REF, documentFields, fieldFormatters, NULL_FORM } from '../constants/documents';
+import { DATE_FORMAT, documentFields, fieldFormatters, NULL_FORM } from '../constants/documents';
 
 export default class DocumentsConverter {
   static formIdIsNull = (id = '') => {
@@ -212,7 +212,7 @@ export default class DocumentsConverter {
   };
 
   static getDataToCreate = data => ({
-    recordRef: get(data, 'createVariants.recordRef') || DEFAULT_REF,
+    recordRef: get(data, 'createVariants.recordRef'),
     formId: get(data, 'createVariants.formRef') || data.formId || '',
     attributes: DocumentsConverter.getUploadAttributes(data)
   });
@@ -258,49 +258,33 @@ export default class DocumentsConverter {
 
   static getColumnsAttributes(source = []) {
     if (isEmpty(source)) {
-      return '';
+      return {};
     }
 
     if (!Array.isArray(source)) {
-      return '';
+      return {};
     }
 
-    return source
-      .map(column => {
-        let { name, schema, attribute, dataField } = column;
-        const alias = dataField || attribute || name;
+    const result = {};
+    for (let column of source) {
+      let { name, schema, attribute, dataField } = column;
+      const alias = dataField || attribute || name;
 
-        if (attribute && schema) {
-          if (schema.charAt(0) === '.') {
-            return `"${alias}":${schema.slice(1)}`;
-          }
-          return `"${alias}":att(n:"${schema}"){disp}`;
-        }
-
-        if (!attribute && !name) {
-          return '';
-        }
-
-        if (!attribute) {
-          return `"${alias}":att(n:"${name}"){disp}`;
-        }
-
-        if (attribute.charAt(0) === '.') {
-          return `"${alias}":${attribute.slice(1)}`;
-        }
-
-        if (name) {
-          if (attribute.includes('att(n:')) {
-            return `"${alias}":${attribute}`;
-          }
-
-          return `"${alias}":att(n:"${attribute}"){disp}`;
-        }
-
-        return attribute || name;
-      })
-      .filter(item => !!item)
-      .join(',');
+      if (attribute && schema) {
+        result[alias] = schema;
+        continue;
+      }
+      if (!attribute && !name) {
+        continue;
+      }
+      if (!attribute) {
+        result[alias] = name;
+        continue;
+      }
+      const defaultAtt = attribute || name;
+      result[defaultAtt] = defaultAtt;
+    }
+    return result;
   }
 
   static getColumnForWeb(source = []) {

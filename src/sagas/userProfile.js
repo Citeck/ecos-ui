@@ -45,10 +45,10 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     formData.append('file', file);
     formData.append('name', file.name);
 
-    const { nodeRef = null } = yield call(api.app.uploadFile, formData);
+    const { entityRef = null } = yield call(api.app.uploadFile, formData);
 
-    if (!nodeRef) {
-      throw new Error('No file recordRef');
+    if (!entityRef) {
+      throw new Error('No file entityRef');
     }
 
     const response = yield call(api.user.changePhoto, {
@@ -56,7 +56,7 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
       data: {
         size: file.size,
         name: file.name,
-        data: { nodeRef }
+        data: { entityRef }
       }
     });
     let message = '';

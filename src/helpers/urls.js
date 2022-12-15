@@ -129,8 +129,11 @@ function getValidNodeRef(nodeRef) {
   return nodeRef;
 }
 
-export const getDownloadContentUrl = nodeRef => {
-  return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(nodeRef)}`;
+export const getDownloadContentUrl = entityRef => {
+  if (entityRef.indexOf('workspace://SpacesStore/') !== -1) {
+    return `${PROXY_URI}citeck/print/content?nodeRef=${getValidNodeRef(entityRef)}`;
+  }
+  return `/gateway/emodel/api/ecos/webapp/content?ref=${entityRef}`;
 };
 
 export const getZipUrl = nodeRef => {

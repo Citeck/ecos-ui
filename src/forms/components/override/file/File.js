@@ -48,7 +48,9 @@ export default class FileComponent extends FormIOFileComponent {
 
   static extractFileRecordRef(file) {
     let recordRef = null;
-    if (file.data && file.data.recordRef) {
+    if (file.data && file.data.entityRef) {
+      recordRef = file.data.entityRef;
+    } else if (file.data && file.data.recordRef) {
       recordRef = file.data.recordRef;
     } else if (file.data && file.data.nodeRef) {
       recordRef = file.data.nodeRef;
@@ -56,13 +58,13 @@ export default class FileComponent extends FormIOFileComponent {
       const documentUrl = file.url;
       const documentUrlParts = documentUrl.split('?');
       if (documentUrlParts.length !== 2) {
-        throw new Error("Cant't extract recordRef");
+        throw new Error("Can't extract recordRef");
       }
 
       const queryPart = documentUrlParts[1];
       const urlParams = queryString.parse(queryPart);
       if (!urlParams.recordRef && !urlParams.nodeRef) {
-        throw new Error("Cant't extract recordRef");
+        throw new Error("Can't extract recordRef");
       }
 
       recordRef = urlParams.recordRef || urlParams.nodeRef;
