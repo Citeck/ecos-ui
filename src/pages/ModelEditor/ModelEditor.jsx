@@ -233,14 +233,15 @@ class ModelEditorPage extends React.Component {
           const rawIncomingOutcomes = get(source, `businessObject.$attrs.${PREFIX_FIELD + KEY_FIELD_OUTCOMES}`);
           const incomingOutcomes = isEmpty(rawIncomingOutcomes) ? [] : JSON.parse(rawIncomingOutcomes);
 
-          result.push({
-            id: source.id,
-            name: getMLValue(getValue(source, KEY_FIELD_NAME)),
-            outcomes: incomingOutcomes.map(item => ({
-              id: item.id,
-              name: getMLValue(item.name)
-            }))
-          });
+          source.id &&
+            result.push({
+              id: source.id,
+              name: getMLValue(getValue(source, KEY_FIELD_NAME)),
+              outcomes: incomingOutcomes.map(item => ({
+                id: item.id,
+                name: getMLValue(item.name)
+              }))
+            });
         }
 
         continue;
