@@ -227,6 +227,23 @@ class ModelEditorPage extends React.Component {
       }
 
       if (!TASK_TYPES.includes(item.source.type)) {
+        const source = get(item, 'source.incoming[0].source');
+
+        if (GATEWAY_TYPES.includes(item.source.type) && source) {
+          const rawIncomingOutcomes = get(source, `businessObject.$attrs.${PREFIX_FIELD + KEY_FIELD_OUTCOMES}`);
+          const incomingOutcomes = isEmpty(rawIncomingOutcomes) ? [] : JSON.parse(rawIncomingOutcomes);
+
+          source.id &&
+            result.push({
+              id: source.id,
+              name: getMLValue(getValue(source, KEY_FIELD_NAME)),
+              outcomes: incomingOutcomes.map(item => ({
+                id: item.id,
+                name: getMLValue(item.name)
+              }))
+            });
+        }
+
         continue;
       }
 
