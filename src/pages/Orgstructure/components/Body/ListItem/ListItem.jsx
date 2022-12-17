@@ -75,7 +75,7 @@ const renderListItem = (item, nestingLevel) => {
 };
 
 const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {
-  const { onToggleCollapse, initList } = useContext(SelectOrgstructContext);
+  const { onToggleCollapse, getItemsByParent } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [scrollLeft, setScrollLeftPosition] = useState(0);
@@ -89,8 +89,10 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   };
   const onScroll = useCallback(
     e => {
-      if (scrollLeft !== e.target.scrollLeft) {
-        setScrollLeftPosition(e.target.scrollLeft);
+      const targetScrollLeft = get(e, 'target.scrollLeft', 0);
+
+      if (scrollLeft !== targetScrollLeft) {
+        setScrollLeftPosition(targetScrollLeft);
       }
     },
     [scrollLeft]
@@ -119,15 +121,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     const parent = e.target.closest('.slide-menu-list > div');
 
     setHovered(true);
-    setScrollLeftPosition(parent.scrollLeft);
+    parent && setScrollLeftPosition(parent.scrollLeft);
   };
 
   const handleMouseLeave = () => {
     setHovered(false);
-  };
-
-  const reload = () => {
-    initList();
   };
 
   const createForm = formConfig => (e, isEditMode = false) => {
@@ -155,7 +153,9 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
       { ...formConfig, ...extraConfig },
       {
         title,
-        onSubmit: reload,
+        onSubmit: () => {
+          getItemsByParent(item, isEditMode);
+        },
         initiator: {
           type: 'form-component',
           name: 'CreateVariants'
@@ -176,20 +176,19 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   const closeModal = e => {
     e.stopPropagation();
     setModalOpen(false);
-    reload();
   };
 
   const openPersonModal = openModal('person');
 
-  const deleteFromGroup = e => {
+  const deleteFromGroup = async e => {
     closeModal(e);
 
     try {
-      deleteItem({ ...item });
+      await deleteItem({ ...item });
     } catch (e) {
       NotificationManager.error(t('user-profile-widget.error.delete-profile-data'));
     } finally {
-      reload();
+      getItemsByParent(item);
     }
   };
 
@@ -243,9 +242,12 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
   return (
     <li>
       <div
-        className={classNames('select-orgstruct__list-item', `select-orgstruct__list-item_level-${nestingLevel}`, 'orgstructure-page', {
+        className={classNames('select-orgstruct__list-item', 'orgstructure-page', {
           'select-orgstruct__list-item_strong': item.isStrong
         })}
+        style={{
+          paddingLeft: 20 * nestingLevel
+        }}
         onClick={isPerson ? selectPerson : noop}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

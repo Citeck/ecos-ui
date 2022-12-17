@@ -17,7 +17,8 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
     const record = Records.get(item.id);
 
     record.att('att_rem_authorityGroups', item.parentId);
-    record.save();
+
+    return record.save();
   };
 
   return (
@@ -30,8 +31,8 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
           const children = tabItems[currentTab].filter(i => i.parentId === item.id);
 
           nestedList = (
-            <Collapse isOpen={item.isOpen}>
-              <List items={children} nestingLevel={nestingLevel + 1} tabId={tabId} />
+            <Collapse isOpen={item.isOpen} key={item.id}>
+              <List key={item.id} items={children} nestingLevel={nestingLevel + 1} tabId={tabId} />
             </Collapse>
           );
         }
