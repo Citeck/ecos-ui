@@ -31,8 +31,8 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
           const children = tabItems[currentTab].filter(i => i.parentId === item.id);
 
           nestedList = (
-            <Collapse isOpen={item.isOpen} key={item.id}>
-              <List key={item.id} items={children} nestingLevel={nestingLevel + 1} tabId={tabId} />
+            <Collapse isOpen={item.isOpen}>
+              <List items={children} nestingLevel={nestingLevel + 1} tabId={tabId} />
             </Collapse>
           );
         }
