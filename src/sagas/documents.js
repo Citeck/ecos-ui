@@ -10,7 +10,7 @@ import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 
 import { getFirstNonEmpty, t } from '../helpers/util';
-import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
+import { documentActions, documentFields } from '../constants/documents';
 import Records from '../components/Records';
 import recordActions, { ActionTypes } from '../components/Records/actions';
 import journalsService from '../components/Journals/service';
@@ -366,14 +366,31 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
   try {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
 
-    yield call(api.versionsJournal.addNewVersion, {
-      body: DocumentsConverter.getAddNewVersionFormDataForServer({
-        record: type.lastDocumentRef,
-        type: payload.type,
-        file: payload.files[0]
-      }),
-      handleProgress: payload.callback
-    });
+    let entityRef = type.lastDocumentRef;
+    if (__isAlfrescoRef(entityRef)) {
+      yield call(api.versionsJournal.addNewVersion, {
+        body: DocumentsConverter.getAddNewVersionFormDataForServer({
+          record: type.lastDocumentRef,
+          type: payload.type,
+          file: payload.files[0]
+        }),
+        handleProgress: payload.callback
+      });
+    } else {
+      const fileUploadRes = yield uploadFileV2({
+        api,
+        file: payload.files[0],
+        callback: payload.callback
+      });
+      const tempFileRef = get(fileUploadRes, 'data.entityRef');
+      if (!tempFileRef) {
+        throw new Error('TempFile ref is empty after uploading');
+      }
+      const record = Records.get(entityRef);
+      record.att('_content', tempFileRef);
+
+      yield record.save();
+    }
     yield put(getDocumentsByType({ ...payload, delay: 0 }));
 
     NotificationManager.success(t('documents-widget.notification.update.success'), t('success'));
@@ -400,6 +417,31 @@ export function* uploadFile({ api, file, callback }) {
       size: file.size,
       name: file.name,
       data: { nodeRef }
+    };
+  } catch (e) {
+    console.error('[documents uploadFile error]', e);
+
+    return Promise.reject(e);
+  }
+}
+
+export function* uploadFileV2({ api, file, callback }) {
+  try {
+    const formData = new FormData();
+
+    formData.append('file', file);
+    formData.append('name', file.name);
+
+    const { entityRef = null } = yield call(api.app.uploadFileV2, formData, callback);
+
+    if (!entityRef) {
+      return Promise.reject('Error: No file entityRef');
+    }
+
+    return {
+      size: file.size,
+      name: file.name,
+      data: { entityRef }
     };
   } catch (e) {
     console.error('[documents uploadFile error]', e);
@@ -477,8 +519,14 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       return;
     }
 
+    let fileUploadFunc;
+    if (__isAlfrescoRef(payload.record)) {
+      fileUploadFunc = uploadFile;
+    } else {
+      fileUploadFunc = uploadFileV2;
+    }
     const files = yield payload.files.map(function*(file) {
-      return yield uploadFile({ api, file, callback: payload.callback });
+      return yield fileUploadFunc({ api, file, callback: payload.callback });
     });
 
     /**
@@ -490,6 +538,11 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
       return;
     }
 
+    let recordRef = get(createVariants, 'recordRef');
+    if (!recordRef) {
+      recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
+    }
+
     yield files.map(function*(file) {
       return yield call(
         api.documents.uploadFilesWithNodes,
@@ -499,7 +552,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
           content: file,
           createVariants
         }),
-        get(createVariants, 'recordRef', DEFAULT_REF)
+        recordRef
       );
     });
 
@@ -622,6 +675,10 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByTypes saga error] ', e);
   }
+}
+
+function __isAlfrescoRef(ref) {
+  return !!ref && ref.indexOf('workspace://SpacesStore/') !== -1;
 }
 
 function* saga(ea) {

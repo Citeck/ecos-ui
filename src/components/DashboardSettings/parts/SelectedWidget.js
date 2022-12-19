@@ -14,6 +14,18 @@ export default class SelectedWidget extends React.Component {
     return Components.getWidgetLabel(widget, isMobile);
   }
 
+  get widgetData() {
+    const { widget } = this.props;
+
+    return {
+      ...widget,
+      props: {
+        ...get(Components.components, [widget.name, 'props'], {}),
+        ...(widget.props || {})
+      }
+    };
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
       !isEqual(get(prevProps.widget, 'props.config.widgetDisplayCondition'), get(this.props.widget, 'props.config.widgetDisplayCondition'))
@@ -37,7 +49,7 @@ export default class SelectedWidget extends React.Component {
           classNameActions="ecos-dashboard-settings__widgets-actions"
           title={this.label}
           getPositionAdjustment={positionAdjustment}
-          actionsComponent={<WidgetActions widget={widget} executors={executors} modelAttributes={modelAttributes} />}
+          actionsComponent={<WidgetActions widget={this.widgetData} executors={executors} modelAttributes={modelAttributes} />}
         />
       )
     );

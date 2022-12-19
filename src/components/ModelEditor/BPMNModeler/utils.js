@@ -58,7 +58,11 @@ export function getValue(element, key) {
   }
 
   if (element.type === PARTICIPANT_TYPE && key === 'processRef') {
-    return get(getBusinessObject(element), 'processRef.id', '');
+    return get(getBusinessObject(element.parent), '$parent.$attrs["ecos:processDefId"]', '');
+  }
+
+  if (element.type === PARTICIPANT_TYPE && key === 'ecosType') {
+    return get(getBusinessObject(element.parent), '$parent.$attrs["ecos:ecosType"]', '');
   }
 
   return getBusinessObject(element).get(PREFIX_FIELD + key);

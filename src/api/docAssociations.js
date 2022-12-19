@@ -10,8 +10,8 @@ import journalsService from '../components/Journals/service/journalsService';
 import { DocumentsApi } from './documents';
 
 export class DocAssociationsApi extends DocumentsApi {
-  #baseAssociationAttributes = 'id:assoc,modifierId:att(n:"cm:modifier"){disp},displayName:disp';
-  #defaultAttributes = 'displayName:disp,att(n:"created"){disp}';
+  #baseAssociationAttributes = 'id:?id,modifierId:_modifier,displayName:?disp';
+  #defaultAttributes = 'displayName:?disp,created';
 
   /**
    * List of available associations
@@ -87,11 +87,23 @@ export class DocAssociationsApi extends DocumentsApi {
   };
 
   getTargetAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || this.#defaultAttributes;
+    const query = this.__getAttributesAsString(attributes) || this.#defaultAttributes;
 
     return Records.get(recordRef)
-      .load(`.atts(n:"${id}"){${this.#baseAssociationAttributes},${query}}`, true)
-      .then(res => res)
+      .load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true)
+      .then(res => {
+        if (!Array.isArray(res)) {
+          return [];
+        }
+        return res.filter(item => !isEmpty(item));
+      });
+  };
+
+  getSourceAssociations = (id, recordRef, attributes = {}) => {
+    const query = this.__getAttributesAsString(attributes) || this.#defaultAttributes;
+
+    return Records.get(recordRef)
+      .load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true)
       .then(res => {
         if (!Array.isArray(res)) {
           return [];
@@ -101,19 +113,16 @@ export class DocAssociationsApi extends DocumentsApi {
       });
   };
 
-  getSourceAssociations = (id, recordRef, attributes = '') => {
-    const query = attributes || this.#defaultAttributes;
-
-    return Records.get(recordRef)
-      .load(`.atts(n:"assoc_src_${id}"){${this.#baseAssociationAttributes},${query}}`, true)
-      .then(res => {
-        if (!Array.isArray(res)) {
-          return [];
-        }
-
-        return res.filter(item => !isEmpty(item));
-      });
-  };
+  __getAttributesAsString(attributes = {}) {
+    if (isEmpty(attributes)) {
+      return '';
+    }
+    let attsStr = '';
+    for (let alias in attributes) {
+      attsStr += alias + ':' + attributes[alias] + ',';
+    }
+    return attsStr.substring(0, attsStr.length - 1);
+  }
 
   addAssociations = ({ associationId, associations, recordRef }) => {
     const record = Records.getRecordToEdit(recordRef);
