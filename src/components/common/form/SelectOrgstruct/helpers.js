@@ -1,5 +1,4 @@
 import isNil from 'lodash/isNil';
-import isString from 'lodash/isString';
 
 import { SourcesId } from '../../../../constants';
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
