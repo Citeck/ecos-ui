@@ -202,6 +202,29 @@ class ModelEditorPage extends React.Component {
     return get(element, 'businessObject.cancelActivity') === false || get(element, 'businessObject.isInterrupting') === false;
   };
 
+  #findOutcomes = source => {
+    if (isEmpty(source)) {
+      return [];
+    }
+
+    const childSource = get(source, 'source.incoming[0].source');
+
+    if (isEmpty(childSource)) {
+      return [];
+    }
+
+    const rawIncomingOutcomes = get(childSource, `businessObject.$attrs["${PREFIX_FIELD + KEY_FIELD_OUTCOMES}"]`);
+
+    if (!isEmpty(rawIncomingOutcomes)) {
+      return {
+        source: childSource,
+        incomingOutcomes: JSON.parse(rawIncomingOutcomes)
+      };
+    }
+
+    return this.#findOutcomes(get(source, 'source.incoming[0]'));
+  };
+
   #getIncomingOutcomes = () => {
     const { selectedElement } = this.state;
     const isSequenceFlow = get(selectedElement, 'type') === SEQUENCE_TYPE;
@@ -227,11 +250,9 @@ class ModelEditorPage extends React.Component {
       }
 
       if (!TASK_TYPES.includes(item.source.type)) {
-        const source = get(item, 'source.incoming[0].source');
-
-        if (GATEWAY_TYPES.includes(item.source.type) && source) {
-          const rawIncomingOutcomes = get(source, `businessObject.$attrs.${PREFIX_FIELD + KEY_FIELD_OUTCOMES}`);
-          const incomingOutcomes = isEmpty(rawIncomingOutcomes) ? [] : JSON.parse(rawIncomingOutcomes);
+        if (GATEWAY_TYPES.includes(item.source.type)) {
+          console.log(item);
+          const { incomingOutcomes, source = {} } = this.#findOutcomes(item);
 
           source.id &&
             result.push({
