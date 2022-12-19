@@ -15,6 +15,7 @@ export default class Field extends Component {
     label: PropTypes.string,
     labelPosition: PropTypes.string,
     labelFor: PropTypes.string,
+    onClick: PropTypes.func,
     children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node])
   };
 
@@ -24,7 +25,7 @@ export default class Field extends Component {
   };
 
   render() {
-    const { isSmall, className, labelClassName, label, children, labelFor, isRequired, labelPosition } = this.props;
+    const { isSmall, className, labelClassName, label, children, labelFor, isRequired, labelPosition, onClick } = this.props;
 
     return (
       <div
@@ -34,6 +35,7 @@ export default class Field extends Component {
       >
         {label && (
           <Label
+            onClick={onClick}
             htmlFor={labelFor}
             className={classNames('ecos-field__label', labelClassName, {
               'ecos-field__label_small': isSmall,
