@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -58,23 +58,27 @@ const FORM_CONFIG = {
 };
 
 const renderListItem = (item, nestingLevel) => {
-  if (item.extraLabel) {
-    const levelClass = nestingLevel === 0 ? 'orgstructure-page__list-item-label-with-extra__fullwidth' : '';
-    return (
-      <div className={`orgstructure-page__list-item-label-with-extra ${levelClass}`}>
-        <span className="orgstructure-page__list-item-label">{item.label}</span>
-        <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
-      </div>
-    );
+  if (!item.extraLabel) {
+    return <span className="orgstructure-page__list-item-label">{item.label}</span>;
   }
 
-  return <span className="orgstructure-page__list-item-label">{item.label}</span>;
+  return (
+    <div
+      className={classNames('orgstructure-page__list-item-label-with-extra', {
+        'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
+      })}
+    >
+      <span className="orgstructure-page__list-item-label">{item.label}</span>
+      <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
+    </div>
+  );
 };
 
 const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {
   const { onToggleCollapse, initList } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
+  const [scrollLeft, setScrollLeftPosition] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
   const selected = selectedPerson === item.id;
@@ -83,6 +87,22 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
       onToggleCollapse(item);
     }
   };
+  const onScroll = useCallback(
+    e => {
+      if (scrollLeft !== e.target.scrollLeft) {
+        setScrollLeftPosition(e.target.scrollLeft);
+      }
+    },
+    [scrollLeft]
+  );
+
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll, true);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+    };
+  });
 
   const renderCollapseHandler = () => {
     if (item.hasChildren) {
@@ -95,8 +115,11 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     }
   };
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = e => {
+    const parent = e.target.closest('.slide-menu-list > div');
+
     setHovered(true);
+    setScrollLeftPosition(parent.scrollLeft);
   };
 
   const handleMouseLeave = () => {
@@ -244,6 +267,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               className={classNames('orgstructure-page__list-item-icons', {
                 'orgstructure-page__list-item-icons_hidden': !hovered
               })}
+              style={{ right: 12 - scrollLeft }}
             >
               {isPerson && item.parentId ? (
                 <span title={t(Labels.TITLE_PERSON_DELETE)} className="icon-user-away" onClick={openPersonModal} />
