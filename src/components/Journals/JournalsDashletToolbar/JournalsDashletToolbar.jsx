@@ -149,16 +149,6 @@ class JournalsDashletToolbar extends Component {
             />
           )}
 
-          {isWide && (
-            <Export
-              className="ecos-journal-dashlet__action-export"
-              journalConfig={journalConfig}
-              grid={grid}
-              dashletConfig={config}
-              selectedItems={selectedRecords}
-            />
-          )}
-
           {(measurer.xl || measurer.lg) && (
             <div className="ecos-journal-dashlet__actions">
               <JournalsDashletPagination stateId={stateId} />
