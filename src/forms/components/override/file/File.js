@@ -42,20 +42,19 @@ export default class FileComponent extends FormIOFileComponent {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
     this.on('change', this.validateOnChange);
 
-    // const originTriggerChange = this.triggerChange;
-
     let lastChanged = null;
     const _triggerChange = debounce((...args) => {
       if (this.root) {
         this.root.changing = false;
       }
+
       if (!args[1] && lastChanged) {
-        // Set the changed component if one isn't provided.
         args[1] = lastChanged;
       }
-      lastChanged = null;
-      this.onChange(...args);
 
+      lastChanged = null;
+
+      this.onChange(...args);
       this.checkValidation(null, true);
     }, 100);
 
@@ -63,10 +62,9 @@ export default class FileComponent extends FormIOFileComponent {
       this.onChange({ changeByUser: true });
 
       if (args[1]) {
-        // Make sure that during the debounce that we always track lastChanged component, even if they
-        // don't provide one later.
         lastChanged = args[1];
       }
+
       if (this.root) {
         this.root.changing = true;
       }
@@ -128,13 +126,14 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   checkConditions(data) {
-    let result = super.checkConditions(data);
+    const result = super.checkConditions(data);
 
     if (!this.component.displayElementsJS) {
       return result;
     }
 
-    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    const displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+
     if (!isEqual(displayElements, this.displayElementsValue)) {
       this.displayElementsValue = displayElements;
       this.refreshDOM();
@@ -146,8 +145,8 @@ export default class FileComponent extends FormIOFileComponent {
   createFileListItem(fileInfo, index) {
     const displayElements = this.displayElementsValue || {};
     const shouldShowDeleteIcon = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
-
     const fileService = this.fileService;
+
     return this.ce(
       'li',
       { class: 'list-group-item' },
@@ -182,6 +181,7 @@ export default class FileComponent extends FormIOFileComponent {
     if (Array.isArray(dataValue) && index === 0 && dataValue.length === 1) {
       this.dataValue = [];
       this.triggerChange();
+
       return;
     }
 
@@ -266,7 +266,6 @@ export default class FileComponent extends FormIOFileComponent {
     const file = cloneDeep(f);
     const originalFileName = file.originalName || file.name;
     let onFileClickAction = this.component.onFileClick;
-
     let fileItemElement = this.ce('span', {});
 
     if (!onFileClickAction && this.viewOnly) {
@@ -280,6 +279,7 @@ export default class FileComponent extends FormIOFileComponent {
 
     let documentUrl = file.url;
     let recordRef;
+
     try {
       recordRef = FileComponent.extractFileRecordRef(file);
       documentUrl = FileComponent.buildDocumentUrl(recordRef);
@@ -328,6 +328,7 @@ export default class FileComponent extends FormIOFileComponent {
   buildUpload() {
     const displayElements = this.displayElementsValue || {};
     const shouldShowUpload = isBoolean(get(displayElements, 'upload')) ? displayElements.upload : true;
+
     if (!shouldShowUpload) {
       return this.ce('div', {});
     }
