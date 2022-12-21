@@ -138,6 +138,16 @@ export class OrgStructApi extends CommonApi {
     }
   }
 
+  static async fetchUsernameMask() {
+    try {
+      const result = await Records.get(`${SourcesId.CONFIG}@orgstruct-username-mask`).load('value');
+
+      return result;
+    } catch {
+      return '';
+    }
+  }
+
   static async fetchIsAdmin(userName) {
     try {
       const result = await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool');

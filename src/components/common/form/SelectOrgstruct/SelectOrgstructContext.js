@@ -9,7 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected, prepareRecordRef } from './helpers';
+import { handleResponse, prepareSelected, getAuthRef, renderUsernameString, prepareRecordRef } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -36,6 +36,7 @@ export const SelectOrgstructProvider = props => {
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
+  const [userMask, setUserMask] = useState('');
   const [currentTab, setCurrentTab] = useState(defaultTab || TabTypes.LEVELS);
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
@@ -116,6 +117,12 @@ export const SelectOrgstructProvider = props => {
     setSelectedRows([...tabItems[TabTypes.SELECTED]]);
     toggleSelectModal(false);
   };
+
+  useEffect(() => {
+    OrgStructApi.fetchUsernameMask().then(mask => {
+      setUserMask(mask);
+    });
+  });
 
   // fetch root group list
   useEffect(() => {
@@ -277,6 +284,10 @@ export const SelectOrgstructProvider = props => {
         onSubmitSearchForm,
 
         renderListItem: item => {
+          if (userMask) {
+            return renderUsernameString(userMask, { ...(item.attributes || {}) });
+          }
+
           if (typeof renderListItem === 'function') {
             return renderListItem(item);
           }
@@ -318,6 +329,7 @@ export const SelectOrgstructProvider = props => {
 
         deleteSelectedItem: targetId => {
           const selectedFiltered = tabItems[TabTypes.SELECTED].filter(item => item.id !== targetId);
+
           setTabItems({
             ...tabItems,
             [TabTypes.SELECTED]: selectedFiltered,
