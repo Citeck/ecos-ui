@@ -425,7 +425,10 @@ export default class FileComponent extends FormIOFileComponent {
       return;
     }
 
-    if (!isEqual(this.dataValue, this.defaultValue)) {
+    if (
+      !isEqual(this.dataValue, this.defaultValue) ||
+      (this.valueChangedByUser && this.component.validate.required && isEmpty(this.dataValue))
+    ) {
       this.checkValidity(null, true);
     }
   };

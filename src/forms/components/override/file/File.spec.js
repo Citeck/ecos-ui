@@ -2,6 +2,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import Harness from '../../../test/harness';
 import comp1 from './fixtures/comp1';
+import values from './fixtures/values';
 import FileComponent from './File';
 import { basicSectionTest } from '../../../test/builder/helpers';
 
@@ -81,5 +82,29 @@ describe('File Component', () => {
     const comp = Object.assign(cloneDeep(comp1), { unreadable: true });
 
     Harness.testCreate(FileComponent, comp, { readOnly: false }).then(component => Harness.testUnreadableField(component, done));
+  });
+
+  it('Should be with error', done => {
+    const comp = Object.assign(cloneDeep(comp1), {
+      validate: {
+        required: true
+      }
+    });
+
+    Harness.testCreate(FileComponent, comp, { readOnly: false }).then(component => {
+      // as if the changes were made by the user
+      component.setValue(values);
+      // start validation
+      component.checkValidity(component.data, true);
+      // errors not found
+      expect(component.element.className.split(' ').includes('has-error')).toBe(false);
+      // clear data
+      component.setValue([]);
+      // start validation
+      component.checkValidity(component.data, true);
+      // found an error
+      expect(component.element.className.split(' ').includes('has-error')).toBe(true);
+      done();
+    });
   });
 });
