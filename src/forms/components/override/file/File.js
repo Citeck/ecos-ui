@@ -3,6 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
@@ -40,7 +41,43 @@ export default class FileComponent extends FormIOFileComponent {
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
     this.on('change', this.validateOnChange);
+
+    // const originTriggerChange = this.triggerChange;
+
+    let lastChanged = null;
+    const _triggerChange = debounce((...args) => {
+      if (this.root) {
+        this.root.changing = false;
+      }
+      if (!args[1] && lastChanged) {
+        // Set the changed component if one isn't provided.
+        args[1] = lastChanged;
+      }
+      lastChanged = null;
+      this.onChange(...args);
+
+      this.checkValidation(null, true);
+    }, 100);
+
+    this.triggerChange = (...args) => {
+      this.onChange({ changeByUser: true });
+
+      if (args[1]) {
+        // Make sure that during the debounce that we always track lastChanged component, even if they
+        // don't provide one later.
+        lastChanged = args[1];
+      }
+      if (this.root) {
+        this.root.changing = true;
+      }
+
+      return _triggerChange(...args);
+    };
   }
+
+  checkValidation = debounce((...args) => {
+    this.checkValidity(...args);
+  }, 100);
 
   get defaultSchema() {
     return FileComponent.schema();
@@ -137,6 +174,18 @@ export default class FileComponent extends FormIOFileComponent {
         this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(index, fileInfo)) : null
       ])
     );
+  }
+
+  splice(index) {
+    const dataValue = this.dataValue || [];
+
+    if (Array.isArray(dataValue) && index === 0 && dataValue.length === 1) {
+      this.dataValue = [];
+      this.triggerChange();
+      return;
+    }
+
+    return super.splice(index);
   }
 
   isValid(data, dirty) {
@@ -379,4 +428,12 @@ export default class FileComponent extends FormIOFileComponent {
       this.checkValidity(null, true);
     }
   };
+
+  checkValidity(data, dirty, rowData) {
+    if (this.valueChangedByUser && dirty === undefined) {
+      dirty = true;
+    }
+
+    return super.checkValidity(data, dirty, rowData);
+  }
 }

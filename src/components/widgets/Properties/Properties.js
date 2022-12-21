@@ -105,7 +105,7 @@ class Properties extends React.Component {
       form.getAllComponents().forEach(c => {
         const { persistent, key } = c.component;
 
-        if (persistent === 'client-only' || !persistent) {
+        if (!c.valueChangedByUser || persistent === 'client-only' || !persistent) {
           delete submissionData[key];
           delete clonedInitData[key];
         }

@@ -98,7 +98,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   get dashletActions() {
-    const { canEditRecord, isShowSetting, formIsValid, formIsChanged } = this.state;
+    const { canEditRecord, isShowSetting, formIsValid, formIsChanged, isDraft } = this.state;
 
     if (isShowSetting) {
       return {};
@@ -154,7 +154,7 @@ class PropertiesDashlet extends BaseWidget {
             getFitnesseClassName('properties-widget', formType, DAction.Actions.SUBMIT),
             'btn btn-primary btn-xsm eform-edit-form-btn',
             {
-              'disabled btn_disabled': !formIsValid
+              'disabled btn_disabled': !isDraft && !formIsValid
             }
           ),
           onClick: this.submitForm
