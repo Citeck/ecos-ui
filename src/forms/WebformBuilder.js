@@ -50,7 +50,8 @@ WebformBuilder.prototype.updateComponent = function(component) {
         events: new EventEmitter({
           wildcard: false,
           maxListeners: 0
-        })
+        }),
+        ..._.pick(_.get(this, 'options', {}), ['typeRef', 'recordRef'])
       },
       {},
       true
@@ -311,7 +312,12 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
   );
 
   // Create the form instance.
-  const editFormOptions = _.get(this, 'options.editForm', {});
+  let editFormOptions = _.get(this, 'options.editForm', {});
+
+  if (_.isEmpty(editFormOptions)) {
+    editFormOptions = _.pick(_.get(this, 'options', {}), ['typeRef', 'recordRef']);
+  }
+
   this.editForm = new Webform(formioForm, {
     language: this.options.language,
     ...editFormOptions,
