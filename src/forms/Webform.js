@@ -41,7 +41,7 @@ Webform.prototype.onSubmit = function(submission, saved) {
     submission.saved = saved;
   }
 
-  return new Promise((resolve, reject) => {
+  new Promise((resolve, reject) => {
     this.emit('submit', submission, resolve, reject);
   }).finally(() => {
     if (saved) {
@@ -49,8 +49,11 @@ Webform.prototype.onSubmit = function(submission, saved) {
       this.loading = false;
       this.attr(this.buttonElement, { disabled: this.disabled });
     }
+
     this.setAlert(false);
   });
+
+  return submission;
 };
 
 Webform.prototype.submit = function(before, options) {
