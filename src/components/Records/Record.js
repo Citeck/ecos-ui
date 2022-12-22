@@ -269,7 +269,7 @@ export default class Record {
   debounceUpdate = _.debounce(() => this.update(), 400);
 
   unwatch(watcher) {
-    for (let i = 0; i < this._watchers; i++) {
+    for (let i = 0; i < this._watchers.length; i++) {
       if (this._watchers[i] === watcher) {
         this._watchers.splice(i, 1);
         break;
@@ -495,12 +495,16 @@ export default class Record {
       return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
 
+    const nonBaseRecordsToReset = [];
+
     return recordsToSavePromises.then(recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
         if (!_.isEmpty(attributesToSave)) {
           let baseId = record.getBaseRecord().id;
-
+          if (baseId !== record.id) {
+            nonBaseRecordsToReset.push(record.id);
+          }
           requestRecords.push({
             id: baseId,
             attributes: attributesToSave
@@ -537,6 +541,10 @@ export default class Record {
               loadPromises.push(promise);
             }
           }
+        }
+
+        for (let nonBaseRecordId of nonBaseRecordsToReset) {
+          this._records.get(nonBaseRecordId).reset();
         }
 
         return Promise.all(loadPromises).then(() => {

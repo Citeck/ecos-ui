@@ -474,19 +474,18 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
         return;
       }
 
-      return form
-        .submit()
-        .then(() => {
-          switchToViewOnlyMode();
+      return form.submit().then(() => {
+        switchToViewOnlyMode();
+        if (typeof this.options.onInlineEditSave === 'function') {
+          this.options.onInlineEditSave();
+        }
+        const ecosForm = get(form, 'ecos.form');
+        if (ecosForm != null) {
+          ecosForm.onReload(true);
+        } else {
           form.showErrors('', true);
-          if (typeof this.options.onInlineEditSave === 'function') {
-            this.options.onInlineEditSave();
-          }
-        })
-        .catch(e => {
-          form.showErrors(e, true);
-          rollBack();
-        });
+        }
+      });
     };
 
     const onCancelButtonClick = () => {

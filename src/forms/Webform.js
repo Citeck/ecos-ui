@@ -41,17 +41,16 @@ Webform.prototype.onSubmit = function(submission, saved) {
     submission.saved = saved;
   }
 
-  this.emit('submit', submission);
-
-  if (saved) {
-    this.emit('submitDone', submission);
-    this.loading = false;
-    this.attr(this.buttonElement, { disabled: this.disabled });
-  }
-
-  this.setAlert(false);
-
-  return submission;
+  return new Promise((resolve, reject) => {
+    this.emit('submit', submission, resolve, reject);
+  }).finally(() => {
+    if (saved) {
+      this.emit('submitDone', submission);
+      this.loading = false;
+      this.attr(this.buttonElement, { disabled: this.disabled });
+    }
+    this.setAlert(false);
+  });
 };
 
 Webform.prototype.submit = function(before, options) {
