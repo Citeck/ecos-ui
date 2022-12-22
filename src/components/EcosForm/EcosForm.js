@@ -7,6 +7,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 
 import '../../forms';
 import CustomEventEmitter from '../../forms/EventEmitter';
@@ -415,7 +416,8 @@ class EcosForm extends React.Component {
         }
 
         this._formSubmitDoneResolve({ persistedRecord, form, record });
-        if (submissionResolve) {
+
+        if (isFunction(submissionResolve)) {
           submissionResolve({ persistedRecord, form, record });
         }
       };
@@ -451,8 +453,10 @@ class EcosForm extends React.Component {
           })
           .catch(e => {
             form.showErrors(e, true);
+
             resetOutcomeButtonsValues();
-            if (submissionReject) {
+
+            if (isFunction(submissionReject)) {
               submissionReject(e);
             }
           })

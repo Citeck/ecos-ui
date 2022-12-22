@@ -1,6 +1,7 @@
 import Webform from 'formiojs/Webform';
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
+import get from 'lodash/get';
 
 import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
 
@@ -41,8 +42,24 @@ Webform.prototype.onSubmit = function(submission, saved) {
     submission.saved = saved;
   }
 
-  new Promise((resolve, reject) => {
+  if (!get(this, 'ecos.form')) {
+    this.emit('submit', submission);
+
+    if (saved) {
+      this.emit('submitDone', submission);
+      this.loading = false;
+      this.attr(this.buttonElement, { disabled: this.disabled });
+    }
+
+    this.setAlert(false);
+
+    return submission;
+  }
+
+  return new Promise((resolve, reject) => {
     this.emit('submit', submission, resolve, reject);
+
+    return submission;
   }).finally(() => {
     if (saved) {
       this.emit('submitDone', submission);
@@ -52,8 +69,6 @@ Webform.prototype.onSubmit = function(submission, saved) {
 
     this.setAlert(false);
   });
-
-  return submission;
 };
 
 Webform.prototype.submit = function(before, options) {
