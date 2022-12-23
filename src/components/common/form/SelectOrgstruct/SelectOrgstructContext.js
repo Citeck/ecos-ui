@@ -5,6 +5,7 @@ import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks';
@@ -373,7 +374,7 @@ export const SelectOrgstructProvider = props => {
         onSubmitSearchForm,
 
         renderListItem: item => {
-          if (userMask) {
+          if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
             return renderUsernameString(userMask, { ...(item.attributes || {}) });
           }
 

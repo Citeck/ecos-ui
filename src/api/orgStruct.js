@@ -27,9 +27,13 @@ export class OrgStructApi extends CommonApi {
   get groupAttributes() {
     return {
       displayName: '?disp',
+      firstName: 'firstName',
+      lastName: 'lastName',
       fullName: 'authorityName',
       groupSubType: 'groupSubType!""',
+      isPersonDisabled: 'personDisabled?bool',
       groupType: 'groupType!""',
+      email: 'email',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
     };
@@ -111,7 +115,7 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
-      { ...this.groupAttributes }
+      { ...this.groupAttributes, ...globalSearchConfig }
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
@@ -363,7 +367,7 @@ export class OrgStructApi extends CommonApi {
         },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...searchFields }
+      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount

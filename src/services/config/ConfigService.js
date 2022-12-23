@@ -73,6 +73,14 @@ const CONFIG_PROPS = {
     type: TYPE_BOOLEAN,
     defaultValue: false
   },
+  [ORGSTRUCT_SHOW_USERNAME_MASK]: {
+    type: TYPE_TEXT,
+    defaultValue: ''
+  },
+  [ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS]: {
+    multiple: true,
+    type: TYPE_TEXT
+  },
   [ACTIVE_THEME]: {
     defaultValue: 'ecos'
   },
@@ -105,10 +113,6 @@ const CONFIG_PROPS = {
   [MENU_GROUP_PRIORITY]: {
     multiple: true,
     type: TYPE_JSON
-  },
-  [ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS]: {
-    multiple: true,
-    type: TYPE_TEXT
   },
   [TABS_ENABLED]: {
     defaultValue: true
