@@ -17,7 +17,8 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
     const record = Records.get(item.id);
 
     record.att('att_rem_authorityGroups', item.parentId);
-    record.save();
+
+    return record.save();
   };
 
   return (
