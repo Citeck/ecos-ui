@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import Choices from '../../../Choices';
+import Choices from '../../../choices';
 import BaseComponent from '../base/BaseComponent';
 import Formio from 'formiojs/Formio';
 

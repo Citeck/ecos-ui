@@ -3,7 +3,7 @@
 import FormIOSelectComponent from 'formiojs/components/select/Select';
 import _ from 'lodash';
 
-import Choices from '../../../Choices';
+import Choices from '../../../choices';
 import Base from '../../override/base/Base';
 
 const baseAddInput = Base.prototype.addInput;
