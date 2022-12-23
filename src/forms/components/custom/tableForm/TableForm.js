@@ -385,15 +385,17 @@ export default class TableFormComponent extends BaseReactComponent {
             const columnsMap = {};
             const formatters = {};
 
-            columns.forEach((item = {}) => {
-              const key = `.edge(n:"${item.name}"){title,type,multiple}`;
+            columns
+              .filter(item => Boolean(item.name))
+              .forEach((item = {}) => {
+                const key = `.edge(n:"${item.name}"){title,type,multiple}`;
 
-              columnsMap[key] = item;
+                columnsMap[key] = item;
 
-              if (item.formatter) {
-                formatters[item.name] = item.formatter;
-              }
-            });
+                if (item.formatter) {
+                  formatters[item.name] = item.formatter;
+                }
+              });
 
             let columnsInfoPromise;
             let inputsPromise;
