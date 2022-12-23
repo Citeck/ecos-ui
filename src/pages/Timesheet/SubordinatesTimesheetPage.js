@@ -51,7 +51,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   get isAvailable() {
     const { delegatedToRef } = this.props;
-    const { key = "" } = this.selectedStatus;
+    const { key = '' } = this.selectedStatus;
     const unavailableStatuses = [
       ServerStatusKeys.APPROVED_BY_MANAGER,
       ServerStatusKeys.APPROVED_BY_HR,
@@ -156,7 +156,7 @@ class SubordinatesTimesheetPage extends BaseTimesheetPage {
 
   renderTimesheet = () => {
     const { daysOfMonth } = this.state;
-    const { mergedList, updatingHours, delegatedToRef } = this.props;
+    const { mergedList, updatingHours } = this.props;
 
     return (
       <Timesheet

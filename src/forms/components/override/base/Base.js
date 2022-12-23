@@ -130,15 +130,31 @@ const emptyCalculateValue = Symbol('empty calculate value');
 const modifiedOriginalCalculateValue = function(data, flags) {
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
-  if (!this.component.calculateValue || ((!this.visible || this.component.hidden) && this.component.clearOnHide)) {
+  if (
+    !this.component.calculateValue ||
+    (this.type !== 'hidden' && (!this.visible || this.component.hidden) && this.component.clearOnHide)
+  ) {
     return false;
   }
 
+  // Get the dataValue.
+  let firstPass = false;
+  let dataValue = null;
   const allowOverride = this.component.allowCalculateOverride;
+
+  if (allowOverride) {
+    dataValue = this.dataValue;
+  }
 
   // First pass, the calculatedValue is undefined.
   if (isUndefined(this.calculatedValue)) {
+    firstPass = true;
     this.calculatedValue = emptyCalculateValue;
+  }
+
+  // Check to ensure that the calculated value is different than the previously calculated value.
+  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !this.customIsEqual(dataValue, this.calculatedValue)) {
+    return false;
   }
 
   // Calculate the new value.
@@ -152,28 +168,33 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   );
 
   const isCreateMode = get(this.options, 'formMode') === FORM_MODE_CREATE;
+  const isEmptyValue = value => {
+    if (isCreateMode) {
+      return this.isEmpty(value);
+    }
 
-  if (!this.calculatedValueWasCalculated && !isUndefined(calculatedValue)) {
-    this.valueChangedByUser =
-      (!isCreateMode && !this.customIsEqual(this.dataValue, calculatedValue)) || (isCreateMode && !this.isEmptyValue(this.dataValue));
+    return !isBoolean(value) && this.isEmpty(value);
+  };
 
-    this.calculatedValueWasCalculated = true;
+  // If this is the firstPass, and the dataValue is different than to the calculatedValue.
+  if (allowOverride && firstPass && !isEmptyValue(dataValue) && !this.customIsEqual(dataValue, calculatedValue)) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-212
+    if (!isCreateMode && isEmptyValue(calculatedValue)) {
+      this.calculatedValue = undefined;
+      return false;
+    }
+
+    // Return that we have a change so it will perform another pass.
+    this.calculatedValue = calculatedValue;
+    return true;
   }
-
-  this.calculatedValue = calculatedValue;
-
-  let changed;
 
   flags = flags || {};
   flags.noCheck = true;
 
-  if (!allowOverride || (allowOverride && this.valueChangedByUser === false)) {
-    changed = this.setValue(calculatedValue, flags);
+  const changed = this.setValue(calculatedValue, flags);
 
-    if (changed) {
-      this.calculatedValue = this.dataValue;
-    }
-  }
+  this.calculatedValue = this.dataValue;
 
   return changed;
 };
