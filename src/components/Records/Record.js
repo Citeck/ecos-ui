@@ -623,6 +623,8 @@ export default class Record {
       return this._getLinkedRecordsToSave().then(linkedRecords => [baseRecordToSave, ...linkedRecords]);
     });
 
+    const nonBaseRecordsToReset = [];
+
     return recordsToSavePromises.then(async recordsToSave => {
       for (let record of recordsToSave) {
         let attributesToSave = record.getAttributesToSave();
@@ -633,6 +635,9 @@ export default class Record {
 
         if (!_.isEmpty(attributesToSave)) {
           let baseId = record.getBaseRecord().id;
+          if (baseId !== record.id) {
+            nonBaseRecordsToReset.push(record.id);
+          }
           requestRecords.push({
             id: baseId,
             attributes: attributesToSave
@@ -669,6 +674,10 @@ export default class Record {
               loadPromises.push(promise);
             }
           }
+        }
+
+        for (let nonBaseRecordId of nonBaseRecordsToReset) {
+          this._records.get(nonBaseRecordId).reset();
         }
 
         return Promise.all(loadPromises).then(() => {

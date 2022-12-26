@@ -293,9 +293,9 @@ class EcosForm extends React.Component {
           const [form, customModule] = formAndCustom;
           const HANDLER_PREFIX = 'onForm';
 
-          form.ecos = { custom: customModule };
+          form.ecos = { custom: customModule, form: this };
           form.setValue({ data });
-          form.on('submit', submission => this.submitForm(form, submission));
+          form.on('submit', (submission, resolve, reject) => this.submitForm(form, submission, false, resolve, reject));
           form.on(
             'change',
             debounce(
@@ -467,7 +467,7 @@ class EcosForm extends React.Component {
   };
 
   submitForm = debounce(
-    (form, submission, forceSave = false) => {
+    (form, submission, forceSave = false, submissionResolve, submissionReject) => {
       const self = this;
       const { recordId, containerId } = this.state;
       const inputs = EcosFormUtils.getFormInputs(form.component);
@@ -551,6 +551,10 @@ class EcosForm extends React.Component {
         }
 
         this._formSubmitDoneResolve({ persistedRecord, form, record });
+
+        if (isFunction(submissionResolve)) {
+          submissionResolve({ persistedRecord, form, record });
+        }
       };
 
       const resetOutcomeButtonsValues = () => {
@@ -585,6 +589,10 @@ class EcosForm extends React.Component {
           .catch(e => {
             form.showErrors(e, true);
             resetOutcomeButtonsValues();
+
+            if (isFunction(submissionReject)) {
+              submissionReject(e);
+            }
           })
           .finally(() => {
             self.toggleLoader(false);
