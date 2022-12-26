@@ -19,6 +19,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { LANGUAGE_EN } from '../../constants/lang';
+import { SUBMIT_FORM_TIMEOUT } from '../../constants/forms';
 import { FORM_MODE_EDIT } from './constants';
 
 import './formio.full.min.css';
@@ -602,7 +603,7 @@ class EcosForm extends React.Component {
         self.toggleLoader(false);
       }
     },
-    3000,
+    SUBMIT_FORM_TIMEOUT,
     {
       leading: true,
       trailing: false

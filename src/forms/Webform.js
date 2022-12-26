@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 
-import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
+import { OUTCOME_BUTTONS_PREFIX, SUBMIT_FORM_TIMEOUT } from '../constants/forms';
 import { getCurrentLocale } from '../helpers/export/util';
 import Formio from './Formio';
 
@@ -66,6 +66,16 @@ Object.defineProperty(Webform.prototype, 'withoutLoader', {
 
   get: function() {
     return this.__withoutLoader;
+  }
+});
+
+Object.defineProperty(Webform.prototype, 'previSubmitTime', {
+  set: function(time = 0) {
+    this.__previSubmitTime = time;
+  },
+
+  get: function() {
+    return this.__previSubmitTime || Date.now();
   }
 });
 
@@ -152,6 +162,8 @@ Webform.prototype.submit = function(before, options) {
 
   return new Promise((resolve, reject) => {
     const callSubmit = () => {
+      form.previSubmitTime = new Date().getTime();
+
       form.setValue(merge(form.submission, { data: outcomeButtonsAttributes }));
       originalSubmit
         .call(form, before, options)
@@ -170,7 +182,14 @@ Webform.prototype.submit = function(before, options) {
           callSubmit();
         }
       } else {
-        callSubmit();
+        const diff = Date.now() - form.previSubmitTime;
+        const timeout = diff === 0 || diff > SUBMIT_FORM_TIMEOUT ? 0 : SUBMIT_FORM_TIMEOUT - Math.floor(diff / 1000) * 1000;
+
+        form.loading = true;
+
+        window.setTimeout(() => {
+          callSubmit();
+        }, timeout);
       }
     };
 
