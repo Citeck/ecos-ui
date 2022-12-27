@@ -5,11 +5,12 @@ import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected, getAuthRef, renderUsernameString, prepareRecordRef } from './helpers';
+import { handleResponse, prepareSelected, renderUsernameString, prepareRecordRef } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -284,7 +285,7 @@ export const SelectOrgstructProvider = props => {
         onSubmitSearchForm,
 
         renderListItem: item => {
-          if (userMask) {
+          if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
             return renderUsernameString(userMask, { ...(item.attributes || {}) });
           }
 
