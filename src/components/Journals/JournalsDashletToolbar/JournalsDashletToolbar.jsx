@@ -139,6 +139,12 @@ class JournalsDashletToolbar extends Component {
           )}
 
           {isWide && (
+            <div className="ecos-journal-dashlet__group-actions">
+              <GroupActions stateId={stateId} />
+            </div>
+          )}
+
+          {isWide && (
             <Export
               className="ecos-journal-dashlet__action-export"
               journalConfig={journalConfig}
