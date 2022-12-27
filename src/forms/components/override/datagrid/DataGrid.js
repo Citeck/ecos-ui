@@ -1,6 +1,7 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
 import { flattenComponents } from 'formiojs/utils/utils';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 
 import { overrideTriggerChange } from '../misc';
@@ -19,7 +20,13 @@ export default class DataGridComponent extends FormIODataGridComponent {
   }
 
   get defaultValue() {
-    return pick(super.defaultValue, Object.keys(flattenComponents(this.components)));
+    const componentsKeys = Object.keys(flattenComponents(this.components));
+
+    if (isEmpty(componentsKeys)) {
+      return super.defaultValue;
+    }
+
+    return pick(super.defaultValue, componentsKeys);
   }
 
   get baseEmptyValue() {
