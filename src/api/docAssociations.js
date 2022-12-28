@@ -28,9 +28,29 @@ export class DocAssociationsApi extends DocumentsApi {
         }
 
         return Records.get(type)
-          .load('assocsFull[]{id,attribute,direction,name,target?id,journals[]{id:?id,label:name}}')
+          .load('associations[]{id,attribute,direction,child?bool,name,target?id,journals[]{id:?id,label:name}}')
+          .then(async (associations = []) => {
+            const result = await Promise.all(
+              associations.map(async association => {
+                const { child = false, target } = association;
+
+                if (child && target) {
+                  association['createVariants'] = await Records.get(target)
+                    .load('createVariants[]?json')
+                    .catch(e => {
+                      console.error('[docAssociations getAllowedAssociations createVariants api error', e);
+                      return [];
+                    });
+                }
+
+                return association;
+              })
+            );
+
+            return result;
+          })
           .catch(e => {
-            console.error(e);
+            console.error('[docAssociations getAllowedAssociations api error', e);
             return [];
           });
       });
