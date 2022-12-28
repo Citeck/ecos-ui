@@ -1,3 +1,5 @@
+import isEmpty from 'lodash/isEmpty';
+
 import BaseReactComponent from '../base/BaseReactComponent';
 import MLText from '../../../../components/common/form/Input/MLText';
 import { getCurrentLocale } from '../../../../helpers/export/util';
@@ -76,7 +78,7 @@ export default class MLTextComponent extends BaseReactComponent {
   handleChange = value => {
     this.setPristine(false);
     this.valueChangedByUser = true;
-    this.setValue(value);
+    this.setValue(isEmpty(value) ? this.emptyValue : value);
   };
 
   getInitialReactProps() {

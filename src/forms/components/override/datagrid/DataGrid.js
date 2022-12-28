@@ -1,5 +1,8 @@
 import FormIODataGridComponent from 'formiojs/components/datagrid/DataGrid';
+import { flattenComponents } from 'formiojs/utils/utils';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
+import pick from 'lodash/pick';
 
 import { overrideTriggerChange } from '../misc';
 
@@ -13,11 +16,17 @@ export default class DataGridComponent extends FormIODataGridComponent {
   build(state) {
     super.build(state);
 
-    requestAnimationFrame(() => {
-      if (!this.dataValue.length) {
-        this.addValue();
-      }
-    });
+    this.overrideBaseRow();
+  }
+
+  get defaultValue() {
+    const componentsKeys = Object.keys(flattenComponents(this.components));
+
+    if (isEmpty(componentsKeys)) {
+      return super.defaultValue;
+    }
+
+    return pick(super.defaultValue, componentsKeys);
   }
 
   get baseEmptyValue() {
@@ -30,14 +39,32 @@ export default class DataGridComponent extends FormIODataGridComponent {
     });
   }
 
-  checkValidity(data, dirty, rowData) {
-    let isValid = super.checkValidity(data, dirty, rowData);
-
-    if (!isValid && isEqual(this.dataValue, this.baseEmptyValue)) {
-      isValid = true;
+  show(show, noClear) {
+    if (show && !this.dataValue.length) {
+      this.overrideBaseRow();
     }
 
-    return isValid;
+    return super.show(show, noClear);
+  }
+
+  overrideBaseRow = () => {
+    if (!this.dataValue.length || isEqual(this.dataValue, this.baseEmptyValue)) {
+      this.removeValue(0);
+    }
+
+    requestAnimationFrame(() => {
+      if (!this.dataValue.length || !this.rows.length) {
+        this.addValue();
+      }
+    });
+  };
+
+  checkValidity(data, dirty, rowData) {
+    if (isEqual(this.dataValue, this.baseEmptyValue)) {
+      return true;
+    }
+
+    return super.checkValidity(data, dirty, rowData);
   }
 
   createLastTh = () => {
