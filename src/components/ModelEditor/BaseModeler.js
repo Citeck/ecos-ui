@@ -182,7 +182,7 @@ export default class BaseModeler {
       }
     }
 
-    if (data) {
+    if (data && !isEmpty(get(element, 'businessObject.$attrs'))) {
       modeling.updateProperties(element, data);
     }
   };
