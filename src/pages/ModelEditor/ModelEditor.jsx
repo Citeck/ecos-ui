@@ -8,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import omit from 'lodash/omit';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
@@ -251,7 +252,6 @@ class ModelEditorPage extends React.Component {
 
       if (!TASK_TYPES.includes(item.source.type)) {
         if (GATEWAY_TYPES.includes(item.source.type)) {
-          console.log(item);
           const { incomingOutcomes, source = {} } = this.#findOutcomes(item);
 
           source.id &&
@@ -560,6 +560,10 @@ class ModelEditorPage extends React.Component {
       if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
         modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
       }
+    }
+
+    if (selectedElement.id === modelData.id && Object.keys(omit(modelData, 'id')).every(key => isEmpty(modelData[key]))) {
+      return;
     }
 
     this.designer.updateProps(selectedElement, modelData);
