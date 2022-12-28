@@ -101,7 +101,7 @@ class KanbanView extends React.Component {
       case KANBAN_SELECTOR_MODE.BOARD:
         return urlParams.boardId || get(boardList, '[0].id');
       case KANBAN_SELECTOR_MODE.TEMPLATES:
-        return urlParams.templateId || get(templateList, '[0].id');
+        return urlParams[JUP.JOURNAL_SETTING_ID] || get(templateList, '[0].id');
       default:
         console.error('KanbanView. Invalid type');
     }
@@ -134,8 +134,8 @@ class KanbanView extends React.Component {
           isStatic
           source={boardList}
           value={this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.BOARD)}
-          valueField={'id'}
-          titleField={'name'}
+          valueField="id"
+          titleField="name"
           onChange={this.handleChangeBoard}
           controlLabel={t(Labels.Kanban.BOARD_LIST)}
           controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
@@ -146,8 +146,8 @@ class KanbanView extends React.Component {
           isStatic
           source={templateList}
           value={this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.TEMPLATES)}
-          valueField={'id'}
-          titleField={'name'}
+          valueField="id"
+          titleField="name"
           onChange={this.handleChangeTemplate}
           controlLabel={t(Labels.Kanban.TEMPLATE_LIST)}
           controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
