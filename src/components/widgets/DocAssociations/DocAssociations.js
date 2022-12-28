@@ -7,6 +7,7 @@ import { Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
 import get from 'lodash/get';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isArray from 'lodash/isArray';
 
 import BaseWidget from '../BaseWidget';
 import { getAdaptiveNumberStr, t, isMobileDevice } from '../../../helpers/util';
@@ -27,6 +28,7 @@ import { RemoveDialog } from '../../common/dialogs';
 import SelectJournal from '../../common/form/SelectJournal';
 import Dashlet from '../../Dashlet';
 import AssociationGrid from './AssociationGrid';
+import FormManager from '../../EcosForm/FormManager';
 
 import './style.scss';
 
@@ -164,10 +166,31 @@ class DocAssociations extends BaseWidget {
   };
 
   handleSelectMenuItem = item => {
-    const { isLoading } = this.props;
+    const { isLoading, record } = this.props;
+    const createVariants = item.createVariants;
 
     if (isLoading) {
       return;
+    }
+
+    if (isArray(createVariants) && createVariants.length === 1) {
+      const variant = createVariants[0];
+
+      return FormManager.createRecordByVariant(
+        {
+          ...variant,
+          attributes: {
+            ...(variant.attributes || {}),
+            _parent: record,
+            _parentAtt: item.attribute
+          }
+        },
+        {
+          onSubmit: () => {
+            this.handleReloadData();
+          }
+        }
+      );
     }
 
     this.setState({

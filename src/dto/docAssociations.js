@@ -64,6 +64,8 @@ export default class DocAssociationsConverter extends DocumentsConverter {
       target.id = DocAssociationsConverter.getId(item);
       target.label = getTextByLocale(item.name);
       target.items = item.journals.map(journal => ({ ...journal, associationId: item.id }));
+      target.createVariants = item.createVariants || [];
+      target.attribute = item.attribute || '';
 
       return target;
     });
@@ -94,6 +96,7 @@ export default class DocAssociationsConverter extends DocumentsConverter {
       target.title = getTextByLocale(source.name);
       target.direction = source.direction === DIRECTIONS.NULL ? DIRECTIONS.TARGET : source.direction;
       target.columnsConfig = DocAssociationsConverter.getColumnsConfig(source.columnsConfig);
+      target.child = !!source.child;
 
       return target;
     });
