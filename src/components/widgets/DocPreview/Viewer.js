@@ -8,6 +8,7 @@ import debounce from 'lodash/debounce';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { Fullpage, Icon } from '../../common';
+import { CUSTOM } from './Toolbar';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
@@ -92,7 +93,11 @@ export default function getViewer(WrappedComponent, isPdf) {
         }
       }
 
-      if (!isPdf && get(this.props, 'settings.scale') !== get(prevProps, 'settings.scale')) {
+      if (
+        !isPdf &&
+        get(this.props, 'settings.scale') !== get(prevProps, 'settings.scale') &&
+        get(this.props, 'settings.selectedZoom') !== CUSTOM
+      ) {
         this.setScrollDefaultPosition();
       }
     }

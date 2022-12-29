@@ -240,6 +240,7 @@ $border-base: #c1c1c1;
       }
 
       &_img {
+        display: flex;
         height: 100%;
         width: 100%;
         text-align: unset;

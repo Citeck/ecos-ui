@@ -8,7 +8,7 @@ import { IcoBtn } from '../../common/btns/index';
 import { Dropdown, Input } from '../../common/form/index';
 import { getScaleModes, isExistValue, t } from '../../../helpers/util';
 
-const CUSTOM = 'custom';
+export const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
 const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 4;
