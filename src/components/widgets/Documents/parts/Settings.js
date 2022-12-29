@@ -118,7 +118,14 @@ class Settings extends Component {
 
     const check = originTypes => {
       const types = cloneDeep(originTypes);
-      const checkName = type => type.name.toLowerCase().includes(filter);
+
+      const checkName = type => {
+        if (type && isEmpty(type.name)) {
+          return false;
+        }
+
+        return type.name.toLowerCase().includes(filter);
+      };
 
       return types
         .map(type => {
