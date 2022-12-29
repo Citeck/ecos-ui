@@ -120,7 +120,7 @@ class Settings extends Component {
       const types = cloneDeep(originTypes);
 
       const checkName = type => {
-        if (type && isEmpty(type.name)) {
+        if (isEmpty(type.name)) {
           return false;
         }
 
