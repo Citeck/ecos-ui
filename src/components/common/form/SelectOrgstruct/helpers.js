@@ -1,5 +1,6 @@
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
+import get from 'lodash/get';
 
 import { SourcesId } from '../../../../constants';
 import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
@@ -17,6 +18,7 @@ export function handleResponse(result) {
   return result.map(item => ({
     id: item.nodeRef,
     label: item.displayName,
+    isPersonDisabled: get(item, 'isPersonDisabled', false),
     extraLabel: item.authorityType === AUTHORITY_TYPE_USER ? item.fullName : null,
     hasChildren: !isNil(item.groupType),
     isLoaded: isUndefined(item.isLoaded) ? false : item.isLoaded,
