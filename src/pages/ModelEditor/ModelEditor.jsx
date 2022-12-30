@@ -36,8 +36,6 @@ import {
 import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
-import Records from '../../components/Records';
-import { SourcesId } from '../../constants';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 
 import './ModelEditor.scss';
@@ -178,6 +176,55 @@ class ModelEditorPage extends React.Component {
     }
   };
 
+  #getElementType = () => {
+    return this.formType;
+  };
+
+  #getElementParentType = () => {
+    const { selectedElement } = this.state;
+    const element = this.getElement(selectedElement);
+
+    if (!element) {
+      return undefined;
+    }
+
+    return get(element, 'businessObject.$parent.$type');
+  };
+
+  #elementIsNonInterrupting = () => {
+    const { selectedElement } = this.state;
+    const element = this.getElement(selectedElement);
+
+    if (!element) {
+      return undefined;
+    }
+
+    return get(element, 'businessObject.cancelActivity') === false || get(element, 'businessObject.isInterrupting') === false;
+  };
+
+  #findOutcomes = source => {
+    if (isEmpty(source)) {
+      return [];
+    }
+
+    const childSource = get(source, 'source.incoming[0].source');
+
+    if (isEmpty(childSource)) {
+      return [];
+    }
+
+    const rawIncomingOutcomes = get(childSource, `businessObject.$attrs["${PREFIX_FIELD + KEY_FIELD_OUTCOMES}"]`);
+
+    if (!isEmpty(rawIncomingOutcomes)) {
+      return {
+        source: childSource,
+        incomingOutcomes: JSON.parse(rawIncomingOutcomes)
+      };
+    }
+
+    return this.#findOutcomes(get(source, 'source.incoming[0]'));
+  };
+
   #getIncomingOutcomes = () => {
     const { selectedElement } = this.state;
     const isSequenceFlow = get(selectedElement, 'type') === SEQUENCE_TYPE;
@@ -203,6 +250,21 @@ class ModelEditorPage extends React.Component {
       }
 
       if (!TASK_TYPES.includes(item.source.type)) {
+        if (GATEWAY_TYPES.includes(item.source.type)) {
+          console.log(item);
+          const { incomingOutcomes, source = {} } = this.#findOutcomes(item);
+
+          source.id &&
+            result.push({
+              id: source.id,
+              name: getMLValue(getValue(source, KEY_FIELD_NAME)),
+              outcomes: incomingOutcomes.map(item => ({
+                id: item.id,
+                name: getMLValue(item.name)
+              }))
+            });
+        }
+
         continue;
       }
 
@@ -227,9 +289,14 @@ class ModelEditorPage extends React.Component {
 
     return {
       editor: {
-        getEcosType: () => Records.get(`${SourcesId.RESOLVED_TYPE}@${ecosType.slice(ecosType.indexOf('@') + 1)}`),
+        getEcosType: () => {
+          return ecosType;
+        },
         getIncomingOutcomes: this.#getIncomingOutcomes,
-        getMultiInstanceType: this.#getMultiInstanceType
+        getMultiInstanceType: this.#getMultiInstanceType,
+        getElementType: this.#getElementType,
+        getElementParentType: this.#getElementParentType,
+        elementIsNonInterrupting: this.#elementIsNonInterrupting
       }
     };
   }

@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import merge from 'lodash/merge';
 
-import { OUTCOME_BUTTONS_PREFIX } from '../constants/forms';
+import { OUTCOME_BUTTONS_PREFIX, SUBMIT_FORM_TIMEOUT } from '../constants/forms';
 import { getCurrentLocale } from '../helpers/export/util';
 import Formio from './Formio';
 
@@ -69,6 +69,16 @@ Object.defineProperty(Webform.prototype, 'withoutLoader', {
   }
 });
 
+Object.defineProperty(Webform.prototype, 'previSubmitTime', {
+  set: function(time = 0) {
+    this.__previSubmitTime = time;
+  },
+
+  get: function() {
+    return this.__previSubmitTime || Date.now();
+  }
+});
+
 Webform.prototype.setElement = function(element) {
   originalSetElement.call(this, element);
 
@@ -102,17 +112,33 @@ Webform.prototype.onSubmit = function(submission, saved) {
     submission.saved = saved;
   }
 
-  this.emit('submit', submission);
+  if (!get(this, 'ecos.form')) {
+    this.emit('submit', submission);
 
-  if (saved) {
-    this.emit('submitDone', submission);
-    this.loading = false;
-    this.attr(this.buttonElement, { disabled: this.disabled });
+    if (saved) {
+      this.emit('submitDone', submission);
+      this.loading = false;
+      this.attr(this.buttonElement, { disabled: this.disabled });
+    }
+
+    this.setAlert(false);
+
+    return submission;
   }
 
-  this.setAlert(false);
+  return new Promise((resolve, reject) => {
+    this.emit('submit', submission, resolve, reject);
 
-  return submission;
+    return submission;
+  }).finally(() => {
+    if (saved) {
+      this.emit('submitDone', submission);
+      this.loading = false;
+      this.attr(this.buttonElement, { disabled: this.disabled });
+    }
+
+    this.setAlert(false);
+  });
 };
 
 Webform.prototype.submit = function(before, options) {
@@ -136,6 +162,8 @@ Webform.prototype.submit = function(before, options) {
 
   return new Promise((resolve, reject) => {
     const callSubmit = () => {
+      form.previSubmitTime = new Date().getTime();
+
       form.setValue(merge(form.submission, { data: outcomeButtonsAttributes }));
       originalSubmit
         .call(form, before, options)
@@ -154,7 +182,14 @@ Webform.prototype.submit = function(before, options) {
           callSubmit();
         }
       } else {
-        callSubmit();
+        const diff = Date.now() - form.previSubmitTime;
+        const timeout = diff === 0 || diff > SUBMIT_FORM_TIMEOUT ? 0 : SUBMIT_FORM_TIMEOUT - Math.floor(diff / 1000) * 1000;
+
+        form.loading = true;
+
+        window.setTimeout(() => {
+          callSubmit();
+        }, timeout);
       }
     };
 

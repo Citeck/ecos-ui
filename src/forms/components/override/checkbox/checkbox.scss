@@ -147,6 +147,18 @@ $positions: (
 
     &.checkbox-checked_cross {
       .form-check-label {
+        &_has-tip {
+          .form-check-input[type='checkbox']:first-child {
+            + span {
+              &.form-check-label__span {
+                &:after {
+                  left: -25px;
+                }
+              }
+            }
+          }
+        }
+
         .form-check-input:first-child {
           + span {
             position: relative;
@@ -176,8 +188,7 @@ $positions: (
                 position: absolute;
                 top: 0;
                 border-radius: $border-radius-standard;
-
-                left: -25px;
+                left: 0;
               }
 
               &_position {

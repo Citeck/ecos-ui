@@ -96,9 +96,10 @@ function* sagaPerformAction({ api, logger }, { payload }) {
       case MenuSettings.ItemTypes.START_WORKFLOW:
         const processDef = get(payload, 'config.processDef', '');
         const processId = processDef.replace(`${SourcesId.BPMN_DEF}@`, '');
+        const processRecordRef = `${SourcesId.BPMN_PROC}@${processId}`;
 
         createVariant.formTitle = yield call(api.page.getRecordTitle, processDef);
-        createVariant.recordRef = SourcesId.PROC_PROCESS;
+        createVariant.recordRef = processRecordRef;
         createVariant.formRef = yield Records.get(processDef).load('startFormRef?id');
         createVariant.formMode = FORM_MODE_CREATE;
 

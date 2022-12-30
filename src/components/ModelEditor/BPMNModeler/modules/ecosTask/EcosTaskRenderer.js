@@ -6,7 +6,7 @@ import { isNil } from 'min-dash';
 import _ from 'lodash';
 
 import Records from '../../../../../components/Records/Records';
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT } from '../../../../../constants/bpmn';
+import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, SUBPROCESS_TYPE } from '../../../../../constants/bpmn';
 import { t } from '../../../../../helpers/util';
 
 const HIGH_PRIORITY = 1500;
@@ -79,6 +79,10 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   getParentProccess(element) {
+    if (_.get(element, 'parent.type') === SUBPROCESS_TYPE) {
+      return _.get(getBusinessObject(element.parent), '$parent');
+    }
+
     return _.get(getBusinessObject(element), '$parent');
   }
 
@@ -91,7 +95,7 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   getEcosType(element) {
-    if (_.isString(element.$attrs['ecos:ecosType'])) {
+    if (element && _.isString(element.$attrs['ecos:ecosType'])) {
       return element.$attrs['ecos:ecosType'];
     }
 

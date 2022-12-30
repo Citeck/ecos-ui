@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected, getAuthRef } from './helpers';
+import { handleResponse, prepareSelected, getAuthRef, prepareParentId, unionWithPrevious, renderUsernameString } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -36,6 +37,7 @@ export const SelectOrgstructProvider = props => {
   } = controlProps;
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
+  const [userMask, setUserMask] = useState('');
   const [currentTab, setCurrentTab] = useState(defaultTab || TabTypes.LEVELS);
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
@@ -57,6 +59,62 @@ export const SelectOrgstructProvider = props => {
     maxCount: 0
   });
   const prevDefaultValue = usePrevious(defaultValue);
+  const onToggleCollapse = useCallback(
+    targetItem => {
+      const itemIdx = tabItems[currentTab].findIndex(item => item.id === targetItem.id);
+
+      if (!targetItem.isLoaded && targetItem.hasChildren) {
+        const groupName = targetItem.attributes.shortName;
+
+        orgStructApi
+          .fetchGroup({
+            query: { groupName },
+            excludeAuthoritiesByName,
+            excludeAuthoritiesByType,
+            isIncludedAdminGroup
+          })
+          .then(handleResponse)
+          .then(items => items.map(item => setSelectedItem(item, tabItems[TabTypes.SELECTED], { parentId: targetItem.id })))
+          .then(newItems => {
+            setTabItems({
+              ...tabItems,
+              [currentTab]: tabItems[currentTab]
+                .slice(0, itemIdx)
+                .concat([
+                  {
+                    ...targetItem,
+                    hasChildren: newItems.length > 0, // If no children, make not collapsible
+                    isLoaded: true,
+                    isOpen: !targetItem.isOpen
+                  }
+                ])
+                .concat(tabItems[currentTab].slice(itemIdx + 1))
+                .concat(
+                  newItems.filter(newItem => {
+                    // exclude duplicates
+                    return tabItems[currentTab].findIndex(i => i.id === newItem.id && i.parentId === newItem.parentId) === -1;
+                  })
+                )
+            });
+          });
+      } else {
+        onUpdateItem({ ...targetItem, isOpen: !targetItem.isOpen });
+      }
+    },
+    [tabItems, currentTab, setTabItems]
+  );
+
+  const onUpdateItem = targetItem => {
+    const itemIdx = tabItems[currentTab].findIndex(item => item.id === targetItem.id);
+
+    setTabItems({
+      ...tabItems,
+      [currentTab]: tabItems[currentTab]
+        .slice(0, itemIdx)
+        .concat([{ ...targetItem }])
+        .concat(tabItems[currentTab].slice(itemIdx + 1))
+    });
+  };
 
   const onSubmitSearchForm = () => {
     setIsRootGroupsFetched(false);
@@ -151,6 +209,12 @@ export const SelectOrgstructProvider = props => {
 
     return () => (livePromise = false);
   };
+
+  useEffect(() => {
+    OrgStructApi.fetchUsernameMask().then(mask => {
+      setUserMask(mask);
+    });
+  });
 
   // fetch root group list
   useEffect(() => {
@@ -310,6 +374,10 @@ export const SelectOrgstructProvider = props => {
         onSubmitSearchForm,
 
         renderListItem: item => {
+          if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
+            return renderUsernameString(userMask, { ...(item.attributes || {}) });
+          }
+
           if (typeof renderListItem === 'function') {
             return renderListItem(item);
           }
@@ -351,6 +419,7 @@ export const SelectOrgstructProvider = props => {
 
         deleteSelectedItem: targetId => {
           const selectedFiltered = tabItems[TabTypes.SELECTED].filter(item => item.id !== targetId);
+
           setTabItems({
             ...tabItems,
             [TabTypes.SELECTED]: selectedFiltered,
@@ -467,56 +536,56 @@ export const SelectOrgstructProvider = props => {
           }
         },
 
-        onToggleCollapse: targetItem => {
-          const itemIdx = tabItems[currentTab].findIndex(item => item === targetItem);
-          if (!targetItem.isLoaded && targetItem.hasChildren) {
-            const groupName = targetItem.attributes.shortName;
-            orgStructApi
-              .fetchGroup({
-                query: { groupName },
-                excludeAuthoritiesByName,
-                excludeAuthoritiesByType,
-                isIncludedAdminGroup
-              })
-              .then(handleResponse)
-              .then(items => items.map(item => setSelectedItem(item, tabItems[TabTypes.SELECTED], { parentId: targetItem.id })))
-              .then(newItems => {
-                setTabItems({
-                  ...tabItems,
-                  [currentTab]: tabItems[currentTab]
-                    .slice(0, itemIdx)
-                    .concat([
-                      {
-                        ...targetItem,
-                        hasChildren: newItems.length > 0, // If no children, make not collapsible
-                        isLoaded: true,
-                        isOpen: !targetItem.isOpen
-                      }
-                    ])
-                    .concat(tabItems[currentTab].slice(itemIdx + 1))
-                    .concat(
-                      newItems.filter(newItem => {
-                        // exclude duplicates
-                        return tabItems[currentTab].findIndex(i => i.id === newItem.id && i.parentId === newItem.parentId) === -1;
-                      })
-                    )
-                });
-              });
-          } else {
-            setTabItems({
-              ...tabItems,
-              [currentTab]: tabItems[currentTab]
-                .slice(0, itemIdx)
-                .concat([
-                  {
-                    ...targetItem,
-                    isOpen: !targetItem.isOpen
-                  }
-                ])
-                .concat(tabItems[currentTab].slice(itemIdx + 1))
-            });
+        getItemsByParent: (targetItem, isEditMode = false) => {
+          const isUser = targetItem.attributes.authorityType === AUTHORITY_TYPE_USER;
+          const parent = tabItems[currentTab].find(i => i.id === targetItem.parentId);
+
+          if (isUser) {
+            targetItem = { ...parent };
           }
+
+          if ((!targetItem.hasChildren && targetItem.isOpen) || !targetItem.isLoaded || !targetItem.isOpen) {
+            const updatedTargetItem = {
+              ...targetItem,
+              hasChildren: true,
+              isOpen: false,
+              isLoaded: false
+            };
+
+            onUpdateItem(updatedTargetItem);
+
+            window.setTimeout(() => {
+              onToggleCollapse(updatedTargetItem);
+            }, 0);
+
+            return;
+          }
+
+          if (isEditMode) {
+            targetItem = { ...parent };
+          }
+
+          const groupName = targetItem.attributes.shortName;
+
+          orgStructApi
+            .fetchGroup({
+              query: { groupName },
+              excludeAuthoritiesByName,
+              excludeAuthoritiesByType,
+              isIncludedAdminGroup
+            })
+            .then(handleResponse)
+            .then(result => result.map(item => prepareParentId(item, targetItem.id)))
+            .then(result => unionWithPrevious(result, tabItems[currentTab]))
+            .then(newItems => {
+              setTabItems({
+                ...tabItems,
+                [currentTab]: [...tabItems[currentTab].filter(item => item.parentId !== targetItem.id), ...newItems]
+              });
+            });
         },
+
+        onToggleCollapse,
 
         onChangePage: ({ page, maxItems }) => {
           setPagination({ ...pagination, page, count: maxItems });

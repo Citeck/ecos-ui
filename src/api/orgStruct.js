@@ -17,6 +17,7 @@ import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
   ORGSTRUCT_SEARCH_USER_MIDLLE_NAME,
+  ORGSTRUCT_SHOW_USERNAME_MASK,
   ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN
 } from '../services/config/ConfigService';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
@@ -26,9 +27,13 @@ export class OrgStructApi extends CommonApi {
   get groupAttributes() {
     return {
       displayName: '?disp',
+      firstName: 'firstName',
+      lastName: 'lastName',
       fullName: 'authorityName',
       groupSubType: 'groupSubType!""',
+      isPersonDisabled: 'personDisabled?bool',
       groupType: 'groupType!""',
+      email: 'email',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
     };
@@ -110,7 +115,7 @@ export class OrgStructApi extends CommonApi {
         query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
         language: 'predicate'
       },
-      { ...this.groupAttributes }
+      { ...this.groupAttributes, ...globalSearchConfig }
     )
       .then(r => get(r, 'records', []))
       .then(filterByType)
@@ -231,6 +236,10 @@ export class OrgStructApi extends CommonApi {
 
   static async fetchIsShowDisabledUser() {
     return await ConfigService.getValue(ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN);
+  }
+
+  static async fetchUsernameMask() {
+    return await ConfigService.getValue(ORGSTRUCT_SHOW_USERNAME_MASK);
   }
 
   static async fetchIsAdmin(userName) {
@@ -358,7 +367,7 @@ export class OrgStructApi extends CommonApi {
         },
         language: 'predicate'
       },
-      { ...OrgStructApi.userAttributes, ...searchFields }
+      { ...OrgStructApi.userAttributes, ...searchFields, ...extraFields }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount

@@ -1,5 +1,6 @@
 import { RecordService } from './recordService';
 import Records from '../components/Records';
+import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
@@ -13,7 +14,7 @@ export class BpmnApi extends RecordService {
         label: 'name',
         parentId: 'parentRef?id',
         modified: '_created?num',
-        canWrite: 'permissions._has.Write?bool!true'
+        canWrite: PERMISSION_WRITE_ATTR
       }
     ).then(resp => {
       return resp.records;
@@ -63,7 +64,7 @@ export class BpmnApi extends RecordService {
         modified: '_modified?num',
         previewUrl: 'preview.url',
         hasThumbnail: '_has.thumbnail?bool!false',
-        canWrite: 'permissions._has.Write?bool!true'
+        canWrite: PERMISSION_WRITE_ATTR
       }
     ).then(resp => {
       return resp.records;

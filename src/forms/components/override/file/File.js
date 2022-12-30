@@ -3,6 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isBoolean from 'lodash/isBoolean';
 import get from 'lodash/get';
+import debounce from 'lodash/debounce';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
@@ -40,7 +41,41 @@ export default class FileComponent extends FormIOFileComponent {
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-1522
     this.on('change', this.validateOnChange);
+
+    let lastChanged = null;
+    const _triggerChange = debounce((...args) => {
+      if (this.root) {
+        this.root.changing = false;
+      }
+
+      if (!args[1] && lastChanged) {
+        args[1] = lastChanged;
+      }
+
+      lastChanged = null;
+
+      this.onChange(...args);
+      this.checkValidation(null, true);
+    }, 100);
+
+    this.triggerChange = (...args) => {
+      this.onChange({ changeByUser: true });
+
+      if (args[1]) {
+        lastChanged = args[1];
+      }
+
+      if (this.root) {
+        this.root.changing = true;
+      }
+
+      return _triggerChange(...args);
+    };
   }
+
+  checkValidation = debounce((...args) => {
+    this.checkValidity(...args);
+  }, 100);
 
   get defaultSchema() {
     return FileComponent.schema();
@@ -48,7 +83,9 @@ export default class FileComponent extends FormIOFileComponent {
 
   static extractFileRecordRef(file) {
     let recordRef = null;
-    if (file.data && file.data.recordRef) {
+    if (file.data && file.data.entityRef) {
+      recordRef = file.data.entityRef;
+    } else if (file.data && file.data.recordRef) {
       recordRef = file.data.recordRef;
     } else if (file.data && file.data.nodeRef) {
       recordRef = file.data.nodeRef;
@@ -56,13 +93,13 @@ export default class FileComponent extends FormIOFileComponent {
       const documentUrl = file.url;
       const documentUrlParts = documentUrl.split('?');
       if (documentUrlParts.length !== 2) {
-        throw new Error("Cant't extract recordRef");
+        throw new Error("Can't extract recordRef");
       }
 
       const queryPart = documentUrlParts[1];
       const urlParams = queryString.parse(queryPart);
       if (!urlParams.recordRef && !urlParams.nodeRef) {
-        throw new Error("Cant't extract recordRef");
+        throw new Error("Can't extract recordRef");
       }
 
       recordRef = urlParams.recordRef || urlParams.nodeRef;
@@ -89,13 +126,14 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   checkConditions(data) {
-    let result = super.checkConditions(data);
+    const result = super.checkConditions(data);
 
     if (!this.component.displayElementsJS) {
       return result;
     }
 
-    let displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+    const displayElements = this.evaluate(this.component.displayElementsJS, {}, 'value', true);
+
     if (!isEqual(displayElements, this.displayElementsValue)) {
       this.displayElementsValue = displayElements;
       this.refreshDOM();
@@ -107,8 +145,8 @@ export default class FileComponent extends FormIOFileComponent {
   createFileListItem(fileInfo, index) {
     const displayElements = this.displayElementsValue || {};
     const shouldShowDeleteIcon = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
-
     const fileService = this.fileService;
+
     return this.ce(
       'li',
       { class: 'list-group-item' },
@@ -135,6 +173,19 @@ export default class FileComponent extends FormIOFileComponent {
         this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(index, fileInfo)) : null
       ])
     );
+  }
+
+  splice(index) {
+    const dataValue = this.dataValue || [];
+
+    if (Array.isArray(dataValue) && index === 0 && dataValue.length === 1) {
+      this.dataValue = [];
+      this.triggerChange();
+
+      return;
+    }
+
+    return super.splice(index);
   }
 
   isValid(data, dirty) {
@@ -215,7 +266,6 @@ export default class FileComponent extends FormIOFileComponent {
     const file = cloneDeep(f);
     const originalFileName = file.originalName || file.name;
     let onFileClickAction = this.component.onFileClick;
-
     let fileItemElement = this.ce('span', {});
 
     if (!onFileClickAction && this.viewOnly) {
@@ -229,6 +279,7 @@ export default class FileComponent extends FormIOFileComponent {
 
     let documentUrl = file.url;
     let recordRef;
+
     try {
       recordRef = FileComponent.extractFileRecordRef(file);
       documentUrl = FileComponent.buildDocumentUrl(recordRef);
@@ -277,6 +328,7 @@ export default class FileComponent extends FormIOFileComponent {
   buildUpload() {
     const displayElements = this.displayElementsValue || {};
     const shouldShowUpload = isBoolean(get(displayElements, 'upload')) ? displayElements.upload : true;
+
     if (!shouldShowUpload) {
       return this.ce('div', {});
     }
@@ -373,8 +425,19 @@ export default class FileComponent extends FormIOFileComponent {
       return;
     }
 
-    if (!isEqual(this.dataValue, this.defaultValue)) {
+    if (
+      !isEqual(this.dataValue, this.defaultValue) ||
+      (this.valueChangedByUser && this.component.validate.required && isEmpty(this.dataValue))
+    ) {
       this.checkValidity(null, true);
     }
   };
+
+  checkValidity(data, dirty, rowData) {
+    if (this.valueChangedByUser && dirty === undefined) {
+      dirty = true;
+    }
+
+    return super.checkValidity(data, dirty, rowData);
+  }
 }

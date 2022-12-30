@@ -19,6 +19,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { LANGUAGE_EN } from '../../constants/lang';
+import { SUBMIT_FORM_TIMEOUT } from '../../constants/forms';
 import { FORM_MODE_EDIT } from './constants';
 
 import './formio.full.min.css';
@@ -34,6 +35,7 @@ class EcosForm extends React.Component {
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
   _cachedFormComponents = [];
+  _lastFormOptions = null;
 
   constructor(props) {
     super(props);
@@ -121,6 +123,8 @@ class EcosForm extends React.Component {
     let formLoadingPromise;
     let proxyUri = PROXY_URI || '/';
 
+    this._lastFormOptions = propsOptions;
+
     if (formId) {
       formLoadingPromise = EcosFormUtils.getFormById(formId, attributes);
     } else {
@@ -144,6 +148,10 @@ class EcosForm extends React.Component {
     };
 
     formLoadingPromise.then(formData => {
+      if (this._lastFormOptions !== propsOptions) {
+        return;
+      }
+
       isFunction(getTitle) && !!get(formData, 'title') && getTitle(formData.title);
 
       if (!formData || !formData.definition) {
@@ -194,6 +202,10 @@ class EcosForm extends React.Component {
       }
 
       Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
+        if (this._lastFormOptions !== propsOptions) {
+          return;
+        }
+
         if (canWrite) {
           options.canWrite = canWrite;
         }
@@ -270,6 +282,10 @@ class EcosForm extends React.Component {
         const formPromise = Formio.createForm(containerElement, formDefinition, options);
 
         Promise.all([formPromise, customModulePromise]).then(formAndCustom => {
+          if (this._lastFormOptions !== propsOptions) {
+            return;
+          }
+
           const data = {
             ...this._evalOptionsInitAttributes(recordData.inputs, options),
             ...(this.props.attributes || {}),
@@ -278,9 +294,9 @@ class EcosForm extends React.Component {
           const [form, customModule] = formAndCustom;
           const HANDLER_PREFIX = 'onForm';
 
-          form.ecos = { custom: customModule };
+          form.ecos = { custom: customModule, form: this };
           form.setValue({ data });
-          form.on('submit', submission => this.submitForm(form, submission));
+          form.on('submit', (submission, resolve, reject) => this.submitForm(form, submission, false, resolve, reject));
           form.on(
             'change',
             debounce(
@@ -313,6 +329,10 @@ class EcosForm extends React.Component {
             });
 
           form.formReady.then(() => {
+            if (this._lastFormOptions !== propsOptions) {
+              return;
+            }
+
             isFunction(this.props.onReady) && this.props.onReady(form);
 
             this._containerHeightTimerId = window.setTimeout(() => this.toggleContainerHeight(), 500);
@@ -448,7 +468,7 @@ class EcosForm extends React.Component {
   };
 
   submitForm = debounce(
-    (form, submission, forceSave = false) => {
+    (form, submission, forceSave = false, submissionResolve, submissionReject) => {
       const self = this;
       const { recordId, containerId } = this.state;
       const inputs = EcosFormUtils.getFormInputs(form.component);
@@ -532,6 +552,10 @@ class EcosForm extends React.Component {
         }
 
         this._formSubmitDoneResolve({ persistedRecord, form, record });
+
+        if (isFunction(submissionResolve)) {
+          submissionResolve({ persistedRecord, form, record });
+        }
       };
 
       const resetOutcomeButtonsValues = () => {
@@ -566,6 +590,10 @@ class EcosForm extends React.Component {
           .catch(e => {
             form.showErrors(e, true);
             resetOutcomeButtonsValues();
+
+            if (isFunction(submissionReject)) {
+              submissionReject(e);
+            }
           })
           .finally(() => {
             self.toggleLoader(false);
@@ -575,7 +603,7 @@ class EcosForm extends React.Component {
         self.toggleLoader(false);
       }
     },
-    3000,
+    SUBMIT_FORM_TIMEOUT,
     {
       leading: true,
       trailing: false

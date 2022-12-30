@@ -1,0 +1,3 @@
+.choices__item:has(> span:empty) {
+  display: none;
+}

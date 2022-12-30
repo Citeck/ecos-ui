@@ -17,6 +17,10 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     return CalendarWidget.defaultSettings;
   }
 
+  onScrollWindow = () => {
+    this.calendar.isOpen && this.calendar._positionCalendar.call(this.calendar);
+  };
+
   attach(input) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
     this.settings.disableMobile = 'true';
@@ -51,6 +55,14 @@ export default class CalendarWidget extends FormIOCalendarWidget {
           this.calendar.close();
         }
       });
+
+      window.addEventListener('scroll', this.onScrollWindow, true);
     }
+  }
+
+  destroy() {
+    super.destroy();
+
+    window.removeEventListener('scroll', this.onScrollWindow, true);
   }
 }

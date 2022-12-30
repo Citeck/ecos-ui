@@ -6,6 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import merge from 'lodash/merge';
+import isEmpty from 'lodash/isEmpty';
 import EventEmitter from 'eventemitter2';
 import i18Defaults from 'formiojs/i18n';
 import WebformBuilder from 'formiojs/WebformBuilder';
@@ -270,7 +271,7 @@ const Harness = {
     });
 
     form.on('submit', () => {
-      if (_.isEmpty(errors)) {
+      if (isEmpty(errors)) {
         done();
       }
     });

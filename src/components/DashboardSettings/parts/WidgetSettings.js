@@ -17,8 +17,8 @@ import { Checkbox, Select } from '../../../components/common/form';
 import { ParserPredicate } from '../../../components/Filters/predicates';
 import Filters from '../../../components/Filters/Filters';
 import Components from '../../widgets/Components';
-import { JOURNAL_DASHLET_CONFIG_VERSION } from '../../Journals/constants';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../EcosForm';
+import { CONFIG_VERSION } from '../../../constants/dashboard';
 
 const Labels = {
   MODAL_TITLE: 'widget-settings.title',
@@ -64,7 +64,7 @@ const SettingsBody = props => {
 
   const predicate = get(widget, 'props.config.widgetDisplayCondition');
   const [_predicate, setPredicate] = useState(predicate || defaultPredicate);
-  const [individualSettings, setIndividualSettings] = useState(get(widget, ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION], {}));
+  const [individualSettings, setIndividualSettings] = useState(get(widget, ['props', 'config', CONFIG_VERSION], {}));
   const [collapsed, setCollapsed] = useState(get(widget, 'props.config.collapsed'));
   const [formMode, setFormMode] = useState(get(widget, 'props.config.formMode', FORM_MODE_VIEW));
 
@@ -82,12 +82,8 @@ const SettingsBody = props => {
       set(updWidget, 'props.config.widgetDisplayCondition', _predicate);
     }
 
-    set(
-      updWidget,
-      ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION],
-      merge(get(updWidget, ['props', 'config', JOURNAL_DASHLET_CONFIG_VERSION]), individualSettings)
-    );
-    set(updWidget, 'props.config.version', JOURNAL_DASHLET_CONFIG_VERSION);
+    set(updWidget, ['props', 'config', CONFIG_VERSION], merge(get(updWidget, ['props', 'config', CONFIG_VERSION]), individualSettings));
+    set(updWidget, 'props.config.version', CONFIG_VERSION);
     set(updWidget, 'props.config.collapsed', collapsed);
     set(updWidget, 'props.config.formMode', formMode);
 

@@ -27,7 +27,8 @@ export default class TabsComponent extends NestedComponent {
             key: 'tab1',
             components: []
           }
-        ]
+        ],
+        clearOnRefresh: true
       },
       ...extend
     );
@@ -285,6 +286,10 @@ export default class TabsComponent extends NestedComponent {
     this.tabLinks = [];
     this.tabs = [];
     this.component.components.forEach((tab, index) => {
+      if (tab.ignored) {
+        return;
+      }
+
       const tabLabel = isEqual(t(`form-constructor.tabs.${tab.key}`), `form-constructor.tabs.${tab.key}`)
         ? getMLValue(tab.label)
         : t(`form-constructor.tabs.${tab.key}`);

@@ -6,6 +6,7 @@ import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } fro
 import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';
+import useIsMounted from '../../../../../../hooks/useIsMounted';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
@@ -24,7 +25,7 @@ const ModalForm = () => {
     rowPosition
   } = context;
   const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
-
+  const isMounted = useIsMounted();
   const [displayName, setDisplayName] = useState('');
   useEffect(() => {
     if (isStaticModalTitle) {
@@ -33,12 +34,16 @@ const ModalForm = () => {
       }
       return;
     }
+
     Records.get(record)
       .load('.disp')
-      .then(disp => setDisplayName(disp));
+      .then(disp => {
+        isMounted() && setDisplayName(disp);
+      });
   }, [record, setDisplayName, customStringForConcatWithStaticTitle]);
 
   let title = '';
+
   switch (formMode) {
     case FORM_MODE_VIEW:
       title = t('ecos-table-form.view-modal.title');

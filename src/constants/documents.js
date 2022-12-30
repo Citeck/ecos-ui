@@ -91,7 +91,6 @@ export const fieldFormatters = {
 
 export const NULL_FORM = 'uiserv/form@null';
 export const DATE_FORMAT = 'DD.MM.YYYY HH:mm';
-export const DEFAULT_REF = 'dict@cm:content';
 
 export const Labels = {
   TITLE: 'documents-widget.title',

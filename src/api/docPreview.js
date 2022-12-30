@@ -3,6 +3,7 @@ import get from 'lodash/get';
 
 import Records from '../components/Records';
 import { PROXY_URI } from '../constants/alfresco';
+import { SourcesId } from '../constants';
 
 export class DocPreviewApi {
   static getPreviewLinkByRecord = async recordRef => {
@@ -97,7 +98,7 @@ export class DocPreviewApi {
   static getFilesList = recordRef => {
     return Records.queryOne(
       {
-        sourceId: 'alfresco/documents',
+        sourceId: SourcesId.DOCUMENTS,
         language: 'types-documents',
         query: {
           recordRef,

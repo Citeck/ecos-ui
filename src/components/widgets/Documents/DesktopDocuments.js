@@ -540,7 +540,9 @@ class DesktopDocuments extends BaseDocuments {
   };
 
   updateDocList = () => {
-    this.getDocumentsByType(this.state.selectedType);
+    if (this.state.selectedType) {
+      this.getDocumentsByType(this.state.selectedType);
+    }
   };
 
   renderTypes() {

@@ -16,6 +16,8 @@ import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
 import { PropertiesApi } from '../../../api/properties';
 import { getFitnesseClassName } from '../../../helpers/tools';
+import { FORM_MODE_VIEW } from '../../EcosForm';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 
 import './style.scss';
 
@@ -55,7 +57,7 @@ class PropertiesDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
-    this.permissionsWatcher = this.instanceRecord.watch('.att(n:"permissions"){has(n:"Write")}', this.checkPermissions);
+    this.permissionsWatcher = this.instanceRecord.watch(PERMISSION_WRITE_ATTR, this.checkPermissions);
     this.ref = this;
 
     this.state = {
@@ -96,7 +98,7 @@ class PropertiesDashlet extends BaseWidget {
   }
 
   get dashletActions() {
-    const { canEditRecord, isShowSetting, formIsValid, formIsChanged } = this.state;
+    const { canEditRecord, isShowSetting, formIsValid, formIsChanged, isDraft } = this.state;
 
     if (isShowSetting) {
       return {};
@@ -152,7 +154,7 @@ class PropertiesDashlet extends BaseWidget {
             getFitnesseClassName('properties-widget', formType, DAction.Actions.SUBMIT),
             'btn btn-primary btn-xsm eform-edit-form-btn',
             {
-              'disabled btn_disabled': !formIsValid
+              'disabled btn_disabled': !isDraft && !formIsValid
             }
           ),
           onClick: this.submitForm
@@ -161,6 +163,16 @@ class PropertiesDashlet extends BaseWidget {
     }
 
     return actions;
+  }
+
+  get formMode() {
+    const { canEditRecord } = this.state;
+
+    if (!canEditRecord) {
+      return FORM_MODE_VIEW;
+    }
+
+    return get(this.props, 'config.formMode', FORM_MODE_VIEW);
   }
 
   reload() {
@@ -299,8 +311,6 @@ class PropertiesDashlet extends BaseWidget {
     const { formId = '', titleAsFormName } = config || {};
     const titleDashlet = t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE);
 
-    const formMode = get(this.props, 'config.formMode', 'VIEW');
-
     return (
       <Dashlet
         setRef={this.setDashletRef}
@@ -334,7 +344,7 @@ class PropertiesDashlet extends BaseWidget {
           getTitle={this.setTitle}
           scrollProps={this.scrollbarProps}
           isDraft={isDraft}
-          formMode={formMode}
+          formMode={this.formMode}
         />
         {isShowSetting && (
           <PropertiesSettings
