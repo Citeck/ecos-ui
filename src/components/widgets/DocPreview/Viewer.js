@@ -12,6 +12,8 @@ import { Fullpage, Icon, InfoText } from '../../common';
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
 import { t } from '../../../helpers/util';
+import { CUSTOM } from './Toolbar';
+import StyleVariables from './style.scss';
 
 const $PAGE = '.ecos-doc-preview__viewer-page';
 const fullscreenEnabled = fscreen.fullscreenEnabled;
@@ -93,7 +95,11 @@ export default function getViewer(WrappedComponent, isPdf) {
         }
       }
 
-      if (!isPdf && get(this.props, 'settings.scale') !== get(prevProps, 'settings.scale')) {
+      if (
+        !isPdf &&
+        get(this.props, 'settings.scale') !== get(prevProps, 'settings.scale') &&
+        get(this.props, 'settings.selectedZoom') !== CUSTOM
+      ) {
         this.setScrollDefaultPosition();
       }
     }
@@ -129,9 +135,15 @@ export default function getViewer(WrappedComponent, isPdf) {
       }
 
       const { clientWidth, clientHeight, scrollWidth, scrollHeight } = this.elScrollbar.getValues();
+      const transitionElement = this.elScrollbar.view.querySelector('.ecos-doc-preview__viewer-doc-transition');
+      let offset = isPdf ? 0 : parseInt(StyleVariables.bottomPad || 0, 10) / 2;
+
+      if (transitionElement) {
+        offset += transitionElement.offsetHeight;
+      }
 
       this.elScrollbar.scrollLeft((scrollWidth - clientWidth) / 2);
-      this.elScrollbar.scrollTop((scrollHeight - clientHeight) / 2);
+      this.elScrollbar.scrollTop((scrollHeight - clientHeight) / 2 - offset);
     }, 250);
 
     handleAboutToReachBottom = debounce(

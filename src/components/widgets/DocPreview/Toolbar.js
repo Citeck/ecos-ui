@@ -12,7 +12,7 @@ import { getScaleModes, t } from '../../../helpers/util';
 import { Labels } from './util';
 import { DocScaleOptions } from '../../../constants';
 
-const CUSTOM = 'custom';
+export const CUSTOM = 'custom';
 const ZOOM_STEP = 0.15;
 const MIN_ZOOM = 0.15;
 const MAX_ZOOM = 4;

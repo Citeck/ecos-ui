@@ -5,6 +5,10 @@ $background-viewer: $color-gray-15;
 $border-base: $color-gray-5;
 $bottom-pad: 80px;
 
+:export {
+  bottomPad: $bottom-pad;
+}
+
 %base-flex {
   display: flex;
   align-items: center;
@@ -336,6 +340,7 @@ $bottom-pad: 80px;
       }
 
       &_img {
+        display: flex;
         height: 100%;
         width: 100%;
         text-align: unset;
