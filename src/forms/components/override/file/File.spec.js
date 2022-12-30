@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep';
+import set from 'lodash/set';
 
 import Harness from '../../../test/harness';
 import comp1 from './fixtures/comp1';
@@ -104,6 +105,32 @@ describe('File Component', () => {
       component.checkValidity(component.data, true);
       // found an error
       expect(component.element.className.split(' ').includes('has-error')).toBe(true);
+      done();
+    });
+  });
+
+  it('Without error, if form in draft mode', done => {
+    const comp = Object.assign(cloneDeep(comp1), {
+      validate: {
+        required: true
+      }
+    });
+
+    Harness.testCreate(FileComponent, comp, { readOnly: false }).then(component => {
+      // emulate form in draft mode
+      set(component, 'root.options.saveDraft', true);
+      // as if the changes were made by the user
+      component.setValue(values);
+      // start validation
+      component.checkValidity(component.data, true);
+      // errors not found
+      expect(component.element.className.split(' ').includes('has-error')).toBe(false);
+      // clear data
+      component.setValue([]);
+      // start validation
+      component.checkValidity(component.data, true);
+      // errors not found
+      expect(component.element.className.split(' ').includes('has-error')).toBe(false);
       done();
     });
   });
