@@ -434,6 +434,10 @@ export default class FileComponent extends FormIOFileComponent {
   };
 
   checkValidity(data, dirty, rowData) {
+    if (get(this, 'root.options.saveDraft')) {
+      return true;
+    }
+
     if (this.valueChangedByUser && dirty === undefined) {
       dirty = true;
     }
