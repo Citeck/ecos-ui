@@ -1,5 +1,9 @@
 @import '../../../styles/constants';
 
+:root {
+  --popper-wrapper-height: 0;
+}
+
 .ecos-popper {
   display: grid;
   grid-template-rows: 1fr;
@@ -30,7 +34,7 @@
     width: 0.6rem;
     height: 0.6rem;
 
-    &::before {
+    &:before {
       content: '';
       background: white;
       width: 0.6rem;
@@ -42,6 +46,23 @@
       box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
       cursor: unset;
       pointer-events: none;
+    }
+
+    &_top {
+    }
+
+    &_bottom {
+      &:before {
+        top: unset;
+        bottom: calc(var(--popper-wrapper-height));
+        box-shadow: -3px -3px 3px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    &_left {
+    }
+
+    &_right {
     }
   }
 }

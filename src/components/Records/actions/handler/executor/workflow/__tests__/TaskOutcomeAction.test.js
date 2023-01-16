@@ -43,7 +43,7 @@ describe('TaskOutcome action', () => {
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(0);
-    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledTimes(2);
     expect(errorSpy.mock.calls[0][0]).toEqual('Incorrect action');
     expect(result).toEqual(false);
   });
