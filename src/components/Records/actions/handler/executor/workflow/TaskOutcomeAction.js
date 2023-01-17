@@ -43,12 +43,12 @@ export default class TaskOutcomeAction extends ActionsExecutor {
         language: QueryLanguages.FORM,
         query: { formRef }
       },
-      '.json'
+      ['.json', '_notExists?bool']
     );
 
-    const formDef = get(formDefRes, 'records[0][".json"]');
+    const formIsNotExists = get(formDefRes, 'records[0]["_notExists?bool"]');
 
-    if (!get(formDef, 'definition')) {
+    if (formIsNotExists) {
       console.error('Form is not defined', formDefRes);
 
       DialogManager.showInfoDialog({
@@ -59,8 +59,12 @@ export default class TaskOutcomeAction extends ActionsExecutor {
       return false;
     }
 
-    const formInputs = EcosFormUtils.getFormInputs(formDef.definition);
-    let formI18n = await this.getFormI18n(taskRef, formInputs, formDef.i18n);
+    const formData = get(formDefRes, 'records[0][".json"]');
+    const formDef = get(formData, 'definition');
+
+    const formInputs = !!formDef ? EcosFormUtils.getFormInputs(formDef) : [];
+
+    let formI18n = await this.getFormI18n(taskRef, formInputs, formData.i18n);
     formI18n = { [getCurrentLocale()]: formI18n };
 
     return new Promise(resolve => {
@@ -126,7 +130,7 @@ export default class TaskOutcomeAction extends ActionsExecutor {
       DialogManager.showFormDialog({
         title: messageWithOutcome,
         showDefaultButtons: true,
-        formDefinition: formDef.definition,
+        formDefinition: formDef,
         formOptions: {
           recordId: taskRef,
           outcome
