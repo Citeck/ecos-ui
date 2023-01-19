@@ -97,6 +97,7 @@
 /**
  * @typedef SearchConfigCol
  * @property {Array<String>} delimiters
+ * @property {Array<String>} searchByText
  *
  * @todo fill all
  */
