@@ -36,6 +36,16 @@ describe('SelectOrgstruct helper functions', () => {
         })
       );
     });
+
+    it('with html string', () => {
+      // eslint-disable-next-line no-template-curly-in-string
+      expect('Admin <span style="color:#7396cd;font-size:bold;text-decoration:underline;">admin</span>').toEqual(
+        renderUsernameString('${firstName} <span style="color:#7396cd;font-size:bold;text-decoration:underline;">${username}</span>', {
+          username: 'admin',
+          firstName: 'Admin'
+        })
+      );
+    });
   });
 
   describe('isHTML function', () => {
@@ -56,6 +66,10 @@ describe('SelectOrgstruct helper functions', () => {
     });
 
     it('HTML string test 2', () => {
+      expect(isHTML('${firstName} <span style="color:#7396cd;font-size:bold;text-decoration:underline;">${username}</span>')).toBeTruthy();
+    });
+
+    it('HTML string test 3', () => {
       expect(isHTML('<div>${email} <span style="color:#fff;">(${userName})</span></div>')).toBeTruthy();
     });
   });
