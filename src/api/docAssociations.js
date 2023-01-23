@@ -9,6 +9,8 @@ import Records from '../components/Records';
 import journalsService from '../components/Journals/service/journalsService';
 import { DocumentsApi } from './documents';
 
+const TWO_DOTS_ATT_ALIAS_REPLACEMENT = '_u003A_';
+
 export class DocAssociationsApi extends DocumentsApi {
   #baseAssociationAttributes = 'id:?id,modifierId:_modifier,displayName:?disp';
   #defaultAttributes = 'displayName:?disp,created';
@@ -111,12 +113,7 @@ export class DocAssociationsApi extends DocumentsApi {
 
     return Records.get(recordRef)
       .load(`${id}[]{${this.#baseAssociationAttributes},${query}}`, true)
-      .then(res => {
-        if (!Array.isArray(res)) {
-          return [];
-        }
-        return res.filter(item => !isEmpty(item));
-      });
+      .then(res => this.__postProcessAssocResults(res));
   };
 
   getSourceAssociations = (id, recordRef, attributes = {}) => {
@@ -124,13 +121,25 @@ export class DocAssociationsApi extends DocumentsApi {
 
     return Records.get(recordRef)
       .load(`assoc_src_${id}[]{${this.#baseAssociationAttributes},${query}}`, true)
-      .then(res => {
-        if (!Array.isArray(res)) {
-          return [];
-        }
+      .then(res => this.__postProcessAssocResults(res));
+  };
 
-        return res.filter(item => !isEmpty(item));
-      });
+  __postProcessAssocResults = results => {
+    if (!Array.isArray(results)) {
+      return [];
+    }
+    let result = [];
+    for (let item of results) {
+      if (isEmpty(item)) {
+        continue;
+      }
+      let newItem = {};
+      for (let alias in item) {
+        newItem[alias.replace(TWO_DOTS_ATT_ALIAS_REPLACEMENT, ':')] = item[alias];
+      }
+      result.push(newItem);
+    }
+    return result;
   };
 
   __getAttributesAsString(attributes = {}) {
@@ -139,7 +148,7 @@ export class DocAssociationsApi extends DocumentsApi {
     }
     let attsStr = '';
     for (let alias in attributes) {
-      attsStr += alias + ':' + attributes[alias] + ',';
+      attsStr += alias.replace(':', TWO_DOTS_ATT_ALIAS_REPLACEMENT) + ':' + attributes[alias] + ',';
     }
     return attsStr.substring(0, attsStr.length - 1);
   }
