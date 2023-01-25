@@ -129,6 +129,19 @@ export class OrgStructApi extends CommonApi {
       .catch(() => []);
   }
 
+  static async fetchGlobalHideInOrgstruct() {
+    return Records.get(`${SourcesId.ECOS_CONFIG}@hide-in-orgstruct`)
+      .load('?str')
+      .then(config => {
+        if (typeof config !== 'string' || !config.trim().length) {
+          return [];
+        }
+
+        return config.split(',');
+      })
+      .catch(() => []);
+  }
+
   static async fetchIsHideDisabledField() {
     try {
       const result = await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool');
@@ -194,6 +207,12 @@ export class OrgStructApi extends CommonApi {
         }
       }
     }
+
+    ((await OrgStructApi.fetchGlobalHideInOrgstruct()) || []).forEach(item => {
+      if (item && !item.startsWith('GROUP_')) {
+        queryVal.push({ t: 'not-eq', att: 'cm:userName', val: item });
+      }
+    });
 
     const attributes = {
       fullName: '.disp',
