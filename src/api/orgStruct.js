@@ -230,6 +230,19 @@ export class OrgStructApi extends CommonApi {
     return fields[0].split(',');
   }
 
+  static async fetchGlobalHideInOrgstruct() {
+    return Records.get(`${SourcesId.ECOS_CONFIG}@hide-in-orgstruct`)
+      .load('?str')
+      .then(config => {
+        if (typeof config !== 'string' || !config.trim().length) {
+          return [];
+        }
+
+        return config.split(',');
+      })
+      .catch(() => []);
+  }
+
   static async fetchIsHideDisabledField() {
     return await ConfigService.getValue(ORGSTRUCT_HIDE_DISABLED_USERS);
   }
@@ -330,6 +343,14 @@ export class OrgStructApi extends CommonApi {
     }
 
     let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+
+    const excludedUsers = (await OrgStructApi.fetchGlobalHideInOrgstruct()) || [];
+
+    excludedUsers.forEach(item => {
+      if (item && !item.startsWith('GROUP_')) {
+        queryVal.push({ t: 'not-eq', att: 'cm:userName', val: item });
+      }
+    });
 
     if (searchText) {
       const addExtraFields = (fields = []) => {
