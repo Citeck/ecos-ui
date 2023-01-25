@@ -212,7 +212,7 @@ export default class DocumentsConverter {
   };
 
   static getDataToCreate = data => ({
-    recordRef: get(data, 'createVariants.recordRef'),
+    recordRef: get(data, 'createVariants.recordRef') || data.record || '',
     formId: get(data, 'createVariants.formRef') || data.formId || '',
     attributes: DocumentsConverter.getUploadAttributes(data)
   });
