@@ -20,7 +20,7 @@ class JournalsDataLoader {
    */
   async load(journalConfig, settings = {}) {
     const recordsQuery = await this.getRecordsQuery(journalConfig, settings);
-    const attributes = this.#getAttributes(journalConfig, settings);
+    const attributes = this._getAttributes(journalConfig, settings);
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
@@ -94,9 +94,17 @@ class JournalsDataLoader {
     const consistency = 'EVENTUAL';
     const columns = journalConfig.columns || settings.columns || [];
     const predicates = await this.getPredicates(journalConfig, settings);
+
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
     let queryData = null;
+
+    const currentColoumn = JournalsConverter.getColoumnByPredicates(predicates, columns);
+    const searchByTextConfig = get(currentColoumn, 'searchConfig.searchByText');
+
+    if (searchByTextConfig) {
+      return { ...searchByTextConfig.innerQuery };
+    }
 
     query = JournalsConverter.searchConfigProcessed(query, columns);
 
@@ -115,8 +123,8 @@ class JournalsDataLoader {
       language = 'predicate-with-data';
     }
 
-    const sortBy = this.#getSortBy(journalConfig, settings);
-    const groupBy = this.#getGroupBy(journalConfig, settings);
+    const sortBy = this._getSortBy(journalConfig, settings);
+    const groupBy = this._getGroupBy(journalConfig, settings);
 
     return {
       sourceId: settings.customSourceId || journalConfig.sourceId || '',
@@ -164,7 +172,7 @@ class JournalsDataLoader {
    * @param {JournalSettings} settings
    * @returns {SortBy}
    */
-  #getSortBy = (journalConfig, settings) => {
+  _getSortBy = (journalConfig, settings) => {
     let sortBy = [];
 
     if (Array.isArray(settings.sortBy)) {
@@ -192,7 +200,7 @@ class JournalsDataLoader {
    * @param {JournalSettings} settings
    * @returns {?Array<String>}
    */
-  #getGroupBy = (journalConfig, settings) => {
+  _getGroupBy = (journalConfig, settings) => {
     const groupBy = settings.groupBy || journalConfig.groupBy;
 
     if (groupBy && groupBy.length) {
@@ -206,7 +214,7 @@ class JournalsDataLoader {
    * @param {JournalSettings} settings
    * @returns {{attributesMap: Object, attributesSet: Array}}
    */
-  #getAttributes = (journalConfig, settings) => {
+  _getAttributes = (journalConfig, settings) => {
     const columns = journalConfig.columns || [];
     const settingsColumns = settings.columns || [];
     const settingsAttributes = settings.attributes || {};
