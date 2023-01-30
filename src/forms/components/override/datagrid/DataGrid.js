@@ -3,8 +3,10 @@ import { flattenComponents } from 'formiojs/utils/utils';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
+import throttle from 'lodash/throttle';
 
 import { overrideTriggerChange } from '../misc';
+import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 
 export default class DataGridComponent extends FormIODataGridComponent {
   constructor(...args) {
@@ -39,25 +41,29 @@ export default class DataGridComponent extends FormIODataGridComponent {
     });
   }
 
-  show(show, noClear) {
-    if (show && !this.dataValue.length) {
-      this.overrideBaseRow();
+  show = throttle((show, noClear) => {
+    const { formMode } = this.options;
+
+    if (formMode === FORM_MODE_CREATE) {
+      if (show && !this.dataValue.length) {
+        this.overrideBaseRow();
+      }
     }
 
     return super.show(show, noClear);
-  }
+  }, 100);
 
-  overrideBaseRow = () => {
+  overrideBaseRow() {
     if (!this.dataValue.length || isEqual(this.dataValue, this.baseEmptyValue)) {
       this.removeValue(0);
     }
 
-    requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
       if (!this.dataValue.length || !this.rows.length) {
         this.addValue();
       }
     });
-  };
+  }
 
   checkValidity(data, dirty, rowData) {
     if (isEqual(this.dataValue, this.baseEmptyValue)) {
@@ -70,12 +76,12 @@ export default class DataGridComponent extends FormIODataGridComponent {
   createLastTh = () => {
     const hasBottomButton = this.hasBottomSubmit();
     const hasBottomEnd = this.hasExtraColumn() && hasBottomButton;
+
     return hasBottomEnd ? this.ce('th', { class: 'formio-drag-small-column' }) : null;
   };
 
   createAddButton = () => {
-    const hasTopButton = this.hasTopSubmit();
-    return hasTopButton ? this.addButton('true') : null;
+    return this.hasTopSubmit() ? this.addButton('true') : null;
   };
 
   createHeader() {
