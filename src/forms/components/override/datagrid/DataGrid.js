@@ -60,12 +60,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
       this.removeValue(0);
     }
 
-    return requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       if (!this.dataValue.length || !this.rows.length) {
         this.addValue();
       }
-
-      console.log('hui');
     });
   }
 
