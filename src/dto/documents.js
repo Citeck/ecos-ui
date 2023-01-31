@@ -213,7 +213,10 @@ export default class DocumentsConverter {
 
   static getDataToCreate = data => ({
     ...data,
-    attributes: DocumentsConverter.getUploadAttributes(data)
+    attributes: {
+      ...(data.attributes || {}),
+      ...DocumentsConverter.getUploadAttributes(data)
+    }
   });
 
   static getUploadAttributes = (source = {}) => {
