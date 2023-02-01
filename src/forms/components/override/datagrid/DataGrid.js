@@ -6,21 +6,12 @@ import pick from 'lodash/pick';
 import throttle from 'lodash/throttle';
 
 import { overrideTriggerChange, requestAnimationFrame } from '../misc';
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
 
 export default class DataGridComponent extends FormIODataGridComponent {
   constructor(...args) {
     super(...args);
 
     overrideTriggerChange.call(this);
-  }
-
-  build(state) {
-    if (!this.isBuilt) {
-      this.overrideBaseRow();
-    }
-
-    super.build(state);
   }
 
   get defaultValue() {
@@ -44,12 +35,8 @@ export default class DataGridComponent extends FormIODataGridComponent {
   }
 
   show = throttle((show, noClear) => {
-    const { formMode } = this.options;
-
-    if (formMode === FORM_MODE_CREATE) {
-      if (show && !this.dataValue.length) {
-        this.overrideBaseRow();
-      }
+    if (show && !this.dataValue.length) {
+      this.overrideBaseRow();
     }
 
     return super.show(show, noClear);
