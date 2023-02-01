@@ -54,19 +54,19 @@ const GroupActions = React.memo(
     const selected = selectAllRecordsVisible ? total - excludedRecords.length : selectedLen;
     const labelRecActionsCount = t(Labels.SELECTED_COUNT, { selected, total });
 
-    const labelRecActions = useCallback(() => t(Labels.SELECTED_SHORT, { data: labelRecActionsCount }), [total, selected]);
+    const labelRecActions = useCallback(() => t(Labels.SELECTED_SHORT, { data: selectedLen === 0 ? grid.total : labelRecActionsCount }), [
+      total,
+      selected,
+      grid.total
+    ]);
 
     useEffect(() => {
       setLabel(labelRecActions);
     }, []);
 
     useEffect(() => {
-      if (isFilterOn && selectedRecords.length === 0) {
-        setLabel(t(Labels.SELECTED_SHORT, { data: grid.total }));
-      } else {
-        setLabel(labelRecActions);
-      }
-    }, [grid.total, selectedRecords, isFilterOn]);
+      setLabel(labelRecActions);
+    }, [labelRecActions]);
 
     useEffect(() => {
       const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
@@ -80,25 +80,25 @@ const GroupActions = React.memo(
       action => {
         const context = { excludedRecords };
 
-        if (selectAllRecordsVisible || (isFilterOn && selectedRecords.length === 0)) {
+        if (selectAllRecordsVisible || selectedLen === 0) {
           execRecordsAction(grid.query, action, context);
         } else {
           execRecordsAction(selectedRecords, action);
         }
       },
-      [grid, isFilterOn, selectedRecords, excludedRecords]
+      [grid, isFilterOn, selectedRecords, selectedLen, excludedRecords]
     );
 
     const getItemClassName = useCallback(
       action => {
-        const disabled = !isFilterOn && (selectAllRecordsVisible || !selectedLen);
+        const disabled = !isFilterOn && selectAllRecordsVisible;
 
         return classNames('ecos-group-actions__dropdown-item', {
           'ecos-group-actions__dropdown-item_disabled': disabled,
           'ecos-group-actions__dropdown-item_query': action._typeAct === TYPE_ACT.QUERY
         });
       },
-      [selectAllRecordsVisible, isFilterOn, !!selectedLen]
+      [selectAllRecordsVisible, isFilterOn]
     );
 
     const iconOpener = useCallback(flag => classNames('ecos-btn__i_right', { 'icon-small-up': flag, 'icon-small-down': !flag }), []);
