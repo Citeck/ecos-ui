@@ -106,8 +106,6 @@ Webform.prototype.onSubmit = function(submission, saved) {
     noCheck: true
   });
 
-  this.setAlert('success', `<p>${this.t('complete')}</p>`);
-
   if (!submission.hasOwnProperty('saved')) {
     submission.saved = saved;
   }
