@@ -23,7 +23,7 @@ import isBoolean from 'lodash/isBoolean';
 import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
 
-import { getId, isInViewport, t, trigger } from '../../../../helpers/util';
+import { getId, isInViewport, t } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
@@ -338,7 +338,8 @@ class Grid extends Component {
           this.getTrOptions(tr);
         }
 
-        trigger.call(this, 'onMouseEnter', e);
+        const { onMouseEnter } = props;
+        isFunction(onMouseEnter) && onMouseEnter(e);
       },
       onMouseLeave: e => {
         if (this.state.isScrolling) {
@@ -351,7 +352,8 @@ class Grid extends Component {
 
         this._tr = null;
 
-        trigger.call(this, 'onRowMouseLeave', e);
+        const { onRowMouseLeave } = this.props;
+        isFunction(onRowMouseLeave) && onRowMouseLeave(e);
       },
       onClick: e => {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
@@ -475,7 +477,7 @@ class Grid extends Component {
   };
 
   getTrOptions = tr => {
-    const { selectorContainer, data } = this.props;
+    const { selectorContainer, data, onChangeTrOptions } = this.props;
     const { isScrolling } = this.state;
     const row = data[tr.rowIndex - 1];
     const elGrid = tr.closest('.ecos-grid');
@@ -498,7 +500,7 @@ class Grid extends Component {
     this._tr = tr;
 
     if (!isScrolling) {
-      trigger.call(this, 'onChangeTrOptions', { row, position: tr.rowIndex - 1, ...style });
+      isFunction(onChangeTrOptions) && onChangeTrOptions({ row, position: tr.rowIndex - 1, ...style });
     }
   };
 
@@ -775,16 +777,20 @@ class Grid extends Component {
   };
 
   onMouseLeave = e => {
-    trigger.call(this, 'onMouseLeave', e);
+    const { onMouseLeave } = this.props;
+    isFunction(onMouseLeave) && onMouseLeave(e);
   };
 
   onMouseEnter = e => {
-    trigger.call(this, 'onGridMouseEnter', e);
+    const { onGridMouseEnter } = this.props;
+    isFunction(onGridMouseEnter) && onGridMouseEnter(e);
   };
 
   onRowClick = tr => {
     this.setHover(tr, ECOS_GRID_HOVERED_CLASS, true);
-    trigger.call(this, 'onRowClick', this.props.data[tr.rowIndex - 1]);
+
+    const { onRowClick } = this.props;
+    isFunction(onRowClick) && onRowClick(this.props.data[tr.rowIndex - 1]);
   };
 
   onDoubleClick = (...params) => {
@@ -792,7 +798,8 @@ class Grid extends Component {
   };
 
   onSort = e => {
-    trigger.call(this, 'onSort', e);
+    const { onSort } = this.props;
+    isFunction(onSort) && onSort(e);
   };
 
   onFilter = (predicates, type) => {
@@ -801,13 +808,16 @@ class Grid extends Component {
   };
 
   onEdit = (oldValue, newValue, row, column) => {
+    const { onEdit } = this.props;
+
     if (oldValue !== newValue) {
-      trigger.call(this, 'onEdit', {
-        id: row[this.props.keyField],
-        attributes: {
-          [column.attribute]: newValue
-        }
-      });
+      isFunction(onEdit) &&
+        onEdit({
+          id: row[this.props.keyField],
+          attributes: {
+            [column.attribute]: newValue
+          }
+        });
     }
   };
 
@@ -887,10 +897,12 @@ class Grid extends Component {
       return;
     }
 
+    const { onRowDragEnter } = this.props;
+
     const target = e.target;
     const tr = isElement(target) ? target.closest(`.${ECOS_GRID_ROW_CLASS}`) : null;
 
-    trigger.call(this, 'onRowDragEnter', e);
+    isFunction(onRowDragEnter) && onRowDragEnter(e);
 
     if (isNil(tr)) {
       this.setHover(this._dragTr, ECOS_GRID_GRAG_CLASS, true, this._tr);
@@ -926,6 +938,8 @@ class Grid extends Component {
       return false;
     }
 
+    const { onRowDrop } = this.props;
+
     e.preventDefault();
     e.stopPropagation();
 
@@ -933,10 +947,11 @@ class Grid extends Component {
 
     this.setHover(tr, ECOS_GRID_GRAG_CLASS, true, this._tr);
 
-    trigger.call(this, 'onRowDrop', {
-      files: Array.from(e.dataTransfer.files),
-      type: this.props.data[tr.rowIndex - 1]
-    });
+    isFunction(onRowDrop) &&
+      onRowDrop({
+        files: Array.from(e.dataTransfer.files),
+        type: this.props.data[tr.rowIndex - 1]
+      });
     e.dataTransfer.clearData();
 
     this._dragTr = null;
@@ -979,6 +994,14 @@ class Grid extends Component {
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
         onScrollStop={this.onScrollStop}
+        onUpdate={() => {
+          // Cause: https://citeck.atlassian.net/browse/ECOSUI-2204
+          // When the search string is updated, the value of the local variable "maxHeight" changes.
+          // But it doesn't lead to rerender.
+          if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
+            this.forceUpdate();
+          }
+        }}
         style={scrollStyle}
         autoHide={scrollAutoHide}
         hideTracksWhenNotNeeded
