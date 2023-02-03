@@ -41,8 +41,7 @@ export class BirthdaysApi extends RecordService {
       {
         sourceId: SourcesId.PERSON,
         language: 'predicate',
-        query: { t: 'and', v: predicates },
-        sortBy: [{ attribute: 'birthDate', ascending: true }]
+        query: { t: 'and', v: predicates }
       },
       {
         id: 'id',
