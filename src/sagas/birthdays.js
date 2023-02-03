@@ -1,7 +1,7 @@
 import { put, takeEvery, call } from 'redux-saga/effects';
 
 import { getBirthdays, setBirthdays, setError } from '../actions/birthdays';
-import { getBirthdayDateForWeb } from '../dto/birthday';
+import { getBirthdayDateForWeb, sortByBirthDate } from '../dto/birthday';
 import { getMonthPeriodByDate, t } from '../helpers/util';
 import { Labels } from '../components/widgets/Birthdays/Birthdays';
 
@@ -11,7 +11,7 @@ function* sagaGetBirthdays({ api, logger }, action) {
     const result = yield call(api.birthdays.getBirthdays, datePeriod);
     const data = {
       totalCount: result.totalCount,
-      birthdays: result.records.map(getBirthdayDateForWeb)
+      birthdays: sortByBirthDate(result.records).map(getBirthdayDateForWeb)
     };
 
     yield put(setBirthdays({ stateId: action.payload, data }));
