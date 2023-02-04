@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import classnames from 'classnames';
 
 import { ResizeBoxes } from '../../common';
@@ -14,7 +15,8 @@ const mapStateToProps = (state, props) => {
   const newState = get(state, ['journals', props.stateId]) || {};
 
   return {
-    journalId: get(newState, 'journalConfig.id', '')
+    journalId: get(newState, 'journalConfig.id', ''),
+    gridData: get(newState, 'grid.data', [])
   };
 };
 
@@ -43,12 +45,25 @@ const Preview = ({ stateId, recordId }) => (
 class JournalsContent extends Component {
   state = {};
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      recordId: props.gridData.length === 1 ? props.data[0].id : ''
+    };
+  }
+
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return nextProps.isActivePage;
+    return nextProps.isActivePage || !isEqual(nextProps.gridData, this.props.gridData);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.journalId !== this.props.journalId && this.state.recordId) {
+    const { journalId, gridData } = this.props;
+    const { recordId } = this.state;
+
+    if (gridData.length === 1 && prevState.recordId !== gridData[0].id) {
+      this.setState({ recordId: gridData[0].id });
+    } else if (prevProps.journalId !== journalId && recordId) {
       this.setState({ recordId: '' });
     }
   }
