@@ -157,7 +157,7 @@ class PropertiesDashlet extends BaseWidget {
               'disabled btn_disabled': !isDraft && !formIsValid
             }
           ),
-          onClick: this.submitForm
+          onClick: () => this.submitForm(isDraft)
         }
       };
     }
@@ -238,10 +238,10 @@ class PropertiesDashlet extends BaseWidget {
     });
   };
 
-  submitForm = () => {
+  submitForm = isDraft => {
     const { formIsValid } = this.state;
 
-    if (!formIsValid) {
+    if (!formIsValid && !isDraft) {
       return;
     }
 
