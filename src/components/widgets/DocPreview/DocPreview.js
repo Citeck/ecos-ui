@@ -143,7 +143,7 @@ class DocPreview extends Component {
       newState = this.getCleanState();
     }
 
-    if ((!prevProps.clear && clear) || (prevProps.recordId && prevProps.recordId !== nextProps.recordId)) {
+    if ((!prevProps.clear && clear) || prevProps.recordId !== nextProps.recordId) {
       newState = this.getCleanState();
       newState.mainRecordId = nextProps.recordId;
       isBigUpdate = true;
