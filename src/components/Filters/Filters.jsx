@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
+import isFunction from 'lodash/isFunction';
 
-import { t, trigger } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { RemoveDialog } from '../common/dialogs';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { ParserPredicate } from './predicates';
@@ -32,18 +33,9 @@ class Filters extends Component {
   };
 
   onDeleteFilter = () => {
-    const index = this._filterIndex;
-    const groupIndex = this._groupIndex;
-    const groups = this.groups;
+    const { handleReset } = this.props;
+    isFunction(handleReset) && handleReset();
 
-    let filters = groups[groupIndex].filters;
-    filters.splice(index, 1);
-
-    if (groupIndex > 0 && !filters.length) {
-      groups.splice(groupIndex, 1);
-    }
-
-    this.triggerChange(groups);
     this.closeDialog();
   };
 
@@ -89,7 +81,8 @@ class Filters extends Component {
   triggerChange = groups => {
     const predicate = ParserPredicate.reverse(groups);
 
-    trigger.call(this, 'onChange', predicate);
+    const { onChange } = this.props;
+    isFunction(onChange) && onChange(predicate);
   };
 
   createGroup = (group, first, idx, sourceId, metaRecord) => {
