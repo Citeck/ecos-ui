@@ -16,6 +16,8 @@
 }
 
 .djs-palette {
+  z-index: 1000;
+
   .bpmn-icon-set-status {
     &::after {
       background-size: inherit;
