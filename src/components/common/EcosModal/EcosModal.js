@@ -41,12 +41,10 @@ export default class EcosModal extends Component {
       };
     }
 
-    if (!state.zIndexCalc) {
-      newState = {
-        ...newState,
-        zIndexCalc: ZIndex.calcZ()
-      };
-    }
+    newState = {
+      ...newState,
+      zIndexCalc: ZIndex.calcZ()
+    };
 
     return newState;
   }
