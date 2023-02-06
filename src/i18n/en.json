@@ -94,6 +94,7 @@
   "admin-section.error.access-denied": "You don't have access to this page",
 
   "button.close-modal": "Close",
+  "button.ok": "OK",
   "button.export": "Export",
   "button.leave-site.cancel-label": "Cancel",
   "button.leave-site.confirm-label": "OK",

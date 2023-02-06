@@ -44,12 +44,12 @@ export function getRef(record) {
  */
 export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
-  let buttons = [{ label: Labels.BTN_OK, onClick: () => callback && callback(true), className: 'ecos-btn_blue' }];
+  let buttons = [{ label: t(Labels.BTN_OK), onClick: () => callback && callback(true), className: 'ecos-btn_blue' }];
 
   if (withConfirm) {
     buttons = [
-      { label: Labels.BTN_CANCEL, onClick: () => callback && callback(false) },
-      { label: Labels.BTN_CONFIRM, onClick: () => callback && callback(true), className: 'ecos-btn_blue' }
+      { label: t(Labels.BTN_CANCEL), onClick: () => callback && callback(false) },
+      { label: t(Labels.BTN_CONFIRM), onClick: () => callback && callback(true), className: 'ecos-btn_blue' }
     ];
   }
 
