@@ -33,6 +33,10 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   drawShape(parentNode, element) {
+    if (element.type !== ECOS_TASK_BASE_ELEMENT) {
+      return;
+    }
+
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
     const statusImage = svgCreate('path', {
