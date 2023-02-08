@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
 import cloneDeep from 'lodash/cloneDeep';
-import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
 
@@ -34,8 +33,18 @@ class Filters extends Component {
   };
 
   onDeleteFilter = () => {
-    const { handleReset } = this.props;
-    isFunction(handleReset) && handleReset();
+    const index = this._filterIndex;
+    const groupIndex = this._groupIndex;
+    const groups = this.groups;
+
+    let filters = groups[groupIndex].filters;
+    filters.splice(index, 1);
+
+    if (groupIndex > 0 && !filters.length) {
+      groups.splice(groupIndex, 1);
+    }
+
+    this.triggerChange(groups);
 
     this.closeDialog();
   };
@@ -99,7 +108,6 @@ class Filters extends Component {
         metaRecord={metaRecord}
         columns={columns}
         needUpdate={needUpdate}
-        handleReset={this.handleResetFilters}
         onAddGroup={this.addGroup}
         onChangeFilter={this.onChangeFilter}
         onDeleteFilter={this.showDeleteFilterDialog}
@@ -123,14 +131,6 @@ class Filters extends Component {
         <div className={'ecos-filters__shift-slot'}>{this.createGroup(group, false, idx, sourceId, metaRecord)}</div>
       </div>
     );
-  };
-
-  handleResetFilters = () => {
-    const { originGridSettings } = this.props;
-
-    this.setState({
-      predicate: cloneDeep(get(originGridSettings, 'predicate'))
-    });
   };
 
   order = (source, startIndex, endIndex) => {
