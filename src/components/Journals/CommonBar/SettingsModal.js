@@ -124,14 +124,6 @@ class SettingsModal extends Component {
     );
   };
 
-  handleResetFilters = () => {
-    const { originGridSettings } = this.props;
-
-    this.setState({
-      predicate: cloneDeep(get(originGridSettings, 'predicate'))
-    });
-  };
-
   render() {
     const { filtersData, journalSetting, isOpen, isReset, onClose, noCreateBtn } = this.props;
     const { predicate, needUpdate, columns, sortBy, grouping } = this.state;
@@ -153,7 +145,6 @@ class SettingsModal extends Component {
                   predicate={predicate}
                   needUpdate={isReset || needUpdate}
                   setPredicate={this.handleSetPredicate}
-                  handleReset={this.handleResetFilters}
                 />
                 {this.props.columnsData && <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />}
                 {this.props.groupingData && (

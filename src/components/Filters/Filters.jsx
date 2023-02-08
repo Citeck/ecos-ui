@@ -33,8 +33,18 @@ class Filters extends Component {
   };
 
   onDeleteFilter = () => {
-    const { handleReset } = this.props;
-    isFunction(handleReset) && handleReset();
+    const index = this._filterIndex;
+    const groupIndex = this._groupIndex;
+    const groups = this.groups;
+
+    let filters = groups[groupIndex].filters;
+    filters.splice(index, 1);
+
+    if (groupIndex > 0 && !filters.length) {
+      groups.splice(groupIndex, 1);
+    }
+
+    this.triggerChange(groups);
 
     this.closeDialog();
   };
