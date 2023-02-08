@@ -15,7 +15,7 @@ class JournalsFilters extends Component {
   };
 
   render() {
-    const { predicate, columns, sourceId, metaRecord, needUpdate, handleReset } = this.props;
+    const { predicate, columns, sourceId, metaRecord, needUpdate } = this.props;
 
     return (
       <PanelBar header={t('filter-list.panel-header')} css={{ headerClassName: 'panel-bar__header_upper' }} open>
@@ -27,7 +27,6 @@ class JournalsFilters extends Component {
           needUpdate={needUpdate}
           className="ecos-journals-filters"
           onChange={this.onChangeFilters}
-          handleReset={handleReset}
           groups={selectFilterGroup(predicate, columns)}
         />
       </PanelBar>
