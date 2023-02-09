@@ -737,6 +737,8 @@
   "journal.ecos-users.time-spent": "Потраченное время",
   "journal.elements": "Элементы",
   "journal.filter": "Фильтр",
+  "journal.not-accurate-filter": "Неточный фильтр, нужно уточнить фильтр для колонки {{ column }}",
+  "journal.filter.error": "Произошла ошибка при фильтрации по колонке {{ column }}",
   "journal.load-button": "Загрузить",
   "journal.pagination.next-page-label": "Следующая",
   "journal.pagination.next-page-title": "Следующая страница",

@@ -738,6 +738,8 @@
   "journal.ecos-users.time-spent": "Time spent",
   "journal.elements": "Elements",
   "journal.filter": "Filter",
+  "journal.not-accurate-filter": "Inaccurate filter, you need to refine the filter for the column {{ column }}",
+  "journal.filter.error": "An error occurred during filtering by column {{ column }}",
   "journal.load-button": "Load",
   "journal.pagination.next-page-label": "Next",
   "journal.pagination.next-page-title": "Next page",
