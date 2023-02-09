@@ -91,6 +91,8 @@ class JournalsDashletGrid extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (get(prevProps, 'grid.pagination.page') !== get(this.props, 'grid.pagination.page')) {
       this.scrollPosition.scrollTop = 0;
+    } else {
+      this.scrollPosition.scrollTop = undefined;
     }
   }
 
