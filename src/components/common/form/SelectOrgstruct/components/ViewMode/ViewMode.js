@@ -21,7 +21,7 @@ const ViewMode = () => {
 
     switch (get(item, 'attributes.authorityType', '')) {
       case AUTHORITY_TYPE_USER:
-        url = createProfileUrl(get(item, 'attributes.shortName', ''));
+        url = createProfileUrl(get(item, 'attributes.fullName', ''));
         break;
       case AUTHORITY_TYPE_GROUP:
       default:
