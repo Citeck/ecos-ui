@@ -25,6 +25,8 @@ import isElement from 'lodash/isElement';
 
 import { getId, isInViewport, t } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
+import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
+import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
 import { COMPLEX_FILTER_LIMIT } from '../../../Journals/constants';
 import HeaderFormatter from '../formatters/header/HeaderFormatter/HeaderFormatter';
 import { SELECTOR_MENU_KEY } from '../util';
@@ -531,6 +533,8 @@ class Grid extends Component {
             className={classNames('ecos-grid__td', {
               'ecos-grid__td_editable': editable,
               'ecos-grid__td_error': error && row[error] === cell,
+              'ecos-grid__td_max-width':
+                newFormatter && (newFormatter.type === DateTimeFormatter.TYPE || newFormatter.type === DateFormatter.TYPE),
               [className]: !!className
             })}
           >

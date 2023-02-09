@@ -182,6 +182,10 @@ $header-height: 52px;
   &_error {
     background: lighten($color-red-2, 40%);
   }
+
+  &_max-width {
+    width: max-content;
+  }
 }
 
 .ecos-grid__checkbox {
