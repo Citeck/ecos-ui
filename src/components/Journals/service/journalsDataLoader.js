@@ -3,6 +3,7 @@ import { NotificationManager } from 'react-notifications';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 
@@ -112,7 +113,7 @@ class JournalsDataLoader {
       const { result, predicate } = columnValue;
       const columnRefs = await this.getSearchRecordRefsFromColumn(result, predicate, sourceId);
       innerResult[columnKey] = columnRefs;
-      query = { ...query, val: query.val.filter(v => v !== predicate) };
+      query = isArray(query.val) ? { ...query, val: query.val.filter(v => v !== predicate) } : query;
     }
     const innerPredicates = Object.keys(innerResult).map(columnKey => ({
       t: PREDICATE_OR,
@@ -168,7 +169,7 @@ class JournalsDataLoader {
 
     const innerQuery = searchConfig.innerQuery;
 
-    if (!innerQuery) {
+    if (isEmpty(innerQuery)) {
       return [];
     }
 
