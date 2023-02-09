@@ -34,12 +34,10 @@ export default class DataGridComponent extends FormIODataGridComponent {
     });
   }
 
-  show = throttle((show, noClear) => {
+  show = throttle(show => {
     if (show && !this.dataValue.length) {
       this.overrideBaseRow();
     }
-
-    return super.show(show, noClear);
   }, 100);
 
   overrideBaseRow() {
