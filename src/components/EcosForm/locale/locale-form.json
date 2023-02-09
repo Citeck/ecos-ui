@@ -2,280 +2,121 @@
   "display": "form",
   "components": [
     {
-      "label": "Localization",
+      "label": {
+        "ru": "Локализация",
+        "en": "Localization"
+      },
+      "key": "localization",
+      "validate": {
+        "minLength": "",
+        "maxLength": ""
+      },
       "disableAddingRemovingRows": false,
-      "addAnother": "Add key",
+      "addAnother": {
+        "ru": "Добавить ключ",
+        "en": "Add key"
+      },
       "addAnotherPosition": "bottom",
       "removePlacement": "col",
       "defaultOpen": false,
       "layoutFixed": false,
       "enableRowGroups": false,
       "reorder": false,
-      "mask": false,
-      "tableView": true,
-      "alwaysEnabled": false,
-      "defaultValue": null,
-      "encrypted": false,
-      "validate": {
-        "customMessage": "",
-        "json": "",
-        "required": false,
-        "custom": "",
-        "customPrivate": false
-      },
-      "key": "localization",
-      "properties": {},
-      "conditional": {
-        "show": "",
-        "when": "",
-        "json": "",
-        "eq": ""
-      },
-      "customConditional": "",
-      "logic": [],
+      "defaultValue": [
+        {
+          "messageKey": "",
+          "messages": [
+            {
+              "locale": "ru",
+              "message": ""
+            }
+          ]
+        }
+      ],
+      "optionalWhenDisabled": false,
       "type": "datagrid",
       "input": true,
       "components": [
         {
-          "label": "Key",
-          "allowMultipleMasks": false,
-          "showWordCount": false,
-          "showCharCount": false,
-          "tableView": true,
-          "alwaysEnabled": false,
+          "label": {
+            "ru": "Ключ",
+            "en": "Key"
+          },
           "defaultValue": "",
-          "inputFormat": "plain",
-          "encrypted": false,
-          "validate": {
-            "customMessage": "",
-            "json": "",
-            "required": false,
-            "custom": "",
-            "customPrivate": false,
-            "minLength": "",
-            "maxLength": "",
-            "minWords": "",
-            "maxWords": "",
-            "pattern": ""
-          },
           "key": "messageKey",
-          "properties": {},
-          "conditional": {
-            "show": "",
-            "when": "",
-            "json": "",
-            "eq": ""
-          },
-          "customConditional": "",
-          "logic": [],
           "type": "textfield",
           "input": true,
-          "tags": [],
-          "row": "0-0",
-          "widget": {
-            "type": "",
-            "format": "yyyy-MM-dd hh:mm a",
-            "dateFormat": "yyyy-MM-dd hh:mm a",
-            "saveAs": "text"
-          }
+          "row": "0-0"
         },
         {
-          "label": "Messages",
+          "label": {
+            "ru": "Значения",
+            "en": "Messages"
+          },
           "disableAddingRemovingRows": false,
-          "addAnother": "Add Message",
+          "addAnother": {
+            "ru": "Добавить значение",
+            "en": "Add Message"
+          },
           "addAnotherPosition": "bottom",
           "removePlacement": "col",
           "defaultOpen": false,
           "layoutFixed": false,
           "enableRowGroups": false,
           "reorder": false,
-          "mask": false,
-          "tableView": true,
-          "alwaysEnabled": false,
-          "encrypted": false,
-          "validate": {
-            "customMessage": "",
-            "json": "",
-            "required": false,
-            "custom": "",
-            "customPrivate": false
-          },
           "key": "messages",
-          "properties": {},
-          "conditional": {
-            "show": "",
-            "when": "",
-            "json": "",
-            "eq": ""
-          },
-          "customConditional": "",
-          "logic": [],
           "type": "datagrid",
           "input": true,
           "components": [
             {
-              "label": "Locale",
-              "mask": false,
-              "tableView": true,
-              "alwaysEnabled": false,
-              "dataSrc": "custom",
-              "data": {
-                "custom": "values = instance.options.localesList",
-                "values": [],
-                "json": "",
-                "url": "",
-                "resource": ""
-              },
-              "selectThreshold": 0.3,
-              "encrypted": false,
-              "validate": {
-                "customMessage": "",
-                "json": "",
-                "required": false,
-                "custom": "",
-                "customPrivate": false
+              "label": {
+                "ru": "Ключ",
+                "en": "Locale"
               },
               "key": "locale",
-              "properties": {},
-              "conditional": {
-                "json": "",
-                "show": "",
-                "when": "",
-                "eq": ""
+              "data": {
+                "values": [
+                  {
+                    "label": "Русский ",
+                    "value": "ru"
+                  },
+                  {
+                    "label": "English",
+                    "value": "en"
+                  }
+                ]
               },
-              "customConditional": "",
-              "logic": [],
+              "dataPreProcessingCode": "",
+              "valueProperty": "value",
+              "defaultValue": "",
+              "refreshOn": [],
+              "customDefaultValue": "value = instance.root.options.language;",
+              "optionalWhenDisabled": false,
               "type": "select",
               "input": true,
-              "tags": [],
-              "defaultValue": "",
-              "placeholder": "",
-              "prefix": "",
-              "customClass": "",
-              "suffix": "",
-              "multiple": false,
-              "protected": false,
-              "unique": false,
-              "persistent": true,
-              "hidden": false,
-              "clearOnHide": true,
-              "dataGridLabel": false,
-              "labelPosition": "top",
-              "labelWidth": 30,
-              "labelMargin": 3,
-              "description": "",
-              "errorLabel": "",
-              "tooltip": "",
-              "hideLabel": false,
-              "tabindex": "",
-              "disabled": false,
-              "autofocus": false,
-              "dbIndex": false,
-              "customDefaultValue": "",
-              "calculateValue": "",
-              "allowCalculateOverride": false,
-              "widget": null,
-              "refreshOn": "",
-              "clearOnRefresh": false,
-              "validateOn": "change",
-              "limit": 100,
-              "valueProperty": "value",
-              "filter": "",
-              "searchEnabled": true,
-              "searchField": "",
-              "minSearch": 0,
-              "readOnlyValue": false,
-              "authenticate": false,
-              "template": "<span>{{ item.label }}</span>",
-              "selectFields": "",
-              "searchThreshold": 0.3,
-              "fuseOptions": {},
-              "customOptions": {},
-              "id": "evgx5i"
+              "row": "0-0"
             },
             {
-              "label": "Message",
+              "label": {
+                "ru": "Значение",
+                "en": "Message"
+              },
               "allowMultipleMasks": false,
-              "showWordCount": false,
-              "showCharCount": false,
-              "tableView": true,
-              "alwaysEnabled": false,
               "defaultValue": "",
-              "inputFormat": "plain",
-              "encrypted": false,
-              "validate": {
-                "customMessage": "",
-                "json": "",
-                "required": false,
-                "custom": "",
-                "customPrivate": false,
-                "minLength": "",
-                "maxLength": "",
-                "minWords": "",
-                "maxWords": "",
-                "pattern": ""
-              },
               "key": "message",
-              "properties": {},
-              "conditional": {
-                "json": "",
-                "show": "",
-                "when": "",
-                "eq": ""
-              },
-              "customConditional": "",
-              "logic": [],
               "type": "textarea",
               "input": true,
-              "tags": [],
               "widget": {
-                "type": "",
-                "format": "yyyy-MM-dd hh:mm a",
-                "dateFormat": "yyyy-MM-dd hh:mm a",
-                "saveAs": "text"
+                "type": ""
               },
               "row": "0-1"
             }
           ],
-          "tags": [],
           "row": "0-1"
         }
-      ],
-      "tags": [],
-      "placeholder": "",
-      "prefix": "",
-      "customClass": "",
-      "suffix": "",
-      "multiple": false,
-      "protected": false,
-      "unique": false,
-      "persistent": true,
-      "hidden": false,
-      "clearOnHide": true,
-      "dataGridLabel": false,
-      "labelPosition": "top",
-      "labelWidth": 30,
-      "labelMargin": 3,
-      "description": "",
-      "errorLabel": "",
-      "tooltip": "",
-      "hideLabel": false,
-      "tabindex": "",
-      "disabled": false,
-      "autofocus": false,
-      "dbIndex": false,
-      "customDefaultValue": "",
-      "calculateValue": "",
-      "allowCalculateOverride": false,
-      "widget": null,
-      "refreshOn": "",
-      "clearOnRefresh": false,
-      "validateOn": "change",
-      "tree": true,
-      "id": "e4bno0s"
+      ]
     },
     {
-      "label": "Columns",
       "hideLabel": true,
       "columns": [
         {
@@ -324,13 +165,20 @@
         {
           "components": [
             {
+              "label": {
+                "en": "Submit",
+                "ru": "Сохранить"
+              },
+              "key": "submit",
               "state": "",
               "theme": "primary",
               "block": true,
               "disableOnInvalid": true,
+              "refreshOn": [],
+              "optionalWhenDisabled": false,
               "type": "button",
               "input": true,
-              "key": "submit"
+              "headers": [{}]
             }
           ],
           "width": 4,
@@ -347,53 +195,13 @@
         }
       ],
       "autoAdjust": true,
-      "mask": false,
-      "tableView": false,
-      "alwaysEnabled": false,
       "type": "columns",
       "input": false,
       "key": "columns",
-      "placeholder": "",
-      "prefix": "",
-      "customClass": "",
-      "suffix": "",
-      "multiple": false,
-      "defaultValue": null,
-      "protected": false,
-      "unique": false,
-      "persistent": false,
-      "hidden": false,
-      "clearOnHide": false,
-      "dataGridLabel": false,
-      "labelPosition": "top",
-      "labelWidth": 30,
-      "labelMargin": 3,
-      "description": "",
-      "errorLabel": "",
-      "tooltip": "",
-      "tabindex": "",
-      "disabled": false,
-      "autofocus": false,
-      "dbIndex": false,
-      "customDefaultValue": "",
-      "calculateValue": "",
-      "allowCalculateOverride": false,
-      "widget": null,
-      "refreshOn": "",
-      "clearOnRefresh": false,
-      "validateOn": "change",
-      "validate": {
-        "required": false,
-        "custom": "",
-        "customPrivate": false
-      },
       "conditional": {
         "show": null,
-        "when": null,
-        "eq": ""
-      },
-      "hideOnChildrenHidden": false,
-      "id": "emxou2l"
+        "when": null
+      }
     }
   ]
 }
