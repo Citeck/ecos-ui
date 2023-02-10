@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import lodashGet from 'lodash/get';
 import lodashSet from 'lodash/set';
 import first from 'lodash/first';
+import flatMap from 'lodash/flatMap';
 import isPlainObject from 'lodash/isPlainObject';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
@@ -542,6 +543,8 @@ export default class EcosFormUtils {
     if (root) {
       if (root.type === 'columns') {
         components = root.columns || [];
+      } else if (root.type === 'table') {
+        components = flatMap(root.rows) || [];
       } else {
         components = root.components || [];
       }
