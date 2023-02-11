@@ -9,7 +9,7 @@ import get from 'lodash/get';
 
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks/usePrevious';
-import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
+import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, RECORD_TYPE_USER, TabTypes } from './constants';
 import { handleResponse, prepareSelected, prepareRecordRef, renderUsernameString, isHTML } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
@@ -38,6 +38,7 @@ export const SelectOrgstructProvider = props => {
 
   const [isSelectModalOpen, toggleSelectModal] = useState(openByDefault);
   const [userMask, setUserMask] = useState('');
+  const [globalExtraFields, setGlobalExtraFields] = useState(userSearchExtraFields);
   const [currentTab, setCurrentTab] = useState(defaultTab || TabTypes.LEVELS);
   const [searchText, updateSearchText] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
@@ -123,7 +124,13 @@ export const SelectOrgstructProvider = props => {
     OrgStructApi.fetchUsernameMask().then(mask => {
       setUserMask(mask);
     });
-  });
+  }, []);
+
+  useEffect(() => {
+    OrgStructApi.fetchGlobalSearchFields().then(fields => {
+      setGlobalExtraFields(fields);
+    });
+  }, []);
 
   // fetch root group list
   useEffect(() => {
@@ -169,7 +176,7 @@ export const SelectOrgstructProvider = props => {
 
     if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
       setIsSearching(true);
-      OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
+      OrgStructApi.getUserList(searchText, globalExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
         ({ items, totalCount }) => {
           if (!livePromise) {
             return;
@@ -190,7 +197,7 @@ export const SelectOrgstructProvider = props => {
     }
 
     return () => (livePromise = false);
-  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
+  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, globalExtraFields]);
 
   // reset isSelectedFetched if new previewValue
   useEffect(() => {
@@ -285,7 +292,10 @@ export const SelectOrgstructProvider = props => {
         onSubmitSearchForm,
 
         renderListItem: item => {
-          if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
+          if (
+            (get(item, 'attributes.authorityType') === AUTHORITY_TYPE_USER || get(item, 'attributes.type') === RECORD_TYPE_USER) &&
+            userMask
+          ) {
             const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
 
             if (isHTML(userMask)) {

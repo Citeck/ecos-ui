@@ -11,6 +11,8 @@ export const ALL_USERS_GROUP_SHORT_NAME = 'all';
 export const AUTHORITY_TYPE_GROUP = 'GROUP';
 export const AUTHORITY_TYPE_USER = 'USER';
 
+export const RECORD_TYPE_USER = 'cm:person';
+
 export const GroupTypes = {
   ROLE: 'ROLE',
   BRANCH: 'BRANCH',
