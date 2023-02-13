@@ -1,7 +1,8 @@
 import queryString from 'query-string';
 import get from 'lodash/get';
+import isString from 'lodash/isString';
 
-import { URL } from '../constants';
+import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { SectionTypes } from '../constants/adminSection';
 import { getCurrentUserName, t } from '../helpers/util';
@@ -135,6 +136,8 @@ export default class PageService {
 
     return pageApi.getRecordTitle(recordRef).then(convertTitle);
   }
+
+  static isTypeRecord = recordRef => isString(recordRef) && recordRef.indexOf(SourcesId.TYPE) === 0;
 
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
