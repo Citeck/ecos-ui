@@ -52,11 +52,12 @@ export class OrgStructApi extends CommonApi {
     const { groupName, searchText } = query;
     const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
 
+    urlQuery.searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
+
     if (searchText) {
       urlQuery.filter = searchText;
       urlQuery.recurse = true;
       urlQuery.useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
-      urlQuery.searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
       urlQuery.user = true;
     }
 
@@ -205,12 +206,23 @@ export class OrgStructApi extends CommonApi {
     const attributes = {
       fullName: '.disp',
       userName: 'userName',
-      personDisabled: 'isPersonDisabled?bool'
+      personDisabled: 'isPersonDisabled?bool',
+      type: 'type'
     };
 
-    if (searchText) {
-      const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+    const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
+    const addExtraFields = (fields = []) => {
+      const attributes = fields.map(field => field.trim());
+
+      searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
+    };
+
+    if (Array.isArray(extraFields) && extraFields.length > 0) {
+      addExtraFields(extraFields);
+    }
+
+    if (searchText) {
       const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
 
       if (val.length === 2) {
@@ -557,22 +569,6 @@ export class OrgStructApi extends CommonApi {
           });
         }
       } else {
-        const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
-
-        const addExtraFields = (fields = []) => {
-          const attributes = fields.map(field => field.trim());
-
-          searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
-        };
-
-        if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-          addExtraFields(globalSearchConfig);
-        }
-
-        if (Array.isArray(extraFields) && extraFields.length > 0) {
-          addExtraFields(extraFields);
-        }
-
         if (isSearchUserMiddleName) {
           addExtraFields(['middleName']);
         }
@@ -586,12 +582,12 @@ export class OrgStructApi extends CommonApi {
           }))
         });
       }
+    }
 
-      if (Array.isArray(searchFields) && searchFields.length > 0) {
-        searchFields.forEach(attribute => {
-          attributes[attribute] = attribute;
-        });
-      }
+    if (Array.isArray(searchFields) && searchFields.length > 0) {
+      searchFields.forEach(attribute => {
+        attributes[attribute] = attribute;
+      });
     }
 
     return Records.query(
