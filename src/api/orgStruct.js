@@ -12,13 +12,13 @@ import {
 } from '../components/common/form/SelectOrgstruct/constants';
 import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
-import { getCurrentUserName } from '../helpers/util';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
   ORGSTRUCT_HIDE_DISABLED_USERS,
   ORGSTRUCT_SEARCH_USER_MIDLLE_NAME,
   ORGSTRUCT_SHOW_USERNAME_MASK,
-  ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN
+  ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN,
+  HIDE_IN_ORGSTRUCT
 } from '../services/config/ConfigService';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { CommonApi } from './common';
@@ -231,16 +231,17 @@ export class OrgStructApi extends CommonApi {
   }
 
   static async fetchGlobalHideInOrgstruct() {
-    return Records.get(`${SourcesId.ECOS_CONFIG}@hide-in-orgstruct`)
-      .load('?str')
-      .then(config => {
-        if (typeof config !== 'string' || !config.trim().length) {
-          return [];
-        }
+    const authorityIdsConfigValue = (await ConfigService.getValue(HIDE_IN_ORGSTRUCT)) || [];
+    const authorityIds = isString(authorityIdsConfigValue) ? [authorityIdsConfigValue] : authorityIdsConfigValue;
+    if (isArray(authorityIds)) {
+      return authorityIds
+        .join()
+        .split(',')
+        .filter(id => id && id.length)
+        .map(id => id.trim());
+    }
 
-        return config.split(',');
-      })
-      .catch(() => []);
+    return [];
   }
 
   static async fetchIsHideDisabledField() {
@@ -255,14 +256,8 @@ export class OrgStructApi extends CommonApi {
     return await ConfigService.getValue(ORGSTRUCT_SHOW_USERNAME_MASK);
   }
 
-  static async fetchIsAdmin(userName) {
-    try {
-      const result = await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool');
-
-      return Boolean(result);
-    } catch {
-      return false;
-    }
+  static async fetchIsAdmin() {
+    return await Records.get(SourcesId.CURRENT_USER).load('isAdmin?bool');
   }
 
   static async fetchIsSearchUserMiddleName() {
@@ -320,22 +315,16 @@ export class OrgStructApi extends CommonApi {
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
     let queryVal = [];
 
-    const predicateNotDisabled = {
-      t: 'not-eq',
-      att: 'ecos:isPersonDisabled',
-      val: 'true'
-    };
+    const predicateNotDisabled = { t: 'not-eq', att: 'personDisabled', val: true };
 
     const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
 
     if (isHideForAll) {
       queryVal.push(predicateNotDisabled);
     } else {
-      const isAdmin = await OrgStructApi.fetchIsAdmin(getCurrentUserName());
-
+      const isAdmin = await OrgStructApi.fetchIsAdmin();
       if (!isAdmin) {
         const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
-
         if (showInactiveUserOnlyForAdmin) {
           queryVal.push(predicateNotDisabled);
         }
@@ -344,11 +333,10 @@ export class OrgStructApi extends CommonApi {
 
     let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
-    const excludedUsers = (await OrgStructApi.fetchGlobalHideInOrgstruct()) || [];
-
-    excludedUsers.forEach(item => {
+    const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
+    (excludedUsers || []).forEach(item => {
       if (item && !item.startsWith('GROUP_')) {
-        queryVal.push({ t: 'not-eq', att: 'cm:userName', val: item });
+        queryVal.push({ t: 'not-eq', att: 'id', val: item });
       }
     });
 

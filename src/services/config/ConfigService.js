@@ -37,6 +37,7 @@ export const ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS = 'orgstruct-search-user-extra-f
 export const ORGSTRUCT_HIDE_DISABLED_USERS = 'hide-disabled-users-for-everyone';
 export const ORGSTRUCT_SEARCH_USER_MIDLLE_NAME = 'orgstruct-search-user-middle-name';
 export const ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN = 'orgstruct-show-inactive-user-only-for-admin';
+export const HIDE_IN_ORGSTRUCT = 'hide-in-orgstruct';
 export const ORGSTRUCT_SHOW_USERNAME_MASK = 'orgstruct-username-mask';
 
 export const RESTRICT_ACCESS_TO_EDIT_DASHBOARD = 'restrict-access-to-edit-dashboard';
@@ -72,6 +73,9 @@ const CONFIG_PROPS = {
   [ORGSTRUCT_SHOW_INACTIVE_USER_ONLY_FOR_ADMIN]: {
     type: TYPE_BOOLEAN,
     defaultValue: false
+  },
+  [HIDE_IN_ORGSTRUCT]: {
+    defaultValue: ''
   },
   [ORGSTRUCT_SHOW_USERNAME_MASK]: {
     type: TYPE_TEXT,
