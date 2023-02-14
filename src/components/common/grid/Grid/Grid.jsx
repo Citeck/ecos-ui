@@ -551,12 +551,12 @@ class Grid extends Component {
     const isSortable = sortable && isFunction(onSort);
 
     column.headerFormatter = (column, colIndex) => {
-      const filterPredicates = (filters || []).filter(filter => filter.att === column.dataField) || [];
+      const filterPredicates = (filters || []).filter(filter => filter.att === column.attribute) || [];
       const filterPredicate = head(filterPredicates) || {};
       const filterValue = filterPredicate.val || '';
-      const sort = find(sortBy, sort => sort.attribute === column.dataField) || {};
+      const sort = find(sortBy, sort => sort.attribute === column.attribute) || {};
       const ascending = sort.ascending;
-      const originPredicate = find(originPredicates, predicate => predicate.att === column.dataField) || {};
+      const originPredicate = find(originPredicates, predicate => predicate.att === column.attribute) || {};
 
       return (
         <HeaderFormatter
