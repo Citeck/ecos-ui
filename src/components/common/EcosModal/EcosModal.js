@@ -74,6 +74,11 @@ export default class EcosModal extends Component {
       return;
     }
 
+    const zIndex = ZIndex.calcZ();
+    if (zIndex !== this.state.zIndexCalc) {
+      this.setState({ zIndexCalc: zIndex });
+    }
+
     if (this._dialog) {
       const boundX = this._dialog.offsetLeft;
       const boundY = this._dialog.offsetTop;
