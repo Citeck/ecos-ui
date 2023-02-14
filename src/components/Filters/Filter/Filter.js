@@ -45,14 +45,18 @@ export default class Filter extends Component {
 
     this.state = {
       value: get(props, 'filter.predicate.val', ''),
-      hasDataEntry: false
+      hasDataEntry: false,
+      zIndex: ZIndex.calcZ()
     };
-
-    this.selectZIndex = ZIndex.calcZ();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    return !isEqual(omit(this.props, ['children']), omit(nextProps, ['children'])) || !isEqual(this.state, nextState);
+    const zIndex = ZIndex.calcZ() + 1;
+    return (
+      !isEqual(omit(this.props, ['children']), omit(nextProps, ['children'])) ||
+      !isEqual(this.state, nextState) ||
+      this.state.zIndex !== zIndex
+    );
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -62,6 +66,11 @@ export default class Filter extends Component {
 
     if (!prevProps.needUpdate && this.props.needUpdate && value !== currentValue) {
       this.setState({ value: currentValue });
+    }
+
+    const zIndex = ZIndex.calcZ() + 1;
+    if (zIndex !== this.state.zIndex) {
+      this.setState({ zIndex });
     }
 
     if (hasDataEntry) {
@@ -247,6 +256,7 @@ export default class Filter extends Component {
       }
     } = this.props;
     const predicates = getPredicates(column);
+    const { zIndex } = this.state;
 
     return (
       <Select
@@ -257,7 +267,7 @@ export default class Filter extends Component {
         getOptionValue={option => option.value}
         value={this.selectedPredicate}
         onChange={this.onChangePredicate}
-        styles={{ menuPortal: base => ({ ...base, zIndex: this.selectZIndex }) }}
+        styles={{ menuPortal: base => ({ ...base, zIndex }) }}
         menuPortalTarget={document.body}
         menuPlacement="auto"
         closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
