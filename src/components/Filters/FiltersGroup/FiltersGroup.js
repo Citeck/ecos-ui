@@ -24,6 +24,17 @@ export default class FiltersGroup extends Component {
   constructor(props) {
     super(props);
     this.portal = this.createDraggableContainer();
+
+    this.state = {
+      zIndex: ZIndex.calcZ()
+    };
+  }
+
+  componentDidUpdate() {
+    const zIndex = ZIndex.calcZ() + 1;
+    if (zIndex !== this.state.zIndex) {
+      this.setState({ zIndex });
+    }
   }
 
   get cloneFilters() {
@@ -176,6 +187,7 @@ export default class FiltersGroup extends Component {
     const { className, columns, first, group, index, droppableIdPrefix = '_', sourceId, metaRecord, textEmpty, needUpdate } = this.props;
     const groupConditions = ParserPredicate.getGroupConditions();
     const droppableId = `${droppableIdPrefix}${index}`;
+    const { zIndex } = this.state;
 
     return (
       <Well className={classNames('ecos-filters-group', className)}>
@@ -202,7 +214,7 @@ export default class FiltersGroup extends Component {
               getOptionValue={option => option.attribute}
               onChange={this.handleAddFilter}
               styles={{
-                menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }),
+                menuPortal: base => ({ ...base, zIndex }),
                 placeholder: base => ({ ...base, width: '100%' })
               }}
               menuPortalTarget={document.body}
@@ -220,7 +232,7 @@ export default class FiltersGroup extends Component {
                 getOptionValue={option => option.value}
                 onChange={this.handleAddGroup}
                 styles={{
-                  menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }),
+                  menuPortal: base => ({ ...base, zIndex }),
                   placeholder: base => ({ ...base, width: '100%' })
                 }}
                 menuPortalTarget={document.body}
