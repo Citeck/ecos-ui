@@ -231,6 +231,15 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions) {
   if (TASK_TYPES.includes(element.type)) {
     replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForTasks.includes(option.actionName));
+    const originEntities = originCreateEntries.call(this, element, replaceOptions);
+
+    return originEntities.map(entity => ({
+      ...entity,
+      action: (...props) => {
+        element.businessObject.taskType = undefined;
+        entity.action(props);
+      }
+    }));
   }
 
   if (GATEWAY_TYPES.includes(element.type)) {

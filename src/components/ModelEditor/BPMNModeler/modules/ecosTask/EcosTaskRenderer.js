@@ -33,10 +33,6 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   drawShape(parentNode, element) {
-    if (element.type !== ECOS_TASK_BASE_ELEMENT) {
-      return;
-    }
-
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
     const statusImage = svgCreate('path', {
@@ -104,7 +100,7 @@ export default class CustomRenderer extends BaseRenderer {
     }
 
     const parent = this.getRootProccess(element);
-    return parent === undefined ? element && element.type : this.getEcosType(parent);
+    return this.getEcosType(parent);
   }
 
   renderLabel(parentGfx, label, options) {
