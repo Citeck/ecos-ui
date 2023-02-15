@@ -14,8 +14,16 @@ export default class SelectEditor extends BaseEditor {
   getControl(config, scope) {
     return ({ value, attribute, recordRef, multiple, onUpdate }) => {
       const [options, setOptions] = useState([]);
+      const [zIndex, setZIndex] = useState(ZIndex.calcZ() + 1);
       const [isLoading, setLoading] = useState(false);
       const [selected, setSelected] = useState([]);
+
+      useEffect(() => {
+        const newZIndex = ZIndex.calcZ() + 1;
+        if (zIndex !== newZIndex) {
+          setZIndex(newZIndex);
+        }
+      });
 
       const onSelectUpdate = useCallback(
         value => {
@@ -107,7 +115,7 @@ export default class SelectEditor extends BaseEditor {
             }),
             menuPortal: base => ({
               ...base,
-              zIndex: ZIndex.calcZ()
+              zIndex: ZIndex
             }),
             dropdownIndicator: css => ({
               ...css,
