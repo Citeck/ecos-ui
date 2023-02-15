@@ -1,4 +1,5 @@
 import * as queryString from 'query-string';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
@@ -203,12 +204,13 @@ export class OrgStructApi extends CommonApi {
       }
     }
 
-    const attributes = {
+    const defaultAttributes = {
       fullName: '.disp',
       userName: 'userName',
       personDisabled: 'isPersonDisabled?bool',
       type: 'type'
     };
+    const attributes = cloneDeep(defaultAttributes);
 
     const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
@@ -601,7 +603,8 @@ export class OrgStructApi extends CommonApi {
         }
       },
       {
-        ...attributes
+        ...attributes,
+        ...defaultAttributes
       }
     ).then(result => ({
       items: converterUserList(result.records),

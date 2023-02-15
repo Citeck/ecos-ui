@@ -83,7 +83,9 @@ export function renderUsernameString(str, replacements) {
   }
 
   function getObjPath(path, obj, fallback = '') {
-    return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+    return path.split('.').reduce((res, key) => {
+      return res[key] || res[`cm:${key}`] || res[`ecos:${key}`] || fallback;
+    }, obj);
   }
 
   return interpolate(str, replacements);
