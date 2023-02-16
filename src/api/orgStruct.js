@@ -170,6 +170,8 @@ export class OrgStructApi extends CommonApi {
     }
 
     if (recordRef.includes('workspace://SpacesStore')) {
+      const newRecordRef = getPersonRef(recordRef);
+
       const attributes = await Records.get(recordRef).load({
         userName: 'cm:userName',
         authorityName: 'cm:authorityName'
@@ -191,7 +193,7 @@ export class OrgStructApi extends CommonApi {
 
       return {
         authorityType,
-        recordRef: getPersonRef(recordRef)
+        recordRef: newRecordRef
       };
     }
 

@@ -322,12 +322,12 @@ export const SelectOrgstructProvider = props => {
             return;
           }
 
-          setTabItems({
-            ...tabItems,
+          setTabItems(prev => ({
+            ...prev,
             [TabTypes.SELECTED]: [...selectedItems],
-            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => setSelectedItem(item, selectedItems)),
-            [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
-          });
+            [TabTypes.LEVELS]: [...prev[TabTypes.LEVELS]].map(item => setSelectedItem(item, selectedItems)),
+            [TabTypes.USERS]: [...prev[TabTypes.USERS]].map(item => setSelectedItem(item, selectedItems))
+          }));
           setSelectedRows([...selectedItems]);
 
           livePromise = false;
