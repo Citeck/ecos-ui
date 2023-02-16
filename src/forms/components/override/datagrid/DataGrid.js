@@ -3,10 +3,8 @@ import { flattenComponents } from 'formiojs/utils/utils';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
-import throttle from 'lodash/throttle';
 
 import { overrideTriggerChange, requestAnimationFrame } from '../misc';
-
 export default class DataGridComponent extends FormIODataGridComponent {
   constructor(...args) {
     super(...args);
@@ -34,11 +32,32 @@ export default class DataGridComponent extends FormIODataGridComponent {
     });
   }
 
-  show = throttle(show => {
+  show = show => {
     if (show && !this.dataValue.length) {
       this.overrideBaseRow();
     }
-  }, 100);
+
+    const forceShow = this.options.show && this.options.show[this.component.key];
+    const forceHide = this.options.hide && this.options.hide[this.component.key];
+
+    if (forceShow || forceHide) {
+      this.getComponents().forEach(function(component) {
+        if (forceShow) {
+          component.show(true);
+        } else if (forceHide) {
+          component.show(false);
+        }
+      });
+    }
+
+    if (!show) {
+      this.getAllComponents().forEach(function(component) {
+        component.error = '';
+      });
+    }
+
+    return show;
+  };
 
   overrideBaseRow() {
     if (!this.dataValue.length || isEqual(this.dataValue, this.baseEmptyValue)) {
