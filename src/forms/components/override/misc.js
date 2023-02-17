@@ -2,6 +2,11 @@ import debounce from 'lodash/debounce';
 
 const TRIGGER_CHANGE_DEBOUNCE_WAIT = 500;
 
+export const requestAnimationFrame =
+  window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+export const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 /**
  * @override Base methods
  */

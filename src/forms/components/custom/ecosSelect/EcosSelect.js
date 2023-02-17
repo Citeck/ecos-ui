@@ -1,11 +1,11 @@
+import Formio from 'formiojs/Formio';
 import _ from 'lodash';
 
 import Choices from '../../../choices';
 import BaseComponent from '../base/BaseComponent';
-import Formio from 'formiojs/Formio';
-
 import { isNodeRef } from '../../../../helpers/util';
 import { createDocumentUrl } from '../../../../helpers/urls';
+import { requestAnimationFrame } from '../../override/misc';
 
 export default class SelectComponent extends BaseComponent {
   static schema(...extend) {
@@ -323,6 +323,7 @@ export default class SelectComponent extends BaseComponent {
     }
 
     requestAnimationFrame(() => this.scrollList.scrollTo(0, this.scrollTop));
+
     this.isScrollLoading = isScrolling;
     return isScrolling;
   }

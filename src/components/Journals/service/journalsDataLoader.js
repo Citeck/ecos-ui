@@ -1,12 +1,18 @@
+import { NotificationManager } from 'react-notifications';
+
+import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import isEmpty from 'lodash/isEmpty';
+import isObject from 'lodash/isObject';
 
 import { Attributes } from '../../../constants';
 import AttributesService from '../../../services/AttributesService';
 import JournalsConverter from '../../../dto/journals';
-import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../../Records/predicates/predicates';
+import { t } from '../../../helpers/util';
+import { COLUMN_DATA_TYPE_ASSOC, PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_EQ, PREDICATE_OR } from '../../Records/predicates/predicates';
 import { convertAttributeValues } from '../../Records/predicates/util';
+import Records from '../../Records';
 import * as RecordUtils from '../../Records/utils/recordUtils';
 import journalsServiceApi from './journalsServiceApi';
 import computedService from './computed/computedService';
@@ -20,7 +26,7 @@ class JournalsDataLoader {
    */
   async load(journalConfig, settings = {}) {
     const recordsQuery = await this.getRecordsQuery(journalConfig, settings);
-    const attributes = this.#getAttributes(journalConfig, settings);
+    const attributes = this._getAttributes(journalConfig, settings);
 
     return journalsServiceApi
       .queryData(recordsQuery, attributes.attributesSet)
@@ -94,11 +100,30 @@ class JournalsDataLoader {
     const consistency = 'EVENTUAL';
     const columns = journalConfig.columns || settings.columns || [];
     const predicates = await this.getPredicates(journalConfig, settings);
+
     let language = 'predicate';
     let query = JournalsConverter.optimizePredicate({ t: PREDICATE_AND, val: predicates });
+    const sourceId = settings.customSourceId || journalConfig.sourceId || '';
     let queryData = null;
+    const currentColoumns = JournalsConverter.getColoumnByPredicates(query, columns);
+
+    const innerResult = {};
+    for (const [columnKey, columnValue] of Object.entries(currentColoumns)) {
+      const { result, predicate } = columnValue;
+      const columnRefs = await this.getSearchRecordRefsFromColumn(result, predicate, sourceId);
+      innerResult[columnKey] = columnRefs;
+    }
+    const innerPredicates = Object.keys(innerResult).map(columnKey => ({
+      t: PREDICATE_OR,
+      val: innerResult[columnKey].map(val => ({ t: PREDICATE_EQ, att: columnKey, val }))
+    }));
 
     query = JournalsConverter.searchConfigProcessed(query, columns);
+
+    if (innerPredicates.length) {
+      const newQuery = { t: PREDICATE_AND, val: innerPredicates };
+      query = { t: PREDICATE_AND, val: [query, newQuery] };
+    }
 
     if (journalConfig.queryData || settings.queryData) {
       queryData = {
@@ -115,11 +140,11 @@ class JournalsDataLoader {
       language = 'predicate-with-data';
     }
 
-    const sortBy = this.#getSortBy(journalConfig, settings);
-    const groupBy = this.#getGroupBy(journalConfig, settings);
+    const sortBy = this._getSortBy(journalConfig, settings);
+    const groupBy = this._getGroupBy(journalConfig, settings);
 
     return {
-      sourceId: settings.customSourceId || journalConfig.sourceId || '',
+      sourceId,
       language,
       consistency,
       query,
@@ -127,6 +152,79 @@ class JournalsDataLoader {
       sortBy,
       groupBy
     };
+  };
+
+  /**
+   *
+   * @param {column} column
+   * @returns {RecordRef[]}
+   */
+  getSearchRecordRefsFromColumn = async (column, predicate, parentSourceId = '') => {
+    const searchConfig = get(column, 'searchConfig.searchByText');
+    if (!searchConfig || !Object.keys(searchConfig).length) {
+      return [];
+    }
+
+    const innerQuery = searchConfig.innerQuery;
+
+    if (isEmpty(innerQuery)) {
+      return [];
+    }
+
+    const language = 'predicate';
+    const replaceMap = {
+      $TEXT: get(predicate, 'val'),
+      $PREDICATE_TYPE: get(predicate, 't')
+    };
+    const innerQueryCopy = cloneDeep(innerQuery);
+    const query = this.recoursiveReplaceObjectValues(innerQueryCopy, replaceMap);
+    const maxItems = get(query, 'page.maxItems') || 20;
+
+    try {
+      const result = await Records.query({
+        ...query,
+        sourceId: query.sourceId || parentSourceId,
+        page: {
+          maxItems: maxItems + 1
+        },
+        language
+      });
+
+      const records = result.records;
+
+      if (records && records.length === maxItems + 1) {
+        NotificationManager.warning(t('journal.not-accurate-filter', { column: column.label }));
+        records.pop();
+      }
+
+      return records;
+    } catch (err) {
+      NotificationManager.error(t('journal.filter.error', { column: column.label }));
+    }
+
+    return [];
+  };
+
+  recoursiveReplaceObjectValues = (obj, replaceMap = {}) => {
+    if (!Object.keys(replaceMap).length) {
+      return obj;
+    }
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (Array.isArray(value)) {
+        obj[key] = this.recoursiveReplaceObjectValues(value, replaceMap);
+      }
+
+      if (isObject(value)) {
+        obj[key] = this.recoursiveReplaceObjectValues(value, replaceMap);
+      }
+
+      if (replaceMap[value] !== undefined) {
+        obj[key] = replaceMap[value];
+      }
+    }
+
+    return obj;
   };
 
   /**
@@ -164,7 +262,7 @@ class JournalsDataLoader {
    * @param {JournalSettings} settings
    * @returns {SortBy}
    */
-  #getSortBy = (journalConfig, settings) => {
+  _getSortBy = (journalConfig, settings) => {
     let sortBy = [];
 
     if (Array.isArray(settings.sortBy)) {
@@ -192,7 +290,7 @@ class JournalsDataLoader {
    * @param {JournalSettings} settings
    * @returns {?Array<String>}
    */
-  #getGroupBy = (journalConfig, settings) => {
+  _getGroupBy = (journalConfig, settings) => {
     const groupBy = settings.groupBy || journalConfig.groupBy;
 
     if (groupBy && groupBy.length) {
@@ -206,7 +304,7 @@ class JournalsDataLoader {
    * @param {JournalSettings} settings
    * @returns {{attributesMap: Object, attributesSet: Array}}
    */
-  #getAttributes = (journalConfig, settings) => {
+  _getAttributes = (journalConfig, settings) => {
     const columns = journalConfig.columns || [];
     const settingsColumns = settings.columns || [];
     const settingsAttributes = settings.attributes || {};

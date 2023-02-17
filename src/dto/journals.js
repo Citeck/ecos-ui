@@ -97,6 +97,26 @@ export default class JournalsConverter {
   }
 
   /**
+   * @param {string} predicate
+   * @param {Array<string>} columns
+   *
+   * @returns {?Column}
+   */
+  static getColoumnByPredicates(predicate, columns) {
+    const val = get(predicate, 'val', get(predicate, 'v'));
+
+    if (Array.isArray(val)) {
+      const allColumnsByPredicate = val.map(item => JournalsConverter.getColoumnByPredicates(item, columns));
+      return allColumnsByPredicate.reduce((res, cur) => ({ ...res, ...cur }), {});
+    }
+
+    const attribute = get(predicate, 'att', get(predicate, 'a'));
+
+    const result = find(columns, column => JournalsConverter.getColumnId(column) === attribute);
+    return result === undefined ? {} : { [attribute]: { result, predicate } };
+  }
+
+  /**
    * @param {string} string
    * @param {Array<string>} delimiters
    * @returns {Array<string>}

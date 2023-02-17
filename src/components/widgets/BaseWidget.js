@@ -32,7 +32,7 @@ class BaseWidget extends React.Component {
       previousHeight: 0,
       userHeight: UserLocalSettingsService.getDashletHeight(lsId)
     };
-    this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload.bind(this));
+    this._updateWatcher = this.instanceRecord.watch(this._observableFieldsToUpdate, this.reload);
   }
 
   componentDidMount() {
@@ -224,11 +224,7 @@ class BaseWidget extends React.Component {
     }
   }, 400);
 
-  reload() {
-    this._debouncedReload();
-  }
-
-  _debouncedReload = debounce(() => {
+  reload = debounce(() => {
     this.setState(
       {
         runUpdate: true,

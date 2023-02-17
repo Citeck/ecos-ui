@@ -10,7 +10,7 @@ import get from 'lodash/get';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected, getAuthRef, prepareParentId, unionWithPrevious, renderUsernameString } from './helpers';
+import { handleResponse, prepareSelected, getAuthRef, prepareParentId, unionWithPrevious, renderUsernameString, isHTML } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -321,13 +321,12 @@ export const SelectOrgstructProvider = props => {
           if (!livePromise) {
             return;
           }
-
-          setTabItems({
-            ...tabItems,
+          setTabItems(prev => ({
+            ...prev,
             [TabTypes.SELECTED]: [...selectedItems],
-            [TabTypes.LEVELS]: tabItems[TabTypes.LEVELS].map(item => setSelectedItem(item, selectedItems)),
-            [TabTypes.USERS]: tabItems[TabTypes.USERS].map(item => setSelectedItem(item, selectedItems))
-          });
+            [TabTypes.LEVELS]: [...prev[TabTypes.LEVELS]].map(item => setSelectedItem(item, selectedItems)),
+            [TabTypes.USERS]: [...prev[TabTypes.USERS]].map(item => setSelectedItem(item, selectedItems))
+          }));
           setSelectedRows([...selectedItems]);
 
           livePromise = false;
@@ -375,7 +374,13 @@ export const SelectOrgstructProvider = props => {
 
         renderListItem: item => {
           if (get(item, 'attributes.authorityType') === 'USER' && userMask) {
-            return renderUsernameString(userMask, { ...(item.attributes || {}) });
+            const usernameString = renderUsernameString(userMask, { ...(item.attributes || {}) });
+
+            if (isHTML(userMask)) {
+              return <div dangerouslySetInnerHTML={{ __html: usernameString }} />;
+            }
+
+            return usernameString;
           }
 
           if (typeof renderListItem === 'function') {

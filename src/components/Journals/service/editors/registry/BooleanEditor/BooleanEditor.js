@@ -38,12 +38,20 @@ export default class BooleanEditor extends BaseEditor {
   getControl(config, scope) {
     return ({ value, onUpdate }) => {
       const [selected, setSelected] = useState(value);
+      const [zIndex, setZIndex] = useState(ZIndex.calcZ() + 1);
       const mode = config.mode || Modes.select;
       const _value = getBool(value);
 
       if (mode === Modes.checkbox) {
         return <Checkbox className="p-1" checked={_value} onChange={e => onUpdate(e.checked)} />;
       }
+
+      useEffect(() => {
+        const newZIndex = ZIndex.calcZ() + 1;
+        if (zIndex !== newZIndex) {
+          setZIndex(newZIndex);
+        }
+      });
 
       useEffect(() => {
         const selected = BooleanEditor.options.find(opt => get(opt, 'value', opt) === value) || null;
@@ -73,7 +81,7 @@ export default class BooleanEditor extends BaseEditor {
           menuPortalTarget={document.body}
           menuPlacement="auto"
           closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
-          styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+          styles={{ menuPortal: base => ({ ...base, zIndex }) }}
         />
       );
     };

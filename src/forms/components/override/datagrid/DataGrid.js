@@ -3,22 +3,13 @@ import { flattenComponents } from 'formiojs/utils/utils';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
-import throttle from 'lodash/throttle';
 
-import { overrideTriggerChange } from '../misc';
-import { FORM_MODE_CREATE } from '../../../../components/EcosForm';
-
+import { overrideTriggerChange, requestAnimationFrame } from '../misc';
 export default class DataGridComponent extends FormIODataGridComponent {
   constructor(...args) {
     super(...args);
 
     overrideTriggerChange.call(this);
-  }
-
-  build(state) {
-    super.build(state);
-
-    this.overrideBaseRow();
   }
 
   get defaultValue() {
@@ -41,24 +32,39 @@ export default class DataGridComponent extends FormIODataGridComponent {
     });
   }
 
-  show = throttle((show, noClear) => {
-    const { formMode } = this.options;
-
-    if (formMode === FORM_MODE_CREATE) {
-      if (show && !this.dataValue.length) {
-        this.overrideBaseRow();
-      }
+  show = show => {
+    if (show && !this.dataValue.length) {
+      this.overrideBaseRow();
     }
 
-    return super.show(show, noClear);
-  }, 100);
+    const forceShow = this.options.show && this.options.show[this.component.key];
+    const forceHide = this.options.hide && this.options.hide[this.component.key];
+
+    if (forceShow || forceHide) {
+      this.getComponents().forEach(function(component) {
+        if (forceShow) {
+          component.show(true);
+        } else if (forceHide) {
+          component.show(false);
+        }
+      });
+    }
+
+    if (!show) {
+      this.getAllComponents().forEach(function(component) {
+        component.error = '';
+      });
+    }
+
+    return show;
+  };
 
   overrideBaseRow() {
     if (!this.dataValue.length || isEqual(this.dataValue, this.baseEmptyValue)) {
       this.removeValue(0);
     }
 
-    window.requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
       if (!this.dataValue.length || !this.rows.length) {
         this.addValue();
       }

@@ -47,6 +47,7 @@
     }
 
     &-buttons {
+      z-index: 1000;
       position: absolute;
       bottom: 0;
       display: flex;

@@ -1128,7 +1128,7 @@ function* saga(ea) {
   yield takeEvery(saveDashlet().type, wrapSaga, { ...ea, saga: sagaSaveDashlet });
   yield takeEvery(initJournal().type, wrapSaga, { ...ea, saga: sagaInitJournal });
 
-  yield takeLatest(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
+  yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });

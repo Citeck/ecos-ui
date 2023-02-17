@@ -261,8 +261,6 @@ class BaseDocuments extends BaseWidget {
   };
 
   handleToggleUploadModalByType = (type = null) => {
-    const { availableTypes } = this.props;
-
     this.setState({ isLoadingUploadingModal: false });
 
     if (type === null) {
@@ -275,13 +273,12 @@ class BaseDocuments extends BaseWidget {
     }
 
     const { formId = null } = type;
-    const createVariants = get(availableTypes.find(item => item.id === type.type), 'createVariants', {}) || {};
+    const createVariants = this.getFormCreateVariants(type);
     const hasForm = formId !== null || !isEmpty(createVariants.formRef);
     let isFormOpens = false;
 
     if (hasForm) {
       isFormOpens = true;
-
       this.openForm(DocumentsConverter.getDataToCreate({ ...type, record: this.props.record, createVariants }));
     }
 

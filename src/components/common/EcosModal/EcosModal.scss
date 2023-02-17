@@ -1,6 +1,8 @@
 @import '../../../styles/constants';
 
 .ecos-modal {
+  $eModal: &;
+
   &.modal-dialog {
     margin-bottom: 0;
   }
@@ -92,6 +94,11 @@
   }
 
   &-header {
+    .modal-title {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+
     &__title,
     &__buttons {
       display: inline-block;
@@ -113,6 +120,14 @@
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-standard;
     color: $text-color-dark;
+  }
+
+  &_width {
+    &-sm {
+      #{$eModal}-close__text {
+        display: none;
+      }
+    }
   }
 }
 

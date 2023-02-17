@@ -63,7 +63,14 @@ export const PopupContainer = () => {
       className={classNames('ecos-popup-manager', get(attributes, 'popper.className', ''))}
     >
       <div className={classNames(contentClassName)}>{text}</div>
-      <div ref={setArrowElement} style={styles.arrow} className="ecos-popper__arrow" />
+      <div
+        ref={setArrowElement}
+        style={{
+          ...styles.arrow,
+          '--popper-wrapper-height': `${get(popperElement, 'offsetHeight', 0)}px`
+        }}
+        className={classNames('ecos-popper__arrow', `ecos-popper__arrow_${get(attributes, 'popper.data-popper-placement')}`)}
+      />
     </div>
   );
 };

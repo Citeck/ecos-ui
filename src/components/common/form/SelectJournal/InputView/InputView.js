@@ -6,9 +6,11 @@ import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
 
 import { getMLValue, t } from '../../../../../helpers/util';
+import PageService from '../../../../../services/PageService';
 import Records from '../../../../../components/Records/Records';
 import RecordActions from '../../../../../components/Records/actions/recordActions';
 import { createDocumentUrl } from '../../../../../helpers/urls';
+import { SourcesId } from '../../../../../constants';
 import { Tooltip } from '../../../../common';
 import CreateVariants from '../CreateVariants';
 import { Btn, IcoBtn } from '../../../../common/btns';
@@ -179,12 +181,22 @@ class InputView extends Component {
     }
   };
 
+  getSelectedValueLink(item) {
+    switch (true) {
+      // Cause: https://citeck.atlassian.net/browse/ECOSUI-2312
+      case PageService.isTypeRecord(item.id):
+        return item.id.replace(SourcesId.TYPE, 'emodel/types-repo');
+      default:
+        return item.id;
+    }
+  }
+
   renderSelectedValue(item) {
     const { isSelectedValueAsText, isModalMode } = this.props;
     const props = {};
 
     if (!isSelectedValueAsText) {
-      props.link = createDocumentUrl(item.id);
+      props.link = createDocumentUrl(this.getSelectedValueLink(item));
       props.paramsLink = { openNewBrowserTab: isModalMode };
     }
 

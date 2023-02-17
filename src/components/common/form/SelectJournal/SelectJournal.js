@@ -621,8 +621,12 @@ export default class SelectJournal extends Component {
     const { gridData, pagination } = this.state;
 
     const prevSelected = gridData.selected || [];
-    const newSkipCount = Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems;
-    const newPageNum = Math.ceil((gridData.total + 1) / pagination.maxItems);
+    const createdSortObject = gridData.query.sortBy.find(el => el.attribute === '_created');
+    const isAscending = createdSortObject && createdSortObject.ascending;
+    const newSkipCount = isAscending
+      ? Math.floor(gridData.total / pagination.maxItems) * pagination.maxItems
+      : paginationInitState.skipCount;
+    const newPageNum = isAscending ? Math.ceil((gridData.total + 1) / pagination.maxItems) : paginationInitState.page;
 
     alias.toJsonAsync(true).then(res => {
       const newData = cloneDeep(this.state);

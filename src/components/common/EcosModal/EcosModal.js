@@ -10,6 +10,7 @@ import { getMLValue, isMobileDevice, t, trigger } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
 import Modal from './ModalDraggable';
 import { Icon } from '../';
+import Popper from '../Popper';
 
 import './EcosModal.scss';
 
@@ -41,12 +42,10 @@ export default class EcosModal extends Component {
       };
     }
 
-    if (!state.zIndexCalc) {
-      newState = {
-        ...newState,
-        zIndexCalc: ZIndex.calcZ()
-      };
-    }
+    newState = {
+      ...newState,
+      zIndexCalc: ZIndex.calcZ()
+    };
 
     return newState;
   }
@@ -74,6 +73,11 @@ export default class EcosModal extends Component {
   calculateBounds = () => {
     if (this.props.noDraggable) {
       return;
+    }
+
+    const zIndex = ZIndex.calcZ();
+    if (zIndex !== this.state.zIndexCalc) {
+      this.setState({ zIndexCalc: zIndex });
     }
 
     if (this._dialog) {
@@ -106,8 +110,28 @@ export default class EcosModal extends Component {
     );
   }
 
+  renderTitle() {
+    const { title, isEmptyTitle } = this.props;
+
+    if (isEmptyTitle || !title) {
+      return null;
+    }
+
+    const localizedTitle = getMLValue(title);
+
+    return (
+      <Popper
+        showAsNeeded
+        text={localizedTitle}
+        icon="icon-question"
+        popupClassName="ecos-formatter-popper"
+        contentComponent={() => <div className="ecos-modal-header__title">{localizedTitle}</div>}
+      />
+    );
+  }
+
   renderModalHeader() {
-    const { hideModal, title, isEmptyTitle, isBigHeader, customButtons, noHeader, classNameHeader, isTopDivider } = this.props;
+    const { hideModal, isBigHeader, customButtons, noHeader, classNameHeader, isTopDivider } = this.props;
     const { level } = this.state;
 
     return noHeader ? null : (
@@ -119,7 +143,7 @@ export default class EcosModal extends Component {
           'ecos-modal-header_divider': isTopDivider
         })}
       >
-        {!isEmptyTitle && title && <div className="ecos-modal-header__title">{getMLValue(title)}</div>}
+        {this.renderTitle()}
         {!!customButtons && !!customButtons.length && <div className="ecos-modal-header__buttons">{customButtons}</div>}
       </ModalHeader>
     );

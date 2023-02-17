@@ -75,7 +75,7 @@ export default class CustomRenderer extends BaseRenderer {
   getRootProccess(element) {
     const parent = this.getParentProccess(element);
 
-    return _.get(parent, '$parent', getBusinessObject(element));
+    return _.get(parent, '$parent');
   }
 
   getParentProccess(element) {
@@ -99,7 +99,8 @@ export default class CustomRenderer extends BaseRenderer {
       return element.$attrs['ecos:ecosType'];
     }
 
-    return this.getEcosType(this.getRootProccess(element));
+    const parent = this.getRootProccess(element);
+    return this.getEcosType(parent);
   }
 
   renderLabel(parentGfx, label, options) {

@@ -14,19 +14,23 @@ describe('TaskOutcome action', () => {
   beforeEach(() => {
     recordQuerySpy = jest.spyOn(Records, 'query').mockImplementation(query => {
       let definition;
+      let formNotExists;
       switch (query.query.formRef) {
-        case 'no-definition':
+        case 'form-not-exists':
+          formNotExists = true;
           definition = undefined;
           break;
         case 'no-inputs':
+          formNotExists = false;
           definition = { formInputs: [] };
           break;
         default:
+          formNotExists = false;
           definition = { formInputs: [{ component: { label: 'label' } }] };
           break;
       }
 
-      return Promise.resolve({ records: [{ id: '', '.json': { definition } }] });
+      return Promise.resolve({ records: [{ id: '', '.json': { definition }, '_notExists?bool': formNotExists }] });
     });
     getFormInputsSpy = jest.spyOn(EcosFormUtils, 'getFormInputs').mockImplementation(data => data.formInputs);
     errorSpy = jest.spyOn(console, 'error');
@@ -43,14 +47,14 @@ describe('TaskOutcome action', () => {
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(0);
-    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledTimes(2);
     expect(errorSpy.mock.calls[0][0]).toEqual('Incorrect action');
     expect(result).toEqual(false);
   });
 
-  it('No form definition', async () => {
+  it('Form not exists', async () => {
     const result = await actionTaskOutcome.execForRecord(record, {
-      config: { outcome: 'outcome', formRef: 'no-definition', taskRef: 'taskRef' }
+      config: { outcome: 'outcome', formRef: 'form-not-exists', taskRef: 'taskRef' }
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(1);
