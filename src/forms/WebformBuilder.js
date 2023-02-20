@@ -4,6 +4,7 @@ import BuilderUtils from 'formiojs/utils/builder';
 import { getComponent } from 'formiojs/utils/formUtils';
 import Webform from 'formiojs/Webform';
 import WebformBuilder from 'formiojs/WebformBuilder';
+import _builder from 'formiojs/utils/builder';
 import _ from 'lodash';
 
 import { t } from '../helpers/export/util';
@@ -36,6 +37,127 @@ Object.defineProperty(WebformBuilder.prototype, 'defaultComponents', {
     };
   }
 });
+
+WebformBuilder.prototype.deleteComponent = function(component) {
+  if (!component.parent) {
+    return;
+  }
+
+  var remove = true;
+
+  if (typeof component.getComponents === 'function' && component.getComponents().length > 0) {
+    var message = 'Removing this component will also remove all of its children. Are you sure you want to do this?';
+    remove = window.confirm(this.t(message));
+  }
+
+  if (remove) {
+    component.parent.removeComponentById(component.id);
+    if (!_.isEqual(this.form, this.schema)) {
+      this.form = this.schema;
+    }
+    this.emit('deleteComponent', component);
+  }
+
+  return remove;
+};
+
+WebformBuilder.prototype.pasteComponent = function(component) {
+  if (!window.sessionStorage) {
+    return console.log('Session storage is not supported in this browser.');
+  }
+
+  this.removeClass(this.element, 'builder-paste-mode');
+  var data = window.sessionStorage.getItem('formio.clipboard');
+
+  if (data) {
+    var schema = JSON.parse(data);
+    window.sessionStorage.removeItem('formio.clipboard');
+
+    _builder.uniquify(this._form, schema); // If this is an empty "nested" component, and it is empty, then paste the component inside this component.
+
+    if (typeof component.addComponent === 'function' && !component.components.length) {
+      component.addComponent(schema);
+    } else {
+      component.parent.addComponent(schema, false, false, component.element.nextSibling);
+    }
+
+    if (!_.isEqual(this.form, this.schema)) {
+      this.form = this.schema;
+    }
+  }
+};
+
+WebformBuilder.prototype.onDrop = function(element, target, source, sibling) {
+  if (!element || !element.id) {
+    console.warn('No element.id defined for dropping');
+    return;
+  }
+
+  var builderElement = source.querySelector('#'.concat(element.id));
+  var newParent = this.getParentElement(element);
+
+  if (!newParent || !newParent.component) {
+    return console.warn('Could not find parent component.');
+  } // Remove any instances of the placeholder.
+
+  var placeholder = document.getElementById(''.concat(newParent.component.id, '-placeholder'));
+
+  if (placeholder) {
+    placeholder = placeholder.parentNode;
+    placeholder.parentNode.removeChild(placeholder);
+  } // If the sibling is the placeholder, then set it to null.
+
+  if (sibling === placeholder) {
+    sibling = null;
+  } // Make this element go before the submit button if it is still on the builder.
+
+  if (!sibling && this.submitButton && newParent.contains(this.submitButton.element)) {
+    sibling = this.submitButton.element;
+  } // If this is a new component, it will come from the builderElement
+
+  if (builderElement && builderElement.builderInfo && builderElement.builderInfo.schema) {
+    var componentSchema = _.clone(builderElement.builderInfo.schema);
+
+    if (target.dragEvents && target.dragEvents.onDrop) {
+      target.dragEvents.onDrop(element, target, source, sibling, componentSchema);
+    } // Add the new component.
+
+    var component = this.addComponentTo(componentSchema, newParent.component, newParent, sibling, function(comp) {
+      // Set that this is a new component.
+      comp.isNew = true; // Pass along the save event.
+
+      if (target.dragEvents) {
+        comp.dragEvents = target.dragEvents;
+      }
+    }); // Edit the component.
+
+    this.editComponent(component); // Remove the element.
+
+    target.removeChild(element);
+  } // Check to see if this is a moved component.
+  else if (element.component) {
+    var _componentSchema = element.component.schema;
+
+    if (target.dragEvents && target.dragEvents.onDrop) {
+      target.dragEvents.onDrop(element, target, source, sibling, _componentSchema);
+    } // Remove the component from its parent.
+
+    if (element.component.parent) {
+      this.emit('deleteComponent', element.component);
+      element.component.parent.removeComponent(element.component);
+    } // Add the new component.
+
+    var _component = this.addComponentTo(_componentSchema, newParent.component, newParent, sibling);
+
+    if (target.dragEvents && target.dragEvents.onSave) {
+      target.dragEvents.onSave(_component);
+    } // Refresh the form.
+
+    if (!_.isEqual(this.form, this.schema)) {
+      this.form = this.schema;
+    }
+  }
+};
 
 WebformBuilder.prototype.updateComponent = function(component) {
   // Update the preview.
@@ -400,7 +522,9 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     if (popup) {
       top = Math.round(popup.getBoundingClientRect().top) * -1;
     }
-    this.form = this.schema;
+    if (!_.isEqual(this.form, this.schema)) {
+      this.form = this.schema;
+    }
     this.emit('saveComponent', component, originalComponent);
     this.dialog.close();
 
