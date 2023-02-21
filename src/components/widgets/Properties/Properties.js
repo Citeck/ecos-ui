@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
 import get from 'lodash/get';
-import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
@@ -96,22 +95,15 @@ class Properties extends React.Component {
 
   onFormChanged = (submission, form) => {
     const { onFormIsChanged } = this.props;
-    const { initData } = this.state;
 
     if (isFunction(onFormIsChanged)) {
-      const submissionData = cloneDeep(submission.data);
-      const clonedInitData = cloneDeep(initData);
+      const editedComponent = form.getAllComponents().filter(c => {
+        const { persistent } = c.component;
 
-      form.getAllComponents().forEach(c => {
-        const { persistent, key } = c.component;
-
-        if (!c.valueChangedByUser || persistent === 'client-only' || !persistent) {
-          delete submissionData[key];
-          delete clonedInitData[key];
-        }
+        return c.valueChangedByUser && persistent && persistent !== 'client-only';
       });
 
-      const isChanged = !isEqual(submissionData, clonedInitData);
+      const isChanged = editedComponent.length;
 
       onFormIsChanged(isChanged, form.isValid(submission));
     }
