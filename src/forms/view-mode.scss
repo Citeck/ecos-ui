@@ -214,10 +214,6 @@
 
 .formio-form {
   .tooltip {
-    max-width: 100%;
-
-    &-inner {
-      max-width: 100% !important;
-    }
+    display: none;
   }
 }
