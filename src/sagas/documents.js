@@ -9,7 +9,7 @@ import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 
-import { getFirstNonEmpty, t } from '../helpers/util';
+import { getFirstNonEmpty, isNodeRef, t } from '../helpers/util';
 import { documentActions, documentFields } from '../constants/documents';
 import Records from '../components/Records';
 import recordActions, { ActionTypes } from '../components/Records/actions';
@@ -367,7 +367,7 @@ function* sagaUpdateVersion({ api, logger }, { payload }) {
     const type = yield select(state => selectDynamicType(state, payload.key, payload.type));
 
     let entityRef = type.lastDocumentRef;
-    if (__isAlfrescoRef(entityRef)) {
+    if (isNodeRef(entityRef)) {
       yield call(api.versionsJournal.addNewVersion, {
         body: DocumentsConverter.getAddNewVersionFormDataForServer({
           record: type.lastDocumentRef,
@@ -520,7 +520,7 @@ function* sagaUploadFiles({ api, logger }, { payload }) {
     }
 
     let fileUploadFunc;
-    if (__isAlfrescoRef(payload.record)) {
+    if (isNodeRef(payload.record)) {
       fileUploadFunc = uploadFile;
     } else {
       fileUploadFunc = uploadFileV2;
@@ -675,10 +675,6 @@ function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
   } catch (e) {
     logger.error('[documents sagaGetDocumentsByTypes saga error] ', e);
   }
-}
-
-function __isAlfrescoRef(ref) {
-  return !!ref && ref.indexOf('workspace://SpacesStore/') !== -1;
 }
 
 function* saga(ea) {
