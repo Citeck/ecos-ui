@@ -15,7 +15,7 @@ import {
   validateUserSuccess
 } from '../actions/user';
 import { setNotificationMessage } from '../actions/notification';
-import { t } from '../helpers/util';
+import { isNodeRef, t } from '../helpers/util';
 import UserService from '../services/UserService';
 
 function* sagaGetUserData({ api, logger }, { payload }) {
@@ -45,7 +45,14 @@ function* sagaChangePhoto({ api, logger }, { payload }) {
     formData.append('file', file);
     formData.append('name', file.name);
 
-    const { entityRef = null } = yield call(api.app.uploadFile, formData);
+    let fileUploadFunc;
+
+    if (isNodeRef(record)) {
+      fileUploadFunc = api.app.uploadFile;
+    } else {
+      fileUploadFunc = api.app.uploadFileV2;
+    }
+    const { entityRef = null } = yield call(fileUploadFunc, formData);
 
     if (!entityRef) {
       throw new Error('No file entityRef');
