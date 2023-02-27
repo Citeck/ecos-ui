@@ -58,6 +58,7 @@ const JournalsSettingsBar = ({
 }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
+  const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
   const noCreateMenu = isMobile || isEmpty(createVariants);
   const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [predicate]);
   const tooltipSettings = {
@@ -85,13 +86,15 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        <Search
-          onSearch={onSearch}
-          className="ecos-journal__settings-bar-search search_border-white"
-          collapsed={isMobile}
-          text={searchText}
-          cleaner
-        />
+        {headerSearchEnabled && (
+          <Search
+            onSearch={onSearch}
+            className="ecos-journal__settings-bar-search search_border-white"
+            collapsed={isMobile}
+            text={searchText}
+            cleaner
+          />
+        )}
 
         {!isMobile && !noGroupActions && <GroupActions stateId={stateId} />}
 
