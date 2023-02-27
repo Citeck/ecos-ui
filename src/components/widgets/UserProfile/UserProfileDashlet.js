@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import get from 'lodash/get';
 import { Scrollbars } from 'react-custom-scrollbars';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 
 import { changePhoto, getUserData, updAppUserData } from '../../../actions/user';
 import { t } from '../../../helpers/util';
@@ -12,6 +14,7 @@ import { Avatar, BtnUpload } from '../../common';
 import { Btn } from '../../common/btns';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
+import Records from '../../Records';
 import RecordActions from '../../Records/actions/recordActions';
 import { ActionTypes } from '../../Records/actions';
 import { getFitnesseClassName } from '../../../helpers/tools';
@@ -38,24 +41,45 @@ class UserProfileDashlet extends BaseWidget {
     classNameDashlet: ''
   };
 
+  constructor(props) {
+    super(props);
+
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'avatar', 'photo'])];
+  }
+
   componentDidMount() {
     super.componentDidMount();
 
     const { getUserData } = this.props;
-    getUserData();
+
+    isFunction(getUserData) && getUserData();
   }
 
   componentDidUpdate(prevProps) {
-    const { getUserData } = this.props;
+    const { getUserData, record, isCurrentUser = false } = this.props;
 
-    if (prevProps.record !== this.props.record) {
-      getUserData();
+    if (prevProps.record !== record) {
+      return isFunction(getUserData) && getUserData();
+    }
+
+    if (isCurrentUser && !isEmpty(record)) {
+      const lastPhotoUrl = prevProps.profile.thumbnail;
+
+      Records.get(record)
+        .load('avatar?json')
+        .then(({ url }) => {
+          if (lastPhotoUrl && url !== lastPhotoUrl) {
+            this.handleUpdate();
+          }
+        });
     }
   }
 
   onChangePhoto = files => {
+    const { changePhoto } = this.props;
+
     if (files && files.length) {
-      this.props.changePhoto(files[0]);
+      isFunction(changePhoto) && changePhoto(files[0]);
     }
   };
 
@@ -67,9 +91,13 @@ class UserProfileDashlet extends BaseWidget {
 
   handleUpdate() {
     super.handleUpdate();
-    this.props.getUserData();
-    if (this.props.isCurrentUser) {
-      this.props.updAppUserData();
+
+    const { getUserData, updAppUserData, isCurrentUser = false } = this.props;
+
+    isFunction(getUserData) && getUserData();
+
+    if (isCurrentUser) {
+      isFunction(updAppUserData) && updAppUserData();
     }
   }
 
