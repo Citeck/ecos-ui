@@ -49,7 +49,7 @@ class JournalsContent extends Component {
     super(props);
 
     this.state = {
-      recordId: props.gridData.length === 1 ? props.data[0].id : ''
+      recordId: props.gridData.length === 1 ? props.gridData[0].id : ''
     };
   }
 
