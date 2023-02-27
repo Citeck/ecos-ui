@@ -43,7 +43,7 @@ class TaskDetails extends React.Component {
       key: 'deadline',
       label: t('tasks-widget.column.deadline'),
       order: 1,
-      format: DataFormatTypes.DATE
+      format: DataFormatTypes.DATETIME
     },
     {
       key: 'sender',
