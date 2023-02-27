@@ -194,3 +194,7 @@
 .formio-drag-small-last-column + th:last-child {
   width: 65px;
 }
+
+.btn:not(:disabled):not(.disabled) {
+  cursor: pointer;
+}
