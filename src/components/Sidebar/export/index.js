@@ -13,7 +13,7 @@ import Sidebar from '../Sidebar';
 
 import { configureAPI } from '../../../api';
 import { detectMobileDevice, loadThemeRequest } from '../../../actions/view';
-import { initMenuConfig } from '../../../actions/menu';
+import { getMenuConfig } from '../../../actions/menu';
 import { getUserData } from '../../../actions/user';
 
 import configureStore from './store';
@@ -36,7 +36,7 @@ const render = (elementId, props, callback) => {
         store.dispatch(
           getUserData({
             onSuccess: () => {
-              store.dispatch(initMenuConfig());
+              store.dispatch(getMenuConfig());
               store.dispatch(detectMobileDevice());
 
               i18nInit({ debug: false }).then(() => {
