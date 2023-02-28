@@ -3,7 +3,7 @@ stages:
 
 testing:
   tags:
-    - shell
+    - kuber-run
   stage: testing
   script:
     - yarn && yarn test --watchAll=false
