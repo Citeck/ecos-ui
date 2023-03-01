@@ -80,11 +80,13 @@ export default class JournalsConverter {
       return predicate;
     }
 
-    if (searchConfig && isEmpty(searchConfig.delimiters)) {
+    const delimiters = get(searchConfig, 'delimiters');
+
+    if (isEmpty(delimiters)) {
       return predicate;
     }
 
-    const result = JournalsConverter._splitStringByDelimiters(val, searchConfig.delimiters);
+    const result = JournalsConverter._splitStringByDelimiters(val, delimiters);
 
     if (result.length < 2) {
       return predicate;
