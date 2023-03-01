@@ -134,8 +134,6 @@ Webform.prototype.onSubmit = function(submission, saved) {
       this.loading = false;
       this.attr(this.buttonElement, { disabled: this.disabled });
     }
-
-    this.setAlert(false);
   });
 };
 
