@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import find from 'lodash/find';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import set from 'lodash/set';
 
 import Predicate from '../components/Filters/predicates/Predicate';
 import AttributesService from '../services/AttributesService';
@@ -48,8 +49,13 @@ export default class JournalsConverter {
     }
 
     const attribute = get(predicate, 'att', get(predicate, 'a'));
-    const delimiters = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig.delimiters');
+    const searchConfig = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig');
+
     let val = get(predicate, 'val', get(predicate, 'v'));
+
+    if (searchConfig && !isEmpty(searchConfig.searchAttribute)) {
+      set(predicate, 'att', searchConfig.searchAttribute);
+    }
 
     if (Array.isArray(val)) {
       return {
@@ -74,11 +80,11 @@ export default class JournalsConverter {
       return predicate;
     }
 
-    if (isEmpty(delimiters)) {
+    if (searchConfig && isEmpty(searchConfig.delimiters)) {
       return predicate;
     }
 
-    const result = JournalsConverter._splitStringByDelimiters(val, delimiters);
+    const result = JournalsConverter._splitStringByDelimiters(val, searchConfig.delimiters);
 
     if (result.length < 2) {
       return predicate;
