@@ -575,12 +575,12 @@ export function getOutputFormat(format, value, settings = {}) {
     case DataFormatTypes.DATE: {
       const inMoment = settings.isLocal ? moment(value).local() : moment(value);
 
-      return inMoment.format(settings.dateFormat || 'DD.MM.YYYY');
+      return inMoment.format(settings.dateFormat || 'L');
     }
     case DataFormatTypes.DATETIME: {
       const inMoment = settings.isLocal ? moment(value).local() : moment(value);
 
-      return inMoment.format(settings.dateFormat || 'DD.MM.YYYY, hh:mm');
+      return inMoment.format(settings.dateFormat || 'L, LT');
     }
     default:
       return value;
