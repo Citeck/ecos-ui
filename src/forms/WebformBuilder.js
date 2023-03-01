@@ -522,9 +522,8 @@ WebformBuilder.prototype.editComponent = function(component, isJsonEdit) {
     if (popup) {
       top = Math.round(popup.getBoundingClientRect().top) * -1;
     }
-    if (!_.isEqual(this.form, this.schema)) {
-      this.form = this.schema;
-    }
+
+    this.form = this.schema;
     this.emit('saveComponent', component, originalComponent);
     this.dialog.close();
 
