@@ -12,7 +12,6 @@
 
   &__text {
     @extend %ellipsis;
-    display: contents;
   }
 
   &__icon.icon {
