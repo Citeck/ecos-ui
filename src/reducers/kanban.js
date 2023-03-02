@@ -19,6 +19,7 @@ import {
 } from '../actions/kanban';
 import { updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { t } from '../helpers/export/util';
 
 export const initialState = {
   isLoading: true,
@@ -70,7 +71,10 @@ export default handleActions(
     },
     [setBoardList]: (state, { payload }) => {
       const { stateId, boardList, templateList } = payload;
-      return updateState(state, stateId, { boardList, templateList }, initialState);
+      const journalSettings = [{ id: '', name: t('journal.presets.default'), settings: {} }];
+      Array.isArray(templateList) && journalSettings.push(...templateList);
+
+      return updateState(state, stateId, { boardList, templateList: journalSettings }, initialState);
     },
     [setIsEnabled]: (state, { payload }) => {
       const { stateId, isEnabled } = payload;
