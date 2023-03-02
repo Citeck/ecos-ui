@@ -1,5 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 
 import {
   fetchSlideMenuItems,
@@ -31,7 +32,7 @@ function* fetchSlideMenu({ api, logger }, action) {
 
     let menuItems;
 
-    if (id || version) {
+    if (!isNil(id) || !isNil(version)) {
       menuItems = yield call(api.menu.getMenuItems, { id, version, resolved: true });
     } else {
       const apiData = yield call(api.menu.getSlideMenuItems);
