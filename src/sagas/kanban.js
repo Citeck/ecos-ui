@@ -255,8 +255,7 @@ export function* sagaSelectFromUrl({ api, logger }, { payload }) {
 
     const path = type === KANBAN_SELECTOR_MODE.TEMPLATES ? KanbanUrlParams.TEMPLATE_ID : KanbanUrlParams.BOARD_ID;
     const toggleId = type === KANBAN_SELECTOR_MODE.TEMPLATES ? templateId : boardId;
-
-    if (toggleId && get(urlData, ['query', path]) !== toggleId) {
+    if (toggleId !== undefined && get(urlData, ['query', path]) !== toggleId) {
       set(urlData, ['query', path], toggleId);
     }
 
