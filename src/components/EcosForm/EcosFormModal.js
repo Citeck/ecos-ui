@@ -41,7 +41,8 @@ export default class EcosFormModal extends React.Component {
       isAuthenticated: true,
       isModalOpen: false,
       isConfigurableForm: false,
-      addedListener: false
+      addedListener: false,
+      isLoading: false
     };
   }
 
@@ -157,6 +158,10 @@ export default class EcosFormModal extends React.Component {
     e.returnValue = '';
   };
 
+  onToggleLoader = (isLoading = !this.state.isLoading) => {
+    this.setState({ isLoading });
+  };
+
   handleReloadPage = () => {
     if (!this.state.isModalOpen) {
       return;
@@ -233,7 +238,7 @@ export default class EcosFormModal extends React.Component {
 
   render() {
     const { title, isBigHeader, contentAfter } = this.props;
-    const { recordData, isModalOpen } = this.state;
+    const { recordData, isModalOpen, isLoading } = this.state;
 
     if (!isModalOpen || !recordData) {
       return null;
@@ -280,9 +285,16 @@ export default class EcosFormModal extends React.Component {
           isOpen={isModalOpen}
           hideModal={this.handleCancel}
           customButtons={[this.renderConstructorButton()]}
+          isLoading={isLoading}
         >
           {this.renderContentBefore()}
-          <EcosForm ref={this._formRef} onFormSubmitDone={this.onUpdateForm} initiator={{ type: 'modal' }} {...formProps} />
+          <EcosForm
+            ref={this._formRef}
+            onFormSubmitDone={this.onUpdateForm}
+            initiator={{ type: 'modal' }}
+            onToggleLoader={this.onToggleLoader}
+            {...formProps}
+          />
           {contentAfter}
         </EcosModal>
       </div>
