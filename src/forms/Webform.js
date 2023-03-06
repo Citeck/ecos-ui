@@ -11,6 +11,7 @@ const originalSetElement = Webform.prototype.setElement;
 const originalSubmit = Webform.prototype.submit;
 const originalSubmitForm = Webform.prototype.submitForm;
 const originalBuild = Webform.prototype.build;
+const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototype, 'loading');
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
 
 Webform.prototype.submitForm = function(options) {
@@ -97,7 +98,7 @@ Webform.prototype.setElement = function(element) {
 };
 
 Webform.prototype.onSubmit = function(submission, saved) {
-  this.customLoading = true;
+  this.loading = true;
   this.submitting = false;
   this.setPristine(true);
   this.setValue(submission, {
@@ -114,7 +115,7 @@ Webform.prototype.onSubmit = function(submission, saved) {
 
     if (saved) {
       this.emit('submitDone', submission);
-      this.customLoading = false;
+      this.loading = false;
       this.attr(this.buttonElement, { disabled: this.disabled });
     }
 
@@ -130,11 +131,9 @@ Webform.prototype.onSubmit = function(submission, saved) {
   }).finally(() => {
     if (saved) {
       this.emit('submitDone', submission);
+      this.loading = false;
       this.attr(this.buttonElement, { disabled: this.disabled });
     }
-
-    this.customLoading = false;
-    this.setAlert(false);
   });
 };
 
@@ -182,7 +181,7 @@ Webform.prototype.submit = function(before, options) {
         const diff = Date.now() - form.previSubmitTime;
         const timeout = diff === 0 || diff > SUBMIT_FORM_TIMEOUT ? 0 : SUBMIT_FORM_TIMEOUT - Math.floor(diff / 1000) * 1000;
 
-        form.customLoading = true;
+        form.loading = true;
 
         window.setTimeout(() => {
           callSubmit();
@@ -194,46 +193,18 @@ Webform.prototype.submit = function(before, options) {
   });
 };
 
-Object.defineProperty(Webform.prototype, 'customLoading', {
-  get: function() {
-    return this._customLoading;
-  },
-  set: function set(loading) {
-    if (this._customLoading !== loading) {
-      this._customLoading = loading;
+Object.defineProperty(Webform.prototype, 'loading', {
+  set: function(loading) {
+    originalPropertyLoading.set.call(this, loading);
 
-      if (!this.loader && loading) {
-        this.loader = this.ce('div', {
-          class: 'loader-wrapper'
-        });
-        var spinner = this.ce('div', {
-          class: 'loader text-center'
-        });
-        this.loader.appendChild(spinner);
+    if (!loading && this.loader) {
+      try {
+        this.removeChildFrom(this.loader, this.wrapper);
+      } catch (e) {
+        // ignore
       }
-      /* eslint-disable max-depth */
-
-      if (this.loader) {
-        try {
-          if (loading) {
-            this.prependTo(this.loader, this.wrapper);
-          } else {
-            this.removeChildFrom(this.loader, this.wrapper);
-          }
-        } catch (err) {
-          // ingore
-        }
-      }
-      /* eslint-enable max-depth */
     }
   }
-});
-
-Object.defineProperty(Webform.prototype, 'loading', {
-  get: function() {
-    return this.customLoading;
-  },
-  set: () => {}
 });
 
 export default Webform;
