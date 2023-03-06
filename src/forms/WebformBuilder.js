@@ -4,7 +4,6 @@ import BuilderUtils from 'formiojs/utils/builder';
 import { getComponent } from 'formiojs/utils/formUtils';
 import Webform from 'formiojs/Webform';
 import WebformBuilder from 'formiojs/WebformBuilder';
-import _builder from 'formiojs/utils/builder';
 import _ from 'lodash';
 
 import { t } from '../helpers/export/util';
@@ -73,7 +72,7 @@ WebformBuilder.prototype.pasteComponent = function(component) {
     var schema = JSON.parse(data);
     window.sessionStorage.removeItem('formio.clipboard');
 
-    _builder.uniquify(this._form, schema); // If this is an empty "nested" component, and it is empty, then paste the component inside this component.
+    BuilderUtils.uniquify(this.form, schema); // If this is an empty "nested" component, and it is empty, then paste the component inside this component.
 
     if (typeof component.addComponent === 'function' && !component.components.length) {
       component.addComponent(schema);
@@ -197,7 +196,7 @@ WebformBuilder.prototype.updateComponent = function(component) {
     }
 
     // Set a unique key for this component.
-    BuilderUtils.uniquify(this._form, component.component);
+    BuilderUtils.uniquify(this.form, component.component);
   }
 
   // Change the "default value" field to be reflective of this component.
@@ -223,6 +222,11 @@ WebformBuilder.prototype.updateComponent = function(component) {
         customClass: `webform-builder-dv-${component.type}`
       }
     );
+  }
+
+  const componentInForm = this.getAllComponents().find(c => c.id === component.id);
+  if (componentInForm) {
+    componentInForm.dataValue = component.defaultValue;
   }
 
   // Called when we update a component.
