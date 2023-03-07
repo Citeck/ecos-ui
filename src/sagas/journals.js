@@ -758,6 +758,9 @@ function* sagaExecRecordsAction({ api, logger, w }, action) {
       if (get(action, 'payload.action.type', '') !== ActionTypes.BACKGROUND_VIEW) {
         yield put(reloadGrid(w()));
       }
+
+      const executeCallback = get(action, 'payload.action.executeCallback');
+      isFunction(executeCallback) && executeCallback();
     }
   } catch (e) {
     logger.error('[journals sagaExecRecordsAction saga error', e);
