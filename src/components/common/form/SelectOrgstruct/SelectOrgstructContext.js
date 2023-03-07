@@ -10,7 +10,16 @@ import get from 'lodash/get';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { usePrevious } from '../../../../hooks';
 import { ALL_USERS_GROUP_SHORT_NAME, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE, TabTypes } from './constants';
-import { handleResponse, prepareSelected, getAuthRef, prepareParentId, unionWithPrevious, renderUsernameString, isHTML } from './helpers';
+import {
+  handleResponse,
+  prepareSelected,
+  getAuthRef,
+  prepareParentId,
+  unionWithPrevious,
+  renderUsernameString,
+  isHTML,
+  getRecordRef
+} from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -161,7 +170,7 @@ export const SelectOrgstructProvider = props => {
         break;
       }
       default: {
-        value = getVal(selectedList.map(item => item.id));
+        value = getVal(selectedList.map(item => (item.id ? getRecordRef(item.id) : '')));
         break;
       }
     }
