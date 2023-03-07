@@ -962,11 +962,12 @@ class RecordActions {
     const { confirm, ...preparedAction } = action;
     const preparedContext = { ...context, fromFeature: 'execForQuery' };
     const iterator = new RecordsIterator(preparedQuery);
+    const callbackExecForRecords = this.execForRecords;
 
     const callback = async data => {
       processedCount += data.records.length;
 
-      await this.execForRecords(data.records, preparedAction, preparedContext);
+      isFunction(callbackExecForRecords) && (await callbackExecForRecords(data.records, preparedAction, preparedContext));
 
       showProcess &&
         info(
