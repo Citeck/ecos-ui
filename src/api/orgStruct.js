@@ -10,7 +10,14 @@ import {
   ITEMS_PER_PAGE,
   ROOT_GROUP_NAME
 } from '../components/common/form/SelectOrgstruct/constants';
-import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
+import {
+  converterUserList,
+  getGroupName,
+  getGroupRef,
+  getPersonRef,
+  getAuthRef,
+  getRecordRef
+} from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
 import ConfigService, {
   ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS,
@@ -154,6 +161,10 @@ export class OrgStructApi extends CommonApi {
 
     if (dataType === DataTypes.AUTHORITY) {
       recordRef = getAuthRef(recordRef);
+    }
+
+    if (dataType === DataTypes.NODE_REF) {
+      recordRef = getRecordRef(recordRef);
     }
 
     return this.fetchAuthorityByRef(recordRef);
