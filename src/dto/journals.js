@@ -54,7 +54,13 @@ export default class JournalsConverter {
     let val = get(predicate, 'val', get(predicate, 'v'));
 
     if (searchConfig && !isEmpty(searchConfig.searchAttribute)) {
-      set(predicate, 'att', searchConfig.searchAttribute);
+      if (get(predicate, 'a')) {
+        set(predicate, 'a', searchConfig.searchAttribute);
+      }
+
+      if (get(predicate, 'att')) {
+        set(predicate, 'att', searchConfig.searchAttribute);
+      }
     }
 
     if (Array.isArray(val)) {
