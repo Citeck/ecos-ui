@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
@@ -54,7 +55,7 @@ class KanbanView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, urlParams = {}, boardList } = this.props;
+    const { isActivePage, viewMode, urlParams = {}, boardList, templateList } = this.props;
 
     if (!isActivePage || !isKanban(viewMode)) {
       return;
@@ -67,7 +68,14 @@ class KanbanView extends React.Component {
       urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
     ) {
       this.setState({ isClose: false }, () => {
-        this.props.getBoardData(this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.BOARD));
+        this.props.getBoardData(this.getSelectedBoardFromUrl());
+      });
+    }
+
+    const templateId = urlParams[JUP.JOURNAL_SETTING_ID] || get(templateList, '[0].id');
+    if (this.state.templateId !== templateId && templateList) {
+      this.setState({ templateId }, () => {
+        this.handleChangeTemplate(templateList.find(el => el.id === templateId));
       });
     }
 
@@ -94,27 +102,20 @@ class KanbanView extends React.Component {
     return `${SourcesId.BOARD}@${id}`;
   }
 
-  getSelectedFromUrl(type) {
-    const { urlParams = {}, boardList, templateList } = this.props;
+  getSelectedBoardFromUrl() {
+    const { urlParams = {}, boardList } = this.props;
 
-    switch (type) {
-      case KANBAN_SELECTOR_MODE.BOARD:
-        return urlParams.boardId || get(boardList, '[0].id');
-      case KANBAN_SELECTOR_MODE.TEMPLATES:
-        return urlParams[JUP.JOURNAL_SETTING_ID] || get(templateList, '[0].id');
-      default:
-        console.error('KanbanView. Invalid type');
-    }
+    return urlParams.boardId || get(boardList, '[0].id');
   }
 
   handleChangeBoard = board => {
-    if (board) {
+    if (!isNil(board)) {
       this.props.selectBoardId(board.id);
     }
   };
 
   handleChangeTemplate = template => {
-    if (template) {
+    if (!isNil(template)) {
       this.props.selectTemplateId(template);
     }
   };
@@ -126,6 +127,7 @@ class KanbanView extends React.Component {
 
   LeftBarChild = () => {
     const { boardList, templateList } = this.props;
+    const { templateId } = this.state;
 
     return (
       <>
@@ -133,7 +135,7 @@ class KanbanView extends React.Component {
           isButton
           isStatic
           source={boardList}
-          value={this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.BOARD)}
+          value={this.getSelectedBoardFromUrl()}
           valueField="id"
           titleField="name"
           onChange={this.handleChangeBoard}
@@ -145,7 +147,7 @@ class KanbanView extends React.Component {
           isButton
           isStatic
           source={templateList}
-          value={this.getSelectedFromUrl(KANBAN_SELECTOR_MODE.TEMPLATES)}
+          value={templateId}
           valueField="id"
           titleField="name"
           onChange={this.handleChangeTemplate}
