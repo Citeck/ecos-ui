@@ -267,12 +267,13 @@ class RecordActions {
           result.configMerged = true;
         }
       } catch (e) {
-        console.error('Error while pre process module loading', e, preActionHandler);
-        result.hasError = true;
+        if (!(e instanceof TypeError)) {
+          console.error('Error while pre process module loading', e, preActionHandler);
+          result.hasError = true;
+        }
       }
     } else {
       console.error(nameFunction, 'This is not function. Check preActionModule', preActionHandler);
-      result.hasError = true;
     }
 
     if (result.hasError) {
@@ -962,12 +963,11 @@ class RecordActions {
     const { confirm, ...preparedAction } = action;
     const preparedContext = { ...context, fromFeature: 'execForQuery' };
     const iterator = new RecordsIterator(preparedQuery);
-    const callbackExecForRecords = this.execForRecords;
 
     const callback = async data => {
       processedCount += data.records.length;
 
-      isFunction(callbackExecForRecords) && (await callbackExecForRecords(data.records, preparedAction, preparedContext));
+      await this.execForRecords(data.records, preparedAction, preparedContext);
 
       showProcess &&
         info(
