@@ -319,6 +319,10 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
           journalSetting = { ...preset.settings };
         }
 
+        if (!journalSettingId) {
+          journalSettingId = yield call(api.journals.getLsJournalSettingId, journalConfig.id);
+        }
+
         if (!journalSetting) {
           yield call(api.journals.setLsJournalSettingId, journalConfig.id, '');
         }
@@ -639,7 +643,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       yield getJournalSettings(api, journalConfig.id, w, stateId);
 
       const settings = yield select(selectJournalSettings, stateId);
-      const selectedPreset = settings.find(setting => setting.id === journalSettingId);
+      const selectedPreset = settings.find(setting => setting.id === stateId);
 
       if (isEmpty(selectedPreset)) {
         journalSettingId = get(settings, '0.id', '');
