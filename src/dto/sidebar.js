@@ -2,9 +2,9 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import uniqueId from 'lodash/uniqueId';
 import cloneDeep from 'lodash/cloneDeep';
-import isEmpty from 'lodash/isEmpty';
 
 import { MenuSettings as ms } from '../constants/menu';
+import MenuConverter from './menu';
 
 export default class SidebarConverter {
   static getMenuListWeb(source = [], lvl = 0) {
@@ -22,8 +22,7 @@ export default class SidebarConverter {
         set(targetItem, 'params.collapsible', collapsible === undefined ? lvl > 0 : collapsible !== false);
         set(targetItem, 'params.collapsed', collapsed === undefined ? lvl > 0 : collapsed !== false);
 
-        targetItem.label = isEmpty(targetItem.label) ? get(item, '_remoteData_.label') : targetItem.label;
-
+        targetItem.label = MenuConverter.getSpecialLabel(item);
         if (ms.ItemTypes.JOURNAL === item.type) {
           set(targetItem, 'params.journalId', get(item, '_remoteData_.journalId'));
         } else if (ms.ItemTypes.LINK_CREATE_CASE === item.type) {
