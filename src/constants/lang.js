@@ -1,5 +1,6 @@
 export const LANGUAGE_RU = 'ru';
 export const LANGUAGE_EN = 'en';
+export const LANGUAGE_ES = 'es';
 const IMG_V = '2';
 
 export const allowedLanguages = [
@@ -9,8 +10,8 @@ export const allowedLanguages = [
     img: `${process.env.PUBLIC_URL}/img/language-flags/${LANGUAGE_EN}.png?v=${IMG_V}`
   },
   {
-    id: LANGUAGE_RU,
-    label: 'Рус',
-    img: `${process.env.PUBLIC_URL}/img/language-flags/${LANGUAGE_RU}.png?v=${IMG_V}`
+    id: LANGUAGE_ES,
+    label: 'Esp',
+    img: `${process.env.PUBLIC_URL}/img/language-flags/${LANGUAGE_ES}.png?v=${IMG_V}`
   }
 ];
