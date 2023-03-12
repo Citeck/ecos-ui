@@ -1,4 +1,4 @@
-import { put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
 import {
@@ -15,11 +15,18 @@ import {
   setComments,
   setError,
   updateCommentRequest,
-  updateCommentSuccess
+  updateCommentSuccess,
+  uploadFilesInComment,
+  uploadFilesFinally
 } from '../actions/comments';
 import { selectAllComments } from '../selectors/comments';
 import { getCommentForWeb } from '../dto/comments';
-import { t } from '../helpers/util';
+import { isNodeRef, t } from '../helpers/util';
+import { uploadFile, uploadFileV2 } from './documents';
+import { setUploadError } from '../actions/documents';
+import Records from '../components/Records/Records';
+import DocumentsConverter from '../dto/documents';
+import { get } from 'lodash';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
@@ -70,6 +77,10 @@ function* sagaCreateComment({ api, logger }, action) {
       })
     );
     logger.error('[comments sagaCreateComment saga error', e);
+  } finally {
+    if (action.payload && action.payload.callback && typeof action.payload.callback === 'function') {
+      action.payload.callback();
+    }
   }
 }
 
@@ -78,13 +89,11 @@ function* sagaUpdateComment({ api, logger }, action) {
     const {
       payload: { comment, nodeRef }
     } = action;
-
     yield put(sendingStart(nodeRef));
     yield api.comments.update(action.payload.comment);
 
     let comments = yield select(state => selectAllComments(state, nodeRef));
     const commentIndex = comments.findIndex(item => item.id === comment.id);
-
     comments[commentIndex].text = comment.text;
 
     yield put(updateCommentSuccess({ comments, nodeRef }));
@@ -106,6 +115,66 @@ function* sagaUpdateComment({ api, logger }, action) {
       })
     );
     logger.error('[comments sagaUpdateComment saga error', e);
+  } finally {
+    if (action.payload && action.payload.callback && typeof action.payload.callback === 'function') {
+      action.payload.callback();
+    }
+  }
+}
+
+function* sagaUploadFilesInComment({ api, logger }, { payload }) {
+  let fileRecords;
+
+  try {
+    const createVariants = yield call(api.documents.getCreateVariants, payload.type);
+
+    let fileUploadFunc;
+    if (isNodeRef(payload.record)) {
+      fileUploadFunc = uploadFile;
+    } else {
+      fileUploadFunc = uploadFileV2;
+    }
+    const files = yield payload.files.map(function*(file) {
+      return yield fileUploadFunc({ api, file, callback: payload.callback });
+    });
+
+    let recordRef = get(createVariants, 'recordRef');
+    if (!recordRef) {
+      recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
+    }
+
+    fileRecords = yield files.map(function*(file) {
+      const record = yield call(
+        api.documents.uploadFilesWithNodes,
+        DocumentsConverter.getUploadAttributes({
+          record: payload.record,
+          type: payload.type,
+          content: file,
+          createVariants
+        }),
+        recordRef
+      );
+
+      return {
+        ...file,
+        fileRecordId: record.id
+      };
+    });
+    NotificationManager.success(
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
+    );
+  } catch (e) {
+    yield put(setUploadError({ ...payload, message: e.message }));
+    logger.error('[comments sagaUploadFilesInComment saga error', e);
+    NotificationManager.error(
+      t(payload.files.length > 1 ? 'documents-widget.notification.add-many.error' : 'documents-widget.notification.add-one.error'),
+      t('error')
+    );
+  } finally {
+    yield put(uploadFilesFinally(payload.key));
+    if (payload.uploadCallback) {
+      yield call(payload.uploadCallback, fileRecords);
+    }
   }
 }
 
@@ -141,6 +210,7 @@ function* sagaDeleteComment({ api, logger }, { payload }) {
 }
 
 function* saga(ea) {
+  yield takeEvery(uploadFilesInComment().type, sagaUploadFilesInComment, ea);
   yield takeEvery(getComments().type, sagaGetComments, ea);
   yield takeEvery(createCommentRequest().type, sagaCreateComment, ea);
   yield takeEvery(updateCommentRequest().type, sagaUpdateComment, ea);

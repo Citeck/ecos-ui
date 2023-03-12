@@ -1,0 +1,92 @@
+@import '../../../../styles/constants.scss';
+
+.rt-editor-theme {
+  &__list {
+    &-item {
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  &__nested-list-item {
+    list-style-type: none;
+  }
+
+  &__ul {
+    margin: 0 32px;
+    list-style-position: inside;
+    list-style: initial;
+  }
+
+  &__text {
+    &_bold {
+      font-weight: bold;
+    }
+
+    &_italic {
+      font-style: italic;
+    }
+
+    &_underline {
+      text-decoration: underline;
+    }
+
+    &_strike-through {
+      text-decoration: line-through;
+    }
+
+    &_underline-strike-through {
+      text-decoration: underline line-through;
+    }
+
+    &_subscript {
+      font-size: 0.8em;
+      vertical-align: sub !important;
+    }
+
+    &_superscript {
+      font-size: 0.8em;
+      vertical-align: super;
+    }
+
+    &_code {
+      background-color: rgb(240, 242, 245);
+      padding: 1px 0.25rem;
+      font-family: monospace;
+    }
+  }
+
+  &__preview {
+    display: inline-flex;
+    align-items: flex-end;
+    height: 150px;
+    width: 150px;
+    border: 1px solid $color-gray-5;
+    caret-color: transparent;
+    position: relative;
+    border-radius: 16px;
+    margin-right: 8px;
+    box-shadow: $box-shadow-tooltip;
+
+    &:hover {
+      opacity: 0.5;
+
+      & .load-icon {
+        display: inline;
+      }
+    }
+
+    &-note {
+      padding: 16px;
+      width: 100%;
+      border-top: 1px solid $color-gray-5;
+    }
+
+    & .load-icon {
+      display: none;
+      position: absolute;
+      top: 45%;
+      left: 45%;
+    }
+  }
+}

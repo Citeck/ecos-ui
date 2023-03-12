@@ -1,49 +1,46 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { stateToHTML } from 'draft-js-export-html';
-import { convertFromRaw } from 'draft-js';
 import moment from 'moment';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
-
+import isNil from 'lodash/isNil';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { Avatar, Loader, Popper } from '../../common/index';
 import { t } from '../../../helpers/export/util';
 import { num2str } from '../../../helpers/util';
 import { Btn } from '../../common/btns';
 import { Badge } from '../../common/form';
+import RichTextEditor from '../../RichTextEditor';
 import { CommentInterface } from './propsInterfaces';
+import { selectStateByNodeRef } from '../../../selectors/comments';
 
-class Comment extends Component {
+import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '../../../actions/comments';
+import { isFunction } from 'lodash';
+
+export class Comment extends Component {
   static propTypes = {
     comment: PropTypes.shape(CommentInterface),
     userName: PropTypes.string,
-    actionFailed: PropTypes.bool,
-    onEdit: PropTypes.func,
-    onDelete: PropTypes.func
+    actionFailed: PropTypes.bool
   };
 
   state = {
     isOpenConfirmDialog: false,
-    isLoading: false
+    isLoading: false,
+    isEdit: false
   };
+
+  get canSendComment() {
+    const { saveIsLoading } = this.props;
+
+    return !saveIsLoading;
+  }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (prevProps.actionFailed && !this.props.actionFailed && this.state.isLoading) {
       this.setState({ isLoading: false });
     }
-  }
-
-  get convertedComment() {
-    const { comment } = this.props;
-    let convertedComment;
-
-    try {
-      convertedComment = stateToHTML(convertFromRaw(JSON.parse(comment.text)));
-    } catch (e) {
-      convertedComment = comment.text;
-    }
-
-    return convertedComment;
   }
 
   formatDate(date = new Date()) {
@@ -81,11 +78,20 @@ class Comment extends Component {
   }
 
   handleEditComment = () => {
-    const { comment, onEdit } = this.props;
+    this.setState({
+      isEdit: true
+    });
+  };
 
-    if (typeof onEdit === 'function') {
-      onEdit(comment.id);
-    }
+  handleCloseEditor = () => {
+    const { onClose } = this.props;
+
+    this.setState({
+      isEdit: false,
+      htmlString: ''
+    });
+
+    isFunction(onClose) && onClose();
   };
 
   toggleConfirmDialog = () => {
@@ -97,11 +103,8 @@ class Comment extends Component {
   };
 
   handleConfirmDeletion = () => {
-    const { comment, onDelete } = this.props;
-
-    if (typeof onDelete === 'function') {
-      onDelete(comment.id);
-    }
+    const { comment, deleteComment, nodeRef } = this.props;
+    isFunction(deleteComment) && deleteComment(nodeRef, comment.id);
 
     this.toggleLoading();
   };
@@ -199,9 +202,90 @@ class Comment extends Component {
     });
   }
 
+  handleEditorStateChange = (editorState, editor) => {
+    editor.update(() => {
+      const htmlComment = $generateHtmlFromNodes(editor, null);
+      if (!isNil(htmlComment)) {
+        this.setState({
+          htmlComment,
+          rawComment: JSON.stringify(editorState)
+        });
+      }
+    });
+  };
+
+  handleSaveComment = () => {
+    const { saveIsLoading } = this.props;
+
+    if (saveIsLoading) {
+      return;
+    }
+
+    const { updateComment, createComment, comment, nodeRef, dataStorageFormat } = this.props;
+    const { htmlComment, rawComment } = this.state;
+    let text = '';
+    switch (dataStorageFormat) {
+      case 'raw':
+        text = rawComment;
+        break;
+      case 'html':
+        text = htmlComment;
+        text = text.replace(/<br>\n/gim, '<br/>');
+        break;
+      case 'plain-text':
+      default:
+        text = htmlComment;
+    }
+
+    const callback = () => {
+      this.handleCloseEditor();
+      this.toggleLoading();
+    };
+
+    this.toggleLoading();
+    comment === null ? createComment(nodeRef, text, callback) : updateComment(nodeRef, { id: comment.id, text }, callback);
+  };
+
+  renderEditor() {
+    const { saveIsLoading, comment } = this.props;
+    const { isLoading } = this.state;
+
+    return (
+      <div className="ecos-comments__editor">
+        {isLoading && <Loader blur />}
+        <RichTextEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
+        <div className="ecos-comments__editor-footer">
+          <div className="ecos-comments__editor-footer-btn-wrapper">
+            <Btn
+              className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__editor-footer-btn"
+              onClick={this.handleCloseEditor}
+              disabled={saveIsLoading}
+            >
+              {t('comments-widget.editor.cancel')}
+            </Btn>
+            <Btn
+              className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
+              onClick={this.handleSaveComment}
+              disabled={!this.canSendComment}
+              loading={saveIsLoading}
+            >
+              {t('comments-widget.editor.save')}
+            </Btn>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const { comment } = this.props;
-    const { id, avatar = '', firstName, lastName, middleName, displayName, canEdit = false, canDelete = false } = comment;
+
+    if (comment === null) {
+      return this.renderEditor();
+    }
+
+    const { id, avatar = '', firstName, lastName, middleName, displayName, text, canEdit = false, canDelete = false } = comment;
+    const { isEdit } = this.state;
 
     return (
       <div className="ecos-comments__comment" key={id}>
@@ -225,24 +309,29 @@ class Comment extends Component {
 
             <div className="ecos-comments__comment-header-column ecos-comments__comment-tag-container">{this.renderTags()}</div>
           </div>
-          <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
-            {canEdit && (
-              <div
-                className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
-                title={t('comments-widget.icon.edit')}
-                onClick={this.handleEditComment}
-              />
-            )}
-            {canDelete && (
-              <div
-                className="ecos-comments__comment-btn ecos-comments__comment-btn-delete icon-delete"
-                title={t('comments-widget.icon.delete')}
-                onClick={this.toggleConfirmDialog}
-              />
-            )}
-          </div>
+          {!isEdit && (
+            <div className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions">
+              {canEdit && (
+                <div
+                  className="ecos-comments__comment-btn ecos-comments__comment-btn-edit icon-edit"
+                  title={t('comments-widget.icon.edit')}
+                  onClick={this.handleEditComment}
+                />
+              )}
+              {canDelete && (
+                <div
+                  className="ecos-comments__comment-btn ecos-comments__comment-btn-delete icon-delete"
+                  title={t('comments-widget.icon.delete')}
+                  onClick={this.toggleConfirmDialog}
+                />
+              )}
+            </div>
+          )}
         </div>
-        <div className="ecos-comments__comment-text" dangerouslySetInnerHTML={{ __html: this.convertedComment }} />
+        {!isEdit && (
+          <RichTextEditor readonly className="ecos-comments__comment-editor" htmlString={text} onChange={this.handleEditorStateChange} />
+        )}
+        {isEdit && this.renderEditor()}
 
         {this.renderConfirmDelete(id)}
       </div>
@@ -250,4 +339,21 @@ class Comment extends Component {
   }
 }
 
-export default Comment;
+const mapStateToProps = (state, ownProps) => ({
+  ...selectStateByNodeRef(state, ownProps.record),
+  isMobile: state.view.isMobile,
+  userName: state.user.userName
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  getComments: () => dispatch(getComments(ownProps.record)),
+  createComment: (nodeRef, comment, callback) => dispatch(createCommentRequest({ comment, nodeRef, callback })),
+  updateComment: (nodeRef, comment, callback) => dispatch(updateCommentRequest({ comment, nodeRef, callback })),
+  deleteComment: (nodeRef, id, callback) => dispatch(deleteCommentRequest({ id, nodeRef, callback })),
+  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.record }))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Comment);

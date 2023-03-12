@@ -1,0 +1,10 @@
+@import '../../../../styles/constants.scss';
+
+.ecos-rt-editor-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: $font-size-15;
+  color: $color-gray-7;
+  pointer-events: none;
+}
