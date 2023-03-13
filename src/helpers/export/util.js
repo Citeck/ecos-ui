@@ -23,7 +23,7 @@ export function getCurrentLocale() {
 
   const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
 
-  return language.substr(0, 2).toLowerCase();
+  return LOCALE_EN;
 }
 
 export function t(key, options, scope = 'global') {
