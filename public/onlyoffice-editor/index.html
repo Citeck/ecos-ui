@@ -53,18 +53,24 @@
   const params = getQueryParams();
 
   fetch('/gateway/transformations/api/doc-editor/onlyoffice/config?ref=' + params.ref)
-    .then(r => r.json())
-    .then(config => {
-      new DocsAPI.DocEditor("placeholder", {
-        onlyofficeUrl: '/onlyoffice/',
-        ...config,
-        type: "desktop",
-        width: "100%",
-        height: "100%"
+    .then(response => {
+      return response.json().then(configOrError => {
+        if (response.ok) {
+          new DocsAPI.DocEditor("placeholder", {
+            onlyofficeUrl: '/onlyoffice/',
+            ...configOrError,
+            type: "desktop",
+            width: "100%",
+            height: "100%"
+          });
+        } else {
+          throw new Error(configOrError.detail || response.statusText);
+        }
       });
     }).catch(e => {
-
-  });
+      alert("Server error: " + e.message);
+      console.error("Server error: ", e);
+    });
 </script>
 </body>
 </html>
