@@ -167,14 +167,14 @@ export default class MenuConverter {
   }
 
   static getSpecialLabel(item) {
-    let label = get(item, '_remoteData_.label') || item.label;
+    let label = item.label || get(item, '_remoteData_.label');
 
     switch (item.type) {
       case MenuSettings.ItemTypes.START_WORKFLOW:
         label = item.label || get(item, '_remoteData_.label') || replace(get(item, 'config.processDef'), SourcesId.BPMN_DEF, '');
         break;
       case MenuSettings.ItemTypes.JOURNAL:
-        label = label || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
+        label = get(item, '_remoteData_.label') || item.label || replace(get(item, 'config.recordRef'), SourcesId.JOURNAL, '');
         break;
       default:
         break;
