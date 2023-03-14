@@ -169,19 +169,21 @@ export const TableFormContextProvider = props => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
 
-    record.toJsonAsync(true).then(res => {
+    record.toJsonAsync(true).then(async res => {
       const attributes = cloneDeep(res.attributes);
       const restAttrs = Object.keys(attributes);
-      const unresolvedCols = columns.filter(item => {
-        if (item.attribute in res.attributes) {
-          const index = restAttrs.findIndex(value => value === item.attribute);
+
+      for (let column of columns) {
+        if (column.attribute in attributes) {
+          const index = restAttrs.findIndex(value => value === column.attribute);
+          const displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
           restAttrs.splice(index, 1);
-          return false;
+          if (displayName) {
+            attributes[column.attribute] = displayName;
+          }
         }
-
-        return true;
-      });
-
+      }
+      const unresolvedCols = columns.filter(item => !(item.attribute in res.attributes));
       unresolvedCols.forEach(col => {
         const similarAttr = restAttrs.find(att => col.attribute.includes(att));
 
@@ -276,8 +278,23 @@ export const TableFormContextProvider = props => {
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
 
-          record.toJsonAsync(true).then(res => {
-            const newRow = { ...res['attributes'], id: editRecordId, [LOCAL_ID]: editRecordId };
+          const createNewRow = async (initialRow, originColumn, editedRecord, attributes) => {
+            const attrs = Object.keys(originColumn);
+            const recordWithOriginalColumnKeys = await editedRecord.load(attrs);
+            let newRow = { ...initialRow, ...recordWithOriginalColumnKeys };
+            const attrsWithoutScalar = attrs.filter(att => att.indexOf('?') === -1);
+            for (const att of attrsWithoutScalar) {
+              if (attributes[att]) {
+                const displayName = await Records.get(attributes[att]).load('.disp');
+                newRow = displayName ? { ...newRow, [att]: displayName } : { ...newRow };
+              }
+            }
+
+            return newRow;
+          };
+
+          record.toJsonAsync(true).then(async res => {
+            let newRow = { ...res['attributes'], id: editRecordId, [LOCAL_ID]: editRecordId };
 
             if (isAlias) {
               // replace base record row by newRow in values list
@@ -285,6 +302,8 @@ export const TableFormContextProvider = props => {
               const baseRecordId = baseRecord.id;
               const baseRecordIndex = gridRows.findIndex(item => item.id === baseRecordId);
               if (baseRecordIndex !== -1) {
+                newRow = await createNewRow(newRow, newGridRows[baseRecordIndex], record, res['attributes']);
+                newRow = { ...newRow, id: editRecordId, [LOCAL_ID]: editRecordId };
                 newGridRows = [...newGridRows.slice(0, baseRecordIndex), newRow, ...newGridRows.slice(baseRecordIndex + 1)];
               }
 
@@ -294,6 +313,8 @@ export const TableFormContextProvider = props => {
             // add or update record alias
             const editRecordIndex = newGridRows.findIndex(item => item.id === record.id);
             if (editRecordIndex !== -1) {
+              newRow = await createNewRow(newRow, newGridRows[editRecordIndex], record, res['attributes']);
+              newRow = { ...newRow, id: editRecordId, [LOCAL_ID]: editRecordId };
               newGridRows = [...newGridRows.slice(0, editRecordIndex), newRow, ...newGridRows.slice(editRecordIndex + 1)];
             } else {
               newGridRows.push(newRow);
