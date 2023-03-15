@@ -616,6 +616,7 @@
   "record-action.msg.success.text": "Action's completed",
   "record-action.msg.status.start-n-wait": "Action started\nPending execution",
   "record-action.msg.info.started": "Action started",
+  "record-action.msg.form-key-not-found": "Form key not found",
 
   "action.edit.label": "Edit",
   "action.view.label": "View",
