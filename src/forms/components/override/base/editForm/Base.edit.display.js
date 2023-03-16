@@ -13,6 +13,16 @@ BaseEditDisplay.push({
 });
 
 const labelPosition = BaseEditDisplay.find(item => item.key === 'labelPosition');
+const label = BaseEditDisplay.find(item => item.key === 'label');
+
+if (label) {
+  label.validate.required = false;
+  label.tooltip = {
+    get label() {
+      return t('form-editor.label-field-tooltip');
+    }
+  };
+}
 
 if (labelPosition) {
   labelPosition.data.values = [
