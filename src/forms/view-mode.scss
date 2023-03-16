@@ -213,7 +213,17 @@
 }
 
 .formio-form {
+  .component-btn-group {
+    .tooltip {
+      display: none;
+    }
+  }
+
   .tooltip {
-    display: none;
+    max-width: 100%;
+
+    &-inner {
+      max-width: 100% !important;
+    }
   }
 }
