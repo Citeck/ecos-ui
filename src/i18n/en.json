@@ -1653,6 +1653,7 @@
   "form-editor.help": "Help",
   "form-editor.open-comp-doc": "Open documentation {{name}}",
   "form-editor.submit-button": "Submit",
+  "form-editor.label-field-tooltip": "If field is empty, the name is taken from attribute",
 
   "form-constructor.tabs.basic": "Basic",
   "form-constructor.tabs.display-reworked": "View",

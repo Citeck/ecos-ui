@@ -1650,6 +1650,7 @@
   "form-editor.help": "Помощь",
   "form-editor.open-comp-doc": "Открыть документацию {{name}}",
   "form-editor.submit-button": "Отправить",
+  "form-editor.label-field-tooltip": "Если поле пустое, имя берется из атрибута",
 
   "form-constructor.tabs.basic": "Базовые",
   "form-constructor.tabs.display-reworked": "Вид",
