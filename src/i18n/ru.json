@@ -688,6 +688,7 @@
   "record-action.edit-journal-preset.msg.deleted-success": "Шаблон удален",
   "record-action.edit-journal-preset.modal.title.create": "Создание шаблона",
   "record-action.edit-journal-preset.modal.title.edit": "Редактирование шаблона",
+  "record-action.msg.form-key-not-found": "Form key не установлен",
 
   "records-actions.actions": "Действия",
   "records-actions.create": "Создать",
