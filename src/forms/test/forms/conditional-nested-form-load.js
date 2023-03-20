@@ -35,7 +35,7 @@ export default {
           data: {
             textField2: 'text',
             checkbox2: false,
-            form: { data: {} }
+            form: { data: {}, metadata: {} }
           }
         });
         expect(fetchMock.calls(url).length).toBe(0);
@@ -43,7 +43,7 @@ export default {
           data: {
             textField2: '',
             checkbox2: true,
-            form: { data: {} }
+            form: { data: {}, metadata: {} }
           }
         });
         expect(fetchMock.calls(url).length).toBe(0);

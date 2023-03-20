@@ -8,7 +8,7 @@
   }
 
   &-label {
-    @extend button.ecos-btn;
+    @extend button, .ecos-btn;
 
     display: block;
     margin: 0;
