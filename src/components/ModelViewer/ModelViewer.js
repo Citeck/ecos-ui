@@ -1,5 +1,5 @@
 import NavigatedViewer from 'bpmn-js/lib/NavigatedViewer';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
@@ -10,6 +10,7 @@ import BaseModeler from '../ModelEditor/BaseModeler';
 import plugins from '../../../src/plugins';
 import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
 import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
+import { Sheet } from './Sheet';
 
 const _extendModeler = new BaseModeler();
 
@@ -97,32 +98,7 @@ export default class ModelViewer {
     this.redrawHeatmap();
   };
 
-  Sheet = ({ diagram, onMounted, onInit, defHeight, modelEvents, ...props }) => {
-    const [initialized, setInitialized] = useState(false);
-    const containerRef = useRef(null);
-    const events = {};
-
-    for (const key in props) {
-      if (Object.hasOwnProperty.call(props, key) && key.startsWith('on')) {
-        events[key] = props[key];
-      }
-    }
-
-    useEffect(() => {
-      if (!initialized && get(containerRef, 'current')) {
-        setInitialized(true);
-        this.init({
-          diagram,
-          container: containerRef.current,
-          onInit,
-          onMounted,
-          modelEvents
-        });
-      }
-    }, [initialized, containerRef]);
-
-    return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={ModelViewer.querySelector} {...events} />;
-  };
+  renderSheet = props => <Sheet {...props} init={this.init} />;
 
   /**
    * Draw Heatmap

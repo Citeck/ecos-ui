@@ -125,6 +125,13 @@ export default class FileComponent extends FormIOFileComponent {
     return createDocumentUrl(recordRef);
   }
 
+  buildFileProcessingLoader() {
+    const isRootLoading = get(this, 'root.loader');
+    if (isRootLoading) {
+      super.buildFileProcessingLoader();
+    }
+  }
+
   checkConditions(data) {
     const result = super.checkConditions(data);
 
