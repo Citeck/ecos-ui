@@ -704,23 +704,21 @@ class ModelEditorPage extends React.Component {
     const { savedModel } = this.props;
 
     if (savedModel) {
-      return (
-        <this.designer.Sheet
-          diagram={savedModel}
-          onClickElement={this.handleSelectItem}
-          onMounted={this.handleReadySheet}
-          onChangeElement={this.handleChangeElement}
-          onChangeElementLabel={this.handleChangeLabel}
-          extraEvents={{
-            [EventListeners.CREATE_END]: this.handleElementCreateEnd,
-            [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
-            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
-            [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.ROOT_SET]: this.handleSetRoot,
-            [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
-          }}
-        />
-      );
+      return this.designer.renderSheet({
+        diagram: savedModel,
+        onClickElement: this.handleSelectItem,
+        onMounted: this.handleReadySheet,
+        onChangeElement: this.handleChangeElement,
+        onChangeElementLabel: this.handleChangeLabel,
+        extraEvents: {
+          [EventListeners.CREATE_END]: this.handleElementCreateEnd,
+          [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
+          [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
+          [EventListeners.DRAG_START]: this.handleDragStart,
+          [EventListeners.ROOT_SET]: this.handleSetRoot,
+          [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
+        }
+      });
     } else {
       return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;
     }
