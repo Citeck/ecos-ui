@@ -20,13 +20,17 @@ export default class AttributeActionsResolver extends RecordActionsResolver {
       config: { attribute = '_actions' }
     } = action;
     const actions = await Records.get(records).load(attribute + '[]{' + ACTION_ATTS_TO_LOAD.join(',') + '}', true);
+
     if (actions) {
       let result = {};
+
       for (let i = 0; i < actions.length; i++) {
         result[records[i].id] = actions[i];
       }
+
       return result;
     }
+
     return {};
   }
 
