@@ -134,10 +134,11 @@
   "devDependencies": {
     "@babel/core": "7.21.3",
     "@babel/helper-define-map": "^7.8.0",
-    "@babel/helper-module-transforms": "7.10.5",
-    "@babel/helper-plugin-utils": "7.10.4",
+    "@babel/helper-module-transforms": "7.19.6",
+    "@babel/helper-plugin-utils": "7.19.0",
     "babel-loader": "8.1.0",
     "babel-plugin-named-asset-import": "^0.3.6",
+    "babel-preset-react-app": "10.0.1",
     "bpmnlint": "8.1.1",
     "chance": "1.1.6",
     "cross-env": "5.2.0",
