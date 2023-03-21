@@ -165,7 +165,10 @@ Webform.prototype.submit = function(before, options) {
       originalSubmit
         .call(form, before, options)
         .then(resolve)
-        .catch(reject);
+        .catch(reject)
+        .finally(() => {
+          form.loading = false;
+        });
     };
 
     let fireSubmit = finishTime => {
