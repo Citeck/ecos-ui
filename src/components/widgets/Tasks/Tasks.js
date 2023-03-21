@@ -94,8 +94,9 @@ class Tasks extends React.Component {
     changeTaskAssignee(sentData);
   };
 
-  onSubmitForm = () => {
-    Records.get(this.props.record).update();
+  onSubmitForm = async () => {
+    await Records.get(this.props.record).update();
+
     this.getTaskList();
   };
 
