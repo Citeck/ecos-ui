@@ -1,10 +1,20 @@
+image: node:14.21-alpine
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - .yarn/cache/
+
 stages:
   - testing
 
 testing:
   tags:
-    - shell
+    - kuber-run
   stage: testing
+  before_script:
+    - yarn install --frozen-lockfile
   script:
     - yarn && yarn test --watchAll=false
   rules:
