@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
+
 import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
-import { Sheet } from './Sheet';
 
 /**
  * Expansion for Modeler
@@ -244,7 +244,31 @@ export default class BaseModeler {
    * see available events
    * @return {ReactComponent}
    */
-  renderSheet = props => <Sheet {...props} init={this.init} />;
+  Sheet = ({ diagram, onMounted, extraEvents, ...props }) => {
+    const [initialized, setInitialized] = useState(false);
+    const containerRef = useRef(null);
+    const events = {};
+
+    Object.keys(props)
+      .filter(key => key.startsWith('on'))
+      .forEach(key => (events[key] = props[key]));
+
+    useEffect(() => {
+      if (!initialized && get(containerRef, 'current')) {
+        this.init({
+          diagram,
+          container: containerRef.current,
+          events,
+          extraEvents,
+          callback: res => onMounted(true, res)
+        });
+        setInitialized(true);
+      }
+    }, [initialized, containerRef]);
+
+    return <div ref={containerRef} className={BaseModeler.querySelector} />;
+  };
+
   destroy = () => {
     if (this.events) {
       this.events.onSelectElement && this.modeler.off('selection.changed', this.events.onSelectElement);

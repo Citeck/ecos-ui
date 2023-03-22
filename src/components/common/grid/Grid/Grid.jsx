@@ -191,8 +191,9 @@ class Grid extends Component {
         const proratedSizeCell = (table.parentElement.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
         const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
         const max = Math.max(clearedSizeCell, MAX_START_TH_WIDTH);
+
         if (cellLen > 1 && table.clientWidth > table.parentElement.clientWidth) {
-          Array.from(thCells).forEach(cell => cell.clientWidth > max && (cell.style.width = cssNum(max)));
+          thCells.forEach(cell => cell.clientWidth > max && (cell.style.width = cssNum(max)));
         }
       }
     }
