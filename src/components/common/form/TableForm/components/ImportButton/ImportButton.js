@@ -8,7 +8,6 @@ import { t } from '../../../../../../helpers/util';
 
 const ImportButton = () => {
   const context = useContext(TableFormContext);
-  const fileRef = useRef();
 
   const { gridRows } = context;
   const { disabled, multiple, viewOnly, displayElements, importButton } = context.controlProps;
@@ -32,6 +31,7 @@ const ImportButton = () => {
     isButtonDisabled = true;
   }
 
+  const fileRef = useRef();
   const onClick = () => {
     fileRef.current.value = '';
     fileRef.current.click();

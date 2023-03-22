@@ -46,7 +46,7 @@
     }
 
     &-2 {
-      animation-delay: (-$delayRange * 0.5);
+      animation-delay: (-$delayRange / 2);
     }
   }
 }
