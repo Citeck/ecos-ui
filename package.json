@@ -81,7 +81,6 @@
     "vanilla-text-mask": "^5.1.1"
   },
   "scripts": {
-    "preinstall": "rm -rf node_modules",
     "start": "npm-run-all clean export:dev start:react",
     "start:react": "react-scripts --max_old_space_size=2048 start",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
