@@ -145,7 +145,11 @@ export const getTemplateUrl = nodeRef => {
 };
 
 export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scale=5.0&margins=20,200,20,500') => {
-  return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
+  if (record.indexOf('workspace://SpacesStore/') !== -1) {
+    return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
+  } else {
+    return `/gateway/transformations/api/barcode/image?entityRef=${record}&print=true`;
+  }
 };
 
 export const goToJournalsPage = options => {
