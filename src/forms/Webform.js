@@ -159,7 +159,6 @@ Webform.prototype.submit = function(before, options) {
   return new Promise((resolve, reject) => {
     const callSubmit = () => {
       form.previSubmitTime = new Date().getTime();
-      form.loading = true;
 
       form.setValue(merge(form.submission, { data: outcomeButtonsAttributes }));
       originalSubmit
