@@ -15,6 +15,7 @@ const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototyp
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
 
 Webform.prototype.submitForm = function(options) {
+  this.submitActionDone = true;
   const result = originalSubmitForm.call(this, options);
 
   this.withoutLoader = get(options, 'withoutLoader');
@@ -99,6 +100,7 @@ Webform.prototype.setElement = function(element) {
 
 Webform.prototype.onSubmit = function(submission, saved) {
   this.submitting = false;
+  this.submitActionDone = true;
   this.setPristine(true);
   this.setValue(submission, {
     noValidate: true,
