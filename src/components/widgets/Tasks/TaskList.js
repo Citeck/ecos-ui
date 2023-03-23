@@ -51,7 +51,7 @@ class TaskList extends React.Component {
   }
 
   renderTaskDetailsList() {
-    const { tasks, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate } = this.props;
+    const { tasks, onAssignClick, onSubmitForm, className, isSmallMode, runUpdate, setFormRef } = this.props;
 
     if (isEmpty(tasks)) {
       return null;
@@ -66,6 +66,7 @@ class TaskList extends React.Component {
           className={className}
           isSmallMode={isSmallMode}
           runUpdate={runUpdate}
+          setFormRef={setFormRef}
         />
       </React.Fragment>
     ));
