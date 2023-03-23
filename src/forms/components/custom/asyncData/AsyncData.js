@@ -497,6 +497,11 @@ export default class AsyncDataComponent extends BaseComponent {
   setValue(value, flags) {
     const { ignoreValuesEqualityChecking } = this.component;
 
+    const submitActionDone = get(this.root, 'submitActionDone');
+    if (submitActionDone) {
+      return;
+    }
+
     if (ignoreValuesEqualityChecking || !isEqual(this.dataValue, value)) {
       flags = this.getFlags.apply(this, arguments);
 
