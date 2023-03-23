@@ -84,9 +84,18 @@ export function renderUsernameString(str, replacements) {
 
   function getObjPath(path, obj, fallback = '') {
     return path.split('.').reduce((res, key) => {
-      return res[key] || res[`cm:${key}`] || res[`ecos:${key}`] || fallback;
+      const result = getKeyFromUserObject(res, key, fallback);
+
+      if (!result) {
+        const extraFieldObj = res['extraFields'] || {};
+        return getKeyFromUserObject(extraFieldObj, key, fallback);
+      }
+
+      return result;
     }, obj);
   }
+
+  const getKeyFromUserObject = (user, key, fallback = '') => user[key] || user[`cm:${key}`] || user[`ecos:${key}`] || fallback;
 
   return interpolate(str, replacements);
 }
