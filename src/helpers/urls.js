@@ -148,7 +148,7 @@ export const getBarcodePrintUrl = (record, settings = 'barcodeType=code-128&scal
   if (record.indexOf('workspace://SpacesStore/') !== -1) {
     return `${PROXY_URI}citeck/print/barcode?nodeRef=${record}&${settings}&print=true`;
   } else {
-    return `/gateway/transformations/api/barcode/image?entityRef=${record}&print=true`;
+    return `/gateway/transformations/api/barcode/image?entityRef=${record}&width=100&height=100&print=true`;
   }
 };
 
