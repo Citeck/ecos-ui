@@ -83,6 +83,7 @@ export default class FileComponent extends FormIOFileComponent {
 
   static extractFileRecordRef(file) {
     let recordRef = null;
+
     if (file.data && file.data.entityRef) {
       recordRef = file.data.entityRef;
     } else if (file.data && file.data.recordRef) {
@@ -96,13 +97,17 @@ export default class FileComponent extends FormIOFileComponent {
         throw new Error("Can't extract recordRef");
       }
 
-      const queryPart = documentUrlParts[1];
-      const urlParams = queryString.parse(queryPart);
-      if (!urlParams.recordRef && !urlParams.nodeRef) {
+      let urlParams = queryString.parse(documentUrlParts[1]);
+
+      if (!urlParams.recordRef && !urlParams.nodeRef && !urlParams.ref) {
         throw new Error("Can't extract recordRef");
       }
 
-      recordRef = urlParams.recordRef || urlParams.nodeRef;
+      if (urlParams.ref) {
+        urlParams.ref = `emodel/${urlParams.ref}`;
+      }
+
+      recordRef = urlParams.recordRef || urlParams.nodeRef || urlParams.ref;
     }
 
     return recordRef;
@@ -298,6 +303,7 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
+      console.log(recordRef);
       linkAttributes.href = getDownloadContentUrl(recordRef);
       linkAttributes.download = true;
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
