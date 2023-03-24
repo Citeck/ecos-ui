@@ -82,7 +82,7 @@ import { ActionTypes } from '../components/Records/actions';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
-import { beArray, hasInString, t } from '../helpers/util';
+import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -784,12 +784,22 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
     const valueToSave = EditorService.getValueToSave(value, currentColumn.multiple);
 
-    yield call(api.journals.saveRecords, {
-      id,
-      attributes: {
-        [attribute]: valueToSave
+    if (isNodeRef(id)) {
+      yield call(api.journals.saveRecords, {
+        id,
+        attributes: {
+          [attribute]: valueToSave
+        }
+      });
+    } else {
+      const record = yield Records.get(id);
+      for (const att in attributes) {
+        if (attributes.hasOwnProperty(att)) {
+          record.att(att, attributes[att]);
+        }
       }
-    });
+      yield record.save();
+    }
 
     grid.columns.forEach(c => {
       tempAttributes[c.attribute] = c.attSchema;
