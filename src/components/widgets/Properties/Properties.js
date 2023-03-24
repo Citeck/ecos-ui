@@ -96,6 +96,7 @@ class Properties extends React.Component {
   onFormChanged = (submission, form) => {
     const { onFormIsChanged } = this.props;
 
+    const changedType = get(submission, 'changed.component.type');
     if (isFunction(onFormIsChanged)) {
       const editedComponent = form.getAllComponents().filter(c => {
         const { persistent } = c.component;
@@ -103,7 +104,7 @@ class Properties extends React.Component {
         return c.valueChangedByUser && persistent && persistent !== 'client-only';
       });
 
-      const isChanged = editedComponent.length;
+      const isChanged = editedComponent.length || changedType === 'button';
 
       onFormIsChanged(isChanged, form.isValid(submission));
     }
