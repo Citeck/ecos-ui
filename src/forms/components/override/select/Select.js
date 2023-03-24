@@ -62,7 +62,7 @@ export default class SelectComponent extends FormIOSelectComponent {
    */
   set scrollLoading(isScrolling) {
     // Only continue if they are different.
-    if (this.isScrollLoading === isScrolling && isScrolling) {
+    if (this.isScrollLoading === isScrolling) {
       return;
     }
     if (isScrolling) {
@@ -80,11 +80,7 @@ export default class SelectComponent extends FormIOSelectComponent {
         true
       );
     } else {
-      const loadingItem = this.scrollList.querySelector('.choices__item--disabled');
-      if (loadingItem) {
-        // Remove the loading text.
-        this.scrollList.removeChild(loadingItem);
-      }
+      this.choices.setChoices([...this.selectOptions], 'value', 'label', true);
     }
 
     this.isScrollLoading = isScrolling;
