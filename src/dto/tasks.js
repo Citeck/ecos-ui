@@ -17,7 +17,7 @@ export default class TasksConverter {
     target.formKey = source.formKey || '';
     target.title = source.title || '';
     target.actors = TasksService.getActorsDisplayNameStr(source.actors);
-    target.sender = (source.sender || {}).displayName || '';
+    target.sender = source.sender || '';
     target.lastcomment = source.lastcomment || '';
     target.started = source.started;
     target.deadline = source.dueDate;
