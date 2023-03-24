@@ -309,12 +309,16 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;
 
+      if (!journalSettingId) {
+        journalSettingId = yield call(api.journals.getLsJournalSettingId, journalConfig.id);
+      }
+
       if (journalSettingId) {
         const preset = yield call([PresetsServiceApi, PresetsServiceApi.getPreset], { id: journalSettingId });
 
-        if (isEmpty(preset)) {
+        if (isEmpty(preset) || isEmpty(preset.settings)) {
           NotificationManager.error(t('journal.presets.error.get-one'));
-          journalSetting = null;
+          journalSetting = getDefaultJournalSetting(journalConfig);
         } else {
           journalSetting = { ...preset.settings };
         }
@@ -758,6 +762,9 @@ function* sagaExecRecordsAction({ api, logger, w }, action) {
       if (get(action, 'payload.action.type', '') !== ActionTypes.BACKGROUND_VIEW) {
         yield put(reloadGrid(w()));
       }
+
+      const executeCallback = get(action, 'payload.action.executeCallback');
+      isFunction(executeCallback) && executeCallback();
     }
   } catch (e) {
     logger.error('[journals sagaExecRecordsAction saga error', e);

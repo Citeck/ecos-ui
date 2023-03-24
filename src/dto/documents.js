@@ -227,7 +227,16 @@ export default class DocumentsConverter {
     const target = {};
     const createVariants = get(source, 'createVariants', {});
 
-    target._parentAtt = get(createVariants, 'attributes._parentAtt', 'icase:documents');
+    let parentAtt = get(createVariants, 'attributes._parentAtt');
+    if (!parentAtt) {
+      if (source.record && source.record.indexOf('workspace://SpacesStore/') !== -1) {
+        parentAtt = 'icase:documents';
+      } else {
+        parentAtt = 'docs:documents';
+      }
+    }
+
+    target._parentAtt = parentAtt;
     target._parent = source.record;
 
     if (source._etype || source.type) {

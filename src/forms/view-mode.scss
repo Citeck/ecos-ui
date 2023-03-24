@@ -213,6 +213,12 @@
 }
 
 .formio-form {
+  .component-btn-group {
+    .tooltip {
+      display: none;
+    }
+  }
+
   .tooltip {
     max-width: 100%;
 

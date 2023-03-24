@@ -218,7 +218,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
         newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
-        dataCards.push({ totalCount: data.totalCount, records: [...prevRecords, ...preparedRecords] });
+        dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords] });
       }
     });
 
@@ -255,20 +255,17 @@ export function* sagaSelectFromUrl({ api, logger }, { payload }) {
 
     const path = type === KANBAN_SELECTOR_MODE.TEMPLATES ? KanbanUrlParams.TEMPLATE_ID : KanbanUrlParams.BOARD_ID;
     const toggleId = type === KANBAN_SELECTOR_MODE.TEMPLATES ? templateId : boardId;
-
-    if (toggleId && get(urlData, ['query', path]) !== toggleId) {
+    if (toggleId !== undefined && get(urlData, ['query', path]) !== toggleId) {
       set(urlData, ['query', path], toggleId);
     }
 
-    if (!isEqual(getSearchParams(), urlData.query)) {
-      yield put(setLoading({ stateId, isLoading: true }));
+    yield put(setLoading({ stateId, isLoading: true }));
 
-      if (type === KANBAN_SELECTOR_MODE.TEMPLATES && settings) {
-        yield sagaApplyFilter({ api, logger }, { payload });
-      }
-
-      yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
+    if (type === KANBAN_SELECTOR_MODE.TEMPLATES && settings) {
+      yield sagaApplyFilter({ api, logger }, { payload });
     }
+
+    yield call([PageService, PageService.changeUrlLink], decodeLink(queryString.stringifyUrl(urlData)), { updateUrl: true });
   } catch (e) {
     logger.error('[kanban/sagaSelectBoard saga] error', e);
   }

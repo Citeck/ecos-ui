@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import Choices from '../../../choices';
 import Base from '../../override/base/Base';
+import { t } from '../../../../helpers/util';
 
 const baseAddInput = Base.prototype.addInput;
 
@@ -42,6 +43,48 @@ export default class SelectComponent extends FormIOSelectComponent {
     }
 
     return this.evaluate(items, {}, 'value', true);
+  }
+
+  /**
+   * Return if the list is loading from scroll. or not.
+   *
+   * @return {boolean|*}
+   */
+  get scrollLoading() {
+    return this.isScrollLoading;
+  }
+
+  /**
+   * Sets the scroll loading state.
+   *
+   * @param isScrolling
+   * @return {undefined|boolean}
+   */
+  set scrollLoading(isScrolling) {
+    // Only continue if they are different.
+    if (this.isScrollLoading === isScrolling) {
+      return;
+    }
+    if (isScrolling) {
+      this.choices.setChoices(
+        [
+          ...this.selectOptions,
+          {
+            value: '',
+            label: t('ecos-ui.select.loading-message'),
+            disabled: true
+          }
+        ],
+        'value',
+        'label',
+        true
+      );
+    } else {
+      this.choices.setChoices([...this.selectOptions], 'value', 'label', true);
+    }
+
+    this.isScrollLoading = isScrolling;
+    return isScrolling;
   }
 
   hideDropdown() {

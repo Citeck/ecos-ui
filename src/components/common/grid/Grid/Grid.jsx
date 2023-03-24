@@ -124,7 +124,7 @@ class Grid extends Component {
       this._tableDom = this.#gridRef.querySelector('table');
     }
 
-    if (isEmpty(prevProps.selected) && !isEmpty(selected) && !isEqual(selected, this.state.selected)) {
+    if (!isEqual(selected, this.state.selected)) {
       this.setState({ selected });
     }
 

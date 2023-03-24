@@ -36,6 +36,8 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class Model extends React.Component {
+  #heatmapData = new Set();
+
   static propTypes = {
     record: PropTypes.string.isRequired,
     stateId: PropTypes.string.isRequired,
@@ -202,9 +204,11 @@ class Model extends React.Component {
       return;
     }
 
-    const data = this.getPreparedHeatData();
+    if (isEmpty(this.#heatmapData)) {
+      this.#heatmapData = new Set([...this.getPreparedHeatData()]);
+    }
 
-    this.designer.heatmap.updateData(data);
+    this.designer.heatmap.updateData(this.#heatmapData);
   };
 
   handleToggleHeatmap = () => {
@@ -217,7 +221,7 @@ class Model extends React.Component {
 
         switch (true) {
           case isHeatmapMounted && !isShowHeatmap:
-            this.designer.heatmap.updateData([]);
+            this.designer.heatmap.updateData(new Set([]));
             break;
           case isShowHeatmap && isModelMounted:
             this.reRenderHeatmap();

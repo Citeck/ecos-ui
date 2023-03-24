@@ -36,6 +36,7 @@ const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
 const originalCreateModal = Base.prototype.createModal;
 const originalOnChange = Base.prototype.onChange;
+const setPristine = Base.prototype.setPristine;
 // Methods <<<
 
 // >>> PropertyDescriptors
@@ -428,6 +429,7 @@ Base.prototype.createInlineEditButton = function(container) {
 
   if (!isComponentDisabled) {
     const onEditClick = async () => {
+      setPristine.call(this, false);
       const components = flattenComponents(this.root.components);
 
       await Promise.all(

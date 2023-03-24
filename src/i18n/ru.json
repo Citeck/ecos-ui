@@ -688,6 +688,7 @@
   "record-action.edit-journal-preset.msg.deleted-success": "Шаблон удален",
   "record-action.edit-journal-preset.modal.title.create": "Создание шаблона",
   "record-action.edit-journal-preset.modal.title.edit": "Редактирование шаблона",
+  "record-action.msg.form-key-not-found": "Form key не установлен",
 
   "records-actions.actions": "Действия",
   "records-actions.create": "Создать",
@@ -1649,6 +1650,7 @@
   "form-editor.help": "Помощь",
   "form-editor.open-comp-doc": "Открыть документацию {{name}}",
   "form-editor.submit-button": "Отправить",
+  "form-editor.label-field-tooltip": "Если поле пустое, имя берется из атрибута",
 
   "form-constructor.tabs.basic": "Базовые",
   "form-constructor.tabs.display-reworked": "Вид",

@@ -15,6 +15,7 @@ const originalPropertyLoading = Object.getOwnPropertyDescriptor(Webform.prototyp
 const originalSetLanguage = Object.getOwnPropertyDescriptor(Webform.prototype, 'language');
 
 Webform.prototype.submitForm = function(options) {
+  this.submitActionDone = true;
   const result = originalSubmitForm.call(this, options);
 
   this.withoutLoader = get(options, 'withoutLoader');
@@ -98,7 +99,7 @@ Webform.prototype.setElement = function(element) {
 };
 
 Webform.prototype.onSubmit = function(submission, saved) {
-  this.loading = true;
+  this.submitActionDone = true;
   this.submitting = false;
   this.setPristine(true);
   this.setValue(submission, {
@@ -115,12 +116,10 @@ Webform.prototype.onSubmit = function(submission, saved) {
 
     if (saved) {
       this.emit('submitDone', submission);
-      this.loading = false;
       this.attr(this.buttonElement, { disabled: this.disabled });
     }
 
     this.setAlert(false);
-
     return submission;
   }
 
@@ -131,11 +130,8 @@ Webform.prototype.onSubmit = function(submission, saved) {
   }).finally(() => {
     if (saved) {
       this.emit('submitDone', submission);
-      this.loading = false;
       this.attr(this.buttonElement, { disabled: this.disabled });
     }
-
-    this.setAlert(false);
   });
 };
 
@@ -182,8 +178,6 @@ Webform.prototype.submit = function(before, options) {
       } else {
         const diff = Date.now() - form.previSubmitTime;
         const timeout = diff === 0 || diff > SUBMIT_FORM_TIMEOUT ? 0 : SUBMIT_FORM_TIMEOUT - Math.floor(diff / 1000) * 1000;
-
-        form.loading = true;
 
         window.setTimeout(() => {
           callSubmit();

@@ -9,8 +9,9 @@ import isNil from 'lodash/isNil';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { execRecordsAction } from '../../../actions/journals';
+import { execRecordsAction, deselectAllRecords } from '../../../actions/journals';
 import { selectGroupActionsProps } from '../../../selectors/journals';
+import { ActionTypes } from '../../Records/actions';
 import { DropdownOuter } from '../../common/form';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Tooltip } from '../../common';
@@ -43,6 +44,7 @@ const GroupActions = React.memo(
       grid,
       selectAllRecordsVisible,
       selectedRecords,
+      deselectAllRecords,
       execRecordsAction,
       isFilterOn,
       isSeparateActionListForQuery,
@@ -57,6 +59,7 @@ const GroupActions = React.memo(
     const labelRecActions = useCallback(() => t(Labels.SELECTED_SHORT, { data: selectedLen === 0 ? grid.total : labelRecActionsCount }), [
       total,
       selected,
+      selectedLen,
       grid.total
     ]);
 
@@ -83,6 +86,11 @@ const GroupActions = React.memo(
         if (selectAllRecordsVisible || selectedLen === 0) {
           execRecordsAction(grid.query, action, context);
         } else {
+          action.executeCallback = () => {
+            if (action.type === ActionTypes.DELETE) {
+              deselectAllRecords();
+            }
+          };
           execRecordsAction(selectedRecords, action);
         }
       },
@@ -179,7 +187,8 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context })))
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
+    deselectAllRecords: () => dispatch(deselectAllRecords(w()))
   };
 };
 

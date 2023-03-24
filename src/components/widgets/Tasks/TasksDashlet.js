@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
 
 import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
@@ -35,6 +36,8 @@ class TasksDashlet extends BaseWidget {
     maxHeightByContent: false
   };
 
+  #formRef = null;
+
   constructor(props) {
     super(props);
 
@@ -45,7 +48,7 @@ class TasksDashlet extends BaseWidget {
       isLoading: true
     };
 
-    this.observableFieldsToUpdate = [...new Set(['tasks.active-hash'])];
+    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 
   get stateId() {
@@ -62,12 +65,27 @@ class TasksDashlet extends BaseWidget {
     this.setState(data);
   };
 
+  setFormRef = ref => {
+    if (ref) {
+      this.#formRef = ref;
+    }
+  };
+
+  reloadForm() {
+    if (this.#formRef && isFunction(this.#formRef.onReload)) {
+      this.#formRef.onReload(true);
+    }
+  }
+
   render() {
     const { title, config, classNameTasks, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
     const { runUpdate, isSmallMode, fitHeights, totalCount, isLoading } = this.state;
     const actions = {
       [DAction.Actions.RELOAD]: {
-        onClick: this.reload.bind(this)
+        onClick: () => {
+          this.reload.call(this);
+          this.reloadForm();
+        }
       }
     };
 
@@ -104,6 +122,7 @@ class TasksDashlet extends BaseWidget {
           maxHeight={fitHeights.max}
           setInfo={this.setInfo}
           scrollbarProps={this.scrollbarProps}
+          setFormRef={this.setFormRef}
         />
       </Dashlet>
     );

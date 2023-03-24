@@ -104,7 +104,7 @@ class Tasks extends React.Component {
   };
 
   renderTaskList = () => {
-    const { tasks, isLoading, isSmallMode, forwardedRef, runUpdate } = this.props;
+    const { tasks, isLoading, isSmallMode, forwardedRef, runUpdate, setFormRef } = this.props;
 
     const childProps = {
       tasks,
@@ -115,7 +115,7 @@ class Tasks extends React.Component {
       onSubmitForm: this.onSubmitForm
     };
 
-    return <TaskList forwardedRef={forwardedRef} {...childProps} />;
+    return <TaskList forwardedRef={forwardedRef} setFormRef={setFormRef} {...childProps} />;
   };
 
   render() {

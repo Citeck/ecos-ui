@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import cloneDeep from 'lodash/cloneDeep';
-import isFunction from 'lodash/isFunction';
 
 import * as ArrayOfObjects from '../../../helpers/arrayOfObjects';
 import { getOutputFormat, t } from '../../../helpers/util';
@@ -43,7 +42,7 @@ class TaskDetails extends React.Component {
       key: 'deadline',
       label: t('tasks-widget.column.deadline'),
       order: 1,
-      format: DataFormatTypes.DATE
+      format: DataFormatTypes.DATETIME
     },
     {
       key: 'sender',
@@ -62,38 +61,8 @@ class TaskDetails extends React.Component {
     }
   ];
 
-  #formRef = null;
-
-  state = {
-    runUpdateForm: false,
-    _dateUpdateDashlet: undefined
-  };
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.runUpdate && !prevProps.runUpdate) {
-      if (this.state.runUpdateForm) {
-        this.setState({ runUpdateForm: false, _dateUpdateDashlet: Date.now() });
-        return;
-      }
-
-      if (this.#formRef && isFunction(this.#formRef.onReload)) {
-        this.#formRef.onReload(true);
-      }
-    }
-  }
-
-  setFormRef = ref => {
-    if (ref) {
-      this.#formRef = ref;
-    }
-  };
-
   onSubmitForm = () => {
     this.props.onSubmitForm();
-  };
-
-  addToUpdate = () => {
-    this.setState({ runUpdateForm: true });
   };
 
   renderDetailsGrid() {
@@ -154,8 +123,7 @@ class TaskDetails extends React.Component {
   }
 
   render() {
-    const { details, className, isSmallMode } = this.props;
-    const { _dateUpdateDashlet } = this.state;
+    const { details, className, isSmallMode, setFormRef } = this.props;
 
     return (
       <div className={classNames('ecos-task-ins', className)}>
@@ -172,16 +140,14 @@ class TaskDetails extends React.Component {
         </div>
         <div className="ecos-task-ins__eform">
           <EcosForm
-            ref={this.setFormRef}
+            ref={setFormRef}
             record={details.id}
             formKey={details.formKey}
             onSubmit={this.onSubmitForm}
-            onFormsubmitButton={this.addToUpdate}
             saveOnSubmit
             options={{
               useNarrowButtons: true,
-              fullWidthColumns: isSmallMode,
-              _dateUpdateDashlet
+              fullWidthColumns: isSmallMode
             }}
             initiator={{
               type: 'widget',

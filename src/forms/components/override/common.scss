@@ -194,3 +194,15 @@
 .formio-drag-small-last-column + th:last-child {
   width: 65px;
 }
+
+.btn.component-settings-button {
+  background-color: $color-white;
+}
+
+.btn.component-settings-button.btn-danger {
+  background-color: $color-red-2;
+}
+
+.btn:not(:disabled):not(.disabled) {
+  cursor: pointer;
+}

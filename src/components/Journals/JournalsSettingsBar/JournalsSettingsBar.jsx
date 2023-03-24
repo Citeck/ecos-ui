@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
@@ -10,7 +10,6 @@ import Export from '../../Export/Export';
 import GroupActions from '../GroupActions';
 import ViewTabs from '../ViewTabs';
 import CreateMenu from './CreateMenu';
-import { ParserPredicate } from '../../Filters/predicates';
 
 import './JournalsSettingsBar.scss';
 
@@ -40,6 +39,7 @@ const JournalsSettingsBar = ({
   selectedRecords,
 
   isMobile,
+  isFilterOn,
   isCreateLoading,
   isLoading,
   isShowResetFilter,
@@ -58,8 +58,8 @@ const JournalsSettingsBar = ({
 }) => {
   const grey = 'ecos-btn_i ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue';
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
+  const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
   const noCreateMenu = isMobile || isEmpty(createVariants);
-  const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [predicate]);
   const tooltipSettings = {
     off: isMobile,
     modifiers: tooltipModifiers,
@@ -77,7 +77,7 @@ const JournalsSettingsBar = ({
               id={`${targetId}-settings`}
               icon={'icon-settings'}
               className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', {
-                'ecos-btn-settings-filter-on': !isDefaultSettings
+                'ecos-btn-settings-filter-on': isFilterOn
               })}
               onClick={onToggleSettings}
               loading={isLoading}
@@ -85,13 +85,15 @@ const JournalsSettingsBar = ({
           </Tooltip>
         )}
 
-        <Search
-          onSearch={onSearch}
-          className="ecos-journal__settings-bar-search search_border-white"
-          collapsed={isMobile}
-          text={searchText}
-          cleaner
-        />
+        {headerSearchEnabled && (
+          <Search
+            onSearch={onSearch}
+            className="ecos-journal__settings-bar-search search_border-white"
+            collapsed={isMobile}
+            text={searchText}
+            cleaner
+          />
+        )}
 
         {!isMobile && !noGroupActions && <GroupActions stateId={stateId} />}
 
