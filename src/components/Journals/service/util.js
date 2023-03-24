@@ -65,6 +65,8 @@ function _getPropFromPredicate(shortName, longName, predicate) {
     return predicate[shortName];
   } else if (predicate.hasOwnProperty(longName)) {
     return predicate[longName];
+  } else if (_.isObject(predicate.val)) {
+    return _getPropFromPredicate(shortName, longName, predicate.val);
   } else {
     return '';
   }
