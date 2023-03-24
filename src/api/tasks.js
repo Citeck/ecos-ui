@@ -47,7 +47,7 @@ export class TasksApi extends RecordService {
       started: 'started',
       dueDate: 'dueDate',
       actors: 'actors[]?json',
-      sender: 'sender',
+      sender: 'sender?json',
       lastcomment: 'lastcomment',
       reassignable: 'reassignable?bool',
       releasable: 'releasable?bool',
