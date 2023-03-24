@@ -95,15 +95,15 @@ export default class ParserPredicate {
   static getDefaultPredicates(columns, extra, defaultPredicatesList) {
     const defaultPredicatesByAtt = {};
     if (defaultPredicatesList && defaultPredicatesList.length) {
-      for (let pred of defaultPredicatesList) {
-        let att = getAttFromPredicate(pred);
+      for (const pred of defaultPredicatesList) {
+        const att = getAttFromPredicate(pred);
         if (att) {
           defaultPredicatesByAtt[att] = pred;
         }
       }
     }
 
-    let val = [];
+    const val = [];
 
     for (let i = 0; i < get(columns, 'length', 0); i++) {
       const column = columns[i] || {};
