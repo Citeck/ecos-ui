@@ -2,6 +2,7 @@ import get from 'lodash/get';
 
 import { t } from '../../../../../helpers/export/util';
 import DialogManager from '../../../../common/dialogs/Manager';
+import { replaceAttributeValues } from '../../../utils/recordUtils';
 import Records from '../../../Records';
 import { notifyFailure, notifySuccess } from '../../util/actionUtils';
 import ActionsExecutor from '../ActionsExecutor';
@@ -13,12 +14,10 @@ export default class MutateAction extends ActionsExecutor {
     const implSourceId = get(action, 'implSourceId');
     const config = get(action, 'config', {});
 
-    const attributes = get(config, 'attributes', {});
-
     if (implSourceId) {
       const implMutRecord = Records.get(implSourceId + '@');
       implMutRecord.att('records', records.map(record => record.id));
-      implMutRecord.att('attributes', attributes);
+      implMutRecord.att('attributes', get(config, 'record.attributes', {}));
       implMutRecord.att('actionConfig', config);
       return await implMutRecord.save('?json');
     }
@@ -26,22 +25,30 @@ export default class MutateAction extends ActionsExecutor {
     const mutatedRecords = [];
 
     for (const record of records) {
-      for (const att in attributes) {
-        if (attributes.hasOwnProperty(att)) {
-          record.att(att, attributes[att]);
-        }
-      }
-
-      await record
-        .save()
-        .then(() => mutatedRecords.push({ status: 'OK', nodeRef: record.id, message: '' }))
-        .catch(e => {
-          mutatedRecords.push({ status: 'SKIPPED', nodeRef: record.id, message: e.message });
-          return false;
-        });
+      const recordConfig = await replaceAttributeValues(config, record);
+      const recordId = get(recordConfig, 'record.id', record.id);
+      const recordToMutate = Records.getRecordToEdit(recordId);
+      const attributes = get(recordConfig, 'record.attributes');
+      await this.saveMutatedRecords(recordToMutate, attributes, mutatedRecords);
     }
 
     return mutatedRecords;
+  }
+
+  async saveMutatedRecords(record, attributes, mutatedRecords) {
+    for (const att in attributes) {
+      if (attributes.hasOwnProperty(att)) {
+        record.att(att, attributes[att]);
+      }
+    }
+
+    await record
+      .save()
+      .then(() => mutatedRecords.push({ status: 'OK', nodeRef: record.id, message: '' }))
+      .catch(e => {
+        mutatedRecords.push({ status: 'SKIPPED', nodeRef: record.id, message: e.message });
+        return false;
+      });
   }
 
   async execForRecord(record, action, context) {
