@@ -3,7 +3,7 @@ import React from 'react';
 import { createDocumentUrl } from '../../../../../../helpers/urls';
 import PageService from '../../../../../../services/PageService';
 import CellType from '../../CellType';
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 
 export default class AssocFormatter extends BaseFormatter {
   static TYPE = 'assoc';

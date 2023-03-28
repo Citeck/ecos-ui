@@ -1,3 +1,5 @@
+import values from 'lodash/values';
+
 class FormattersRegistry {
   #registry = {};
 
@@ -20,6 +22,10 @@ class FormattersRegistry {
    */
   getFormatter(id) {
     return this.#registry[id];
+  }
+
+  getAllFormatters() {
+    return Array.from(new Set(values(this.#registry)));
   }
 }
 

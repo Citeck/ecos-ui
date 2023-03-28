@@ -4,7 +4,7 @@ import { REMOTE_TITLE_ATTR_NAME } from '../../../../../../constants/pageTabs';
 import FileIcon from '../../../../../common/FileIcon';
 import { detectFormat } from '../../../../../common/FileIcon/helpers';
 
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 import { URL } from '../../../../../../constants';
 
 import './FileNameFormatter.scss';

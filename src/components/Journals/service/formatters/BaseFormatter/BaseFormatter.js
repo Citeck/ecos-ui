@@ -1,4 +1,4 @@
-import CellType from '../../CellType';
+import CellType from '../CellType';
 
 import './BaseFormatter.scss';
 
