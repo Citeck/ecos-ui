@@ -46,6 +46,25 @@ describe('Calculated fields test #2', () => {
     formData = form.getFormData();
     assert.equal(formData.totalWithoutOverride, 2013);
 
+    // ++ orgstruct ++
+
+    await form.setInputValue('nonCalculatedOrgstruct', 'admin');
+    formData = form.getFormData();
+    assert.equal(formData.orgstructWithOverride, 'emodel/person@admin');
+
+    await form.setInputValue('nonCalculatedOrgstruct', 'fet');
+    formData = form.getFormData();
+    assert.equal(formData.orgstructWithOverride, 'emodel/person@fet');
+
+    await form.setInputValue('orgstructWithOverride', 'admin');
+    await form.setInputValue('nonCalculatedOrgstruct', 'pushkin');
+
+    formData = form.getFormData();
+    assert.equal(formData.nonCalculatedOrgstruct, 'emodel/person@pushkin');
+    assert.equal(formData.orgstructWithOverride, 'emodel/person@admin');
+
+    // -- orgstruct --
+
     done();
   });
 
@@ -125,6 +144,20 @@ const definition = {
       key: 'totalWithoutOverride',
       calculateValue: 'value = (data.field0 || 0) + (data.field1 || 0);',
       allowCalculateOverride: false
+    },
+    {
+      label: 'Non-calculated orgstruct',
+      type: 'selectOrgstruct',
+      input: true,
+      key: 'nonCalculatedOrgstruct'
+    },
+    {
+      label: 'Orgstruct with override',
+      type: 'selectOrgstruct',
+      input: true,
+      key: 'orgstructWithOverride',
+      calculateValue: 'value = data.nonCalculatedOrgstruct;',
+      allowCalculateOverride: true
     }
   ]
 };
