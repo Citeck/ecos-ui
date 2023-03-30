@@ -2,7 +2,7 @@ import React from 'react';
 
 import './ColoredFormatter.scss';
 
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 import CellType from '../../CellType';
 
 export default class ColoredFormatter extends BaseFormatter {

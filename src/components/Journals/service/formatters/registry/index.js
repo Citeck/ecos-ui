@@ -1,32 +1,23 @@
-import FormatterRegistry from './FormatterRegistry';
-import FileNameFormatter from './FileNameFormatter';
-import HtmlFormatter from './HtmlFormatter';
-import ScriptFormatter from './ScriptFormatter';
-import WorkflowPriorityFormatter from './WorkflowPriorityFormatter';
-import AssocFormatter from './AssocFormatter';
-import DefaultFormatter from './DefaultFormatter';
-import LinkFormatter from './LinkFormatter';
-import NumberFormatter from './NumberFormatter';
-import ColoredFormatter from './ColoredFormatter';
-import DateFormatter from './DateFormatter';
-import DateTimeFormatter from './DateTimeFormatter';
-import BooleanFormatter from './BooleanFormatter';
-import ActionFormatter from './ActionFormatter';
+import lodashSet from 'lodash/set';
 
+import FormatterRegistry from './FormatterRegistry';
+import { getAllFormattersModules, requireContextNodeJS } from './utils';
+import { IS_TEST_ENV } from '../../../../../helpers/util';
+
+let modules;
+if (IS_TEST_ENV) {
+  modules = requireContextNodeJS('.', true, /Formatter.js$/);
+} else {
+  modules = require.context('.', true, /Formatter.js$/);
+}
+
+const formatterModules = getAllFormattersModules(modules);
 const formatterRegistry = new FormatterRegistry();
 
-formatterRegistry.register(new DefaultFormatter());
-formatterRegistry.register(new FileNameFormatter());
-formatterRegistry.register(new HtmlFormatter());
-formatterRegistry.register(new ScriptFormatter());
-formatterRegistry.register(new WorkflowPriorityFormatter());
-formatterRegistry.register(new AssocFormatter());
-formatterRegistry.register(new LinkFormatter());
-formatterRegistry.register(new NumberFormatter());
-formatterRegistry.register(new ColoredFormatter());
-formatterRegistry.register(new DateFormatter());
-formatterRegistry.register(new DateTimeFormatter());
-formatterRegistry.register(new BooleanFormatter());
-formatterRegistry.register(new ActionFormatter());
+for (const FormatterModule of formatterModules) {
+  formatterRegistry.register(new FormatterModule());
+}
+
+lodashSet(window, 'Citeck.FormattersRegistry', formatterRegistry);
 
 export default formatterRegistry;

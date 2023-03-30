@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 
 import { getCurrentLocale, getNumberSeparators } from '../../../../../../helpers/util';
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 
 /**
  * @typedef {NumberFormatterProps} NumberFormatterProps
