@@ -30,6 +30,7 @@ export const COLUMN_DATA_TYPE_AUTHORITY = 'authority';
 export const COLUMN_DATA_TYPE_FILTER_GROUP = 'filterGroup';
 
 export const PREDICATE_CONTAINS = 'contains';
+export const PREDICATE_IN = 'in';
 export const PREDICATE_NOT_CONTAINS = 'not-contains';
 export const PREDICATE_EQ = 'eq';
 export const PREDICATE_NOT_EQ = 'not-eq';
