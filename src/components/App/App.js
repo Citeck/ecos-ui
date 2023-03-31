@@ -39,6 +39,7 @@ const allowedLinks = [
   URL.DEV_TOOLS,
   URL.BPMN_EDITOR,
   URL.CMMN_EDITOR,
+  URL.DMN_EDITOR,
 
   URL.TIMESHEET,
   URL.TIMESHEET_SUBORDINATES,
@@ -224,6 +225,11 @@ class App extends Component {
               path={URL.CMMN_EDITOR}
               render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} footer={null} />}
             />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.DMN_EDITOR}
+              render={props => <Page pageKey={Pages.DMN_EDITOR} {...props} {...basePageProps} footer={null} />}
+            />
             {/* --- TIMESHEETs start */}
             <CacheRoute
               {...baseCacheRouteProps}
@@ -297,6 +303,7 @@ class App extends Component {
             <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} />} />
             <Route path={URL.BPMN_EDITOR} render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} />} />
             <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} />} />
+            <Route path={URL.DMN_EDITOR} render={props => <Page pageKey={Pages.DMN_EDITOR} {...props} />} />
             {/* --- TIMESHEETs start */}
             <Route path={URL.TIMESHEET} exact render={props => <Page pageKey={Pages.TIMESHEET_MY} {...props} />} />
             <Route path={URL.TIMESHEET_SUBORDINATES} render={props => <Page pageKey={Pages.TIMESHEET_SUBORDINATES} {...props} />} />

@@ -1,0 +1,67 @@
+@import '../../../styles/constants';
+
+.cardDeleteModelButton {
+  background: #2a446c;
+  border-radius: 4px;
+  position: absolute;
+  right: 80px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+
+  span:before {
+    color: $color-white;
+    font-size: 15px;
+  }
+}
+
+.cardEditMetaButton {
+  background: #2a446c;
+  border-radius: 4px;
+  position: absolute;
+  right: 45px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+
+  span:before {
+    color: $color-white;
+    font-size: 15px;
+  }
+}
+
+.cardEditButton {
+  background: #2a446c;
+  border-radius: 4px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+
+  span:before {
+    color: $color-white;
+    font-size: 15px;
+  }
+}
+
+.editActionIcon {
+  font-size: 18px;
+  color: $color-gray-6;
+  cursor: pointer;
+  line-height: 50px;
+  margin-left: 7px;
+
+  &:hover {
+    color: $color-blue-light;
+  }
+}

@@ -8,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isFunction from 'lodash/isFunction';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
@@ -149,6 +150,17 @@ class ModelEditorPage extends React.Component {
     };
   }
 
+  get extraEvents() {
+    return {
+      [EventListeners.CREATE_END]: this.handleElementCreateEnd,
+      [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
+      [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
+      [EventListeners.DRAG_START]: this.handleDragStart,
+      [EventListeners.ROOT_SET]: this.handleSetRoot,
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
+    };
+  }
+
   #getMultiInstanceType = () => {
     const { selectedElement } = this.state;
     const element = this.getElement(selectedElement);
@@ -251,7 +263,6 @@ class ModelEditorPage extends React.Component {
 
       if (!TASK_TYPES.includes(item.source.type)) {
         if (GATEWAY_TYPES.includes(item.source.type)) {
-          console.log(item);
           const { incomingOutcomes, source = {} } = this.#findOutcomes(item);
 
           source.id &&
@@ -541,11 +552,15 @@ class ModelEditorPage extends React.Component {
         const process = get(selectedDiagramElement, 'businessObject.processRef');
 
         if (is(process, TYPE_BPMN_PROCESS)) {
-          const modeling = this.designer.modeler.get('modeling');
+          const modeler = isFunction(this.designer.modeler.getActiveViewer)
+            ? this.designer.modeler.getActiveViewer()
+            : this.designer.modeler;
+          const modeling = modeler.get('modeling');
 
-          modeling.updateModdleProperties(selectedDiagramElement, process, {
-            id: rawValue
-          });
+          isFunction(modeling.updateModdleProperties) &&
+            modeling.updateModdleProperties(selectedDiagramElement, process, {
+              id: rawValue
+            });
         }
       }
 
@@ -565,7 +580,10 @@ class ModelEditorPage extends React.Component {
     this.designer.updateProps(selectedElement, modelData);
 
     if (selectedDiagramElement) {
-      this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
+      const eventBus = this.designer.getEventBus();
+      if (eventBus) {
+        eventBus.fire('element.changed', { element: selectedDiagramElement });
+      }
     }
   };
 
@@ -620,7 +638,9 @@ class ModelEditorPage extends React.Component {
     }
 
     if (!isUndefined(label) && this._formWrapperRef.current) {
-      const prevLabel = get(this._formWrapperRef.current.form.getValue(), ['data', KEY_FIELD_NAME + ML_POSTFIX]) || {};
+      const prevLabel = this._formWrapperRef.current.form
+        ? get(this._formWrapperRef.current.form.getValue(), ['data', KEY_FIELD_NAME + ML_POSTFIX]) || {}
+        : {};
       const newName = {
         ...prevLabel,
         [getCurrentLocale()]: label || ''
@@ -647,7 +667,10 @@ class ModelEditorPage extends React.Component {
           'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
         });
 
-        this.designer.getEventBus().fire('element.changed', { element });
+        const eventBus = this.designer.getEventBus();
+        if (eventBus) {
+          eventBus.fire('element.changed', { element });
+        }
       }
     }
 
@@ -720,12 +743,12 @@ class ModelEditorPage extends React.Component {
         }
       });
     } else {
-      return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;
+      return <InfoText text={t(`editor.error.no-model`)} />;
     }
   };
 
   render() {
-    const { title, formProps, isLoading } = this.props;
+    const { title, formProps, isLoading, isAnyConfigButtonHidden } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
@@ -743,10 +766,11 @@ class ModelEditorPage extends React.Component {
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           extraButtons={this.editorExtraButtons}
+          isAnyConfigButtonHidden={isAnyConfigButtonHidden}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
-              {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
+              {!selectedElement && <InfoText text={t('editor.error.no-selected-element')} />}
 
               {selectedElement && (
                 <FormWrapper

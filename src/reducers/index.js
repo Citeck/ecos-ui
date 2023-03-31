@@ -14,8 +14,10 @@ import documentLibrary from './documentLibrary';
 import pageTabs from './pageTabs';
 import tasks from './tasks';
 import comments from './comments';
-import dashboardSettings from './dashboardSettings';
 import dashboard from './dashboard';
+import dashboardSettings from './dashboardSettings';
+import dmn from './dmn';
+import dmnEditor from './dmnEditor';
 import menu from './menu';
 import slideMenu from './slideMenu';
 import menuSettings from './menuSettings';
@@ -59,8 +61,10 @@ const reducers = {
   pageTabs,
   tasks,
   comments,
-  dashboardSettings,
   dashboard,
+  dashboardSettings,
+  dmn,
+  dmnEditor,
   slideMenu,
   menu,
   menuSettings,

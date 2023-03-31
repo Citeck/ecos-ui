@@ -71,7 +71,9 @@ export default class BaseModeler {
         const { warnings } = result || {};
 
         this._isDiagramMounted = true;
-        this.zoomScroll = this.modeler.get('zoomScroll');
+        if (isFunction(this.modeler.get)) {
+          this.zoomScroll = this.modeler.get('zoomScroll');
+        }
 
         isFunction(callback) && callback({ mounted: !!this.isDiagramMounted, warnings });
         !!warnings.length && console.warn(warnings);
@@ -238,6 +240,8 @@ export default class BaseModeler {
     }
   };
 
+  useAdditionalEffects = () => {};
+
   /**
    * Own component-container for drawing diagram
    * @param {String} xml diagram
@@ -245,6 +249,7 @@ export default class BaseModeler {
    * @return {ReactComponent}
    */
   renderSheet = props => <Sheet {...props} init={this.init} />;
+ 
   destroy = () => {
     if (this.events) {
       this.events.onSelectElement && this.modeler.off('selection.changed', this.events.onSelectElement);

@@ -43,9 +43,9 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       }
 
       let title = t('success');
-      let message = t('bpmn-editor.success.model-saved');
+      let message = t('editor.success.model-saved');
       if (deploy) {
-        message = t('bpmn-editor.success.model-save-deployed');
+        message = t('editor.success.model-save-deployed');
       }
       NotificationManager.success(message, title);
 
@@ -59,9 +59,9 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
     yield put(setLoading({ stateId, isLoading: false }));
 
     let message = e.message || t('error');
-    let title = t('bpmn-editor.error.can-not-save-model');
+    let title = t('editor.error.can-not-save-model');
     if (deploy) {
-      title = t('bpmn-editor.error.can-not-save-deploy-model');
+      title = t('editor.error.can-not-save-deploy-model');
     }
     NotificationManager.error(message, title);
     logger.error('[bpmnEditor/runSaveModel saga] error', e);
