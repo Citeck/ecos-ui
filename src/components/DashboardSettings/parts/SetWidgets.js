@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isFunction from 'lodash/isFunction';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { t } from '../../../helpers/util';
@@ -38,6 +39,7 @@ class SetWidgets extends React.Component {
     modelAttributes: PropTypes.array,
     availableWidgets: PropTypes.array,
     activeWidgets: PropTypes.array,
+    activeLayout: PropTypes.object,
     setData: PropTypes.func,
     positionAdjustment: PropTypes.func,
     isMobile: PropTypes.bool
@@ -54,7 +56,8 @@ class SetWidgets extends React.Component {
 
   state = {
     draggableDestination: '',
-    removedWidgets: []
+    removedWidgets: [],
+    disabledColumns: []
   };
 
   get availableWidgets() {
@@ -80,6 +83,20 @@ class SetWidgets extends React.Component {
 
     return scrollHeight > WIDGET_ITEMS_H_MAX ? WIDGET_ITEMS_H_MAX : scrollHeight;
   }
+
+  handleDragStart = ({ draggableId, mode, source }) => {
+    const { droppableId, index } = source;
+    const { columns } = this.props;
+
+    if (droppableId === NAMES.WIDGETS_FROM) {
+      const widget = this.availableWidgets[index];
+      if (widget && isFunction(get(widget, 'additionalProps.isDropDisabledByColumn'))) {
+        this.setState({
+          disabledColumns: columns.filter(column => widget.additionalProps.isDropDisabledByColumn(column))
+        });
+      }
+    }
+  };
 
   handleDragUpdate = provided => {
     const { destination, source } = provided;
@@ -122,7 +139,7 @@ class SetWidgets extends React.Component {
       }
     }
 
-    this.setState({ draggableDestination: '' });
+    this.setState({ draggableDestination: '', disabledColumns: [] });
     this.setData(selectedWidgets);
   };
 
@@ -158,7 +175,8 @@ class SetWidgets extends React.Component {
 
   renderWidgetColumns() {
     const { activeWidgets, columns, isMobile, positionAdjustment, modelAttributes } = this.props;
-    const { draggableDestination } = this.state;
+    const { draggableDestination, disabledColumns } = this.state;
+    const disabledColumnsFlattened = [].concat(...disabledColumns);
 
     return (
       <div
@@ -179,11 +197,14 @@ class SetWidgets extends React.Component {
                 droppableId={NAMES.WIDGETS_TO + indexColumn}
                 droppableIndex={indexColumn}
                 childPosition="column"
-                className="ecos-dashboard-settings__drag-container ecos-dashboard-settings__widgets-container"
+                className={classNames('ecos-dashboard-settings__drag-container', 'ecos-dashboard-settings__widgets-container', {
+                  'ecos-dashboard-settings__widgets-container_disabled': disabledColumnsFlattened.includes(column)
+                })}
                 classNameView="ecos-dashboard-settings__drag-scrollbar-wrapper"
                 placeholder={t(Labels.TIP_DROP_HERE)}
                 isDragingOver={draggableDestination === NAMES.WIDGETS_TO + indexColumn}
                 scrollHeight={this.scrollWidgetHeight}
+                isDropDisabled={disabledColumnsFlattened.includes(column)}
               >
                 {activeWidgets &&
                   activeWidgets[indexColumn] &&
@@ -206,7 +227,7 @@ class SetWidgets extends React.Component {
   }
 
   render() {
-    const { isMobile, positionAdjustment } = this.props;
+    const { isMobile, positionAdjustment, activeLayout } = this.props;
 
     return (
       <>
@@ -217,7 +238,7 @@ class SetWidgets extends React.Component {
             'ecos-dashboard-settings__container-group_mobile': isMobile
           })}
         >
-          <DragDropContext onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
+          <DragDropContext onDragStart={this.handleDragStart} onDragUpdate={this.handleDragUpdate} onDragEnd={this.handleDropEndWidget}>
             <Droppable
               droppableId={NAMES.WIDGETS_FROM}
               className={classNames('ecos-dashboard-settings__drag-container ecos-dashboard-settings__drag-container_col', {
@@ -236,6 +257,10 @@ class SetWidgets extends React.Component {
                   key={item.dndId}
                   draggableId={item.dndId}
                   draggableIndex={index}
+                  isDragDisabled={
+                    isFunction(get(item, 'additionalProps.isDragDisabledByLayout')) &&
+                    item.additionalProps.isDragDisabledByLayout(activeLayout)
+                  }
                   title={Components.getWidgetLabel(item, isMobile)}
                   getPositionAdjustment={positionAdjustment}
                 />

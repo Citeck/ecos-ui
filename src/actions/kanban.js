@@ -27,3 +27,5 @@ export const setLoading = createAction(prefix + 'SET_LOADING');
 export const setLoadingColumns = createAction(prefix + 'SET_LOADING_COLUMNS');
 export const setIsFiltered = createAction(prefix + 'SET_IS_FILTERED');
 export const setPagination = createAction(prefix + 'SET_PAGINATION');
+
+export const setDefaultBoardAndTemplate = createAction(prefix + 'SET_DEFAULT_BOARD_AND_TEMPLATE');
