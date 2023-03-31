@@ -75,10 +75,12 @@ export function startLoading(initialState, keyLoader = 'isLoading') {
   };
 }
 
-export const updateState = (state = {}, stateId, newData = {}, initialState) => ({
-  ...state,
-  [stateId]: {
-    ...getCurrentStateById(state, stateId, initialState),
-    ...newData
-  }
-});
+export const updateState = (state = {}, stateId, newData = {}, initialState) => {
+  return {
+    ...state,
+    [stateId]: {
+      ...getCurrentStateById(state, stateId, initialState),
+      ...newData
+    }
+  };
+};

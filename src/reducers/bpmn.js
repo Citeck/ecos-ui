@@ -14,7 +14,7 @@ import {
   setSearchText,
   setViewType
 } from '../actions/bpmn';
-import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/bpmn';
+import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/commonDesigner';
 
 const initialState = {
   isReady: false,

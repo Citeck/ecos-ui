@@ -5,6 +5,8 @@ import { ReportApi } from './report';
 import { BpmnApi } from './bpmn';
 import { CommentsApi } from './comments';
 import { DashboardApi } from './dashboard';
+import { DmnApi } from './dmn';
+import { DmnEditorApi } from './dmnEditor';
 import { DocAssociationsApi } from './docAssociations';
 import { DocStatusApi } from './docStatus';
 import { DocumentsApi } from './documents';
@@ -46,6 +48,8 @@ export function configureAPI() {
   api.tasks = new TasksApi();
   api.comments = new CommentsApi();
   api.dashboard = new DashboardApi();
+  api.dmn = new DmnApi();
+  api.dmnEditor = new DmnEditorApi();
   api.pageTabs = new PageTabsApi();
   api.docStatus = new DocStatusApi();
   api.eventsHistory = new EventsHistoryApi();

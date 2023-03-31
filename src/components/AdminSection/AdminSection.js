@@ -11,6 +11,7 @@ import pageTabList from '../../services/pageTabs/PageTabList';
 import DevTools from '../../pages/DevTools';
 import { Caption } from '../common/form';
 import BPMNDesigner from '../BPMNDesigner';
+import DMNDesigner from '../DMNDesigner';
 import { JournalPresets } from '../Journals';
 import JournalViewer from './JournalViewer';
 import { AdminMenu } from './';
@@ -114,6 +115,7 @@ class AdminSection extends React.PureComponent {
             </Row>
             <Row className="m-0 p-0">
               <Col className="m-0 p-0" md={12}>
+                <DMNDesigner hidden={this.isHidden(SectionTypes.DMN)} />
                 <BPMNDesigner hidden={this.isHidden(SectionTypes.BPM)} />
                 <JournalViewer
                   hidden={this.isHidden(SectionTypes.JOURNAL)}

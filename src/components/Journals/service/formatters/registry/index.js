@@ -1,5 +1,4 @@
 import lodashSet from 'lodash/set';
-
 import FormatterRegistry from './FormatterRegistry';
 import { getAllFormattersModules, requireContextNodeJS } from './utils';
 import { IS_TEST_ENV } from '../../../../../helpers/util';

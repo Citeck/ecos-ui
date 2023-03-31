@@ -19,6 +19,7 @@ export const URL = {
   BPMN_DESIGNER: '/v2/bpmn-designer',
   BPMN_EDITOR: '/v2/bpmn-editor',
   CMMN_EDITOR: '/v2/cmmn-editor',
+  DMN_EDITOR: '/v2/dmn-editor',
   DEV_TOOLS: '/v2/dev-tools',
   TIMESHEET: '/v2/timesheet',
   TIMESHEET_SUBORDINATES: '/v2/timesheet/subordinates',
@@ -183,6 +184,7 @@ export const Pages = {
   DEBUG_CMMN: 'debug-cmnne',
   CMMN_EDITOR: 'cmmn-editor',
   BPMN_EDITOR: 'bpmn-editor',
+  DMN_EDITOR: 'dmn-editor',
   DEV_TOOLS: 'dev-tools',
   ORGSTRUCTURE: 'orgstructure'
 };
