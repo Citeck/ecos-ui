@@ -278,7 +278,7 @@ const modifiedOriginalCalculateValue = function(data, flags) {
 
   const changed = this.setValue(calculatedValue, flags);
 
-  this.calculatedValue = this.dataValue;
+  this.calculatedValue = calculatedValue;
 
   return changed;
 };
