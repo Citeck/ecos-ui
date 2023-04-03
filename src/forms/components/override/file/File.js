@@ -303,7 +303,6 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
-      console.log(recordRef);
       linkAttributes.href = getDownloadContentUrl(recordRef);
       linkAttributes.download = true;
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
