@@ -64,6 +64,24 @@ export default class SelectJournalComponent extends BaseReactComponent {
     return SelectJournalComponent.schema();
   }
 
+  get journalId() {
+    let journalId = this.component.journalId || '';
+
+    const templateRegex = /\$\{.*?\}/g;
+    const matches = journalId.match(templateRegex);
+
+    if (!matches) {
+      return journalId;
+    }
+
+    matches.forEach(matchString => {
+      const stringWithoutBraskets = matchString.substring(2, matchString.length - 1);
+      journalId = journalId.replace(matchString, this.root.data[stringWithoutBraskets]);
+    });
+
+    return journalId;
+  }
+
   checkConditions(data) {
     const result = super.checkConditions(data);
 
@@ -319,7 +337,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
       // If component has calculateValue, disable value reset when apply custom predicate
       disableResetOnApplyCustomPredicate: !!comp.calculateValue,
       title: this.modalTitle,
-      dataType: this.component.ecos.dataType
+      dataType: this.component.ecos.dataType,
+      journalId: this.journalId
     };
   };
 
@@ -372,7 +391,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       return reactComponentProps;
     };
 
-    const journalId = this.component.journalId;
+    const journalId = this.journalId;
     const fetchPropertiesAndResolve = async journalId => {
       const columns = await this.fetchAsyncProperties(this.component.source);
 
