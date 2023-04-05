@@ -52,7 +52,7 @@
 
   const params = getQueryParams();
 
-  fetch('/gateway/transformations/api/doc-editor/onlyoffice/config?ref=' + params.ref)
+  fetch('/gateway/emodel/api/doc-editor/onlyoffice/config?ref=' + params.ref)
     .then(response => {
       return response.json().then(configOrError => {
         if (response.ok) {
