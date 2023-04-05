@@ -8,4 +8,5 @@ properties:
       plugins:
         - heatmap:1.4.0
         - stages-widget:1.0.0
+        - kanban-widget:1.0.0
     - enterprise: false
