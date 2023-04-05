@@ -626,6 +626,7 @@ class Settings extends Component {
         <SetWidgets
           availableWidgets={this.availableWidgets}
           activeWidgets={this.activeData.widgets}
+          activeLayout={findLayout(this.activeData.layout)}
           columns={this.selectedTypeLayout.columns}
           setData={setData}
           isMobile={isMob}

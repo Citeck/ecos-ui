@@ -3,6 +3,7 @@ import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isNil from 'lodash/isNil';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
@@ -35,11 +36,12 @@ import {
   setLoadingColumns,
   setPagination,
   setResolvedActions,
+  setDefaultBoardAndTemplate,
   setTotalCount
 } from '../actions/kanban';
 import { execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData } from '../selectors/journals';
-import { selectKanban, selectPagination } from '../selectors/kanban';
+import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
 import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
@@ -53,7 +55,7 @@ import { getGridParams, getJournalConfig, getJournalSettingFully } from './journ
 
 export function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
-    const { journalId, stateId } = payload;
+    const { journalId, stateId, enableEmptyData } = payload;
 
     const boardList = yield call(api.kanban.getBoardList, { journalId });
     const templateList = yield call(api.kanban.getBoardSettings, journalId);
@@ -61,8 +63,7 @@ export function* sagaGetBoardList({ api, logger }, { payload }) {
     const isEnabled = !isEmpty(boardList);
 
     yield put(setIsEnabled({ isEnabled, stateId }));
-
-    if (isEnabled) {
+    if (isEnabled || enableEmptyData) {
       yield put(
         setBoardList({
           templateList,
@@ -152,6 +153,11 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
 
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
+
+    if (isDefaultBoardAndTemplate && (!isNil(boardId) || !isNil(templateId))) {
+      yield call(sagaSetDefaultBoardAndTemplate, { api, logger }, { payload: { boardId, templateId, stateId } });
+    }
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaGetBoardData saga] error', e);
@@ -371,6 +377,34 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
   }
 }
 
+export function* sagaSetDefaultBoardAndTemplate({ api, logger }, { payload }) {
+  try {
+    const { stateId, boardId, templateId } = payload;
+    yield call(sagaSelectFromUrl, { api, logger }, { payload: { stateId, boardId } });
+
+    const kanbanProps = yield select(selectKanbanPageProps, stateId);
+    const { templateList } = kanbanProps;
+    const template = templateList.find(template => template.id === templateId);
+
+    if (template) {
+      yield call(
+        sagaSelectFromUrl,
+        { api, logger },
+        {
+          payload: {
+            templateId,
+            settings: template.settings,
+            stateId,
+            type: KANBAN_SELECTOR_MODE.TEMPLATES
+          }
+        }
+      );
+    }
+  } catch (e) {
+    logger.error('[kanban/sagaSetDefaultBoardAndTemplate saga error', e);
+  }
+}
+
 export function* sagaResetFilter({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
@@ -420,6 +454,7 @@ export function* docStatusSaga(ea) {
   yield takeEvery(getBoardList().type, sagaGetBoardList, ea);
   yield takeEvery(getBoardConfig().type, sagaGetBoardConfig, ea);
   yield takeEvery(getBoardData().type, sagaGetBoardData, ea);
+  yield takeEvery(setDefaultBoardAndTemplate().type, sagaSetDefaultBoardAndTemplate, ea);
   yield takeEvery(selectBoardId().type, sagaSelectFromUrl, ea);
   yield takeEvery(selectTemplateId().type, sagaSelectFromUrl, ea);
   yield takeEvery(getNextPage().type, sagaGetNextPage, ea);
