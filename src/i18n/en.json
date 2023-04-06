@@ -608,6 +608,7 @@
   "kanban-widget.settings.bnt.save": "Save",
   "kanban-widget.title": "Board",
   "kanban-widget.no-journal": "No selected journal. Go to settings.",
+  "kanban-widget.no-source": "No source of type",
 
   "export-component.action.html-load": "HTML (download)",
   "export-component.action.html-read": "HTML (view)",
