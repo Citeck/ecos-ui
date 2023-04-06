@@ -2,14 +2,22 @@ import isEqual from 'lodash/isEqual';
 import omitBy from 'lodash/omitBy';
 import FormIODateTimeComponent from 'formiojs/components/datetime/DateTime';
 import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 export default class DateTimeComponent extends FormIODateTimeComponent {
   build(state) {
     super.build(state);
 
     this.widget.on('update', () => {
+      const onClose = get(this, '_widget.calendar.close');
+
       this.setPristine(false);
       this.addClass(this.getElement(), 'formio-modified');
+
+      if (isFunction(onClose)) {
+        onClose();
+      }
     });
   }
 
