@@ -40,9 +40,14 @@ const executeAction = async ({ groupAction, selected = [], excludedRecords, reso
   return result;
 };
 
-const showFormIfRequired = groupAction => {
+const showFormIfRequired = (groupAction, withNotify) => {
   if (!groupAction.formKey) {
-    return Promise.resolve(groupAction);
+    if (withNotify) {
+      const notify = notifyStart('');
+      return Promise.resolve({ groupAction, notify });
+    }
+
+    return Promise.resolve({ groupAction });
   }
 
   const formOptionPrefix = 'form_option_';
@@ -69,8 +74,12 @@ const showFormIfRequired = groupAction => {
           ...rec.getRawAttributes()
         };
         action.params.attributes = rec.getAttributesToSave();
-
-        resolve(action);
+        if (withNotify) {
+          const notify = notifyStart('');
+          resolve({ groupAction: action, notify });
+        } else {
+          resolve({ groupAction: action });
+        }
       },
       onModalCancel: () => {
         resolve(null);
@@ -90,7 +99,8 @@ export default class ServerGroupAction extends ActionsExecutor {
     let groupActionWithData;
 
     if (isExistValue(groupAction.formKey)) {
-      groupActionWithData = await showFormIfRequired(groupAction);
+      const { groupAction: newGroupAction } = await showFormIfRequired(groupAction);
+      groupActionWithData = newGroupAction;
 
       if (!groupActionWithData) {
         return false;
@@ -118,9 +128,8 @@ export default class ServerGroupAction extends ActionsExecutor {
     let groupAction = cloneDeep(action.config);
 
     groupAction.type = 'filtered';
-    groupAction = await showFormIfRequired(groupAction);
-
-    const notify = notifyStart('', 0);
+    const { groupAction: newGroupAction, notify } = await showFormIfRequired(groupAction, true);
+    groupAction = newGroupAction;
     const result = await executeAction({ groupAction, query, excludedRecords });
 
     removeNotify(notify);
