@@ -1170,6 +1170,11 @@
   "size.megabytes": "MB",
   "slide_menu_click_to_open.label": "Click to open the menu",
 
+  "tab-settings-modal-title": "Edit tab name",
+  "tab-settings-modal-label-title": "Label",
+  "tab-settings-modal-cancel": "Cancel",
+  "tab-settings-modal-save": "Save",
+
   "tasks-widget.assign.assign": "Assign",
   "tasks-widget.assign.me": "I will perform this",
   "tasks-widget.assign.reassign": "Reassign",

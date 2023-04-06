@@ -263,3 +263,21 @@
     z-index: 10001;
   }
 }
+
+.ecos-modal {
+  & .ecos-tab {
+    &-settings-modal {
+      .ecos-field {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      &__buttons {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+      }
+    }
+  }
+}

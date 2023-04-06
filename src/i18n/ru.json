@@ -1169,6 +1169,11 @@
   "size.megabytes": "МБ",
   "slide_menu_click_to_open.label": "Нажмите для раскрытия меню",
 
+  "tab-settings-modal-title": "Редактировать название таба",
+  "tab-settings-modal-label-title": "Название",
+  "tab-settings-modal-cancel": "Отмена",
+  "tab-settings-modal-save": "Сохранить",
+
   "tasks-widget.assign.assign": "Назначить",
   "tasks-widget.assign.me": "Я выполню это",
   "tasks-widget.assign.reassign": "Переназначить",
