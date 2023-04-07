@@ -45,48 +45,6 @@ export default class SelectComponent extends FormIOSelectComponent {
     return this.evaluate(items, {}, 'value', true);
   }
 
-  /**
-   * Return if the list is loading from scroll. or not.
-   *
-   * @return {boolean|*}
-   */
-  get scrollLoading() {
-    return this.isScrollLoading;
-  }
-
-  /**
-   * Sets the scroll loading state.
-   *
-   * @param isScrolling
-   * @return {undefined|boolean}
-   */
-  set scrollLoading(isScrolling) {
-    // Only continue if they are different.
-    if (this.isScrollLoading === isScrolling) {
-      return;
-    }
-    if (isScrolling) {
-      this.choices.setChoices(
-        [
-          ...this.selectOptions,
-          {
-            value: '',
-            label: t('ecos-ui.select.loading-message'),
-            disabled: true
-          }
-        ],
-        'value',
-        'label',
-        true
-      );
-    } else {
-      this.choices.setChoices([...this.selectOptions], 'value', 'label', true);
-    }
-
-    this.isScrollLoading = isScrolling;
-    return isScrolling;
-  }
-
   hideDropdown() {
     if (!_.get(this, 'choices.dropdown.isActive')) {
       return false;
@@ -276,15 +234,31 @@ export default class SelectComponent extends FormIOSelectComponent {
       }
     }
 
-    this.scrollList = this.choices.choiceList.element;
-    this.onScroll = () => {
-      if (!this.scrollLoading && this.scrollList.scrollTop + this.scrollList.clientHeight >= this.scrollList.scrollHeight) {
-        this.scrollTop = this.scrollList.scrollTop;
-        this.scrollLoading = true;
-        this.triggerUpdate(this.choices.input.element.value);
-      }
-    };
-    this.scrollList.addEventListener('scroll', this.onScroll);
+    if (this.isInfiniteScrollProvided) {
+      this.scrollList = this.choices.choiceList.element;
+      this.onScroll = function() {
+        const isLoadingAvailable =
+          !this.isScrollLoading &&
+          this.additionalResourcesAvailable &&
+          this.scrollList.scrollTop + this.scrollList.clientHeight >= this.scrollList.scrollHeight;
+        if (isLoadingAvailable) {
+          this.isScrollLoading = true;
+          this.choices.setChoices(
+            [
+              {
+                value: ''.concat(this.id, '-loading'),
+                label: t('ecos-ui.select.loading-message'),
+                disabled: true
+              }
+            ],
+            'value',
+            'label'
+          );
+          this.triggerUpdate(this.choices.input.element.value);
+        }
+      };
+      this.scrollList.addEventListener('scroll', this.onScroll);
+    }
 
     this.addFocusBlurEvents(this.focusableElement);
     this.focusableElement.setAttribute('tabIndex', tabIndex);
@@ -296,8 +270,12 @@ export default class SelectComponent extends FormIOSelectComponent {
       // Make sure to clear the search when no value is provided.
       if (this.choices && this.choices.input && this.choices.input.element) {
         this.addEventListener(this.choices.input.element, 'input', event => {
+          this.isFromSearch = !!event.target.value;
           if (!event.target.value) {
             this.triggerUpdate();
+          } else {
+            this.serverCount = null;
+            this.downloadedResources = [];
           }
         });
       }
