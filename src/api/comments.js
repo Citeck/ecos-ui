@@ -18,7 +18,7 @@ const EMODEL_FIELDS = {
   modifiedAt: '_modified',
   author: '_creator{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName,avatarUrl:avatar.url}',
   editor: '_modifier{authorityName:?localId,userName:?localId,displayName:?disp,firstName,lastName}',
-  permissions: 'permissions?json',
+  canEdit: 'permissions._has.Write?bool',
   edited: 'edited!false',
   tags: 'tags[]{type,name}'
 };
