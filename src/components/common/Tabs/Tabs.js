@@ -1,6 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
+import get from 'lodash/get';
+import isString from 'lodash/isString';
 
+import { getCurrentLocale } from '../../../helpers/util';
 import { commonOneTabDefaultProps, commonOneTabPropTypes, commonTabsDefaultProps, commonTabsPropTypes } from './utils';
 
 import './Tabs.scss';
@@ -49,20 +52,25 @@ const Tabs = props => {
 
   return (
     <div className={tabsClassNames}>
-      {items.map((item, index) => (
-        <Tab
-          {...item}
-          key={`${item[keyField]}-${index}`}
-          className={classNameTab}
-          id={item[keyField]}
-          label={classNames(valuePrefix, item[valueField])}
-          isActive={item.isActive || item[keyField] === activeTabKey}
-          onClick={onClick ? () => onClick(index) : item.onClick}
-          hasHover={hasHover}
-          hasHint={hasHint}
-          isMobile={isMobile}
-        />
-      ))}
+      {items.map((item, index) => {
+        const labelField = item[valueField];
+        const label = isString(labelField) ? labelField : get(labelField, getCurrentLocale(), '');
+
+        return (
+          <Tab
+            {...item}
+            key={`${item[keyField]}-${index}`}
+            className={classNameTab}
+            id={item[keyField]}
+            label={classNames(valuePrefix, label)}
+            isActive={item.isActive || item[keyField] === activeTabKey}
+            onClick={onClick ? () => onClick(index) : item.onClick}
+            hasHover={hasHover}
+            hasHint={hasHint}
+            isMobile={isMobile}
+          />
+        );
+      })}
     </div>
   );
 };

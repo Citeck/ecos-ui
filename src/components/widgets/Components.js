@@ -2,11 +2,12 @@ import { lazy } from 'react';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import uuidV4 from 'uuid/v4';
 
-import { t } from '../../helpers/util';
+import { getCurrentLocale, t } from '../../helpers/util';
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
 
 export const ComponentKeys = {
@@ -355,10 +356,11 @@ export default class Components {
 
   static getWidgetLabel(widget, isMobile) {
     const description = get(widget, 'description', '');
+    const descriptionDisp = isString(description) ? description : description[getCurrentLocale()];
     let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
 
     if (isMobile && description) {
-      label = `[${description}] ${label}`;
+      label = `[${descriptionDisp}] ${label}`;
       return label;
     }
 
