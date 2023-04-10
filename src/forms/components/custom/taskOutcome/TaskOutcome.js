@@ -11,9 +11,13 @@ const ThemeByType = {
   [ButtonType.NEGATIVE]: 'default',
   [ButtonType.POSITIVE]: 'primary'
 };
+const PROC_TASK_OUTCOME_ATTR = 'possibleOutcomes[]?json';
+const ALF_TASK_OUTCOME_DELIMITER = '#alf#';
+const ALF_TASK_ID_DELIMITER = '$';
 
 export default class TaskOutcome extends NestedComponent {
   #buttonKeyPrefix = 'outcome_';
+  taskRef = '';
 
   static schema(...extend) {
     return NestedComponent.schema(
@@ -61,6 +65,7 @@ export default class TaskOutcome extends NestedComponent {
   build() {
     this.createElement();
     this.component.components = [];
+    this.taskRef = this.root.options.recordId || '';
 
     if (!this.component.hideLabel) {
       this.createLabel(this.element);
@@ -71,22 +76,25 @@ export default class TaskOutcome extends NestedComponent {
       this.append(this.text(this.name + ' (' + this.key + ')'));
     }
 
-    this.getButtonsData();
+    this.loadButtonsData();
   }
 
-  getButtonsData() {
-    const record = this.root.options.recordId || '';
-    const attr = (this.component.properties || {}).attribute || this.key;
+  loadButtonsData() {
+    let outcomesAttr = (this.component.properties || {}).attribute || this.key;
 
-    if (!record || !attr) {
+    if (!this.taskRef || (!outcomesAttr && !this.isProcTask())) {
       this.generateButtons(this.parseButtons());
       this.attachLogic();
 
       return;
     }
 
-    Records.get(record)
-      .load(attr)
+    if (this.isProcTask()) {
+      outcomesAttr = PROC_TASK_OUTCOME_ATTR;
+    }
+
+    Records.get(this.taskRef)
+      .load(outcomesAttr)
       .then((result = '') => {
         this.dataValue = result;
 
@@ -98,29 +106,47 @@ export default class TaskOutcome extends NestedComponent {
   parseButtons(template = this.dataValue) {
     if (!template) {
       this.component.buttons = [];
-
       return [];
     }
 
-    this.component.buttons = template
-      .split('#alf#')
-      .map(item => {
-        const [buttonKey = '', label] = item.split('|');
+    let buttonData;
 
-        if (!buttonKey) {
-          return null;
-        }
-
-        const [key, theme = ButtonType.POSITIVE] = buttonKey.split('^');
-
+    if (this.isProcTask()) {
+      buttonData = template.map(item => {
         return {
-          key,
-          theme: ThemeByType[theme],
-          label: t(label || key)
+          id: item.id,
+          name: item.name,
+          theme: ThemeByType[ButtonType.POSITIVE]
         };
-      })
-      .filter(button => button)
-      .sort((first, second) => first.theme.localeCompare(second.theme));
+      });
+    } else {
+      buttonData = template
+        .split(ALF_TASK_OUTCOME_DELIMITER)
+        .map(item => {
+          const [buttonKey = '', label] = item.split('|');
+          if (!buttonKey) {
+            return null;
+          }
+
+          const [key, theme = ButtonType.POSITIVE] = buttonKey.split('^');
+
+          return {
+            id: key,
+            name: t(label || key),
+            theme: ThemeByType[theme]
+          };
+        })
+        .filter(button => button)
+        .sort((first, second) => first.theme.localeCompare(second.theme));
+    }
+
+    this.component.buttons = buttonData.map(item => {
+      return {
+        key: item.id,
+        label: item.name,
+        theme: item.theme
+      };
+    });
 
     return this.component.buttons;
   }
@@ -132,7 +158,7 @@ export default class TaskOutcome extends NestedComponent {
           'div',
           {
             id: this.id,
-            class: 'mb-2 mt-2 formio-task-outcome__panel'
+            class: 'mb-2 mt-2 formio-task-outcome__panel task-outcome-generated-right'
           },
           this.component.message
         )
@@ -143,7 +169,7 @@ export default class TaskOutcome extends NestedComponent {
 
     const panel = this.ce('div', {
       id: this.id,
-      class: 'mb-2 mt-2 formio-task-outcome__panel'
+      class: 'mb-2 mt-2 formio-task-outcome__panel task-outcome-generated-right'
     });
 
     this.component.buttons.forEach(button => {
@@ -174,5 +200,10 @@ export default class TaskOutcome extends NestedComponent {
 
   viewOnlyBuild() {
     this.buildHiddenElement();
+  }
+
+  isProcTask() {
+    const refId = this.taskRef.split('@')[1] || this.taskRef;
+    return refId.indexOf(ALF_TASK_ID_DELIMITER) === -1;
   }
 }
