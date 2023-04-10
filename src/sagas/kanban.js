@@ -224,7 +224,13 @@ export function* sagaGetData({ api, logger }, { payload }) {
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
         newRecordRefs.push(preparedRecords.map(rec => rec.cardId));
-        dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords] });
+
+        const allRecords = [...prevRecords, ...preparedRecords];
+        if (data.totalCount >= allRecords.length) {
+          dataCards.push({ totalCount: data.totalCount, records: [...allRecords] });
+        } else {
+          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords] });
+        }
       }
     });
 
