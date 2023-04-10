@@ -136,9 +136,6 @@
     ]
   },
   "browserslist": [
-    "last 1 version",
-    "> 1%",
-    "not dead"
   ],
   "proxy": "http://localhost:8080",
   "devDependencies": {
