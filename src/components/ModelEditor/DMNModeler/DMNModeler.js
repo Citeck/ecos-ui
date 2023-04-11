@@ -1,15 +1,21 @@
 import { CamundaPlatformModeler as Modeler } from 'camunda-dmn-js';
+import NavigatedViewer from 'dmn-js-drd/lib/NavigatedViewer';
 import { getBusinessObject } from 'dmn-js-shared/lib/util/ModelUtil';
 import 'camunda-dmn-js/dist/assets/camunda-platform-modeler.css';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
-import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
 
-import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../../constants/cmmn';
+import { LABEL_POSTFIX, PLANE_POSTFIX } from '../../../constants/cmmn';
 import BaseModeler from '../BaseModeler';
+
+import './patches';
+
 export default class DMNModeler extends BaseModeler {
+  __saveSvgFunc;
+
   initModelerInstance = () => {
     this.modeler = new Modeler({
       additionalModules: []
@@ -76,10 +82,13 @@ export default class DMNModeler extends BaseModeler {
       return;
     }
 
-    activeViewer
-      .saveSVG({ format: true })
+    if (!this.__saveSvgFunc) {
+      return;
+    }
+
+    this.__saveSvgFunc()
       .then(callback)
-      .catch(callback);
+      .catch(error => callback({ error, svg: null }));
   };
 
   setDrdViewerEvents = event => {
@@ -89,7 +98,7 @@ export default class DMNModeler extends BaseModeler {
     }
 
     const events = this.defaultEvents;
-    const extraEvents = this.extraEvents;
+    const extraEvents = this.defaultExtraEvents;
 
     if (events && events.onSelectElement) {
       this.events.onSelectElement = e => {
@@ -118,8 +127,22 @@ export default class DMNModeler extends BaseModeler {
     if (extraEvents) {
       Object.keys(extraEvents).forEach(key => {
         activeViewer.on(key, extraEvents[key]);
+        this.modeler.on(key, extraEvents[key]);
       });
     }
+
+    activeViewer.on('element.changed', e => {
+      if (Object.getPrototypeOf(activeViewer) instanceof NavigatedViewer) {
+        const canvas = activeViewer.get('canvas');
+        const activeLayer = canvas.getActiveLayer();
+
+        const canvasSvg = canvas._svg.cloneNode(true);
+        const layer = activeLayer.cloneNode(true);
+        const bbox = cloneDeep(activeLayer.getBBox());
+
+        this.__saveSvgFunc = activeViewer.saveSVG.bind(this, canvasSvg, layer, bbox);
+      }
+    });
   };
 
   setEvents = (events, extraEvents) => {
@@ -130,32 +153,29 @@ export default class DMNModeler extends BaseModeler {
     this.modeler.on('viewer.created', this.setDrdViewerEvents);
   };
 
-  updateProps = (element, properties) => {
-    const { name, id, ...data } = properties;
+  updateProps = (element, properties, withClear) => {
+    const { id, ...data } = properties;
     const activeViewer = this.modeler.getActiveViewer();
+    const activeView = this.modeler.getActiveView();
 
-    if (!activeViewer) {
+    if (!activeViewer || !activeView || activeView.type !== 'drd') {
       return;
     }
 
     const modeling = activeViewer.get('modeling');
-    const di = getDi(element);
-
-    if (!isNil(name) && di) {
-      const labelEditingProvider = activeViewer.get('labelEditingProvider');
-
-      isFunction(labelEditingProvider.update) && labelEditingProvider.update(element, name, name, element);
-    }
+    const di = getDi(element) || getDi(element.businessObject);
 
     if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && !id.endsWith(PLANE_POSTFIX) && di) {
       if (!this.idAssigned(id, element.businessObject)) {
         data.id = id;
-        isFunction(modeling.updateModdleProperties) && modeling.updateModdleProperties(element, di, { id: id + DI_POSTFIX });
       }
     }
 
     if (data) {
-      isFunction(modeling.updateProperties) && element.businessObject && modeling.updateProperties(element, data);
+      if (!element.businessObject) {
+        element.businessObject = element.businessObject || element;
+      }
+      isFunction(modeling.updateProperties) && element.businessObject && modeling.updateProperties(element, data, withClear);
     }
   };
 

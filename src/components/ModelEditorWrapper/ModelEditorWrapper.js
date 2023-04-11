@@ -69,12 +69,8 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configButtons() {
-    const { extraButtons, onCreate, onViewXml, onSaveAsSVG, isAnyConfigButtonHidden } = this.props;
+    const { extraButtons, onCreate, onViewXml, onSaveAsSVG } = this.props;
     const configButtons = [];
-
-    if (isAnyConfigButtonHidden) {
-      return [];
-    }
 
     const extra = get(extraButtons, 'config');
 

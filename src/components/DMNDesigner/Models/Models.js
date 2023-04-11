@@ -27,9 +27,15 @@ const mapDispatchToProps = dispatch => ({
   onViewLinkClick: e => {
     e.preventDefault();
 
-    PageService.changeUrlLink(e.currentTarget.href, {
-      openNewTab: true
-    });
+    dispatch(
+      savePagePosition({
+        callback: () => {
+          PageService.changeUrlLink(e.currentTarget.href, {
+            openNewTab: true
+          });
+        }
+      })
+    );
   },
   onEditLinkClick: (e, modelId) => {
     e.preventDefault();

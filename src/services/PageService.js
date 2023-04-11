@@ -19,6 +19,7 @@ export const PageTypes = {
   ADMIN_PAGE: 'admin',
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
+  DMN_EDITOR: 'dmn-editor',
   BPMN_DESIGNER: 'bpmn-designer',
   ORGSTRUCTURE: 'orgstructure',
   DEV_TOOLS: 'dev-tools',
@@ -64,6 +65,10 @@ export default class PageService {
       return PageTypes.BPMN_EDITOR;
     }
 
+    if (type.indexOf(PageTypes.DMN_EDITOR) === 0) {
+      return PageTypes.DMN_EDITOR;
+    }
+
     if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
       return PageTypes.ADMIN_PAGE;
     }
@@ -80,6 +85,7 @@ export default class PageService {
       case PageTypes.DASHBOARD:
       case PageTypes.CMMN_EDITOR:
       case PageTypes.BPMN_EDITOR:
+      case PageTypes.DMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
@@ -178,6 +184,9 @@ export default class PageService {
 
         return staticTitle(TITLE.ADMIN_PAGE);
       }
+    },
+    [PageTypes.DMN_EDITOR]: {
+      getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.DMN_EDITOR])} "${convertTitle(title)}"`)
     },
     [PageTypes.BPMN_EDITOR]: {
       getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_EDITOR])} "${convertTitle(title)}"`)

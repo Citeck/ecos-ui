@@ -4,6 +4,7 @@ import DMNModeler from '../../../components/ModelEditor/DMNModeler';
 import { EventListeners } from '../../../constants/cmmn';
 import ModelEditor from '../ModelEditor';
 import { SourcesId } from '../../../constants';
+import { DMN_KEY_FIELDS } from '../../../constants/dmn';
 
 class DMNEditorPage extends ModelEditor {
   static modelType = 'dmn';
@@ -20,6 +21,10 @@ class DMNEditorPage extends ModelEditor {
     return this.formType ? `${SourcesId.FORM}@dmn-type-${this.formType}` : null;
   }
 
+  get keyFields() {
+    return DMN_KEY_FIELDS;
+  }
+
   getElement(element = {}) {
     const modeler = this.designer.modeler;
     if (!modeler) {
@@ -27,7 +32,9 @@ class DMNEditorPage extends ModelEditor {
     }
 
     const activeViewer = modeler.getActiveViewer();
-    if (!activeViewer) {
+    const activeView = modeler.getActiveView();
+
+    if (!activeViewer || activeView !== 'drd') {
       return;
     }
 

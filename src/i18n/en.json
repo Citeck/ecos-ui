@@ -1008,6 +1008,7 @@
   "page-tabs.form-components": "Form components",
   "page-tabs.cmmn-editor": "Scenario",
   "page-tabs.bpmn-editor": "Process",
+  "page-tabs.dmn-editor": "Process",
   "page-tabs.type": "Type",
   "page-tabs.board": "Board",
   "page-tabs.form": "Form",

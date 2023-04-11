@@ -17,6 +17,7 @@ import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
+  KEY_FIELD_ID,
   KEY_FIELD_NAME,
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
@@ -38,6 +39,7 @@ import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
+import { DMN_DEFINITIONS } from '../../constants/dmn';
 
 import './ModelEditor.scss';
 
@@ -312,6 +314,10 @@ class ModelEditorPage extends React.Component {
     };
   }
 
+  get keyFields() {
+    return KEY_FIELDS;
+  }
+
   get editorExtraButtons() {
     const config = [];
     const zoom = [];
@@ -377,7 +383,7 @@ class ModelEditorPage extends React.Component {
     }
 
     Object.keys(get(element, 'businessObject', {})).forEach(key => {
-      if (KEY_FIELDS.includes(key)) {
+      if (this.keyFields.includes(key)) {
         const value = get(element, ['businessObject', key]);
 
         if (!isUndefined(value)) {
@@ -539,13 +545,15 @@ class ModelEditorPage extends React.Component {
         continue;
       }
 
-      const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+      const fieldKey = this.keyFields.includes(key) ? key : PREFIX_FIELD + key;
       const rawValue = info.data[key];
 
+      if (is(selectedDiagramElement, DMN_DEFINITIONS) && key === KEY_FIELD_ID) {
+        modelData[PREFIX_FIELD + 'defId'] = rawValue;
+      }
+
       if (is(selectedDiagramElement, DEFINITON_TYPE) && key === 'processDefId') {
-        this.designer.updateProps(selectedDiagramElement, {
-          id: rawValue
-        });
+        modelData['id'] = rawValue;
       }
 
       if (is(selectedDiagramElement, PARTICIPANT_TYPE) && key === 'processRef') {
@@ -572,12 +580,12 @@ class ModelEditorPage extends React.Component {
 
       modelData[fieldKey] = valueAsText;
 
-      if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
+      if (this.keyFields.includes(key) || key.endsWith(ML_POSTFIX)) {
         modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
       }
     }
 
-    this.designer.updateProps(selectedElement, modelData);
+    this.designer.updateProps(selectedElement, modelData, true);
 
     if (selectedDiagramElement) {
       const eventBus = this.designer.getEventBus();
@@ -733,14 +741,7 @@ class ModelEditorPage extends React.Component {
         onMounted: this.handleReadySheet,
         onChangeElement: this.handleChangeElement,
         onChangeElementLabel: this.handleChangeLabel,
-        extraEvents: {
-          [EventListeners.CREATE_END]: this.handleElementCreateEnd,
-          [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
-          [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
-          [EventListeners.DRAG_START]: this.handleDragStart,
-          [EventListeners.ROOT_SET]: this.handleSetRoot,
-          [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
-        }
+        extraEvents: this.extraEvents
       });
     } else {
       return <InfoText text={t(`editor.error.no-model`)} />;

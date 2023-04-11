@@ -24,6 +24,7 @@ export const TITLE = {
   FORM: 'page-tabs.form',
   [URL.HOME]: 'header.site-menu.home-page',
   [URL.JOURNAL]: 'page-tabs.journal',
+  [URL.DMN_EDITOR]: 'page-tabs.dmn-editor',
   [URL.BPMN_EDITOR]: 'page-tabs.bpmn-editor',
   [URL.CMMN_EDITOR]: 'page-tabs.cmmn-editor',
   [URL.DASHBOARD]: 'header.site-menu.home-page',
