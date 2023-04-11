@@ -18,6 +18,7 @@ export const TITLE = {
   JOURNAL: 'page-tabs.journal',
   ORGSTRUCTURE: 'page-tabs.orgstructure',
   BPM: 'page-tabs.bpmn-designer',
+  DMN: 'page-tabs.dmn-designer',
   ADMIN_PAGE: 'page-tabs.admin-page',
   TYPE: 'page-tabs.type',
   BOARD: 'page-tabs.board',

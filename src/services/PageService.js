@@ -182,6 +182,10 @@ export default class PageService {
           return staticTitle(TITLE.BPM);
         }
 
+        if (type === SectionTypes.DMN) {
+          return staticTitle(TITLE.DMN);
+        }
+
         return staticTitle(TITLE.ADMIN_PAGE);
       }
     },

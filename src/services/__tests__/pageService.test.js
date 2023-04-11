@@ -90,6 +90,7 @@ describe('Page Service', () => {
     ],
     ['/v2/dashboard?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', TITLE],
     ['/v2/admin?type=BPM', 'page-tabs.bpmn-designer'],
+    ['/v2/admin?type=DMN', 'page-tabs.dmn-designer'],
     ['/v2/timesheet', 'page-tabs.timesheet'],
     ['/v2/cmmn-editor?recordRef=workspace://SpacesStore/2b21ae02-a5ec-48cb-8d20-5cb1dbd6fa72', `page-tabs.cmmn-editor \"${TITLE}\"`]
   ])('Method getTitle by type', (link, output) => {
