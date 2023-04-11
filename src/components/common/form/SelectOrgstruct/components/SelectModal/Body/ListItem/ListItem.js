@@ -74,12 +74,14 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
     'select-orgstruct__list-item-label_margin-left': nestingLevel > 0 && !item.hasChildren
   });
 
+  const label = renderListItem(item);
+
   return (
-    <li>
+    <li title={label}>
       <div className={listItemClassNames} onDoubleClick={onDoubleClick}>
         <div className={listItemLabelClassNames} onClick={onClickLabel}>
           {renderCollapseHandler()}
-          {renderListItem(item)}
+          {label}
         </div>
         {renderSelectHandler()}
       </div>
