@@ -166,7 +166,7 @@ export default class BaseModeler {
     return !!businessObject.$model.ids.assigned(id);
   };
 
-  updateProps = (element, properties) => {
+  updateProps = (element, properties, withClear) => {
     const { name, id, ...data } = properties;
     const modeling = this.modeler.get('modeling');
     const di = getDi(element);
@@ -185,7 +185,7 @@ export default class BaseModeler {
     }
 
     if (data) {
-      modeling.updateProperties(element, data);
+      modeling.updateProperties(element, data, withClear);
     }
   };
 
@@ -249,7 +249,7 @@ export default class BaseModeler {
    * @return {ReactComponent}
    */
   renderSheet = props => <Sheet {...props} init={this.init} />;
- 
+
   destroy = () => {
     if (this.events) {
       this.events.onSelectElement && this.modeler.off('selection.changed', this.events.onSelectElement);

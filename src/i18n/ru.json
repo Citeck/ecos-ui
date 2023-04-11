@@ -1007,6 +1007,7 @@
   "page-tabs.form-components": "Компоненты формы",
   "page-tabs.cmmn-editor": "Сценарий",
   "page-tabs.bpmn-editor": "Процесс",
+  "page-tabs.dmn-editor": "Процесс",
   "page-tabs.type": "Тип",
   "page-tabs.board": "Доска",
   "page-tabs.form": "Форма",

@@ -54,6 +54,10 @@
           }
         }
 
+        & .dmn-definitions {
+          display: none;
+        }
+
         & .dmn-literal-expression-container {
           display: flex;
           justify-content: center;
