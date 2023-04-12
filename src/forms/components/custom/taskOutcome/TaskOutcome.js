@@ -1,5 +1,7 @@
 import NestedComponent from 'formiojs/components/nested/NestedComponent';
 
+import _ from 'lodash';
+
 import Records from '../../../../components/Records';
 import { t } from '../../../../helpers/util';
 
@@ -14,6 +16,7 @@ const ThemeByType = {
 const PROC_TASK_OUTCOME_ATTR = 'possibleOutcomes[]?json';
 const ALF_TASK_OUTCOME_DELIMITER = '#alf#';
 const ALF_TASK_ID_DELIMITER = '$';
+const DEFAULT_TASK_BUTTON_THEME = 'default';
 
 export default class TaskOutcome extends NestedComponent {
   #buttonKeyPrefix = 'outcome_';
@@ -116,7 +119,7 @@ export default class TaskOutcome extends NestedComponent {
         return {
           id: item.id,
           name: item.name,
-          theme: ThemeByType[ButtonType.POSITIVE]
+          theme: _.get(item, 'config.theme', DEFAULT_TASK_BUTTON_THEME).toLowerCase()
         };
       });
     } else {
