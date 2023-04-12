@@ -10,7 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
 import { Attributes, Permissions } from '../../../../constants';
-import { getHtmlIdByUid, beArray, isMobileDevice, t } from '../../../../helpers/util';
+import { getHtmlIdByUid, beArray, isMobileDevice, t, isNodeRef } from '../../../../helpers/util';
 import { getIconUpDown } from '../../../../helpers/icon';
 import JournalsConverter from '../../../../dto/journals';
 import JournalsService from '../../../Journals/service';
@@ -186,9 +186,8 @@ export default class SelectJournal extends Component {
 
   shouldResetValue = () => {
     return new Promise(async resolve => {
-      const { customPredicate, pagination, filterPredicate } = this.state;
-      const { selectedRows } = this.state;
       const { sortBy, disableResetOnApplyCustomPredicate } = this.props;
+      const { selectedRows, customPredicate, pagination, filterPredicate } = this.state;
       let { journalConfig } = this.state;
 
       if (disableResetOnApplyCustomPredicate || selectedRows.length < 1) {
@@ -198,15 +197,23 @@ export default class SelectJournal extends Component {
       const dbIDsArray = await Promise.all(
         selectedRows.map(({ id }) =>
           Records.get(id)
-            .load(Attributes.DBID)
+            .load(isNodeRef(id) ? Attributes.DBID : '?localId')
             .then(dbID => ({ id, dbID }))
         )
       );
+
       const dbIDsObj = {};
       dbIDsArray.forEach(({ id, dbID }) => (dbIDsObj[id] = dbID));
 
       const selectedRowsPredicate = customPredicate
-        ? { t: 'or', val: selectedRows.map(item => ({ t: 'eq', att: Attributes.DBID, val: dbIDsObj[item.id] })) }
+        ? {
+            t: 'or',
+            val: selectedRows.map(item => ({
+              t: 'eq',
+              att: isNodeRef(item.id) ? Attributes.DBID : 'id',
+              val: dbIDsObj[item.id]
+            }))
+          }
         : null;
 
       const settings = JournalsConverter.getSettingsForDataLoaderServer({

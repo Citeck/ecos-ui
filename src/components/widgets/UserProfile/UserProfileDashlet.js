@@ -67,8 +67,8 @@ class UserProfileDashlet extends BaseWidget {
 
       Records.get(record)
         .load('avatar?json')
-        .then(({ url }) => {
-          if (lastPhotoUrl && url !== lastPhotoUrl) {
+        .then(data => {
+          if (data && lastPhotoUrl && data.url !== lastPhotoUrl) {
             this.handleUpdate();
           }
         });
