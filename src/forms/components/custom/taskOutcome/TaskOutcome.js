@@ -16,7 +16,7 @@ const ThemeByType = {
 const PROC_TASK_OUTCOME_ATTR = 'possibleOutcomes[]?json';
 const ALF_TASK_OUTCOME_DELIMITER = '#alf#';
 const ALF_TASK_ID_DELIMITER = '$';
-const DEFAULT_TASK_BUTTON_THEME = 'default';
+const DEFAULT_TASK_BUTTON_THEME = 'primary';
 
 export default class TaskOutcome extends NestedComponent {
   #buttonKeyPrefix = 'outcome_';
