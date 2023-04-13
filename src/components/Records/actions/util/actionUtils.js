@@ -80,6 +80,7 @@ function formatArrayResult(data) {
  * @enum {String}
  */
 export const ResultTypes = {
+  RUNNING: 'running',
   LINK: 'link',
   RESULTS: 'results',
   MSG: 'msg',

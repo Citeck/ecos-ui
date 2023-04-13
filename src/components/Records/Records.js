@@ -270,13 +270,14 @@ class RecordsComponent {
     const response = await recordsQueryFetch(queryBody);
 
     const { messages, hasMore, totalCount, records: _records } = response;
-    let records = await processRespRecords(_records);
+    const records = await processRespRecords(_records);
     return {
       records,
       messages,
       hasMore,
       totalCount,
-      errors: messages.filter(msg => msg && msg.level === 'ERROR')
+      attributes: queryBody.attributes,
+      errors: messages && messages.filter(msg => msg && msg.level === 'ERROR')
     };
   }
 }
