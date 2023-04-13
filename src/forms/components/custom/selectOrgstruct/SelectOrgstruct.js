@@ -213,6 +213,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
       return;
     }
 
+    this.dataValue = value;
+
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241
       isEqual(value, this.emptyValue) &&
