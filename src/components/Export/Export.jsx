@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { NotificationManager } from 'react-notifications';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
@@ -56,6 +57,7 @@ export default class Export extends Component {
 
   handleExport = async item => {
     if (this.#actionsDoing.get(item.id)) {
+      NotificationManager.warning(t('ecos-form.export.attention'));
       return;
     }
 
@@ -65,7 +67,7 @@ export default class Export extends Component {
       const { journalConfig } = this.props;
       const recordsQuery = await journalsService.getRecordsQuery(journalConfig, this.getJSettings());
       const actionConfig = this.getActionConfig(item);
-      const action = { type: RecordsExportAction.ACTION_ID, config: actionConfig };
+      const action = recordActions.getActionInfo({ type: RecordsExportAction.ACTION_ID, config: actionConfig });
 
       this.textInput.current.value = JSON.stringify(recordsQuery.query);
 

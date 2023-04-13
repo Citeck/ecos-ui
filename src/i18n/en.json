@@ -400,6 +400,7 @@
   "ecos-form.error.clone-record": "Record hasn't cloned",
   "ecos-form.error.no-form": "No form",
   "ecos-form.error.form-is-not-available": "Form is not available",
+  "ecos-form.export.attention": "You cannot start multiple identical actions at the same time",
   "ecos-form.success.clone-record": "Record has cloned",
   "ecos-form.infinite-loop": "Data fields are looping",
 
