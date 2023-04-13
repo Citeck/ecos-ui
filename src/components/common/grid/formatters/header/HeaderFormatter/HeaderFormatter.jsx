@@ -110,7 +110,7 @@ export default class HeaderFormatter extends Component {
     const { column } = this.props;
 
     this.setState({ text: '' });
-    this.triggerPendingChange('', column.dataField, column.type);
+    this.triggerPendingChange('', column.attribute || column.dataField, column.type);
   };
 
   triggerPendingChange = debounce((text, dataField, type) => {
@@ -327,7 +327,7 @@ export default class HeaderFormatter extends Component {
     const { column = {}, sortable } = this.props;
     const { isOpenLabelTooltip } = this.state;
 
-    const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
+    const id = `${replace(column.attribute || column.dataField, /[\W]*/g, '')}-${this._id}`;
     this.tooltipFilterId = `filter-${id}`;
     this.tooltipLabelId = `label-${id}`;
     this.tooltipTextId = `text-${id}`;
