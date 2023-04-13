@@ -34,7 +34,6 @@ const originalElementInfo = Base.prototype.elementInfo;
 const originalCreateDescription = Base.prototype.createDescription;
 const originalAddShortcutToLabel = Base.prototype.addShortcutToLabel;
 const originalEvalContext = Base.prototype.evalContext;
-const originalCreateModal = Base.prototype.createModal;
 const originalOnChange = Base.prototype.onChange;
 const setPristine = Base.prototype.setPristine;
 // Methods <<<
@@ -966,21 +965,55 @@ Object.defineProperty(Base.prototype, 'originalComponent', {
 });
 
 Base.prototype.createModal = function(...params) {
-  const modal = originalCreateModal.call(this, ...params);
-  const originClose = modal.close;
+  const modalBody = this.ce('div');
+  const modalOverlay = this.ce('div', {
+    class: 'formio-dialog-overlay'
+  });
+  const closeDialog = this.ce('button', {
+    class: 'formio-dialog-close pull-right btn btn-default btn-xs',
+    'aria-label': 'close'
+  });
+  const modalBodyContainer = this.ce(
+    'div',
+    {
+      class: 'formio-dialog-content'
+    },
+    [modalBody, closeDialog]
+  );
+  const dialog = this.ce(
+    'div',
+    {
+      class: 'formio-dialog formio-dialog-theme-default component-settings'
+    },
+    [modalOverlay, modalBodyContainer]
+  );
+  this.addEventListener(modalOverlay, 'click', function(event) {
+    event.preventDefault();
+    dialog.close();
+  });
+  this.addEventListener(closeDialog, 'click', function(event) {
+    event.preventDefault();
+    dialog.close();
+  });
+  this.addEventListener(dialog, 'close', () => {
+    this.removeChildFrom(dialog, document.body);
+  });
+  dialog.classList.add('ecosZIndexAnchor');
 
-  modal.classList.add('ecosZIndexAnchor');
+  document.body.appendChild(dialog);
+  dialog.body = modalBody;
+  dialog.bodyContainer = modalBodyContainer;
 
-  modal.close = () => {
+  dialog.close = () => {
     clearFormFromCache(this.editForm.id);
-
-    originClose.call(this);
+    dialog.dispatchEvent(new CustomEvent('close'));
+    this.removeChildFrom(dialog, document.body);
   };
 
   ZIndex.calcZ();
-  ZIndex.setZ(modal);
+  ZIndex.setZ(dialog);
 
-  return modal;
+  return dialog;
 };
 
 Base.prototype.inlineEditRollback = function() {
