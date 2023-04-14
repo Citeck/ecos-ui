@@ -949,6 +949,14 @@ class Grid extends Component {
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
         onScrollStop={this.onScrollStop}
+        onUpdate={() => {
+          // Cause: https://citeck.atlassian.net/browse/ECOSUI-2204
+          // When the search string is updated, the value of the local variable "maxHeight" changes.
+          // But it doesn't lead to rerender.
+          if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
+            this.forceUpdate();
+          }
+        }}
         style={scrollStyle}
         autoHide={scrollAutoHide}
         hideTracksWhenNotNeeded
