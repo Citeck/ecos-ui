@@ -7,32 +7,26 @@ import DashboardService from '../services/dashboard';
 
 const selectState = (state, key) => get(state, ['dashboardSettings', key], { ...initialState });
 
-export const selectStateByKey = createSelector(
-  selectState,
-  ownState => {
-    const config = get(ownState, 'config', {});
-    const layouts = get(config, 'layouts', []);
+export const selectStateByKey = createSelector(selectState, ownState => {
+  const config = get(ownState, 'config', {});
+  const layouts = get(config, 'layouts', []);
 
-    return {
-      config: layouts,
-      mobileConfig: get(config, 'mobile', []),
-      availableWidgets: get(ownState, 'availableWidgets', []),
-      modelAttributes: get(ownState, 'modelAttributes', []),
-      isLoading: get(ownState, 'isLoading', false),
-      isLoadingKeys: get(ownState, 'isLoadingKeys', false),
-      requestResult: get(ownState, 'requestResult', {}),
-      identification: get(ownState, 'identification', {}),
-      dashboardKeyItems: get(ownState, 'dashboardKeys', []),
-      recordRef: get(ownState, 'recordRef'),
-      isDefaultConfig: !isExistValue(get(ownState, 'identification.user'))
-    };
-  }
-);
+  return {
+    config: layouts,
+    mobileConfig: get(config, 'mobile', []),
+    availableWidgets: get(ownState, 'availableWidgets', []),
+    modelAttributes: get(ownState, 'modelAttributes', []),
+    isLoading: get(ownState, 'isLoading', false),
+    isLoadingKeys: get(ownState, 'isLoadingKeys', false),
+    requestResult: get(ownState, 'requestResult', {}),
+    identification: get(ownState, 'identification', {}),
+    dashboardKeyItems: get(ownState, 'dashboardKeys', []),
+    recordRef: get(ownState, 'recordRef'),
+    isDefaultConfig: !isExistValue(get(ownState, 'identification.user'))
+  };
+});
 
-export const selectNewVersionConfig = createSelector(
-  config => config,
-  config => get(config, config.version, [])
-);
+export const selectNewVersionConfig = createSelector(config => config, config => get(config, config.version, []));
 
 export const selectSelectedWidgetsById = createSelector(
   config => get(config, 'widgets', []),
@@ -65,6 +59,10 @@ export const selectSelectedWidgetsById = createSelector(
     const data = DashboardService.getWidgetsById(widgets);
 
     Object.keys(data).forEach(key => {
+      if (!tabByWidget[key]) {
+        return;
+      }
+
       data[key] = {
         ...data[key],
         description: tabByWidget[key].label
@@ -75,17 +73,8 @@ export const selectSelectedWidgetsById = createSelector(
   }
 );
 
-export const selectOriginalConfig = createSelector(
-  selectState,
-  ownState => get(ownState, 'originalConfig', [])
-);
+export const selectOriginalConfig = createSelector(selectState, ownState => get(ownState, 'originalConfig', []));
 
-export const selectRecordRef = createSelector(
-  selectState,
-  ownState => get(ownState, 'recordRef')
-);
+export const selectRecordRef = createSelector(selectState, ownState => get(ownState, 'recordRef'));
 
-export const selectIdentification = createSelector(
-  selectState,
-  ownState => get(ownState, 'identification')
-);
+export const selectIdentification = createSelector(selectState, ownState => get(ownState, 'identification'));
