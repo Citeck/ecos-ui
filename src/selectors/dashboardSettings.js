@@ -65,6 +65,10 @@ export const selectSelectedWidgetsById = createSelector(
     const data = DashboardService.getWidgetsById(widgets);
 
     Object.keys(data).forEach(key => {
+      if (!tabByWidget[key]) {
+        return;
+      }
+
       data[key] = {
         ...data[key],
         description: tabByWidget[key].label
