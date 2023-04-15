@@ -1222,9 +1222,7 @@ export default class SelectComponent extends BaseComponent {
     this.on(
       'change',
       () => {
-        if (refreshData === 'data') {
-          this.refresh(this.data, refreshData);
-        }
+        this.refresh(this.data, refreshData);
       },
       true
     );
