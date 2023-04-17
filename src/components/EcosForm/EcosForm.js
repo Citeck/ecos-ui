@@ -192,7 +192,7 @@ class EcosForm extends React.Component {
           translateKeys.push(getCurrentLocale());
         }
         const translations = translateKeys.reduce((result, key) => {
-          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
+          const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, get(formData, ['i18n', key], {}));
 
           if (key === language) {
             currentLangTranslate = translate;
