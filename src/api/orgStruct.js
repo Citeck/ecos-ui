@@ -205,7 +205,7 @@ export class OrgStructApi extends CommonApi {
     }
 
     const defaultAttributes = {
-      fullName: '.disp',
+      fullName: 'userName',
       userName: 'userName',
       personDisabled: 'isPersonDisabled?bool',
       type: 'type'
