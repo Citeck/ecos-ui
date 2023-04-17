@@ -75,6 +75,8 @@ export default class Export extends Component {
     } else if (isFunction(item.click)) {
       await item.click();
     }
+
+    this.#actionsDoing.delete(item.id);
   };
 
   handleCopyUrl = async () => {
