@@ -1,5 +1,6 @@
 import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
+import Flatpickr from 'flatpickr';
 import moment from 'moment';
 
 import { getCurrentLocale } from '../../../helpers/util';
@@ -44,8 +45,42 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
     super.attach(input);
 
+    this.settings.parseDate = (inputDate, format) => {
+      this.enteredDate = inputDate;
+
+      if (this.calendar) {
+        this.calendar.clear();
+      }
+
+      const result = Flatpickr.parseDate(inputDate, format);
+      if (result) {
+        return result;
+      }
+
+      if (this.calendar) {
+        this.calendar.close();
+      }
+
+      return result;
+    };
+
     // Bug: https://github.com/flatpickr/flatpickr/issues/2047
     if (this._input) {
+      this.calendar = new Flatpickr(this._input, this.settings);
+
+      // const originSetDate = this.calendar.setDate;
+      // this.calendar.setDate = (date, triggerChange, format) => {
+      //   if (this.settings.enableTime) {
+      //     const hours = get(this.calendar, 'hourElement.value');
+      //     const minutes = get(this.calendar, 'minuteElement.value');
+      //     const newDate = new Date(this.calendar._input.value);
+      //     newDate.setHours(hours);
+      //     newDate.setMinutes(minutes);
+      //     return originSetDate(newDate, triggerChange, format);
+      //   }
+
+      //   return originSetDate(date, triggerChange, format);
+      // };
       this.setInputMask(this.calendar._input, convertFormatToMask(this.settings.format));
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1535
