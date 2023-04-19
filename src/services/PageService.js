@@ -1,6 +1,7 @@
 import queryString from 'query-string';
 import get from 'lodash/get';
 import isString from 'lodash/isString';
+import isArray from 'lodash/isArray';
 
 import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
@@ -104,6 +105,9 @@ export default class PageService {
 
     switch (_type) {
       case PageTypes.DASHBOARD:
+        const { recordRef = '' } = urlProps.query;
+
+        return isArray(recordRef) ? recordRef.shift() : recordRef;
       case PageTypes.CMMN_EDITOR:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:

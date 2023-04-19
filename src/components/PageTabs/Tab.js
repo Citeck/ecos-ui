@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
+import isArray from 'lodash/isArray';
 
 import { t } from '../../helpers/util';
 import { PointsLoader, Tooltip } from '../common';
@@ -38,7 +39,7 @@ class Tab extends Component {
     const recordRef = get(queryString.parseUrl(link), 'query.recordRef', null);
 
     if (recordRef) {
-      this.instanceRecord = Records.get(recordRef);
+      this.instanceRecord = Records.get(isArray(recordRef) ? recordRef.shift() : recordRef);
       this.watcher = this.instanceRecord && this.instanceRecord.watch(['name'], this.updateTab);
     }
   }
@@ -77,7 +78,7 @@ class Tab extends Component {
       y: event.clientY,
       ctrlKey: event.ctrlKey,
       shiftKey: event.shiftKey,
-      metaKey: event.metaKey,
+      metaKey: event.metaKey
     });
   };
 
