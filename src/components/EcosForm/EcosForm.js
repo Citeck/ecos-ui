@@ -58,11 +58,15 @@ class EcosForm extends React.Component {
   }
 
   componentDidMount() {
-    const record = Records.getRecordToEdit(this.props.record);
+    try {
+      const record = Records.getRecordToEdit(this.props.record);
 
-    this.setState({ recordId: record.id }, () => {
-      this.initForm();
-    });
+      this.setState({ recordId: record.id }, () => {
+        this.initForm();
+      });
+    } catch {
+      throw new Error(t('ecos-form.empty-form-data'));
+    }
 
     window.addEventListener('scroll', this.onScrollWindow, true);
   }

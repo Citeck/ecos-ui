@@ -94,7 +94,10 @@ class Dashboard extends Component {
     super(props);
 
     this.state.config = props.config || [];
-    this.instanceRecord = Records.get(this.getPathInfo().recordRef);
+
+    const recordRef = get(this.getPathInfo(), 'recordRef', null);
+
+    this.instanceRecord = Records.get(recordRef);
     this.watcher = this.instanceRecord.watch(['version', 'name'], this.updateSomeDetails);
 
     this.recordUpdater = new RecordUpdater(this.instanceRecord);
@@ -226,7 +229,7 @@ class Dashboard extends Component {
     const { recordRef, dashboardId, dashboardKey } = searchParams;
 
     return {
-      recordRef,
+      recordRef: isArray(recordRef) ? recordRef.shift() : recordRef,
       dashboardId,
       dashboardKey,
       search
