@@ -1,0 +1,57 @@
+diff --git a/node_modules/formiojs/components/base/Base.js b/node_modules/formiojs/components/base/Base.js
+index 2da74da..64b6ec8 100644
+--- a/node_modules/formiojs/components/base/Base.js
++++ b/node_modules/formiojs/components/base/Base.js
+@@ -901,7 +901,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+         data: this.rootValue,
+         submission: this.root ? this.root._submission : {},
+         form: this.root ? this.root._form : {}
+-      }, additional, _lodash.default.get(this.root, 'options.evalContext', {})));
++      }, additional));
+     }
+   }, {
+     key: "setPristine",
+@@ -2290,10 +2290,12 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+   }, {
+     key: "hasChanged",
+     value: function hasChanged(newValue, oldValue) {
+-      if ((newValue === undefined || newValue === null) && (oldValue === undefined || oldValue === null || this.isEmpty(oldValue))) {
++      if (
++        ((newValue === undefined) || (newValue === null)) &&
++        ((oldValue === undefined) || (oldValue === null) || this.isEmpty(oldValue))
++      ) {
+         return false;
+       }
+-
+       return !_lodash.default.isEqual(newValue, oldValue);
+     }
+     /**
+@@ -2458,7 +2460,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+       } // No need to check for errors if there is no input or if it is pristine.
+ 
+ 
+-      if (!this.hasInput) {
++      if (!this.hasInput || (!dirty && this.pristine)) {
+         return '';
+       }
+ 
+@@ -2485,16 +2487,9 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+         return true;
+       }
+   
+-      var error = _Validator.default.check(this, data);
+-
+-      if (error && (dirty || !this.pristine)) {
+-        var message = this.invalidMessage(data, dirty, true);
+-        this.setCustomValidity(message, dirty);
+-      } else {
+-        this.setCustomValidity('');
+-      }
+-
+-      return !error;
++      const message = this.invalidMessage(data, dirty, true);
++      this.setCustomValidity(message, dirty);
++      return message ? false : true;
+     }
+     /* eslint-disable max-len */
+ 

@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty';
 import isUndefined from 'lodash/isUndefined';
 import isFunction from 'lodash/isFunction';
 
-import { isSmallMode, t } from '../../helpers/util';
+import { isSmallMode } from '../../helpers/util';
 import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../constants';
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
@@ -70,10 +70,6 @@ class BaseWidget extends React.Component {
   }
 
   get instanceRecord() {
-    if (isEmpty(this.props.record)) {
-      throw new Error(t('ecos-form.empty-form-data'));
-    }
-
     return Records.get(this.props.record);
   }
 
