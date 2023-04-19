@@ -18,8 +18,8 @@ const Labels = {
   NO_HANDLER: 'record-action.name.export-report.msg.no-handler',
   NO_RESULT_URL: 'record-action.name.export-report.msg.done-no-url',
   NO_RESULT_TYPE: 'record-action.name.export-report.msg.done-no-type',
-  SENDING_TO_EMAIL: 'record-action.name.export-report.msg.sending-to-email',
-  ALREADY_RUNNING: 'ecos-form.export.attention'
+  SERVER_ERROR_TYPE: 'record-action.name.export-report.msg.server-error-type',
+  SENDING_TO_EMAIL: 'record-action.name.export-report.msg.sending-to-email'
 };
 
 export default class RecordsExportAction extends ActionsExecutor {
@@ -78,6 +78,10 @@ export default class RecordsExportAction extends ActionsExecutor {
         throwError(Labels.NO_RESULT, newAction);
       }
 
+      if (!result.type && result.code && result.code >= 500) {
+        throwError(result.error || Labels.SERVER_ERROR_TYPE, result);
+      }
+
       if (!Object.values(ResultTypes).includes(result.type)) {
         throwError(Labels.NO_RESULT_TYPE, result);
       }
@@ -113,10 +117,6 @@ export default class RecordsExportAction extends ActionsExecutor {
 
       if (result.type === ResultTypes.RESULTS && get(result, 'data.results.length') === 1) {
         return { type: ResultTypes.MSG, data: get(result, 'data.results[0]') };
-      }
-
-      if (result.type === ResultTypes.RUNNING) {
-        return { type: ResultTypes.MSG, data: t(Labels.ALREADY_RUNNING) };
       }
 
       return result;
