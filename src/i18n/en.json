@@ -568,6 +568,7 @@
   "record-action.name.export-report.msg.no-handler": "Action handler doesn't exists",
   "record-action.name.export-report.msg.done-no-url": "Done, but url not specified in result",
   "record-action.name.export-report.msg.done-no-type": "Unknown type of result",
+  "record-action.name.export-report.msg.server-error-type": "Server error",
   "record-action.name.export-report.msg.sending-to-email": "The upload is generated and will be sent to the email address specified in your ECOS profile",
 
   "record-action.edit-journal-preset.name": "Edit journal template",
