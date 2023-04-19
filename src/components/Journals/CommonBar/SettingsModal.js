@@ -39,22 +39,26 @@ class SettingsModal extends Component {
   constructor(props) {
     super(props);
 
+    const { originGridSettings } = props;
+
     this.state = {
-      predicate: cloneDeep(get(props, 'filtersData.predicate', [])),
-      columns: cloneDeep(get(props, 'columnsData.columns', [])),
-      sortBy: cloneDeep(get(props, 'columnsData.sortBy', [])),
-      grouping: cloneDeep(get(props, 'groupingData', {})),
+      predicate: cloneDeep(get(props, 'filtersData.predicate', get(originGridSettings, 'predicate'))),
+      columns: cloneDeep(get(props, 'columnsData.columns', get(originGridSettings, 'columnsSetup.columns'))),
+      sortBy: cloneDeep(get(props, 'columnsData.sortBy', get(originGridSettings, 'columnsSetup.sortBy'))),
+      grouping: cloneDeep(get(props, 'groupingData', get(originGridSettings, 'grouping'))),
       needUpdate: false
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { originGridSettings } = this.props;
+
     if (!prevProps.isOpen && this.props.isOpen) {
       this.setState({
-        predicate: cloneDeep(get(this.props, 'filtersData.predicate', [])),
-        columns: cloneDeep(get(this.props, 'columnsData.columns', [])),
-        sortBy: cloneDeep(get(this.props, 'columnsData.sortBy', [])),
-        grouping: cloneDeep(get(this.props, 'groupingData', {}))
+        predicate: cloneDeep(get(this.props, 'filtersData.predicate', get(originGridSettings, 'predicate'))),
+        columns: cloneDeep(get(this.props, 'columnsData.columns', get(originGridSettings, 'columnsSetup.columns'))),
+        sortBy: cloneDeep(get(this.props, 'columnsData.sortBy', get(originGridSettings, 'columnsSetup.sortBy'))),
+        grouping: cloneDeep(get(this.props, 'groupingData', get(originGridSettings, 'grouping')))
       });
     }
   }
