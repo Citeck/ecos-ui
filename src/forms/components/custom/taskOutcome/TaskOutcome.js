@@ -161,7 +161,7 @@ export default class TaskOutcome extends NestedComponent {
           'div',
           {
             id: this.id,
-            class: 'mb-2 mt-2 formio-task-outcome__panel task-outcome-generated-right'
+            class: 'mb-2 mt-2 formio-task-outcome__panel'
           },
           this.component.message
         )
@@ -172,7 +172,7 @@ export default class TaskOutcome extends NestedComponent {
 
     const panel = this.ce('div', {
       id: this.id,
-      class: 'mb-2 mt-2 formio-task-outcome__panel task-outcome-generated-right'
+      class: 'mb-2 mt-2 formio-task-outcome__panel'
     });
 
     this.component.buttons.forEach(button => {
