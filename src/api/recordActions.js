@@ -32,7 +32,7 @@ export class RecordActionsApi extends CommonApi {
   };
 
   executeServerGroupAction = ({ action, query, nodes, excludedRecords }) => {
-    const { type, params } = action;
+    const { type, params = {} } = action;
 
     const postBody = {
       actionId: params.actionId,

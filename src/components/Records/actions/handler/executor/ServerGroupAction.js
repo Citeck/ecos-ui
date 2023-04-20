@@ -11,7 +11,7 @@ import ActionsExecutor from '../ActionsExecutor';
 const actionsApi = new RecordActionsApi();
 
 const executeAction = async ({ groupAction, selected = [], excludedRecords, resolved, query = null }) => {
-  const { params } = groupAction;
+  const { params = {} } = groupAction;
   let exAction;
 
   if (params.js_action) {
@@ -99,7 +99,12 @@ export default class ServerGroupAction extends ActionsExecutor {
     let groupActionWithData;
 
     if (isExistValue(groupAction.formKey)) {
-      const { groupAction: newGroupAction } = await showFormIfRequired(groupAction);
+      const result = await showFormIfRequired(groupAction);
+      if (!result) {
+        return false;
+      }
+
+      const { groupAction: newGroupAction } = result;
       groupActionWithData = newGroupAction;
 
       if (!groupActionWithData) {
@@ -125,7 +130,7 @@ export default class ServerGroupAction extends ActionsExecutor {
 
   async execForQuery(query, action, context) {
     const excludedRecords = get(context, 'excludedRecords');
-    let groupAction = cloneDeep(action.config);
+    let groupAction = cloneDeep(action.config) || {};
 
     groupAction.type = 'filtered';
     const { groupAction: newGroupAction, notify } = await showFormIfRequired(groupAction, true);
