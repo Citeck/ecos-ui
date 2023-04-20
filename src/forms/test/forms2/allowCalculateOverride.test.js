@@ -65,6 +65,28 @@ describe('Calculated fields test #2', () => {
 
     // -- orgstruct --
 
+    // ++ selectjournal ++
+
+    await form.setInputValue('nonCalculatedSelectJournal', 'ecos-documents');
+    formData = form.getFormData();
+    assert.equal(formData.selectJournalWithOverride, 'ecos-documents');
+    assert.equal(formData.selectJournalWithoutOverride, 'ecos-documents');
+
+    await form.setInputValue('selectJournalWithOverride', 'ecos-types');
+    formData = form.getFormData();
+    assert.equal(formData.selectJournalWithOverride, 'ecos-types');
+
+    await form.setInputValue('selectJournalWithoutOverride', 'ecos-types');
+    formData = form.getFormData();
+    assert.equal(formData.selectJournalWithoutOverride, 'ecos-documents');
+
+    await form.setInputValue('nonCalculatedSelectJournal', 'contract-agreements');
+    formData = form.getFormData();
+    assert.equal(formData.selectJournalWithOverride, 'ecos-types');
+    assert.equal(formData.selectJournalWithoutOverride, 'contract-agreements');
+
+    // -- selectjournal --
+
     done();
   });
 
@@ -157,6 +179,27 @@ const definition = {
       input: true,
       key: 'orgstructWithOverride',
       calculateValue: 'value = data.nonCalculatedOrgstruct;',
+      allowCalculateOverride: true
+    },
+    {
+      label: 'Non-calculated selectJournal',
+      type: 'selectJournal',
+      input: true,
+      key: 'nonCalculatedSelectJournal'
+    },
+    {
+      label: 'SelectJournal without override',
+      type: 'selectJournal',
+      input: true,
+      key: 'selectJournalWithoutOverride',
+      calculateValue: 'value = data.nonCalculatedSelectJournal;'
+    },
+    {
+      label: 'SelectJournal with override',
+      type: 'selectJournal',
+      input: true,
+      key: 'selectJournalWithOverride',
+      calculateValue: 'value = data.nonCalculatedSelectJournal;',
       allowCalculateOverride: true
     }
   ]
