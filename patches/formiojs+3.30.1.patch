@@ -1,32 +1,35 @@
 diff --git a/node_modules/formiojs/components/base/Base.js b/node_modules/formiojs/components/base/Base.js
-index 2da74da..64b6ec8 100644
+index 2da74da..bc1bf60 100644
 --- a/node_modules/formiojs/components/base/Base.js
 +++ b/node_modules/formiojs/components/base/Base.js
-@@ -901,7 +901,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
-         data: this.rootValue,
-         submission: this.root ? this.root._submission : {},
-         form: this.root ? this.root._form : {}
--      }, additional, _lodash.default.get(this.root, 'options.evalContext', {})));
-+      }, additional));
-     }
-   }, {
-     key: "setPristine",
-@@ -2290,10 +2290,12 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+@@ -1830,13 +1830,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+         var errorMessage = this.ce('p', {
+           class: 'help-block'
+         });
+-        var entityRegex = /&(:?amp|lt|gt|quot|#39|#x2F);/gi;
+-
+-        if (message.match(entityRegex)) {
+-          errorMessage.innerHTML = message;
+-        } else {
+-          errorMessage.appendChild(this.text(message));
+-        }
++        errorMessage.appendChild(this.text(message));
+ 
+         this.errorElement.appendChild(errorMessage);
+       } // Add error classes
+@@ -2290,7 +2284,10 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
    }, {
      key: "hasChanged",
      value: function hasChanged(newValue, oldValue) {
 -      if ((newValue === undefined || newValue === null) && (oldValue === undefined || oldValue === null || this.isEmpty(oldValue))) {
-+      if (
++	    if (
 +        ((newValue === undefined) || (newValue === null)) &&
-+        ((oldValue === undefined) || (oldValue === null) || this.isEmpty(oldValue))
++        ((oldValue === undefined) || (oldValue === null))
 +      ) {
          return false;
        }
--
-       return !_lodash.default.isEqual(newValue, oldValue);
-     }
-     /**
-@@ -2458,7 +2460,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+ 
+@@ -2458,7 +2455,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
        } // No need to check for errors if there is no input or if it is pristine.
  
  
@@ -35,12 +38,14 @@ index 2da74da..64b6ec8 100644
          return '';
        }
  
-@@ -2485,16 +2487,9 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+@@ -2485,16 +2482,10 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
          return true;
        }
-   
+ 
 -      var error = _Validator.default.check(this, data);
--
++      const message = this.invalidMessage(data, dirty, true);
++      this.setCustomValidity(message, dirty);
+ 
 -      if (error && (dirty || !this.pristine)) {
 -        var message = this.invalidMessage(data, dirty, true);
 -        this.setCustomValidity(message, dirty);
@@ -49,9 +54,20 @@ index 2da74da..64b6ec8 100644
 -      }
 -
 -      return !error;
-+      const message = this.invalidMessage(data, dirty, true);
-+      this.setCustomValidity(message, dirty);
 +      return message ? false : true;
      }
      /* eslint-disable max-len */
  
+@@ -2532,9 +2523,9 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+         this.removeChildFrom(this.errorElement, this.errorContainer);
+       }
+ 
+-      if (!dirty && this.pristine) {
+-        message = '';
+-      }
++      // if (!dirty && this.pristine) {
++      //   message = '';
++      // }
+ 
+       if (message) {
+         this.error = {
