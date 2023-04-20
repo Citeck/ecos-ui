@@ -412,7 +412,11 @@ export function* sagaReloadBoardData({ api, logger }, { payload }) {
   try {
     const { stateId } = payload;
     yield put(setLoading({ stateId, isLoading: true }));
-    const { boardConfig, formProps, pagination } = yield select(selectKanban, stateId);
+
+    const pagination = DEFAULT_PAGINATION;
+    yield put(setPagination({ stateId, pagination }));
+
+    const { boardConfig, formProps } = yield select(selectKanban, stateId);
     const { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
 
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });

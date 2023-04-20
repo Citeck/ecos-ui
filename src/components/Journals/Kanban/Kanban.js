@@ -87,7 +87,7 @@ class Kanban extends React.Component {
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
 
-    return totalCount !== 0 && totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
+    return totalCount === 0 || totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
   };
 
   handleResize = () => {
@@ -195,9 +195,9 @@ class Kanban extends React.Component {
                 {cols.map(this.renderColumn)}
               </DragDropContext>
             </div>
+            <div ref={this.refBottom} className="ecos-kanban__footer-border" />
           </Scrollbars>
           {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
-          <div ref={this.refBottom} className="ecos-kanban__footer-border" />
         </div>
       </ReactResizeDetector>
     );
