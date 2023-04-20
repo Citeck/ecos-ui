@@ -6,7 +6,6 @@ import get from 'lodash/get';
 
 import EcosModal from '../../common/EcosModal/index';
 import { Icon, Tabs } from '../../common/index';
-// import { Btn } from '../../common/btns/index';
 import { t } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 
@@ -108,7 +107,7 @@ class ComparisonModal extends Component {
   };
 
   renderBody() {
-    const { comparison, versions } = this.props;
+    const { comparison } = this.props;
     const params = {};
 
     if (comparison) {
