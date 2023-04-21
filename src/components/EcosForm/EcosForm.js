@@ -420,7 +420,7 @@ class EcosForm extends React.Component {
   };
 
   onScrollWindow = event => {
-    if (event.target && event.target.classList.contains('choices__list')) {
+    if (event.target && event.target.classList && event.target.classList.contains('choices__list')) {
       return;
     }
 
