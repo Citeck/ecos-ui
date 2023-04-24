@@ -181,15 +181,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
   };
 
   onValueChange = value => {
-    this.updateValue({}, value);
+    this.updateValue({ modified: true, changeByUser: true }, value === null ? this.emptyValue : value);
     this.refreshDOM();
   };
 
   updateValue(flags, value) {
-    if (value === null) {
-      this.dataValue = this.emptyValue;
-    }
-
     return super.updateValue(flags, value);
   }
 
