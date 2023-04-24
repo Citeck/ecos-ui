@@ -22,6 +22,19 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     this.calendar.isOpen && this.calendar._positionCalendar.call(this.calendar);
   };
 
+  getValue() {
+    const value = super.getValue();
+    if (!value) {
+      return value;
+    }
+
+    const date = moment(value)
+      .utcOffset(0, true)
+      .format();
+
+    return date;
+  }
+
   attach(input) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
     this.settings.disableMobile = 'true';
@@ -68,19 +81,6 @@ export default class CalendarWidget extends FormIOCalendarWidget {
     if (this._input) {
       this.calendar = new Flatpickr(this._input, this.settings);
 
-      // const originSetDate = this.calendar.setDate;
-      // this.calendar.setDate = (date, triggerChange, format) => {
-      //   if (this.settings.enableTime) {
-      //     const hours = get(this.calendar, 'hourElement.value');
-      //     const minutes = get(this.calendar, 'minuteElement.value');
-      //     const newDate = new Date(this.calendar._input.value);
-      //     newDate.setHours(hours);
-      //     newDate.setMinutes(minutes);
-      //     return originSetDate(newDate, triggerChange, format);
-      //   }
-
-      //   return originSetDate(date, triggerChange, format);
-      // };
       this.setInputMask(this.calendar._input, convertFormatToMask(this.settings.format));
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1535

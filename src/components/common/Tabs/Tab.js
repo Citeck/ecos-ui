@@ -181,7 +181,7 @@ class Tab extends React.Component {
   };
 
   render() {
-    const { isActive, hasHover, hasHint, disabled, className, isNew, classNameTooltip } = this.props;
+    const { isActive, hasHover, hasHint, disabled, className, isNew, onClick, classNameTooltip } = this.props;
     const { id, isOpenMenu, text, defText, isOpenEditModal } = this.state;
     const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab ecos-tab_editable', className, {
@@ -201,7 +201,7 @@ class Tab extends React.Component {
     }
 
     return (
-      <div className={tabClassNames}>
+      <div className={tabClassNames} onClick={onClick}>
         <div class={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}>{this.renderLocaleText()}</div>
         {!disabled && (
           <Actions
