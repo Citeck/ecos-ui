@@ -353,7 +353,7 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
     }
   } catch (e) {
     yield put(setDataCards({ stateId: payload.stateId, dataCards: rollbackCards }));
-    NotificationManager.error(t('kanban.error.card-not-moved'), t('error'));
+    NotificationManager.error(e.message || t('kanban.error.card-not-moved'), t('error'));
     logger.error('[kanban/sagaRunAction saga] error', e);
   } finally {
     yield put(setLoadingColumns({ stateId: payload.stateId, isLoadingColumns: [] }));
