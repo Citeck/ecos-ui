@@ -40,12 +40,14 @@ const ModelCard = ({
                 viewType={ViewTypes.CARDS}
               />
             )}
-            <div className={styles.cardTopButton}>
-              {/*<NavLink to={viewLink}>{t('designer.view-button')}</NavLink>*/}
-              <a href={viewLink} onClick={onViewLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
-                {t('designer.view-button')}
-              </a>
-            </div>
+            {onViewLinkClick && (
+              <div className={styles.cardTopButton}>
+                {/*<NavLink to={viewLink}>{t('designer.view-button')}</NavLink>*/}
+                <a href={viewLink} onClick={onViewLinkClick} {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}>
+                  {t('designer.view-button')}
+                </a>
+              </div>
+            )}
           </div>
         </div>
         <div className={styles.cardBottom}>

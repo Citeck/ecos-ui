@@ -180,6 +180,6 @@ export default class DMNModeler extends BaseModeler {
   };
 
   destroy = () => {
-    this.modeler.off('viewer.created', this.setDrdViewerEvents);
+    this.modeler && this.modeler.off('viewer.created', this.setDrdViewerEvents);
   };
 }
