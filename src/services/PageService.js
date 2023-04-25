@@ -34,11 +34,17 @@ export const Events = {
 const CHANGE_URL = document.createEvent('Event');
 CHANGE_URL.initEvent(Events.CHANGE_URL_LINK_EVENT, true, true);
 
-const TYPES = { TYPE: 'emodel/type@type', BOARD: 'emodel/type@board', FORM: 'emodel/type@form' };
+const TYPES = {
+  TYPE: 'emodel/type@type',
+  BOARD: 'emodel/type@board',
+  FORM: 'emodel/type@form',
+  JOURNAL: 'emodel/type@journal'
+};
 
 const TYPE_TITLES = {
   [TYPES.TYPE]: TITLE.TYPE,
   [TYPES.BOARD]: TITLE.BOARD,
+  [TYPES.JOURNAL]: TITLE.JOURNAL,
   [TYPES.FORM]: TITLE.FORM
 };
 
