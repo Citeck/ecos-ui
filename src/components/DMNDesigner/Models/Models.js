@@ -5,7 +5,6 @@ import { createModel, updateModels, savePagePosition } from '../../../actions/dm
 import { selectModelsByCategoryId } from '../../../selectors/dmn';
 import { t } from '../../../helpers/export/util';
 import Models from '../../designerCommon/Models';
-import PageService from '../../../services/PageService';
 import recordActions from '../../../components/Records/actions/recordActions';
 
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
@@ -24,19 +23,6 @@ const mapStateToProps = (state, props) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  onViewLinkClick: e => {
-    e.preventDefault();
-
-    dispatch(
-      savePagePosition({
-        callback: () => {
-          PageService.changeUrlLink(e.currentTarget.href, {
-            openNewTab: true
-          });
-        }
-      })
-    );
-  },
   onEditLinkClick: (e, modelId) => {
     e.preventDefault();
 
