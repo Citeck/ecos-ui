@@ -3,10 +3,16 @@ import React, { useReducer } from 'react';
 import DevToolsConverter from '../../../dto/devTools';
 import { t } from '../../../helpers/util';
 import uiBuildInfo from '../../../build-info';
-
 import { ECOS_UI_ID, ECOS_UI_LABEL } from '../constants';
 import devToolsApi from '../api';
-import { SET_ALFRESCO_MODULES_ITEMS, SET_ALFRESCO_MODULES_ERROR, SET_SYSTEM_MODULES_ITEMS, SET_SYSTEM_MODULES_ERROR } from './actions';
+import {
+  SET_ALFRESCO_MODULES_ITEMS,
+  SET_ALFRESCO_MODULES_ERROR,
+  SET_SYSTEM_MODULES_ITEMS,
+  SET_SYSTEM_MODULES_ERROR,
+  SET_ALFRESCO_ENABLED
+} from './actions';
+import ConfigService, { ALFRESCO_ENABLED } from '../../../services/config/ConfigService';
 import { reducer, initialState } from './reducer';
 
 export const BuildContext = React.createContext();
@@ -16,8 +22,12 @@ export const BuildContextProvider = props => {
 
   const getBuildInfo = async () => {
     try {
+      const enabled = await ConfigService.getValue(ALFRESCO_ENABLED);
+
       const alfresco = await devToolsApi.getAlfrescoModules();
       const compare = (a, b) => (a.label < b.label ? -1 : 1);
+
+      dispatch({ type: SET_ALFRESCO_ENABLED, payload: enabled });
       dispatch({
         type: SET_ALFRESCO_MODULES_ITEMS,
         payload: DevToolsConverter.fetchAlfrescoModulesList(alfresco).sort(compare)
