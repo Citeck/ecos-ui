@@ -426,5 +426,5 @@ export const getUrlWithoutOrigin = (location = window.location) => {
 export const getRecordRef = (sourceUrl = window.location.href) => {
   const recordRef = get(queryString.parseUrl(sourceUrl), 'query.recordRef', '');
 
-  return get(isArray(recordRef) ? recordRef.shift() : recordRef);
+  return isArray(recordRef) ? recordRef.shift() : recordRef;
 };
