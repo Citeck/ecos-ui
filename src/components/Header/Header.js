@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import ReactResizeDetector from 'react-resize-detector';
 
+import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { fetchCreateCaseWidgetData, fetchSiteMenuData, fetchUserMenuData } from '../../actions/header';
 import { JournalUrlParams, SourcesId, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
@@ -40,6 +41,7 @@ class Header extends React.Component {
   #createMenuUpdateWatcher;
 
   state = {
+    hasAlfresco: false,
     widthHeader: 0
   };
 
@@ -47,6 +49,12 @@ class Header extends React.Component {
     this.props.fetchCreateCaseWidgetData();
     this.props.fetchUserMenuData();
     this.props.fetchSiteMenuData();
+
+    ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
+      this.setState({
+        hasAlfresco: value
+      });
+    });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -99,7 +107,7 @@ class Header extends React.Component {
   };
 
   render() {
-    const { widthHeader } = this.state;
+    const { widthHeader, hasAlfresco } = this.state;
     const { isMobile, hideSiteMenu, legacySiteMenuItems, theme } = this.props;
     const hiddenSiteMenu = hideSiteMenu || isMobile || widthHeader < 600;
     const hiddenLanguageSwitcher = isMobile || widthHeader < 600;
@@ -114,7 +122,9 @@ class Header extends React.Component {
             <CreateMenu isMobile={widthHeader < 910} />
           </div>
           <div className="ecos-header__side ecos-header__side_right">
-            <Search isMobile={isMobile || widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`} />
+            {hasAlfresco && (
+              <Search isMobile={isMobile || widthHeader <= 600} searchPageUrl={`${URL.JOURNAL}?${JournalUrlParams.JOURNAL_ID}=search`} />
+            )}
             {!hiddenSiteMenu && <SiteMenu legacyItems={legacySiteMenuItems} />}
             {!hiddenLanguageSwitcher && <LanguageSwitcher theme={theme} />}
             <UserMenu isMobile={widthHeader < 910} widthParent={widthHeader} />
