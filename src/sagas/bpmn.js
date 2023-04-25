@@ -60,7 +60,7 @@ function* doInitRequest({ api, logger }) {
       document.body.scrollTo(0, pagePosition.scrollTop);
     }
   } catch (e) {
-    console.log('[bpmn doInitRequest saga] error', e);
+    logger.error('[bpmn doInitRequest saga] error', e);
   }
 }
 
@@ -91,7 +91,7 @@ function* doCreateModel({ api, logger }, action) {
       yield put(setModels(models));
     }
   } catch (e) {
-    console.log('[bpmn doCreateModel saga] error', e);
+    logger.error('[bpmn doCreateModel saga] error', e);
   }
 }
 
@@ -120,7 +120,7 @@ function* doSaveCategoryRequest({ api, logger }, action) {
       })
     );
   } catch (e) {
-    NotificationManager.error(t('bpmn-designer.add-category.failure-message'));
+    NotificationManager.error(t('designer.add-category.failure-message'));
     logger.error('[bpmn doSaveCategoryRequest saga] error', e);
   }
 }
@@ -140,11 +140,11 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
       yield delay(100);
       yield put(
         showModal({
-          title: t('bpmn-designer.delete-category-dialog.failure-title'),
-          content: t('bpmn-designer.delete-category-dialog.failure-text'),
+          title: t('designer.delete-category-dialog.failure-title'),
+          content: t('designer.delete-category-dialog.failure-text'),
           buttons: [
             {
-              label: t('bpmn-designer.delete-category-dialog.close-btn'),
+              label: t('designer.delete-category-dialog.close-btn'),
               isCloseButton: true
             }
           ]

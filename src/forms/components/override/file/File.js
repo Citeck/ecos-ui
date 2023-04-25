@@ -130,6 +130,13 @@ export default class FileComponent extends FormIOFileComponent {
     return createDocumentUrl(recordRef);
   }
 
+  buildFileProcessingLoader() {
+    const isRootLoading = get(this, 'root.loader');
+    if (isRootLoading) {
+      super.buildFileProcessingLoader();
+    }
+  }
+
   checkConditions(data) {
     const result = super.checkConditions(data);
 
@@ -303,7 +310,6 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
-      console.log(recordRef);
       linkAttributes.href = getDownloadContentUrl(recordRef);
       linkAttributes.download = true;
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {

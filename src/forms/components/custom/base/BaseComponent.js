@@ -20,6 +20,10 @@ export default class BaseComponent extends FormIOBase {
   }
 
   checkValidity(data, dirty, rowData) {
+    if (this.component.unreadable) {
+      return true;
+    }
+
     let isValid = super.checkValidity(data, dirty, rowData);
     if (!isValid) {
       return false;

@@ -2,11 +2,12 @@ import { lazy } from 'react';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import uuidV4 from 'uuid/v4';
 
-import { t } from '../../helpers/util';
+import { getCurrentLocale, t } from '../../helpers/util';
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
 
 export const ComponentKeys = {
@@ -30,7 +31,8 @@ export const ComponentKeys = {
   USER_PROFILE: 'user-profile',
   DOC_CONSTRUCTOR: 'doc-constructor',
   PROCESS_STATISTICS: 'process-statistics',
-  STAGES: 'stages'
+  STAGES: 'stages',
+  KANBAN_BOARD: 'kanban-board'
 };
 
 /**
@@ -194,6 +196,23 @@ export default class Components {
         }
       }
     },
+    [ComponentKeys.KANBAN_BOARD]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.KanbanWidget', () => null)
+          }))
+        ),
+      additionalProps: {
+        isDragDisabledByLayout: layout =>
+          layout &&
+          (!layout.columns ||
+            (layout.columns.length !== 1 && !layout.columns.find(column => Array.isArray(column) && column.length === 1))),
+        isDropDisabledByColumn: column => Array.isArray(column) && column.length !== 1
+      },
+      label: 'dashboard-settings.widget.kanbanBoard',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
     [ComponentKeys.STAGES]: {
       load: () =>
         lazy(() =>
@@ -258,12 +277,12 @@ export default class Components {
     const components = new Map();
 
     Components.widgetsForAllDasboards.forEach(component => {
-      components.set(component.name, component.label);
+      components.set(component.name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
     });
 
     Object.entries(Components.components).forEach(([name, component]) => {
       if (component.supportedDashboardTypes && component.supportedDashboardTypes.includes(dashboardType)) {
-        components.set(name, component.label);
+        components.set(name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
       }
 
       if (isFunction(component.checkIsAvailable) && !component.checkIsAvailable()) {
@@ -271,10 +290,15 @@ export default class Components {
       }
     });
 
-    const arrComponents = [...components].map(([name, label]) => ({
-      name,
-      label
-    }));
+    const arrComponents = [...components].map(([name]) => {
+      const component = components.get(name);
+
+      return {
+        name,
+        label: get(component, 'label', ''),
+        additionalProps: get(component, 'additionalProps', {})
+      };
+    });
 
     components.clear();
 
@@ -332,10 +356,11 @@ export default class Components {
 
   static getWidgetLabel(widget, isMobile) {
     const description = get(widget, 'description', '');
+    const descriptionDisp = isString(description) ? description : description[getCurrentLocale()];
     let label = t(get(Components.components, [widget.name, 'label'], get(widget, 'label', '')));
 
     if (isMobile && description) {
-      label = `[${description}] ${label}`;
+      label = `[${descriptionDisp}] ${label}`;
       return label;
     }
 

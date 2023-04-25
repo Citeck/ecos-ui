@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
-
 import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
+import { Sheet } from './Sheet';
 
 /**
  * Expansion for Modeler
@@ -71,7 +71,9 @@ export default class BaseModeler {
         const { warnings } = result || {};
 
         this._isDiagramMounted = true;
-        this.zoomScroll = this.modeler.get('zoomScroll');
+        if (isFunction(this.modeler.get)) {
+          this.zoomScroll = this.modeler.get('zoomScroll');
+        }
 
         isFunction(callback) && callback({ mounted: !!this.isDiagramMounted, warnings });
         !!warnings.length && console.warn(warnings);
@@ -164,7 +166,7 @@ export default class BaseModeler {
     return !!businessObject.$model.ids.assigned(id);
   };
 
-  updateProps = (element, properties) => {
+  updateProps = (element, properties, withClear) => {
     const { name, id, ...data } = properties;
     const modeling = this.modeler.get('modeling');
     const di = getDi(element);
@@ -183,7 +185,7 @@ export default class BaseModeler {
     }
 
     if (data) {
-      modeling.updateProperties(element, data);
+      modeling.updateProperties(element, data, withClear);
     }
   };
 
@@ -238,36 +240,15 @@ export default class BaseModeler {
     }
   };
 
+  useAdditionalEffects = () => {};
+
   /**
    * Own component-container for drawing diagram
    * @param {String} xml diagram
    * see available events
    * @return {ReactComponent}
    */
-  Sheet = ({ diagram, onMounted, extraEvents, ...props }) => {
-    const [initialized, setInitialized] = useState(false);
-    const containerRef = useRef(null);
-    const events = {};
-
-    Object.keys(props)
-      .filter(key => key.startsWith('on'))
-      .forEach(key => (events[key] = props[key]));
-
-    useEffect(() => {
-      if (!initialized && get(containerRef, 'current')) {
-        this.init({
-          diagram,
-          container: containerRef.current,
-          events,
-          extraEvents,
-          callback: res => onMounted(true, res)
-        });
-        setInitialized(true);
-      }
-    }, [initialized, containerRef]);
-
-    return <div ref={containerRef} className={BaseModeler.querySelector} />;
-  };
+  renderSheet = props => <Sheet {...props} init={this.init} />;
 
   destroy = () => {
     if (this.events) {

@@ -9,6 +9,8 @@ import { createCategory, initRequest, updateModels } from '../../actions/bpmn';
 import Categories from './Categories/Categories';
 import ControlPanel from './ControlPanel/ControlPanel';
 
+import '../designerCommon/style.scss';
+
 const mapStateToProps = state => ({
   isReady: state.bpmn.isReady,
   createVariants: state.bpmn.createVariants
@@ -33,20 +35,20 @@ const BPMNDesigner = ({ createCategory, hidden, isReady, initSection, updateMode
   }, [initialized, hidden]);
 
   return (
-    <div className={classNames('ecos-bpmn-designer', { 'd-none': hidden })}>
+    <div className={classNames('ecos-designer', { 'd-none': hidden })}>
       {isReady && (
         <>
           <ControlPanel />
-          <div className="ecos-bpmn-designer__content">
+          <div className="ecos-designer__content">
             <Categories categoryId={null} />
           </div>
-          <div className="ecos-bpmn-designer__add-category" onClick={createCategory}>
+          <div className="ecos-designer__add-category" onClick={createCategory}>
             {t(Labels.ADD_CATEGORY)}
           </div>
         </>
       )}
       {!isReady && (
-        <div className="ecos-bpmn-designer-common__container_white ecos-bpmn-designer-common__loader">
+        <div className="ecos-designer-common__container_white ecos-designer-common__loader">
           <Loader />
         </div>
       )}

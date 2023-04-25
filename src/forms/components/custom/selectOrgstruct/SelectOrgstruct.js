@@ -183,15 +183,11 @@ export default class SelectOrgstructComponent extends BaseComponent {
   };
 
   onValueChange = value => {
-    this.updateValue({ modified: true, changeByUser: true }, value);
+    this.updateValue({ modified: true, changeByUser: true }, value === null ? this.emptyValue : value);
     this.refreshDOM();
   };
 
   updateValue(flags, value) {
-    if (value === null) {
-      this.dataValue = this.emptyValue;
-    }
-
     return super.updateValue(flags, value);
   }
 
@@ -216,6 +212,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
     if (isEqual(value, this.dataValue) && !isEmpty(value)) {
       return;
     }
+
+    this.dataValue = value;
 
     if (
       this.pristine && // Cause: https://citeck.atlassian.net/browse/ECOSCOM-3241

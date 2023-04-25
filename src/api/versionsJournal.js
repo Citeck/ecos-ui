@@ -30,7 +30,12 @@ export class VersionsJournalApi extends CommonApi {
   };
 
   addNewVersion = ({ body, handleProgress }) => {
-    return ecosXhr(`${PROXY_URI}api/v2/citeck/upload`, {
+    let url = '/gateway/emodel/api/content-version/upload';
+    if (body.get('updateNodeRef').indexOf('workspace://SpacesStore/') !== -1) {
+      url = `${PROXY_URI}api/v2/citeck/upload`;
+    }
+
+    return ecosXhr(url, {
       method: 'POST',
       body,
       handleProgress

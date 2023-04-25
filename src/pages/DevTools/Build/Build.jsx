@@ -4,7 +4,6 @@ import DateTimeFormatter from '../../../components/common/grid/formatters/gql/Da
 import PanelTitle from '../../../components/common/PanelTitle';
 import { Grid } from '../../../components/common/grid';
 import { t } from '../../../helpers/export/util';
-
 import { BuildContext } from './BuildContext';
 import ErrorText from '../ErrorText';
 import Loader from '../Loader';
@@ -47,7 +46,9 @@ const BuildTab = () => {
 
   let alfrescoModules = null;
   if (alfresco.error) {
-    alfrescoModules = <ErrorText>{alfresco.error}</ErrorText>;
+    if (alfresco.enabled) {
+      alfrescoModules = <ErrorText>{alfresco.error}</ErrorText>;
+    }
   } else if (!alfresco.isReady) {
     alfrescoModules = <Loader />;
   } else {
@@ -58,8 +59,12 @@ const BuildTab = () => {
     <>
       <PanelTitle>{t('dev-tools.build.system.panel-title')}</PanelTitle>
       {systemModules}
-      <PanelTitle>{t('dev-tools.build.alfresco.panel-title')}</PanelTitle>
-      {alfrescoModules}
+      {alfresco.enabled && (
+        <>
+          <PanelTitle>{t('dev-tools.build.alfresco.panel-title')}</PanelTitle>
+          {alfrescoModules}
+        </>
+      )}
     </>
   );
 };

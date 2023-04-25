@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isNil from 'lodash/isNil';
 
 import { getCurrentLocale, getNumberSeparators } from '../../../../../../helpers/util';
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 
 /**
  * @typedef {NumberFormatterProps} NumberFormatterProps
@@ -37,7 +37,7 @@ export default class NumberFormatter extends BaseFormatter {
 
     const mask = get(config, 'mask');
 
-    const maximumFractionDigits = get(config, 'maximumFractionDigits', 16);
+    const maximumFractionDigits = Number(get(config, 'maximumFractionDigits', 16));
     const locales = get(config, 'locales', getCurrentLocale());
     const separators = getNumberSeparators(locales);
     const decimalSeparator = get(config, 'decimalSeparator', separators.decimal);

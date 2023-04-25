@@ -22,7 +22,7 @@ export class BpmnApi extends RecordService {
   };
 
   createCategory = (title, parent = null) => {
-    let rec = Records.get('eproc/bpmn-section@');
+    const rec = Records.get('eproc/bpmn-section@');
     rec.att('parentRef', parent);
     rec.att('name', title);
     return rec.save();

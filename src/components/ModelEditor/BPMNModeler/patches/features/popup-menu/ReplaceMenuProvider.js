@@ -28,7 +28,6 @@ const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
 const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
 
 const disabledReplaceMenuForTasks = [
-  'replace-with-rule-task', // Business rule
   'replace-with-call-activity', // Call Activity
   'replace-with-manual-task', // Manual Task
   'replace-with-service-task', // Service task

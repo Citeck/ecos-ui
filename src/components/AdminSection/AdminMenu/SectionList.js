@@ -15,7 +15,7 @@ const renderItem = (item, onClick) => {
   return (
     <div key={id} id={id} className="ecos-admin-menu-section__item" onClick={() => onClick(item)}>
       <Tooltip uncontrolled showAsNeeded target={id} text={t(item.label)} off={isMobileDevice()}>
-        {t(item.label)}
+        {item.shortName || t(item.label)}
       </Tooltip>
     </div>
   );
@@ -24,13 +24,16 @@ const renderItem = (item, onClick) => {
 const SectionList = React.memo(({ list = [], title = null, setActive, activeSection, onToggle, isOpen }) => {
   const [selected, setSelected] = useState(false);
 
-  useEffect(() => {
-    const newSelected = AdminSectionService.getSelectedSectionIndex(list, activeSection);
+  useEffect(
+    () => {
+      const newSelected = AdminSectionService.getSelectedSectionIndex(list, activeSection);
 
-    if (newSelected !== selected) {
-      setSelected(newSelected);
-    }
-  }, [list, activeSection]);
+      if (newSelected !== selected) {
+        setSelected(newSelected);
+      }
+    },
+    [list, activeSection]
+  );
 
   return (
     <CollapsibleList

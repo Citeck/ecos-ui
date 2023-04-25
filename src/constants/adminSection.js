@@ -7,6 +7,7 @@ export const Labels = {
 };
 
 export const SectionTypes = {
+  DMN: 'DMN',
   BPM: 'BPM',
   DEV_TOOLS: 'DEV_TOOLS',
   JOURNAL: 'JOURNAL'

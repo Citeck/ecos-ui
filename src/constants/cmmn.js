@@ -68,5 +68,6 @@ export const EventListeners = {
   DRAG_START: 'drag.start',
   ROOT_SET: 'root.set',
   COPY_ELEMENTS: 'copyPaste.elementsCopied',
-  PASTE_ELEMENT: 'copyPaste.pasteElement'
+  PASTE_ELEMENT: 'copyPaste.pasteElement',
+  VIEWS_CHANGED: 'views.changed'
 };

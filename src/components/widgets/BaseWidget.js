@@ -57,8 +57,8 @@ class BaseWidget extends React.Component {
   }
 
   get isCollapsed() {
-    const { id, dashboardId, config } = this.props;
-    const lsId = `${dashboardId}/${id}`;
+    const { config } = this.props;
+    const lsId = this.state.lsId;
     const isCollapsedByConfig = get(config, 'collapsed');
     const isCollapsedByLS = UserLocalSettingsService.getDashletProperty(lsId, DashletProps.IS_COLLAPSED);
 

@@ -1,7 +1,14 @@
-import { SET_ALFRESCO_MODULES_ITEMS, SET_ALFRESCO_MODULES_ERROR, SET_SYSTEM_MODULES_ITEMS, SET_SYSTEM_MODULES_ERROR } from './actions';
+import {
+  SET_ALFRESCO_MODULES_ITEMS,
+  SET_ALFRESCO_MODULES_ERROR,
+  SET_SYSTEM_MODULES_ITEMS,
+  SET_SYSTEM_MODULES_ERROR,
+  SET_ALFRESCO_ENABLED
+} from './actions';
 
 export const initialState = {
   alfresco: {
+    enabled: false,
     isReady: false,
     error: null,
     items: []
@@ -15,6 +22,14 @@ export const initialState = {
 
 export function reducer(state, { type, payload }) {
   switch (type) {
+    case SET_ALFRESCO_ENABLED:
+      return {
+        ...state,
+        alfresco: {
+          ...state.alfresco,
+          enabled: payload
+        }
+      };
     case SET_ALFRESCO_MODULES_ITEMS:
       return {
         ...state,

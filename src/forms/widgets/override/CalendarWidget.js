@@ -1,5 +1,6 @@
 import FormIOCalendarWidget from 'formiojs/widgets/CalendarWidget';
 import { convertFormatToMask, convertFormatToMoment } from 'formiojs/utils/utils';
+import Flatpickr from 'flatpickr';
 import moment from 'moment';
 
 import { getCurrentLocale } from '../../../helpers/util';
@@ -20,6 +21,19 @@ export default class CalendarWidget extends FormIOCalendarWidget {
   onScrollWindow = () => {
     this.calendar.isOpen && this.calendar._positionCalendar.call(this.calendar);
   };
+
+  getValue() {
+    const value = super.getValue();
+    if (!value) {
+      return value;
+    }
+
+    const date = moment(value)
+      .utcOffset(0, true)
+      .format();
+
+    return date;
+  }
 
   attach(input) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-795
@@ -44,8 +58,29 @@ export default class CalendarWidget extends FormIOCalendarWidget {
 
     super.attach(input);
 
+    this.settings.parseDate = (inputDate, format) => {
+      this.enteredDate = inputDate;
+
+      if (this.calendar) {
+        this.calendar.clear();
+      }
+
+      const result = Flatpickr.parseDate(inputDate, format);
+      if (result) {
+        return result;
+      }
+
+      if (this.calendar) {
+        this.calendar.close();
+      }
+
+      return result;
+    };
+
     // Bug: https://github.com/flatpickr/flatpickr/issues/2047
     if (this._input) {
+      this.calendar = new Flatpickr(this._input, this.settings);
+
       this.setInputMask(this.calendar._input, convertFormatToMask(this.settings.format));
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1535

@@ -59,6 +59,11 @@
     }
   }
 
+  &__footer-border {
+    height: 10px;
+    min-height: 10px;
+  }
+
   &__info {
     width: 100%;
   }
@@ -219,7 +224,7 @@
       padding-top: 50%;
     }
 
-    & :not(#{$kanban}__card-info):nth-child(11n) {
+    & :not(#{$kanban}__card-info):nth-of-type(10n + 11) {
       padding-top: 14px;
       border-top: 1px $color-gray-7 dotted;
     }

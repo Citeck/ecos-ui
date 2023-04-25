@@ -28,7 +28,10 @@ export function getCommentForWeb(source) {
   const target = {};
   const author = source.author || {};
   const editor = source.editor || {};
-  const permissions = source.permissions || {};
+  const permissions = source.permissions || {
+    canEdit: source.canEdit,
+    canDelete: source.canEdit
+  };
 
   if (source.id) {
     target.id = source.id;

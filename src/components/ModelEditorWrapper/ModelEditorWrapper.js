@@ -33,6 +33,7 @@ const Labels = {
 
 class ModelEditorWrapper extends React.Component {
   static propTypes = {
+    isAnyConfigButtonHidden: PropTypes.bool,
     editor: PropTypes.element,
     rightSidebar: PropTypes.element,
     rightSidebarTitle: PropTypes.string,
@@ -70,6 +71,7 @@ class ModelEditorWrapper extends React.Component {
   get configButtons() {
     const { extraButtons, onCreate, onViewXml, onSaveAsSVG } = this.props;
     const configButtons = [];
+
     const extra = get(extraButtons, 'config');
 
     if (isFunction(onCreate)) {
@@ -131,7 +133,12 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configZoomButtons() {
-    const { extraButtons, onZoomIn, onZoomOut, onZoomReset } = this.props;
+    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isAnyConfigButtonHidden } = this.props;
+
+    if (isAnyConfigButtonHidden) {
+      return [];
+    }
+
     const configZoomButtons = [];
     const extra = get(extraButtons, 'zoom');
 

@@ -69,11 +69,6 @@ export const SEQUENCE_TYPE = 'bpmn:SequenceFlow';
 export const COLLABORATION_TYPE = 'bpmn:Collaboration';
 export const PARTICIPANT_TYPE = 'bpmn:Participant';
 
-export const SORT_FILTER_LAST_MODIFIED = 0;
-export const SORT_FILTER_OLD = 1;
-export const SORT_FILTER_AZ = 2;
-export const SORT_FILTER_ZA = 3;
-
 export const EDITOR_PAGE_CONTEXT = '/share/page/bpmn-editor/';
 
 export const LOCAL_STORAGE_KEY_PAGE_POSITION = 'BpmnPagePosition';

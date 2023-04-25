@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 
 const FORMAT = 'DD.MM.YYYY HH:mm';
 

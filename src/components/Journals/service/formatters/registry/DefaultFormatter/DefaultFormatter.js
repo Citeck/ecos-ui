@@ -1,6 +1,6 @@
 import isPlainObject from 'lodash/isPlainObject';
 
-import BaseFormatter from '../BaseFormatter';
+import BaseFormatter from '../../BaseFormatter';
 import CellType from '../../CellType';
 import { t } from '../../../../../../helpers/export/util';
 

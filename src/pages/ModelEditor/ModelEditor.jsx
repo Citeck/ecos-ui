@@ -8,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isFunction from 'lodash/isFunction';
 import XMLViewer from 'react-xml-viewer';
 import { flattenComponents } from 'formiojs/utils/formUtils';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
@@ -16,6 +17,7 @@ import { getCurrentLocale, getMLValue, getTextByLocale, t, fileDownload } from '
 import {
   EventListeners,
   IGNORED_VALUE_COMPONENTS,
+  KEY_FIELD_ID,
   KEY_FIELD_NAME,
   KEY_FIELD_OUTCOMES,
   KEY_FIELDS,
@@ -37,6 +39,7 @@ import { EcosModal, InfoText, Loader } from '../../components/common';
 import { FormWrapper } from '../../components/common/dialogs';
 import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
+import { DMN_DEFINITIONS } from '../../constants/dmn';
 
 import './ModelEditor.scss';
 
@@ -149,6 +152,17 @@ class ModelEditorPage extends React.Component {
     };
   }
 
+  get extraEvents() {
+    return {
+      [EventListeners.CREATE_END]: this.handleElementCreateEnd,
+      [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
+      [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
+      [EventListeners.DRAG_START]: this.handleDragStart,
+      [EventListeners.ROOT_SET]: this.handleSetRoot,
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
+    };
+  }
+
   #getMultiInstanceType = () => {
     const { selectedElement } = this.state;
     const element = this.getElement(selectedElement);
@@ -251,7 +265,6 @@ class ModelEditorPage extends React.Component {
 
       if (!TASK_TYPES.includes(item.source.type)) {
         if (GATEWAY_TYPES.includes(item.source.type)) {
-          console.log(item);
           const { incomingOutcomes, source = {} } = this.#findOutcomes(item);
 
           source.id &&
@@ -299,6 +312,10 @@ class ModelEditorPage extends React.Component {
         elementIsNonInterrupting: this.#elementIsNonInterrupting
       }
     };
+  }
+
+  get keyFields() {
+    return KEY_FIELDS;
   }
 
   get editorExtraButtons() {
@@ -366,7 +383,7 @@ class ModelEditorPage extends React.Component {
     }
 
     Object.keys(get(element, 'businessObject', {})).forEach(key => {
-      if (KEY_FIELDS.includes(key)) {
+      if (this.keyFields.includes(key)) {
         const value = get(element, ['businessObject', key]);
 
         if (!isUndefined(value)) {
@@ -528,24 +545,30 @@ class ModelEditorPage extends React.Component {
         continue;
       }
 
-      const fieldKey = KEY_FIELDS.includes(key) ? key : PREFIX_FIELD + key;
+      const fieldKey = this.keyFields.includes(key) ? key : PREFIX_FIELD + key;
       const rawValue = info.data[key];
 
+      if (is(selectedDiagramElement, DMN_DEFINITIONS) && key === KEY_FIELD_ID) {
+        modelData[PREFIX_FIELD + 'defId'] = rawValue;
+      }
+
       if (is(selectedDiagramElement, DEFINITON_TYPE) && key === 'processDefId') {
-        this.designer.updateProps(selectedDiagramElement, {
-          id: rawValue
-        });
+        modelData['id'] = rawValue;
       }
 
       if (is(selectedDiagramElement, PARTICIPANT_TYPE) && key === 'processRef') {
         const process = get(selectedDiagramElement, 'businessObject.processRef');
 
         if (is(process, TYPE_BPMN_PROCESS)) {
-          const modeling = this.designer.modeler.get('modeling');
+          const modeler = isFunction(this.designer.modeler.getActiveViewer)
+            ? this.designer.modeler.getActiveViewer()
+            : this.designer.modeler;
+          const modeling = modeler.get('modeling');
 
-          modeling.updateModdleProperties(selectedDiagramElement, process, {
-            id: rawValue
-          });
+          isFunction(modeling.updateModdleProperties) &&
+            modeling.updateModdleProperties(selectedDiagramElement, process, {
+              id: rawValue
+            });
         }
       }
 
@@ -557,15 +580,18 @@ class ModelEditorPage extends React.Component {
 
       modelData[fieldKey] = valueAsText;
 
-      if (KEY_FIELDS.includes(key) || key.endsWith(ML_POSTFIX)) {
+      if (this.keyFields.includes(key) || key.endsWith(ML_POSTFIX)) {
         modelData[key.replace(ML_POSTFIX, '')] = getTextByLocale(rawValue);
       }
     }
 
-    this.designer.updateProps(selectedElement, modelData);
+    this.designer.updateProps(selectedElement, modelData, true);
 
     if (selectedDiagramElement) {
-      this.designer.getEventBus().fire('element.changed', { element: selectedDiagramElement });
+      const eventBus = this.designer.getEventBus();
+      if (eventBus) {
+        eventBus.fire('element.changed', { element: selectedDiagramElement });
+      }
     }
   };
 
@@ -620,7 +646,9 @@ class ModelEditorPage extends React.Component {
     }
 
     if (!isUndefined(label) && this._formWrapperRef.current) {
-      const prevLabel = get(this._formWrapperRef.current.form.getValue(), ['data', KEY_FIELD_NAME + ML_POSTFIX]) || {};
+      const prevLabel = this._formWrapperRef.current.form
+        ? get(this._formWrapperRef.current.form.getValue(), ['data', KEY_FIELD_NAME + ML_POSTFIX]) || {}
+        : {};
       const newName = {
         ...prevLabel,
         [getCurrentLocale()]: label || ''
@@ -647,7 +675,10 @@ class ModelEditorPage extends React.Component {
           'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
         });
 
-        this.designer.getEventBus().fire('element.changed', { element });
+        const eventBus = this.designer.getEventBus();
+        if (eventBus) {
+          eventBus.fire('element.changed', { element });
+        }
       }
     }
 
@@ -704,30 +735,21 @@ class ModelEditorPage extends React.Component {
     const { savedModel } = this.props;
 
     if (savedModel) {
-      return (
-        <this.designer.Sheet
-          diagram={savedModel}
-          onClickElement={this.handleSelectItem}
-          onMounted={this.handleReadySheet}
-          onChangeElement={this.handleChangeElement}
-          onChangeElementLabel={this.handleChangeLabel}
-          extraEvents={{
-            [EventListeners.CREATE_END]: this.handleElementCreateEnd,
-            [EventListeners.ELEMENT_UPDATE_ID]: this.handleElementUpdateId,
-            [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
-            [EventListeners.DRAG_START]: this.handleDragStart,
-            [EventListeners.ROOT_SET]: this.handleSetRoot,
-            [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
-          }}
-        />
-      );
+      return this.designer.renderSheet({
+        diagram: savedModel,
+        onClickElement: this.handleSelectItem,
+        onMounted: this.handleReadySheet,
+        onChangeElement: this.handleChangeElement,
+        onChangeElementLabel: this.handleChangeLabel,
+        extraEvents: this.extraEvents
+      });
     } else {
-      return <InfoText text={t(`${this.modelType}-editor.error.no-model`)} />;
+      return <InfoText text={t(`editor.error.no-model`)} />;
     }
   };
 
   render() {
-    const { title, formProps, isLoading } = this.props;
+    const { title, formProps, isLoading, isAnyConfigButtonHidden } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
@@ -745,10 +767,11 @@ class ModelEditorPage extends React.Component {
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           extraButtons={this.editorExtraButtons}
+          isAnyConfigButtonHidden={isAnyConfigButtonHidden}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}
-              {!selectedElement && <InfoText text={t(`${this.modelType}-editor.error.no-selected-element`)} />}
+              {!selectedElement && <InfoText text={t('editor.error.no-selected-element')} />}
 
               {selectedElement && (
                 <FormWrapper

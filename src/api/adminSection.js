@@ -10,7 +10,7 @@ export class AdminSectionApi {
       },
       {
         label: 'label',
-        sections: 'sections[]{label,type,config?json}'
+        sections: 'sections[]{label,type,shortName,config?json}'
       }
     )
       .then(res => {

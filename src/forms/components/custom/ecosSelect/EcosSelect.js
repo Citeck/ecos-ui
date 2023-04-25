@@ -908,6 +908,7 @@ export default class SelectComponent extends BaseComponent {
     });
 
     // Force the disabled state with getters and setters.
+    // eslint-disable-next-line no-self-assign
     this.disabled = this.disabled;
     this.triggerUpdate();
   }
@@ -997,17 +998,6 @@ export default class SelectComponent extends BaseComponent {
       return found || defaultAdded;
     }, false);
 
-    // Cause: https://citeck.atlassian.net/browse/ECOSUI-169
-    // if (notFoundValuesToAdd.length) {
-    //   if (this.choices) {
-    //     this.choices.setChoices(notFoundValuesToAdd, 'value', 'label');
-    //   } else {
-    //     notFoundValuesToAdd.map(notFoundValue => {
-    //       this.addOption(notFoundValue.value, notFoundValue.label);
-    //       return notFoundValue;
-    //     });
-    //   }
-    // }
     return added;
   }
 
@@ -1221,9 +1211,7 @@ export default class SelectComponent extends BaseComponent {
     this.on(
       'change',
       () => {
-        if (refreshData === 'data') {
-          this.refresh(this.data, refreshData);
-        }
+        this.refresh(refreshData === 'data' ? this.data : this.data[refreshData], refreshData);
       },
       true
     );

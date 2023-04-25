@@ -3,12 +3,12 @@ import { filterJournalHistory, getEventsHistory, getJournalHistory, setEventsHis
 import { selectDataEventsHistoryByStateId } from '../selectors/eventsHistory';
 import JournalsService from '../components/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
-import { PREDICATE_CONTAINS } from '../components/Records/predicates/predicates';
+import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import EventsHistoryService from '../services/eventsHistory';
 
 const getSettings = ({ predicates, record }) => {
   return JournalsConverter.getSettingsForDataLoaderServer({
-    predicate: { att: 'document', val: [record], t: PREDICATE_CONTAINS },
+    predicate: { att: 'document', val: record, t: PREDICATE_EQ },
     predicates
   });
 };

@@ -1,22 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import ContentEditable from 'react-contenteditable';
-import { Tooltip } from 'reactstrap';
+import isString from 'lodash/isString';
 import uuidV4 from 'uuidv4';
 
 import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
-import { placeCaretAtEnd, t } from '../../../helpers/util';
-import ClickOutside from '../../ClickOutside/ClickOutside';
-import { SortableHandle } from '../../Drag-n-Drop';
-import { Icon } from '../';
-
-const EMPTY_STR = '';
-const Labels = {
-  BUTTON_EDIT: 'dashboard-settings.tabs.button.edit',
-  BUTTON_DELETE: 'dashboard-settings.tabs.button.delete',
-  LABEL_OPEN_MENU: 'dashboard-settings.tabs.label.menu'
-};
+import { getCurrentLocale, t } from '../../../helpers/util';
+import EditTabForm from './EditTabForm';
+import { Actions } from './Actions';
 
 class Tab extends React.Component {
   static propTypes = {
@@ -41,13 +32,11 @@ class Tab extends React.Component {
   constructor(props) {
     super(props);
 
-    this.labelRef = React.createRef();
-
     this.state = {
       id: `tab-${uuidV4()}`,
       editing: props.isNew,
       isOpenMenu: false,
-      text: props.isNew ? EMPTY_STR : props.label,
+      text: props.isNew ? '' : props.label,
       defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
     };
   }
@@ -58,7 +47,7 @@ class Tab extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const { index, isActive, hasHover, label, hasHint, disabled, isNew } = this.props;
-    const { editing, text, isOpenMenu } = this.state;
+    const { editing, text, isOpenMenu, isOpenEditModal } = this.state;
     let needUpdate = false;
 
     if (
@@ -71,18 +60,13 @@ class Tab extends React.Component {
       nextProps.isNew !== isNew ||
       nextState.editing !== editing ||
       nextState.text !== text ||
-      nextState.isOpenMenu !== isOpenMenu
+      nextState.isOpenMenu !== isOpenMenu ||
+      nextState.isOpenEditModal !== isOpenEditModal
     ) {
       needUpdate = true;
     }
 
     return needUpdate;
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.isNew && prevProps.isNew) {
-      this.setFocus();
-    }
   }
 
   componentWillUnmount() {
@@ -96,21 +80,22 @@ class Tab extends React.Component {
     return !disabled && editing;
   }
 
-  setFocus(scrollLeft) {
-    const elm = this.labelRef.current || {};
+  showEditModal = () => {
+    this.setState({ isOpenEditModal: true });
+  };
 
-    elm.focus();
-    elm.scrollLeft = scrollLeft ? 0 : elm.scrollWidth;
-    placeCaretAtEnd(elm);
-  }
+  hideEditModal = () => {
+    this.setState({ isOpenEditModal: false });
+  };
 
   startEdit = e => {
     if (!this.isEditable) {
-      this.setState({ editing: true }, this.setFocus);
+      this.setState({ editing: true });
 
       this.props.onStartEdit && this.props.onStartEdit(this.props.index);
     }
 
+    this.showEditModal();
     e.stopPropagation();
   };
 
@@ -124,34 +109,13 @@ class Tab extends React.Component {
 
     state.text = text || this.props.label || defText;
     state.editing = false;
-
-    this.setState(state, () => {
-      const elm = this.labelRef.current || {};
-      elm.scrollLeft = 0;
-    });
-
+    this.setState(state);
     this.props.onEdit && this.props.onEdit(state.text);
+    this.hideEditModal();
   };
 
-  onChange = ({ target: { value: text } }) => {
+  onChange = text => {
     this.setState({ text });
-  };
-
-  onKeyPress = e => {
-    switch (e.key) {
-      case 'Enter':
-        this.endEdit();
-        e.preventDefault();
-        break;
-      case 'Escape':
-        this.onReset();
-        e.preventDefault();
-        break;
-      default:
-        break;
-    }
-
-    e.stopPropagation();
   };
 
   onClose = e => {
@@ -163,7 +127,7 @@ class Tab extends React.Component {
   };
 
   onClear = e => {
-    this.setState({ text: EMPTY_STR }, this.setFocus.bind(this, true));
+    this.setState({ text: '' });
     e.stopPropagation();
   };
 
@@ -175,7 +139,8 @@ class Tab extends React.Component {
         this.props.onEdit && this.props.onEdit(label);
       }
 
-      this.setState({ editing: false, text: label }, this.setFocus.bind(this, true));
+      this.setState({ editing: false, text: label });
+      this.hideEditModal();
     }
   };
 
@@ -205,81 +170,19 @@ class Tab extends React.Component {
     e.stopPropagation();
   };
 
-  renderMenu() {
-    const isEdit = this.isEditable;
+  renderLocaleText = () => {
+    const { text } = this.state;
 
-    if (isEdit) {
-      return null;
+    if (isString(text)) {
+      return text;
     }
 
-    const { isActive, classNameTooltip } = this.props;
-    const { isOpenMenu, id } = this.state;
-    const menu = [];
-
-    menu.push(
-      <div key="edit" onClick={this.startEdit} className="ecos-tab-actions__menu-item">
-        <Icon className="icon-edit ecos-tab-actions__menu-item-icon" />
-        <span className="ecos-tab-actions__menu-item-title">{t(Labels.BUTTON_EDIT)}</span>
-      </div>
-    );
-    menu.push(
-      <div key="delete" onClick={this.onDelete} className="ecos-tab-actions__menu-item ecos-tab-actions__menu-item_warning">
-        <Icon className="icon-delete ecos-tab-actions__menu-item-icon" />
-        <span className="ecos-tab-actions__menu-item-title">{t(Labels.BUTTON_DELETE)}</span>
-      </div>
-    );
-
-    return (
-      <>
-        <Icon
-          data-ignore-close-menu
-          id={id}
-          onClick={this.onToggleMenu}
-          title={t(Labels.LABEL_OPEN_MENU)}
-          className={classNames('ecos-tab-actions__icon ecos-tab-actions__icon_menu', {
-            'icon-custom-more-small-normal': !isOpenMenu,
-            'icon-custom-more-small-pressed ecos-tab-actions__icon_menu-opened': isOpenMenu,
-            'ecos-tab-actions__icon_menu-active-tab': isActive
-          })}
-        />
-        <Tooltip
-          placement="bottom-start"
-          target={id}
-          trigger="click"
-          boundariesElement="window"
-          isOpen={isOpenMenu}
-          toggle={this.onToggleMenu}
-          hideArrow
-          className={classNames('ecos-base-tooltip', 'ecos-base-tooltip_opaque', classNameTooltip)}
-          innerClassName="ecos-base-tooltip-inner ecos-tab-actions__menu"
-        >
-          {menu}
-        </Tooltip>
-      </>
-    );
-  }
-
-  renderActions() {
-    const isEdit = this.isEditable;
-    const actions = [];
-
-    if (isEdit) {
-      actions.push(<Icon key="close" className="icon-small-close ecos-tab-actions__icon" onClick={this.onClose} />);
-    } else {
-      actions.push(<React.Fragment key="menu">{this.renderMenu()}</React.Fragment>);
-      actions.push(
-        <SortableHandle key="drag">
-          <Icon className="icon-custom-drag-big ecos-tab-actions__icon ecos-tab-actions__icon_paler" />
-        </SortableHandle>
-      );
-    }
-
-    return <div className="ecos-tab-actions">{actions}</div>;
-  }
+    return text[getCurrentLocale()];
+  };
 
   render() {
-    const { isActive, onClick, hasHover, hasHint, disabled, className, isNew } = this.props;
-    const { text, defText } = this.state;
+    const { isActive, hasHover, hasHint, disabled, className, isNew, onClick, classNameTooltip } = this.props;
+    const { id, isOpenMenu, text, defText, isOpenEditModal } = this.state;
     const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
@@ -298,21 +201,23 @@ class Tab extends React.Component {
     }
 
     return (
-      <ClickOutside className={tabClassNames} onClick={onClick} handleClickOutside={this.endEdit}>
-        <ContentEditable
-          tagName="div"
-          html={text}
-          disabled={!isEdit}
-          className={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}
-          innerRef={this.labelRef}
-          onChange={this.onChange}
-          onKeyPress={this.onKeyPress}
-          onClick={this.onClick}
-          onDoubleClick={this.startEdit}
-          {...addProps}
-        />
-        {!disabled && this.renderActions()}
-      </ClickOutside>
+      <div className={tabClassNames} onClick={onClick}>
+        <div class={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}>{this.renderLocaleText()}</div>
+        {!disabled && (
+          <Actions
+            id={id}
+            isActive={isActive}
+            isEditable={this.isEditable}
+            isOpenMenu={isOpenMenu}
+            classNameTooltip={classNameTooltip}
+            startEdit={this.startEdit}
+            onClose={this.onClose}
+            onDelete={this.onDelete}
+            onToggleMenu={this.onToggleMenu}
+          />
+        )}
+        <EditTabForm isOpen={isOpenEditModal} hideModal={this.onReset} label={text} onChangeLabel={this.onChange} onSave={this.endEdit} />
+      </div>
     );
   }
 }

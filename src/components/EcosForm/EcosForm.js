@@ -58,11 +58,15 @@ class EcosForm extends React.Component {
   }
 
   componentDidMount() {
-    const record = Records.getRecordToEdit(this.props.record);
+    try {
+      const record = Records.getRecordToEdit(this.props.record);
 
-    this.setState({ recordId: record.id }, () => {
-      this.initForm();
-    });
+      this.setState({ recordId: record.id }, () => {
+        this.initForm();
+      });
+    } catch {
+      throw new Error(t('ecos-form.empty-form-data'));
+    }
 
     window.addEventListener('scroll', this.onScrollWindow, true);
   }
@@ -237,6 +241,9 @@ class EcosForm extends React.Component {
 
         // cause: https://citeck.atlassian.net/browse/ECOSUI-1327
         const translateKeys = (!!formData.i18n && Object.keys(formData.i18n)) || [];
+        if (!translateKeys.length) {
+          translateKeys.push(getCurrentLocale());
+        }
         const translations = translateKeys.reduce((result, key) => {
           const translate = EcosFormUtils.getI18n(defaultI18N, attributesTitles, formData.i18n[key]);
 
@@ -420,7 +427,7 @@ class EcosForm extends React.Component {
   };
 
   onScrollWindow = event => {
-    if (event.target && event.target.classList.contains('choices__list')) {
+    if (event.target && event.target.classList && event.target.classList.contains('choices__list')) {
       return;
     }
 

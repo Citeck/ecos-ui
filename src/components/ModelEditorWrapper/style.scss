@@ -43,6 +43,31 @@
 
       & .ecos-model-container {
         height: 100%;
+
+        & .dmn-decision-table-container {
+          display: flex;
+          justify-content: center;
+
+          & .tjs-container {
+            display: flex;
+            justify-content: center;
+          }
+        }
+
+        & .dmn-definitions {
+          display: none;
+        }
+
+        & .dmn-literal-expression-container {
+          display: flex;
+          justify-content: center;
+
+          & .viewer-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+          }
+        }
       }
     }
 

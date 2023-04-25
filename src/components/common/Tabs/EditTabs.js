@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isString from 'lodash/isString';
 
 import { arrayMove } from '../../../helpers/util';
 import { SortableContainer, SortableElement } from '../../Drag-n-Drop';
@@ -63,6 +64,19 @@ class EditTabs extends React.Component {
     this.setState({ sortableNode: node });
   };
 
+  getItemTitle = (tab, valueField, valuePrefix) => {
+    const label = tab[valueField];
+
+    if (isString(label)) {
+      return classNames(valuePrefix, tab[valueField]);
+    }
+
+    return Object.keys(label).reduce((result, current) => {
+      result[current] = classNames(valuePrefix, label[current]);
+      return result;
+    }, {});
+  };
+
   handleSortEnd = ({ oldIndex, newIndex }) => {
     const { items = [], onSort } = this.props;
     const { sortableNode } = this.state;
@@ -110,7 +124,7 @@ class EditTabs extends React.Component {
                 index={index}
                 classNameTooltip={classNameTooltip}
                 className={classNameTab}
-                label={classNames(valuePrefix, item[valueField])}
+                label={this.getItemTitle(item, valueField, valuePrefix)}
                 isActive={item.isActive || item[keyField] === activeTabKey}
                 onClick={() => onClick(item, index)}
                 onDelete={() => this.onDeleteItem(item, index)}

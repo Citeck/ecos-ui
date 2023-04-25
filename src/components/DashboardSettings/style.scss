@@ -336,6 +336,10 @@
     &-container {
       width: 100%;
       box-sizing: border-box;
+
+      &_disabled {
+        opacity: 0.6;
+      }
     }
 
     &-item {
