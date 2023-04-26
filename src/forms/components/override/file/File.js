@@ -25,6 +25,7 @@ export default class FileComponent extends FormIOFileComponent {
         dir: '',
         fileNameTemplate: '',
         webcam: false,
+        defaultKey: '_content',
         fileTypes: [
           {
             label: '',
@@ -130,6 +131,14 @@ export default class FileComponent extends FormIOFileComponent {
     return createDocumentUrl(recordRef);
   }
 
+  getFileUrl(file) {
+    const containerType = get(this.root, 'options.typeRef', '');
+    // eslint-disable-next-line
+    const [_, type] = containerType.split('@');
+    const url = file.url || `/gateway/emodel/api/ecos/webapp/content?containerTypeId=${type}`;
+    return url;
+  }
+
   buildFileProcessingLoader() {
     const isRootLoading = get(this, 'root.loader');
     if (isRootLoading) {
@@ -171,7 +180,8 @@ export default class FileComponent extends FormIOFileComponent {
                 class: this.iconClass('remove'),
                 onClick: event => {
                   if (fileInfo && this.component.storage === 'url') {
-                    fileService.makeRequest('', fileInfo.url, 'delete');
+                    const url = this.getFileUrl(fileInfo);
+                    fileService.makeRequest('', url, 'delete');
                   }
                   event.preventDefault();
                   this.splice(index);
@@ -289,7 +299,7 @@ export default class FileComponent extends FormIOFileComponent {
       return fileItemElement;
     }
 
-    let documentUrl = file.url;
+    let documentUrl = this.getFileUrl(file);
     let recordRef;
 
     try {
