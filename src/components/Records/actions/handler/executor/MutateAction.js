@@ -11,8 +11,8 @@ export default class MutateAction extends ActionsExecutor {
   static ACTION_ID = 'mutate';
 
   async execForRecords(records, action, context) {
-    const implSourceId = get(action, 'implSourceId');
     const config = get(action, 'config', {});
+    const implSourceId = get(config, 'implSourceId');
 
     if (implSourceId) {
       const implMutRecord = Records.get(implSourceId + '@');
