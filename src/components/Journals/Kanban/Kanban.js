@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import isEqualWith from 'lodash/isEqualWith';
-import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -43,14 +41,22 @@ class Kanban extends React.Component {
   refBody = React.createRef();
   refScroll = React.createRef();
   refHeader = React.createRef();
+  refBottom = React.createRef();
 
   state = {
     isDragging: false
   };
 
+  componentDidMount() {
+    this.observer = new IntersectionObserver(([entry]) => {
+      this.setState({ isInView: entry.isIntersecting });
+    });
+
+    this.observer.observe(this.refBottom.current);
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const height = get(this.refBody, 'current.clientHeight');
-    const { dataCards, isLoading, isFirstLoading } = this.props;
+    const { isLoading, isFirstLoading } = this.props;
     const headerElement = get(this.refHeader, 'current');
 
     if (isLoading || isFirstLoading) {
@@ -61,15 +67,17 @@ class Kanban extends React.Component {
       return;
     }
 
-    if (!isEqualWith(prevProps.dataCards, dataCards, isEqual) && !!height) {
-      if (this.getHeight() > height && !this.isNoMore()) {
-        this.props.getNextPage();
-      }
+    if (this.state.isInView && !this.isNoMore()) {
+      this.props.getNextPage();
     }
 
     if (headerElement) {
       headerElement.style.width = `${headerElement.scrollWidth}px`;
     }
+  }
+
+  componentWillUnmount() {
+    this.observer.disconnect();
   }
 
   getHeight(changes = 0) {
@@ -79,7 +87,7 @@ class Kanban extends React.Component {
   isNoMore = () => {
     const { totalCount, dataCards } = this.props;
 
-    return totalCount !== 0 && totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
+    return totalCount === 0 || totalCount === dataCards.reduce((count = 0, card) => card.records.length + count, 0);
   };
 
   handleResize = () => {
@@ -187,6 +195,7 @@ class Kanban extends React.Component {
                 {cols.map(this.renderColumn)}
               </DragDropContext>
             </div>
+            <div ref={this.refBottom} className="ecos-kanban__footer-border" />
           </Scrollbars>
           {isLoading && page > 1 && <PointsLoader className="ecos-kanban__loader" color={'light-blue'} />}
         </div>
