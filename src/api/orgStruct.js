@@ -4,6 +4,7 @@ import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 
 import {
+  ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
   DataTypes,
@@ -153,15 +154,19 @@ export class OrgStructApi extends CommonApi {
       .then(filterByType)
       .then(this._prepareGroups)
       .then(records => {
-        if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
+        if (
+          isIncludedAdminGroup &&
+          groupName === ROOT_GROUP_NAME &&
+          ALFRESCO_ADMINISTRATORS_GROUP.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
+        ) {
           records.unshift({
-            id: getGroupRef('ALFRESCO_ADMINISTRATORS'),
-            displayName: 'ALFRESCO_ADMINISTRATORS',
+            id: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
+            displayName: ALFRESCO_ADMINISTRATORS_GROUP,
             fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
-            shortName: 'ALFRESCO_ADMINISTRATORS',
+            shortName: ALFRESCO_ADMINISTRATORS_GROUP,
             groupSubType: '',
             groupType: 'BRANCH',
-            nodeRef: getGroupRef('ALFRESCO_ADMINISTRATORS'),
+            nodeRef: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
             authorityType: AUTHORITY_TYPE_GROUP
           });
         }
