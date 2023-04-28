@@ -18,6 +18,15 @@ NestedComponent.prototype.checkConditions = function(data) {
 
 NestedComponent.prototype.setNestedValue = function(component, value, flags, changed) {
   if (component.type === 'button') {
+    this.emit('change', {
+      changed: {
+        instance: this,
+        component: this.component,
+        value: this.dataValue,
+        flags
+      },
+      data: this.data
+    });
     return false;
   }
 
