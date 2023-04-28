@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import { getCurrentLocale } from '../../../helpers/util';
 import 'flatpickr/dist/l10n/ru.js';
+import { DateFormats } from '../../../constants';
 
 export default class CalendarWidget extends FormIOCalendarWidget {
   static get defaultSettings() {
@@ -28,11 +29,13 @@ export default class CalendarWidget extends FormIOCalendarWidget {
       return value;
     }
 
-    const date = moment(value)
-      .utcOffset(0, true)
-      .format();
+    if ((this.settings.format && this.settings.format === DateFormats.DATE) || !this.settings.enableTime) {
+      return moment(value)
+        .utcOffset(0, true)
+        .format();
+    }
 
-    return date;
+    return value;
   }
 
   attach(input) {
