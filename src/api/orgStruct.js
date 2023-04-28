@@ -4,6 +4,7 @@ import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 
 import {
+  ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
   DataTypes,
@@ -99,6 +100,36 @@ export class OrgStructApi extends CommonApi {
     return null;
   };
 
+  static getSearchFields = async (searchText = '', extraFields = []) => {
+    const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+
+    if (searchText) {
+      const addExtraFields = (fields = []) => {
+        const attributes = fields.map(field => field.trim()).filter(field => !!field);
+
+        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
+      };
+
+      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
+      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+        addExtraFields(globalSearchConfig);
+      }
+
+      if (Array.isArray(extraFields) && extraFields.length > 0) {
+        addExtraFields(extraFields);
+      }
+
+      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+
+      if (isSearchUserMiddleName) {
+        addExtraFields(['middleName']);
+      }
+    }
+
+    return searchFields;
+  };
+
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
     const filterByType = items =>
@@ -109,8 +140,11 @@ export class OrgStructApi extends CommonApi {
 
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
+
+    const searchFields = await OrgStructApi.getSearchFields(searchText);
+
     let queryVal = searchText
-      ? OrgStructApi.getSearchQuery(searchText)
+      ? OrgStructApi.getSearchQuery(searchText, searchFields)
       : [
           {
             t: 'contains',
@@ -153,15 +187,19 @@ export class OrgStructApi extends CommonApi {
       .then(filterByType)
       .then(this._prepareGroups)
       .then(records => {
-        if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
+        if (
+          isIncludedAdminGroup &&
+          groupName === ROOT_GROUP_NAME &&
+          ALFRESCO_ADMINISTRATORS_GROUP.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
+        ) {
           records.unshift({
-            id: getGroupRef('ALFRESCO_ADMINISTRATORS'),
-            displayName: 'ALFRESCO_ADMINISTRATORS',
+            id: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
+            displayName: ALFRESCO_ADMINISTRATORS_GROUP,
             fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
-            shortName: 'ALFRESCO_ADMINISTRATORS',
+            shortName: ALFRESCO_ADMINISTRATORS_GROUP,
             groupSubType: '',
             groupType: 'BRANCH',
-            nodeRef: getGroupRef('ALFRESCO_ADMINISTRATORS'),
+            nodeRef: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
             authorityType: AUTHORITY_TYPE_GROUP
           });
         }
@@ -358,8 +396,6 @@ export class OrgStructApi extends CommonApi {
       queryVal.push(notDisabledPredicate);
     }
 
-    let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
-
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
     (excludedUsers || []).forEach(item => {
       if (item && !item.startsWith('GROUP_')) {
@@ -367,29 +403,7 @@ export class OrgStructApi extends CommonApi {
       }
     });
 
-    if (searchText) {
-      const addExtraFields = (fields = []) => {
-        const attributes = fields.map(field => field.trim()).filter(field => !!field);
-
-        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
-      };
-
-      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
-
-      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-        addExtraFields(globalSearchConfig);
-      }
-
-      if (Array.isArray(extraFields) && extraFields.length > 0) {
-        addExtraFields(extraFields);
-      }
-
-      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
-
-      if (isSearchUserMiddleName) {
-        addExtraFields(['middleName']);
-      }
-    }
+    const searchFields = await OrgStructApi.getSearchFields(searchText, extraFields);
 
     queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields));
 
