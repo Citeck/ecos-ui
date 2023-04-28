@@ -34,7 +34,7 @@ class Tab extends React.Component {
 
     this.state = {
       id: `tab-${uuidV4()}`,
-      editing: props.isNew,
+      editing: false,
       isOpenMenu: false,
       text: props.isNew ? '' : props.label,
       defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
