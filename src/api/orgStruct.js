@@ -99,6 +99,36 @@ export class OrgStructApi extends CommonApi {
     return null;
   };
 
+  static getSearchFields = async (searchText = '', extraFields = []) => {
+    const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+
+    if (searchText) {
+      const addExtraFields = (fields = []) => {
+        const attributes = fields.map(field => field.trim()).filter(field => !!field);
+
+        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
+      };
+
+      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
+      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+        addExtraFields(globalSearchConfig);
+      }
+
+      if (Array.isArray(extraFields) && extraFields.length > 0) {
+        addExtraFields(extraFields);
+      }
+
+      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+
+      if (isSearchUserMiddleName) {
+        addExtraFields(['middleName']);
+      }
+    }
+
+    return searchFields;
+  };
+
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
     const filterByType = items =>
@@ -109,8 +139,11 @@ export class OrgStructApi extends CommonApi {
 
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
+
+    const searchFields = await OrgStructApi.getSearchFields(searchText);
+
     let queryVal = searchText
-      ? OrgStructApi.getSearchQuery(searchText)
+      ? OrgStructApi.getSearchQuery(searchText, searchFields)
       : [
           {
             t: 'contains',
@@ -358,8 +391,6 @@ export class OrgStructApi extends CommonApi {
       queryVal.push(notDisabledPredicate);
     }
 
-    let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
-
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
     (excludedUsers || []).forEach(item => {
       if (item && !item.startsWith('GROUP_')) {
@@ -367,29 +398,7 @@ export class OrgStructApi extends CommonApi {
       }
     });
 
-    if (searchText) {
-      const addExtraFields = (fields = []) => {
-        const attributes = fields.map(field => field.trim()).filter(field => !!field);
-
-        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
-      };
-
-      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
-
-      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-        addExtraFields(globalSearchConfig);
-      }
-
-      if (Array.isArray(extraFields) && extraFields.length > 0) {
-        addExtraFields(extraFields);
-      }
-
-      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
-
-      if (isSearchUserMiddleName) {
-        addExtraFields(['middleName']);
-      }
-    }
+    const searchFields = await OrgStructApi.getSearchFields(searchText, extraFields);
 
     queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields));
 
