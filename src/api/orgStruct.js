@@ -80,6 +80,25 @@ export class OrgStructApi extends CommonApi {
     return (groups || []).map(replace);
   };
 
+  static getNotDisabledPredicate = async () => {
+    const predicateNotDisabled = { t: 'not-eq', att: 'personDisabled', val: true };
+
+    const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
+    if (isHideForAll) {
+      return predicateNotDisabled;
+    } else {
+      const isAdmin = await OrgStructApi.fetchIsAdmin();
+      if (!isAdmin) {
+        const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
+        if (showInactiveUserOnlyForAdmin) {
+          return predicateNotDisabled;
+        }
+      }
+    }
+
+    return null;
+  };
+
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
     const filterByType = items =>
@@ -99,6 +118,12 @@ export class OrgStructApi extends CommonApi {
             v: getGroupRef(groupName)
           }
         ];
+
+    const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
+    if (notDisabledPredicate) {
+      queryVal.push(notDisabledPredicate);
+    }
+
     const extraQueryVal = [];
 
     if (excludeAuthoritiesByName) {
@@ -328,20 +353,9 @@ export class OrgStructApi extends CommonApi {
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
     let queryVal = [];
 
-    const predicateNotDisabled = { t: 'not-eq', att: 'personDisabled', val: true };
-
-    const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
-
-    if (isHideForAll) {
-      queryVal.push(predicateNotDisabled);
-    } else {
-      const isAdmin = await OrgStructApi.fetchIsAdmin();
-      if (!isAdmin) {
-        const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
-        if (showInactiveUserOnlyForAdmin) {
-          queryVal.push(predicateNotDisabled);
-        }
-      }
+    const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
+    if (notDisabledPredicate) {
+      queryVal.push(notDisabledPredicate);
     }
 
     let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
