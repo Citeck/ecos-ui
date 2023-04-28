@@ -66,7 +66,14 @@ const ExecuteInfoAction = React.memo((props = {}) => {
           text: t(Labels.DOWNLOAD),
           formatExtraData: {
             formatter: ({ cell }) => {
-              const html = `<a href="${PROXY_URI + cell}" onclick="event.stopPropagation()">${t(Labels.DOWNLOAD)}</a>`;
+              let url = cell;
+
+              if (cell.indexOf('workspace://SpacesStore/') !== -1) {
+                url = PROXY_URI + cell;
+              }
+
+              const html = `<a href="${url}" onclick="event.stopPropagation()">${t(Labels.DOWNLOAD)}</a>`;
+
               return <span dangerouslySetInnerHTML={{ __html: html }} />;
             }
           }
