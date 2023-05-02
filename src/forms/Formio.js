@@ -1,9 +1,12 @@
 import Formio from 'formiojs/Formio';
 import { jsonLogic } from 'formiojs/utils/utils';
+import get from 'lodash/get';
 
 import { getMLValue } from '../helpers/util';
 
 jsonLogic.add_operation('getMLValue', value => getMLValue(value));
+
+const originProviders = Formio.providers;
 
 function getLocalLibraryUrl(src) {
   const replaceUrlMap = {
@@ -39,6 +42,14 @@ Formio.requireLibrary = (name, property, src, polling) => {
 };
 
 Formio.forms = {};
+
+Formio.providers = {
+  ...originProviders,
+  storage: {
+    base64: get(originProviders, 'storage.base64'),
+    url: get(originProviders, 'storage.url')
+  }
+};
 
 window.Formio = Formio;
 
