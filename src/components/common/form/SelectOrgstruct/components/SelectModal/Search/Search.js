@@ -13,7 +13,7 @@ const Labels = {
 
 const Search = () => {
   const context = useContext(SelectOrgstructContext);
-  const { searchText, updateSearchText, onSubmitSearchForm, resetSearchText } = context;
+  const { searchText, updateSearchText, onUpdateTree, resetSearchText } = context;
   const inputRef = useRef(null);
 
   const onSearchIconClick = () => {
@@ -22,7 +22,7 @@ const Search = () => {
 
   const onKeyDown = e => {
     if (e.key === 'Enter') {
-      onSubmitSearchForm();
+      onUpdateTree();
     }
   };
 
@@ -45,7 +45,7 @@ const Search = () => {
           onClick={resetSearchText}
         />
       </div>
-      <Btn onClick={onSubmitSearchForm} className="ecos-btn_blue">
+      <Btn onClick={onUpdateTree} className="ecos-btn_blue">
         {t(Labels.PLACEHOLDER)}
       </Btn>
     </div>
