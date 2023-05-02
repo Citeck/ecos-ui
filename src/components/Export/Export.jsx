@@ -9,6 +9,7 @@ import isFunction from 'lodash/isFunction';
 import { NotificationManager } from 'react-notifications';
 
 import { instUserConfigApi as api } from '../../api/userConfig';
+import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
@@ -43,9 +44,21 @@ export default class Export extends Component {
     super(props);
     this.textInput = React.createRef();
     this.form = React.createRef();
+
+    this.state = {
+      hasAlfresco: false
+    };
   }
 
-  get dropdownSource() {
+  componentDidMount() {
+    ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
+      this.setState({
+        hasAlfresco: value
+      });
+    });
+  }
+
+  get dropdownSourceWithAlfresco() {
     return [
       { id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' },
       { id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' },
@@ -53,6 +66,10 @@ export default class Export extends Component {
       { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
       { id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }
     ];
+  }
+
+  get dropdownSourceWithoutAlfresco() {
+    return [{ id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }];
   }
 
   handleExport = async item => {
@@ -151,6 +168,7 @@ export default class Export extends Component {
   };
 
   render() {
+    const { hasAlfresco } = this.state;
     const { right, className, children, classNameBtn, ...props } = this.props;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
 
@@ -161,7 +179,7 @@ export default class Export extends Component {
           hasEmpty
           isStatic={!children}
           right={right}
-          source={this.dropdownSource}
+          source={hasAlfresco ? this.dropdownSourceWithAlfresco : this.dropdownSourceWithoutAlfresco}
           valueField={'id'}
           titleField={'title'}
           controlIcon="icon-download"
