@@ -142,6 +142,13 @@ export class OrgStructApi extends CommonApi {
 
     const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
 
+    const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
+    (excludedUsers || []).forEach(item => {
+      if (item) {
+        queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
+      }
+    });
+
     const groups = Records.query(
       {
         sourceId: SourcesId.GROUP,
@@ -367,8 +374,8 @@ export class OrgStructApi extends CommonApi {
 
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
     (excludedUsers || []).forEach(item => {
-      if (item && !item.startsWith('GROUP_')) {
-        queryVal.push({ t: 'not-eq', att: 'id', val: item });
+      if (item) {
+        queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
       }
     });
 
