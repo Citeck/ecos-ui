@@ -579,6 +579,7 @@ Base.prototype.createInlineEditSaveAndCancelButtons = function() {
       const form = get(this, 'root');
 
       if (form.changing) {
+        this.switchToViewOnlyMode();
         return;
       }
 
