@@ -5,7 +5,17 @@ import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 import classNames from 'classnames';
 
-import Structure from './components/Structure';
+import { OrgStructApi } from '../../api/orgStruct';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  DataTypes,
+  GroupTypes,
+  ROOT_GROUP_NAME,
+  TabTypes
+} from '../../components/common/form/SelectOrgstruct/constants';
+import { SelectOrgstructProvider } from '../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+
 import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
 import { getSearchParams } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
@@ -15,8 +25,34 @@ import { DndUtils } from '../../components/Drag-n-Drop';
 import Records from '../../components/Records';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
+import Structure from './components/Structure';
 
 import './style.scss';
+
+const api = new OrgStructApi();
+
+const controlProps = {
+  label: 'SelectOrgstruct',
+  key: 'selectOrgstruct',
+  type: 'selectOrgstruct',
+  allowedAuthorityTypes: [AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP].join(', '),
+  allowedGroupTypes: [GroupTypes.ROLE, GroupTypes.BRANCH].join(', '),
+  rootGroupName: ROOT_GROUP_NAME,
+  allowedGroupSubTypes: [],
+  currentUserByDefault: false,
+  excludeAuthoritiesByName: '',
+  excludeAuthoritiesByType: [],
+  modalTitle: null,
+  isSelectedValueAsText: false,
+  hideTabSwitcher: false,
+  defaultTab: TabTypes.LEVELS,
+  dataType: DataTypes.NODE_REF,
+  userSearchExtraFields: '',
+  isIncludedAdminGroup: false,
+  onError: console.error,
+  onChange: () => {},
+  multiple: false
+};
 
 const Labels = {
   NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text'
@@ -160,7 +196,9 @@ class Orgstructure extends React.Component {
     return (
       <div className="orgstructure-page__grid-container">
         <div className="orgstructure-page__grid-main">
-          <Structure tabId={this.props.tabId} />
+          <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
+            <Structure tabId={this.props.tabId} />
+          </SelectOrgstructProvider>
         </div>
 
         {this.renderDashboard()}

@@ -21,7 +21,7 @@ const Body = ({ reloadList, tabId }) => {
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
-          <List items={children} reloadList={reloadList} tabId={tabId} />
+          <List items={children} tabId={tabId} />
         </div>
       </Scrollbars>
     </div>
