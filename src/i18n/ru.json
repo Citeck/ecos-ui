@@ -1119,7 +1119,7 @@
   "relative.year": "около года назад",
   "relative.years": "более {{value}} лет назад",
   "relative.yesterday": "Вчера",
-  "search.label": "Найти файл, человека или раздел",
+  "search.label": "Найти файл, пользователя или раздел",
   "search.more": "Больше",
   "search.no-results": "Ничего не найдено",
   "search.placeholder": "Найти",
@@ -2367,7 +2367,7 @@
 
   "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя",
   "orgstructure-page-title": "Оргструктура",
-  "orgstructure-edit-modal-title-person": "Добавить человека в группу",
+  "orgstructure-edit-modal-title-person": "Добавить пользователя в группу",
   "orgstructure-add-modal-title-group": "Добавить подгруппу",
   "orgstructure-delete-modal-title-person": "Удаление пользователя",
   "orgstructure-delete-modal-title-group": "Удаление группы",
