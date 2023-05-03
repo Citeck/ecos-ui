@@ -12,6 +12,16 @@
   opacity: 1;
 }
 
+.page-tab {
+  &__panel {
+    overflow: visible;
+    width: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    grid-template-columns: minmax(auto, 100%);
+  }
+}
+
 .ecos-kanban {
   $kanban: &;
 
