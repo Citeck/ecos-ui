@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import PanelBar from '../PanelBar/PanelBar';
 import List from '../List/List';
-import { InfoText } from '../index';
+import InfoText from '../InfoText/InfoText';
 
 import './CollapsibleList.scss';
 

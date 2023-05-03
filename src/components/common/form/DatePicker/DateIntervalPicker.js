@@ -8,7 +8,9 @@ import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import moment from 'moment';
 
-import { Select, Input, DatePicker } from '../';
+import DatePicker from './DatePicker';
+import Select from '../Select';
+import Input from '../Input';
 import { num2str, prepareTooltipId } from '../../../../helpers/util';
 import { t } from '../../../../helpers/export/util';
 import { datePredicateVariables } from '../../../Records/predicates/predicates';

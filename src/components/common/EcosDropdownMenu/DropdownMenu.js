@@ -11,8 +11,8 @@ import DropdownMenuGroup from './DropdownMenuGroup';
 import { DropdownMenuItem } from './index';
 import ZIndex from '../../../services/ZIndex';
 
-import './style.scss';
 import '../form/Dropdown/Dropdown.scss';
+import './style.scss';
 
 const MenuModes = {
   GROUP: 'group',

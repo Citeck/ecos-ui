@@ -13,7 +13,7 @@ import {
   setScrollbarWidth,
   TransitionTimeouts
 } from 'reactstrap/lib/utils';
-import { Loader } from '../';
+import Loader from '../Loader/Loader';
 
 function noop() {}
 

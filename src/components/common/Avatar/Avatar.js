@@ -2,7 +2,7 @@ import * as React from 'react';
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { Icon } from '../';
+import Icon from '../icons/Icon/Icon';
 
 import './style.scss';
 

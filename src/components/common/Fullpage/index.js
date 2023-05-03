@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
-import { Icon } from '../';
+import Icon from '../icons/Icon/Icon';
 
 import './style.scss';
 

@@ -114,6 +114,7 @@ const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 module.exports = {
+  stats: 'errors-only',
   mode: process.env.NODE_ENV,
   // Don't attempt to continue if there are any errors.
   bail: true,
@@ -513,6 +514,7 @@ module.exports = {
       // both options are optional
       filename: 'ecosui/export/ecos/[name]/css/[name].min.css',
       chunkFilename: 'ecosui/export/ecos/[name]/css/[name].chunk.[contenthash].css',
+      ignoreOrder: true,
     }),
     // Generate a manifest file which contains a mapping of all asset filenames
     // to their corresponding output file so that tools can pick it up without

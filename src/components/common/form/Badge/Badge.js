@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isNil from 'lodash/isNil';
 
-import { Popper } from '../../index';
+import Popper from '../../Popper';
 
 import './style.scss';
 

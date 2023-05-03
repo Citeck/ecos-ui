@@ -9,7 +9,7 @@ import isUndefined from 'lodash/isUndefined';
 import { getMLValue, isMobileDevice, t, trigger } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
 import Modal from './ModalDraggable';
-import { Icon } from '../';
+import Icon from '../icons/Icon/Icon';
 import Popper from '../Popper';
 
 import './EcosModal.scss';
