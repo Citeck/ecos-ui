@@ -29,24 +29,37 @@ export default class MutateAction extends ActionsExecutor {
       const recordId = get(recordConfig, 'record.id', record.id);
       const recordToMutate = Records.getRecordToEdit(recordId);
       const attributes = get(recordConfig, 'record.attributes');
-      await this.saveMutatedRecords(recordToMutate, attributes, mutatedRecords);
+      await this.saveMutatedRecord(recordToMutate, attributes, mutatedRecords, record);
     }
 
     return mutatedRecords;
   }
 
-  async saveMutatedRecords(record, attributes, mutatedRecords) {
+  async saveMutatedRecord(record, attributes, mutatedRecords, originalRecord) {
     for (const att in attributes) {
       if (attributes.hasOwnProperty(att)) {
         record.att(att, attributes[att]);
       }
     }
 
+    let nodeRef = record.id;
+
     await record
       .save()
-      .then(() => mutatedRecords.push({ status: 'OK', nodeRef: record.id, message: '' }))
+      .then(data => {
+        if (data.isPendingCreate()) {
+          nodeRef = originalRecord.id;
+        }
+
+        mutatedRecords.push({ status: 'OK', nodeRef, message: '' });
+      })
       .catch(e => {
-        mutatedRecords.push({ status: 'SKIPPED', nodeRef: record.id, message: e.message });
+        if (record.isPendingCreate()) {
+          nodeRef = originalRecord.id;
+        }
+
+        mutatedRecords.push({ status: 'SKIPPED', nodeRef, message: e.message });
+
         return false;
       });
   }
