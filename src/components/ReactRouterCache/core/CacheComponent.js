@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { run, get, value, isExist, isFunction, saveScrollPosition } from '../helpers';
-import * as manager from './manager';
+import { addToComponents, getComponents, removeFromComponents } from './constants';
 
 const isUsingNewLifecycle = isExist(React.forwardRef);
 
@@ -106,12 +106,12 @@ export default class CacheComponent extends Component {
     if (props.cacheKey) {
       if (get(props.cacheKey, 'multiple')) {
         const { cacheKey, pathname } = props.cacheKey;
-        manager.register(cacheKey, {
-          ...manager.getCache()[cacheKey],
+        addToComponents(cacheKey, {
+          ...getComponents()[cacheKey],
           [pathname]: this
         });
       } else {
-        manager.register(props.cacheKey, this);
+        addToComponents(props.cacheKey, this);
       }
     }
 
@@ -223,17 +223,17 @@ export default class CacheComponent extends Component {
 
     if (get(cacheKeyConfig, 'multiple')) {
       const { cacheKey, pathname } = cacheKeyConfig;
-      const cache = { ...manager.getCache()[cacheKey] };
+      const cache = { ...getComponents()[cacheKey] };
 
       delete cache[pathname];
 
       if (Object.keys(cache).length === 0) {
-        manager.remove(cacheKey);
+        removeFromComponents(cacheKey);
       } else {
-        manager.register(cacheKey, cache);
+        addToComponents(cacheKey, cache);
       }
     } else {
-      manager.remove(cacheKeyConfig);
+      removeFromComponents(cacheKeyConfig);
     }
 
     if (unmount) {

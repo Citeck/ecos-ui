@@ -1,11 +1,13 @@
 import React, { useContext, useRef } from 'react';
+import classNames from 'classnames';
+
 import Input from '../../../../Input/Input';
 import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import { t } from '../../../../../../../helpers/util';
-import './Search.scss';
+import Icon from '../../../../../icons/Icon/Icon';
 import { Btn } from '../../../../../btns';
-import classNames from 'classnames';
-import { Icon } from '../../../../../index';
+
+import './Search.scss';
 
 const Labels = {
   PLACEHOLDER: 'select-orgstruct.search.placeholder'

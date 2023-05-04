@@ -7,7 +7,7 @@ import { Tooltip } from 'reactstrap';
 
 import { t } from '../../../../helpers/util';
 import { Checkbox } from '../../form';
-import { Icon } from '../../';
+import Icon from '../../icons/Icon/Icon';
 import { SELECTOR_MENU } from '../util';
 import ZIndex from '../../../../services/ZIndex';
 

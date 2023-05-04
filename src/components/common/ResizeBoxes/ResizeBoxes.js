@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
-import { Icon } from '../';
+import Icon from '../icons/Icon/Icon';
 
 import './style.scss';
 

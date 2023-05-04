@@ -13,6 +13,7 @@ import Records from '../../Records';
 import { extractLabel, getBool, isNodeRef } from '../../../../helpers/util';
 import DialogManager from '../../../common/dialogs/Manager';
 import ExecuteInfoAction from '../components/ExecuteInfoAction';
+import { ResultTypes } from './constants';
 
 const Labels = {
   MSG_SUCCESS: 'record-action.msg.success.text',
@@ -74,17 +75,6 @@ function formatArrayResult(data) {
 
   return { type: ResultTypes.RESULTS, data: { results: Array.from(data) } };
 }
-
-/**
- * @enum {String}
- */
-export const ResultTypes = {
-  LINK: 'link',
-  RESULTS: 'results',
-  MSG: 'msg',
-  ERROR: 'error',
-  INFO: 'info'
-};
 
 export function notifySuccess(msg, timeOut = 5000, ...extra) {
   const before = cloneDeep(NotificationManager.listNotify);

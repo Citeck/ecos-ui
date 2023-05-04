@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import InputView from '../InputView';
 import SelectModal from '../SelectModal';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import { Loader } from '../../../../index';
+import Loader from '../../../../Loader/Loader';
 
 const SelectOrgstructRoot = () => {
   const context = useContext(SelectOrgstructContext);

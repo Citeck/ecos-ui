@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 import { t } from '../../../../../../../helpers/util';
-import { InfoText, Loader } from '../../../../../index';
+import InfoText from '../../../../../InfoText/InfoText';
+import Loader from '../../../../../Loader/Loader';
 import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import List from './List';
 

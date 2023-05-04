@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { TreeGrid } from '../';
+import TreeGrid from '../TreeGrid';
 
 export default class AsyncTreeGrid extends Component {
   constructor(props) {

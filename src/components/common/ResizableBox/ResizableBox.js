@@ -5,7 +5,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/util';
-import { Icon } from '../';
+import Icon from '../icons/Icon/Icon';
 
 import './style.scss';
 

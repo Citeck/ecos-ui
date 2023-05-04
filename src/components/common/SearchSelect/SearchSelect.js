@@ -7,7 +7,8 @@ import { isLastItem, t } from '../../../helpers/util';
 import ClickOutside from '../../ClickOutside';
 import { Btn } from '../btns';
 import { Input } from '../form';
-import { Icon, Loader } from '../';
+import Icon from '../icons/Icon/Icon';
+import Loader from '../Loader/Loader';
 
 import './style.scss';
 import { getFitnesseClassName } from '../../../helpers/tools';

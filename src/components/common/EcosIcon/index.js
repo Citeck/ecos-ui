@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { TMP_ICON_EMPTY } from '../../../constants';
 import { createContentUrl } from '../../../helpers/urls';
 import { MenuApi } from '../../../api/menu';
-import { Icon } from '../index';
+import Icon from '../icons/Icon/Icon';
 
 import './style.scss';
 
@@ -25,13 +25,16 @@ function EcosIcon({ code, className, data, title, family, onClick, id, defaultVa
     commonProps.onClick = onClick;
   }
 
-  useEffect(() => {
-    if (family === 'menu-items' && code) {
-      menuApi.getMenuItemIconUrl(code).then(data => setRemoteData(data));
-    } else {
-      setRemoteData(data);
-    }
-  }, [code, data]);
+  useEffect(
+    () => {
+      if (family === 'menu-items' && code) {
+        menuApi.getMenuItemIconUrl(code).then(data => setRemoteData(data));
+      } else {
+        setRemoteData(data);
+      }
+    },
+    [code, data]
+  );
 
   if (type === 'img' && !!(value || url)) {
     const src = url || createContentUrl({ value });

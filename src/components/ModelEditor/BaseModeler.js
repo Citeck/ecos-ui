@@ -248,7 +248,7 @@ export default class BaseModeler {
    * see available events
    * @return {ReactComponent}
    */
-  renderSheet = props => <Sheet {...props} init={this.init} />;
+  renderSheet = props => <Sheet {...props} init={this.init} className={BaseModeler.querySelector} />;
 
   destroy = () => {
     if (this.events) {

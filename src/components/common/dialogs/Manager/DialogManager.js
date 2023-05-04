@@ -9,7 +9,7 @@ import { Collapse, Card, CardBody } from 'reactstrap';
 import { objectByString, t } from '../../../../helpers/util';
 import { Btn } from '../../btns';
 import EcosModal from '../../EcosModal';
-import { RemoveDialog } from '../index';
+import RemoveDialog from '../RemoveDialog';
 import FormWrapper from './FormWrapper';
 
 import './DialogManager.scss';

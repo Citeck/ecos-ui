@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEmpty from 'lodash/isEmpty';
-import { EcosModal } from '../../';
+import EcosModal from '../../EcosModal';
 
 import './style.scss';
 
