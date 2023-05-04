@@ -321,7 +321,8 @@
   }
 
   &__panel {
-    overflow: visible;
+    overflow: auto;
+    height: 100%;
     width: 100%;
     display: grid;
     grid-template-rows: 1fr auto;
