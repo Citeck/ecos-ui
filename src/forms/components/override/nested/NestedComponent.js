@@ -4,7 +4,6 @@ import NestedComponent from 'formiojs/components/nested/NestedComponent';
 
 import { FORM_MODE_CREATE } from '../../../../components/EcosForm/constants';
 import { isExistValue } from '../../../../helpers/util';
-import DataGrid from '../datagrid';
 
 NestedComponent.prototype.checkConditions = function(data) {
   const result = Base.prototype.checkConditions.call(this, data);
@@ -19,19 +18,6 @@ NestedComponent.prototype.checkConditions = function(data) {
 
 NestedComponent.prototype.setNestedValue = function(component, value, flags, changed) {
   if (component.type === 'button') {
-    const instance = this;
-
-    if (instance instanceof DataGrid) {
-      this.emit('change', {
-        changed: {
-          instance,
-          component: this.component,
-          value: this.dataValue,
-          flags
-        },
-        data: this.data
-      });
-    }
     return false;
   }
 

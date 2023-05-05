@@ -600,6 +600,13 @@ class ModelEditorPage extends React.Component {
   };
 
   handleClickViewXml = () => {
+    const form = get(this._formWrapperRef, 'current.form');
+    const data = get(form, 'submission.data');
+
+    if (form && data) {
+      this.handleFormChange({ data, changed: form }, form);
+    }
+
     const { savedModel } = this.props;
 
     if (!savedModel) {
