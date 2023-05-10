@@ -29,7 +29,7 @@ export default class CalendarWidget extends FormIOCalendarWidget {
       return value;
     }
 
-    if ((this.settings.format && this.settings.format === DateFormats.DATE) || !this.settings.enableTime) {
+    if (this.settings.format && this.settings.format === DateFormats.DATE) {
       return moment(value)
         .utcOffset(0, true)
         .format();
