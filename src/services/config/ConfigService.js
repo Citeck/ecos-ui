@@ -52,7 +52,7 @@ export const TOUCH_CONFIG = 'app/gateway$touch';
 
 const CONFIG_PROPS = {
   [MAIN_MENU_TYPE]: {
-    defaultValue: 'left-v2'
+    defaultValue: 'left-v1'
   },
   [CREATE_MENU_TYPE]: {
     defaultValue: 'cascad'
@@ -184,11 +184,19 @@ class ConfigService {
     }
 
     const configsToLoad = this._getConfigsToLoad();
+
     const loadedValuesPromise = this._loadConfigsFunc(configsToLoad).then(values => {
       const cfgValues = {};
       for (let configKey in values) {
+        let value = values[configKey];
+        if (this._isEmptyValue(value)) {
+          const confProps = this._getConfigProps({
+            ...(CONFIG_PROPS[configKey] || {})
+          });
+          value = confProps.defaultValue;
+        }
         cfgValues[configKey] = {
-          [configsToLoad[configKey]]: values[configKey]
+          [configsToLoad[configKey]]: value
         };
       }
       localStorage.setItem(
