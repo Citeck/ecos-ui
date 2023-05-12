@@ -1,4 +1,5 @@
 import React from 'react';
+import isString from 'lodash/isString';
 
 import './ColoredFormatter.scss';
 
@@ -10,13 +11,16 @@ export default class ColoredFormatter extends BaseFormatter {
 
   format(props) {
     const { cell, config = {} } = props;
-    const color = config.color || {};
+    const color = config.color || '#000000';
 
-    let cellColor = config.defaultColor || '#FFFFFF';
-    cellColor = color[cell.value || ''] || cellColor;
+    let backgroundColor = config.defaultColor || '#FFFFFF';
+    if (!isString(color)) {
+      backgroundColor = color[cell.value || ''] || backgroundColor;
+    }
 
     let style = {
-      backgroundColor: cellColor
+      color: isString(color) ? color : undefined,
+      backgroundColor
     };
 
     let text = '';
