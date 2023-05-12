@@ -71,24 +71,8 @@ export default class MenuService {
           },
           formDefinition: getFormDefinitionUserStatus(),
           onSubmit: async submission => {
-            const userRef = await Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`).load('nodeRef?str');
-            const result = await ecosFetch(`${PROXY_URI}citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent`, {
-              method: 'POST',
-              body: {
-                attributes: {
-                  'deputy:endAbsence': get(submission, 'data.absenceBeginning', ''),
-                  'deputy:startAbsence': get(submission, 'data.absenceEnd', ''),
-                  'deputy:autoAnswer': get(submission, 'data.autoAnswer', ''),
-                  'deputy:user': userRef
-                }
-              }
-            })
-              .then(response => response.json())
-              .catch(console.error);
-
-            if (!isEmpty(result)) {
-              await AppApi.doToggleAvailable(config.isAvailable);
-            }
+            const awayAuthDelegationEnabled = get(submission, 'data.awayAuthDelegationEnabled');
+            await AppApi.doToggleAvailable(config.isAvailable, awayAuthDelegationEnabled);
           }
         });
       }
