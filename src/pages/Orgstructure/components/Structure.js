@@ -2,19 +2,22 @@ import React from 'react';
 
 import { useSelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import FormManager from '../../../components/EcosForm/FormManager';
-import { t } from '../../../helpers/util';
-import { Icon } from '../../../components/common';
+import { isMobileDevice, t } from '../../../helpers/util';
+import { Icon, Tooltip } from '../../../components/common';
 import OrgstructBody from './OrgstructBody';
 import OrgstructureSearch from './OrgstructureSearch';
 
 import './style.scss';
 
 const Labels = {
-  TITLE: 'orgstructure-page-title'
+  TITLE: 'orgstructure-page-title',
+  ADD_GROUP: 'orgstructure-page-add-group'
 };
 
 const Structure = ({ tabId }) => {
   const { onUpdateTree } = useSelectOrgstructContext();
+
+  const tooltipId = 'add-group-button';
 
   const handleClickAddButton = () => {
     FormManager.openFormModal({
@@ -30,9 +33,11 @@ const Structure = ({ tabId }) => {
     <>
       <div className="orgstructure-page__structure__header">
         <h1>{t(Labels.TITLE)}</h1>
-        <div className="orgstructure-page__structure__bnt-create" onClick={handleClickAddButton}>
-          <Icon className="icon-plus" />
-        </div>
+        <Tooltip uncontrolled text={t(Labels.ADD_GROUP)} target={tooltipId} off={isMobileDevice()}>
+          <div id={tooltipId} className="orgstructure-page__structure__bnt-create" onClick={handleClickAddButton}>
+            <Icon className="icon-plus" />
+          </div>
+        </Tooltip>
       </div>
       <OrgstructureSearch />
       <OrgstructBody tabId={tabId} />

@@ -2367,6 +2367,7 @@
 
   "orgstructure-page-no-picked-person-text": "Выберите профиль пользователя",
   "orgstructure-page-title": "Оргструктура",
+  "orgstructure-page-add-group": "Добавить группу",
   "orgstructure-edit-modal-title-person": "Добавить пользователя в группу",
   "orgstructure-add-modal-title-group": "Добавить подгруппу",
   "orgstructure-delete-modal-title-person": "Удаление пользователя",
