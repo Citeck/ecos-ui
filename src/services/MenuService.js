@@ -1,16 +1,12 @@
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 
 import { AppApi } from '../api/app';
 import DialogManager from '../components/common/dialogs/Manager';
-import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import { PROXY_URI } from '../constants/alfresco';
 import RecordActions from '../components/Records/actions/recordActions';
 import { ActionTypes } from '../components/Records/actions';
 import { t } from '../helpers/export/util';
-import ecosFetch from '../helpers/ecosFetch';
 import { getCurrentUserName } from '../helpers/util';
 import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
