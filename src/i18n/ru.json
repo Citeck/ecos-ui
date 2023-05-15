@@ -1035,6 +1035,7 @@
   "predicate.boolean-not-empty": "Не пусто",
   "predicate.boolean-true": "Да",
   "predicate.contains": "Содержит",
+  "predicate.all": "Все",
   "predicate.date-empty": "Пусто",
   "predicate.date-equals": "Равно",
   "predicate.date-greater-or-equal": "Больше или равно",
