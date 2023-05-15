@@ -93,7 +93,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     if (!_.isEqual(customPredicate, this.customPredicateValue)) {
       this.customPredicateValue = customPredicate;
-      this.updateReactComponent(component => component.setCustomPredicate && component.setCustomPredicate(customPredicate));
+
+      if (this.react && this.react.innerComponent) {
+        this.react.innerComponent.setCustomPredicate && this.react.innerComponent.setCustomPredicate(customPredicate);
+      } else {
+        this.updateReactComponent(component => component.setCustomPredicate && component.setCustomPredicate(customPredicate));
+      }
     }
 
     return result;
