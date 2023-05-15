@@ -6,6 +6,6 @@ properties:
     - enterprise: true
       plugins:
         - heatmap:1.4.0
-        - stages-widget:1.1.0
+        - stages-widget:1.2.0
         - kanban-widget:1.4.0
     - enterprise: false
