@@ -313,6 +313,8 @@ class Model extends React.Component {
       opacity
     } = this.state;
 
+    const Sheet = this.designer && this.designer.renderSheet;
+
     return (
       <div
         className={classNames('ecos-process-statistics-model', {
@@ -339,15 +341,17 @@ class Model extends React.Component {
           )}
           {model && (
             <ResizableBox getHeight={this.setHeight} resizable classNameResizer="ecos-process-statistics-model__sheet-resizer">
-              <this.designer.Sheet
-                diagram={model}
-                onInit={this.handleInitSheet}
-                onMounted={this.handleReadySheet}
-                defHeight={DefSets.HEIGHT}
-                onMouseDown={this.handleMouseDown}
-                onMouseUp={this.handleMouseUp}
-                onWheel={this.handleWheel}
-              />
+              {Sheet && (
+                <Sheet
+                  diagram={model}
+                  onInit={this.handleInitSheet}
+                  onMounted={this.handleReadySheet}
+                  defHeight={DefSets.HEIGHT}
+                  onMouseDown={this.handleMouseDown}
+                  onMouseUp={this.handleMouseUp}
+                  onWheel={this.handleWheel}
+                />
+              )}
               {!isLoading && displayHeatmapToolbar && this.designer.heatmap && (
                 <div
                   className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
