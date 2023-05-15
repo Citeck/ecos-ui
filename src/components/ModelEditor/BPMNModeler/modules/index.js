@@ -1,3 +1,5 @@
+import BpmnColorPickerModule from 'bpmn-js-color-picker';
+
 import EcosTaskPalette from './ecosTask/EcosTaskPalette';
 import EcosTaskRenderer from './ecosTask/EcosTaskRenderer';
 import EcosTaskContextPad from './ecosTask/EcosTaskContextPad';
@@ -15,5 +17,6 @@ export default [
     customPalette: ['type', EcosTaskPalette],
     customRenderer: ['type', EcosTaskRenderer]
   },
-  lintModule
+  lintModule,
+  BpmnColorPickerModule
 ];
