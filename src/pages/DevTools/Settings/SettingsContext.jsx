@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+import ConfigService, { ALFRESCO_ENABLED } from '../../../services/config/ConfigService';
 import { SETTING_ENABLE_RECORDS_API_DEBUG, SETTING_ENABLE_LOGGING_FOR_NEW_FORMS, SETTING_FORCE_ENABLE_NEW_FORMS } from '../constants';
 
 export const SettingsContext = React.createContext();
@@ -25,13 +26,19 @@ export const SettingsContextProvider = props => {
         }
       };
 
-      setSettings(prev => ({
-        ...prev,
-        [SETTING_FORCE_ENABLE_NEW_FORMS]: {
-          value: stateEnableNewFormsValue,
-          setValue: _setNewValue
+      ConfigService.getValue(ALFRESCO_ENABLED).then(value => {
+        if (!value) {
+          return;
         }
-      }));
+
+        setSettings(prev => ({
+          ...prev,
+          [SETTING_FORCE_ENABLE_NEW_FORMS]: {
+            value: stateEnableNewFormsValue,
+            setValue: _setNewValue
+          }
+        }));
+      });
     },
     [stateEnableNewFormsValue]
   );
