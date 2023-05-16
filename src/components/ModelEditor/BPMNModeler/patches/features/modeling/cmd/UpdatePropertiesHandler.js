@@ -15,7 +15,7 @@ UpdatePropertiesHandler.prototype.execute = function(context, withClear) {
 
   context.element.businessObject = context.element.businessObject || context.element;
 
-  if (context.withClear) {
+  if (context.withClear && get(context, 'element.type') === get(context, 'element.businessObject.$type')) {
     const elementAttrs = get(context, 'element.businessObject.$attrs', {});
     const propertiesKeys = Object.keys(context.properties);
     const notInclidedAttrs = Object.keys(elementAttrs)
