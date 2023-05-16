@@ -20,6 +20,7 @@ export const COLUMN_DATA_TYPE_AUTHORITY_GROUP = 'authorityGroup';
 export const COLUMN_DATA_TYPE_AUTHORITY = 'authority';
 export const COLUMN_DATA_TYPE_FILTER_GROUP = 'filterGroup';
 
+export const PREDICATE_ALL = 'all';
 export const PREDICATE_CONTAINS = 'contains';
 export const PREDICATE_IN = 'in';
 export const PREDICATE_NOT_CONTAINS = 'not-contains';
@@ -118,7 +119,7 @@ const PREDICATE_LIST_TYPE_BOOLEAN = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NO
 const PREDICATE_LIST_TYPE_NODEREF = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_QNAME = [PREDICATE_EQ, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
 const PREDICATE_LIST_TYPE_AUTHORITY = [PREDICATE_CONTAINS, PREDICATE_NOT_CONTAINS, PREDICATE_EMPTY, PREDICATE_NOT_EMPTY];
-const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
+const PREDICATE_LIST_TYPE_NO_CONTROL_YET = [PREDICATE_ALL, PREDICATE_NOT_EMPTY, PREDICATE_EMPTY];
 const PREDICATE_LIST_TYPE_FILTER_GROUP = [PREDICATE_AND, PREDICATE_OR];
 
 export const PREDICATE_LIST_WITH_CLEARED_VALUES = [PREDICATE_TODAY, PREDICATE_TIME_INTERVAL];
@@ -128,6 +129,7 @@ let allPredicates = [];
 // Hack: Currently t('') works correctly only after execution loadMessagesAndAlfrescoScript function in share.js, so we should use function instead of array:
 const getAllPredicates = function() {
   return [
+    { value: PREDICATE_ALL, label: t('predicate.all'), needValue: false },
     { value: PREDICATE_CONTAINS, label: t('predicate.contains'), needValue: true },
     { value: PREDICATE_NOT_CONTAINS, label: t('predicate.not-contains'), needValue: true },
     { value: PREDICATE_EQ, label: t('predicate.eq'), needValue: true },

@@ -1036,6 +1036,7 @@
   "predicate.boolean-not-empty": "Is not empty",
   "predicate.boolean-true": "Is true",
   "predicate.contains": "Contains",
+  "predicate.all": "All",
   "predicate.date-empty": "Is empty",
   "predicate.date-equals": "Equals",
   "predicate.date-greater-or-equal": "Greater or equals to",
