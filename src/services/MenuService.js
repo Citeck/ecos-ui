@@ -6,6 +6,7 @@ import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
 import RecordActions from '../components/Records/actions/recordActions';
 import { ActionTypes } from '../components/Records/actions';
+import Records from '../components/Records';
 import { t } from '../helpers/export/util';
 import { getCurrentUserName } from '../helpers/util';
 import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
@@ -34,7 +35,7 @@ export default class MenuService {
     return link;
   };
 
-  static getUserMenuCallback = item => {
+  static getUserMenuCallback = async item => {
     const config = get(item, 'config', {});
 
     switch (item.type) {
@@ -55,6 +56,23 @@ export default class MenuService {
       }
       case MenuSettings.ItemTypes.USER_STATUS: {
         if (!config.isAvailable) {
+          return AppApi.doToggleAvailable(config.isAvailable);
+        }
+
+        const activeOutOfOfficeDelegationsQueryRes = await Records.query({
+          ecosType: 'auth-delegation',
+          language: 'predicate',
+          query: {
+            t: 'and',
+            val: [
+              { t: 'eq', a: '_parent', v: 'emodel/person@' + getCurrentUserName() },
+              { t: 'eq', a: 'delegateWhen', v: 'OUT_OF_OFFICE' },
+              { t: 'eq', a: 'enabled', v: true }
+            ]
+          },
+          page: { maxItems: 0 } // We do not require elements; only the total count value is needed.
+        });
+        if (activeOutOfOfficeDelegationsQueryRes.totalCount === 0) {
           return AppApi.doToggleAvailable(config.isAvailable);
         }
 
