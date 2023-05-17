@@ -208,16 +208,28 @@ class SetWidgets extends React.Component {
               >
                 {activeWidgets &&
                   activeWidgets[indexColumn] &&
-                  activeWidgets[indexColumn].map((widget, indexWidget) => (
-                    <SelectedWidget
-                      key={this.getWidgetKey(widget)}
-                      {...{ widget, indexWidget, indexColumn, isMobile, modelAttributes, positionAdjustment }}
-                      executors={{
-                        remove: () => this.handleRemoveWidget(widget, indexColumn, indexWidget),
-                        edit: updWidget => this.handleEditWidget(updWidget, indexColumn, indexWidget)
-                      }}
-                    />
-                  ))}
+                  activeWidgets[indexColumn].map((widget, indexWidget) => {
+                    if (isFunction(get(widget, 'additionalProps.isDropDisabledByColumn'))) {
+                      const disabledColumnsByWidget = [].concat(
+                        ...columns.filter(column => widget.additionalProps.isDropDisabledByColumn(column))
+                      );
+                      if (disabledColumnsByWidget.includes(column)) {
+                        this.handleRemoveWidget(widget, indexColumn, indexWidget);
+                        return null;
+                      }
+                    }
+
+                    return (
+                      <SelectedWidget
+                        key={this.getWidgetKey(widget)}
+                        {...{ widget, indexWidget, indexColumn, isMobile, modelAttributes, positionAdjustment }}
+                        executors={{
+                          remove: () => this.handleRemoveWidget(widget, indexColumn, indexWidget),
+                          edit: updWidget => this.handleEditWidget(updWidget, indexColumn, indexWidget)
+                        }}
+                      />
+                    );
+                  })}
               </Droppable>
             </div>
           );
