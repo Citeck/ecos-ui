@@ -2,7 +2,7 @@ import React from 'react';
 import isString from 'lodash/isString';
 
 import BaseFormatter from '../../BaseFormatter';
-import { createDocumentUrl } from '../../../../../../helpers/urls';
+import { createDocumentUrl, isUrl } from '../../../../../../helpers/urls';
 import { REMOTE_TITLE_ATTR_NAME } from '../../../../../../constants/pageTabs';
 
 export default class LinkFormatter extends BaseFormatter {
@@ -11,7 +11,7 @@ export default class LinkFormatter extends BaseFormatter {
   format(props) {
     const { row = {}, cell, config = {} } = props;
 
-    let href = createDocumentUrl(row.id);
+    let href = isUrl(cell) ? cell : createDocumentUrl(row.id);
 
     // is computed from config
     if (isString(config.url)) {
