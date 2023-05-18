@@ -131,6 +131,16 @@ export default class FileComponent extends FormIOFileComponent {
     return createDocumentUrl(recordRef);
   }
 
+  updateValue(flags, value) {
+    super.updateValue(flags, value);
+
+    if (!this._initialized) {
+      this._initialized = true;
+
+      this._initialValue = Array.isArray(this.data[this.component.key]) && [...this.data[this.component.key]];
+    }
+  }
+
   getFileUrl(file) {
     const containerType = get(this.root, 'options.typeRef', '');
     // eslint-disable-next-line
@@ -163,6 +173,64 @@ export default class FileComponent extends FormIOFileComponent {
     return result;
   }
 
+  buildFileList() {
+    const value = this.dataValue;
+
+    return this.ce(
+      'ul',
+      {
+        class: 'list-group list-group-striped'
+      },
+      [
+        this.ce(
+          'li',
+          {
+            class: 'list-group-item list-group-header hidden-xs hidden-sm'
+          },
+          this.ce(
+            'div',
+            {
+              class: 'row'
+            },
+            [
+              this.ce('div', {
+                class: 'col-md-1'
+              }),
+              this.ce(
+                'div',
+                {
+                  class: 'col-md-'.concat(this.hasTypes ? '6' : '9')
+                },
+                this.ce('strong', {}, this.text('File Name'))
+              ),
+              this.ce(
+                'div',
+                {
+                  class: 'col-md-2'
+                },
+                this.ce('strong', {}, this.text('Size'))
+              ),
+              this.hasTypes
+                ? this.ce(
+                    'div',
+                    {
+                      class: 'col-md-2'
+                    },
+                    this.ce('strong', {}, this.text('Type'))
+                  )
+                : null
+            ]
+          )
+        ),
+        Array.isArray(value)
+          ? value.map((fileInfo, index) => {
+              return this.createFileListItem(fileInfo, index);
+            })
+          : null
+      ]
+    );
+  }
+
   createFileListItem(fileInfo, index) {
     const displayElements = this.displayElementsValue || {};
     const shouldShowDeleteIcon = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
@@ -190,9 +258,9 @@ export default class FileComponent extends FormIOFileComponent {
               })
             : null
         ),
-        this.ce('div', { class: `col-md-${this.hasTypes ? '7' : '9'}` }, this.createFileLink(fileInfo)),
+        this.ce('div', { class: `col-md-${this.hasTypes ? '6' : '9'}` }, this.createFileLink(fileInfo)),
         this.ce('div', { class: 'col-md-2' }, this.fileSize(fileInfo.size)),
-        this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(index, fileInfo)) : null
+        this.hasTypes ? this.ce('div', { class: 'col-md-3' }, this.createTypeSelect(index, fileInfo)) : null
       ])
     );
   }
@@ -221,16 +289,19 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   createTypeSelect(index, fileInfo) {
+    const disabled = this._initialValue && Array.isArray(this._initialValue) && this._initialValue.includes(fileInfo);
+
     return this.ce(
       'select',
       {
-        class: 'file-type',
+        class: 'file-type form-control',
         onChange: event => {
           this.replaceValueItemByIndex(index, {
             ...fileInfo,
             fileType: event.target.value
           });
-        }
+        },
+        disabled: disabled || undefined
       },
       this.component.fileTypes.map(type =>
         this.ce(
