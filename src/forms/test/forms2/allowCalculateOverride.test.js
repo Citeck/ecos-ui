@@ -1,16 +1,88 @@
 import { TestForm } from './TestForm';
 import assert from 'power-assert';
 
+const definition = {
+  components: [
+    {
+      label: 'field0',
+      type: 'number',
+      input: true,
+      key: 'field0'
+    },
+    {
+      label: 'field1',
+      type: 'number',
+      input: true,
+      key: 'field1'
+    },
+    {
+      label: 'Total with override',
+      type: 'number',
+      input: true,
+      key: 'totalWithOverride',
+      calculateValue: 'value = (data.field0 || 0) + (data.field1 || 0);',
+      allowCalculateOverride: true
+    },
+    {
+      label: 'Total without override',
+      type: 'number',
+      input: true,
+      key: 'totalWithoutOverride',
+      calculateValue: 'value = (data.field0 || 0) + (data.field1 || 0);',
+      allowCalculateOverride: false
+    },
+    {
+      label: 'Non-calculated orgstruct',
+      type: 'selectOrgstruct',
+      input: true,
+      key: 'nonCalculatedOrgstruct'
+    },
+    {
+      label: 'Orgstruct with override',
+      type: 'selectOrgstruct',
+      input: true,
+      key: 'orgstructWithOverride',
+      calculateValue: 'value = data.nonCalculatedOrgstruct;',
+      allowCalculateOverride: true
+    },
+    {
+      label: 'Non-calculated selectJournal',
+      type: 'selectJournal',
+      input: true,
+      key: 'nonCalculatedSelectJournal'
+    },
+    {
+      label: 'SelectJournal without override',
+      type: 'selectJournal',
+      input: true,
+      key: 'selectJournalWithoutOverride',
+      calculateValue: 'value = data.nonCalculatedSelectJournal;'
+    },
+    {
+      label: 'SelectJournal with override',
+      type: 'selectJournal',
+      input: true,
+      key: 'selectJournalWithOverride',
+      calculateValue: 'value = data.nonCalculatedSelectJournal;',
+      allowCalculateOverride: true
+    }
+  ]
+};
+
+let form;
+beforeAll(async () => {
+  form = await TestForm.create(
+    definition,
+    { formMode: 'CREATE' },
+    {
+      field0: 7,
+      field1: 13
+    }
+  );
+});
+
 describe('Calculated fields test #2', () => {
-  it('Allow calculate override. Create mode', async done => {
-    const form = await TestForm.create(
-      definition,
-      { formMode: 'CREATE' },
-      {
-        field0: 7,
-        field1: 13
-      }
-    );
+  it('Allow calculate override. Create mode part1', async done => {
     let formData = form.getFormData();
     assert.equal(formData.field0, 7);
     assert.equal(formData.field1, 13);
@@ -46,6 +118,11 @@ describe('Calculated fields test #2', () => {
     formData = form.getFormData();
     assert.equal(formData.totalWithoutOverride, 2013);
 
+    done();
+  });
+
+  it('Allow calculate override. Create mode part2', async done => {
+    let formData = form.getFormData();
     // ++ orgstruct ++
 
     await form.setInputValue('nonCalculatedOrgstruct', 'admin');
@@ -65,6 +142,11 @@ describe('Calculated fields test #2', () => {
 
     // -- orgstruct --
 
+    done();
+  });
+
+  it('Allow calculate override. Create mode part3', async done => {
+    let formData = form.getFormData();
     // ++ selectjournal ++
 
     await form.setInputValue('nonCalculatedSelectJournal', 'ecos-documents');
@@ -136,71 +218,3 @@ describe('Calculated fields test #2', () => {
     done();
   });
 });
-
-const definition = {
-  components: [
-    {
-      label: 'field0',
-      type: 'number',
-      input: true,
-      key: 'field0'
-    },
-    {
-      label: 'field1',
-      type: 'number',
-      input: true,
-      key: 'field1'
-    },
-    {
-      label: 'Total with override',
-      type: 'number',
-      input: true,
-      key: 'totalWithOverride',
-      calculateValue: 'value = (data.field0 || 0) + (data.field1 || 0);',
-      allowCalculateOverride: true
-    },
-    {
-      label: 'Total without override',
-      type: 'number',
-      input: true,
-      key: 'totalWithoutOverride',
-      calculateValue: 'value = (data.field0 || 0) + (data.field1 || 0);',
-      allowCalculateOverride: false
-    },
-    {
-      label: 'Non-calculated orgstruct',
-      type: 'selectOrgstruct',
-      input: true,
-      key: 'nonCalculatedOrgstruct'
-    },
-    {
-      label: 'Orgstruct with override',
-      type: 'selectOrgstruct',
-      input: true,
-      key: 'orgstructWithOverride',
-      calculateValue: 'value = data.nonCalculatedOrgstruct;',
-      allowCalculateOverride: true
-    },
-    {
-      label: 'Non-calculated selectJournal',
-      type: 'selectJournal',
-      input: true,
-      key: 'nonCalculatedSelectJournal'
-    },
-    {
-      label: 'SelectJournal without override',
-      type: 'selectJournal',
-      input: true,
-      key: 'selectJournalWithoutOverride',
-      calculateValue: 'value = data.nonCalculatedSelectJournal;'
-    },
-    {
-      label: 'SelectJournal with override',
-      type: 'selectJournal',
-      input: true,
-      key: 'selectJournalWithOverride',
-      calculateValue: 'value = data.nonCalculatedSelectJournal;',
-      allowCalculateOverride: true
-    }
-  ]
-};
