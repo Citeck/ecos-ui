@@ -16,6 +16,6 @@ testing:
   before_script:
     - yarn install --frozen-lockfile
   script:
-    - yarn && yarn test --watchAll=false
+    - yarn && yarn test --watchAll=false --ci --coverage
   rules:
     - if: ($CI_PIPELINE_SOURCE == 'merge_request_event') && ($CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT)
