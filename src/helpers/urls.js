@@ -428,3 +428,9 @@ export const getRecordRef = (sourceUrl = window.location.href) => {
 
   return isArray(recordRef) ? recordRef.shift() : recordRef;
 };
+
+export const isUrl = value => {
+  const str = value.toString();
+
+  return str.trim().startsWith('http://') || str.trim().startsWith('https://');
+};
