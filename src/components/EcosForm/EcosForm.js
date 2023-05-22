@@ -44,16 +44,21 @@ class EcosForm extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.initForm();
+
+    window.addEventListener('mousedown', this.onScrollBarClick, true);
+  }
+
   componentWillUnmount() {
     Records.releaseAll(this.state.containerId);
+
     if (this._form) {
       this._form.destroy();
     }
-    window.clearTimeout(this._containerHeightTimerId);
-  }
 
-  componentDidMount() {
-    this.initForm();
+    window.clearTimeout(this._containerHeightTimerId);
+    window.removeEventListener('mousedown', this.onScrollBarClick, true);
   }
 
   componentDidUpdate(prevProps) {
@@ -309,6 +314,12 @@ class EcosForm extends React.Component {
   toggleLoader = state => {
     const { onToggleLoader } = this.props;
     isFunction(onToggleLoader) && onToggleLoader(state);
+  };
+
+  onScrollBarClick = e => {
+    if (e.offsetX > e.target.clientWidth || e.offsetY > e.target.clientHeight) {
+      e.preventDefault();
+    }
   };
 
   onShowFormBuilder = callback => {
