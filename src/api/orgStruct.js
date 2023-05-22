@@ -306,7 +306,7 @@ export class OrgStructApi extends CommonApi {
   static async fetchGlobalSearchFields() {
     const fields = await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
 
-    if (!isArray(fields) || (isString(fields[0]) && !fields[0].trim().length)) {
+    if (!isArray(fields) || !fields[0] || (isString(fields[0]) && !fields[0].trim().length)) {
       return [];
     }
 
