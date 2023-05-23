@@ -56,7 +56,7 @@ Citeck `ecos-ui` offers a wide range of features to enhance your experience with
 
 ## Contributing
 
-We welcome contributions from the community to make `ecos-ui` even better. If you're interested in contributing, please follow our [contribution guidelines](CONTRIBUTING.md).
+We welcome contributions from the community to make ECOS even better. Everyone interacting in the Citeck project’s codebases, issue trackers, chat rooms, and forum is expected to follow the [contributor code of conduct](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
 
 ## Support
 
