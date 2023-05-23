@@ -86,9 +86,8 @@ export default class WidgetService {
 
     modal.open(<BusinessProcessViewer {...props} />, {
       title: [name, version].filter(val => !!val).join(' / '),
-      class: 'ecos-modal-business-process',
-      onHideModal: onClose,
-      size: isFlowableProcess(props.recordId) ? undefined : 'xl'
+      class: `ecos-modal-business-process ${isFlowableProcess(props.recordId) ? '' : 'ecos-modal_width-full'}`,
+      onHideModal: onClose
     });
   }
 

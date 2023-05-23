@@ -133,6 +133,15 @@ describe('Calculated fields test #2', () => {
     formData = form.getFormData();
     assert.equal(formData.orgstructWithOverride, 'emodel/person@fet');
 
+    // -- orgstruct --
+
+    done();
+  });
+
+  it('Allow calculate override. Create mode part2', async done => {
+    let formData = form.getFormData();
+    // ++ orgstruct ++
+
     await form.setInputValue('orgstructWithOverride', 'admin');
     await form.setInputValue('nonCalculatedOrgstruct', 'pushkin');
 
