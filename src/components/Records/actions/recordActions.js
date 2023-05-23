@@ -843,15 +843,15 @@ class RecordActions {
 
     let result;
 
+    if (!isEmpty(confirmed)) {
+      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
+    }
+
     /** @type {PreProcessActionResult} */
     const preResult = await RecordActions._preProcessAction({ action, context }, 'execForQuery');
 
     if (preResult.configMerged) {
       action.config = preResult.config;
-    }
-
-    if (!isEmpty(confirmed)) {
-      RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
     }
 
     if (!!get(action, 'execForQueryConfig.execAsForRecords')) {
