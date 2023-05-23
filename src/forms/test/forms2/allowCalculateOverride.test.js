@@ -171,6 +171,14 @@ describe('Calculated fields test #2', () => {
     formData = form.getFormData();
     assert.equal(formData.selectJournalWithoutOverride, 'ecos-documents');
 
+    // -- selectjournal --
+
+    done();
+  });
+
+  it('Allow calculate override. Create mode part3', async done => {
+    let formData = form.getFormData();
+
     await form.setInputValue('nonCalculatedSelectJournal', 'contract-agreements');
     formData = form.getFormData();
     assert.equal(formData.selectJournalWithOverride, 'ecos-types');
