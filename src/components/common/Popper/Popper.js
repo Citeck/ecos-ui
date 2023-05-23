@@ -101,6 +101,7 @@ export default class Popper extends Component {
   handleMouseEnter = () => {
     const { text, contentComponent, icon, popupClassName } = this.props;
     const element = icon ? this.#iconRef : this.#textRef;
+    element && element.classList.add('ecosZIndexAnchor');
 
     popupEmitter.emit(Events.SHOW, element, this.getDisp(getFirstNotNil(contentComponent, text)), popupClassName);
   };
