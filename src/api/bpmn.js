@@ -64,6 +64,7 @@ export class BpmnApi extends RecordService {
         modified: '_modified?num',
         previewUrl: 'preview.url',
         hasThumbnail: '_has.thumbnail?bool!false',
+        definition: 'definition?str',
         canWrite: PERMISSION_WRITE_ATTR
       }
     ).then(resp => {

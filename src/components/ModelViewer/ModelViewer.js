@@ -53,6 +53,25 @@ export default class ModelViewer {
 
   setMarkedElement = element => {
     isFunction(this.canvas.addMarker) && this.canvas.addMarker(element, 'marked-element');
+
+    if (this.modeler && isFunction(this.modeler.get)) {
+      const elementToFocus = this.modeler.get('elementRegistry').get(element);
+
+      const canvas = this.modeler.get('canvas');
+      const currentViewbox = canvas.viewbox();
+
+      const elementMid = {
+        x: elementToFocus.x + elementToFocus.width / 2,
+        y: elementToFocus.y + elementToFocus.height / 2
+      };
+
+      canvas.viewbox({
+        x: elementMid.x - currentViewbox.width / 2,
+        y: elementMid.y - currentViewbox.height / 2,
+        width: currentViewbox.width,
+        height: currentViewbox.height
+      });
+    }
   };
 
   setDiagram = async (diagram, { onMounted }) => {
