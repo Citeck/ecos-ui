@@ -49,7 +49,11 @@ export default class NumberComponent extends FormIONumberComponent {
         decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
         decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
         allowNegative: _.get(this.component, 'allowNegative', true),
-        allowDecimal: _.get(this.component, 'allowDecimal', !(this.component.validate && this.component.validate.integer))
+        allowDecimal: _.get(
+          this.component,
+          'allowDecimal',
+          !((this.component.validate && this.component.validate.integer) || this.component.decimalLimit === 0)
+        )
       });
     }
   }
