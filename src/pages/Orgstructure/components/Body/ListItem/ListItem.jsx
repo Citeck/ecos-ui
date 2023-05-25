@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import noop from 'lodash/noop';
+import isFunction from 'lodash/isFunction';
 import { NotificationManager } from 'react-notifications';
 
 import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
@@ -74,7 +75,7 @@ const renderListItem = (item, nestingLevel) => {
   );
 };
 
-const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId }) => {
+const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab }) => {
   const { onToggleCollapse, getItemsByParent } = useContext(SelectOrgstructContext);
 
   const [hovered, setHovered] = useState(false);
@@ -234,6 +235,8 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     dispatch(setSelectedPerson({ recordRef: item.id }));
     dispatch(getDashboardConfig({ recordRef: item.id }));
     updateCurrentUrl({ recordRef: item.id });
+    console.log(toggleToFirstTab);
+    isFunction(toggleToFirstTab) && toggleToFirstTab();
   };
 
   const isPerson = item.id.includes(SourcesId.PERSON);

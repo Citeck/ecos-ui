@@ -14,7 +14,7 @@ const Labels = {
   ADD_GROUP: 'orgstructure-page-add-group'
 };
 
-const Structure = ({ tabId }) => {
+const Structure = ({ tabId, toggleToFirstTab }) => {
   const { onUpdateTree } = useSelectOrgstructContext();
 
   const tooltipId = 'add-group-button';
@@ -40,7 +40,7 @@ const Structure = ({ tabId }) => {
         </Tooltip>
       </div>
       <OrgstructureSearch />
-      <OrgstructBody tabId={tabId} />
+      <OrgstructBody tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
     </>
   );
 };
