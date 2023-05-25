@@ -8,7 +8,7 @@ import Body from './Body';
 
 import './style.scss';
 
-const OrgstructBody = ({ reloadList, tabId }) => {
+const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
   const context = useSelectOrgstructContext();
 
   const { toggleSelectModal, pagination, onChangePage } = context;
@@ -19,7 +19,7 @@ const OrgstructBody = ({ reloadList, tabId }) => {
 
   return (
     <div className={'orgstructure-page__body__container'}>
-      <Body reloadList={reloadList} tabId={tabId} />
+      <Body reloadList={reloadList} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
       <Pagination
         page={pagination.page}
         maxItems={pagination.maxItems}

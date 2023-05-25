@@ -9,7 +9,7 @@ import List from './List';
 
 import './Body.scss';
 
-const Body = ({ reloadList, tabId }) => {
+const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
   const context = useContext(SelectOrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
@@ -21,7 +21,7 @@ const Body = ({ reloadList, tabId }) => {
         <div className="select-orgstruct__list-wrapper">
           {isSearching && <Loader blur />}
           {!children.length && !isSearching && <InfoText text={t('select-orgstruct.empty-list')} />}
-          <List items={children} tabId={tabId} />
+          <List items={children} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
         </div>
       </Scrollbars>
     </div>
