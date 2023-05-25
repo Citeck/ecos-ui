@@ -41,7 +41,7 @@ class TestFormWrapper {
     return _.cloneDeep(this._form.getValue().data);
   }
 
-  async __doAndWaitOnFormChange(action) {
+  __doAndWaitOnFormChange(action) {
     return new Promise(resolve => {
       const onChange = () => {
         this._form.off('change', onChange);

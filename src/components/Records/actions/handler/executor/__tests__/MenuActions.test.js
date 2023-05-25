@@ -18,6 +18,8 @@ describe('Menu Actions', () => {
   NotificationManager.error = () => undefined;
 
   it('View', async () => {
+    actionsRegistry.register(new ViewMenuAction());
+    actionsRegistry.register(new EditMenuAction());
     const action = actionsRegistry.getHandler(ViewMenuAction.ACTION_ID);
 
     MenuSettingsService.emitter.emit = (show, params, callback) => {

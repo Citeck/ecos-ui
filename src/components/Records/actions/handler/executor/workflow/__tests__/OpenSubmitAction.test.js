@@ -6,6 +6,7 @@ import * as ActionUtils from '../../../../util/actionUtils';
 
 describe('OpenSubmit action', () => {
   const testRecordRef = 'testRecordRef';
+  actionsRegistry.register(new OpenSubmitAction());
   const action = actionsRegistry.getHandler(OpenSubmitAction.ACTION_ID);
 
   let showFormSpy;

@@ -3,9 +3,22 @@ import Formio from 'formiojs/Formio';
 import fetchMock from 'fetch-mock/es5/client';
 import Chance from 'chance';
 import esc from 'escape-string-regexp';
+import Records from '../../components/Records/Records';
 
 Formio.fetch = fetchMock.fetchHandler;
 const chance = Chance();
+
+const load = async attrs => ({ ...attrs });
+
+const recordsGet = id => ({
+  id,
+  getBaseRecord: () => ({ id, load }),
+  get: () => {},
+  loadEditorKey: () => {},
+  load
+});
+
+jest.spyOn(Records, 'get').mockImplementation(recordsGet);
 
 export const APIMock = {
   submission: function(url, form) {

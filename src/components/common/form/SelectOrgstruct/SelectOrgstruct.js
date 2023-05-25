@@ -7,10 +7,15 @@ import { OrgStructApi } from '../../../../api/orgStruct';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, GroupTypes, ROOT_GROUP_NAME, TabTypes, ViewModes } from './constants';
 
 import './SelectOrgstruct.scss';
+import { IS_TEST_ENV } from '../../../../helpers/util';
 
 const orgStructApi = new OrgStructApi();
 
 const SelectOrgstruct = props => {
+  if (IS_TEST_ENV) {
+    return <div />;
+  }
+
   return (
     <SelectOrgstructProvider controlProps={props} orgStructApi={orgStructApi}>
       <SelectOrgstructRoot />

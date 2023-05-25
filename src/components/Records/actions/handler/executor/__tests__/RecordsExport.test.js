@@ -3,10 +3,13 @@ import actionsRegistry from '../../../actionsRegistry';
 import Records from '../../../../Records';
 import RecordsExportAction from '../RecordsExport';
 import '../__mocks__/RecordsExport.mock';
+import ServerGroupAction from '../ServerGroupAction';
 
 //for new cases don't use "-" in test exportType
 
 describe('RecordsExport action', () => {
+  actionsRegistry.register(new RecordsExportAction());
+  actionsRegistry.register(new ServerGroupAction());
   const actionRecordsExport = actionsRegistry.getHandler(RecordsExportAction.ACTION_ID);
   const record = Records.get('');
   let errorSpy, openSpy;

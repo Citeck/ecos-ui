@@ -16,7 +16,7 @@ import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
 import Records from '../../Records';
 import RecordActions from '../../Records/actions/recordActions';
-import { ActionTypes } from '../../Records/actions';
+import { ActionTypes } from '../../Records/actions/constants';
 import { getFitnesseClassName } from '../../../helpers/tools';
 
 import './style.scss';

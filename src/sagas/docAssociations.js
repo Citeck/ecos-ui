@@ -24,8 +24,8 @@ import {
 import DocAssociationsConverter from '../dto/docAssociations';
 import { t } from '../helpers/util';
 import { DIRECTIONS } from '../constants/docAssociations';
+import { ActionTypes } from '../components/Records/actions/constants';
 import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions';
 
 function* sagaGetSectionList({ api, logger }, { payload }) {
   try {

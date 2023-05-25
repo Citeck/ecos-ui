@@ -93,44 +93,72 @@ describe('TextField Builder', () => {
     });
   });
 
-  it('Should allow you to change the label position', done => {
+  it('Should allow you to change the label position part1', done => {
     Harness.setComponentProperty('labelPosition', 'top', 'bottom', preview => {
       expect(!!preview.match(/input.*label/)).toBe(true);
       Harness.setComponentProperty('labelPosition', 'bottom', 'left-left', preview => {
         expect(!!preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%;.*input/)).toBe(true);
-        Harness.setComponentProperty('labelPosition', 'left-left', 'left-right', preview => {
-          expect(!!preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%; text-align: right;.*input/)).toBe(true);
-          Harness.setComponentProperty('labelPosition', 'left-right', 'right-left', preview => {
-            expect(!!preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%;.*input/)).toBe(true);
-            Harness.setComponentProperty('labelPosition', 'right-left', 'right-right', preview => {
-              expect(!!preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%; text-align: right;.*input/)).toBe(true);
-              done();
-            });
-          });
+        done();
+      });
+    });
+  });
+
+  it('Should allow you to change the label position part2', done => {
+    Harness.setComponentProperty('labelPosition', 'left-left', 'left-right', preview => {
+      expect(!!preview.match(/label.*style=".*float: left; width: 30%; margin-right: 3%; text-align: right;.*input/)).toBe(true);
+      Harness.setComponentProperty('labelPosition', 'left-right', 'right-left', preview => {
+        expect(!!preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%;.*input/)).toBe(true);
+        Harness.setComponentProperty('labelPosition', 'right-left', 'right-right', preview => {
+          expect(!!preview.match(/label.*style=".*float: right; width: 30%; margin-left: 3%; text-align: right;.*input/)).toBe(true);
+          done();
         });
       });
     });
   });
 
-  it('Should allow you to change the label width and margin', done => {
+  it('Should allow you to change the label width part1', done => {
     Harness.setComponentProperty('labelPosition', 'right-right', 'top', () => {
       Harness.testVisibility(builder.editForm, '.formio-component-labelWidth', false);
-      Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', false);
       Harness.setComponentProperty('labelPosition', 'top', 'left-left', () => {
         Harness.testVisibility(builder.editForm, '.formio-component-labelWidth', true);
-        Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', true);
-        Harness.setComponentProperty('labelWidth', 30, 20, () => {
-          Harness.setComponentProperty('labelMargin', 3, 5, preview => {
-            expect(!!preview.match(/label.*style=".*float: left; width: 20%; margin-right: 5%;.*input/)).toBe(true);
-            Harness.setComponentProperty('labelPosition', 'left-left', 'right-right', preview => {
-              expect(!!preview.match(/label.*style=".*float: right; width: 20%; margin-left: 5%; text-align: right;.*input/)).toBe(true);
-              Harness.testVisibility(builder.editForm, '.formio-component-labelWidth', true);
-              Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', true);
-              done();
-            });
-          });
-        });
+        done();
       });
+    });
+  });
+
+  it('Should allow you to change the label width part2', done => {
+    Harness.setComponentProperty('labelWidth', 30, 20, preview => {
+      expect(!!preview.match(/label.*style=".*float: left; width: 20%; margin-right: 3%;.*input/)).toBe(true);
+      Harness.setComponentProperty('labelPosition', 'left-left', 'right-right', preview => {
+        expect(!!preview.match(/label.*style=".*float: right; width: 20%; margin-left: 3%; text-align: right;.*input/)).toBe(true);
+        Harness.testVisibility(builder.editForm, '.formio-component-labelWidth', true);
+        done();
+      });
+    });
+  });
+
+  it('Should allow you to change the label margin part1', done => {
+    Harness.setComponentProperty('labelPosition', 'right-right', 'top', () => {
+      Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', false);
+      Harness.setComponentProperty('labelPosition', 'top', 'left-left', () => {
+        Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', true);
+        done();
+      });
+    });
+  });
+
+  it('Should allow you to change the label margin part2', done => {
+    Harness.setComponentProperty('labelMargin', 3, 5, preview => {
+      expect(!!preview.match(/label.*style=".*float: left; width: 20%; margin-right: 5%;.*input/)).toBe(true);
+      done();
+    });
+  });
+
+  it('Should allow you to change the label margin part3', done => {
+    Harness.setComponentProperty('labelPosition', 'left-left', 'right-right', preview => {
+      expect(!!preview.match(/label.*style=".*float: right; width: 20%; margin-left: 5%; text-align: right;.*input/)).toBe(true);
+      Harness.testVisibility(builder.editForm, '.formio-component-labelMargin', true);
+      done();
     });
   });
 

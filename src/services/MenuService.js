@@ -5,7 +5,7 @@ import DialogManager from '../components/common/dialogs/Manager';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
 import RecordActions from '../components/Records/actions/recordActions';
-import { ActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions/constants';
 import Records from '../components/Records';
 import { t } from '../helpers/export/util';
 import { getCurrentUserName } from '../helpers/util';
