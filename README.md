@@ -2,10 +2,6 @@
 
 # `ecos-ui`
 
-[![pipeline status](https://gitlab.citeck.ru/ecos-community/ecos-ui/badges/master/pipeline.svg)](https://gitlab.citeck.ru/ecos-community/ecos-ui/-/commits/master)
-![coverage report](https://gitlab.citeck.ru/ecos-community/ecos-ui/badges/master/coverage.svg?job=testing)
-[![latest release](https://gitlab.citeck.ru/ecos-community/ecos-ui/-/badges/release.svg)](https://gitlab.citeck.ru/ecos-community/ecos-ui/-/tags)
-
 Welcome to the Citeck `ecos-ui` repository! This repository contains the user interface (UI) components and modules for the Citeck ECOS platform. Citeck ECOS is a powerful and comprehensive enterprise content and operations system designed to streamline and automate business processes within organizations.
 
 ## Installation
@@ -53,6 +49,10 @@ Citeck `ecos-ui` offers a wide range of features to enhance your experience with
 - **Collaboration**: Enable teams to collaborate on content creation and editing, improving teamwork and productivity.
 
 - **Analytics and Reporting**: Gain valuable insights into process performance, resource utilization, and other key metrics through advanced analytics and reporting capabilities.
+
+## Useful Links
+
+- [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.
 
 ## Contributing
 
