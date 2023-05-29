@@ -159,7 +159,8 @@ class ModelEditorPage extends React.Component {
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
       [EventListeners.ROOT_SET]: this.handleSetRoot,
-      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.connection)
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event =>
+        this.handleSelectItem(event.context.hints ? event.context.connection : event.context.target)
     };
   }
 
