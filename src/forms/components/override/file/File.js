@@ -7,7 +7,8 @@ import debounce from 'lodash/debounce';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
-import recordActions, { ActionTypes } from '../../../../components/Records/actions';
+import recordActions from '../../../../components/Records/actions';
+import { ActionTypes } from '../../../../components/Records/actions/constants';
 import Records from '../../../../components/Records';
 import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';

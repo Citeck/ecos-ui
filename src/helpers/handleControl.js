@@ -6,7 +6,7 @@ import { PROXY_URI } from '../constants/alfresco';
 import { AppApi } from '../api/app';
 import DialogManager from '../components/common/dialogs/Manager';
 import Records from '../components/Records/Records';
-import { ActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions/constants';
 import RecordActions from '../components/Records/actions/recordActions';
 import PageService from '../services/PageService';
 import { NEW_VERSION_PREFIX } from './export/urls';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ActionTypes } from '../Records/actions';
+import { ActionTypes } from '../Records/actions/constants';
 import recordActions from '../Records/actions/recordActions';
 import { CamundaProcess } from './CamundaProcess';
 import { FlowableProcess } from './FlowableProcess';

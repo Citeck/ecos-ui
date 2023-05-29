@@ -19,7 +19,7 @@ import { animateScrollTo, getBool, t } from '../../helpers/util';
 import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
-import { ActionTypes } from '../Records/actions';
+import { ActionTypes } from '../Records/actions/constants';
 
 import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';

@@ -119,13 +119,15 @@ export default class EcosModal extends Component {
 
     const localizedTitle = getMLValue(title);
 
+    const renderTitle = () => <div className="ecos-modal-header__title">{localizedTitle}</div>;
+
     return (
       <Popper
         showAsNeeded
         text={localizedTitle}
         icon="icon-question"
         popupClassName="ecos-formatter-popper"
-        contentComponent={() => <div className="ecos-modal-header__title">{localizedTitle}</div>}
+        contentComponent={renderTitle()}
       />
     );
   }

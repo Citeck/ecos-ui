@@ -67,6 +67,7 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
 describe('View Action', () => {
   const _safe_error = NotificationManager.error;
   const _safe_changeUrlLink = PageService.changeUrlLink;
+  actionsRegistry.register(new ViewAction());
   const action = actionsRegistry.getHandler(ViewAction.ACTION_ID);
 
   NotificationManager.error = () => undefined;

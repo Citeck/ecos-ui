@@ -121,13 +121,22 @@ describe('Calculated fields test #2', () => {
     done();
   });
 
-  it('Allow calculate override. Create mode part2', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 1', async done => {
     let formData = form.getFormData();
     // ++ orgstruct ++
 
     await form.setInputValue('nonCalculatedOrgstruct', 'admin');
     formData = form.getFormData();
     assert.equal(formData.orgstructWithOverride, 'emodel/person@admin');
+
+    // -- orgstruct --
+
+    done();
+  });
+
+  it('Allow calculate override. Create mode select orgstruct part 2', async done => {
+    let formData = form.getFormData();
+    // ++ orgstruct ++
 
     await form.setInputValue('nonCalculatedOrgstruct', 'fet');
     formData = form.getFormData();
@@ -138,15 +147,13 @@ describe('Calculated fields test #2', () => {
     done();
   });
 
-  it('Allow calculate override. Create mode part2', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 3', async done => {
     let formData = form.getFormData();
     // ++ orgstruct ++
 
     await form.setInputValue('orgstructWithOverride', 'admin');
-    await form.setInputValue('nonCalculatedOrgstruct', 'pushkin');
 
     formData = form.getFormData();
-    assert.equal(formData.nonCalculatedOrgstruct, 'emodel/person@pushkin');
     assert.equal(formData.orgstructWithOverride, 'emodel/person@admin');
 
     // -- orgstruct --
@@ -154,7 +161,21 @@ describe('Calculated fields test #2', () => {
     done();
   });
 
-  it('Allow calculate override. Create mode part3', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 4', async done => {
+    let formData = form.getFormData();
+    // ++ orgstruct ++
+
+    await form.setInputValue('nonCalculatedOrgstruct', 'pushkin');
+
+    formData = form.getFormData();
+    assert.equal(formData.nonCalculatedOrgstruct, 'emodel/person@pushkin');
+
+    // -- orgstruct --
+
+    done();
+  });
+
+  it('Allow calculate override. Create mode selectjournal part1', async done => {
     let formData = form.getFormData();
     // ++ selectjournal ++
 
@@ -162,6 +183,15 @@ describe('Calculated fields test #2', () => {
     formData = form.getFormData();
     assert.equal(formData.selectJournalWithOverride, 'ecos-documents');
     assert.equal(formData.selectJournalWithoutOverride, 'ecos-documents');
+
+    // -- selectjournal --
+
+    done();
+  });
+
+  it('Allow calculate override. Create mode selectjournal part2', async done => {
+    let formData = form.getFormData();
+    // ++ selectjournal ++
 
     await form.setInputValue('selectJournalWithOverride', 'ecos-types');
     formData = form.getFormData();
@@ -172,7 +202,7 @@ describe('Calculated fields test #2', () => {
     done();
   });
 
-  it('Allow calculate override. Create mode part3', async done => {
+  it('Allow calculate override. Create mode selectjournal part3', async done => {
     let formData = form.getFormData();
 
     // ++ selectjournal ++
@@ -185,7 +215,7 @@ describe('Calculated fields test #2', () => {
     done();
   });
 
-  it('Allow calculate override. Create mode part3', async done => {
+  it('Allow calculate override. Create mode selectjournal part4', async done => {
     let formData = form.getFormData();
 
     await form.setInputValue('nonCalculatedSelectJournal', 'contract-agreements');

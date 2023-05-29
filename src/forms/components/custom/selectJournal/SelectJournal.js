@@ -408,10 +408,13 @@ export default class SelectJournalComponent extends BaseReactComponent {
     if (!journalId) {
       const attribute = this.getAttributeToEdit();
 
-      return this.getRecord()
-        .loadEditorKey(attribute)
-        .then(editorKey => fetchPropertiesAndResolve(editorKey))
-        .catch(() => fetchPropertiesAndResolve(null));
+      const record = this.getRecord().loadEditorKey(attribute);
+
+      if (!record) {
+        return new Promise(() => fetchPropertiesAndResolve(null));
+      }
+
+      return record.then(editorKey => fetchPropertiesAndResolve(editorKey)).catch(() => fetchPropertiesAndResolve(null));
     } else {
       return fetchPropertiesAndResolve(journalId);
     }

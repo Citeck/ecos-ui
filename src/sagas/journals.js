@@ -78,7 +78,7 @@ import JournalsService, { EditorService, PresetsServiceApi } from '../components
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
-import { ActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions/constants';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';

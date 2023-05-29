@@ -15,7 +15,7 @@ import { execRecordsAction, getDocumentsByTypes, getTypeSettings, initStore, sav
 import TypeItem from './parts/TypeItem';
 import DocumentItem from './parts/DocumentItem';
 import { FileStatuses } from '../../../helpers/ecosXhr';
-import { ActionTypes } from '../../Records/actions';
+import { ActionTypes } from '../../../components/Records/actions/constants';
 import { t } from '../../../helpers/export/util';
 import { documentFields, Labels } from '../../../constants/documents';
 

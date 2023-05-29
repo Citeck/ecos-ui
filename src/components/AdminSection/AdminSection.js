@@ -19,8 +19,8 @@ import { showModalJson } from '../../helpers/tools';
 import { IcoBtn } from '../common/btns';
 import { wrapArgs } from '../../helpers/redux';
 import { execJournalAction } from '../../actions/journals';
+import { ActionTypes } from '../Records/actions/constants';
 import { SourcesId } from '../../constants';
-import { ActionTypes } from '../Records/actions';
 
 import './style.scss';
 

@@ -64,7 +64,7 @@ import { t } from '../helpers/export/util';
 import { getSearchParams, getUrlWithoutOrigin, goToCardDetailsPage } from '../helpers/urls';
 import { wrapSaga } from '../helpers/redux';
 import PageService from '../services/PageService';
-import { ActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions/constants';
 import DocLibService from '../components/Journals/DocLib/DocLibService';
 import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
