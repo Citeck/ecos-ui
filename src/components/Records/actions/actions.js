@@ -43,61 +43,68 @@ import EditJournalPresetAction from './handler/executor/EditJournalPresetAction'
 import DownloadByTemplateAction from './handler/executor/DownloadByTemplateAction';
 import RecordCopyAction from './handler/executor/RecordCopyAction';
 import TransformAction from './handler/executor/TransformAction';
+import { IS_TEST_ENV } from '../../../helpers/util';
 
 export { default } from './recordActions';
 
 // Executors - Common
 
-actionsRegistry.register(new DeleteAction());
-actionsRegistry.register(new EditAction());
-actionsRegistry.register(new EditMenuAction());
-actionsRegistry.register(new AssocAction());
-actionsRegistry.register(new BackgroundOpenAction());
-actionsRegistry.register(new CreateAction());
-actionsRegistry.register(new DownloadAction());
-actionsRegistry.register(new DownloadCardTemplateAction());
-actionsRegistry.register(new FetchAction());
-actionsRegistry.register(new OpenUrlAction());
-actionsRegistry.register(new PreviewModalAction());
-actionsRegistry.register(new SaveAsCaseTemplateAction());
-actionsRegistry.register(new ScriptAction());
-actionsRegistry.register(new UploadNewVersionAction());
-actionsRegistry.register(new ViewAction());
-actionsRegistry.register(new ViewCardTemplateAction());
-actionsRegistry.register(new ViewMenuAction());
-actionsRegistry.register(new DownloadZipAction());
-actionsRegistry.register(new ServerGroupAction());
-actionsRegistry.register(new MutateAction());
-actionsRegistry.register(new EditTypePermissionsAction());
-actionsRegistry.register(new EditPasswordAction());
-actionsRegistry.register(new DebugFormAction());
-actionsRegistry.register(new EditJsonAction());
-actionsRegistry.register(new RecordsExport());
-actionsRegistry.register(new EditJournalPresetAction());
-actionsRegistry.register(new DownloadByTemplateAction());
-actionsRegistry.register(new RecordCopyAction());
-actionsRegistry.register(new TransformAction());
+const registerAllActions = () => {
+  actionsRegistry.register(new DeleteAction());
+  actionsRegistry.register(new EditAction());
+  actionsRegistry.register(new EditMenuAction());
+  actionsRegistry.register(new AssocAction());
+  actionsRegistry.register(new BackgroundOpenAction());
+  actionsRegistry.register(new CreateAction());
+  actionsRegistry.register(new DownloadAction());
+  actionsRegistry.register(new DownloadCardTemplateAction());
+  actionsRegistry.register(new FetchAction());
+  actionsRegistry.register(new OpenUrlAction());
+  actionsRegistry.register(new PreviewModalAction());
+  actionsRegistry.register(new SaveAsCaseTemplateAction());
+  actionsRegistry.register(new ScriptAction());
+  actionsRegistry.register(new UploadNewVersionAction());
+  actionsRegistry.register(new ViewAction());
+  actionsRegistry.register(new ViewCardTemplateAction());
+  actionsRegistry.register(new ViewMenuAction());
+  actionsRegistry.register(new DownloadZipAction());
+  actionsRegistry.register(new ServerGroupAction());
+  actionsRegistry.register(new MutateAction());
+  actionsRegistry.register(new EditTypePermissionsAction());
+  actionsRegistry.register(new EditPasswordAction());
+  actionsRegistry.register(new DebugFormAction());
+  actionsRegistry.register(new EditJsonAction());
+  actionsRegistry.register(new RecordsExport());
+  actionsRegistry.register(new EditJournalPresetAction());
+  actionsRegistry.register(new DownloadByTemplateAction());
+  actionsRegistry.register(new RecordCopyAction());
+  actionsRegistry.register(new TransformAction());
 
-// Executors - Case
+  // Executors - Case
 
-actionsRegistry.register(new CaseCreateNodeAction());
-actionsRegistry.register(new CaseRedirectAction());
-actionsRegistry.register(new CaseRequestAction());
+  actionsRegistry.register(new CaseCreateNodeAction());
+  actionsRegistry.register(new CaseRedirectAction());
+  actionsRegistry.register(new CaseRequestAction());
 
-// Executors - Workflow
+  // Executors - Workflow
 
-actionsRegistry.register(new CancelBusinessProcessAction());
-actionsRegistry.register(new EditTaskAssignee());
-actionsRegistry.register(new SetTaskAssignee());
-actionsRegistry.register(new TaskOutcomeAction());
-actionsRegistry.register(new ViewBusinessProcessAction());
-actionsRegistry.register(new OpenSubmitAction());
+  actionsRegistry.register(new CancelBusinessProcessAction());
+  actionsRegistry.register(new EditTaskAssignee());
+  actionsRegistry.register(new SetTaskAssignee());
+  actionsRegistry.register(new TaskOutcomeAction());
+  actionsRegistry.register(new ViewBusinessProcessAction());
+  actionsRegistry.register(new OpenSubmitAction());
 
-// Executors - ECOS Module
+  // Executors - ECOS Module
 
-actionsRegistry.register(new ModuleCopyAction());
+  actionsRegistry.register(new ModuleCopyAction());
 
-// Resolvers
+  // Resolvers
 
-actionsRegistry.register(new AttributeActionsResolver());
-actionsRegistry.register(new TasksActionsResolver());
+  actionsRegistry.register(new AttributeActionsResolver());
+  actionsRegistry.register(new TasksActionsResolver());
+};
+
+if (!IS_TEST_ENV) {
+  registerAllActions();
+}

@@ -35,6 +35,8 @@ import { DevToolsApi } from './devTools';
 import CmmnApi from './cmmn';
 import { KanbanApi } from './kanban';
 
+import '../components/Records/actions/actions';
+
 export function configureAPI() {
   const api = {};
 
