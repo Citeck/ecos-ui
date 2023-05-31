@@ -10,6 +10,8 @@ import PreviewModalAction from './handler/executor/PreviewModalAction';
 import BackgroundOpenAction from './handler/executor/BackgroundOpenAction';
 import EditJournalPresetAction from './handler/executor/EditJournalPresetAction';
 
+import './actions';
+
 export const ActionTypes = {
   DOWNLOAD: DownloadAction.ACTION_ID,
   CREATE: CreateAction.ACTION_ID,

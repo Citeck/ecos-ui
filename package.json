@@ -21,6 +21,7 @@
     "date-fns": "2.29.3",
     "dmn-js": "13.0.0",
     "dmn-js-properties-panel": "1.2.0",
+    "diagram-js": "12.1.0",
     "draft-js": "0.10.5",
     "draft-js-export-html": "1.3.3",
     "eventemitter2": "5.0.1",
@@ -89,10 +90,10 @@
   "scripts": {
     "postinstall": "patch-package",
     "start": "npm-run-all clean export:dev start:react",
-    "start:react": "react-scripts --max_old_space_size=8192 start",
+    "start:react": "react-scripts --max_old_space_size=2048 start",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
     "build-win": "npm-run-all export-win build:src",
-    "build:src": "react-scripts --max_old_space_size=8192 build",
+    "build:src": "react-scripts --max_old_space_size=2048 build",
     "clean": "rimraf public/ecosui/export",
     "export": "cross-env NODE_ENV=production webpack --config webpack.config.export.js",
     "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
@@ -114,7 +115,7 @@
     ],
     "moduleNameMapper": {
       "bpmn-js*": "<rootDir>/src/mock.js",
-      "BPMN*": "<rootDir>/src/mock.js", 
+      "BPMN*": "<rootDir>/src/mock.js",
       "diagram-js*": "<rootDir>/src/mock.js"
     }
   },
