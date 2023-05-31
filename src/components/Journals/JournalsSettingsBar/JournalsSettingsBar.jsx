@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/util';
+import { ParserPredicate } from '../../Filters/predicates';
 import { Search, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import Export from '../../Export/Export';
@@ -39,7 +40,6 @@ const JournalsSettingsBar = ({
   selectedRecords,
 
   isMobile,
-  isFilterOn,
   isCreateLoading,
   isLoading,
   isShowResetFilter,
@@ -60,6 +60,7 @@ const JournalsSettingsBar = ({
   const createVariants = get(journalConfig, 'meta.createVariants') || [];
   const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
   const noCreateMenu = isMobile || isEmpty(createVariants);
+  const isDefaultSettings = useMemo(() => isEmpty(ParserPredicate.getFlatFilters(predicate)), [predicate]);
   const tooltipSettings = {
     off: isMobile,
     modifiers: tooltipModifiers,
@@ -77,7 +78,7 @@ const JournalsSettingsBar = ({
               id={`${targetId}-settings`}
               icon={'icon-settings'}
               className={classNames('ecos-btn_i ecos-btn_white ecos-btn_hover_blue2 ecos-btn_size-by-content', {
-                'ecos-btn-settings-filter-on': isFilterOn
+                'ecos-btn-settings-filter-on': !isDefaultSettings
               })}
               onClick={onToggleSettings}
               loading={isLoading}
