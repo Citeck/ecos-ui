@@ -1,4 +1,4 @@
-import EcosFormUtils from '../EcosFormUtils';
+import EcosFormUtils from '../EcosFormUtils/EcosFormUtils';
 import {
   asyncDataCase,
   asyncDataCaseOptimized,

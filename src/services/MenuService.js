@@ -1,16 +1,13 @@
 import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
 
 import { AppApi } from '../api/app';
 import DialogManager from '../components/common/dialogs/Manager';
-import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { MenuSettings } from '../constants/menu';
-import { PROXY_URI } from '../constants/alfresco';
 import RecordActions from '../components/Records/actions/recordActions';
-import { ActionTypes } from '../components/Records/actions';
+import { ActionTypes } from '../components/Records/actions/constants';
+import Records from '../components/Records';
 import { t } from '../helpers/export/util';
-import ecosFetch from '../helpers/ecosFetch';
 import { getCurrentUserName } from '../helpers/util';
 import getFormDefinitionUserStatus from '../helpers/menu/formDefinitionUserStatus';
 import { changeUrl, createProfileUrl, getSearchParams, SearchKeys } from '../helpers/urls';
@@ -38,7 +35,7 @@ export default class MenuService {
     return link;
   };
 
-  static getUserMenuCallback = item => {
+  static getUserMenuCallback = async item => {
     const config = get(item, 'config', {});
 
     switch (item.type) {
@@ -62,6 +59,23 @@ export default class MenuService {
           return AppApi.doToggleAvailable(config.isAvailable);
         }
 
+        const activeOutOfOfficeDelegationsQueryRes = await Records.query({
+          ecosType: 'auth-delegation',
+          language: 'predicate',
+          query: {
+            t: 'and',
+            val: [
+              { t: 'eq', a: '_parent', v: 'emodel/person@' + getCurrentUserName() },
+              { t: 'eq', a: 'delegateWhen', v: 'OUT_OF_OFFICE' },
+              { t: 'eq', a: 'enabled', v: true }
+            ]
+          },
+          page: { maxItems: 0 } // We do not require elements; only the total count value is needed.
+        });
+        if (activeOutOfOfficeDelegationsQueryRes.totalCount === 0) {
+          return AppApi.doToggleAvailable(config.isAvailable);
+        }
+
         return DialogManager.showFormDialog({
           title: t('header.make-notavailable.label'),
           showDefaultButtons: true,
@@ -71,24 +85,8 @@ export default class MenuService {
           },
           formDefinition: getFormDefinitionUserStatus(),
           onSubmit: async submission => {
-            const userRef = await Records.get(`${SourcesId.PERSON}@${getCurrentUserName()}`).load('nodeRef?str');
-            const result = await ecosFetch(`${PROXY_URI}citeck/ecos/forms/node-view?formType=type&formKey=deputy:selfAbsenceEvent`, {
-              method: 'POST',
-              body: {
-                attributes: {
-                  'deputy:endAbsence': get(submission, 'data.absenceBeginning', ''),
-                  'deputy:startAbsence': get(submission, 'data.absenceEnd', ''),
-                  'deputy:autoAnswer': get(submission, 'data.autoAnswer', ''),
-                  'deputy:user': userRef
-                }
-              }
-            })
-              .then(response => response.json())
-              .catch(console.error);
-
-            if (!isEmpty(result)) {
-              await AppApi.doToggleAvailable(config.isAvailable);
-            }
+            const awayAuthDelegationEnabled = get(submission, 'data.awayAuthDelegationEnabled');
+            await AppApi.doToggleAvailable(config.isAvailable, awayAuthDelegationEnabled);
           }
         });
       }

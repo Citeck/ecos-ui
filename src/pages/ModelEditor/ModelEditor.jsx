@@ -159,7 +159,8 @@ class ModelEditorPage extends React.Component {
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
       [EventListeners.ROOT_SET]: this.handleSetRoot,
-      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event => this.handleSelectItem(event.context.target)
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event =>
+        this.handleSelectItem(event.context.hints ? event.context.connection : event.context.target)
     };
   }
 
@@ -600,6 +601,13 @@ class ModelEditorPage extends React.Component {
   };
 
   handleClickViewXml = () => {
+    const form = get(this._formWrapperRef, 'current.form');
+    const data = get(form, 'submission.data');
+
+    if (form && data) {
+      this.handleFormChange({ data, changed: form }, form);
+    }
+
     const { savedModel } = this.props;
 
     if (!savedModel) {

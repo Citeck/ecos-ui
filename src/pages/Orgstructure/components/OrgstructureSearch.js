@@ -13,7 +13,7 @@ const Labels = {
 
 const OrgstructureSearch = () => {
   const context = useContext(SelectOrgstructContext);
-  const { searchText, updateSearchText, onSubmitSearchForm, resetSearchText } = context;
+  const { searchText, updateSearchText, onUpdateTree, resetSearchText } = context;
   const inputRef = useRef(null);
 
   const onSearchIconClick = () => {
@@ -22,7 +22,7 @@ const OrgstructureSearch = () => {
 
   const onKeyDown = e => {
     if (e.key === 'Enter') {
-      onSubmitSearchForm();
+      onUpdateTree();
     }
   };
 

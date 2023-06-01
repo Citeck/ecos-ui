@@ -42,7 +42,7 @@ jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
 
 describe('Edit Action', () => {
   const _safeError = NotificationManager.error;
-  const _safeEditRecord = EcosFormUtils.editRecord;
+  actionsRegistry.register(new EditAction());
   const action = actionsRegistry.getHandler(EditAction.ACTION_ID);
 
   NotificationManager.error = () => undefined;
@@ -56,6 +56,11 @@ describe('Edit Action', () => {
     delete window.open;
     window.open = () => undefined;
 
+    jest.spyOn(EcosFormUtils, 'editRecord').mockImplementation(config => {
+      expect(config.recordRef).toEqual(`${SourcesId.TASK}@${RecordIds.TASK_ID}`);
+      config.fallback();
+    });
+
     const result = await action.execForRecord(Records.get(RecordIds.TASK_REF), { config: { mode: 'task' } });
     expect(result).toEqual(false);
   });
@@ -64,15 +69,13 @@ describe('Edit Action', () => {
     delete window.open;
     window.open = () => undefined;
 
-    EcosFormUtils.editRecord = config => {
+    jest.spyOn(EcosFormUtils, 'editRecord').mockImplementation(config => {
       expect(config.recordRef).toEqual(`${SourcesId.TASK}@${RecordIds.TASK_ID}`);
       config.onSubmit();
-    };
+    });
 
     const result = await action.execForRecord(Records.get(RecordIds.TASK_REF), { config: { mode: 'task' } });
     expect(result).toEqual(true);
-
-    EcosFormUtils.editRecord = _safeEditRecord;
   });
 
   //todo default case

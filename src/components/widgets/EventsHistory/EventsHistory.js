@@ -18,6 +18,7 @@ import EventsHistoryCard from './EventsHistoryCard';
 import { DataFormatTypes, DateFormats } from '../../../constants';
 import {
   datePredicateVariables,
+  PREDICATE_ALL,
   PREDICATE_CONTAINS,
   PREDICATE_EMPTY,
   PREDICATE_ENDS,
@@ -181,6 +182,7 @@ class EventsHistory extends React.Component {
         return isEmpty(value);
       case PREDICATE_NOT_EMPTY:
         return !isEmpty(value);
+      case PREDICATE_ALL:
       case PREDICATE_CONTAINS:
       default: {
         if (filter.val === datePredicateVariables.TODAY) {

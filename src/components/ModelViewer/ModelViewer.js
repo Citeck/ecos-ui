@@ -16,13 +16,13 @@ const _extendModeler = new BaseModeler();
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
+  container;
   modeler;
   heatmap;
   #defaultScale;
-  #container;
   #badges;
 
-  init = async ({ diagram, container, onInit, onMounted, modelEvents }) => {
+  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement }) => {
     isFunction(onInit) && onInit(true);
 
     this.modeler = new NavigatedViewer({
@@ -33,12 +33,14 @@ export default class ModelViewer {
     });
 
     if (container) {
-      this.#container = container;
+      this.container = container;
       this.modeler.attachTo(container);
     }
 
     await this.setDiagram(diagram, { onMounted });
     this.setEvents({}, modelEvents);
+
+    markedElement && this.setMarkedElement(markedElement);
   };
 
   get canvas() {
@@ -48,6 +50,29 @@ export default class ModelViewer {
   get viewport() {
     return this.modeler && this.modeler._container.querySelector('.viewport');
   }
+
+  setMarkedElement = element => {
+    isFunction(this.canvas.addMarker) && this.canvas.addMarker(element, 'marked-element');
+
+    if (this.modeler && isFunction(this.modeler.get)) {
+      const elementToFocus = this.modeler.get('elementRegistry').get(element);
+
+      const canvas = this.modeler.get('canvas');
+      const currentViewbox = canvas.viewbox();
+
+      const elementMid = {
+        x: elementToFocus.x + elementToFocus.width / 2,
+        y: elementToFocus.y + elementToFocus.height / 2
+      };
+
+      canvas.viewbox({
+        x: elementMid.x - currentViewbox.width / 2,
+        y: elementMid.y - currentViewbox.height / 2,
+        width: currentViewbox.width,
+        height: currentViewbox.height
+      });
+    }
+  };
 
   setDiagram = async (diagram, { onMounted }) => {
     let callbackData;
@@ -70,9 +95,9 @@ export default class ModelViewer {
   setEvents = _extendModeler.setEvents.bind(this);
 
   setHeight = height => {
-    if (this.#container) {
+    if (this.container) {
       height = height || this.viewport.getBoundingClientRect().height;
-      this.#container.style.height = `${height}px`;
+      this.container.style.height = `${height}px`;
       this.setZoom(ScaleOptions.FIT);
     }
   };

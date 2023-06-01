@@ -72,6 +72,72 @@ function _getPropFromPredicate(shortName, longName, predicate) {
   }
 }
 
+export function fillTemplateAttsAndMapComputedScope(value, attributes, computedIdMapping = {}) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  if (_.isString(value)) {
+    let newValue = value;
+    let placeholderStart = value.indexOf('${');
+    while (placeholderStart >= 0) {
+      let placeholderEnd = findPlaceholderEnd(value, placeholderStart + 2);
+      if (placeholderEnd === -1) {
+        break;
+      }
+      let attribute = value.substring(placeholderStart + 2, placeholderEnd);
+      if (attribute && attribute !== 'recordRef') {
+        if (attribute.indexOf(COMPUTED_ATT_PREFIX) === 0) {
+          let localAtt = attribute.substring(COMPUTED_ATT_PREFIX.length);
+          let scope = computedIdMapping[localAtt];
+          if (scope) {
+            newValue = newValue.replace(`\${${attribute}}`, '${' + COMPUTED_ATT_PREFIX + scope + '}');
+          }
+        } else {
+          attributes.add(attribute);
+        }
+      }
+      placeholderStart = value.indexOf('${', placeholderEnd + 1);
+    }
+
+    return newValue;
+  } else if (_.isArray(value)) {
+    let newValue = [];
+    for (let item of value) {
+      newValue.push(fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
+    }
+    return newValue;
+  } else if (_.isObject(value)) {
+    let newValue = {};
+    for (let key in value) {
+      if (value.hasOwnProperty(key)) {
+        let mapValue = value[key];
+        newValue[key] = fillTemplateAttsAndMapComputedScope(mapValue, attributes, computedIdMapping);
+      }
+    }
+    return newValue;
+  }
+
+  return value;
+}
+
+function findPlaceholderEnd(text, fromIdx) {
+  let placeholderPossibleIdx = fromIdx;
+  let openedInternalBraces = 0;
+  while (placeholderPossibleIdx < text.length) {
+    if (text[placeholderPossibleIdx] === '{') {
+      openedInternalBraces++;
+    } else if (text[placeholderPossibleIdx] === '}') {
+      if (openedInternalBraces === 0) {
+        return placeholderPossibleIdx;
+      } else {
+        openedInternalBraces--;
+      }
+    }
+    placeholderPossibleIdx++;
+  }
+  return -1;
+}
+
 export function replacePlaceholders(object, values, keyPreProc) {
   if (_.isEmpty(object) || _.isEmpty(values)) {
     return object;
@@ -82,7 +148,7 @@ export function replacePlaceholders(object, values, keyPreProc) {
     let firstIdxToFindPlaceholders = 0;
 
     while (placeholderStart >= 0) {
-      let placeholderEnd = object.indexOf('}', placeholderStart + 2);
+      let placeholderEnd = findPlaceholderEnd(object, placeholderStart + 2);
       if (placeholderEnd === -1) {
         break;
       }

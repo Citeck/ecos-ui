@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import get from 'lodash/get';
-import BaseModeler from './BaseModeler';
 
-export const Sheet = ({ diagram, onMounted, extraEvents, init, ...props }) => {
+export const Sheet = ({ diagram, onMounted, extraEvents, init, className, ...props }) => {
   const [initialized, setInitialized] = useState(false);
   const containerRef = useRef(null);
   const events = {};
@@ -27,5 +26,5 @@ export const Sheet = ({ diagram, onMounted, extraEvents, init, ...props }) => {
     [initialized, diagram, extraEvents, events, onMounted, containerRef]
   );
 
-  return <div ref={containerRef} className={BaseModeler.querySelector} />;
+  return <div ref={containerRef} className={className} />;
 };

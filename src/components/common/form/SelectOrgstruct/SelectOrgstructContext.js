@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
@@ -22,6 +22,8 @@ import {
 } from './helpers';
 
 export const SelectOrgstructContext = React.createContext();
+
+export const useSelectOrgstructContext = () => useContext(SelectOrgstructContext);
 
 export const SelectOrgstructProvider = props => {
   const { orgStructApi, controlProps } = props;
@@ -125,13 +127,13 @@ export const SelectOrgstructProvider = props => {
     });
   };
 
-  const onSubmitSearchForm = () => {
+  const onUpdateTree = () => {
     setIsRootGroupsFetched(false);
     setIsAllUsersGroupFetched(false);
     setPagination({ ...pagination, page: 1, maxCount: 0 });
   };
 
-  const liveSearchDebounce = debounce(onSubmitSearchForm, 500);
+  const liveSearchDebounce = debounce(onUpdateTree, 500);
 
   const setSelectedItem = (item, selectedItems = tabItems[TabTypes.SELECTED], extra = {}) => ({
     ...item,
@@ -226,127 +228,142 @@ export const SelectOrgstructProvider = props => {
   });
 
   // fetch root group list
-  useEffect(() => {
-    const trimSearchText = (searchText || '').trim();
-    let livePromise = true;
+  useEffect(
+    () => {
+      const trimSearchText = (searchText || '').trim();
+      let livePromise = true;
 
-    if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
-      setIsSearching(true);
-      orgStructApi
-        .fetchGroup({
-          query: {
-            groupName: rootGroupName,
-            searchText: trimSearchText
-          },
-          excludeAuthoritiesByName,
-          excludeAuthoritiesByType,
-          isIncludedAdminGroup
-        })
-        .then(handleResponse)
-        .then(items => {
-          if (!livePromise) {
-            return;
-          }
+      if (!isRootGroupsFetched && isSelectModalOpen && currentTab === TabTypes.LEVELS) {
+        setIsSearching(true);
+        orgStructApi
+          .fetchGroup({
+            query: {
+              groupName: rootGroupName,
+              searchText: trimSearchText
+            },
+            excludeAuthoritiesByName,
+            excludeAuthoritiesByType,
+            isIncludedAdminGroup
+          })
+          .then(handleResponse)
+          .then(items => {
+            if (!livePromise) {
+              return;
+            }
 
-          setTabItems({
-            ...tabItems,
-            [TabTypes.LEVELS]: items
-              .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
-              .map(item => setSelectedItem(item))
+            setTabItems({
+              ...tabItems,
+              [TabTypes.LEVELS]: items
+                .filter(item => item.attributes.shortName !== ALL_USERS_GROUP_SHORT_NAME)
+                .map(item => setSelectedItem(item))
+            });
+            checkIsAllUsersGroupExists();
+            setIsRootGroupsFetched(true);
+            setIsSearching(false);
           });
-          checkIsAllUsersGroupExists();
-          setIsRootGroupsFetched(true);
-          setIsSearching(false);
-        });
-    }
+      }
 
-    return () => (livePromise = false);
-  }, [isRootGroupsFetched, isSelectModalOpen, currentTab]);
+      return () => (livePromise = false);
+    },
+    [isRootGroupsFetched, isSelectModalOpen, currentTab]
+  );
 
   // fetch "all" group list (all users)
-  useEffect(() => {
-    let livePromise = true;
+  useEffect(
+    () => {
+      let livePromise = true;
 
-    if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
-      setIsSearching(true);
-      OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
-        ({ items, totalCount }) => {
-          if (!livePromise) {
-            return;
+      if (!isAllUsersGroupsFetched && isSelectModalOpen && currentTab === TabTypes.USERS) {
+        setIsSearching(true);
+        OrgStructApi.getUserList(searchText, userSearchExtraFields, { page: pagination.page - 1, maxItems: pagination.count }).then(
+          ({ items, totalCount }) => {
+            if (!livePromise) {
+              return;
+            }
+
+            setTabItems({
+              ...tabItems,
+              [TabTypes.USERS]: items.map(item => setSelectedItem(item))
+            });
+            checkIsAllUsersGroupExists();
+            setIsAllUsersGroupFetched(true);
+            setPagination({ ...pagination, maxCount: totalCount });
+            setIsSearching(false);
           }
+        );
+      }
 
-          setTabItems({
-            ...tabItems,
-            [TabTypes.USERS]: items.map(item => setSelectedItem(item))
-          });
-          checkIsAllUsersGroupExists();
-          setIsAllUsersGroupFetched(true);
-          setPagination({ ...pagination, maxCount: totalCount });
-          setIsSearching(false);
-        }
-      );
-    }
-
-    return () => (livePromise = false);
-  }, [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]);
+      return () => (livePromise = false);
+    },
+    [isAllUsersGroupsFetched, isSelectModalOpen, currentTab, searchText, userSearchExtraFields]
+  );
 
   // reset isSelectedFetched if new previewValue
-  useEffect(() => {
-    if (isEqual(prevDefaultValue, defaultValue)) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (isEqual(prevDefaultValue, defaultValue)) {
+        return;
+      }
 
-    setIsSelectedFetched(false);
-  }, [defaultValue]);
+      setIsSelectedFetched(false);
+    },
+    [defaultValue]
+  );
 
   // set default value
-  useEffect(() => {
-    if (isSelectedFetched) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (isSelectedFetched) {
+        return;
+      }
 
-    setIsSelectedFetched(true);
+      setIsSelectedFetched(true);
 
-    let initValue;
-    let livePromise = true;
+      let initValue;
+      let livePromise = true;
 
-    if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
-      initValue = [...defaultValue];
-    } else if (!multiple && Array.isArray(defaultValue)) {
-      initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
-    } else if (!multiple && !!defaultValue) {
-      initValue = [defaultValue];
-    } else {
-      initValue = [];
-    }
+      if (multiple && Array.isArray(defaultValue) && defaultValue.length > 0) {
+        initValue = [...defaultValue];
+      } else if (!multiple && Array.isArray(defaultValue)) {
+        initValue = defaultValue.length > 0 ? [defaultValue[0]] : [];
+      } else if (!multiple && !!defaultValue) {
+        initValue = [defaultValue];
+      } else {
+        initValue = [];
+      }
 
-    if (Array.isArray(initValue)) {
-      const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
+      if (Array.isArray(initValue)) {
+        const promises = initValue.map(item => orgStructApi.fetchAuthority(dataType, item));
 
-      Promise.all(promises)
-        .then(handleResponse)
-        .then(items => items.map(prepareSelected))
-        .then(selectedItems => {
-          if (!livePromise) {
-            return;
-          }
-          setTabItems(prev => ({
-            ...prev,
-            [TabTypes.SELECTED]: [...selectedItems],
-            [TabTypes.LEVELS]: [...prev[TabTypes.LEVELS]].map(item => setSelectedItem(item, selectedItems)),
-            [TabTypes.USERS]: [...prev[TabTypes.USERS]].map(item => setSelectedItem(item, selectedItems))
-          }));
-          setSelectedRows([...selectedItems]);
+        Promise.all(promises)
+          .then(handleResponse)
+          .then(items => items.map(prepareSelected))
+          .then(selectedItems => {
+            if (!livePromise) {
+              return;
+            }
+            setTabItems(prev => ({
+              ...prev,
+              [TabTypes.SELECTED]: [...selectedItems],
+              [TabTypes.LEVELS]: [...prev[TabTypes.LEVELS]].map(item => setSelectedItem(item, selectedItems)),
+              [TabTypes.USERS]: [...prev[TabTypes.USERS]].map(item => setSelectedItem(item, selectedItems))
+            }));
+            setSelectedRows([...selectedItems]);
 
-          livePromise = false;
-        })
-        .catch(_ => _);
-    }
-  }, [isSelectedFetched]);
+            livePromise = false;
+          })
+          .catch(_ => _);
+      }
+    },
+    [isSelectedFetched]
+  );
 
-  useEffect(() => {
-    !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
-  }, [targetId]);
+  useEffect(
+    () => {
+      !targetId && setTargetId(uniqueId('SelectOrgstruct_'));
+    },
+    [targetId]
+  );
 
   useEffect(() => {
     if (applyAndClose) {
@@ -379,7 +396,7 @@ export const SelectOrgstructProvider = props => {
 
         setCurrentTab,
         onSelect,
-        onSubmitSearchForm,
+        onUpdateTree,
 
         renderListItem: item => {
           if (get(item, 'attributes.authorityType') === 'USER' && userMask) {

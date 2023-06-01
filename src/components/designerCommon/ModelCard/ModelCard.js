@@ -6,6 +6,7 @@ import { t } from '../../../helpers/util';
 import styles from './ModelCard.module.scss';
 import ActionButtons from '../ActionButtons';
 import { ViewTypes } from '../../../constants/commonDesigner';
+import BPMNViewer from '../../ModelViewer/BPMNViewer/BPMNViewer';
 
 const ModelCard = ({
   label,
@@ -17,20 +18,28 @@ const ModelCard = ({
   onEditMetaClick,
   onDeleteModelClick,
   image,
+  definition,
   canWrite
 }) => {
   const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
+  const designer = new BPMNViewer();
 
-  const cardTopBgStyle = image
-    ? {
-        backgroundImage: `url(${image})`
-      }
-    : null;
+  const cardTopBgStyle =
+    image && !definition
+      ? {
+          backgroundImage: `url(${image})`
+        }
+      : null;
 
   return (
     <Col xl={3} lg={4} md={4} sm={6}>
       <div className={styles.card}>
         <div className={styles.cardTop} style={cardTopBgStyle}>
+          {designer &&
+            designer.renderSheet({
+              diagram: definition,
+              zoom: 0.5
+            })}
           <div className={styles.cardTopHover}>
             {canWrite && (
               <ActionButtons

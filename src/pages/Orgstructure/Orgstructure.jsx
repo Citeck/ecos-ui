@@ -4,19 +4,60 @@ import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 import classNames from 'classnames';
+import * as queryString from 'query-string';
+import isEmpty from 'lodash/isEmpty';
 
-import Structure from './components/Structure';
+import { OrgStructApi } from '../../api/orgStruct';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  DataTypes,
+  GroupTypes,
+  ROOT_GROUP_NAME,
+  TabTypes
+} from '../../components/common/form/SelectOrgstruct/constants';
+import { SelectOrgstructProvider } from '../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+
 import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
-import { getSearchParams } from '../../helpers/urls';
+import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
 import { getDashboardConfig, getDashboardTitle, setDashboardIdentification } from '../../actions/dashboard';
+import { ScrollArrow, Tabs } from '../../components/common';
 import Layout from '../../components/Layout';
 import PageTabList from '../../services/pageTabs/PageTabList';
 import { DndUtils } from '../../components/Drag-n-Drop';
 import Records from '../../components/Records';
 import { t } from '../../helpers/util';
 import DashboardService from '../../services/dashboard';
+import { URL } from '../../constants';
+import Dashboard from '../Dashboard/Dashboard';
+import Structure from './components/Structure';
 
 import './style.scss';
+
+const api = new OrgStructApi();
+
+const controlProps = {
+  label: 'SelectOrgstruct',
+  key: 'selectOrgstruct',
+  type: 'selectOrgstruct',
+  allowedAuthorityTypes: [AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP].join(', '),
+  allowedGroupTypes: [GroupTypes.ROLE, GroupTypes.BRANCH].join(', '),
+  rootGroupName: ROOT_GROUP_NAME,
+  allowedGroupSubTypes: [],
+  currentUserByDefault: false,
+  excludeAuthoritiesByName: '',
+  excludeAuthoritiesByType: [],
+  modalTitle: null,
+  isSelectedValueAsText: false,
+  hideTabSwitcher: false,
+  defaultTab: TabTypes.LEVELS,
+  dataType: DataTypes.NODE_REF,
+  userSearchExtraFields: '',
+  isIncludedAdminGroup: false,
+  onError: console.error,
+  onChange: () => {},
+  multiple: false
+};
 
 const Labels = {
   NO_DATA_TEXT: 'orgstructure-page-no-picked-person-text'
@@ -27,12 +68,55 @@ const getStateId = state => {
 };
 
 class Orgstructure extends React.Component {
+  state = {
+    urlParams: getSortedUrlParams(),
+    activeLayoutId: get(queryString.parse(window.location.search), 'activeLayoutId')
+  };
+
   constructor(props) {
     super(props);
 
     const { recordRef } = getSearchParams() || {};
 
     this.instanceRecord = Records.get(recordRef);
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const newState = {};
+    const newUrlParams = getSortedUrlParams();
+    const firstLayoutId = get(props.config, '[0].id');
+    const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
+    const isExistLayout = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
+
+    if (!state.activeLayoutId && !isEmpty(props.config)) {
+      newState.activeLayoutId = isExistLayout ? activeLayoutId : firstLayoutId;
+    }
+
+    if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
+      newState.config = props.config;
+    }
+
+    if (state.urlParams !== newUrlParams) {
+      if (!props.enableCache) {
+        props.resetDashboardConfig();
+      }
+
+      newState.urlParams = newUrlParams;
+    }
+
+    if (state.urlParams === newUrlParams && props.isLoadingDashboard && !isEmpty(props.config)) {
+      props.setLoading(false);
+    }
+
+    if (!Object.keys(newState).length) {
+      return null;
+    }
+
+    if (newState.activeLayoutId) {
+      Dashboard.updateTabLink();
+    }
+
+    return newState;
   }
 
   componentDidMount() {
@@ -125,6 +209,88 @@ class Orgstructure extends React.Component {
     this.saveDashboardConfig({ config });
   };
 
+  toggleToFirstTab = () => {
+    const { config } = this.props;
+
+    if (!config) {
+      return;
+    }
+
+    this.setActiveLink(get(config, '[0].id'));
+  };
+
+  toggleTabLayout = index => {
+    const { config } = this.props;
+
+    if (!config) {
+      return null;
+    }
+    const tabs = config.map(item => item.tab);
+    const tab = get(tabs, [index], {});
+
+    this.setActiveLink(tab.idLayout);
+  };
+
+  setActiveLink = idLayout => {
+    const { urlParams } = this.state;
+    const searchParams = queryString.parse(window.location.search);
+    const prevSearchParams = queryString.parse(urlParams);
+    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
+    const isEqualLayoutIds = get(prevSearchParams, 'activeLayoutId', '') === get(searchParams, 'activeLayoutId');
+
+    searchParams.activeLayoutId = idLayout;
+
+    if (!urlParams || (isEqualRefs && !isEqualLayoutIds)) {
+      replaceHistoryLink(this.props.history, `${URL.ORGSTRUCTURE}?${decodeLink(queryString.stringify(searchParams))}`);
+    } else {
+      pushHistoryLink(undefined, {
+        pathname: URL.ORGSTRUCTURE,
+        search: decodeLink(queryString.stringify(searchParams))
+      });
+    }
+
+    this.setState({ activeLayoutId: idLayout });
+    Dashboard.updateTabLink();
+  };
+
+  renderTabs() {
+    const { config } = this.props;
+
+    if (!config) {
+      return null;
+    }
+    const tabs = config.map(item => item.tab);
+
+    const { isMobile } = this.props;
+    const { activeLayoutId } = this.state;
+
+    if (isMobile) {
+      return (
+        <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
+          <Tabs isMobile items={tabs} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="orgstructure-page__tabs-wrapper">
+        <ScrollArrow className="orgstructure-page__tabs-arrows" small>
+          <Tabs
+            hasHover
+            hasHint
+            narrow
+            className="orgstructure-page__tabs-block"
+            classNameTab="orgstructure-page__tabs-item"
+            items={tabs}
+            onClick={this.toggleTabLayout}
+            keyField="idLayout"
+            activeTabKey={activeLayoutId}
+          />
+        </ScrollArrow>
+      </div>
+    );
+  }
+
   renderDashboard() {
     const { config } = this.props;
     const { recordRef } = getSearchParams() || {};
@@ -134,10 +300,13 @@ class Orgstructure extends React.Component {
     }
 
     const { menuType, isMobile, tabId, isLoading } = this.props;
-    const { columns, type } = get(config, '0') || {};
+    const { activeLayoutId } = this.state;
+    const activeLayout = config.find(el => el.id === activeLayoutId);
+    const { columns, type } = activeLayout ? activeLayout : get(config, '0') || {};
 
     return (
       <div className="orgstructure-page__grid-layout">
+        {this.renderTabs()}
         <Layout
           className={classNames({ 'ecos-layout_mobile': isMobile })}
           menuType={menuType}
@@ -160,7 +329,9 @@ class Orgstructure extends React.Component {
     return (
       <div className="orgstructure-page__grid-container">
         <div className="orgstructure-page__grid-main">
-          <Structure tabId={this.props.tabId} />
+          <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
+            <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
+          </SelectOrgstructProvider>
         </div>
 
         {this.renderDashboard()}

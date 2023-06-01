@@ -23,7 +23,7 @@ import { isEventSubProcess } from '../../../utils';
 import * as replaceOptions from 'bpmn-js/lib/features/replace/ReplaceOptions';
 import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
-const originGetEntries = ReplaceMenuProvider.prototype.getEntries;
+const originGetEntries = ReplaceMenuProvider.prototype.getPopupMenuEntries;
 const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
 const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
 
@@ -232,13 +232,15 @@ ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions)
     replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForTasks.includes(option.actionName));
     const originEntities = originCreateEntries.call(this, element, replaceOptions);
 
-    return originEntities.map(entity => ({
-      ...entity,
+    Object.keys(originEntities).map(originKey => ({
+      ...originEntities[originKey],
       action: (...props) => {
         element.businessObject.taskType = undefined;
-        entity.action(props);
+        originEntities[originKey].action(props);
       }
     }));
+
+    return originEntities;
   }
 
   if (GATEWAY_TYPES.includes(element.type)) {

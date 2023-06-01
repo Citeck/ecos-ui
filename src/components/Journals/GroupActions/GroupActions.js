@@ -11,7 +11,7 @@ import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { execRecordsAction, deselectAllRecords } from '../../../actions/journals';
 import { selectGroupActionsProps } from '../../../selectors/journals';
-import { ActionTypes } from '../../Records/actions';
+import { ActionTypes } from '../../Records/actions/constants';
 import { DropdownOuter } from '../../common/form';
 import { IcoBtn, TwoIcoBtn } from '../../common/btns';
 import { Tooltip } from '../../common';
@@ -67,17 +67,23 @@ const GroupActions = React.memo(
       setLabel(labelRecActions);
     }, []);
 
-    useEffect(() => {
-      setLabel(labelRecActions);
-    }, [labelRecActions]);
+    useEffect(
+      () => {
+        setLabel(labelRecActions);
+      },
+      [labelRecActions]
+    );
 
-    useEffect(() => {
-      const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
-      const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.QUERY }));
+    useEffect(
+      () => {
+        const recordsActions = get(grid, 'actions.forRecords.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.RECORDS }));
+        const queryActions = get(grid, 'actions.forQuery.actions', []).map(item => ({ ...item, _typeAct: TYPE_ACT.QUERY }));
 
-      setRecordsActions(recordsActions);
-      setQueryActions(queryActions);
-    }, [grid, isSeparateActionListForQuery]);
+        setRecordsActions(recordsActions);
+        setQueryActions(queryActions);
+      },
+      [grid, isSeparateActionListForQuery]
+    );
 
     const handleExecuteAction = useCallback(
       action => {

@@ -1,11 +1,13 @@
 import React, { useContext, useRef } from 'react';
+import classNames from 'classnames';
+
 import Input from '../../../../Input/Input';
 import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
 import { t } from '../../../../../../../helpers/util';
-import './Search.scss';
+import Icon from '../../../../../icons/Icon/Icon';
 import { Btn } from '../../../../../btns';
-import classNames from 'classnames';
-import { Icon } from '../../../../../index';
+
+import './Search.scss';
 
 const Labels = {
   PLACEHOLDER: 'select-orgstruct.search.placeholder'
@@ -13,7 +15,7 @@ const Labels = {
 
 const Search = () => {
   const context = useContext(SelectOrgstructContext);
-  const { searchText, updateSearchText, onSubmitSearchForm, resetSearchText } = context;
+  const { searchText, updateSearchText, onUpdateTree, resetSearchText } = context;
   const inputRef = useRef(null);
 
   const onSearchIconClick = () => {
@@ -22,7 +24,7 @@ const Search = () => {
 
   const onKeyDown = e => {
     if (e.key === 'Enter') {
-      onSubmitSearchForm();
+      onUpdateTree();
     }
   };
 
@@ -45,7 +47,7 @@ const Search = () => {
           onClick={resetSearchText}
         />
       </div>
-      <Btn onClick={onSubmitSearchForm} className="ecos-btn_blue">
+      <Btn onClick={onUpdateTree} className="ecos-btn_blue">
         {t(Labels.PLACEHOLDER)}
       </Btn>
     </div>

@@ -8,6 +8,7 @@ import TaskOutcomeAction from '../TaskOutcomeAction';
 
 describe('TaskOutcome action', () => {
   let recordQuerySpy, getFormInputsSpy, errorSpy, saveTaskSpy, confirmDialogSpy, showFormDialogSpy;
+  actionsRegistry.register(new TaskOutcomeAction());
   const actionTaskOutcome = actionsRegistry.getHandler(TaskOutcomeAction.ACTION_ID);
   const record = Records.get('');
 
@@ -47,7 +48,7 @@ describe('TaskOutcome action', () => {
     });
 
     expect(recordQuerySpy).toHaveBeenCalledTimes(0);
-    expect(errorSpy).toHaveBeenCalledTimes(2);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
     expect(errorSpy.mock.calls[0][0]).toEqual('Incorrect action');
     expect(result).toEqual(false);
   });

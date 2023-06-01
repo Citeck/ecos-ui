@@ -16,75 +16,44 @@ const selectState = (state, key) => get(state, ['journals', key], { ...defaultSt
 
 export const selectJournalData = selectState;
 
-export const selectJournalSetting = createSelector(
-  selectState,
-  ownState => get(ownState, 'journalSetting', defaultState.journalSetting)
-);
-export const selectJournalSettings = createSelector(
-  selectState,
-  ownState => get(ownState, 'journalSettings', [])
-);
+export const selectJournalSetting = createSelector(selectState, ownState => get(ownState, 'journalSetting', defaultState.journalSetting));
+export const selectJournalSettings = createSelector(selectState, ownState => get(ownState, 'journalSettings', []));
 
-export const selectJournals = createSelector(
-  selectState,
-  ownState => get(ownState, 'journals', [])
-);
+export const selectJournals = createSelector(selectState, ownState => get(ownState, 'journals', []));
 
-export const selectUrl = createSelector(
-  selectState,
-  ownState => get(ownState, 'url', {})
+export const selectUrl = createSelector(selectState, ownState => get(ownState, 'url', {}));
+
+export const selectViewMode = createSelector(selectState, ownState => get(ownState, 'viewMode', {}));
+
+export const selectNewVersionDashletConfig = createSelector(selectState, ownProps =>
+  get(ownProps, ['config', JOURNAL_DASHLET_CONFIG_VERSION], null)
 );
 
-export const selectViewMode = createSelector(
-  selectState,
-  ownState => get(ownState, 'viewMode', {})
-);
+export const selectDashletConfig = createSelector(selectState, ownProps => get(ownProps, 'config', null));
 
-export const selectNewVersionDashletConfig = createSelector(
-  selectState,
-  ownProps => get(ownProps, ['config', JOURNAL_DASHLET_CONFIG_VERSION], null)
-);
+export const selectJournalConfig = createSelector(selectState, ownProps => get(ownProps, 'journalConfig', null));
 
-export const selectDashletConfig = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'config', null)
-);
+export const selectIsNotExistsJournal = createSelector(selectState, ownProps => {
+  const journalConfig = get(ownProps, 'journalConfig');
+  const isExistJournal = get(ownProps, 'isExistJournal');
 
-export const selectJournalConfig = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'journalConfig', null)
-);
-
-export const selectIsNotExistsJournal = createSelector(
-  selectState,
-  ownProps => {
-    const journalConfig = get(ownProps, 'journalConfig');
-    const isExistJournal = get(ownProps, 'isExistJournal');
-
-    if (!isExistJournal) {
-      return true;
-    }
-
-    let isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
-
-    if (!isEmptyConfig) {
-      isEmptyConfig =
-        isEmpty(get(journalConfig, 'createVariants')) && isEmpty(get(journalConfig, 'columns')) && isEmpty(get(journalConfig, 'meta'));
-    }
-
-    return isEmptyConfig;
+  if (!isExistJournal) {
+    return true;
   }
-);
 
-export const selectColumnsSetup = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'columnsSetup', {})
-);
+  let isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
 
-export const selectGrouping = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'grouping', {})
-);
+  if (!isEmptyConfig) {
+    isEmptyConfig =
+      isEmpty(get(journalConfig, 'createVariants')) && isEmpty(get(journalConfig, 'columns')) && isEmpty(get(journalConfig, 'meta'));
+  }
+
+  return isEmptyConfig;
+});
+
+export const selectColumnsSetup = createSelector(selectState, ownProps => get(ownProps, 'columnsSetup', {}));
+
+export const selectGrouping = createSelector(selectState, ownProps => get(ownProps, 'grouping', {}));
 
 export const selectMergedArrays = createSelector(
   (arrayFrom, arrayTo, compareField) => ({
@@ -117,21 +86,15 @@ export const selectColumnsByGroupable = createSelector(
   }
 );
 
-export const selectViewColumns = createSelector(
-  selectState,
-  ownProps => (get(ownProps, 'grid.columns') || []).filter(col => col.default)
-);
+export const selectViewColumns = createSelector(selectState, ownProps => (get(ownProps, 'grid.columns') || []).filter(col => col.default));
 
-export const selectDashletConfigJournalId = createSelector(
-  selectNewVersionDashletConfig,
-  props => {
-    if (!props) {
-      return null;
-    }
-
-    return !props.customJournalMode || !props.customJournal ? props.journalId : props.customJournal;
+export const selectDashletConfigJournalId = createSelector(selectNewVersionDashletConfig, props => {
+  if (!props) {
+    return null;
   }
-);
+
+  return !props.customJournalMode || !props.customJournal ? props.journalId : props.customJournal;
+});
 
 export const selectFilterGroup = createSelector(
   (predicate, columns) => ({ predicate, columns }),
@@ -140,75 +103,59 @@ export const selectFilterGroup = createSelector(
   }
 );
 
-export const selectSettingsData = createSelector(
-  selectState,
-  ownProps =>
-    cloneDeep({
-      journalSetting: ownProps.journalSetting,
-      columnsSetup: ownProps.columnsSetup,
-      grouping: ownProps.grouping,
-      originGridSettings: ownProps.originGridSettings
-    })
+export const selectSettingsData = createSelector(selectState, ownProps =>
+  cloneDeep({
+    journalSetting: ownProps.journalSetting,
+    columnsSetup: ownProps.columnsSetup,
+    grouping: ownProps.grouping,
+    originGridSettings: ownProps.originGridSettings
+  })
 );
 
-export const selectOriginGridPredicates = createSelector(
-  selectState,
-  ownProps => {
-    const predicates = get(ownProps, 'originGridSettings.predicate', {}) || {};
+export const selectOriginGridPredicates = createSelector(selectState, ownProps => {
+  const predicates = get(ownProps, 'originGridSettings.predicate', {}) || {};
 
-    return (ParserPredicate.getFilters(predicates) || []).map(item => item.predicate);
-  }
+  return (ParserPredicate.getFilters(predicates) || []).map(item => item.predicate);
+});
+
+export const selectSettingsFilters = createSelector(selectState, ownProps =>
+  cloneDeep({
+    predicate: get(ownProps, 'journalSetting.predicate'),
+    columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.searchable),
+    metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
+  })
 );
 
-export const selectSettingsFilters = createSelector(
-  selectState,
-  ownProps =>
-    cloneDeep({
-      predicate: get(ownProps, 'journalSetting.predicate'),
-      columns: get(ownProps, 'journalConfig.columns', []).filter(c => c.visible),
-      metaRecord: get(ownProps, 'journalConfig.meta.metaRecord')
-    })
+export const selectSettingsColumns = createSelector(selectState, ownProps =>
+  cloneDeep({
+    columns: get(ownProps, 'columnsSetup.columns', []).map(item => ({
+      id: getId(),
+      ...item
+    })),
+    sortBy: get(ownProps, 'columnsSetup.sortBy')
+  })
 );
 
-export const selectSettingsColumns = createSelector(
-  selectState,
-  ownProps =>
-    cloneDeep({
-      columns: get(ownProps, 'columnsSetup.columns', []).map(item => ({
-        id: getId(),
-        ...item
-      })),
-      sortBy: get(ownProps, 'columnsSetup.sortBy')
-    })
+export const selectSettingsGrouping = createSelector(selectState, ownProps =>
+  cloneDeep({
+    columns: get(ownProps, 'grouping.columns'),
+    groupBy: get(ownProps, 'grouping.groupBy')
+  })
 );
 
-export const selectSettingsGrouping = createSelector(
-  selectState,
-  ownProps =>
-    cloneDeep({
-      columns: get(ownProps, 'grouping.columns'),
-      groupBy: get(ownProps, 'grouping.groupBy')
-    })
+export const selectGridPaginationMaxItems = createSelector(selectState, ownProps =>
+  get(ownProps, 'grid.pagination.maxItems', DEFAULT_PAGINATION.maxItems)
 );
 
-export const selectGridPaginationMaxItems = createSelector(
-  selectState,
-  ownProps => get(ownProps, 'grid.pagination.maxItems', DEFAULT_PAGINATION.maxItems)
-);
+export const selectIsFilterOn = createSelector([selectSettingsFilters, selectSettingsData], (settingsFiltersData, settingsData) => {
+  const settingsPredicateFilters = ParserPredicate.getFlatFilters(get(settingsFiltersData, 'predicate', ''));
+  const originPredicateFilters = ParserPredicate.getFlatFilters(get(settingsData, 'originGridSettings.predicate', ''));
 
-export const selectIsFilterOn = createSelector(
-  [selectSettingsFilters, selectSettingsData],
-  (settingsFiltersData, settingsData) => {
-    const settingsPredicateFilters = ParserPredicate.getFlatFilters(get(settingsFiltersData, 'predicate', ''));
-    const originPredicateFilters = ParserPredicate.getFlatFilters(get(settingsData, 'originGridSettings.predicate', ''));
+  return settingsPredicateFilters.length !== originPredicateFilters.length;
+});
 
-    return settingsPredicateFilters.length !== originPredicateFilters.length;
-  }
-);
-
-export const selectWasChangedSettings = createSelector(
-  selectState,
-  ownState => get(ownState, 'wasChangedSettingsOn', []).some(item => isTable(item))
+export const selectWasChangedSettings = createSelector(selectState, ownState =>
+  get(ownState, 'wasChangedSettingsOn', []).some(item => isTable(item))
 );
 
 export const selectJournalPageProps = createSelector(
@@ -253,13 +200,10 @@ export const selectJournalPageProps = createSelector(
   })
 );
 
-export const selectKanbanExportGrid = createSelector(
-  selectJournalSetting,
-  settings => ({
-    columns: settings.columns,
-    predicates: beArray(settings.predicate)
-  })
-);
+export const selectKanbanExportGrid = createSelector(selectJournalSetting, settings => ({
+  columns: settings.columns,
+  predicates: beArray(settings.predicate)
+}));
 
 export const selectKanbanJournalProps = createSelector(
   [selectState, selectJournalSetting, selectSettingsFilters, selectSettingsData, selectIsFilterOn, selectKanbanExportGrid],
@@ -284,15 +228,12 @@ export const selectCommonJournalPageProps = createSelector(
   })
 );
 
-export const selectGroupActionsProps = createSelector(
-  [selectJournalData, selectIsFilterOn],
-  (ownState, isFilterOn) => ({
-    grid: ownState.grid || {},
-    isFilterOn: isFilterOn || false,
-    columnsSetup: ownState.columnsSetup,
-    selectedRecords: ownState.selectedRecords || [],
-    excludedRecords: ownState.excludedRecords || [],
-    selectAllPageRecords: ownState.selectAllPageRecords,
-    selectAllRecordsVisible: ownState.selectAllRecordsVisible
-  })
-);
+export const selectGroupActionsProps = createSelector([selectJournalData, selectIsFilterOn], (ownState, isFilterOn) => ({
+  grid: ownState.grid || {},
+  isFilterOn: isFilterOn || false,
+  columnsSetup: ownState.columnsSetup,
+  selectedRecords: ownState.selectedRecords || [],
+  excludedRecords: ownState.excludedRecords || [],
+  selectAllPageRecords: ownState.selectAllPageRecords,
+  selectAllRecordsVisible: ownState.selectAllRecordsVisible
+}));

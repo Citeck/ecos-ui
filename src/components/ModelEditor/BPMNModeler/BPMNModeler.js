@@ -7,12 +7,14 @@ import customModules from './modules';
 import { linting } from './modules/linter';
 import { DEFINITON_TYPE } from '../../../constants/bpmn';
 
+import './modules/colorContextPadProvider/ColorContextPadProvider';
 import './patches';
 
 import ecosTask from './moddle/ecosTask.json';
 
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
+import 'bpmn-js-color-picker/colors/color-picker.css';
 
 export default class BPMNModeler extends BaseModeler {
   initModelerInstance = () => {

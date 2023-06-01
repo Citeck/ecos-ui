@@ -1,139 +1,75 @@
-###`Surroundings`
+![Citeck ECOS Logo](public/img/logo/ecos-logo.png)
 
-**Windows**
+# `ecos-ui`
 
-You need
-1. `Node v14` *(if it does't work, try `v12`)*
-2. `node-sass` 4.12.0 *(check package)*
-3. `Python27`
-4. use `yarn`, not `npm` !
-5. *maybe - windows-build-tools ↓*
+Welcome to the Citeck `ecos-ui` repository! This repository contains the user interface (UI) components and modules for the Citeck ECOS platform. Citeck ECOS is a powerful and comprehensive enterprise content and operations system designed to streamline and automate business processes within organizations.
 
+## Get started
 
-`Node` 
+If you are new to ECOS platform and would like to load the software locally, we recommend you download the Dockerized version from [Demo repository](https://github.com/Citeck/ecos-community-demo).
 
-[download here v14](https://nodejs.org/download/release/v14.19.1/)
+## Useful Links
 
-*After installation, check the box for downloading add-ons*
+- [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.
 
-`Python`
+## Installation
 
-[download here v27](https://www.python.org/downloads/release/python-2718/)
+To install and use `ecos-ui`, follow these steps:
 
-Set flag PATH
+1. Clone the repository using the following command:
 
-You can have different Python versions on your laptop, but for the project you need **27**. Check it. May need to be removed...
+   ```
+   git clone https://github.com/Citeck/ecos-ui.git
+   ```
 
-Check npm - python
-```
-npm config list
-```
-Response like:
+2. Navigate to the cloned directory:
 
-`python = "C:\\Python27\\python.exe"`
+   ```
+   cd ecos-ui
+   ```
 
-```
-C:\Users\...\AppData\Roaming>npm config list
-; cli configs
-metrics-registry = "https://registry.npmjs.org/"
-scope = ""
-user-agent = "npm/6.14.16 node/v14.19.1 win32 x64"
+3. Install the required dependencies:
 
-; userconfig C:\Users\...\.npmrc
-python = "C:\\Python27\\python.exe"
+   ```
+   yarn
+   ```
 
-; builtin config undefined
-prefix = "C:\\Users\\...\\AppData\\Roaming\\npm"
+4. Start the development server:
 
-; node bin location = C:\Program Files\nodejs\node.exe
-; cwd = C:\Users\...\AppData\Roaming
-; HOME = C:\Users\...
-; "npm config ls -l" to show all defaults.
-```
-If there are dif versions set **27** 
-```
-//for Windows
-npm config set python C:\Python27\python.exe
-```
-```
-//btw for Linux
-npm config set python /usr/bin/python27
-```
+   ```
+   yarn dev
+   ```
 
----
+   This will launch the Citeck `ecos-ui` application and you can access it in your web browser at `http://localhost:3000`.
 
-Extra step `windows-build-tools`
+## Features
 
-If prev steps didn't help, you can try to install (windows-build-tools)[https://www.npmjs.com/package/windows-build-tools] it includes Python27. So, it's like enclosing solution
+Citeck `ecos-ui` offers a wide range of features to enhance your experience with the Citeck ECOS platform. Some of the key features include:
 
----
+- **Intuitive User Interface**: The UI is designed to be user-friendly, providing a seamless and intuitive experience for users.
 
-*And you can try to rebuild `node-sass`* 
-```
-yarn remove node-sass
-yarn cache clean --all
-yarn add node-sass@4.12.0
-```
+- **Content Management**: Easily create, store, organize, and retrieve documents and digital assets using the integrated content management features.
 
-- [solution](https://danielwertheim.se/solution-to-issues-with-node-gyp-node-sass-on-windows/)
-- [reason](https://sass-lang.com/dart-sass)
-- [reason](https://github.com/sass/node-sass/issues/1176)
-- google tag: node python27 node-sass
+- **Workflow Automation**: Design and automate your business processes using the flexible workflow engine. Define rules, conditions, and monitor task progress and approvals.
 
----
-## Available Scripts
+- **Integration**: Seamlessly integrate with existing enterprise systems, such as CRM, ERP, and DMS, to centralize data and streamline operations.
 
-In the project directory, you can run:
+- **Collaboration**: Enable teams to collaborate on content creation and editing, improving teamwork and productivity.
 
-**use YARN**
+- **Analytics and Reporting**: Gain valuable insights into process performance, resource utilization, and other key metrics through advanced analytics and reporting capabilities.
 
-### `yarn cache clean --all`
+## Useful Links
 
-Clean all cache
+- [Documentation](https://citeck-ecos.readthedocs.io/ru/latest/index.html) provides more in-depth information.
 
-### `yarn`
+## Contributing
 
-Install dependencies
+We welcome contributions from the community to make ECOS even better. Everyone interacting in the Citeck project’s codebases, issue trackers, chat rooms, and forum is expected to follow the [contributor code of conduct](https://github.com/rubygems/rubygems/blob/master/CODE_OF_CONDUCT.md).
 
-### `yarn start`
+## Support
 
-**Important!** Before the first start you need to run the command:
+If you need any assistance or have any questions regarding Citeck `ecos-ui`, please create an issue in this repository or reach out to our [support team](mailto:support@citeck.ru).
 
-### `yarn export`
+## License
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Citeck `ecos-ui` is released under the [GNU Lesser General Public License](LICENSE).

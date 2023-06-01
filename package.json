@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.13.2",
+  "version": "2.14.0",
   "private": true,
   "dependencies": {
     "@bpmn-io/properties-panel": "0.12.0",
@@ -9,8 +9,9 @@
     "bignumber.js": "9.1.1",
     "bootstrap": "4.6.2",
     "bpmn-font": "0.12.0",
-    "bpmn-js": "10.3.0",
+    "bpmn-js": "13.0.5",
     "bpmn-js-bpmnlint": "0.20.1",
+    "bpmn-js-color-picker": "0.5.0",
     "camunda-dmn-js": "0.7.0",
     "choices.js": "6.0.3",
     "classnames": "2.3.2",
@@ -97,6 +98,7 @@
     "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
     "export-win": "set NODE_ENV=production&& webpack --config webpack.config.export.js",
     "test": "jest --clearCache && react-scripts test",
+    "test:ci": "jest --clearCache && react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "start:prod": "yarn build && cross-env NODE_ENV=production SHARE_PROXY_URL=http://localhost:8080 node server",
@@ -109,7 +111,12 @@
   "jest": {
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
-    ]
+    ],
+    "moduleNameMapper": {
+      "bpmn-js*": "<rootDir>/src/mock.js",
+      "BPMN*": "<rootDir>/src/mock.js",
+      "diagram-js*": "<rootDir>/src/mock.js"
+    }
   },
   "husky": {
     "hooks": {
@@ -136,10 +143,9 @@
     ]
   },
   "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
+    "last 1 version",
+    "> 1%",
+    "not dead"
   ],
   "proxy": "http://localhost:8080",
   "devDependencies": {

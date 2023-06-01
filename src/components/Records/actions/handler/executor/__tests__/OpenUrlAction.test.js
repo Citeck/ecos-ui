@@ -8,6 +8,7 @@ const SIMPLE_RECORD_ID = 'workspace://SpacesStore/test-record';
 const SIMPLE_ACTION_ID = 'open';
 
 const execEvaluate = (config = {}) => {
+  actionsRegistry.register(new OpenUrlAction());
   const action = actionsRegistry.getHandler(OpenUrlAction.ACTION_ID);
 
   return action.execForRecord(Records.get(SIMPLE_RECORD_ID), {

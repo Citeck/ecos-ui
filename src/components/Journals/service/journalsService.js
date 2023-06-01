@@ -7,7 +7,7 @@ import journalsApi from './journalsServiceApi';
 import journalColumnsResolver from './journalColumnsResolver';
 import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
-import { COMPUTED_ATT_PREFIX, COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders } from './util';
+import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders, fillTemplateAttsAndMapComputedScope } from './util';
 import { DEFAULT_TYPE } from './constants';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
@@ -220,7 +220,7 @@ class JournalsService {
 
       for (let computed of list) {
         const attributesBefore = attributesToLoad.size;
-        this._fillTemplateAttsAndMapComputedScope(computed.config, attributesToLoad);
+        fillTemplateAttsAndMapComputedScope(computed.config, attributesToLoad);
 
         const computedList = attributesBefore !== attributesToLoad.size ? recordComputed : configComputed;
         const newComputed = {
@@ -243,7 +243,7 @@ class JournalsService {
         let computedScopeByName = processComputedList(column.computed, COLUMN_COMPUTED_PREFIX + column.attribute);
 
         ['formatter', 'editor', 'newFormatter', 'newEditor'].forEach(field => {
-          let newConfig = this._fillTemplateAttsAndMapComputedScope((column[field] || {}).config, attributesToLoad, computedScopeByName);
+          let newConfig = fillTemplateAttsAndMapComputedScope((column[field] || {}).config, attributesToLoad, computedScopeByName);
           if (newConfig) {
             column[field].config = newConfig;
           }
@@ -256,54 +256,6 @@ class JournalsService {
       configComputed,
       recordComputed
     };
-  }
-
-  _fillTemplateAttsAndMapComputedScope(value, attributes, computedIdMapping = {}) {
-    if (value === null || value === undefined) {
-      return null;
-    }
-    if (_.isString(value)) {
-      let newValue = value;
-      let placeholderStart = value.indexOf('${');
-      while (placeholderStart >= 0) {
-        let placeholderEnd = value.indexOf('}', placeholderStart + 2);
-        if (placeholderEnd === -1) {
-          break;
-        }
-        let attribute = value.substring(placeholderStart + 2, placeholderEnd);
-        if (attribute && attribute !== 'recordRef') {
-          if (attribute.indexOf(COMPUTED_ATT_PREFIX) === 0) {
-            let localAtt = attribute.substring(COMPUTED_ATT_PREFIX.length);
-            let scope = computedIdMapping[localAtt];
-            if (scope) {
-              newValue = newValue.replace(`\${${attribute}}`, '${' + COMPUTED_ATT_PREFIX + scope + '}');
-            }
-          } else {
-            attributes.add(attribute);
-          }
-        }
-        placeholderStart = value.indexOf('${', placeholderEnd + 1);
-      }
-
-      return newValue;
-    } else if (_.isArray(value)) {
-      let newValue = [];
-      for (let item of value) {
-        newValue.push(this._fillTemplateAttsAndMapComputedScope(item, attributes, computedIdMapping));
-      }
-      return newValue;
-    } else if (_.isObject(value)) {
-      let newValue = {};
-      for (let key in value) {
-        if (value.hasOwnProperty(key)) {
-          let mapValue = value[key];
-          newValue[key] = this._fillTemplateAttsAndMapComputedScope(mapValue, attributes, computedIdMapping);
-        }
-      }
-      return newValue;
-    }
-
-    return value;
   }
 
   /**

@@ -5,6 +5,7 @@ export const TabTypes = {
 };
 
 export const ROOT_GROUP_NAME = '_orgstruct_home_';
+export const ALFRESCO_ADMINISTRATORS_GROUP = 'ALFRESCO_ADMINISTRATORS';
 
 export const ALL_USERS_GROUP_SHORT_NAME = 'all';
 

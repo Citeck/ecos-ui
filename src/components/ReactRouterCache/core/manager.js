@@ -1,22 +1,16 @@
 import CacheComponent from './CacheComponent';
 import { get, run } from '../helpers';
-
-const __components = {};
+import { __components, addToComponents, getComponents, removeFromComponents } from './constants';
 
 const getCachedComponentEntries = () =>
   Object.entries(__components).filter(([, cache]) =>
     cache instanceof CacheComponent ? cache.state.cached : Object.values(cache).some(cache => cache.state.cached)
   );
 
-export const getCache = () => ({ ...__components });
+export const getCache = () => getComponents();
 
-export const register = (key, component) => {
-  __components[key] = component;
-};
-
-export const remove = key => {
-  delete __components[key];
-};
+export const register = (key, component) => addToComponents(key, component);
+export const remove = key => removeFromComponents(key);
 
 export const removeAll = () => {
   const keys = getCachingKeys();

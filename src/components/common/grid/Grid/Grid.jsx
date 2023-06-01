@@ -174,7 +174,7 @@ class Grid extends Component {
     const tHead = head(this._tableDom.rows);
 
     tHead &&
-      tHead.cells.forEach((cell, i) => {
+      Array.from(tHead.cells).forEach((cell, i) => {
         const width = cell && !!get(this.#columnsSizes, [i, 'width']);
         width && (cell.style.width = cssNum(width));
       });

@@ -8,7 +8,7 @@ import Records from '../../../../../components/Records';
 
 import './List.scss';
 
-const List = ({ items, nestingLevel = 0, tabId }) => {
+const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab }) => {
   const context = useContext(SelectOrgstructContext);
 
   const [selectedId, setSelectedId] = useState('');
@@ -32,7 +32,7 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
 
           nestedList = (
             <Collapse isOpen={item.isOpen}>
-              <List items={children} nestingLevel={nestingLevel + 1} tabId={tabId} />
+              <List items={children} nestingLevel={nestingLevel + 1} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
             </Collapse>
           );
         }
@@ -47,6 +47,7 @@ const List = ({ items, nestingLevel = 0, tabId }) => {
             selectedId={selectedId}
             setSelectedId={setSelectedId}
             tabId={tabId}
+            toggleToFirstTab={toggleToFirstTab}
           />
         );
       })}

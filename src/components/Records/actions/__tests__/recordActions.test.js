@@ -164,7 +164,7 @@ describe('RecordActions service', () => {
     }
   });
 
-  describe('Display Info Result Action', async () => {
+  describe('Display Info Result Action', () => {
     let showCustomDialogSpy;
     let winOpenSpy;
     let detailActionPreviewSpy;
@@ -186,7 +186,7 @@ describe('RecordActions service', () => {
       jest.resetAllMocks();
     });
 
-    describe(`Result for execForRecord`, async () => {
+    describe(`Result for execForRecord`, () => {
       for (let key in ActionResultTypes) {
         beforeEach(() => {
           TEST_ACTION_CONFIG.callback = () => ActionResultTypes[key];
@@ -199,7 +199,7 @@ describe('RecordActions service', () => {
       }
     });
 
-    describe(`Result for execForRecords`, async () => {
+    describe(`Result for execForRecords`, () => {
       for (let key in ActionResultTypes) {
         beforeEach(() => {
           TEST_ACTION_CONFIG.callback = () => ActionResultTypes[key];
@@ -213,7 +213,7 @@ describe('RecordActions service', () => {
       }
     });
 
-    describe(`Result for execForQuery`, async () => {
+    describe(`Result for execForQuery`, () => {
       for (const key in ActionResultTypes) {
         beforeEach(() => {
           TEST_ACTION_CONFIG.callback = () => ActionResultTypes[key];
@@ -226,7 +226,7 @@ describe('RecordActions service', () => {
       }
     });
 
-    describe(`Result for configurable execForQuery`, async () => {
+    describe(`Result for configurable execForQuery`, () => {
       it('execForQueryConfig.execAsForRecords - False', async () => {
         const result = await recordActions.execForQuery({}, { ...TEST_ACTION_CONFIG, execForQueryConfig: { execAsForRecords: false } });
         const execForQueryAsForRecordsSpy = jest.spyOn(recordActions, 'execForQueryAsForRecords');

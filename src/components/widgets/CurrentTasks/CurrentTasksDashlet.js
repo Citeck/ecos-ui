@@ -48,6 +48,7 @@ class CurrentTasksDashlet extends BaseWidget {
       isLoading: true,
       isOpenSettings: false
     };
+
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
   }
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { Grid } from '../';
+import Grid from '../Grid';
 import ExpanderFormatter from '../formatters/ExpanderFormatter/ExpanderFormatter';
 
 import './TreeGrid.scss';

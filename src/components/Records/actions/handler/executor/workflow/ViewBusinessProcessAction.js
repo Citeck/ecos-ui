@@ -16,7 +16,7 @@ export default class ViewBusinessProcessAction extends ActionsExecutor {
 
     const _viewPromise = info =>
       new Promise(resolve => {
-        WidgetService.openBusinessProcessModal({ ...info, onClose: resolve });
+        WidgetService.openBusinessProcessModal({ ...info, processId: record.id, onClose: resolve });
       });
 
     return workflowIdPromise

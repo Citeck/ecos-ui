@@ -5,7 +5,8 @@ import isBoolean from 'lodash/isBoolean';
 
 import { RecordActionsApi } from '../../../../../api/recordActions';
 import FormManager from '../../../../EcosForm/FormManager';
-import { notifyStart, prepareBatchEditAction, prepareResult, removeNotify, ResultTypes } from '../../util/actionUtils';
+import { notifyStart, prepareBatchEditAction, prepareResult, removeNotify } from '../../util/actionUtils';
+import { ResultTypes } from '../../util/constants';
 import ActionsExecutor from '../ActionsExecutor';
 
 const actionsApi = new RecordActionsApi();

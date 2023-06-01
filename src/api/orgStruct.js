@@ -4,6 +4,7 @@ import isArray from 'lodash/isArray';
 import isString from 'lodash/isString';
 
 import {
+  ALFRESCO_ADMINISTRATORS_GROUP,
   AUTHORITY_TYPE_GROUP,
   AUTHORITY_TYPE_USER,
   DataTypes,
@@ -80,6 +81,55 @@ export class OrgStructApi extends CommonApi {
     return (groups || []).map(replace);
   };
 
+  static getNotDisabledPredicate = async () => {
+    const predicateNotDisabled = { t: 'not-eq', att: 'personDisabled', val: true };
+
+    const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
+    if (isHideForAll) {
+      return predicateNotDisabled;
+    } else {
+      const isAdmin = await OrgStructApi.fetchIsAdmin();
+      if (!isAdmin) {
+        const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
+        if (showInactiveUserOnlyForAdmin) {
+          return predicateNotDisabled;
+        }
+      }
+    }
+
+    return null;
+  };
+
+  static getSearchFields = async (searchText = '', extraFields = []) => {
+    const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
+
+    if (searchText) {
+      const addExtraFields = (fields = []) => {
+        const attributes = fields.map(field => field.trim()).filter(field => !!field);
+
+        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
+      };
+
+      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
+
+      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+        addExtraFields(globalSearchConfig);
+      }
+
+      if (Array.isArray(extraFields) && extraFields.length > 0) {
+        addExtraFields(extraFields);
+      }
+
+      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+
+      if (isSearchUserMiddleName) {
+        addExtraFields(['middleName']);
+      }
+    }
+
+    return searchFields;
+  };
+
   fetchGroup = async ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
     const filterByType = items =>
@@ -90,8 +140,11 @@ export class OrgStructApi extends CommonApi {
 
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
+
+    const searchFields = await OrgStructApi.getSearchFields(searchText);
+
     let queryVal = searchText
-      ? OrgStructApi.getSearchQuery(searchText)
+      ? OrgStructApi.getSearchQuery(searchText, searchFields)
       : [
           {
             t: 'contains',
@@ -99,6 +152,12 @@ export class OrgStructApi extends CommonApi {
             v: getGroupRef(groupName)
           }
         ];
+
+    const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
+    if (notDisabledPredicate) {
+      queryVal.push(notDisabledPredicate);
+    }
+
     const extraQueryVal = [];
 
     if (excludeAuthoritiesByName) {
@@ -116,6 +175,13 @@ export class OrgStructApi extends CommonApi {
 
     const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
 
+    const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
+    (excludedUsers || []).forEach(item => {
+      if (item) {
+        queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
+      }
+    });
+
     const groups = Records.query(
       {
         sourceId: SourcesId.GROUP,
@@ -128,15 +194,19 @@ export class OrgStructApi extends CommonApi {
       .then(filterByType)
       .then(this._prepareGroups)
       .then(records => {
-        if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
+        if (
+          isIncludedAdminGroup &&
+          groupName === ROOT_GROUP_NAME &&
+          ALFRESCO_ADMINISTRATORS_GROUP.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())
+        ) {
           records.unshift({
-            id: getGroupRef('ALFRESCO_ADMINISTRATORS'),
-            displayName: 'ALFRESCO_ADMINISTRATORS',
+            id: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
+            displayName: ALFRESCO_ADMINISTRATORS_GROUP,
             fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
-            shortName: 'ALFRESCO_ADMINISTRATORS',
+            shortName: ALFRESCO_ADMINISTRATORS_GROUP,
             groupSubType: '',
             groupType: 'BRANCH',
-            nodeRef: getGroupRef('ALFRESCO_ADMINISTRATORS'),
+            nodeRef: getGroupRef(ALFRESCO_ADMINISTRATORS_GROUP),
             authorityType: AUTHORITY_TYPE_GROUP
           });
         }
@@ -236,7 +306,7 @@ export class OrgStructApi extends CommonApi {
   static async fetchGlobalSearchFields() {
     const fields = await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
 
-    if (!isArray(fields) || (isString(fields[0]) && !fields[0].trim().length)) {
+    if (!isArray(fields) || !fields[0] || (isString(fields[0]) && !fields[0].trim().length)) {
       return [];
     }
 
@@ -328,54 +398,19 @@ export class OrgStructApi extends CommonApi {
   static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
     let queryVal = [];
 
-    const predicateNotDisabled = { t: 'not-eq', att: 'personDisabled', val: true };
-
-    const isHideForAll = await OrgStructApi.fetchIsHideDisabledField();
-
-    if (isHideForAll) {
-      queryVal.push(predicateNotDisabled);
-    } else {
-      const isAdmin = await OrgStructApi.fetchIsAdmin();
-      if (!isAdmin) {
-        const showInactiveUserOnlyForAdmin = await OrgStructApi.fetchIsShowDisabledUser();
-        if (showInactiveUserOnlyForAdmin) {
-          queryVal.push(predicateNotDisabled);
-        }
-      }
+    const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
+    if (notDisabledPredicate) {
+      queryVal.push(notDisabledPredicate);
     }
-
-    let searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
 
     const excludedUsers = await OrgStructApi.fetchGlobalHideInOrgstruct();
     (excludedUsers || []).forEach(item => {
-      if (item && !item.startsWith('GROUP_')) {
-        queryVal.push({ t: 'not-eq', att: 'id', val: item });
+      if (item) {
+        queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
       }
     });
 
-    if (searchText) {
-      const addExtraFields = (fields = []) => {
-        const attributes = fields.map(field => field.trim()).filter(field => !!field);
-
-        searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
-      };
-
-      const globalSearchConfig = await OrgStructApi.fetchGlobalSearchFields();
-
-      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
-        addExtraFields(globalSearchConfig);
-      }
-
-      if (Array.isArray(extraFields) && extraFields.length > 0) {
-        addExtraFields(extraFields);
-      }
-
-      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
-
-      if (isSearchUserMiddleName) {
-        addExtraFields(['middleName']);
-      }
-    }
+    const searchFields = await OrgStructApi.getSearchFields(searchText, extraFields);
 
     queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields));
 
