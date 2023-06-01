@@ -26,6 +26,7 @@ export const PREDICATE_IN = 'in';
 export const PREDICATE_NOT_CONTAINS = 'not-contains';
 export const PREDICATE_EQ = 'eq';
 export const PREDICATE_NOT_EQ = 'not-eq';
+export const PREDICATE_NOT = 'not';
 export const PREDICATE_STARTS = 'starts';
 export const PREDICATE_ENDS = 'ends';
 export const PREDICATE_EMPTY = 'empty';

@@ -147,7 +147,6 @@ class Bar extends Component {
           selectedRecords={selectedRecords}
           viewMode={viewMode}
           isMobile={isMobile}
-          isFilterOn={isFilterOn}
           isDocLibEnabled={isDocLibEnabled}
           isCreateLoading={isCreateLoading}
           isLoading={isLoading}
