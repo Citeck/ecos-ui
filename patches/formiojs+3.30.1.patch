@@ -71,3 +71,23 @@ index 2da74da..bc1bf60 100644
  
        if (message) {
          this.error = {
+diff --git a/node_modules/formiojs/components/textarea/TextArea.js b/node_modules/formiojs/components/textarea/TextArea.js
+index 03bfd62..074e599 100644
+--- a/node_modules/formiojs/components/textarea/TextArea.js
++++ b/node_modules/formiojs/components/textarea/TextArea.js
+@@ -398,7 +398,6 @@ var TextAreaComponent = /*#__PURE__*/function (_TextFieldComponent) {
+           // This change solves an issue where the change event was erroneously firing.
+           // This also negates the need for the "value" parameter, but I am keeping that there for reverse compatibility,
+           // and ensure any extended classes do not break.
+-          value = _this6.dataValue;
+           _this6.autoModified = flags && flags.autoModified || (_lodash.default.isNil(_this6.autoModified) ? true : _this6.autoModified);
+ 
+           if (!skipSetting || flags && flags.autoModified) {
+@@ -561,7 +560,6 @@ var TextAreaComponent = /*#__PURE__*/function (_TextFieldComponent) {
+       }
+ 
+       this.addEventListener(textarea, 'input', update);
+-      this.on('initialized', update);
+       this.updateSize = update;
+       update();
+     }

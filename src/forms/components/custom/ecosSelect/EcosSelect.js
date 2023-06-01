@@ -1211,6 +1211,10 @@ export default class SelectComponent extends BaseComponent {
     this.on(
       'change',
       () => {
+        if (this.component.allowCalculateOverride && this.calculatedValue !== this.dataValue) {
+          return;
+        }
+
         this.refresh(refreshData === 'data' ? this.data : this.data[refreshData], refreshData);
       },
       true

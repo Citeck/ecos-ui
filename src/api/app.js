@@ -2,6 +2,7 @@ import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 
+import logger from '../services/logger';
 import ecosXhr from '../helpers/ecosXhr';
 import ecosFetch, { RESET_AUTH_STATE_EVENT, emitter } from '../helpers/ecosFetch';
 import { t } from '../helpers/export/util';
@@ -244,11 +245,21 @@ export class AppApi extends CommonApi {
     }
   };
 
-  static doToggleAvailable = isAvailable => {
-    return new CommonApi()
-      .postJson(`${PROXY_URI}api/availability/make-available`, { isAvailable })
-      .then(window.location.reload)
-      .catch(() => '');
+  static doToggleAvailable = (isAvailable, awayAuthDelegationEnabled = null) => {
+    const person = Records.getRecordToEdit(SourcesId.CURRENT_USER);
+    person.att('atWorkplace', !isAvailable);
+    if (awayAuthDelegationEnabled != null) {
+      person.att('awayAuthDelegationEnabled', awayAuthDelegationEnabled);
+    }
+    return person
+      .save()
+      .then(() => {
+        window.location.reload();
+        return '';
+      })
+      .catch(e => {
+        logger.error('Error while availability changing', e);
+      });
   };
 
   static getCustomFeedbackUrl = () => {

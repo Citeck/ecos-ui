@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { t } from '../../../../helpers/util';
-import { PanelBar } from '../../index';
+import PanelBar from '../../PanelBar/PanelBar';
 
 import './style.scss';
 

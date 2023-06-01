@@ -7,6 +7,7 @@ import Records from '../../../../Records';
 const SIMPLE_RECORD_ID = 'workspace://SpacesStore/test-record';
 
 const execEvaluate = () => {
+  actionsRegistry.register(new EditMenuAction());
   const action = actionsRegistry.getHandler(EditMenuAction.ACTION_ID);
 
   return action.execForRecord(Records.get(SIMPLE_RECORD_ID));

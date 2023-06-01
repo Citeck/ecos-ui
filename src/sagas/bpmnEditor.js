@@ -50,9 +50,9 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       NotificationManager.success(message, title);
 
       if (deploy) {
-        yield put(setLoading({ stateId, isLoading: false }));
-      } else {
         yield put(deleteTab(PageTabList.activeTab));
+      } else {
+        yield put(setLoading({ stateId, isLoading: false }));
       }
     }
   } catch (e) {

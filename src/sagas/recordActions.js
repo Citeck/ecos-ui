@@ -4,8 +4,8 @@ import { NotificationManager } from 'react-notifications';
 
 import { backPageFromTransitionsHistory } from '../actions/app';
 import { backExecuteAction, getActions, runExecuteAction, setActions } from '../actions/recordActions';
+import { ActionTypes } from '../components/Records/actions/constants';
 import { t } from '../helpers/util';
-import { ActionTypes } from '../components/Records/actions';
 
 function notify(type, keyMsg) {
   NotificationManager[type](t(keyMsg), t('records-actions.notify.title'));

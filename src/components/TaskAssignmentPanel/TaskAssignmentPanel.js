@@ -11,7 +11,7 @@ import { AssignTo } from '../../constants/tasks';
 import { t } from '../../helpers/util';
 import { StateAssignPropTypes } from '../widgets/Tasks/utils';
 import Records from '../Records';
-import { ActionTypes } from '../Records/actions';
+import { ActionTypes } from '../Records/actions/constants';
 import { Btn } from '../common/btns';
 
 import './style.scss';

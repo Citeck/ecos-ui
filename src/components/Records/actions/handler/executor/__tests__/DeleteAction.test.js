@@ -22,6 +22,7 @@ jest.spyOn(global, 'fetch').mockImplementation((_url, request) => {
 });
 
 const execEvaluate = (config = {}, context = {}, isArray = false) => {
+  actionsRegistry.register(new DeleteAction());
   const action = actionsRegistry.getHandler(DeleteAction.ACTION_ID);
 
   return action[isArray ? 'execForRecords' : 'execForRecord'](

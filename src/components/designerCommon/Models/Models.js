@@ -36,6 +36,7 @@ const Models = ({
           author={model.creator}
           datetime={moment(model.created).calendar()}
           image={model.previewUrl}
+          definition={model.definition}
         />
       ))}
       {viewType === ViewTypes.CARDS && !models.length && !searchText && (

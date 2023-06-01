@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { InfoText } from '../../index';
+import InfoText from '../../InfoText/InfoText';
 
 export default class ErrorTable extends React.Component {
   state = { error: null };

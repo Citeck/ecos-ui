@@ -24,7 +24,7 @@ export const BuildContextProvider = props => {
     try {
       const enabled = await ConfigService.getValue(ALFRESCO_ENABLED);
 
-      const alfresco = await devToolsApi.getAlfrescoModules();
+      const alfresco = enabled ? await devToolsApi.getAlfrescoModules() : [];
       const compare = (a, b) => (a.label < b.label ? -1 : 1);
 
       dispatch({ type: SET_ALFRESCO_ENABLED, payload: enabled });
@@ -35,8 +35,10 @@ export const BuildContextProvider = props => {
     } catch (e) {
       dispatch({ type: SET_ALFRESCO_MODULES_ERROR, payload: t('dev-tools.error.failure-to-fetch-data') });
     }
+
     try {
       const system = await devToolsApi.getSystemModules();
+
       dispatch({
         type: SET_SYSTEM_MODULES_ITEMS,
         payload: [

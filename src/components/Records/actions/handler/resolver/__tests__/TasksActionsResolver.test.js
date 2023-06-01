@@ -5,6 +5,7 @@ import TasksActionsResolver from '../TasksActionsResolver';
 
 describe('TasksActions resolver', () => {
   let recordQuerySpy;
+  actionsRegistry.register(new TasksActionsResolver());
   const tasksActionsResolver = actionsRegistry.getHandler(TasksActionsResolver.ACTION_ID);
 
   beforeEach(() => {

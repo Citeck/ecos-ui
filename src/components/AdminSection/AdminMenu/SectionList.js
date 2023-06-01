@@ -14,7 +14,7 @@ const renderItem = (item, onClick) => {
 
   return (
     <div key={id} id={id} className="ecos-admin-menu-section__item" onClick={() => onClick(item)}>
-      <Tooltip uncontrolled showAsNeeded target={id} text={t(item.label)} off={isMobileDevice()}>
+      <Tooltip uncontrolled showAsNeeded={!item.shortName} target={id} text={t(item.label)} off={isMobileDevice()}>
         {item.shortName || t(item.label)}
       </Tooltip>
     </div>

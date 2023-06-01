@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import isFunction from 'lodash/isFunction';
 
-import { ControlledCheckbox } from '../index';
+import ControlledCheckbox from '../Checkbox/ControlledCheckbox';
 
 import './Checkbox.scss';
 

@@ -2,7 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import get from 'lodash/get';
 import ModelViewer from './ModelViewer';
 
-export const Sheet = ({ diagram, onMounted, onInit, defHeight, modelEvents, init, ...props }) => {
+export const Sheet = ({
+  diagram,
+  onMounted,
+  onInit,
+  defHeight,
+  modelEvents,
+  init,
+  markedElement,
+  zoom,
+  className = ModelViewer.querySelector,
+  ...props
+}) => {
   const [initialized, setInitialized] = useState(false);
   const containerRef = useRef(null);
   const events = {};
@@ -22,12 +33,14 @@ export const Sheet = ({ diagram, onMounted, onInit, defHeight, modelEvents, init
           container: containerRef.current,
           onInit,
           onMounted,
-          modelEvents
+          modelEvents,
+          markedElement,
+          zoom
         });
       }
     },
     [initialized, containerRef]
   );
 
-  return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={ModelViewer.querySelector} {...events} />;
+  return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={className} {...events} />;
 };

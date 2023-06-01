@@ -1,6 +1,25 @@
 import * as Util from '../util';
 
 describe('Journal util', () => {
+  it('fun fillTemplateAttsAndMapComputedScope', () => {
+    const valuesWithoutPlaceHolders = [null, '', 'abcd', {}, { aa: 'bb' }, [], ['aa']];
+    for (let value of valuesWithoutPlaceHolders) {
+      let attributes = new Set();
+      Util.fillTemplateAttsAndMapComputedScope(value, attributes);
+      expect(attributes.size).toEqual(0);
+    }
+
+    let attributes = new Set();
+    Util.fillTemplateAttsAndMapComputedScope('${abc}', attributes);
+    expect(attributes.size).toEqual(1);
+    expect(attributes.values().next().value).toEqual('abc');
+
+    attributes = new Set();
+    Util.fillTemplateAttsAndMapComputedScope('${abc{def}}', attributes);
+    expect(attributes.size).toEqual(1);
+    expect(attributes.values().next().value).toEqual('abc{def}');
+  });
+
   it('fun mergeFilters', async () => {
     let result = Util.mergeFilters(
       [{ t: 'eq', a: 'field', v: 'value1' }],

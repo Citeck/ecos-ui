@@ -309,7 +309,11 @@ export default class Filter extends Component {
   }
 
   render() {
-    const { className, children, rowConfig } = this.props;
+    const { className, children, rowConfig, filter } = this.props;
+
+    if (!get(filter, 'meta.column.searchable')) {
+      return null;
+    }
 
     return (
       <div

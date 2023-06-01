@@ -7,7 +7,8 @@ import debounce from 'lodash/debounce';
 import queryString from 'query-string';
 import FormIOFileComponent from 'formiojs/components/file/File';
 
-import recordActions, { ActionTypes } from '../../../../components/Records/actions';
+import recordActions from '../../../../components/Records/actions';
+import { ActionTypes } from '../../../../components/Records/actions/constants';
 import Records from '../../../../components/Records';
 import { createDocumentUrl, getDownloadContentUrl, isNewVersionPage } from '../../../../helpers/urls';
 import { t } from '../../../../helpers/util';
@@ -25,6 +26,7 @@ export default class FileComponent extends FormIOFileComponent {
         dir: '',
         fileNameTemplate: '',
         webcam: false,
+        defaultKey: '_content',
         fileTypes: [
           {
             label: '',
@@ -130,6 +132,24 @@ export default class FileComponent extends FormIOFileComponent {
     return createDocumentUrl(recordRef);
   }
 
+  updateValue(flags, value) {
+    super.updateValue(flags, value);
+
+    if (!this._initialized) {
+      this._initialized = true;
+
+      this._initialValue = Array.isArray(this.data[this.component.key]) && [...this.data[this.component.key]];
+    }
+  }
+
+  getFileUrl(file) {
+    const containerType = get(this.root, 'options.typeRef', '');
+    // eslint-disable-next-line
+    const [_, type] = containerType.split('@');
+    const url = file.url || `/gateway/emodel/api/ecos/webapp/content?containerTypeId=${type}`;
+    return url;
+  }
+
   buildFileProcessingLoader() {
     const isRootLoading = get(this, 'root.loader');
     if (isRootLoading) {
@@ -154,6 +174,64 @@ export default class FileComponent extends FormIOFileComponent {
     return result;
   }
 
+  buildFileList() {
+    const value = this.dataValue;
+
+    return this.ce(
+      'ul',
+      {
+        class: 'list-group list-group-striped'
+      },
+      [
+        this.ce(
+          'li',
+          {
+            class: 'list-group-item list-group-header hidden-xs hidden-sm'
+          },
+          this.ce(
+            'div',
+            {
+              class: 'row'
+            },
+            [
+              this.ce('div', {
+                class: 'col-md-1'
+              }),
+              this.ce(
+                'div',
+                {
+                  class: 'col-md-'.concat(this.hasTypes ? '6' : '9')
+                },
+                this.ce('strong', {}, this.text('File Name'))
+              ),
+              this.ce(
+                'div',
+                {
+                  class: 'col-md-2'
+                },
+                this.ce('strong', {}, this.text('Size'))
+              ),
+              this.hasTypes
+                ? this.ce(
+                    'div',
+                    {
+                      class: 'col-md-2'
+                    },
+                    this.ce('strong', {}, this.text('Type'))
+                  )
+                : null
+            ]
+          )
+        ),
+        Array.isArray(value)
+          ? value.map((fileInfo, index) => {
+              return this.createFileListItem(fileInfo, index);
+            })
+          : null
+      ]
+    );
+  }
+
   createFileListItem(fileInfo, index) {
     const displayElements = this.displayElementsValue || {};
     const shouldShowDeleteIcon = isBoolean(get(displayElements, 'delete')) ? displayElements.delete : true;
@@ -171,7 +249,8 @@ export default class FileComponent extends FormIOFileComponent {
                 class: this.iconClass('remove'),
                 onClick: event => {
                   if (fileInfo && this.component.storage === 'url') {
-                    fileService.makeRequest('', fileInfo.url, 'delete');
+                    const url = this.getFileUrl(fileInfo);
+                    fileService.makeRequest('', url, 'delete');
                   }
                   event.preventDefault();
                   this.splice(index);
@@ -180,9 +259,9 @@ export default class FileComponent extends FormIOFileComponent {
               })
             : null
         ),
-        this.ce('div', { class: `col-md-${this.hasTypes ? '7' : '9'}` }, this.createFileLink(fileInfo)),
+        this.ce('div', { class: `col-md-${this.hasTypes ? '6' : '9'}` }, this.createFileLink(fileInfo)),
         this.ce('div', { class: 'col-md-2' }, this.fileSize(fileInfo.size)),
-        this.hasTypes ? this.ce('div', { class: 'col-md-2' }, this.createTypeSelect(index, fileInfo)) : null
+        this.hasTypes ? this.ce('div', { class: 'col-md-3' }, this.createTypeSelect(index, fileInfo)) : null
       ])
     );
   }
@@ -211,16 +290,19 @@ export default class FileComponent extends FormIOFileComponent {
   }
 
   createTypeSelect(index, fileInfo) {
+    const disabled = this._initialValue && Array.isArray(this._initialValue) && this._initialValue.includes(fileInfo);
+
     return this.ce(
       'select',
       {
-        class: 'file-type',
+        class: 'file-type form-control',
         onChange: event => {
           this.replaceValueItemByIndex(index, {
             ...fileInfo,
             fileType: event.target.value
           });
-        }
+        },
+        disabled: disabled || undefined
       },
       this.component.fileTypes.map(type =>
         this.ce(
@@ -289,7 +371,7 @@ export default class FileComponent extends FormIOFileComponent {
       return fileItemElement;
     }
 
-    let documentUrl = file.url;
+    let documentUrl = this.getFileUrl(file);
     let recordRef;
 
     try {
@@ -310,7 +392,7 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
-      linkAttributes.href = getDownloadContentUrl(recordRef);
+      linkAttributes.href = file.url || getDownloadContentUrl(recordRef);
       linkAttributes.download = true;
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
       linkAttributes.onClick = e => {

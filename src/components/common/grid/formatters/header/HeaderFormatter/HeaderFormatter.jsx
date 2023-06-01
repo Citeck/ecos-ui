@@ -15,7 +15,8 @@ import { closest, getId } from '../../../../../../helpers/util';
 import { getIconUpDown } from '../../../../../../helpers/icon';
 import { t } from '../../../../../../helpers/export/util';
 import ClickOutside from '../../../../../ClickOutside';
-import { Icon, Tooltip as EcosTooltip } from '../../../../';
+import Icon from '../../../../icons/Icon/Icon';
+import EcosTooltip from '../../../../Tooltip';
 import InlineFilter from '../../../../../../components/Filters/Filter/InlineFilter';
 import { ParserPredicate } from '../../../../../Filters/predicates';
 

@@ -291,6 +291,7 @@ if (!window.Citeck) {
 window.Citeck = window.Citeck || {};
 Records = window.Citeck.Records || new RecordsComponent();
 window.Citeck.Records = Records;
+window.Records = Records;
 
 recordsClientManager.init(Records);
 

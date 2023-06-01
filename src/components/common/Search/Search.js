@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 
 import { t, trigger } from '../../../helpers/util';
-import { Icon } from '../index';
+import Icon from '../icons/Icon/Icon';
 
 import './Search.scss';
 

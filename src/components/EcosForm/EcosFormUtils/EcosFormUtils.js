@@ -17,19 +17,20 @@ import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import isUndefined from 'lodash/isUndefined';
 
-import { SourcesId } from '../../constants';
-import { OUTCOME_BUTTONS_PREFIX } from '../../constants/forms';
-import { getCurrentUserName, getMLValue, t } from '../../helpers/util';
-import { UserApi } from '../../api/user';
-import { AppApi } from '../../api/app';
-import { Components } from '../../forms/components';
-import DataGridAssocComponent from '../../forms/components/custom/datagridAssoc/DataGridAssoc';
-import Modal from '../common/EcosModal/CiteckEcosModal';
-import Records from '../Records';
-import { FORM_MODE_CREATE, FORM_MODE_EDIT } from './constants';
-import EcosForm from './EcosForm';
-import EcosFormModal from './EcosFormModal';
-import { PERMISSION_WRITE_ATTR } from '../Records/constants';
+import { SourcesId } from '../../../constants';
+import { OUTCOME_BUTTONS_PREFIX } from '../../../constants/forms';
+import { getCurrentUserName, getMLValue, t } from '../../../helpers/util';
+import { UserApi } from '../../../api/user';
+import { AppApi } from '../../../api/app';
+import { Components } from '../../../forms/components';
+import DataGridAssocComponent from '../../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import Modal from '../../common/EcosModal/CiteckEcosModal';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
+import Records from '../../Records';
+import { FORM_MODE_CREATE, FORM_MODE_EDIT } from '../constants';
+import EcosForm from '../EcosForm';
+import EcosFormModal from '../EcosFormModal';
+import BaseEcosFormUtils from './BaseEcosFormUtils';
 
 const SOURCE_DIVIDER = '@';
 const EDGE_PREFIX = 'edge__';
@@ -71,7 +72,7 @@ const getComponentInnerAttSchema = component => {
   }
 };
 
-export default class EcosFormUtils {
+export default class EcosFormUtils extends BaseEcosFormUtils {
   static _apiApp = new AppApi();
   static _apiUser = new UserApi();
 

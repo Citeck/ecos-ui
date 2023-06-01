@@ -3,7 +3,7 @@ import classNames from 'classnames';
 
 import { TMP_ICON_EMPTY } from '../../../../constants';
 import { IcoBtn } from '../../btns';
-import { Tooltip } from '../../index';
+import Tooltip from '../../Tooltip';
 import { baseModifiers } from '../../Tooltip';
 
 export const renderAction = (action, idx, withTooltip = false, modifiers = {}) => {

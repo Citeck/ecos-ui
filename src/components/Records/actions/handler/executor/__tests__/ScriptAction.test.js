@@ -25,6 +25,7 @@ jest.spyOn(global, 'fetch').mockImplementation((_url, request) => {
 });
 
 const execEvaluate = async (script, context = {}) => {
+  actionsRegistry.register(new ScriptAction());
   const action = actionsRegistry.getHandler(ScriptAction.ACTION_ID);
 
   const result = await action.execForRecord(

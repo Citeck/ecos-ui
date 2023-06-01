@@ -498,7 +498,9 @@ export default class AsyncDataComponent extends BaseComponent {
     const { ignoreValuesEqualityChecking } = this.component;
 
     const submitActionDone = get(this.root, 'submitActionDone');
-    if (submitActionDone) {
+
+    const isValid = this.checkValidity(this.data);
+    if (submitActionDone && isValid) {
       return;
     }
 

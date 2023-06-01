@@ -194,6 +194,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
         return this.setNestedValue(component, value[index], flags);
       });
     });
+
     return changed;
   }
 }

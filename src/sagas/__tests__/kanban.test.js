@@ -22,6 +22,7 @@ import EcosFormUtils from '../../components/EcosForm/EcosFormUtils';
 import JournalsService from '../../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../../components/Journals/constants';
 import RecordActions from '../../components/Records/actions/recordActions';
+import Records from '../../components/Records/Records';
 import PageService from '../../services/PageService';
 import KanbanApi from '../__mocks__/kanbanApi';
 import data from '../__mocks__/kanbanData';
@@ -40,6 +41,15 @@ const api = {
   journals: new JournalApi()
 };
 
+const load = async attrs => ({ ...attrs });
+
+const recordsGet = id => ({
+  id,
+  getBaseRecord: () => ({ id, load }),
+  get,
+  load
+});
+
 const logger = { error: jest.fn() };
 
 beforeEach(() => {
@@ -56,12 +66,15 @@ const spyGetFormById = jest
   .spyOn(EcosFormUtils, 'getFormById')
   .mockImplementation(formId => (formId ? (formId === 'no-def' ? {} : data.formConfig) : null));
 const spyGetFormInputs = jest.spyOn(EcosFormUtils, 'getFormInputs').mockReturnValue(data.formFields);
+const spyPreProcessingAttrs = jest.spyOn(EcosFormUtils, 'preProcessingAttrs').mockReturnValue({ attributes: {}, inputByKey: {} });
+const spyPostProcessingAttrs = jest.spyOn(EcosFormUtils, 'postProcessingAttrsData').mockImplementation(({ recordData }) => recordData);
 const spyGetJournalConfig = jest.spyOn(JournalsService, 'getJournalConfig').mockResolvedValue(data.journalConfig);
 const spyGetJournalData = jest
   .spyOn(JournalsService, 'getJournalData')
   .mockImplementation(d => (d.id === 'set-data-cards' ? data.journalData : {}));
 const spyGetRecordActions = jest.spyOn(JournalsService, 'getRecordActions').mockResolvedValue(data.journalActions);
 const spyChangeUrlLink = jest.spyOn(PageService, 'changeUrlLink').mockResolvedValue(data.journalActions);
+const spyRecordsGet = jest.spyOn(Records, 'get').mockImplementation(recordsGet);
 
 async function wrapRunSaga(sagaFun, payload = {}, state = {}) {
   const dispatched = [];
@@ -189,6 +202,7 @@ describe('kanban sagas tests', () => {
     expect(_loading.type).toEqual(setLoading().type);
     expect(_loading.payload.isLoading).toBeFalsy();
 
+    expect(spyRecordsGet).toHaveBeenCalledTimes(1);
     expect(spyGetFormInputs).toHaveBeenCalledTimes(1);
     expect(spyGetJournalConfig).toHaveBeenCalledTimes(1);
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
@@ -269,6 +283,7 @@ describe('kanban sagas tests', () => {
     expect(_totalCount.payload.totalCount).toEqual(colsLen * data.journalData.totalCount);
 
     expect(spyGetJournalData).toHaveBeenCalledTimes(colsLen);
+    expect(spyPostProcessingAttrs).toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
   });
 
@@ -584,6 +599,7 @@ describe('kanban sagas tests', () => {
     const _firstLoading = first(dispatched);
     const _lastLoading = last(dispatched);
 
+    expect(spyPreProcessingAttrs).toHaveBeenCalled();
     expect(_firstLoading.type).toEqual(setLoading().type);
     expect(_firstLoading.payload.isLoading).toBeTruthy();
     expect(logger.error).not.toHaveBeenCalled();

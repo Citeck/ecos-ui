@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../helpers/util';
-import { Separator } from '../';
+import Separator from '../Separator/Separator';
 import DropdownMenuItem from './DropdownMenuItem';
 
 export default class DropdownMenuGroup extends React.Component {

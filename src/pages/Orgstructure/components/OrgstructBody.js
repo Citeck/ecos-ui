@@ -1,15 +1,15 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Pagination } from '../../../components/common';
 import { PAGINATION_SIZES } from '../../../components/common/form/SelectOrgstruct/constants';
-import { SelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { useSelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
 import Body from './Body';
 
 import './style.scss';
 
-const OrgstructBody = ({ reloadList, tabId }) => {
-  const context = useContext(SelectOrgstructContext);
+const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
+  const context = useSelectOrgstructContext();
 
   const { toggleSelectModal, pagination, onChangePage } = context;
 
@@ -19,7 +19,7 @@ const OrgstructBody = ({ reloadList, tabId }) => {
 
   return (
     <div className={'orgstructure-page__body__container'}>
-      <Body reloadList={reloadList} tabId={tabId} />
+      <Body reloadList={reloadList} tabId={tabId} toggleToFirstTab={toggleToFirstTab} />
       <Pagination
         page={pagination.page}
         maxItems={pagination.maxItems}

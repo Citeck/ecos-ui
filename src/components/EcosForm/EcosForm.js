@@ -46,17 +46,6 @@ class EcosForm extends React.Component {
     };
   }
 
-  componentWillUnmount() {
-    Records.releaseAll(this.state.containerId);
-
-    if (this._form) {
-      this._form.destroy();
-    }
-
-    window.clearTimeout(this._containerHeightTimerId);
-    window.removeEventListener('scroll', this.onScrollWindow, true);
-  }
-
   componentDidMount() {
     try {
       const record = Records.getRecordToEdit(this.props.record);
@@ -69,6 +58,19 @@ class EcosForm extends React.Component {
     }
 
     window.addEventListener('scroll', this.onScrollWindow, true);
+    window.addEventListener('mousedown', this.onScrollBarClick, true);
+  }
+
+  componentWillUnmount() {
+    Records.releaseAll(this.state.containerId);
+
+    if (this._form) {
+      this._form.destroy();
+    }
+
+    window.clearTimeout(this._containerHeightTimerId);
+    window.removeEventListener('scroll', this.onScrollWindow, true);
+    window.removeEventListener('mousedown', this.onScrollBarClick, true);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -426,16 +428,22 @@ class EcosForm extends React.Component {
     isFunction(onToggleLoader) && onToggleLoader(state);
   };
 
+  onScrollBarClick = e => {
+    if (e.offsetX > e.target.clientWidth || e.offsetY > e.target.clientHeight) {
+      e.preventDefault();
+    }
+  };
+
   onScrollWindow = event => {
     if (event.target && event.target.classList && event.target.classList.contains('choices__list')) {
       return;
     }
 
-    this.onScrollStart();
+    this.onScrollStart(event);
   };
 
   onScrollStart = debounce(
-    () => {
+    _event => {
       if (!this.form) {
         return;
       }

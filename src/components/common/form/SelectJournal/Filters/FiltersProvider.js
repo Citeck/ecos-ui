@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
-import { getPredicateInput, getPredicates } from '../../../../Records/predicates/predicates';
+import { getPredicates } from '../../../../Records/predicates/predicates';
+import { getPredicateInput } from '../../../../Records/predicates/util';
 import FiltersContext from './FiltersContext';
 
 export default class FiltersProvider extends Component {

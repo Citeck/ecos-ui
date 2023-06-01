@@ -7,6 +7,7 @@ import BusinessProcessViewer from '../components/BusinessProcessViewer';
 import { DocPreview } from '../components/widgets/DocPreview';
 import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { SelectOrgstruct } from '../components/common/form';
+import { isFlowableProcess } from '../components/BusinessProcessViewer/util';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
 import { PasswordEditor } from '../components/Password';
 import { PresetEditor } from '../components/Journals/Presets';
@@ -85,7 +86,7 @@ export default class WidgetService {
 
     modal.open(<BusinessProcessViewer {...props} />, {
       title: [name, version].filter(val => !!val).join(' / '),
-      class: 'ecos-modal-business-process',
+      class: `ecos-modal-business-process ${isFlowableProcess(props.recordId) ? '' : 'ecos-modal_width-full'}`,
       onHideModal: onClose
     });
   }

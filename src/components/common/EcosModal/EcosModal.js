@@ -9,7 +9,7 @@ import isUndefined from 'lodash/isUndefined';
 import { getMLValue, isMobileDevice, t, trigger } from '../../../helpers/util';
 import ZIndex from '../../../services/ZIndex';
 import Modal from './ModalDraggable';
-import { Icon } from '../';
+import Icon from '../icons/Icon/Icon';
 import Popper from '../Popper';
 
 import './EcosModal.scss';
@@ -119,13 +119,15 @@ export default class EcosModal extends Component {
 
     const localizedTitle = getMLValue(title);
 
+    const renderTitle = () => <div className="ecos-modal-header__title">{localizedTitle}</div>;
+
     return (
       <Popper
         showAsNeeded
         text={localizedTitle}
         icon="icon-question"
         popupClassName="ecos-formatter-popper"
-        contentComponent={() => <div className="ecos-modal-header__title">{localizedTitle}</div>}
+        contentComponent={renderTitle()}
       />
     );
   }

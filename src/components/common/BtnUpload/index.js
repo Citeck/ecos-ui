@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 
-import { PointsLoader } from '../';
+import PointsLoader from '../PointsLoader/PointsLoader';
 
 import './style.scss';
 

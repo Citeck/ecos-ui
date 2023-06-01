@@ -17,6 +17,8 @@ import {
   PREDICATE_EMPTY,
   PREDICATE_EQ,
   PREDICATE_NOT_EMPTY,
+  PREDICATE_NOT,
+  PREDICATE_NOT_EQ,
   PREDICATE_OR,
   PREDICATE_TIME_INTERVAL,
   SEARCH_EQUAL_PREDICATES_MAP
@@ -219,6 +221,17 @@ export default class ParserPredicate {
     for (let i = 0, length = val.length; i < length; i++) {
       const current = val[i];
 
+      if (current.t === PREDICATE_NOT) {
+        filters.push(
+          new FilterPredicate({
+            condition: filterPredicates([!i && condition ? condition : PREDICATE_NOT_EQ])[0],
+            predicate: new Predicate({ ...current.val, t: PREDICATE_NOT_EQ }),
+            columns
+          })
+        );
+        continue;
+      }
+
       if (current.att) {
         filters.push(
           new FilterPredicate({
@@ -230,7 +243,7 @@ export default class ParserPredicate {
         continue;
       }
 
-      if (current.val) {
+      if (Array.isArray(current.val)) {
         filters = [...filters, ...this.getFilters(current, columns, i ? t : null)];
       }
     }
@@ -417,6 +430,10 @@ export default class ParserPredicate {
           forEach(item.val);
 
           return;
+        }
+
+        if (item.t === PREDICATE_NOT) {
+          item = { ...item.val, t: PREDICATE_NOT_EQ };
         }
 
         if (isEqual(item.att, newPredicate.att)) {
