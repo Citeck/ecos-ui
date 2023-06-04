@@ -1,4 +1,5 @@
 import * as queryString from 'query-string';
+import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
 
@@ -221,6 +222,12 @@ export const goToCardDetailsPage = (nodeRef, params = { openNewTab: true }) => {
 };
 
 export const goToNodeEditPage = nodeRef => window.open(`${URL_PAGECONTEXT}node-edit-page-v2?nodeRef=${nodeRef}`, '_self');
+
+export const getRecordRef = (sourceUrl = window.location.href) => {
+  const recordRef = get(queryString.parseUrl(sourceUrl), 'query.recordRef', '');
+
+  return isArray(recordRef) ? recordRef.shift() : recordRef;
+};
 
 export const updateCurrentUrl = (params = {}) => {
   const query = getSearchParams();
