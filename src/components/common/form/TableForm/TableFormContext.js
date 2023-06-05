@@ -12,6 +12,7 @@ import { parseAttribute } from '../../../Records/utils/attStrUtils';
 import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } from '../../../EcosForm';
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
+import { getRecordRef } from '../../../../helpers/urls';
 
 export const TableFormContext = React.createContext();
 
@@ -27,7 +28,8 @@ export const TableFormContextProvider = props => {
     computed,
     onSelectRows,
     selectedRows,
-    settingElements
+    settingElements,
+    componentKey
   } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
@@ -38,6 +40,7 @@ export const TableFormContextProvider = props => {
   const [clonedRecord, setClonedRecord] = useState(null);
   const [gridRows, setGridRows] = useState([]);
   const [rowPosition, setRowPosition] = useState(0);
+  const [ids, setIds] = useState(defaultValue);
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
     height: 0,
     top: 0,
@@ -56,14 +59,23 @@ export const TableFormContextProvider = props => {
       return;
     }
 
-    let initValue;
     if (!Array.isArray(defaultValue)) {
-      initValue = [defaultValue];
+      setIds([defaultValue]);
     } else {
-      initValue = [...defaultValue];
+      setIds([...defaultValue]);
     }
+  }, [defaultValue]);
 
-    if (initValue) {
+  useEffect(() => {
+    Records.get(getRecordRef())
+      .load(`${componentKey.replace('_', ':')}[]?id`)
+      .then(res => {
+        setIds(res);
+      });
+  }, [record]);
+
+  useEffect(() => {
+    if (ids) {
       const atts = [];
       const attsAsIs = [];
       const noNeedParseIndices = [];
@@ -87,7 +99,7 @@ export const TableFormContextProvider = props => {
       });
 
       Promise.all(
-        initValue.map(async r => {
+        ids.map(async r => {
           const record = Records.get(r);
           const fetchedAtts = {};
           let result = {};
@@ -137,7 +149,7 @@ export const TableFormContextProvider = props => {
           setGridRows([]);
         });
     }
-  }, [defaultValue, columns]);
+  }, [ids, columns]);
 
   useEffect(() => {
     if (clonedRecord) {
