@@ -6,7 +6,7 @@ import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
-import uuidV4 from 'uuidv4';
+import uuidV4 from 'uuid/v4';
 
 import Tooltip from '../../Tooltip';
 import { getCurrentLocale } from '../../../../helpers/export/util';

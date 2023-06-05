@@ -1,21 +1,31 @@
 image: node:14.21-alpine
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - node_modules/
-    - .yarn/cache/
-
 stages:
-  - testing
+  - build
+  - test
 
-testing:
-  tags:
-    - kuber-run
-  stage: testing
-  before_script:
-    - yarn install --frozen-lockfile
+build:
+  stage: build
   script:
-    - yarn && yarn test --watchAll=false --ci --coverage
-  rules:
-    - if: ($CI_PIPELINE_SOURCE == 'merge_request_event') && ($CI_PIPELINE_SOURCE != $CI_MERGE_REQUEST_DRAFT)
+    - yarn
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  artifacts:
+    expire_in: 1 days
+    when: on_success
+    paths:
+      - node_modules/
+
+test:
+  stage: test
+  coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
+  dependencies:
+    - build
+  script:
+    - yarn test --watchAll=false
+  artifacts:
+    when: always
+    reports:
+      cobertura: coverage/cobertura-coverage.xml

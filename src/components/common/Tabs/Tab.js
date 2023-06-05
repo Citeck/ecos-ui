@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isString from 'lodash/isString';
-import uuidV4 from 'uuidv4';
+import uuidV4 from 'uuid/v4';
 
 import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
 import { getCurrentLocale, t } from '../../../helpers/util';

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import uuid from 'uuidv4';
+import uuid from 'uuid/v4';
 
 import { Icon } from '../../common';
 import { Grid } from '../../common/grid';

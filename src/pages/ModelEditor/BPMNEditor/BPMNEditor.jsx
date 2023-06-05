@@ -43,29 +43,38 @@ class BPMNEditorPage extends ModelEditor {
     const [warnings, setWarnings] = useState(linterResult.warnings || 0);
     const [text, setText] = useState(t('bpmn-linter.toggle') || '');
 
-    useEffect(() => {
-      if (errors !== linterResult.errors) {
-        setErrors(linterResult.errors);
-      }
-    }, [linterResult.errors]);
+    useEffect(
+      () => {
+        if (errors !== linterResult.errors) {
+          setErrors(linterResult.errors);
+        }
+      },
+      [linterResult.errors]
+    );
 
-    useEffect(() => {
-      if (warnings !== linterResult.warnings) {
-        setWarnings(linterResult.warnings);
-      }
-    }, [linterResult.warnings]);
+    useEffect(
+      () => {
+        if (warnings !== linterResult.warnings) {
+          setWarnings(linterResult.warnings);
+        }
+      },
+      [linterResult.warnings]
+    );
 
-    useEffect(() => {
-      let newText = t('bpmn-linter.toggle');
+    useEffect(
+      () => {
+        let newText = t('bpmn-linter.toggle');
 
-      if (warnings || errors) {
-        newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
-      }
+        if (warnings || errors) {
+          newText += `\n${t('bpmn-linter.all-errors', { errors, warnings })}`;
+        }
 
-      if (text !== newText) {
-        setText(newText);
-      }
-    }, [warnings, errors]);
+        if (text !== newText) {
+          setText(newText);
+        }
+      },
+      [warnings, errors]
+    );
 
     return <div>{text}</div>;
   };
