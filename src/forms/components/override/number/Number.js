@@ -426,7 +426,12 @@ export default class NumberComponent extends FormIONumberComponent {
 
     const formattedValue = this.formatValue(newValue);
     const maskedValue = super.getMaskedValue(newValue);
-    const prevValue = options.previousConformedValue || '';
+    const charRegexp = new RegExp(options.placeholderChar, 'g');
+    let prevValue = options.previousConformedValue || '';
+
+    if (this.component.requireDecimal) {
+      prevValue = prevValue.replace(charRegexp, '');
+    }
 
     let position = options.currentCaretPosition;
 
