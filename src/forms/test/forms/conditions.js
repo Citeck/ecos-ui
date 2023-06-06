@@ -1,6 +1,6 @@
 import Harness from '../harness';
 
-export default {
+const tests = {
   title: 'Conditional Form Test',
   form: {
     components: [
@@ -297,3 +297,5 @@ export default {
     }
   }
 };
+
+export default tests;
