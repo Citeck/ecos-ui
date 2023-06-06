@@ -438,6 +438,8 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    this.updateXMLData();
+
     const { savedModel } = this.props;
 
     if (!savedModel) {
@@ -460,6 +462,17 @@ class ModelEditorPage extends React.Component {
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
       });
+  };
+
+  updateXMLData = () => {
+    const form = get(this._formWrapperRef, 'current.form');
+    const data = get(form, 'submission.data');
+
+    this._labelIsEdited = false;
+
+    if (form && data) {
+      this.handleFormChange({ data, changed: form }, form);
+    }
   };
 
   handleSelectItem = element => {
@@ -601,12 +614,7 @@ class ModelEditorPage extends React.Component {
   };
 
   handleClickViewXml = () => {
-    const form = get(this._formWrapperRef, 'current.form');
-    const data = get(form, 'submission.data');
-
-    if (form && data) {
-      this.handleFormChange({ data, changed: form }, form);
-    }
+    this.updateXMLData();
 
     const { savedModel } = this.props;
 
