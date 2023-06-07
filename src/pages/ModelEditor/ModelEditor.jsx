@@ -479,6 +479,8 @@ class ModelEditorPage extends React.Component {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
 
+    this.updateXMLData();
+
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
       return;
     }
