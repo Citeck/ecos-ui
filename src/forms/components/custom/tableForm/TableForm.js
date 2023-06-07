@@ -1,3 +1,4 @@
+import React from 'react';
 import _ from 'lodash';
 
 import { t } from '../../../../helpers/util';
@@ -135,7 +136,8 @@ export default class TableFormComponent extends BaseReactComponent {
   }
 
   getComponentToRender() {
-    return TableForm;
+    const componentKey = this.component.key;
+    return props => <TableForm {...props} componentKey={componentKey} />;
   }
 
   setReactValue(component, defaultValue) {

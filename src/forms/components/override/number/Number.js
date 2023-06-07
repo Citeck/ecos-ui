@@ -29,6 +29,8 @@ export default class NumberComponent extends FormIONumberComponent {
     super(...args);
 
     overrideTriggerChange.call(this);
+
+    this.initNumberMask();
   }
 
   build(state) {
@@ -41,18 +43,26 @@ export default class NumberComponent extends FormIONumberComponent {
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-528
     if (this.delimiter) {
-      this.numberMask = createNumberMask({
-        prefix: '',
-        suffix: '',
-        requireDecimal: _.get(this.component, 'requireDecimal', false),
-        thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
-        decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
-        decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
-        allowNegative: _.get(this.component, 'allowNegative', true),
-        allowDecimal: _.get(this.component, 'allowDecimal', !(this.component.validate && this.component.validate.integer))
-      });
+      this.initNumberMask();
     }
   }
+
+  initNumberMask = () => {
+    this.numberMask = createNumberMask({
+      prefix: '',
+      suffix: '',
+      requireDecimal: _.get(this.component, 'requireDecimal', false),
+      thousandsSeparatorSymbol: _.get(this.component, 'thousandsSeparator', this.component.delimiterValue || this.delimiter),
+      decimalSymbol: _.get(this.component, 'decimalSymbol', this.decimalSeparator),
+      decimalLimit: _.get(this.component, 'decimalLimit', this.decimalLimit),
+      allowNegative: _.get(this.component, 'allowNegative', true),
+      allowDecimal: _.get(
+        this.component,
+        'allowDecimal',
+        !((this.component.validate && this.component.validate.integer) || this.component.decimalLimit === 0)
+      )
+    });
+  };
 
   onBlur = () => {
     if (this.isBigNumber()) {
@@ -416,7 +426,12 @@ export default class NumberComponent extends FormIONumberComponent {
 
     const formattedValue = this.formatValue(newValue);
     const maskedValue = super.getMaskedValue(newValue);
-    const prevValue = options.previousConformedValue || '';
+    const charRegexp = new RegExp(options.placeholderChar, 'g');
+    let prevValue = options.previousConformedValue || '';
+
+    if (this.component.requireDecimal) {
+      prevValue = prevValue.replace(charRegexp, '');
+    }
 
     let position = options.currentCaretPosition;
 
