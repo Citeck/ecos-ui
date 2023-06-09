@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
@@ -55,7 +56,7 @@ export const TableFormContextProvider = props => {
   };
 
   useEffect(() => {
-    if (isEmpty(defaultValue) || isEmpty(columns)) {
+    if (isEmpty(defaultValue)) {
       return;
     }
 
@@ -67,10 +68,17 @@ export const TableFormContextProvider = props => {
   }, [defaultValue]);
 
   useEffect(() => {
-    Records.get(getRecordRef())
-      .load(`${componentKey.replace('_', ':')}[]?id`)
+    const recordRef = getRecordRef();
+    if (!recordRef) {
+      return;
+    }
+
+    Records.get(recordRef)
+      .load(`${componentKey.replace('_', ':')}[]?id`, true)
       .then(res => {
-        setIds(res);
+        if (!isEqual(res, ids) && res.length === ids.length) {
+          setIds([...res]);
+        }
       });
   }, [record]);
 
