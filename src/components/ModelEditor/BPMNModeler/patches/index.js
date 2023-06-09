@@ -4,3 +4,4 @@ import './features/modeling/cmd/UpdatePropertiesHandler';
 import './features/palette/PaletteProvider';
 import './features/popup-menu/ReplaceMenuProvider';
 import './features/keyboard/BpmnKeyboardBindings';
+import './features/label-editing/LabelEditingProvider';

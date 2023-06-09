@@ -42,7 +42,12 @@
       flex: auto;
 
       & .ecos-model-container {
+        position: relative;
         height: 100%;
+
+        & .bjs-container {
+          overflow: hidden;
+        }
 
         & .dmn-decision-table-container {
           display: flex;
