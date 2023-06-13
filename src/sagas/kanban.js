@@ -37,7 +37,9 @@ import {
   setPagination,
   setResolvedActions,
   setDefaultBoardAndTemplate,
-  setTotalCount
+  setTotalCount,
+  setOriginKanbanSettings,
+  setKanbanSettings
 } from '../actions/kanban';
 import { execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData } from '../selectors/journals';
@@ -103,6 +105,15 @@ export function* sagaGetBoardConfig({ api, logger }, { payload }) {
     }
 
     yield put(setBoardConfig({ boardConfig, stateId }));
+
+    if (boardConfig) {
+      const typeRef = boardConfig.typeRef;
+      if (typeRef) {
+        const unPreparedStatuses = yield call(api.kanban.getTypeStatuses, typeRef);
+        const statuses = KanbanConverter.prepareStatuses(unPreparedStatuses);
+        yield put(setOriginKanbanSettings({ originKanbanSettings: { statuses }, stateId }));
+      }
+    }
 
     return boardConfig;
   } catch (e) {
@@ -238,6 +249,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
+    yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {} }));
     yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
     logger.error('[kanban/sagaGetData saga] error', e);
@@ -363,7 +375,7 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
 export function* sagaApplyFilter({ api, logger }, { payload }) {
   try {
     const {
-      settings: { predicate },
+      settings: { predicate, kanban },
       stateId
     } = payload;
     const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
@@ -372,9 +384,11 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
     const w = wrapArgs(stateId);
     const journalSetting = cloneDeep(_journalSetting);
     journalSetting.predicate = predicate;
+    journalSetting.kanban = kanban;
 
     yield put(setPredicate(w(predicate)));
-    yield put(setJournalSetting(w({ predicate })));
+    yield put(setJournalSetting(w({ predicate, kanban })));
+    yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));

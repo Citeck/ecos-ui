@@ -87,6 +87,7 @@ import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
+import { setKanbanSettings } from '../actions/kanban';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -829,10 +830,19 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    const { settings } = action.payload;
-    const { id } = yield select(selectJournalSetting, stateId);
+    const { callback, settings } = action.payload;
 
+    const { id } = yield select(selectJournalSetting, stateId);
+    const { journalConfig } = yield select(selectJournalData, stateId);
+
+    if (settings.kanban) {
+      yield put(setJournalSetting({ stateId, kanban: settings.kanban }));
+      yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
+    }
     yield call([PresetsServiceApi, PresetsServiceApi.saveSettings], { id, settings });
+
+    yield getJournalSettings(api, journalConfig.id, w, stateId);
+    isFunction(callback) && callback();
   } catch (e) {
     logger.error('[journals sagaSaveJournalSetting saga error', e);
   }

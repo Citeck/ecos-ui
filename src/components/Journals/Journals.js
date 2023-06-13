@@ -21,7 +21,7 @@ import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions/constants';
 
-import { isKanban, isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
+import { isUnknownView, JOURNAL_MIN_HEIGHT, JOURNAL_MIN_HEIGHT_MOB, JOURNAL_VIEW_MODE as JVM, Labels } from './constants';
 import JournalsMenu from './JournalsMenu';
 import JournalsHead from './JournalsHead';
 import { DocLibView, KanbanView, TableView } from './Views';
@@ -189,8 +189,7 @@ class Journals extends React.Component {
     return {
       ...defaultDisplayElements,
       ...(this.props.displayElements || {}),
-      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin,
-      menu: !isKanban(this.props.viewMode)
+      editJournal: get(this.props, 'displayElements.editJournal', true) && this.props.isAdmin
     };
   };
 

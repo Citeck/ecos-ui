@@ -149,10 +149,22 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard } = this.props;
+    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings } = this.props;
     const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
-    const cols = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
+
+    const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
+    const colsFromSettings = get(kanbanSettings, 'columns');
+    const cols = colsFromSettings ? [] : defaultColumns;
+    if (colsFromSettings) {
+      colsFromSettings.forEach(item => {
+        const defaultColumn = defaultColumns.find(i => i && i.id === item.id);
+
+        if (defaultColumn && defaultColumn.id && item.default) {
+          cols.push(defaultColumn);
+        }
+      });
+    }
 
     if (isDragging) {
       bodyStyle.height = bodyStyle.minHeight;
