@@ -1,6 +1,7 @@
 import LabelEditingProvider from 'bpmn-js/lib/features/label-editing/LabelEditingProvider';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 
+// TODO separate update logic from editior and formio
 LabelEditingProvider.prototype.update = function(element, newLabel, _activeContextText, _bounds) {
   let newBounds;
 
