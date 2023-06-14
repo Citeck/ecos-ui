@@ -479,8 +479,6 @@ class ModelEditorPage extends React.Component {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
 
-    this.updateXMLData();
-
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
       return;
     }
@@ -688,10 +686,14 @@ class ModelEditorPage extends React.Component {
       const type = getEcosType(participant);
 
       if (participant) {
-        this.designer.updateProps(element, {
-          'ecos:processRef': get(participant, 'businessObject.processRef.id'),
-          'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
-        });
+        this.designer.updateProps(
+          element,
+          {
+            'ecos:processRef': get(participant, 'businessObject.processRef.id'),
+            'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
+          },
+          true
+        );
 
         const eventBus = this.designer.getEventBus();
         if (eventBus) {
