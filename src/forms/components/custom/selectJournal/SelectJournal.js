@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { evaluate as formioEvaluate } from 'formiojs/utils/utils';
-import isEmpty from 'lodash/isEmpty';
 
 import { getTextByLocale, trimFields } from '../../../../helpers/util';
 import SelectJournal from '../../../../components/common/form/SelectJournal';
@@ -80,7 +79,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       journalId = journalId.replace(matchString, this.root.data[stringWithoutBraskets]);
     });
 
-    return isEmpty(matches) ? journalId : this.component.journalId;
+    return journalId || this.component.journalId;
   }
 
   checkConditions(data) {
