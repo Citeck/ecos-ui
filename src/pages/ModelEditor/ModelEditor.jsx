@@ -33,6 +33,7 @@ import {
   LOOP_CHARACTERISTICS,
   COLLABORATION_TYPE,
   PARTICIPANT_TYPE,
+  TYPE_BPMN_ANNOTATION,
   TYPE_BPMN_PROCESS
 } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
@@ -481,6 +482,10 @@ class ModelEditorPage extends React.Component {
 
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
       return;
+    }
+
+    if (is(selectedElement, TYPE_BPMN_ANNOTATION)) {
+      this.updateXMLData();
     }
 
     this._formReady = false;
