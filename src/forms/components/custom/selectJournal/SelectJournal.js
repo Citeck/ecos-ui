@@ -79,7 +79,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       journalId = journalId.replace(matchString, this.root.data[stringWithoutBraskets]);
     });
 
-    return journalId;
+    return journalId || this.component.journalId;
   }
 
   checkConditions(data) {
