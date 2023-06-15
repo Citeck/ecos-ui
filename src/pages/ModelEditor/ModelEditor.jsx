@@ -33,7 +33,6 @@ import {
   LOOP_CHARACTERISTICS,
   COLLABORATION_TYPE,
   PARTICIPANT_TYPE,
-  TYPE_BPMN_ANNOTATION,
   TYPE_BPMN_PROCESS
 } from '../../constants/bpmn';
 import { EcosModal, InfoText, Loader } from '../../components/common';
@@ -63,7 +62,7 @@ class ModelEditorPage extends React.Component {
   _tempFormData = {};
   _formWrapperRef = React.createRef();
   _prevValue = {};
-  _cachedAnnotations = {};
+  _cachedLabels = {};
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
@@ -87,7 +86,7 @@ class ModelEditorPage extends React.Component {
   }
 
   componentWillUnmount() {
-    this._cachedAnnotations = {};
+    this._cachedLabels = {};
     this._formsCache = {};
     this.designer && this.designer.destroy();
   }
@@ -472,12 +471,14 @@ class ModelEditorPage extends React.Component {
     const form = get(this._formWrapperRef, 'current.form');
     const data = get(form, 'submission.data');
 
-    Object.keys(this._cachedAnnotations).forEach(id => {
+    Object.keys(this._cachedLabels).forEach(id => {
+      this._labelIsEdited = false;
+
       if (this._formsCache[id] && this.designer.modeler && isFunction(this.designer.modeler.get)) {
         const element = this.designer.modeler.get('elementRegistry').get(id);
 
         if (element) {
-          this.handleFormChange({ data: this._formsCache[id], changed: element }, form, element);
+          this.handleFormChange({ data: this._formsCache[id], changed: element }, form, element, true);
         }
       }
     });
@@ -540,7 +541,7 @@ class ModelEditorPage extends React.Component {
     this._formsCache[id] = data;
   };
 
-  handleFormChange = (info, form, elementToEdit) => {
+  handleFormChange = (info, form, elementToEdit, fromCachedLabels = false) => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
@@ -612,7 +613,7 @@ class ModelEditorPage extends React.Component {
       }
     }
 
-    this.designer.updateProps(element, modelData, true);
+    this.designer.updateProps(element, modelData, !fromCachedLabels);
 
     if (selectedDiagramElement) {
       const eventBus = this.designer.getEventBus();
@@ -683,14 +684,12 @@ class ModelEditorPage extends React.Component {
         [getCurrentLocale()]: label || ''
       };
 
-      this._labelIsEdited = !is(selectedElement, TYPE_BPMN_ANNOTATION);
+      this._labelIsEdited = true;
       this._formWrapperRef.current.setValue({ [KEY_FIELD_NAME + ML_POSTFIX]: newName }, { noUpdateEvent: true });
 
       set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
 
-      if (is(selectedElement, TYPE_BPMN_ANNOTATION)) {
-        set(this._cachedAnnotations, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
-      }
+      set(this._cachedLabels, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
     }
   };
 
@@ -734,7 +733,7 @@ class ModelEditorPage extends React.Component {
     if (element) {
       delete this._formsCache[element.id];
       delete this._formsCache[element.id + LABEL_POSTFIX];
-      delete this._cachedAnnotations[element.id + LABEL_POSTFIX];
+      delete this._cachedLabels[element.id + LABEL_POSTFIX];
 
       this.setState({ selectedElement: undefined, selectedDiagramElement: undefined });
       this.props.clearFormProps();
