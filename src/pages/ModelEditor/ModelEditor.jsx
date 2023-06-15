@@ -63,6 +63,7 @@ class ModelEditorPage extends React.Component {
   _tempFormData = {};
   _formWrapperRef = React.createRef();
   _prevValue = {};
+  _cachedAnnotations = {};
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
@@ -86,6 +87,8 @@ class ModelEditorPage extends React.Component {
   }
 
   componentWillUnmount() {
+    this._cachedAnnotations = {};
+    this._formsCache = {};
     this.designer && this.designer.destroy();
   }
 
@@ -469,7 +472,15 @@ class ModelEditorPage extends React.Component {
     const form = get(this._formWrapperRef, 'current.form');
     const data = get(form, 'submission.data');
 
-    this._labelIsEdited = false;
+    Object.keys(this._cachedAnnotations).forEach(id => {
+      if (this._formsCache[id] && this.designer.modeler && isFunction(this.designer.modeler.get)) {
+        const element = this.designer.modeler.get('elementRegistry').get(id);
+
+        if (element) {
+          this.handleFormChange({ data: this._formsCache[id], changed: element }, form, element);
+        }
+      }
+    });
 
     if (form && data) {
       this.handleFormChange({ data, changed: form }, form);
@@ -483,11 +494,6 @@ class ModelEditorPage extends React.Component {
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
       return;
     }
-
-    if (is(selectedElement, TYPE_BPMN_ANNOTATION)) {
-      this.updateXMLData();
-    }
-
     this._formReady = false;
 
     if (selectedElement && selectedElement.type === COLLABORATION_TYPE) {
@@ -534,9 +540,11 @@ class ModelEditorPage extends React.Component {
     this._formsCache[id] = data;
   };
 
-  handleFormChange = (info, form) => {
+  handleFormChange = (info, form, elementToEdit) => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
+
+    const element = elementToEdit || selectedElement;
 
     if (this._labelIsEdited || isLoadingProps || !this._formReady) {
       return;
@@ -546,7 +554,7 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    if (!info.changed || !selectedElement) {
+    if (!info.changed || !element) {
       return;
     }
 
@@ -604,7 +612,7 @@ class ModelEditorPage extends React.Component {
       }
     }
 
-    this.designer.updateProps(selectedElement, modelData, true);
+    this.designer.updateProps(element, modelData, true);
 
     if (selectedDiagramElement) {
       const eventBus = this.designer.getEventBus();
@@ -675,10 +683,14 @@ class ModelEditorPage extends React.Component {
         [getCurrentLocale()]: label || ''
       };
 
-      this._labelIsEdited = true;
+      this._labelIsEdited = !is(selectedElement, TYPE_BPMN_ANNOTATION);
       this._formWrapperRef.current.setValue({ [KEY_FIELD_NAME + ML_POSTFIX]: newName }, { noUpdateEvent: true });
 
       set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
+
+      if (is(selectedElement, TYPE_BPMN_ANNOTATION)) {
+        set(this._cachedAnnotations, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
+      }
     }
   };
 
@@ -722,6 +734,7 @@ class ModelEditorPage extends React.Component {
     if (element) {
       delete this._formsCache[element.id];
       delete this._formsCache[element.id + LABEL_POSTFIX];
+      delete this._cachedAnnotations[element.id + LABEL_POSTFIX];
 
       this.setState({ selectedElement: undefined, selectedDiagramElement: undefined });
       this.props.clearFormProps();
