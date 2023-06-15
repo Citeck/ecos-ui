@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce';
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
 import Records from '../../Records';
+import { EVENTS } from '../BaseWidget';
 import TaskList from './TaskList';
 
 import './style.scss';
@@ -96,7 +97,7 @@ class Tasks extends React.Component {
 
   onSubmitForm = () => {
     Records.get(this.props.record).update();
-    this.getTaskList();
+    this.props.instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
   };
 
   setHeight = contentHeight => {
