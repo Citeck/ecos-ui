@@ -32,24 +32,28 @@ export default class CustomRenderer extends BaseRenderer {
     return is(element, ECOS_TASK_BASE_ELEMENT) && _.get(element, 'businessObject.taskType') === ECOS_TASK_TYPE_SET_STATUS;
   }
 
-  drawShape(parentNode, element) {
-    const shape = this.bpmnRenderer.drawShape(parentNode, element);
-
-    const statusImage = svgCreate('path', {
-      d: STATUS_CHANGE_ICON_PATH,
+  _getImage(path) {
+    return svgCreate('path', {
+      d: path,
       opacity: '0.8',
       stroke: 'none',
       fill: 'black'
     });
+  }
 
-    svgAppend(parentNode, statusImage);
+  drawShape(parentNode, element) {
+    const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
-    if (is(element, ECOS_TASK_BASE_ELEMENT)) {
+    if (this.canRender(element)) {
+      svgAppend(parentNode, this._getImage(STATUS_CHANGE_ICON_PATH));
+
       const rootProcces = this.getRootProccess(element);
       const statusName = this.getStatusName(element);
 
-      if (!isNil(statusName) && _.isEmpty(this.getName(element))) {
-        Records.get(this.getEcosType(rootProcces))
+      if (rootProcces && !isNil(statusName) && _.isEmpty(this.getName(element))) {
+        const ecosType = this.getEcosType(rootProcces);
+
+        Records.get(ecosType)
           .load('model.statuses[]{value:id,label:name}', false)
           .then(statuses => {
             if (!_.isEmpty(statuses)) {
