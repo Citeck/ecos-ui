@@ -6,7 +6,7 @@ import {
   saveModel,
   setFormData,
   setFormProps,
-  setIsAnyConfigButtonHidden,
+  setIsTableView,
   setLoading,
   setModel,
   setLoaderFormData,
@@ -19,7 +19,7 @@ const initialState = {
   model: undefined,
   isLoading: false,
 
-  isAnyConfigButtonHidden: false
+  isTableView: false
 };
 
 Object.freeze(initialState);
@@ -42,8 +42,7 @@ export default handleActions(
           formData: { ...state[stateId].formProps.formData, ...formData }
         }
       }),
-    [setIsAnyConfigButtonHidden]: (state, { payload: { stateId, isHidden } }) =>
-      updateState(state, stateId, { isAnyConfigButtonHidden: isHidden })
+    [setIsTableView]: (state, { payload: { stateId, isHidden } }) => updateState(state, stateId, { isTableView: isHidden })
   },
   initialState
 );
