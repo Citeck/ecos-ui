@@ -14,6 +14,8 @@ export default class CmmnApi {
     rec.att('image?str', img);
     if (deploy) {
       rec.att('action', 'DEPLOY');
+    } else {
+      rec.att('action', null);
     }
 
     return rec.save();
