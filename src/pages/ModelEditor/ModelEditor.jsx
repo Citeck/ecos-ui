@@ -542,12 +542,12 @@ class ModelEditorPage extends React.Component {
   };
 
   handleFormChange = (info, form, elementToEdit, fromCachedLabels = false) => {
-    const { isLoadingProps } = this.props;
+    const { isLoadingProps, isTableView } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
     const element = elementToEdit || selectedElement;
 
-    if (this._labelIsEdited || isLoadingProps || !this._formReady) {
+    if (this._labelIsEdited || isLoadingProps || !this._formReady || isTableView) {
       return;
     }
 
@@ -669,9 +669,10 @@ class ModelEditorPage extends React.Component {
 
   handleChangeLabel = label => {
     const { selectedElement: currentSelected } = this.state;
+    const { isTableView } = this.props;
     const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
 
-    if (!selectedElement) {
+    if (!selectedElement || isTableView) {
       return;
     }
 
@@ -786,7 +787,7 @@ class ModelEditorPage extends React.Component {
   };
 
   render() {
-    const { title, formProps, isLoading, isAnyConfigButtonHidden } = this.props;
+    const { title, formProps, isLoading, isTableView } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
@@ -804,7 +805,7 @@ class ModelEditorPage extends React.Component {
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           extraButtons={this.editorExtraButtons}
-          isAnyConfigButtonHidden={isAnyConfigButtonHidden}
+          isTableView={isTableView}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}

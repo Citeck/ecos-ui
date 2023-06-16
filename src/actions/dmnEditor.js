@@ -15,4 +15,4 @@ export const setLoaderFormData = createAction(prefix + 'SET_LOADER_FORM_DATA');
 
 export const saveModel = createAction(prefix + 'SAVE_MODEL');
 
-export const setIsAnyConfigButtonHidden = createAction(prefix + 'SET_IS_ANY_CONFIG_BUTTON_VISIBLE');
+export const setIsTableView = createAction(prefix + 'SET_IS_TABLE_VIEW');
