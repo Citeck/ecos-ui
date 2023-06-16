@@ -6,7 +6,7 @@ import { isNil } from 'min-dash';
 import _ from 'lodash';
 
 import Records from '../../../../../components/Records/Records';
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, SUBPROCESS_TYPE } from '../../../../../constants/bpmn';
+import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, SUBPROCESS_TYPE, BPMN_TASK_TYPES } from '../../../../../constants/bpmn';
 import { t } from '../../../../../helpers/util';
 
 const HIGH_PRIORITY = 1500;
@@ -29,6 +29,10 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   canRender(element) {
+    if (BPMN_TASK_TYPES.includes(element.type)) {
+      return false;
+    }
+
     return is(element, ECOS_TASK_BASE_ELEMENT) && _.get(element, 'businessObject.taskType') === ECOS_TASK_TYPE_SET_STATUS;
   }
 
@@ -45,6 +49,7 @@ export default class CustomRenderer extends BaseRenderer {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
     if (this.canRender(element)) {
+      svgRemove(svgSelect(parentNode, 'text'));
       svgAppend(parentNode, this._getImage(STATUS_CHANGE_ICON_PATH));
 
       const rootProcces = this.getRootProccess(element);

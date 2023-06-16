@@ -50,8 +50,7 @@ export const GATEWAY_TYPES = [
   'bpmn:EventBasedGateway'
 ];
 
-export const TASK_TYPES = [
-  'bpmn:Task',
+export const BPMN_TASK_TYPES = [
   'bpmn:SendTask',
   'bpmn:ReceiveTask',
   'bpmn:UserTask',
@@ -62,6 +61,8 @@ export const TASK_TYPES = [
   'bpmn:CallActivity',
   'bpmn:SubProcess'
 ];
+
+export const TASK_TYPES = ['bpmn:Task', ...BPMN_TASK_TYPES];
 
 export const DEFINITON_TYPE = 'bpmn:Definitions';
 export const SUBPROCESS_TYPE = 'bpmn:SubProcess';
