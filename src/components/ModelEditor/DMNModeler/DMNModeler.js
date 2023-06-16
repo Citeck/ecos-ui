@@ -155,10 +155,10 @@ export default class DMNModeler extends BaseModeler {
 
   updateProps = (element, properties, withClear) => {
     const { id, ...data } = properties;
-    const activeViewer = this.modeler.getActiveViewer();
-    const activeView = this.modeler.getActiveView();
 
-    if (!activeViewer || !activeView || activeView.type !== 'drd') {
+    const activeViewer = this.modeler.getActiveViewer();
+
+    if (!activeViewer) {
       return;
     }
 
