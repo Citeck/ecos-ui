@@ -48,7 +48,7 @@ class DMNEditorPage extends ModelEditor {
   }
 
   get extraEvents() {
-    const { setIsAnyConfigButtonHidden } = this.props;
+    const { setIsTableView } = this.props;
 
     const parents = super.extraEvents;
 
@@ -56,7 +56,7 @@ class DMNEditorPage extends ModelEditor {
       ...parents,
       [EventListeners.VIEWS_CHANGED]: e => {
         const activeView = e.activeView;
-        setIsAnyConfigButtonHidden(activeView.type !== 'drd');
+        setIsTableView(activeView.type !== 'drd');
       }
     };
   }

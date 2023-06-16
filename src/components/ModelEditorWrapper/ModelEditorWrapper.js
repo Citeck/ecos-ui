@@ -33,7 +33,7 @@ const Labels = {
 
 class ModelEditorWrapper extends React.Component {
   static propTypes = {
-    isAnyConfigButtonHidden: PropTypes.bool,
+    isTableView: PropTypes.bool,
     editor: PropTypes.element,
     rightSidebar: PropTypes.element,
     rightSidebarTitle: PropTypes.string,
@@ -133,9 +133,9 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configZoomButtons() {
-    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isAnyConfigButtonHidden } = this.props;
+    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isTableView } = this.props;
 
-    if (isAnyConfigButtonHidden) {
+    if (isTableView) {
       return [];
     }
 
