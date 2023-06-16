@@ -542,12 +542,12 @@ class ModelEditorPage extends React.Component {
   };
 
   handleFormChange = (info, form, elementToEdit, fromCachedLabels = false) => {
-    const { isLoadingProps, isTableView } = this.props;
+    const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
 
     const element = elementToEdit || selectedElement;
 
-    if (this._labelIsEdited || isLoadingProps || !this._formReady || isTableView) {
+    if (this._labelIsEdited || isLoadingProps || !this._formReady) {
       return;
     }
 
