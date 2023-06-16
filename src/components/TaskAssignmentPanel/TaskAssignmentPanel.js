@@ -9,6 +9,7 @@ import { RecordActionsApi } from '../../api/recordActions';
 import SidebarService from '../../services/sidebar';
 import { AssignTo } from '../../constants/tasks';
 import { t } from '../../helpers/util';
+import { EVENTS } from '../widgets/BaseWidget';
 import { StateAssignPropTypes } from '../widgets/Tasks/utils';
 import Records from '../Records';
 import { ActionTypes } from '../Records/actions/constants';
@@ -74,10 +75,6 @@ class TaskAssignmentPanel extends Component {
     this.#unmounted = true;
 
     this.getStateAssign.cancel();
-
-    if (this.documentRecord) {
-      this.documentRecord.unwatch(this.watcher);
-    }
   }
 
   addWatcher = () => {
@@ -85,7 +82,7 @@ class TaskAssignmentPanel extends Component {
 
     TasksApi.getDocument(taskId).then(documentRef => {
       this.documentRecord = Records.get(documentRef);
-      this.watcher = this.documentRecord.watch('tasks.active-hash', () => this.getStateAssign(taskId));
+      this.documentRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, () => this.getStateAssign(taskId));
     });
   };
 
