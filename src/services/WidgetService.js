@@ -10,7 +10,7 @@ import { SelectOrgstruct } from '../components/common/form';
 import { isFlowableProcess } from '../components/BusinessProcessViewer/util';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
 import { PasswordEditor } from '../components/Password';
-import { PresetEditor } from '../components/Journals/Presets';
+import { JournalsPresetEditor } from '../components/Journals/JournalsPresets';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -112,7 +112,7 @@ export default class WidgetService {
     const modal = new Modal();
 
     modal.open(
-      <PresetEditor
+      <JournalsPresetEditor
         isAdmin={params.isAdmin}
         authorityRef={params.authorityRef}
         data={params.data || {}}

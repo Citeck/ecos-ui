@@ -32,6 +32,10 @@ export default class ListItem extends Component {
   };
 
   getSelected = (column, sortBy) => {
+    if (!sortBy) {
+      return null;
+    }
+
     const sort = sortBy.filter(s => s.attribute === column.attribute)[0];
 
     return sort ? this.sortTypes.filter(o => o.value === sort.ascending)[0] || null : null;
@@ -51,23 +55,24 @@ export default class ListItem extends Component {
               checked={column.default}
               onChange={this.handleChangeVisible}
             />
-            <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
+            <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField] || column.id}</Label>
           </div>,
-
-          <Select
-            isClearable
-            options={this.sortTypes}
-            getOptionLabel={option => option.title}
-            getOptionValue={option => option.value}
-            onChange={this.handleChangeSortBy}
-            className="select_narrow select_width_full ecosZIndexAnchor"
-            placeholder={t('journals.default')}
-            value={this.getSelected(column, sortBy)}
-            styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
-            menuPortalTarget={document.body}
-            menuPlacement="auto"
-            closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
-          />
+          sortBy ? (
+            <Select
+              isClearable
+              options={this.sortTypes}
+              getOptionLabel={option => option.title}
+              getOptionValue={option => option.value}
+              onChange={this.handleChangeSortBy}
+              className="select_narrow select_width_full ecosZIndexAnchor"
+              placeholder={t('journals.default')}
+              value={this.getSelected(column, sortBy)}
+              styles={{ menuPortal: base => ({ ...base, zIndex: ZIndex.calcZ() }) }}
+              menuPortalTarget={document.body}
+              menuPlacement="auto"
+              closeMenuOnScroll={(e, { innerSelect }) => !innerSelect}
+            />
+          ) : null
         ]}
       />
     );

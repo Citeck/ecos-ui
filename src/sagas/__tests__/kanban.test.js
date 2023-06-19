@@ -11,8 +11,10 @@ import {
   setFormProps,
   setIsEnabled,
   setIsFiltered,
+  setKanbanSettings,
   setLoading,
   setLoadingColumns,
+  setOriginKanbanSettings,
   setPagination,
   setResolvedActions,
   setTotalCount
@@ -129,7 +131,7 @@ describe('kanban sagas tests', () => {
 
     expect(logger.error).not.toHaveBeenCalled();
 
-    expect(dispatched).toHaveLength(1);
+    expect(dispatched).toHaveLength(2);
   });
 
   it('sagaFormProps > there is _form', async () => {
@@ -190,10 +192,11 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const [_boardConfig, _formProps, _journalConfig, _journalSetting, _initJournalSettingData] = dispatched;
+    const [_boardConfig, _originKanbanSettings, _formProps, _journalConfig, _journalSetting, _initJournalSettingData] = dispatched;
     const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
+    expect(_originKanbanSettings.type).toEqual(setOriginKanbanSettings().type);
     const colsLen = get(_boardConfig, 'payload.boardConfig.columns.length');
     expect(_formProps.type).toEqual(setFormProps().type);
     expect(_journalConfig.type).toEqual(setJournalConfig().type);
@@ -222,12 +225,13 @@ describe('kanban sagas tests', () => {
       }
     );
 
-    const [_boardConfig, _formProps, _pagination] = dispatched;
+    const [_boardConfig, _originKanbanSettings, _formProps, _pagination] = dispatched;
     const _loading = last(dispatched);
 
     expect(_boardConfig.type).toEqual(setBoardConfig().type);
     const colsLen = get(_boardConfig, 'payload.boardConfig.columns.length');
     expect(_formProps.type).toEqual(setFormProps().type);
+    expect(_originKanbanSettings.type).toEqual(setOriginKanbanSettings().type);
     expect(_pagination.type).toEqual(setPagination().type);
     expect(_pagination.payload.pagination).toEqual(DEFAULT_PAGINATION);
     expect(_loading.type).toEqual(setLoading().type);
@@ -460,11 +464,12 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_predicate, _journalSetting, _pagination] = dispatched;
+    const [_predicate, _journalSetting, _kanbanSettings, _pagination] = dispatched;
     const _loading = last(dispatched);
 
     expect(_predicate.type).toEqual(setPredicate().type);
     expect(_journalSetting.type).toEqual(setJournalSetting().type);
+    expect(_kanbanSettings.type).toEqual(setKanbanSettings().type);
     expect(_pagination.type).toEqual(setPagination().type);
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
     expect(_loading.type).toEqual(setLoading().type);
@@ -493,12 +498,13 @@ describe('kanban sagas tests', () => {
         }
       }
     );
-    const [_predicate, _journalSetting, _pagination] = dispatched;
+    const [_predicate, _journalSetting, _kanbanSettings, _pagination] = dispatched;
     const _isFiltered = last(dispatched);
 
     expect(_predicate.type).toEqual(setPredicate().type);
     expect(_predicate.payload._args).toEqual({ b: 1 });
     expect(_journalSetting.type).toEqual(setJournalSetting().type);
+    expect(_kanbanSettings.type).toEqual(setKanbanSettings().type);
     expect(_pagination.type).toEqual(setPagination().type);
     expect(_pagination.payload.pagination.page).toEqual(DEFAULT_PAGINATION.page);
     expect(_isFiltered.type).toEqual(setIsFiltered().type);
