@@ -83,8 +83,9 @@ function* fetchInfluentialParams() {
   const isAdmin = yield select(state => state.user.isAdmin);
   const leftMenuEditable = yield select(state => state.app.leftMenuEditable);
   const dashboardEditable = yield select(state => state.app.dashboardEditable);
+  const widgetEditable = yield select(state => state.app.widgetEditable);
 
-  return { isAdmin, dashboardEditable, leftMenuEditable };
+  return { isAdmin, dashboardEditable, widgetEditable, leftMenuEditable };
 }
 
 function* fetchSiteMenu({ logger }) {

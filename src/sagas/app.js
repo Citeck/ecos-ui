@@ -10,6 +10,7 @@ import {
   backPageFromTransitionsHistory,
   getAppEdition,
   getDashboardEditable,
+  getWidgetEditable,
   getFooter,
   getSeparateActionListForQuery,
   initAppFailure,
@@ -18,6 +19,7 @@ import {
   initAppSuccess,
   setAppEdition,
   setDashboardEditable,
+  setWidgetEditable,
   setFooter,
   setHomeLink,
   setLeftMenuEditable,
@@ -80,6 +82,7 @@ export function* fetchAppSettings({ logger }) {
   try {
     yield put(getMenuConfig());
     yield put(getDashboardEditable());
+    yield put(getWidgetEditable());
     yield put(getAppEdition());
     yield put(getFooter());
     yield put(getSeparateActionListForQuery());
@@ -114,6 +117,17 @@ export function* fetchDashboardEditable({ api, logger }) {
     yield put(setDashboardEditable(editable));
   } catch (e) {
     logger.error('[app saga] fetchDashboardEditable error', e);
+  }
+}
+
+export function* fetchWidgetEditable({ api, logger }) {
+  try {
+    const username = getCurrentUserName();
+    const editable = yield call(api.app.isWidgetEditable, { username });
+
+    yield put(setWidgetEditable(editable));
+  } catch (e) {
+    logger.error('[app saga] fetchWidgetEditable error', e);
   }
 }
 
@@ -182,6 +196,7 @@ function* appSaga(ea) {
 
   yield takeEvery(initAppSettings().type, fetchAppSettings, ea);
   yield takeEvery(getDashboardEditable().type, fetchDashboardEditable, ea);
+  yield takeEvery(getWidgetEditable().type, fetchWidgetEditable, ea);
   yield takeEvery(getAppEdition().type, fetchAppEdition, ea);
   yield takeEvery([setMenuConfig().type], fetchLeftMenuEditable, ea);
   yield takeEvery(getFooter().type, fetchFooter, ea);

@@ -6,6 +6,7 @@ import {
   initAppSuccess,
   setAppEdition,
   setDashboardEditable,
+  setWidgetEditable,
   setFooter,
   setHomeLink,
   setLeftMenuEditable,
@@ -18,6 +19,7 @@ const initialState = {
   isInitFailure: false,
   enableCache: true,
   dashboardEditable: false,
+  widgetEditable: false,
   leftMenuEditable: false,
   footer: null,
   redirectToNewUi: false,
@@ -45,6 +47,12 @@ export default handleActions(
       return {
         ...state,
         dashboardEditable: action.payload
+      };
+    },
+    [setWidgetEditable]: (state, action) => {
+      return {
+        ...state,
+        widgetEditable: action.payload
       };
     },
     [setAppEdition]: (state, action) => {
