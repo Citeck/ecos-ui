@@ -12,7 +12,7 @@ import { getFitnesseClassName } from '../../../helpers/tools';
 import Records from '../Records';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess, ResultTypes } from './util/actionUtils';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
@@ -25,7 +25,8 @@ const ACTION_CONTEXT_KEY = '__act_ctx__';
 const Labels = {
   RECORDS_NOT_ALLOWED_TITLE: 'records-actions.dialog.all-records-not-allowed.title',
   RECORDS_NOT_ALLOWED_TEXT: 'records-actions.dialog.all-records-not-allowed.text',
-  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed'
+  CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed',
+  PRE_ACTION_MODULE_FAILURE: 'records-actions.pre-action-fail'
 };
 
 export const DEFAULT_MODEL = {
@@ -273,7 +274,7 @@ class RecordActions {
     }
 
     if (result.hasError) {
-      notifyFailure();
+      notifyFailure(Labels.PRE_ACTION_MODULE_FAILURE);
     }
 
     return result;
@@ -504,12 +505,9 @@ class RecordActions {
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
    * @param {Object} context
-   * @param {{ungearedPopups: ?Boolean}} params
    */
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
-    const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
-    const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
     let popupExecution;
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
@@ -552,9 +550,7 @@ class RecordActions {
         RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
-      if (!ungearedPopups) {
-        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
-      }
+      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
       const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
@@ -584,9 +580,7 @@ class RecordActions {
           return false;
         }
 
-        if (!ungearedPopups) {
-          popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
-        }
+        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
       }
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
@@ -756,9 +750,7 @@ class RecordActions {
       return actResult;
     })();
 
-    isBoolean(execution)
-      ? popupExecution && popupExecution.hide()
-      : !ungearedPopups && (await DetailActionResult.showResult(execution, resultOptions));
+    isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
 
     return execution;
   }
@@ -875,20 +867,7 @@ class RecordActions {
    * @param {Object} context
    */
   async execForQueryAsForRecords(query, action, context) {
-    let processedCount = 0;
-    let showProcess = true;
-
-    const handleInfo = () => {
-      notifySuccess('group-action.message.background-mode');
-      showProcess = false;
-    };
-
-    const info = (title, text, isEnd) => DialogManager.showInfoDialog({ title, text, onClose: () => !isEnd && handleInfo() });
-
-    info('group-action.message.started', 'group-action.label.fetch-data');
-
     if (query.language !== 'predicate') {
-      info('error', 'record-action.msg.error.text');
       return false;
     }
 
@@ -898,20 +877,10 @@ class RecordActions {
     const iterator = new RecordsIterator(preparedQuery);
 
     const callback = async data => {
-      processedCount += data.records.length;
-
       await this.execForRecords(data.records, preparedAction, preparedContext);
-
-      showProcess &&
-        info(
-          t('group-action.message.in-progress', { name: action.name }),
-          t('group-action.message.processed', { total: data.totalCount, count: processedCount })
-        );
     };
 
     await iterator.iterate(callback);
-
-    info('success', t('group-action.message.done-name', { action: action.name }), true);
 
     return true;
   }

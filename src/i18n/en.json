@@ -590,6 +590,7 @@
   "records-actions.confirm-not-allowed": "Action is not allowed for all lines. Continue?",
   "records-actions.notify.title": "Widget Actions",
   "records-actions.error.execute-action": "Action failed",
+  "records-actions.pre-action-fail": "Preaction module failed",
   "records-actions.error.get-actions": "Actions haven't received",
 
   "records-actions.create.create-variant-with-id-not-found": "Creation variant with id = '{{id}}' doesn't found",
