@@ -4,10 +4,11 @@ import get from 'lodash/get';
 
 import { SystemJournals } from '../../../constants';
 import { t } from '../../../helpers/util';
-import { Caption, Checkbox, Field, SelectJournal } from '../../common/form';
+import { Caption, Checkbox, Field, Select, SelectJournal } from '../../common/form';
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
 import plugins from '../../../plugins';
+import { EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
 
 import './style.scss';
 
@@ -33,7 +34,8 @@ export default class Settings extends React.Component {
       showModelDefault: get(props, 'config.showModelDefault'),
       showJournalDefault: get(props, 'config.showJournalDefault'),
       showCountersDefault: get(props, 'config.showCountersDefault'),
-      displayHeatmapToolbar: get(props, 'config.displayHeatmapToolbar')
+      displayHeatmapToolbar: get(props, 'config.displayHeatmapToolbar'),
+      formMode: get(props, 'config.formMode', EXTENDED_MODE)
     };
   }
 
@@ -54,15 +56,30 @@ export default class Settings extends React.Component {
   };
 
   render() {
-    const { selectedJournal } = this.state;
+    const { selectedJournal, formMode } = this.state;
 
     const { HeatmapWrapper } = plugins;
+
+    const propertiesOptions = [
+      { value: EXTENDED_MODE, label: t(Labels.FORM_MODE_EXTENDED) },
+      { value: SIMPLIFIED_MODE, label: t(Labels.FORM_MODE_SIMPLIFIED) }
+    ];
 
     return (
       <div className="ecos-process-statistics-settings">
         <Caption middle className="ecos-process-statistics-settings__title">
           {t(Labels.SETTINGS_TITLE)}
         </Caption>
+        <Field label={t(Labels.FORM_MODE_SELECT_LABEL)} labelPosition="top">
+          <Select
+            value={propertiesOptions.find(i => i.value === formMode)}
+            options={propertiesOptions}
+            onChange={({ value }) => {
+              this.setState({ formMode: value });
+            }}
+          />
+        </Field>
+
         <Field label={t(Labels.JOURNAL_FIELD)} labelPosition="top">
           <SelectJournal
             journalId={SystemJournals.JOURNALS}

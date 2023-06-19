@@ -4,7 +4,11 @@ export const DefSets = {
 };
 
 export const Labels = {
-  WG_TITLE: 'process-statistics-widget.title',
+  WG_SIMPLIFIED_TITLE: 'process-statistics-widget.simplified-title',
+  WG_EXTENDED_TITLE: 'process-statistics-widget.extended-title',
+  FORM_MODE_SELECT_LABEL: 'process-statistics-widget.form-condition.label',
+  FORM_MODE_EXTENDED: 'process-statistics-widget.form-condition.extended',
+  FORM_MODE_SIMPLIFIED: 'process-statistics-widget.form-condition.simplified',
   NO_COLS: 'process-statistics-widget.info.no-columns',
   NO_MODEL: 'process-statistics-widget.info.no-model',
   ERR_MODEL: 'process-statistics-widget.info.mount-problem',

@@ -1,0 +1,2 @@
+export const EXTENDED_MODE = 'EXTENDED_MODE';
+export const SIMPLIFIED_MODE = 'SIMPLIFIED_MODE';

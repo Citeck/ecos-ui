@@ -10,6 +10,7 @@ import {
   setLoading,
   setModel,
   setLoaderFormData,
+  setHasDeployRights,
   setTitle
 } from '../actions/dmnEditor';
 import { startLoading, updateState } from '../helpers/redux';
@@ -35,6 +36,7 @@ export default handleActions(
     [getFormProps]: (state, { payload: { stateId } }) => updateState(state, stateId, { formProps: {}, isLoadingProps: true }),
     [setLoaderFormData]: (state, { payload: { stateId, isLoadingProps } }) => updateState(state, stateId, { isLoadingProps }),
     [setFormProps]: (state, { payload: { stateId, formProps } }) => updateState(state, stateId, { formProps, isLoadingProps: false }),
+    [setHasDeployRights]: (state, { payload: { stateId, hasDeployRights } }) => updateState(state, stateId, { hasDeployRights }),
     [setFormData]: (state, { payload: { stateId, formData } }) =>
       updateState(state, stateId, {
         formProps: {

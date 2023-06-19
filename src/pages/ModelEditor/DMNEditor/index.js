@@ -13,6 +13,7 @@ const mapStateToProps = (state, props) => {
     savedModel: ownState.model,
     formProps: ownState.formProps,
     isLoading: ownState.isLoading,
+    hasDeployRights: ownState.hasDeployRights,
     isLoadingProps: ownState.isLoadingProps,
     isTableView: ownState.isTableView
   };

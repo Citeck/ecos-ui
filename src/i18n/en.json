@@ -2316,7 +2316,11 @@
 
   "ecos-form.export.attention": "You cannot start multiple identical actions at the same time",
 
-  "process-statistics-widget.title": "Process Statistics",
+  "process-statistics-widget.simplified-title": "Process",
+  "process-statistics-widget.extended-title": "Process Statistics",
+  "process-statistics-widget.form-condition.label": "Form view mode",
+  "process-statistics-widget.form-condition.extended": "Extended mode",
+  "process-statistics-widget.form-condition.simplified": "Simplified mode",
   "process-statistics-widget.info.no-columns": "No display settings",
   "process-statistics-widget.info.no-model": "No model",
   "process-statistics-widget.info.mount-problem": "There is a mounting problem",

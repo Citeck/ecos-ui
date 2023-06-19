@@ -2315,7 +2315,11 @@
 
   "ecos-form.export.attention": "Вы не можете начать одновременно несколько идентичных действий",
 
-  "process-statistics-widget.title": "Статистика процесса",
+  "process-statistics-widget.simplified-title": "Процесс",
+  "process-statistics-widget.extended-title": "Статистика процесса",
+  "process-statistics-widget.form-condition.label": "Режим отображения формы",
+  "process-statistics-widget.form-condition.extended": "Расширенный режим",
+  "process-statistics-widget.form-condition.simplified": "Упрощённый режим",
   "process-statistics-widget.info.no-columns": "Нет настроек отображения",
   "process-statistics-widget.info.no-model": "Нет модели",
   "process-statistics-widget.info.mount-problem": "There is a mounting problem",

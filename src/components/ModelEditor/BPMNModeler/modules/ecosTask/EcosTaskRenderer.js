@@ -66,11 +66,12 @@ export default class CustomRenderer extends BaseRenderer {
               if (status) {
                 const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
 
-                this.renderLabel(parentNode, text, {
-                  align: 'center-middle',
-                  box: element,
-                  padding: 5
-                });
+                parentNode &&
+                  this.renderLabel(parentNode, text, {
+                    align: 'center-middle',
+                    box: element,
+                    padding: 5
+                  });
               }
             }
           });
@@ -119,7 +120,7 @@ export default class CustomRenderer extends BaseRenderer {
     const text = textUtil.createText(label, options);
     const textNode = svgSelect(parentGfx, 'text');
 
-    svgRemove(textNode);
+    textNode && svgRemove(textNode);
     svgClasses(text).add('djs-label');
     svgAppend(parentGfx, text);
 

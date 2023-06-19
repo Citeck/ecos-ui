@@ -3,7 +3,19 @@ import { NotificationManager } from 'react-notifications';
 import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
 
-import { getFormProps, getModel, getTitle, initData, saveModel, setFormProps, setLoading, setModel, setTitle } from '../actions/bpmnEditor';
+import {
+  getFormProps,
+  getModel,
+  getTitle,
+  getHasDeployRights,
+  setHasDeployRights,
+  initData,
+  saveModel,
+  setFormProps,
+  setLoading,
+  setModel,
+  setTitle
+} from '../actions/bpmnEditor';
 import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
@@ -16,6 +28,7 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getModel({ stateId, record }));
+    yield put(getHasDeployRights({ stateId, record }));
   } catch (e) {
     logger.error('[bpmnEditor/init saga] error', e);
   }
@@ -79,6 +92,16 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
+export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
+  try {
+    const hasDeployRights = yield call(api.cmmn.getHasDeployRights, record);
+
+    yield put(setHasDeployRights({ stateId, hasDeployRights }));
+  } catch (e) {
+    logger.error('[bpmnEditor/fetchHasDeployRights saga] error', e);
+  }
+}
+
 export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, element } }) {
   try {
     if (!formId) {
@@ -136,6 +159,7 @@ function* bpmnEditorSaga(ea) {
   yield takeEvery(initData().type, init, ea);
   yield takeEvery(getModel().type, fetchModel, ea);
   yield takeEvery(saveModel().type, runSaveModel, ea);
+  yield takeEvery(getHasDeployRights().type, fetchHasDeployRights, ea);
   yield takeEvery(getTitle().type, fetchTitle, ea);
   yield takeEvery(getFormProps().type, fetchFormProps, ea);
 }
