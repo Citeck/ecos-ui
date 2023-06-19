@@ -49,13 +49,12 @@ export default class CustomRenderer extends BaseRenderer {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
     if (this.canRender(element)) {
-      svgRemove(svgSelect(parentNode, 'text'));
       svgAppend(parentNode, this._getImage(STATUS_CHANGE_ICON_PATH));
 
       const rootProcces = this.getRootProccess(element);
       const statusName = this.getStatusName(element);
 
-      if (rootProcces && !isNil(statusName) && _.isEmpty(this.getName(element))) {
+      if (!isNil(statusName) && _.isEmpty(this.getName(element)) && rootProcces) {
         const ecosType = this.getEcosType(rootProcces);
 
         Records.get(ecosType)
