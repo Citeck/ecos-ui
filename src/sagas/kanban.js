@@ -179,7 +179,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
   try {
     const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
-    const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
+    const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
     const urlProps = getSearchParams();
     const searchText = urlProps[JournalUrlParams.SEARCH];
 
@@ -249,7 +249,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
-    yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {} }));
+    if (isEmpty(kanbanSettings)) {
+      yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {} }));
+    }
     yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
     logger.error('[kanban/sagaGetData saga] error', e);
