@@ -474,7 +474,9 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   let gridData = yield getGridData(api, { ...params }, stateId);
   let searchData = {};
 
-  if (search) {
+  const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
+
+  if (headerSearchEnabled && search) {
     yield put(setGrid(w({ search })));
     searchData = { search };
   }
@@ -485,7 +487,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
 
   const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
 
-  if (!isEmpty(searchPredicate)) {
+  if (headerSearchEnabled && !isEmpty(searchPredicate)) {
     params.searchPredicate = searchPredicate;
     gridData = yield getGridData(api, params, stateId);
   }
