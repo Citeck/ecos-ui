@@ -88,6 +88,7 @@ import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { setKanbanSettings } from '../actions/kanban';
+import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -693,6 +694,13 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
 
     yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
     yield put(selectPreset(w(selectedId)));
+
+    const { originKanbanSettings } = yield select(selectKanban, stateId);
+    const settings = yield select(selectJournalSettings, stateId);
+    const preset = settings.find(preset => preset.id === selectedId);
+    const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
+
+    yield put(setKanbanSettings({ stateId, kanbanSettings }));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
@@ -858,11 +866,11 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
     const executor = ActionsRegistry.getHandler(ActionTypes.EDIT_JOURNAL_PRESET);
     const actionResult = yield call([executor, executor.execForRecord], `${SourcesId.PRESETS}@`, { config: { data } });
 
+    yield getJournalSettings(api, journalConfig.id, w, stateId);
     if (actionResult && actionResult.id) {
       yield put(openSelectedPreset(w(actionResult.id)));
     }
 
-    yield getJournalSettings(api, journalConfig.id, w, stateId);
     isFunction(callback) && callback(actionResult);
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e);
@@ -924,6 +932,9 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     const url = yield select(selectUrl, stateId);
 
     yield put(setJournalSetting(w(settings)));
+    if (settings.kanban) {
+      yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
+    }
     yield put(setPredicate(w(predicate)));
 
     yield put(setColumnsSetup(w({ columns, sortBy })));
