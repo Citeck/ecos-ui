@@ -787,7 +787,7 @@ class ModelEditorPage extends React.Component {
   };
 
   render() {
-    const { title, formProps, isLoading, isTableView } = this.props;
+    const { title, formProps, isLoading, isTableView, hasDeployRights } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
@@ -806,6 +806,7 @@ class ModelEditorPage extends React.Component {
           editor={this.renderEditor()}
           extraButtons={this.editorExtraButtons}
           isTableView={isTableView}
+          hasDeployRights={hasDeployRights}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}

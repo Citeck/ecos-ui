@@ -92,6 +92,8 @@ class Model extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { showCountersDefault, showHeatmapDefault } = this.props;
+
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getModel();
     }
@@ -103,6 +105,16 @@ class Model extends React.Component {
 
     if (prevProps.isLoading && !this.props.isLoading) {
       this.reRenderHeatmap();
+    }
+
+    if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
+      this.setState({ isShowHeatmap: showHeatmapDefault }, () => {
+        this.renderHeatmap();
+      });
+    }
+
+    if (prevProps.showCountersDefault !== showCountersDefault) {
+      this.setState({ isShowCounters: showCountersDefault });
     }
   }
 
@@ -301,7 +313,7 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar } = this.props;
+    const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar, isExtendedMode } = this.props;
     const {
       isModelMounted,
       isModelMounting,
@@ -336,7 +348,7 @@ class Model extends React.Component {
             <div className="ecos-process-statistics-model__panel">
               <Scaler onClick={this.handleClickZoom} />
               <div className="ecos-process-statistics__delimiter" />
-              {!isEmpty(heatmapData) && this.renderSwitches()}
+              {isExtendedMode && !isEmpty(heatmapData) && this.renderSwitches()}
             </div>
           )}
           {model && (
