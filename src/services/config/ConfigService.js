@@ -42,6 +42,7 @@ export const HIDE_IN_ORGSTRUCT = 'hide-in-orgstruct';
 export const ORGSTRUCT_SHOW_USERNAME_MASK = 'orgstruct-username-mask';
 
 export const RESTRICT_ACCESS_TO_EDIT_DASHBOARD = 'restrict-access-to-edit-dashboard';
+export const RESTRICT_ACCESS_TO_EDIT_DASHBOARD_WIDGETS = 'restrict-access-to-edit-dashboard-widgets';
 export const HOME_LINK_URL = 'home-link-url';
 export const LOGIN_PAGE_REDIRECT_URL = 'login-page-redirect-url';
 export const CUSTOM_FEEDBACK_URL = 'custom-feedback-url';
@@ -59,6 +60,9 @@ const CONFIG_PROPS = {
   },
   [RESTRICT_ACCESS_TO_EDIT_DASHBOARD]: {
     defaultValue: true
+  },
+  [RESTRICT_ACCESS_TO_EDIT_DASHBOARD_WIDGETS]: {
+    default: null
   },
   [ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME]: {
     defaultValue: 'all'
