@@ -116,6 +116,10 @@ class Column extends React.PureComponent {
     const { records = [], columnInfo, isLoadingCol } = this.props;
     const isDropDisabled = this.getIsColumnDropDisabled();
 
+    if (isEmpty(columnInfo)) {
+      return null;
+    }
+
     return (
       <Droppable droppableId={columnInfo.id} isDropDisabled={isDropDisabled}>
         {(provided, { draggingFromThisWith, isDraggingOver }) => {
@@ -145,7 +149,7 @@ class Column extends React.PureComponent {
 }
 
 function mapStateToProps(state, props) {
-  return selectColumnProps(state, props.stateId, props.columnIndex);
+  return selectColumnProps(state, props.stateId, props.columnStatus);
 }
 
 export default connect(mapStateToProps)(Column);

@@ -427,7 +427,7 @@ describe('kanban sagas tests', () => {
     const [_firstLoadingColumns, _dataCards, _lastLoadingColumns] = dispatched;
 
     expect(_firstLoadingColumns.type).toEqual(setLoadingColumns().type);
-    expect(_firstLoadingColumns.payload.isLoadingColumns).toEqual([0, 1]);
+    expect(_firstLoadingColumns.payload.isLoadingColumns).toEqual(['some-id-1', 'some-id-2']);
     expect(_dataCards.type).toEqual(setDataCards().type);
     expect(get(_dataCards, 'payload.dataCards')).toHaveLength(2);
     expect(get(_dataCards, 'payload.dataCards[0].records')).toHaveLength(1);
