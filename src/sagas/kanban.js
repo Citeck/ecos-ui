@@ -216,7 +216,10 @@ export function* sagaGetData({ api, logger }, { payload }) {
         searchPredicate
       });
 
-      return yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
+      const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
+      const status = column.id || '';
+
+      return { ...res, status };
     });
 
     const dataCards = [];
@@ -230,7 +233,8 @@ export function* sagaGetData({ api, logger }, { payload }) {
         dataCards.push({
           totalCount: get(prevDataCards, [i, 'totalCount'], 0),
           records: prevRecords,
-          error: get(data, 'error.message')
+          error: get(data, 'error.message'),
+          status: data.status
         });
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
@@ -238,9 +242,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
         const allRecords = [...prevRecords, ...preparedRecords];
         if (data.totalCount >= allRecords.length) {
-          dataCards.push({ totalCount: data.totalCount, records: [...allRecords] });
+          dataCards.push({ totalCount: data.totalCount, records: [...allRecords], status: data.status });
         } else {
-          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords] });
+          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords], status: data.status });
         }
       }
     });
@@ -265,7 +269,10 @@ export function* sagaGetActions({ api, logger }, { payload }) {
 
     const resolvedActions = yield (boardConfig.columns || []).map(function*(column, i) {
       const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
-      return { ...get(prevResolvedActions, [i], {}), ...newResolvedActions.forRecord };
+      const status = column.id || '';
+      const actions = { ...newResolvedActions.forRecord, status };
+
+      return { ...get(prevResolvedActions, [i], {}), ...actions };
     });
 
     yield put(setResolvedActions({ stateId, resolvedActions }));
@@ -343,7 +350,10 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
     const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
     const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
 
-    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnIndex, toColumnIndex] }));
+    const fromColumnId = fromColumnIndex === -1 ? '' : boardConfig.columns[fromColumnIndex].id;
+    const toColumnId = toColumnIndex === -1 ? '' : boardConfig.columns[toColumnIndex].id;
+
+    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnId, toColumnId] }));
 
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;

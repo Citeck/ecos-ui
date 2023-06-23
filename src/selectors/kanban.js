@@ -44,10 +44,25 @@ export const selectKanbanProps = createSelector(selectKanban, data => ({
   selectedBoard: get(data, 'boardConfig.name')
 }));
 
-export const selectColumnData = (state, key, index) => get(state, [prefix, key, 'dataCards', index]) || {};
-export const selectCardActions = (state, key, index) => get(state, [prefix, key, 'resolvedActions', index]) || {};
-export const selectIsLoadingCol = (state, key, index) => get(state, [prefix, key, 'isLoadingColumns'], []).includes(index) || false;
-export const selectColumnInfo = (state, key, index) => get(state, [prefix, key, 'boardConfig', 'columns', index], []) || {};
+export const selectColumnData = (state, key, status) => {
+  const dataCards = get(state, [prefix, key, 'dataCards'], []);
+
+  return dataCards.find(card => card.status === status) || {};
+};
+
+export const selectCardActions = (state, key, status) => {
+  const resolvedActions = get(state, [prefix, key, 'resolvedActions'], []);
+
+  return resolvedActions.find(action => action.status === status) || {};
+};
+
+export const selectIsLoadingCol = (state, key, status) => get(state, [prefix, key, 'isLoadingColumns'], []).includes(status) || false;
+
+export const selectColumnInfo = (state, key, status) => {
+  const columnInfos = get(state, [prefix, key, 'boardConfig', 'columns'], []);
+
+  return columnInfos.find(info => info.id === status) || {};
+};
 
 export const selectColumnProps = createSelector(
   [selectKanban, selectColumnData, selectColumnInfo, selectCardActions, selectIsLoadingCol],
