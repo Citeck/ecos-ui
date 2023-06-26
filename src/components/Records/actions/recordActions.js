@@ -247,7 +247,6 @@ class RecordActions {
       .then(module => module[nameFunction])
       .catch(e => {
         console.error('Error while pre process module loading', e);
-        result.hasError = true;
       });
 
     if (isFunction(preActionHandler)) {
@@ -270,7 +269,6 @@ class RecordActions {
       }
     } else {
       console.error(nameFunction, 'This is not function. Check preActionModule', preActionHandler);
-      result.hasError = true;
     }
 
     if (result.hasError) {
