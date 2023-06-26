@@ -10,7 +10,7 @@ import DAction from '../../../services/DashletActionService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
 import TaskAssignmentPanel from '../../TaskAssignmentPanel';
 import Dashlet from '../../Dashlet';
-import BaseWidget from '../BaseWidget';
+import BaseWidget, { EVENTS } from '../BaseWidget';
 import Properties from './Properties';
 import PropertiesEditModal from './PropertiesEditModal';
 import PropertiesSettings from './PropertiesSettings';
@@ -73,6 +73,8 @@ class PropertiesDashlet extends BaseWidget {
       isDraft: false,
       formIsValid: false
     };
+
+    this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
   }
 
   componentDidMount() {
