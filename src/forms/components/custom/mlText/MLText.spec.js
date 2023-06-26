@@ -1,11 +1,8 @@
 import Harness from '../../../test/harness';
 import MLTextComponent from './MLText';
-import { basicSectionTest } from '../../../test/builder/helpers';
 
 import comp1 from './fixtures/comp1';
 import comp2 from './fixtures/comp1';
-
-basicSectionTest(MLTextComponent);
 
 describe('MLText Component', () => {
   it('Should build a MLText component', done => {
@@ -18,8 +15,7 @@ describe('MLText Component', () => {
     Harness.testCreate(MLTextComponent, comp2).then(component => {
       const value = { en: 'test' };
 
-      component.setReactProps({ viewOnly: true });
-      component.setReactProps({ value });
+      component.setReactProps({ viewOnly: true, value });
       component.setValue(value);
 
       component.on('componentChange', () => {

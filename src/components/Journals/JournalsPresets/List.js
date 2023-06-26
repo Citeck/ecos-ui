@@ -1,16 +1,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
-import { deleteJournalSetting, editJournalSetting, openSelectedPreset } from '../../../actions/journals';
+import { deleteJournalSetting, editJournalSetting, getJournalsData, openSelectedPreset } from '../../../actions/journals';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
 import { Labels } from '../constants';
 import ListItem from './ListItem';
 
 class List extends React.Component {
+  componentDidMount() {
+    const { getJournalsData } = this.props;
+
+    isFunction(getJournalsData) && getJournalsData({ force: true });
+  }
+
   onSelect = setting => {
     this.props.openSelectedPreset(setting.id);
   };
@@ -72,6 +79,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
+    getJournalsData: options => dispatch(getJournalsData(w(options))),
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
     editJournalSetting: id => dispatch(editJournalSetting(w(id))),
     openSelectedPreset: id => dispatch(openSelectedPreset(w(id)))

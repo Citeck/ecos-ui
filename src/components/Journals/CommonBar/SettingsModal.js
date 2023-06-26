@@ -15,6 +15,8 @@ import JournalsFilters from '../JournalsFilters/JournalsFilters';
 import JournalsColumnsSetup from '../JournalsColumnsSetup/JournalsColumnsSetup';
 import JournalsGrouping from '../JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from '../JournalsSettingsFooter/JournalsSettingsFooter';
+import KanbanColumnsSettings from '../KanbanColumnsSettings/KanbanColumnsSettings';
+import { JOURNAL_VIEW_MODE } from '../constants';
 
 class SettingsModal extends Component {
   static propTypes = {
@@ -22,6 +24,8 @@ class SettingsModal extends Component {
     columnsSetup: PropTypes.object,
     grouping: PropTypes.object,
     originGridSettings: PropTypes.object,
+    originKanbanSettings: PropTypes.object,
+    kanbanSettings: PropTypes.object,
     filtersData: PropTypes.object,
     columnsData: PropTypes.object,
     groupingData: PropTypes.object,
@@ -39,39 +43,44 @@ class SettingsModal extends Component {
   constructor(props) {
     super(props);
 
-    const { originGridSettings } = props;
+    const { originGridSettings, originKanbanSettings } = props;
 
     this.state = {
       predicate: cloneDeep(get(props, 'filtersData.predicate', get(originGridSettings, 'predicate'))),
       columns: cloneDeep(get(props, 'columnsData.columns', get(originGridSettings, 'columnsSetup.columns'))),
       sortBy: cloneDeep(get(props, 'columnsData.sortBy', get(originGridSettings, 'columnsSetup.sortBy'))),
       grouping: cloneDeep(get(props, 'groupingData', get(originGridSettings, 'grouping'))),
+      kanbanColumns: cloneDeep(get(props, 'kanbanSettings.columns', get(originKanbanSettings, 'statuses'))),
       needUpdate: false
     };
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { originGridSettings } = this.props;
+    const { originGridSettings, originKanbanSettings } = this.props;
 
     if (!prevProps.isOpen && this.props.isOpen) {
       this.setState({
         predicate: cloneDeep(get(this.props, 'filtersData.predicate', get(originGridSettings, 'predicate'))),
         columns: cloneDeep(get(this.props, 'columnsData.columns', get(originGridSettings, 'columnsSetup.columns'))),
         sortBy: cloneDeep(get(this.props, 'columnsData.sortBy', get(originGridSettings, 'columnsSetup.sortBy'))),
-        grouping: cloneDeep(get(this.props, 'groupingData', get(originGridSettings, 'grouping')))
+        grouping: cloneDeep(get(this.props, 'groupingData', get(originGridSettings, 'grouping'))),
+        kanbanColumns: cloneDeep(get(this.props, 'kanbanSettings.columns', get(originKanbanSettings, 'statuses')))
       });
     }
   }
 
   getSetting = () => {
-    const { predicate, columns, sortBy, grouping } = this.state;
+    const { predicate, columns, sortBy, grouping, kanbanColumns } = this.state;
 
     return {
       sortBy,
       groupBy: get(grouping, 'groupBy'),
       columns,
       predicate,
-      grouping
+      grouping,
+      kanban: {
+        columns: kanbanColumns
+      }
     };
   };
 
@@ -87,6 +96,10 @@ class SettingsModal extends Component {
 
   handleChangeGrouping = grouping => {
     this.setState({ grouping });
+  };
+
+  handleChangeKanbanColumns = kanbanColumns => {
+    this.setState({ kanbanColumns });
   };
 
   handleApply = () => {
@@ -114,7 +127,7 @@ class SettingsModal extends Component {
   };
 
   handleReset = () => {
-    const { originGridSettings } = this.props;
+    const { originGridSettings, originKanbanSettings } = this.props;
 
     this.setState(
       {
@@ -122,6 +135,7 @@ class SettingsModal extends Component {
         sortBy: cloneDeep(get(originGridSettings, 'columnsSetup.sortBy')),
         columns: cloneDeep(get(originGridSettings, 'columnsSetup.columns')),
         grouping: cloneDeep(get(originGridSettings, 'grouping')),
+        kanbanColumns: cloneDeep(get(originKanbanSettings, 'statuses')),
         needUpdate: true
       },
       () => this.setState({ needUpdate: false })
@@ -129,8 +143,8 @@ class SettingsModal extends Component {
   };
 
   render() {
-    const { filtersData, journalSetting, isOpen, isReset, onClose, noCreateBtn } = this.props;
-    const { predicate, needUpdate, columns, sortBy, grouping } = this.state;
+    const { filtersData, journalSetting, isOpen, isReset, onClose, noCreateBtn, viewMode } = this.props;
+    const { predicate, needUpdate, columns, sortBy, grouping, kanbanColumns } = this.state;
 
     return (
       <EcosModal
@@ -153,6 +167,9 @@ class SettingsModal extends Component {
                 {this.props.columnsData && <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />}
                 {this.props.groupingData && (
                   <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
+                )}
+                {viewMode === JOURNAL_VIEW_MODE.KANBAN && (
+                  <KanbanColumnsSettings columns={kanbanColumns} onChange={this.handleChangeKanbanColumns} />
                 )}
               </Scrollbars>
             )}

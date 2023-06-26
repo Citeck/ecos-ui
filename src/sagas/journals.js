@@ -87,6 +87,8 @@ import PageService from '../services/PageService';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
+import { setKanbanSettings } from '../actions/kanban';
+import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -473,7 +475,9 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   let gridData = yield getGridData(api, { ...params }, stateId);
   let searchData = {};
 
-  if (search) {
+  const headerSearchEnabled = get(journalConfig, 'searchConfig.headerSearchEnabled', true);
+
+  if (headerSearchEnabled && search) {
     yield put(setGrid(w({ search })));
     searchData = { search };
   }
@@ -484,7 +488,7 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
 
   const searchPredicate = yield getSearchPredicate({ ...w({ stateId }), grid: { ...gridData, ...searchData } });
 
-  if (!isEmpty(searchPredicate)) {
+  if (headerSearchEnabled && !isEmpty(searchPredicate)) {
     params.searchPredicate = searchPredicate;
     gridData = yield getGridData(api, params, stateId);
   }
@@ -690,6 +694,13 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
 
     yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
     yield put(selectPreset(w(selectedId)));
+
+    const { originKanbanSettings } = yield select(selectKanban, stateId);
+    const settings = yield select(selectJournalSettings, stateId);
+    const preset = settings.find(preset => preset.id === selectedId);
+    const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
+
+    yield put(setKanbanSettings({ stateId, kanbanSettings }));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
@@ -829,10 +840,19 @@ function* sagaSaveRecords({ api, logger, stateId, w }, action) {
 
 function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
   try {
-    const { settings } = action.payload;
-    const { id } = yield select(selectJournalSetting, stateId);
+    const { callback, settings } = action.payload;
 
+    const { id } = yield select(selectJournalSetting, stateId);
+    const { journalConfig } = yield select(selectJournalData, stateId);
+
+    if (settings.kanban) {
+      yield put(setJournalSetting({ stateId, kanban: settings.kanban }));
+      yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
+    }
     yield call([PresetsServiceApi, PresetsServiceApi.saveSettings], { id, settings });
+
+    yield getJournalSettings(api, journalConfig.id, w, stateId);
+    isFunction(callback) && callback();
   } catch (e) {
     logger.error('[journals sagaSaveJournalSetting saga error', e);
   }
@@ -846,11 +866,11 @@ function* sagaCreateJournalSetting({ api, logger, stateId, w }, action) {
     const executor = ActionsRegistry.getHandler(ActionTypes.EDIT_JOURNAL_PRESET);
     const actionResult = yield call([executor, executor.execForRecord], `${SourcesId.PRESETS}@`, { config: { data } });
 
+    yield getJournalSettings(api, journalConfig.id, w, stateId);
     if (actionResult && actionResult.id) {
       yield put(openSelectedPreset(w(actionResult.id)));
     }
 
-    yield getJournalSettings(api, journalConfig.id, w, stateId);
     isFunction(callback) && callback(actionResult);
   } catch (e) {
     logger.error('[journals sagaCreateJournalSetting saga error', e);
@@ -912,6 +932,9 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     const url = yield select(selectUrl, stateId);
 
     yield put(setJournalSetting(w(settings)));
+    if (settings.kanban) {
+      yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
+    }
     yield put(setPredicate(w(predicate)));
 
     yield put(setColumnsSetup(w({ columns, sortBy })));

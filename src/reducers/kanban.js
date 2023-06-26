@@ -11,10 +11,12 @@ import {
   setFormProps,
   setIsEnabled,
   setIsFiltered,
+  setKanbanSettings,
   setLoading,
   setLoadingColumns,
   setPagination,
   setResolvedActions,
+  setOriginKanbanSettings,
   setTotalCount
 } from '../actions/kanban';
 import { updateState } from '../helpers/redux';
@@ -24,6 +26,8 @@ import { t } from '../helpers/export/util';
 export const initialState = {
   isLoading: true,
   isLoadingColumns: [],
+  kanbanSettings: {},
+  originKanbanSettings: {},
   isFirstLoading: true,
   isFiltered: false,
   boardConfig: undefined,
@@ -56,6 +60,14 @@ export default handleActions(
     [setBoardConfig]: (state, { payload }) => {
       const { stateId, boardConfig } = payload;
       return updateState(state, stateId, { boardConfig }, initialState);
+    },
+    [setKanbanSettings]: (state, { payload }) => {
+      const { stateId, kanbanSettings } = payload;
+      return updateState(state, stateId, { kanbanSettings }, initialState);
+    },
+    [setOriginKanbanSettings]: (state, { payload }) => {
+      const { stateId, originKanbanSettings } = payload;
+      return updateState(state, stateId, { originKanbanSettings }, initialState);
     },
     [setLoading]: (state, { payload }) => {
       const { stateId, isLoading } = payload;

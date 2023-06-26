@@ -9,6 +9,7 @@ import uuidV4 from 'uuid/v4';
 
 import { getCurrentLocale, t } from '../../helpers/util';
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
+import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 export const ComponentKeys = {
   PAGINATION: 'pagination',
@@ -97,7 +98,14 @@ export default class Components {
       label: 'dashboard-settings.widget.properties',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.PROFILE],
       props: {
-        maxHeightByContent: true
+        maxHeightByContent: true,
+        view: {
+          options: [
+            { value: FORM_MODE_VIEW, label: 'widget-settings.form-condition.view' },
+            { value: FORM_MODE_EDIT, label: 'widget-settings.form-condition.edit' }
+          ],
+          default: FORM_MODE_VIEW
+        }
       }
     },
     [ComponentKeys.TASKS]: {

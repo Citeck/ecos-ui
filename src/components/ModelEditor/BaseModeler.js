@@ -1,9 +1,11 @@
 import React from 'react';
+import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
-import { getDi } from 'bpmn-js/lib/util/ModelUtil';
+import isEqual from 'lodash/isEqual';
+
 import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
 import { Sheet } from './Sheet';
 
@@ -173,8 +175,11 @@ export default class BaseModeler {
 
     if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
+      const prevName = get(element, 'businessObject.name', '');
 
-      labelEditingProvider.update(element, name, name, element);
+      if (!isEqual(prevName, name)) {
+        labelEditingProvider.update(element, name);
+      }
     }
 
     if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && !id.endsWith(PLANE_POSTFIX) && di) {

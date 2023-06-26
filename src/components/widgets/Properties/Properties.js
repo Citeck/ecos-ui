@@ -105,8 +105,9 @@ class Properties extends React.Component {
       });
 
       const isChanged = editedComponent.length || changedType === 'button';
+      const valid = form.checkValidity(submission.data, !!isChanged);
 
-      onFormIsChanged(isChanged, form.isValid(submission));
+      onFormIsChanged(isChanged, valid);
     }
   };
 

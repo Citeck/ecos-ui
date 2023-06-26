@@ -1,7 +1,19 @@
 import { put, call, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
-import { initData, getFormProps, setFormProps, getModel, setModel, getTitle, setLoading, setTitle, saveModel } from '../actions/dmnEditor';
+import {
+  initData,
+  getFormProps,
+  setFormProps,
+  getHasDeployRights,
+  setHasDeployRights,
+  getModel,
+  setModel,
+  getTitle,
+  setLoading,
+  setTitle,
+  saveModel
+} from '../actions/dmnEditor';
 import { t } from '../helpers/export/util';
 import { deleteTab } from '../actions/pageTabs';
 import PageTabList from '../services/pageTabs/PageTabList';
@@ -16,6 +28,7 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
     yield put(getTitle({ stateId, record }));
     yield put(getModel({ stateId, record }));
+    yield put(getHasDeployRights({ stateId, record }));
   } catch (e) {
     logger.error('[dmnEditor/init saga] error', e);
   }
@@ -131,10 +144,21 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
   }
 }
 
+export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
+  try {
+    const hasDeployRights = yield call(api.cmmn.getHasDeployRights, record);
+
+    yield put(setHasDeployRights({ stateId, hasDeployRights }));
+  } catch (e) {
+    logger.error('[dmnEditor/fetchHasDeployRights saga] error', e);
+  }
+}
+
 function* dmnEditorSaga(ea) {
   yield takeEvery(initData().type, init, ea);
   yield takeEvery(getModel().type, fetchModel, ea);
   yield takeEvery(saveModel().type, runSaveModel, ea);
+  yield takeEvery(getHasDeployRights().type, fetchHasDeployRights, ea);
   yield takeEvery(getTitle().type, fetchTitle, ea);
   yield takeEvery(getFormProps().type, fetchFormProps, ea);
 }

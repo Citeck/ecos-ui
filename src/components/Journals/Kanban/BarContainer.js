@@ -21,7 +21,6 @@ function mapStateToProps(state, props) {
     isFilterOn: kanbanProps.isFiltered || journalProps.isFilterOn,
     isLoading: kanbanProps.isLoading,
     noGroupActions: true,
-    noCreateBtn: true,
     settingsColumnsData: null,
     settingsGroupingData: null,
     nameBtnSettings: Labels.Kanban.BTN_SETTINGS,

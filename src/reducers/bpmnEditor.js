@@ -8,6 +8,7 @@ import {
   setFormProps,
   setLoaderFormData,
   setLoading,
+  setHasDeployRights,
   setModel,
   setTitle
 } from '../actions/bpmnEditor';
@@ -18,7 +19,8 @@ const initialState = {
   model: undefined,
   formProps: {},
   isLoading: false,
-  isLoadingProps: false
+  isLoadingProps: false,
+  hasDeployRights: false
 };
 
 Object.freeze(initialState);
@@ -31,6 +33,7 @@ export default handleActions(
     [setLoading]: (state, { payload: { stateId, isLoading } }) => updateState(state, stateId, { isLoading }),
     [setTitle]: (state, { payload: { stateId, title } }) => updateState(state, stateId, { title }),
     [setModel]: (state, { payload: { stateId, model } }) => updateState(state, stateId, { model, isLoading: false }),
+    [setHasDeployRights]: (state, { payload: { stateId, hasDeployRights } }) => updateState(state, stateId, { hasDeployRights }),
     [getFormProps]: (state, { payload: { stateId } }) => updateState(state, stateId, { formProps: {}, isLoadingProps: true }),
     [setLoaderFormData]: (state, { payload: { stateId, isLoadingProps } }) => updateState(state, stateId, { isLoadingProps }),
     [setFormProps]: (state, { payload: { stateId, formProps } }) => updateState(state, stateId, { formProps, isLoadingProps: false }),

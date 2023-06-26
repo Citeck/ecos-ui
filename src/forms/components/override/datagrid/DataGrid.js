@@ -28,12 +28,26 @@ export default class DataGridComponent extends FormIODataGridComponent {
   get baseEmptyValue() {
     return (this.rows || []).map(row => {
       return Object.keys(row).reduce((res, cur) => {
-        res[cur] = row[cur].emptyValue;
+        res = Object.assign(res, this.getEmptyValues(row[cur]));
 
         return res;
       }, {});
     });
   }
+
+  getEmptyValues = component => {
+    if (Array.isArray(component.components)) {
+      return component.components.reduce((res, cur) => {
+        if (cur.type !== 'hidden') {
+          return { ...res, ...this.getEmptyValues(cur) };
+        }
+
+        return res;
+      }, {});
+    }
+
+    return { [component.key]: component.defaultValue || component.emptyValue };
+  };
 
   show = show => {
     if (show && !this.dataValue.length) {

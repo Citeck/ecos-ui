@@ -33,7 +33,7 @@ const Labels = {
 
 class ModelEditorWrapper extends React.Component {
   static propTypes = {
-    isAnyConfigButtonHidden: PropTypes.bool,
+    isTableView: PropTypes.bool,
     editor: PropTypes.element,
     rightSidebar: PropTypes.element,
     rightSidebarTitle: PropTypes.string,
@@ -69,7 +69,7 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configButtons() {
-    const { extraButtons, onCreate, onViewXml, onSaveAsSVG } = this.props;
+    const { extraButtons, onCreate, onViewXml, onSaveAsSVG, hasDeployRights } = this.props;
     const configButtons = [];
 
     const extra = get(extraButtons, 'config');
@@ -105,14 +105,16 @@ class ModelEditorWrapper extends React.Component {
       });
     }
 
-    configButtons.push({
-      icon: 'fa fa-cloud-upload',
-      action: this.onSaveAndDeploy,
-      text: t(Labels.SAVE_DEPLOY),
-      id: `bpmn-download-btn-${uuidv4()}`,
-      trigger: 'hover',
-      className: 'ecos-btn_green'
-    });
+    if (hasDeployRights) {
+      configButtons.push({
+        icon: 'fa fa-cloud-upload',
+        action: this.onSaveAndDeploy,
+        text: t(Labels.SAVE_DEPLOY),
+        id: `bpmn-download-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: 'ecos-btn_green'
+      });
+    }
 
     if (isFunction(onSaveAsSVG)) {
       configButtons.push({
@@ -133,9 +135,9 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configZoomButtons() {
-    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isAnyConfigButtonHidden } = this.props;
+    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isTableView } = this.props;
 
-    if (isAnyConfigButtonHidden) {
+    if (isTableView) {
       return [];
     }
 

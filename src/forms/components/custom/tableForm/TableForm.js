@@ -343,7 +343,7 @@ export default class TableFormComponent extends BaseReactComponent {
 
             this.#journalConfig = journalConfig;
 
-            if (!this._createVariants) {
+            if (_.isEmpty(this._createVariants)) {
               this._createVariants = journalConfig.meta.createVariants || [];
             }
 

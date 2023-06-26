@@ -31,7 +31,7 @@ const Header = React.forwardRef(
       noActions,
 
       isMobile,
-      dashboardEditable,
+      widgetEditable,
       appEdition,
       isAdmin,
       customActions
@@ -84,7 +84,7 @@ const Header = React.forwardRef(
               actionConfig={actionConfig}
               actionRules={actionRules}
               dashletId={dashletId}
-              dashboardEditable={dashboardEditable}
+              widgetEditable={widgetEditable}
               appEdition={appEdition}
               isAdmin={isAdmin}
             />
@@ -99,7 +99,7 @@ const Header = React.forwardRef(
 
 const mapStateToProps = state => ({
   isMobile: get(state, 'view.isMobile'),
-  dashboardEditable: get(state, 'app.dashboardEditable'),
+  widgetEditable: get(state, 'app.widgetEditable'),
   appEdition: get(state, 'app.appEdition'),
   isAdmin: get(state, 'user.isAdmin', false)
 });

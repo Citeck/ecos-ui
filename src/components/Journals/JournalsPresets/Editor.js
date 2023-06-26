@@ -15,17 +15,23 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
   const [authorityRef, setAuthorityRef] = useState('');
   const [isSaving, setSaving] = useState(false);
 
-  useEffect(() => {
-    setName(data.name);
-    setAuthorityRef(params.authorityRef);
-  }, [id, data.name, params.authorityRef]);
+  useEffect(
+    () => {
+      setName(data.name);
+      setAuthorityRef(params.authorityRef);
+    },
+    [id, data.name, params.authorityRef]
+  );
 
   const handleChangeName = useCallback(name => setName(name), []);
   const handleChangeAuthority = useCallback(authorityRef => setAuthorityRef(authorityRef), []);
-  const handleSave = useCallback(() => {
-    setSaving(true);
-    onSave({ name, authorityRef });
-  }, [name, authorityRef]);
+  const handleSave = useCallback(
+    () => {
+      setSaving(true);
+      onSave({ name, authorityRef });
+    },
+    [name, authorityRef]
+  );
 
   const isInvalid = !(isFilledLabelWeak(name) && authorityRef);
 

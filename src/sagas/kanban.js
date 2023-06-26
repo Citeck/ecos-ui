@@ -37,7 +37,9 @@ import {
   setPagination,
   setResolvedActions,
   setDefaultBoardAndTemplate,
-  setTotalCount
+  setTotalCount,
+  setOriginKanbanSettings,
+  setKanbanSettings
 } from '../actions/kanban';
 import { execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData } from '../selectors/journals';
@@ -104,6 +106,15 @@ export function* sagaGetBoardConfig({ api, logger }, { payload }) {
 
     yield put(setBoardConfig({ boardConfig, stateId }));
 
+    if (boardConfig) {
+      const typeRef = boardConfig.typeRef;
+      if (typeRef) {
+        const unPreparedStatuses = yield call(api.kanban.getTypeStatuses, typeRef);
+        const statuses = KanbanConverter.prepareStatuses(unPreparedStatuses);
+        yield put(setOriginKanbanSettings({ originKanbanSettings: { statuses }, stateId }));
+      }
+    }
+
     return boardConfig;
   } catch (e) {
     logger.error('[kanban/sagaGetBoardConfig saga] error', e);
@@ -168,7 +179,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
   try {
     const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
-    const { dataCards: prevDataCards } = yield select(selectKanban, stateId);
+    const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
     const urlProps = getSearchParams();
     const searchText = urlProps[JournalUrlParams.SEARCH];
 
@@ -205,7 +216,10 @@ export function* sagaGetData({ api, logger }, { payload }) {
         searchPredicate
       });
 
-      return yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
+      const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
+      const status = column.id || '';
+
+      return { ...res, status };
     });
 
     const dataCards = [];
@@ -219,7 +233,8 @@ export function* sagaGetData({ api, logger }, { payload }) {
         dataCards.push({
           totalCount: get(prevDataCards, [i, 'totalCount'], 0),
           records: prevRecords,
-          error: get(data, 'error.message')
+          error: get(data, 'error.message'),
+          status: data.status
         });
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
@@ -227,9 +242,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
         const allRecords = [...prevRecords, ...preparedRecords];
         if (data.totalCount >= allRecords.length) {
-          dataCards.push({ totalCount: data.totalCount, records: [...allRecords] });
+          dataCards.push({ totalCount: data.totalCount, records: [...allRecords], status: data.status });
         } else {
-          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords] });
+          dataCards.push({ totalCount: data.totalCount, records: [...preparedRecords], status: data.status });
         }
       }
     });
@@ -238,6 +253,9 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     yield put(setDataCards({ stateId, dataCards }));
     yield put(setTotalCount({ stateId, totalCount }));
+    if (isEmpty(kanbanSettings)) {
+      yield put(setKanbanSettings({ stateId, kanbanSettings: journalSetting.kanban || {} }));
+    }
     yield sagaGetActions({ api, logger }, { payload: { boardConfig, newRecordRefs, stateId } });
   } catch (e) {
     logger.error('[kanban/sagaGetData saga] error', e);
@@ -251,7 +269,10 @@ export function* sagaGetActions({ api, logger }, { payload }) {
 
     const resolvedActions = yield (boardConfig.columns || []).map(function*(column, i) {
       const newResolvedActions = yield call([JournalsService, JournalsService.getRecordActions], boardConfig, newRecordRefs[i]);
-      return { ...get(prevResolvedActions, [i], {}), ...newResolvedActions.forRecord };
+      const status = column.id || '';
+      const actions = { ...newResolvedActions.forRecord, status };
+
+      return { ...get(prevResolvedActions, [i], {}), ...actions };
     });
 
     yield put(setResolvedActions({ stateId, resolvedActions }));
@@ -329,7 +350,10 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
     const fromColumnIndex = boardConfig.columns.findIndex(column => column.id === fromColumnRef);
     const toColumnIndex = boardConfig.columns.findIndex(column => column.id === toColumnRef);
 
-    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnIndex, toColumnIndex] }));
+    const fromColumnId = fromColumnIndex === -1 ? '' : boardConfig.columns[fromColumnIndex].id;
+    const toColumnId = toColumnIndex === -1 ? '' : boardConfig.columns[toColumnIndex].id;
+
+    yield put(setLoadingColumns({ stateId, isLoadingColumns: [fromColumnId, toColumnId] }));
 
     const deleted = dataCards[fromColumnIndex].records.splice(cardIndex, 1);
     dataCards[fromColumnIndex].totalCount -= 1;
@@ -363,7 +387,7 @@ export function* sagaMoveCard({ api, logger }, { payload }) {
 export function* sagaApplyFilter({ api, logger }, { payload }) {
   try {
     const {
-      settings: { predicate },
+      settings: { predicate, kanban },
       stateId
     } = payload;
     const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
@@ -372,9 +396,11 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
     const w = wrapArgs(stateId);
     const journalSetting = cloneDeep(_journalSetting);
     journalSetting.predicate = predicate;
+    journalSetting.kanban = kanban;
 
     yield put(setPredicate(w(predicate)));
-    yield put(setJournalSetting(w({ predicate })));
+    yield put(setJournalSetting(w({ predicate, kanban })));
+    yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
     yield put(setLoading({ stateId, isLoading: false }));

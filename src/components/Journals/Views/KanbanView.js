@@ -7,14 +7,15 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
-import { getBoardData, reloadBoardData, selectBoardId, selectTemplateId } from '../../../actions/kanban';
+import { getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
 import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
+import { createJournalSetting, saveJournalSetting } from '../../../actions/journals';
 import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { t } from '../../../helpers/export/util';
 import { getSearchParams } from '../../../helpers/urls';
 import { Dropdown } from '../../common/form';
-import { isKanban, KANBAN_SELECTOR_MODE, Labels } from '../constants';
+import { isKanban, Labels } from '../constants';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
@@ -34,18 +35,12 @@ function mapDispatchToProps(dispatch, props) {
   const stateId = props.stateId;
 
   return {
+    resetFiltering: () => dispatch(resetFilter({ stateId })),
+    createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting({ stateId, journalId, settings, callback })),
+    saveJournalSetting: (id, settings, callback) => dispatch(saveJournalSetting({ id, stateId, settings, callback })),
     getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
     reloadBoardData: () => dispatch(reloadBoardData({ stateId })),
-    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId })),
-    selectTemplateId: template =>
-      dispatch(
-        selectTemplateId({
-          templateId: template.id,
-          stateId,
-          type: KANBAN_SELECTOR_MODE.TEMPLATES,
-          settings: template.settings
-        })
-      )
+    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId }))
   };
 }
 
@@ -55,7 +50,7 @@ class KanbanView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, urlParams = {}, boardList, templateList } = this.props;
+    const { isActivePage, viewMode, urlParams = {}, boardList } = this.props;
 
     if (!isActivePage || !isKanban(viewMode)) {
       return;
@@ -69,13 +64,6 @@ class KanbanView extends React.Component {
     ) {
       this.setState({ isClose: false }, () => {
         this.props.getBoardData(this.getSelectedBoardFromUrl());
-      });
-    }
-
-    const templateId = urlParams[JUP.JOURNAL_SETTING_ID] || get(templateList, '[0].id');
-    if (this.state.templateId !== templateId && templateList) {
-      this.setState({ templateId }, () => {
-        this.handleChangeTemplate(templateList.find(el => el.id === templateId));
       });
     }
 
@@ -114,20 +102,13 @@ class KanbanView extends React.Component {
     }
   };
 
-  handleChangeTemplate = template => {
-    if (!isNil(template)) {
-      this.props.selectTemplateId(template);
-    }
-  };
-
   RightBarChild = () => {
     const { totalCount: count } = this.props;
     return <span className="ecos-pagination__text">{t(Labels.Kanban.BAR_TOTAL, { count })}</span>;
   };
 
   LeftBarChild = () => {
-    const { boardList, templateList } = this.props;
-    const { templateId } = this.state;
+    const { boardList } = this.props;
 
     return (
       <>
@@ -140,18 +121,6 @@ class KanbanView extends React.Component {
           titleField="name"
           onChange={this.handleChangeBoard}
           controlLabel={t(Labels.Kanban.BOARD_LIST)}
-          controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
-          menuClassName="ecos-kanban__dropdown-menu"
-        />
-        <Dropdown
-          isButton
-          isStatic
-          source={templateList}
-          value={templateId}
-          valueField="id"
-          titleField="name"
-          onChange={this.handleChangeTemplate}
-          controlLabel={t(Labels.Kanban.TEMPLATE_LIST)}
           controlClassName="ecos-btn_drop-down ecos-kanban__dropdown"
           menuClassName="ecos-kanban__dropdown-menu"
         />
@@ -188,6 +157,7 @@ class KanbanView extends React.Component {
         <div ref={bodyTopForwardedRef} className="ecos-journal-view__kanban-top">
           <Header title={name} config={boardConfig} configRec={this.boardId} />
           <Bar
+            {...this.props}
             urlParams={urlParams}
             isActivePage={isActivePage}
             stateId={stateId}

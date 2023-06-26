@@ -7,7 +7,7 @@ import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import DAction from '../../../services/DashletActionService';
 import { getStateId } from '../../../helpers/redux';
 import Dashlet from '../../Dashlet';
-import BaseWidget from '../BaseWidget';
+import BaseWidget, { EVENTS } from '../BaseWidget';
 import CurrentTasks from './CurrentTasks';
 
 import './style.scss';
@@ -49,7 +49,7 @@ class CurrentTasksDashlet extends BaseWidget {
       isOpenSettings: false
     };
 
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.reload);
   }
 
   get actions() {

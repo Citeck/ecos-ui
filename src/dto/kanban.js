@@ -20,6 +20,10 @@ export default class KanbanConverter {
     return target;
   }
 
+  static prepareStatuses(statuses) {
+    return statuses.map(status => ({ ...status, default: true }));
+  }
+
   static prepareColumns(source = []) {
     const target = {};
 

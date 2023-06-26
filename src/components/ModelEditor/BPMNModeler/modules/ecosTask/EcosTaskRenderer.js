@@ -6,7 +6,7 @@ import { isNil } from 'min-dash';
 import _ from 'lodash';
 
 import Records from '../../../../../components/Records/Records';
-import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, SUBPROCESS_TYPE } from '../../../../../constants/bpmn';
+import { ECOS_TASK_TYPE_SET_STATUS, ECOS_TASK_BASE_ELEMENT, SUBPROCESS_TYPE, BPMN_TASK_TYPES } from '../../../../../constants/bpmn';
 import { t } from '../../../../../helpers/util';
 
 const HIGH_PRIORITY = 1500;
@@ -29,27 +29,35 @@ export default class CustomRenderer extends BaseRenderer {
   }
 
   canRender(element) {
+    if (BPMN_TASK_TYPES.includes(element.type)) {
+      return false;
+    }
+
     return is(element, ECOS_TASK_BASE_ELEMENT) && _.get(element, 'businessObject.taskType') === ECOS_TASK_TYPE_SET_STATUS;
+  }
+
+  _getImage(path) {
+    return svgCreate('path', {
+      d: path,
+      opacity: '0.8',
+      stroke: 'none',
+      fill: 'black'
+    });
   }
 
   drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
-    const statusImage = svgCreate('path', {
-      d: STATUS_CHANGE_ICON_PATH,
-      opacity: '0.8',
-      stroke: 'none',
-      fill: 'black'
-    });
+    if (this.canRender(element)) {
+      svgAppend(parentNode, this._getImage(STATUS_CHANGE_ICON_PATH));
 
-    svgAppend(parentNode, statusImage);
-
-    if (is(element, ECOS_TASK_BASE_ELEMENT)) {
       const rootProcces = this.getRootProccess(element);
       const statusName = this.getStatusName(element);
 
-      if (!isNil(statusName) && _.isEmpty(this.getName(element))) {
-        Records.get(this.getEcosType(rootProcces))
+      if (!isNil(statusName) && _.isEmpty(this.getName(element)) && rootProcces) {
+        const ecosType = this.getEcosType(rootProcces);
+
+        Records.get(ecosType)
           .load('model.statuses[]{value:id,label:name}', false)
           .then(statuses => {
             if (!_.isEmpty(statuses)) {
@@ -58,11 +66,12 @@ export default class CustomRenderer extends BaseRenderer {
               if (status) {
                 const text = `${t('dashboard-settings.widget.doc-status')}: "${status.label || ''}"`;
 
-                this.renderLabel(parentNode, text, {
-                  align: 'center-middle',
-                  box: element,
-                  padding: 5
-                });
+                parentNode &&
+                  this.renderLabel(parentNode, text, {
+                    align: 'center-middle',
+                    box: element,
+                    padding: 5
+                  });
               }
             }
           });
@@ -111,7 +120,7 @@ export default class CustomRenderer extends BaseRenderer {
     const text = textUtil.createText(label, options);
     const textNode = svgSelect(parentGfx, 'text');
 
-    svgRemove(textNode);
+    textNode && svgRemove(textNode);
     svgClasses(text).add('djs-label');
     svgAppend(parentGfx, text);
 

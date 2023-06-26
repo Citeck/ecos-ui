@@ -50,13 +50,13 @@ const BtnAction = ({ id, text, icon, className, onClick, component }) => {
  *        orderedVisible {Array} displayed ordered buttons
  *        countShow {Number} displayed icon buttons
  *    }
- * @param dashboardEditable {Boolean} - the ability to edit the dashboard - define available actions > DashletActionService.uneditable
+ * @param widgetEditable {Boolean} - the ability to edit the widget - define available actions > DashletActionService.uneditable
  * @param appEdition {String} - app's version (ex. enterprise) - define available actions > DashletActionService.enterprise
  * @param isAdmin {Boolean} - define available actions > DashletActionService.administrative
  * @returns Elements
  */
-const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable, appEdition, isAdmin }) => {
-  const isAvailable = key => DashletActionService.isAvailable(key, { dashboardEditable, appEdition, isAdmin });
+const Actions = ({ actionConfig = {}, dashletId, actionRules, widgetEditable, appEdition, isAdmin }) => {
+  const isAvailable = key => DashletActionService.isAvailable(key, { widgetEditable, appEdition, isAdmin });
   const baseOrderActions = DashletActionService.baseOrder;
   const { orderedVisible, countShow = 4 } = actionRules || {};
   const outputActions = [];
@@ -147,7 +147,7 @@ const Actions = ({ actionConfig = {}, dashletId, actionRules, dashboardEditable,
 };
 
 Actions.propTypes = {
-  dashboardEditable: PropTypes.bool,
+  widgetEditable: PropTypes.bool,
   dashletId: PropTypes.string,
   actionConfig: PropTypes.objectOf(
     PropTypes.shape({

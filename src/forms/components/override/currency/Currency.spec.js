@@ -14,7 +14,7 @@ describe('Currency Component', () => {
     });
   });
 
-  it('Should format currency for USA locale', done => {
+  it('Should format currency for USA locale 1', done => {
     /* eslint-disable max-statements */
     Harness.testCreate(CurrencyComponent, comp1, { language: 'en-US' }).then(component => {
       Harness.testSetInput(component, null, null, '');
@@ -32,6 +32,14 @@ describe('Currency Component', () => {
       Harness.testSetInput(component, 1000, 1000, '$1,000.00');
       Harness.testSetInput(component, -1000, -1000, '-$1,000.00');
       Harness.testSetInput(component, 1000.01, 1000.01, '$1,000.01');
+      done();
+    });
+    /* eslint-enable max-statements */
+  });
+
+  it('Should format currency for USA locale 2', done => {
+    /* eslint-disable max-statements */
+    Harness.testCreate(CurrencyComponent, comp1, { language: 'en-US' }).then(component => {
       Harness.testSetInput(component, -1000.01, -1000.01, '-$1,000.01');
       Harness.testSetInput(component, 1234567890.12, 1234567890.12, '$1,234,567,890.12');
       Harness.testSetInput(component, -1234567890.12, -1234567890.12, '-$1,234,567,890.12');
@@ -46,6 +54,14 @@ describe('Currency Component', () => {
       Harness.testSetInput(component, '-1000', -1000, '-$1,000.00');
       Harness.testSetInput(component, '1000.01', 1000.01, '$1,000.01');
       Harness.testSetInput(component, '-1000.01', -1000.01, '-$1,000.01');
+      done();
+    });
+    /* eslint-enable max-statements */
+  });
+
+  it('Should format currency for USA locale 3', done => {
+    /* eslint-disable max-statements */
+    Harness.testCreate(CurrencyComponent, comp1, { language: 'en-US' }).then(component => {
       Harness.testSetInput(component, '1234567890.12', 1234567890.12, '$1,234,567,890.12');
       Harness.testSetInput(component, '-1234567890.12', -1234567890.12, '-$1,234,567,890.12');
       Harness.testSetInput(component, '123456789.123456789', 123456789.12, '$123,456,789.12');

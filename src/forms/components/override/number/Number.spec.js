@@ -2,11 +2,8 @@ import _ from 'lodash';
 
 import Harness from '../../../test/harness';
 import NumberComponent from './Number';
-import { basicSectionTest } from '../../../test/builder/helpers';
 
 import { comp1, comp2, comp3, comp4 } from './fixtures';
-
-basicSectionTest(NumberComponent);
 
 describe('Number Component', () => {
   it('Should build an number component', done => {
@@ -41,6 +38,14 @@ describe('Number Component', () => {
       Harness.testSetInput(component, -1234567890.12, -1234567890.12, '-1 234 567 890.12');
       Harness.testSetInput(component, 12.123456789, 12.123456789, '12.123456789');
       Harness.testSetInput(component, -12.123456789, -12.123456789, '-12.123456789');
+      done();
+    });
+    /* eslint-enable max-statements */
+  });
+
+  it('Should format numbers for USA locale float', done => {
+    /* eslint-disable max-statements */
+    Harness.testCreate(NumberComponent, comp2, { language: 'en-US' }).then(component => {
       // These tests run into the maximum number of significant digits for floats.
       Harness.testSetInput(component, 123456789.123456789, 123456789.123456789, '123 456 789.12345679');
       Harness.testSetInput(component, -123456789.123456789, -123456789.123456789, '-123 456 789.12345679');

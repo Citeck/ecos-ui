@@ -7,7 +7,7 @@ import { getAdaptiveNumberStr, isSmallMode, t } from '../../../helpers/util';
 import { getStateId } from '../../../helpers/redux';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
-import BaseWidget from '../BaseWidget';
+import BaseWidget, { EVENTS } from '../BaseWidget';
 import Tasks from './Tasks';
 
 import './style.scss';
@@ -48,7 +48,7 @@ class TasksDashlet extends BaseWidget {
       isLoading: true
     };
 
-    this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'tasks.active-hash'])];
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.reload);
   }
 
   get stateId() {
@@ -123,6 +123,7 @@ class TasksDashlet extends BaseWidget {
           setInfo={this.setInfo}
           scrollbarProps={this.scrollbarProps}
           setFormRef={this.setFormRef}
+          instanceRecord={this.instanceRecord}
         />
       </Dashlet>
     );
