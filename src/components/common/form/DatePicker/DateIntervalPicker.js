@@ -64,7 +64,8 @@ class DateIntervalPicker extends Component {
     value: PropTypes.string,
     showTimeInput: PropTypes.bool,
     isRelativeToParent: PropTypes.bool,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    disabled: PropTypes.bool
   };
 
   #componentRef = React.createRef();
@@ -556,6 +557,7 @@ class DateIntervalPicker extends Component {
 
   render() {
     const { selectedPart } = this.state;
+    const { disabled } = this.props;
 
     return (
       <div ref={this.#componentRef} className="ecos-dp-interval">
@@ -569,6 +571,7 @@ class DateIntervalPicker extends Component {
             narrow
             placeholder="- - -"
             value={this.startLabel}
+            disabled={disabled}
             onClick={() => this.handleClick(DateInputs.START)}
           />
           <Input
@@ -580,6 +583,7 @@ class DateIntervalPicker extends Component {
             narrow
             placeholder="- - -"
             value={this.endLabel}
+            disabled={disabled}
             onClick={() => this.handleClick(DateInputs.END)}
           />
         </div>

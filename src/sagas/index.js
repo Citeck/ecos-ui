@@ -12,6 +12,7 @@ import dashboard from './dashboard';
 import dashboardSettings from './dashboardSettings';
 import dmn from './dmn';
 import dmnEditor from './dmnEditor';
+import charts from './charts';
 import menu from './menu';
 import slideMenu from './slideMenu';
 import menuSettings from './menuSettings';
@@ -58,6 +59,7 @@ export default function* rootSaga(extraArguments) {
     dashboardSettings(extraArguments),
     dmn(extraArguments),
     dmnEditor(extraArguments),
+    charts(extraArguments),
     menu(extraArguments),
     slideMenu(extraArguments),
     menuSettings(extraArguments),

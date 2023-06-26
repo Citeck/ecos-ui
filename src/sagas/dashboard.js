@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 
@@ -96,7 +97,7 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
   yield put(setRequestResultDashboard({ key: payload.key }));
 
   try {
-    let { config, recordRef } = payload;
+    let { config, recordRef, callback } = payload;
     const identification = yield select(selectIdentificationForView);
 
     if (!get(config, 'version')) {
@@ -162,6 +163,8 @@ function* doSaveDashboardConfigRequest({ api, logger }, { payload }) {
         key: payload.key
       })
     );
+
+    isFunction(callback) && callback();
   } catch (e) {
     yield put(setLoading({ key: payload.key, status: false }));
     NotificationManager.error(t('dashboard.error.save-config'), t('error'));
