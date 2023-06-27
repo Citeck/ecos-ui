@@ -25,14 +25,17 @@ const mapDispatchToProps = dispatch => ({
 const BPMNDesigner = ({ createCategory, hidden, isReady, initSection, updateModels }) => {
   const [initialized, setInitialized] = useState(false);
 
-  useEffect(() => {
-    if (!hidden && !initialized) {
-      setInitialized(true);
-      initSection();
-    } else if (!hidden) {
-      updateModels();
-    }
-  }, [initialized, hidden]);
+  useEffect(
+    () => {
+      if (!hidden && !initialized) {
+        setInitialized(true);
+        initSection();
+      } else if (!hidden) {
+        updateModels();
+      }
+    },
+    [initialized, hidden]
+  );
 
   return (
     <div className={classNames('ecos-designer', { 'd-none': hidden })}>

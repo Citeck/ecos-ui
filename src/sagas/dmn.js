@@ -22,7 +22,7 @@ import {
 } from '../actions/dmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/dmn';
-import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/dmn';
+import { getPagePositionState, savePagePositionState } from '../helpers/dmn';
 import { EDITOR_PAGE_CONTEXT } from '../constants/dmn';
 import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
@@ -38,10 +38,8 @@ function* initDmn({ api, logger }) {
     yield put(setModels(models));
     yield put(setCreateVariants(createVariants));
 
-    const pagePosition = yield call(getPagePositionState);
+    const pagePosition = JSON.parse(yield call(getPagePositionState));
     if (pagePosition) {
-      yield call(removePagePositionState);
-
       // TODO: optimization
       if (pagePosition.openedCategories) {
         for (const categoryId of pagePosition.openedCategories) {

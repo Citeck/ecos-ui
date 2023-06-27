@@ -14,7 +14,7 @@ import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
 import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
-import ModelViewer from '../../ModelViewer';
+import BPMNViewer from '../../ModelViewer/BPMNViewer';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
 import Section from './Section';
 
@@ -81,7 +81,7 @@ class Model extends React.Component {
 
   componentDidMount() {
     this.getModel();
-    this.designer = new ModelViewer();
+    this.designer = new BPMNViewer();
     document.addEventListener('mouseup', this.handleMouseUp);
   }
 
@@ -109,7 +109,7 @@ class Model extends React.Component {
 
     if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
       this.setState({ isShowHeatmap: showHeatmapDefault }, () => {
-        this.renderHeatmap();
+        showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
       });
     }
 
@@ -157,6 +157,10 @@ class Model extends React.Component {
   toggleTempHeatmap = isTempHeatmapOff => {
     this.setState({ isTempHeatmapOff });
     this.handleToggleHeatmap();
+  };
+
+  switchHeatMapOff = () => {
+    this.designer && this.designer.heatmap && this.designer.heatmap.updateData(new Set([]));
   };
 
   handleMouseDown = throttle(() => {
@@ -233,7 +237,7 @@ class Model extends React.Component {
 
         switch (true) {
           case isHeatmapMounted && !isShowHeatmap:
-            this.designer.heatmap.updateData(new Set([]));
+            this.switchHeatMapOff();
             break;
           case isShowHeatmap && isModelMounted:
             this.reRenderHeatmap();

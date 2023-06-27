@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
 import { initAdminSection, updActiveSection } from '../../actions/adminSection';
@@ -36,11 +37,10 @@ class AdminPage extends React.Component {
   }
 
   get isAccessibleSectionType() {
-    const {
-      urlParams: { type }
-    } = this.props;
+    const { urlParams } = this.props;
+    const { type } = urlParams;
 
-    return type === SectionTypes.BPM || type === SectionTypes.DMN;
+    return isEmpty(urlParams) || type === SectionTypes.BPM || type === SectionTypes.DMN;
   }
 
   render() {
@@ -50,11 +50,14 @@ class AdminPage extends React.Component {
       return <Loader height={100} width={100} />;
     }
 
-    if (!isAccessible && !this.isAccessibleSectionType) {
-      return <Well className="admin-page__access-denied">{t('admin-section.error.access-denied')}</Well>;
-    }
-
-    return <AdminSection {...this.props} />;
+    return (
+      <>
+        {!isAccessible && !this.isAccessibleSectionType && (
+          <Well className="admin-page__access-denied">{t('admin-section.error.access-denied')}</Well>
+        )}
+        <AdminSection {...this.props} isAccessibleSectionType={this.isAccessibleSectionType} />
+      </>
+    );
   }
 }
 

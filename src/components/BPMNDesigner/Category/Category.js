@@ -9,7 +9,8 @@ import {
   saveCategoryRequest,
   setCategoryCollapseState,
   setIsEditable,
-  createModel
+  createModel,
+  savePagePosition
 } from '../../../actions/bpmn';
 import { hideModal, showModal } from '../../../actions/modal';
 
@@ -24,9 +25,11 @@ const mapDispatchToProps = (dispatch, props) => ({
   },
   toggleCollapse: () => {
     dispatch(setCategoryCollapseState({ id: props.itemId, isOpen: !props.isOpen }));
+    dispatch(savePagePosition());
   },
   setCollapse: isOpen => {
     dispatch(setCategoryCollapseState({ id: props.itemId, isOpen }));
+    dispatch(savePagePosition());
   },
   showDeleteCategoryModal: () => {
     dispatch(

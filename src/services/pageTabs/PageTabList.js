@@ -8,6 +8,10 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
+import { removePagePositionState as removeBPMPagePositionState } from '../../helpers/bpmn';
+import { removePagePositionState as removeDMNPagePositionState } from '../../helpers/dmn';
+import { SectionTypes } from '../../constants/adminSection';
+import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
@@ -159,6 +163,14 @@ class PageTabList {
    * @returns {PageTab | undefined}
    */
   delete(tab) {
+    if (tab.link && tab.link === `${URL.ADMIN_PAGE}?type=${SectionTypes.BPM}`) {
+      removeBPMPagePositionState();
+    }
+
+    if (tab.link && tab.link === `${URL.ADMIN_PAGE}?type=${SectionTypes.DMN}`) {
+      removeDMNPagePositionState();
+    }
+
     if (Array.isArray(tab)) {
       this.#deleteTabs(tab);
       return;
