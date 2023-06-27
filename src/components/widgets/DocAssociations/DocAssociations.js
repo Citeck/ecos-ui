@@ -9,7 +9,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 import isArray from 'lodash/isArray';
 
-import BaseWidget from '../BaseWidget';
+import BaseWidget, { EVENTS } from '../BaseWidget';
 import { getAdaptiveNumberStr, t, isMobileDevice } from '../../../helpers/util';
 import { MIN_WIDTH_DASHLET_SMALL } from '../../../constants/index';
 import {
@@ -188,6 +188,7 @@ class DocAssociations extends BaseWidget {
         {
           onSubmit: () => {
             this.handleReloadData();
+            this.instanceRecord.events.emit(EVENTS.ASSOC_UPDATE);
           }
         }
       );
