@@ -44,7 +44,6 @@ const disabledReplaceMenuForEvents = [
   'replace-with-none-intermediate-throwing', // Intermediate Throw Event
   'replace-with-conditional-start', // Conditional Start Event
   'replace-with-compensation-end', // Compensation End Event
-  'replace-with-terminate-end', // Terminate End Event
   'replace-with-escalation-end', // Escalation End Event
   'replace-with-error-end' // Error End Event
 ];
