@@ -35,14 +35,12 @@ const disabledReplaceMenuForTasks = [
 ];
 
 const disabledReplaceMenuForEvents = [
-  'replace-with-conditional-intermediate-catch', // Conditional Intermediate Catch Event
   'replace-with-none-intermediate-throw', // Intermediate Throw Event
   'replace-with-escalation-intermediate-throw', // Escalation Intermediate Throw Event
   'replace-with-compensation-intermediate-throw', // Compensation Intermediate Throw Event
   'replace-with-link-intermediate-throw', // Link Intermediate Throw Event
   'replace-with-link-intermediate-catch', // Link Intermediate Catch Event
   'replace-with-none-intermediate-throwing', // Intermediate Throw Event
-  'replace-with-conditional-start', // Conditional Start Event
   'replace-with-compensation-end', // Compensation End Event
   'replace-with-escalation-end', // Escalation End Event
   'replace-with-error-end' // Error End Event
