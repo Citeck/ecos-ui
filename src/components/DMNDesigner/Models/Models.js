@@ -10,6 +10,7 @@ import recordActions from '../../../components/Records/actions/recordActions';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
 
 import RecordActions from '../../../components/Records/actions/recordActions';
+import PageService from '../../../services/PageService';
 import { Labels } from '../../../constants/commonDesigner';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/dmn';
 
@@ -23,6 +24,19 @@ const mapStateToProps = (state, props) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  onViewLinkClick: e => {
+    e.preventDefault();
+
+    dispatch(
+      savePagePosition({
+        callback: () => {
+          PageService.changeUrlLink(e.currentTarget.href, {
+            openNewTab: true
+          });
+        }
+      })
+    );
+  },
   onEditLinkClick: (e, modelId) => {
     e.preventDefault();
 

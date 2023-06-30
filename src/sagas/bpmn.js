@@ -2,6 +2,7 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import endsWith from 'lodash/endsWith';
+import isFunction from 'lodash/isFunction';
 
 import { EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { t } from '../helpers/util';
@@ -192,7 +193,7 @@ function* doSavePagePosition({ api, logger }, action) {
       viewType
     });
 
-    action.payload && typeof action.payload.callback === 'function' && action.payload.callback();
+    action.payload && isFunction(action.payload.callback) && action.payload.callback();
   } catch (e) {
     logger.error('[bpmn doShowImportModelForm saga] error', e);
   }

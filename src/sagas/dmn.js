@@ -2,6 +2,7 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import endsWith from 'lodash/endsWith';
+import isFunction from 'lodash/isFunction';
 
 import {
   updateModels,
@@ -182,6 +183,8 @@ function* doSavePagePosition({ api, logger }, action) {
       openedCategories,
       viewType
     });
+
+    action.payload && isFunction(action.payload.callback) && action.payload.callback();
   } catch (e) {
     logger.error('[dmn doShowImportModelForm saga] error', e);
   }
