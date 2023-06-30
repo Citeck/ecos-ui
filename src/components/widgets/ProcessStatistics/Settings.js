@@ -94,12 +94,20 @@ export default class Settings extends React.Component {
             <Caption small className="ecos-process-statistics-settings__title">
               {t(Labels.SETTINGS_DEFAULT_FLAGS)}
             </Caption>
-            {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
+            {this.renderFlags(
+              formMode === EXTENDED_MODE
+                ? ['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault']
+                : ['showModelDefault']
+            )}
 
-            <Caption small className="ecos-process-statistics-settings__title">
-              {t(Labels.SETTINGS_READ_OUT)}
-            </Caption>
-            {this.renderFlags(['displayHeatmapToolbar'])}
+            {formMode === EXTENDED_MODE && (
+              <>
+                <Caption small className="ecos-process-statistics-settings__title">
+                  {t(Labels.SETTINGS_READ_OUT)}
+                </Caption>
+                {this.renderFlags(['displayHeatmapToolbar'])}
+              </>
+            )}
           </>
         )}
         <div className="ecos-process-statistics-settings__buttons">

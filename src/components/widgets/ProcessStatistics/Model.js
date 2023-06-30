@@ -348,11 +348,11 @@ class Model extends React.Component {
         >
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
-          {isModelMounted && this.designer.heatmap && (
+          {isModelMounted && (
             <div className="ecos-process-statistics-model__panel">
               <Scaler onClick={this.handleClickZoom} />
               <div className="ecos-process-statistics__delimiter" />
-              {isExtendedMode && !isEmpty(heatmapData) && this.renderSwitches()}
+              {isExtendedMode && this.designer.heatmap && !isEmpty(heatmapData) && this.renderSwitches()}
             </div>
           )}
           {model && (
