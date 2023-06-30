@@ -227,14 +227,16 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     result.forEach((data = {}, i) => {
       const prevRecords = get(prevDataCards, [i, 'records'], []);
+      const prevTotalCount = get(prevDataCards, [i, 'totalCount'], 0);
+      const prevStatus = get(prevDataCards, [i, 'status'], '');
 
       if (!data.records || data.error) {
         data.error && console.error('[kanban/sagaGetData saga] error column', data.error);
         dataCards.push({
-          totalCount: get(prevDataCards, [i, 'totalCount'], 0),
+          totalCount: prevTotalCount,
           records: prevRecords,
           error: get(data, 'error.message'),
-          status: data.status
+          status: prevStatus
         });
       } else {
         const preparedRecords = data.records.map(recordData => EcosFormUtils.postProcessingAttrsData({ recordData, inputByKey }));
