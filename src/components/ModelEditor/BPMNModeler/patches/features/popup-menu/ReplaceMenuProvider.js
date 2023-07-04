@@ -30,7 +30,6 @@ const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
 const disabledReplaceMenuForTasks = [
   'replace-with-call-activity', // Call Activity
   'replace-with-manual-task', // Manual Task
-  'replace-with-service-task', // Service task
   'replace-with-receive-task' // Receive task
 ];
 
@@ -42,8 +41,7 @@ const disabledReplaceMenuForEvents = [
   'replace-with-link-intermediate-catch', // Link Intermediate Catch Event
   'replace-with-none-intermediate-throwing', // Intermediate Throw Event
   'replace-with-compensation-end', // Compensation End Event
-  'replace-with-escalation-end', // Escalation End Event
-  'replace-with-error-end' // Error End Event
+  'replace-with-escalation-end' // Escalation End Event
 ];
 
 const disabledReplaceMenuForGateway = [

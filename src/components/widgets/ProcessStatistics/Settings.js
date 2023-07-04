@@ -89,25 +89,16 @@ export default class Settings extends React.Component {
             onChange={selectedJournal => this.setState({ selectedJournal })}
           />
         </Field>
-        {!!HeatmapWrapper && (
+        {!!HeatmapWrapper && formMode === EXTENDED_MODE && (
           <>
             <Caption small className="ecos-process-statistics-settings__title">
               {t(Labels.SETTINGS_DEFAULT_FLAGS)}
             </Caption>
-            {this.renderFlags(
-              formMode === EXTENDED_MODE
-                ? ['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault']
-                : ['showModelDefault']
-            )}
-
-            {formMode === EXTENDED_MODE && (
-              <>
-                <Caption small className="ecos-process-statistics-settings__title">
-                  {t(Labels.SETTINGS_READ_OUT)}
-                </Caption>
-                {this.renderFlags(['displayHeatmapToolbar'])}
-              </>
-            )}
+            {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
+            <Caption small className="ecos-process-statistics-settings__title">
+              {t(Labels.SETTINGS_READ_OUT)}
+            </Caption>
+            {this.renderFlags(['displayHeatmapToolbar'])}
           </>
         )}
         <div className="ecos-process-statistics-settings__buttons">
