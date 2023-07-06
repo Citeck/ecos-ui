@@ -278,17 +278,26 @@ class Model extends React.Component {
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
+    const { heatmapData, isExtendedMode, showCountersDefault, showHeatmapDefault } = this.props;
+
+    if (!isExtendedMode) {
+      return null;
+    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
-          <ControlledCheckbox checked={isShowCounters} />
-          <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
-        </div>
-        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
-          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
-          <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
-        </div>
+        {showCountersDefault && (
+          <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
+            <ControlledCheckbox checked={isShowCounters} />
+            <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
+          </div>
+        )}
+        {showHeatmapDefault && this.designer.heatmap && isEmpty(heatmapData) && (
+          <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
+            <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
+            <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
+          </div>
+        )}
       </div>
     );
   };
@@ -317,7 +326,7 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar, isExtendedMode } = this.props;
+    const { model, isLoading, showModelDefault, width, isMobile, displayHeatmapToolbar } = this.props;
     const {
       isModelMounted,
       isModelMounting,
@@ -352,7 +361,7 @@ class Model extends React.Component {
             <div className="ecos-process-statistics-model__panel">
               <Scaler onClick={this.handleClickZoom} />
               <div className="ecos-process-statistics__delimiter" />
-              {isExtendedMode && this.designer.heatmap && !isEmpty(heatmapData) && this.renderSwitches()}
+              {this.renderSwitches()}
             </div>
           )}
           {model && (
@@ -368,7 +377,7 @@ class Model extends React.Component {
                   onWheel={this.handleWheel}
                 />
               )}
-              {!isLoading && displayHeatmapToolbar && this.designer.heatmap && (
+              {!isLoading && isShowHeatmap && displayHeatmapToolbar && this.designer.heatmap && (
                 <div
                   className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
                     invisible: !isTempHeatmapOff && !isHeatmapMounted
