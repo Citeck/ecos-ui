@@ -4,6 +4,7 @@ import { connectRouter } from 'connected-react-router';
 import app from './app';
 import bpmn from './bpmn';
 import bpmnEditor from './bpmnEditor';
+import charts from './charts';
 import header from './header';
 import modal from './modal';
 import notification from './notification';
@@ -51,6 +52,7 @@ const reducers = {
   app,
   bpmn,
   bpmnEditor,
+  charts,
   header,
   modal,
   notification,

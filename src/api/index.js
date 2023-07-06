@@ -29,6 +29,7 @@ import { UserConfigApi } from './userConfig';
 import { VersionsJournalApi } from './versionsJournal';
 import { ViewApi } from './view';
 import { DocConstructorApi } from './docConstructor';
+import { ChartsApi } from './charts';
 import { CustomIconApi } from './customIcon';
 import { AdminSectionApi } from './adminSection';
 import { DevToolsApi } from './devTools';
@@ -74,6 +75,7 @@ export function configureAPI() {
   api.cmmn = new CmmnApi();
   api.devTools = new DevToolsApi();
   api.kanban = new KanbanApi();
+  api.charts = new ChartsApi();
 
   const setNotAuthCallback = function(cb) {
     for (let key in api) {

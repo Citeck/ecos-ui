@@ -33,6 +33,7 @@ export const ComponentKeys = {
   DOC_CONSTRUCTOR: 'doc-constructor',
   PROCESS_STATISTICS: 'process-statistics',
   STAGES: 'stages',
+  CHARTS: 'charts',
   KANBAN_BOARD: 'kanban-board'
 };
 
@@ -220,6 +221,30 @@ export default class Components {
       },
       label: 'dashboard-settings.widget.kanbanBoard',
       supportedDashboardTypes: [DashboardTypes.CASE_DETAILS]
+    },
+    [ComponentKeys.CHARTS]: {
+      load: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.ChartsWidget', () => null)
+          }))
+        ),
+      settings: () =>
+        lazy(() =>
+          import('../../plugins').then(plugins => ({
+            default: get(plugins, 'default.ChartsWidgetSettings', () => null)
+          }))
+        ),
+      checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.ChartsWidget')),
+      label: 'dashboard-settings.widget.charts',
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER],
+      props: {
+        config: {
+          [CONFIG_VERSION]: {
+            fillPrevStages: true
+          }
+        }
+      }
     },
     [ComponentKeys.STAGES]: {
       load: () =>
