@@ -134,8 +134,7 @@ export default class Widget extends BaseWidget {
   handleSaveConfig = config => {
     const { onSave, id } = this.props;
 
-    isFunction(onSave) && onSave(id, { config });
-    this.handleToggleSettings();
+    isFunction(onSave) && onSave(id, { config }, this.handleToggleSettings);
   };
 
   render() {

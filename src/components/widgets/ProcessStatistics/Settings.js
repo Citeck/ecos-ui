@@ -35,13 +35,16 @@ export default class Settings extends React.Component {
       showJournalDefault: get(props, 'config.showJournalDefault'),
       showCountersDefault: get(props, 'config.showCountersDefault'),
       displayHeatmapToolbar: get(props, 'config.displayHeatmapToolbar'),
-      formMode: get(props, 'config.formMode', EXTENDED_MODE)
+      formMode: get(props, 'config.formMode', EXTENDED_MODE),
+      isLoading: false
     };
   }
 
   onCancel = () => this.props.onCancel();
 
   onSave = () => {
+    this.setState({ isLoading: true });
+
     this.props.onSave({ ...this.state });
   };
 
@@ -56,7 +59,7 @@ export default class Settings extends React.Component {
   };
 
   render() {
-    const { selectedJournal, formMode } = this.state;
+    const { selectedJournal, isLoading, showHeatmapDefault, showModelDefault, formMode } = this.state;
 
     const { HeatmapWrapper } = plugins;
 
@@ -95,17 +98,21 @@ export default class Settings extends React.Component {
               {t(Labels.SETTINGS_DEFAULT_FLAGS)}
             </Caption>
             {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
-            <Caption small className="ecos-process-statistics-settings__title">
-              {t(Labels.SETTINGS_READ_OUT)}
-            </Caption>
-            {this.renderFlags(['displayHeatmapToolbar'])}
+            {showHeatmapDefault && (
+              <>
+                <Caption small className="ecos-process-statistics-settings__title">
+                  {t(Labels.SETTINGS_READ_OUT)}
+                </Caption>
+                {showModelDefault && this.renderFlags(['displayHeatmapToolbar'])}
+              </>
+            )}
           </>
         )}
         <div className="ecos-process-statistics-settings__buttons">
           <Btn className="ecos-btn_hover_light-blue" onClick={this.onCancel}>
             {t(Labels.SETTINGS_BTN_CANCEL)}
           </Btn>
-          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.onSave}>
+          <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" loading={isLoading} disabled={isLoading} onClick={this.onSave}>
             {t(Labels.SETTINGS_BTN_SAVE)}
           </Btn>
         </div>
