@@ -1,0 +1,45 @@
+diff --git a/node_modules/diagram-js/lib/features/keyboard/Keyboard.js b/node_modules/diagram-js/lib/features/keyboard/Keyboard.js
+index c15c101..d0372dc 100644
+--- a/node_modules/diagram-js/lib/features/keyboard/Keyboard.js
++++ b/node_modules/diagram-js/lib/features/keyboard/Keyboard.js
+@@ -116,9 +116,6 @@ Keyboard.prototype._keyHandler = function(event, type) {
+ };
+ 
+ Keyboard.prototype._isEventIgnored = function(event) {
+-  if (event.defaultPrevented) {
+-    return true;
+-  }
+ 
+   return isInput(event.target) && this._isModifiedKeyIgnored(event);
+ };
+diff --git a/node_modules/diagram-js/lib/features/keyboard/KeyboardUtil.js b/node_modules/diagram-js/lib/features/keyboard/KeyboardUtil.js
+index 561cca6..aa19823 100644
+--- a/node_modules/diagram-js/lib/features/keyboard/KeyboardUtil.js
++++ b/node_modules/diagram-js/lib/features/keyboard/KeyboardUtil.js
+@@ -1,9 +1,14 @@
+ import { isArray } from 'min-dash';
+ 
+-export var KEYS_COPY = [ 'c', 'C' ];
+-export var KEYS_PASTE = [ 'v', 'V' ];
+-export var KEYS_REDO = [ 'y', 'Y' ];
+-export var KEYS_UNDO = [ 'z', 'Z' ];
++var KEY_C = 'KeyC';
++var KEY_V = 'KeyV';
++var KEY_Y = 'KeyY';
++var KEY_Z = 'KeyZ';
++
++export var KEYS_COPY = [ 'c', 'C', KEY_C ];
++export var KEYS_PASTE = [ 'v', 'V', KEY_V ];
++export var KEYS_REDO = [ 'y', 'Y', KEY_Y ];
++export var KEYS_UNDO = [ 'z', 'Z', KEY_Z ];
+ 
+ /**
+  * Returns true if event was triggered with any modifier
+@@ -37,7 +42,6 @@ export function isCmd(event) {
+  */
+ export function isKey(keys, event) {
+   keys = isArray(keys) ? keys : [ keys ];
+-
+   return keys.indexOf(event.key) !== -1 || keys.indexOf(event.code) !== -1;
+ }
+ 
