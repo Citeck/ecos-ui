@@ -176,9 +176,10 @@ export default class BaseModeler {
     if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
       const prevName = get(element, 'businessObject.name', '');
+      const newLabel = name && name.trim() ? name : null;
 
-      if (!isEqual(prevName, name)) {
-        labelEditingProvider.update(element, name);
+      if (!isEqual(prevName, newLabel)) {
+        labelEditingProvider.update(element, newLabel);
       }
     }
 
