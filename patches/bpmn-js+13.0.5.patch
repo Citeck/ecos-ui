@@ -1,0 +1,76 @@
+diff --git a/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js b/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js
+index 60236de..d38cee7 100644
+--- a/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js
++++ b/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js
+@@ -55,7 +55,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+ 
+     var event = context.keyEvent;
+ 
+-    if (keyboard.isKey([ 'a', 'A' ], event) && keyboard.isCmd(event)) {
++    if (keyboard.isKey([ 'a', 'A', 'KeyA' ], event) && keyboard.isCmd(event)) {
+       editorActions.trigger('selectElements');
+ 
+       return true;
+@@ -68,7 +68,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+ 
+     var event = context.keyEvent;
+ 
+-    if (keyboard.isKey([ 'f', 'F' ], event) && keyboard.isCmd(event)) {
++    if (keyboard.isKey([ 'f', 'F', 'KeyF' ], event) && keyboard.isCmd(event)) {
+       editorActions.trigger('find');
+ 
+       return true;
+@@ -85,7 +85,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+       return;
+     }
+ 
+-    if (keyboard.isKey([ 's', 'S' ], event)) {
++    if (keyboard.isKey([ 's', 'S', 'KeyS' ], event)) {
+       editorActions.trigger('spaceTool');
+ 
+       return true;
+@@ -102,7 +102,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+       return;
+     }
+ 
+-    if (keyboard.isKey([ 'l', 'L' ], event)) {
++    if (keyboard.isKey([ 'l', 'L', 'KeyL' ], event)) {
+       editorActions.trigger('lassoTool');
+ 
+       return true;
+@@ -119,7 +119,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+       return;
+     }
+ 
+-    if (keyboard.isKey([ 'h', 'H' ], event)) {
++    if (keyboard.isKey([ 'h', 'H', 'KeyH' ], event)) {
+       editorActions.trigger('handTool');
+ 
+       return true;
+@@ -136,7 +136,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+       return;
+     }
+ 
+-    if (keyboard.isKey([ 'c', 'C' ], event)) {
++    if (keyboard.isKey([ 'c', 'C', 'KeyC' ], event)) {
+       editorActions.trigger('globalConnectTool');
+ 
+       return true;
+@@ -153,7 +153,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+       return;
+     }
+ 
+-    if (keyboard.isKey([ 'e', 'E' ], event)) {
++    if (keyboard.isKey([ 'e', 'E', 'KeyE' ], event)) {
+       editorActions.trigger('directEditing');
+ 
+       return true;
+@@ -170,7 +170,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
+       return;
+     }
+ 
+-    if (keyboard.isKey([ 'r', 'R' ], event)) {
++    if (keyboard.isKey([ 'r', 'R', 'KeyR' ], event)) {
+       editorActions.trigger('replaceElement', event);
+ 
+       return true;
