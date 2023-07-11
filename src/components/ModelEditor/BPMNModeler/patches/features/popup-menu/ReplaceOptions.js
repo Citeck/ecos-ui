@@ -433,12 +433,49 @@ export const BOUNDARY_EVENT = [
     }
   },
   {
+    label: 'Conditional Boundary Event',
+    actionName: 'replace-with-conditional-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-condition',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:ConditionalEventDefinition'
+    }
+  },
+  {
+    label: 'Error Boundary Event',
+    actionName: 'replace-with-error-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-error',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:ErrorEventDefinition'
+    }
+  },
+  {
+    label: 'Cancel Boundary Event',
+    actionName: 'replace-with-cancel-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-cancel',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:CancelEventDefinition'
+    }
+  },
+  {
     label: 'Signal Boundary Event',
     actionName: 'replace-with-signal-boundary',
     className: 'bpmn-icon-intermediate-event-catch-signal',
     target: {
       type: 'bpmn:BoundaryEvent',
       eventDefinitionType: 'bpmn:SignalEventDefinition'
+    }
+  },
+  {
+    label: 'Conditional Boundary Event (non-interrupting)',
+    actionName: 'replace-with-non-interrupting-conditional-boundary',
+    className: 'bpmn-icon-intermediate-event-catch-non-interrupting-condition',
+    target: {
+      type: 'bpmn:BoundaryEvent',
+      eventDefinitionType: 'bpmn:ConditionalEventDefinition',
+      cancelActivity: false
     }
   },
   {
