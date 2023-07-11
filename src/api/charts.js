@@ -26,10 +26,13 @@ export class ChartsApi {
       return;
     }
 
+    const [mainGroupByParam] = groupByParams;
+
     return Records.query(
       {
         sourceId: `emodel/${journalId}`,
         language: 'predicate',
+        sortBy: [{ attribute: this._getSortByAttribute(mainGroupByParam), ascending: true }],
         groupBy: this._getGroupByField(groupByParams),
         query: isEmpty(predicate)
           ? typePredicate
@@ -59,6 +62,12 @@ export class ChartsApi {
           val: param.dateRange
         };
       });
+  };
+
+  _getSortByAttribute = (mainGroupByParam = {}) => {
+    return mainGroupByParam.isDateColumn
+      ? `(date_trunc('${mainGroupByParam.dateParam}', ${mainGroupByParam.attribute}))`
+      : mainGroupByParam.attribute;
   };
 
   _getAttributes = groupByParams => {
