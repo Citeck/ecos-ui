@@ -59,7 +59,7 @@ const disabledHeaderEntriesByElements = {
 };
 
 //TODO: find a better way to disable elements
-ReplaceMenuProvider.prototype.getEntries = function(element) {
+ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
   const businessObject = element.businessObject;
   const differentType = isDifferentType(element);
 
