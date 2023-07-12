@@ -292,7 +292,7 @@ class Model extends React.Component {
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
           </div>
         )}
-        {showHeatmapDefault && this.designer.heatmap && isEmpty(heatmapData) && (
+        {showHeatmapDefault && this.designer.heatmap && !isEmpty(heatmapData) && (
           <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
             <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
@@ -303,7 +303,11 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount } = this.state;
+    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
+
+    if (!isShowCounters) {
+      return null;
+    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
@@ -377,16 +381,16 @@ class Model extends React.Component {
                   onWheel={this.handleWheel}
                 />
               )}
-              {!isLoading && isShowHeatmap && displayHeatmapToolbar && this.designer.heatmap && (
+              {!isLoading && displayHeatmapToolbar && this.designer.heatmap && (
                 <div
                   className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
                     invisible: !isTempHeatmapOff && !isHeatmapMounted
                   })}
                 >
-                  <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
+                  {isShowHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
-                  <Legend {...legendData} />
+                  {isShowHeatmap && <Legend {...legendData} />}
                 </div>
               )}
             </ResizableBox>
