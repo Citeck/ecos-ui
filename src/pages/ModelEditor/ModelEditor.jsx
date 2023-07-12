@@ -614,6 +614,7 @@ class ModelEditorPage extends React.Component {
     }
 
     this.designer.updateProps(element, modelData, !fromCachedLabels);
+    this.cacheFormData();
 
     if (selectedDiagramElement) {
       const eventBus = this.designer.getEventBus();
