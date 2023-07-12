@@ -925,12 +925,13 @@ function* sagaEditJournalSetting({ api, logger, stateId, w }, action) {
 function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
   try {
     const { settings } = action.payload;
-    const { columns, groupBy, sortBy, predicate, grouping } = settings;
+    const { columns, groupBy = [], sortBy: sortByFromSetting, predicate, grouping } = settings;
     const predicates = beArray(predicate);
     const maxItems = yield select(selectGridPaginationMaxItems, stateId);
     const pagination = { ...DEFAULT_PAGINATION, maxItems };
     const url = yield select(selectUrl, stateId);
-
+    const sortBy = sortByFromSetting.filter(predicate => groupBy.includes(predicate.attribute));
+    settings.sortBy = sortBy;
     yield put(setJournalSetting(w(settings)));
     if (settings.kanban) {
       yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
