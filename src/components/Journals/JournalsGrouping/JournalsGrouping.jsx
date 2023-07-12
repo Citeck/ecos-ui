@@ -37,6 +37,7 @@ const JournalsGrouping = props => {
         className={'journals-grouping'}
         groupBy={get(grouping, 'groupBy')}
         list={columns}
+        allowedColumns={allowedColumns}
         grouping={groupingList}
         aggregation={aggregation}
         valueField={'attribute'}
