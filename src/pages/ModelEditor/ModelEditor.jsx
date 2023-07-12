@@ -580,8 +580,17 @@ class ModelEditorPage extends React.Component {
         modelData[PREFIX_FIELD + 'defId'] = rawValue;
       }
 
-      if (is(selectedDiagramElement, DEFINITON_TYPE) && key === 'processDefId') {
-        modelData['id'] = rawValue;
+      if (key === 'processDefId') {
+        if (is(selectedDiagramElement, DEFINITON_TYPE)) {
+          modelData['id'] = rawValue;
+        }
+
+        if (is(selectedDiagramElement, TYPE_BPMN_PROCESS)) {
+          const modeler = this.designer.modeler;
+          const modeling = modeler.get('modeling');
+
+          modeling.updateProperties(selectedDiagramElement, { id: rawValue }, false);
+        }
       }
 
       if (is(selectedDiagramElement, PARTICIPANT_TYPE) && key === 'processRef') {
