@@ -74,3 +74,23 @@ index 60236de..d38cee7 100644
        editorActions.trigger('replaceElement', event);
  
        return true;
+diff --git a/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js b/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js
+index ed921f4..f67f135 100644
+--- a/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js
++++ b/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js
+@@ -105,15 +105,6 @@ export default function UpdateLabelHandler(modeling, textRenderer, bpmnFactory)
+       return;
+     }
+ 
+-    if (isLabel(label) && isEmptyText(newLabel)) {
+-
+-      if (hints.removeShape !== false) {
+-        modeling.removeShape(label, { unsetLabel: false });
+-      }
+-
+-      return;
+-    }
+-
+     var text = getLabel(element);
+ 
+     // resize element based on label _or_ pre-defined bounds

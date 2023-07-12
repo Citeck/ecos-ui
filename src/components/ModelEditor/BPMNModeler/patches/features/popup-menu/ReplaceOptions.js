@@ -84,6 +84,15 @@ export const EVENT_SUB_PROCESS_START_EVENT = [
     }
   },
   {
+    label: 'Conditional Start Event',
+    actionName: 'replace-with-conditional-start',
+    className: 'bpmn-icon-start-event-condition',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:ConditionalEventDefinition'
+    }
+  },
+  {
     label: 'Signal Start Event',
     actionName: 'replace-with-signal-start',
     className: 'bpmn-icon-start-event-signal',
@@ -93,12 +102,31 @@ export const EVENT_SUB_PROCESS_START_EVENT = [
     }
   },
   {
+    label: 'Error Start Event',
+    actionName: 'replace-with-error-start',
+    className: 'bpmn-icon-start-event-error',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:ErrorEventDefinition'
+    }
+  },
+  {
     label: 'Timer Start Event (non-interrupting)',
     actionName: 'replace-with-non-interrupting-timer-start',
     className: 'bpmn-icon-start-event-non-interrupting-timer',
     target: {
       type: 'bpmn:StartEvent',
       eventDefinitionType: 'bpmn:TimerEventDefinition',
+      isInterrupting: false
+    }
+  },
+  {
+    label: 'Conditional Start Event (non-interrupting)',
+    actionName: 'replace-with-non-interrupting-conditional-start',
+    className: 'bpmn-icon-start-event-non-interrupting-condition',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:ConditionalEventDefinition',
       isInterrupting: false
     }
   },
