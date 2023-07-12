@@ -11,7 +11,7 @@ export default class DocLibConverter {
   static completeItemId(source = {}) {
     let id = source.id;
     if (id.startsWith(`${DOCLIB_RECORDS_PREFIX}@`)) {
-      id = id.replace(DOCLIB_RECORDS_PREFIX, SourcesId.DOCLIB);
+      id = id.replace(DOCLIB_RECORDS_PREFIX, SourcesId.EMODEL_DOCLIB);
     }
 
     return { ...source, id };

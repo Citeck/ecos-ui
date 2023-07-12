@@ -3,7 +3,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { SourcesId } from '../../../constants';
 import DocLibConverter from '../../../dto/docLib';
 
-import { PROXY_URI } from '../../../constants/alfresco';
+import { PROXY_URI_MODEL } from '../../../constants/alfresco';
 import { LS_UNFOLDED_PREFIX, NODE_TYPES } from '../../../constants/docLib';
 import { t } from '../../../helpers/export/util';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
@@ -21,7 +21,7 @@ class DocLibService {
   }
 
   getRootId(typeRef) {
-    return typeRef && `${SourcesId.DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
+    return typeRef && `${SourcesId.EMODEL_DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
   }
 
   async getTypeRef(journalId) {
@@ -166,7 +166,7 @@ class DocLibService {
           type: 'file',
           key: fileComponentKey,
           storage: 'url',
-          url: `${PROXY_URI}eform/file`,
+          url: `${PROXY_URI_MODEL}eform/file`,
           validate: {
             required: true
           },

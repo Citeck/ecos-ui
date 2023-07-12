@@ -51,7 +51,7 @@ class DocLibServiceApi {
     }
 
     const querySettings = {
-      sourceId: SourcesId.DOCLIB,
+      sourceId: SourcesId.EMODEL_DOCLIB,
       query,
       language: 'children',
       sortBy: [{ attribute: 'nodeType', ascending: true }, { attribute: '?disp', ascending: true }]
