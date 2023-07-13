@@ -6,7 +6,12 @@ import { AUTHORITY_TYPE_USER, AUTHORITY_TYPE_GROUP } from './constants';
 export const getGroupName = str => str.replace(`${AUTHORITY_TYPE_GROUP}_`, '');
 export const getGroupRef = str => `${SourcesId.GROUP}@${str}`;
 export const getPersonRef = str => `${SourcesId.PERSON}@${str}`;
-export const getAuthRef = str => str.replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`).replace(`${SourcesId.PERSON}@`, '');
+export const getRecordRef = str => str.replace('emodel/@', '');
+export const getAuthRef = str =>
+  str
+    .replace(`${SourcesId.GROUP}@`, `${AUTHORITY_TYPE_GROUP}_`)
+    .replace(`${SourcesId.PERSON}@`, '')
+    .replace('emodel/@', '');
 
 export function handleResponse(result) {
   if (!Array.isArray(result)) {
