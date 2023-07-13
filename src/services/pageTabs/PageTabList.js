@@ -90,7 +90,7 @@ class PageTabList {
       const newTab = { link: activeUrl, isActive: true };
       const tab = this.existTab(newTab);
 
-      if (tab) {
+      if (tab && tab.link === activeUrl) {
         this.activate(tab);
       } else {
         this.setTab(newTab);
