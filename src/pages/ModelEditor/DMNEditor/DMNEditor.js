@@ -1,4 +1,4 @@
-import { getName } from 'dmn-js-shared/lib/util/ModelUtil';
+import get from 'lodash/get';
 
 import DMNModeler from '../../../components/ModelEditor/DMNModeler';
 import { EventListeners } from '../../../constants/cmmn';
@@ -14,7 +14,10 @@ class DMNEditorPage extends ModelEditor {
   };
 
   get formTitle() {
-    return this.formType ? getName(this.state.selectedElement) : null;
+    const type = get(this.state, 'selectedElement.$type') || get(this.state, 'selectedElement.type') || '';
+    const [, sourceTypeValue] = type.split(':');
+
+    return this.formType ? sourceTypeValue : null;
   }
 
   get formId() {
