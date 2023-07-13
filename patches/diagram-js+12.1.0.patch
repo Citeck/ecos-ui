@@ -43,3 +43,16 @@ index 561cca6..aa19823 100644
    return keys.indexOf(event.key) !== -1 || keys.indexOf(event.code) !== -1;
  }
  
+diff --git a/node_modules/diagram-js/lib/features/search-pad/SearchPad.js b/node_modules/diagram-js/lib/features/search-pad/SearchPad.js
+index d02eb39..c8e6b5d 100644
+--- a/node_modules/diagram-js/lib/features/search-pad/SearchPad.js
++++ b/node_modules/diagram-js/lib/features/search-pad/SearchPad.js
+@@ -536,7 +536,7 @@ SearchPad.OVERLAY_CLASS = 'djs-search-overlay';
+ SearchPad.BOX_HTML =
+   '<div class="djs-search-container djs-draggable djs-scrollable">' +
+     '<div class="djs-search-input">' +
+-      '<input type="text"/>' +
++      '<input id="djs-search-input-id" type="text"/>' +
+     '</div>' +
+     '<div class="djs-search-results"></div>' +
+   '</div>';
