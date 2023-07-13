@@ -59,7 +59,7 @@ export default class Settings extends React.Component {
   };
 
   render() {
-    const { selectedJournal, isLoading, showHeatmapDefault, showModelDefault, formMode } = this.state;
+    const { selectedJournal, isLoading, showHeatmapDefault, showCountersDefault, showModelDefault, formMode } = this.state;
 
     const { HeatmapWrapper } = plugins;
 
@@ -67,6 +67,8 @@ export default class Settings extends React.Component {
       { value: EXTENDED_MODE, label: t(Labels.FORM_MODE_EXTENDED) },
       { value: SIMPLIFIED_MODE, label: t(Labels.FORM_MODE_SIMPLIFIED) }
     ];
+
+    const showReadOut = showHeatmapDefault || showCountersDefault;
 
     return (
       <div className="ecos-process-statistics-settings">
@@ -98,7 +100,7 @@ export default class Settings extends React.Component {
               {t(Labels.SETTINGS_DEFAULT_FLAGS)}
             </Caption>
             {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
-            {showHeatmapDefault && (
+            {showReadOut && (
               <>
                 <Caption small className="ecos-process-statistics-settings__title">
                   {t(Labels.SETTINGS_READ_OUT)}
