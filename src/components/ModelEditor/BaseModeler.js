@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
-import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
+import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX, SEARCH_INPUT_ID } from '../../constants/cmmn';
 import { Sheet } from './Sheet';
 
 /**
@@ -147,7 +147,13 @@ export default class BaseModeler {
         }
 
         if (events.onChangeElementLabel) {
-          this.events.onChangeElementLabel = e => events.onChangeElementLabel(get(e, 'target.innerText'));
+          this.events.onChangeElementLabel = e => {
+            if (get(e, 'target.id') === SEARCH_INPUT_ID) {
+              return;
+            }
+
+            events.onChangeElementLabel(get(e, 'target.innerText'));
+          };
           this.modeler._container.addEventListener('keyup', this.events.onChangeElementLabel);
         }
       }
