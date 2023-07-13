@@ -217,11 +217,13 @@ class ModelEditorWrapper extends React.Component {
   };
 
   renderEditor = () => {
-    const { editor, title } = this.props;
+    const { editor, title, isTableView } = this.props;
     const { rightSidebarOpen, sizes } = this.state;
 
+    const sideBarVisible = rightSidebarOpen && !isTableView;
+
     return (
-      <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: rightSidebarOpen ? get(sizes, 'left') : '' }}>
+      <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: sideBarVisible ? get(sizes, 'left') : '' }}>
         <TitlePageLoader isReady={!isNil(title)}>
           <Caption normal className="ecos-model-editor__designer-title">
             {title}
@@ -240,18 +242,20 @@ class ModelEditorWrapper extends React.Component {
   };
 
   renderSidebar = () => {
-    const { rightSidebarTitle, rightSidebar } = this.props;
+    const { rightSidebarTitle, rightSidebar, isTableView } = this.props;
     const { rightSidebarOpen, sizes } = this.state;
+
+    const sideBarVisible = rightSidebarOpen && !isTableView;
 
     return (
       <div
         id={this.#editorId}
         className={classNames('ecos-model-editor__sidebar-right', {
-          'ecos-model-editor__sidebar-right_open': rightSidebarOpen
+          'ecos-model-editor__sidebar-right_open': sideBarVisible
         })}
-        style={{ width: rightSidebarOpen ? get(sizes, 'right') : '' }}
+        style={{ width: sideBarVisible ? get(sizes, 'right') : '' }}
       >
-        {rightSidebarOpen && (
+        {sideBarVisible && (
           <ResizeBoxes
             leftId={this.#designerId}
             rightId={this.#editorId}
@@ -261,9 +265,11 @@ class ModelEditorWrapper extends React.Component {
           />
         )}
 
-        <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
-          <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
-        </div>
+        {!isTableView && (
+          <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
+            <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
+          </div>
+        )}
 
         <div ref={this.setRightSidebarRef} className="ecos-model-editor__sidebar-right-content">
           {rightSidebarTitle && (
