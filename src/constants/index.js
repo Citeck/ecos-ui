@@ -78,6 +78,8 @@ export const SourcesId = {
   REPORT: 'reports-data',
   TASK: 'wftask',
   TASK_FORM: 'uiserv/task-form',
+  GROUP: 'emodel/authority-group',
+  PERSON: 'emodel/person',
   WORKFLOW: 'workflow',
   BPMN_DEF: 'eproc/bpmn-def',
   ACTION: 'uiserv/action',
