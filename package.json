@@ -1,6 +1,6 @@
 {
   "name": "ecos-ui",
-  "version": "2.14.3-snapshot",
+  "version": "2.14.3",
   "private": true,
   "dependencies": {
     "@bpmn-io/properties-panel": "0.12.0",
@@ -89,7 +89,6 @@
   },
   "scripts": {
     "postinstall": "patch-package",
-    "preinstall": "rm -rf node_modules",
     "start": "npm-run-all clean export:dev start:react",
     "start:react": "react-scripts --max_old_space_size=2048 start",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
