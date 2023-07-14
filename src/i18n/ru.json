@@ -2369,7 +2369,7 @@
   "process-statistics-widget.settings.field.showModelDefault": "Процесс",
   "process-statistics-widget.settings.field.showJournalDefault": "Журнал",
   "process-statistics-widget.settings.field.showCountersDefault": "Счётчики",
-  "process-statistics-widget.settings.field.displayHeatmapToolbar": "Панель тепловой карты",
+  "process-statistics-widget.settings.field.displayHeatmapToolbar": "Панель настроек",
   "process-statistics-widget.panel.heatmap": "Тепловая карта",
   "process-statistics-widget.panel.counters": "Счётчики",
   "process-statistics-widget.panel.opacity": "Прозрачность",

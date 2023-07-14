@@ -216,7 +216,7 @@ class Model extends React.Component {
   };
 
   reRenderHeatmap = () => {
-    if (!this.state.isShowHeatmap || !this.designer.heatmap) {
+    if (!this.state.isShowHeatmap || !this.designer || !this.designer.heatmap) {
       return;
     }
 
@@ -256,7 +256,7 @@ class Model extends React.Component {
 
   handleChangeOpacity = value => {
     this.setState({ opacity: Number(value) });
-    this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+    this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
   };
 
   handleClickZoom = value => {
@@ -292,7 +292,7 @@ class Model extends React.Component {
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
           </div>
         )}
-        {showHeatmapDefault && this.designer.heatmap && !isEmpty(heatmapData) && (
+        {showHeatmapDefault && this.designer && this.designer.heatmap && !isEmpty(heatmapData) && (
           <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
             <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
@@ -330,17 +330,8 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, showModelDefault, width, isMobile, displayHeatmapToolbar } = this.props;
-    const {
-      isModelMounted,
-      isModelMounting,
-      isHeatmapMounted,
-      isShowHeatmap,
-      isShowCounters,
-      isTempHeatmapOff,
-      legendData,
-      opacity
-    } = this.state;
+    const { model, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
+    const { isModelMounted, isModelMounting, isShowHeatmap, isShowCounters, legendData, opacity } = this.state;
 
     const Sheet = this.designer && this.designer.renderSheet;
 
@@ -353,12 +344,7 @@ class Model extends React.Component {
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
         })}
       >
-        <Section
-          title={t(Labels.MODEL_TITLE)}
-          isLoading={isLoading || isModelMounting}
-          opened={showModelDefault}
-          onChange={this.handleChangeSection}
-        >
+        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} onChange={this.handleChangeSection} opened>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {isModelMounted && (
@@ -381,12 +367,8 @@ class Model extends React.Component {
                   onWheel={this.handleWheel}
                 />
               )}
-              {!isLoading && displayHeatmapToolbar && this.designer.heatmap && (
-                <div
-                  className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
-                    invisible: !isTempHeatmapOff && !isHeatmapMounted
-                  })}
-                >
+              {!isLoading && displayHeatmapToolbar && (
+                <div className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer')}>
                   {isShowHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
