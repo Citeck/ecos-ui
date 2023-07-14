@@ -16,6 +16,15 @@ export const START_EVENT = [
     }
   },
   {
+    label: 'Timer Start Event',
+    actionName: 'replace-with-timer-start',
+    className: 'bpmn-icon-start-event-timer',
+    target: {
+      type: 'bpmn:StartEvent',
+      eventDefinitionType: 'bpmn:TimerEventDefinition'
+    }
+  },
+  {
     label: 'End Event',
     actionName: 'replace-with-none-end',
     className: 'bpmn-icon-end-event-none',
