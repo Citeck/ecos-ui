@@ -229,22 +229,9 @@ export default class Components {
             default: get(plugins, 'default.ChartsWidget', () => null)
           }))
         ),
-      settings: () =>
-        lazy(() =>
-          import('../../plugins').then(plugins => ({
-            default: get(plugins, 'default.ChartsWidgetSettings', () => null)
-          }))
-        ),
       checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.ChartsWidget')),
       label: 'dashboard-settings.widget.charts',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER],
-      props: {
-        config: {
-          [CONFIG_VERSION]: {
-            fillPrevStages: true
-          }
-        }
-      }
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER]
     },
     [ComponentKeys.STAGES]: {
       load: () =>
