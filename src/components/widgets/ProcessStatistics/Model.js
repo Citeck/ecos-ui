@@ -365,6 +365,7 @@ class Model extends React.Component {
                   onMouseDown={this.handleMouseDown}
                   onMouseUp={this.handleMouseUp}
                   onWheel={this.handleWheel}
+                  zoom={ScaleOptions.FIT}
                 />
               )}
               {!isLoading && displayHeatmapToolbar && (
