@@ -177,12 +177,12 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
 
 export function* sagaGetData({ api, logger }, { payload }) {
   try {
-    const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId } = payload;
+    const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId, onlyLinked } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
+
     const urlProps = getSearchParams();
     const searchText = urlProps[JournalUrlParams.SEARCH];
-
     const _journalConfig = cloneDeep(journalConfig);
 
     delete params.columns;
@@ -213,6 +213,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         ...params,
         predicates: [...predicates, colPredicate],
+        onlyLinked,
         searchPredicate
       });
 
