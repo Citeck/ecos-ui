@@ -2,6 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import isString from 'lodash/isString';
 import get from 'lodash/get';
 import { getBusinessObject } from 'cmmn-js/lib/util/ModelUtil';
+import uuidV4 from 'uuid/v4';
 
 import { PARTICIPANT_TYPE } from '../../../constants/bpmn';
 import { KEY_FIELD_NAME, ML_POSTFIX, PREFIX_FIELD } from '../../../constants/cmmn';
@@ -58,7 +59,7 @@ export function getValue(element, key) {
   }
 
   if (element.type === PARTICIPANT_TYPE && key === 'processRef') {
-    return get(getBusinessObject(element.parent), '$parent.$attrs["ecos:processDefId"]', '');
+    return get(getBusinessObject(element), 'processRef.id', `Process_${uuidV4()}`);
   }
 
   if (element.type === PARTICIPANT_TYPE && key === 'ecosType') {
