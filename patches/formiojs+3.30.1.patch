@@ -1,5 +1,5 @@
 diff --git a/node_modules/formiojs/components/base/Base.js b/node_modules/formiojs/components/base/Base.js
-index 2da74da..bc1bf60 100644
+index 2da74da..c4e86cf 100644
 --- a/node_modules/formiojs/components/base/Base.js
 +++ b/node_modules/formiojs/components/base/Base.js
 @@ -1830,13 +1830,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
@@ -71,6 +71,31 @@ index 2da74da..bc1bf60 100644
  
        if (message) {
          this.error = {
+@@ -2633,6 +2624,11 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
+      * @param value
+      */
+     value: function refresh(value) {
++
++      if (_lodash.default.isEqual(this.calculatedValue, this.data[this.component.key])) {
++        return;
++      }
++
+       if (this.hasOwnProperty('refreshOnValue')) {
+         this.refreshOnChanged = !_lodash.default.isEqual(value, this.refreshOnValue);
+       } else {
+diff --git a/node_modules/formiojs/components/nested/NestedComponent.js b/node_modules/formiojs/components/nested/NestedComponent.js
+index b982061..80f4d78 100644
+--- a/node_modules/formiojs/components/nested/NestedComponent.js
++++ b/node_modules/formiojs/components/nested/NestedComponent.js
+@@ -507,7 +507,7 @@ var NestedComponent = /*#__PURE__*/function (_BaseComponent) {
+         comp.checkConditions(data);
+ 
+         if (!flags.noValidate) {
+-          valid &= comp.checkValidity(data);
++          valid &= comp.checkValidity(data, true);
+         }
+       }); // Trigger the change if the values changed.
+ 
 diff --git a/node_modules/formiojs/components/textarea/TextArea.js b/node_modules/formiojs/components/textarea/TextArea.js
 index 03bfd62..074e599 100644
 --- a/node_modules/formiojs/components/textarea/TextArea.js
