@@ -6,3 +6,4 @@ import './features/popup-menu/ReplaceMenuProvider';
 import './features/keyboard/BpmnKeyboardBindings';
 import './features/label-editing/LabelEditingProvider';
 import './features/command/CommandStack';
+import './features/selection/Selection';

@@ -5,6 +5,7 @@ import ElementFactory from 'bpmn-js/lib/features/modeling/ElementFactory';
 
 import { getMLValue } from '../../../../../../helpers/util';
 import { ML_POSTFIX, PREFIX_FIELD } from '../../../../../../constants/cmmn';
+import { getRecordRef } from '../../../../../../helpers/urls';
 
 const originalCreate = ElementFactory.prototype.create;
 
@@ -22,6 +23,8 @@ ElementFactory.prototype.create = function(elementType, attrs) {
       set(attrs, 'businessObject.text', text);
     }
   }
+
+  set(attrs, 'recordRef', getRecordRef());
 
   return originalCreate.call(this, elementType, attrs);
 };
