@@ -30,6 +30,7 @@ import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
+import { TEMPLATE_JOURNAL_ID_REGEX } from '../../../../forms/components/custom/selectJournal/constants';
 import { PERMISSION_WRITE_ATTR } from '../../../Records/constants';
 
 import './SelectJournal.scss';
@@ -889,7 +890,12 @@ export default class SelectJournal extends Component {
       },
       onCreate: this.onCreate
     };
-    const DefaultView = viewOnly ? <ViewMode {...inputViewProps} /> : <InputView {...inputViewProps} />;
+
+    const DefaultView = viewOnly ? (
+      <ViewMode {...inputViewProps} />
+    ) : (
+      <InputView {...inputViewProps} disabled={journalId.match(TEMPLATE_JOURNAL_ID_REGEX)} />
+    );
 
     return (
       <div
