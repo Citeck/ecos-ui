@@ -28,7 +28,6 @@ const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
 const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
 
 const disabledReplaceMenuForTasks = [
-  'replace-with-call-activity', // Call Activity
   'replace-with-manual-task', // Manual Task
   'replace-with-receive-task' // Receive task
 ];
