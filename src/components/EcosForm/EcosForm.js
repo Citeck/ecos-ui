@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Formio from 'formiojs/Formio';
 import get from 'lodash/get';
-import cloneDeep from 'lodash/cloneDeep';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
@@ -116,7 +115,7 @@ class EcosForm extends React.Component {
     const constants = get(window, 'Citeck.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
-    const options = cloneDeep(propsOptions);
+    const options = { ...propsOptions };
     const attributes = {
       definition: 'definition?json',
       customModule: 'customModule',
