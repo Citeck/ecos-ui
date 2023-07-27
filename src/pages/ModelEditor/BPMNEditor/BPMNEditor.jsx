@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { SourcesId } from '../../../constants';
-import { PREFIX_FORM_ELM, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
+import { PREFIX_FORM_ELM, SUBPROCESS_TYPE, TYPE_BPMN_PROCESS } from '../../../constants/bpmn';
 import BPMNModeler from '../../../components/ModelEditor/BPMNModeler';
 
 import {
@@ -133,6 +133,11 @@ class BPMNEditorPage extends ModelEditor {
     const isNonInterrupting = get(selectedElement, 'businessObject.cancelActivity') === false;
     if (isNonInterrupting) {
       title = title + ' (' + t('is_non_interrupting') + ')';
+    }
+
+    const isTriggeredByEvent = type === SUBPROCESS_TYPE && get(selectedElement, 'businessObject.triggeredByEvent');
+    if (isTriggeredByEvent) {
+      title = `Event ${title}`;
     }
 
     return title;

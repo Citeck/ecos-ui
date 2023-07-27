@@ -14,6 +14,9 @@ export const ViewTypes = {
 };
 
 export const ECOS_TASK_TYPE_SET_STATUS = 'setStatus';
+export const REPLACE_TO_SET_STATUS = 'replace-with-set-status-task';
+
+export const EVENT_BASED_GATEWAY = 'bpmn:EventBasedGateway';
 
 export const ELEMENT_TYPES_WITH_CUSTOM_FORM_DETERMINER = [
   'bpmn:IntermediateCatchEvent',
@@ -47,7 +50,7 @@ export const GATEWAY_TYPES = [
   'bpmn:ParallelGateway',
   'bpmn:InclusiveGateway',
   'bpmn:ComplexGateway',
-  'bpmn:EventBasedGateway'
+  EVENT_BASED_GATEWAY
 ];
 
 export const BPMN_TASK_TYPES = [
@@ -86,7 +89,7 @@ export const TYPE_BPMN_END_EVENT = 'bpmn:EndEvent';
 export const TYPE_BPMN_LABEL = 'label';
 export const ECOS_TASK_BASE_ELEMENT = TYPE_BPMN_TASK;
 
-export const DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS = [TYPE_BPMN_END_EVENT, TYPE_BPMN_SEQUENCE_FLOW, TYPE_BPMN_LABEL];
+export const DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS = [TYPE_BPMN_END_EVENT, TYPE_BPMN_SEQUENCE_FLOW, TYPE_BPMN_LABEL, EVENT_BASED_GATEWAY];
 
 export const PERMISSION_DEPLOY_PROCESS = 'permissions._has.deploy?bool!true';
 export const PERMISSION_VIEW_REPORTS = 'permissions._has.viewReports?bool';
