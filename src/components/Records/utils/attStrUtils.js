@@ -44,7 +44,8 @@ export const parseAttribute = (path, defaultScalar = 'disp') => {
     }
 
     let isMultiple = false;
-    if (name.indexOf('[]') === name.length - 2) {
+    const indexOfBrackets = name.indexOf('[]');
+    if (indexOfBrackets !== -1 && indexOfBrackets === name.length - 2) {
       name = name.substring(0, name.length - 2);
       isMultiple = true;
     }
