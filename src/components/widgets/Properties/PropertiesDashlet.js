@@ -71,7 +71,8 @@ class PropertiesDashlet extends BaseWidget {
       wasLastModifiedWithInlineEditor: false,
       title: '',
       isDraft: false,
-      formIsValid: false
+      formIsValid: false,
+      componentsCount: -1
     };
 
     this.instanceRecord.events.on(EVENTS.ASSOC_UPDATE, this.reload);
@@ -224,6 +225,10 @@ class PropertiesDashlet extends BaseWidget {
       return;
     }
 
+    this.setState({
+      componentsCount: -1
+    });
+
     onUpdate(withSaveData);
   };
 
@@ -279,6 +284,10 @@ class PropertiesDashlet extends BaseWidget {
     this.setState(state => ({ isShowSetting: !state.isShowSetting }));
   };
 
+  changeComponentsCount = componentsCount => {
+    this.setState({ componentsCount });
+  };
+
   onSaveFormSettings = config => {
     this.props.onSave && this.props.onSave(this.props.id, { config });
     this.toggleDisplayFormSettings();
@@ -309,7 +318,16 @@ class PropertiesDashlet extends BaseWidget {
 
   render() {
     const { id, title, classNameProps, classNameDashlet, record, dragHandleProps, canDragging, config } = this.props;
-    const { isSmallMode, isEditProps, formIsChanged, isShowSetting, title: titleForm, previousHeight, isDraft } = this.state;
+    const {
+      isSmallMode,
+      isEditProps,
+      formIsChanged,
+      isShowSetting,
+      title: titleForm,
+      previousHeight,
+      isDraft,
+      componentsCount
+    } = this.state;
     const { formId = '', titleAsFormName } = config || {};
     const titleDashlet = t((titleAsFormName && titleForm) || title || Labels.WIDGET_TITLE);
 
@@ -340,6 +358,8 @@ class PropertiesDashlet extends BaseWidget {
           stateId={id}
           minHeight={previousHeight}
           onUpdate={this.onPropertiesUpdate}
+          componentsCount={componentsCount}
+          changeComponentsCount={this.changeComponentsCount}
           onFormIsChanged={this.onFormIsChanged}
           formId={formId}
           onInlineEditSave={this.onInlineEditSave}
