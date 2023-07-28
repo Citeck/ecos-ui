@@ -222,6 +222,7 @@ class RecordActions {
     }
 
     get(params, 'actionRecord') && set(confirmData, 'options.actionRecord', params.actionRecord);
+    get(params, 'actionRecords') && set(confirmData, 'options.actionRecords', params.actionRecords);
 
     return await new Promise(resolve => {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
@@ -560,7 +561,7 @@ class RecordActions {
       }
 
       const recordInstances = Records.get(records);
-      const confirmed = await RecordActions._checkConfirmAction(action);
+      const confirmed = await RecordActions._checkConfirmAction(action, { actionRecords: recordInstances.map(ri => ri.id) });
 
       if (!confirmed) {
         return false;
