@@ -84,7 +84,7 @@ class UserProfileDashlet extends BaseWidget {
   }
 
   fetchPermission = async () => {
-    return await Records.get(this.props.record).load('permissions._has.CHANGE_PASSWORD?bool!');
+    return Records.get(this.props.record).load('permissions._has.CHANGE_PASSWORD?bool!');
   };
 
   onChangePhoto = files => {
