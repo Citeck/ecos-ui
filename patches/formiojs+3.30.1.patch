@@ -71,6 +71,34 @@ index 2da74da..bc1bf60 100644
  
        if (message) {
          this.error = {
+diff --git a/node_modules/formiojs/components/file/File.js b/node_modules/formiojs/components/file/File.js
+index 1a67315..f26ac8b 100644
+--- a/node_modules/formiojs/components/file/File.js
++++ b/node_modules/formiojs/components/file/File.js
+@@ -707,10 +707,10 @@ var FileComponent = /*#__PURE__*/function (_BaseComponent) {
+         class: 'alert alert-warning'
+       });
+ 
+-      if (!this.component.storage) {
+-        hasWarnings = true;
+-        warnings.appendChild(this.ce('p').appendChild(this.text('No storage has been set for this field. File uploads are disabled until storage is set up.')));
+-      }
++      // if (!this.component.storage) {
++      //   hasWarnings = true;
++      //   warnings.appendChild(this.ce('p').appendChild(this.text('No storage has been set for this field. File uploads are disabled until storage is set up.')));
++      // }
+ 
+       if (!this.support.dnd) {
+         hasWarnings = true;
+@@ -898,7 +898,7 @@ var FileComponent = /*#__PURE__*/function (_BaseComponent) {
+         files = Array.prototype.slice.call(files, 0, 1);
+       }
+ 
+-      if (this.component.storage && files && files.length) {
++      if (files && files.length) {
+         // files is not really an array and does not have a forEach method, so fake it.
+ 
+         /* eslint-disable max-statements */
 diff --git a/node_modules/formiojs/components/textarea/TextArea.js b/node_modules/formiojs/components/textarea/TextArea.js
 index 03bfd62..074e599 100644
 --- a/node_modules/formiojs/components/textarea/TextArea.js
