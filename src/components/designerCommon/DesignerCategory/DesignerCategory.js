@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ContentEditable from 'react-contenteditable';
-import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 
 import { ViewTypes } from '../../../constants/commonDesigner';
@@ -192,13 +192,13 @@ class DesignerCategory extends React.Component {
           <DropdownToggle tag="div">
             <span className={dropdownActionsIconClasses} />
           </DropdownToggle>
-          <DropdownMenu className={styles.dropdownMenu} right>
+          <DropdownMenu className={styles.dropdownMenu} container="body" right>
             <ul>
               {actions.map(action => {
                 return (
-                  <li key={action.label} onClick={action.onClick}>
+                  <DropdownItem key={action.label} onClick={action.onClick}>
                     {action.label}
-                  </li>
+                  </DropdownItem>
                 );
               })}
             </ul>
