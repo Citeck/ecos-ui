@@ -1,5 +1,4 @@
 export const PROXY_URI = '/gateway/alfresco/alfresco/s/';
-export const PROXY_URI_MODEL = '/gateway/emodel/';
 export const MICRO_URI = '/gateway/uiserv/';
 export const UISERV_API = '/gateway/uiserv/api/';
 export const CITECK_URI = `${PROXY_URI}citeck/`;

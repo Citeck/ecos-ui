@@ -3,7 +3,6 @@ import { EventEmitter2 } from 'eventemitter2';
 import { SourcesId } from '../../../constants';
 import DocLibConverter from '../../../dto/docLib';
 
-import { PROXY_URI_MODEL } from '../../../constants/alfresco';
 import { LS_UNFOLDED_PREFIX, NODE_TYPES } from '../../../constants/docLib';
 import { t } from '../../../helpers/export/util';
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
@@ -21,7 +20,7 @@ class DocLibService {
   }
 
   getRootId(typeRef) {
-    return typeRef && `${SourcesId.EMODEL_DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
+    return typeRef && `${SourcesId.DOCLIB}@${typeRef.replace(`${SourcesId.TYPE}@`, '')}$`;
   }
 
   async getTypeRef(journalId) {
@@ -40,8 +39,8 @@ class DocLibService {
     return docLibApi.getDirTypeRef(typeRef);
   }
 
-  async getDirPath(typeRef) {
-    return docLibApi.getDirPath(typeRef);
+  async getDirPath(folderRef) {
+    return docLibApi.getDirPath(folderRef);
   }
 
   async getChildren(id, options = {}) {
@@ -166,7 +165,7 @@ class DocLibService {
           type: 'file',
           key: fileComponentKey,
           storage: 'url',
-          url: `${PROXY_URI_MODEL}eform/file`,
+          url: '/gateway/emodel/api/ecos/webapp/content',
           validate: {
             required: true
           },
@@ -183,7 +182,7 @@ class DocLibService {
               value = '';
             }
           `,
-          key: 'cm:title',
+          key: 'name',
           type: 'textfield'
         }
       );
@@ -191,7 +190,7 @@ class DocLibService {
       components.push({
         label: t('document-library.create-node.fields.title'),
         type: 'textfield',
-        key: 'cm:title',
+        key: 'name',
         validate: {
           required: true
         }

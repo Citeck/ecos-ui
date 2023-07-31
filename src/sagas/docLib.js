@@ -4,6 +4,7 @@ import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 
 import {
   addSidebarItems,
@@ -69,7 +70,7 @@ import DocLibService from '../components/Journals/DocLib/DocLibService';
 import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
 import JournalsConverter from '../dto/journals';
-import { uploadFile } from './documents';
+import { uploadFileV2 } from './documents';
 
 export function* sagaGetTypeRef({ logger, stateId, w }, action) {
   try {
@@ -423,7 +424,8 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
       yield put(addSidebarItems(w([...newChildren, { id: currentFolderId, hasChildren: true }])));
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
-      yield call(goToCardDetailsPage, newRecord.id);
+      const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
+      yield call(goToCardDetailsPage, localDobLibRecordRef);
     }
   } catch (e) {
     logger.error('[docLib sagaCreateNode saga error', e);
@@ -431,14 +433,13 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 }
 
 function formKeysCheck(formDefinition) {
-  return get(formDefinition, 'components', [])
-    .filter(item => item.key !== 'columns')
-    .reduce((res, item) => {
-      res.push(['_disp', '_content'].includes(item.key));
-
-      return res;
-    }, [])
-    .every(i => i === true);
+  const componentKeys = new Set();
+  EcosFormUtils.forEachComponent(formDefinition, component => {
+    if (component.input && component.type !== 'button') {
+      componentKeys.add(component.key);
+    }
+  });
+  return componentKeys.has('name') && componentKeys.has('_content') && componentKeys.size === 2;
 }
 
 function* sagaUploadFiles({ api, logger, stateId, w }, action) {
@@ -475,7 +476,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
 
     yield* action.payload.files.map(function*(file) {
       try {
-        const uploadedFile = yield uploadFile({ api, file });
+        const uploadedFile = yield uploadFileV2({ api, file });
         const createChildResult = yield call(
           DocLibService.createChild,
           rootId,

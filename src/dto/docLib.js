@@ -11,7 +11,7 @@ export default class DocLibConverter {
   static completeItemId(source = {}) {
     let id = source.id;
     if (id.startsWith(`${DOCLIB_RECORDS_PREFIX}@`)) {
-      id = id.replace(DOCLIB_RECORDS_PREFIX, SourcesId.EMODEL_DOCLIB);
+      id = id.replace(DOCLIB_RECORDS_PREFIX, SourcesId.DOCLIB);
     }
 
     return { ...source, id };
@@ -50,7 +50,8 @@ export default class DocLibConverter {
           ...action,
           onClick: e => {
             e.stopPropagation();
-            recordActions.execForRecord(source.id, action).then(executed => {
+            const localIdIdx = source.id.indexOf('$') + 1;
+            recordActions.execForRecord(source.id.substring(localIdIdx), action).then(executed => {
               if (!executed) {
                 return;
               }
@@ -74,7 +75,7 @@ export default class DocLibConverter {
 
     return {
       submit: true,
-      _disp: name,
+      _name: name,
       _content: [
         {
           data: { ...get(uploadedData, 'data', {}), ...file },
