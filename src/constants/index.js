@@ -54,7 +54,7 @@ export const SourcesId = {
   ADMIN_PAGE_SECTION: 'uiserv/admin-page-section',
   EAPPS_BUILD_INFO: 'eapps/build-info',
   DASHBOARD: 'uiserv/dashboard',
-  DOCLIB: 'alfresco/doclib',
+  DOCLIB: 'emodel/doclib',
   RESOLVED_FORM: 'uiserv/rform',
   FORM: 'uiserv/form',
   USER_CONF: 'uiserv/user-conf',

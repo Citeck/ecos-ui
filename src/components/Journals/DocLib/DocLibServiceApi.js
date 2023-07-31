@@ -10,7 +10,7 @@ class DocLibServiceApi {
     title: '?disp',
     nodeType: 'nodeType',
     hasChildrenDirs: 'hasChildrenDirs?bool',
-    typeRef: 'typeRef?id',
+    typeRef: '_type?id',
     modified: '_modified?str'
   };
 
@@ -19,19 +19,19 @@ class DocLibServiceApi {
   }
 
   async isDocLibEnabled(typeRef) {
-    return Records.get(typeRef).load('resolvedDocLib.enabled?bool');
+    return Records.get(typeRef).load('docLibInfo.enabled?bool!');
   }
 
   async getFileTypeRefs(typeRef) {
-    return Records.get(typeRef).load('resolvedDocLib.fileTypeRefs[]?id');
+    return Records.get(typeRef).load('docLibInfo.fileTypeRefs[]?id!');
   }
 
   async getDirTypeRef(typeRef) {
-    return Records.get(typeRef).load('resolvedDocLib.dirTypeRef?id');
+    return Records.get(typeRef).load('docLibInfo.dirTypeRef?id!');
   }
 
-  async getDirPath(typeRef) {
-    return Records.get(typeRef).load('path[]{disp:?disp,id:?id}');
+  async getDirPath(folderRef) {
+    return Records.get(folderRef).load('path[]{disp:?disp,id:?id}');
   }
 
   async getChildren(parentRef, options = {}) {
