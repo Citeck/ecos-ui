@@ -142,6 +142,18 @@ export default class FileComponent extends FormIOFileComponent {
     }
   }
 
+  upload(files) {
+    if (!this.component.storage) {
+      this.component.storage = 'url';
+    }
+
+    if (this.component.storage === 'url' && !this.component.url) {
+      this.component.url = this.getFileUrl({});
+    }
+
+    super.upload(files);
+  }
+
   getFileUrl(file) {
     const containerType = get(this.root, 'options.typeRef', '');
     // eslint-disable-next-line
@@ -248,7 +260,7 @@ export default class FileComponent extends FormIOFileComponent {
             ? this.ce('i', {
                 class: this.iconClass('remove'),
                 onClick: event => {
-                  if (fileInfo && this.component.storage === 'url') {
+                  if (fileInfo && (this.component.storage === 'url' || !this.component.storage)) {
                     const url = this.getFileUrl(fileInfo);
                     fileService.makeRequest('', url, 'delete');
                   }
