@@ -5,7 +5,13 @@ import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
 import get from 'lodash/get';
 import set from 'lodash/set';
 
-import { ECOS_TASK_TYPE_SET_STATUS, GATEWAY_TYPES, REPLACE_TO_SET_STATUS, TASK_TYPES } from '../../../../../../constants/bpmn';
+import {
+  ECOS_TASK_BASE_ELEMENT,
+  ECOS_TASK_TYPE_SET_STATUS,
+  GATEWAY_TYPES,
+  REPLACE_TO_SET_STATUS,
+  TASK_TYPES
+} from '../../../../../../constants/bpmn';
 import {
   BOUNDARY_EVENT,
   END_EVENT,
@@ -27,7 +33,7 @@ import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 const originGetEntries = ReplaceMenuProvider.prototype.getPopupMenuEntries;
 const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
-const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
+const originGetHeaderEntries = ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries;
 
 const disableReplaceMenuForStart = [
   'replace-with-conditional-start', // Conditional Start Event
@@ -310,12 +316,24 @@ ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions)
   return originCreateEntries.call(this, element, replaceOptions);
 };
 
-ReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
+ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries = function(element) {
   let entries = originGetHeaderEntries.call(this, element);
 
   if (Object.keys(disabledHeaderEntriesByElements).includes(element.type)) {
-    entries = entries.filter(item => !disabledHeaderEntriesByElements[element.type].includes(item.id));
+    entries = Object.entries(entries).reduce(
+      (result, [currentKey, currentValue]) =>
+        disabledHeaderEntriesByElements[element.type].includes(currentKey) ? result : { ...result, [currentKey]: currentValue },
+      {}
+    );
   }
 
-  return entries.filter(item => !disabledHeaderEntries.includes(item.id));
+  if (element.type === ECOS_TASK_BASE_ELEMENT && get(element, 'businessObject.taskType')) {
+    return {};
+  }
+
+  return Object.entries(entries).reduce(
+    (result, [currentKey, currentValue]) =>
+      disabledHeaderEntries.includes(currentKey) ? result : { ...result, [currentKey]: currentValue },
+    {}
+  );
 };
