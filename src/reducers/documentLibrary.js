@@ -26,6 +26,7 @@ import {
   setGroupActions,
   setIsDocLibEnabled,
   setIsGroupActionsReady,
+  setJournalId,
   setRootId,
   setSearchText,
   setSidebarError,
@@ -92,6 +93,15 @@ export default handleActions(
       action = handleAction(action);
 
       return updateState(state, stateId, { typeRef: action.payload }, defaultState);
+    },
+    [setJournalId]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        ...state[stateId],
+        journalId: action.payload
+      });
     },
     [setFileTypeRefs]: (state, action) => {
       const stateId = action.payload.stateId;
