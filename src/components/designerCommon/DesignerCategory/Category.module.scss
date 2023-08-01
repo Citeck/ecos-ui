@@ -104,6 +104,10 @@
   padding: 0 0 0 45px;
 }
 
+.dropdown {
+  position: static;
+}
+
 .dropdownMenu {
   border-radius: $border-radius-standard;
   box-shadow: $box-shadow-default;

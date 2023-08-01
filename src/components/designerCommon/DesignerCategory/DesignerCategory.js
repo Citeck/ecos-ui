@@ -188,20 +188,18 @@ class DesignerCategory extends React.Component {
 
     let actionButtons = (
       <Fragment>
-        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
+        <Dropdown className={styles.dropdown} isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
           <DropdownToggle tag="div">
             <span className={dropdownActionsIconClasses} />
           </DropdownToggle>
           <DropdownMenu className={styles.dropdownMenu} container="body" right>
-            <ul>
-              {actions.map(action => {
-                return (
-                  <DropdownItem key={action.label} onClick={action.onClick}>
-                    {action.label}
-                  </DropdownItem>
-                );
-              })}
-            </ul>
+            {actions.map(action => {
+              return (
+                <DropdownItem key={action.label} onClick={action.onClick}>
+                  {action.label}
+                </DropdownItem>
+              );
+            })}
           </DropdownMenu>
         </Dropdown>
 
