@@ -88,7 +88,7 @@ describe('docLib sagas tests', () => {
       expect(getTypeRefSpy).toHaveBeenCalledWith(journalId);
       expect(isDocLibEnabledSpy).toHaveBeenCalled();
       expect(isDocLibEnabledSpy).toHaveBeenCalledWith(typeRef);
-      expect(dispatched.length).toEqual(2);
+      expect(dispatched.length).toEqual(3);
     });
   });
 
