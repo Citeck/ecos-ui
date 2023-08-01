@@ -491,7 +491,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
   }
 
   static preProcessFormDefinition(formDefinition, formOptions) {
-    const newFormDefinition = { ...formDefinition };
+    const newFormDefinition = JSON.parse(JSON.stringify(formDefinition));
 
     EcosFormUtils.forEachComponent(newFormDefinition, component => {
       if (component.key) {
