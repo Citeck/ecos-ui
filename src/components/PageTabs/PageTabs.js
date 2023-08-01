@@ -238,7 +238,20 @@ class PageTabs extends React.Component {
 
     const { reopen, closeActiveTab, ...data } = PageService.parseEvent({ event }) || {};
 
-    setTab({ data, params: { reopen, closeActiveTab } });
+    try {
+      if (data.link) {
+        const url = new URL(data.link);
+
+        if (url.host === window.location.host) {
+          setTab({ data, params: { reopen, closeActiveTab } });
+        } else {
+          window.open(data.link, '_blank');
+        }
+      }
+    } catch (e) {
+      console.error(`Error while parse url ${data.link}`, e);
+      setTab({ data, params: { reopen, closeActiveTab } });
+    }
   };
 
   handleCloseTab = tab => {
