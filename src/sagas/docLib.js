@@ -35,6 +35,7 @@ import {
   setGroupActions,
   setIsDocLibEnabled,
   setIsGroupActionsReady,
+  setJournalId,
   setRootId,
   setSearchText,
   setSidebarError,
@@ -56,7 +57,8 @@ import {
   selectDocLibRootId,
   selectDocLibSearchText,
   selectDocLibSidebar,
-  selectDocLibTypeRef
+  selectDocLibTypeRef,
+  selectJournalId
 } from '../selectors/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
 import { DocLibUrlParams } from '../constants';
@@ -83,6 +85,7 @@ export function* sagaGetTypeRef({ logger, stateId, w }, action) {
     }
 
     yield put(setTypeRef(w(typeRef)));
+    yield put(setJournalId(w(journalId)));
 
     const isDocumentLibraryEnabled = yield call(DocLibService.isDocLibEnabled, typeRef);
     yield put(setIsDocLibEnabled(w(!!isDocumentLibraryEnabled)));
@@ -305,13 +308,14 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
     const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
     const searchText = yield select(state => selectDocLibSearchText(state, stateId));
+    const journalId = yield select(state => selectJournalId(state, stateId));
 
     const childrenResult = yield call(DocLibService.getChildren, folderId, { pagination, searchText });
     const { records, totalCount } = childrenResult;
 
     yield put(setFileViewerTotal(w(totalCount)));
+    const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId);
 
-    const { journalConfig } = yield select(selectJournalData, stateId);
     const recordRefs = records.map(r => r.id);
     const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
     const actions = JournalsConverter.getJournalActions(resultActions);
