@@ -97,6 +97,10 @@ export function* sagaGetTypeRef({ logger, stateId, w }, action) {
 }
 
 export function* loadDocumentLibrarySettings(typeRef, w) {
+  if (!typeRef) {
+    return;
+  }
+
   const fileTypeRefs = yield call(DocLibService.getFileTypeRefs, typeRef);
   yield put(setFileTypeRefs(w(fileTypeRefs)));
 
