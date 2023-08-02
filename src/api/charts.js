@@ -2,10 +2,10 @@ import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
 import { PREDICATE_AND, PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import { notifyFailure } from '../components/Records/actions/util/actionUtils';
 import Records from '../components/Records/Records';
 import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsConverter from '../dto/journals';
+import AttributesService from '../services/AttributesService';
 
 export class ChartsApi {
   getChartData = (typeRef, groupByParams, aggregationParam, selectedPreset) => {
@@ -19,12 +19,7 @@ export class ChartsApi {
       val: typeRef
     };
 
-    const [source, journalId] = typeRef.split('@');
-    if (!source) {
-      console.error('charts-widget.no-source');
-      notifyFailure('charts-widget.no-source');
-      return;
-    }
+    const journalId = AttributesService.parseId(typeRef);
 
     const [mainGroupByParam] = groupByParams;
 

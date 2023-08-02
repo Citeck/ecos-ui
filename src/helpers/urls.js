@@ -10,7 +10,7 @@ import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
-import { hasInString } from './util';
+import { IS_TEST_ENV, hasInString } from './util';
 
 const JOURNAL_ID_KEY = JournalUrlParams.JOURNAL_ID;
 const DASHBOARD_ID_KEY = 'dashboardId';
@@ -424,6 +424,10 @@ export const getUrlWithoutOrigin = (location = window.location) => {
 };
 
 export const getRecordRef = (sourceUrl = window.location.href) => {
+  if (IS_TEST_ENV) {
+    return '';
+  }
+
   const recordRef = get(queryString.parseUrl(sourceUrl), 'query.recordRef', '');
 
   return isArray(recordRef) ? recordRef.shift() : recordRef;
