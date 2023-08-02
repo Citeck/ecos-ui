@@ -24,6 +24,8 @@
   "date.minute": "Minute",
   "date.quarter": "Quarter",
 
+  "no-source": "No source of type",
+
   "variable-not-found": "Variable \"{{var}}\" not found",
 
   "server-error-occurred-with-code": "Server error occurred. Error code: {{code}}",
@@ -639,11 +641,11 @@
   "kanban-widget.settings.field.template": "Template",
   "kanban-widget.settings.field.template-list": "Template list",
   "kanban-widget.settings.invalid-journal-id": "You must use journal which contains a boardlist",
+  "kanban-widget.settings.linked-attributes-field": "Linked by attributes",
   "kanban-widget.settings.bnt.cancel": "Cancel",
   "kanban-widget.settings.bnt.save": "Save",
   "kanban-widget.title": "Board {{ journal }} ",
   "kanban-widget.no-journal": "No selected journal. Go to settings.",
-  "kanban-widget.no-source": "No source of type",
 
   "export-component.action.html-load": "HTML (download)",
   "export-component.action.html-read": "HTML (view)",

@@ -9,7 +9,7 @@ import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 
 import { JournalUrlParams, KanbanUrlParams, SourcesId } from '../constants';
-import { decodeLink, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
+import { decodeLink, getRecordRef, getSearchParams, getUrlWithoutOrigin } from '../helpers/urls';
 import { isExistValue } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import { wrapArgs, wrapSaga } from '../helpers/redux';
@@ -54,6 +54,7 @@ import { ParserPredicate } from '../components/Filters/predicates';
 import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION, KANBAN_SELECTOR_MODE } from '../components/Journals/constants';
 import { getGridParams, getJournalConfig, getJournalSettingFully } from './journals';
+import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 
 export function* sagaGetBoardList({ api, logger }, { payload }) {
   try {
@@ -148,7 +149,7 @@ export function* sagaFormProps({ api, logger }, { payload: { stateId, formId } }
 
 export function* sagaGetBoardData({ api, logger }, { payload }) {
   try {
-    const { stateId } = payload;
+    const { stateId, recordRefs, onlyLinked } = payload;
     const boardConfig = yield sagaGetBoardConfig({ api, logger }, { payload });
     const formProps = yield sagaFormProps({ api, logger }, { payload: { formId: boardConfig.cardFormRef, stateId } });
     let { journalConfig, journalSetting } = yield select(selectJournalData, stateId);
@@ -163,7 +164,10 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
     const pagination = DEFAULT_PAGINATION;
 
     yield put(setPagination({ stateId, pagination }));
-    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+    yield sagaGetData(
+      { api, logger },
+      { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination, onlyLinked, recordRefs } }
+    );
     const { boardId, templateId, isDefaultBoardAndTemplate } = payload;
 
     if (isDefaultBoardAndTemplate && (!isNil(boardId) || !isNil(templateId))) {
@@ -177,7 +181,16 @@ export function* sagaGetBoardData({ api, logger }, { payload }) {
 
 export function* sagaGetData({ api, logger }, { payload }) {
   try {
-    const { boardConfig = {}, journalConfig = {}, journalSetting = {}, formProps = {}, pagination = {}, stateId, onlyLinked } = payload;
+    const {
+      boardConfig = {},
+      journalConfig = {},
+      journalSetting = {},
+      formProps = {},
+      pagination = {},
+      recordRefs,
+      stateId,
+      onlyLinked
+    } = payload;
     const params = getGridParams({ journalConfig, journalSetting, pagination });
     const { dataCards: prevDataCards, kanbanSettings } = yield select(selectKanban, stateId);
 
@@ -210,14 +223,25 @@ export function* sagaGetData({ api, logger }, { payload }) {
       }
 
       const colPredicate = KanbanConverter.preparePredicate(column);
+
+      const idsPredicate = Boolean(onlyLinked && recordRefs)
+        ? {
+            t: PREDICATE_EQ,
+            att: 'id',
+            val: recordRefs
+          }
+        : undefined;
+
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         ...params,
-        predicates: [...predicates, colPredicate],
-        onlyLinked,
+        predicates: [...predicates, colPredicate, idsPredicate],
+        onlyLinked: Boolean(onlyLinked && !recordRefs),
+        recordRef: getRecordRef(),
         searchPredicate
       });
 
-      const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings);
+      settings.columns = settings.columns || journalSetting.columns;
+      const res = yield call([JournalsService, JournalsService.getJournalData], _journalConfig, settings, recordRefs);
       const status = column.id || '';
 
       return { ...res, status };
