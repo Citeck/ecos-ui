@@ -1,3 +1,5 @@
+import { notifyFailure } from '../components/Records/actions/util/actionUtils';
+
 export default class AttributesService {
   static get hasContent() {
     return {
@@ -24,5 +26,17 @@ export default class AttributesService {
     }
 
     return attributes;
+  }
+
+  static parseId(idWithSource) {
+    const [source, id] = idWithSource.split('@');
+
+    if (!source) {
+      console.error('no-source');
+      notifyFailure('no-source');
+      return;
+    }
+
+    return id;
   }
 }
