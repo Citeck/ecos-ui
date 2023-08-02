@@ -5,6 +5,7 @@ const prefix = 'docLib/';
 export const setIsDocLibEnabled = createAction(prefix + 'SET_IS_ENABLED');
 export const getTypeRef = createAction(prefix + 'GET_IS_ENABLED');
 export const setTypeRef = createAction(prefix + 'SET_TYPE_REF');
+export const setJournalId = createAction(prefix + 'SET_JOURNAL_ID');
 export const setFileTypeRefs = createAction(prefix + 'SET_FILE_TYPE_REFS');
 export const setDirTypeRef = createAction(prefix + 'SET_DIR_TYPE_REF');
 export const setCreateVariants = createAction(prefix + 'SET_CREATE_VARIANTS');
