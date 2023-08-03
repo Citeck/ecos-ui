@@ -894,7 +894,7 @@ export default class SelectJournal extends Component {
     const DefaultView = viewOnly ? (
       <ViewMode {...inputViewProps} />
     ) : (
-      <InputView {...inputViewProps} disabled={journalId.match(TEMPLATE_JOURNAL_ID_REGEX)} />
+      <InputView {...inputViewProps} disabled={disabled || journalId.match(TEMPLATE_JOURNAL_ID_REGEX)} />
     );
 
     return (
