@@ -23,6 +23,7 @@ import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
 import PageTabList from '../services/pageTabs/PageTabList';
 import { isJsonObjectString } from '../helpers/util';
 import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
+import { PROCESS_DEF_API_ACTIONS } from '../api/process';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -36,7 +37,7 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
 
 export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   try {
-    const model = yield call(api.cmmn.getDefinition, record);
+    const model = yield call(api.process.getDefinition, record);
 
     yield put(setModel({ stateId, model }));
   } catch (e) {
@@ -45,11 +46,11 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, deploy } }) {
+export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, definitionAction } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
-      const res = yield call(api.cmmn.saveDefinition, record, xml, base64, deploy);
+      const res = yield call(api.process.saveDefinition, record, xml, base64, definitionAction);
 
       if (!res.id) {
         throw new Error('res.id is undefined');
@@ -57,12 +58,12 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
 
       let title = t('success');
       let message = t('editor.success.model-saved');
-      if (deploy) {
+      if (definitionAction === PROCESS_DEF_API_ACTIONS.DEPLOY) {
         message = t('editor.success.model-save-deployed');
       }
       NotificationManager.success(message, title);
 
-      if (deploy) {
+      if (definitionAction === PROCESS_DEF_API_ACTIONS.DEPLOY) {
         yield put(deleteTab(PageTabList.activeTab));
       } else {
         yield put(setLoading({ stateId, isLoading: false }));
@@ -73,7 +74,7 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
 
     let message = e.message || t('error');
     let title = t('editor.error.can-not-save-model');
-    if (deploy) {
+    if (definitionAction === PROCESS_DEF_API_ACTIONS.DEPLOY) {
       title = t('editor.error.can-not-save-deploy-model');
     }
     NotificationManager.error(message, title);
@@ -94,7 +95,7 @@ export function* fetchTitle({ api, logger }, { payload: { stateId, record } }) {
 
 export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
   try {
-    const hasDeployRights = yield call(api.cmmn.getHasDeployRights, record);
+    const hasDeployRights = yield call(api.process.getHasDeployRights, record);
 
     yield put(setHasDeployRights({ stateId, hasDeployRights }));
   } catch (e) {

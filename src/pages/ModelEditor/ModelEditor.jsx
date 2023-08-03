@@ -42,6 +42,7 @@ import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/
 import { DMN_DEFINITIONS } from '../../constants/dmn';
 
 import './ModelEditor.scss';
+import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -436,7 +437,7 @@ class ModelEditorPage extends React.Component {
     this.designer.zoomReset();
   };
 
-  handleSave = (deploy = false) => {
+  handleSave = (definitionAction = PROCESS_DEF_API_ACTIONS.SAVE) => {
     if (!this.designer) {
       return;
     }
@@ -460,7 +461,7 @@ class ModelEditorPage extends React.Component {
 
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
-        this.props.saveModel(xml, img, deploy);
+        this.props.saveModel(xml, img, definitionAction);
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -808,6 +809,7 @@ class ModelEditorPage extends React.Component {
           onApply={this.handleSave}
           onViewXml={this.handleClickViewXml}
           onSaveAndDeploy={this.handleSave}
+          onSaveDraft={this.handleSave}
           onSaveAsSVG={this.handleSaveAsSVG}
           onZoomIn={this.handleZoomIn}
           onZoomOut={this.handleZoomOut}

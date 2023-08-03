@@ -1661,6 +1661,7 @@
   "model-editor.btn.create": "Create",
   "model-editor.btn.view-xml": "View XML",
   "model-editor.btn.save-deploy": "Save and Deploy",
+  "model-editor.btn.save-draft": "Save as draft",
   "model-editor.btn.download-as-svg": "Download as SVG image",
   "model-editor.btn.reset-zoom": "Reset zoom",
   "model-editor.btn.zoom-in": "Zoom in",

@@ -2,8 +2,13 @@ import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PERMISSION_DEPLOY_PROCESS } from '../constants/bpmn';
 
-// @todo actually its not only a cmmn api. Its bpmn-def + cmmn-def
-export default class CmmnApi {
+export const PROCESS_DEF_API_ACTIONS = {
+  DRAFT: 'DRAFT',
+  SAVE: 'SAVE',
+  DEPLOY: 'DEPLOY'
+};
+
+export default class ProcessApi {
   getDefinition = record => {
     return Records.get(record).load('definition?str', true);
   };
@@ -12,16 +17,12 @@ export default class CmmnApi {
     return Records.get(record).load(PERMISSION_DEPLOY_PROCESS, true);
   };
 
-  saveDefinition = (record, xml, img, deploy) => {
+  saveDefinition = (record, xml, img, definitionAction) => {
     const rec = Records.get(record);
 
     rec.att('definition?str', xml);
     rec.att('image?str', img);
-    if (deploy) {
-      rec.att('action', 'DEPLOY');
-    } else {
-      rec.att('action', null);
-    }
+    rec.att('action', definitionAction);
 
     return rec.save();
   };

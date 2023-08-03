@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     initData: () => dispatch(initData({ stateId, record })),
-    saveModel: (xml, img, deploy) => dispatch(saveModel({ stateId, record, xml, img, deploy })),
+    saveModel: (xml, img, definitionAction) => dispatch(saveModel({ stateId, record, xml, img, definitionAction })),
     setModel: model => dispatch(setModel({ stateId, model })),
     setIsTableView: isHidden => dispatch(setIsTableView({ stateId, isHidden })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),

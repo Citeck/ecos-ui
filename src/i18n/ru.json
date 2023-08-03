@@ -1660,6 +1660,7 @@
   "model-editor.btn.create": "Создать",
   "model-editor.btn.view-xml": "Посмотреть XML",
   "model-editor.btn.save-deploy": "Сохранить и Опубликовать",
+  "model-editor.btn.save-draft": "Сохранить как черновик",
   "model-editor.btn.download-as-svg": "Скачать как svg",
   "model-editor.btn.reset-zoom": "Сбросить масштаб",
   "model-editor.btn.zoom-in": "Увеличить",

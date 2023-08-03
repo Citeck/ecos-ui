@@ -17,6 +17,7 @@ import Tools from './Tools';
 import { ToolsInterface } from './propsInterfaces';
 
 import './style.scss';
+import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
 
 const Labels = {
   NO_EDITOR: 'model-editor.error.no-editor',
@@ -24,6 +25,7 @@ const Labels = {
   APPLY: 'model-editor.btn.apply',
   VIEW_XML: 'model-editor.btn.view-xml',
   SAVE_DEPLOY: 'model-editor.btn.save-deploy',
+  SAVE_DRAFT: 'model-editor.btn.save-draft',
   CREATE: 'model-editor.btn.create',
   SAVE_AS_SVG: 'model-editor.btn.download-as-svg',
   RESET_ZOOM: 'model-editor.btn.reset-zoom',
@@ -86,6 +88,15 @@ class ModelEditorWrapper extends React.Component {
     }
 
     configButtons.push({
+      icon: 'fa fa-file',
+      action: this.onSaveDraft,
+      text: t(Labels.SAVE_DRAFT),
+      id: `bpmn-save-btn-${uuidv4()}`,
+      trigger: 'hover',
+      className: ''
+    });
+
+    configButtons.push({
       icon: 'fa fa-save',
       action: this.onApply,
       text: t(Labels.APPLY),
@@ -93,17 +104,6 @@ class ModelEditorWrapper extends React.Component {
       trigger: 'hover',
       className: ''
     });
-
-    if (isFunction(onViewXml)) {
-      configButtons.push({
-        icon: 'icon-document-view',
-        action: onViewXml,
-        text: t(Labels.VIEW_XML),
-        id: `bpmn-view-btn-${uuidv4()}`,
-        trigger: 'hover',
-        className: 'ecos-btn_blue'
-      });
-    }
 
     if (hasDeployRights) {
       configButtons.push({
@@ -113,6 +113,17 @@ class ModelEditorWrapper extends React.Component {
         id: `bpmn-download-btn-${uuidv4()}`,
         trigger: 'hover',
         className: 'ecos-btn_green'
+      });
+    }
+
+    if (isFunction(onViewXml)) {
+      configButtons.push({
+        icon: 'icon-document-view',
+        action: onViewXml,
+        text: t(Labels.VIEW_XML),
+        id: `bpmn-view-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: 'ecos-btn_blue'
       });
     }
 
@@ -186,13 +197,19 @@ class ModelEditorWrapper extends React.Component {
 
   onApply = () => {
     if (isFunction(this.props.onApply)) {
-      this.props.onApply(false);
+      this.props.onApply();
+    }
+  };
+
+  onSaveDraft = () => {
+    if (isFunction(this.props.onSaveDraft)) {
+      this.props.onSaveDraft(PROCESS_DEF_API_ACTIONS.DRAFT);
     }
   };
 
   onSaveAndDeploy = () => {
     if (isFunction(this.props.onSaveAndDeploy)) {
-      this.props.onSaveAndDeploy(true);
+      this.props.onSaveAndDeploy(PROCESS_DEF_API_ACTIONS.DEPLOY);
     }
   };
 
