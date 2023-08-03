@@ -172,7 +172,19 @@ class Model extends React.Component {
   }, 100);
 
   handleWheel = () => {
-    this.reRenderHeatmap();
+    let handle = null;
+
+    if (handle) {
+      clearTimeout(handle);
+    }
+
+    this.state.isShowHeatmap && this.toggleTempHeatmap(true);
+
+    handle = setTimeout(this.handleStopWheel, 100);
+  };
+
+  handleStopWheel = () => {
+    this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
   };
 
   renderBadges = () => {
