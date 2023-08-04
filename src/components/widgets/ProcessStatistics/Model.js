@@ -349,8 +349,6 @@ class Model extends React.Component {
 
     const Sheet = this.designer && this.designer.renderSheet;
 
-    const Sheet = this.designer && this.designer.renderSheet;
-
     return (
       <div
         className={classNames('ecos-process-statistics-model', {
