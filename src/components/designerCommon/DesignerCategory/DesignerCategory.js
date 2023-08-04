@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import ContentEditable from 'react-contenteditable';
-import { Collapse, Dropdown, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
 
 import { ViewTypes } from '../../../constants/commonDesigner';
@@ -188,20 +188,18 @@ class DesignerCategory extends React.Component {
 
     let actionButtons = (
       <Fragment>
-        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
+        <Dropdown className={styles.dropdown} isOpen={this.state.dropdownOpen} toggle={this.toggleDropdown}>
           <DropdownToggle tag="div">
             <span className={dropdownActionsIconClasses} />
           </DropdownToggle>
-          <DropdownMenu className={styles.dropdownMenu} right>
-            <ul>
-              {actions.map(action => {
-                return (
-                  <li key={action.label} onClick={action.onClick}>
-                    {action.label}
-                  </li>
-                );
-              })}
-            </ul>
+          <DropdownMenu className={styles.dropdownMenu} container="body" right>
+            {actions.map(action => {
+              return (
+                <DropdownItem key={action.label} onClick={action.onClick}>
+                  {action.label}
+                </DropdownItem>
+              );
+            })}
           </DropdownMenu>
         </Dropdown>
 

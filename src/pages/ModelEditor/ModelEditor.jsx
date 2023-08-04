@@ -62,6 +62,7 @@ class ModelEditorPage extends React.Component {
   _tempFormData = {};
   _formWrapperRef = React.createRef();
   _prevValue = {};
+  _cachedLabels = {};
   _labelIsEdited = false;
   _formReady = false;
   _formsCache = {};
@@ -85,6 +86,8 @@ class ModelEditorPage extends React.Component {
   }
 
   componentWillUnmount() {
+    this._cachedLabels = {};
+    this._formsCache = {};
     this.designer && this.designer.destroy();
   }
 
@@ -438,6 +441,8 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
+    this.updateXMLData();
+
     const { savedModel } = this.props;
 
     if (!savedModel) {
@@ -462,6 +467,27 @@ class ModelEditorPage extends React.Component {
       });
   };
 
+  updateXMLData = () => {
+    const form = get(this._formWrapperRef, 'current.form');
+    const data = get(form, 'submission.data');
+
+    Object.keys(this._cachedLabels).forEach(id => {
+      this._labelIsEdited = false;
+
+      if (this._formsCache[id] && this.designer.modeler && isFunction(this.designer.modeler.get)) {
+        const element = this.designer.modeler.get('elementRegistry').get(id);
+
+        if (element) {
+          this.handleFormChange({ data: this._formsCache[id], changed: element }, form, element, true);
+        }
+      }
+    });
+
+    if (form && data) {
+      this.handleFormChange({ data, changed: form }, form);
+    }
+  };
+
   handleSelectItem = element => {
     const { selectedElement: currentSelected } = this.state;
     const selectedElement = this._getBusinessObjectByDiagramElement(element);
@@ -469,7 +495,6 @@ class ModelEditorPage extends React.Component {
     if (selectedElement && currentSelected && selectedElement.id === currentSelected.id) {
       return;
     }
-
     this._formReady = false;
 
     if (selectedElement && selectedElement.type === COLLABORATION_TYPE) {
@@ -516,9 +541,11 @@ class ModelEditorPage extends React.Component {
     this._formsCache[id] = data;
   };
 
-  handleFormChange = (info, form) => {
+  handleFormChange = (info, form, elementToEdit, fromCachedLabels = false) => {
     const { isLoadingProps } = this.props;
     const { selectedElement, selectedDiagramElement } = this.state;
+
+    const element = elementToEdit || selectedElement;
 
     if (this._labelIsEdited || isLoadingProps || !this._formReady) {
       return;
@@ -528,7 +555,7 @@ class ModelEditorPage extends React.Component {
       return;
     }
 
-    if (!info.changed || !selectedElement) {
+    if (!info.changed || !element) {
       return;
     }
 
@@ -553,8 +580,17 @@ class ModelEditorPage extends React.Component {
         modelData[PREFIX_FIELD + 'defId'] = rawValue;
       }
 
-      if (is(selectedDiagramElement, DEFINITON_TYPE) && key === 'processDefId') {
-        modelData['id'] = rawValue;
+      if (key === 'processDefId') {
+        if (is(selectedDiagramElement, DEFINITON_TYPE)) {
+          modelData['id'] = rawValue;
+        }
+
+        if (is(selectedDiagramElement, TYPE_BPMN_PROCESS)) {
+          const modeler = this.designer.modeler;
+          const modeling = modeler.get('modeling');
+
+          modeling.updateProperties(selectedDiagramElement, { id: rawValue }, false);
+        }
       }
 
       if (is(selectedDiagramElement, PARTICIPANT_TYPE) && key === 'processRef') {
@@ -586,7 +622,8 @@ class ModelEditorPage extends React.Component {
       }
     }
 
-    this.designer.updateProps(selectedElement, modelData, true);
+    this.designer.updateProps(element, modelData, !fromCachedLabels);
+    this.cacheFormData();
 
     if (selectedDiagramElement) {
       const eventBus = this.designer.getEventBus();
@@ -601,12 +638,7 @@ class ModelEditorPage extends React.Component {
   };
 
   handleClickViewXml = () => {
-    const form = get(this._formWrapperRef, 'current.form');
-    const data = get(form, 'submission.data');
-
-    if (form && data) {
-      this.handleFormChange({ data, changed: form }, form);
-    }
+    this.updateXMLData();
 
     const { savedModel } = this.props;
 
@@ -647,9 +679,10 @@ class ModelEditorPage extends React.Component {
 
   handleChangeLabel = label => {
     const { selectedElement: currentSelected } = this.state;
+    const { isTableView } = this.props;
     const selectedElement = this._getBusinessObjectByDiagramElement(currentSelected);
 
-    if (!selectedElement) {
+    if (!selectedElement || isTableView) {
       return;
     }
 
@@ -666,6 +699,8 @@ class ModelEditorPage extends React.Component {
       this._formWrapperRef.current.setValue({ [KEY_FIELD_NAME + ML_POSTFIX]: newName }, { noUpdateEvent: true });
 
       set(this._formsCache, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
+
+      set(this._cachedLabels, [selectedElement.id, KEY_FIELD_NAME + ML_POSTFIX], newName);
     }
   };
 
@@ -678,10 +713,14 @@ class ModelEditorPage extends React.Component {
       const type = getEcosType(participant);
 
       if (participant) {
-        this.designer.updateProps(element, {
-          'ecos:processRef': get(participant, 'businessObject.processRef.id'),
-          'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
-        });
+        this.designer.updateProps(
+          element,
+          {
+            'ecos:processRef': get(participant, 'businessObject.processRef.id'),
+            'ecos:ecosType': isEmpty(type) ? root.$attrs['ecos:ecosType'] : type
+          },
+          true
+        );
 
         const eventBus = this.designer.getEventBus();
         if (eventBus) {
@@ -705,6 +744,7 @@ class ModelEditorPage extends React.Component {
     if (element) {
       delete this._formsCache[element.id];
       delete this._formsCache[element.id + LABEL_POSTFIX];
+      delete this._cachedLabels[element.id + LABEL_POSTFIX];
 
       this.setState({ selectedElement: undefined, selectedDiagramElement: undefined });
       this.props.clearFormProps();
@@ -757,7 +797,7 @@ class ModelEditorPage extends React.Component {
   };
 
   render() {
-    const { title, formProps, isLoading, isAnyConfigButtonHidden } = this.props;
+    const { title, formProps, isLoading, isTableView, hasDeployRights } = this.props;
     const { selectedElement, xmlViewerXml, xmlViewerIsOpen } = this.state;
 
     return (
@@ -775,7 +815,8 @@ class ModelEditorPage extends React.Component {
           rightSidebarTitle={this.formTitle}
           editor={this.renderEditor()}
           extraButtons={this.editorExtraButtons}
-          isAnyConfigButtonHidden={isAnyConfigButtonHidden}
+          isTableView={isTableView}
+          hasDeployRights={hasDeployRights}
           rightSidebar={
             <>
               {!!(isEmpty(formProps) && selectedElement) && <Loader />}

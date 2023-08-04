@@ -94,19 +94,28 @@ class Properties extends React.Component {
   };
 
   onFormChanged = (submission, form) => {
-    const { onFormIsChanged } = this.props;
+    const { onFormIsChanged, componentsCount, changeComponentsCount } = this.props;
 
     const changedType = get(submission, 'changed.component.type');
+    const allComponents = form.getAllComponents();
+
     if (isFunction(onFormIsChanged)) {
-      const editedComponent = form.getAllComponents().filter(c => {
+      const editedComponent = allComponents.filter(c => {
         const { persistent } = c.component;
 
         return c.valueChangedByUser && persistent && persistent !== 'client-only';
       });
 
-      const isChanged = editedComponent.length || changedType === 'button';
+      const length = allComponents.length;
 
-      onFormIsChanged(isChanged, form.isValid(submission));
+      const isChanged = editedComponent.length || changedType === 'button' || (componentsCount >= 0 && componentsCount !== length);
+      const valid = form.checkValidity(submission.data, !!isChanged);
+
+      onFormIsChanged(isChanged, valid);
+
+      if (componentsCount !== length) {
+        changeComponentsCount(length);
+      }
     }
   };
 

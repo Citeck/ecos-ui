@@ -7,7 +7,7 @@ import pick from 'lodash/pick';
 import forEach from 'lodash/forEach';
 import forIn from 'lodash/forIn';
 
-import { overrideTriggerChange, requestAnimationFrame } from '../misc';
+import { overrideTriggerChange } from '../misc';
 export default class DataGridComponent extends FormIODataGridComponent {
   constructor(...args) {
     super(...args);
@@ -28,18 +28,28 @@ export default class DataGridComponent extends FormIODataGridComponent {
   get baseEmptyValue() {
     return (this.rows || []).map(row => {
       return Object.keys(row).reduce((res, cur) => {
-        res[cur] = row[cur].emptyValue;
+        res = Object.assign(res, this.getEmptyValues(row[cur]));
 
         return res;
       }, {});
     });
   }
 
-  show = show => {
-    if (show && !this.dataValue.length) {
-      this.overrideBaseRow();
+  getEmptyValues = component => {
+    if (Array.isArray(component.components)) {
+      return component.components.reduce((res, cur) => {
+        if (cur.type !== 'hidden') {
+          return { ...res, ...this.getEmptyValues(cur) };
+        }
+
+        return res;
+      }, {});
     }
 
+    return { [component.key]: component.defaultValue || component.emptyValue };
+  };
+
+  show = show => {
     const forceShow = this.options.show && this.options.show[this.component.key];
     const forceHide = this.options.hide && this.options.hide[this.component.key];
 
@@ -61,18 +71,6 @@ export default class DataGridComponent extends FormIODataGridComponent {
 
     return show;
   };
-
-  overrideBaseRow() {
-    if (!this.dataValue.length || isEqual(this.dataValue, this.baseEmptyValue)) {
-      this.removeValue(0);
-    }
-
-    requestAnimationFrame(() => {
-      if (!this.dataValue.length || !this.rows.length) {
-        this.addValue();
-      }
-    });
-  }
 
   checkValidity(data, dirty, rowData) {
     if (isEqual(this.dataValue, this.baseEmptyValue)) {

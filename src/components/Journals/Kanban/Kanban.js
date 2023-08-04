@@ -141,7 +141,7 @@ class Kanban extends React.Component {
         key={`col_${selectedBoard}-${data.id}`}
         data={data}
         stateId={stateId}
-        columnIndex={index}
+        columnStatus={data.id}
         isDragging={isDragging}
         runAction={runAction}
       />
@@ -149,10 +149,22 @@ class Kanban extends React.Component {
   };
 
   render() {
-    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard } = this.props;
+    const { columns, dataCards = [], isLoading, isFirstLoading, page, selectedBoard, kanbanSettings } = this.props;
     const { isDragging } = this.state;
     const bodyStyle = { minHeight: this.getHeight(-70) };
-    const cols = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
+
+    const defaultColumns = Array.isArray(columns) ? columns.filter(item => item && item.id) : [];
+    const colsFromSettings = get(kanbanSettings, 'columns');
+    const cols = colsFromSettings ? [] : defaultColumns;
+    if (colsFromSettings) {
+      colsFromSettings.forEach(item => {
+        const defaultColumn = defaultColumns.find(i => i && i.id === item.id);
+
+        if (defaultColumn && defaultColumn.id && item.default) {
+          cols.push(defaultColumn);
+        }
+      });
+    }
 
     if (isDragging) {
       bodyStyle.height = bodyStyle.minHeight;
@@ -172,14 +184,18 @@ class Kanban extends React.Component {
             ref={this.refScroll}
           >
             <div className="ecos-kanban__head" ref={this.refHeader}>
-              {cols.map((data, index) => (
-                <HeaderColumn
-                  key={`head_${selectedBoard}-${data.id}`}
-                  isReady={!isFirstLoading}
-                  data={data}
-                  totalCount={get(dataCards, [index, 'totalCount'], '⭯')}
-                />
-              ))}
+              {cols.map(data => {
+                const column = dataCards.find(card => card.status === data.id);
+
+                return (
+                  <HeaderColumn
+                    key={`head_${selectedBoard}-${data.id}`}
+                    isReady={!isFirstLoading}
+                    data={data}
+                    totalCount={get(column, 'totalCount', '⭯')}
+                  />
+                );
+              })}
             </div>
             <div
               className={classNames('ecos-kanban__body', {

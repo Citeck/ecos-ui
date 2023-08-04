@@ -18,15 +18,13 @@ describe('Parent Form test', function() {
     Formio.forms = {};
   });
 
-  it('No parent form', async done => {
+  it('No parent form', async () => {
     const form = await createForm();
 
     assert.equal(form.getForm().parentForm, null);
-
-    done();
   });
 
-  it('There is a parent form (a chain of 2 forms)', async done => {
+  it('There is a parent form (a chain of 2 forms)', async () => {
     expect(Formio.forms).toMatchObject({});
 
     const form1 = await createForm();
@@ -35,11 +33,9 @@ describe('Parent Form test', function() {
     assert.equal(form1.getForm().parentForm, null);
     assert.equal(form2.getForm().id, Object.keys(Formio.forms).pop());
     assert.equal(form2.getForm().parentForm.id, Object.keys(Formio.forms)[0]);
-
-    done();
   });
 
-  it('There is a parent form (a chain of many forms)', async done => {
+  it('There is a parent form (a chain of many forms)', async () => {
     const forms = [];
 
     expect(Formio.forms).toMatchObject({});
@@ -55,11 +51,9 @@ describe('Parent Form test', function() {
         assert.equal(forms[index - 1].getForm().id, forms[index].getForm().parentForm.id);
       }
     });
-
-    done();
   });
 
-  it('All open forms are cached in Formio.forms', async done => {
+  it('All open forms are cached in Formio.forms', async () => {
     const forms = [];
 
     expect(Formio.forms).toMatchObject({});
@@ -71,11 +65,9 @@ describe('Parent Form test', function() {
     forms.forEach((form, index) => {
       assert.equal(form.getForm().id, Object.keys(Formio.forms)[index]);
     });
-
-    done();
   });
 
-  it('A closed form is removed from the form cache', async done => {
+  it('A closed form is removed from the form cache', async () => {
     const forms = [];
 
     expect(Formio.forms).toMatchObject({});
@@ -96,11 +88,9 @@ describe('Parent Form test', function() {
         assert.equal(Formio.forms[id], undefined);
       }
     });
-
-    done();
   });
 
-  it('After closing all forms, the form cache is cleared', async done => {
+  it('After closing all forms, the form cache is cleared', async () => {
     const forms = [];
 
     expect(Formio.forms).toMatchObject({});
@@ -114,11 +104,9 @@ describe('Parent Form test', function() {
     });
 
     expect(Formio.forms).toMatchObject({});
-
-    done();
   });
 
-  it('Explicit parentId in form options', async done => {
+  it('Explicit parentId in form options', async () => {
     expect(Formio.forms).toMatchObject({});
 
     const form1 = await createForm();
@@ -132,7 +120,5 @@ describe('Parent Form test', function() {
     assert.equal(form3.getForm().parentForm.id, form1.getForm().id);
     assert.equal(form4.getForm().parentForm.id, form1.getForm().id);
     assert.equal(form5.getForm().parentForm.id, form4.getForm().id);
-
-    done();
   });
 });

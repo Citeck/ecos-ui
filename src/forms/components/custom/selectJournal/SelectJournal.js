@@ -7,7 +7,7 @@ import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { DataTypes, DisplayModes, SortOrderOptions, TableTypes } from './constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_JOURNAL_ID_REGEX } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -67,8 +67,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
   get journalId() {
     let journalId = this.component.journalId || '';
 
-    const templateRegex = /\$\{.*?\}/g;
-    const matches = journalId.match(templateRegex);
+    const matches = journalId.match(TEMPLATE_JOURNAL_ID_REGEX);
 
     if (!matches) {
       return journalId;
@@ -79,7 +78,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       journalId = journalId.replace(matchString, this.root.data[stringWithoutBraskets]);
     });
 
-    return journalId;
+    return journalId || this.component.journalId;
   }
 
   checkConditions(data) {
@@ -304,6 +303,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
   async getJournalId(journalId) {
     const key = this.getAttributeToEdit();
+
     let typeRef = _.get(this.root, 'options.typeRef');
 
     if (!typeRef) {
@@ -315,6 +315,10 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     const foundJournalId = await Records.get(typeRef).load(`attributeById.${key}.config.typeRef._as.ref.journalRef?localId`);
+
+    if (!foundJournalId && journalId.match(TEMPLATE_JOURNAL_ID_REGEX)) {
+      return null;
+    }
 
     return foundJournalId || journalId || null;
   }

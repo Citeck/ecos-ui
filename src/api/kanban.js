@@ -23,6 +23,10 @@ export class KanbanApi {
     );
   }
 
+  getTypeStatuses(typeRef) {
+    return Records.get(typeRef).load('model.statuses{id,name}[]');
+  }
+
   getBoardSettings(journalId) {
     return Records.query(
       {

@@ -1,6 +1,7 @@
 import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
+import isNil from 'lodash/isNil';
 
 import logger from '../services/logger';
 import ecosXhr from '../helpers/ecosXhr';
@@ -14,6 +15,7 @@ import { CommonApi } from './common';
 import { allowedLanguages, LANGUAGE_EN } from '../constants/lang';
 import ConfigService, {
   RESTRICT_ACCESS_TO_EDIT_DASHBOARD,
+  RESTRICT_ACCESS_TO_EDIT_DASHBOARD_WIDGETS,
   ORGSTRUCT_ALL_USERS_GROUP_SHORT_NAME,
   FOOTER_CONTENT,
   CUSTOM_REPORT_ISSUE_URL,
@@ -90,6 +92,26 @@ export class AppApi extends CommonApi {
         .load('isAdmin?bool')
         .catch(() => false)
     ]).then(([isRestrictionOn, isAdmin]) => !isRestrictionOn || isAdmin);
+  };
+
+  isWidgetEditable = ({ username }) => {
+    return Promise.all([
+      ConfigService.getValue(RESTRICT_ACCESS_TO_EDIT_DASHBOARD),
+      ConfigService.getValue(RESTRICT_ACCESS_TO_EDIT_DASHBOARD_WIDGETS),
+      Records.get(`${SourcesId.PERSON}@${username}`)
+        .load('isAdmin?bool')
+        .catch(() => false)
+    ]).then(([isDashboardRestrictionOn, isWidgetRestrictionOn, isAdmin]) => {
+      if (isAdmin) {
+        return true;
+      }
+
+      if (isWidgetRestrictionOn === '' || isNil(isWidgetRestrictionOn)) {
+        return !isDashboardRestrictionOn;
+      }
+
+      return isWidgetRestrictionOn !== 'true';
+    });
   };
 
   getBase64 = file => {

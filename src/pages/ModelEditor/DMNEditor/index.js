@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import * as queryString from 'query-string';
 
-import { getFormProps, initData, saveModel, setModel, setFormProps, setIsAnyConfigButtonHidden } from '../../../actions/dmnEditor';
+import { getFormProps, initData, saveModel, setModel, setFormProps, setIsTableView } from '../../../actions/dmnEditor';
 import DMNEditorPage from './DMNEditor';
 
 const mapStateToProps = (state, props) => {
@@ -13,8 +13,9 @@ const mapStateToProps = (state, props) => {
     savedModel: ownState.model,
     formProps: ownState.formProps,
     isLoading: ownState.isLoading,
+    hasDeployRights: ownState.hasDeployRights,
     isLoadingProps: ownState.isLoadingProps,
-    isAnyConfigButtonHidden: ownState.isAnyConfigButtonHidden
+    isTableView: ownState.isTableView
   };
 };
 
@@ -26,7 +27,7 @@ const mapDispatchToProps = (dispatch, props) => {
     initData: () => dispatch(initData({ stateId, record })),
     saveModel: (xml, img, deploy) => dispatch(saveModel({ stateId, record, xml, img, deploy })),
     setModel: model => dispatch(setModel({ stateId, model })),
-    setIsAnyConfigButtonHidden: isHidden => dispatch(setIsAnyConfigButtonHidden({ stateId, isHidden })),
+    setIsTableView: isHidden => dispatch(setIsTableView({ stateId, isHidden })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
     clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} }))
   };

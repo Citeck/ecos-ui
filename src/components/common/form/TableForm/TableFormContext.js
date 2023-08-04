@@ -53,109 +53,115 @@ export const TableFormContextProvider = props => {
     isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
   };
 
-  useEffect(() => {
-    if (isEmpty(defaultValue) || isEmpty(columns)) {
-      return;
-    }
+  useEffect(
+    () => {
+      if (isEmpty(defaultValue) || isEmpty(columns)) {
+        return;
+      }
 
-    let initValue;
-    if (!Array.isArray(defaultValue)) {
-      initValue = [defaultValue];
-    } else {
-      initValue = [...defaultValue];
-    }
-    if (initValue) {
-      const atts = [];
-      const attsAsIs = [];
-      const noNeedParseIndices = [];
+      let initValue;
+      if (!Array.isArray(defaultValue)) {
+        initValue = [defaultValue];
+      } else {
+        initValue = [...defaultValue];
+      }
+      if (initValue) {
+        const atts = [];
+        const attsAsIs = [];
+        const noNeedParseIndices = [];
 
-      columns.forEach((item, idx) => {
-        const { attribute = '', multiple = false } = item || {};
-        const isFullName = attribute.startsWith('.att');
-        const hasBracket = attribute.includes('{');
-        const hasQChar = attribute.includes('?');
+        columns.forEach((item, idx) => {
+          const { attribute = '', multiple = false } = item || {};
+          const isFullName = attribute.startsWith('.att');
+          const hasBracket = attribute.includes('{');
+          const hasQChar = attribute.includes('?');
 
-        if (isFullName || hasBracket || hasQChar) {
-          atts.push(attribute);
-          noNeedParseIndices.push(idx);
-          return;
-        }
-
-        const multiplePostfix = multiple ? 's' : '';
-        const schema = `.att${multiplePostfix}(n:"${attribute}"){disp}`;
-
-        atts.push(schema);
-        attsAsIs.push(attribute);
-      });
-      Promise.all(
-        initValue.map(async rec => {
-          const record = Records.get(rec);
-          const fetchedAtts = {};
-          let result = {};
-          let currentAttIndex = 0;
-
-          if (record.isBaseRecord()) {
-            result = await record.load(atts);
-          } else {
-            result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
-            const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
-
-            if (!isEmpty(nonExistAttrs)) {
-              const more = await record.load(nonExistAttrs);
-              result = { ...result, ...more };
-            }
+          if (isFullName || hasBracket || hasQChar) {
+            atts.push(attribute);
+            noNeedParseIndices.push(idx);
+            return;
           }
 
-          for (let attSchema in result) {
-            if (!result.hasOwnProperty(attSchema)) {
-              continue;
+          const multiplePostfix = multiple ? 's' : '';
+          const schema = `.att${multiplePostfix}(n:"${attribute}"){disp}`;
+
+          atts.push(schema);
+          attsAsIs.push(attribute);
+        });
+        Promise.all(
+          initValue.map(async rec => {
+            const record = Records.get(rec);
+            const fetchedAtts = {};
+            let result = {};
+            let currentAttIndex = 0;
+
+            if (record.isBaseRecord()) {
+              result = await record.load(atts);
+            } else {
+              result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
+              const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
+
+              if (!isEmpty(nonExistAttrs)) {
+                const more = await record.load(nonExistAttrs);
+                result = { ...result, ...more };
+              }
             }
 
-            if (noNeedParseIndices.includes(currentAttIndex)) {
-              fetchedAtts[attSchema] = result[attSchema];
-            } else {
-              const attData = parseAttribute(attSchema);
-
-              if (!attData) {
-                currentAttIndex++;
+            for (let attSchema in result) {
+              if (!result.hasOwnProperty(attSchema)) {
                 continue;
               }
 
-              fetchedAtts[attData.name] = result[attSchema];
+              if (noNeedParseIndices.includes(currentAttIndex)) {
+                fetchedAtts[attSchema] = result[attSchema];
+              } else {
+                const attData = parseAttribute(attSchema);
+
+                if (!attData) {
+                  currentAttIndex++;
+                  continue;
+                }
+
+                fetchedAtts[attData.name] = result[attSchema];
+              }
+              currentAttIndex++;
             }
-            currentAttIndex++;
-          }
 
-          return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
-        })
-      )
-        .then(result => {
-          setGridRows(result);
-          isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
-        })
-        .catch(e => {
-          console.error(e);
-          setGridRows([]);
-        });
-    }
-  }, [defaultValue, columns]);
+            return { ...fetchedAtts, id: rec, [LOCAL_ID]: rec };
+          })
+        )
+          .then(result => {
+            setGridRows(result);
+            isFunction(triggerEventOnTableChange) && triggerEventOnTableChange();
+          })
+          .catch(e => {
+            console.error(e);
+            setGridRows([]);
+          });
+      }
+    },
+    [defaultValue, columns]
+  );
 
-  useEffect(() => {
-    if (clonedRecord) {
-      Records.get(clonedRecord)
-        .load('_formKey?str')
-        .then(formKey => {
-          const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
+  useEffect(
+    () => {
+      if (clonedRecord) {
+        Records.get(clonedRecord)
+          .load('_formKey?str')
+          .then(formKey => {
+            const createVariant = createVariants.find(item => (item.formKey || `alf_${item.type}`) === formKey);
 
-          if (isInstantClone) {
-            return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
-          } else {
-            showCloneForm({ createVariant });
-          }
-        })
-        .then(record => record instanceof Record && onCreateFormSubmit(record));
-    }
-  }, [clonedRecord]);
+            if (isInstantClone) {
+              return EcosFormUtils.cloneRecord({ clonedRecord, createVariant, saveOnSubmit: false });
+            } else {
+              showCloneForm({ createVariant });
+            }
+          })
+          .then(record => record instanceof Record && onCreateFormSubmit(record));
+      }
+    },
+    [clonedRecord]
+  );
 
   const showCloneForm = ({ createVariant }) => {
     setIsViewOnlyForm(false);
@@ -165,9 +171,11 @@ export const TableFormContextProvider = props => {
     setIsModalFormOpen(true);
   };
 
-  const onCreateFormSubmit = record => {
+  const onCreateFormSubmit = (record, form) => {
     setIsModalFormOpen(false);
     setClonedRecord(null);
+
+    const allComponents = form.getAllComponents();
 
     record.toJsonAsync(true).then(async res => {
       const attributes = cloneDeep(res.attributes);
@@ -176,7 +184,16 @@ export const TableFormContextProvider = props => {
       for (let column of columns) {
         if (column.attribute in attributes) {
           const index = restAttrs.findIndex(value => value === column.attribute);
-          const displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
+          let displayName = null;
+          const component = allComponents.find(component => component.key === column.attribute && component.type === 'ecosSelect');
+
+          displayName = await Records.get(res.attributes[column.attribute]).load('.disp');
+
+          if (component && !displayName) {
+            const option = get(component, 'currentItems', []).find(item => item.value === attributes[column.attribute]);
+            displayName = option.label;
+          }
+
           restAttrs.splice(index, 1);
           if (displayName) {
             attributes[column.attribute] = displayName;
@@ -273,10 +290,12 @@ export const TableFormContextProvider = props => {
 
         onCreateFormSubmit,
 
-        onEditFormSubmit: record => {
+        onEditFormSubmit: (record, form) => {
           let editRecordId = record.id;
           let isAlias = editRecordId.indexOf('-alias') !== -1;
           let newGridRows = [...gridRows];
+
+          const allComponents = form.getAllComponents();
 
           const createNewRow = async (initialRow, originColumn, editedRecord, attributes) => {
             const attrs = Object.keys(originColumn);
@@ -285,7 +304,16 @@ export const TableFormContextProvider = props => {
             const attrsWithoutScalar = attrs.filter(att => att.indexOf('?') === -1);
             for (const att of attrsWithoutScalar) {
               if (attributes[att]) {
-                const displayName = await Records.get(attributes[att]).load('.disp');
+                let displayName = null;
+                const component = allComponents.find(component => component.key === att && component.type === 'ecosSelect');
+
+                displayName = await Records.get(attributes[att]).load('.disp');
+
+                if (component && !displayName) {
+                  const option = get(component, 'currentItems', []).find(item => item.value === attributes[att]);
+                  displayName = option.label;
+                }
+
                 newRow = displayName ? { ...newRow, [att]: displayName } : { ...newRow };
               }
             }

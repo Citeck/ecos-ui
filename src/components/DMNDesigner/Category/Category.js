@@ -12,6 +12,7 @@ import {
   createModel
 } from '../../../actions/dmn';
 import { hideModal, showModal } from '../../../actions/modal';
+import { savePagePosition } from '../../../actions/dmn';
 
 const mapStateToProps = state => ({
   viewType: state.dmn.viewType,
@@ -20,8 +21,14 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = (dispatch, props) => ({
   setIsEditable: () => dispatch(setIsEditable(props.categoryId)),
-  toggleCollapse: () => dispatch(setIsCategoryOpen({ id: props.categoryId, isOpen: !props.isOpen })),
-  setCollapse: isOpen => dispatch(setIsCategoryOpen({ id: props.categoryId, isOpen })),
+  toggleCollapse: () => {
+    dispatch(setIsCategoryOpen({ id: props.categoryId, isOpen: !props.isOpen }));
+    dispatch(savePagePosition());
+  },
+  setCollapse: isOpen => {
+    dispatch(setIsCategoryOpen({ id: props.categoryId, isOpen }));
+    dispatch(savePagePosition());
+  },
   showDeleteCategoryModal: () => {
     dispatch(
       showModal({

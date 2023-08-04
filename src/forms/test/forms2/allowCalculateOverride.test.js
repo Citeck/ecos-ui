@@ -82,7 +82,7 @@ beforeAll(async () => {
 });
 
 describe('Calculated fields test #2', () => {
-  it('Allow calculate override. Create mode part1', async done => {
+  it('Allow calculate override. Create mode part1', async () => {
     let formData = form.getFormData();
     assert.equal(formData.field0, 7);
     assert.equal(formData.field1, 13);
@@ -117,11 +117,9 @@ describe('Calculated fields test #2', () => {
     await form.setInputValue('totalWithoutOverride', null);
     formData = form.getFormData();
     assert.equal(formData.totalWithoutOverride, 2013);
-
-    done();
   });
 
-  it('Allow calculate override. Create mode select orgstruct part 1', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 1', async () => {
     let formData = form.getFormData();
     // ++ orgstruct ++
 
@@ -130,11 +128,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.orgstructWithOverride, 'emodel/person@admin');
 
     // -- orgstruct --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode select orgstruct part 2', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 2', async () => {
     let formData = form.getFormData();
     // ++ orgstruct ++
 
@@ -143,11 +139,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.orgstructWithOverride, 'emodel/person@fet');
 
     // -- orgstruct --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode select orgstruct part 3', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 3', async () => {
     let formData = form.getFormData();
     // ++ orgstruct ++
 
@@ -157,11 +151,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.orgstructWithOverride, 'emodel/person@admin');
 
     // -- orgstruct --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode select orgstruct part 4', async done => {
+  it('Allow calculate override. Create mode select orgstruct part 4', async () => {
     let formData = form.getFormData();
     // ++ orgstruct ++
 
@@ -171,11 +163,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.nonCalculatedOrgstruct, 'emodel/person@pushkin');
 
     // -- orgstruct --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode selectjournal part1', async done => {
+  it('Allow calculate override. Create mode selectjournal part1', async () => {
     let formData = form.getFormData();
     // ++ selectjournal ++
 
@@ -185,11 +175,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.selectJournalWithoutOverride, 'ecos-documents');
 
     // -- selectjournal --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode selectjournal part2', async done => {
+  it('Allow calculate override. Create mode selectjournal part2', async () => {
     let formData = form.getFormData();
     // ++ selectjournal ++
 
@@ -198,11 +186,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.selectJournalWithOverride, 'ecos-types');
 
     // -- selectjournal --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode selectjournal part3', async done => {
+  it('Allow calculate override. Create mode selectjournal part3', async () => {
     let formData = form.getFormData();
 
     // ++ selectjournal ++
@@ -211,11 +197,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.selectJournalWithoutOverride, 'ecos-documents');
 
     // -- selectjournal --
-
-    done();
   });
 
-  it('Allow calculate override. Create mode selectjournal part4', async done => {
+  it('Allow calculate override. Create mode selectjournal part4', async () => {
     let formData = form.getFormData();
 
     await form.setInputValue('nonCalculatedSelectJournal', 'contract-agreements');
@@ -224,11 +208,9 @@ describe('Calculated fields test #2', () => {
     assert.equal(formData.selectJournalWithoutOverride, 'contract-agreements');
 
     // -- selectjournal --
-
-    done();
   });
 
-  it('Allow calculated override test. Edit mode', async done => {
+  it('Allow calculated override test. Edit mode', async () => {
     const form0 = await TestForm.create(
       definition,
       { formMode: 'EDIT' },
@@ -270,7 +252,5 @@ describe('Calculated fields test #2', () => {
     await form1.setInputValue('field0', 10);
     formData = form1.getFormData();
     assert.equal(formData.totalWithOverride, 23);
-
-    done();
   });
 });

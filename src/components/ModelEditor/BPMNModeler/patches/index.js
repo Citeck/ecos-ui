@@ -3,3 +3,8 @@ import './features/modeling/Modeling';
 import './features/modeling/cmd/UpdatePropertiesHandler';
 import './features/palette/PaletteProvider';
 import './features/popup-menu/ReplaceMenuProvider';
+import './features/context-pad/ContextPadProvider';
+import './features/keyboard/BpmnKeyboardBindings';
+import './features/label-editing/LabelEditingProvider';
+import './features/command/CommandStack';
+import './features/selection/Selection';

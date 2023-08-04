@@ -7,6 +7,7 @@ import EcosModal from '../../../../EcosModal';
 import { t } from '../../../../../../helpers/util';
 import Records from '../../../../../Records';
 import useIsMounted from '../../../../../../hooks/useIsMounted';
+import { ErrorBoundary } from '../../../../../ErrorBoundary';
 
 const ModalForm = () => {
   const context = useContext(TableFormContext);
@@ -27,20 +28,23 @@ const ModalForm = () => {
   const { parentForm, isStaticModalTitle, customStringForConcatWithStaticTitle } = controlProps;
   const isMounted = useIsMounted();
   const [displayName, setDisplayName] = useState('');
-  useEffect(() => {
-    if (isStaticModalTitle) {
-      if (!!customStringForConcatWithStaticTitle) {
-        setDisplayName(customStringForConcatWithStaticTitle);
+  useEffect(
+    () => {
+      if (isStaticModalTitle) {
+        if (!!customStringForConcatWithStaticTitle) {
+          setDisplayName(customStringForConcatWithStaticTitle);
+        }
+        return;
       }
-      return;
-    }
 
-    Records.get(record)
-      .load('.disp')
-      .then(disp => {
-        isMounted() && setDisplayName(disp);
-      });
-  }, [record, setDisplayName, customStringForConcatWithStaticTitle]);
+      Records.get(record)
+        .load('.disp')
+        .then(disp => {
+          isMounted() && setDisplayName(disp);
+        });
+    },
+    [record, setDisplayName, customStringForConcatWithStaticTitle]
+  );
 
   let title = '';
 
@@ -122,18 +126,20 @@ const ModalForm = () => {
           isOpen={isModalFormOpen}
           hideModal={toggleModal}
         >
-          <EcosForm
-            formId={formRef}
-            record={recordForForm}
-            clonedRecord={clonedRecord}
-            formKey={formKey}
-            attributes={attributes}
-            onSubmit={getOnSubmit()}
-            onFormCancel={toggleModal}
-            saveOnSubmit={false}
-            options={formOptions}
-            initiator={{ type: 'modal' }}
-          />
+          <ErrorBoundary>
+            <EcosForm
+              formId={formRef}
+              record={recordForForm}
+              clonedRecord={clonedRecord}
+              formKey={formKey}
+              attributes={attributes}
+              onSubmit={getOnSubmit()}
+              onFormCancel={toggleModal}
+              saveOnSubmit={false}
+              options={formOptions}
+              initiator={{ type: 'modal' }}
+            />
+          </ErrorBoundary>
         </EcosModal>
       ) : null}
     </div>

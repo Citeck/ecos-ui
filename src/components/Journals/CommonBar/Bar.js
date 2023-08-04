@@ -54,7 +54,12 @@ class Bar extends Component {
 
   handleSaveSettings = (id, settings) => {
     const { saveJournalSetting } = this.props;
-    isFunction(saveJournalSetting) && saveJournalSetting(id, settings);
+
+    isFunction(saveJournalSetting) &&
+      saveJournalSetting(id, settings, () => {
+        this.handleToggleSettings();
+        this.handleRefresh();
+      });
   };
 
   handleRefresh = () => {
@@ -111,6 +116,8 @@ class Bar extends Component {
       settingsFiltersData = {},
       settingsColumnsData = {},
       settingsGroupingData = {},
+      originKanbanSettings = {},
+      kanbanSettings = {},
       selectedRecords = [],
       nameBtnSettings,
       leftChild,
@@ -123,9 +130,12 @@ class Bar extends Component {
       <>
         <SettingsModal
           {...settingsData}
+          viewMode={viewMode}
           filtersData={settingsFiltersData}
           columnsData={settingsColumnsData}
           groupingData={settingsGroupingData}
+          originKanbanSettings={originKanbanSettings}
+          kanbanSettings={kanbanSettings}
           isReset={isReset}
           isOpen={settingsVisible}
           onClose={this.handleToggleSettings}

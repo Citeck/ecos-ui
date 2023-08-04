@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
-import uuid from 'uuidv4';
+import uuid from 'uuid/v4';
 import { UncontrolledTooltip } from 'reactstrap';
 
 import { deepClone } from '../../../helpers/util';

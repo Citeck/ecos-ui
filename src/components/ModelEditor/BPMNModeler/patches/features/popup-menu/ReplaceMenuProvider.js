@@ -2,8 +2,16 @@ import ReplaceMenuProvider from 'bpmn-js/lib/features/popup-menu/ReplaceMenuProv
 import { getBusinessObject, is } from 'bpmn-js/lib/util/ModelUtil';
 import { filter } from 'min-dash';
 import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
+import get from 'lodash/get';
+import set from 'lodash/set';
 
-import { GATEWAY_TYPES, TASK_TYPES } from '../../../../../../constants/bpmn';
+import {
+  ECOS_TASK_BASE_ELEMENT,
+  ECOS_TASK_TYPE_SET_STATUS,
+  GATEWAY_TYPES,
+  REPLACE_TO_SET_STATUS,
+  TASK_TYPES
+} from '../../../../../../constants/bpmn';
 import {
   BOUNDARY_EVENT,
   END_EVENT,
@@ -25,28 +33,33 @@ import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 const originGetEntries = ReplaceMenuProvider.prototype.getPopupMenuEntries;
 const originCreateEntries = ReplaceMenuProvider.prototype._createEntries;
-const originGetHeaderEntries = ReplaceMenuProvider.prototype.getHeaderEntries;
+const originGetHeaderEntries = ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries;
+
+const disableReplaceMenuForStart = [
+  'replace-with-conditional-start', // Conditional Start Event
+  'replace-with-message-start' // Message Start Event
+];
 
 const disabledReplaceMenuForTasks = [
-  'replace-with-call-activity', // Call Activity
   'replace-with-manual-task', // Manual Task
-  'replace-with-service-task', // Service task
   'replace-with-receive-task' // Receive task
 ];
 
 const disabledReplaceMenuForEvents = [
-  'replace-with-conditional-intermediate-catch', // Conditional Intermediate Catch Event
-  'replace-with-none-intermediate-throw', // Intermediate Throw Event
   'replace-with-escalation-intermediate-throw', // Escalation Intermediate Throw Event
   'replace-with-compensation-intermediate-throw', // Compensation Intermediate Throw Event
   'replace-with-link-intermediate-throw', // Link Intermediate Throw Event
   'replace-with-link-intermediate-catch', // Link Intermediate Catch Event
-  'replace-with-none-intermediate-throwing', // Intermediate Throw Event
-  'replace-with-conditional-start', // Conditional Start Event
   'replace-with-compensation-end', // Compensation End Event
-  'replace-with-terminate-end', // Terminate End Event
-  'replace-with-escalation-end', // Escalation End Event
-  'replace-with-error-end' // Error End Event
+  'replace-with-escalation-end' // Escalation End Event
+];
+
+const disabledForBoundaryEvents = [
+  'replace-with-message-boundary', // Message Boundary Event
+  'replace-with-escalation-boundary', // Escalation Boundary Event
+  'replace-with-compensation-boundary', // Compensation Boundary Event
+  'replace-with-non-interrupting-message-boundary', // Message Boundary Event (non-interrupting)
+  'replace-with-non-interrupting-escalation-boundary' // Escalation Boundary Event (non-interrupting)
 ];
 
 const disabledReplaceMenuForGateway = [
@@ -63,8 +76,33 @@ const disabledHeaderEntriesByElements = {
   ]
 };
 
+const disabledReplaceMenuForSubprocess = [
+  'replace-with-transaction' // Transaction
+];
+
+const disabledEventSubProcess = [
+  'replace-with-transaction' // Transaction
+];
+
+const disabledSubProcessStartEvent = [
+  'replace-with-message-start', // Message Start Event
+  'replace-with-non-interrupting-message-start', // Message Start Event (non-interrupting)
+  'replace-with-escalation-start', // Escalation Start Event
+  'replace-with-non-interrupting-escalation-start', // Escalation Start Event (non-interrupting)
+  'replace-with-compensation-start' // Compensation Start Event
+];
+
+const disabledIntermidiateEvent = [
+  'replace-with-message-intermediate-catch', // Message Intermediate Catch Event
+  'replace-with-message-intermediate-throw' // Message Intermediate Throw Event
+];
+
+const disabledEndEvent = [
+  'replace-with-message-end' // Message End Event
+];
+
 //TODO: find a better way to disable elements
-ReplaceMenuProvider.prototype.getEntries = function(element) {
+ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
   const businessObject = element.businessObject;
   const differentType = isDifferentType(element);
 
@@ -80,7 +118,9 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 
   // start events outside sub processes
   if (is(businessObject, 'bpmn:StartEvent') && !is(businessObject.$parent, 'bpmn:SubProcess')) {
-    entries = filter(START_EVENT, differentType);
+    entries = filter(START_EVENT, function(entry) {
+      return differentType(entry) && !disableReplaceMenuForStart.includes(entry.actionName);
+    });
 
     return this._createEntries(element, entries);
   }
@@ -104,7 +144,10 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
       const isInterruptingEqual = getBusinessObject(element).isInterrupting === isInterrupting;
 
       // filters elements which types and event definition are equal but have have different interrupting types
-      return differentType(entry) || (!differentType(entry) && !isInterruptingEqual);
+      return (
+        !disabledSubProcessStartEvent.includes(entry.actionName) &&
+        (differentType(entry) || (!differentType(entry) && !isInterruptingEqual))
+      );
     });
 
     return this._createEntries(element, entries);
@@ -131,7 +174,7 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
         return false;
       }
 
-      return differentType(entry);
+      return !disabledEndEvent.includes(entry.actionName) && differentType(entry);
     });
 
     return this._createEntries(element, entries);
@@ -149,7 +192,9 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 
       const isCancelActivityEqual = businessObject.cancelActivity === cancelActivity;
 
-      return differentType(entry) || (!differentType(entry) && !isCancelActivityEqual);
+      return (
+        !disabledForBoundaryEvents.includes(entry.actionName) && (differentType(entry) || (!differentType(entry) && !isCancelActivityEqual))
+      );
     });
 
     return this._createEntries(element, entries);
@@ -157,7 +202,9 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 
   // intermediate events
   if (is(businessObject, 'bpmn:IntermediateCatchEvent') || is(businessObject, 'bpmn:IntermediateThrowEvent')) {
-    entries = filter(INTERMEDIATE_EVENT, differentType);
+    entries = filter(INTERMEDIATE_EVENT, function(entry) {
+      return !disabledIntermidiateEvent.includes(entry.actionName) && differentType(entry);
+    });
 
     return this._createEntries(element, entries);
   }
@@ -178,14 +225,18 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 
   // expanded event sub processes
   if (isEventSubProcess(businessObject) && isExpanded(element)) {
-    entries = filter(EVENT_SUB_PROCESS, differentType);
+    entries = filter(EVENT_SUB_PROCESS, function(entry) {
+      return !disabledEventSubProcess.includes(entry.actionName) && differentType(entry);
+    });
 
     return this._createEntries(element, entries);
   }
 
   // expanded sub processes
   if (is(businessObject, 'bpmn:SubProcess') && isExpanded(element)) {
-    entries = filter(SUBPROCESS_EXPANDED, differentType);
+    entries = filter(SUBPROCESS_EXPANDED, function(entry) {
+      return differentType(entry) && !disabledReplaceMenuForSubprocess.includes(entry.actionName);
+    });
 
     return this._createEntries(element, entries);
   }
@@ -212,7 +263,11 @@ ReplaceMenuProvider.prototype.getEntries = function(element) {
 
   // flow nodes
   if (is(businessObject, 'bpmn:FlowNode')) {
-    entries = filter(TASK, differentType);
+    entries = filter(TASK, function(entry) {
+      const target = entry.target;
+
+      return differentType(entry) || get(element, 'businessObject.taskType') !== target.taskType;
+    });
 
     // collapsed SubProcess can not be replaced with itself
     if (is(businessObject, 'bpmn:SubProcess') && !isExpanded(element)) {
@@ -232,13 +287,20 @@ ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions)
     replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForTasks.includes(option.actionName));
     const originEntities = originCreateEntries.call(this, element, replaceOptions);
 
-    Object.keys(originEntities).map(originKey => ({
-      ...originEntities[originKey],
-      action: (...props) => {
-        element.businessObject.taskType = undefined;
-        originEntities[originKey].action(props);
-      }
-    }));
+    Object.keys(originEntities).forEach(originKey => {
+      const originAction = originEntities[originKey].action;
+
+      originEntities[originKey] = {
+        ...originEntities[originKey],
+        action: (...props) => {
+          const resultElement = originAction.call(this, ...props);
+
+          set(resultElement, 'businessObject.taskType', originKey === REPLACE_TO_SET_STATUS ? ECOS_TASK_TYPE_SET_STATUS : undefined);
+
+          return resultElement;
+        }
+      };
+    });
 
     return originEntities;
   }
@@ -254,12 +316,24 @@ ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions)
   return originCreateEntries.call(this, element, replaceOptions);
 };
 
-ReplaceMenuProvider.prototype.getHeaderEntries = function(element) {
+ReplaceMenuProvider.prototype.getPopupMenuHeaderEntries = function(element) {
   let entries = originGetHeaderEntries.call(this, element);
 
   if (Object.keys(disabledHeaderEntriesByElements).includes(element.type)) {
-    entries = entries.filter(item => !disabledHeaderEntriesByElements[element.type].includes(item.id));
+    entries = Object.entries(entries).reduce(
+      (result, [currentKey, currentValue]) =>
+        disabledHeaderEntriesByElements[element.type].includes(currentKey) ? result : { ...result, [currentKey]: currentValue },
+      {}
+    );
   }
 
-  return entries.filter(item => !disabledHeaderEntries.includes(item.id));
+  if (element.type === ECOS_TASK_BASE_ELEMENT && get(element, 'businessObject.taskType')) {
+    return {};
+  }
+
+  return Object.entries(entries).reduce(
+    (result, [currentKey, currentValue]) =>
+      disabledHeaderEntries.includes(currentKey) ? result : { ...result, [currentKey]: currentValue },
+    {}
+  );
 };

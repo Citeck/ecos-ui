@@ -33,7 +33,7 @@ const Labels = {
 
 class ModelEditorWrapper extends React.Component {
   static propTypes = {
-    isAnyConfigButtonHidden: PropTypes.bool,
+    isTableView: PropTypes.bool,
     editor: PropTypes.element,
     rightSidebar: PropTypes.element,
     rightSidebarTitle: PropTypes.string,
@@ -69,7 +69,7 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configButtons() {
-    const { extraButtons, onCreate, onViewXml, onSaveAsSVG } = this.props;
+    const { extraButtons, onCreate, onViewXml, onSaveAsSVG, hasDeployRights } = this.props;
     const configButtons = [];
 
     const extra = get(extraButtons, 'config');
@@ -105,14 +105,16 @@ class ModelEditorWrapper extends React.Component {
       });
     }
 
-    configButtons.push({
-      icon: 'fa fa-cloud-upload',
-      action: this.onSaveAndDeploy,
-      text: t(Labels.SAVE_DEPLOY),
-      id: `bpmn-download-btn-${uuidv4()}`,
-      trigger: 'hover',
-      className: 'ecos-btn_green'
-    });
+    if (hasDeployRights) {
+      configButtons.push({
+        icon: 'fa fa-cloud-upload',
+        action: this.onSaveAndDeploy,
+        text: t(Labels.SAVE_DEPLOY),
+        id: `bpmn-download-btn-${uuidv4()}`,
+        trigger: 'hover',
+        className: 'ecos-btn_green'
+      });
+    }
 
     if (isFunction(onSaveAsSVG)) {
       configButtons.push({
@@ -133,9 +135,9 @@ class ModelEditorWrapper extends React.Component {
   }
 
   get configZoomButtons() {
-    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isAnyConfigButtonHidden } = this.props;
+    const { extraButtons, onZoomIn, onZoomOut, onZoomReset, isTableView } = this.props;
 
-    if (isAnyConfigButtonHidden) {
+    if (isTableView) {
       return [];
     }
 
@@ -215,11 +217,13 @@ class ModelEditorWrapper extends React.Component {
   };
 
   renderEditor = () => {
-    const { editor, title } = this.props;
+    const { editor, title, isTableView } = this.props;
     const { rightSidebarOpen, sizes } = this.state;
 
+    const sideBarVisible = rightSidebarOpen && !isTableView;
+
     return (
-      <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: rightSidebarOpen ? get(sizes, 'left') : '' }}>
+      <div id={this.#designerId} className="ecos-model-editor__designer" style={{ width: sideBarVisible ? get(sizes, 'left') : '' }}>
         <TitlePageLoader isReady={!isNil(title)}>
           <Caption normal className="ecos-model-editor__designer-title">
             {title}
@@ -238,18 +242,20 @@ class ModelEditorWrapper extends React.Component {
   };
 
   renderSidebar = () => {
-    const { rightSidebarTitle, rightSidebar } = this.props;
+    const { rightSidebarTitle, rightSidebar, isTableView } = this.props;
     const { rightSidebarOpen, sizes } = this.state;
+
+    const sideBarVisible = rightSidebarOpen && !isTableView;
 
     return (
       <div
         id={this.#editorId}
         className={classNames('ecos-model-editor__sidebar-right', {
-          'ecos-model-editor__sidebar-right_open': rightSidebarOpen
+          'ecos-model-editor__sidebar-right_open': sideBarVisible
         })}
-        style={{ width: rightSidebarOpen ? get(sizes, 'right') : '' }}
+        style={{ width: sideBarVisible ? get(sizes, 'right') : '' }}
       >
-        {rightSidebarOpen && (
+        {sideBarVisible && (
           <ResizeBoxes
             leftId={this.#designerId}
             rightId={this.#editorId}
@@ -259,9 +265,11 @@ class ModelEditorWrapper extends React.Component {
           />
         )}
 
-        <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
-          <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
-        </div>
+        {!isTableView && (
+          <div className="ecos-model-editor__sidebar-right-opener" onClick={this.togglePropertiesOpen}>
+            <Icon className={classNames({ 'icon-small-left': !rightSidebarOpen, 'icon-small-right': rightSidebarOpen })} />
+          </div>
+        )}
 
         <div ref={this.setRightSidebarRef} className="ecos-model-editor__sidebar-right-content">
           {rightSidebarTitle && (

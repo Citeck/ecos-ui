@@ -1,6 +1,7 @@
 import React from 'react';
 import get from 'lodash/get';
 import forEach from 'lodash/forEach';
+import isEmpty from 'lodash/isEmpty';
 
 import Grouping from '../../Grouping/Grouping';
 import PanelBar from '../../common/PanelBar/PanelBar';
@@ -10,7 +11,8 @@ import './JournalsGrouping.scss';
 
 const JournalsGrouping = props => {
   const { grouping, allowedColumns = [], onChange } = props;
-  const columns = allowedColumns.filter(c => c.default);
+  const columns = allowedColumns.filter(c => c.default && c.groupable);
+
   let groupingList = [];
   let aggregation = [];
 
@@ -19,6 +21,10 @@ const JournalsGrouping = props => {
 
     match ? groupingList.push(groupingColumn) : aggregation.push(groupingColumn);
   });
+
+  if (isEmpty(columns)) {
+    return null;
+  }
 
   return (
     <PanelBar
@@ -31,6 +37,7 @@ const JournalsGrouping = props => {
         className={'journals-grouping'}
         groupBy={get(grouping, 'groupBy')}
         list={columns}
+        allowedColumns={allowedColumns}
         grouping={groupingList}
         aggregation={aggregation}
         valueField={'attribute'}

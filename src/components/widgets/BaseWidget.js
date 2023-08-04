@@ -10,6 +10,11 @@ import { MAX_DEFAULT_HEIGHT_DASHLET, MIN_WIDTH_DASHLET_SMALL } from '../../const
 import UserLocalSettingsService, { DashletProps } from '../../services/userLocalSettings';
 import Records from '../Records/Records';
 
+export const EVENTS = {
+  UPDATE_TASKS_WIDGETS: 'UPDATE_TASKS_WIDGETS',
+  ASSOC_UPDATE: 'ASSOC_UPDATE'
+};
+
 class BaseWidget extends React.Component {
   _dashletRef = null;
   _observableFieldsToUpdate = ['_modified'];

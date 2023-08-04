@@ -1,10 +1,12 @@
 import React from 'react';
+import { getDi } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import isEmpty from 'lodash/isEmpty';
-import { getDi } from 'bpmn-js/lib/util/ModelUtil';
-import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX } from '../../constants/cmmn';
+import isEqual from 'lodash/isEqual';
+
+import { DI_POSTFIX, LABEL_POSTFIX, PLANE_POSTFIX, SEARCH_INPUT_ID } from '../../constants/cmmn';
 import { Sheet } from './Sheet';
 
 /**
@@ -145,7 +147,13 @@ export default class BaseModeler {
         }
 
         if (events.onChangeElementLabel) {
-          this.events.onChangeElementLabel = e => events.onChangeElementLabel(get(e, 'target.innerText'));
+          this.events.onChangeElementLabel = e => {
+            if (get(e, 'target.id') === SEARCH_INPUT_ID) {
+              return;
+            }
+
+            events.onChangeElementLabel(get(e, 'target.innerText'));
+          };
           this.modeler._container.addEventListener('keyup', this.events.onChangeElementLabel);
         }
       }
@@ -173,8 +181,12 @@ export default class BaseModeler {
 
     if (!isNil(name) && di) {
       const labelEditingProvider = this.modeler.get('labelEditingProvider');
+      const prevName = get(element, 'businessObject.name', '');
+      const newLabel = name && name.trim() ? name : null;
 
-      labelEditingProvider.update(element, name, name, element);
+      if (!isEqual(prevName, newLabel)) {
+        labelEditingProvider.update(element, newLabel);
+      }
     }
 
     if (!isEmpty(id) && !id.endsWith(LABEL_POSTFIX) && !id.endsWith(PLANE_POSTFIX) && di) {

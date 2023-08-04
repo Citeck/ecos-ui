@@ -104,6 +104,10 @@
   padding: 0 0 0 45px;
 }
 
+.dropdown {
+  position: static;
+}
+
 .dropdownMenu {
   border-radius: $border-radius-standard;
   box-shadow: $box-shadow-default;
@@ -112,7 +116,7 @@
   overflow: hidden;
   line-height: 1.231em;
 
-  li {
+  button {
     padding: 10px 15px;
     cursor: pointer;
     font-size: $font-size-standard;
@@ -122,6 +126,10 @@
 
     &:hover {
       background-color: $color-gray-4;
+    }
+
+    &:active {
+      color: $text-color-dark;
     }
   }
 }

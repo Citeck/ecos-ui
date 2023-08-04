@@ -9,8 +9,9 @@ import Modal from '../components/common/EcosModal/CiteckEcosModal';
 import { SelectOrgstruct } from '../components/common/form';
 import { isFlowableProcess } from '../components/BusinessProcessViewer/util';
 import { AUTHORITY_TYPE_USER, TabTypes } from '../components/common/form/SelectOrgstruct/constants';
-import { PasswordEditor } from '../components/Password';
-import { PresetEditor } from '../components/Journals/Presets';
+import { JournalsPresetEditor } from '../components/Journals/JournalsPresets';
+import { notifyFailure, notifySuccess } from '../components/Records/actions/util/actionUtils';
+import FormManager from '../components/EcosForm/FormManager';
 
 export default class WidgetService {
   static uploadNewVersion(params = {}) {
@@ -92,19 +93,26 @@ export default class WidgetService {
   }
 
   static openEditorPassword(params = {}) {
-    const container = document.createElement('div');
-    const render = (props, callback) => ReactDOM.render(<PasswordEditor {...props} />, container, callback);
-
-    const modal = render({ isLoading: true, isShow: true, ...params });
-    document.body.appendChild(container);
+    const open = newProps => {
+      FormManager.openFormModal({
+        record: newProps.recordRef,
+        formKey: 'change-password-form',
+        saveOnSubmit: true,
+        onSubmit: rec => {
+          rec
+            .load('newPassword')
+            .then(() => {
+              notifySuccess(t('password-editor.success.change-profile-password'));
+            })
+            .catch(e => {
+              notifyFailure(`${t('password-editor.error.change-profile-password')}. ${e.message}`);
+            });
+        }
+      });
+    };
 
     return {
-      update: (newProps, callback) => render({ ...modal.props, ...newProps }, callback),
-      terminate: () =>
-        render({ isShow: false }, () => {
-          ReactDOM.unmountComponentAtNode(container);
-          document.body.removeChild(container);
-        })
+      open
     };
   }
 
@@ -112,7 +120,7 @@ export default class WidgetService {
     const modal = new Modal();
 
     modal.open(
-      <PresetEditor
+      <JournalsPresetEditor
         isAdmin={params.isAdmin}
         authorityRef={params.authorityRef}
         data={params.data || {}}

@@ -203,6 +203,11 @@ function* sagaUpdateTabData({ api, logger }, { payload }) {
       });
     }
 
+    if (tab.link && !tab.link.includes('activeTab')) {
+      PageTabList.changeOne({ tab, updates: { ...updatingPayload, title: undefined, isLoading: true } });
+      yield put(setTabs(PageTabList.storeList));
+    }
+
     const updates = yield* getTitle(tab);
 
     PageTabList.changeOne({ tab, updates: { ...updatingPayload, ...updates } });

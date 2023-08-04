@@ -29,17 +29,23 @@ const TypeItem = props => {
   const prevChildren = usePrevious(props.children);
   const id = prepareTooltipId(`type-count-${props.type.type}-${uuidV4()}`);
 
-  useEffect(() => {
-    const status = typesStatuses[selectTypeStatus(props.type)];
+  useEffect(
+    () => {
+      const status = typesStatuses[selectTypeStatus(props.type)];
 
-    setStatus(status);
-  }, [props.type]);
+      setStatus(status);
+    },
+    [props.type]
+  );
 
-  useEffect(() => {
-    if (isEmpty(prevChildren) && !isEmpty(props.children)) {
-      setIsOpen(true);
-    }
-  }, [props.children]);
+  useEffect(
+    () => {
+      if (isEmpty(prevChildren) && !isEmpty(props.children)) {
+        setIsOpen(true);
+      }
+    },
+    [props.children]
+  );
 
   return (
     <div className="ecos-docs-m-type">

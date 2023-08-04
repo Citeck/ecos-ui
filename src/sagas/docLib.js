@@ -4,6 +4,7 @@ import * as queryString from 'query-string';
 import { NotificationManager } from 'react-notifications';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 
 import {
   addSidebarItems,
@@ -34,6 +35,7 @@ import {
   setGroupActions,
   setIsDocLibEnabled,
   setIsGroupActionsReady,
+  setJournalId,
   setRootId,
   setSearchText,
   setSidebarError,
@@ -55,7 +57,8 @@ import {
   selectDocLibRootId,
   selectDocLibSearchText,
   selectDocLibSidebar,
-  selectDocLibTypeRef
+  selectDocLibTypeRef,
+  selectJournalId
 } from '../selectors/docLib';
 import { selectJournalData, selectUrl } from '../selectors/journals';
 import { DocLibUrlParams } from '../constants';
@@ -69,7 +72,7 @@ import DocLibService from '../components/Journals/DocLib/DocLibService';
 import JournalsService from '../components/Journals/service/journalsService';
 import DocLibConverter from '../dto/docLib';
 import JournalsConverter from '../dto/journals';
-import { uploadFile } from './documents';
+import { uploadFileV2 } from './documents';
 
 export function* sagaGetTypeRef({ logger, stateId, w }, action) {
   try {
@@ -82,6 +85,7 @@ export function* sagaGetTypeRef({ logger, stateId, w }, action) {
     }
 
     yield put(setTypeRef(w(typeRef)));
+    yield put(setJournalId(w(journalId)));
 
     const isDocumentLibraryEnabled = yield call(DocLibService.isDocLibEnabled, typeRef);
     yield put(setIsDocLibEnabled(w(!!isDocumentLibraryEnabled)));
@@ -93,6 +97,10 @@ export function* sagaGetTypeRef({ logger, stateId, w }, action) {
 }
 
 export function* loadDocumentLibrarySettings(typeRef, w) {
+  if (!typeRef) {
+    return;
+  }
+
   const fileTypeRefs = yield call(DocLibService.getFileTypeRefs, typeRef);
   yield put(setFileTypeRefs(w(fileTypeRefs)));
 
@@ -300,13 +308,14 @@ function* getFilesViewerData({ api, logger, stateId, w }) {
     const folderId = yield select(state => selectDocLibFolderId(state, stateId));
     const pagination = yield select(state => selectDocLibFileViewerPagination(state, stateId));
     const searchText = yield select(state => selectDocLibSearchText(state, stateId));
+    const journalId = yield select(state => selectJournalId(state, stateId));
 
     const childrenResult = yield call(DocLibService.getChildren, folderId, { pagination, searchText });
     const { records, totalCount } = childrenResult;
 
     yield put(setFileViewerTotal(w(totalCount)));
+    const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId);
 
-    const { journalConfig } = yield select(selectJournalData, stateId);
     const recordRefs = records.map(r => r.id);
     const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
     const actions = JournalsConverter.getJournalActions(resultActions);
@@ -423,7 +432,8 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
       yield put(addSidebarItems(w([...newChildren, { id: currentFolderId, hasChildren: true }])));
       yield put(unfoldSidebarItem(w(currentFolderId)));
     } else {
-      yield call(goToCardDetailsPage, newRecord.id);
+      const localDobLibRecordRef = newRecord.id.substring(newRecord.id.indexOf('$') + 1);
+      yield call(goToCardDetailsPage, localDobLibRecordRef);
     }
   } catch (e) {
     logger.error('[docLib sagaCreateNode saga error', e);
@@ -431,14 +441,13 @@ export function* sagaCreateNode({ api, logger, stateId, w }, action) {
 }
 
 function formKeysCheck(formDefinition) {
-  return get(formDefinition, 'components', [])
-    .filter(item => item.key !== 'columns')
-    .reduce((res, item) => {
-      res.push(['_disp', '_content'].includes(item.key));
-
-      return res;
-    }, [])
-    .every(i => i === true);
+  const componentKeys = new Set();
+  EcosFormUtils.forEachComponent(formDefinition, component => {
+    if (component.input && component.type !== 'button') {
+      componentKeys.add(component.key);
+    }
+  });
+  return componentKeys.has('name') && componentKeys.has('_content') && componentKeys.size === 2;
 }
 
 function* sagaUploadFiles({ api, logger, stateId, w }, action) {
@@ -475,7 +484,7 @@ function* sagaUploadFiles({ api, logger, stateId, w }, action) {
 
     yield* action.payload.files.map(function*(file) {
       try {
-        const uploadedFile = yield uploadFile({ api, file });
+        const uploadedFile = yield uploadFileV2({ api, file });
         const createChildResult = yield call(
           DocLibService.createChild,
           rootId,

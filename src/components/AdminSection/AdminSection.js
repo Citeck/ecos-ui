@@ -20,6 +20,7 @@ import { IcoBtn } from '../common/btns';
 import { wrapArgs } from '../../helpers/redux';
 import { execJournalAction } from '../../actions/journals';
 import { ActionTypes } from '../Records/actions/constants';
+import { fetchGroupSectionList } from '../../actions/adminSection';
 import { SourcesId } from '../../constants';
 
 import './style.scss';
@@ -33,9 +34,22 @@ class AdminSection extends React.PureComponent {
     needResetJournalView: false
   };
 
+  componentDidMount() {
+    const { isAccessible, getGroupSectionList } = this.props;
+
+    if (!isAccessible) {
+      getGroupSectionList();
+    }
+  }
+
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { getGroupSectionList } = this.props;
     if (prevState.journalStateId !== this.state.journalStateId) {
       this.setState({ needResetJournalView: true }, () => this.setState({ needResetJournalView: false }));
+    }
+
+    if (prevProps.isAccessible !== this.props.isAccessible && !this.props.isAccessible) {
+      getGroupSectionList();
     }
   }
 
@@ -46,7 +60,16 @@ class AdminSection extends React.PureComponent {
   };
 
   isHidden = type => {
-    const { isActivePage, activeSection } = this.props;
+    const { isActivePage, activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
+    const { type: typeFromUrl } = urlParams;
+
+    if (!isAccessible) {
+      if (isAccessibleSectionType) {
+        return typeFromUrl !== type;
+      }
+
+      return true;
+    }
 
     return !isActivePage || (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
   };
@@ -91,28 +114,30 @@ class AdminSection extends React.PureComponent {
   );
 
   render() {
-    const { activeSection, tabId, isActivePage, isOpenMenu } = this.props;
+    const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
 
     return (
       <div className="ecos-admin-section__container" ref={this.setWrapperRef}>
-        <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu })}>
+        <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu || !isAccessible })}>
           <Container fluid={this.isFluid()} className="p-0">
-            <Row className="ecos-admin-section__header m-0 px-0">
-              <Col className="m-0 p-0">
-                <div className="m-0 px-0 d-flex align-items-baseline">
-                  <Caption normal onClick={this.handleClickCaption}>
-                    {t(activeSection.label)}
-                  </Caption>
+            {(isAccessible || isAccessibleSectionType) && (
+              <Row className="ecos-admin-section__header m-0 px-0">
+                <Col className="m-0 p-0">
+                  <div className="m-0 px-0 d-flex align-items-baseline">
+                    <Caption normal onClick={this.handleClickCaption}>
+                      {t(activeSection.label)}
+                    </Caption>
 
-                  <IcoBtn
-                    icon="icon-settings"
-                    className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
-                    onClick={this.handleEditJournal}
-                  />
-                </div>
-              </Col>
-            </Row>
+                    <IcoBtn
+                      icon="icon-settings"
+                      className="ecos-btn_grey ecos-btn_bgr-inherit ecos-btn_width_auto ecos-btn_hover_t-light-blue ml-2 h-auto py-0"
+                      onClick={this.handleEditJournal}
+                    />
+                  </div>
+                </Col>
+              </Row>
+            )}
             <Row className="m-0 p-0">
               <Col className="m-0 p-0" md={12}>
                 <DMNDesigner hidden={this.isHidden(SectionTypes.DMN)} />
@@ -129,7 +154,9 @@ class AdminSection extends React.PureComponent {
             </Row>
           </Container>
         </div>
-        <AdminMenu>{!this.isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalPresets stateId={journalStateId} />}</AdminMenu>
+        {isAccessible && (
+          <AdminMenu>{!this.isHidden(SectionTypes.JOURNAL) && journalStateId && <JournalPresets stateId={journalStateId} />}</AdminMenu>
+        )}
       </div>
     );
   }
@@ -147,6 +174,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
+    getGroupSectionList: () => dispatch(fetchGroupSectionList()),
     execJournalAction: (records, action, context) => dispatch(execJournalAction(w({ records, action, context })))
   };
 };

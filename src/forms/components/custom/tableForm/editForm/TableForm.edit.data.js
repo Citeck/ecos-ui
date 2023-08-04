@@ -167,7 +167,7 @@ export default [
                   ru: 'Заголовок колонки',
                   en: 'Column title'
                 },
-                type: 'textfield',
+                type: 'mlText',
                 input: true,
                 key: 'title',
                 widget: {

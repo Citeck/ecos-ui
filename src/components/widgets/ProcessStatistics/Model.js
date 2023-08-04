@@ -14,7 +14,7 @@ import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
 import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
-import ModelViewer from '../../ModelViewer';
+import BPMNViewer from '../../ModelViewer/BPMNViewer';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
 import Section from './Section';
 
@@ -81,7 +81,7 @@ class Model extends React.Component {
 
   componentDidMount() {
     this.getModel();
-    this.designer = new ModelViewer();
+    this.designer = new BPMNViewer();
     document.addEventListener('mouseup', this.handleMouseUp);
   }
 
@@ -92,6 +92,8 @@ class Model extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const { showCountersDefault, showHeatmapDefault } = this.props;
+
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getModel();
     }
@@ -103,6 +105,16 @@ class Model extends React.Component {
 
     if (prevProps.isLoading && !this.props.isLoading) {
       this.reRenderHeatmap();
+    }
+
+    if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
+      this.setState({ isShowHeatmap: showHeatmapDefault }, () => {
+        showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
+      });
+    }
+
+    if (prevProps.showCountersDefault !== showCountersDefault) {
+      this.setState({ isShowCounters: showCountersDefault });
     }
   }
 
@@ -147,6 +159,10 @@ class Model extends React.Component {
     this.handleToggleHeatmap();
   };
 
+  switchHeatMapOff = () => {
+    this.designer && this.designer.heatmap && this.designer.heatmap.toggleDisplay(true);
+  };
+
   handleMouseDown = throttle(() => {
     this.state.isShowHeatmap && this.toggleTempHeatmap(true);
   }, 100);
@@ -156,7 +172,19 @@ class Model extends React.Component {
   }, 100);
 
   handleWheel = () => {
-    this.reRenderHeatmap();
+    let handle = null;
+
+    if (handle) {
+      clearTimeout(handle);
+    }
+
+    this.state.isShowHeatmap && this.toggleTempHeatmap(true);
+
+    handle = setTimeout(this.handleStopWheel, 100);
+  };
+
+  handleStopWheel = () => {
+    this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
   };
 
   renderBadges = () => {
@@ -200,15 +228,18 @@ class Model extends React.Component {
   };
 
   reRenderHeatmap = () => {
-    if (!this.state.isShowHeatmap || !this.designer.heatmap) {
+    if (!this.state.isShowHeatmap || !this.designer || !this.designer.heatmap) {
       return;
     }
 
-    if (isEmpty(this.#heatmapData)) {
+    const isEmptyData = isEmpty(this.#heatmapData);
+
+    if (isEmptyData) {
       this.#heatmapData = new Set([...this.getPreparedHeatData()]);
     }
 
-    this.designer.heatmap.updateData(this.#heatmapData);
+    this.designer.heatmap.updateData(this.#heatmapData, !isEmptyData);
+    this.designer.heatmap.toggleDisplay(false);
   };
 
   handleToggleHeatmap = () => {
@@ -221,7 +252,7 @@ class Model extends React.Component {
 
         switch (true) {
           case isHeatmapMounted && !isShowHeatmap:
-            this.designer.heatmap.updateData(new Set([]));
+            this.switchHeatMapOff();
             break;
           case isShowHeatmap && isModelMounted:
             this.reRenderHeatmap();
@@ -240,12 +271,11 @@ class Model extends React.Component {
 
   handleChangeOpacity = value => {
     this.setState({ opacity: Number(value) });
-    this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+    this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
   };
 
   handleClickZoom = value => {
     this.designer.setZoom(value);
-    this.reRenderHeatmap();
   };
 
   handleChangeCountFlag = data => {
@@ -262,23 +292,36 @@ class Model extends React.Component {
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
+    const { heatmapData, isExtendedMode, showCountersDefault, showHeatmapDefault } = this.props;
+
+    if (!isExtendedMode) {
+      return null;
+    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
-          <ControlledCheckbox checked={isShowCounters} />
-          <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
-        </div>
-        <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
-          <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
-          <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
-        </div>
+        {showCountersDefault && (
+          <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
+            <ControlledCheckbox checked={isShowCounters} />
+            <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
+          </div>
+        )}
+        {showHeatmapDefault && this.designer && this.designer.heatmap && !isEmpty(heatmapData) && (
+          <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleHeatmap}>
+            <ControlledCheckbox checked={isTempHeatmapOff || isShowHeatmap} />
+            <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_HEATMAP)}</span>
+          </div>
+        )}
       </div>
     );
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount } = this.state;
+    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
+
+    if (!isShowCounters) {
+      return null;
+    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
@@ -301,17 +344,10 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, showModelDefault, heatmapData, width, isMobile, displayHeatmapToolbar } = this.props;
-    const {
-      isModelMounted,
-      isModelMounting,
-      isHeatmapMounted,
-      isShowHeatmap,
-      isShowCounters,
-      isTempHeatmapOff,
-      legendData,
-      opacity
-    } = this.state;
+    const { model, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
+    const { isModelMounted, isModelMounting, isShowHeatmap, isShowCounters, legendData, opacity } = this.state;
+
+    const Sheet = this.designer && this.designer.renderSheet;
 
     const Sheet = this.designer && this.designer.renderSheet;
 
@@ -324,19 +360,14 @@ class Model extends React.Component {
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
         })}
       >
-        <Section
-          title={t(Labels.MODEL_TITLE)}
-          isLoading={isLoading || isModelMounting}
-          opened={showModelDefault}
-          onChange={this.handleChangeSection}
-        >
+        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} onChange={this.handleChangeSection} opened>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
-          {isModelMounted && this.designer.heatmap && (
+          {isModelMounted && (
             <div className="ecos-process-statistics-model__panel">
               <Scaler onClick={this.handleClickZoom} />
               <div className="ecos-process-statistics__delimiter" />
-              {!isEmpty(heatmapData) && this.renderSwitches()}
+              {this.renderSwitches()}
             </div>
           )}
           {model && (
@@ -350,18 +381,15 @@ class Model extends React.Component {
                   onMouseDown={this.handleMouseDown}
                   onMouseUp={this.handleMouseUp}
                   onWheel={this.handleWheel}
+                  zoom={ScaleOptions.FIT}
                 />
               )}
-              {!isLoading && displayHeatmapToolbar && this.designer.heatmap && (
-                <div
-                  className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer', {
-                    invisible: !isTempHeatmapOff && !isHeatmapMounted
-                  })}
-                >
-                  <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />
+              {!isLoading && displayHeatmapToolbar && (
+                <div className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer')}>
+                  {isShowHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
-                  <Legend {...legendData} />
+                  {isShowHeatmap && <Legend {...legendData} />}
                 </div>
               )}
             </ResizableBox>

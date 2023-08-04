@@ -2,6 +2,7 @@ import { delay } from 'redux-saga';
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import endsWith from 'lodash/endsWith';
+import isFunction from 'lodash/isFunction';
 
 import {
   updateModels,
@@ -22,7 +23,7 @@ import {
 } from '../actions/dmn';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/dmn';
-import { getPagePositionState, savePagePositionState, removePagePositionState } from '../helpers/dmn';
+import { getPagePositionState, savePagePositionState } from '../helpers/dmn';
 import { EDITOR_PAGE_CONTEXT } from '../constants/dmn';
 import Records from '../components/Records';
 import FormManager from '../components/EcosForm/FormManager';
@@ -38,10 +39,8 @@ function* initDmn({ api, logger }) {
     yield put(setModels(models));
     yield put(setCreateVariants(createVariants));
 
-    const pagePosition = yield call(getPagePositionState);
+    const pagePosition = JSON.parse(yield call(getPagePositionState));
     if (pagePosition) {
-      yield call(removePagePositionState);
-
       // TODO: optimization
       if (pagePosition.openedCategories) {
         for (const categoryId of pagePosition.openedCategories) {
@@ -184,6 +183,8 @@ function* doSavePagePosition({ api, logger }, action) {
       openedCategories,
       viewType
     });
+
+    action.payload && isFunction(action.payload.callback) && action.payload.callback();
   } catch (e) {
     logger.error('[dmn doShowImportModelForm saga] error', e);
   }

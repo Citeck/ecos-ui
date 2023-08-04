@@ -17,7 +17,3 @@ export function getDesignerPagePositionState(key) {
 export function saveDesignerPagePositionState(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
-
-export function removeDesignerPagePositionState(key) {
-  localStorage.removeItem(key);
-}

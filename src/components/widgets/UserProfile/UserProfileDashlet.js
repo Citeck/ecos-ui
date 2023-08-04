@@ -20,6 +20,7 @@ import { ActionTypes } from '../../Records/actions/constants';
 import { getFitnesseClassName } from '../../../helpers/tools';
 
 import './style.scss';
+import { PERMISSION_CHANGE_PASSWORD } from '../../Records/constants';
 
 const Labels = {
   TITLE: 'user-profile-widget.title',
@@ -44,6 +45,10 @@ class UserProfileDashlet extends BaseWidget {
   constructor(props) {
     super(props);
 
+    this.state = {
+      hasPermission: false
+    };
+
     this.observableFieldsToUpdate = [...new Set([...this.observableFieldsToUpdate, 'avatar', 'photo'])];
   }
 
@@ -53,6 +58,10 @@ class UserProfileDashlet extends BaseWidget {
     const { getUserData } = this.props;
 
     isFunction(getUserData) && getUserData();
+
+    this.fetchPermission().then(flag => {
+      this.setState({ hasPermission: !!flag });
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -74,6 +83,10 @@ class UserProfileDashlet extends BaseWidget {
         });
     }
   }
+
+  fetchPermission = async () => {
+    return Records.get(this.props.record).load(PERMISSION_CHANGE_PASSWORD);
+  };
 
   onChangePhoto = files => {
     const { changePhoto } = this.props;
@@ -114,6 +127,8 @@ class UserProfileDashlet extends BaseWidget {
       isCurrentAdmin
     } = this.props;
 
+    const { hasPermission } = this.state;
+
     return (
       <Dashlet
         className={classNames('ecos-user-profile__dashlet', classNameDashlet)}
@@ -146,9 +161,11 @@ class UserProfileDashlet extends BaseWidget {
                     onSelected={this.onChangePhoto}
                     accept="image/*"
                   />
-                  <Btn className={getFitnesseClassName('user-profile-widget', 'change-password')} onClick={this.onChangePassword}>
-                    {t(Labels.Btns.CHANGE_PW)}
-                  </Btn>
+                  {hasPermission && (
+                    <Btn className={getFitnesseClassName('user-profile-widget', 'change-password')} onClick={this.onChangePassword}>
+                      {t(Labels.Btns.CHANGE_PW)}
+                    </Btn>
+                  )}
                 </div>
               )}
               {message && (

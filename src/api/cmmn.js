@@ -1,10 +1,15 @@
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
+import { PERMISSION_DEPLOY_PROCESS } from '../constants/bpmn';
 
 // @todo actually its not only a cmmn api. Its bpmn-def + cmmn-def
 export default class CmmnApi {
   getDefinition = record => {
     return Records.get(record).load('definition?str', true);
+  };
+
+  getHasDeployRights = record => {
+    return Records.get(record).load(PERMISSION_DEPLOY_PROCESS, true);
   };
 
   saveDefinition = (record, xml, img, deploy) => {
@@ -14,6 +19,8 @@ export default class CmmnApi {
     rec.att('image?str', img);
     if (deploy) {
       rec.att('action', 'DEPLOY');
+    } else {
+      rec.att('action', null);
     }
 
     return rec.save();

@@ -117,11 +117,11 @@ export default class Grouping extends Component {
   };
 
   getAggregationList = () => {
-    let { list, titleField, aggregation } = this.props;
+    let { allowedColumns, titleField, aggregation } = this.props;
 
-    list = list.filter(l => NUMBERS.filter(n => n === l.type)[0]);
+    const aggregationColumns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
 
-    return list.map(column => {
+    return aggregationColumns.map(column => {
       const selected =
         aggregation.filter(a => {
           return a.attribute.substr(1) === column.attribute;

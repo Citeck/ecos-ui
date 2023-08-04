@@ -1,16 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
 import { initAdminSection, updActiveSection } from '../../actions/adminSection';
-import { t } from '../../helpers/util';
+import { getSearchParams, t } from '../../helpers/util';
 import { Loader } from '../../components/common';
 import { Well } from '../../components/common/form';
 import AdminSection from '../../components/AdminSection';
+import { SectionTypes } from '../../constants/adminSection';
 
 import './style.scss';
 
 const mapStateToProps = state => ({
+  urlParams: getSearchParams(),
   isAccessible: state.adminSection.isAccessible,
   isInitiated: state.adminSection.isInitiated
 });
@@ -33,6 +36,13 @@ class AdminPage extends React.Component {
     }
   }
 
+  get isAccessibleSectionType() {
+    const { urlParams } = this.props;
+    const { type } = urlParams;
+
+    return isEmpty(urlParams) || type === SectionTypes.BPM || type === SectionTypes.DMN;
+  }
+
   render() {
     const { isAccessible } = this.props;
 
@@ -40,11 +50,14 @@ class AdminPage extends React.Component {
       return <Loader height={100} width={100} />;
     }
 
-    if (!isAccessible) {
-      return <Well className="admin-page__access-denied">{t('admin-section.error.access-denied')}</Well>;
-    }
-
-    return <AdminSection {...this.props} />;
+    return (
+      <>
+        {!isAccessible && !this.isAccessibleSectionType && (
+          <Well className="admin-page__access-denied">{t('admin-section.error.access-denied')}</Well>
+        )}
+        <AdminSection {...this.props} isAccessibleSectionType={this.isAccessibleSectionType} />
+      </>
+    );
   }
 }
 

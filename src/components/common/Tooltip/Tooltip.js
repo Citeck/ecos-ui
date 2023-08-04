@@ -100,7 +100,7 @@ class Tooltip extends Component {
 
     this.state = {
       isOpen: props.isOpen,
-      isHidden: true
+      isHiddenTarget: true
     };
   }
 
@@ -118,10 +118,10 @@ class Tooltip extends Component {
   }
 
   stealthCheck = () => {
-    const isHidden = isClosestHidden(`#${this.props.target}`);
+    const isHiddenTarget = isClosestHidden(`#${this.props.target}`);
 
-    if (isHidden !== this.state.isHidden) {
-      this.setState({ isHidden });
+    if (isHiddenTarget !== this.state.isHiddenTarget) {
+      this.setState({ isHiddenTarget });
     }
   };
 
@@ -181,12 +181,12 @@ class Tooltip extends Component {
 
   renderTooltip = () => {
     const { text, showAsNeeded, target, elementId, minWidthByContent, contentComponent, getIsNeeded } = this.props;
-    const { isOpen } = this.state;
+    const { isOpen, isHiddenTarget } = this.state;
     const element = document.getElementById(elementId || target);
     const styles = {};
     let needTooltip = !showAsNeeded;
 
-    if (isClosestHidden(`#${this.props.target}`)) {
+    if (isHiddenTarget) {
       return null;
     }
 

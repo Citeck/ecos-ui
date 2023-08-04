@@ -3997,6 +3997,16 @@ chardet@^0.7.0:
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
   integrity sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
 
+chart.js@3.9.1:
+  version "3.9.1"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.9.1.tgz#3abf2c775169c4c71217a107163ac708515924b8"
+  integrity sha512-Ro2JbLmvg83gXF5F4sniaQ+lTbSv18E+TIf2cOeiH1Iqd2PGFOtem+DUufMZsCJwFE7ywPOpfXFBwRTGq7dh6w==
+
+chartjs-plugin-datalabels@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/chartjs-plugin-datalabels/-/chartjs-plugin-datalabels-2.2.0.tgz#369578e131d743c2e34b5fbe2d3f9335f6639b8f"
+  integrity sha512-14ZU30lH7n89oq+A4bWaJPnAG8a7ZTk7dKf48YAzMvJjQtjrgg5Dpk9f+LbjCF6bpx3RAGTeL13IXpKQYyRvlw==
+
 cheerio@^1.0.0-rc.3:
   version "1.0.0-rc.3"
   resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.3.tgz#094636d425b2e9c0f4eb91a46c05630c9a1a8bf6"
@@ -5399,7 +5409,7 @@ diagram-js-origin@^1.3.4:
   dependencies:
     tiny-svg "^3.0.0"
 
-diagram-js@^12.1.0:
+diagram-js@12.1.0, diagram-js@^12.1.0:
   version "12.1.0"
   resolved "https://registry.yarnpkg.com/diagram-js/-/diagram-js-12.1.0.tgz#b697b376440a02dcb298a777daf847f26b2ba718"
   integrity sha512-n9PtMj9gnk+fwDBBMpgiKUlnKuRQYx9Qkw+j9w5WEKtTUDk+Hnhc0+PdCsifbqCR9KlGapuYFO/sDi1AWYGvfQ==
@@ -12743,6 +12753,11 @@ react-bootstrap-table2-editor@1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/react-bootstrap-table2-editor/-/react-bootstrap-table2-editor-1.2.3.tgz#483f8123e8698e9b6ff498ad900bfb754439ea46"
   integrity sha512-GaqGIbyoqElucvsl3zDgqifB5oCPMfYKuVC5c6noykEZuy5D1gphnton5Btr7sby4Cp3I6dpCPJdZEpNIj7bYQ==
+
+react-chartjs-2@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-5.2.0.tgz#43c1e3549071c00a1a083ecbd26c1ad34d385f5d"
+  integrity sha512-98iN5aguJyVSxp5U3CblRLH67J8gkfyGNbiK3c+l1QI/G4irHMPQw44aEPmjVag+YKTyQ260NcF82GTQ3bdscA==
 
 react-collapse@4.0.3:
   version "4.0.3"

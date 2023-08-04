@@ -79,7 +79,7 @@ export default [
     weight: 0,
     tooltip: 'Which storage to save the files in.',
     valueProperty: 'value',
-    defaultValue: 'url',
+    defaultValue: '',
     dataSrc: 'custom',
     data: {
       custom: function custom() {

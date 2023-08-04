@@ -491,7 +491,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
   }
 
   static preProcessFormDefinition(formDefinition, formOptions) {
-    const newFormDefinition = cloneDeep(formDefinition);
+    const newFormDefinition = JSON.parse(JSON.stringify(formDefinition));
 
     EcosFormUtils.forEachComponent(newFormDefinition, component => {
       if (component.key) {
@@ -552,7 +552,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     }
 
     let currentScope = scope;
-    if (root.type === 'container' || root.type === 'datagrid') {
+    if (root && (root.type === 'container' || root.type === 'datagrid')) {
       currentScope = {
         parent: scope,
         component: root

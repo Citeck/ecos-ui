@@ -30,10 +30,10 @@ export default class DashletActionService {
     return true;
   }
 
-  static isAvailable(key, { dashboardEditable, appEdition, isAdmin }) {
+  static isAvailable(key, { widgetEditable, appEdition, isAdmin }) {
     const available = DashletActionService.checkForEdition(appEdition, key);
 
-    const editable = dashboardEditable || !DashletActionService.uneditable.includes(key);
+    const editable = widgetEditable || !DashletActionService.uneditable.includes(key);
     const administrative = isAdmin || !DashletActionService.administrative.includes(key);
 
     return available && editable && administrative;

@@ -37,7 +37,7 @@ To install and use `ecos-ui`, follow these steps:
 4. Start the development server:
 
    ```
-   yarn dev
+   yarn start
    ```
 
    This will launch the Citeck `ecos-ui` application and you can access it in your web browser at `http://localhost:3000`.

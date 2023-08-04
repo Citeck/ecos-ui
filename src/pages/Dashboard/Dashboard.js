@@ -367,7 +367,7 @@ class Dashboard extends Component {
     saveMenuConfig({ type: menuType, links });
   };
 
-  handleSaveWidgetProps = (id, props = {}) => {
+  handleSaveWidgetProps = (id, props = {}, callback) => {
     const { configVersion } = this.props;
 
     if (configVersion) {
@@ -383,7 +383,7 @@ class Dashboard extends Component {
         };
       }
 
-      this.saveDashboardConfig({ config: originalConfig, recordRef });
+      this.saveDashboardConfig({ config: originalConfig, recordRef, callback });
 
       return;
     }
@@ -412,7 +412,7 @@ class Dashboard extends Component {
 
     const config = this.updateActiveConfig(activeLayout);
 
-    this.saveDashboardConfig({ config });
+    this.saveDashboardConfig({ config, callback });
   };
 
   handleReloadContent = event => {
