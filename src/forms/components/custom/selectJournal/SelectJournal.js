@@ -316,10 +316,6 @@ export default class SelectJournalComponent extends BaseReactComponent {
 
     const foundJournalId = await Records.get(typeRef).load(`attributeById.${key}.config.typeRef._as.ref.journalRef?localId`);
 
-    if (!foundJournalId && journalId.match(TEMPLATE_JOURNAL_ID_REGEX)) {
-      return null;
-    }
-
     return foundJournalId || journalId || null;
   }
 
