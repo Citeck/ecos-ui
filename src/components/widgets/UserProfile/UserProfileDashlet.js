@@ -20,6 +20,7 @@ import { ActionTypes } from '../../Records/actions/constants';
 import { getFitnesseClassName } from '../../../helpers/tools';
 
 import './style.scss';
+import { PERMISSION_CHANGE_PASSWORD } from '../../Records/constants';
 
 const Labels = {
   TITLE: 'user-profile-widget.title',
@@ -84,7 +85,7 @@ class UserProfileDashlet extends BaseWidget {
   }
 
   fetchPermission = async () => {
-    return Records.get(this.props.record).load('permissions._has.CHANGE_PASSWORD?bool!');
+    return Records.get(this.props.record).load(PERMISSION_CHANGE_PASSWORD);
   };
 
   onChangePhoto = files => {

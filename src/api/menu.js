@@ -15,6 +15,7 @@ import { AUTHORITY_TYPE_GROUP } from '../components/common/form/SelectOrgstruct/
 import { CommonApi } from './common';
 import ConfigService, { MAIN_MENU_TYPE, SITE_DASHBOARD_ENABLE, MENU_GROUP_PRIORITY } from '../services/config/ConfigService';
 import AuthorityService from '../services/authrority/AuthorityService';
+import { PERMISSION_CHANGE_PASSWORD } from '../components/Records/constants';
 
 const $4H = 14400000;
 const SITE = 'site';
@@ -179,6 +180,10 @@ export class MenuApi extends CommonApi {
       console.error(e);
       return {};
     });
+  };
+
+  getHasPasswordPermissions = recordRef => {
+    return Records.get(recordRef).load(PERMISSION_CHANGE_PASSWORD);
   };
 
   saveMenuConfig = ({ config = {}, title = '', description = '' }) => {
