@@ -160,7 +160,7 @@ class Model extends React.Component {
   };
 
   switchHeatMapOff = () => {
-    this.designer && this.designer.heatmap && this.designer.heatmap.updateData(new Set([]));
+    this.designer && this.designer.heatmap && this.designer.heatmap.toggleDisplay(true);
   };
 
   handleMouseDown = throttle(() => {
@@ -172,7 +172,19 @@ class Model extends React.Component {
   }, 100);
 
   handleWheel = () => {
-    this.reRenderHeatmap();
+    let handle = null;
+
+    if (handle) {
+      clearTimeout(handle);
+    }
+
+    this.state.isShowHeatmap && this.toggleTempHeatmap(true);
+
+    handle = setTimeout(this.handleStopWheel, 100);
+  };
+
+  handleStopWheel = () => {
+    this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
   };
 
   renderBadges = () => {
@@ -220,11 +232,14 @@ class Model extends React.Component {
       return;
     }
 
-    if (isEmpty(this.#heatmapData)) {
+    const isEmptyData = isEmpty(this.#heatmapData);
+
+    if (isEmptyData) {
       this.#heatmapData = new Set([...this.getPreparedHeatData()]);
     }
 
-    this.designer.heatmap.updateData(this.#heatmapData);
+    this.designer.heatmap.updateData(this.#heatmapData, !isEmptyData);
+    this.designer.heatmap.toggleDisplay(false);
   };
 
   handleToggleHeatmap = () => {
@@ -261,7 +276,6 @@ class Model extends React.Component {
 
   handleClickZoom = value => {
     this.designer.setZoom(value);
-    this.reRenderHeatmap();
   };
 
   handleChangeCountFlag = data => {

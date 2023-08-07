@@ -130,7 +130,8 @@ class BPMNEditorPage extends ModelEditor {
       title = translationKey.split('_').pop();
     }
 
-    const isNonInterrupting = get(selectedElement, 'businessObject.cancelActivity') === false;
+    const isNonInterrupting =
+      get(selectedElement, 'businessObject.cancelActivity') === false || get(selectedElement, 'businessObject.isInterrupting') === false;
     if (isNonInterrupting) {
       title = title + ' (' + t('is_non_interrupting') + ')';
     }
