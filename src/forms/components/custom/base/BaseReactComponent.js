@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
-import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
@@ -110,11 +109,7 @@ export default class BaseReactComponent extends BaseComponent {
       this.updateDescription();
     }
 
-    this.showElement(this.isShowElement);
-
-    if (!this.isShowElement && this.component.clearOnHide) {
-      this.dataValue = this.emptyValue;
-    }
+    this.showElement(!this.component.hidden);
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
@@ -293,8 +288,12 @@ export default class BaseReactComponent extends BaseComponent {
     /*if (!this.visible && this.component.clearOnHide) {
       newValue = this.dataValue;
     } else */
-    if (isNil(value)) {
+    if (value === undefined) {
       newValue = this.getValue(flags);
+    }
+
+    if (value === null) {
+      newValue = this.emptyValue;
     }
 
     let changed = newValue !== undefined ? this.hasChanged(newValue, this.dataValue) : false;
