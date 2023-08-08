@@ -24,3 +24,5 @@ export const DataTypes = {
   JSON_REC: 'json-record',
   QUERY: 'query'
 };
+
+export const TEMPLATE_JOURNAL_ID_REGEX = /\$\{.*?\}/g;
