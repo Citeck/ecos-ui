@@ -1356,6 +1356,7 @@
   "versions-journal-widget.title": "Журнал версий",
   "versions-journal-widget.version": "Версия",
   "versions-journal-widget.tag.deployed": "Опубликовано",
+  "versions-journal-widget.tag.draft": "Черновик",
 
   "web-page-widget.title": "Веб-страница",
   "web-page-widget.empty": "Содержимого нет. Укажите в настройках адрес веб-страницы.",

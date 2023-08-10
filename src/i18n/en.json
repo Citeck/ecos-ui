@@ -1357,6 +1357,7 @@
   "versions-journal-widget.title": "Versions journal",
   "versions-journal-widget.version": "Version",
   "versions-journal-widget.tag.deployed": "Deployed",
+  "versions-journal-widget.tag.draft": "Draft",
 
   "web-page-widget.title": "Web Page",
   "web-page-widget.empty": "No content. Specify the address of the web page in the settings.",
