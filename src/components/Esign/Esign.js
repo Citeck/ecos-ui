@@ -139,10 +139,10 @@ class EsignComponent extends Component {
     const { signatures, selectedCertificate } = this.state;
 
     let certificate;
-    console.log('selectedCertificate ', selectedCertificate);
+
     if (selectedCertificate) {
       certificate = {
-        subject: selectedCertificate.subject
+        subject: selectedCertificate.friendlySubjectInfo
       };
     }
 
