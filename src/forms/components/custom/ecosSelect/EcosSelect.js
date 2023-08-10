@@ -1043,6 +1043,10 @@ export default class SelectComponent extends BaseComponent {
       return false;
     }
 
+    if (value === null) {
+      value = this.emptyValue;
+    }
+
     flags = this.getFlags.apply(this, arguments);
     const previousValue = this.dataValue;
     if (this.component.multiple && !Array.isArray(value)) {

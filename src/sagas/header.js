@@ -1,7 +1,6 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isString from 'lodash/isString';
 
@@ -52,9 +51,7 @@ function* fetchUserMenu({ api, logger }) {
     const isExternalIDP = yield call(api.app.getIsExternalIDP);
     const config = (yield call(api.menu.getUserCustomMenuConfig, userName)) || {};
 
-    if (isEmpty(config.items)) {
-      set(config, 'items', cloneDeep(DefaultUserMenu));
-    }
+    set(config, 'items', cloneDeep(DefaultUserMenu));
 
     const items = MenuConverter.getUserMenuItems(config.items, { isAvailable, isExternalIDP });
 

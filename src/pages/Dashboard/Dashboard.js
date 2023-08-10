@@ -7,6 +7,7 @@ import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import isNil from 'lodash/isNil';
 
 import { LoaderTypes, URL } from '../../constants';
 import { MenuTypes } from '../../constants/menu';
@@ -86,6 +87,7 @@ class Dashboard extends Component {
     urlParams: getSortedUrlParams(),
     canDragging: false,
     activeLayoutId: null,
+    activeTab: null,
     needGetConfig: false,
     openedTabs: new Set()
   };
@@ -107,11 +109,18 @@ class Dashboard extends Component {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
+    const activeTab = get(queryString.parse(window.location.search), 'activeTab', null);
     const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
-    const isExistLayout = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
+
+    const isExistLayoutById = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
+    const isExistLayoutByTab = isArray(props.config) && !isNil(activeTab) && !!props.config[Number(activeTab)];
+
+    if (isNil(state.activeTab) && !isEmpty(props.config)) {
+      newState.activeTab = isExistLayoutByTab ? Number(activeTab) : 0;
+    }
 
     if (!state.activeLayoutId && !isEmpty(props.config)) {
-      newState.activeLayoutId = isExistLayout ? activeLayoutId : firstLayoutId;
+      newState.activeLayoutId = isExistLayoutById ? activeLayoutId : firstLayoutId;
     }
 
     if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
@@ -128,6 +137,7 @@ class Dashboard extends Component {
       if (isDashboard()) {
         newState.needGetConfig = true;
         newState.activeLayoutId = '';
+        newState.activeTab = null;
       }
     }
 
@@ -139,8 +149,8 @@ class Dashboard extends Component {
       return null;
     }
 
-    if (newState.activeLayoutId) {
-      newState.openedTabs = state.openedTabs.add(newState.activeLayoutId);
+    if (!isNil(newState.activeTab)) {
+      newState.openedTabs = state.openedTabs.add(Number(newState.activeTab));
       Dashboard.updateTabLink();
     }
 
@@ -163,7 +173,7 @@ class Dashboard extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const { tabId, stateKey, enableCache, config, resetDashboardConfig, isMobile, warningMessage } = this.props;
-    const { needGetConfig, activeLayoutId, urlParams } = this.state;
+    const { needGetConfig, activeTab, urlParams } = this.state;
 
     if (this.tabList.length) {
       this.toggleTabLayoutFromUrl();
@@ -178,11 +188,30 @@ class Dashboard extends Component {
     }
 
     if (isDashboard() && !isEmpty(config)) {
+      const activeTabIndex = get(queryString.parse(decodeLink(window.location.search)), 'activeTab');
       const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
-      const isExistLayout = isArray(config) && !!config.find(layout => layout.id === layoutId);
+      const isExistLayout = isArray(config) && !isNil(activeTab) && !!config[Number(activeTabIndex)];
+      const hasManyTabs = this.tabList && this.tabList.length > 1;
 
-      if (!!activeLayoutId && !isExistLayout) {
-        this.setActiveLink(get(config, '[0].id'));
+      if (!isNil(activeTab) && !isExistLayout && hasManyTabs) {
+        this.setActiveLink(0);
+      }
+
+      if (isNil(activeTabIndex) && !!layoutId) {
+        const searchParams = queryString.parse(window.location.search);
+        const tabIndex = config.findIndex(layout => layout.id === layoutId);
+
+        if (hasManyTabs) {
+          searchParams.activeTab = tabIndex === -1 ? 0 : tabIndex;
+        }
+        delete searchParams.activeLayoutId;
+
+        this.setState(
+          {
+            activeTab: tabIndex === -1 ? 0 : tabIndex
+          },
+          () => this.addSearchParams(searchParams)
+        );
       }
     }
 
@@ -251,10 +280,10 @@ class Dashboard extends Component {
   }
 
   get activeLayout() {
-    const { config, activeLayoutId } = this.state;
+    const { config, activeTab } = this.state;
 
-    if (!isEmpty(config) && isArray(config) && !!activeLayoutId) {
-      return config.find(item => item.id === activeLayoutId) || {};
+    if (!isEmpty(config) && isArray(config) && !isNil(activeTab)) {
+      return config[Number(activeTab)] || {};
     }
 
     return {};
@@ -274,7 +303,7 @@ class Dashboard extends Component {
     const { config } = this.state;
 
     if (!isEmpty(config) && isArray(config)) {
-      return config.map(item => item.tab);
+      return config.map((item, index) => ({ ...item.tab, index }));
     }
 
     return [];
@@ -296,11 +325,11 @@ class Dashboard extends Component {
   };
 
   updateActiveConfig(activeLayout) {
-    const { config, activeLayoutId } = this.state;
+    const { config, activeTab } = this.state;
     const upConfig = cloneDeep(config || []);
 
     upConfig.forEach((item, i) => {
-      if (item.id === activeLayoutId) {
+      if (i === activeTab) {
         upConfig[i] = activeLayout;
       }
     });
@@ -340,16 +369,23 @@ class Dashboard extends Component {
     this.saveDashboardConfig({ config });
   };
 
-  setActiveLink = idLayout => {
-    const { urlParams } = this.state;
+  setActiveLink = activeTabIndex => {
     const searchParams = queryString.parse(window.location.search);
+
+    if (this.tabList && this.tabList.length > 1) {
+      searchParams.activeTab = activeTabIndex;
+    }
+
+    this.addSearchParams(searchParams);
+  };
+
+  addSearchParams = searchParams => {
+    const { urlParams } = this.state;
     const prevSearchParams = queryString.parse(urlParams);
     const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
-    const isEqualLayoutIds = get(prevSearchParams, 'activeLayoutId', '') === get(searchParams, 'activeLayoutId');
+    const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(searchParams, 'activeTab');
 
-    searchParams.activeLayoutId = idLayout;
-
-    if (!urlParams || (isEqualRefs && !isEqualLayoutIds)) {
+    if (!urlParams || (isEqualRefs && !isEqualLayoutIndexes)) {
       replaceHistoryLink(this.props.history, `${URL.DASHBOARD}?${decodeLink(queryString.stringify(searchParams))}`);
     } else {
       pushHistoryLink(undefined, {
@@ -432,27 +468,27 @@ class Dashboard extends Component {
   toggleTabLayout = index => {
     const tab = get(this.tabList, [index], {});
 
-    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.idLayout) }));
-    this.setActiveLink(tab.idLayout);
+    this.setState(state => ({ openedTabs: state.openedTabs.add(tab.index) }));
+    this.setActiveLink(tab.index);
   };
 
   toggleTabLayoutFromUrl = () => {
     const searchParams = queryString.parse(window.location.search);
-    const { activeLayoutId } = searchParams;
+    const { activeTab: activeTabFromUrl } = searchParams;
+    const activeTab = Number(activeTabFromUrl);
+    if (!isNil(activeTabFromUrl) && activeTab !== Number(this.state.activeTab)) {
+      const tab = this.tabList[activeTab];
 
-    if (activeLayoutId !== this.state.activeLayoutId) {
-      const tab = this.tabList.find(el => el.idLayout === activeLayoutId);
-
-      if (tab && this.state.activeLayoutId !== activeLayoutId) {
+      if (tab && activeTab !== Number(this.state.activeTab)) {
         this.setState(state => ({
-          activeLayoutId,
-          openedTabs: state.openedTabs.add(activeLayoutId)
+          activeTab,
+          openedTabs: state.openedTabs.add(activeTab)
         }));
         return;
       }
 
-      if (activeLayoutId && !tab) {
-        delete searchParams.activeLayoutId;
+      if (!isNil(activeTabFromUrl) && !tab) {
+        delete searchParams.activeTab;
 
         pushHistoryLink(this.props.history, {
           pathname: URL.DASHBOARD,
@@ -468,12 +504,18 @@ class Dashboard extends Component {
     }
 
     const { isMobile } = this.props;
-    const { activeLayoutId } = this.state;
+    const { activeTab } = this.state;
 
     if (isMobile) {
       return (
         <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
-          <Tabs isMobile items={this.tabList} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
+          <Tabs
+            isMobile
+            items={this.tabList}
+            onClick={this.toggleTabLayout}
+            keyField="idLayout"
+            activeTabKey={get(this.tabList[activeTab], 'idLayout')}
+          />
         </div>
       );
     }
@@ -490,7 +532,7 @@ class Dashboard extends Component {
             items={this.tabList}
             onClick={this.toggleTabLayout}
             keyField="idLayout"
-            activeTabKey={activeLayoutId}
+            activeTabKey={get(this.tabList[activeTab], 'idLayout')}
           />
         </ScrollArrow>
       </div>
@@ -583,18 +625,18 @@ class Dashboard extends Component {
 
   renderContent() {
     const { menuType, isMobile, tabId, identificationId } = this.props;
-    const { canDragging, activeLayoutId, openedTabs } = this.state;
+    const { canDragging, activeTab, openedTabs } = this.state;
 
     return this.tabList.map(tab => {
       const { columns, type } = this.getLayout(tab.idLayout);
       const styles = {};
-      const isActive = tab.idLayout === activeLayoutId;
+      const isActive = tab.index === activeTab;
 
       if (!isActive) {
         styles.display = 'none';
       }
 
-      if (!isActive && !openedTabs.has(tab.idLayout)) {
+      if (!isActive && !openedTabs.has(tab.index)) {
         return null;
       }
 
