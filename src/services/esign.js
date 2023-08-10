@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import get from 'lodash/get';
 import cloneDeep from 'lodash/cloneDeep';
-import isString from 'lodash/isFunction';
+import isString from 'lodash/isString';
 import isFunction from 'lodash/isFunction';
 
 import api from '../api/esign';
