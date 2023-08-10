@@ -438,6 +438,18 @@ class EcosForm extends React.Component {
       return;
     }
 
+    const selectComponents = this.form.getAllComponents().filter(component => component.type === 'ecosSelect');
+
+    selectComponents.forEach(selectComponent => {
+      if (
+        selectComponent &&
+        selectComponent.choices &&
+        selectComponent.choices.recalcDropdownPosition &&
+        selectComponent.choices.dropdown.isActive
+      ) {
+        selectComponent.choices.recalcDropdownPosition();
+      }
+    });
     this.onScrollStart(event);
   };
 

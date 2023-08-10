@@ -28,8 +28,9 @@ export default class BaseReactComponent extends BaseComponent {
     if (this.options.builder) {
       return true;
     }
+    const data = this.data;
 
-    return !Boolean(this.component.hidden) && this.checkConditions();
+    return !Boolean(this.component.hidden) && this.fieldLogic(data);
   }
 
   get htmlAttributes() {
@@ -109,7 +110,9 @@ export default class BaseReactComponent extends BaseComponent {
       this.updateDescription();
     }
 
-    this.showElement(!this.component.hidden);
+    if (this.root.options.builder) {
+      this.showElement(!this.component.hidden);
+    }
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
