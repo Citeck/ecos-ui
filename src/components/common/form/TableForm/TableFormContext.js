@@ -314,7 +314,7 @@ export const TableFormContextProvider = props => {
 
                 if (component && !displayName) {
                   const option = get(component, 'currentItems', []).find(item => item.value === attributes[att]);
-                  displayName = option.label;
+                  displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
                 }
 
                 newRow = displayName ? { ...newRow, [att]: displayName } : { ...newRow };
