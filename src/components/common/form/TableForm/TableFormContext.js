@@ -5,6 +5,7 @@ import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
 
 import WidgetService from '../../../../services/WidgetService';
 import Records from '../../../Records/Records';
@@ -14,6 +15,7 @@ import { FORM_MODE_CLONE, FORM_MODE_CREATE, FORM_MODE_EDIT, FORM_MODE_VIEW } fro
 import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
 import { LOCAL_ID } from '../../../../constants/journal';
+import { getMLValue } from '../../../../helpers/util';
 
 export const TableFormContext = React.createContext();
 
@@ -191,7 +193,8 @@ export const TableFormContextProvider = props => {
 
           if (component && !displayName) {
             const option = get(component, 'currentItems', []).find(item => item.value === attributes[column.attribute]);
-            displayName = option.label;
+
+            displayName = isObject(option.label) ? getMLValue(option.label) : option.label;
           }
 
           restAttrs.splice(index, 1);
