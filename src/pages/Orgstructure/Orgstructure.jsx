@@ -285,12 +285,16 @@ class Orgstructure extends React.Component {
     const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(searchParams, 'activeTab');
 
     if (!urlParams || !isEqualLayoutIndexes) {
-      replaceHistoryLink(this.props.history, `${URL.ORGSTRUCTURE}?${decodeLink(queryString.stringify(searchParams))}`);
+      replaceHistoryLink(this.props.history, `${URL.ORGSTRUCTURE}?${decodeLink(queryString.stringify(searchParams))}`, true);
     } else {
-      pushHistoryLink(undefined, {
-        pathname: URL.ORGSTRUCTURE,
-        search: decodeLink(queryString.stringify(searchParams))
-      });
+      pushHistoryLink(
+        undefined,
+        {
+          pathname: URL.ORGSTRUCTURE,
+          search: decodeLink(queryString.stringify(searchParams))
+        },
+        true
+      );
     }
 
     Dashboard.updateTabLink();

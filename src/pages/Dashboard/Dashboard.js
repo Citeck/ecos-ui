@@ -387,8 +387,9 @@ class Dashboard extends Component {
 
     if (!urlParams || (isEqualRefs && !isEqualLayoutIndexes)) {
       replaceHistoryLink(
-        this.props.history,
-        `${URL.DASHBOARD}${isEmpty(searchParams) ? '' : '?' + decodeLink(queryString.stringify(searchParams))}`
+        cloneDeep(this.props.history),
+        `${URL.DASHBOARD}${isEmpty(searchParams) ? '' : '?' + decodeLink(queryString.stringify(searchParams))}`,
+        true
       );
     } else {
       pushHistoryLink(
@@ -400,7 +401,8 @@ class Dashboard extends Component {
           : {
               pathname: URL.DASHBOARD,
               search: decodeLink(queryString.stringify(searchParams))
-            }
+            },
+        true
       );
     }
 

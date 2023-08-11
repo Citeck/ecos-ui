@@ -342,7 +342,7 @@ window.Citeck.Navigator = {
   }
 };
 
-export const replaceHistoryLink = (history = window, link = '') => {
+export const replaceHistoryLink = (history = window, link = '', force = false) => {
   if (isEmpty(history)) {
     return;
   }
@@ -355,7 +355,7 @@ export const replaceHistoryLink = (history = window, link = '') => {
     pureLink = '/';
   }
 
-  if (`${pathname}${search}` === pureLink) {
+  if (`${pathname}${search}` === pureLink && !force) {
     return;
   }
 
@@ -364,7 +364,7 @@ export const replaceHistoryLink = (history = window, link = '') => {
   return pureLink;
 };
 
-export const pushHistoryLink = (history = window, linkData = {}) => {
+export const pushHistoryLink = (history = window, linkData = {}, force = false) => {
   if (isEmpty(history) || isEmpty(linkData)) {
     return;
   }
@@ -380,7 +380,7 @@ export const pushHistoryLink = (history = window, linkData = {}) => {
 
   const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
 
-  if (`${currentPathname}${currentSearch}` === newLink) {
+  if (`${currentPathname}${currentSearch}` === newLink && !force) {
     return;
   }
 
