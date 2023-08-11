@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import Choices from '../../../choices';
 import BaseComponent from '../base/BaseComponent';
-import { isNodeRef } from '../../../../helpers/util';
+import { getMLValue, isNodeRef } from '../../../../helpers/util';
 import { createDocumentUrl } from '../../../../helpers/urls';
 import { requestAnimationFrame } from '../../override/misc';
 
@@ -170,7 +170,7 @@ export default class SelectComponent extends BaseComponent {
       return this.itemValue(data);
     }
 
-    const label = this.t(data.label || data);
+    const label = _.isObject(data.label) ? getMLValue(data.label) : this.t(data.label || data);
 
     // Perform a fast interpretation if we should not use the template.
     if (data && !this.component.template) {
@@ -181,7 +181,7 @@ export default class SelectComponent extends BaseComponent {
       return label;
     }
 
-    const template = this.component.template ? this.interpolate(this.component.template, { item: data }) : data.label;
+    const template = this.component.template ? this.interpolate(this.component.template, { item: { ...data, label } }) : label;
 
     if (template) {
       const str = template.replace(/<\/?[^>]+(>|$)/g, '');
