@@ -386,12 +386,24 @@ class Dashboard extends Component {
     const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(searchParams, 'activeTab');
 
     if (!urlParams || (isEqualRefs && !isEqualLayoutIndexes)) {
-      replaceHistoryLink(this.props.history, `${URL.DASHBOARD}?${decodeLink(queryString.stringify(searchParams))}`);
+      replaceHistoryLink(
+        cloneDeep(this.props.history),
+        `${URL.DASHBOARD}${isEmpty(searchParams) ? '' : '?' + decodeLink(queryString.stringify(searchParams))}`,
+        true
+      );
     } else {
-      pushHistoryLink(undefined, {
-        pathname: URL.DASHBOARD,
-        search: decodeLink(queryString.stringify(searchParams))
-      });
+      pushHistoryLink(
+        undefined,
+        isEmpty(searchParams)
+          ? {
+              pathname: URL.DASHBOARD
+            }
+          : {
+              pathname: URL.DASHBOARD,
+              search: decodeLink(queryString.stringify(searchParams))
+            },
+        true
+      );
     }
 
     Dashboard.updateTabLink();

@@ -23,6 +23,7 @@ import {
   setViewType,
   createModel
 } from '../actions/bpmn';
+import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/bpmn';
 import { getPagePositionState, savePagePositionState } from '../helpers/bpmn';
@@ -139,14 +140,9 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
       yield delay(100);
       yield put(
         showModal({
+          dialogId: INFO_DIALOG_ID,
           title: t('designer.delete-category-dialog.failure-title'),
-          content: t('designer.delete-category-dialog.failure-text'),
-          buttons: [
-            {
-              label: t('designer.delete-category-dialog.close-btn'),
-              isCloseButton: true
-            }
-          ]
+          text: t('designer.delete-category-dialog.failure-text')
         })
       );
       return;

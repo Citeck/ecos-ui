@@ -17,13 +17,13 @@ import './DialogManager.scss';
 /**
  * @alias DialogTypes
  */
-const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
-const INFO_DIALOG_ID = 'DialogManager-info-dialog';
-const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
-const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
-const FORM_DIALOG_ID = 'DialogManager-form-dialog';
-const LOADER_DIALOG_ID = 'DialogManager-loader-dialog';
-const ERROR_DIALOG_ID = 'DialogManager-error-dialog';
+export const REMOVE_DIALOG_ID = 'DialogManager-remove-dialog';
+export const INFO_DIALOG_ID = 'DialogManager-info-dialog';
+export const CONFIRM_DIALOG_ID = 'DialogManager-confirm-dialog';
+export const CUSTOM_DIALOG_ID = 'DialogManager-custom-dialog';
+export const FORM_DIALOG_ID = 'DialogManager-form-dialog';
+export const LOADER_DIALOG_ID = 'DialogManager-loader-dialog';
+export const ERROR_DIALOG_ID = 'DialogManager-error-dialog';
 
 class DialogWrapper extends React.Component {
   constructor(props) {
@@ -86,7 +86,7 @@ class DialogWrapper extends React.Component {
   }
 }
 
-const dialogsById = {
+export const dialogsById = {
   [REMOVE_DIALOG_ID]: props => {
     const dialogProps = props.dialogProps || {};
     const {
@@ -107,6 +107,9 @@ const dialogsById = {
       isLoading: props.isLoading
     };
 
+    const setVisible = props.setVisible || (() => {});
+    const setLoading = props.setLoading || (() => {});
+
     if (text === '') {
       dProps.text = dProps.title;
       dProps.title = '';
@@ -114,25 +117,25 @@ const dialogsById = {
 
     dProps.onDelete = async () => {
       if (isWaitResponse) {
-        props.setLoading(true);
+        setLoading(true);
         await onDelete();
-        props.setVisible(false);
-        props.setLoading(false);
+        setVisible(false);
+        setLoading(false);
 
         return;
       }
 
-      props.setVisible(false);
+      setVisible(false);
       onDelete();
     };
 
     dProps.onCancel = () => {
-      props.setVisible(false);
+      setVisible(false);
       onCancel();
     };
 
     dProps.onClose = () => {
-      props.setVisible(false);
+      setVisible(false);
       onClose();
     };
 
@@ -152,13 +155,15 @@ const dialogsById = {
       isOpen: props.isVisible
     };
 
+    const setVisible = props.setVisible || (() => {});
+
     if (!text) {
       dProps.text = dProps.title;
       dProps.title = '';
     }
 
     dProps.onClose = () => {
-      props.setVisible(false);
+      setVisible(false);
       onClose();
     };
 

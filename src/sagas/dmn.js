@@ -21,6 +21,7 @@ import {
   importProcessModelRequest,
   createModel
 } from '../actions/dmn';
+import { INFO_DIALOG_ID } from '../components/common/dialogs/Manager/DialogManager';
 import { showModal } from '../actions/modal';
 import { selectAllCategories, selectAllModels } from '../selectors/dmn';
 import { getPagePositionState, savePagePositionState } from '../helpers/dmn';
@@ -135,14 +136,9 @@ function* doDeleteCategoryRequest({ api, logger }, action) {
       yield delay(100);
       yield put(
         showModal({
+          dialogId: INFO_DIALOG_ID,
           title: t('designer.delete-category-dialog.failure-title'),
-          content: t('designer.delete-category-dialog.failure-text'),
-          buttons: [
-            {
-              label: t('designer.delete-category-dialog.close-btn'),
-              isCloseButton: true
-            }
-          ]
+          text: t('designer.delete-category-dialog.failure-text')
         })
       );
       return;

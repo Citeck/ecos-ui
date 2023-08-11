@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import cn from 'classnames';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Row, Col } from 'reactstrap';
+import { dialogsById } from '../common/dialogs/Manager/DialogManager';
 import { hideModal } from '../../actions/modal';
 import { Btn } from '../common/btns';
 
@@ -17,6 +18,8 @@ const mapDispatchToProps = dispatch => ({
 });
 
 class ReduxModal extends React.Component {
+  #dialogRef = React.createRef();
+
   constructor(props) {
     super(props);
     this.el = document.createElement('div');
@@ -26,12 +29,20 @@ class ReduxModal extends React.Component {
     document.body.appendChild(this.el);
   }
 
+  componentDidUpdate(prevProps) {
+    const { isOpen } = this.props;
+
+    if (isOpen && prevProps.isOpen !== isOpen && this.#dialogRef && this.#dialogRef.current) {
+      this.#dialogRef.current.click();
+    }
+  }
+
   componentWillUnmount() {
     document.body.removeChild(this.el);
   }
 
   render() {
-    const { isOpen, title, content, buttons, onCloseCallback, hideModal } = this.props;
+    const { dialogId, isOpen, title, content, buttons, onCloseCallback, onSubmit, hideModal } = this.props;
 
     let onHideCallback = hideModal;
     if (onCloseCallback) {
@@ -41,11 +52,15 @@ class ReduxModal extends React.Component {
       };
     }
 
-    if (!isOpen) {
-      return null;
+    let onSubmitCallback = hideModal;
+    if (onSubmit) {
+      onSubmitCallback = () => {
+        onSubmit();
+        hideModal();
+      };
     }
 
-    //todo Стилизовать кнопку в соответствии с макетом
+    // todo Стилизовать кнопку в соответствии с макетом
     // const closeBtn = <button className="modal__close-button">&times;</button>;
     //
     // const header = title ? (
@@ -86,8 +101,25 @@ class ReduxModal extends React.Component {
       );
     }
 
+    if (dialogId) {
+      const DialogComponent = dialogsById[dialogId];
+
+      return (
+        <DialogComponent
+          dialogProps={{
+            ...this.props,
+            dialogRef: this.#dialogRef,
+            onCancel: onHideCallback,
+            onClose: onHideCallback,
+            onDelete: onSubmitCallback
+          }}
+          isVisible={isOpen}
+        />
+      );
+    }
+
     return ReactDOM.createPortal(
-      <Modal isOpen toggle={onHideCallback}>
+      <Modal isOpen={isOpen} toggle={onHideCallback}>
         {header}
         <ModalBody>{content}</ModalBody>
         {footer}
