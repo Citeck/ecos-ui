@@ -163,8 +163,7 @@ class ModelEditorPage extends React.Component {
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
       [EventListeners.ROOT_SET]: this.handleSetRoot,
-      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event =>
-        this.handleSelectItem(event.context.hints ? event.context.connection : event.context.target)
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
     };
   }
 
@@ -632,6 +631,20 @@ class ModelEditorPage extends React.Component {
         eventBus.fire('element.changed', { element: selectedDiagramElement });
       }
     }
+  };
+
+  handleCreateConnection = async event => {
+    if (!event.context.hints) {
+      const connection = event.context.connection;
+      const connectionElement = this._getBusinessObjectByDiagramElement(connection);
+
+      this.designer.updateProps(connection, {
+        [`${PREFIX_FIELD}conditionType`]:
+          getValue(connectionElement, 'conditionType') || getValue(connectionElement, `${PREFIX_FIELD}conditionType`) || 'NONE'
+      });
+    }
+
+    this.handleSelectItem(event.context.hints ? event.context.connection : event.context.target);
   };
 
   handleHideXmlViewerModal = () => {

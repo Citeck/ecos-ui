@@ -1,3 +1,19 @@
+import { t } from '../../../../../helpers/util';
+
+import { userTaskRulesMap, userTaskCacheMap } from './userTask';
+import { scriptTaskRulesMap, scriptTaskCacheMap } from './scriptTask';
+import { sendTaskRulesMap, sendTaskCacheMap } from './sendTask';
+import { setStatusRulesMap, setStatusCacheMap } from './setStatus';
+import { serviceTaskRulesMap, serviceTaskCacheMap } from './serviceTask';
+import { businessRuleTaskRulesMap, businessRuleTaskCacheMap } from './businessRuleTask';
+import { callActivityRulesMap, callActivityCacheMap } from './callActivity';
+import { sequenceFlowRulesMap, sequenceFlowCacheMap } from './sequenceFlow';
+import { timerEventRulesMap, timerEventCacheMap } from './timerEvent';
+import { conditionalEventRulesMap, conditionalEventCacheMap } from './conditionalEvent';
+import { errorEventRulesMap, errorEventCacheMap } from './errorEvent';
+import { signalEventRulesMap, signalEventCacheMap } from './signalEvent';
+import { participantRulesMap, participantCacheMap } from './participant';
+
 function getAugmentedNamespace(n) {
   var f = n.default;
   if (typeof f == 'function') {
@@ -31,44 +47,7 @@ function getAugmentedNamespace(n) {
  * either default flows _or_ have a condition attached
  */
 
-var conditionalFlows = function() {
-  function check(node, reporter) {
-    if (!isConditionalForking(node)) {
-      return;
-    }
-
-    const outgoing = node.outgoing || [];
-
-    outgoing.forEach(flow => {
-      const missingCondition = !hasCondition$1(flow) && !isDefaultFlow$1(node, flow);
-
-      if (missingCondition) {
-        reporter.report(flow.id, 'Sequence flow is missing condition', ['conditionExpression']);
-      }
-    });
-  }
-
-  return {
-    check
-  };
-};
-
 // helpers /////////////////////////////
-
-function isConditionalForking(node) {
-  const defaultFlow = node['default'];
-  const outgoing = node.outgoing || [];
-
-  return defaultFlow || outgoing.find(hasCondition$1);
-}
-
-function hasCondition$1(flow) {
-  return !!flow.conditionExpression;
-}
-
-function isDefaultFlow$1(node, flow) {
-  return node['default'] === flow;
-}
 
 /**
  * Checks whether node is of specific bpmn type.
@@ -1286,10 +1265,6 @@ function isDefaultFlow(node, flow) {
   return node['default'] === flow;
 }
 
-const disallowNodeType = helper.disallowNodeType;
-
-var noInclusiveGateway = disallowNodeType('bpmn:InclusiveGateway');
-
 const { is: is$4 } = require$$0;
 
 /**
@@ -1434,7 +1409,7 @@ var superfluousGateway = function() {
   };
 };
 
-const cache = {};
+let cache = {};
 
 /**
  * A resolver that caches rules and configuration as part of the bundle,
@@ -1461,7 +1436,6 @@ Resolver.prototype.resolveConfig = function(pkg, configName) {
 const resolver = new Resolver();
 
 const rules = {
-  'conditional-flows': 'error',
   'end-event-required': 'error',
   'event-sub-process-typed-start-event': 'error',
   'fake-join': 'warn',
@@ -1472,12 +1446,24 @@ const rules = {
   'no-duplicate-sequence-flows': 'error',
   'no-gateway-join-fork': 'error',
   'no-implicit-split': 'error',
-  'no-inclusive-gateway': 'error',
   'single-blank-start-event': 'error',
   'single-event-definition': 'error',
   'start-event-required': 'error',
   'sub-process-blank-start-event': 'error',
-  'superfluous-gateway': 'warn'
+  'superfluous-gateway': 'warn',
+  ...userTaskRulesMap,
+  ...scriptTaskRulesMap,
+  ...sendTaskRulesMap,
+  ...setStatusRulesMap,
+  ...serviceTaskRulesMap,
+  ...businessRuleTaskRulesMap,
+  ...callActivityRulesMap,
+  ...sequenceFlowRulesMap,
+  ...timerEventRulesMap,
+  ...conditionalEventRulesMap,
+  ...errorEventRulesMap,
+  ...signalEventRulesMap,
+  ...participantRulesMap
 };
 
 const config = {
@@ -1488,7 +1474,7 @@ const bundle = {
   resolver: resolver,
   config: config
 };
-cache['bpmnlint/conditional-flows'] = conditionalFlows;
+
 cache['bpmnlint/end-event-required'] = endEventRequired;
 cache['bpmnlint/event-sub-process-typed-start-event'] = eventSubProcessTypedStartEvent;
 cache['bpmnlint/fake-join'] = fakeJoin;
@@ -1498,11 +1484,27 @@ cache['bpmnlint/no-disconnected'] = noDisconnected;
 cache['bpmnlint/no-duplicate-sequence-flows'] = noDuplicateSequenceFlows;
 cache['bpmnlint/no-gateway-join-fork'] = noGatewayJoinFork;
 cache['bpmnlint/no-implicit-split'] = noImplicitSplit;
-cache['bpmnlint/no-inclusive-gateway'] = noInclusiveGateway;
 cache['bpmnlint/single-blank-start-event'] = singleBlankStartEvent;
 cache['bpmnlint/single-event-definition'] = singleEventDefinition;
 cache['bpmnlint/start-event-required'] = startEventRequired;
 cache['bpmnlint/sub-process-blank-start-event'] = subProcessBlankStartEvent;
 cache['bpmnlint/superfluous-gateway'] = superfluousGateway;
+
+cache = {
+  ...cache,
+  ...userTaskCacheMap,
+  ...scriptTaskCacheMap,
+  ...sendTaskCacheMap,
+  ...setStatusCacheMap,
+  ...serviceTaskCacheMap,
+  ...businessRuleTaskCacheMap,
+  ...callActivityCacheMap,
+  ...sequenceFlowCacheMap,
+  ...timerEventCacheMap,
+  ...conditionalEventCacheMap,
+  ...errorEventCacheMap,
+  ...signalEventCacheMap,
+  ...participantCacheMap
+};
 
 export { config, bundle as default, resolver };
