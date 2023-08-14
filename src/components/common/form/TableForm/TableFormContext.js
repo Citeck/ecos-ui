@@ -16,6 +16,7 @@ import EcosFormUtils from '../../../EcosForm/EcosFormUtils';
 import TableFormPropTypes from './TableFormPropTypes';
 import { LOCAL_ID } from '../../../../constants/journal';
 import { getMLValue } from '../../../../helpers/util';
+import { getAllComponents } from './utils';
 
 export const TableFormContext = React.createContext();
 
@@ -93,6 +94,10 @@ export const TableFormContextProvider = props => {
         Promise.all(
           initValue.map(async rec => {
             const record = Records.get(rec);
+            const form = await EcosFormUtils.getForm(rec);
+            const definition = await form.load('definition?json');
+            const allComponents = getAllComponents(definition.components);
+
             const fetchedAtts = {};
             let result = {};
             let currentAttIndex = 0;
@@ -122,6 +127,16 @@ export const TableFormContextProvider = props => {
                 if (!attData) {
                   currentAttIndex++;
                   continue;
+                }
+
+                const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
+                if (component) {
+                  const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
+
+                  if (option) {
+                    fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
+                    continue;
+                  }
                 }
 
                 fetchedAtts[attData.name] = result[attSchema];

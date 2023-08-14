@@ -438,6 +438,10 @@ class EcosForm extends React.Component {
       return;
     }
 
+    if (!this.form) {
+      return;
+    }
+
     const selectComponents = this.form.getAllComponents().filter(component => component.type === 'ecosSelect');
 
     selectComponents.forEach(selectComponent => {
