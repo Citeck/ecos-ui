@@ -33,7 +33,7 @@ const sequenceFlowsFromGatewaysShouldBeDefault = {
 
       const noneConditionFlows = outgoing.filter(flow => get(flow.$attrs, CONDITION_TYPE_ATTR, '').trim() === 'NONE');
 
-      if (noneConditionFlows.length === 1 && !isDefaultFlow(node, noneConditionFlows[0])) {
+      if (noneConditionFlows.length === 1 && !isDefaultFlow(node, noneConditionFlows[0]) && outgoing.length > 1) {
         reporter.report(noneConditionFlows[0].id, t('bpmn-linter.sequence-flow.should-be-default'));
       }
     };
