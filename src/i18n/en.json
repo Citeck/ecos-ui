@@ -1719,6 +1719,11 @@
   "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
   "ecos-form.builder.form-id.label": "Form ID",
 
+  "ecos-form.create-new-form": "Create new form",
+  "ecos-form.create-new-form-info-text": "Editing of the virtual form is prohibited. You need to create a new one.",
+  "ecos-form.new-record-ref.id": "ID",
+  "ecos-form.create-new-form.types": "Types for new form",
+
   "more-about-error.label": "More about the error",
 
   "form-editor.save-button": "Save",
