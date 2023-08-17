@@ -34,7 +34,9 @@ class EsignComponent extends Component {
     errorType: '',
     cadespluginApi: null,
     certificates: [],
-    isFetchingApi: true
+    isFetchingApi: true,
+    selectedCertificate: null,
+    signatures: []
   };
 
   constructor(props) {
@@ -103,6 +105,10 @@ class EsignComponent extends Component {
     this.setState({ certificates });
   };
 
+  setSignatures = signatures => {
+    this.setState({ signatures });
+  };
+
   serviceInitialized = cadespluginApi => {
     this.getCertificates();
     this.setState({
@@ -121,20 +127,29 @@ class EsignComponent extends Component {
   };
 
   handleSignDocument = selectedCertificate => {
-    this.setState({ isLoading: true });
+    this.setState({ isLoading: true, selectedCertificate });
 
-    Esign.signDocument(this.props.recordRefs, selectedCertificate)
+    Esign.signDocument(this.props.recordRefs, selectedCertificate, this.setSignatures)
       .then(this.documentSigned)
       .catch(this.setError);
   };
 
   documentSigned = documentSigned => {
     const { onSigned, onClose } = this.props;
+    const { signatures, selectedCertificate } = this.state;
+
+    let certificate;
+
+    if (selectedCertificate) {
+      certificate = {
+        subject: selectedCertificate.friendlySubjectInfo
+      };
+    }
 
     this.setState({ documentSigned });
 
     if (documentSigned && typeof onSigned === 'function') {
-      onSigned();
+      onSigned(signatures, certificate);
     }
 
     onClose();
