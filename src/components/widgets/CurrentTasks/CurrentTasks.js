@@ -99,10 +99,11 @@ class CurrentTasks extends React.Component {
   };
 
   renderCurrentTaskList = () => {
-    const { className, forwardedRef, isSmallMode, stateId, record, height, isLoading, settings } = this.props;
+    const { className, forwardedRef, isSmallMode, stateId, record, height, isLoading, settings, instanceRecord } = this.props;
 
     return (
       <CurrentTaskList
+        instanceRecord={instanceRecord}
         forwardedRef={forwardedRef}
         className={className}
         isSmallMode={isSmallMode}
