@@ -57,6 +57,34 @@ const signalEventHasSignalName = {
   }
 };
 
+const signalEventHasFilterEventByDocumentType = {
+  id: 'signal-event-has-filter-event-by-document-type',
+  callback: () => {
+    const check = (node, reporter) => {
+      if (!node.eventDefinitions || !node.eventDefinitions.find(def => is(def, SIGNAL_EVENT_DEFINITION))) {
+        return;
+      }
+      const eventTypeAttr = `${PREFIX_FIELD}eventType`;
+      const eventFilterByEcosTypeAttr = `${PREFIX_FIELD}eventFilterByEcosType`;
+      const eventFilterByPredicateAttr = `${PREFIX_FIELD}eventFilterByPredicate`;
+      const eventFilterByRecordTypeAttr = `${PREFIX_FIELD}eventFilterByRecordType`;
+
+      const eventType = get(node.$attrs, [eventTypeAttr], '').trim();
+      const eventFilterByEcosType = get(node.$attrs, [eventFilterByEcosTypeAttr], '').trim();
+      const eventFilterByRecordType = get(node.$attrs, [eventFilterByRecordTypeAttr], '').trim();
+      const eventFilterByPredicate = get(node.$attrs, [eventFilterByPredicateAttr], '').trim();
+
+      if (eventType === 'RECORD_CREATED' && eventFilterByRecordType === 'ANY' && !eventFilterByPredicate && !eventFilterByEcosType) {
+        reporter.report(node.id, t('bpmn-linter.signal-event.has-filter-event-by-document-type'));
+      }
+    };
+
+    return {
+      check
+    };
+  }
+};
+
 const signalEventHasEventFilter = {
   id: 'signal-event-has-event-filter',
   callback: () => {
@@ -139,7 +167,8 @@ export const signalEventRulesMap = {
   [signalEventHasSignalName.id]: 'error',
   [signalEventHasEventFilter.id]: 'error',
   [signalEventHasVariableName.id]: 'error',
-  [signalEventHasRecordFields.id]: 'error'
+  [signalEventHasRecordFields.id]: 'error',
+  [signalEventHasFilterEventByDocumentType.id]: 'error'
 };
 
 export const signalEventCacheMap = {
@@ -147,5 +176,6 @@ export const signalEventCacheMap = {
   [`${BPMN_LINT_PREFIX}${signalEventHasSignalName.id}`]: signalEventHasSignalName.callback,
   [`${BPMN_LINT_PREFIX}${signalEventHasEventFilter.id}`]: signalEventHasEventFilter.callback,
   [`${BPMN_LINT_PREFIX}${signalEventHasVariableName.id}`]: signalEventHasVariableName.callback,
-  [`${BPMN_LINT_PREFIX}${signalEventHasRecordFields.id}`]: signalEventHasRecordFields.callback
+  [`${BPMN_LINT_PREFIX}${signalEventHasRecordFields.id}`]: signalEventHasRecordFields.callback,
+  [`${BPMN_LINT_PREFIX}${[signalEventHasFilterEventByDocumentType.id]}`]: signalEventHasFilterEventByDocumentType.callback
 };

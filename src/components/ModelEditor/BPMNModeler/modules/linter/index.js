@@ -43,6 +43,7 @@ const Linting = Linter.linting[1];
 const originCreateButton = Linting.prototype._createButton;
 const originUpdateButton = Linting.prototype._updateButton;
 const originSetButtonState = Linting.prototype._setButtonState;
+const originCreateElementIssues = Linting.prototype._createElementIssues;
 
 Linting.prototype._createButton = function() {
   if (linting.disableToggleButton) {
@@ -88,5 +89,14 @@ Linting.prototype.getLintResult = function() {
 };
 
 Linter.translate = ['value', (template, replacements = {}) => t(translations[template] || template, replacements)];
+
+Linting.prototype._createElementIssues = function(elementId, elementIssues) {
+  originCreateElementIssues.call(this, elementId, elementIssues);
+
+  const header = document.querySelector('.bjsl-issue-heading');
+  if (header) {
+    header.innerHTML = t('bpmn-linter.issues.header');
+  }
+};
 
 export default Linter;
