@@ -1,9 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import EcosFormBuilder from './EcosFormBuilderModal';
-import EcosFormLocaleEditor from '../locale/FormLocaleEditorModal';
+import { goToCardDetailsPage } from '../../../helpers/urls';
 import Records from '../../Records/Records';
+import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
+import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
+import EcosFormLocaleEditor from '../locale/FormLocaleEditorModal';
+import EcosFormBuilder from './EcosFormBuilderModal';
 
 let formPanelIdx = 0;
 const builders = {};
@@ -17,7 +20,23 @@ export class EcosFormBuilderUtils {
   static showBuilderForRecord(formRecord, forceSubmit = false) {
     const record = Records.get(formRecord);
 
-    const processFormDefinition = function(loadedFormDefinition) {
+    const processPreSettings = loadedFormDefinition => {
+      const preSettings = new PreSettings();
+      const config = {
+        presettingsType: PRE_SETTINGS_TYPES.FORM,
+        definition: loadedFormDefinition
+      };
+
+      const formId = record.getBaseRecord().id;
+
+      const callback = nodeRef => {
+        goToCardDetailsPage(nodeRef);
+      };
+
+      preSettings.open(formId, config, callback);
+    };
+
+    const processFormDefinition = loadedFormDefinition => {
       const onSubmit = formDefinition => {
         record.att('definition?json', formDefinition);
 
@@ -38,7 +57,8 @@ export class EcosFormBuilderUtils {
     };
 
     const defAtts = {
-      definition: 'definition?json'
+      definition: 'definition?json',
+      canWrite: PERMISSION_WRITE_ATTR
     };
 
     Records.get(formRecord)
@@ -48,9 +68,19 @@ export class EcosFormBuilderUtils {
           Records.get('eform@DEFAULT')
             .load(defAtts)
             .then(data => {
+              if (!data.canWrite) {
+                processPreSettings(data.definition);
+                return;
+              }
+
               processFormDefinition(data.definition);
             });
         } else {
+          if (!data.canWrite) {
+            processPreSettings(data.definition);
+            return;
+          }
+
           processFormDefinition(data.definition);
         }
       });

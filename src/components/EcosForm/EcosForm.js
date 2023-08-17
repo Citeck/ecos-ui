@@ -19,6 +19,7 @@ import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { LANGUAGE_EN } from '../../constants/lang';
 import { SUBMIT_FORM_TIMEOUT } from '../../constants/forms';
+import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import { FORM_MODE_EDIT } from './constants';
 
 import './formio.full.min.css';
@@ -30,6 +31,7 @@ let formCounter = 0;
 class EcosForm extends React.Component {
   _formBuilderModal = null;
   _formContainer = React.createRef();
+  _preSettings = new PreSettings();
   _form = null;
   _containerHeightTimerId = null;
   _formSubmitDoneResolve = () => undefined;
@@ -202,11 +204,13 @@ class EcosForm extends React.Component {
         canWritePromise = EcosFormUtils.hasWritePermission(recordId, true);
       }
 
+      const canEditSettingsPromise = EcosFormUtils.hasWritePermission(formId, true);
+
       if (isDebugModeOn) {
         options.isDebugModeOn = isDebugModeOn;
       }
 
-      Promise.all([recordDataPromise, canWritePromise]).then(([recordData, canWrite]) => {
+      Promise.all([recordDataPromise, canWritePromise, canEditSettingsPromise]).then(([recordData, canWrite, canEditSettings]) => {
         if (this._lastFormOptions !== propsOptions) {
           return;
         }
@@ -214,6 +218,8 @@ class EcosForm extends React.Component {
         if (canWrite) {
           options.canWrite = canWrite;
         }
+
+        options.showPreSettings = !canEditSettings;
 
         const attributesTitles = {};
 
@@ -476,11 +482,26 @@ class EcosForm extends React.Component {
   );
 
   onShowFormBuilder = async callback => {
-    if (this._formBuilderModal) {
-      const { options, onFormSubmitDone } = this.props;
-      const { formId } = this.state;
-      const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
+    const { showPreSettings } = get(this, 'form.options', {});
+    const { options, onFormSubmitDone, onSavePreSettings, onFormCancel } = this.props;
+    const { formId } = this.state;
+    const definitionToEdit = await Records.get(EcosFormUtils.getNotResolvedFormId(formId)).load('definition?json', true);
 
+    if (this._preSettings && showPreSettings) {
+      const config = {
+        presettingsType: PRE_SETTINGS_TYPES.FORM,
+        definition: definitionToEdit
+      };
+
+      const preSettingsCallback = () => {
+        isFunction(onSavePreSettings) && onSavePreSettings();
+        isFunction(onFormCancel) && onFormCancel();
+      };
+
+      this._preSettings.open(this.props.formId, config, preSettingsCallback);
+    }
+
+    if (this._formBuilderModal && !showPreSettings) {
       this._formBuilderModal.show(
         definitionToEdit,
         form => {

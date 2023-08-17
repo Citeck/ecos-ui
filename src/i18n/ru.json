@@ -469,6 +469,11 @@
   "ecos-form.success.clone-record": "Запись склонирована",
   "ecos-form.infinite-loop": "Данные полей зацикливаются",
 
+  "ecos-form.create-new-form": "Создание формы",
+  "ecos-form.create-new-form-info-text": "Редактирование виртуальной формы запрещено. Необходимо создать новую.",
+  "ecos-form.new-record-ref.id": "Идентификатор",
+  "ecos-form.create-new-form.types": "Типы новой формы",
+
   "ecos-forms.datepicker.time-label": "Время",
   "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",
   "ecos-forms.datepicker.month-next-label": "Следующий месяц",

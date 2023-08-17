@@ -9,6 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 import { NotificationManager } from 'react-notifications';
 
@@ -31,6 +32,7 @@ import {
   openSelectedJournal,
   openSelectedPreset,
   reloadGrid,
+  reloadJournalConfig,
   reloadTreeGrid,
   resetFiltering,
   resetJournalSettingData,
@@ -264,7 +266,10 @@ function* getJournalSettings(api, journalId, w, stateId) {
   return settings;
 }
 
-export function* getJournalConfig({ api, w, force }, journalId) {
+export function* getJournalConfig({ api, w, force }, action) {
+  const journalId = isString(action) ? action : get(action, 'payload.journalId');
+  w = w || get(action, 'payload.w');
+  force = get(action, 'payload.force') || force;
   const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
   yield put(setJournalConfig(w(journalConfig)));
   return journalConfig;
@@ -1174,6 +1179,8 @@ function* saga(ea) {
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
+
+  yield takeEvery(reloadJournalConfig().type, wrapSaga, { ...ea, saga: getJournalConfig });
 
   yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });
   yield takeEvery(createJournalSetting().type, wrapSaga, { ...ea, saga: sagaCreateJournalSetting });

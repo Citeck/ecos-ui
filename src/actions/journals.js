@@ -13,6 +13,7 @@ export const initJournal = createAction(prefix + 'INIT_JOURNAL');
 
 export const setSelectedJournals = createAction(prefix + 'SET_SELECTED_JOURNALS');
 
+export const reloadJournalConfig = createAction(prefix + 'RELOAD_JOURNAL_CONFIG');
 export const setJournalConfig = createAction(prefix + 'SET_JOURNAL_CONFIG');
 export const checkConfig = createAction(prefix + 'CHECK_JOURNAL_CONFIG');
 export const setCheckLoading = createAction(prefix + 'SET_CHECK_JOURNAL_LOADING');
