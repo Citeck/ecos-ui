@@ -1,7 +1,7 @@
-diff --git a/node_modules/react-scripts/config/webpack.config.js b/node_modules/react-scripts/config/webpack.config.js
+diff --git a/config/webpack.config.js b/config/webpack.config.js
 index 25840d9..6246fc2 100644
---- a/node_modules/react-scripts/config/webpack.config.js
-+++ b/node_modules/react-scripts/config/webpack.config.js
+--- a/config/webpack.config.js
++++ b/config/webpack.config.js
 @@ -139,6 +139,7 @@ module.exports = function(webpackEnv) {
    };
  

@@ -1,7 +1,7 @@
-diff --git a/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js b/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js
+diff --git a/lib/features/keyboard/BpmnKeyboardBindings.js b/lib/features/keyboard/BpmnKeyboardBindings.js
 index 60236de..d38cee7 100644
---- a/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js
-+++ b/node_modules/bpmn-js/lib/features/keyboard/BpmnKeyboardBindings.js
+--- a/lib/features/keyboard/BpmnKeyboardBindings.js
++++ b/lib/features/keyboard/BpmnKeyboardBindings.js
 @@ -55,7 +55,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
  
      var event = context.keyEvent;
@@ -74,10 +74,10 @@ index 60236de..d38cee7 100644
        editorActions.trigger('replaceElement', event);
  
        return true;
-diff --git a/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js b/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js
+diff --git a/lib/features/label-editing/cmd/UpdateLabelHandler.js b/lib/features/label-editing/cmd/UpdateLabelHandler.js
 index ed921f4..f67f135 100644
---- a/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js
-+++ b/node_modules/bpmn-js/lib/features/label-editing/cmd/UpdateLabelHandler.js
+--- a/lib/features/label-editing/cmd/UpdateLabelHandler.js
++++ b/lib/features/label-editing/cmd/UpdateLabelHandler.js
 @@ -105,15 +105,6 @@ export default function UpdateLabelHandler(modeling, textRenderer, bpmnFactory)
        return;
      }
