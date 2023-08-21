@@ -81,8 +81,6 @@ export const SourcesId = {
   BPMN_STAT: 'eproc/bpmn-process-elements',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
-  GROUP: 'emodel/authority-group',
-  PERSON: 'emodel/person',
   PROC_TASK: 'eproc/proc-task',
   get CURRENT_USER() {
     return `${SourcesId.PERSON}@CURRENT`;

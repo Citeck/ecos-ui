@@ -1,11 +1,15 @@
-import * as queryString from 'query-string';
-import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, DataTypes, ITEMS_PER_PAGE } from '../components/common/form/SelectOrgstruct/constants';
+import {
+  AUTHORITY_TYPE_GROUP,
+  AUTHORITY_TYPE_USER,
+  DataTypes,
+  ITEMS_PER_PAGE,
+  ROOT_GROUP_NAME
+} from '../components/common/form/SelectOrgstruct/constants';
 import Records from '../components/Records';
-import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
-import { PROXY_URI } from '../constants/alfresco';
+import { SourcesId } from '../constants';
 import {
   converterUserList,
   getAuthRef,
@@ -15,12 +19,10 @@ import {
   getRecordRef
 } from '../components/common/form/SelectOrgstruct/helpers';
 import { getCurrentUserName } from '../helpers/util';
-import { CommonApi } from './common';
+import { RecordService } from './recordService';
+import ConfigService, { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
 
-export class OrgStructApi extends CommonApi {
-  _loadedAuthorities = {};
-  _loadedGroups = {};
-
+export class OrgStructApi extends RecordService {
   static prepareRecordRef = async recordRef => {
     const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
 
@@ -115,80 +117,99 @@ export class OrgStructApi extends CommonApi {
     return (groups || []).map(replace);
   };
 
-  getUsers = async (searchText = '') => {
-    const useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
-    const searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
-
-    let url = queryString.stringifyUrl(
-      {
-        url: `${PROXY_URI}api/orgstruct/v2/group/_orgstruct_home_/children?branch=false&role=false`,
-        query: {
-          user: true,
-          recurse: true,
-          excludeAuthorities: 'all_users',
-          useMiddleName,
-          searchExtraFields,
-          group: false
-        }
-      },
-      { arrayFormat: 'comma' }
+  getUsers = (searchText = '') => {
+    return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then(result =>
+      get(result, 'items', []).map(item => get(item, 'attributes', {}))
     );
-
-    if (searchText.length > 0) {
-      url += `&filter=${encodeURI(searchText)}`;
-    }
-    return this.getJson(url).catch(() => []);
   };
 
-  fetchGroup = async ({ query, excludeAuthoritiesByName = '', excludeAuthoritiesByType = [], isIncludedAdminGroup }) => {
-    excludeAuthoritiesByName = excludeAuthoritiesByName
-      .split(',')
-      .map(item => item.trim())
-      .join(',');
+  _prepareGroups = groups => {
+    const replace = group => ({
+      ...group,
+      groupType: (group.groupType || '').toUpperCase(),
+      groupSubType: (group.groupSubType || '').toUpperCase(),
+      shortName: getGroupName(group.fullName || '')
+    });
 
-    const queryStr = JSON.stringify({ query, excludeAuthoritiesByName, excludeAuthoritiesByType, isIncludedAdminGroup });
-
-    if (this._loadedGroups[queryStr]) {
-      return Promise.resolve(this._loadedGroups[queryStr]);
+    if (!Array.isArray(groups)) {
+      return replace(groups);
     }
 
+    return (groups || []).map(replace);
+  };
+
+  fetchGroup = ({ query, excludeAuthoritiesByType = [], excludeAuthoritiesByName, isIncludedAdminGroup }) => {
     const { groupName, searchText } = query;
-    const urlQuery = { excludeAuthorities: excludeAuthoritiesByName, addAdminGroup: !!isIncludedAdminGroup };
-
-    urlQuery.searchExtraFields = await OrgStructApi.fetchGlobalSearchFields();
-
-    if (searchText) {
-      urlQuery.filter = searchText;
-      urlQuery.recurse = true;
-      urlQuery.useMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
-      urlQuery.user = true;
-    }
-
-    const url = queryString.stringifyUrl(
-      {
-        url: `${PROXY_URI}api/orgstruct/v2/group/${groupName}/children?branch=true&role=true&group=true`,
-        query: urlQuery
-      },
-      { arrayFormat: 'comma' }
-    );
-
-    // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2812: filter by group type or subtype
     const filterByType = items =>
       items.filter(item => {
+        if (item.groupType === '') {
+          return true;
+        }
+
         return excludeAuthoritiesByType.indexOf(item.groupType) === -1 && excludeAuthoritiesByType.indexOf(item.groupSubType) === -1;
       });
+    let queryVal = searchText
+      ? OrgStructApi.getSearchQuery(searchText)
+      : [
+          {
+            t: 'contains',
+            a: 'authorityGroups',
+            v: getGroupRef(groupName)
+          }
+        ];
+    const extraQueryVal = [];
 
-    return this.getJson(url)
+    if (excludeAuthoritiesByName) {
+      excludeAuthoritiesByName.split(',').forEach(name => {
+        extraQueryVal.push({
+          t: 'not',
+          v: {
+            t: 'contains',
+            a: '_name',
+            v: name
+          }
+        });
+      });
+    }
+
+    const groups = Records.query(
+      {
+        sourceId: SourcesId.GROUP,
+        query: { t: 'and', v: [...queryVal, ...extraQueryVal] },
+        language: 'predicate'
+      },
+      { ...this.groupAttributes }
+    )
+      .then(r => get(r, 'records', []))
       .then(filterByType)
-      .then(filtered => {
-        this._loadedGroups[queryStr] = filtered;
-        return filtered;
-      })
-      .catch(() => []);
-  };
+      .then(this._prepareGroups)
+      .then(records => {
+        if (isIncludedAdminGroup && groupName === ROOT_GROUP_NAME) {
+          records.unshift({
+            id: getGroupRef('ALFRESCO_ADMINISTRATORS'),
+            displayName: 'ALFRESCO_ADMINISTRATORS',
+            fullName: 'GROUP_ALFRESCO_ADMINISTRATORS',
+            shortName: 'ALFRESCO_ADMINISTRATORS',
+            groupSubType: '',
+            groupType: 'BRANCH',
+            nodeRef: getGroupRef('ALFRESCO_ADMINISTRATORS'),
+            authorityType: AUTHORITY_TYPE_GROUP
+          });
+        }
 
-  fetchAuthName = id => {
-    return Records.get(id).load('cm:authorityName!cm:userName');
+        return records;
+      });
+
+    const users = Records.query(
+      {
+        sourceId: SourcesId.PERSON,
+        query: { t: 'and', v: queryVal },
+        language: 'predicate'
+      },
+      { ...OrgStructApi.userAttributes }
+    ).then(r => get(r, 'records', []));
+
+    return Promise.all([groups, users]).then(([groups, users]) => [...groups, ...users]);
   };
 
   fetchAuthority = (dataType, value) => {
@@ -217,70 +238,110 @@ export class OrgStructApi extends CommonApi {
       .then(this._prepareGroups);
   };
 
-  static async fetchGlobalSearchFields() {
-    return Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-extra-fields`)
-      .load('value?str')
-      .then(searchFields => {
-        if (typeof searchFields !== 'string' || !searchFields.trim().length) {
-          return [];
-        }
+  static prepareRecordRef = async recordRef => {
+    const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
 
-        return searchFields.split(',');
-      })
-      .catch(() => []);
-  }
-
-  static async fetchIsHideDisabledField() {
-    try {
-      const result = await Records.get('ecos-config@hide-disabled-users-for-everyone').load('.bool');
-
-      return Boolean(result);
-    } catch {
-      return false;
+    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
+      return {
+        recordRef,
+        authorityType
+      };
     }
-  }
 
-  static async fetchUsernameMask() {
-    try {
-      const orgstructResult = await Records.get(`app/config$app/uiserv$orgstruct-username-mask`).load('value');
-      const result = await Records.get(`${SourcesId.CONFIG}@orgstruct-username-mask`).load('value');
-      return orgstructResult || result;
-    } catch {
-      return '';
+    if (recordRef.includes('workspace://SpacesStore')) {
+      const attributes = await Records.get(recordRef).load({
+        userName: 'cm:userName',
+        authorityName: 'cm:authorityName'
+      });
+
+      if (get(attributes, 'userName')) {
+        return {
+          authorityType,
+          recordRef: `${SourcesId.PERSON}@${attributes.userName}`
+        };
+      }
+
+      if (get(attributes, 'authorityName')) {
+        return {
+          recordRef: getGroupRef(getGroupName(attributes.authorityName)),
+          authorityType: AUTHORITY_TYPE_GROUP
+        };
+      }
+
+      return {
+        authorityType,
+        recordRef: getPersonRef(recordRef)
+      };
     }
-  }
 
-  static async fetchIsAdmin(userName) {
-    try {
-      const result = await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool');
-
-      return Boolean(result);
-    } catch {
-      return false;
+    if (recordRef.includes(`${AUTHORITY_TYPE_GROUP}_`)) {
+      return {
+        recordRef: getGroupRef(getGroupName(recordRef)),
+        authorityType: AUTHORITY_TYPE_GROUP
+      };
     }
+
+    return {
+      recordRef: getPersonRef(recordRef),
+      authorityType
+    };
+  };
+
+  static async getGlobalSearchFields() {
+    return ConfigService.getValue(ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS);
   }
 
-  static async fetchIsSearchUserMiddleName() {
-    try {
-      const result = await Records.get(`${SourcesId.CONFIG}@orgstruct-search-user-middle-name`).load('value');
-
-      return Boolean(result);
-    } catch {
-      return false;
-    }
-  }
-
-  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
-    const valRaw = searchText.trim();
-    const val = valRaw.split(' ');
-
+  static getSearchQuery = (search = '', searchFields = ['id', '_name']) => {
+    const valRaw = search.trim();
+    const val = valRaw.split(' ').filter(item => !!item);
     const queryVal = [
       {
-        t: 'eq',
-        att: 'TYPE',
-        val: 'cm:person'
+        t: 'contains',
+        a: 'authorityGroupsFull',
+        v: getGroupRef(ROOT_GROUP_NAME)
       }
     ];
+
+    if (isEmpty(val)) {
+      return queryVal;
+    }
+
+    if (val.length < 2) {
+      queryVal.push({
+        t: 'or',
+        v: searchFields.map(a => ({
+          t: 'contains',
+          a,
+          v: val[0]
+        }))
+      });
+    } else {
+      queryVal.push({
+        t: 'or',
+        v: searchFields.map(a => ({
+          t: 'or',
+          v: [
+            {
+              t: 'contains',
+              a,
+              v: val.join(' ')
+            },
+            {
+              t: 'contains',
+              a,
+              v: val.reverse().join(' ')
+            }
+          ]
+        }))
+      });
+    }
+
+    return queryVal;
+  };
+
+  static async getUserList(searchText, extraFields = [], params = { page: 0, maxItems: ITEMS_PER_PAGE }) {
+    const searchFields = ['id', '_name'];
+    let queryVal = [];
 
     const predicateNotDisabled = {
       t: 'not-eq',
@@ -293,7 +354,7 @@ export class OrgStructApi extends CommonApi {
       queryVal.push(predicateNotDisabled);
     } else {
       const userName = getCurrentUserName();
-      const isAdmin = Boolean(await Records.get(`${SourcesId.PEOPLE}@${userName}`).load('isAdmin?bool'));
+      const isAdmin = Boolean(await Records.get(getPersonRef(userName)).load('isAdmin?bool'));
       if (!isAdmin) {
         const showInactiveUserOnlyForAdmin = Boolean(
           await Records.get('ecos-config@orgstruct-show-inactive-user-only-for-admin').load('.bool')
@@ -304,408 +365,34 @@ export class OrgStructApi extends CommonApi {
       }
     }
 
-    const defaultAttributes = {
-      fullName: 'userName',
-      userName: 'userName',
-      personDisabled: 'isPersonDisabled?bool',
-      type: 'type'
-    };
-    const attributes = cloneDeep(defaultAttributes);
-
-    const searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS;
-
-    const addExtraFields = (fields = []) => {
-      const attributes = fields.map(field => field.trim());
-
-      searchFields.push(...attributes.filter(att => !searchFields.includes(att)));
-    };
-
-    if (Array.isArray(extraFields) && extraFields.length > 0) {
-      addExtraFields(extraFields);
-    }
-
     if (searchText) {
-      const isSearchUserMiddleName = await OrgStructApi.fetchIsSearchUserMiddleName();
+      const addExtraFields = (fields = []) => {
+        searchFields.push(...fields.map(field => field.trim()).filter(field => !!field));
+      };
 
-      if (val.length === 2) {
-        if (isSearchUserMiddleName) {
-          const lastFirst = [
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[1]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[1]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[1]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[1]
-                }
-              ]
-            }
-          ];
+      const globalSearchConfig = await OrgStructApi.getGlobalSearchFields();
+      if (Array.isArray(globalSearchConfig) && globalSearchConfig.length > 0) {
+        addExtraFields(globalSearchConfig);
+      }
 
-          const firstLast = [
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[1]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[1]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[1]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[1]
-                }
-              ]
-            }
-          ];
-
-          queryVal.push({
-            t: 'or',
-            val: [...lastFirst, ...firstLast]
-          });
-        } else {
-          const firstLast = {
-            t: 'and',
-            val: [
-              {
-                t: 'contains',
-                att: 'cm:firstName',
-                val: val[0]
-              },
-              {
-                t: 'contains',
-                att: 'cm:lastName',
-                val: val[1]
-              }
-            ]
-          };
-
-          const lastFirst = {
-            t: 'and',
-            val: [
-              {
-                t: 'contains',
-                att: 'cm:lastName',
-                val: val[0]
-              },
-              {
-                t: 'contains',
-                att: 'cm:firstName',
-                val: val[1]
-              }
-            ]
-          };
-
-          queryVal.push({
-            t: 'or',
-            val: [lastFirst, firstLast]
-          });
-        }
-      } else if (val.length === 3) {
-        if (isSearchUserMiddleName) {
-          const lastFirst = [
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[1]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[2]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[1]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[2]
-                }
-              ]
-            }
-          ];
-
-          const firstLast = [
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[1]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[2]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[1]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[2]
-                }
-              ]
-            }
-          ];
-
-          const middleLast = [
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[1]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[2]
-                }
-              ]
-            },
-            {
-              t: 'and',
-              val: [
-                {
-                  t: 'contains',
-                  att: 'cm:middleName',
-                  val: val[0]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:lastName',
-                  val: val[1]
-                },
-                {
-                  t: 'contains',
-                  att: 'cm:firstName',
-                  val: val[2]
-                }
-              ]
-            }
-          ];
-
-          queryVal.push({
-            t: 'or',
-            val: [...lastFirst, ...middleLast, ...firstLast]
-          });
-        } else {
-          const firstLast = {
-            t: 'and',
-            val: [
-              {
-                t: 'contains',
-                att: 'cm:firstName',
-                val: val[0]
-              },
-              {
-                t: 'contains',
-                att: 'cm:lastName',
-                val: val[1]
-              }
-            ]
-          };
-
-          const lastFirst = {
-            t: 'and',
-            val: [
-              {
-                t: 'contains',
-                att: 'cm:lastName',
-                val: val[0]
-              },
-              {
-                t: 'contains',
-                att: 'cm:firstName',
-                val: val[1]
-              }
-            ]
-          };
-
-          queryVal.push({
-            t: 'or',
-            val: [firstLast, lastFirst]
-          });
-        }
-      } else {
-        if (isSearchUserMiddleName) {
-          addExtraFields(['middleName']);
-        }
-
-        queryVal.push({
-          t: 'or',
-          val: searchFields.map(att => ({
-            t: 'contains',
-            att: att,
-            val: val[0]
-          }))
-        });
+      if (Array.isArray(extraFields) && extraFields.length > 0) {
+        addExtraFields(extraFields);
       }
     }
 
-    if (Array.isArray(searchFields) && searchFields.length > 0) {
-      searchFields.forEach(attribute => {
-        attributes[attribute] = attribute;
-      });
-    }
+    queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields));
 
     return Records.query(
       {
-        query: { t: 'and', val: queryVal },
-        language: 'predicate',
-        consistency: 'EVENTUAL',
+        sourceId: SourcesId.PERSON,
+        query: { t: 'and', v: queryVal },
         page: {
           maxItems: params.maxItems,
           skipCount: params.page * params.maxItems
-        }
+        },
+        language: 'predicate'
       },
-      {
-        ...attributes,
-        ...defaultAttributes
-      }
+      { ...OrgStructApi.userAttributes }
     ).then(result => ({
       items: converterUserList(result.records),
       totalCount: result.totalCount
