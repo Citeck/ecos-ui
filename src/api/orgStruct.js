@@ -8,28 +8,75 @@ import {
   ITEMS_PER_PAGE,
   ROOT_GROUP_NAME
 } from '../components/common/form/SelectOrgstruct/constants';
-import { converterUserList, getGroupName, getGroupRef, getPersonRef, getAuthRef } from '../components/common/form/SelectOrgstruct/helpers';
 import Records from '../components/Records';
-import { getCurrentUserName } from '../helpers/util';
 import { SourcesId } from '../constants';
+import {
+  converterUserList,
+  getAuthRef,
+  getGroupName,
+  getGroupRef,
+  getPersonRef,
+  getRecordRef
+} from '../components/common/form/SelectOrgstruct/helpers';
+import { getCurrentUserName } from '../helpers/util';
 import { RecordService } from './recordService';
 import ConfigService, { ORGSTRUCT_SEARCH_USER_EXTRA_FIELDS } from '../services/config/ConfigService';
 
 export class OrgStructApi extends RecordService {
-  get groupAttributes() {
+  static prepareRecordRef = async recordRef => {
+    const authorityType = recordRef.includes(SourcesId.GROUP) ? AUTHORITY_TYPE_GROUP : AUTHORITY_TYPE_USER;
+
+    if (recordRef.includes(SourcesId.GROUP) || recordRef.includes(SourcesId.PERSON)) {
+      return {
+        recordRef,
+        authorityType
+      };
+    }
+
+    if (recordRef.includes('workspace://SpacesStore')) {
+      const newRecordRef = getPersonRef(recordRef);
+
+      const attributes = await Records.get(recordRef).load({
+        userName: 'cm:userName',
+        authorityName: 'cm:authorityName'
+      });
+
+      if (get(attributes, 'userName')) {
+        return {
+          authorityType,
+          recordRef: `${SourcesId.PERSON}@${attributes.userName}`
+        };
+      }
+
+      if (get(attributes, 'authorityName')) {
+        return {
+          recordRef: getGroupRef(getGroupName(attributes.authorityName)),
+          authorityType: AUTHORITY_TYPE_GROUP
+        };
+      }
+
+      return {
+        authorityType,
+        recordRef: newRecordRef
+      };
+    }
+
+    if (recordRef.includes(`${AUTHORITY_TYPE_GROUP}_`)) {
+      return {
+        recordRef: getGroupRef(getGroupName(recordRef)),
+        authorityType: AUTHORITY_TYPE_GROUP
+      };
+    }
+
     return {
-      displayName: '?disp',
-      fullName: 'authorityName',
-      groupSubType: 'groupSubType!""',
-      groupType: 'groupType!""',
-      nodeRef: '?id',
-      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
+      recordRef: getPersonRef(recordRef),
+      authorityType
     };
-  }
+  };
 
   static get userAttributes() {
     return {
-      displayName: '?disp',
+      displayName: '?disp!authorityName?disp',
       fullName: 'authorityName',
       email: 'email',
       isPersonDisabled: 'personDisabled?bool',
@@ -39,6 +86,36 @@ export class OrgStructApi extends RecordService {
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`
     };
   }
+
+  get groupAttributes() {
+    return {
+      displayName: '?disp',
+      firstName: 'firstName',
+      lastName: 'lastName',
+      fullName: 'authorityName',
+      groupSubType: 'groupSubType!""',
+      isPersonDisabled: 'personDisabled?bool',
+      groupType: 'groupType!""',
+      email: 'email',
+      nodeRef: '?id',
+      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
+    };
+  }
+
+  _prepareGroups = groups => {
+    const replace = group => ({
+      ...group,
+      groupType: (group.groupType || '').toUpperCase(),
+      groupSubType: (group.groupSubType || '').toUpperCase(),
+      shortName: getGroupName(group.fullName || '')
+    });
+
+    if (!Array.isArray(groups)) {
+      return replace(groups);
+    }
+
+    return (groups || []).map(replace);
+  };
 
   getUsers = (searchText = '') => {
     return OrgStructApi.getUserList(searchText, [], { maxItems: 50 }).then(result =>
@@ -142,7 +219,23 @@ export class OrgStructApi extends RecordService {
       recordRef = getAuthRef(recordRef);
     }
 
+    if (dataType === DataTypes.NODE_REF) {
+      recordRef = getRecordRef(recordRef);
+    }
+
     return this.fetchAuthorityByRef(recordRef);
+  };
+
+  fetchAuthorityByRef = async nodeRef => {
+    const { recordRef, authorityType } = await OrgStructApi.prepareRecordRef(nodeRef);
+
+    if (authorityType === AUTHORITY_TYPE_USER) {
+      return Records.get(recordRef).load(OrgStructApi.userAttributes);
+    }
+
+    return Records.get(recordRef)
+      .load(this.groupAttributes)
+      .then(this._prepareGroups);
   };
 
   static prepareRecordRef = async recordRef => {
@@ -192,18 +285,6 @@ export class OrgStructApi extends RecordService {
       recordRef: getPersonRef(recordRef),
       authorityType
     };
-  };
-
-  fetchAuthorityByRef = async nodeRef => {
-    const { recordRef, authorityType } = await OrgStructApi.prepareRecordRef(nodeRef);
-
-    if (authorityType === AUTHORITY_TYPE_USER) {
-      return Records.get(recordRef).load(OrgStructApi.userAttributes);
-    }
-
-    return Records.get(recordRef)
-      .load(this.groupAttributes)
-      .then(this._prepareGroups);
   };
 
   static async getGlobalSearchFields() {
