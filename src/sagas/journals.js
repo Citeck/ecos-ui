@@ -266,12 +266,18 @@ function* getJournalSettings(api, journalId, w, stateId) {
   return settings;
 }
 
-export function* getJournalConfig({ api, w, force }, action) {
+export function* getJournalConfig({ api, w, force, callback }, action) {
   const journalId = isString(action) ? action : get(action, 'payload.journalId');
   w = w || get(action, 'payload.w');
   force = get(action, 'payload.force') || force;
+  callback = get(action, 'payload.callback') || callback;
   const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
+
   yield put(setJournalConfig(w(journalConfig)));
+  if (isFunction(callback)) {
+    yield call(callback, journalConfig.createVariants);
+  }
+
   return journalConfig;
 }
 

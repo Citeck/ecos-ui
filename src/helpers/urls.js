@@ -22,6 +22,7 @@ const DESTINATION_KEY = 'destination';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
+const FROM_PRE_SETTING_KEY = 'fromPreSettings';
 const SHOW_PREVIEW_KEY = JournalUrlParams.SHOW_PREVIEW;
 const SEARCH_KEY = JournalUrlParams.SEARCH;
 
@@ -109,11 +110,12 @@ export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search }) => {
+export const getJournalPageUrl = ({ journalId, journalSettingId, filter, fromPreSetting, search }) => {
   const qString = queryString.stringify({
     [JOURNAL_ID_KEY]: journalId,
     [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
-    [SEARCH_KEY]: search || filter
+    [SEARCH_KEY]: search || filter,
+    [FROM_PRE_SETTING_KEY]: fromPreSetting
   });
 
   return `${URL.JOURNAL}?${qString}`;

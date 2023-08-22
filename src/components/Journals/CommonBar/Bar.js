@@ -93,7 +93,14 @@ class Bar extends Component {
       onReady: () => this.setState({ isCreateLoading: false }),
       onAfterHideModal: () => this.setState({ isCreateLoading: false }),
       onSavePreSettings: () => {
-        isFunction(reloadJournalConfig) && reloadJournalConfig(journalId, true);
+        isFunction(reloadJournalConfig) &&
+          reloadJournalConfig(journalId, true, (createVariants = []) => {
+            const variant = createVariants.find(v => v.id === createVariant.id);
+
+            if (variant) {
+              this.handleAddRecord(variant);
+            }
+          });
       }
     });
   };

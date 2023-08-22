@@ -16,7 +16,7 @@ import { getBoardList } from '../../actions/kanban';
 import { selectCommonJournalPageProps } from '../../selectors/journals';
 import { DocLibUrlParams as DLUP, JournalUrlParams as JUP, SourcesId } from '../../constants';
 import { animateScrollTo, getBool, t } from '../../helpers/util';
-import { equalsQueryUrls, getSearchParams } from '../../helpers/urls';
+import { equalsQueryUrls, getJournalPageUrl, getSearchParams, replaceHistoryLink } from '../../helpers/urls';
 import { wrapArgs } from '../../helpers/redux';
 import { showModalJson } from '../../helpers/tools';
 import { ActionTypes } from '../Records/actions/constants';
@@ -106,6 +106,7 @@ class Journals extends React.Component {
     const showPreview = getBool(get(getSearchParams(), JUP.SHOW_PREVIEW));
     const searchParams = getSearchParams();
     let viewMode = getBool(get(getSearchParams(), JUP.VIEW_MODE));
+    const fromPreSettings = searchParams.fromPreSettings;
 
     if (showPreview && !viewMode) {
       viewMode = JVM.PREVIEW;
@@ -119,6 +120,13 @@ class Journals extends React.Component {
 
     if (!isEqual(searchParams, this.props.urlParams)) {
       this.props.setUrl(searchParams);
+    }
+
+    if (fromPreSettings !== undefined) {
+      delete searchParams.fromPreSettings;
+
+      replaceHistoryLink(undefined, getJournalPageUrl(searchParams), true);
+      this.handleEditJournal(`${SourcesId.JOURNAL}@${searchParams.journalId}`);
     }
   }
 

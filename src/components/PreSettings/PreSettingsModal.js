@@ -17,9 +17,9 @@ import './PreSettingsModal.style.scss';
 
 const Labels = {
   ID: 'ecos-form.new-record-ref.id',
-  TYPES: 'ecos-form.create-new-form.types',
-  MODAL_TITLE: 'ecos-form.create-new-form',
-  INFO_TEXT: 'ecos-form.create-new-form-info-text',
+  TYPES: 'ecos-form.create-new-artefact.types',
+  MODAL_TITLE: 'ecos-form.create-new-artefact',
+  INFO_TEXT: 'ecos-form.create-new-artefact-info-text',
   CANCEL: 'btn.cancel.label',
   SAVE: 'btn.save.label'
 };
@@ -58,6 +58,12 @@ class PreSettingsModal extends React.Component {
   hide = () => this.setState({ isOpen: false });
 
   toggleLoading = () => this.setState(prevState => ({ isLoading: !prevState.isLoading }));
+
+  toggleEcosModalLoading = loading => {
+    const { toggleLoader } = this.props;
+
+    isFunction(toggleLoader) && toggleLoader(loading);
+  };
 
   checkValidity = () => {
     const { newRecordRef } = this.state;
@@ -137,6 +143,7 @@ class PreSettingsModal extends React.Component {
     const { definition } = this.config;
 
     const onSubmit = newDefinition => {
+      this.toggleEcosModalLoading(true);
       const attributes = {
         'definition?json': newDefinition
       };
@@ -159,7 +166,7 @@ class PreSettingsModal extends React.Component {
     const cb = this.callback;
 
     this.callback = newRef => {
-      goToJournalsPage({ journalId: newRecordRef });
+      goToJournalsPage({ journalId: newRecordRef, fromPreSetting: true });
       isFunction(cb) && cb(newRef);
     };
 

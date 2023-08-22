@@ -469,10 +469,10 @@
   "ecos-form.success.clone-record": "Запись склонирована",
   "ecos-form.infinite-loop": "Данные полей зацикливаются",
 
-  "ecos-form.create-new-form": "Создание формы",
-  "ecos-form.create-new-form-info-text": "Редактирование виртуальной формы запрещено. Необходимо создать новую.",
+  "ecos-form.create-new-artefact": "Создание артефакта",
+  "ecos-form.create-new-artefact-info-text": "Редактирование виртуальной формы/журнала запрещено. Необходимо создать новую(новый).",
   "ecos-form.new-record-ref.id": "Идентификатор",
-  "ecos-form.create-new-form.types": "Типы новой формы",
+  "ecos-form.create-new-artefact.types": "Типы",
 
   "ecos-forms.datepicker.time-label": "Время",
   "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",

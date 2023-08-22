@@ -15,10 +15,20 @@ class PreSettings {
     document.body.appendChild(this.el);
   };
 
-  open = (recordRef, config, callback) => {
+  open = (recordRef, config, callback, toggleLoader) => {
     const { presettingsType } = config;
 
-    ReactDOM.render(<PreSettingsModal isOpen type={presettingsType} recordRef={recordRef} callback={callback} config={config} />, this.el);
+    ReactDOM.render(
+      <PreSettingsModal
+        isOpen
+        type={presettingsType}
+        recordRef={recordRef}
+        callback={callback}
+        config={config}
+        toggleLoader={toggleLoader}
+      />,
+      this.el
+    );
   };
 }
 
