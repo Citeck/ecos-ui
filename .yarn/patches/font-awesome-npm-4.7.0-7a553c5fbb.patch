@@ -1,7 +1,7 @@
-diff --git a/node_modules/font-awesome/scss/_fixed-width.scss b/node_modules/font-awesome/scss/_fixed-width.scss
+diff --git a/scss/_fixed-width.scss b/scss/_fixed-width.scss
 index b221c98..7102bba 100644
---- a/node_modules/font-awesome/scss/_fixed-width.scss
-+++ b/node_modules/font-awesome/scss/_fixed-width.scss
+--- a/scss/_fixed-width.scss
++++ b/scss/_fixed-width.scss
 @@ -1,6 +1,6 @@
  // Fixed Width Icons
  // -------------------------
@@ -10,10 +10,10 @@ index b221c98..7102bba 100644
 +  width: calc(18em / 14);
    text-align: center;
  }
-diff --git a/node_modules/font-awesome/scss/_larger.scss b/node_modules/font-awesome/scss/_larger.scss
+diff --git a/scss/_larger.scss b/scss/_larger.scss
 index 41e9a81..d76b240 100644
---- a/node_modules/font-awesome/scss/_larger.scss
-+++ b/node_modules/font-awesome/scss/_larger.scss
+--- a/scss/_larger.scss
++++ b/scss/_larger.scss
 @@ -3,8 +3,8 @@
  
  /* makes the font 33% larger relative to the icon container */
@@ -25,10 +25,10 @@ index 41e9a81..d76b240 100644
    vertical-align: -15%;
  }
  .#{$fa-css-prefix}-2x { font-size: 2em; }
-diff --git a/node_modules/font-awesome/scss/_list.scss b/node_modules/font-awesome/scss/_list.scss
+diff --git a/scss/_list.scss b/scss/_list.scss
 index 7d1e4d5..30bdd5a 100644
---- a/node_modules/font-awesome/scss/_list.scss
-+++ b/node_modules/font-awesome/scss/_list.scss
+--- a/scss/_list.scss
++++ b/scss/_list.scss
 @@ -11,9 +11,9 @@
    position: absolute;
    left: -$fa-li-width;
@@ -41,10 +41,10 @@ index 7d1e4d5..30bdd5a 100644
 +    left: -$fa-li-width + calc(4em / 14);
    }
  }
-diff --git a/node_modules/font-awesome/scss/_variables.scss b/node_modules/font-awesome/scss/_variables.scss
+diff --git a/scss/_variables.scss b/scss/_variables.scss
 index 498fc4a..e04c68e 100644
---- a/node_modules/font-awesome/scss/_variables.scss
-+++ b/node_modules/font-awesome/scss/_variables.scss
+--- a/scss/_variables.scss
++++ b/scss/_variables.scss
 @@ -9,7 +9,7 @@ $fa-css-prefix:       fa !default;
  $fa-version:          "4.7.0" !default;
  $fa-border-color:     #eee !default;

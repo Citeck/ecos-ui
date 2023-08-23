@@ -40,7 +40,6 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "moment-business-days": "1.2.0",
-    "patch-package": "^6.5.1",
     "pdfjs-dist": "2.4.456",
     "preval.macro": "3.0.0",
     "prop-types": "15.8.1",
@@ -90,7 +89,6 @@
     "vanilla-text-mask": "5.1.1"
   },
   "scripts": {
-    "postinstall": "patch-package",
     "start": "npm-run-all clean export:dev start:react",
     "start:react": "react-scripts --max_old_space_size=2048 start",
     "build": "cross-env REACT_APP_BUILD_TIME=$(date +%s) npm-run-all clean export build:src",
@@ -153,12 +151,8 @@
   "proxy": "http://localhost:8080",
   "devDependencies": {
     "@babel/core": "7.21.3",
-    "@babel/helper-define-map": "^7.8.0",
-    "@babel/helper-module-transforms": "7.19.6",
-    "@babel/helper-plugin-utils": "7.19.0",
     "babel-loader": "8.1.0",
     "babel-plugin-named-asset-import": "^0.3.6",
-    "babel-preset-react-app": "10.0.1",
     "bpmnlint": "8.1.1",
     "chance": "1.1.6",
     "chartjs-plugin-datalabels": "2.2.0",
@@ -179,6 +173,21 @@
     "react-scripts": "3.4.4",
     "rimraf": "3.0.0",
     "sinon": "9.0.3",
+    "webpack": "4.42.0",
     "webpack-cli": "3.3.12"
+  },
+  "packageManager": "yarn@3.6.2",
+  "resolutions": {
+    "bpmn-js@13.0.5": "patch:bpmn-js@npm%3A13.0.5#./.yarn/patches/bpmn-js-npm-13.0.5-e73b0a0d9c.patch",
+    "diagram-js@12.1.0": "patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch",
+    "diagram-js@^12.1.0": "patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch",
+    "diagram-js@^4.0.1": "patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch",
+    "diagram-js@^8.9.0": "patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch",
+    "diagram-js@^9.1.0": "patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch",
+    "diagram-js@^8.8.0": "patch:diagram-js@npm%3A12.1.0#./.yarn/patches/diagram-js-npm-12.1.0-59059de400.patch",
+    "flatpickr@^4.6.6": "patch:flatpickr@npm%3A4.6.13#./.yarn/patches/flatpickr-npm-4.6.13-06399933fc.patch",
+    "font-awesome@4.7.0": "patch:font-awesome@npm%3A4.7.0#./.yarn/patches/font-awesome-npm-4.7.0-7a553c5fbb.patch",
+    "formiojs@3.30.1": "patch:formiojs@npm%3A3.30.1#./.yarn/patches/formiojs-npm-3.30.1-210b022db1.patch",
+    "react-scripts@3.4.4": "patch:react-scripts@npm%3A3.4.4#./.yarn/patches/react-scripts-npm-3.4.4-c1da7c6209.patch"
   }
 }

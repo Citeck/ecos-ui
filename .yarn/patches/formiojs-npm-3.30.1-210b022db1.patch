@@ -1,7 +1,7 @@
-diff --git a/node_modules/formiojs/components/base/Base.js b/node_modules/formiojs/components/base/Base.js
+diff --git a/components/base/Base.js b/components/base/Base.js
 index 2da74da..bc1bf60 100644
---- a/node_modules/formiojs/components/base/Base.js
-+++ b/node_modules/formiojs/components/base/Base.js
+--- a/components/base/Base.js
++++ b/components/base/Base.js
 @@ -1830,13 +1830,7 @@ var BaseComponent = /*#__PURE__*/function (_Component) {
          var errorMessage = this.ce('p', {
            class: 'help-block'
@@ -71,10 +71,10 @@ index 2da74da..bc1bf60 100644
  
        if (message) {
          this.error = {
-diff --git a/node_modules/formiojs/components/file/File.js b/node_modules/formiojs/components/file/File.js
+diff --git a/components/file/File.js b/components/file/File.js
 index 1a67315..f26ac8b 100644
---- a/node_modules/formiojs/components/file/File.js
-+++ b/node_modules/formiojs/components/file/File.js
+--- a/components/file/File.js
++++ b/components/file/File.js
 @@ -707,10 +707,10 @@ var FileComponent = /*#__PURE__*/function (_BaseComponent) {
          class: 'alert alert-warning'
        });
@@ -99,10 +99,10 @@ index 1a67315..f26ac8b 100644
          // files is not really an array and does not have a forEach method, so fake it.
  
          /* eslint-disable max-statements */
-diff --git a/node_modules/formiojs/components/textarea/TextArea.js b/node_modules/formiojs/components/textarea/TextArea.js
+diff --git a/components/textarea/TextArea.js b/components/textarea/TextArea.js
 index 03bfd62..074e599 100644
---- a/node_modules/formiojs/components/textarea/TextArea.js
-+++ b/node_modules/formiojs/components/textarea/TextArea.js
+--- a/components/textarea/TextArea.js
++++ b/components/textarea/TextArea.js
 @@ -398,7 +398,6 @@ var TextAreaComponent = /*#__PURE__*/function (_TextFieldComponent) {
            // This change solves an issue where the change event was erroneously firing.
            // This also negates the need for the "value" parameter, but I am keeping that there for reverse compatibility,

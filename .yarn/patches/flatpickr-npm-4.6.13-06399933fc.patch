@@ -1,7 +1,7 @@
-diff --git a/node_modules/flatpickr/dist/esm/index.js b/node_modules/flatpickr/dist/esm/index.js
+diff --git a/dist/esm/index.js b/dist/esm/index.js
 index 6e4d05f..101170e 100644
---- a/node_modules/flatpickr/dist/esm/index.js
-+++ b/node_modules/flatpickr/dist/esm/index.js
+--- a/dist/esm/index.js
++++ b/dist/esm/index.js
 @@ -924,18 +924,6 @@ function FlatpickrInstance(element, instanceConfig) {
                  return elem.contains(eventTarget_1);
              });

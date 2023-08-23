@@ -29,3 +29,6 @@ ignore/
 .cookies
 .vscode/
 *.code-workspace
+
+.yarn/cache
+.yarn/install-state.gz
