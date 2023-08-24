@@ -1,23 +1,29 @@
 import React from 'react';
 import { Alert } from 'reactstrap';
+import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
-import { EcosModal } from '../common';
+import { EcosModal, InfoText } from '../common';
 import { Btn } from '../common/btns';
 import { t } from '../../helpers/util';
 import { Field, Input, SelectJournal } from '../common/form';
 import { SourcesId, SystemJournals } from '../../constants';
+import { RecordActionsApi } from '../../api/recordActions';
 import { goToJournalsPage } from '../../helpers/urls';
 import { EcosFormBuilderUtils } from '../EcosForm';
 import EcosFormBuilderModal from '../EcosForm/builder/EcosFormBuilderModal';
 import { PREDICATE_EQ } from '../Records/predicates/predicates';
+import { ActionTypes } from '../Records/actions/constants';
+import { PERMISSION_WRITE_ATTR } from '../Records/constants';
 import Records from '../Records/Records';
 
 import './PreSettingsModal.style.scss';
 
+const actionApi = new RecordActionsApi();
+
 const Labels = {
   ID: 'ecos-form.new-record-ref.id',
-  TYPES: 'ecos-form.create-new-artefact.types',
+  TYPE: 'ecos-form.create-new-artefact.type',
   MODAL_TITLE: 'ecos-form.create-new-artefact',
   INFO_TEXT: 'ecos-form.create-new-artefact-info-text',
   CANCEL: 'btn.cancel.label',
@@ -45,13 +51,15 @@ class PreSettingsModal extends React.Component {
     this.state = {
       isOpen: props.isOpen || false,
       isValid: false,
+      rollbackAttributes: {},
       newRecordRef: '',
-      newTypes: [],
+      newType: [],
       isLoading: false
     };
   }
 
   componentDidMount() {
+    this.fetchRollbackAttributes();
     this.fetchTypes();
   }
 
@@ -69,7 +77,7 @@ class PreSettingsModal extends React.Component {
     const { newRecordRef } = this.state;
 
     this.setState({
-      isValid: newRecordRef
+      isValid: !!newRecordRef
     });
   };
 
@@ -87,114 +95,228 @@ class PreSettingsModal extends React.Component {
         v: this.recordRef
       }
     }).then(result => {
-      this.handleChangeTypes(result.records);
+      if (Array.isArray(result.records)) {
+        this.handleChangeTypes(result.records[0]);
+      }
     });
+  };
+
+  fetchRollbackAttributes = () => {
+    const rollbackAttributes = this.isFormType
+      ? {
+          id: 'id',
+          definition: 'definition?json',
+          typeRef: 'typeRef'
+        }
+      : {
+          id: 'id',
+          typeRef: 'typeRef'
+        };
+
+    Records.get(this.recordRef)
+      .load(rollbackAttributes)
+      .then(rollbackAttributes => {
+        this.setState({ rollbackAttributes });
+      });
+  };
+
+  rollback = () => {
+    const { rollbackAttributes } = this.state;
+
+    if (!rollbackAttributes) {
+      return;
+    }
+
+    const record = Records.get(this.recordRef);
+    for (let [attName, attValue] of Object.entries(rollbackAttributes)) {
+      record.att(attName, attValue);
+    }
+
+    record.att(PERMISSION_WRITE_ATTR, '');
   };
 
   handleChangeRecordRef = event => {
     this.setState({ newRecordRef: event.target.value }, this.checkValidity);
   };
 
-  handleChangeTypes = newTypes => {
-    this.setState({ newTypes }, this.checkValidity);
+  handleChangeTypes = newType => {
+    this.setState({ newType }, this.checkValidity);
+  };
+
+  handleCancel = () => {
+    const { onHide } = this.props;
+
+    this.hide();
+
+    isFunction(onHide) && onHide();
   };
 
   handleSave = () => {
-    if (this.isFormType) {
-      this.handleChangeForm();
-      return;
-    }
+    const { newRecordRef } = this.state;
+    const newRef = this.type === PRE_SETTINGS_TYPES.FORM ? `${SourcesId.FORM}@${newRecordRef}` : `${SourcesId.JOURNAL}@${newRecordRef}`;
 
-    this.handleChangeJournal();
+    this.toggleLoading(true);
+
+    Records.get(newRef)
+      .load('_notExists?bool', true)
+      .then(notExists => {
+        this.toggleLoading(false);
+
+        if (notExists !== true) {
+          this.setState({ isValid: false, message: t('admin-section.error.existed-module') });
+          return;
+        }
+
+        if (this.isFormType) {
+          this.handleChangeForm();
+          return;
+        }
+
+        this.handleChangeJournal();
+      });
   };
 
-  saveInstances = (attributes = {}) => {
+  changeAttributes = (attributes = {}) => {
     this.toggleLoading();
-    const { newRecordRef, newTypes } = this.state;
+    const { onHide } = this.props;
+    const { newRecordRef, newType } = this.state;
 
-    const instanceRecord = Records.get(this.recordRef);
+    this.instanceRecordToSave = Records.get(this.recordRef);
 
-    instanceRecord.att('id', newRecordRef);
+    this.instanceRecordToSave.att('id', newRecordRef);
 
     Object.entries(attributes).forEach(([attName, attValue]) => {
-      instanceRecord.att(attName, attValue);
+      this.instanceRecordToSave.att(attName, attValue);
     });
 
     const att = this.type === PRE_SETTINGS_TYPES.FORM ? 'formRef?id' : 'journalRef?id';
     const newRef = this.type === PRE_SETTINGS_TYPES.FORM ? `${SourcesId.FORM}@${newRecordRef}` : `${SourcesId.JOURNAL}@${newRecordRef}`;
 
-    instanceRecord.save().then(() => {
-      Promise.all(
-        newTypes.map(newType => {
-          const newTypeRecord = Records.get(newType.replace(SourcesId.TYPE, 'emodel/types-repo'));
-          newTypeRecord.att(att, newRef);
+    if (newType) {
+      const newTypeRecord = Records.get(newType.replace(SourcesId.TYPE, 'emodel/types-repo'));
+      newTypeRecord.att(att, newRef);
+      this.typeToSave = newTypeRecord;
+    }
 
-          return newTypeRecord.save();
-        })
-      ).then(() => {
-        this.toggleLoading();
-        this.hide();
-        isFunction(this.callback) && this.callback(newRef);
-      });
-    });
+    this.toggleLoading();
+    this.hide();
+    isFunction(this.callback) && this.callback(newRef);
+    isFunction(onHide) && onHide();
   };
 
   handleChangeForm = () => {
+    const { newRecordRef, newType } = this.state;
     const { definition } = this.config;
+
+    const builderDefinition = {
+      ...definition,
+      formId: newRecordRef
+    };
 
     const onSubmit = newDefinition => {
       this.toggleEcosModalLoading(true);
       const attributes = {
-        'definition?json': newDefinition
+        'definition?json': newDefinition,
+        'typeRef?id': newType
       };
 
       const cb = this.callback;
       this.callback = newRef => {
-        isFunction(cb) && cb(newRef, newDefinition);
+        if (this.instanceRecordToSave) {
+          this.instanceRecordToSave.save().then(() => {
+            if (!this.typeToSave) {
+              isFunction(cb) && cb(newRef, newDefinition);
+            }
+
+            this.typeToSave &&
+              this.typeToSave.save().then(() => {
+                isFunction(cb) && cb(newRef, newDefinition);
+              });
+
+            this.rollback();
+          });
+        }
       };
 
-      this.saveInstances(attributes);
+      this.changeAttributes(attributes);
     };
 
     this.hide();
-    EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, definition, onSubmit);
+    EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
   };
 
   handleChangeJournal = () => {
-    const { newRecordRef } = this.state;
+    const { newRecordRef, newType } = this.state;
 
     const cb = this.callback;
 
+    const attributes = {
+      typeRef: newType,
+      [PERMISSION_WRITE_ATTR]: true
+    };
+
     this.callback = newRef => {
-      goToJournalsPage({ journalId: newRecordRef, fromPreSetting: true });
+      actionApi.executeAction({
+        records: this.recordRef,
+        action: {
+          type: ActionTypes.EDIT,
+          config: {
+            saveOnSubmit: false,
+            onFormCancel: this.rollback,
+            onPreSettingSubmit: (record, form) => {
+              const data = get(form, 'submission.data');
+
+              if (this.instanceRecordToSave) {
+                for (const [newAtt, attValue] of Object.entries(data)) {
+                  this.instanceRecordToSave.att(newAtt, attValue);
+                }
+
+                this.instanceRecordToSave.save().then(() => {
+                  if (!this.typeToSave) {
+                    goToJournalsPage({ journalId: newRecordRef });
+                  }
+
+                  this.typeToSave &&
+                    this.typeToSave.save().then(() => {
+                      goToJournalsPage({ journalId: newRecordRef });
+                    });
+
+                  this.rollback();
+                });
+              }
+            }
+          }
+        }
+      });
+
       isFunction(cb) && cb(newRef);
     };
 
-    this.saveInstances();
+    this.changeAttributes(attributes);
   };
 
   render() {
-    const { isOpen, isValid, isLoading, newRecordRef, newTypes } = this.state;
+    const { isOpen, isValid, message, isLoading, newRecordRef, newType } = this.state;
 
     return (
-      <EcosModal title={t(Labels.MODAL_TITLE)} size="small" isOpen={isOpen} isLoading={isLoading} hideModal={this.hide}>
+      <EcosModal title={t(Labels.MODAL_TITLE)} size="small" isOpen={isOpen} isLoading={isLoading} hideModal={this.handleCancel}>
         <div className="ecos-form-pre-settings">
           <Alert color="info">{t(Labels.INFO_TEXT)}</Alert>
           <Field label={t(Labels.ID)} labelPosition="top" isRequired>
             <Input value={newRecordRef} onChange={this.handleChangeRecordRef} type="text" />
+            {!isValid && message && <InfoText className="ecos-form-pre-settings__validate-message" text={message} type="error" />}
           </Field>
-          <Field label={t(Labels.TYPES)} isSmall={this.isSmall} isRequired>
+          <Field label={t(Labels.TYPE)} isSmall={this.isSmall}>
             <SelectJournal
               journalId={SystemJournals.TYPES}
-              defaultValue={newTypes}
-              multiple
+              defaultValue={newType}
               hideCreateButton
               isSelectedValueAsText
               onChange={this.handleChangeTypes}
             />
           </Field>
           <div className="ecos-form-pre-settings__buttons">
-            <Btn className="ecos-btn_hover_light-blue" onClick={this.hide}>
+            <Btn className="ecos-btn_hover_light-blue" onClick={this.handleCancel}>
               {t(Labels.CANCEL)}
             </Btn>
             <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={this.handleSave} disabled={!isValid}>

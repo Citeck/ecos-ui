@@ -202,8 +202,7 @@ export const JournalUrlParams = {
   USER_CONFIG_ID: 'userConfigId',
   SHOW_PREVIEW: 'showPreview',
   SEARCH: 'search',
-  VIEW_MODE: 'viewMode',
-  FROM_PRE_SETTINGS: 'fromPreSettings'
+  VIEW_MODE: 'viewMode'
 };
 
 export const DocLibUrlParams = {

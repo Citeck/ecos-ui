@@ -39,6 +39,8 @@ export default class EditAction extends ActionsExecutor {
             saveOnSubmit: config.saveOnSubmit !== false,
             attributes: config.attributes || {},
             formContainer: true,
+            onFormCancel: config.onFormCancel,
+            onPreSettingSubmit: config.onPreSettingSubmit,
             onSubmit: () => {
               // temp solution
               submitted = true;

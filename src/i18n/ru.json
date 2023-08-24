@@ -108,6 +108,7 @@
   "admin-section.sidebar.hide-sm": "Скрыть",
   "admin-section.sidebar.list-empty": "Нет данных",
   "admin-section.error.access-denied": "У Вас нет доступа к этой странице",
+  "admin-section.error.existed-module": "Модуль с таким ID уже существует",
 
   "button.close-modal": "Закрыть",
   "button.ok": "Готово",
@@ -486,9 +487,9 @@
   "ecos-form.infinite-loop": "Данные полей зацикливаются",
 
   "ecos-form.create-new-artefact": "Создание артефакта",
-  "ecos-form.create-new-artefact-info-text": "Редактирование виртуальной формы/журнала запрещено. Необходимо создать новую(новый).",
+  "ecos-form.create-new-artefact-info-text": "Редактирование виртуальной формы/журнала запрещено. Необходимо создать новую(ый).",
   "ecos-form.new-record-ref.id": "Идентификатор",
-  "ecos-form.create-new-artefact.types": "Типы",
+  "ecos-form.create-new-artefact.type": "Тип данных",
 
   "ecos-forms.datepicker.time-label": "Время",
   "ecos-forms.datepicker.month-prev-label": "Предыдущий месяц",

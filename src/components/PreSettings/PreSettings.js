@@ -18,6 +18,14 @@ class PreSettings {
   open = (recordRef, config, callback, toggleLoader) => {
     const { presettingsType } = config;
 
+    const handleUnmount = () => {
+      try {
+        ReactDOM.unmountComponentAtNode(this.el);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     ReactDOM.render(
       <PreSettingsModal
         isOpen
@@ -25,6 +33,7 @@ class PreSettings {
         recordRef={recordRef}
         callback={callback}
         config={config}
+        onHide={handleUnmount}
         toggleLoader={toggleLoader}
       />,
       this.el
