@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Comment tests <Comment /> should render Comment component 1`] = `
+exports[`Comment tests should render Comment component 1`] = `
 <div
   className="ecos-comments__comment"
 >
@@ -46,18 +46,16 @@ exports[`Comment tests <Comment /> should render Comment component 1`] = `
       className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
     />
   </div>
-  <div
-    className="ecos-comments__comment-text"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "Comment",
-      }
-    }
+  <Editor
+    className="ecos-comments__comment-editor"
+    htmlString="Comment"
+    onChange={[Function]}
+    readonly={true}
   />
 </div>
 `;
 
-exports[`Comment tests <Comment /> should render Comment component with opened delete confirm dialog 1`] = `
+exports[`Comment tests should render Comment component with opened delete confirm dialog 1`] = `
 <div
   className="ecos-comments__comment"
 >
@@ -103,13 +101,11 @@ exports[`Comment tests <Comment /> should render Comment component with opened d
       className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
     />
   </div>
-  <div
-    className="ecos-comments__comment-text"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "Comment",
-      }
-    }
+  <Editor
+    className="ecos-comments__comment-editor"
+    htmlString="Comment"
+    onChange={[Function]}
+    readonly={true}
   />
   <div
     className="ecos-comments__comment-confirm"
@@ -144,7 +140,7 @@ exports[`Comment tests <Comment /> should render Comment component with opened d
 </div>
 `;
 
-exports[`Comment tests <Comment /> should render Comment component with opened delete confirm dialog with loader 1`] = `
+exports[`Comment tests should render Comment component with opened delete confirm dialog with loader 1`] = `
 <div
   className="ecos-comments__comment"
 >
@@ -190,13 +186,11 @@ exports[`Comment tests <Comment /> should render Comment component with opened d
       className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
     />
   </div>
-  <div
-    className="ecos-comments__comment-text"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "Comment",
-      }
-    }
+  <Editor
+    className="ecos-comments__comment-editor"
+    htmlString="Comment"
+    onChange={[Function]}
+    readonly={true}
   />
   <div
     className="ecos-comments__comment-confirm"
@@ -242,7 +236,7 @@ exports[`Comment tests <Comment /> should render Comment component with opened d
 </div>
 `;
 
-exports[`Comment tests <Comment /> should render Comment component with opened delete confirm dialog without loader (because of a mistake) 1`] = `
+exports[`Comment tests should render Comment component with opened delete confirm dialog without loader (because of a mistake) 1`] = `
 <div
   className="ecos-comments__comment"
 >
@@ -288,13 +282,11 @@ exports[`Comment tests <Comment /> should render Comment component with opened d
       className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
     />
   </div>
-  <div
-    className="ecos-comments__comment-text"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "Comment",
-      }
-    }
+  <Editor
+    className="ecos-comments__comment-editor"
+    htmlString="Comment"
+    onChange={[Function]}
+    readonly={true}
   />
   <div
     className="ecos-comments__comment-confirm"
@@ -329,7 +321,7 @@ exports[`Comment tests <Comment /> should render Comment component with opened d
 </div>
 `;
 
-exports[`Comment tests <Comment /> should render Comment component with tags 1`] = `
+exports[`Comment tests should render Comment component with tags 1`] = `
 <div
   className="ecos-comments__comment"
 >
@@ -403,13 +395,11 @@ exports[`Comment tests <Comment /> should render Comment component with tags 1`]
       className="ecos-comments__comment-header-cell ecos-comments__comment-header-cell_actions"
     />
   </div>
-  <div
-    className="ecos-comments__comment-text"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "Comment",
-      }
-    }
+  <Editor
+    className="ecos-comments__comment-editor"
+    htmlString="Comment"
+    onChange={[Function]}
+    readonly={true}
   />
 </div>
 `;

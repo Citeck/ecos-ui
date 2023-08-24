@@ -15,6 +15,7 @@ export const selectStateByNodeRef = (state, nodeRef) => {
     totalCount: ownState.totalCount,
     errorMessage: ownState.errorMessage,
     comments: ownState.comments,
-    actionFailed: ownState.actionFailed
+    actionFailed: ownState.actionFailed,
+    isUploadingFile: ownState.isUploadingFile
   };
 };
