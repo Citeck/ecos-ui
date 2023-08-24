@@ -123,7 +123,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         }
 
         return ckeditor.create(element, settings).then(editor => {
-          editor.model.document.on('change', () => onChange(editor.data.get()));
+          editor.model.document.on('change', () => {
+            if (!this._ckEditorInitialized) {
+              this._ckEditorInitialized = true;
+              return;
+            }
+
+            onChange(editor.data.get());
+          });
           resolve(editor);
           return editor;
         });
