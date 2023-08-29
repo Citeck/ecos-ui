@@ -27,102 +27,114 @@ export const LinkEditor = ({ editor, isLink, setIsLink, anchorElem }) => {
   const editorRef = useRef(null);
   const inputRef = useRef(null);
 
-  const updateLinkEditor = useCallback(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
-      if ($isLinkNode(parent)) {
-        setLinkUrl(parent.getURL());
-      } else if ($isLinkNode(node)) {
-        setLinkUrl(node.getURL());
-      } else {
+  const updateLinkEditor = useCallback(
+    () => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const node = getSelectedNode(selection);
+        const parent = node.getParent();
+        if ($isLinkNode(parent)) {
+          setLinkUrl(parent.getURL());
+        } else if ($isLinkNode(node)) {
+          setLinkUrl(node.getURL());
+        } else {
+          setLinkUrl('');
+        }
+      }
+
+      const editorElem = editorRef.current;
+      const nativeSelection = window.getSelection();
+      const activeElement = document.activeElement;
+
+      if (editorElem === null) {
+        return;
+      }
+
+      const rootElement = editor.getRootElement();
+
+      if (
+        selection !== null &&
+        nativeSelection !== null &&
+        rootElement !== null &&
+        rootElement.contains(nativeSelection.anchorNode) &&
+        editor.isEditable()
+      ) {
+        const domRange = nativeSelection.getRangeAt(0);
+        let rect;
+        if (nativeSelection.anchorNode === rootElement) {
+          let inner = rootElement;
+          while (inner.firstElementChild != null) {
+            inner = inner.firstElementChild;
+          }
+          rect = inner.getBoundingClientRect();
+        } else {
+          rect = domRange.getBoundingClientRect();
+        }
+
+        setFloatingElemPosition(rect, editorElem, anchorElem);
+        setLastSelection(selection);
+      } else if (!activeElement || activeElement.className !== 'link-input') {
+        if (rootElement !== null) {
+          setFloatingElemPosition(null, editorElem, anchorElem);
+        }
+        setLastSelection(null);
+        setIsEditMode(false);
         setLinkUrl('');
       }
-    }
 
-    const editorElem = editorRef.current;
-    const nativeSelection = window.getSelection();
-    const activeElement = document.activeElement;
+      return true;
+    },
+    [editor, anchorElem]
+  );
 
-    if (editorElem === null) {
-      return;
-    }
+  useEffect(
+    () => {
+      setShowPreview(isLink);
+    },
+    [isLink, editor, anchorElem]
+  );
 
-    const rootElement = editor.getRootElement();
+  useEffect(
+    () => {
+      return mergeRegister(
+        editor.registerUpdateListener(({ editorState }) => {
+          editorState.read(() => {
+            updateLinkEditor();
+          });
+        }),
 
-    if (
-      selection !== null &&
-      nativeSelection !== null &&
-      rootElement !== null &&
-      rootElement.contains(nativeSelection.anchorNode) &&
-      editor.isEditable()
-    ) {
-      const domRange = nativeSelection.getRangeAt(0);
-      let rect;
-      if (nativeSelection.anchorNode === rootElement) {
-        let inner = rootElement;
-        while (inner.firstElementChild != null) {
-          inner = inner.firstElementChild;
-        }
-        rect = inner.getBoundingClientRect();
-      } else {
-        rect = domRange.getBoundingClientRect();
-      }
-
-      setFloatingElemPosition(rect, editorElem, anchorElem);
-      setLastSelection(selection);
-    } else if (!activeElement || activeElement.className !== 'link-input') {
-      if (rootElement !== null) {
-        setFloatingElemPosition(null, editorElem, anchorElem);
-      }
-      setLastSelection(null);
-      setIsEditMode(false);
-      setLinkUrl('');
-    }
-
-    return true;
-  }, [editor, anchorElem]);
-
-  useEffect(() => {
-    setShowPreview(isLink);
-  }, [isLink, editor, anchorElem]);
-
-  useEffect(() => {
-    return mergeRegister(
-      editor.registerUpdateListener(({ editorState }) => {
-        editorState.read(() => {
-          updateLinkEditor();
-        });
-      }),
-
-      editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        () => {
-          updateLinkEditor();
-          return true;
-        },
-        COMMAND_PRIORITY_LOW
-      ),
-      editor.registerCommand(
-        KEY_ESCAPE_COMMAND,
-        () => {
-          if (isLink) {
-            setIsLink(false);
+        editor.registerCommand(
+          SELECTION_CHANGE_COMMAND,
+          () => {
+            updateLinkEditor();
             return true;
-          }
-          return false;
-        },
-        COMMAND_PRIORITY_HIGH
-      )
-    );
-  }, [editor, updateLinkEditor, setIsLink, isLink]);
+          },
+          COMMAND_PRIORITY_LOW
+        ),
+        editor.registerCommand(
+          KEY_ESCAPE_COMMAND,
+          () => {
+            if (isLink) {
+              setIsLink(false);
+              return true;
+            }
+            return false;
+          },
+          COMMAND_PRIORITY_HIGH
+        )
+      );
+    },
+    [editor, updateLinkEditor, setIsLink, isLink]
+  );
 
-  useEffect(() => {
-    editor.getEditorState().read(() => {
-      updateLinkEditor();
-    });
-  }, [editor, updateLinkEditor]);
+  useEffect(
+    () => {
+      editor.getEditorState().read(() => {
+        updateLinkEditor();
+      });
+    },
+    [editor, updateLinkEditor]
+  );
 
   const handleLinkSubmission = () => {
     if (lastSelection !== null) {
@@ -164,24 +176,26 @@ export const LinkEditor = ({ editor, isLink, setIsLink, anchorElem }) => {
           <a href={linkUrl} target="_blank" rel="noopener noreferrer">
             {linkUrl}
           </a>
-          <div>
-            <IcoBtn
-              key="edit"
-              icon="icon-edit"
-              className="ecos-rt-editor-toolbar__button"
-              onClick={() => {
-                setEditedLinkUrl(linkUrl);
-                setIsEditMode(true);
-              }}
-            />
-            <IcoBtn
-              icon="icon-small-close"
-              className="ecos-rt-editor-toolbar__button"
-              onClick={() => {
-                setShowPreview(false);
-              }}
-            />
-          </div>
+        </div>
+      )}
+      {!isEditMode && (
+        <div className="link-edit-buttons">
+          <IcoBtn
+            key="edit"
+            icon="icon-edit"
+            className="ecos-rt-editor-toolbar__button"
+            onClick={() => {
+              setEditedLinkUrl(linkUrl);
+              setIsEditMode(true);
+            }}
+          />
+          <IcoBtn
+            icon="icon-small-close"
+            className="ecos-rt-editor-toolbar__button"
+            onClick={() => {
+              setShowPreview(false);
+            }}
+          />
         </div>
       )}
     </div>

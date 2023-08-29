@@ -655,6 +655,10 @@
   "export-component.notice.buffer-link-err": "Failed to create select link",
   "export-component.notice.buffer-link-preparation": "Wait while preparing a sample link",
 
+  "table-plugin.table-dialog.insert-table-title": "Insert a table",
+  "table-plugin.table-dialog.rows-count": "Rows count",
+  "table-plugin.table-dialog.columns-count": "Columns count",
+
   "tree-component.tooltip.cannot-be-changes": "Cannot change state",
   "tree-component.tooltip.update-icon": "Update icon",
   "tree-component.empty": "Nothing found",

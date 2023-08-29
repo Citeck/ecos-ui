@@ -30,7 +30,8 @@ const CodeFormatButton = ({ editor, isCodeBlock }) => {
   return (
     <IcoBtn
       title={t('editor.code-format')}
-      className={classNames('icon-code-json', 'ecos-rt-editor-toolbar__button', {
+      icon="fa fa-code"
+      className={classNames('ecos-rt-editor-toolbar__button', {
         'ecos-rt-editor-toolbar__button_active': isCodeBlock
       })}
       onClick={formatCode}

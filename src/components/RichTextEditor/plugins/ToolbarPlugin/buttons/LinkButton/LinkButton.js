@@ -17,7 +17,8 @@ const LinkButton = ({ isLink, editor }) => {
   return (
     <IcoBtn
       title={t('editor.format-link')}
-      className={classNames('icon-arrow', 'ecos-rt-editor-toolbar__button', {
+      icon="fa fa-link"
+      className={classNames('ecos-rt-editor-toolbar__button', {
         'ecos-rt-editor-toolbar__button_active': isLink
       })}
       onClick={formatLink}

@@ -24,6 +24,7 @@ import {
   LinkButton,
   NumericListButton,
   RedoButton,
+  TableButton,
   TextFormatDropdownButton,
   UnderlineFormatButton,
   UndoButton,
@@ -159,6 +160,7 @@ const ToolbarPlugin = () => {
       <UnderlineFormatButton editor={activeEditor} isUnderline={isUnderline} />
       <BulletListButton editor={editor} listType={listType} />
       <NumericListButton editor={editor} listType={listType} />
+      <TableButton editor={editor} />
       <Divider />
       <CodeFormatButton editor={activeEditor} isCodeBlock={isCodeBlock} />
       <LinkButton editor={activeEditor} isLink={isLink} />

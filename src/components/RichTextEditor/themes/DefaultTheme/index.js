@@ -20,5 +20,20 @@ export const defaultTheme = {
     subscript: 'rt-editor-theme__text_subscript',
     superscript: 'rt-editor-theme__text_superscript',
     code: 'rt-editor-theme__tex_code'
-  }
+  },
+  table: 'rt-editor-theme__table',
+  tableAddColumns: 'rt-editor-theme__tableAddColumns',
+  tableAddRows: 'rt-editor-theme__tableAddRows',
+  tableCell: 'rt-editor-theme__tableCell',
+  tableCellActionButton: 'rt-editor-theme__tableCellActionButton',
+  tableCellActionButtonContainer: 'rt-editor-theme__tableCellActionButtonContainer',
+  tableCellEditing: 'rt-editor-theme__tableCellEditing',
+  tableCellHeader: 'rt-editor-theme__tableCellHeader',
+  tableCellPrimarySelected: 'rt-editor-theme__tableCellPrimarySelected',
+  tableCellResizer: 'rt-editor-theme__tableCellResizer',
+  tableCellSelected: 'rt-editor-theme__tableCellSelected',
+  tableCellSortedIndicator: 'rt-editor-theme__tableCellSortedIndicator',
+  tableResizeRuler: 'rt-editor-theme__tableCellResizeRuler',
+  tableSelected: 'rt-editor-theme__tableSelected',
+  tableSelection: 'rt-editor-theme__tableSelection'
 };
