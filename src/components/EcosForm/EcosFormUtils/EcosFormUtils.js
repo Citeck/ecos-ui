@@ -147,9 +147,14 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
 
           const onSubmit = lodashGet(configParams, 'onSubmit');
+          const onPreSettingSubmit = lodashGet(configParams, 'onPreSettingSubmit');
 
           if (isFunction(onSubmit)) {
             onSubmit(record, form, alias);
+          }
+
+          if (isFunction(onPreSettingSubmit)) {
+            onPreSettingSubmit(record, form, alias);
           }
         };
 
@@ -274,6 +279,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
 
       if (config.options) {
         params.options = config.options;
+      }
+
+      if (config.onPreSettingSubmit) {
+        params.onPreSettingSubmit = config.onPreSettingSubmit;
       }
 
       const [source] = recordRef.split('@');

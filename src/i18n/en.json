@@ -108,6 +108,7 @@
   "admin-section.sidebar.hide-sm": "Hide",
   "admin-section.sidebar.list-empty": "No data",
   "admin-section.error.access-denied": "You don't have access to this page",
+  "admin-section.error.existed-module": "Module with this ID already exists",
 
   "button.close-modal": "Close",
   "button.ok": "OK",
@@ -1719,10 +1720,10 @@
   "ecos-form.builder.debugging.fatal-error": "A fatal error occurred while building the dependency tree. Try parsing the form and component dependencies in a json editor or Form Builder",
   "ecos-form.builder.form-id.label": "Form ID",
 
-  "ecos-form.create-new-artefact": "Create new form",
-  "ecos-form.create-new-artefact-info-text": "Editing of the virtual form is prohibited. You need to create a new one.",
+  "ecos-form.create-new-artefact": "Create new artefact",
+  "ecos-form.create-new-artefact-info-text": "Editing of the virtual form/magazine is prohibited. You need to create a new one.",
   "ecos-form.new-record-ref.id": "ID",
-  "ecos-form.create-new-artefact.types": "Types for new form",
+  "ecos-form.create-new-artefact.type": "Data type",
   "editor.placeholder": "Add a comment...",
   "editor.format-bold": "Bold",
   "editor.format-italic": "Italic",
