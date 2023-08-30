@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { EventEmitter2 } from 'eventemitter2';
 import * as queryString from 'query-string';
 
-import { getJournalPageUrl } from '../helpers/urls';
+import { getCustomDasboardUrl, getJournalPageUrl } from '../helpers/urls';
 import { arrayFlat, hasChildWithId } from '../helpers/util';
 import { isNewVersionPage, NEW_VERSION_PREFIX } from '../helpers/export/urls';
 import { treeFindFirstItem } from '../helpers/arrayOfObjects';
@@ -13,6 +13,7 @@ import { IGNORE_TABS_HANDLER_ATTR_NAME, REMOTE_TITLE_ATTR_NAME } from '../consta
 import { MenuSettings } from '../constants/menu';
 import { ActionTypes, CountableItems } from '../constants/sidebar';
 import ULS from './userLocalSettings';
+import { JOURNAL_VIEW_MODE } from '../components/Journals/constants';
 
 export default class SidebarService {
   static DROPDOWN_LEVEL = 1;
@@ -108,17 +109,17 @@ export default class SidebarService {
 
   static getPropsStyleLevel = ({ level, item }) => {
     const actionType = get(item, 'action.type', '');
-    const knownType = Object.values(MITypes).includes(item.type);
+    const knownType = Object.values(MenuItemsTypes).includes(item.type);
     const knownActionType = Object.values(ATypes).includes(actionType);
 
     const badgeV0 = knownActionType && [ATypes.JOURNAL_LINK].includes(actionType) && CountableItems.includes(get(item, 'params.journalId'));
-    const badgeV1 = knownType && [MITypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount');
+    const badgeV1 = knownType && [MenuItemsTypes.JOURNAL].includes(item.type) && get(item, 'config.displayCount');
 
     const common = {
       noIcon: true,
       noBadge: !(badgeV0 || badgeV1),
-      isSeparator: [MITypes.HEADER_DIVIDER].includes(item.type),
-      isClosedSeparator: [MITypes.HEADER_DIVIDER].includes(item.type),
+      isSeparator: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type),
+      isClosedSeparator: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type),
       hiddenLabel: get(item, 'config.hiddenLabel')
     };
 
@@ -126,11 +127,11 @@ export default class SidebarService {
       0: {
         ...common,
         noBadge: knownType ? common.noBadge : true,
-        isClosedSeparator: knownType ? [MITypes.SECTION, MITypes.HEADER_DIVIDER].includes(item.type) : true
+        isClosedSeparator: knownType ? [MenuItemsTypes.SECTION, MenuItemsTypes.HEADER_DIVIDER].includes(item.type) : true
       },
       1: {
         ...common,
-        noIcon: [MITypes.HEADER_DIVIDER].includes(item.type)
+        noIcon: [MenuItemsTypes.HEADER_DIVIDER].includes(item.type)
       }
     };
 
@@ -221,7 +222,33 @@ export default class SidebarService {
     }
 
     switch (item.type) {
-      case MITypes.JOURNAL:
+      case MenuItemsTypes.DASHBOARD:
+        if (get(item, 'config.dashboardId')) {
+          targetUrl = getCustomDasboardUrl(get(item, 'config.dashboardId'));
+        }
+        ignoreTabHandler = false;
+        break;
+      case MenuItemsTypes.KANBAN:
+        if (get(item, 'params.journalId')) {
+          targetUrl = getJournalPageUrl({
+            journalsListId: get(item, 'params.journalsListId'),
+            journalId: get(item, 'params.journalId'),
+            viewMode: JOURNAL_VIEW_MODE.KANBAN
+          });
+        }
+        ignoreTabHandler = false;
+        break;
+      case MenuItemsTypes.DOCLIB:
+        if (get(item, 'params.journalId')) {
+          targetUrl = getJournalPageUrl({
+            journalsListId: get(item, 'params.journalsListId'),
+            journalId: get(item, 'params.journalId'),
+            viewMode: JOURNAL_VIEW_MODE.DOC_LIB
+          });
+        }
+        ignoreTabHandler = false;
+        break;
+      case MenuItemsTypes.JOURNAL:
         if (get(item, 'params.journalId')) {
           targetUrl = getJournalPageUrl({
             journalsListId: get(item, 'params.journalsListId'),
@@ -230,7 +257,7 @@ export default class SidebarService {
         }
         ignoreTabHandler = false;
         break;
-      case MITypes.ARBITRARY:
+      case MenuItemsTypes.ARBITRARY:
         targetUrl = get(item, 'config.url', null);
 
         if (targetUrl && targetUrl.includes('http')) {
@@ -301,4 +328,4 @@ export default class SidebarService {
 }
 
 const ATypes = ActionTypes;
-const MITypes = MenuSettings.ItemTypes;
+const MenuItemsTypes = MenuSettings.ItemTypes;

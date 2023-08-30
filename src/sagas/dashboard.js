@@ -36,10 +36,10 @@ export function* _parseConfig({ api, logger }, { recordRef, config }) {
 
 function* doGetDashboardRequest({ api, logger }, { payload }) {
   try {
-    const { recordRef } = payload;
+    const { dashboardId, recordRef } = payload;
     const recordIsExist = yield call(api.app.recordIsExist, recordRef, true);
 
-    if (!recordIsExist) {
+    if (recordRef && !recordIsExist) {
       yield put(setWarningMessage({ key: payload.key, message: t('record.not-found.message') }));
       yield put(setLoading({ key: payload.key, status: false }));
 
@@ -48,13 +48,14 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
     const hasRecordReadPermission = yield call(api.app.hasRecordReadPermission, recordRef, true);
 
-    if (!hasRecordReadPermission) {
+    if (recordRef && !hasRecordReadPermission) {
       yield put(setWarningMessage({ key: payload.key, message: t('record.permission-denied.message') }));
       yield put(setLoading({ key: payload.key, status: false }));
 
       return;
     }
-    const result = yield call(api.dashboard.getDashboardByOneOf, { recordRef: getRefWithAlfrescoPrefix(recordRef) });
+    const result = yield call(api.dashboard.getDashboardByOneOf, { dashboardId, recordRef: getRefWithAlfrescoPrefix(recordRef) });
+
     const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
     const webKeyInfo = DashboardConverter.getKeyInfoDashboardForWeb(result);
     const webConfigs = yield _parseConfig({ api, logger }, { config: result.config, recordRef });
@@ -82,8 +83,8 @@ function* doGetDashboardRequest({ api, logger }, { payload }) {
 
 function* doGetDashboardTitleRequest({ api, logger }, { payload }) {
   try {
-    const { recordRef } = payload;
-    const resTitle = yield call(api.dashboard.getTitleInfo, recordRef);
+    const { dashboardId, recordRef } = payload;
+    const resTitle = yield call(api.dashboard.getTitleInfo, recordRef, dashboardId);
     const titleInfo = DashboardConverter.getTitleInfo(resTitle);
 
     yield put(setDashboardTitleInfo({ titleInfo, key: payload.key }));

@@ -157,7 +157,7 @@ class Settings extends Component {
   componentWillReceiveProps(nextProps, nextContext) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, mobileConfig, availableWidgets } = this.props;
+    let { config, mobileConfig, availableWidgets, identification } = this.props;
     let state = {};
 
     if (!PageTabList.isActiveTab(nextProps.tabId)) {
@@ -170,7 +170,10 @@ class Settings extends Component {
       });
     }
 
-    if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
+    if (
+      JSON.stringify(config) !== JSON.stringify(nextProps.config) ||
+      JSON.stringify(identification) !== JSON.stringify(nextProps.identification)
+    ) {
       const resultConfig = this.setStateConfig(nextProps);
 
       state = { ...state, ...resultConfig };
@@ -300,7 +303,7 @@ class Settings extends Component {
 
     if (newRStatus && oldRStatus !== newRStatus) {
       const { updateDashboard, getDashboardConfig, resetAllDashboardsConfig, onSave, identification } = this.props;
-      let { recordRef } = this.props;
+      let { recordRef, dashboardId } = this.props;
 
       clearCache();
       this.clearLocalStorage();
@@ -310,13 +313,13 @@ class Settings extends Component {
           if (isEmpty(recordRef)) {
             recordRef = get(this.getPathInfo(), 'recordRef');
           }
-          updateDashboard ? getDashboardConfig({ recordRef }) : resetAllDashboardsConfig(identification);
+          updateDashboard ? getDashboardConfig({ dashboardId, recordRef }) : resetAllDashboardsConfig(identification);
           typeof onSave === 'function' && onSave();
 
           return;
         }
         case RequestStatuses.RESET: {
-          getDashboardConfig({ recordRef });
+          getDashboardConfig({ dashboardId, recordRef });
           return;
         }
         default:
@@ -570,6 +573,7 @@ class Settings extends Component {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = cloneDeep(this.state);
 
       selectedLayout[activeLayoutTabId] = layout.type;
+
       selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
 
       this.setState({ selectedWidgets, selectedLayout });

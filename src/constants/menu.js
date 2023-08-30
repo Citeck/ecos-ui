@@ -45,6 +45,9 @@ export const MenuSettings = {
   ItemTypes: {
     SECTION: 'SECTION',
     JOURNAL: 'JOURNAL',
+    KANBAN: 'KANBAN',
+    DASHBOARD: 'DASHBOARD',
+    DOCLIB: 'DOCLIB',
     ARBITRARY: 'ARBITRARY',
     LINK_CREATE_CASE: 'LINK-CREATE-CASE',
     HEADER_DIVIDER: 'HEADER-DIVIDER',
@@ -72,6 +75,18 @@ export const CreateOptions = {
   JOURNAL: {
     key: MenuSettings.ItemTypes.JOURNAL,
     label: 'menu-item.type.journal'
+  },
+  KANBAN: {
+    key: MenuSettings.ItemTypes.KANBAN,
+    label: 'menu-item.type.kanban'
+  },
+  DASHBOARD: {
+    key: MenuSettings.ItemTypes.DASHBOARD,
+    label: 'menu-item.type.dashboard'
+  },
+  DOCLIB: {
+    key: MenuSettings.ItemTypes.DOCLIB,
+    label: 'menu-item.type.doclib'
   },
   ARBITRARY: {
     key: MenuSettings.ItemTypes.ARBITRARY,

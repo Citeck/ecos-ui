@@ -52,6 +52,17 @@ export default class DashboardService {
     }
   });
 
+  static getEmptyDashboardConfig = () => {
+    return {
+      version: CONFIG_VERSION,
+      [CONFIG_VERSION]: {
+        widgets: [],
+        desktop: [DashboardService.defaultDashboardConfig(DashboardService.newIdLayout).layout],
+        mobile: []
+      }
+    };
+  };
+
   static formShortId(id) {
     return (id || '').replace(SourcesId.DASHBOARD + separatorId, '');
   }

@@ -272,9 +272,9 @@ class Dashboard extends Component {
       return;
     }
 
-    const { recordRef } = this.getPathInfo(search);
-    getDashboardConfig({ recordRef });
-    getDashboardTitle({ recordRef });
+    const { recordRef, dashboardId } = this.getPathInfo(search);
+    getDashboardConfig({ dashboardId, recordRef });
+    getDashboardTitle({ dashboardId, recordRef });
 
     this.setState({ needGetConfig: false });
   }
@@ -315,9 +315,9 @@ class Dashboard extends Component {
 
   updateSomeDetails = () => {
     const { getDashboardTitle } = this.props;
-    const { recordRef } = this.getPathInfo();
+    const { dashboardId, recordRef } = this.getPathInfo();
 
-    getDashboardTitle({ recordRef });
+    getDashboardTitle({ dashboardId, recordRef });
   };
 
   saveDashboardConfig = payload => {

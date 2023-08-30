@@ -19,6 +19,7 @@ const RECORD_REF_KEY = JournalUrlParams.RECORD_REF;
 const JOURNAL_SETTING_ID_KEY = JournalUrlParams.JOURNAL_SETTING_ID;
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
+const VIEW_MODE = 'viewMode';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
@@ -45,6 +46,10 @@ export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, Searc
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 export const OLD_LINKS = false;
+
+export const getCustomDasboardUrl = dashboardId => {
+  return `${URL.DASHBOARD}?dashboardId=${dashboardId}`;
+};
 
 export const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage() || !isNewVersionPage()) {
@@ -109,11 +114,12 @@ export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search }) => {
+export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search, viewMode }) => {
   const qString = queryString.stringify({
     [JOURNAL_ID_KEY]: journalId,
     [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
-    [SEARCH_KEY]: search || filter
+    [SEARCH_KEY]: search || filter,
+    [VIEW_MODE]: viewMode
   });
 
   return `${URL.JOURNAL}?${qString}`;

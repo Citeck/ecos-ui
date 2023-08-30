@@ -83,7 +83,7 @@ export default class Components {
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
       label: 'dashboard-settings.widget.report',
-      supportedDashboardTypes: [DashboardTypes.USER],
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM],
       props: {}
     },
     [ComponentKeys.COMMENTS]: {
@@ -152,7 +152,7 @@ export default class Components {
     [ComponentKeys.RECORD_ACTIONS]: {
       load: () => lazy(() => import('./Actions')),
       label: 'dashboard-settings.widget.actions',
-      supportedDashboardTypes: Components.getAllDashboardTypesExcept([DashboardTypes.USER]),
+      supportedDashboardTypes: Components.getAllDashboardTypesExcept([DashboardTypes.USER, DashboardTypes.CUSTOM]),
       props: {}
     },
     [ComponentKeys.WEB_PAGE]: {
@@ -164,7 +164,7 @@ export default class Components {
     [ComponentKeys.BIRTHDAYS]: {
       load: () => lazy(() => import('./Birthdays')),
       label: 'dashboard-settings.widget.birthdays',
-      supportedDashboardTypes: [DashboardTypes.USER],
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM],
       props: {}
     },
     [ComponentKeys.BARCODE]: {
@@ -231,7 +231,7 @@ export default class Components {
         ),
       checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.ChartsWidget')),
       label: 'dashboard-settings.widget.charts',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER, DashboardTypes.CUSTOM]
     },
     [ComponentKeys.STAGES]: {
       load: () =>
