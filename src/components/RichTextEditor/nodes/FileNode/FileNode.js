@@ -23,6 +23,10 @@ export class FileNode extends DecoratorNode {
     return 'file';
   }
 
+  static getHtmlElementType() {
+    return 'lexical-file-node';
+  }
+
   static clone(node) {
     return new FileNode(node.__size, node.__name, node.__fileRecordId);
   }
@@ -49,9 +53,15 @@ export class FileNode extends DecoratorNode {
 
   exportDOM() {
     const element = document.createElement('span');
-    element.setAttribute('data-lexical-size', this.__size);
-    element.setAttribute('data-lexical-name', this.__name);
-    element.setAttribute('data-lexical-file-id', this.__fileRecordId);
+
+    const jsonObj = {
+      type: FileNode.getHtmlElementType(),
+      size: this.__size,
+      name: this.__name,
+      fileRecordId: this.__fileRecordId
+    };
+
+    element.innerText = JSON.stringify(jsonObj);
 
     return { element };
   }

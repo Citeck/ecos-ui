@@ -5,6 +5,7 @@ export * from './ItalicFormatButton';
 export * from './LinkButton';
 export * from './NumericListButton';
 export * from './RedoButton';
+export * from './TableButton';
 export * from './TextFormatDropdownButton';
 export * from './UnderlineFormatButton';
 export * from './UndoButton';

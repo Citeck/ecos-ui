@@ -9,7 +9,8 @@ const NumericListButton = ({ editor, listType }) => {
   return (
     <IcoBtn
       title={t('editor.numeric-list')}
-      className={classNames('icon-list', 'ecos-rt-editor-toolbar__button', {
+      icon="fa fa-list-ol"
+      className={classNames('ecos-rt-editor-toolbar__button', {
         'ecos-rt-editor-toolbar__button_active': listType === 'number'
       })}
       onClick={() => {
