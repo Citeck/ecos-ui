@@ -40,7 +40,7 @@ export default class EsignConverter {
     const { document, signedMessage, user, isApprovementSignature, thumbprint } = source;
 
     if (document) {
-      target.nodeRef = document;
+      target.documentRef = target.nodeRef = document;
     }
 
     if (signedMessage) {

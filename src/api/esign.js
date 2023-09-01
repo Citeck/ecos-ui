@@ -2,6 +2,8 @@ import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import { PROXY_URI } from '../constants/alfresco';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
+import Records from '../components/Records/Records';
 
 class EsignApi {
   static _cadespluginApi = null;
@@ -56,11 +58,27 @@ class EsignApi {
     }
   }
 
-  getDocumentData = record => {
-    return fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
-      method: 'GET',
-      credentials: 'include'
-    }).then(response => response.json());
+  getDocumentData = async record => {
+    const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+
+    if (hasAlfresco) {
+      return fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
+        method: 'GET',
+        credentials: 'include'
+      }).then(response => response.json());
+    }
+
+    return Records.query(
+      {
+        sourceId: 'edi/esign-digest-att-get',
+        record
+      },
+      {
+        success: 'success?bool',
+        digestResult: 'digestResult?str',
+        errorString: 'errorString?str'
+      }
+    );
   };
 
   async getSignedDocument(thumbprint, base64) {
@@ -71,12 +89,28 @@ class EsignApi {
     return await this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
   };
 
-  sendSignedDocument = (body = {}) => {
-    return fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
-      method: 'POST',
-      credentials: 'include',
-      body: JSON.stringify(body)
-    }).then(response => response.json());
+  sendSignedDocument = async (body = {}) => {
+    const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+
+    if (hasAlfresco) {
+      return fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(body)
+      }).then(response => response.json());
+    }
+
+    return Records.query(
+      {
+        sourceId: 'edi/esign-digital-signature-put',
+        query: body
+      },
+      {
+        success: 'success?bool',
+        digestResult: 'digestResult?str',
+        errorString: 'errorString?str'
+      }
+    );
   };
 }
 
