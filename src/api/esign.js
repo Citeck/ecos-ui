@@ -71,7 +71,7 @@ class EsignApi {
     return Records.query(
       {
         sourceId: 'edi/esign-digest-att-get',
-        record
+        query: { documentRef: record }
       },
       {
         success: 'success?bool',
@@ -100,17 +100,9 @@ class EsignApi {
       }).then(response => response.json());
     }
 
-    return Records.query(
-      {
-        sourceId: 'edi/esign-digital-signature-put',
-        query: body
-      },
-      {
-        success: 'success?bool',
-        digestResult: 'digestResult?str',
-        errorString: 'errorString?str'
-      }
-    );
+    var rec = Records.get('edi/esign-digital-signature-put@');
+    rec.att('_self', body);
+    return rec.save('?json');
   };
 }
 

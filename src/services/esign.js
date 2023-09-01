@@ -9,6 +9,7 @@ import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 import { t, objectByString } from '../helpers/util';
 
 class Esign {
@@ -172,7 +173,14 @@ class Esign {
       }
 
       const documentResponse = await api.getDocumentData(document);
-      const base64 = get(documentResponse, 'data.0.base64', '');
+      const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+
+      var base64;
+      if (hasAlfresco) {
+        base64 = get(documentResponse, 'data.0.base64', '');
+      } else {
+        base64 = documentResponse.records[0].digestResult;
+      }
 
       if (!base64) {
         return Promise.reject({
@@ -213,7 +221,13 @@ class Esign {
         EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user })
       );
 
-      return get(signResponse, 'data', false);
+      var result;
+      if (hasAlfresco) {
+        result = get(signResponse, 'data', false);
+      } else {
+        result = signResponse.success;
+      }
+      return result;
     } catch (e) {
       console.error('[EsignService signDocumentByNode] error ', e.message);
 
