@@ -5,6 +5,7 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
@@ -13,7 +14,14 @@ import { $insertNodes, $getRoot } from 'lexical';
 import isNil from 'lodash/isNil';
 import classNames from 'classnames';
 
-import { CodeHightLightPlugin, FilePlugin, LinkEditorPlugin, MarkdownShortcutPlugin, ToolbarPlugin } from './plugins';
+import {
+  CodeHightLightPlugin,
+  FilePlugin,
+  LinkEditorPlugin,
+  MarkdownShortcutPlugin,
+  TablePlugin as CustomTablePlugin,
+  ToolbarPlugin
+} from './plugins';
 import { Placeholder } from './components';
 
 import './style.scss';
@@ -42,18 +50,22 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
   useEffect(
     () => {
       if (!isNil(htmlString)) {
-        editor.update(() => {
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(htmlString, 'text/html');
-          const nodes = $generateNodesFromDOM(editor, dom);
+        try {
+          editor.update(() => {
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(htmlString, 'text/html');
+            const nodes = $generateNodesFromDOM(editor, dom);
 
-          // const root = $getRoot();
+            // const root = $getRoot();
 
-          $getRoot().select();
+            $getRoot().select();
 
-          // Insert them at a selection.
-          $insertNodes(nodes);
-        });
+            // Insert them at a selection.
+            $insertNodes(nodes);
+          });
+        } catch (e) {
+          console.error(e);
+        }
       }
     },
     [htmlString, editor]
@@ -76,6 +88,8 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
         <FilePlugin />
         <ListPlugin />
         <LinkPlugin />
+        <TablePlugin />
+        <CustomTablePlugin />
         <HistoryPlugin />
         <MarkdownShortcutPlugin />
         <CodeHightLightPlugin />

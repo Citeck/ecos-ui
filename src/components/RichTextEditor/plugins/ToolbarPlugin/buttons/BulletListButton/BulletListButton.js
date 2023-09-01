@@ -9,7 +9,8 @@ const BulletListButton = ({ editor, listType }) => {
   return (
     <IcoBtn
       title={t('editor.bullet-list')}
-      className={classNames('icon-items', 'ecos-rt-editor-toolbar__button', {
+      icon="fa fa-list"
+      className={classNames('ecos-rt-editor-toolbar__button', {
         'ecos-rt-editor-toolbar__button_active': listType === 'bullet'
       })}
       onClick={() => {

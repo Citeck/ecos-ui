@@ -388,8 +388,8 @@
   "editor.format-italic": "Курсив",
   "editor.format-underline": "Подчёркнутый",
   "editor.format-link": "Вставить ссылку",
-  "editor.bullet-list": "Маркированный лист",
-  "editor.numeric-list": "Нумерованный лист",
+  "editor.bullet-list": "Маркированный список",
+  "editor.numeric-list": "Нумерованный список",
   "editor.code-format": "Код",
   "editor.redo-button": "Вперед",
   "editor.undo-button": "Назад",
@@ -675,6 +675,10 @@
   "export-component.notice.buffer-link-done": "Ссылка на выборку скопирована в буфер обмена",
   "export-component.notice.buffer-link-err": "Не удалось создать ссылку на выборку",
   "export-component.notice.buffer-link-preparation": "Подождите, идет подготовка ссылки на выборку",
+
+  "table-plugin.table-dialog.insert-table-title": "Вставить таблицу",
+  "table-plugin.table-dialog.rows-count": "Кол-во строк",
+  "table-plugin.table-dialog.columns-count": "Кол-во столбцов",
 
   "tree-component.tooltip.cannot-be-changes": "Нельзя изменить состояние",
   "tree-component.tooltip.update-icon": "Обновить иконку",
