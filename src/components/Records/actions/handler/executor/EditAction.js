@@ -29,6 +29,7 @@ export default class EditAction extends ActionsExecutor {
           let wasClosed = false;
           EcosFormUtils.editRecord({
             recordRef: record.id,
+            options: { actionRecord: record.id },
             attributes: config.attributes || {},
             fallback: () => goToNodeEditPage(record.id),
             onSubmit: () => {

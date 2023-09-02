@@ -22,7 +22,7 @@ export default class CreateAction extends ActionsExecutor {
     return new Promise(resolve => {
       const params = {
         attributes: config.attributes || {},
-        options: config.options || {},
+        options: { ...(config.options || {}), actionRecord: record.id },
         onSubmit: record => {
           const { redirectToPage = true } = config;
 

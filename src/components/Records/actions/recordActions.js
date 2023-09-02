@@ -187,7 +187,7 @@ class RecordActions {
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId, modalClass } = data;
+    const { title, text, formId, modalClass, options = {} } = data;
 
     if (formId) {
       EcosFormUtils.getFormById(formId, { definition: 'definition?json', i18n: 'i18n?json' })
@@ -196,7 +196,7 @@ class RecordActions {
 
           DialogManager.showFormDialog({
             title,
-            formOptions,
+            formOptions: { ...formOptions, ...options },
             formDefinition: { display: 'form', ...definition },
             onSubmit: submission => callback(submission.data),
             onCancel: _ => callback(false)
@@ -222,12 +222,14 @@ class RecordActions {
     }
   }
 
-  static async _checkConfirmAction(action) {
+  static async _checkConfirmAction(action, params) {
     const confirmData = RecordActions._getConfirmData(action);
 
     if (!confirmData) {
       return true;
     }
+
+    get(params, 'actionRecord') && set(confirmData, 'options.actionRecord', params.actionRecord);
 
     return await new Promise(resolve => {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
@@ -394,6 +396,8 @@ class RecordActions {
       notifyFailure();
       return false;
     }
+
+    const recordInstance = Records.get(record);
     const handler = RecordActions._getActionsExecutor(action);
 
     if (handler == null) {
@@ -407,7 +411,7 @@ class RecordActions {
       ...context
     };
 
-    const confirmed = await RecordActions._checkConfirmAction(action);
+    const confirmed = await RecordActions._checkConfirmAction(action, { actionRecord: recordInstance.id });
 
     if (!confirmed) {
       return false;
@@ -422,7 +426,7 @@ class RecordActions {
       ...action,
       config
     };
-    const result = handler.execForRecord(Records.get(record), actionToExec, execContext);
+    const result = handler.execForRecord(recordInstance, actionToExec, execContext);
     const actResult = await RecordActions._wrapResultIfRequired(result);
 
     RecordActions._updateRecords(record);

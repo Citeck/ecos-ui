@@ -15,6 +15,7 @@ export default class OpenSubmitAction extends ActionsExecutor {
     return new Promise(resolve => {
       const params = {
         formId,
+        options: { actionRecord: record.id },
         onSubmit: record => {
           record.update();
           resolve(true);
