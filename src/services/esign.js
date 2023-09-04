@@ -174,13 +174,7 @@ class Esign {
 
       const documentResponse = await api.getDocumentData(document);
       const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
-
-      var base64;
-      if (hasAlfresco) {
-        base64 = get(documentResponse, 'data.0.base64', '');
-      } else {
-        base64 = documentResponse.records[0].digestResult;
-      }
+      const base64 = get(documentResponse, hasAlfresco ? 'data.0.base64' : 'records[0].digestResult', '');
 
       if (!base64) {
         return Promise.reject({
@@ -221,13 +215,7 @@ class Esign {
         EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user })
       );
 
-      var result;
-      if (hasAlfresco) {
-        result = get(signResponse, 'data', false);
-      } else {
-        result = signResponse.success;
-      }
-      return result;
+      return hasAlfresco ? get(signResponse, 'data', false) : signResponse.success;
     } catch (e) {
       console.error('[EsignService signDocumentByNode] error ', e.message);
 

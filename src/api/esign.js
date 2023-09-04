@@ -1,7 +1,9 @@
 import getCadespluginAPI from 'async-cadesplugin';
 import get from 'lodash/get';
 import set from 'lodash/set';
+
 import { PROXY_URI } from '../constants/alfresco';
+import { EDI_REQUEST } from '../constants/esign';
 import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 import Records from '../components/Records/Records';
 
@@ -70,7 +72,7 @@ class EsignApi {
 
     return Records.query(
       {
-        sourceId: 'edi/esign-digest-att-get',
+        sourceId: EDI_REQUEST.GET_DIGEST,
         query: { documentRef: record }
       },
       {
@@ -100,8 +102,10 @@ class EsignApi {
       }).then(response => response.json());
     }
 
-    var rec = Records.get('edi/esign-digital-signature-put@');
+    const rec = Records.get(EDI_REQUEST.PUT_DIGITAL_SIGNATURE);
+
     rec.att('_self', body);
+
     return rec.save('?json');
   };
 }
