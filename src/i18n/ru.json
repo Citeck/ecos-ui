@@ -2472,7 +2472,7 @@
   "bpmn-linter.sequence-flow.duplicate": "SequenceFlow: является дубликатом",
   "bpmn-linter.sequence-flow.incoming-duplicate": "SequenceFlow: дублирование входящих потоков",
   "bpmn-linter.sequence-flow.outgoing-duplicate": "SequenceFlow: дублирование исходящих потоков",
-  "bpmn-linter.sequence-flow.should-be-default": "Поток без условия рекомундуется помечать как Default",
+  "bpmn-linter.sequence-flow.should-be-default": "Поток без условия рекомендуется помечать как Default",
   "bpmn-linter.gateway.forks-and-joins": "Разветвления и соединения шлюза",
   "bpmn-linter.flow.splits-implicitly": "Поток разделяется неявно",
   "bpmn-linter.process.multiple-blank-start": "Процесс имеет несколько пустых начальных событий",
