@@ -177,7 +177,7 @@ export class AppApi extends CommonApi {
 
   recordIsExist(recordRef, showNotification = false) {
     return Records.get(recordRef)
-      .load('_notExists?bool')
+      .load('_notExists?bool', true)
       .then(status => {
         if (status === null) {
           return true;
