@@ -18,6 +18,7 @@ import EcosFormBuilder from './builder/EcosFormBuilder';
 import EcosFormBuilderModal from './builder/EcosFormBuilderModal';
 import EcosFormUtils from './EcosFormUtils';
 import { LANGUAGE_EN } from '../../constants/lang';
+import { PANEL_CLASS_NAME } from '../../constants/pageTabs';
 import { SUBMIT_FORM_TIMEOUT } from '../../constants/forms';
 import { PRE_SETTINGS_TYPES, PreSettings } from '../PreSettings';
 import { FORM_MODE_EDIT } from './constants';
@@ -434,7 +435,10 @@ class EcosForm extends React.Component {
   };
 
   onScrollBarClick = e => {
-    if (e.offsetX > e.target.clientWidth || e.offsetY > e.target.clientHeight) {
+    const isScrollbar =
+      e.target && e.target.classList && (e.target.classList.contains('panel-body') || e.target.classList.contains(PANEL_CLASS_NAME));
+
+    if (isScrollbar && (e.offsetX > e.target.clientWidth || e.offsetY > e.target.clientHeight)) {
       e.preventDefault();
     }
   };
