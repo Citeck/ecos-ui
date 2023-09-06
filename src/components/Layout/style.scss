@@ -347,6 +347,12 @@ $adaptive-columns-size: 68%;
     justify-content: space-between;
   }
 
+  &__empty-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   &__menu {
     display: flex;
     width: 100%;

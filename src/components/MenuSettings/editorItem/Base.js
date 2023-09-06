@@ -33,6 +33,7 @@ class Base extends React.Component {
     this.handleCancel = this.handleCancel.bind(this);
     this.handleApply = this.handleApply.bind(this);
     this.isInvalidForm = this.isInvalidForm.bind(this);
+    this.toggleIsloading = this.toggleIsloading.bind(this);
   }
 
   componentDidMount() {
@@ -77,6 +78,8 @@ class Base extends React.Component {
   isInvalidForm() {
     return false;
   }
+
+  toggleIsloading = isLoading => this.setState({ isLoading });
 
   get isInvalidLabel() {
     const { label } = this.state;

@@ -4,7 +4,8 @@ export const DashboardTypes = {
   SITE: 'site-details',
   PROFILE: 'profile-details',
   PROCESS: 'process-dashboard',
-  ORGSTRUCTURE: 'orgstructure-person-dashboard'
+  ORGSTRUCTURE: 'orgstructure-person-dashboard',
+  CUSTOM: 'custom'
 };
 
 export const DeviceTabs = [

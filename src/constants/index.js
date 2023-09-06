@@ -110,6 +110,7 @@ export const QueryLanguages = {
 
 export const EmodelTypes = {
   USER_DASHBOARD: 'emodel/type@user-dashboard',
+  CUSTOM_DASHBOARD: 'emodel/type@custom-dashboard',
   BASE: 'emodel/type@base',
   HISTORY_REC: 'emodel/type@history-record'
 };
@@ -221,6 +222,7 @@ export const SYSTEM_LIST = 'global-system';
 export const SystemJournals = {
   JOURNALS: 'ecos-journals',
   TYPES: 'ecos-types',
+  KANBAN: 'ecos-boards',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
   PROCESS: 'bpmn-process-def',

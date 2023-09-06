@@ -294,6 +294,7 @@
   "dashboard-settings.widget.charts": "Graphic statistic",
   "dashboard-settings.widget.with-config": "This widget has settings. When you delete the widget, the settings will be lost",
   "dashboard-settings.layout.tooltip.adaptive": "The number of columns is adjusted to the size of the browser window",
+  "dashboard-settings.layout.empty-layout": "Widgets not configured.",
 
   "dashlet.error-boundary.msg": "The error occurred in the widget. Try updating the widget/page. If the error reappears, contact your administrator",
   "dashlet.submit.button": "Submit",
@@ -1634,6 +1635,9 @@
 
   "menu-item.type.section": "Section",
   "menu-item.type.journal": "Journal",
+  "menu-item.type.kanban": "Kanban Board",
+  "menu-item.type.dashboard": "Dashboard",
+  "menu-item.type.doclib": "DocLib",
   "menu-item.type.arbitrary": "Arbitrary menu item",
   "menu-item.type.link-create-case": "Link to create a case",
   "menu-item.type.header-divider": "Header Divider",
