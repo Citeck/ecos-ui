@@ -8,6 +8,7 @@ import isArray from 'lodash/isArray';
 import { JournalUrlParams, SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
+import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { IS_TEST_ENV, hasInString } from './util';
@@ -159,7 +160,13 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
+    const activeTab = PageTabList.activeTab;
+
     changeUrl(journalPageUrl, { openNewTab: true });
+
+    if (options.replaceJournal) {
+      PageTabList.delete(activeTab);
+    }
   }
 };
 

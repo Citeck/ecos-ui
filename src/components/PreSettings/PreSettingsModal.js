@@ -86,17 +86,25 @@ class PreSettingsModal extends React.Component {
       return;
     }
 
-    Records.query({
-      sourceId: SourcesId.TYPE,
-      language: 'predicate',
-      query: {
-        t: PREDICATE_EQ,
-        a: this.isFormType ? 'formRef' : 'journalRef',
-        v: this.recordRef
+    Records.query(
+      {
+        sourceId: SourcesId.TYPE,
+        language: 'predicate',
+        query: {
+          t: PREDICATE_EQ,
+          a: this.isFormType ? 'formRef' : 'journalRef',
+          v: this.recordRef
+        }
+      },
+      {
+        id: 'id'
       }
-    }).then(result => {
+    ).then(result => {
+      const [, id] = this.recordRef.split('@') || '';
+      const [, typeName] = id.split('$');
+
       if (Array.isArray(result.records)) {
-        this.handleChangeTypes(result.records[0]);
+        this.handleChangeTypes(`${SourcesId.TYPE}@${get(result.records.find(record => record.id === typeName), 'id')}`);
       }
     });
   };
@@ -273,12 +281,12 @@ class PreSettingsModal extends React.Component {
 
                 this.instanceRecordToSave.save().then(() => {
                   if (!this.typeToSave) {
-                    goToJournalsPage({ journalId: newRecordRef });
+                    goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
                   }
 
                   this.typeToSave &&
                     this.typeToSave.save().then(() => {
-                      goToJournalsPage({ journalId: newRecordRef });
+                      goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
                     });
 
                   this.rollback();
