@@ -562,7 +562,7 @@ class RecordActions {
       }
 
       const recordInstances = Records.get(records);
-      const confirmed = await RecordActions._checkConfirmAction(action, { actionRecords: recordInstances.map(ri => ri.id) });
+      const confirmed = await RecordActions._checkConfirmAction(action, { actionRecords: records });
 
       if (!confirmed) {
         return false;
