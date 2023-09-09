@@ -91,6 +91,12 @@ export default class BaseEditorMenu extends React.Component {
         editItemInfo: {
           ...editItemInfo,
           several: true,
+          presetFilterPredicates: [
+            {
+              t: PREDICATE_NOT_EMPTY,
+              att: 'journalRef'
+            }
+          ],
           journalId: SystemJournals.KANBAN
         }
       });
