@@ -281,7 +281,7 @@ class PreSettingsModal extends React.Component {
 
                 this.instanceRecordToSave.save().then(() => {
                   if (!this.typeToSave) {
-                    goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
+                    goToJournalsPage({ journalId: newRecordRef });
                   }
 
                   this.typeToSave &&
