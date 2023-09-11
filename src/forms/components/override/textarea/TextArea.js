@@ -341,7 +341,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
   show(show, noClear) {
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-89
-    if (show && this.wysiwygRendered && this.editorReady) {
+    if (show && this.editorReady) {
       this.editorReady
         .then(editor => {
           const source = this.isCkeEditor ? 'sourceElement' : 'container';
