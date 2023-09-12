@@ -109,10 +109,6 @@ export default class BaseReactComponent extends BaseComponent {
     } else {
       this.updateDescription();
     }
-
-    if (this.root.options.builder) {
-      this.showElement(!this.component.hidden);
-    }
   }
 
   // Cause: https://citeck.atlassian.net/browse/ECOSUI-1506
