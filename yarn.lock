@@ -9707,7 +9707,7 @@ __metadata:
 
 "formiojs@patch:formiojs@npm%3A3.30.1#./.yarn/patches/formiojs-npm-3.30.1-210b022db1.patch::locator=ecos-ui%40workspace%3A.":
   version: 3.30.1
-  resolution: "formiojs@patch:formiojs@npm%3A3.30.1#./.yarn/patches/formiojs-npm-3.30.1-210b022db1.patch::version=3.30.1&hash=5dce34&locator=ecos-ui%40workspace%3A."
+  resolution: "formiojs@patch:formiojs@npm%3A3.30.1#./.yarn/patches/formiojs-npm-3.30.1-210b022db1.patch::version=3.30.1&hash=c6e396&locator=ecos-ui%40workspace%3A."
   dependencies:
     browser-cookies: ^1.2.0
     choices.js: ^7.1.5
@@ -9735,7 +9735,7 @@ __metadata:
     two.js: ^0.7.0-beta.3
     vanilla-picker: ^2.11.0
     vanilla-text-mask: ^5.1.1
-  checksum: 22450f5f8a906458d777e2ec1fce55e387b83deed1c36a10c5fa0a7a1ffde83ace9a6a5e99d1c1048b4b168695c1117ae317df9e8d3deede0759ce6a63d41e79
+  checksum: 7df9c187ddb5621d4a99988143d3b71bcd80fc856ae7b2b22002c14d319b84d374bf7af42de73d21a9971a1b4109bf5b5a65042145df81db924ffedf838a4e62
   languageName: node
   linkType: hard
 

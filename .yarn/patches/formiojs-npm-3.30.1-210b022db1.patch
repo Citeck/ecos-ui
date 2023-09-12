@@ -119,3 +119,12 @@ index 03bfd62..074e599 100644
        this.updateSize = update;
        update();
      }
+@@ -725,7 +725,7 @@ var TextAreaComponent = /*#__PURE__*/function (_TextFieldComponent) {
+     get: function get() {
+       var defaultValue = _get(_getPrototypeOf(TextAreaComponent.prototype), "defaultValue", this);
+ 
+-      if (this.component.wysiwyg && !defaultValue) {
++      if (this.component.wysiwyg && defaultValue === undefined) {
+         defaultValue = '<p><br></p>';
+       }
+ 
