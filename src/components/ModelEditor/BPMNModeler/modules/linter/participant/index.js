@@ -1,7 +1,6 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import get from 'lodash/get';
 
-import { PREFIX_FIELD } from '../../../../../../constants/cmmn';
 import { t } from '../../../../../../helpers/util';
 import { BPMN_LINT_PREFIX } from '../constants';
 
@@ -15,10 +14,7 @@ const participantHasProcessId = {
         return;
       }
 
-      const processRefAttr = `${PREFIX_FIELD}processRef`;
-      const processRef = get(node.$attrs, [processRefAttr], '').trim();
-
-      if (!processRef) {
+      if (!get(node, 'processRef.id')) {
         reporter.report(node.id, t('bpmn-linter.participant.no-process-id'));
       }
     };
