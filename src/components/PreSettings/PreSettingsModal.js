@@ -271,6 +271,7 @@ class PreSettingsModal extends React.Component {
           config: {
             saveOnSubmit: false,
             onFormCancel: this.rollback,
+            onHideModal: this.rollback,
             onPreSettingSubmit: (record, form) => {
               const data = get(form, 'submission.data');
 
