@@ -19,19 +19,19 @@ class EditTabForm extends React.Component {
   };
 
   render() {
-    const { isOpen, hideModal, onChangeLabel, label, onSave } = this.props;
+    const { isOpen, isValidText, hideModal, label, onChangeLabel, onSave } = this.props;
 
     return (
       <EcosModal title={t(Labels.Modal.SETTINGS_MODAL_TITLE)} isOpen={isOpen} hideModal={hideModal} size="small">
         <div className="ecos-tab-settings-modal">
-          <Field label={t(Labels.Modal.SETTINGS_LABEL_TITLE)}>
+          <Field label={t(Labels.Modal.SETTINGS_LABEL_TITLE)} isRequired>
             <MLText value={this.getMLValue(label)} onChange={onChangeLabel} />
           </Field>
           <div className="ecos-tab-settings-modal__buttons">
             <Btn className="ecos-btn_hover_light-blue" onClick={hideModal}>
               {t(Labels.Modal.SETTINGS_MODAL_CANCEL)}
             </Btn>
-            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" onClick={onSave}>
+            <Btn className="ecos-btn_blue ecos-btn_hover_light-blue" disabled={!isValidText} onClick={onSave}>
               {t(Labels.Modal.SETTINGS_MODAL_SAVE)}
             </Btn>
           </div>

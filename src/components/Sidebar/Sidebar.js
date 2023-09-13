@@ -48,8 +48,7 @@ class Sidebar extends React.Component {
   slideMenuToggle = null;
 
   state = {
-    fetchItems: false,
-    needCheckSelected: false
+    fetchItems: false
   };
 
   componentDidMount() {
@@ -58,7 +57,7 @@ class Sidebar extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isReady, idMenu, locationKey, setInitialSelectedId } = this.props;
+    const { isReady, idMenu } = this.props;
 
     this.fetchItems();
 
@@ -68,15 +67,6 @@ class Sidebar extends React.Component {
 
     if (prevProps.idMenu !== idMenu) {
       this.reInit();
-    }
-
-    if (prevProps.locationKey !== locationKey) {
-      this.setState({ needCheckSelected: true });
-    }
-
-    if (!prevState.needCheckSelected && this.state.needCheckSelected) {
-      setInitialSelectedId();
-      this.setState({ needCheckSelected: false });
     }
   }
 

@@ -6,7 +6,7 @@ import Icon from '../icons/Icon/Icon';
 import { t } from '../../../helpers/util';
 import { Labels } from './constants';
 
-export const Menu = ({ id, isActive, isEditable, isOpenMenu, classNameTooltip, startEdit, onDelete, onToggleMenu }) => {
+export const Menu = ({ disabled, id, isActive, isEditable, isOpenMenu, classNameTooltip, startEdit, onDelete, onToggleMenu }) => {
   if (isEditable) {
     return null;
   }
@@ -39,10 +39,12 @@ export const Menu = ({ id, isActive, isEditable, isOpenMenu, classNameTooltip, s
           <Icon className="icon-edit ecos-tab-actions__menu-item-icon" />
           <span className="ecos-tab-actions__menu-item-title">{t(Labels.Menu.BUTTON_EDIT)}</span>
         </div>
-        <div key="delete" onClick={onDelete} className="ecos-tab-actions__menu-item ecos-tab-actions__menu-item_warning">
-          <Icon className="icon-delete ecos-tab-actions__menu-item-icon" />
-          <span className="ecos-tab-actions__menu-item-title">{t(Labels.Menu.BUTTON_DELETE)}</span>
-        </div>
+        {!disabled && (
+          <div key="delete" onClick={onDelete} className="ecos-tab-actions__menu-item ecos-tab-actions__menu-item_warning">
+            <Icon className="icon-delete ecos-tab-actions__menu-item-icon" />
+            <span className="ecos-tab-actions__menu-item-title">{t(Labels.Menu.BUTTON_DELETE)}</span>
+          </div>
+        )}
       </Tooltip>
     </>
   );
