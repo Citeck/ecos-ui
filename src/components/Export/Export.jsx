@@ -153,12 +153,12 @@ export default class Export extends Component {
 
   getSelectionUrl = () => {
     const { dashletConfig, journalConfig } = this.props;
-    const { href, host } = window.location;
+    const { href, host, protocol } = window.location;
 
     if (journalConfig) {
       const journalId = get(journalConfig, 'meta.nodeRef', get(dashletConfig, 'journalId')) || '';
 
-      return decodeLink(`${host}${URL.JOURNAL}?${queryString.stringify({ journalId })}`);
+      return decodeLink(`${protocol}//${host}${URL.JOURNAL}?${queryString.stringify({ journalId })}`);
     }
 
     const objectUrl = queryString.parseUrl(href);
