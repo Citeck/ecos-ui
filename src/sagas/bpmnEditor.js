@@ -24,6 +24,8 @@ import PageTabList from '../services/pageTabs/PageTabList';
 import { isJsonObjectString } from '../helpers/util';
 import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
 import { PROCESS_DEF_API_ACTIONS } from '../api/process';
+import { updateModels } from '../actions/bpmn';
+import { SourcesId } from '../constants';
 
 export function* init({ api, logger }, { payload: { stateId, record } }) {
   try {
@@ -46,7 +48,7 @@ export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   }
 }
 
-export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, definitionAction } }) {
+export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml, img, definitionAction, processDefId } }) {
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
@@ -62,6 +64,14 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
         message = t('editor.success.model-save-deployed');
       }
       NotificationManager.success(message, title);
+
+      const updatePayload = {
+        action: 'edit',
+        modelId: record,
+        resultModelId: processDefId ? `${SourcesId.BPMN_DEF}@${processDefId}` : record
+      };
+
+      yield put(updateModels(updatePayload));
 
       if (definitionAction === PROCESS_DEF_API_ACTIONS.DEPLOY) {
         yield put(deleteTab(PageTabList.activeTab));
