@@ -206,6 +206,10 @@ class Settings extends Component {
     }
   }
 
+  get isCustomDashboard() {
+    return get(this.props, 'identification.type') === DashboardTypes.CUSTOM;
+  }
+
   fetchData(props = this.props) {
     const { initSettings } = props;
     let { recordRef, dashboardId } = props;
@@ -227,7 +231,7 @@ class Settings extends Component {
 
   setStateConfig(props) {
     const selectedDashboardKey = get(props, 'identification.key', '');
-    const isForAllUsers = isNull(get(props, 'identification.user', null));
+    const isForAllUsers = this.isCustomDashboard || isNull(get(props, 'identification.user', null));
     const { config } = props;
 
     let activeLayoutTabId = null;
@@ -448,6 +452,7 @@ class Settings extends Component {
           keys={dashboardKeyItems}
           selectedDashboardKey={selectedDashboardKey}
           isAdmin={userData.isAdmin}
+          isCustomDashboard={this.isCustomDashboard}
           isForAllUsers={isForAllUsers}
           isDefaultConfig={isDefaultConfig}
           setData={setData}

@@ -138,19 +138,6 @@ export class DashboardApi {
       });
   };
 
-  updateCustomDashboard = ({ dashboardId, name, onSave }) => {
-    const record = Records.get(`${SourcesId.DASHBOARD}@`);
-
-    record.att('id', dashboardId);
-    record.att('name?json', name);
-
-    return record.save().then(response => {
-      cache.clear();
-      isFunction(onSave) && onSave(response);
-      return response;
-    });
-  };
-
   getDashboardByOneOf = ({ dashboardId, recordRef }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId, true);

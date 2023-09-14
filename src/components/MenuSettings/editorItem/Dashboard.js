@@ -56,20 +56,6 @@ export default class Dashboard extends Base {
 
       return;
     }
-
-    dashboardApi.updateCustomDashboard({
-      dashboardId,
-      name: label,
-      onSave: () => {
-        this.data.config = {
-          ...config,
-          dashboardId
-        };
-
-        this.toggleIsloading(false);
-        onSave(this.data);
-      }
-    });
   }
 
   isInvalidForm() {
