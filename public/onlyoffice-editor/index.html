@@ -50,12 +50,38 @@
     return params
   }
 
+  function isObject(value) {
+    return value && !Array.isArray(value) && typeof value === 'object';
+  }
+
+  function mergeConfig(target, source) {
+    if (!isObject(source)) {
+      return target
+    }
+    if (!isObject(target)) {
+      return source;
+    }
+    const newTarget = Object.assign({}, target);
+    for (let key in source) {
+      if (isObject(source[key])) {
+        newTarget[key] = mergeConfig(target[key], source[key]);
+      } else {
+        newTarget[key] = source[key];
+      }
+    }
+    return newTarget;
+  }
+
   const params = getQueryParams();
 
   fetch('/gateway/emodel/api/doc-editor/onlyoffice/config?ref=' + params.ref)
     .then(response => {
       return response.json().then(configOrError => {
         if (response.ok) {
+          if (params.config) {
+            const customConfig = JSON.parse(params.config)
+            configOrError = mergeConfig(configOrError, customConfig)
+          }
           new DocsAPI.DocEditor("placeholder", {
             onlyofficeUrl: '/onlyoffice/',
             ...configOrError,
