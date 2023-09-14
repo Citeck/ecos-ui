@@ -26,6 +26,8 @@ import { getSelectedValue, t } from '../../../helpers/util';
 import { wrapArgs } from '../../../helpers/redux';
 import DashboardService from '../../../services/dashboard';
 import { SystemJournals } from '../../../constants';
+import { LinkedAttributesSelect } from '../../LinkedAttributesSelect';
+import Records from '../../Records';
 import { JOURNAL_DASHLET_CONFIG_VERSION } from '../constants';
 import GoToButton from './GoToButton';
 
@@ -84,13 +86,20 @@ class JournalsDashletEditor extends Component {
     customJournal: '',
     selectedJournals: [],
     journalSettingId: '',
-    isCustomJournalMode: false,
-    isOnlyLinked: true
+    isCustomJournalMode: false
   });
 
   #dataInit = false;
 
-  state = { ...this.#defaultStateConfig };
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      ...this.#defaultStateConfig,
+      isOnlyLinked: get(props, 'config.onlyLinked') || false,
+      attrsToLoad: get(props, 'config.attrsToLoad') || []
+    };
+  }
 
   componentDidMount() {
     const { config, getDashletEditorData } = this.props;
@@ -100,6 +109,8 @@ class JournalsDashletEditor extends Component {
     if (!isEmpty(config)) {
       this.setFirstStateConfig();
     }
+
+    this.fetchTypeRef();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -136,7 +147,11 @@ class JournalsDashletEditor extends Component {
   }
 
   get isDisabled() {
-    const { isCustomJournalMode, customJournal, selectedJournals } = this.state;
+    const { isCustomJournalMode, isOnlyLinked, attrsToLoad, customJournal, selectedJournals } = this.state;
+
+    if (isOnlyLinked && attrsToLoad && attrsToLoad.length === 0) {
+      return true;
+    }
 
     if (isCustomJournalMode && !customJournal) {
       return true;
@@ -185,6 +200,20 @@ class JournalsDashletEditor extends Component {
     }
   }
 
+  fetchTypeRef = () => {
+    const { recordRef } = this.props;
+
+    if (!recordRef) {
+      return;
+    }
+
+    Records.get(recordRef)
+      .load('_type?id')
+      .then(typeRef => {
+        this.setState({ typeRef });
+      });
+  };
+
   handleCancel = () => {
     const { config, setEditorMode } = this.props;
 
@@ -193,13 +222,22 @@ class JournalsDashletEditor extends Component {
 
   handleSave = () => {
     const { config, id, recordRef, onSave, saveDashlet, setDashletConfig, checkConfig, setEditorMode } = this.props;
-    const { selectedJournals, isCustomJournalMode, customJournal, journalSettingId, isOnlyLinked, goToButtonName } = this.state;
+    const {
+      attrsToLoad,
+      selectedJournals,
+      isCustomJournalMode,
+      customJournal,
+      journalSettingId,
+      isOnlyLinked,
+      goToButtonName
+    } = this.state;
     const generalConfig = this.props.generalConfig || {};
     const journalId = get(selectedJournals, '0', '');
     let newConfig = omit(config, ['journalsListId', 'journalType']);
 
     if (recordRef) {
       newConfig.onlyLinked = isOnlyLinked;
+      newConfig.attrsToLoad = attrsToLoad;
     }
 
     newConfig.journalsListIds = selectedJournals;
@@ -244,8 +282,8 @@ class JournalsDashletEditor extends Component {
     this.setState({ journalSettingId: item.id });
   };
 
-  setOnlyLinked = isOnlyLinked => {
-    this.setState({ isOnlyLinked });
+  onChangeLinkedSettings = newSettings => {
+    this.setState(newSettings);
   };
 
   setCustomJournal = e => {
@@ -276,7 +314,16 @@ class JournalsDashletEditor extends Component {
 
   render() {
     const { className, recordRef, journalSettings, configJournalId, forwardRef } = this.props;
-    const { customJournal, selectedJournals, journalSettingId, isCustomJournalMode, isOnlyLinked, goToButtonName } = this.state;
+    const {
+      attrsToLoad,
+      typeRef,
+      customJournal,
+      selectedJournals,
+      journalSettingId,
+      isCustomJournalMode,
+      isOnlyLinked,
+      goToButtonName
+    } = this.state;
 
     return (
       <div className={classNames('ecos-journal-dashlet-editor', className)} ref={forwardRef}>
@@ -319,9 +366,13 @@ class JournalsDashletEditor extends Component {
             <Checkbox checked={isCustomJournalMode} onClick={this.setCustomJournalMode} />
           </Field>
           {!!recordRef && (
-            <Field label={t(Labels.ONLY_LINKED_FIELD)} isSmall={this.isSmall}>
-              <Checkbox checked={isOnlyLinked} onClick={this.setOnlyLinked} />
-            </Field>
+            <LinkedAttributesSelect
+              typeRef={typeRef}
+              journalId={selectedJournals[0]}
+              onChange={this.onChangeLinkedSettings}
+              isOnlyLinked={isOnlyLinked}
+              attrsToLoad={attrsToLoad}
+            />
           )}
 
           <GoToButton isSmall={this.isSmall} value={goToButtonName} onChange={this.handleChangeGoToButtonName} />

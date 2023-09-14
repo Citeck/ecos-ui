@@ -1,0 +1,37 @@
+.linked-attributes-select {
+  .ecos-field {
+    &__label {
+      &_align {
+        &-start {
+          align-self: start;
+        }
+        &-center {
+          align-self: center;
+        }
+        &-end {
+          align-self: end;
+        }
+      }
+
+      &_required:after {
+        position: relative;
+        margin-left: 5px;
+      }
+    }
+  }
+
+  &__checkbox {
+    & .ecos-field {
+      &__control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .label {
+          font-size: inherit;
+          margin: 0;
+        }
+      }
+    }
+  }
+}

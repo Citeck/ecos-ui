@@ -4,6 +4,7 @@ import * as ls from '../helpers/ls';
 import TreeDataSource from '../components/common/grid/dataSource/TreeDataSource';
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
+import AttributesService from '../services/AttributesService';
 
 import { DocPreviewApi } from './docPreview';
 import { RecordService } from './recordService';
@@ -43,6 +44,27 @@ export class JournalsApi extends RecordService {
     return Records.get(id)
       .load(attributes, noCache)
       .catch(() => null);
+  };
+
+  fetchLinkedRefs = (recordRef, attributesToLoad) => {
+    if (!attributesToLoad || !attributesToLoad.length || !recordRef) {
+      return [];
+    }
+
+    const attributes = attributesToLoad.reduce((result, currAttr) => ({ ...result, [currAttr.value]: `${currAttr.value}[]?id` }), {});
+
+    return Records.get(recordRef)
+      .load(attributes)
+      .then(records => {
+        const recordRefs = Object.values(records)
+          .reduce((result, current) => result.concat(current), [])
+          .map(AttributesService.parseId);
+        return recordRefs;
+      })
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
   };
 
   /** @todo replace to using Records.js */
