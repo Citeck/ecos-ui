@@ -2,12 +2,12 @@ import { connect } from 'react-redux';
 
 import Search from './Search';
 import ViewSwitcher from './ViewSwitcher';
-import { createModel } from '../../../actions/bpmn';
+import { createModel, getTotalCount } from '../../../actions/bpmn';
 
 import ControlPanel from '../../designerCommon/ControlPanel';
 
 const mapStateToProps = state => ({
-  totalModels: state.bpmn.models.length,
+  totalCount: state.bpmn.totalCount,
   isReady: state.bpmn.isReady,
   createVariants: state.bpmn.createVariants,
   SearchComponent: Search,
@@ -15,6 +15,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+  getTotalCount: () => dispatch(getTotalCount()),
   createModel: createVariant => dispatch(createModel({ createVariant }))
 });
 

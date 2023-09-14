@@ -1,16 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'reactstrap';
+import isFunction from 'lodash/isFunction';
 
 import { t } from '../../../helpers/export/util';
 import { Labels } from '../../../constants/bpmn';
 import { Dropdown } from '../../common/form';
+import { PointsLoader } from '../../common';
 
 import '../style.scss';
 
-const ControlPanel = ({ createModel, totalModels, isReady, createVariants, SearchComponent, ViewSwitcherComponent }) => {
+const ControlPanel = ({ createModel, totalCount, getTotalCount, isReady, createVariants, SearchComponent, ViewSwitcherComponent }) => {
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!initialized) {
+      setInitialized(true);
+
+      isFunction(getTotalCount) && getTotalCount();
+    }
+  }, []);
+
   const handlerCreateVariant = variant => {
     createModel(variant);
   };
+
+  const hasLoading = totalCount === null;
 
   return (
     <div className="mb-3 ecos-designer-control-panel">
@@ -30,7 +44,11 @@ const ControlPanel = ({ createModel, totalModels, isReady, createVariants, Searc
         </Col>
         <Col lg={6} md={12}>
           <div className="ecos-designer-control-panel__side-right">
-            {isReady && <div className="ecos-designer-control-panel__counter">{`${t(Labels.TOTAL)} ${totalModels}`}</div>}
+            {isReady && (
+              <div className="ecos-designer-control-panel__counter">
+                {t(Labels.TOTAL)} {hasLoading ? <PointsLoader /> : totalCount}
+              </div>
+            )}
             <ViewSwitcherComponent />
           </div>
         </Col>
