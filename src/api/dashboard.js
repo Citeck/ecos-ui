@@ -5,12 +5,13 @@ import isString from 'lodash/isString';
 
 import { getCurrentUserName, getMLValue, isExistIndex, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
+import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
@@ -351,8 +352,35 @@ export class DashboardApi {
   };
 
   getModelAttributes = ref => {
-    return Records.get(ref)
+    return Records.get(parseTypeId(ref))
       .load('resolvedModel.attributes[]{id,name,type}')
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
+  };
+
+  getLinkedAttributesWithJournal = async (typeRef, journalId) => {
+    const modelAttributes = await this.getModelAttributes(typeRef);
+
+    const assocAttributes = modelAttributes.filter(att => ASSOC_TYPES.includes(att.type));
+    const attrsMap = new Map();
+    const attrsToLoad = assocAttributes.reduce((result, att) => {
+      result[att.id] = `attributeById.${att.id}.config.typeRef._as.ref.journalRef?localId`;
+      attrsMap.set(att.id, { name: att.name });
+      return result;
+    }, {});
+
+    return Records.get(parseTypeId(typeRef))
+      .load(attrsToLoad)
+      .then((attributesWithJournalIds = {}) => {
+        const attrsWithSameJournal = Object.entries(attributesWithJournalIds).filter(
+          ([, attJournalId]) => parseJournalId(attJournalId) === parseJournalId(journalId)
+        );
+
+        const attribuesOptions = attrsWithSameJournal.map(([attId]) => ({ label: attrsMap.get(attId).name, value: attId }));
+        return attribuesOptions;
+      })
       .catch(e => {
         console.error(e);
         return [];

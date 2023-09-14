@@ -86,6 +86,7 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
+import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
@@ -440,8 +441,19 @@ export function* getGridData(api, params, stateId) {
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
+  const attrsToLoad = get(config, 'attrsToLoad');
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, grouping, ...forRequest } = params;
+  const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
+
+  if (predicateRecords) {
+    _predicates.push({
+      t: PREDICATE_EQ,
+      att: 'id',
+      val: predicateRecords
+    });
+  }
+
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
@@ -449,7 +461,7 @@ export function* getGridData(api, params, stateId) {
     recordRef,
     pagination,
     predicates,
-    onlyLinked,
+    onlyLinked: predicateRecords.length ? false : onlyLinked,
     searchPredicate,
     journalSetting
   });
