@@ -1929,7 +1929,7 @@
   "form-constructor.tabs-content.theme": "Тема",
   "form-constructor.tabs-content.size": "Размер",
   "form-constructor.tabs-content.leftIcon": "Левая иконка",
-  "form-constructor.tabs-content.block": "Блокировать",
+  "form-constructor.tabs-content.block": "Занимать всю ширину контейнера",
   "form-constructor.tabs-content.disableOnFormInvalid": "Отключить, если форма недействительна",
   "form-constructor.tabs-content.storage": "Хранилище",
   "form-constructor.tabs-content.onFileClick": "Поведение при щелчке элемента файла",
