@@ -24,7 +24,7 @@ export default class SidebarConverter {
 
         targetItem.label = MenuConverter.getSpecialLabel(item);
         if (ms.ItemTypes.KANBAN === item.type) {
-          const journalRef = get(item, '_remoteData_.journalRef', '');
+          const journalRef = get(item, '_remoteData_.journalRef') || '';
           const [, journalId] = journalRef.split('@');
           set(targetItem, 'params.journalId', journalId);
         } else if (ms.ItemTypes.JOURNAL === item.type || ms.ItemTypes.DOCLIB === item.type) {
