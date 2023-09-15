@@ -10,6 +10,7 @@ import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import { Container } from 'reactstrap';
 
@@ -198,11 +199,16 @@ class Settings extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.checkRequestResult(prevProps);
 
-    const { onSetDialogProps, identification } = this.props;
+    const { onSetDialogProps, getDialogTitle, identification } = this.props;
     const type = get(identification, 'type');
 
-    if (type !== get(prevProps, 'identification.type') && typeof onSetDialogProps === 'function') {
-      onSetDialogProps({ title: this.getTitleByType(type) });
+    if (isFunction(getDialogTitle) && isFunction(onSetDialogProps)) {
+      const title = getDialogTitle();
+      const newTitle = this.getTitleByType(type);
+
+      if (title !== newTitle) {
+        onSetDialogProps({ title: newTitle });
+      }
     }
   }
 
@@ -307,7 +313,7 @@ class Settings extends Component {
 
     if (newRStatus && oldRStatus !== newRStatus) {
       const { updateDashboard, getDashboardConfig, resetAllDashboardsConfig, onSave, identification } = this.props;
-      let { recordRef, dashboardId } = this.props;
+      let { recordRef } = this.props;
 
       clearCache();
       this.clearLocalStorage();
@@ -317,13 +323,15 @@ class Settings extends Component {
           if (isEmpty(recordRef)) {
             recordRef = get(this.getPathInfo(), 'recordRef');
           }
-          updateDashboard ? getDashboardConfig({ dashboardId, recordRef }) : resetAllDashboardsConfig(identification);
+          updateDashboard
+            ? getDashboardConfig({ dashboardId: checkResult.dashboardId, recordRef })
+            : resetAllDashboardsConfig(identification);
           typeof onSave === 'function' && onSave();
 
           return;
         }
         case RequestStatuses.RESET: {
-          getDashboardConfig({ dashboardId, recordRef });
+          getDashboardConfig({ dashboardId: checkResult.dashboardId, recordRef });
           return;
         }
         default:
