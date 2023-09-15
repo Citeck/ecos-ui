@@ -276,6 +276,7 @@ export default class DashboardService {
               modalRef={modalRef}
               tabId={PageTabList.activeTabId}
               onSetDialogProps={props => dialog.updateProps(props)}
+              getDialogTitle={() => get(dialog, 'props.dialogProps.title')}
               onSave={() => {
                 dialog.setVisible(false);
                 onSave();
