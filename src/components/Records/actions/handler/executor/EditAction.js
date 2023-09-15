@@ -40,7 +40,7 @@ export default class EditAction extends ActionsExecutor {
             attributes: config.attributes || {},
             formContainer: true,
             onFormCancel: config.onFormCancel,
-            onHideModal: config.onHideModal,
+            onAfterHideModal: config.onAfterHideModal,
             onPreSettingSubmit: config.onPreSettingSubmit,
             onSubmit: () => {
               // temp solution

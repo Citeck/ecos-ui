@@ -204,10 +204,12 @@ class PreSettingsModal extends React.Component {
       const newTypeRecord = Records.get(newType.replace(SourcesId.TYPE, 'emodel/types-repo'));
       newTypeRecord.att(att, newRef);
       this.typeToSave = newTypeRecord;
+    } else {
+      this.typeToSave = null;
     }
 
     this.toggleLoading();
-    this.hide();
+    this.handleCancel();
     isFunction(this.callback) && this.callback(newRef);
     isFunction(onHide) && onHide();
   };
@@ -249,7 +251,7 @@ class PreSettingsModal extends React.Component {
       this.changeAttributes(attributes);
     };
 
-    this.hide();
+    this.handleCancel();
     EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
   };
 
@@ -271,7 +273,7 @@ class PreSettingsModal extends React.Component {
           config: {
             saveOnSubmit: false,
             onFormCancel: this.rollback,
-            onHideModal: this.rollback,
+            onAfterHideModal: this.rollback,
             onPreSettingSubmit: (record, form) => {
               const data = get(form, 'submission.data');
 
