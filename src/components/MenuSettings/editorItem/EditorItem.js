@@ -7,6 +7,7 @@ import { SelectJournal } from '../../common/form';
 
 import Section from './Section';
 import Arbitrary from './Arbitrary';
+import Dashboard from './Dashboard';
 import Divider from './Divider';
 import CreateInSection from './CreateInSection';
 import EditRecord from './EditRecord';
@@ -19,6 +20,7 @@ import '../style.scss';
 export default class EditorItem extends React.Component {
   static propTypes = {
     fontIcons: PropTypes.array,
+    presetFilterPredicates: PropTypes.array,
     type: PropTypes.object,
     item: PropTypes.object,
     onClose: PropTypes.func,
@@ -31,6 +33,8 @@ export default class EditorItem extends React.Component {
         return <Section {...this.props} />;
       case MS.ItemTypes.ARBITRARY:
         return <Arbitrary {...this.props} />;
+      case MS.ItemTypes.DASHBOARD:
+        return <Dashboard {...this.props} />;
       case MS.ItemTypes.HEADER_DIVIDER:
         return <Divider {...this.props} />;
       case MS.ItemTypes.CREATE_IN_SECTION:
@@ -43,11 +47,21 @@ export default class EditorItem extends React.Component {
       case MS.ItemTypes.START_WORKFLOW: {
         return <StartWorkflow {...this.props} />;
       }
-      case MS.ItemTypes.JOURNAL: {
-        const { onSave, onClose, journalId } = this.props;
+      case MS.ItemTypes.JOURNAL:
+      case MS.ItemTypes.KANBAN:
+      case MS.ItemTypes.DOCLIB: {
+        const { onSave, onClose, journalId, presetFilterPredicates } = this.props;
 
         return (
-          <SelectJournal onChange={onSave} onCancel={onClose} journalId={journalId} renderView={() => null} isSelectModalOpen multiple />
+          <SelectJournal
+            onChange={onSave}
+            onCancel={onClose}
+            journalId={journalId}
+            presetFilterPredicates={presetFilterPredicates}
+            renderView={() => null}
+            isSelectModalOpen
+            multiple
+          />
         );
       }
       case MS.ItemTypes.USER_LOGOUT:

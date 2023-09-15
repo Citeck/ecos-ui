@@ -13,7 +13,7 @@ const api = {
   page: {
     getRecordTitle: () => 'title'
   },
-  cmmn: {
+  process: {
     getDefinition: () => 'xml',
     saveDefinition: () => ({ id: 'id' })
   }

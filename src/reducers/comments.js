@@ -7,6 +7,8 @@ import {
   fetchEnd,
   sendingStart,
   sendingEnd,
+  uploadFilesInComment,
+  uploadFilesFinally,
   createCommentSuccess,
   updateCommentRequest,
   updateCommentSuccess,
@@ -80,6 +82,20 @@ export default handleActions(
         ...state[action.payload.nodeRef],
         errorMessage: action.payload.message,
         sendingInProcess: false
+      }
+    }),
+    [uploadFilesInComment]: (state, action) => ({
+      ...state,
+      [action.payload.record]: {
+        ...state[action.payload.record],
+        isUploadingFile: true
+      }
+    }),
+    [uploadFilesFinally]: (state, { payload }) => ({
+      ...state,
+      [payload]: {
+        ...state[payload],
+        isUploadingFile: false
       }
     }),
     [updateCommentRequest]: state => ({

@@ -1,15 +1,17 @@
 import isEmpty from 'lodash/isEmpty';
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
-import { getCurrentUserName, isExistIndex, t } from '../helpers/util';
+import { getCurrentUserName, getMLValue, isExistIndex, t } from '../helpers/util';
 import Cache from '../helpers/cache';
-import { getRefWithAlfrescoPrefix } from '../helpers/ref';
+import { getRefWithAlfrescoPrefix, parseJournalId, parseTypeId } from '../helpers/ref';
 import { EmodelTypes, SourcesId } from '../constants';
 import { TITLE } from '../constants/pageTabs';
 import { DashboardTypes } from '../constants/dashboard';
 import Components from '../components/widgets/Components';
 import Records from '../components/Records';
+import { ASSOC_TYPES } from '../components/Journals/service/journalColumnsResolver';
 import DashboardService from '../services/dashboard';
 
 const defaultAttr = {
@@ -90,13 +92,18 @@ export class DashboardApi {
   };
 
   saveDashboardConfig = ({ identification, config, recordRef = false }) => {
-    const { key, user } = identification;
+    const { key, type, id, user } = identification;
     const record = Records.get(`${SourcesId.DASHBOARD}@`);
     const url = window.location.pathname;
 
     record.att('config?json', config);
     record.att('authority?str', user);
-    record.att('typeRef', key);
+
+    if (type === DashboardTypes.CUSTOM) {
+      record.att('id', id);
+    } else {
+      record.att('typeRef', key);
+    }
 
     if (recordRef) {
       record.att('appliedToRef?str', recordRef);
@@ -113,6 +120,25 @@ export class DashboardApi {
     });
   };
 
+  createCustomDashboard = ({ id, name, onSave, onFailure }) => {
+    const record = Records.get(`${SourcesId.DASHBOARD}@`);
+
+    record.att('id', id);
+    record.att('name?json', name);
+    record.att('config?json', DashboardService.getEmptyDashboardConfig());
+
+    return record
+      .save()
+      .then(response => {
+        cache.clear();
+        isFunction(onSave) && onSave(response);
+        return response;
+      })
+      .catch(e => {
+        isFunction(onFailure) && onFailure(e);
+      });
+  };
+
   getDashboardByOneOf = ({ dashboardId, recordRef }) => {
     if (!isEmpty(dashboardId)) {
       return this.getDashboardById(dashboardId, true);
@@ -121,8 +147,18 @@ export class DashboardApi {
     return this.getDashboardByRecordRef(recordRef);
   };
 
-  getDashboardById = (dashboardId, force = false) => {
-    return Records.get(Helper.parseDashboardId(dashboardId)).load({ ...defaultAttr, dashboardType: '_dashboardType' }, force);
+  getDashboardById = async (dashboardId, force = false) => {
+    const result = await Records.get(Helper.parseDashboardId(dashboardId)).load({ ...defaultAttr, dashboardType: '_dashboardType' }, force);
+
+    if (!result.type && !result.key) {
+      return {
+        ...result,
+        type: DashboardTypes.CUSTOM,
+        key: DashboardTypes.CUSTOM
+      };
+    }
+
+    return result;
   };
 
   getDashboardByUserAndType = (user, typeRef, recordRef) => {
@@ -190,7 +226,7 @@ export class DashboardApi {
     return dashboard;
   };
 
-  getTitleInfo = async recordRef => {
+  getTitleInfo = async (recordRef, dashboardId) => {
     const defaultInfo = Object.freeze({
       modifier: '',
       modified: '',
@@ -198,8 +234,14 @@ export class DashboardApi {
       version: ''
     });
 
-    if (!recordRef) {
+    if (!recordRef && !dashboardId) {
       return { ...defaultInfo, displayName: t(TITLE.HOMEPAGE) };
+    }
+
+    if (dashboardId) {
+      const dashboardName = await Records.get(Helper.parseDashboardId(dashboardId)).load('name');
+
+      return { ...defaultInfo, displayName: dashboardName ? getMLValue(dashboardName) : t(TITLE.NO_NAME) };
     }
 
     let type = await Records.get(recordRef).load('_dashboardType');
@@ -310,8 +352,35 @@ export class DashboardApi {
   };
 
   getModelAttributes = ref => {
-    return Records.get(ref)
+    return Records.get(parseTypeId(ref))
       .load('resolvedModel.attributes[]{id,name,type}')
+      .catch(e => {
+        console.error(e);
+        return [];
+      });
+  };
+
+  getLinkedAttributesWithJournal = async (typeRef, journalId) => {
+    const modelAttributes = await this.getModelAttributes(typeRef);
+
+    const assocAttributes = modelAttributes.filter(att => ASSOC_TYPES.includes(att.type));
+    const attrsMap = new Map();
+    const attrsToLoad = assocAttributes.reduce((result, att) => {
+      result[att.id] = `attributeById.${att.id}.config.typeRef._as.ref.journalRef?localId`;
+      attrsMap.set(att.id, { name: att.name });
+      return result;
+    }, {});
+
+    return Records.get(parseTypeId(typeRef))
+      .load(attrsToLoad)
+      .then((attributesWithJournalIds = {}) => {
+        const attrsWithSameJournal = Object.entries(attributesWithJournalIds).filter(
+          ([, attJournalId]) => parseJournalId(attJournalId) === parseJournalId(journalId)
+        );
+
+        const attribuesOptions = attrsWithSameJournal.map(([attId]) => ({ label: attrsMap.get(attId).name, value: attId }));
+        return attribuesOptions;
+      })
       .catch(e => {
         console.error(e);
         return [];

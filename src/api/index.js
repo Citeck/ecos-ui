@@ -33,7 +33,7 @@ import { ChartsApi } from './charts';
 import { CustomIconApi } from './customIcon';
 import { AdminSectionApi } from './adminSection';
 import { DevToolsApi } from './devTools';
-import CmmnApi from './cmmn';
+import ProcessApi from './process';
 import { KanbanApi } from './kanban';
 
 import '../components/Records/actions/actions';
@@ -74,7 +74,7 @@ export function configureAPI() {
   api.userConfig = new UserConfigApi();
   api.docConstructor = new DocConstructorApi();
   api.customIcon = new CustomIconApi();
-  api.cmmn = new CmmnApi();
+  api.process = new ProcessApi();
   api.devTools = new DevToolsApi();
   api.kanban = new KanbanApi();
   api.charts = new ChartsApi();

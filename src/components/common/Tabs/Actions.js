@@ -4,7 +4,18 @@ import Icon from '../icons/Icon/Icon';
 import { SortableHandle } from '../../Drag-n-Drop';
 import { Menu } from './Menu';
 
-export const Actions = ({ id, isActive, isEditable, isOpenMenu, classNameTooltip, startEdit, onClose, onDelete, onToggleMenu }) => {
+export const Actions = ({
+  id,
+  isActive,
+  isEditable,
+  isOpenMenu,
+  classNameTooltip,
+  startEdit,
+  onClose,
+  disabled,
+  onDelete,
+  onToggleMenu
+}) => {
   if (isEditable) {
     return (
       <div className="ecos-tab-actions">
@@ -20,6 +31,7 @@ export const Actions = ({ id, isActive, isEditable, isOpenMenu, classNameTooltip
           id={id}
           isActive={isActive}
           isEditable={isEditable}
+          disabled={disabled}
           isOpenMenu={isOpenMenu}
           classNameTooltip={classNameTooltip}
           startEdit={startEdit}

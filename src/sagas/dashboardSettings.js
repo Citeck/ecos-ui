@@ -49,11 +49,11 @@ function* doInitDashboardSettingsRequest({ api, logger }, { payload }) {
 }
 
 function* doGetDashboardConfigRequest({ api, logger }, { payload }) {
-  const { key, recordRef } = payload;
+  const { key, dashboardId, recordRef } = payload;
 
   try {
     let keyRef = recordRef ? getRefWithAlfrescoPrefix(recordRef) : null;
-    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, recordRef: keyRef });
+    const { config, ...result } = yield call(api.dashboard.getDashboardByOneOf, { ...payload, dashboardId, recordRef: keyRef });
     const modelAttributes = yield call(api.dashboard.getModelAttributes, result.key);
     const migratedConfig = DashboardService.migrateConfigFromOldVersion(config);
     const newConfig = yield select(() => selectNewVersionConfig(migratedConfig));

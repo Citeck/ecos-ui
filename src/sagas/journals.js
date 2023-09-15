@@ -9,6 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 import { NotificationManager } from 'react-notifications';
 
@@ -31,6 +32,7 @@ import {
   openSelectedJournal,
   openSelectedPreset,
   reloadGrid,
+  reloadJournalConfig,
   reloadTreeGrid,
   resetFiltering,
   resetJournalSettingData,
@@ -84,6 +86,7 @@ import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, remov
 import { wrapSaga } from '../helpers/redux';
 import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
+import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
@@ -264,9 +267,18 @@ function* getJournalSettings(api, journalId, w, stateId) {
   return settings;
 }
 
-export function* getJournalConfig({ api, w, force }, journalId) {
+export function* getJournalConfig({ api, w, force, callback }, action) {
+  const journalId = isString(action) ? action : get(action, 'payload.journalId');
+  w = w || get(action, 'payload.w');
+  force = get(action, 'payload.force') || force;
+  callback = get(action, 'payload.callback') || callback;
   const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], journalId, force);
+
   yield put(setJournalConfig(w(journalConfig)));
+  if (isFunction(callback)) {
+    yield call(callback, journalConfig.createVariants);
+  }
+
   return journalConfig;
 }
 
@@ -429,8 +441,19 @@ export function* getGridData(api, params, stateId) {
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
+  const attrsToLoad = get(config, 'attrsToLoad');
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, grouping, ...forRequest } = params;
+  const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
+
+  if (predicateRecords) {
+    _predicates.push({
+      t: PREDICATE_EQ,
+      att: 'id',
+      val: predicateRecords
+    });
+  }
+
   const predicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(_predicates));
   const pagination = get(forRequest, 'groupBy.length') ? { ..._pagination, maxItems: undefined } : _pagination;
   const settings = JournalsConverter.getSettingsForDataLoaderServer({
@@ -438,7 +461,7 @@ export function* getGridData(api, params, stateId) {
     recordRef,
     pagination,
     predicates,
-    onlyLinked,
+    onlyLinked: predicateRecords.length ? false : onlyLinked,
     searchPredicate,
     journalSetting
   });
@@ -1174,6 +1197,8 @@ function* saga(ea) {
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
+
+  yield takeEvery(reloadJournalConfig().type, wrapSaga, { ...ea, saga: getJournalConfig });
 
   yield takeEvery(saveJournalSetting().type, wrapSaga, { ...ea, saga: sagaSaveJournalSetting });
   yield takeEvery(createJournalSetting().type, wrapSaga, { ...ea, saga: sagaCreateJournalSetting });

@@ -1,6 +1,7 @@
 import ActionsExecutor from '../../ActionsExecutor';
 import Records from '../../../../Records';
 import DialogManager from '../../../../../common/dialogs/Manager';
+import { t } from '../../../../../../helpers/util';
 
 export default class ModuleCopyAction extends ActionsExecutor {
   static ACTION_ID = 'module-copy';
@@ -39,7 +40,7 @@ export default class ModuleCopyAction extends ActionsExecutor {
           const existingId = await Records.get(newRecId).load('moduleId', true);
 
           if (existingId) {
-            throw new Error('Модуль с таким ID уже существует');
+            throw new Error(t('admin-section.error.existed-module'));
           }
 
           record.att('moduleId', submission.data.moduleId);

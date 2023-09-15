@@ -15,6 +15,7 @@ import { Tree } from '../../common';
 import { Btn } from '../../common/btns';
 import { Badge, DropdownOuter } from '../../common/form';
 import DialogManager from '../../common/dialogs/Manager';
+import { PREDICATE_NOT_EMPTY } from '../../Records/predicates/predicates';
 import { Labels } from '../utils';
 import EditorItem from '../editorItem/EditorItem';
 
@@ -72,17 +73,54 @@ export default class BaseEditorMenu extends React.Component {
   };
 
   handleChooseOption(editItemInfo = {}) {
-    if ([ms.ItemTypes.JOURNAL].includes(get(editItemInfo, 'type.key'))) {
+    const itemInfoType = get(editItemInfo, 'type.key');
+
+    if (itemInfoType === ms.ItemTypes.JOURNAL) {
       this.setState({
         editItemInfo: {
           ...editItemInfo,
           several: true,
-          journalId: get(editItemInfo, 'type.key') === ms.ItemTypes.JOURNAL ? SystemJournals.JOURNALS : SystemJournals.TYPES
+          journalId: SystemJournals.JOURNALS
         }
       });
-    } else {
-      this.setState({ editItemInfo });
+      return;
     }
+
+    if (itemInfoType === ms.ItemTypes.KANBAN) {
+      this.setState({
+        editItemInfo: {
+          ...editItemInfo,
+          several: true,
+          presetFilterPredicates: [
+            {
+              t: PREDICATE_NOT_EMPTY,
+              att: 'journalRef'
+            }
+          ],
+          journalId: SystemJournals.KANBAN
+        }
+      });
+      return;
+    }
+
+    if (itemInfoType === ms.ItemTypes.DOCLIB) {
+      this.setState({
+        editItemInfo: {
+          ...editItemInfo,
+          several: true,
+          presetFilterPredicates: [
+            {
+              t: PREDICATE_NOT_EMPTY,
+              att: 'typeRef._as.ref.aspectById.doclib.ref?raw'
+            }
+          ],
+          journalId: SystemJournals.JOURNALS
+        }
+      });
+      return;
+    }
+
+    this.setState({ editItemInfo });
   }
 
   handleActionItem = ({ action, item, level }) => {
@@ -197,7 +235,13 @@ export default class BaseEditorMenu extends React.Component {
 
     if (editItemInfo.several) {
       return (
-        <EditorItem type={editItemInfo.type} journalId={editItemInfo.journalId} onSave={handleSaveJournal} onClose={handleHideModal} />
+        <EditorItem
+          type={editItemInfo.type}
+          journalId={editItemInfo.journalId}
+          presetFilterPredicates={editItemInfo.presetFilterPredicates}
+          onSave={handleSaveJournal}
+          onClose={handleHideModal}
+        />
       );
     }
 
@@ -208,6 +252,7 @@ export default class BaseEditorMenu extends React.Component {
         onClose={handleHideModal}
         onSave={handleSave}
         action={editItemInfo.action}
+        presetFilterPredicates={editItemInfo.presetFilterPredicates}
         params={{ level: editItemInfo.level, configType: this.configType }}
         fontIcons={fontIcons}
       />

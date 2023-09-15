@@ -80,6 +80,7 @@ class Bar extends Component {
 
   handleAddRecord = createVariant => {
     const { isCreateLoading } = this.state;
+    const { journalId, reloadJournalConfig } = this.props;
 
     if (isCreateLoading) {
       return;
@@ -90,7 +91,17 @@ class Bar extends Component {
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => goToCardDetailsPage(record.id),
       onReady: () => this.setState({ isCreateLoading: false }),
-      onAfterHideModal: () => this.setState({ isCreateLoading: false })
+      onAfterHideModal: () => this.setState({ isCreateLoading: false }),
+      onSavePreSettings: () => {
+        isFunction(reloadJournalConfig) &&
+          reloadJournalConfig(journalId, true, (createVariants = []) => {
+            const variant = createVariants.find(v => v.id === createVariant.id);
+
+            if (variant) {
+              this.handleAddRecord(variant);
+            }
+          });
+      }
     });
   };
 

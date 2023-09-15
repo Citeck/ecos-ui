@@ -8,6 +8,7 @@ import isArray from 'lodash/isArray';
 import { JournalUrlParams, SourcesId, URL } from '../constants';
 import { PROXY_URI } from '../constants/alfresco';
 import { ParserPredicate } from '../components/Filters/predicates/index';
+import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { isNewVersionPage, isNewVersionSharePage } from './export/urls';
 import { IS_TEST_ENV, hasInString } from './util';
@@ -19,6 +20,7 @@ const RECORD_REF_KEY = JournalUrlParams.RECORD_REF;
 const JOURNAL_SETTING_ID_KEY = JournalUrlParams.JOURNAL_SETTING_ID;
 const TYPE_KEY = 'type';
 const DESTINATION_KEY = 'destination';
+const VIEW_MODE = 'viewMode';
 const FILTER_KEY = 'filter';
 const SORT_KEY = 'sortBy';
 const PAGINATION_KEY = 'pagination';
@@ -45,6 +47,10 @@ export const IgnoredUrlParams = [SearchKeys.PAGINATION, SearchKeys.FILTER, Searc
 export { NEW_VERSION_PREFIX, isNewVersionPage, isNewVersionSharePage } from './export/urls';
 
 export const OLD_LINKS = false;
+
+export const getCustomDasboardUrl = dashboardId => {
+  return `${URL.DASHBOARD}?dashboardId=${dashboardId}`;
+};
 
 export const changeUrl = (url, opts = {}) => {
   if (isNewVersionSharePage() || !isNewVersionPage()) {
@@ -109,11 +115,12 @@ export const getFilterParam = options => {
   return ParserPredicate.getRowPredicates(options);
 };
 
-export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search }) => {
+export const getJournalPageUrl = ({ journalId, journalSettingId, filter, search, viewMode }) => {
   const qString = queryString.stringify({
     [JOURNAL_ID_KEY]: journalId,
     [JOURNAL_SETTING_ID_KEY]: filter ? undefined : journalSettingId,
-    [SEARCH_KEY]: search || filter
+    [SEARCH_KEY]: search || filter,
+    [VIEW_MODE]: viewMode
   });
 
   return `${URL.JOURNAL}?${qString}`;
@@ -159,7 +166,13 @@ export const goToJournalsPage = options => {
   if (OLD_LINKS || !isNewVersionPage()) {
     window.open(journalPageUrl, '_blank');
   } else {
+    const activeTab = PageTabList.activeTab;
+
     changeUrl(journalPageUrl, { openNewTab: true });
+
+    if (options.replaceJournal) {
+      PageTabList.delete(activeTab);
+    }
   }
 };
 
@@ -342,7 +355,7 @@ window.Citeck.Navigator = {
   }
 };
 
-export const replaceHistoryLink = (history = window, link = '') => {
+export const replaceHistoryLink = (history = window, link = '', force = false) => {
   if (isEmpty(history)) {
     return;
   }
@@ -355,7 +368,7 @@ export const replaceHistoryLink = (history = window, link = '') => {
     pureLink = '/';
   }
 
-  if (`${pathname}${search}` === pureLink) {
+  if (`${pathname}${search}` === pureLink && !force) {
     return;
   }
 
@@ -364,7 +377,7 @@ export const replaceHistoryLink = (history = window, link = '') => {
   return pureLink;
 };
 
-export const pushHistoryLink = (history = window, linkData = {}) => {
+export const pushHistoryLink = (history = window, linkData = {}, force = false) => {
   if (isEmpty(history) || isEmpty(linkData)) {
     return;
   }
@@ -380,7 +393,7 @@ export const pushHistoryLink = (history = window, linkData = {}) => {
 
   const newLink = decodeLink([pathname, search].filter(item => !isEmpty(item)).join('?'));
 
-  if (`${currentPathname}${currentSearch}` === newLink) {
+  if (`${currentPathname}${currentSearch}` === newLink && !force) {
     return;
   }
 

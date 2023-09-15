@@ -8,7 +8,7 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 
 import DashboardService from '../../../services/dashboard';
-import { t } from '../../../helpers/util';
+import { getCurrentLocale, t } from '../../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../../components/common';
 import { IcoBtn } from '../../../components/common/btns';
 import { RemoveDialog } from '../../../components/common/dialogs';
@@ -79,7 +79,9 @@ class SetTabs extends React.Component {
     const idLayout = DashboardService.newIdLayout;
     const newTab = DashboardService.defaultDashboardTab(idLayout);
 
-    newTab.label = '';
+    newTab.label = {
+      [getCurrentLocale()]: t('page-tabs.tab-name-default')
+    };
     newTab.isNew = true;
 
     setData && setData({ tabs: [...tabs, newTab] });
@@ -160,7 +162,7 @@ class SetTabs extends React.Component {
           hasHover
           hasHint
           items={tabs}
-          keyField={'idLayout'}
+          keyField="idLayout"
           disabled={tabs.length < 2}
           activeTabKey={activeTabKey}
           onDelete={this.onConfirmDeleteTab}

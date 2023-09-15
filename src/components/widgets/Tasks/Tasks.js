@@ -93,6 +93,7 @@ class Tasks extends React.Component {
     const { changeTaskAssignee } = this.props;
 
     changeTaskAssignee(sentData);
+    this.props.instanceRecord.events.emit(EVENTS.UPDATE_TASKS_WIDGETS);
   };
 
   onSubmitForm = () => {

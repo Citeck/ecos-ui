@@ -1,0 +1,20 @@
+diff --git a/config/webpack.config.js b/config/webpack.config.js
+index 25840d9..6246fc2 100644
+--- a/config/webpack.config.js
++++ b/config/webpack.config.js
+@@ -139,6 +139,7 @@ module.exports = function(webpackEnv) {
+   };
+ 
+   return {
++    stats: 'errors-only',
+     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
+     // Stop compilation early in production
+     bail: isEnvProduction,
+@@ -623,6 +624,7 @@ module.exports = function(webpackEnv) {
+           // both options are optional
+           filename: 'static/css/[name].[contenthash:8].css',
+           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
++          ignoreOrder: true,
+         }),
+       // Generate an asset manifest file with the following content:
+       // - "files" key: Mapping of all asset filenames to their corresponding

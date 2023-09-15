@@ -10,6 +10,7 @@ import find from 'lodash/find';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import last from 'lodash/last';
 import { Container } from 'reactstrap';
 
@@ -157,7 +158,7 @@ class Settings extends Component {
   componentWillReceiveProps(nextProps, nextContext) {
     const { urlParams } = this.state;
     const newUrlParams = getSortedUrlParams();
-    let { config, mobileConfig, availableWidgets } = this.props;
+    let { config, mobileConfig, availableWidgets, identification } = this.props;
     let state = {};
 
     if (!PageTabList.isActiveTab(nextProps.tabId)) {
@@ -170,7 +171,10 @@ class Settings extends Component {
       });
     }
 
-    if (JSON.stringify(config) !== JSON.stringify(nextProps.config)) {
+    if (
+      JSON.stringify(config) !== JSON.stringify(nextProps.config) ||
+      JSON.stringify(identification) !== JSON.stringify(nextProps.identification)
+    ) {
       const resultConfig = this.setStateConfig(nextProps);
 
       state = { ...state, ...resultConfig };
@@ -195,12 +199,21 @@ class Settings extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     this.checkRequestResult(prevProps);
 
-    const { onSetDialogProps, identification } = this.props;
+    const { onSetDialogProps, getDialogTitle, identification } = this.props;
     const type = get(identification, 'type');
 
-    if (type !== get(prevProps, 'identification.type') && typeof onSetDialogProps === 'function') {
-      onSetDialogProps({ title: this.getTitleByType(type) });
+    if (isFunction(getDialogTitle) && isFunction(onSetDialogProps)) {
+      const title = getDialogTitle();
+      const newTitle = this.getTitleByType(type);
+
+      if (title !== newTitle) {
+        onSetDialogProps({ title: newTitle });
+      }
     }
+  }
+
+  get isCustomDashboard() {
+    return get(this.props, 'identification.type') === DashboardTypes.CUSTOM;
   }
 
   fetchData(props = this.props) {
@@ -224,7 +237,7 @@ class Settings extends Component {
 
   setStateConfig(props) {
     const selectedDashboardKey = get(props, 'identification.key', '');
-    const isForAllUsers = isNull(get(props, 'identification.user', null));
+    const isForAllUsers = this.isCustomDashboard || isNull(get(props, 'identification.user', null));
     const { config } = props;
 
     let activeLayoutTabId = null;
@@ -310,13 +323,15 @@ class Settings extends Component {
           if (isEmpty(recordRef)) {
             recordRef = get(this.getPathInfo(), 'recordRef');
           }
-          updateDashboard ? getDashboardConfig({ recordRef }) : resetAllDashboardsConfig(identification);
+          updateDashboard
+            ? getDashboardConfig({ dashboardId: checkResult.dashboardId, recordRef })
+            : resetAllDashboardsConfig(identification);
           typeof onSave === 'function' && onSave();
 
           return;
         }
         case RequestStatuses.RESET: {
-          getDashboardConfig({ recordRef });
+          getDashboardConfig({ dashboardId: checkResult.dashboardId, recordRef });
           return;
         }
         default:
@@ -445,6 +460,7 @@ class Settings extends Component {
           keys={dashboardKeyItems}
           selectedDashboardKey={selectedDashboardKey}
           isAdmin={userData.isAdmin}
+          isCustomDashboard={this.isCustomDashboard}
           isForAllUsers={isForAllUsers}
           isDefaultConfig={isDefaultConfig}
           setData={setData}
@@ -570,6 +586,7 @@ class Settings extends Component {
       const { activeLayoutTabId, selectedWidgets, selectedLayout } = cloneDeep(this.state);
 
       selectedLayout[activeLayoutTabId] = layout.type;
+
       selectedWidgets[activeLayoutTabId] = this.setSelectedWidgets(layout, selectedWidgets[activeLayoutTabId]);
 
       this.setState({ selectedWidgets, selectedLayout });

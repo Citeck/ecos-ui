@@ -6,6 +6,7 @@ import isArray from 'lodash/isArray';
 import classNames from 'classnames';
 import * as queryString from 'query-string';
 import isEmpty from 'lodash/isEmpty';
+import isNil from 'lodash/isNil';
 
 import { OrgStructApi } from '../../api/orgStruct';
 import {
@@ -70,7 +71,8 @@ const getStateId = state => {
 class Orgstructure extends React.Component {
   state = {
     urlParams: getSortedUrlParams(),
-    activeLayoutId: get(queryString.parse(window.location.search), 'activeLayoutId')
+    activeLayoutId: get(queryString.parse(window.location.search), 'activeLayoutId'),
+    activeTab: null
   };
 
   constructor(props) {
@@ -85,11 +87,18 @@ class Orgstructure extends React.Component {
     const newState = {};
     const newUrlParams = getSortedUrlParams();
     const firstLayoutId = get(props.config, '[0].id');
+    const activeTab = get(queryString.parse(window.location.search), 'activeTab', null);
     const activeLayoutId = get(queryString.parse(window.location.search), 'activeLayoutId');
-    const isExistLayout = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
+
+    const isExistLayoutById = isArray(props.config) && !!props.config.find(layout => layout.id === activeLayoutId);
+    const isExistLayoutByTab = isArray(props.config) && !isNil(activeTab) && !!props.config[Number(activeTab)];
+
+    if (isNil(state.activeTab) && !isEmpty(props.config)) {
+      newState.activeTab = isExistLayoutByTab ? Number(activeTab) : 0;
+    }
 
     if (!state.activeLayoutId && !isEmpty(props.config)) {
-      newState.activeLayoutId = isExistLayout ? activeLayoutId : firstLayoutId;
+      newState.activeLayoutId = isExistLayoutById ? activeLayoutId : firstLayoutId;
     }
 
     if (JSON.stringify(props.config) !== JSON.stringify(state.config)) {
@@ -112,7 +121,7 @@ class Orgstructure extends React.Component {
       return null;
     }
 
-    if (newState.activeLayoutId) {
+    if (!isNil(newState.activeTab)) {
       Dashboard.updateTabLink();
     }
 
@@ -128,6 +137,34 @@ class Orgstructure extends React.Component {
 
     if (recordRef) {
       onSelectPerson(recordRef);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { config } = this.props;
+
+    if (!isEmpty(config)) {
+      const activeTabIndex = get(queryString.parse(decodeLink(window.location.search)), 'activeTab');
+      const layoutId = get(queryString.parse(decodeLink(window.location.search)), 'activeLayoutId');
+      const isExistLayout = isArray(config) && !isNil(activeTabIndex) && !!config[Number(activeTabIndex)];
+
+      if (!isNil(activeTabIndex) && !isExistLayout) {
+        this.toggleToFirstTab();
+      }
+
+      if (isNil(activeTabIndex) && !!layoutId) {
+        const searchParams = queryString.parse(window.location.search);
+        const tabIndex = config.findIndex(layout => layout.id === layoutId);
+        searchParams.activeTab = tabIndex === -1 ? 0 : tabIndex;
+        delete searchParams.activeLayoutId;
+
+        this.setState(
+          {
+            activeTab: tabIndex === -1 ? 0 : tabIndex
+          },
+          () => this.addSearchParams(searchParams)
+        );
+      }
     }
   }
 
@@ -215,8 +252,9 @@ class Orgstructure extends React.Component {
     if (!config) {
       return;
     }
+    const tabs = config.map((item, index) => ({ ...item.tab, index }));
 
-    this.setActiveLink(get(config, '[0].id'));
+    this.setActiveLink(0, tabs);
   };
 
   toggleTabLayout = index => {
@@ -225,31 +263,40 @@ class Orgstructure extends React.Component {
     if (!config) {
       return null;
     }
-    const tabs = config.map(item => item.tab);
-    const tab = get(tabs, [index], {});
 
-    this.setActiveLink(tab.idLayout);
+    const tabs = config.map((item, index) => ({ ...item.tab, index }));
+    const tab = get(tabs, [index], {});
+    this.setActiveLink(tab.index, tabs);
   };
 
-  setActiveLink = idLayout => {
-    const { urlParams } = this.state;
+  setActiveLink = (activeTabIndex, tabs) => {
     const searchParams = queryString.parse(window.location.search);
+
+    if (tabs && tabs.length > 1) {
+      searchParams.activeTab = activeTabIndex;
+    }
+    const idLayout = get(tabs[Number(activeTabIndex)], 'idLayout');
+    this.setState({ activeTab: Number(activeTabIndex), activeLayoutId: idLayout }, () => this.addSearchParams(searchParams));
+  };
+
+  addSearchParams = searchParams => {
+    const { urlParams } = this.state;
     const prevSearchParams = queryString.parse(urlParams);
-    const isEqualRefs = get(prevSearchParams, 'recordRef', '') === get(searchParams, 'recordRef');
-    const isEqualLayoutIds = get(prevSearchParams, 'activeLayoutId', '') === get(searchParams, 'activeLayoutId');
+    const isEqualLayoutIndexes = get(prevSearchParams, 'activeTab', '') === get(searchParams, 'activeTab');
 
-    searchParams.activeLayoutId = idLayout;
-
-    if (!urlParams || (isEqualRefs && !isEqualLayoutIds)) {
-      replaceHistoryLink(this.props.history, `${URL.ORGSTRUCTURE}?${decodeLink(queryString.stringify(searchParams))}`);
+    if (!urlParams || !isEqualLayoutIndexes) {
+      replaceHistoryLink(this.props.history, `${URL.ORGSTRUCTURE}?${decodeLink(queryString.stringify(searchParams))}`, true);
     } else {
-      pushHistoryLink(undefined, {
-        pathname: URL.ORGSTRUCTURE,
-        search: decodeLink(queryString.stringify(searchParams))
-      });
+      pushHistoryLink(
+        undefined,
+        {
+          pathname: URL.ORGSTRUCTURE,
+          search: decodeLink(queryString.stringify(searchParams))
+        },
+        true
+      );
     }
 
-    this.setState({ activeLayoutId: idLayout });
     Dashboard.updateTabLink();
   };
 
@@ -262,12 +309,18 @@ class Orgstructure extends React.Component {
     const tabs = config.map(item => item.tab);
 
     const { isMobile } = this.props;
-    const { activeLayoutId } = this.state;
+    const { activeTab } = this.state;
 
     if (isMobile) {
       return (
         <div className="ecos-dashboard__tabs ecos-dashboard__tabs_mobile">
-          <Tabs isMobile items={tabs} onClick={this.toggleTabLayout} keyField="idLayout" activeTabKey={activeLayoutId} />
+          <Tabs
+            isMobile
+            items={tabs}
+            onClick={this.toggleTabLayout}
+            keyField="idLayout"
+            activeTabKey={get(tabs[Number(activeTab)], 'idLayout')}
+          />
         </div>
       );
     }
@@ -284,7 +337,7 @@ class Orgstructure extends React.Component {
             items={tabs}
             onClick={this.toggleTabLayout}
             keyField="idLayout"
-            activeTabKey={activeLayoutId}
+            activeTabKey={get(tabs[Number(activeTab)], 'idLayout')}
           />
         </ScrollArrow>
       </div>
@@ -300,8 +353,8 @@ class Orgstructure extends React.Component {
     }
 
     const { menuType, isMobile, tabId, isLoading } = this.props;
-    const { activeLayoutId } = this.state;
-    const activeLayout = config.find(el => el.id === activeLayoutId);
+    const { activeTab } = this.state;
+    const activeLayout = config[activeTab];
     const { columns, type } = activeLayout ? activeLayout : get(config, '0') || {};
 
     return (

@@ -75,6 +75,7 @@ class Grid extends Component {
       needCellUpdate: false,
       tableHeight: 0,
       isScrolling: false,
+      maxHeight: props.maxHeight,
       selected: props.selected || []
     };
   }
@@ -118,7 +119,8 @@ class Grid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { resizableColumns, columns, selected, isResetSettings } = this.props;
+    const { byContentHeight, resizableColumns, columns, selected, isResetSettings } = this.props;
+    const { maxHeight } = this.state;
 
     if (this.#gridRef) {
       this._tableDom = this.#gridRef.querySelector('table');
@@ -139,6 +141,13 @@ class Grid extends Component {
     if (!prevProps.isResetSettings && isResetSettings) {
       this.#columnsSizes = {};
       this.setState({ selected: [] });
+    }
+
+    if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
+      const newMaxHeight = this._scrollRef.getScrollHeight();
+      if (maxHeight !== newMaxHeight) {
+        this.setState({ maxHeight: newMaxHeight });
+      }
     }
 
     this.setColumnsSizes();
@@ -967,23 +976,11 @@ class Grid extends Component {
   };
 
   renderScrollableGrid() {
-    const {
-      minHeight,
-      autoHeight,
-      scrollAutoHide,
-      tableViewClassName,
-      byContentHeight,
-      gridWrapperClassName,
-      hTrackClassName
-    } = this.props;
+    const { minHeight, autoHeight, scrollAutoHide, tableViewClassName, gridWrapperClassName, hTrackClassName } = this.props;
 
-    let { maxHeight } = this.props;
+    let { maxHeight } = this.state;
     let scrollStyle = {};
     let scrollProps = {};
-
-    if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
-      maxHeight = this._scrollRef.getScrollHeight();
-    }
 
     if (autoHeight) {
       scrollProps = { ...scrollProps, autoHeight, autoHeightMax: maxHeight, autoHeightMin: minHeight };
@@ -997,14 +994,6 @@ class Grid extends Component {
         onScrollStart={this.onScrollStart}
         onScrollFrame={this.onScrollFrame}
         onScrollStop={this.onScrollStop}
-        onUpdate={() => {
-          // Cause: https://citeck.atlassian.net/browse/ECOSUI-2204
-          // When the search string is updated, the value of the local variable "maxHeight" changes.
-          // But it doesn't lead to rerender.
-          if (byContentHeight && this._scrollRef && isEqual(pageTabList.activeTabId, this.#pageId)) {
-            this.forceUpdate();
-          }
-        }}
         style={scrollStyle}
         autoHide={scrollAutoHide}
         hideTracksWhenNotNeeded

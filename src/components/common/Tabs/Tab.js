@@ -5,7 +5,7 @@ import isString from 'lodash/isString';
 import uuidV4 from 'uuid/v4';
 
 import { commonOneTabDefaultProps, commonOneTabPropTypes } from './utils';
-import { getCurrentLocale, t } from '../../../helpers/util';
+import { getCurrentLocale, getMLValue, t } from '../../../helpers/util';
 import EditTabForm from './EditTabForm';
 import { Actions } from './Actions';
 
@@ -36,7 +36,8 @@ class Tab extends React.Component {
       id: `tab-${uuidV4()}`,
       editing: false,
       isOpenMenu: false,
-      text: props.isNew ? '' : props.label,
+      isValidText: !!getMLValue(props.label).trim(),
+      text: props.label,
       defText: `${t('page-tabs.tab-name-default')} ${props.index + 1}`
     };
   }
@@ -115,7 +116,7 @@ class Tab extends React.Component {
   };
 
   onChange = text => {
-    this.setState({ text });
+    this.setState({ text, isValidText: !!getMLValue(text).trim() });
   };
 
   onClose = e => {
@@ -182,12 +183,11 @@ class Tab extends React.Component {
 
   render() {
     const { isActive, hasHover, hasHint, disabled, className, isNew, onClick, classNameTooltip } = this.props;
-    const { id, isOpenMenu, text, defText, isOpenEditModal } = this.state;
+    const { id, isOpenMenu, text, defText, isValidText, isOpenEditModal } = this.state;
     const isEdit = this.isEditable;
     const tabClassNames = classNames('ecos-tab ecos-tab_editable', className, {
       'ecos-tab_active': isActive,
       'ecos-tab_hover': hasHover,
-      'ecos-tab_disabled': disabled,
       'ecos-tab_editing': isEdit
     });
     const addProps = {};
@@ -203,20 +203,26 @@ class Tab extends React.Component {
     return (
       <div className={tabClassNames} onClick={onClick}>
         <div class={classNames('ecos-tab-label', { 'ecos-tab-label_editing': isEdit })}>{this.renderLocaleText()}</div>
-        {!disabled && (
-          <Actions
-            id={id}
-            isActive={isActive}
-            isEditable={this.isEditable}
-            isOpenMenu={isOpenMenu}
-            classNameTooltip={classNameTooltip}
-            startEdit={this.startEdit}
-            onClose={this.onClose}
-            onDelete={this.onDelete}
-            onToggleMenu={this.onToggleMenu}
-          />
-        )}
-        <EditTabForm isOpen={isOpenEditModal} hideModal={this.onReset} label={text} onChangeLabel={this.onChange} onSave={this.endEdit} />
+        <Actions
+          id={id}
+          isActive={isActive}
+          isEditable={this.isEditable}
+          isOpenMenu={isOpenMenu}
+          classNameTooltip={classNameTooltip}
+          disabled={disabled}
+          startEdit={this.startEdit}
+          onClose={this.onClose}
+          onDelete={this.onDelete}
+          onToggleMenu={this.onToggleMenu}
+        />
+        <EditTabForm
+          isOpen={isOpenEditModal}
+          hideModal={this.onReset}
+          label={text}
+          isValidText={isValidText}
+          onChangeLabel={this.onChange}
+          onSave={this.endEdit}
+        />
       </div>
     );
   }

@@ -114,7 +114,19 @@ for (let field of SelectEditData) {
   if (field.key === 'data.url') {
     field.defaultValue = '/citeck/ecos/records/query';
     field.clearOnHide = false;
-    break;
+  }
+
+  if (field.key === 'data.values') {
+    field.components = field.components.map(component => {
+      if (component.key === 'label') {
+        return {
+          ...component,
+          type: 'mlText'
+        };
+      }
+
+      return component;
+    });
   }
 }
 

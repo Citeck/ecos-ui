@@ -29,7 +29,7 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
 
 export function* fetchScenario({ api, logger }, { payload: { stateId, record } }) {
   try {
-    const scenario = yield call(api.cmmn.getDefinition, record);
+    const scenario = yield call(api.process.getDefinition, record);
 
     yield put(setScenario({ stateId, scenario }));
   } catch (e) {
@@ -42,7 +42,7 @@ export function* runSaveScenario({ api, logger }, { payload: { stateId, record, 
   try {
     if (xml && img) {
       const base64 = yield call(api.app.getBase64, new Blob([img], { type: 'image/svg+xml' }));
-      const res = yield call(api.cmmn.saveDefinition, record, xml, base64);
+      const res = yield call(api.process.saveDefinition, record, xml, base64);
 
       if (!res.id) {
         throw new Error();

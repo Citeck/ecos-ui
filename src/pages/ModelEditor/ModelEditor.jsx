@@ -42,6 +42,7 @@ import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/
 import { DMN_DEFINITIONS } from '../../constants/dmn';
 
 import './ModelEditor.scss';
+import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -162,8 +163,7 @@ class ModelEditorPage extends React.Component {
       [EventListeners.CS_ELEMENT_DELETE_POST]: this.handleElementDelete,
       [EventListeners.DRAG_START]: this.handleDragStart,
       [EventListeners.ROOT_SET]: this.handleSetRoot,
-      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: event =>
-        this.handleSelectItem(event.context.hints ? event.context.connection : event.context.target)
+      [EventListeners.CS_CONNECTION_CREATE_PRE_EXECUTE]: this.handleCreateConnection
     };
   }
 
@@ -436,7 +436,7 @@ class ModelEditorPage extends React.Component {
     this.designer.zoomReset();
   };
 
-  handleSave = (deploy = false) => {
+  handleSave = (definitionAction = PROCESS_DEF_API_ACTIONS.SAVE) => {
     if (!this.designer) {
       return;
     }
@@ -460,7 +460,7 @@ class ModelEditorPage extends React.Component {
 
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
-        this.props.saveModel(xml, img, deploy);
+        this.props.saveModel(xml, img, definitionAction);
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -631,6 +631,20 @@ class ModelEditorPage extends React.Component {
         eventBus.fire('element.changed', { element: selectedDiagramElement });
       }
     }
+  };
+
+  handleCreateConnection = async event => {
+    if (!event.context.hints) {
+      const connection = event.context.connection;
+      const connectionElement = this._getBusinessObjectByDiagramElement(connection);
+
+      this.designer.updateProps(connection, {
+        [`${PREFIX_FIELD}conditionType`]:
+          getValue(connectionElement, 'conditionType') || getValue(connectionElement, `${PREFIX_FIELD}conditionType`) || 'NONE'
+      });
+    }
+
+    this.handleSelectItem(event.context.hints ? event.context.connection : event.context.target);
   };
 
   handleHideXmlViewerModal = () => {
@@ -808,6 +822,7 @@ class ModelEditorPage extends React.Component {
           onApply={this.handleSave}
           onViewXml={this.handleClickViewXml}
           onSaveAndDeploy={this.handleSave}
+          onSaveDraft={this.handleSave}
           onSaveAsSVG={this.handleSaveAsSVG}
           onZoomIn={this.handleZoomIn}
           onZoomOut={this.handleZoomOut}

@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 
 import Category from '../../designerCommon/DesignerCategory';
 import { t } from '../../../helpers/util';
+import { REMOVE_DIALOG_ID } from '../../common/dialogs/Manager/DialogManager';
 import {
   cancelEditCategory,
   createCategory,
@@ -12,7 +13,7 @@ import {
   createModel,
   savePagePosition
 } from '../../../actions/bpmn';
-import { hideModal, showModal } from '../../../actions/modal';
+import { showModal } from '../../../actions/modal';
 
 const mapStateToProps = state => ({
   viewType: state.bpmn.viewType,
@@ -34,22 +35,12 @@ const mapDispatchToProps = (dispatch, props) => ({
   showDeleteCategoryModal: () => {
     dispatch(
       showModal({
+        dialogId: REMOVE_DIALOG_ID,
         title: t('designer.delete-category-dialog.title'),
-        content: t('designer.delete-category-dialog.text'),
-        buttons: [
-          {
-            label: t('designer.delete-category-dialog.cancel-btn'),
-            isCloseButton: true
-          },
-          {
-            label: t('designer.delete-category-dialog.delete-btn'),
-            onClick: () => {
-              dispatch(deleteCategoryRequest(props.itemId));
-              dispatch(hideModal());
-            },
-            className: 'button_red'
-          }
-        ]
+        text: t('designer.delete-category-dialog.text'),
+        onSubmit: () => {
+          dispatch(deleteCategoryRequest(props.itemId));
+        }
       })
     );
   },

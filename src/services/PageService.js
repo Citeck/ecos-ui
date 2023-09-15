@@ -6,7 +6,7 @@ import isArray from 'lodash/isArray';
 import { SourcesId, URL } from '../constants';
 import { IGNORE_TABS_HANDLER_ATTR_NAME, LINK_HREF, LINK_TAG, OPEN_IN_BACKGROUND, TITLE } from '../constants/pageTabs';
 import { SectionTypes } from '../constants/adminSection';
-import { getCurrentUserName, t } from '../helpers/util';
+import { getCurrentUserName, getMLValue, t } from '../helpers/util';
 import { decodeLink, getLinkWithout, IgnoredUrlParams, isNewVersionPage } from '../helpers/urls';
 import { getData, isExistLocalStorage, setData } from '../helpers/ls';
 import { PageApi } from '../api/page';
@@ -140,7 +140,12 @@ export default class PageService {
     return pageApi.getRecordTitle(recordRef).then(title => `${t(typeTitle)} "${convertTitle(title)}"`);
   }
 
-  static async getDashboardTitle(recordRef) {
+  static async getDashboardTitle(recordRef, dashboardId) {
+    if (dashboardId) {
+      const displayName = await Records.get(dashboardId).load('name');
+
+      return `${t('menu-item.type.dashboard')} "${displayName ? getMLValue(displayName) : t(TITLE.NO_NAME)}"`;
+    }
     if (!recordRef) {
       return staticTitle(TITLE.HOMEPAGE);
     }
@@ -157,11 +162,11 @@ export default class PageService {
 
   static pageTypes = Object.freeze({
     [PageTypes.DASHBOARD]: {
-      getTitle: ({ recordRef }, link) => {
+      getTitle: ({ dashboardId, recordRef }, link) => {
         if (!recordRef) {
           recordRef = PageService.getRef(link);
         }
-        return PageService.getDashboardTitle(recordRef);
+        return PageService.getDashboardTitle(recordRef, dashboardId);
       }
     },
     [PageTypes.JOURNALS]: {

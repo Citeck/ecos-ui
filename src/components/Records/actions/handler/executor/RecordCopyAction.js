@@ -2,6 +2,7 @@ import ActionsExecutor from '../ActionsExecutor';
 import Records from '../../../Records';
 import DialogManager from '../../../../common/dialogs/Manager';
 import isUndefined from 'lodash/isUndefined';
+import { t } from '../../../../../helpers/util';
 
 const NOT_EXISTS_ATT = '_notExists?bool';
 
@@ -35,7 +36,7 @@ export default class RecordCopyAction extends ActionsExecutor {
           const notExists = await Records.get(newRecId).load(NOT_EXISTS_ATT, true);
 
           if (notExists !== true) {
-            throw new Error('Модуль с таким ID уже существует');
+            throw new Error(t('admin-section.error.existed-module'));
           }
 
           record.att('id', recordLocalId);

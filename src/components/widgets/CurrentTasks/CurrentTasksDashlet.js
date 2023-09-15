@@ -113,6 +113,7 @@ class CurrentTasksDashlet extends BaseWidget {
       >
         <CurrentTasks
           {...config}
+          instanceRecord={this.instanceRecord}
           forwardedRef={this.contentRef}
           className={classNameTasks}
           record={record}

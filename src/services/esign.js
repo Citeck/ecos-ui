@@ -2,11 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
+import isString from 'lodash/isString';
+import isFunction from 'lodash/isFunction';
 
 import api from '../api/esign';
 import EsignComponent from '../components/Esign';
 import EsignConverter from '../dto/esign';
 import { ErrorTypes, Labels } from '../constants/esign';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 import { t, objectByString } from '../helpers/util';
 
 class Esign {
@@ -170,7 +173,8 @@ class Esign {
       }
 
       const documentResponse = await api.getDocumentData(document);
-      const base64 = get(documentResponse, 'data.0.base64', '');
+      const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+      const base64 = get(documentResponse, hasAlfresco ? 'data.0.base64' : 'records[0].digestResult', '');
 
       if (!base64) {
         return Promise.reject({
@@ -211,7 +215,7 @@ class Esign {
         EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user })
       );
 
-      return get(signResponse, 'data', false);
+      return hasAlfresco ? get(signResponse, 'data', false) : signResponse.success;
     } catch (e) {
       console.error('[EsignService signDocumentByNode] error ', e.message);
 
@@ -224,7 +228,7 @@ class Esign {
     }
   };
 
-  static signDocument = async (documents = [], certificate = null) => {
+  static signDocument = async (documents = [], certificate = null, setSignatures) => {
     try {
       if (!documents.length) {
         return Promise.reject({
@@ -245,6 +249,9 @@ class Esign {
       const signStatuses = await Promise.all(
         documents.map(async document => await Esign.signDocumentByNode(certificate.thumbprint, document))
       );
+
+      const stringSignatures = signStatuses.filter(signature => isString(signature));
+      isFunction(setSignatures) && setSignatures(stringSignatures);
 
       if (signStatuses.includes(false)) {
         return Promise.reject({

@@ -44,4 +44,9 @@ export const Labels = {
   NO_DATA: 'esign.no-data'
 };
 
+export const EDI_REQUEST = {
+  GET_DIGEST: 'edi/esign-digest-att-get',
+  PUT_DIGITAL_SIGNATURE: 'edi/esign-digital-signature-put@'
+};
+
 export const PLUGIN_URL = 'https://www.cryptopro.ru/products/cades/plugin';

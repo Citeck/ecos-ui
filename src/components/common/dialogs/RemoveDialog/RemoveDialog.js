@@ -1,35 +1,45 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import isFunction from 'lodash/isFunction';
+
+import { t } from '../../../../helpers/util';
 import EcosModal from '../../EcosModal/EcosModal';
 import { Btn } from '../../btns';
-import { t, trigger } from '../../../../helpers/util';
 
 import './RemoveDialog.scss';
 
 class RemoveDialog extends Component {
   onClose = () => {
-    trigger.call(this, 'onClose');
+    const { onClose } = this.props;
+
+    isFunction(onClose) && onClose();
   };
 
   onCancel = () => {
-    trigger.call(this, 'onCancel');
+    const { onCancel } = this.props;
+
+    isFunction(onCancel) && onCancel();
   };
 
   onDelete = () => {
-    trigger.call(this, 'onDelete');
+    const { onDelete } = this.props;
+
+    isFunction(onDelete) && onDelete();
   };
 
   render() {
-    const { className, bodyClassName, footerClassName, title, isOpen, text, isLoading, cancelText, confirmText } = this.props;
+    const { className, bodyClassName, footerClassName, title, isOpen, text, isLoading, cancelText, confirmText, dialogRef } = this.props;
 
     const cssClasses = classNames('ecos-remove-dialog', className, { 'ecos-modal_width-sm': !className.includes('ecos-modal_width-') });
     const bodyCssClasses = classNames('ecos-remove-dialog__body', bodyClassName);
     const footerCssClasses = classNames('ecos-remove-dialog__footer', footerClassName);
 
     return (
-      <EcosModal title={title} isOpen={isOpen} isLoading={isLoading} hideModal={this.onClose} className={cssClasses}>
-        <div className={bodyCssClasses}>{text}</div>
+      <EcosModal title={title} isOpen={isOpen} isLoading={isLoading} hideModal={this.onClose} className={cssClasses} autoFocus>
+        <div ref={dialogRef} className={bodyCssClasses}>
+          {text}
+        </div>
 
         <div className={footerCssClasses}>
           <Btn onClick={this.onCancel}>{cancelText || t('journals.action.cancel')}</Btn>

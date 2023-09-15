@@ -13,9 +13,11 @@ import { t, getSearchParams } from '../../helpers/util';
 import { getPositionAdjustment } from '../../helpers/menu';
 import Components from '../widgets/Components';
 import { DragItem, Droppable } from '../Drag-n-Drop';
-import { Loader } from '../../components/common';
+import { InfoText, Loader } from '../../components/common';
+import DashboardService from '../../services/dashboard';
 import pageTabService from '../../services/pageTabs/PageTabList';
 import { WidgetErrorBoundary } from '../WidgetErrorBoundary';
+import { Btn } from '../common/btns';
 
 import './style.scss';
 
@@ -323,11 +325,33 @@ class Layout extends Component {
     );
   };
 
-  renderLayout() {
-    const { columns } = this.props;
+  checkIsEmptyLayout = columns => {
+    if (Array.isArray(columns)) {
+      return columns.reduce((result, column) => result && this.checkIsEmptyLayout(column), true);
+    }
 
-    if (isEmpty(columns)) {
-      return null;
+    return columns && columns.widgets && columns.widgets.length === 0;
+  };
+
+  renderLayout() {
+    const { dashboardId, columns } = this.props;
+
+    const isEmptyLayout = isEmpty(columns) || this.checkIsEmptyLayout(columns);
+
+    const props = {
+      dashboardId,
+      updateDashboard: true
+    };
+
+    if (isEmptyLayout) {
+      return (
+        <div className="ecos-layout__empty-wrapper">
+          <InfoText text={t('dashboard-settings.layout.empty-layout')} />
+          <Btn className="ecos-btn_blue" onClick={() => DashboardService.openEditModal(props)}>
+            {t('web-page-widget.btn.settings')}
+          </Btn>
+        </div>
+      );
     }
 
     return (

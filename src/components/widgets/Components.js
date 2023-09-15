@@ -9,6 +9,7 @@ import uuidV4 from 'uuid/v4';
 
 import { getCurrentLocale, t } from '../../helpers/util';
 import { CONFIG_VERSION, DashboardTypes } from '../../constants/dashboard';
+import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
 import { FORM_MODE_EDIT, FORM_MODE_VIEW } from '../EcosForm';
 
 export const ComponentKeys = {
@@ -83,7 +84,8 @@ export default class Components {
     [ComponentKeys.REPORT]: {
       load: () => lazy(() => import('./Report')),
       label: 'dashboard-settings.widget.report',
-      supportedDashboardTypes: [DashboardTypes.USER],
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM],
+      checkIsAvailable: async () => await ConfigService.getValue(ALFRESCO_ENABLED),
       props: {}
     },
     [ComponentKeys.COMMENTS]: {
@@ -152,7 +154,7 @@ export default class Components {
     [ComponentKeys.RECORD_ACTIONS]: {
       load: () => lazy(() => import('./Actions')),
       label: 'dashboard-settings.widget.actions',
-      supportedDashboardTypes: Components.getAllDashboardTypesExcept([DashboardTypes.USER]),
+      supportedDashboardTypes: Components.getAllDashboardTypesExcept([DashboardTypes.USER, DashboardTypes.CUSTOM]),
       props: {}
     },
     [ComponentKeys.WEB_PAGE]: {
@@ -164,7 +166,7 @@ export default class Components {
     [ComponentKeys.BIRTHDAYS]: {
       load: () => lazy(() => import('./Birthdays')),
       label: 'dashboard-settings.widget.birthdays',
-      supportedDashboardTypes: [DashboardTypes.USER],
+      supportedDashboardTypes: [DashboardTypes.USER, DashboardTypes.CUSTOM],
       props: {}
     },
     [ComponentKeys.BARCODE]: {
@@ -231,7 +233,7 @@ export default class Components {
         ),
       checkIsAvailable: () => Boolean(get(window, 'Citeck.Plugins.ChartsWidget')),
       label: 'dashboard-settings.widget.charts',
-      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER]
+      supportedDashboardTypes: [DashboardTypes.CASE_DETAILS, DashboardTypes.USER, DashboardTypes.CUSTOM]
     },
     [ComponentKeys.STAGES]: {
       load: () =>
@@ -293,22 +295,27 @@ export default class Components {
     return get(Components.components, [component, 'props'], {});
   }
 
-  static getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
+  static async getComponentsFullData(dashboardType = DashboardTypes.CASE_DETAILS) {
     const components = new Map();
 
     Components.widgetsForAllDasboards.forEach(component => {
       components.set(component.name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
     });
 
-    Object.entries(Components.components).forEach(([name, component]) => {
-      if (component.supportedDashboardTypes && component.supportedDashboardTypes.includes(dashboardType)) {
-        components.set(name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
-      }
+    await Promise.all(
+      Object.entries(Components.components).map(async ([name, component]) => {
+        if (isFunction(component.checkIsAvailable)) {
+          const isAvaliable = await component.checkIsAvailable();
+          if (!isAvaliable) {
+            return;
+          }
+        }
 
-      if (isFunction(component.checkIsAvailable) && !component.checkIsAvailable()) {
-        components.delete(name);
-      }
-    });
+        if (component.supportedDashboardTypes && component.supportedDashboardTypes.includes(dashboardType)) {
+          components.set(name, { label: component.label, additionalProps: get(component, 'additionalProps', {}) });
+        }
+      })
+    );
 
     const arrComponents = [...components].map(([name]) => {
       const component = components.get(name);

@@ -24,6 +24,7 @@ import { UserApi } from '../../../api/user';
 import { AppApi } from '../../../api/app';
 import { Components } from '../../../forms/components';
 import DataGridAssocComponent from '../../../forms/components/custom/datagridAssoc/DataGridAssoc';
+import { PRE_SETTINGS_TYPES, PreSettings } from '../../PreSettings';
 import Modal from '../../common/EcosModal/CiteckEcosModal';
 import { PERMISSION_WRITE_ATTR } from '../../Records/constants';
 import Records from '../../Records';
@@ -90,6 +91,16 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
     });
   }
 
+  static openPreSettings(recordRef, config, callback) {
+    if (!config) {
+      config = {};
+    }
+
+    const preSettings = new PreSettings();
+
+    preSettings.open(recordRef, config, callback);
+  }
+
   static eform(record, config) {
     if (!config) {
       config = {};
@@ -136,9 +147,14 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
           }
 
           const onSubmit = lodashGet(configParams, 'onSubmit');
+          const onPreSettingSubmit = lodashGet(configParams, 'onPreSettingSubmit');
 
           if (isFunction(onSubmit)) {
             onSubmit(record, form, alias);
+          }
+
+          if (isFunction(onPreSettingSubmit)) {
+            onPreSettingSubmit(record, form, alias);
           }
         };
 
@@ -223,7 +239,7 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
       formMode = config.formMode || FORM_MODE_EDIT,
       formKey = config.formKey;
 
-    const showForm = recordRef => {
+    const showForm = (recordRef, hasPermission) => {
       const params = {
         attributes: config.attributes || {},
         onSubmit: config.onSubmit
@@ -253,6 +269,10 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         params.onCancelModal = config.onCancelModal;
       }
 
+      if (config.onAfterHideModal) {
+        params.onAfterHideModal = config.onAfterHideModal;
+      }
+
       if (config.contentBefore) {
         params.contentBefore = config.contentBefore;
       }
@@ -265,6 +285,19 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         params.options = config.options;
       }
 
+      if (config.onPreSettingSubmit) {
+        params.onPreSettingSubmit = config.onPreSettingSubmit;
+      }
+
+      const [source] = recordRef.split('@');
+      if (!hasPermission && source === SourcesId.JOURNAL) {
+        config.preSettingsType = PRE_SETTINGS_TYPES.JOURNAL;
+
+        EcosFormUtils.openPreSettings(recordRef, config);
+
+        return;
+      }
+
       EcosFormUtils.eform(recordRef, {
         params,
         class: 'ecos-modal_width-lg',
@@ -274,24 +307,26 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
       });
     };
 
-    EcosFormUtils.hasForm(recordRef)
-      .then(result => {
-        if (result) {
-          showForm(recordRef);
-        } else {
-          if (isFunction(fallback)) {
-            fallback();
+    EcosFormUtils.hasForm(recordRef).then(result =>
+      EcosFormUtils.hasWritePermission(recordRef)
+        .then(hasPermission => {
+          if (result) {
+            showForm(recordRef, hasPermission);
           } else {
-            NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+            if (isFunction(fallback)) {
+              fallback();
+            } else {
+              NotificationManager.error(t('ecos-form.error.no-form'), t('error'));
+            }
           }
-        }
-      })
-      .catch(e => {
-        const msg = 'Exception in hasForm request. RecordRef: ' + recordRef;
-        console.error(msg, e);
-        NotificationManager.error(t('form-is-not-available'), t('error'));
-        throw new Error(msg);
-      });
+        })
+        .catch(e => {
+          const msg = 'Exception in hasForm request. RecordRef: ' + recordRef;
+          console.error(msg, e);
+          NotificationManager.error(t('form-is-not-available'), t('error'));
+          throw new Error(msg);
+        })
+    );
   }
 
   static cloneRecord({ clonedRecord, createVariant, saveOnSubmit }) {

@@ -51,8 +51,8 @@ function* sagaGetModel({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
-    const model = yield call(api.cmmn.getModel, record);
-    const heatmapData = yield call(api.cmmn.getHeatmapData, record);
+    const model = yield call(api.process.getModel, record);
+    const heatmapData = yield call(api.process.getHeatmapData, record);
 
     yield put(setModel({ stateId, model, heatmapData }));
   } catch (e) {
@@ -65,7 +65,7 @@ function* sagaFilterHeatdata({ api, logger }, { payload }) {
   const { record, stateId, predicates } = payload;
 
   try {
-    const heatmapData = yield call(api.cmmn.getHeatmapData, record, predicates);
+    const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
     yield put(setModel({ stateId, heatmapData }));
   } catch (e) {
     yield put(setModel({ stateId, heatmapData: [] }));

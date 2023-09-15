@@ -92,7 +92,7 @@ export default class MenuSettingsService {
     const { level, configType } = params || {};
 
     return {
-      editable: knownType && ![ms.ItemTypes.JOURNAL].includes(item.type),
+      editable: knownType && ![ms.ItemTypes.JOURNAL, ms.ItemTypes.KANBAN, ms.ItemTypes.DOCLIB, ms.ItemTypes.DASHBOARD].includes(item.type),
       draggable: knownType && ![].includes(item.type),
       removable: ![].includes(item.type),
       hideable: ![].includes(item.type),
@@ -179,6 +179,9 @@ export default class MenuSettingsService {
     { ...CreateOptions.SECTION, when: { maxLevel: 0 } },
     { ...CreateOptions.HEADER_DIVIDER, when: { maxLevel: 0, minLevel: 0 } },
     { ...CreateOptions.JOURNAL, when: { minLevel: 0 } },
+    { ...CreateOptions.KANBAN, when: { minLevel: 0 } },
+    { ...CreateOptions.DASHBOARD, when: { minLevel: 0 } },
+    { ...CreateOptions.DOCLIB, when: { minLevel: 0 } },
     { ...CreateOptions.ARBITRARY, when: { minLevel: 0 } },
     { ...CreateOptions.LINK_CREATE_CASE, when: { minLevel: 0 } },
     { ...CreateOptions.START_WORKFLOW, when: { minLevel: 0 } }

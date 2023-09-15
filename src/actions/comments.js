@@ -10,6 +10,7 @@ export const createCommentSuccess = createAction(prefix + 'CREATE_COMMENT_SUCCES
 
 export const updateCommentRequest = createAction(prefix + 'UPDATE_COMMENT_REQUEST');
 export const updateCommentSuccess = createAction(prefix + 'UPDATE_COMMENT_SUCCESS');
+export const uploadFilesInComment = createAction(prefix + 'UPLOAD_FILES_IN_COMMENTS');
 
 export const deleteCommentRequest = createAction(prefix + 'DELETE_COMMENT_REQUEST');
 export const deleteCommentSuccess = createAction(prefix + 'DELETE_COMMENT_SUCCESS');
@@ -20,5 +21,7 @@ export const fetchStart = createAction(prefix + 'FETCH_START');
 export const fetchEnd = createAction(prefix + 'FETCH_END');
 export const sendingStart = createAction(prefix + 'SENDING_START');
 export const sendingEnd = createAction(prefix + 'SENDING_END');
+
+export const uploadFilesFinally = createAction(prefix + 'UPLOAD_FILES_FINALLY');
 
 export const setActionFailedStatus = createAction(prefix + 'SET_ACTION_FAILED_STATUS');

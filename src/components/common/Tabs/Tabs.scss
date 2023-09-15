@@ -272,6 +272,15 @@
         align-items: flex-start;
       }
 
+      .ecos-field {
+        &__label {
+          &_required:after {
+            position: relative;
+            margin-left: 5px;
+          }
+        }
+      }
+
       &__buttons {
         margin-top: 20px;
         display: flex;
