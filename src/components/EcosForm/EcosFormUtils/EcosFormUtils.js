@@ -269,8 +269,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
         params.onCancelModal = config.onCancelModal;
       }
 
-      if (config.onHideModal) {
-        params.onHideModal = config.onHideModal;
+      if (config.onAfterHideModal) {
+        params.onAfterHideModal = config.onAfterHideModal;
       }
 
       if (config.contentBefore) {
