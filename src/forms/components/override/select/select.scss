@@ -33,6 +33,8 @@
       }
 
       .choices__item {
+        @extend %ellipsis;
+
         padding-left: $input-padding;
         padding-right: $input-padding;
       }

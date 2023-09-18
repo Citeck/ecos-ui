@@ -831,6 +831,27 @@ export default class SelectComponent extends BaseComponent {
         _.get(this, 'component.fuseOptions', {})
       ),
       itemComparer: _.isEqual,
+      callbackOnCreateTemplates: template => {
+        return {
+          choice: (classNames, data, itemSelectText) => {
+            // label is wrapped in template
+            const labelInTemplate = data.label;
+            const htmlElement = document.createElement('div');
+            htmlElement.innerHTML = labelInTemplate;
+            const pureLabel = htmlElement.innerText;
+
+            return template(`
+              <div title="${pureLabel}" class="${classNames.item} ${classNames.itemChoice} ${
+              data.disabled ? classNames.itemDisabled : classNames.itemSelectable
+            }" data-select-text="${itemSelectText}" data-choice ${
+              data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable'
+            } data-id="${data.id}" data-value="${data.value}" ${data.groupId > 0 ? 'role="treeitem"' : 'role="option"'}>
+                ${data.label}
+              </div>
+            `);
+          }
+        };
+      },
       ...customOptions
     };
 
