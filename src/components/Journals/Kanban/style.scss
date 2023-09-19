@@ -247,6 +247,10 @@
       margin-bottom: 28px;
     }
 
+    &:hover #{$card}-action-list_withoutTitle {
+      visibility: visible;
+    }
+
     &-info {
       --color-info: #{HexToRGB($color-blue-light)};
 
@@ -360,6 +364,16 @@
 
         & > :nth-child(n) {
           margin-left: 13px;
+        }
+
+        &_withoutTitle {
+          visibility: hidden;
+
+          position: absolute;
+          right: 10px;
+          z-index: 100;
+
+          background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
         }
       }
 

@@ -133,7 +133,7 @@ class Kanban extends React.Component {
    * @returns {JSX.Element}
    */
   renderColumn = (data, index) => {
-    const { stateId, runAction, selectedBoard } = this.props;
+    const { stateId, runAction, selectedBoard, boardConfig } = this.props;
     const { isDragging } = this.state;
 
     return (
@@ -143,6 +143,7 @@ class Kanban extends React.Component {
         stateId={stateId}
         columnStatus={data.id}
         isDragging={isDragging}
+        boardConfig={boardConfig}
         runAction={runAction}
       />
     );
