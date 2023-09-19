@@ -49,7 +49,12 @@ class Card extends React.PureComponent {
   };
 
   renderHeader = provided => {
-    const { readOnly, actions, data } = this.props;
+    const { data, boardConfig = {} } = this.props;
+    const { disableTitle } = boardConfig;
+
+    if (disableTitle) {
+      return this.renderCardActions(provided, disableTitle);
+    }
 
     return (
       <div className="ecos-kanban__card-head">
@@ -65,32 +70,47 @@ class Card extends React.PureComponent {
           </Tooltip>
           {data.cardSubtitle && <div className="ecos-kanban__card-label_secondary">{data.cardSubtitle}</div>}
         </div>
-        <div className="ecos-kanban__card-action-list">
-          {!isEmpty(actions) && (
-            <DropdownOuter
-              key={data.cardId}
-              source={actions}
-              valueField={'id'}
-              titleField={'name'}
-              onChange={this.handleAction}
-              isStatic
-              boundariesElement="window"
-              placement="bottom-end"
-              modifiers={null}
-              withScrollbar
-              scrollbarHeightMax={200}
-              className="ecos-kanban__card-action-dropdown"
-            >
-              <Icon className="ecos-kanban__card-action-icon icon-custom-more-small-normal" />
-            </DropdownOuter>
-          )}
-          {!readOnly && (
-            <Icon
-              className="ecos-kanban__card-action-icon icon-custom-drag-big ecos-kanban__card-action-drag"
-              {...provided.dragHandleProps}
-            />
-          )}
-        </div>
+        {this.renderCardActions(provided)}
+      </div>
+    );
+  };
+
+  renderCardActions = (provided, withoutTitle) => {
+    const { readOnly, actions, data } = this.props;
+
+    return (
+      <div
+        className={classNames('ecos-kanban__card-action-list', {
+          'ecos-kanban__card-action-list_withoutTitle': withoutTitle
+        })}
+      >
+        {!isEmpty(actions) && (
+          <DropdownOuter
+            key={data.cardId}
+            source={actions}
+            valueField={'id'}
+            titleField={'name'}
+            onChange={this.handleAction}
+            isStatic
+            boundariesElement="window"
+            placement="bottom-end"
+            modifiers={null}
+            withScrollbar
+            scrollbarHeightMax={200}
+            className="ecos-kanban__card-action-dropdown"
+          >
+            <Icon className="ecos-kanban__card-action-icon icon-custom-more-small-normal" />
+          </DropdownOuter>
+        )}
+        {withoutTitle && (
+          <Icon className="ecos-kanban__card-action-icon icon-eye-show ecos-kanban__card-action-show" onClick={this.handleHeaderClick} />
+        )}
+        {!readOnly && (
+          <Icon
+            className="ecos-kanban__card-action-icon icon-custom-drag-big ecos-kanban__card-action-drag"
+            {...provided.dragHandleProps}
+          />
+        )}
       </div>
     );
   };
