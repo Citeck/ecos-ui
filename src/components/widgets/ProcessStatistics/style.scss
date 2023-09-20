@@ -59,6 +59,14 @@
       display: none;
     }
 
+    &_hidden-active-count .model-badges__item_activeCount {
+      display: none;
+    }
+
+    &_hidden-completed-count .model-badges__item_completedCount {
+      display: none;
+    }
+
     &__panel {
       display: flex;
       justify-content: flex-end;

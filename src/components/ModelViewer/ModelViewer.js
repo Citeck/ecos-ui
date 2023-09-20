@@ -102,7 +102,7 @@ export default class ModelViewer {
     }
   };
 
-  setZoom = value => {
+  setZoom = (value, center) => {
     let nv;
     switch (value) {
       case ScaleOptions.DEFAULT:
@@ -119,7 +119,7 @@ export default class ModelViewer {
       }
     }
 
-    nv && this.canvas.zoom(nv);
+    nv && this.canvas.zoom(nv, center);
     this.redrawHeatmap();
   };
 
