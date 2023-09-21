@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce';
 import { changeTaskAssignee, getTaskList, resetTaskList } from '../../../actions/tasks';
 import { selectStateTasksById } from '../../../selectors/tasks';
 import Records from '../../Records';
+import { EVENTS } from '../BaseWidget';
 import TaskList from './TaskList';
 
 import './style.scss';
