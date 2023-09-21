@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
+import isNumber from 'lodash/isNumber';
 
 import { getModel } from '../../../actions/processStatistics';
 
@@ -129,6 +130,10 @@ class Model extends React.Component {
     const { isActiveCount, isCompletedCount } = this.state;
 
     if (!isActiveCount && !isCompletedCount) {
+      return [];
+    }
+
+    if (!heatmapData) {
       return [];
     }
 
@@ -275,19 +280,19 @@ class Model extends React.Component {
   };
 
   handleClickZoom = value => {
-    this.designer.setZoom(value);
+    const center = isNumber(value)
+      ? {
+          x: 0,
+          y: 0
+        }
+      : undefined;
+
+    this.designer.setZoom(value, center);
   };
 
   handleChangeCountFlag = data => {
     this.setState(data, this.reRenderHeatmap);
   };
-
-  handleChangeSection = opened => {
-    if (opened) {
-      this.handleClickZoom(ScaleOptions.FIT);
-    }
-  };
-
   handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
 
   renderSwitches = () => {
@@ -345,7 +350,16 @@ class Model extends React.Component {
 
   render() {
     const { model, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
-    const { isModelMounted, isModelMounting, isShowHeatmap, isShowCounters, legendData, opacity } = this.state;
+    const {
+      isModelMounted,
+      isModelMounting,
+      isShowHeatmap,
+      isShowCounters,
+      isActiveCount,
+      isCompletedCount,
+      legendData,
+      opacity
+    } = this.state;
 
     const Sheet = this.designer && this.designer.renderSheet;
 
@@ -354,11 +368,13 @@ class Model extends React.Component {
         className={classNames('ecos-process-statistics-model', {
           'ecos-process-statistics-model_x': width <= 500,
           'ecos-process-statistics-model_mobile': isMobile,
+          'ecos-process-statistics-model_hidden-active-count': !isActiveCount,
+          'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
           'ecos-process-statistics-model_hidden-badges': !isShowCounters,
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
         })}
       >
-        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} onChange={this.handleChangeSection} opened>
+        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {isModelMounted && (
