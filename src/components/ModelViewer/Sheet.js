@@ -11,6 +11,7 @@ export const Sheet = ({
   init,
   markedElement,
   zoom,
+  zoomCenter,
   className = ModelViewer.querySelector,
   ...props
 }) => {
@@ -35,7 +36,8 @@ export const Sheet = ({
           onMounted,
           modelEvents,
           markedElement,
-          zoom
+          zoom,
+          zoomCenter
         });
       }
     },
