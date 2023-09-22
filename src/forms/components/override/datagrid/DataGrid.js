@@ -69,7 +69,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
       });
     }
 
-    return show;
+    return super.show(show);
   };
 
   checkValidity(data, dirty, rowData) {
