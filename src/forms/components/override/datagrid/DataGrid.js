@@ -56,7 +56,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
       });
     }
 
-    return show;
+    return super.show(show);
   };
 
   overrideBaseRow() {
