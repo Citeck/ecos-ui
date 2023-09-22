@@ -98,11 +98,10 @@ export default class ModelViewer {
     if (this.container) {
       height = height || this.viewport.getBoundingClientRect().height;
       this.container.style.height = `${height}px`;
-      this.setZoom(ScaleOptions.FIT);
     }
   };
 
-  setZoom = (value, center) => {
+  setZoom = value => {
     let nv;
     switch (value) {
       case ScaleOptions.DEFAULT:
@@ -119,7 +118,7 @@ export default class ModelViewer {
       }
     }
 
-    nv && this.canvas.zoom(nv, center);
+    nv && this.canvas.zoom(nv, this.zoomCenter);
     this.redrawHeatmap();
   };
 

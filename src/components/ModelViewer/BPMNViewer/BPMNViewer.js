@@ -18,7 +18,7 @@ import { Sheet } from '../Sheet';
 export default class BPMNViewer extends ModelViewer {
   static querySelector = 'ecos-bpmn-model-container';
 
-  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom }) => {
+  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom, zoomCenter }) => {
     isFunction(onInit) && onInit(true);
 
     this.modeler = new Modeler({
@@ -38,6 +38,7 @@ export default class BPMNViewer extends ModelViewer {
     this.setEvents({}, modelEvents);
     this.switchToReadonly();
 
+    this.zoomCenter = zoomCenter;
     zoom && this.canvas.zoom(zoom);
     markedElement && this.setMarkedElement(markedElement);
   };
