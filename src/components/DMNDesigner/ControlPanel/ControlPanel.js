@@ -8,7 +8,7 @@ import { createModel } from '../../../actions/dmn';
 import ControlPanel from '../../designerCommon/ControlPanel';
 
 const mapStateToProps = state => ({
-  totalModels: get(state, 'dmn.models.length', 0),
+  totalCount: get(state, 'dmn.models.length', 0),
   isReady: state.dmn.isReady,
   createVariants: state.dmn.createVariants,
   SearchComponent: Search,

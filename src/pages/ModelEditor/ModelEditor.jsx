@@ -41,8 +41,9 @@ import ModelEditorWrapper from '../../components/ModelEditorWrapper';
 import { getEcosType, getValue } from '../../components/ModelEditor/CMMNModeler/utils';
 import { DMN_DEFINITIONS } from '../../constants/dmn';
 
-import './ModelEditor.scss';
 import { PROCESS_DEF_API_ACTIONS } from '../../api/process';
+
+import './ModelEditor.scss';
 
 class ModelEditorPage extends React.Component {
   static modelType = '';
@@ -60,6 +61,7 @@ class ModelEditorPage extends React.Component {
   designer;
   urlQuery = queryString.parseUrl(window.location.href).query;
   modelEditorRef = React.createRef();
+  _processDefId = null;
   _tempFormData = {};
   _formWrapperRef = React.createRef();
   _prevValue = {};
@@ -460,7 +462,7 @@ class ModelEditorPage extends React.Component {
 
     Promise.all([promiseXml, promiseImg])
       .then(([xml, img]) => {
-        this.props.saveModel(xml, img, definitionAction);
+        this.props.saveModel(xml, img, definitionAction, this._processDefId);
       })
       .catch(error => {
         throw new Error(`Failure to save xml or image: ${error.message}`);
@@ -591,6 +593,8 @@ class ModelEditorPage extends React.Component {
 
           modeling.updateProperties(selectedDiagramElement, { id: rawValue }, false);
         }
+
+        this._processDefId = rawValue;
       }
 
       if (is(selectedDiagramElement, PARTICIPANT_TYPE) && key === 'processRef') {
