@@ -70,7 +70,7 @@ class Models extends React.Component {
       !isNextModelsLoading &&
       this.hasMore &&
       scroll.scrollTop &&
-      scroll.scrollTop + scroll.clientHeight === scroll.scrollHeight
+      Math.abs(Number(scroll.scrollTop + scroll.clientHeight).toFixed(2) - Number(scroll.scrollHeight).toFixed(2)) < 10
     ) {
       isFunction(getNextModels) && getNextModels(categoryId);
     }
