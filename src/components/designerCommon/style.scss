@@ -20,8 +20,11 @@
     max-height: calc(100vh - 275px);
 
     &::-webkit-scrollbar {
-      display: none;
+      display: none; /* Chrome */
     }
+
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   &__add-category {
