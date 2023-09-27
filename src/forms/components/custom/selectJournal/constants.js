@@ -16,7 +16,8 @@ export const TableTypes = {
 
 export const DisplayModes = {
   DEFAULT: 'default',
-  TABLE: 'table'
+  TABLE: 'table',
+  CUSTOM: 'custom'
 };
 
 export const DataTypes = {
