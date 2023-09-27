@@ -938,7 +938,8 @@ export const selectJournalCase = {
         custom: {
           columns: []
         },
-        viewMode: 'default'
+        viewMode: 'default',
+        customValues: []
       },
       defaultValue: '',
       displayColumnsAsyncData: [
