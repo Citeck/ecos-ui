@@ -233,9 +233,32 @@
   fill: inherit;
 }
 
+.flatpickr-prev-month.flatpickr-disabled,
+.flatpickr-months .flatpickr-next-month.flatpickr-disabled {
+  display: none;
+}
+.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover,
+.flatpickr-day.nextMonthDay.flatpickr-disabled,
+.flatpickr-day.nextMonthDay.flatpickr-disabled:hover,
+.flatpickr-day.prevMonthDay.flatpickr-disabled,
+.flatpickr-day.prevMonthDay.flatpickr-disabled:hover {
+  cursor: not-allowed;
+  color: rgba(57, 57, 57, 0.1);
+}
 .numInputWrapper {
   position: relative;
   height: auto;
+}
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.flatpickr-disabled:hover,
+.flatpickr-day.nextMonthDay.flatpickr-disabled,
+.flatpickr-day.nextMonthDay.flatpickr-disabled:hover,
+.flatpickr-day.prevMonthDay.flatpickr-disabled,
+.flatpickr-day.prevMonthDay.flatpickr-disabled:hover {
+  color: rgba(57, 57, 57, 0.3);
+  background: transparent;
+  border-color: transparent;
 }
 
 .numInputWrapper input,
