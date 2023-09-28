@@ -35,7 +35,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
             columns: []
           },
           type: TableTypes.JOURNAL,
-          viewMode: DisplayModes.DEFAULT
+          viewMode: DisplayModes.DEFAULT,
+          customValues: []
         },
         displayColumns: [],
         computed: {
@@ -329,6 +330,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       disabled: comp.disabled,
       viewOnly: this.viewOnly,
       viewMode: comp.source.viewMode,
+      customValues: SelectJournalComponent.getCustomValues(comp),
       displayColumns: comp.displayColumns,
       isSelectedValueAsText: comp.isSelectedValueAsText,
       isFullScreenWidthModal: comp.isFullScreenWidthModal,
@@ -564,6 +566,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     return result || value;
+  };
+
+  static getCustomValues = component => {
+    if (component.source.customValues) {
+      return formioEvaluate(component.source.customValues, {}, 'values', true);
+    }
+
+    return [];
   };
 
   static optimizeSchema(comp) {
