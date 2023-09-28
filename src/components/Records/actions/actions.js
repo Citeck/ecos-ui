@@ -34,6 +34,7 @@ import SaveAsCaseTemplateAction from './handler/executor/SaveAsCaseTemplateActio
 import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateAction';
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
+import ServerGroupActionV2 from './handler/executor/ServerGroupActionV2';
 import MutateAction from './handler/executor/MutateAction';
 import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAction';
 import DebugFormAction from './handler/executor/DebugFormAction';
@@ -69,6 +70,7 @@ const registerAllActions = () => {
   actionsRegistry.register(new ViewMenuAction());
   actionsRegistry.register(new DownloadZipAction());
   actionsRegistry.register(new ServerGroupAction());
+  actionsRegistry.register(new ServerGroupActionV2());
   actionsRegistry.register(new MutateAction());
   actionsRegistry.register(new EditTypePermissionsAction());
   actionsRegistry.register(new EditPasswordAction());

@@ -7,8 +7,11 @@ import { replacePlaceholders } from '../../../../Journals/service/util';
 import Records from '../../../Records';
 import ActionsExecutor from '../ActionsExecutor';
 import { ResultTypes } from '../../util/constants';
+import LicenseService from '../../../../../services/LicenseService';
+import ConfigService, { ALFRESCO_ENABLED } from '../../../../../services/config/ConfigService';
 
-const ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
+const ALF_ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
+const ACTION_ID = `${SourcesId.ACTION}@group-action-export-`;
 
 const Labels = {
   NO_RESULT: 'record-action.name.export-report.msg.no-result',
@@ -26,16 +29,54 @@ export default class RecordsExportAction extends ActionsExecutor {
   static ACTION_ID = 'records-export';
 
   async execForRecords(records, action, context) {
-    return this._execImpl((handler, action) => handler.execForRecords(records, action, context), action, context);
+    let isLegacyGroupActionRequired = false;
+    for (let record of records) {
+      let id = record.id;
+      let srcIdDelimIdx = id.indexOf('@');
+      if (srcIdDelimIdx > 0) {
+        isLegacyGroupActionRequired = await this._isLegacyGroupActionRequiredForSource(id.substring(0, srcIdDelimIdx));
+        if (isLegacyGroupActionRequired) {
+          break;
+        }
+      }
+    }
+
+    return this._execImpl(
+      isLegacyGroupActionRequired,
+      (handler, action) => handler.execForRecords(records, action, context),
+      action,
+      context
+    );
   }
 
   async execForQuery(query, action, context) {
-    return this._execImpl((handler, action) => handler.execForQuery(query, action, context), action, context);
+    return this._execImpl(
+      await this._isLegacyGroupActionRequiredForSource(query.sourceId),
+      (handler, action) => handler.execForQuery(query, action, context),
+      action,
+      context
+    );
   }
 
-  async _execImpl(actionImpl, action) {
+  async _isLegacyGroupActionRequiredForSource(sourceId) {
+    if (!sourceId) {
+      return false;
+    }
+    const isAlfrescoEnabled = await ConfigService.getValue(ALFRESCO_ENABLED);
+    if (!isAlfrescoEnabled) {
+      return false;
+    }
+    const isGroupActionsLicenseExists = await LicenseService.hasGroupActionsFeature();
+    if (!isGroupActionsLicenseExists) {
+      return true;
+    }
+    return sourceId.startsWith('alfresco/') || sourceId.startsWith('integrations/');
+  }
+
+  async _execImpl(isLegacyGroupAction, actionImpl, action) {
     try {
       const { exportType = null, columns = null, download = true } = action.config || {};
+
       const throwError = msg => {
         const args = [action];
 
@@ -55,7 +96,7 @@ export default class RecordsExportAction extends ActionsExecutor {
         throwError(Labels.NO_COLUMNS);
       }
 
-      const exportActionId = ACTION_ID + exportType.toLowerCase();
+      const exportActionId = (isLegacyGroupAction ? ALF_ACTION_ID : ACTION_ID) + exportType.toLowerCase();
       const exportConfig = await Records.get(exportActionId).load('?json', true);
 
       if (!exportConfig) {
@@ -72,10 +113,20 @@ export default class RecordsExportAction extends ActionsExecutor {
 
       newAction.config = replacePlaceholders(newAction.config, { reportColumns: columns });
 
-      const result = await actionImpl(handler, newAction);
+      let result = await actionImpl(handler, newAction);
 
       if (!result) {
         throwError(Labels.NO_RESULT, newAction);
+      }
+      let resultType = (result.type || '').toLowerCase();
+      if (resultType === 'message') {
+        resultType = ResultTypes.MSG;
+      }
+      if (result.type !== resultType) {
+        result = {
+          ...result,
+          type: resultType
+        };
       }
 
       if (!result.type && result.code && result.code >= 500) {
@@ -100,15 +151,22 @@ export default class RecordsExportAction extends ActionsExecutor {
           throwError(Labels.NO_RESULT_URL, result);
         }
 
-        const hasWorkspace = url.includes('workspace://SpacesStore/');
+        if (isLegacyGroupAction) {
+          const hasWorkspace = url.includes('workspace://SpacesStore/');
 
-        if (hasWorkspace) {
+          if (hasWorkspace) {
+            if (download === false) {
+              url += url.includes('?') ? '&' : '?';
+              url += 'download=false';
+            }
+
+            url = PROXY_URI + url;
+          }
+        } else {
           if (download === false) {
             url += url.includes('?') ? '&' : '?';
             url += 'download=false';
           }
-
-          url = PROXY_URI + url;
         }
 
         window.open(url);
