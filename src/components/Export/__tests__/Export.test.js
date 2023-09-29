@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 import Export from '../Export';
-import ConfigService, { ALFRESCO_ENABLED } from '../../../services/config/ConfigService';
+import ConfigService from '../../../services/config/ConfigService';
 
 describe('Export component tests', () => {
   test('should render Export component', () => {
@@ -32,8 +32,6 @@ describe('Export component tests', () => {
 
   test('test equal dropdown with alfresco source and snapshots data', async () => {
     const spy = jest.spyOn(ConfigService, 'getValue').mockImplementation(() => Promise.resolve(true));
-
-    ConfigService.setValue(ALFRESCO_ENABLED, true);
 
     const component = mount(<Export />);
 
