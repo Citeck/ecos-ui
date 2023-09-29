@@ -67,9 +67,7 @@ export default class Export extends Component {
     });
   }
 
-  get dropdownSourceVariants() {
-    const { hasAlfresco, hasGroupActionsLicense } = this.state;
-
+  dropdownSourceVariants(hasAlfresco, hasGroupActionsLicense) {
     const variants = [];
     if (hasAlfresco || hasGroupActionsLicense) {
       variants.push({ id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' });
@@ -178,6 +176,7 @@ export default class Export extends Component {
   };
 
   render() {
+    const { hasAlfresco, hasGroupActionsLicense } = this.state;
     const { right, className, children, classNameBtn, ...props } = this.props;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
 
@@ -188,7 +187,7 @@ export default class Export extends Component {
           hasEmpty
           isStatic={!children}
           right={right}
-          source={this.dropdownSourceVariants}
+          source={this.dropdownSourceVariants(hasAlfresco, hasGroupActionsLicense)}
           valueField={'id'}
           titleField={'title'}
           controlIcon="icon-download"

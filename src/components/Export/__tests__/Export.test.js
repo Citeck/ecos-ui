@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow, mount } from 'enzyme';
 
 import Export from '../Export';
-import ConfigService from '../../../services/config/ConfigService';
+import ConfigService, { ALFRESCO_ENABLED } from '../../../services/config/ConfigService';
 
 describe('Export component tests', () => {
   test('should render Export component', () => {
@@ -33,11 +33,13 @@ describe('Export component tests', () => {
   test('test equal dropdown with alfresco source and snapshots data', async () => {
     const spy = jest.spyOn(ConfigService, 'getValue').mockImplementation(() => Promise.resolve(true));
 
+    ConfigService.setValue(ALFRESCO_ENABLED, true);
+
     const component = mount(<Export />);
 
     expect(spy).toHaveBeenCalled();
 
-    const dropdownSource = new Export().dropdownSourceWithAlfresco;
+    const dropdownSource = new Export().dropdownSourceVariants(true, false);
 
     return Promise.resolve(component).then(() => {
       component.update();
@@ -56,7 +58,7 @@ describe('Export component tests', () => {
       .find('ul')
       .props();
 
-    const dropdownSource = new Export().dropdownSourceWithoutAlfresco;
+    const dropdownSource = new Export().dropdownSourceVariants(false, false);
 
     component.children.forEach((node, id) => {
       expect(node.props.item.id).toEqual(dropdownSource[id]['id']);
