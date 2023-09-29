@@ -7,7 +7,7 @@ import { replacePlaceholders } from '../../../../Journals/service/util';
 import Records from '../../../Records';
 import ActionsExecutor from '../ActionsExecutor';
 import { ResultTypes } from '../../util/constants';
-import LicenseService from '../../../../../services/LicenseService';
+import LicenseService from '../../../../../services/license/LicenseService';
 import ConfigService, { ALFRESCO_ENABLED } from '../../../../../services/config/ConfigService';
 
 const ALF_ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;

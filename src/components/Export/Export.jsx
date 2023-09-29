@@ -10,7 +10,7 @@ import { NotificationManager } from 'react-notifications';
 
 import { instUserConfigApi as api } from '../../api/userConfig';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
-import LicenseService from '../../services/LicenseService';
+import LicenseService from '../../services/license/LicenseService';
 import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';

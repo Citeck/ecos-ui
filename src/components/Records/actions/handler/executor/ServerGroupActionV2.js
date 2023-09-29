@@ -1,7 +1,7 @@
 import ActionsExecutor from '../ActionsExecutor';
 import logger from '../../../../../services/logger';
 import Records from '../../../Records';
-import LicenseService from '../../../../../services/LicenseService';
+import LicenseService from '../../../../../services/license/LicenseService';
 import { NotificationManager } from 'react-notifications';
 import { t } from '../../../../../helpers/export/util';
 
