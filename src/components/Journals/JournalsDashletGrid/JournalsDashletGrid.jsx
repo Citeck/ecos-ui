@@ -61,9 +61,9 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 //todo rethink this solution without empty grid and especially cloneElement for grid
 const HeightCalculation = props => {
-  const { minHeight, maxHeight, children, total, maxItems } = props;
+  const { minHeight, maxHeight, loading, children, total, maxItems } = props;
 
-  if (!isNil(minHeight)) {
+  if (!isNil(minHeight) && loading) {
     return <div style={{ minHeight, maxHeight }}>{children}</div>;
   }
 
@@ -263,7 +263,7 @@ class JournalsDashletGrid extends Component {
         <div className="ecos-journal-dashlet__grid">
           {!isWidget && loading && <Loader blur />}
           {!loading && isEmpty(viewColumns) && <InfoText text={t('journal.table.no-columns')} />}
-          <HeightCalculation minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
+          <HeightCalculation loading={loading} minHeight={minHeight} maxHeight={maxHeight} total={total} maxItems={maxItems}>
             <Grid
               recordRef={meta.metaRecord}
               originPredicates={originPredicates}
