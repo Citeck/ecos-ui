@@ -1,7 +1,7 @@
 type: ecos-ui
 properties:
   image:
-    configVersion: v5
+    configVersion: v6
   builds:
     - enterprise: true
       plugins:
