@@ -10,6 +10,7 @@ import { NotificationManager } from 'react-notifications';
 
 import { instUserConfigApi as api } from '../../api/userConfig';
 import ConfigService, { ALFRESCO_ENABLED } from '../../services/config/ConfigService';
+import LicenseService from '../../services/LicenseService';
 import { URL } from '../../constants';
 import { t } from '../../helpers/util';
 import { decodeLink } from '../../helpers/urls';
@@ -46,7 +47,8 @@ export default class Export extends Component {
     this.form = React.createRef();
 
     this.state = {
-      hasAlfresco: false
+      hasAlfresco: false,
+      hasGroupActionsLicense: false
     };
   }
 
@@ -56,20 +58,28 @@ export default class Export extends Component {
         hasAlfresco: value
       });
     });
+    LicenseService.hasGroupActionsFeature().then(hasFeature => {
+      if (hasFeature) {
+        this.setState({
+          hasGroupActionsLicense: true
+        });
+      }
+    });
   }
 
-  get dropdownSourceWithAlfresco() {
-    return [
-      { id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' },
-      { id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' },
-      { id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' },
-      { id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' },
-      { id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }
-    ];
-  }
+  get dropdownSourceVariants() {
+    const { hasAlfresco, hasGroupActionsLicense } = this.state;
 
-  get dropdownSourceWithoutAlfresco() {
-    return [{ id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl }];
+    const variants = [];
+    if (hasAlfresco || hasGroupActionsLicense) {
+      variants.push({ id: 0, title: t('export-component.action.html-read'), type: 'html', download: false, target: '_blank' });
+      variants.push({ id: 1, title: t('export-component.action.html-load'), type: 'html', download: true, target: '_self' });
+      variants.push({ id: 2, title: 'Excel', type: 'xlsx', download: true, target: '_self' });
+      variants.push({ id: 3, title: 'CSV', type: 'csv', download: true, target: '_self' });
+    }
+    variants.push({ id: 4, title: t('export-component.action.copy-link'), click: this.handleCopyUrl });
+
+    return variants;
   }
 
   handleExport = async item => {
@@ -168,7 +178,6 @@ export default class Export extends Component {
   };
 
   render() {
-    const { hasAlfresco } = this.state;
     const { right, className, children, classNameBtn, ...props } = this.props;
     const attributes = omit(props, ['selectedItems', 'journalConfig', 'dashletConfig', 'grid', 'recordRef']);
 
@@ -179,7 +188,7 @@ export default class Export extends Component {
           hasEmpty
           isStatic={!children}
           right={right}
-          source={hasAlfresco ? this.dropdownSourceWithAlfresco : this.dropdownSourceWithoutAlfresco}
+          source={this.dropdownSourceVariants}
           valueField={'id'}
           titleField={'title'}
           controlIcon="icon-download"

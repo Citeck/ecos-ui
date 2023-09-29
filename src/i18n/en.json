@@ -780,6 +780,8 @@
 
   "records-actions.create.create-variant-with-id-not-found": "Creation variant with id = '{{id}}' doesn't found",
 
+  "records-actions.server-group-actions-v2.error.license": "Your license doesn't allow execution of group actions",
+
   "group-action.select.copy-to": "Copy to...",
   "group-action.select.delete": "Delete",
   "group-action.select.download": "Download as Zip",

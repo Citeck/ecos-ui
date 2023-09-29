@@ -801,6 +801,8 @@
 
   "records-actions.create.create-variant-with-id-not-found": "Вариант создания с id = '{{id}}' не найден",
 
+  "records-actions.server-group-actions-v2.error.license": "Ваша лицензия не позволяет выполнять групповые операции",
+
   "group-action.select.copy-to": "Копировать в...",
   "group-action.select.delete": "Удалить",
   "group-action.select.download": "Скачать как Zip",
