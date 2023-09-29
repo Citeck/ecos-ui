@@ -10,7 +10,7 @@ class LicenseService {
 
   async hasFeature(feature) {
     return getLicenseInfo()
-      .then(r => r[FLAG_DEV] === true || !!r[FEATURES][feature])
+      .then(r => r[FLAG_DEVELOPER] === true || !!r[FEATURES][feature])
       .catch(error => {
         logger.error("[LicenseService] Feature flag loading error. Feature: '" + feature + "'", error);
         return false;
