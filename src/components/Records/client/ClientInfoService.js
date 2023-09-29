@@ -21,7 +21,12 @@ export default class ClientInfoService {
       return infoFromCache;
     }
 
-    const appName = sourceId.substring(0, appDelimIdx);
+    let appName = sourceId.substring(0, appDelimIdx);
+    const instanceIdDelimIdx = appName.indexOf(':');
+    if (instanceIdDelimIdx > 0) {
+      appName = appName.substring(0, instanceIdDelimIdx);
+    }
+
     const localSourceId = sourceId.substring(appDelimIdx + 1);
 
     const cacheKey = 'rs-client-' + sourceId;

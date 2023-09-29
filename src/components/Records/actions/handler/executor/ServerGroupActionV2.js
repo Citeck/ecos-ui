@@ -77,6 +77,8 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
     };
     waitComplete();
 
-    return promise;
+    return promise.finally(() => {
+      Records.forget(actionId);
+    });
   }
 }
