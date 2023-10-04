@@ -6,6 +6,8 @@ import { CommonApi } from '../../../../../api/common';
 import { getZipUrl } from '../../../../../helpers/urls';
 import DownloadAction from './DownloadAction';
 import recordActions from '../../recordActions';
+import ConfigService, { ALFRESCO_ENABLED } from '../../../../../services/config/ConfigService';
+import ServerGroupActionV2 from './ServerGroupActionV2';
 
 export default class DownloadZipAction extends ActionsExecutor {
   static ACTION_ID = 'download-zip';
@@ -35,7 +37,7 @@ export default class DownloadZipAction extends ActionsExecutor {
     return this.#commonApi.deleteJson(`${PROXY_URI}api/internal/downloads/${nodeRef.replace(':/', '')}`, true).then(resp => resp);
   };
 
-  async execForRecords(records, action, context) {
+  async _execForAlfrescoRecords(records) {
     const nodeRef = await this.createZip(records.map(r => r.id.replace('alfresco/@', '')));
 
     if (nodeRef) {
@@ -50,6 +52,40 @@ export default class DownloadZipAction extends ActionsExecutor {
       return result;
     }
     return false;
+  }
+
+  async _execForNonAlfrescoRecords(records, action) {
+    const { targetApp } = action.config || {};
+    const groupActionHandler = this._actionsRegistry.getHandler(ServerGroupActionV2.ACTION_ID);
+
+    return groupActionHandler.execForRecords(records, {
+      config: {
+        targetApp,
+        valuesParams: {
+          type: 'records-list',
+          config: {
+            records: records.map(r => r.id)
+          }
+        },
+        executionParams: {
+          type: 'export-zip'
+        }
+      }
+    });
+  }
+
+  async execForRecords(records, action, context) {
+    const alfrescoEnabled = await ConfigService.getValue(ALFRESCO_ENABLED);
+    if (!alfrescoEnabled) {
+      return this._execForNonAlfrescoRecords(records, action);
+    }
+
+    for (let record of records) {
+      if (record.id.indexOf('alfresco/') === 0 || record.id.indexOf('workspace://') === 0) {
+        return this._execForAlfrescoRecords(records);
+      }
+    }
+    return this._execForNonAlfrescoRecords(records, action);
   }
 
   getDefaultActionModel() {

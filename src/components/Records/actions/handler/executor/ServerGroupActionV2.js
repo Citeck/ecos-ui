@@ -75,7 +75,11 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
           setTimeout(() => waitComplete(iteration + 1), WAITING_DELAY_TIME[timeoutIdx]);
         } else {
           if (status === STATUS_COMPLETED) {
-            promiseResolve(actionAtts[ATT_RESULT]);
+            let result = actionAtts[ATT_RESULT];
+            if (result && result.type) {
+              result.type = result.type.toLowerCase();
+            }
+            promiseResolve(result);
           } else {
             logger.error('[ServerGroupActionV2] error', { values, action, actionAtts });
             promiseReject(new Error('Group action completed with unexpected status. Result: ' + JSON.stringify(actionAtts)));
