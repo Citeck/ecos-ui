@@ -49,7 +49,10 @@ function* doInitRequest({ api, logger }) {
       // TODO: optimization
       if (pagePosition.openedCategories) {
         for (let categoryId of pagePosition.openedCategories) {
-          yield put(setCategoryCollapseState({ id: categoryId, isOpen: true }));
+          const existedCategory = categories.find(category => category.id === categoryId);
+          if (existedCategory) {
+            yield put(setCategoryCollapseState({ id: categoryId, isOpen: true }));
+          }
         }
       }
 
