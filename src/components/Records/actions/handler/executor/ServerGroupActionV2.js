@@ -11,6 +11,10 @@ const STATUS_COMPLETED = 'COMPLETED';
 
 const ATT_STATUS = 'status?str';
 const ATT_RESULT = 'result?json';
+const ATT_TOTAL_COUNT = 'totalCount?num';
+const ATT_PROCESSED_COUNT = 'processedCount?num';
+
+const WAITING_DELAY_TIME = [200, 500, 1000, 2000, 3000, 4000, 5000];
 
 export default class ServerGroupActionV2 extends ActionsExecutor {
   static ACTION_ID = 'server-group-action-v2';
@@ -42,11 +46,14 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
       return false;
     }
 
-    const { targetApp, type, config } = action.config || {};
+    const { targetApp, executionParams = {}, valuesParams = {} } = action.config || {};
+
+    const actionValuesParams = { ...valuesParams, ...values };
+    const actionExecutionParams = { ...executionParams };
 
     const groupActionRec = Records.get(targetApp + '/group-action@');
-    groupActionRec.att('values', values);
-    groupActionRec.att('action', { type, config });
+    groupActionRec.att('values', actionValuesParams);
+    groupActionRec.att('execution', actionExecutionParams);
     const actionId = await groupActionRec.save();
 
     let promiseResolve;
@@ -56,12 +63,16 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
       promiseReject = reject;
     });
 
-    const waitComplete = async () => {
+    const waitComplete = async iteration => {
       try {
-        const actionAtts = await Records.get(actionId).load([ATT_STATUS, ATT_RESULT], true);
+        const actionAtts = await Records.get(actionId).load([ATT_STATUS, ATT_RESULT, ATT_TOTAL_COUNT, ATT_PROCESSED_COUNT], true);
         const status = actionAtts[ATT_STATUS] || '';
         if (status === STATUS_WAITING || status === STATUS_RUNNING) {
-          setTimeout(() => waitComplete(), 1000);
+          let timeoutIdx = iteration;
+          if (WAITING_DELAY_TIME.length <= timeoutIdx) {
+            timeoutIdx = WAITING_DELAY_TIME.length - 1;
+          }
+          setTimeout(() => waitComplete(iteration + 1), WAITING_DELAY_TIME[timeoutIdx]);
         } else {
           if (status === STATUS_COMPLETED) {
             promiseResolve(actionAtts[ATT_RESULT]);
@@ -75,7 +86,7 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
         promiseReject(e);
       }
     };
-    waitComplete();
+    waitComplete(0);
 
     return promise.finally(() => {
       Records.forget(actionId);

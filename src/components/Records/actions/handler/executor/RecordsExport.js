@@ -75,7 +75,7 @@ export default class RecordsExportAction extends ActionsExecutor {
 
   async _execImpl(isLegacyGroupAction, actionImpl, action) {
     try {
-      const { exportType = null, columns = null, download = true } = action.config || {};
+      const { exportType = null, columns = null, download = true, reportTitle, journalName } = action.config || {};
 
       const throwError = msg => {
         const args = [action];
@@ -110,8 +110,33 @@ export default class RecordsExportAction extends ActionsExecutor {
       }
 
       const newAction = { ...exportConfig };
+      if (isLegacyGroupAction) {
+        newAction.config = replacePlaceholders(newAction.config, {
+          reportColumns: columns,
+          reportTitle
+        });
+      } else {
+        let newConfig = await Records.queryOne(
+          {
+            sourceId: 'uiserv/fill-template-value',
+            query: {
+              context: {
+                reportColumns: columns,
+                reportTitle,
+                journalName
+              },
+              value: newAction.config
+            }
+          },
+          '?json'
+        );
 
-      newAction.config = replacePlaceholders(newAction.config, { reportColumns: columns });
+        if (!newConfig) {
+          newConfig = newAction.config;
+        }
+
+        newAction.config = newConfig;
+      }
 
       let result = await actionImpl(handler, newAction);
 

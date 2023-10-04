@@ -139,14 +139,16 @@ export default class Export extends Component {
         multiple: multiple
       }));
 
-    const reportTitle = get(journalConfig, 'meta.createVariants[0].title') || get(journalConfig, 'meta.title');
+    const journalName = get(journalConfig, 'meta.title') || '';
+    const reportTitle = get(journalConfig, 'meta.createVariants[0].title') || journalName;
 
     return {
       exportType: item.type,
       columns,
       title: item.title,
       download: item.download,
-      reportTitle
+      reportTitle,
+      journalName
     };
   };
 
