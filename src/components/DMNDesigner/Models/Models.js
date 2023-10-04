@@ -4,7 +4,7 @@ import { NotificationManager } from 'react-notifications';
 import { createModel, updateModels, savePagePosition } from '../../../actions/dmn';
 import { selectModelsByCategoryId } from '../../../selectors/dmn';
 import { t } from '../../../helpers/export/util';
-import Models from '../../designerCommon/Models';
+import Models from './ModelComponent';
 import recordActions from '../../../components/Records/actions/recordActions';
 
 import EcosFormUtils from '../../../components/EcosForm/EcosFormUtils';
