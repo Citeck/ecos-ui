@@ -12,6 +12,7 @@ export const Sheet = ({
   markedElement,
   zoom,
   zoomCenter,
+  setMarkedElement,
   className = ModelViewer.querySelector,
   ...props
 }) => {
@@ -42,6 +43,15 @@ export const Sheet = ({
       }
     },
     [initialized, containerRef]
+  );
+
+  useEffect(
+    () => {
+      if (markedElement) {
+        setMarkedElement(markedElement);
+      }
+    },
+    [markedElement]
   );
 
   return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={className} {...events} />;

@@ -60,7 +60,7 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 //todo rethink this solution without empty grid and especially cloneElement for grid
-const HeightCalculation = props => {
+export const HeightCalculation = props => {
   const { minHeight, maxHeight, loading, children, total, maxItems } = props;
 
   if (!isNil(minHeight) && loading) {

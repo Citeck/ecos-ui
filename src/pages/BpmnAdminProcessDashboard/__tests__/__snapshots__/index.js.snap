@@ -1,0 +1,357 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`  should render InfoPanel component 1`] = `
+<div
+  class="dashlet"
+>
+  <div
+    class="ecos-well ecos-panel dashlet info-panel"
+  >
+    <div
+      class="ecos-panel__head dashlet__header-wrapper"
+    >
+      <div
+        class="dashlet__header"
+      >
+        <span
+          class="dashlet__caption"
+        >
+          <i
+            class="icon dashlet__header-collapser icon-small-up"
+          />
+          bpmn-admin.info-title
+        </span>
+        <span
+          class="ecos-badge ecos-badge_info ecos-badge_large"
+        />
+        <div
+          class="dashlet__header-actions"
+        />
+      </div>
+    </div>
+    <div
+      class="ecos-panel__body dashlet__body"
+    >
+      <div
+        class="dashlet__body-content"
+      >
+        <div
+          class="info-panel__body"
+        >
+          <div
+            class="info-panel__main"
+          >
+            <div
+              class="info-panel__main-item"
+            >
+              <div
+                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+              >
+                bpmn-admin.version
+              </div>
+              <div
+                class="process-header"
+              >
+                <div
+                  class="ecos-points-loader"
+                  style="width:45px;height:45px"
+                >
+                  <div
+                    class="ecos-points-loader-child ecos-points-loader-child-1 ecos-points-loader-child_light-blue"
+                  />
+                  <div
+                    class="ecos-points-loader-child ecos-points-loader-child-2 ecos-points-loader-child_light-blue"
+                  />
+                  <div
+                    class="ecos-points-loader-child ecos-points-loader-child-3 ecos-points-loader-child_light-blue"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="info-panel__main-item"
+            >
+              <div
+                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+              >
+                bpmn-admin.definition-ref
+              </div>
+              <button
+                class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                disabled=""
+              >
+                <div
+                  class="ecos-btn__content"
+                >
+                  bpmn-admin.incident.not-defined
+                  <i
+                    class="icon-small-right"
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+          <div
+            class="info-panel__secondary"
+          >
+            <span
+              class="info-panel__main-item info-panel__main-item_full_width"
+            >
+              bpmn-admin.modifier: bpmn-admin.incident.not-defined
+            </span>
+            <span
+              class="info-panel__main-item info-panel__main-item_full_width"
+            >
+              bpmn-admin.modified: bpmn-admin.incident.not-defined
+            </span>
+          </div>
+          <div
+            class="info-panel__statistic"
+          >
+            <div
+              class="info-panel__statistic-item"
+            >
+              <h5>
+                bpmn-admin.instances-count:
+              </h5>
+              <div
+                class="info-panel__statistic-count"
+              />
+            </div>
+            <div
+              class="info-panel__statistic-item"
+            >
+              <h5>
+                bpmn-admin.incident-count:
+              </h5>
+              <div
+                class="info-panel__statistic-count"
+              />
+            </div>
+            <div
+              class="info-panel__statistic-item"
+            >
+              <h5>
+                bpmn-admin.versions:
+              </h5>
+              <div
+                class="info-panel__statistic-count"
+              />
+            </div>
+            <div
+              class="info-panel__statistic-item"
+            >
+              <h5>
+                bpmn-admin.instances-count:
+              </h5>
+              <span
+                class="info-panel__statistic-item_text_gray"
+              >
+                bpmn-admin.by-all-versions
+              </span>
+              <div
+                class="info-panel__statistic-count"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="dashlet__body-indent dashlet__body-indent_bottom"
+      />
+    </div>
+  </div>
+  <div />
+</div>
+`;
+
+exports[`  should render corrent columns for incidents 1`] = `
+Array [
+  Object {
+    "attribute": "message",
+    "dataField": "message",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Message",
+  },
+  Object {
+    "attribute": "id",
+    "dataField": "dispId",
+    "newFormatter": Object {
+      "config": Object {
+        "getUrl": [Function],
+      },
+      "type": "link",
+    },
+    "sortable": true,
+    "text": "Process instance",
+  },
+  Object {
+    "attribute": "created",
+    "dataField": "created",
+    "newFormatter": Object {
+      "config": Object {
+        "format": "LLL",
+      },
+      "type": "date",
+    },
+    "sortable": true,
+    "text": "Created",
+  },
+  Object {
+    "attribute": "activityId",
+    "dataField": "activityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "sortable": true,
+    "text": "Element",
+  },
+  Object {
+    "attribute": "failedActivityId",
+    "dataField": "failedActivityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Failed element",
+  },
+  Object {
+    "attribute": "incidentType",
+    "dataField": "incidentType",
+    "sortable": true,
+    "text": "Type",
+  },
+  Object {
+    "attribute": "note",
+    "classes": "common-table-column__small",
+    "dataField": "note",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Note",
+  },
+  Object {
+    "attribute": "id",
+    "classes": "common-table-column__small",
+    "dataField": "id",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Actions",
+  },
+]
+`;
+
+exports[`  should render corrent columns for instances 1`] = `
+Array [
+  Object {
+    "attribute": "id",
+    "dataField": "dispId",
+    "newFormatter": Object {
+      "config": Object {
+        "getUrl": [Function],
+      },
+      "type": "link",
+    },
+    "text": "ID",
+  },
+  Object {
+    "attribute": "document",
+    "dataField": "document",
+    "disableSelect": false,
+    "newEditor": Object {
+      "config": Object {
+        "journalId": "document-journal-id",
+        "multiple": false,
+      },
+      "type": "journal",
+    },
+    "newFormatter": Object {
+      "config": Object {
+        "getUrl": [Function],
+      },
+      "type": "link",
+    },
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Document",
+  },
+  Object {
+    "attribute": "startTime",
+    "dataField": "startTime",
+    "newFormatter": Object {
+      "config": Object {
+        "format": "LLL",
+      },
+      "type": "date",
+    },
+    "sortable": true,
+    "text": "Start time",
+  },
+  Object {
+    "attribute": "id",
+    "classes": "common-table-column__small",
+    "dataField": "dispId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "State",
+  },
+]
+`;
+
+exports[`  should render corrent columns for job definitions 1`] = `
+Array [
+  Object {
+    "attribute": "state",
+    "dataField": "state",
+    "text": "State",
+  },
+  Object {
+    "attribute": "activityId",
+    "dataField": "activityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Element",
+  },
+  Object {
+    "attribute": "type",
+    "dataField": "type",
+    "text": "Type",
+  },
+  Object {
+    "attribute": "configuration",
+    "dataField": "configuration",
+    "text": "Configuration",
+  },
+]
+`;

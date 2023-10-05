@@ -145,7 +145,7 @@ export default class Filter extends Component {
         predicate
       }
     } = this.props;
-    const predicates = getPredicates(column);
+    const predicates = column.predicates || getPredicates(column);
 
     return this.getSelectedPredicate(predicates, predicate);
   }
@@ -191,7 +191,7 @@ export default class Filter extends Component {
 
   ValueControl = React.memo((props, context) => {
     const { value, predicate, column, metaRecord, forwardedRef, onKeyDown, isRelativeToParent } = props;
-    const predicates = getPredicates(column);
+    const predicates = column.predicates || getPredicates(column);
     const selectedPredicate = this.getSelectedPredicate(predicates, predicate);
     const isShow =
       !ParserPredicate.predicatesWithoutValue.includes(getPredicateValue(predicate)) && get(selectedPredicate, 'needValue', true);
@@ -255,7 +255,7 @@ export default class Filter extends Component {
         meta: { column }
       }
     } = this.props;
-    const predicates = getPredicates(column);
+    const predicates = column.predicates || getPredicates(column);
     const { zIndex } = this.state;
 
     return (
@@ -265,7 +265,7 @@ export default class Filter extends Component {
         options={predicates}
         getOptionLabel={option => option.label}
         getOptionValue={option => option.value}
-        value={this.selectedPredicate}
+        value={predicates.find(el => el.value === this.selectedPredicate.value) || predicates[0]}
         onChange={this.onChangePredicate}
         styles={{ menuPortal: base => ({ ...base, zIndex }) }}
         menuPortalTarget={document.body}

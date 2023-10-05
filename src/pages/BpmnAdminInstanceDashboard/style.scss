@@ -1,0 +1,36 @@
+@import '../../styles/constants.scss';
+
+.bpmn-admin-instance {
+  @extend %column-wrapper-16;
+
+  & .icon {
+    font-size: 14px !important;
+  }
+
+  padding: 16px;
+
+  &__title {
+    font-weight: $font-weight-bold;
+    margin: 0;
+
+    &-wrapper {
+      @extend %row-wrapper-16;
+      align-items: center;
+
+      & .ecos-btn {
+        color: $color-gray-7;
+        padding: 0;
+      }
+    }
+  }
+
+  & .model-badges {
+    &__item {
+      cursor: pointer;
+
+      &_incidents {
+        background-color: $color-red-2;
+      }
+    }
+  }
+}

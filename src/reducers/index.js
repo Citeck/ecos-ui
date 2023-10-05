@@ -3,6 +3,7 @@ import { connectRouter } from 'connected-react-router';
 
 import app from './app';
 import bpmn from './bpmn';
+import bpmnAdmin from './bpmnAdmin';
 import bpmnEditor from './bpmnEditor';
 import charts from './charts';
 import header from './header';
@@ -13,6 +14,7 @@ import view from './view';
 import journals from './journals';
 import documentLibrary from './documentLibrary';
 import pageTabs from './pageTabs';
+import processAdmin from './processAdmin';
 import tasks from './tasks';
 import comments from './comments';
 import dashboard from './dashboard';
@@ -42,6 +44,7 @@ import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
+import instanceAdmin from './instanceAdmin';
 import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import kanban from './kanban';
@@ -51,6 +54,7 @@ import orgstructure from './orgstructure';
 const reducers = {
   app,
   bpmn,
+  bpmnAdmin,
   bpmnEditor,
   charts,
   header,
@@ -61,6 +65,7 @@ const reducers = {
   journals,
   documentLibrary,
   pageTabs,
+  processAdmin,
   tasks,
   comments,
   dashboard,
@@ -90,6 +95,7 @@ const reducers = {
   userProfile,
   docConstructor,
   iconSelect,
+  instanceAdmin,
   adminSection,
   cmmnEditor,
   kanban,

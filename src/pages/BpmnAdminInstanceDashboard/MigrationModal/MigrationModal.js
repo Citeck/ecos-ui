@@ -1,0 +1,261 @@
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+
+import get from 'lodash/get';
+
+import { Btn, IcoBtn } from '../../../components/common/btns';
+import { EcosModal, Icon, SaveAndCancelButtons } from '../../../components/common';
+import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
+import { ScaleOptions } from '../../../components/common/Scaler/util';
+import { MIGRATION_MODAL_BLOCK_CLASS } from '../constants';
+import { Input } from '../../../components/common/form';
+import ModelViewer from '../../../components/ModelViewer/ModelViewer';
+import { t } from '../../../helpers/util';
+import Labels from './Labels';
+
+import './style.scss';
+import Records from '../../../components/Records';
+import { notifyFailure, notifySuccess } from '../../../components/Records/actions/util/actionUtils';
+import { getMetaInfo } from '../../../actions/instanceAdmin';
+import { isFunction } from 'lodash';
+import { DropdownItem } from 'reactstrap';
+
+const designer = new ModelViewer();
+const Sheet = designer && designer.renderSheet;
+
+const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, setIsMainModalOpen }) => {
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [rect, setRect] = useState(null);
+  const [element, setElement] = useState(null);
+
+  const [initial, setInitial] = useState(null);
+  const [target, setTarget] = useState(null);
+
+  useEffect(() => {
+    const handler = () => {
+      setIsTooltipOpen(false);
+    };
+
+    document.addEventListener('wheel', handler);
+
+    return () => {
+      document.removeEventListener('wheel', handler);
+    };
+  }, []);
+
+  useEffect(
+    () => {
+      designer &&
+        designer.markElements({
+          [initial]: 'initial-element',
+          [target]: 'target-element'
+        });
+    },
+    [initial, target]
+  );
+
+  const handleClickElement = (_event, elementInfo) => {
+    setElement(get(elementInfo, 'element.id'));
+    const modal = document.querySelector('.migration-modal');
+    if (!modal) {
+      return;
+    }
+
+    const targetDoc = modal.querySelector(`[data-element-id="${get(elementInfo, 'element.id')}"]`);
+
+    if (targetDoc) {
+      const rect = targetDoc.getBoundingClientRect();
+      setIsTooltipOpen(true);
+      setRect(rect);
+    }
+  };
+
+  const handleSelectButton = (key, el) => {
+    switch (key) {
+      case 'initial':
+        setInitial(el);
+        setIsTooltipOpen(false);
+        break;
+      case 'target':
+        setTarget(el);
+        setIsTooltipOpen(false);
+        break;
+      default:
+        return;
+    }
+  };
+
+  const handleMigrate = () => {
+    setIsLoading(true);
+
+    const instanceRecord = Records.get(instanceId);
+
+    const data = {
+      skipCustomListeners: true,
+      skipIoMappings: true,
+      instructions: [
+        {
+          type: 'cancel',
+          activityId: initial
+        },
+        {
+          type: 'startBeforeActivity',
+          activityId: target
+        }
+      ]
+    };
+
+    instanceRecord.att('action', 'MODIFY');
+    instanceRecord.att('data', data);
+
+    instanceRecord
+      .save()
+      .then(() => {
+        notifySuccess();
+        setIsConfirmModalOpen(false);
+        setIsLoading(false);
+        setIsMainModalOpen(false);
+        setTarget(null);
+        setInitial(null);
+
+        isFunction(getMetaInfo) && getMetaInfo(instanceId);
+      })
+      .catch(e => {
+        notifyFailure(e.message);
+        setIsConfirmModalOpen(false);
+        setIsLoading(false);
+      });
+  };
+
+  const renderBadges = () => {
+    if (!metaInfo || !Array.isArray(metaInfo.activityStatistics)) {
+      return;
+    }
+
+    const getInstancesCount = item => {
+      return item.incidentStatistics.reduce((result, current) => result + current.count, 0);
+    };
+
+    designer.drawBadges({
+      data: metaInfo.activityStatistics.map(item => ({
+        ...item,
+        id: item.activityId,
+        incidents: getInstancesCount(item) || undefined,
+        titles: {
+          instances: t('bpmn-admin.process-tabs.process-instances'),
+          incidents: t('bpmn-admin.process-tabs.process-incidents')
+        }
+      })),
+      keys: ['instances', 'incidents']
+    });
+  };
+
+  const handleReadySheet = ({ mounted, result }) => {
+    if (mounted) {
+      renderBadges();
+    } else {
+      console.warn({ result });
+    }
+  };
+
+  const zoomCenter = {
+    x: 0,
+    y: 0
+  };
+
+  return (
+    <>
+      <DropdownItem key="migration" onClick={() => setIsMainModalOpen(true)}>
+        {t(Labels.DROPDOWN_TITLE)}
+      </DropdownItem>
+      <EcosModal
+        title={t(Labels.WIDGET_TITLE)}
+        className="ecos-modal_width-full"
+        isOpen={isMainModalOpen}
+        hideModal={() => setIsMainModalOpen(false)}
+      >
+        <div className={MIGRATION_MODAL_BLOCK_CLASS}>
+          {Sheet && (
+            <Sheet
+              diagram={metaInfo.bpmnDefinition}
+              zoom={ScaleOptions.FIT}
+              zoomCenter={zoomCenter}
+              onMounted={handleReadySheet}
+              modelEvents={{
+                'element.click': handleClickElement
+              }}
+            />
+          )}
+          <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__inputs-panel`}>
+            <div>
+              <span>{t(Labels.INITIAL_TOKEN)}</span>
+              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
+                <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={initial} disabled />
+                {initial && (
+                  <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('initial', '')} />
+                )}
+              </div>
+            </div>
+            <div>
+              <span>{t(Labels.TARGET_TOKEN)}</span>
+              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
+                <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={target} disabled />
+                {target && (
+                  <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('target', '')} />
+                )}
+              </div>
+            </div>
+            <Btn
+              className={`${MIGRATION_MODAL_BLOCK_CLASS}__button ecos-btn_blue`}
+              disabled={!initial || !target}
+              onClick={() => setIsConfirmModalOpen(true)}
+            >
+              {t(Labels.MIGRATE)}
+            </Btn>
+          </div>
+          {isTooltipOpen && rect && (
+            <div style={{ position: 'fixed', top: rect.top - Math.min(50, rect.height), left: rect.left + Math.min(100, rect.width) }}>
+              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__tooltip-panel`}>
+                <Icon className="ecos-btn_transparent icon-small-close" onClick={() => setIsTooltipOpen(false)} />
+                <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('initial', element)}>
+                  {t(Labels.INITIAL_TOKEN)}
+                </Btn>
+                <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('target', element)}>
+                  {t(Labels.TARGET_TOKEN)}
+                </Btn>
+              </div>
+            </div>
+          )}
+        </div>
+      </EcosModal>
+      <EcosModal title={t(Labels.CONFIRM_TITLE)} isOpen={isConfirmModalOpen} hideModal={() => isConfirmModalOpen(false)}>
+        <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__confirm`}>
+          <span>{t(Labels.CONFIRM_QUESTION, { initial, target })}</span>
+          <SaveAndCancelButtons
+            handleCancel={() => setIsConfirmModalOpen(false)}
+            handleSave={handleMigrate}
+            saveText={t(Labels.MIGRATE)}
+            disabledSave={isLoading}
+            loading={isLoading}
+          />
+        </div>
+      </EcosModal>
+    </>
+  );
+};
+
+const mapStateToProps = (state, props) => ({
+  metaInfo: selectInstanceMetaInfo(state, props)
+});
+
+const mapDispatchToProps = dispatch => ({
+  getMetaInfo: instanceId => dispatch(getMetaInfo({ instanceId }))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MigrationModal);

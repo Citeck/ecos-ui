@@ -1,0 +1,19 @@
+@import '../../../styles/constants.scss';
+
+.bpmn-admin-tabs {
+  @extend %column-wrapper-16;
+
+  padding: 16px;
+
+  &__actions-wrapper {
+    @extend %column-wrapper-16;
+  }
+
+  &__clickable-field {
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-dark;
+    }
+  }
+}

@@ -556,6 +556,7 @@ class Grid extends Component {
   setHeaderFormatter = (column, filterable, sortable) => {
     const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
+    const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
 
     column.headerFormatter = (column, colIndex) => {
@@ -576,6 +577,7 @@ class Grid extends Component {
           filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={isSortable}
+          disableSelect={disableSelect}
           onSort={this.onSort}
           ascending={ascending}
           column={column}

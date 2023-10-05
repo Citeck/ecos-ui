@@ -222,6 +222,26 @@ class App extends Component {
             />
             <CacheRoute
               {...baseCacheRouteProps}
+              path={URL.BPMN_ADMIN}
+              render={props => <Page pageKey={Pages.BPMN_ADMIN} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.BPMN_ADMIN_PROCESS}
+              render={props => <Page pageKey={Pages.BPMN_ADMIN_PROCESS} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.BPMN_ADMIN_INSTANCE}
+              render={props => <Page pageKey={Pages.BPMN_ADMIN_INSTANCE} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
+              path={URL.BPMN_MIGRATION}
+              render={props => <Page pageKey={Pages.BPMN_MIGRATION} {...props} {...basePageProps} footer={null} />}
+            />
+            <CacheRoute
+              {...baseCacheRouteProps}
               path={URL.CMMN_EDITOR}
               render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} {...basePageProps} footer={null} />}
             />
@@ -302,6 +322,10 @@ class App extends Component {
             <Route path={URL.JOURNAL} render={props => <Page pageKey={Pages.JOURNAL} {...props} />} />
             <Route path={URL.DEV_TOOLS} render={props => <Page pageKey={Pages.DEV_TOOLS} {...props} />} />
             <Route path={URL.BPMN_EDITOR} render={props => <Page pageKey={Pages.BPMN_EDITOR} {...props} />} />
+            <Route path={URL.BPMN_ADMIN} render={props => <Page pageKey={Pages.BPMN_ADMIN} {...props} />} />
+            <Route path={URL.BPMN_ADMIN_PROCESS} render={props => <Page pageKey={Pages.BPMN_ADMIN_PROCESS} {...props} />} />
+            <Route path={URL.BPMN_ADMIN_INSTANCE} render={props => <Page pageKey={Pages.BPMN_ADMIN_INSTANCE} {...props} />} />
+            <Route path={URL.BPMN_MIGRATION} render={props => <Page pageKey={Pages.BPMN_MIGRATION} {...props} />} />
             <Route path={URL.CMMN_EDITOR} render={props => <Page pageKey={Pages.CMMN_EDITOR} {...props} />} />
             <Route path={URL.DMN_EDITOR} render={props => <Page pageKey={Pages.DMN_EDITOR} {...props} />} />
             {/* --- TIMESHEETs start */}

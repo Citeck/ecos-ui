@@ -6,13 +6,10 @@ import isNumber from 'lodash/isNumber';
 import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 import { ScaleOptions } from '../common/Scaler/util';
-import BaseModeler from '../ModelEditor/BaseModeler';
 import plugins from '../../../src/plugins';
 import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
 import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
 import { Sheet } from './Sheet';
-
-const _extendModeler = new BaseModeler();
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
@@ -22,7 +19,21 @@ export default class ModelViewer {
   #defaultScale;
   #badges;
 
-  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement }) => {
+  static getElementName = async (diagram, elementId) => {
+    const modeler = new NavigatedViewer({
+      moddleExtensions: {
+        ecosTask: ecosTask
+      },
+      additionalModules: [onlyRenderer]
+    });
+
+    await modeler.importXML(diagram);
+    const element = modeler.get('elementRegistry').get(elementId);
+
+    return get(element, 'businessObject.name') || elementId;
+  };
+
+  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom, zoomCenter }) => {
     isFunction(onInit) && onInit(true);
 
     this.modeler = new NavigatedViewer({
@@ -38,8 +49,9 @@ export default class ModelViewer {
     }
 
     await this.setDiagram(diagram, { onMounted });
-    this.setEvents({}, modelEvents);
+    this.setEvents(modelEvents);
 
+    zoom && this.canvas.zoom(zoom, zoomCenter);
     markedElement && this.setMarkedElement(markedElement);
   };
 
@@ -52,6 +64,15 @@ export default class ModelViewer {
   }
 
   setMarkedElement = element => {
+    if (this.markedElement) {
+      isFunction(this.canvas.removeMarker) && this.canvas.removeMarker(this.markedElement, 'marked-element');
+    }
+    const elementToFocus = this.modeler.get('elementRegistry').get(element);
+
+    if (!elementToFocus) {
+      return;
+    }
+
     isFunction(this.canvas.addMarker) && this.canvas.addMarker(element, 'marked-element');
 
     if (this.modeler && isFunction(this.modeler.get)) {
@@ -71,7 +92,38 @@ export default class ModelViewer {
         width: currentViewbox.width,
         height: currentViewbox.height
       });
+
+      this.markedElement = element;
+      canvas.zoom(1);
     }
+  };
+
+  markElements = markerMap => {
+    if (!this.modeler) {
+      return;
+    }
+
+    if (this.markedElements) {
+      Object.entries(this.markedElements).forEach(([element, marker]) => {
+        const elementToFocus = this.modeler.get('elementRegistry').get(element);
+
+        if (!elementToFocus) {
+          return;
+        }
+
+        isFunction(this.canvas.removeMarker) && this.canvas.removeMarker(element, marker);
+      });
+    }
+    this.markedElements = markerMap;
+    Object.entries(markerMap).forEach(([element, marker]) => {
+      const elementToFocus = this.modeler.get('elementRegistry').get(element);
+
+      if (!elementToFocus) {
+        return;
+      }
+
+      isFunction(this.canvas.addMarker) && this.canvas.addMarker(element, marker);
+    });
   };
 
   setDiagram = async (diagram, { onMounted }) => {
@@ -92,7 +144,13 @@ export default class ModelViewer {
     isFunction(onMounted) && onMounted(callbackData);
   };
 
-  setEvents = _extendModeler.setEvents.bind(this);
+  setEvents = events => {
+    if (events) {
+      Object.keys(events).forEach(key => {
+        this.modeler.on(key, events[key]);
+      });
+    }
+  };
 
   setHeight = height => {
     if (this.container) {
@@ -170,10 +228,8 @@ export default class ModelViewer {
         return element && !element.hidden && isExpanded(element);
       });
 
-    if (!this.#badges) {
-      this.#badges = new Badges();
-      this.#badges.create(this.modeler.get('overlays'));
-    }
+    this.#badges = new Badges();
+    this.#badges.create(this.modeler.get('overlays'));
 
     this.#badges.draw({ data: _data, keys });
   };

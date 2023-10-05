@@ -1,0 +1,73 @@
+@import '../../../styles/constants.scss';
+
+.info-panel {
+  &__body {
+    padding: 16px;
+  }
+
+  &__main {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  & .ecos-btn__content {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__main-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    width: 300px;
+
+    &_full_width {
+      width: auto;
+      margin-top: 8px;
+    }
+
+    &_bottom {
+      display: flex;
+      align-items: flex-end;
+    }
+  }
+
+  &__secondary {
+    margin: 16px 0;
+    color: $color-gray-5;
+  }
+
+  &__statistic {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 8px;
+
+    height: 110px;
+
+    &-item {
+      position: relative;
+      background: $color-yellow;
+
+      border-radius: 12px;
+      padding: 8px;
+
+      & > * {
+        margin: 0;
+      }
+
+      &_text_gray {
+        color: $color-gray-5;
+      }
+    }
+
+    &-count {
+      font-size: $font-size-xxxl;
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+}

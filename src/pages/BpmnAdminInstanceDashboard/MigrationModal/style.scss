@@ -1,0 +1,68 @@
+@import '../../../styles/constants.scss';
+
+.migration-modal {
+  height: calc(100vh - 200px);
+  display: grid;
+
+  &__input {
+    width: 200px;
+  }
+
+  &__button {
+    width: 200px;
+  }
+
+  &__inputs-panel {
+    @extend %row-wrapper-16;
+    align-items: flex-end;
+    position: absolute;
+    background: $color-white;
+    left: 20;
+    bottom: 0;
+    padding: 16px 0;
+  }
+
+  &__text-input {
+    @extend %row-wrapper-8;
+
+    & .ecos-btn {
+      padding: 0;
+    }
+  }
+
+  &__confirm {
+    @extend %column-wrapper-16;
+  }
+
+  &__tooltip-panel {
+    @extend %column-wrapper-8;
+    position: relative;
+    background: $color-white;
+    padding: 8px;
+    border: 1px solid;
+
+    & .ecos-btn:hover {
+      color: $color-blue-light;
+    }
+
+    & .icon-small-close {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
+
+  .djs-element.selected .djs-outline {
+    stroke: none;
+  }
+
+  .initial-element {
+    outline: 4px solid $color-green-dark;
+    outline-offset: 4px;
+  }
+
+  .target-element {
+    outline: 4px solid $color-red-2;
+    outline-offset: 4px;
+  }
+}

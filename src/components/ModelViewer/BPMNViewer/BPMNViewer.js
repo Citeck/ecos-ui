@@ -35,15 +35,17 @@ export default class BPMNViewer extends ModelViewer {
     }
 
     await this.setDiagram(diagram, { onMounted });
-    this.setEvents({}, modelEvents);
+    this.setEvents(modelEvents);
     this.switchToReadonly();
 
     this.zoomCenter = zoomCenter;
-    zoom && this.canvas.zoom(zoom);
+    zoom && this.canvas.zoom(zoom, zoomCenter);
     markedElement && this.setMarkedElement(markedElement);
   };
 
-  renderSheet = props => <Sheet {...props} className={BPMNViewer.querySelector} init={this.init} />;
+  renderSheet = props => (
+    <Sheet {...props} className={BPMNViewer.querySelector} init={this.init} setMarkedElement={this.setMarkedElement} />
+  );
 
   switchToReadonly = () => {
     this.modeler && this.modeler.off('element.dblclick');

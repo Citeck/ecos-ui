@@ -86,6 +86,10 @@
       color: $color-blue-dark;
     }
   }
+
+  &_hidden {
+    display: none;
+  }
 }
 
 .ecos-th__filter-tooltip {

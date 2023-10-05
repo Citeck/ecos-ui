@@ -13,7 +13,7 @@ export default class JournalEditor extends BaseEditor {
 
     return ({ value, onUpdate, onCancel, multiple }) => (
       <SelectJournal
-        multiple={multiple}
+        multiple={config.multiple === undefined ? multiple : config.multiple}
         autoFocus={scope === EditorScope.CELL}
         isCompact
         inputViewClass="select-journal__input-view_extra-compact"

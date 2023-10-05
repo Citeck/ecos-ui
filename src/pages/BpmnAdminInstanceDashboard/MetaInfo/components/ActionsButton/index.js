@@ -1,0 +1,118 @@
+import React, { useContext, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+
+import isFunction from 'lodash/isFunction';
+
+import RecordActions from '../../../../../components/Records/actions/recordActions';
+import { getActionsInfo, getJournalTabInfo, getMetaInfo } from '../../../../../actions/instanceAdmin';
+import { selectInstanceActions, selectInstanceMetaInfo } from '../../../../../selectors/instanceAdmin';
+import PanelTitle, { COLOR_GRAY } from '../../../../../components/common/PanelTitle/PanelTitle';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
+import { Btn } from '../../../../../components/common/btns';
+import { INSTANCE_TABS_TYPES } from '../../../../../constants/instanceAdmin';
+import { URL } from '../../../../../constants';
+import MigrationModal from '../../../MigrationModal/MigrationModal';
+import { InstanceContext } from '../../../InstanceContext';
+import { META_INFO_BLOCK_CLASS } from '../../../constants';
+import { t } from '../../../../../helpers/util';
+import PageService from '../../../../../services/PageService';
+import Labels from '../../Labels';
+
+const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getDataInfo, getMetaInfo }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMainModalOpen, setIsMainModalOpen] = useState(false);
+
+  const { activeTabId } = useContext(InstanceContext);
+
+  useEffect(
+    () => {
+      isFunction(getActionsInfo) && getActionsInfo(instanceId);
+    },
+    [instanceId]
+  );
+
+  return (
+    <div className={`${META_INFO_BLOCK_CLASS}__main-item`}>
+      <PanelTitle narrow color={COLOR_GRAY}>
+        {t(Labels.ACTIONS_TITLE)}
+      </PanelTitle>
+      <Dropdown isOpen={isOpen} toggle={() => setIsOpen(!isOpen)}>
+        <DropdownToggle tag="div">
+          <Btn className={`${META_INFO_BLOCK_CLASS}__actions ecos-btn_blue`}>
+            {t(Labels.CHOUSE_ACTION)}
+            <i className="icon-small-down" />
+          </Btn>
+        </DropdownToggle>
+        <DropdownMenu container="body" right>
+          {(actionsInfo.data || [])
+            .filter(action => {
+              if (action.id && action.id.includes('suspend')) {
+                return !metaInfo.isSuspended;
+              }
+              if (action.id && action.id.includes('activate')) {
+                return metaInfo.isSuspended;
+              }
+
+              return true;
+            })
+            .map(action => {
+              return (
+                <DropdownItem
+                  key={action.label}
+                  onClick={() => {
+                    RecordActions.execForRecord(instanceId, action).then(result => {
+                      if (action.id && (action.id.includes('activate') || action.id.includes('suspend'))) {
+                        isFunction(getMetaInfo) && getMetaInfo(instanceId);
+                      }
+
+                      if (action.id && action.id.includes('delete')) {
+                        PageService.changeUrlLink(`${URL.BPMN_ADMIN_PROCESS}?recordRef=${metaInfo.bpmnDefEngine}`, {
+                          closeActiveTab: true
+                        });
+                      }
+
+                      if (action.id && action.id.includes('add') && activeTabId === INSTANCE_TABS_TYPES.VARIABLES) {
+                        isFunction(getDataInfo) && getDataInfo(instanceId, activeTabId);
+                      }
+                    });
+                  }}
+                >
+                  {action.name}
+                </DropdownItem>
+              );
+            })}
+          <DropdownItem key="token-migration" onClick={() => setIsMainModalOpen(true)}>
+            {t(Labels.TOKENS_DROPDOWN_TITLE)}
+          </DropdownItem>
+          <DropdownItem key="versions-migration">
+            <a
+              href={`${URL.BPMN_MIGRATION}?recordRef=${instanceId}&fromVersion=${metaInfo.version}`}
+              className={`${META_INFO_BLOCK_CLASS}__dropdown-link`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t(Labels.VERSIONS_DROPDOWN_TITLE)}
+            </a>
+          </DropdownItem>
+        </DropdownMenu>
+        <MigrationModal isMainModalOpen={isMainModalOpen} setIsMainModalOpen={setIsMainModalOpen} instanceId={instanceId} />
+      </Dropdown>
+    </div>
+  );
+};
+
+const mapStateToProps = (store, props) => ({
+  metaInfo: selectInstanceMetaInfo(store, props),
+  actionsInfo: selectInstanceActions(store, props)
+});
+
+const mapDispatchToProps = dispatch => ({
+  getActionsInfo: instanceId => dispatch(getActionsInfo({ instanceId })),
+  getMetaInfo: instanceId => dispatch(getMetaInfo({ instanceId })),
+  getDataInfo: (instanceId, tabId) => dispatch(getJournalTabInfo({ tabId, instanceId }))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ActionsButton);
