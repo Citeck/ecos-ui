@@ -159,6 +159,7 @@ class RecordActions {
 
   /**
    * @param {RecordAction} action
+   * @param params
    * @returns {Object}
    * @private
    */
@@ -227,7 +228,7 @@ class RecordActions {
    */
   static async _checkConfirmAction(action, params) {
     /** @see ConfirmAction */
-    const confirmData = RecordActions._getConfirmData(action, params);
+    const confirmData = await RecordActions._getConfirmData(action, params);
 
     if (!confirmData) {
       return true;
