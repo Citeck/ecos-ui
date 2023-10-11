@@ -161,11 +161,22 @@ class RecordActions {
    * @returns {Object}
    * @private
    */
-  static _getConfirmData = action => {
+  static _getConfirmData = async (action, _params) => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
     const modalClass = get(action, 'confirm.modalClass');
+    const condition = get(action, 'confirm.condition.fn', false);
+
+    if (isFunction(condition)) {
+      // eslint-disable-next-line no-eval
+      const result = await eval(`(function() { ${condition} })();`);
+
+      if (isBoolean(result) && result) {
+        return false;
+      }
+    }
+
     const needConfirm = !!formId || !!title || !!text;
 
     return needConfirm ? { formId, title, text, modalClass } : null;
@@ -215,7 +226,7 @@ class RecordActions {
    */
   static async _checkConfirmAction(action, params) {
     /** @see ConfirmAction */
-    const confirmData = RecordActions._getConfirmData(action);
+    const confirmData = RecordActions._getConfirmData(action, params);
 
     if (!confirmData) {
       return true;
