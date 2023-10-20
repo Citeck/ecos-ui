@@ -13,6 +13,7 @@ import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
 import EditPasswordAction from './handler/executor/EditPasswordAction';
+import EditPermissionsAction from './handler/executor/EditPermissionsAction';
 import ViewAction from './handler/executor/ViewAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ViewMenuAction from './handler/executor/ViewMenuAction';
@@ -54,6 +55,7 @@ const registerAllActions = () => {
   actionsRegistry.register(new DeleteAction());
   actionsRegistry.register(new EditAction());
   actionsRegistry.register(new EditMenuAction());
+  actionsRegistry.register(new EditPermissionsAction());
   actionsRegistry.register(new AssocAction());
   actionsRegistry.register(new BackgroundOpenAction());
   actionsRegistry.register(new CreateAction());
