@@ -51,6 +51,7 @@
   "designer.sort-filter.old": "Сначала старые",
   "designer.sort-filter.z-a": "По алфавиту Z-A",
   "designer.category-action.add-subcategory": "Добавить подкатегорию",
+  "designer.category-action.edit-permissions": "Редактировать права",
   "designer.category-action.create-model": "Создать модель",
   "designer.category-action.delete": "Удалить",
   "designer.category-action.rename": "Переименовать",

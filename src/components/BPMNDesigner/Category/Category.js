@@ -14,10 +14,12 @@ import {
   savePagePosition
 } from '../../../actions/bpmn';
 import { showModal } from '../../../actions/modal';
+import get from 'lodash/get';
 
 const mapStateToProps = state => ({
   viewType: state.bpmn.viewType,
-  searchText: state.bpmn.searchText
+  searchText: state.bpmn.searchText,
+  isUserAdmin: get(state, 'user.isAdmin', false)
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
