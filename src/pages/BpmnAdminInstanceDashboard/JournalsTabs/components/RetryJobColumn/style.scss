@@ -1,0 +1,11 @@
+@import '../../../../../styles/constants.scss';
+
+.bpmn-admin-tabs {
+  &__retry-column {
+    @extend %column-wrapper-16;
+
+    .ecos-info-text {
+      padding: 0;
+    }
+  }
+}

@@ -343,11 +343,13 @@ export default class HeaderFormatter extends Component {
   };
 
   renderActions = () => {
-    const { filterable, ascending, sortable } = this.props;
+    const { disableSelect, filterable, ascending, sortable } = this.props;
 
     if (!filterable && !sortable) {
       return null;
     }
+
+    const renderFilter = !disableSelect || (disableSelect && this.activeFilter);
 
     return (
       <div className="ecos-th__actions">
@@ -362,7 +364,8 @@ export default class HeaderFormatter extends Component {
           <Icon
             id={this.tooltipFilterId}
             className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-small-filter', {
-              'ecos-th__action-icon_active': this.activeFilter
+              'ecos-th__action-icon_active': this.activeFilter,
+              'ecos-th__action-icon_hidden': !renderFilter
             })}
             onClick={this.onToggle}
           />

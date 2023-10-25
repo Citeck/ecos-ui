@@ -1,0 +1,18 @@
+@import '../../styles/constants.scss';
+
+.status {
+  display: flex;
+  justify-content: center;
+
+  .fa-check {
+    color: $color-green1;
+  }
+
+  .fa-close {
+    color: $color-red-1;
+  }
+
+  .fa-pause {
+    color: $color-blue-light;
+  }
+}

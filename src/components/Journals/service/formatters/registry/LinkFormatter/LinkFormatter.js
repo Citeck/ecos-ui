@@ -1,5 +1,6 @@
 import React from 'react';
 import isString from 'lodash/isString';
+import isFunction from 'lodash/isFunction';
 
 import BaseFormatter from '../../BaseFormatter';
 import { createDocumentUrl, isUrl } from '../../../../../../helpers/urls';
@@ -16,6 +17,10 @@ export default class LinkFormatter extends BaseFormatter {
     // is computed from config
     if (isString(config.url)) {
       href = config.url;
+    }
+
+    if (isFunction(config.getUrl)) {
+      href = config.getUrl(row);
     }
 
     return (

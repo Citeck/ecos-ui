@@ -1,0 +1,15 @@
+.process-header {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .ecos-points-loader {
+    margin: 0;
+  }
+
+  &__select {
+    width: 100%;
+  }
+}

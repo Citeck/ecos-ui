@@ -1,0 +1,17 @@
+@import '../../../../../styles/constants.scss';
+
+.bpmn-process {
+  &__message {
+    @extend %ellipsis;
+  }
+
+  &__stack-trace {
+    background-color: $color-gray;
+    padding: 8px;
+
+    margin-top: 8px;
+
+    min-height: calc(100vh - 200px);
+    max-height: calc(100vh - 200px);
+  }
+}
