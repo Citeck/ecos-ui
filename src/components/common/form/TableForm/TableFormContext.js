@@ -95,8 +95,13 @@ export const TableFormContextProvider = props => {
           initValue.map(async rec => {
             const record = Records.get(rec);
             const form = await EcosFormUtils.getForm(rec);
-            const definition = await form.load('definition?json');
-            const allComponents = getAllComponents(definition.components);
+
+            let allComponents = [];
+
+            if (isFunction(form.load)) {
+              const definition = await form.load('definition?json');
+              allComponents = getAllComponents(definition.components);
+            }
 
             const fetchedAtts = {};
             let result = {};
@@ -130,6 +135,7 @@ export const TableFormContextProvider = props => {
                 }
 
                 const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
+
                 if (component) {
                   const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
 
