@@ -134,16 +134,14 @@ export const TableFormContextProvider = props => {
                   continue;
                 }
 
-                if (isFunction(form.load)) {
-                  const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
+                const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
 
-                  if (component) {
-                    const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
+                if (component) {
+                  const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
 
-                    if (option) {
-                      fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
-                      continue;
-                    }
+                  if (option) {
+                    fetchedAtts[attData.name] = isObject(option.label) ? getMLValue(option.label) : option.label;
+                    continue;
                   }
                 }
 
