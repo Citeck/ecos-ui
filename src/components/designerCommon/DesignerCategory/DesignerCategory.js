@@ -7,8 +7,13 @@ import cn from 'classnames';
 import { ViewTypes } from '../../../constants/commonDesigner';
 import { placeCaretAtEnd, t } from '../../../helpers/util';
 
+import actionsService from '../../Records/actions/recordActions';
+
 import styles from './Category.module.scss';
 import './Category.scss';
+import { NotificationManager } from 'react-notifications';
+
+const EDIT_PERMISSIONS_ACTION_REF = 'uiserv/action@edit-permissions';
 
 class DesignerCategory extends React.Component {
   static propTypes = {
@@ -19,6 +24,7 @@ class DesignerCategory extends React.Component {
     isEditable: PropTypes.bool,
     canWrite: PropTypes.bool,
     isOpen: PropTypes.bool,
+    isUserAdmin: PropTypes.bool,
 
     setIsEditable: PropTypes.func,
     toggleCollapse: PropTypes.func,
@@ -67,6 +73,16 @@ class DesignerCategory extends React.Component {
     );
   };
 
+  doEditPermissionsAction = async () => {
+    const recordId = this._getCategoryRef();
+    const action = (await actionsService.getActionsForRecord(recordId, [EDIT_PERMISSIONS_ACTION_REF]))[0];
+    if (!action) {
+      NotificationManager.error('action is not available', t('error'));
+      return;
+    }
+    await actionsService.execForRecord(recordId, action);
+  };
+
   doAddModelAction = () => {
     this.setState(
       {
@@ -113,8 +129,13 @@ class DesignerCategory extends React.Component {
       this.labelRef.current.focus();
     }
   }
+
+  _getCategoryRef() {
+    return this.props.categoryId || this.props.itemId || '';
+  }
+
   render() {
-    const {
+    let {
       label,
       level,
       isEditable,
@@ -124,8 +145,18 @@ class DesignerCategory extends React.Component {
       searchText,
       canWrite,
       isOpen,
-      toggleCollapse
+      toggleCollapse,
+      isUserAdmin
     } = this.props;
+
+    const categoryId = this._getCategoryRef() || '';
+    const isRootSection = categoryId.endsWith('@ROOT');
+
+    if (isRootSection) {
+      viewType = 'NONE';
+      isOpen = false;
+      isEditable = false;
+    }
 
     // classes
     const dropdownActionsIconClasses = cn(styles.categoryActionIcon, styles.categoryActionIcon2, {
@@ -163,26 +194,33 @@ class DesignerCategory extends React.Component {
     // action buttons
     let onClickLabel = toggleCollapse;
 
-    const actions = [
-      {
+    const actions = [];
+    if (!isRootSection) {
+      actions.push({
         label: t('designer.category-action.create-model'),
         onClick: this.doAddModelAction
+      });
+      if (canWrite) {
+        actions.unshift({
+          label: t('designer.category-action.rename'),
+          onClick: this.doRenameCategoryAction
+        });
+        actions.push({
+          label: t('designer.category-action.delete'),
+          onClick: this.doDeleteCategoryAction
+        });
       }
-    ];
-    if (canWrite) {
-      actions.unshift({
-        label: t('designer.category-action.rename'),
-        onClick: this.doRenameCategoryAction
-      });
-      actions.push({
-        label: t('designer.category-action.delete'),
-        onClick: this.doDeleteCategoryAction
-      });
+      if (level < 2) {
+        actions.unshift({
+          label: t('designer.category-action.add-subcategory'),
+          onClick: this.doAddSubcategoryAction
+        });
+      }
     }
-    if (level < 2) {
-      actions.unshift({
-        label: t('designer.category-action.add-subcategory'),
-        onClick: this.doAddSubcategoryAction
+    if (isUserAdmin) {
+      actions.push({
+        label: t('designer.category-action.edit-permissions'),
+        onClick: this.doEditPermissionsAction
       });
     }
 

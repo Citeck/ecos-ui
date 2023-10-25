@@ -51,6 +51,7 @@
   "designer.sort-filter.old": "Old first",
   "designer.sort-filter.z-a": "Alphabetically Z-A",
   "designer.category-action.add-subcategory": "Add subcategory",
+  "designer.category-action.edit-permissions": "Edit permissions",
   "designer.category-action.create-model": "Create model",
   "designer.category-action.delete": "Delete",
   "designer.category-action.rename": "Rename",
