@@ -126,5 +126,3 @@ export default class CustomRenderer extends NumberRenderer {
     return text;
   }
 }
-
-CustomRenderer.$inject = ['eventBus', 'bpmnRenderer'];

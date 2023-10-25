@@ -7,7 +7,8 @@ import EcosTaskContextPad from './ecosTask/EcosTaskContextPad';
 import lintModule from './linter';
 
 export const onlyRenderer = {
-  __init__: ['customRenderer'],
+  __init__: ['customRenderer', 'numberRenderer'],
+  numberRenderer: ['type', EcosNumberRenderer],
   customRenderer: ['type', EcosTaskRenderer]
 };
 
@@ -16,8 +17,8 @@ export default [
     __init__: ['customContextPad', 'customPalette', 'customRenderer', 'numberRenderer'],
     customContextPad: ['type', EcosTaskContextPad],
     customPalette: ['type', EcosTaskPalette],
-    customRenderer: ['type', EcosTaskRenderer],
-    numberRenderer: ['type', EcosNumberRenderer]
+    numberRenderer: ['type', EcosNumberRenderer],
+    customRenderer: ['type', EcosTaskRenderer]
   },
   lintModule,
   BpmnColorPickerModule
