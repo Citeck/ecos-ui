@@ -26,7 +26,7 @@ export default class NumberRenderer extends BaseRenderer {
     const number = _.get(element, 'businessObject.$attrs["ecos:number"]');
 
     if (number) {
-      this._drawNumber(parentNode, element, number, is(element, TYPE_BPMN_TASK) ? -15 : -10);
+      this._drawNumber(parentNode, element, number, is(element, TYPE_BPMN_TASK) ? -15 : -11);
     }
 
     return shape;

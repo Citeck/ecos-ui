@@ -7,9 +7,8 @@ import EcosTaskContextPad from './ecosTask/EcosTaskContextPad';
 import lintModule from './linter';
 
 export const onlyRenderer = {
-  __init__: ['customRenderer', 'numberRenderer'],
-  customRenderer: ['type', EcosTaskRenderer],
-  numberRenderer: ['type', EcosNumberRenderer]
+  __init__: ['customRenderer'],
+  customRenderer: ['type', EcosTaskRenderer]
 };
 
 export default [
