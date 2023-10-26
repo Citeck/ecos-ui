@@ -18,7 +18,7 @@ import { t } from '../../../../../helpers/util';
 
 const HIGH_PRIORITY = 1500;
 
-export default class CustomRenderer extends NumberRenderer {
+class CustomRenderer extends NumberRenderer {
   constructor(eventBus, bpmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
 
@@ -128,3 +128,5 @@ export default class CustomRenderer extends NumberRenderer {
 }
 
 CustomRenderer.$inject = ['eventBus', 'bpmnRenderer'];
+
+export default CustomRenderer;

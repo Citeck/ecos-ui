@@ -9,7 +9,7 @@ import { TYPE_BPMN_TASK, LABEL_STYLE } from '../../../../../constants/bpmn';
 
 const HIGH_PRIORITY = 1500;
 
-export default class NumberRenderer extends BaseRenderer {
+class NumberRenderer extends BaseRenderer {
   constructor(eventBus, bpmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
 
@@ -48,3 +48,7 @@ export default class NumberRenderer extends BaseRenderer {
     return parentNode;
   }
 }
+
+NumberRenderer.$inject = ['eventBus', 'bpmnRenderer'];
+
+export default NumberRenderer;
