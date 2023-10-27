@@ -15,7 +15,7 @@ export class InstanceAdminApi {
       startTime: 'startTime',
       isSuspended: 'isSuspended?bool',
       bpmnDefinition: 'ecosDefRev.definition',
-      bpmnDefEngine: 'bpmnDefEngine',
+      bpmnDefEngine: 'bpmnDefEngine?id',
       activityStatistics: 'activityStatistics[]?json'
     });
   };

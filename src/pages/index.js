@@ -9,7 +9,6 @@ const DashboardPage = lazy(() => import('./Dashboard'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
 const CMMNEditorPage = lazy(() => import('./ModelEditor/CMMNEditor'));
 const BPMNEditorPage = lazy(() => import('./ModelEditor/BPMNEditor'));
-const BPMNAdminPage = lazy(() => import('./BPMAdministrationPage'));
 const BPMNAdminProcessPage = lazy(() => import('./BpmnAdminProcessDashboard'));
 const BPMNAdminIntancePage = lazy(() => import('./BpmnAdminInstanceDashboard'));
 const BPMNMigration = lazy(() => import('./BPMNVersionsMigration'));
@@ -42,9 +41,6 @@ export default ({ pageKey, withoutFooter, ...props }) => {
       break;
     case Pages.BPMN_EDITOR:
       Page = BPMNEditorPage;
-      break;
-    case Pages.BPMN_ADMIN:
-      Page = BPMNAdminPage;
       break;
     case Pages.BPMN_ADMIN_PROCESS:
       Page = BPMNAdminProcessPage;

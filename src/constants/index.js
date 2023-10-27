@@ -17,7 +17,6 @@ export const URL = {
   ADMIN_PAGE: '/v2/admin',
   /** @deprecated */
   BPMN_DESIGNER: '/v2/bpmn-designer',
-  BPMN_ADMIN: '/v2/bpmn-admin',
   BPMN_ADMIN_PROCESS: '/v2/bpmn-process',
   BPMN_ADMIN_INSTANCE: '/v2/bpmn-instance',
   BPMN_MIGRATION: '/v2/bpmn-migration',
@@ -178,7 +177,6 @@ export const TMP_ICON_EMPTY = 'icon-empty';
 export const Pages = {
   DASHBOARD: 'dashboard',
   BPMN: 'bpmn',
-  BPMN_ADMIN: 'bpmn-admin',
   BPMN_ADMIN_PROCESS: 'bpmn-process',
   BPMN_ADMIN_INSTANCE: 'bpmn-instance',
   BPMN_MIGRATION: 'bpmn-migration',
