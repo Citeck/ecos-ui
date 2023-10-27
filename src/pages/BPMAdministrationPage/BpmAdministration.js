@@ -1,16 +1,13 @@
 import React from 'react';
+import classNames from 'classnames';
 
-import { t } from '../../helpers/util';
-import { Caption } from '../../components/common/form';
-import { TITLE } from '../../constants/pageTabs';
 import ProcessesTable from './ProcessesTable';
 
 import './style.scss';
 
-const BpmAdministration = () => {
+const BpmAdministration = ({ hidden }) => {
   return (
-    <div className="bpmn-admin-page">
-      <Caption normal>{t(TITLE.BPM_ADMIN)}</Caption>
+    <div className={classNames({ 'd-none': hidden })}>
       <ProcessesTable />
     </div>
   );

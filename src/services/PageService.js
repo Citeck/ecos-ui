@@ -18,7 +18,6 @@ export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
   ADMIN_PAGE: 'admin',
-  BPM_ADMIN: 'bpmn-admin',
   BPMN_ADMIN_PROCESS: 'bpmn-process',
   BPMN_ADMIN_INSTANCE: 'bpmn-instance',
   BPMN_MIGRATION: 'bpmn-migration',
@@ -88,10 +87,6 @@ export default class PageService {
       return PageTypes.BPM_ADMIN;
     }
 
-    if (type.indexOf(PageTypes.BPMN_ADMIN_PROCESS) === 0) {
-      return PageTypes.BPMN_ADMIN_PROCESS;
-    }
-
     if (type.indexOf(PageTypes.BPMN_ADMIN_INSTANCE) === 0) {
       return PageTypes.BPMN_ADMIN_INSTANCE;
     }
@@ -122,8 +117,6 @@ export default class PageService {
       case PageTypes.BPMN_DESIGNER:
       case PageTypes.DEV_TOOLS:
         return PageTypes.ADMIN_PAGE;
-      case PageTypes.BPM_ADMIN:
-        return PageTypes.BPM_ADMIN;
       default:
         return '';
     }
@@ -226,11 +219,12 @@ export default class PageService {
           return staticTitle(TITLE.DMN);
         }
 
+        if (type === SectionTypes.BPMN_ADMIN) {
+          return staticTitle(TITLE.BPM_ADMIN);
+        }
+
         return staticTitle(TITLE.ADMIN_PAGE);
       }
-    },
-    [PageTypes.BPM_ADMIN]: {
-      getTitle: () => staticTitle(TITLE.BPM_ADMIN)
     },
     [PageTypes.BPMN_ADMIN_PROCESS]: {
       getTitle: ({ recordRef }) =>
