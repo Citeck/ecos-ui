@@ -11,7 +11,7 @@ export const SectionTypes = {
   BPM: 'BPM',
   DEV_TOOLS: 'DEV_TOOLS',
   JOURNAL: 'JOURNAL',
-  BPMN_ADMIN: 'BPMN-ADMIN'
+  BPMN_ADMIN: 'BPMN_ADMIN'
 };
 
 export const SectionNewTab = [SectionTypes.DEV_TOOLS];
