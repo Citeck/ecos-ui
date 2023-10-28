@@ -28,7 +28,7 @@ export class CamundaProcess extends React.Component {
     Records.get(processId)
       .load(
         {
-          diagram: 'processInstanceRef.definitionRef.definition',
+          diagram: 'processInstanceRef.ecosDefRev.definition',
           definitionKey: 'definitionKey'
         },
         true
