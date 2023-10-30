@@ -1,0 +1,31 @@
+@import '../../../styles/constants.scss';
+
+.bpmn-version-migration-info {
+  @extend %column-wrapper-16;
+
+  padding: 16px;
+
+  &__version-select {
+    @extend %column-wrapper-8;
+
+    & > * {
+      width: 300px;
+    }
+  }
+
+  &__confirm {
+    @extend %column-wrapper-8;
+  }
+
+  & .ace-tm {
+    width: 100% !important;
+  }
+
+  & .ace_print-margin {
+    display: none;
+  }
+
+  &__migrate-button {
+    width: 300px;
+  }
+}

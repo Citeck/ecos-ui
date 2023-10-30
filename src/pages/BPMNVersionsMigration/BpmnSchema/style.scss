@@ -1,0 +1,24 @@
+@import '../../../styles/constants.scss';
+
+.bpmn-schema-block-class {
+  position: relative;
+
+  &__activities {
+    @extend %column-wrapper-8;
+    align-items: flex-end;
+    position: absolute;
+    background: $color-white;
+    left: 20;
+    bottom: 0;
+    padding: 16px;
+
+    &-item {
+      @extend %row-wrapper-8;
+      align-items: center;
+
+      & .ecos-btn {
+        padding: 0;
+      }
+    }
+  }
+}

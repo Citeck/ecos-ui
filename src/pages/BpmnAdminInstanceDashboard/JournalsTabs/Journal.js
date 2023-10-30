@@ -26,6 +26,10 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
 
   useEffect(
     () => {
+      if (dataInfo && dataInfo.data) {
+        return;
+      }
+
       if ((!metaInfo || !metaInfo.definitionRefId) && tabId !== INSTANCE_TABS_TYPES.VARIABLES) {
         return;
       }

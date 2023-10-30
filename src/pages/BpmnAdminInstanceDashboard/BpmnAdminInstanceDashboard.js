@@ -4,11 +4,11 @@ import { IcoBtn } from '../../components/common/btns';
 import { t } from '../../helpers/util';
 import { INSTANCE_ADMIN_BLOCK_CLASS } from './constants';
 import { InstanceContext } from './InstanceContext';
-import JournalsTabs from './JournalsTabs';
-import BpmnSchema from './BpmnSchema';
-import MetaInfo from './MetaInfo';
 
 import './style.scss';
+const BpmnSchema = React.lazy(() => import('./BpmnSchema'));
+const JournalsTabs = React.lazy(() => import('./JournalsTabs'));
+const MetaInfo = React.lazy(() => import('./MetaInfo'));
 
 const BpmnAdminInstanceDashboard = () => {
   const { dispInstanceId, isSuspended, instanceId } = useContext(InstanceContext);
@@ -20,7 +20,7 @@ const BpmnAdminInstanceDashboard = () => {
           {t('bpmn-admin.instance-administration', { instanceId: dispInstanceId })}
         </h5>
         {isSuspended === true && (
-          <IcoBtn icon="fa fa-pause" className="ecos-btn_transparent" title={t('instance-admin.info-widget.paused"')} />
+          <IcoBtn icon="fa fa-pause" className="ecos-btn_transparent" title={t('instance-admin.info-widget.paused')} />
         )}
       </div>
       <MetaInfo instanceId={instanceId} />

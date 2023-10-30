@@ -1,0 +1,12 @@
+@import '../../styles/constants.scss';
+
+.bpmn-version-migration {
+  @extend %column-wrapper-16;
+
+  padding: 16px;
+
+  &__title {
+    font-weight: $font-weight-bold;
+    margin: 0;
+  }
+}

@@ -71,7 +71,12 @@ class AdminSection extends React.PureComponent {
 
       return true;
     }
-
+    console.log(
+      'activeSectionactiveSection',
+      [activeSection.type, type],
+      !isActivePage,
+      (activeSection.type || SectionTypes.DEV_TOOLS) !== type
+    );
     return !isActivePage || (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
   };
 
@@ -117,7 +122,7 @@ class AdminSection extends React.PureComponent {
   render() {
     const { activeSection, tabId, isActivePage, isOpenMenu, isAccessible, isAccessibleSectionType } = this.props;
     const { journalStateId, additionalHeights, needResetJournalView } = this.state;
-
+    console.log('this.isHidden(SectionTypes.BPMN_ADMIN)', this.isHidden(SectionTypes.BPMN_ADMIN));
     return (
       <div className="ecos-admin-section__container" ref={this.setWrapperRef}>
         <div className={classNames('ecos-admin-section__content', { 'ecos-admin-section__content_full': !isOpenMenu || !isAccessible })}>

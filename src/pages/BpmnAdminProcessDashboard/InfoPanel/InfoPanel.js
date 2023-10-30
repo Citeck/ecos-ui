@@ -35,9 +35,8 @@ class InfoPanel extends BaseWidget {
     }
   }
 
-  handleDefClick = () => {
-    const { processId } = this.props;
-    PageService.changeUrlLink(createDocumentUrl(processId), {
+  handleLinkClick = href => {
+    PageService.changeUrlLink(createDocumentUrl(href), {
       openNewTab: true
     });
   };
@@ -77,7 +76,11 @@ class InfoPanel extends BaseWidget {
                 <PanelTitle narrow color={COLOR_GRAY}>
                   {t(Labels.DEFINITION_REF)}
                 </PanelTitle>
-                <Btn className="ecos-btn_blue" onClick={this.handleDefClick} disabled={!metaInfo.definitionRef}>
+                <Btn
+                  className="ecos-btn_blue"
+                  onClick={() => this.handleLinkClick(metaInfo.definitionRefId)}
+                  disabled={!metaInfo.definitionRef}
+                >
                   {metaInfo.definitionRef || t(Labels.NOT_DEFINED)}
                   <i className="icon-small-right" />
                 </Btn>

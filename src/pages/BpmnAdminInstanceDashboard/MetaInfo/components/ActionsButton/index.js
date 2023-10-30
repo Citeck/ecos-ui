@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
 import RecordActions from '../../../../../components/Records/actions/recordActions';
@@ -26,7 +27,9 @@ const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getD
 
   useEffect(
     () => {
-      isFunction(getActionsInfo) && getActionsInfo(instanceId);
+      if (isEmpty(actionsInfo)) {
+        isFunction(getActionsInfo) && getActionsInfo(instanceId);
+      }
     },
     [instanceId]
   );
