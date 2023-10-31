@@ -11,13 +11,7 @@ import './style.scss';
 class ProcessJournal extends BaseWidget {
   render() {
     return (
-      <Dashlet
-        title={t('bpmn-admin.journal')}
-        needGoTo={false}
-        onToggleCollapse={this.handleToggleContent}
-        isCollapsed={this.isCollapsed}
-        setRef={this.setDashletRef}
-      >
+      <Dashlet title={t('bpmn-admin.journal')} needGoTo={false} setRef={this.setDashletRef} disableCollapse>
         <div className="journal-widget__body">
           <ProcessTabs />
           <ProcessTabContent />

@@ -11,13 +11,7 @@ class BpmnSchemaWidget extends BaseWidget {
     const { instanceId } = this.props;
 
     return (
-      <Dashlet
-        title={t(Labels.WIDGET_TITLE)}
-        needGoTo={false}
-        onToggleCollapse={this.handleToggleContent}
-        isCollapsed={this.isCollapsed}
-        setRef={this.setDashletRef}
-      >
+      <Dashlet title={t(Labels.WIDGET_TITLE)} setRef={this.setDashletRef} needGoTo={false} disableCollapse>
         <BpmnSchemaContent instanceId={instanceId} />
       </Dashlet>
     );

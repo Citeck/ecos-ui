@@ -54,14 +54,7 @@ class InfoPanel extends BaseWidget {
     const showVersionsLoading = get(versions, 'loading');
 
     return (
-      <Dashlet
-        title={t(Labels.INFO_TITLE)}
-        className="info-panel"
-        needGoTo={false}
-        onToggleCollapse={this.handleToggleContent}
-        isCollapsed={this.isCollapsed}
-        setRef={this.setDashletRef}
-      >
+      <Dashlet title={t(Labels.INFO_TITLE)} className="info-panel" setRef={this.setDashletRef} needGoTo={false} disableCollapse>
         {showLoader && <Loader />}
         {!showLoader && (
           <div className="info-panel__body">

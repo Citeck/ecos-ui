@@ -15,6 +15,8 @@ import { URL } from '../../../../../constants';
 import MigrationModal from '../../../MigrationModal/MigrationModal';
 import { InstanceContext } from '../../../InstanceContext';
 import { META_INFO_BLOCK_CLASS } from '../../../constants';
+import PageTabList from '../../../../../services/pageTabs/PageTabList';
+import MutateAction from '../../../../../components/Records/actions/handler/executor/MutateAction';
 import { t } from '../../../../../helpers/util';
 import PageService from '../../../../../services/PageService';
 import Labels from '../../Labels';
@@ -63,19 +65,25 @@ const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getD
                 <DropdownItem
                   key={action.label}
                   onClick={() => {
-                    RecordActions.execForRecord(instanceId, action).then(result => {
-                      if (action.id && (action.id.includes('activate') || action.id.includes('suspend'))) {
-                        isFunction(getMetaInfo) && getMetaInfo(instanceId);
-                      }
+                    RecordActions.execForRecord(instanceId, action).then(recordWasChanged => {
+                      if (recordWasChanged) {
+                        if (action.type === MutateAction.ACTION_ID && action.id && !action.id.includes('delete')) {
+                          isFunction(getMetaInfo) && getMetaInfo(instanceId);
+                        }
 
-                      if (action.id && action.id.includes('delete')) {
-                        PageService.changeUrlLink(`${URL.BPMN_ADMIN_PROCESS}?recordRef=${metaInfo.bpmnDefEngine}`, {
-                          closeActiveTab: true
-                        });
-                      }
+                        if (action.id && action.id.includes('delete')) {
+                          const activeTab = PageTabList.activeTab;
 
-                      if (action.id && action.id.includes('add') && activeTabId === INSTANCE_TABS_TYPES.VARIABLES) {
-                        isFunction(getDataInfo) && getDataInfo(instanceId, activeTabId);
+                          PageService.changeUrlLink(`${URL.BPMN_ADMIN_PROCESS}?recordRef=${metaInfo.bpmnDefEngine}`, {
+                            openNewTab: true
+                          });
+
+                          PageTabList.delete(activeTab);
+                        }
+
+                        if (action.id && action.id.includes('add') && activeTabId === INSTANCE_TABS_TYPES.VARIABLES) {
+                          isFunction(getDataInfo) && getDataInfo(instanceId, activeTabId);
+                        }
                       }
                     });
                   }}
@@ -87,7 +95,7 @@ const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getD
           <DropdownItem key="token-migration" onClick={() => setIsMainModalOpen(true)}>
             {t(Labels.TOKENS_DROPDOWN_TITLE)}
           </DropdownItem>
-          <DropdownItem key="versions-migration">
+          {/* <DropdownItem key="versions-migration">
             <a
               href={`${URL.BPMN_MIGRATION}?recordRef=${instanceId}&fromVersion=${metaInfo.version}`}
               className={`${META_INFO_BLOCK_CLASS}__dropdown-link`}
@@ -96,7 +104,7 @@ const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getD
             >
               {t(Labels.VERSIONS_DROPDOWN_TITLE)}
             </a>
-          </DropdownItem>
+          </DropdownItem> */}
         </DropdownMenu>
         <MigrationModal isMainModalOpen={isMainModalOpen} setIsMainModalOpen={setIsMainModalOpen} instanceId={instanceId} />
       </Dropdown>

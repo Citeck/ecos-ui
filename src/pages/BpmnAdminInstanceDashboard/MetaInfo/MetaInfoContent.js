@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
 
-import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
 import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
@@ -21,9 +20,7 @@ const MetaInfoContent = ({ getMetaInfo, metaInfo }) => {
   const { instanceId, setIsSuspended } = useContext(InstanceContext);
   useEffect(
     () => {
-      if (isEmpty(metaInfo)) {
-        isFunction(getMetaInfo) && getMetaInfo(instanceId);
-      }
+      isFunction(getMetaInfo) && getMetaInfo(instanceId);
     },
     [instanceId]
   );

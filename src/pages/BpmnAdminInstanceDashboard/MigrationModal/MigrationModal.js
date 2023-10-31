@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { DropdownItem } from 'reactstrap';
 import { connect } from 'react-redux';
 
 import get from 'lodash/get';
+import isFunction from 'lodash/isFunction';
 
 import { Btn, IcoBtn } from '../../../components/common/btns';
-import { EcosModal, Icon, SaveAndCancelButtons } from '../../../components/common';
+import { EcosModal, Icon, InfoText, SaveAndCancelButtons } from '../../../components/common';
 import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
 import { ScaleOptions } from '../../../components/common/Scaler/util';
 import { MIGRATION_MODAL_BLOCK_CLASS } from '../constants';
-import { Input } from '../../../components/common/form';
+import { Checkbox, Input } from '../../../components/common/form';
 import ModelViewer from '../../../components/ModelViewer/ModelViewer';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
+import Records from '../../../components/Records';
+import { notifyFailure, notifySuccess } from '../../../components/Records/actions/util/actionUtils';
+import { getMetaInfo } from '../../../actions/instanceAdmin';
 import { t } from '../../../helpers/util';
 import Labels from './Labels';
 
 import './style.scss';
-import Records from '../../../components/Records';
-import { notifyFailure, notifySuccess } from '../../../components/Records/actions/util/actionUtils';
-import { getMetaInfo } from '../../../actions/instanceAdmin';
-import { isFunction } from 'lodash';
-import { DropdownItem } from 'reactstrap';
 
 const designer = new ModelViewer();
 const Sheet = designer && designer.renderSheet;
@@ -33,6 +34,9 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
 
   const [initial, setInitial] = useState(null);
   const [target, setTarget] = useState(null);
+
+  const [skipCustomListeners, setSkipCustomListeners] = useState(false);
+  const [skipIoMappings, setSkipIoMappings] = useState(false);
 
   useEffect(() => {
     const handler = () => {
@@ -58,6 +62,11 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
   );
 
   const handleClickElement = (_event, elementInfo) => {
+    if (is(elementInfo.element, 'bpmn:Definition') || !get(elementInfo, 'element.parent')) {
+      setIsTooltipOpen(false);
+      return;
+    }
+
     setElement(get(elementInfo, 'element.id'));
     const modal = document.querySelector('.migration-modal');
     if (!modal) {
@@ -94,8 +103,8 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
     const instanceRecord = Records.get(instanceId);
 
     const data = {
-      skipCustomListeners: true,
-      skipIoMappings: true,
+      skipCustomListeners,
+      skipIoMappings,
       instructions: [
         {
           type: 'cancel',
@@ -166,6 +175,8 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
     y: 0
   };
 
+  const noData = metaInfo.bpmnDefinition === null;
+
   return (
     <>
       <DropdownItem key="migration" onClick={() => setIsMainModalOpen(true)}>
@@ -178,62 +189,78 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
         hideModal={() => setIsMainModalOpen(false)}
       >
         <div className={MIGRATION_MODAL_BLOCK_CLASS}>
-          {Sheet && (
-            <Sheet
-              diagram={metaInfo.bpmnDefinition}
-              zoom={ScaleOptions.FIT}
-              zoomCenter={zoomCenter}
-              onMounted={handleReadySheet}
-              modelEvents={{
-                'element.click': handleClickElement
-              }}
-            />
-          )}
-          <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__inputs-panel`}>
-            <div>
-              <span>{t(Labels.INITIAL_TOKEN)}</span>
-              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
-                <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={initial} disabled />
-                {initial && (
-                  <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('initial', '')} />
-                )}
-              </div>
-            </div>
-            <div>
-              <span>{t(Labels.TARGET_TOKEN)}</span>
-              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
-                <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={target} disabled />
-                {target && (
-                  <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('target', '')} />
-                )}
-              </div>
-            </div>
-            <Btn
-              className={`${MIGRATION_MODAL_BLOCK_CLASS}__button ecos-btn_blue`}
-              disabled={!initial || !target}
-              onClick={() => setIsConfirmModalOpen(true)}
-            >
-              {t(Labels.MIGRATE)}
-            </Btn>
-          </div>
-          {isTooltipOpen && rect && (
-            <div style={{ position: 'fixed', top: rect.top - Math.min(50, rect.height), left: rect.left + Math.min(100, rect.width) }}>
-              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__tooltip-panel`}>
-                <Icon className="ecos-btn_transparent icon-small-close" onClick={() => setIsTooltipOpen(false)} />
-                <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('initial', element)}>
-                  {t(Labels.INITIAL_TOKEN)}
-                </Btn>
-                <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('target', element)}>
-                  {t(Labels.TARGET_TOKEN)}
+          {noData && <InfoText text={t('instance-admin.schema-widget.no-schema')} />}
+          {!noData && (
+            <>
+              {Sheet && (
+                <Sheet
+                  diagram={metaInfo.bpmnDefinition}
+                  zoom={ScaleOptions.FIT}
+                  zoomCenter={zoomCenter}
+                  onMounted={handleReadySheet}
+                  modelEvents={{
+                    'element.click': handleClickElement
+                  }}
+                />
+              )}
+              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__inputs-panel`}>
+                <div>
+                  <span>{t(Labels.INITIAL_TOKEN)}</span>
+                  <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
+                    <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={initial} disabled />
+                    {initial && (
+                      <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('initial', '')} />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <span>{t(Labels.TARGET_TOKEN)}</span>
+                  <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
+                    <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={target} disabled />
+                    {target && (
+                      <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('target', '')} />
+                    )}
+                  </div>
+                </div>
+                <Btn
+                  className={`${MIGRATION_MODAL_BLOCK_CLASS}__button ecos-btn_blue`}
+                  disabled={!initial || !target}
+                  onClick={() => setIsConfirmModalOpen(true)}
+                >
+                  {t(Labels.MIGRATE)}
                 </Btn>
               </div>
-            </div>
+              {isTooltipOpen && rect && (
+                <div style={{ position: 'fixed', top: rect.top - Math.min(50, rect.height), left: rect.left + Math.min(100, rect.width) }}>
+                  <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__tooltip-panel`}>
+                    <Icon className="ecos-btn_transparent icon-small-close" onClick={() => setIsTooltipOpen(false)} />
+                    <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('initial', element)}>
+                      {t(Labels.INITIAL_TOKEN)}
+                    </Btn>
+                    <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('target', element)}>
+                      {t(Labels.TARGET_TOKEN)}
+                    </Btn>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </EcosModal>
-      <EcosModal title={t(Labels.CONFIRM_TITLE)} isOpen={isConfirmModalOpen} hideModal={() => isConfirmModalOpen(false)}>
+      <EcosModal title={t(Labels.CONFIRM_TITLE)} isOpen={isConfirmModalOpen} hideModal={() => setIsConfirmModalOpen(false)}>
         <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__confirm`}>
           <span>{t(Labels.CONFIRM_QUESTION, { initial, target })}</span>
+
+          <Checkbox checked={skipCustomListeners} onChange={({ checked }) => setSkipCustomListeners(checked)}>
+            {t(Labels.SKIP_CUSTOM_LISTENERS)}
+            <Icon className="icon-question" title={t(Labels.SKIP_CUSTOM_LISTENERS_TITLE)} />
+          </Checkbox>
+
+          <Checkbox checked={skipIoMappings} onChange={({ checked }) => setSkipIoMappings(checked)}>
+            {t(Labels.SKIP_IO_MAPPINGS)}
+            <Icon className="icon-question" title={t(Labels.SKIP_IO_MAPPINGS_TITLE)} />
+          </Checkbox>
+
           <SaveAndCancelButtons
             handleCancel={() => setIsConfirmModalOpen(false)}
             handleSave={handleMigrate}

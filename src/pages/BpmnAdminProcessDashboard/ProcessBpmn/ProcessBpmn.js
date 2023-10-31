@@ -83,11 +83,10 @@ class ProcessBpmn extends BaseWidget {
         title={t('bpmn-admin.schema')}
         onChangeHeight={this.handleChangeHeight}
         getFitHeights={this.setFitHeights}
-        onToggleCollapse={this.handleToggleContent}
-        isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
         onResize={this.handleResize}
         needGoTo={false}
+        disableCollapse
         resizable
       >
         {showLoader && <Loader />}

@@ -12,8 +12,6 @@
   &__clickable-field {
     cursor: pointer;
 
-    &:hover {
-      color: $color-blue-dark;
-    }
+    color: $color-blue-dark;
   }
 }

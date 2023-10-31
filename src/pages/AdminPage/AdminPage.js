@@ -40,7 +40,7 @@ class AdminPage extends React.Component {
     const { urlParams } = this.props;
     const { type } = urlParams;
 
-    return isEmpty(urlParams) || type === SectionTypes.BPM || type === SectionTypes.DMN;
+    return isEmpty(urlParams) || type === SectionTypes.BPM || type === SectionTypes.DMN || type === SectionTypes.BPMN_ADMIN;
   }
 
   render() {

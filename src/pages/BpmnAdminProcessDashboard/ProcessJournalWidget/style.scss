@@ -22,9 +22,7 @@
   &__clickable-text {
     cursor: pointer;
 
-    &:hover {
-      color: $color-blue-light;
-    }
+    color: $color-blue-light;
   }
 
   &__note-actions {

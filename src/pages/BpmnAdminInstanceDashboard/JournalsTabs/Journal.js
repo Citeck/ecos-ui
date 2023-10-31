@@ -12,7 +12,7 @@ import {
   setJournalTabInfoFilters
 } from '../../../actions/instanceAdmin';
 import { CommonTable } from '../../../components/CommonTable';
-import { InfoText, Loader } from '../../../components/common';
+import { InfoText } from '../../../components/common';
 import RecordActionsApi from '../../../components/Records/actions/recordActionsApi';
 
 import { getTableColumns } from './columns';
@@ -78,11 +78,7 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
     return <InfoText text={t(Labels.NOT_DEFINED)} />;
   }
 
-  if (!dataInfo || !dataInfo.data) {
-    return <Loader />;
-  }
-
-  const data = dataInfo.data.map(row => ({
+  const data = get(dataInfo, 'data', []).map(row => ({
     ...row,
     incidentCount: get(row, 'incidents.length')
   }));
@@ -91,14 +87,14 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
     <CommonTable
       totalCount={dataInfo.totalCount}
       isMobile={isMobile}
-      isLoading={dataInfo.loading}
+      isLoading={!dataInfo || !dataInfo.data || dataInfo.loading}
       data={data}
       columns={getTableColumns(tabId, { instanceId, tabId, actions })}
-      pagination={dataInfo.page}
+      pagination={dataInfo.page || {}}
       handleChangePage={handleChangePage}
-      sortBy={dataInfo.sortBy}
+      sortBy={dataInfo.sortBy || []}
       onSort={handleSort}
-      filters={dataInfo.filters}
+      filters={dataInfo.filters || []}
       onFilter={handleFilter}
       withoutSearch
       filterable
