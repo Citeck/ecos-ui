@@ -14,7 +14,7 @@ import {
   getPersonRef,
   getRecordRef
 } from '../components/common/form/SelectOrgstruct/helpers';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, isNodeRef } from '../helpers/util';
 import { CommonApi } from './common';
 
 export class OrgStructApi extends CommonApi {
@@ -200,6 +200,16 @@ export class OrgStructApi extends CommonApi {
 
     if (dataType === DataTypes.NODE_REF) {
       recordRef = getRecordRef(recordRef);
+      if (recordRef) {
+        let url = `${PROXY_URI}api/orgstruct/authority?nodeRef=${recordRef}`;
+
+        return this.getJson(url)
+          .then(result => {
+            this._loadedAuthorities[recordRef] = result;
+            return result;
+          })
+          .catch(() => (isNodeRef(recordRef) ? { recordRef } : { recordRef, name: recordRef }));
+      }
     }
 
     return this.fetchAuthorityByRef(recordRef);
