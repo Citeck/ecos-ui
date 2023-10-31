@@ -16,9 +16,6 @@ exports[`  should render InfoPanel component 1`] = `
         <span
           class="dashlet__caption"
         >
-          <i
-            class="icon dashlet__header-collapser icon-small-up"
-          />
           bpmn-admin.info-title
         </span>
         <span

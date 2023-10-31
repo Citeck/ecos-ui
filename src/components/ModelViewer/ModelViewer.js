@@ -3,6 +3,7 @@ import React from 'react';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isNumber from 'lodash/isNumber';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 import { ScaleOptions } from '../common/Scaler/util';
@@ -225,7 +226,7 @@ export default class ModelViewer {
           return false;
         }
 
-        return element && !element.hidden && isExpanded(element);
+        return element && !element.hidden && (isExpanded(element) || is(element, 'bpmn:CallActivity'));
       });
 
     this.#badges = new Badges();

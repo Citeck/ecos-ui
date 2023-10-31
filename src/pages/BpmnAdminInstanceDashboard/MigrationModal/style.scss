@@ -32,6 +32,18 @@
 
   &__confirm {
     @extend %column-wrapper-16;
+
+    & .ecos-checkbox {
+      &__text {
+        @extend %row-wrapper-8;
+
+        & .icon {
+          color: $color-blue-light;
+        }
+      }
+
+      width: 100%;
+    }
   }
 
   &__tooltip-panel {

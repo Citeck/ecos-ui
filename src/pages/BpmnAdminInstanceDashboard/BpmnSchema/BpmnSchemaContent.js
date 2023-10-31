@@ -10,17 +10,17 @@ import { InstanceContext } from '../InstanceContext';
 import Labels from './Labels';
 
 const BpmnSchemaContent = ({ metaInfo }) => {
-  const designer = new BPMNViewer();
   const context = useContext(InstanceContext);
 
-  const setHeight = height => {
-    designer && designer.setHeight(height);
-  };
-
+  const designer = new BPMNViewer();
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {
     x: 0,
     y: 0
+  };
+
+  const setHeight = height => {
+    designer && designer.setHeight(height);
   };
 
   const showLoader = !metaInfo || metaInfo.bpmnDefinition === undefined;

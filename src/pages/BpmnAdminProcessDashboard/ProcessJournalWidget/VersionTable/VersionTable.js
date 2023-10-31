@@ -6,7 +6,6 @@ import isFunction from 'lodash/isFunction';
 import head from 'lodash/head';
 
 import { CommonTable } from '../../../../components/CommonTable';
-import { Loader } from '../../../../components/common';
 import { getTableColumns } from './constants';
 import {
   getJournalTabInfo,
@@ -41,10 +40,6 @@ const VersionTable = ({ isMobile, processId, dataInfo, getDataInfo, setPage, set
     },
     [dataInfo]
   );
-
-  if (!dataInfo || !dataInfo.data) {
-    return <Loader />;
-  }
 
   const handleChangePage = ({ page, maxItems }) => {
     const newPage = {
@@ -91,7 +86,7 @@ const VersionTable = ({ isMobile, processId, dataInfo, getDataInfo, setPage, set
     isFunction(getDataInfo) && getDataInfo(processId, tabId);
   };
 
-  const data = dataInfo.data.map(instance => ({
+  const data = get(dataInfo, 'data', []).map(instance => ({
     ...instance,
     incidentCount: get(instance, 'incidents.length'),
     reload: getDataInfo
@@ -101,14 +96,14 @@ const VersionTable = ({ isMobile, processId, dataInfo, getDataInfo, setPage, set
     <CommonTable
       totalCount={dataInfo.totalCount}
       isMobile={isMobile}
-      isLoading={dataInfo.loading}
+      isLoading={!dataInfo || !dataInfo.data || dataInfo.loading}
       data={data}
       columns={getTableColumns(tabId, { tabId, documentJournalId: journalId })}
-      pagination={dataInfo.page}
+      pagination={dataInfo.page || {}}
       handleChangePage={handleChangePage}
-      sortBy={dataInfo.sortBy}
+      sortBy={dataInfo.sortBy || []}
       onSort={handleSort}
-      filters={dataInfo.filters}
+      filters={dataInfo.filters || []}
       onFilter={handleFilter}
       withoutSearch
       filterable

@@ -16,9 +16,6 @@ exports[`  should render MetaInfo component 1`] = `
         <span
           class="dashlet__caption"
         >
-          <i
-            class="icon dashlet__header-collapser icon-small-up"
-          />
           instance-admin.info-widget.title
         </span>
         <span
@@ -106,21 +103,6 @@ exports[`  should render MetaInfo component 1`] = `
                     type="button"
                   >
                     migration-modal.dropdown-title
-                  </button>
-                  <button
-                    class="dropdown-item"
-                    role="menuitem"
-                    tabindex="0"
-                    type="button"
-                  >
-                    <a
-                      class="bpmn-admin-info__dropdown-link"
-                      href="/v2/bpmn-migration?recordRef=undefined&fromVersion=undefined"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      migration-versions.dropdown-title
-                    </a>
                   </button>
                 </div>
                 <button

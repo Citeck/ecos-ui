@@ -237,7 +237,8 @@ class Dashlet extends Component {
       noActions,
       children,
       isCollapsed,
-      customActions
+      customActions,
+      disableCollapse
     } = this.props;
 
     return (
@@ -271,6 +272,7 @@ class Dashlet extends Component {
                 actionRules={actionRules}
                 noActions={noActions}
                 customActions={customActions}
+                disableCollapse={disableCollapse}
               />
             )
           }

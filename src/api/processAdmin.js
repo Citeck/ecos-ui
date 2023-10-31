@@ -13,6 +13,7 @@ export class ProcessAdminApi {
       modifier: 'ecosDefRev._modifier',
       deploymentId: 'deploymentId',
       definitionRef: 'ecosDefRev.processDefRef',
+      definitionRefId: 'ecosDefRev.processDefRef?id',
       allRunningInstancesCount: 'overallStatistics.instancesCount?num',
       statistics: 'statistics{incidentCount:incidentsCount?num,instancesCount:instancesCount?num}',
       activityStatistics: 'activityStatistics[]?json',

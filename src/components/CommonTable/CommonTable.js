@@ -61,6 +61,8 @@ const CommonTable = ({
             filters={filters}
             filterable={filterable}
             onFilter={onFilter}
+            minHeight={getMinHeight(isMobile)}
+            maxHeight={getMaxHeight(isMobile, headerRef, footerRef)}
             fixedHeader
             autoHeight
           />
