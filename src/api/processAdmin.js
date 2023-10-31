@@ -54,6 +54,7 @@ export class ProcessAdminApi {
         version: 'ecosDefRev.version?num',
         innerVersion: 'version?num',
         ecosDef: 'ecosDefRev.processDefRef',
+        ecosDefId: 'ecosDefRev.processDefRef?id',
         bpmnDefinition: 'ecosDefRev.definition',
         statistics: 'statistics{incidentCount:incidentsCount?num,instancesCount:instancesCount?num}',
         overallStatistics: 'overallStatistics{incidentCount:incidentsCount?num,instancesCount:instancesCount?num}'

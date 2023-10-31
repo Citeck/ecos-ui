@@ -26,6 +26,7 @@ export class BpmnAdminApi {
         version: 'ecosDefRev.version?num',
         innerVersion: 'version?num',
         ecosDef: 'ecosDefRev.processDefRef',
+        ecosDefId: 'ecosDefRev.processDefRef?id',
         overallStatistics: 'overallStatistics{incidentCount:incidentsCount?num,instancesCount:instancesCount?num}'
       }
     );

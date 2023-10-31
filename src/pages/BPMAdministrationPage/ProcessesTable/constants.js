@@ -1,5 +1,6 @@
 import { BpmnProcessStatusColumn } from '../../../components/BpmnProcessStatusColumn';
 import { URL } from '../../../constants';
+import { createDocumentUrl } from '../../../helpers/urls';
 import { getMLValue } from '../../../helpers/util';
 
 export const PROCESSED_TABLE_COLUMNS = [
@@ -13,6 +14,7 @@ export const PROCESSED_TABLE_COLUMNS = [
     dataField: 'key'
   },
   {
+    newFormatter: { type: 'link', config: { getUrl: row => createDocumentUrl(row.ecosDefId) } },
     text: getMLValue({
       ru: 'Описание процесса',
       en: 'Process definition'
