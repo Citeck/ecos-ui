@@ -522,6 +522,7 @@
     --e-docs-panel-search-width: 175px;
 
     display: flex;
+    gap: 8px;
     padding: 16px 19px;
 
     &-upload {
@@ -532,7 +533,6 @@
       color: $color-white;
       border-radius: 6px;
       cursor: pointer;
-      margin-right: 10px;
 
       &-icon {
         margin: auto;
@@ -551,7 +551,6 @@
 
     &-search {
       width: var(--e-docs-panel-search-width);
-      margin-right: 10px;
       transition: none;
       height: 40px;
     }

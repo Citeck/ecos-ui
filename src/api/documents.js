@@ -56,6 +56,23 @@ export class DocumentsApi {
       .catch(() => null);
   };
 
+  downloadAllDocumentsWithAlfresco = documentsRefs => {
+    return fetch('http://localhost:3000/alfresco/s/citeck/zip/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;odata=verbose'
+      },
+      body: JSON.stringify({
+        documentsRef: documentsRefs
+      })
+    })
+      .then(res => res.blob())
+      .then(blob => {
+        var file = window.URL.createObjectURL(blob);
+        window.location.assign(file);
+      });
+  };
+
   uploadFilesWithNodes = (data = {}, recordRef = DEFAULT_REF) => {
     const record = Records.getRecordToEdit(recordRef);
 
