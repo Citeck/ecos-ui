@@ -12,7 +12,7 @@ export class BpmnApi extends RecordService {
         query: {}
       },
       {
-        code: 'sectionCode?str',
+        sectionCode: 'sectionCode?str',
         label: 'name?json',
         parentId: 'parentRef?id',
         modified: '_created?num',
