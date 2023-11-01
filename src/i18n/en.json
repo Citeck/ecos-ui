@@ -54,7 +54,7 @@
   "designer.category-action.edit-permissions": "Edit permissions",
   "designer.category-action.create-model": "Create model",
   "designer.category-action.delete": "Delete",
-  "designer.category-action.rename": "Rename",
+  "designer.category-action.edit": "Edit",
   "designer.add-category.failure-message": "An error occurred while adding a new category",
   "designer.delete-category-dialog.failure-title": "Failure",
   "designer.delete-category-dialog.failure-text": "The category is not empty",

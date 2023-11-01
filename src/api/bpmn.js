@@ -12,7 +12,8 @@ export class BpmnApi extends RecordService {
         query: {}
       },
       {
-        label: 'name',
+        code: 'sectionCode?str',
+        label: 'name?json',
         parentId: 'parentRef?id',
         modified: '_created?num',
         canWrite: PERMISSION_WRITE_ATTR

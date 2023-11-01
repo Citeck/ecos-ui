@@ -54,7 +54,7 @@
   "designer.category-action.edit-permissions": "Редактировать права",
   "designer.category-action.create-model": "Создать модель",
   "designer.category-action.delete": "Удалить",
-  "designer.category-action.rename": "Переименовать",
+  "designer.category-action.edit": "Изменить",
   "designer.add-category.failure-message": "Во время добавления категории произошла ошибка",
   "designer.delete-category-dialog.failure-title": "Ошибка удаления категории",
   "designer.delete-category-dialog.failure-text": "Категория не пуста",
