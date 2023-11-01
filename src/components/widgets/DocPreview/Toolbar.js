@@ -345,7 +345,7 @@ class Toolbar extends Component {
           {this.renderFilesList()}
           {isPDF && this.renderPager()}
           {this.renderZoom()}
-          {this.renderExtraBtns()}
+          {/* {this.renderExtraBtns()} */}
         </div>
       </div>
     );
