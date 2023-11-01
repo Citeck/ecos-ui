@@ -581,6 +581,8 @@
   &__panel {
     $panel: &;
 
+    @extend %row-wrapper-8;
+
     --e-docs-panel-upload-width: 40px;
     --e-docs-panel-search-width: 175px;
 
@@ -595,7 +597,6 @@
       color: $color-white;
       border-radius: 6px;
       cursor: pointer;
-      margin-right: 10px;
 
       &-icon {
         margin: auto;
@@ -614,7 +615,6 @@
 
     &-search {
       width: var(--e-docs-panel-search-width);
-      margin-right: 10px;
       transition: none;
       height: 40px;
     }
