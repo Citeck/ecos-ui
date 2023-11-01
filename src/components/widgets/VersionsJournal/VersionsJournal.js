@@ -331,7 +331,7 @@ class VersionsJournal extends BaseWidget {
           </>
         )}
 
-        <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
+        {/* <a href={version.url} download data-external id={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}>
           <Icon className="icon-download ecos-vj__version-actions-item" />
         </a>
         <UncontrolledTooltip
@@ -342,7 +342,7 @@ class VersionsJournal extends BaseWidget {
           target={`${TOOLTIP.DOWNLOAD_VERSION}-${key}`}
         >
           {t('versions-journal-widget.download')}
-        </UncontrolledTooltip>
+        </UncontrolledTooltip> */}
       </div>
     );
   }
