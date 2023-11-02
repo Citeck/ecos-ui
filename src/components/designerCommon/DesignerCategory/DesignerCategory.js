@@ -1,16 +1,17 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import cn from 'classnames';
-import { NotificationManager } from 'react-notifications';
+import ContentEditable from 'react-contenteditable';
 import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
+import cn from 'classnames';
 
 import { ViewTypes } from '../../../constants/commonDesigner';
-import { getMLValue, t } from '../../../helpers/util';
-import { Input, MLText } from '../../common/form';
+import { placeCaretAtEnd, t } from '../../../helpers/util';
+
 import actionsService from '../../Records/actions/recordActions';
 
 import styles from './Category.module.scss';
 import './Category.scss';
+import { NotificationManager } from 'react-notifications';
 
 const EDIT_PERMISSIONS_ACTION_REF = 'uiserv/action@edit-permissions';
 
@@ -18,8 +19,7 @@ class DesignerCategory extends React.Component {
   static propTypes = {
     viewType: PropTypes.oneOf([ViewTypes.CARDS, ViewTypes.LIST, ViewTypes.TABLE]),
     searchText: PropTypes.string,
-    label: PropTypes.object,
-    sectionCode: PropTypes.string,
+    label: PropTypes.string,
     level: PropTypes.number,
     isEditable: PropTypes.bool,
     canWrite: PropTypes.bool,
@@ -50,7 +50,6 @@ class DesignerCategory extends React.Component {
 
   constructor() {
     super();
-
     this.labelRef = React.createRef();
   }
 
@@ -96,7 +95,7 @@ class DesignerCategory extends React.Component {
     );
   };
 
-  editCategoryAction = () => {
+  doRenameCategoryAction = () => {
     this.setState(
       {
         dropdownOpen: false
@@ -119,9 +118,15 @@ class DesignerCategory extends React.Component {
     );
   };
 
+  componentDidMount() {
+    if (this.props.isEditable) {
+      this.labelRef.current.focus();
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (!prevProps.isEditable && this.props.isEditable) {
-      this.labelRef.current._inputRef.focus();
+      this.labelRef.current.focus();
     }
   }
 
@@ -132,7 +137,6 @@ class DesignerCategory extends React.Component {
   render() {
     let {
       label,
-      sectionCode,
       level,
       isEditable,
       viewType,
@@ -183,6 +187,10 @@ class DesignerCategory extends React.Component {
       [styles.labelForCollapsed]: isOpen
     });
 
+    const labelTextClasses = cn(styles.labelText, {
+      [styles.labelTextEditable]: isEditable
+    });
+
     // action buttons
     let onClickLabel = toggleCollapse;
 
@@ -194,8 +202,8 @@ class DesignerCategory extends React.Component {
       });
       if (canWrite) {
         actions.unshift({
-          label: t('designer.category-action.edit'),
-          onClick: this.editCategoryAction
+          label: t('designer.category-action.rename'),
+          onClick: this.doRenameCategoryAction
         });
         actions.push({
           label: t('designer.category-action.delete'),
@@ -242,11 +250,22 @@ class DesignerCategory extends React.Component {
       </Fragment>
     );
 
+    let onKeyPressLabel = null;
     if (isEditable) {
       onClickLabel = () => {
-        this.labelRef.current._inputRef.focus();
+        this.labelRef.current.focus();
       };
+      onKeyPressLabel = e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          saveEditableCategory(this.labelRef.current.innerText);
+        }
 
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelEditCategory();
+        }
+      };
       actionButtons = (
         <Fragment>
           <span
@@ -276,14 +295,17 @@ class DesignerCategory extends React.Component {
         <div className={whiteContainerClasses}>
           <div className={styles.categoryHeader}>
             <h3 className={labelClasses} onClick={onClickLabel}>
-              {isEditable ? (
-                <div className={styles.labelEditable}>
-                  <Input placeholder="Code" value={sectionCode} />
-                  <MLText className={styles.labelEditableName} placeholder="Название" ref={this.labelRef} value={label} />
-                </div>
-              ) : (
-                <span className={styles.labelText}>{getMLValue(label)}</span>
-              )}
+              <ContentEditable
+                onKeyDown={onKeyPressLabel}
+                className={labelTextClasses}
+                innerRef={this.labelRef}
+                html={label}
+                disabled={!isEditable}
+                tagName="span"
+                onFocus={() => {
+                  placeCaretAtEnd(this.labelRef.current);
+                }}
+              />
             </h3>
 
             <div className={styles.categoryActions}>{actionButtons}</div>

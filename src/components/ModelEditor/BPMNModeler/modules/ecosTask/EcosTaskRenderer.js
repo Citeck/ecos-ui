@@ -43,11 +43,11 @@ class CustomRenderer extends NumberRenderer {
   }
 
   drawShape(parentNode, element) {
-    let shape = super.drawShape(parentNode, element); // draw numbers
+    super.drawShape(parentNode, element); // draw numbers
+
+    const shape = this.bpmnRenderer.drawShape(parentNode, element);
 
     if (this.canRender(element)) {
-      shape = this.bpmnRenderer.drawShape(parentNode, element);
-
       svgAppend(parentNode, this._getImage(STATUS_CHANGE_ICON_PATH));
 
       const rootProcces = this.getRootProccess(element);
