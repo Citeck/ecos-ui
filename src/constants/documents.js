@@ -102,7 +102,8 @@ export const Labels = {
   ERROR_UPLOAD: 'documents-widget.error.upload-filed',
   ERROR_ONLY_ONE_FILE: 'documents-widget.error.only-one-file',
   NOTHING_FOUND: 'documents-widget.label.nothing-found',
-  ALL_TYPES: 'documents-widget.label.all-types'
+  ALL_TYPES: 'documents-widget.label.all-types',
+  DOWNLOAD_ALL_DOCUMENTS: 'documents-widget.panel.download-all-documents'
 };
 
 export const CANCELED_TIME = 5;

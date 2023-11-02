@@ -9,13 +9,12 @@ import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
 import isFunction from 'lodash/isFunction';
 
-import { getFirstNonEmpty, t } from '../helpers/util';
+import { getFirstNonEmpty, isNodeRef, t } from '../helpers/util';
 import { DEFAULT_REF, documentActions, documentFields } from '../constants/documents';
 import Records from '../components/Records';
 import recordActions, { ActionTypes } from '../components/Records/actions';
 import journalsService from '../components/Journals/service';
 import DocumentsConverter from '../dto/documents';
-import { selectIsMobile } from '../selectors/view';
 import {
   selectActionsByTypes,
   selectActionsDynamicType,
@@ -29,6 +28,7 @@ import {
   selectTypeById
 } from '../selectors/documents';
 import {
+  downloadAllDocuments,
   execRecordsAction,
   execRecordsActionFinally,
   getAvailableTypes,
@@ -50,6 +50,7 @@ import {
   setDynamicTypes,
   setLoadingStatus,
   setTypeSettings,
+  setDownloadLoading,
   setTypeSettingsFinally,
   setUploadError,
   updateVersion,
@@ -275,6 +276,20 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
   } finally {
     const loadTypesForAll = yield select(state => state.view.isMobile);
     yield put(execRecordsActionFinally({ ...payload, loadTypesForAll }));
+  }
+}
+
+function* sagaDownloadAllDocuments({ api, logger }, { payload }) {
+  try {
+    yield put(setDownloadLoading({ ...payload, loading: true }));
+    const allDocuments = payload.allDocuments;
+    if (isNodeRef(payload.record)) {
+      yield call(api.documents.downloadAllDocumentsWithAlfresco, allDocuments);
+    }
+    yield put(setDownloadLoading({ ...payload, loading: false }));
+  } catch (e) {
+    yield put(setDownloadLoading({ ...payload, loading: false }));
+    logger.error('[documents sagaDownloadAllDocuments saga error', e);
   }
 }
 
@@ -522,9 +537,7 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
 }
 
 function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
-  const isMobile = yield select(selectIsMobile);
-
-  if ((!isNil(payload.loadTypesForAll) && !payload.loadTypesForAll) || !isMobile) {
+  if (!isNil(payload.loadTypesForAll) && !payload.loadTypesForAll) {
     return;
   }
 
@@ -593,6 +606,7 @@ function* saga(ea) {
   yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
   yield takeEvery(getTypeSettings().type, sagaGetTypeSettings, ea);
+  yield takeEvery(downloadAllDocuments().type, sagaDownloadAllDocuments, ea);
 }
 
 export default saga;
