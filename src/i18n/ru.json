@@ -1538,6 +1538,7 @@
   "documents-widget.notification.add-many.error": "Не удалось загрузить документы",
   "documents-widget.notification.update.success": "Версия документа успешно обновлена",
   "documents-widget.notification.update.error": "Не удалось обновить версию документа",
+  "documents-widget.panel.download-all-documents": "Скачать все документы",
 
   "user-profile-widget.title": "Профиль",
   "user-profile-widget.label.admin": "Администратор",

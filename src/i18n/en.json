@@ -1572,6 +1572,7 @@
   "documents-widget.notification.add-many.error": "Failed to upload documents",
   "documents-widget.notification.update.success": "Document Version Updated Successfully",
   "documents-widget.notification.update.error": "Failed to update document version",
+  "documents-widget.panel.download-all-documents": "Download all documents",
 
   "user-profile-widget.title": "Profile",
   "user-profile-widget.label.admin": "Administrator",
