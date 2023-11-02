@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import get from 'lodash/get';
@@ -13,17 +13,13 @@ import {
 } from '../../../actions/instanceAdmin';
 import { CommonTable } from '../../../components/CommonTable';
 import { InfoText } from '../../../components/common';
-import RecordActionsApi from '../../../components/Records/actions/recordActionsApi';
 
 import { getTableColumns } from './columns';
 import { INSTANCE_TABS_TYPES } from '../../../constants/instanceAdmin';
 import { t } from '../../../helpers/util';
 import Labels from './Labels';
-import { SourcesId } from '../../../constants';
 
 const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo, setPage, setSortBy, setFilters }) => {
-  const [actions, setActions] = useState([]);
-
   useEffect(
     () => {
       if (dataInfo && dataInfo.data) {
@@ -38,14 +34,6 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
     },
     [instanceId, tabId, metaInfo]
   );
-
-  useEffect(() => {
-    RecordActionsApi.getActionsByType(`${SourcesId.TYPE}@bpmn-variable-instance`).then(actionsIds => {
-      RecordActionsApi.getActionsForRecords(['bpmn-variable-instance@'], actionsIds).then(responce => {
-        setActions(responce.actions);
-      });
-    });
-  }, []);
 
   const handleChangePage = ({ page, maxItems }) => {
     const newPage = {
@@ -89,7 +77,7 @@ const Journal = ({ isMobile, instanceId, tabId, metaInfo, dataInfo, getDataInfo,
       isMobile={isMobile}
       isLoading={!dataInfo || !dataInfo.data || dataInfo.loading}
       data={data}
-      columns={getTableColumns(tabId, { instanceId, tabId, actions })}
+      columns={getTableColumns(tabId, { instanceId, tabId })}
       pagination={dataInfo.page || {}}
       handleChangePage={handleChangePage}
       sortBy={dataInfo.sortBy || []}
