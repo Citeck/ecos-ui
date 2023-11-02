@@ -42,7 +42,7 @@ const ProcessHeader = ({ processId, metaInfo, versions, getAllVersions }) => {
   const getLabel = option => {
     const version = option.version ? option.version : `${option.innerVersion} - ${t('bpmn-admin.inner-version')} `;
 
-    return `${version} (${t('bpmn-admin.incidents-count')} ${get(option, 'statistics.incidentCount', 0)})`;
+    return `${version} (${get(option, 'statistics.instancesCount', 0)}/${get(option, 'statistics.incidentCount', 0)})`;
   };
 
   const handleChange = option => {

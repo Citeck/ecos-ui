@@ -193,5 +193,15 @@ export default class ButtonComponent extends FormIOButtonComponent {
       },
       true
     );
+
+    this.on(
+      'error',
+      () => {
+        if (this.component.state === 'draft') {
+          this.disabled = false;
+        }
+      },
+      true
+    );
   }
 }
