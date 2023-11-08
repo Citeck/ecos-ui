@@ -21,6 +21,7 @@ const Categories = ({ categories, isParentHasNotModels, level = 0 }) => {
           key={category.id}
           categoryId={category.id}
           label={category.label}
+          sectionCode={category.sectionCode}
           level={level}
           isEditable={category.isEditable}
           canWrite={category.canWrite}

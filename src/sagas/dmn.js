@@ -97,14 +97,14 @@ function* doSaveCategoryRequest({ api, logger }, action) {
     const currentCategory = categories.find(item => item.id === action.payload.id);
 
     let newId = null;
+
     if (currentCategory.isTemporary) {
-      // create
-      const categoryData = yield call(api.dmn.createCategory, action.payload.label, currentCategory.parentId);
+      const categoryData = yield call(api.dmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
     } else {
-      // update
       yield call(api.dmn.updateCategory, action.payload.id, {
-        title: action.payload.label
+        title: action.payload.label,
+        code: action.payload.code
       });
     }
 
@@ -112,6 +112,7 @@ function* doSaveCategoryRequest({ api, logger }, action) {
       setCategoryData({
         id: action.payload.id,
         label: action.payload.label,
+        code: action.payload.code,
         newId
       })
     );

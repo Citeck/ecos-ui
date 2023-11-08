@@ -23,17 +23,19 @@ export class BpmnApi extends RecordService {
     });
   };
 
-  createCategory = (title, parent = null) => {
+  createCategory = (code = '', title, parent = null) => {
     const rec = Records.get('eproc/bpmn-section@');
     rec.att('parentRef', parent);
     rec.att('name', title);
+    rec.att('sectionCode', code);
     return rec.save();
   };
 
-  updateCategory = (id, { title }) => {
+  updateCategory = (id, { code = '', title }) => {
     if (title) {
       const rec = Records.get(id);
       rec.att('name', title);
+      rec.att('sectionCode', code);
       return rec.save();
     }
   };

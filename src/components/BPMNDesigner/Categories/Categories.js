@@ -26,6 +26,7 @@ const Categories = ({ items, isParentHasNotModels, level = 0 }) => {
         key={keyId}
         itemId={item.id}
         label={item.label}
+        sectionCode={item.sectionCode}
         level={level}
         isEditable={item.isEditable}
         canWrite={item.canWrite}

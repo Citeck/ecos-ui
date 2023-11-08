@@ -1691,6 +1691,8 @@
   "menu-item.type.link-create-case": "Ссылку на создание кейса",
   "menu-item.type.header-divider": "Разделяющий заголовок",
   "menu-item.type.create-in-section": "Варианты создания из раздела",
+  "menu-item.admin.in-section.label": "Название",
+  "menu-item.admin.in-section.code": "Код",
   "menu-item.type.edit-record": "Редактирование записи",
   "menu-item.type.start-workflow": "Запустить бизнес-процесс",
   "menu-item.type.user-profile": "Профиль пользователя",

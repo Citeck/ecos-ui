@@ -36,10 +36,6 @@ class DesignerCategory extends React.Component {
     cancelEditCategory: PropTypes.func
   };
 
-  state = {
-    dropdownOpen: false
-  };
-
   static getDerivedStateFromProps(props, state) {
     if (props.searchText && !props.isOpen) {
       props.setCollapse(true);
@@ -48,10 +44,14 @@ class DesignerCategory extends React.Component {
     return null;
   }
 
-  constructor() {
+  constructor(props) {
     super();
 
-    this.labelRef = React.createRef();
+    this.state = {
+      dropdownOpen: false,
+      code: props.sectionCode,
+      nameMl: props.label
+    };
   }
 
   toggleDropdown = e => {
@@ -119,12 +119,6 @@ class DesignerCategory extends React.Component {
     );
   };
 
-  componentDidUpdate(prevProps) {
-    if (!prevProps.isEditable && this.props.isEditable) {
-      this.labelRef.current._inputRef.focus();
-    }
-  }
-
   _getCategoryRef() {
     return this.props.categoryId || this.props.itemId || '';
   }
@@ -132,7 +126,6 @@ class DesignerCategory extends React.Component {
   render() {
     let {
       label,
-      sectionCode,
       level,
       isEditable,
       viewType,
@@ -184,9 +177,8 @@ class DesignerCategory extends React.Component {
     });
 
     // action buttons
-    let onClickLabel = toggleCollapse;
-
     const actions = [];
+
     if (!isRootSection) {
       actions.push({
         label: t('designer.category-action.create-model'),
@@ -243,10 +235,6 @@ class DesignerCategory extends React.Component {
     );
 
     if (isEditable) {
-      onClickLabel = () => {
-        this.labelRef.current._inputRef.focus();
-      };
-
       actionButtons = (
         <Fragment>
           <span
@@ -260,7 +248,10 @@ class DesignerCategory extends React.Component {
             className={saveIconClasses}
             onClick={e => {
               e.stopPropagation();
-              saveEditableCategory(this.labelRef.current.innerText);
+
+              const { code, nameMl } = this.state;
+
+              saveEditableCategory(code, nameMl);
             }}
           />
         </Fragment>
@@ -271,15 +262,26 @@ class DesignerCategory extends React.Component {
       actionButtons = null;
     }
 
+    const { nameMl, code } = this.state;
+
     return (
       <div className={mainContainerClasses}>
         <div className={whiteContainerClasses}>
-          <div className={styles.categoryHeader}>
-            <h3 className={labelClasses} onClick={onClickLabel}>
+          <div className={styles.categoryHeader} onClick={() => !isEditable && toggleCollapse()}>
+            <h3 className={labelClasses}>
               {isEditable ? (
                 <div className={styles.labelEditable}>
-                  <Input placeholder="Code" value={sectionCode} />
-                  <MLText className={styles.labelEditableName} placeholder="Название" ref={this.labelRef} value={label} />
+                  <Input
+                    placeholder={t('menu-item.admin.in-section.label')}
+                    value={code}
+                    onChange={e => this.setState({ code: e.target.value })}
+                  />
+                  <MLText
+                    className={styles.labelEditableName}
+                    placeholder={t('menu-item.admin.in-section.code')}
+                    value={nameMl}
+                    onChange={value => this.setState({ nameMl: value })}
+                  />
                 </div>
               ) : (
                 <span className={styles.labelText}>{getMLValue(label)}</span>
