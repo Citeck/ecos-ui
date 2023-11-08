@@ -10,7 +10,8 @@ export class DmnApi {
         query: {}
       },
       {
-        label: 'name',
+        code: 'sectionCode?str',
+        label: 'name?json',
         parentId: 'parentRef?id',
         modified: '_created?num',
         canWrite: PERMISSION_WRITE_ATTR
@@ -20,17 +21,19 @@ export class DmnApi {
     });
   };
 
-  createCategory = (title, parent = null) => {
+  createCategory = (code = '', title, parent = null) => {
     const rec = Records.get('eproc/dmn-section@');
     rec.att('parentRef', parent);
     rec.att('name', title);
+    rec.att('sectionCode', code);
     return rec.save();
   };
 
-  updateCategory = (id, { title }) => {
+  updateCategory = (id, { code = '', title }) => {
     if (title) {
       const rec = Records.get(id);
       rec.att('name', title);
+      rec.att('sectionCode', code);
       return rec.save();
     }
   };

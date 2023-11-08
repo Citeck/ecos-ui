@@ -181,6 +181,10 @@ export default handleActions(
         currentCategory.label = action.payload.label;
       }
 
+      if (action.payload.code) {
+        currentCategory.code = action.payload.code;
+      }
+
       if (action.payload.newId) {
         currentCategory.id = action.payload.newId;
       }

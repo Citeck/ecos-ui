@@ -52,8 +52,8 @@ const mapDispatchToProps = (dispatch, props) => ({
   createModel: () => {
     dispatch(createModel({ categoryId: props.itemId }));
   },
-  saveEditableCategory: text => {
-    dispatch(saveCategoryRequest({ id: props.itemId, label: text }));
+  saveEditableCategory: (code, mlText) => {
+    dispatch(saveCategoryRequest({ id: props.itemId, code, label: mlText }));
   },
   cancelEditCategory: text => {
     dispatch(cancelEditCategory(props.itemId));

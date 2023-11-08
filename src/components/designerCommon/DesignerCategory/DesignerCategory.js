@@ -1,17 +1,16 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import ContentEditable from 'react-contenteditable';
-import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import cn from 'classnames';
+import { NotificationManager } from 'react-notifications';
+import { Collapse, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import { ViewTypes } from '../../../constants/commonDesigner';
-import { placeCaretAtEnd, t } from '../../../helpers/util';
-
+import { getMLValue, t } from '../../../helpers/util';
+import { Input, MLText } from '../../common/form';
 import actionsService from '../../Records/actions/recordActions';
 
 import styles from './Category.module.scss';
 import './Category.scss';
-import { NotificationManager } from 'react-notifications';
 
 const EDIT_PERMISSIONS_ACTION_REF = 'uiserv/action@edit-permissions';
 
@@ -19,7 +18,8 @@ class DesignerCategory extends React.Component {
   static propTypes = {
     viewType: PropTypes.oneOf([ViewTypes.CARDS, ViewTypes.LIST, ViewTypes.TABLE]),
     searchText: PropTypes.string,
-    label: PropTypes.string,
+    label: PropTypes.object,
+    sectionCode: PropTypes.string,
     level: PropTypes.number,
     isEditable: PropTypes.bool,
     canWrite: PropTypes.bool,
@@ -36,10 +36,6 @@ class DesignerCategory extends React.Component {
     cancelEditCategory: PropTypes.func
   };
 
-  state = {
-    dropdownOpen: false
-  };
-
   static getDerivedStateFromProps(props, state) {
     if (props.searchText && !props.isOpen) {
       props.setCollapse(true);
@@ -48,9 +44,14 @@ class DesignerCategory extends React.Component {
     return null;
   }
 
-  constructor() {
+  constructor(props) {
     super();
-    this.labelRef = React.createRef();
+
+    this.state = {
+      dropdownOpen: false,
+      code: props.sectionCode,
+      nameMl: props.label
+    };
   }
 
   toggleDropdown = e => {
@@ -95,7 +96,7 @@ class DesignerCategory extends React.Component {
     );
   };
 
-  doRenameCategoryAction = () => {
+  editCategoryAction = () => {
     this.setState(
       {
         dropdownOpen: false
@@ -117,18 +118,6 @@ class DesignerCategory extends React.Component {
       }
     );
   };
-
-  componentDidMount() {
-    if (this.props.isEditable) {
-      this.labelRef.current.focus();
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!prevProps.isEditable && this.props.isEditable) {
-      this.labelRef.current.focus();
-    }
-  }
 
   _getCategoryRef() {
     return this.props.categoryId || this.props.itemId || '';
@@ -187,14 +176,9 @@ class DesignerCategory extends React.Component {
       [styles.labelForCollapsed]: isOpen
     });
 
-    const labelTextClasses = cn(styles.labelText, {
-      [styles.labelTextEditable]: isEditable
-    });
-
     // action buttons
-    let onClickLabel = toggleCollapse;
-
     const actions = [];
+
     if (!isRootSection) {
       actions.push({
         label: t('designer.category-action.create-model'),
@@ -202,8 +186,8 @@ class DesignerCategory extends React.Component {
       });
       if (canWrite) {
         actions.unshift({
-          label: t('designer.category-action.rename'),
-          onClick: this.doRenameCategoryAction
+          label: t('designer.category-action.edit'),
+          onClick: this.editCategoryAction
         });
         actions.push({
           label: t('designer.category-action.delete'),
@@ -250,22 +234,7 @@ class DesignerCategory extends React.Component {
       </Fragment>
     );
 
-    let onKeyPressLabel = null;
     if (isEditable) {
-      onClickLabel = () => {
-        this.labelRef.current.focus();
-      };
-      onKeyPressLabel = e => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          saveEditableCategory(this.labelRef.current.innerText);
-        }
-
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          cancelEditCategory();
-        }
-      };
       actionButtons = (
         <Fragment>
           <span
@@ -279,7 +248,10 @@ class DesignerCategory extends React.Component {
             className={saveIconClasses}
             onClick={e => {
               e.stopPropagation();
-              saveEditableCategory(this.labelRef.current.innerText);
+
+              const { code, nameMl } = this.state;
+
+              saveEditableCategory(code, nameMl);
             }}
           />
         </Fragment>
@@ -290,22 +262,30 @@ class DesignerCategory extends React.Component {
       actionButtons = null;
     }
 
+    const { nameMl, code } = this.state;
+
     return (
       <div className={mainContainerClasses}>
         <div className={whiteContainerClasses}>
-          <div className={styles.categoryHeader}>
-            <h3 className={labelClasses} onClick={onClickLabel}>
-              <ContentEditable
-                onKeyDown={onKeyPressLabel}
-                className={labelTextClasses}
-                innerRef={this.labelRef}
-                html={label}
-                disabled={!isEditable}
-                tagName="span"
-                onFocus={() => {
-                  placeCaretAtEnd(this.labelRef.current);
-                }}
-              />
+          <div className={styles.categoryHeader} onClick={() => !isEditable && toggleCollapse()}>
+            <h3 className={labelClasses}>
+              {isEditable ? (
+                <div className={styles.labelEditable}>
+                  <Input
+                    placeholder={t('menu-item.admin.in-section.label')}
+                    value={code}
+                    onChange={e => this.setState({ code: e.target.value })}
+                  />
+                  <MLText
+                    className={styles.labelEditableName}
+                    placeholder={t('menu-item.admin.in-section.code')}
+                    value={nameMl}
+                    onChange={value => this.setState({ nameMl: value })}
+                  />
+                </div>
+              ) : (
+                <span className={styles.labelText}>{getMLValue(label)}</span>
+              )}
             </h3>
 
             <div className={styles.categoryActions}>{actionButtons}</div>

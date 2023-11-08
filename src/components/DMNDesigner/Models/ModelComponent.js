@@ -33,6 +33,7 @@ const Models = ({
           onDeleteModelClick={e => onDeleteModelClick(e, model.id)}
           onEditMetaClick={e => onEditMetaClick(e, model.id)}
           label={model.label}
+          sectionCode={model.sectionCode}
           author={model.creator}
           datetime={moment(model.created).calendar()}
           image={model.previewUrl}
