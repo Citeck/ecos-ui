@@ -5,6 +5,9 @@ const prefix = 'process-admin/';
 export const getAllVersions = createAction(prefix + 'GET_ALL_VERSIONS');
 export const setAllVersions = createAction(prefix + 'SET_ALL_VERSIONS');
 
+export const getActionsInfo = createAction(prefix + 'GET_ACTIONS_INFO');
+export const setActionsInfo = createAction(prefix + 'SET_ACTIONS_INFO');
+
 export const getMetaInfo = createAction(prefix + 'GET_META_INFO');
 export const setMetaInfo = createAction(prefix + 'SET_META_INFO');
 

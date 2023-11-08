@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { DropdownItem } from 'reactstrap';
 import { connect } from 'react-redux';
 
 import get from 'lodash/get';
@@ -24,7 +23,7 @@ import './style.scss';
 const designer = new ModelViewer();
 const Sheet = designer && designer.renderSheet;
 
-const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, setIsMainModalOpen }) => {
+const MigrationModal = ({ instanceId, metaInfo, getMetaInfo }) => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,7 +125,6 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
         notifySuccess();
         setIsConfirmModalOpen(false);
         setIsLoading(false);
-        setIsMainModalOpen(false);
         setTarget(null);
         setInitial(null);
 
@@ -179,74 +177,64 @@ const MigrationModal = ({ instanceId, metaInfo, getMetaInfo, isMainModalOpen, se
 
   return (
     <>
-      <DropdownItem key="migration" onClick={() => setIsMainModalOpen(true)}>
-        {t(Labels.DROPDOWN_TITLE)}
-      </DropdownItem>
-      <EcosModal
-        title={t(Labels.WIDGET_TITLE)}
-        className="ecos-modal_width-full"
-        isOpen={isMainModalOpen}
-        hideModal={() => setIsMainModalOpen(false)}
-      >
-        <div className={MIGRATION_MODAL_BLOCK_CLASS}>
-          {noData && <InfoText text={t('instance-admin.schema-widget.no-schema')} />}
-          {!noData && (
-            <>
-              {Sheet && (
-                <Sheet
-                  diagram={metaInfo.bpmnDefinition}
-                  zoom={ScaleOptions.FIT}
-                  zoomCenter={zoomCenter}
-                  onMounted={handleReadySheet}
-                  modelEvents={{
-                    'element.click': handleClickElement
-                  }}
-                />
-              )}
-              <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__inputs-panel`}>
-                <div>
-                  <span>{t(Labels.INITIAL_TOKEN)}</span>
-                  <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
-                    <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={initial} disabled />
-                    {initial && (
-                      <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('initial', '')} />
-                    )}
-                  </div>
+      <div className={MIGRATION_MODAL_BLOCK_CLASS}>
+        {noData && <InfoText text={t('instance-admin.schema-widget.no-schema')} />}
+        {!noData && (
+          <>
+            {Sheet && (
+              <Sheet
+                diagram={metaInfo.bpmnDefinition}
+                zoom={ScaleOptions.FIT}
+                zoomCenter={zoomCenter}
+                onMounted={handleReadySheet}
+                modelEvents={{
+                  'element.click': handleClickElement
+                }}
+              />
+            )}
+            <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__inputs-panel`}>
+              <div>
+                <span>{t(Labels.INITIAL_TOKEN)}</span>
+                <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
+                  <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={initial} disabled />
+                  {initial && (
+                    <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('initial', '')} />
+                  )}
                 </div>
-                <div>
-                  <span>{t(Labels.TARGET_TOKEN)}</span>
-                  <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
-                    <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={target} disabled />
-                    {target && (
-                      <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('target', '')} />
-                    )}
-                  </div>
-                </div>
-                <Btn
-                  className={`${MIGRATION_MODAL_BLOCK_CLASS}__button ecos-btn_blue`}
-                  disabled={!initial || !target}
-                  onClick={() => setIsConfirmModalOpen(true)}
-                >
-                  {t(Labels.MIGRATE)}
-                </Btn>
               </div>
-              {isTooltipOpen && rect && (
-                <div style={{ position: 'fixed', top: rect.top - Math.min(50, rect.height), left: rect.left + Math.min(100, rect.width) }}>
-                  <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__tooltip-panel`}>
-                    <Icon className="ecos-btn_transparent icon-small-close" onClick={() => setIsTooltipOpen(false)} />
-                    <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('initial', element)}>
-                      {t(Labels.INITIAL_TOKEN)}
-                    </Btn>
-                    <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('target', element)}>
-                      {t(Labels.TARGET_TOKEN)}
-                    </Btn>
-                  </div>
+              <div>
+                <span>{t(Labels.TARGET_TOKEN)}</span>
+                <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__text-input`}>
+                  <Input className={`${MIGRATION_MODAL_BLOCK_CLASS}__input`} type="text" value={target} disabled />
+                  {target && (
+                    <IcoBtn className="ecos-btn_transparent" icon="icon-small-close" onClick={() => handleSelectButton('target', '')} />
+                  )}
                 </div>
-              )}
-            </>
-          )}
-        </div>
-      </EcosModal>
+              </div>
+              <Btn
+                className={`${MIGRATION_MODAL_BLOCK_CLASS}__button ecos-btn_blue`}
+                disabled={!initial || !target}
+                onClick={() => setIsConfirmModalOpen(true)}
+              >
+                {t(Labels.MIGRATE)}
+              </Btn>
+            </div>
+            {isTooltipOpen && rect && (
+              <div style={{ position: 'fixed', top: rect.top - Math.min(50, rect.height), left: rect.left + Math.min(100, rect.width) }}>
+                <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__tooltip-panel`}>
+                  <Icon className="ecos-btn_transparent icon-small-close" onClick={() => setIsTooltipOpen(false)} />
+                  <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('initial', element)}>
+                    {t(Labels.INITIAL_TOKEN)}
+                  </Btn>
+                  <Btn className="ecos-btn_transparent" onClick={() => handleSelectButton('target', element)}>
+                    {t(Labels.TARGET_TOKEN)}
+                  </Btn>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
       <EcosModal title={t(Labels.CONFIRM_TITLE)} isOpen={isConfirmModalOpen} hideModal={() => setIsConfirmModalOpen(false)}>
         <div className={`${MIGRATION_MODAL_BLOCK_CLASS}__confirm`}>
           <span>{t(Labels.CONFIRM_QUESTION, { initial, target })}</span>

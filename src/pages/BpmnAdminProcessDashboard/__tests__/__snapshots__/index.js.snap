@@ -67,6 +67,9 @@ exports[`  should render InfoPanel component 1`] = `
             </div>
             <div
               class="info-panel__main-item"
+            />
+            <div
+              class="info-panel__main-item"
             >
               <div
                 class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
@@ -182,8 +185,8 @@ Array [
     "text": "Message",
   },
   Object {
-    "attribute": "id",
-    "dataField": "dispId",
+    "attribute": "processInstanceRef",
+    "dataField": "processInstanceRef",
     "newFormatter": Object {
       "config": Object {
         "getUrl": [Function],

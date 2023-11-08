@@ -82,14 +82,14 @@ export const getIncidentsTableColumns = ({ tabId }) => [
     dataField: 'message'
   },
   {
-    newFormatter: { type: 'link', config: { getUrl: row => `${URL.BPMN_ADMIN_INSTANCE}?recordRef=${row.id}` } },
+    newFormatter: { type: 'link', config: { getUrl: row => `${URL.BPMN_ADMIN_INSTANCE}?recordRef=${row.processInstance}` } },
     text: getMLValue({
       ru: 'Экземпляр процесса',
       en: 'Process instance'
     }),
     sortable: true,
-    attribute: 'id',
-    dataField: 'dispId'
+    attribute: 'processInstanceRef',
+    dataField: 'processInstanceRef'
   },
   {
     newFormatter: { type: 'date', config: { format: 'LLL' } },

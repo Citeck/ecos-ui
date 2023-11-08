@@ -45,6 +45,8 @@ import EditJournalPresetAction from './handler/executor/EditJournalPresetAction'
 import DownloadByTemplateAction from './handler/executor/DownloadByTemplateAction';
 import RecordCopyAction from './handler/executor/RecordCopyAction';
 import TransformAction from './handler/executor/TransformAction';
+import CustomUiAction from './handler/executor/CustomUiAction';
+import MigrateTokenAction from './handler/executor/MigrateTokenAction/index';
 import { IS_TEST_ENV } from '../../../helpers/util';
 
 export { default } from './recordActions';
@@ -83,6 +85,8 @@ const registerAllActions = () => {
   actionsRegistry.register(new DownloadByTemplateAction());
   actionsRegistry.register(new RecordCopyAction());
   actionsRegistry.register(new TransformAction());
+  actionsRegistry.register(new CustomUiAction());
+  actionsRegistry.register(new MigrateTokenAction());
 
   // Executors - Case
 

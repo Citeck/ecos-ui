@@ -12,7 +12,6 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap
 import { Btn } from '../../../../../components/common/btns';
 import { INSTANCE_TABS_TYPES } from '../../../../../constants/instanceAdmin';
 import { URL } from '../../../../../constants';
-import MigrationModal from '../../../MigrationModal/MigrationModal';
 import { InstanceContext } from '../../../InstanceContext';
 import { META_INFO_BLOCK_CLASS } from '../../../constants';
 import PageTabList from '../../../../../services/pageTabs/PageTabList';
@@ -23,7 +22,6 @@ import Labels from '../../Labels';
 
 const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getDataInfo, getMetaInfo }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMainModalOpen, setIsMainModalOpen] = useState(false);
 
   const { activeTabId } = useContext(InstanceContext);
 
@@ -49,64 +47,39 @@ const ActionsButton = ({ instanceId, metaInfo, actionsInfo, getActionsInfo, getD
           </Btn>
         </DropdownToggle>
         <DropdownMenu container="body" right>
-          {(actionsInfo.data || [])
-            .filter(action => {
-              if (action.id && action.id.includes('suspend')) {
-                return !metaInfo.isSuspended;
-              }
-              if (action.id && action.id.includes('activate')) {
-                return metaInfo.isSuspended;
-              }
-
-              return true;
-            })
-            .map(action => {
-              return (
-                <DropdownItem
-                  key={action.label}
-                  onClick={() => {
-                    RecordActions.execForRecord(instanceId, action).then(recordWasChanged => {
-                      if (recordWasChanged) {
-                        if (action.type === MutateAction.ACTION_ID && action.id && !action.id.includes('delete')) {
-                          isFunction(getMetaInfo) && getMetaInfo(instanceId);
-                        }
-
-                        if (action.id && action.id.includes('delete')) {
-                          const activeTab = PageTabList.activeTab;
-
-                          PageService.changeUrlLink(`${URL.BPMN_ADMIN_PROCESS}?recordRef=${metaInfo.bpmnDefEngine}`, {
-                            openNewTab: true
-                          });
-
-                          PageTabList.delete(activeTab);
-                        }
-
-                        if (action.id && action.id.includes('add') && activeTabId === INSTANCE_TABS_TYPES.VARIABLES) {
-                          isFunction(getDataInfo) && getDataInfo(instanceId, activeTabId);
-                        }
+          {(actionsInfo.data || []).map(action => {
+            return (
+              <DropdownItem
+                key={action.label}
+                onClick={() => {
+                  RecordActions.execForRecord(instanceId, action).then(recordWasChanged => {
+                    if (recordWasChanged) {
+                      if (action.type === MutateAction.ACTION_ID && action.id && !action.id.includes('delete')) {
+                        isFunction(getMetaInfo) && getMetaInfo(instanceId);
                       }
-                    });
-                  }}
-                >
-                  {action.name}
-                </DropdownItem>
-              );
-            })}
-          <DropdownItem key="token-migration" onClick={() => setIsMainModalOpen(true)}>
-            {t(Labels.TOKENS_DROPDOWN_TITLE)}
-          </DropdownItem>
-          {/* <DropdownItem key="versions-migration">
-            <a
-              href={`${URL.BPMN_MIGRATION}?recordRef=${instanceId}&fromVersion=${metaInfo.version}`}
-              className={`${META_INFO_BLOCK_CLASS}__dropdown-link`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t(Labels.VERSIONS_DROPDOWN_TITLE)}
-            </a>
-          </DropdownItem> */}
+
+                      if (action.id && action.id.includes('delete')) {
+                        const activeTab = PageTabList.activeTab;
+
+                        PageService.changeUrlLink(`${URL.BPMN_ADMIN_PROCESS}?recordRef=${metaInfo.bpmnDefEngine}`, {
+                          openNewTab: true
+                        });
+
+                        PageTabList.delete(activeTab);
+                      }
+
+                      if (action.id && action.id.includes('add') && activeTabId === INSTANCE_TABS_TYPES.VARIABLES) {
+                        isFunction(getDataInfo) && getDataInfo(instanceId, activeTabId);
+                      }
+                    }
+                  });
+                }}
+              >
+                {action.name}
+              </DropdownItem>
+            );
+          })}
         </DropdownMenu>
-        <MigrationModal isMainModalOpen={isMainModalOpen} setIsMainModalOpen={setIsMainModalOpen} instanceId={instanceId} />
       </Dropdown>
     </div>
   );

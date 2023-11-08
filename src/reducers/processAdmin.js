@@ -6,6 +6,8 @@ import {
   setAllVersions,
   getMetaInfo,
   setMetaInfo,
+  getActionsInfo,
+  setActionsInfo,
   getJournalTabInfo,
   setJournalTabInfo,
   setJournalTabInfoPage,
@@ -117,6 +119,37 @@ export default handleActions(
           metaInfo: {
             loading: false,
             ...metaInfo
+          }
+        }
+      };
+    },
+
+    [getActionsInfo]: (state, action) => {
+      const { processId } = action.payload;
+      const processState = state[processId] || {};
+
+      return {
+        ...state,
+        [processId]: {
+          ...processState,
+          actionsInfo: {
+            data: [],
+            loading: true
+          }
+        }
+      };
+    },
+    [setActionsInfo]: (state, action) => {
+      const { processId, actions } = action.payload;
+      const processState = state[processId] || {};
+
+      return {
+        ...state,
+        [processId]: {
+          ...processState,
+          actionsInfo: {
+            data: actions,
+            loading: false
           }
         }
       };

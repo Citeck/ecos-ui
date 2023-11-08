@@ -5,6 +5,7 @@ import { getJournalTabInfo, getMetaInfo, getActionsInfo, setJournalTabInfo, setM
 import { selectInstanceTabInfo } from '../selectors/instanceAdmin';
 import { SourcesId } from '../constants';
 import RecordActionsApi from '../components/Records/actions/recordActionsApi';
+import RecordActions from '../components/Records/actions/recordActions';
 
 function* sagaGetMetaInfo({ api, logger }, { payload }) {
   try {
@@ -36,9 +37,13 @@ function* sagaGetActionsInfo({ api, logger }, { payload }) {
 
     const actionsIds = yield call(RecordActionsApi.getActionsByType, `${SourcesId.TYPE}@bpmn-process`);
 
-    const actionsResponse = yield call(RecordActionsApi.getActionsForRecords, [instanceId], actionsIds);
+    const actionsResponse = yield call(RecordActions.getActionsForRecords, [instanceId], actionsIds, {});
 
-    yield put(setActionsInfo({ instanceId, actions: actionsResponse.actions }));
+    if (!actionsResponse || !actionsResponse.forRecord) {
+      return;
+    }
+
+    yield put(setActionsInfo({ instanceId, actions: actionsResponse.forRecord[instanceId] }));
   } catch (e) {
     logger.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
   }
