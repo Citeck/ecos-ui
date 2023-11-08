@@ -2,6 +2,3 @@ type: ecos-ui
 properties:
   image:
     configVersion: v6
-  builds:
-    - enterprise: true
-    - enterprise: false
