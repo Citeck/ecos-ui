@@ -26,7 +26,7 @@ export const getTableColumns = (tabId, args) => {
   }
 };
 
-export const getVariableColumns = ({ instanceId, tabId, actions }) => [
+export const getVariableColumns = ({ instanceId, tabId }) => [
   {
     sortable: true,
     text: getMLValue({
@@ -45,7 +45,7 @@ export const getVariableColumns = ({ instanceId, tabId, actions }) => [
     dataField: 'type'
   },
   {
-    newFormatter: { type: 'component', config: { Component: ({ row }) => <ValueColumn row={row} actions={actions} /> } },
+    newFormatter: { type: 'component', config: { Component: ({ row }) => <ValueColumn row={row} /> } },
     text: getMLValue({
       ru: 'Значение',
       en: 'Value'

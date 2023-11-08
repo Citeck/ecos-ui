@@ -53,7 +53,7 @@ const MigrationInfo = ({ processId, processInfo, versionsInfo, getAllVersions, g
   const getLabel = option => {
     const version = option.version ? option.version : `${option.innerVersion} - ${t('bpmn-admin.inner-version')} `;
 
-    return `${version} (${t('bpmn-admin.incidents-count')} ${get(option, 'statistics.incidentCount', 0)})`;
+    return `${version} (${get(option, 'statistics.incidentCount', 0)}/${get(option, 'statistics.incidentCount', 0)})`;
   };
 
   const getValue = option => {

@@ -10,8 +10,7 @@ export class DmnApi {
         query: {}
       },
       {
-        code: 'sectionCode?str',
-        label: 'name?json',
+        label: 'name',
         parentId: 'parentRef?id',
         modified: '_created?num',
         canWrite: PERMISSION_WRITE_ATTR

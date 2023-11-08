@@ -54,7 +54,7 @@
   "designer.category-action.edit-permissions": "Редактировать права",
   "designer.category-action.create-model": "Создать модель",
   "designer.category-action.delete": "Удалить",
-  "designer.category-action.edit": "Изменить",
+  "designer.category-action.rename": "Переименовать",
   "designer.add-category.failure-message": "Во время добавления категории произошла ошибка",
   "designer.delete-category-dialog.failure-title": "Ошибка удаления категории",
   "designer.delete-category-dialog.failure-text": "Категория не пуста",
@@ -1538,6 +1538,7 @@
   "documents-widget.notification.add-many.error": "Не удалось загрузить документы",
   "documents-widget.notification.update.success": "Версия документа успешно обновлена",
   "documents-widget.notification.update.error": "Не удалось обновить версию документа",
+  "documents-widget.panel.download-all-documents": "Скачать все документы",
 
   "user-profile-widget.title": "Профиль",
   "user-profile-widget.label.admin": "Администратор",
