@@ -47,7 +47,13 @@ export const RetryButton = ({ row, getDataInfo, instanceId, tabId }) => {
         <div className={`${JOURNALS_TABS_BLOCK_CLASS}__retry-column`}>
           <InfoText text={t('bpmn-admin.incident.retry-info-text')} />
           <Input defaultValue={1} min={1} type="number" onChange={e => setCount(e.target.value)} />
-          <SaveAndCancelButtons handleCancel={() => setIsOpen(false)} handleSave={handleSave} disabledSave={disabled} loading={isLoading} />
+          <SaveAndCancelButtons
+            handleCancel={() => setIsOpen(false)}
+            handleSave={handleSave}
+            disabledSave={disabled}
+            loading={isLoading}
+            saveText={t('records-actions.edit')}
+          />
         </div>
       </EcosModal>
     </>

@@ -28,7 +28,10 @@ export const getTableColumns = (tabId, args) => {
 
 export const getVariableColumns = ({ instanceId, tabId }) => [
   {
+    searchable: true,
+    searchableByText: true,
     sortable: true,
+    newEditor: { type: 'text', config: {} },
     text: getMLValue({
       ru: 'Имя переменной',
       en: 'Name'
@@ -45,7 +48,10 @@ export const getVariableColumns = ({ instanceId, tabId }) => [
     dataField: 'type'
   },
   {
-    newFormatter: { type: 'component', config: { Component: ({ row }) => <ValueColumn row={row} /> } },
+    newFormatter: {
+      type: 'component',
+      config: { Component: ({ row }) => <ValueColumn row={row} instanceId={instanceId} tabId={tabId} /> }
+    },
     text: getMLValue({
       ru: 'Значение',
       en: 'Value'

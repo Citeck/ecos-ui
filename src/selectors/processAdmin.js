@@ -10,6 +10,10 @@ export const selectProcessMetaInfo = createSelector(selectState, selectProcessId
   return get(state, `${processId}.metaInfo`, {});
 });
 
+export const selectProcessActions = createSelector(selectState, selectProcessId, (state, instanceId) => {
+  return get(state, `${instanceId}.actionsInfo`, {});
+});
+
 export const selectProcessVersions = createSelector(selectState, selectProcessId, (state, processId) => {
   return get(state, `${processId}.versions`, {});
 });

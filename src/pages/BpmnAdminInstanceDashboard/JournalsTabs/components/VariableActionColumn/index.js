@@ -1,52 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import isFunction from 'lodash/isFunction';
 
-import { notifyFailure } from '../../../../../components/Records/actions/util/actionUtils';
-import { EcosModal, Icon, SaveAndCancelButtons } from '../../../../../components/common';
-import { t } from '../../../../../helpers/util';
-import Records from '../../../../../components/Records';
+import RecordActions from '../../../../../components/Records/actions/recordActions';
+import RecordActionsApi from '../../../../../components/Records/actions/recordActionsApi';
 import { getJournalTabInfo } from '../../../../../actions/instanceAdmin';
-import { JOURNALS_TABS_BLOCK_CLASS } from '../../../constants';
-import Labels from '../../Labels';
+import { SourcesId } from '../../../../../constants';
+import { Icon } from '../../../../../components/common';
+import { t } from '../../../../../helpers/util';
 
 const VariableAction = ({ row, getDataInfo, instanceId, tabId }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [deleteAction, setDeleteAction] = useState(null);
 
-  const handleSave = () => {
-    setIsLoading(true);
+  useEffect(() => {
+    RecordActionsApi.getActionsByType(`${SourcesId.TYPE}@bpmn-variable-instance`).then(actionsIds => {
+      RecordActions.getActionsForRecords([row.id], actionsIds).then(responce => {
+        const forRecord = responce.forRecord;
+        if (!forRecord) {
+          return;
+        }
 
-    Records.remove(row.id)
-      .then(() => {
-        setIsLoading(false);
-        setIsOpen(false);
+        const actions = forRecord[row.id];
+        if (!actions) {
+          return;
+        }
 
-        isFunction(getDataInfo) && getDataInfo(instanceId, tabId);
-      })
-      .catch(e => {
-        notifyFailure(e.message);
-        setIsLoading(false);
-        setIsOpen(false);
+        setDeleteAction(actions.find(action => action.id && action.id.includes('delete')));
       });
+    });
+  }, []);
+
+  const handleClick = () => {
+    if (!deleteAction) {
+      return;
+    }
+
+    RecordActions.execForRecord(row.id, deleteAction).then(hasChanged => {
+      if (hasChanged) {
+        isFunction(getDataInfo) && getDataInfo(instanceId, tabId);
+      }
+    });
   };
 
   return (
     <>
-      <Icon className="icon-delete" title={t('journals.action.delete')} onClick={() => setIsOpen(true)} />
-      <EcosModal title={t(Labels.DELETE_VARIABLE_TITLE)} isOpen={isOpen} hideModal={() => setIsOpen(false)} autoFocus>
-        <div className={`${JOURNALS_TABS_BLOCK_CLASS}__actions-wrapper`}>
-          <snan>{t(Labels.DELETE_VARIABLE_QUESTION, { variable: row.name })}</snan>
-          <SaveAndCancelButtons
-            handleCancel={() => setIsOpen(false)}
-            handleSave={handleSave}
-            loading={isLoading}
-            disabledSave={isLoading}
-            saveText={t('journals.action.delete')}
-          />
-        </div>
-      </EcosModal>
+      {!deleteAction && <span>&mdash;</span>}
+      {deleteAction && <Icon className="icon-delete" title={t('journals.action.delete')} onClick={handleClick} />}
     </>
   );
 };

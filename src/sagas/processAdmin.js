@@ -1,8 +1,20 @@
 import { takeEvery } from 'redux-saga';
 import { call, put, select } from 'redux-saga/effects';
 
-import { getMetaInfo, setMetaInfo, getAllVersions, setAllVersions, getJournalTabInfo, setJournalTabInfo } from '../actions/processAdmin';
+import {
+  getMetaInfo,
+  setMetaInfo,
+  getAllVersions,
+  setAllVersions,
+  getJournalTabInfo,
+  setJournalTabInfo,
+  getActionsInfo,
+  setActionsInfo
+} from '../actions/processAdmin';
 import { selectProcessTabInfo } from '../selectors/processAdmin';
+import RecordActionsApi from '../components/Records/actions/recordActionsApi';
+import RecordActions from '../components/Records/actions/recordActions';
+import { SourcesId } from '../constants';
 
 function* sagaGetMetaInfo({ api, logger }, { payload }) {
   try {
@@ -28,6 +40,24 @@ function* sagaGetAllVersions({ api, logger }, { payload }) {
   }
 }
 
+function* sagaGetActionsInfo({ api, logger }, { payload }) {
+  try {
+    const { processId } = payload;
+
+    const actionsIds = yield call(RecordActionsApi.getActionsByType, `${SourcesId.TYPE}@bpmn-def-engine`);
+
+    const actionsResponse = yield call(RecordActions.getActionsForRecords, [processId], actionsIds, {});
+
+    if (!actionsResponse || !actionsResponse.forRecord) {
+      return;
+    }
+
+    yield put(setActionsInfo({ processId, actions: actionsResponse.forRecord[processId] }));
+  } catch (e) {
+    logger.error('[bpmnAdmin sagaGetJournalTabInfo saga] error', e);
+  }
+}
+
 function* sagaGetJournalTabInfo({ api, logger }, { payload }) {
   try {
     const tabInfo = yield select(selectProcessTabInfo, payload);
@@ -43,6 +73,7 @@ function* sagaGetJournalTabInfo({ api, logger }, { payload }) {
 function* saga(ea) {
   yield takeEvery(getMetaInfo().type, sagaGetMetaInfo, ea);
   yield takeEvery(getAllVersions().type, sagaGetAllVersions, ea);
+  yield takeEvery(getActionsInfo().type, sagaGetActionsInfo, ea);
   yield takeEvery(getJournalTabInfo().type, sagaGetJournalTabInfo, ea);
 }
 

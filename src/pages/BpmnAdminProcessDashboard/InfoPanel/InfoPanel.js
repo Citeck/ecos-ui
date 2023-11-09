@@ -16,6 +16,7 @@ import { Btn } from '../../../components/common/btns';
 import PageService from '../../../services/PageService';
 import { t } from '../../../helpers/util';
 import VersionSelect from '../VersionSelect';
+import ActionsButton from './components/ActionsButton';
 import { Labels } from './constants';
 
 import './style.scss';
@@ -65,6 +66,11 @@ class InfoPanel extends BaseWidget {
                 </PanelTitle>
                 <VersionSelect processId={processId} />
               </div>
+
+              <div className="info-panel__main-item">
+                <ActionsButton processId={processId} />
+              </div>
+
               <div className="info-panel__main-item">
                 <PanelTitle narrow color={COLOR_GRAY}>
                   {t(Labels.DEFINITION_REF)}

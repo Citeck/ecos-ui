@@ -33,6 +33,12 @@
     }
   }
 
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+  }
+
   &__secondary {
     margin: 16px 0;
     color: $color-gray-5;

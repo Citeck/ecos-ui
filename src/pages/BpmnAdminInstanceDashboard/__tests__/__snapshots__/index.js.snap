@@ -95,21 +95,6 @@ exports[`  should render MetaInfo component 1`] = `
                   container="body"
                   role="menu"
                   tabindex="-1"
-                >
-                  <button
-                    class="dropdown-item"
-                    role="menuitem"
-                    tabindex="0"
-                    type="button"
-                  >
-                    migration-modal.dropdown-title
-                  </button>
-                </div>
-                <button
-                  class="dropdown-item"
-                  role="menuitem"
-                  tabindex="0"
-                  type="button"
                 />
               </div>
             </div>
@@ -492,6 +477,12 @@ Array [
   Object {
     "attribute": "name",
     "dataField": "name",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "searchable": true,
+    "searchableByText": true,
     "sortable": true,
     "text": "Name",
   },
