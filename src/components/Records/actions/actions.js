@@ -46,7 +46,7 @@ import DownloadByTemplateAction from './handler/executor/DownloadByTemplateActio
 import RecordCopyAction from './handler/executor/RecordCopyAction';
 import TransformAction from './handler/executor/TransformAction';
 import CustomUiAction from './handler/executor/CustomUiAction';
-import MigrateTokenAction from './handler/executor/MigrateTokenAction/index';
+import MigrateTokenAction from './handler/executor/MigrateTokenAction';
 import { IS_TEST_ENV } from '../../../helpers/util';
 
 export { default } from './recordActions';

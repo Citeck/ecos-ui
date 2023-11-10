@@ -1,5 +1,5 @@
 import ActionsExecutor from '../ActionsExecutor';
-import MigrateTokenAction from './MigrateTokenAction/index';
+import MigrateTokenAction from './MigrateTokenAction';
 
 export default class CustomUiAction extends ActionsExecutor {
   static ACTION_ID = 'customUiAction';
