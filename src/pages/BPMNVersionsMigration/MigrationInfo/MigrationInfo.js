@@ -1,82 +1,39 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import React, { useContext, useState } from 'react';
 import AceEditor from 'react-ace';
 
 import get from 'lodash/get';
 import head from 'lodash/head';
-import isFunction from 'lodash/isFunction';
 
 import 'ace-builds/src-noconflict/mode-json';
 
-import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
-import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
-import { getAllVersions, getMetaInfo } from '../../../actions/processAdmin';
 import { notifyFailure, notifySuccess } from '../../../components/Records/actions/util/actionUtils';
-import { Select } from '../../../components/common/form';
 import { t } from '../../../helpers/util';
 import { Btn } from '../../../components/common/btns';
 import Records from '../../../components/Records';
-import { EcosModal, Loader, SaveAndCancelButtons } from '../../../components/common';
+import { EcosModal, SaveAndCancelButtons } from '../../../components/common';
 import { MigrationContext } from '../MigrationContext';
 import { MIGRATION_INFO_BLOCK_CLASS } from '../constants';
 import Labels from './Labels';
 
-const MigrationInfo = ({ processId, processInfo, versionsInfo, getAllVersions, getProcessInfo }) => {
-  const { migrationPlan, setMigrationPlan, setSourceProcessDefinitionId } = useContext(MigrationContext);
+const MigrationInfo = ({ processId }) => {
+  const { activities, migrationPlan, setMigrationPlan, sourceProcessDefinitionId, targetProcessDefinitionId } = useContext(
+    MigrationContext
+  );
 
-  const [selectedVersion, setSelectedVersion] = useState(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(
-    () => {
-      isFunction(getProcessInfo) && getProcessInfo(processId);
-    },
-    [processId]
-  );
-
-  useEffect(
-    () => {
-      if (!processInfo) {
-        return;
-      }
-
-      isFunction(getAllVersions) && getAllVersions(processId, processInfo.key);
-    },
-    [processInfo]
-  );
-
-  if (!processInfo || !versionsInfo || (versionsInfo && versionsInfo.loading)) {
-    return <Loader />;
-  }
-
-  const getLabel = option => {
-    const version = option.version ? option.version : `${option.innerVersion} - ${t('bpmn-admin.inner-version')} `;
-
-    return `${version} (${get(option, 'statistics.incidentCount', 0)}/${get(option, 'statistics.incidentCount', 0)})`;
-  };
-
-  const getValue = option => {
-    const version = option.version ? option.version : `inner_${option.innerVersion}`;
-
-    return String(version);
-  };
-
   const handleGenerate = () => {
-    if (!selectedVersion) {
-      return;
-    }
-
-    const [, sourceProcessDefinitionId] = processId.split('@');
-    const [, targetProcessDefinitionId] = selectedVersion.id.split('@');
+    const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');
+    const [, target] = get(targetProcessDefinitionId, 'id', '').split('@');
 
     Records.query(
       {
         sourceId: 'eproc/bpmn-process-migration',
         query: {
           migrationPlanGeneration: {
-            sourceProcessDefinitionId,
-            targetProcessDefinitionId,
+            sourceProcessDefinitionId: source,
+            targetProcessDefinitionId: target,
             updateEventTriggers: false
           }
         }
@@ -86,9 +43,21 @@ const MigrationInfo = ({ processId, processInfo, versionsInfo, getAllVersions, g
       }
     ).then(result => {
       const record = head(result.records);
+
       if (record) {
-        setSourceProcessDefinitionId(sourceProcessDefinitionId);
-        setMigrationPlan(record.migrationPlan);
+        let plan = record.migrationPlan;
+
+        if (activities && activities.length) {
+          plan = {
+            ...plan,
+            processInstanceQuery: {
+              processDefinitionId: source,
+              activityIdIn: activities
+            }
+          };
+        }
+
+        setMigrationPlan(plan);
       }
     });
   };
@@ -118,19 +87,12 @@ const MigrationInfo = ({ processId, processInfo, versionsInfo, getAllVersions, g
       });
   };
 
+  const generateDisabled = !processId || !sourceProcessDefinitionId || !targetProcessDefinitionId;
+
   return (
     <div className={MIGRATION_INFO_BLOCK_CLASS}>
       <div className={`${MIGRATION_INFO_BLOCK_CLASS}__version-select`}>
-        <span>{t(Labels.MIGRATION_SELECT_VERSION)}</span>
-        <Select
-          options={versionsInfo.data}
-          value={selectedVersion}
-          onChange={setSelectedVersion}
-          getOptionLabel={getLabel}
-          getOptionValue={getValue}
-          menuPlacement="auto"
-        />
-        <Btn onClick={handleGenerate} disabled={!selectedVersion}>
+        <Btn onClick={handleGenerate} disabled={generateDisabled}>
           {t(Labels.MIGRATION_GENERATE_PLAN)}
         </Btn>
       </div>
@@ -174,18 +136,4 @@ const MigrationInfo = ({ processId, processInfo, versionsInfo, getAllVersions, g
   );
 };
 
-const mapStateToProps = (store, props) => ({
-  instanceInfo: selectInstanceMetaInfo(store, props),
-  processInfo: selectProcessMetaInfo(store, props),
-  versionsInfo: selectProcessVersions(store, props)
-});
-
-const mapDispatchToProps = dispatch => ({
-  getProcessInfo: processId => dispatch(getMetaInfo({ processId })),
-  getAllVersions: (processId, processKey) => dispatch(getAllVersions({ processId, processKey }))
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(MigrationInfo);
+export default MigrationInfo;

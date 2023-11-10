@@ -1,7 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
 
-import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
 import BaseWidget from '../../../components/widgets/BaseWidget';
 import Dashlet from '../../../components/Dashlet';
 import { t } from '../../../helpers/util';
@@ -11,7 +9,7 @@ import Labels from './Labels';
 import './style.scss';
 class MigrationInfoWidget extends BaseWidget {
   render() {
-    const { instanceId, instanceInfo } = this.props;
+    const { processId } = this.props;
 
     return (
       <Dashlet
@@ -21,14 +19,10 @@ class MigrationInfoWidget extends BaseWidget {
         isCollapsed={this.isCollapsed}
         setRef={this.setDashletRef}
       >
-        <MigrationInfo instanceId={instanceId} processId={instanceInfo.bpmnDefEngine} />
+        <MigrationInfo processId={processId} />
       </Dashlet>
     );
   }
 }
 
-const mapStateToProps = (store, props) => ({
-  instanceInfo: selectInstanceMetaInfo(store, props)
-});
-
-export default connect(mapStateToProps)(MigrationInfoWidget);
+export default MigrationInfoWidget;
