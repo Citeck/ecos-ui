@@ -272,13 +272,13 @@ class DesignerCategory extends React.Component {
               {isEditable ? (
                 <div className={styles.labelEditable}>
                   <Input
-                    placeholder={t('menu-item.admin.in-section.label')}
+                    placeholder={t('menu-item.admin.in-section.code')}
                     value={code}
                     onChange={e => this.setState({ code: e.target.value })}
                   />
                   <MLText
                     className={styles.labelEditableName}
-                    placeholder={t('menu-item.admin.in-section.code')}
+                    placeholder={t('menu-item.admin.in-section.label')}
                     value={nameMl}
                     onChange={value => this.setState({ nameMl: value })}
                   />
