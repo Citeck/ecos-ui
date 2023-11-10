@@ -110,7 +110,6 @@ export default class PageService {
       case PageTypes.DMN_EDITOR:
       case PageTypes.BPMN_ADMIN_PROCESS:
       case PageTypes.BPMN_ADMIN_INSTANCE:
-      case PageTypes.BPMN_MIGRATION:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
@@ -205,6 +204,9 @@ export default class PageService {
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
     },
+    [PageTypes.BPMN_MIGRATION]: {
+      getTitle: () => staticTitle(TITLE[URL.BPMN_MIGRATION])
+    },
     [PageTypes.ADMIN_PAGE]: {
       getTitle: ({ type, journalId }) => {
         if (journalId && type === SectionTypes.JOURNAL) {
@@ -233,10 +235,6 @@ export default class PageService {
     [PageTypes.BPMN_ADMIN_INSTANCE]: {
       getTitle: ({ recordRef }) =>
         pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_ADMIN_INSTANCE])} "${convertTitle(title)}"`)
-    },
-    [PageTypes.BPMN_MIGRATION]: {
-      getTitle: ({ recordRef }) =>
-        pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_MIGRATION])} "${convertTitle(title)}"`)
     },
     [PageTypes.DMN_EDITOR]: {
       getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.DMN_EDITOR])} "${convertTitle(title)}"`)
