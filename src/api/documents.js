@@ -57,7 +57,7 @@ export class DocumentsApi {
   };
 
   downloadAllDocumentsWithAlfresco = documentsRefs => {
-    return fetch('http://localhost:3000/alfresco/s/citeck/zip/download', {
+    return fetch('/alfresco/s/citeck/zip/download', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;odata=verbose'
