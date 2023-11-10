@@ -14,13 +14,10 @@ export const BpmnProcessStatusColumn = ({ row }) => {
     iconClassName = 'fa fa-close';
   }
 
-  if (isSuspended) {
-    iconClassName = 'fa fa-pause';
-  }
-
   return (
     <div className="status">
       <i className={iconClassName} />
+      {isSuspended && <i className="fa fa-pause" />}
     </div>
   );
 };
