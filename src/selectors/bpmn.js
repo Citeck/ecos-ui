@@ -68,3 +68,11 @@ export const selectCaseSensitiveCategories = state => {
     return { value: item.id, label: label };
   });
 };
+
+export const selectCanCreateDef = createSelector([selectAllCategories], allCategories => {
+  if (!allCategories) {
+    return;
+  }
+
+  return Boolean(allCategories.filter(category => category.canCreateDef).length);
+});

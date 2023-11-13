@@ -9,18 +9,15 @@ export const selectAllCategories = state => state.dmn.categories;
 
 const selectCategoryId = (_, props) => props.categoryId;
 
-export const selectModelsBySearchText = createSelector(
-  [selectAllModels, selectSearchText],
-  (allModels, searchText) => {
-    const models = [...allModels];
+export const selectModelsBySearchText = createSelector([selectAllModels, selectSearchText], (allModels, searchText) => {
+  const models = [...allModels];
 
-    if (searchText !== '') {
-      return models.filter(item => item.label.toLowerCase().includes(searchText.toLowerCase().trim()));
-    }
-
-    return models;
+  if (searchText !== '') {
+    return models.filter(item => item.label.toLowerCase().includes(searchText.toLowerCase().trim()));
   }
-);
+
+  return models;
+});
 
 export const selectAllCategoriesByParentId = createSelector(
   [selectAllCategories, selectCategoryId, selectSearchText, selectModelsBySearchText],
@@ -45,16 +42,18 @@ export const selectAllCategoriesByParentId = createSelector(
   }
 );
 
-export const selectModelsByCategoryId = createSelector(
-  [selectModelsBySearchText, selectCategoryId],
-  (allModels, categoryId) => {
-    return allModels.filter(item => item.categoryId === categoryId);
-  }
-);
+export const selectModelsByCategoryId = createSelector([selectModelsBySearchText, selectCategoryId], (allModels, categoryId) => {
+  return allModels.filter(item => item.categoryId === categoryId);
+});
 
-export const selectIsParentHasNotModels = createSelector(
-  [selectModelsBySearchText, selectCategoryId],
-  (allModels, categoryId) => {
-    return allModels.findIndex(item => item.categoryId === categoryId) === -1;
+export const selectIsParentHasNotModels = createSelector([selectModelsBySearchText, selectCategoryId], (allModels, categoryId) => {
+  return allModels.findIndex(item => item.categoryId === categoryId) === -1;
+});
+
+export const selectCanCreateDef = createSelector([selectAllCategories], allCategories => {
+  if (!allCategories) {
+    return;
   }
-);
+
+  return Boolean(allCategories.filter(category => category.canCreateDef).length);
+});

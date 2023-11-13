@@ -19,7 +19,8 @@ const ModelCard = ({
   onDeleteModelClick,
   image,
   definition,
-  canWrite
+  canWrite,
+  canEditDef
 }) => {
   const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
   const designer = new BPMNViewer();
@@ -47,6 +48,7 @@ const ModelCard = ({
                 onEditClick={onEditLinkClick}
                 onSettingsClick={onEditMetaClick}
                 viewType={ViewTypes.CARDS}
+                canEditDef={canEditDef}
               />
             )}
             {onViewLinkClick && (

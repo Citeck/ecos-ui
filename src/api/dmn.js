@@ -1,5 +1,10 @@
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
+import {
+  PERMISSION_DMN_SECTION_CREATE_DEF,
+  PERMISSION_DMN_SECTION_EDIT_DEF,
+  PERMISSION_DMN_SECTION_CREATE_SUBSECTION
+} from '../constants/dmn';
 
 export class DmnApi {
   fetchCategories = () => {
@@ -14,7 +19,10 @@ export class DmnApi {
         label: 'name?json',
         parentId: 'parentRef?id',
         modified: '_created?num',
-        canWrite: PERMISSION_WRITE_ATTR
+        canWrite: PERMISSION_WRITE_ATTR,
+        canCreateDef: PERMISSION_DMN_SECTION_CREATE_DEF,
+        canEditDef: PERMISSION_DMN_SECTION_EDIT_DEF,
+        canCreateSubSection: PERMISSION_DMN_SECTION_CREATE_SUBSECTION
       }
     ).then(resp => {
       return resp.records;
