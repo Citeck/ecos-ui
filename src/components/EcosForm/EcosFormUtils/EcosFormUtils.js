@@ -530,6 +530,8 @@ export default class EcosFormUtils extends BaseEcosFormUtils {
 
     EcosFormUtils.forEachComponent(newFormDefinition, component => {
       if (component.key) {
+        component.forceReload = formOptions.forceReload;
+
         if (component.properties) {
           for (let key in component.properties) {
             if (!component.properties.hasOwnProperty(key)) {

@@ -335,6 +335,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
       isSelectedValueAsText: comp.isSelectedValueAsText,
       isFullScreenWidthModal: comp.isFullScreenWidthModal,
       isInlineEditingMode: this._isInlineEditingMode,
+      forceReload: comp.forceReload,
       searchField: comp.searchField,
       sortBy: {
         attribute: comp.sortAttribute,
