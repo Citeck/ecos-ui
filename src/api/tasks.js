@@ -2,7 +2,7 @@ import Records from '../components/Records';
 import { RecordService } from './recordService';
 import recordActions from '../components/Records/actions/recordActions';
 import { SourcesId, USER_CURRENT } from '../constants';
-import { ReassignTaskAction, TaskActions } from '../constants/tasks';
+import { ReassignTaskAction, ViewBusinessProcessTaskAction } from '../constants/tasks';
 
 export class TasksApi extends RecordService {
   static getTask = (taskId, attrs) => {
@@ -61,15 +61,21 @@ export class TasksApi extends RecordService {
       title: 'title',
       dueDate: 'dueDate',
       actors: 'actors[]?json',
-      hasPermissionReassign: 'permissions?has("Reassign")'
+      hasPermissionReassign: 'permissions?has("Reassign")',
+      canReadDef: 'workflow.ecosDefRev.processDefRef.permissions._has.read?bool!'
     });
   };
 
-  getCurrentTaskActionsForUser = ({ taskId, reassignAvailable, isAdmin }) => {
-    if (isAdmin) {
-      return Promise.resolve(recordActions.getActionsForRecord(taskId, TaskActions, {}));
+  getCurrentTaskActionsForUser = ({ taskId, reassignAvailable, canReadDef }) => {
+    const defaultActions = [];
+    if (reassignAvailable) {
+      defaultActions.push(ReassignTaskAction);
     }
-    const defaultActions = reassignAvailable ? [ReassignTaskAction] : [];
+
+    if (canReadDef) {
+      defaultActions.push(ViewBusinessProcessTaskAction);
+    }
+
     return Promise.resolve(recordActions.getActionsForRecord(taskId, defaultActions, {}));
   };
 
