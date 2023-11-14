@@ -1,4 +1,4 @@
 type: ecos-ui
 properties:
   image:
-    configVersion: v6
+    configVersion: v1
