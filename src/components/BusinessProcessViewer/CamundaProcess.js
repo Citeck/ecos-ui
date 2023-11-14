@@ -2,6 +2,8 @@ import React from 'react';
 
 import BPMNViewer from '../ModelViewer/BPMNViewer';
 import { t } from '../../helpers/util';
+import PageService from '../../services/PageService';
+import { URL } from '../../constants';
 import Records from '../Records/Records';
 import { Btn } from '../common/btns';
 import { Labels } from './constants';
@@ -12,7 +14,9 @@ export class CamundaProcess extends React.Component {
 
     this.state = {
       diagram: null,
-      definitionKey: null
+      definitionKey: null,
+      workFlowId: null,
+      hasGoAdminRights: false
     };
   }
 
@@ -20,6 +24,7 @@ export class CamundaProcess extends React.Component {
     this.designer = new BPMNViewer();
 
     this.getDiagram();
+    this.fetchGoAdminRights();
   }
 
   getDiagram = () => {
@@ -38,9 +43,32 @@ export class CamundaProcess extends React.Component {
       });
   };
 
+  fetchGoAdminRights = () => {
+    const { processId } = this.props;
+
+    return Records.get(processId)
+      .load(
+        {
+          hasGoAdminRights: 'workflow.ecosDefRev.processDefRef.permissions._has.bpmn-process-instance-read?bool!',
+          workFlowId: 'workflow?id'
+        },
+        true
+      )
+      .then(({ hasGoAdminRights, workFlowId }) => this.setState({ hasGoAdminRights, workFlowId }));
+  };
+
+  handleGoBpmnAdmin = () => {
+    const { workFlowId } = this.state;
+    const { modal } = this.props;
+
+    modal.close();
+    PageService.changeUrlLink(`${URL.BPMN_ADMIN_INSTANCE}?recordRef=${workFlowId}`, {
+      openNewTab: true
+    });
+  };
+
   render() {
-    const { disabledCancelBP, handleCancelBP } = this.props;
-    const { diagram, definitionKey } = this.state;
+    const { diagram, definitionKey, hasGoAdminRights } = this.state;
 
     return (
       <div className="ecos-camunda-process">
@@ -51,11 +79,11 @@ export class CamundaProcess extends React.Component {
               markedElement: definitionKey
             })}
         </div>
-        <div className="ecos-business-process__actions">
-          <Btn onClick={handleCancelBP} disabled={disabledCancelBP}>
-            {t(Labels.BTN_CANCEL_BP)}
-          </Btn>
-        </div>
+        {hasGoAdminRights && (
+          <div className="ecos-business-process__actions">
+            <Btn onClick={this.handleGoBpmnAdmin}>{t(Labels.BPMN_ADMIN)}</Btn>
+          </div>
+        )}
       </div>
     );
   }
