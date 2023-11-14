@@ -96,6 +96,15 @@ export const DISABLE_SET_STATUS_ACTION_FOR_ELEMENTS = [TYPE_BPMN_END_EVENT, TYPE
 export const PERMISSION_DEPLOY_PROCESS = 'permissions._has.bpmn-process-def-deploy?bool!true';
 export const PERMISSION_VIEW_REPORTS = 'permissions._has.bpmn-process-def-report-view?bool';
 
+export const PERMISSION_BPMN_INSTANCE_RUN = 'permissions._has.bpmn-process-instance-run?bool';
+export const PERMISSION_BPMN_INSTANCE_EDIT = 'permissions._has.bpmn-process-instance-edit?bool';
+export const PERMISSION_BPMN_INSTANCE_READ = 'permissions._has.bpmn-process-instance-read?bool';
+export const PERMISSION_BPMN_INSTANCE_MIGRATE = 'permissions._has.bpmn-process-instance-migrate?bool';
+
+export const PERMISSION_BPMN_SECTION_CREATE_SUBSECTION = 'permissions._has.bpmn-section-create-subsection?bool';
+export const PERMISSION_BPMN_SECTION_CREATE_DEF = 'permissions._has.bpmn-section-create-process-def?bool';
+export const PERMISSION_BPMN_SECTION_EDIT_DEF = 'permissions._has.bpmn-section-edit-process-def?bool';
+
 export const STATUS_CHANGE_ICON_PATH =
   'm22 2zm-5 4.67c0 0 0 4.66 0 4.66 0 0 2.39-2.27 2.39-2.27 0 0 .94.94 .94.94 0 0-4 4-4 4 0 0-4-4-4-4 0 0 .95-.94.95-.94 0 0 2.39 2.27 2.39 2.27 0 0 0-4.66 0-4.66 0-.37-.3-.67-.67-.67 0 0-8 0-8 0-.37 0-.67.3-.67.67 0 0 0 7.33 0 7.33 0 0-1.33 0-1.33 0 0 0 0-7.33 0-7.33 0-1.11.9-2 2-2 0 0 8 0 8 0 1.1 0 2 .89 2 2 0 0 0 0 0 0zm-.67 15.33c-1.84 0-3.33-1.49-3.33-3.33 0-1.84 1.49-3.34 3.33-3.34 1.84 0 3.34 1.5 3.34 3.34-.01 1.84-1.5 3.33-3.34 3.33 0 0 0 0 0 0zm0-5.33c-1.1 0-2 .89-2 2 0 1.1.9 2 2 2 1.11 0 2-.9 2-2 0-1.11-.89-2-2-2 0 0 0 0 0 0zm-10.66 5.33c-1.84 0-3.34-1.49-3.34-3.33 0-1.84 1.5-3.34 3.34-3.34 1.84 0 3.33 1.5 3.33 3.34 0 1.84-1.49 3.33-3.33 3.33 0 0 0 0 0 0zm0-5.33c-1.11 0-2 .89-2 2 0 1.1.89 2 2 2 1.1 0 2-.9 2-2 0-1.11-.9-2-2-2 0 0 0 0 0 0z';
 

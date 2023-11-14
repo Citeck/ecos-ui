@@ -17,7 +17,8 @@ const Models = ({
   onDeleteModelClick,
   onEditMetaClick,
   showModelCreationForm,
-  createModelCardLabel
+  createModelCardLabel,
+  canEditDef
 }) => {
   const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
 
@@ -38,6 +39,7 @@ const Models = ({
           datetime={moment(model.created).calendar()}
           image={model.previewUrl}
           definition={model.definition}
+          canEditDef={canEditDef}
         />
       ))}
       {viewType === ViewTypes.CARDS && !models.length && !searchText && (

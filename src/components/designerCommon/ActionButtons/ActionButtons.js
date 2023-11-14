@@ -5,13 +5,16 @@ import { ViewTypes } from '../../../constants/commonDesigner';
 
 import styles from './styles.module.scss';
 
-const ActionButtons = ({ onDeleteClick, onEditClick, onSettingsClick, viewType }) => {
+const ActionButtons = ({ onDeleteClick, onEditClick, onSettingsClick, viewType, canEditDef }) => {
+  const editMetaClass = canEditDef ? styles.cardEditMetaButton : styles.cardEditButton;
+  const deleteModelClass = canEditDef ? styles.cardDeleteModelButton : styles.cardEditMetaButton;
+
   return (
     <>
       <a
         href="/"
         key="deleteModelButton"
-        className={viewType === ViewTypes.LIST ? styles.editActionIcon : styles.cardDeleteModelButton}
+        className={viewType === ViewTypes.LIST ? styles.editActionIcon : deleteModelClass}
         onClick={onDeleteClick}
         {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
       >
@@ -20,21 +23,23 @@ const ActionButtons = ({ onDeleteClick, onEditClick, onSettingsClick, viewType }
       <a
         href="/"
         key="editMetaButton"
-        className={viewType === ViewTypes.LIST ? styles.editActionIcon : styles.cardEditMetaButton}
+        className={viewType === ViewTypes.LIST ? styles.editActionIcon : editMetaClass}
         onClick={onSettingsClick}
         {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
       >
         <span className="icon-settings" />
       </a>
-      <a
-        href="/"
-        key="editButton"
-        className={viewType === ViewTypes.LIST ? styles.editActionIcon : styles.cardEditButton}
-        onClick={onEditClick}
-        {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
-      >
-        <span className="icon-edit" />
-      </a>
+      {canEditDef && (
+        <a
+          href="/"
+          key="editButton"
+          className={viewType === ViewTypes.LIST ? styles.editActionIcon : styles.cardEditButton}
+          onClick={onEditClick}
+          {...{ [IGNORE_TABS_HANDLER_ATTR_NAME]: true }}
+        >
+          <span className="icon-edit" />
+        </a>
+      )}
     </>
   );
 };

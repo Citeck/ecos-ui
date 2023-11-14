@@ -135,7 +135,9 @@ class DesignerCategory extends React.Component {
       canWrite,
       isOpen,
       toggleCollapse,
-      isUserAdmin
+      isUserAdmin,
+      canCreateDef,
+      canCreateSubSection
     } = this.props;
 
     const categoryId = this._getCategoryRef() || '';
@@ -182,7 +184,8 @@ class DesignerCategory extends React.Component {
     if (!isRootSection) {
       actions.push({
         label: t('designer.category-action.create-model'),
-        onClick: this.doAddModelAction
+        onClick: this.doAddModelAction,
+        hidden: !canCreateDef
       });
       if (canWrite) {
         actions.unshift({
@@ -197,7 +200,8 @@ class DesignerCategory extends React.Component {
       if (level < 2) {
         actions.unshift({
           label: t('designer.category-action.add-subcategory'),
-          onClick: this.doAddSubcategoryAction
+          onClick: this.doAddSubcategoryAction,
+          hidden: !canCreateSubSection
         });
       }
     }
@@ -215,13 +219,15 @@ class DesignerCategory extends React.Component {
             <span className={dropdownActionsIconClasses} />
           </DropdownToggle>
           <DropdownMenu className={styles.dropdownMenu} container="body" right>
-            {actions.map(action => {
-              return (
-                <DropdownItem key={action.label} onClick={action.onClick}>
-                  {action.label}
-                </DropdownItem>
-              );
-            })}
+            {actions
+              .filter(action => !action.hidden)
+              .map(action => {
+                return (
+                  <DropdownItem key={action.label} onClick={action.onClick}>
+                    {action.label}
+                  </DropdownItem>
+                );
+              })}
           </DropdownMenu>
         </Dropdown>
 

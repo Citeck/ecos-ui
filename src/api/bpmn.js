@@ -2,6 +2,11 @@ import { RecordService } from './recordService';
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
+import {
+  PERMISSION_BPMN_SECTION_CREATE_DEF,
+  PERMISSION_BPMN_SECTION_CREATE_SUBSECTION,
+  PERMISSION_BPMN_SECTION_EDIT_DEF
+} from '../constants/bpmn';
 
 export class BpmnApi extends RecordService {
   fetchCategories = () => {
@@ -16,7 +21,10 @@ export class BpmnApi extends RecordService {
         label: 'name?json',
         parentId: 'parentRef?id',
         modified: '_created?num',
-        canWrite: PERMISSION_WRITE_ATTR
+        canWrite: PERMISSION_WRITE_ATTR,
+        canCreateDef: PERMISSION_BPMN_SECTION_CREATE_DEF,
+        canEditDef: PERMISSION_BPMN_SECTION_EDIT_DEF,
+        canCreateSubSection: PERMISSION_BPMN_SECTION_CREATE_SUBSECTION
       }
     ).then(resp => {
       return resp.records;
