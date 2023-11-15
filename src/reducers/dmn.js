@@ -77,9 +77,10 @@ export default handleActions(
         newCategory.parentId = action.payload.parentId;
       }
 
+      const oldCategories = state.categories || [];
       return {
         ...state,
-        categories: [...state.categories, newCategory]
+        categories: [...oldCategories, newCategory]
       };
     },
     [cancelEditCategory]: (state, action) => {
