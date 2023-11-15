@@ -4927,7 +4927,7 @@ __metadata:
 
 "bpmn-js@patch:bpmn-js@npm%3A13.0.5#./.yarn/patches/bpmn-js-npm-13.0.5-e73b0a0d9c.patch::locator=ecos-ui%40workspace%3A.":
   version: 13.0.5
-  resolution: "bpmn-js@patch:bpmn-js@npm%3A13.0.5#./.yarn/patches/bpmn-js-npm-13.0.5-e73b0a0d9c.patch::version=13.0.5&hash=b5acd7&locator=ecos-ui%40workspace%3A."
+  resolution: "bpmn-js@patch:bpmn-js@npm%3A13.0.5#./.yarn/patches/bpmn-js-npm-13.0.5-e73b0a0d9c.patch::version=13.0.5&hash=7a125a&locator=ecos-ui%40workspace%3A."
   dependencies:
     bpmn-moddle: ^8.0.0
     diagram-js: ^12.1.0
@@ -4938,7 +4938,7 @@ __metadata:
     min-dom: ^4.0.3
     object-refs: ^0.3.0
     tiny-svg: ^3.0.0
-  checksum: 7a9f3973a414f624f01b4f34b91730a21d93b99a695a8758b0723cd40a05a6eedf8531a096ed72c58d8598cc9d50443b3fb932d50945bb9359817e8a3f3f6be3
+  checksum: 014a850a435493050fd3a70003a42f369fe071a318dfb3bcaefdf874fe70e13c8418f3162a9028ca221b9433b572a36f4477716296ddabb5925c3d18d70ba7ee
   languageName: node
   linkType: hard
 

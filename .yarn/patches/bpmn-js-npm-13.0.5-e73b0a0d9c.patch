@@ -189,3 +189,27 @@ index 64409f30531e19b04093e3b3d647ff0c94876d9a..e90cbeb20bcc4f7500fa08eae4cc0acc
  
        return diamond;
      },
+diff --git a/lib/features/replace/BpmnReplace.js b/lib/features/replace/BpmnReplace.js
+index 779f483180ffda63d477fbfb721d8caa1356d61c..bf6fcab5717794fda82e390ea1e6dcfadd42c37b 100644
+--- a/lib/features/replace/BpmnReplace.js
++++ b/lib/features/replace/BpmnReplace.js
+@@ -8,6 +8,8 @@ import {
+   has
+ } from 'min-dash';
+ 
++import set from 'lodash/set';
++
+ import {
+   is,
+   getBusinessObject
+@@ -155,6 +157,10 @@ export default function BpmnReplace(
+ 
+     var newBusinessObject = bpmnFactory.create(type);
+ 
++    
++    set(newBusinessObject, 'taskType', targetElement.taskType);
++    
++
+     var newElement = {
+       type: type,
+       businessObject: newBusinessObject,
