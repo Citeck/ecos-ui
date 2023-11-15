@@ -41,6 +41,8 @@ export default class BPMNViewer extends ModelViewer {
     this.zoomCenter = zoomCenter;
     zoom && this.canvas.zoom(zoom, zoomCenter);
     markedElement && this.setMarkedElement(markedElement);
+
+    this.scaleByWidth();
   };
 
   renderSheet = props => (
