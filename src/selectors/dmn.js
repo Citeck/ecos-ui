@@ -10,6 +10,10 @@ export const selectAllCategories = state => state.dmn.categories;
 const selectCategoryId = (_, props) => props.categoryId;
 
 export const selectModelsBySearchText = createSelector([selectAllModels, selectSearchText], (allModels, searchText) => {
+  if (!allModels) {
+    return [];
+  }
+
   const models = [...allModels];
 
   if (searchText !== '') {
@@ -22,6 +26,10 @@ export const selectModelsBySearchText = createSelector([selectAllModels, selectS
 export const selectAllCategoriesByParentId = createSelector(
   [selectAllCategories, selectCategoryId, selectSearchText, selectModelsBySearchText],
   (allCategories, parentId, searchText, searchedModels) => {
+    if (!allCategories) {
+      return [];
+    }
+
     const categories = [...allCategories];
 
     return categories.filter(item => {
