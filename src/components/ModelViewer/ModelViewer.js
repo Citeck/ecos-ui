@@ -54,6 +54,8 @@ export default class ModelViewer {
 
     zoom && this.canvas.zoom(zoom, zoomCenter);
     markedElement && this.setMarkedElement(markedElement);
+
+    this.scaleByWidth();
   };
 
   get canvas() {
@@ -97,6 +99,22 @@ export default class ModelViewer {
       this.markedElement = element;
       canvas.zoom(1);
     }
+  };
+
+  scaleByWidth = () => {
+    const canvas = this.modeler.get('canvas');
+    const viewboxToScale = canvas.viewbox();
+
+    const width = viewboxToScale.outer.width;
+    const innerWidth = viewboxToScale.inner.width;
+    canvas.zoom(width / innerWidth);
+
+    const currentViewbox = canvas.viewbox();
+
+    canvas.viewbox({
+      ...currentViewbox,
+      y: currentViewbox.inner.y
+    });
   };
 
   markElements = markerMap => {

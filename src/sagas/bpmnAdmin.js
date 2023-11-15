@@ -6,7 +6,7 @@ import { selectBpmnAdminFilter, selectBpmnAdminPage } from '../selectors/bpmnAdm
 
 function* sagaGetProcesses({ api, logger }, { payload }) {
   try {
-    const allRecords = payload.allRecords;
+    const allRecords = payload && payload.allRecords;
     const page = yield select(selectBpmnAdminPage);
     const filterPredicate = yield select(selectBpmnAdminFilter);
     const processes = yield call(api.bpmnAdmin.getProcesses, { page: allRecords ? { maxItems: 10000 } : page, filterPredicate });
