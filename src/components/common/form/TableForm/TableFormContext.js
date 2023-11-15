@@ -32,7 +32,8 @@ export const TableFormContextProvider = props => {
     computed,
     onSelectRows,
     selectedRows,
-    settingElements
+    settingElements,
+    forceReload
   } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
@@ -108,13 +109,13 @@ export const TableFormContextProvider = props => {
             let currentAttIndex = 0;
 
             if (record.isBaseRecord()) {
-              result = await record.load(atts);
+              result = await record.load(atts, forceReload);
             } else {
               result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
               const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
 
               if (!isEmpty(nonExistAttrs)) {
-                const more = await record.load(nonExistAttrs);
+                const more = await record.load(nonExistAttrs, forceReload);
                 result = { ...result, ...more };
               }
             }

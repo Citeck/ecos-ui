@@ -435,7 +435,7 @@ export default class SelectJournal extends Component {
   };
 
   fetchTableAttributes = rows => {
-    const { viewMode } = this.props;
+    const { viewMode, forceReload } = this.props;
     const { isJournalConfigFetched, isGridDataReady } = this.state;
 
     if (viewMode !== DisplayModes.TABLE) {
@@ -475,7 +475,7 @@ export default class SelectJournal extends Component {
       return Promise.all(
         rows.map(r => {
           return Records.get(r.id)
-            .load(atts)
+            .load(atts, forceReload)
             .then(result => {
               const fetchedAtts = {};
               let currentAttIndex = 0;

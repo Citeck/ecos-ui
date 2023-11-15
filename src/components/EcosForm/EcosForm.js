@@ -114,7 +114,7 @@ class EcosForm extends React.Component {
     }
   };
 
-  initForm(newFormDefinition = this.state.formDefinition) {
+  initForm(newFormDefinition = this.state.formDefinition, forceReload = false) {
     const constants = get(window, 'Citeck.constants') || {};
     const { record, formKey, options: propsOptions, formId, getTitle, clonedRecord, initiator } = this.props;
     const { recordId, containerId } = this.state;
@@ -142,6 +142,7 @@ class EcosForm extends React.Component {
     options.recordId = recordId;
     options.isMobileDevice = options.ecosIsMobile || isMobileDevice();
     options.formSubmitDonePromise = new Promise(resolve => (this._formSubmitDoneResolve = resolve));
+    options.forceReload = forceReload;
 
     proxyUri = proxyUri.substring(0, proxyUri.length - 1);
     Formio.setProjectUrl(proxyUri);
@@ -668,10 +669,10 @@ class EcosForm extends React.Component {
 
   onReload(withSaveState) {
     if (withSaveState) {
-      this.initForm(this.state.formDefinition);
+      this.initForm(this.state.formDefinition, true);
     } else {
       this.setState({ ...this.initState });
-      this.initForm({});
+      this.initForm({}, true);
       this._cachedFormComponents = [];
     }
 
