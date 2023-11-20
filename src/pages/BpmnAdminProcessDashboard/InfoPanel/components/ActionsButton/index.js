@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { connect } from 'react-redux';
+import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
 import RecordActions from '../../../../../components/Records/actions/recordActions';
 import PanelTitle, { COLOR_GRAY } from '../../../../../components/common/PanelTitle/PanelTitle';
-import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { Btn } from '../../../../../components/common/btns';
 import { t } from '../../../../../helpers/util';
 import { selectProcessActions, selectProcessMetaInfo } from '../../../../../selectors/processAdmin';
 import { getActionsInfo } from '../../../../../actions/processAdmin';
+import { ProcessContext } from '../../../ProcessContext';
 
 const ActionsButton = ({ processId, actionsInfo, getActionsInfo }) => {
+  const { selectedVersion } = useContext(ProcessContext);
+
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(
@@ -46,7 +49,17 @@ const ActionsButton = ({ processId, actionsInfo, getActionsInfo }) => {
               <DropdownItem
                 key={action.label}
                 onClick={() => {
-                  RecordActions.execForRecord(processId, action);
+                  const { version } = selectedVersion;
+                  RecordActions.execForRecord(processId, {
+                    ...action,
+                    config: {
+                      ...action.config,
+                      args: {
+                        recordRef: processId,
+                        version
+                      }
+                    }
+                  });
                 }}
               >
                 {action.name}

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 
 import { ScaleOptions } from '../../../components/common/Scaler/util';
 import { t } from '../../../helpers/util';
@@ -46,12 +47,23 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
 
   useEffect(
     () => {
+      if (processId && processes.length > 0) {
+        setSelectedProcess(processes.find(process => process.id === `eproc/bpmn-def-engine@${processId}`));
+      }
+    },
+    [processes]
+  );
+
+  useEffect(
+    () => {
       if (!processId) {
         return;
       }
 
-      isFunction(getMetaInfo) && getMetaInfo(processId);
-      isFunction(getAllVersions) && getAllVersions(processId, selectedProcess.key);
+      if (selectedProcess && isString(selectedProcess.key)) {
+        isFunction(getMetaInfo) && getMetaInfo(processId);
+        isFunction(getAllVersions) && getAllVersions(processId, selectedProcess.key);
+      }
     },
     [processId]
   );
