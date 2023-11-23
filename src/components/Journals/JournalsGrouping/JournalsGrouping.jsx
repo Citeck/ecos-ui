@@ -39,6 +39,7 @@ const JournalsGrouping = props => {
         list={columns}
         allowedColumns={allowedColumns}
         grouping={groupingList}
+        needCount={get(grouping, 'needCount')}
         aggregation={aggregation}
         valueField={'attribute'}
         titleField={'text'}

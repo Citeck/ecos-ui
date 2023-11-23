@@ -870,6 +870,7 @@
   "grouping.how": "Как группировать",
   "grouping.show": "Посмотреть принцип действия группировки",
   "grouping.what": "Что группировать",
+  "grouping.show_count": "Отображать количество записей",
 
   "header.menu.create.btn.label": "Создать",
   "header.menu.msg.empty-list": "Нет доступных пунктов",

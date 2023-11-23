@@ -1,118 +1,90 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { Scrollbars } from 'react-custom-scrollbars';
+import isBoolean from 'lodash/isBoolean';
 
 import Columns from '../common/templates/Columns/Columns';
-import Checkbox from '../common/form/Checkbox/Checkbox';
-import Select from '../common/form/Select/Select';
-import { Label } from '../common/form';
+import ListItem from './ListItem';
+import AggregationListItem from './AggregationListItem';
+import { ControlledCheckbox } from '../common/form';
 import { Dnd2List, List } from '../common/List';
 import { NUMBERS } from '../../components/Records/predicates/predicates';
 import { t, trigger } from '../../helpers/util';
+import { GROUPING_COUNT_ALL } from '../../constants/journal';
 
 import './Grouping.scss';
 
-class ListItem extends Component {
-  render() {
-    const { item, titleField } = this.props;
-    return (
-      <div className={'two-columns__left columns-setup__column_align '}>
-        <i className="icon-custom-drag-big columns-setup__icon-drag" />
-        <Label className={'label_clear label_middle-grey columns-setup__next'}>{item[titleField]}</Label>
-      </div>
-    );
-  }
-}
-
-class AggregationListItem extends Component {
-  constructor(props) {
-    super(props);
-    this.aggregationTypes = [
-      {
-        attribute: `_${props.column.attribute}`,
-        schema: `sum(${props.column.attribute})`,
-        text: 'Сумма',
-        column: props.column.attribute
-      }
-    ];
-  }
-
-  onChangeAggregationType = e => {
-    trigger.call(this, 'onChangeAggregation', { aggregation: e, column: this.props.column });
-  };
-
-  onCheckColumn = e => {
-    trigger.call(this, 'onChangeAggregation', { aggregation: e.checked ? this.aggregationTypes[0] : null, column: this.props.column });
-  };
-
-  render() {
-    const { column, titleField, selected } = this.props;
-
-    return (
-      <Columns
-        classNamesColumn={'columns_height_full columns-setup__column_align'}
-        cols={[
-          <div className={'two-columns__left columns-setup__column_align '}>
-            <Checkbox checked={Boolean(selected)} onChange={this.onCheckColumn} />
-            <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
-          </div>,
-
-          <Select
-            isClearable={true}
-            options={this.aggregationTypes}
-            getOptionLabel={option => option.text}
-            getOptionValue={option => option.schema}
-            onChange={this.onChangeAggregationType}
-            className={'select_narrow select_width_full'}
-            placeholder={t('journals.default')}
-            value={selected}
-          />
-        ]}
-      />
-    );
-  }
-}
-
 export default class Grouping extends Component {
   onGrouping = state => {
-    const { valueField, aggregation } = this.props;
+    const { valueField, aggregation, needCount } = this.props;
     const columns = state.second;
     const groupBy = columns.map(col => col[valueField]).join('&');
 
     trigger.call(this, 'onGrouping', {
       columns: [...columns, ...aggregation],
-      groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : []
+      groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : [],
+      needCount
     });
   };
 
-  onChangeAggregation = ({ aggregation, column }) => {
-    let { groupBy, grouping, aggregation: aggregations } = this.props;
+  onChangeAggregation = ({ aggregation, column = {}, needCount }) => {
+    let { groupBy, grouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
 
     if (aggregation) {
       const match = aggregations.filter(a => a.column === column.attribute)[0];
 
-      if (match) {
-        aggregations = aggregations.map(a => (a.attribute === column.attribute ? aggregation : a));
-      } else {
+      if (!match) {
         aggregations.push(aggregation);
       }
     } else {
       aggregations = aggregations.filter(a => a.column !== column.attribute);
     }
 
+    const columns = [...grouping, ...aggregations].sort((a, b) => {
+      if (a.column === GROUPING_COUNT_ALL) {
+        return 1;
+      } else if (b.column === GROUPING_COUNT_ALL) {
+        return -1;
+      }
+
+      return 0;
+    });
+
     trigger.call(this, 'onGrouping', {
-      columns: [...grouping, ...aggregations],
-      groupBy
+      columns,
+      groupBy,
+      needCount: isBoolean(needCount) ? needCount : prevNeedCount
+    });
+  };
+
+  onChangeAllCount = () => {
+    const { needCount } = this.props;
+    const targetValue = !needCount;
+
+    const data = {
+      attribute: `_${GROUPING_COUNT_ALL}`,
+      schema: `count(*)?num`,
+      label: { ru: 'Общее Количество', en: 'Total count' },
+      sortable: false,
+      column: GROUPING_COUNT_ALL
+    };
+
+    this.onChangeAggregation({
+      aggregation: targetValue ? data : null,
+      column: { attribute: GROUPING_COUNT_ALL },
+      needCount: targetValue
     });
   };
 
   getFirst = columns => {
     const { grouping, valueField } = this.props;
+
     return columns.filter(column => !grouping.filter(g => g[valueField] === column[valueField])[0]);
   };
 
   getGroupingList = item => {
     const { titleField } = this.props;
+
     return <ListItem item={item} titleField={titleField} />;
   };
 
@@ -122,10 +94,7 @@ export default class Grouping extends Component {
     const aggregationColumns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
 
     return aggregationColumns.map(column => {
-      const selected =
-        aggregation.filter(a => {
-          return a.attribute.substr(1) === column.attribute;
-        })[0] || null;
+      const selected = aggregation.filter(a => a.attribute.substr(1) === column.attribute)[0] || null;
 
       return (
         <AggregationListItem
@@ -133,6 +102,7 @@ export default class Grouping extends Component {
           titleField={titleField}
           aggregation={aggregation}
           selected={selected}
+          checked={!!selected}
           onChangeAggregation={this.onChangeAggregation}
         />
       );
@@ -140,11 +110,16 @@ export default class Grouping extends Component {
   };
 
   render() {
-    const { list, className, grouping, showAggregation } = this.props;
+    const { list, className, grouping, showAggregation, needCount } = this.props;
 
     return (
       <div className={classNames('grouping', className)}>
         <div className={'grouping__toolbar'}>
+          {!!showAggregation && (
+            <ControlledCheckbox checked={needCount} onClick={this.onChangeAllCount}>
+              {t('grouping.show_count')}
+            </ControlledCheckbox>
+          )}
           <Columns
             cols={[
               <span className={'grouping__desc'}>{t('grouping.what')}</span>,
