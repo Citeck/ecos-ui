@@ -324,6 +324,7 @@ class JournalsDataLoader {
 
     for (let column of columns) {
       !!column.name && (attributesMap[column.name] = column.attSchema);
+      !!column.attribute && (attributesMap[column.attribute] = column.attSchema);
     }
 
     for (let item of settingsColumns) {
