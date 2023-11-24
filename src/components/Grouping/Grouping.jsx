@@ -35,6 +35,8 @@ export default class Grouping extends Component {
 
       if (!match) {
         aggregations.push(aggregation);
+      } else {
+        aggregations = aggregations.map(a => (a.column === column.attribute ? aggregation : a));
       }
     } else {
       aggregations = aggregations.filter(a => a.column !== column.attribute);
