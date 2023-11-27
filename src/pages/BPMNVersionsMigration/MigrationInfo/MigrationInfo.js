@@ -73,7 +73,7 @@ const MigrationInfo = ({ processId }) => {
       migrationPlan
     });
 
-    migrationPlan
+    migrationRecord
       .save()
       .then(() => {
         notifySuccess();
