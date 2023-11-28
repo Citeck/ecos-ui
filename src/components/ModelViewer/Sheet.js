@@ -4,6 +4,7 @@ import ModelViewer from './ModelViewer';
 
 export const Sheet = ({
   diagram,
+  sectionPath,
   onMounted,
   onInit,
   defHeight,
@@ -32,6 +33,7 @@ export const Sheet = ({
         setInitialized(true);
         init({
           diagram,
+          sectionPath,
           container: containerRef.current,
           onInit,
           onMounted,
@@ -42,7 +44,7 @@ export const Sheet = ({
         });
       }
     },
-    [initialized, containerRef]
+    [initialized, containerRef, sectionPath]
   );
 
   useEffect(

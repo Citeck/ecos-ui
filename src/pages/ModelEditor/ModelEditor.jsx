@@ -798,7 +798,7 @@ class ModelEditorPage extends React.Component {
   };
 
   renderEditor = () => {
-    const { savedModel } = this.props;
+    const { savedModel, sectionPath } = this.props;
 
     if (savedModel) {
       return this.designer.renderSheet({
@@ -807,7 +807,8 @@ class ModelEditorPage extends React.Component {
         onMounted: this.handleReadySheet,
         onChangeElement: this.handleChangeElement,
         onChangeElementLabel: this.handleChangeLabel,
-        extraEvents: this.extraEvents
+        extraEvents: this.extraEvents,
+        sectionPath
       });
     } else {
       return <InfoText text={t(`editor.error.no-model`)} />;

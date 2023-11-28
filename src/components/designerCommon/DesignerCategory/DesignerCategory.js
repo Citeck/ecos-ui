@@ -290,7 +290,10 @@ class DesignerCategory extends React.Component {
                   />
                 </div>
               ) : (
-                <span className={styles.labelText}>{getMLValue(label)}</span>
+                <>
+                  <span className={styles.labelText}>{getMLValue(label)}</span>
+                  {code && <span className={styles.labelCode}>{`(${code})`}</span>}
+                </>
               )}
             </h3>
 

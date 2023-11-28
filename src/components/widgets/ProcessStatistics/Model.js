@@ -25,6 +25,7 @@ const mapStateToProps = (state, context) => {
   return {
     isLoading: psState.isLoadingModel,
     model: psState.model,
+    sectionPath: psState.sectionPath,
     heatmapData: psState.heatmapData,
     isMobile: state.view.isMobile
   };
@@ -340,7 +341,7 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
+    const { model, sectionPath, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
     const {
       isModelMounted,
       isModelMounting,
@@ -388,6 +389,7 @@ class Model extends React.Component {
               {Sheet && (
                 <Sheet
                   diagram={model}
+                  sectionPath={sectionPath}
                   onInit={this.handleInitSheet}
                   onMounted={this.handleReadySheet}
                   defHeight={DefSets.HEIGHT}

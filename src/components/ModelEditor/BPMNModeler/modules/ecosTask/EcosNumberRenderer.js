@@ -5,9 +5,10 @@ import { append as svgAppend } from 'tiny-svg';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
 import TextUtil from 'diagram-js/lib/util/Text';
 
-import { TYPE_BPMN_TASK, LABEL_STYLE } from '../../../../../constants/bpmn';
+import { TYPE_BPMN_TASK, PARTICIPANT_TYPE, LABEL_STYLE } from '../../../../../constants/bpmn';
+import Records from '../../../../../components/Records/Records';
 
-const HIGH_PRIORITY = 1500;
+const HIGH_PRIORITY = 1600;
 
 class NumberRenderer extends BaseRenderer {
   constructor(eventBus, bpmnRenderer) {
@@ -18,15 +19,22 @@ class NumberRenderer extends BaseRenderer {
 
   canRender(element) {
     // only render tasks and events (ignore labels)
-    return isAny(element, ['bpmn:Task', 'bpmn:Event']) && !element.labelTarget;
+    return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:Participant']) && !element.labelTarget;
   }
 
-  drawShape(parentNode, element) {
+  async drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const number = _.get(element, 'businessObject.$attrs["ecos:number"]');
 
     if (number) {
-      this._drawNumber(parentNode, element, number, is(element, TYPE_BPMN_TASK) ? -15 : -11);
+      const section = await Records.get(_.get(element, 'recordRef')).load("sectionPath[]{code}|join('-')");
+      let padding = is(element, TYPE_BPMN_TASK) ? -15 : -11;
+
+      if (is(element, PARTICIPANT_TYPE)) {
+        padding = -25;
+      }
+
+      this._drawNumber(parentNode, element, section ? `${section}-${number}` : number, padding);
     }
 
     return shape;

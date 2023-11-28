@@ -43,6 +43,11 @@
   text-transform: uppercase;
 }
 
+.labelCode {
+  margin-left: 10px;
+  color: $color-gray-6;
+}
+
 .labelEditable {
   display: flex;
   flex-direction: row;

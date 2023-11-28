@@ -39,9 +39,10 @@ export function* init({ api, logger }, { payload: { stateId, record } }) {
 
 export function* fetchModel({ api, logger }, { payload: { stateId, record } }) {
   try {
+    const sectionPath = yield call(api.process.getSectionPath, record);
     const model = yield call(api.process.getDefinition, record);
 
-    yield put(setModel({ stateId, model }));
+    yield put(setModel({ stateId, model, sectionPath }));
   } catch (e) {
     yield put(setModel({ stateId, model: null }));
     logger.error('[bpmnEditor/fetchModel saga] error', e);

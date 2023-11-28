@@ -12,6 +12,7 @@ const mapStateToProps = (store, props) => {
     isMobile: store.view.isMobile,
     title: ownStore.title,
     savedModel: ownStore.model,
+    sectionPath: ownStore.sectionPath,
     hasDeployRights: ownStore.hasDeployRights,
     formProps: ownStore.formProps,
     isLoading: ownStore.isLoading,

@@ -34,17 +34,20 @@ export default class BaseModeler {
   /**
    * @constructor
    * @param {String} diagram - initial xml diagram
+   * @param {String} sectionPath - completed tree viewed section path
    * @param container - html element where diagram draws
    * @param {Object} events - any events you want to use.
    * @param {Object} extraEvents - Additional events. You can see the keys of all available events through the this.getEventBus() command {@see getEventBus}
    * @param {Function} callback
    */
-  init = async ({ diagram, container, events, extraEvents, callback }) => {
+  init = async ({ diagram, sectionPath, container, events, extraEvents, callback }) => {
     this.initModelerInstance();
 
     if (container) {
       this.modeler.attachTo(container);
     }
+
+    this._sectionPath = sectionPath;
 
     this.setDiagram(diagram, { callback });
     this.setEvents(events, extraEvents);

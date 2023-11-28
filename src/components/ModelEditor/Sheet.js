@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import get from 'lodash/get';
 
-export const Sheet = ({ diagram, onMounted, extraEvents, init, className, ...props }) => {
+export const Sheet = ({ diagram, sectionPath, onMounted, extraEvents, init, className, ...props }) => {
   const [initialized, setInitialized] = useState(false);
   const containerRef = useRef(null);
   const events = {};
@@ -15,6 +15,7 @@ export const Sheet = ({ diagram, onMounted, extraEvents, init, className, ...pro
       if (!initialized && get(containerRef, 'current')) {
         init({
           diagram,
+          sectionPath,
           container: containerRef.current,
           events,
           extraEvents,
@@ -23,7 +24,7 @@ export const Sheet = ({ diagram, onMounted, extraEvents, init, className, ...pro
         setInitialized(true);
       }
     },
-    [initialized, diagram, extraEvents, events, onMounted, containerRef]
+    [initialized, diagram, sectionPath, extraEvents, events, onMounted, containerRef]
   );
 
   return <div ref={containerRef} className={className} />;
