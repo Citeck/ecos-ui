@@ -8,7 +8,7 @@ import { Caption, Checkbox, Field, Select, SelectJournal } from '../../common/fo
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
 import plugins from '../../../plugins';
-import { EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
+import { EXTENDED_MODE, SIMPLIFIED_MODE, KPI_MODE } from './constants';
 
 import './style.scss';
 
@@ -63,6 +63,7 @@ export default class Settings extends React.Component {
     const { HeatmapWrapper } = plugins;
 
     const propertiesOptions = [
+      { value: KPI_MODE, label: t(Labels.FORM_MODE_KPI) },
       { value: EXTENDED_MODE, label: t(Labels.FORM_MODE_EXTENDED) },
       { value: SIMPLIFIED_MODE, label: t(Labels.FORM_MODE_SIMPLIFIED) }
     ];

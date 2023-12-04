@@ -94,7 +94,7 @@ function* sagaGetModel({ api, logger }, { payload }) {
 
     const model = yield call(api.process.getModel, record);
     const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
-
+    console.log(heatmapData);
     yield put(setModel({ stateId, model, heatmapData }));
     yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {

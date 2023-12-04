@@ -7,7 +7,6 @@ import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 
 import { getModel, setNewData, changeFilter } from '../../../actions/processStatistics';
-
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
 import { ScaleOptions } from '../../common/Scaler/util';
@@ -330,9 +329,9 @@ class Model extends React.Component {
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
-    const { heatmapData, isExtendedMode, showCountersDefault, showHeatmapDefault } = this.props;
+    const { heatmapData, isSimpedMode, showCountersDefault, showHeatmapDefault } = this.props;
 
-    if (!isExtendedMode) {
+    if (isSimpedMode) {
       return null;
     }
 
