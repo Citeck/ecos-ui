@@ -87,8 +87,8 @@ export default class Widget extends BaseWidget {
   getIsExtendedMode() {
     const { config = {} } = this.props;
     const { isAccessible } = this.state;
-    const isSimpedMode = !config.formMode || config.formMode === SIMPLIFIED_MODE;
-    const extendedConfig = !isSimpedMode ? { ...config } : {};
+    const isSimpledMode = config.formMode === SIMPLIFIED_MODE;
+    const extendedConfig = !isSimpledMode ? { ...config } : {};
     const modelConfig = isAccessible
       ? { ...extendedConfig }
       : {
@@ -97,7 +97,7 @@ export default class Widget extends BaseWidget {
           showCountersDefault: false
         };
 
-    this.setState({ isSimpedMode, modelConfig }, () => {
+    this.setState({ isSimpledMode, modelConfig }, () => {
       this.reload();
     });
   }
@@ -139,7 +139,7 @@ export default class Widget extends BaseWidget {
 
   render() {
     const { title, config, classNameContent, classNameDashlet, record, dragHandleProps, canDragging } = this.props;
-    const { isSmallMode, runUpdate, isShowSetting, width, isAccessible, isSimpedMode, modelConfig } = this.state;
+    const { isSmallMode, runUpdate, isShowSetting, width, isAccessible, isSimpledMode, modelConfig } = this.state;
 
     if (isNil(isAccessible)) {
       return <Loader height={100} width={100} />;
@@ -149,7 +149,7 @@ export default class Widget extends BaseWidget {
 
     return (
       <Dashlet
-        title={title || (!isSimpedMode && isAccessible) ? t(Labels.WG_EXTENDED_TITLE) : t(Labels.WG_SIMPLIFIED_TITLE)}
+        title={title || (!isSimpledMode && isAccessible) ? t(Labels.WG_EXTENDED_TITLE) : t(Labels.WG_SIMPLIFIED_TITLE)}
         className={classNames('ecos-process-statistics-dashlet', classNameDashlet)}
         bodyClassName="ecos-process-statistics-dashlet__body"
         resizable={true}
@@ -174,11 +174,11 @@ export default class Widget extends BaseWidget {
               stateId={this.stateId}
               width={width}
               runUpdate={runUpdate}
-              isSimpedMode={isSimpedMode}
+              isSimpledMode={isSimpledMode}
               formMode={get(config, 'formMode', SIMPLIFIED_MODE)}
             />
           )}
-          {config.selectedJournal && config.showJournalDefault && isSimpedMode && isAccessible && (
+          {config.selectedJournal && config.showJournalDefault && !isSimpledMode && isAccessible && (
             <Journal
               {...config}
               forwardedRef={this.contentRef}

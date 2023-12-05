@@ -1,15 +1,40 @@
 import _ from 'lodash';
 import { isAny } from 'bpmn-js/lib/features/modeling/util/ModelingUtil';
 import { append as svgAppend, attr as svgAttr, create as svgCreate, classes as svgClasses } from 'tiny-svg';
-// import { is } from 'bpmn-js/lib/util/ModelUtil';
-import TextUtil from 'diagram-js/lib/util/Text';
 
-import { LABEL_STYLE } from '../../../../../constants/bpmn';
 import NumberRenderer from './EcosNumberRenderer';
 
 const HIGH_PRIORITY = 1700;
 
 class KPIRenderer extends NumberRenderer {
+  KPI_DATA_MOCK = [
+    {
+      id: 'Activity_0gj8byg',
+      time: '1ч 30мин',
+      completedCount: '50'
+    },
+    {
+      id: 'Activity_14kiu06',
+      time: '4ч',
+      completedCount: '-18,75'
+    },
+    {
+      id: 'Activity_1s1qza0',
+      time: '1ч',
+      completedCount: '20'
+    },
+    {
+      id: 'Activity_0lqviz0',
+      time: '1д',
+      completedCount: '-21,25'
+    },
+    {
+      id: 'Activity_1rjuk4l',
+      time: '2д',
+      completedCount: '144,2708333'
+    }
+  ];
+
   constructor(eventBus, bpmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
 
@@ -17,7 +42,6 @@ class KPIRenderer extends NumberRenderer {
   }
 
   canRender(element) {
-    // only render tasks and events (ignore labels)
     return isAny(element, ['bpmn:Task']) && !element.labelTarget;
   }
 
@@ -25,36 +49,21 @@ class KPIRenderer extends NumberRenderer {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const activity = _.get(element, 'id');
 
-    if (activity === 'Activity_0gj8byg') {
+    const KPI = this.KPI_DATA_MOCK.find(i => i.id === activity);
+
+    if (KPI) {
       const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
       const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
 
       svgAttr(timerRect, {
         transform: 'translate(-10, 85)'
       });
-
       svgAttr(percentRect, {
         transform: 'translate(70, 85)'
       });
 
-      this._drawKPITimer(parentNode, '1ч 30мин');
-      this._drawKPIPercentage(parentNode, '50%');
-    }
-
-    if (activity === 'Activity_14kiu06') {
-      const timerRect = this.drawRect(parentNode, 55, 20, 8, '#000');
-      const percentRect = this.drawRect(parentNode, 65, 20, 8, '#000');
-
-      svgAttr(timerRect, {
-        transform: 'translate(-10, 85)'
-      });
-
-      svgAttr(percentRect, {
-        transform: 'translate(70, 85)'
-      });
-
-      this._drawKPITimer(parentNode, '6ч');
-      this._drawKPIPercentage(parentNode, '-18,5%');
+      this._drawKPITimer(parentNode, KPI.time);
+      this._drawKPIPercentage(parentNode, `${parseInt(KPI.completedCount)}%`);
     }
 
     return shape;
@@ -69,9 +78,7 @@ class KPIRenderer extends NumberRenderer {
     });
 
     svgClasses(text).add('djs-label');
-
     svgAppend(text, document.createTextNode(value));
-
     svgAppend(parentNode, text);
   }
 
@@ -84,9 +91,7 @@ class KPIRenderer extends NumberRenderer {
     });
 
     svgClasses(text).add('djs-label');
-
     svgAppend(text, document.createTextNode(value));
-
     svgAppend(parentNode, text);
   }
 

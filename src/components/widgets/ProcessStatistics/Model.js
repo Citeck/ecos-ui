@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import { getModel, setNewData, changeFilter } from '../../../actions/processStatistics';
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
@@ -13,6 +14,7 @@ import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
 import BPMNViewer from '../../ModelViewer/BPMNViewer';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
+import { KPI_MODE } from './constants';
 import Section from './Section';
 
 import './style.scss';
@@ -26,6 +28,7 @@ const mapStateToProps = (state, context) => {
     sectionPath: psState.sectionPath,
     heatmapData: psState.heatmapData,
     isNewData: psState.isNewData,
+    KPIData: psState.KPIData,
     isMobile: state.view.isMobile
   };
 };
@@ -104,6 +107,21 @@ class Model extends React.Component {
       this.rePaintHeatmap();
     }
 
+    if (!isEqual(prevProps.formMode, this.props.formMode)) {
+      this.#heatmapData = new Set();
+      this.setState(
+        {
+          isShowCounters: this.props.formMode === KPI_MODE ? false : prevState.isShowCounters,
+          isHeatmapMounted: false
+        },
+        () => {
+          this.designer.heatmap.destroy();
+          showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
+          this.renderBadges();
+        }
+      );
+    }
+
     if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
       this.setState({ isShowHeatmap: showHeatmapDefault }, () => {
         showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
@@ -122,16 +140,16 @@ class Model extends React.Component {
   };
 
   getPreparedHeatData = () => {
-    const { heatmapData, stateId, setNewData } = this.props;
+    const { heatmapData, KPIData, formMode, stateId, setNewData } = this.props;
     const { isActiveCount, isCompletedCount } = this.state;
+
+    if (formMode === KPI_MODE) {
+      return KPIData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter(item => item.value);
+    }
 
     setNewData({ stateId, isNewData: false });
 
     if (!isActiveCount && !isCompletedCount) {
-      return [];
-    }
-
-    if (!heatmapData) {
       return [];
     }
 
@@ -192,6 +210,12 @@ class Model extends React.Component {
 
   renderBadges = () => {
     const { isActiveCount, isCompletedCount } = this.state;
+    const { formMode } = this.props;
+
+    if (formMode === KPI_MODE) {
+      return;
+    }
+
     const keys = [];
 
     if (isActiveCount) {
@@ -329,7 +353,7 @@ class Model extends React.Component {
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
-    const { heatmapData, isSimpedMode, showCountersDefault, showHeatmapDefault } = this.props;
+    const { heatmapData, isSimpedMode, showCountersDefault, showHeatmapDefault, formMode } = this.props;
 
     if (isSimpedMode) {
       return null;
@@ -337,7 +361,7 @@ class Model extends React.Component {
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        {showCountersDefault && (
+        {showCountersDefault && formMode !== KPI_MODE && (
           <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
             <ControlledCheckbox checked={isShowBadges} />
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
@@ -354,7 +378,12 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount } = this.state;
+    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
+    const { formMode } = this.props;
+
+    if (!isShowCounters || formMode === KPI_MODE) {
+      return null;
+    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
