@@ -24,14 +24,21 @@ class NumberRenderer extends BaseRenderer {
 
   async drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
-    const number = _.get(element, 'businessObject.$attrs["ecos:number"]');
+
+    let number = _.get(element, 'businessObject.$attrs["ecos:number"]');
 
     if (number) {
       const section = await Records.get(_.get(element, 'recordRef')).load("sectionPath[]{code}|join('-')");
+      const parentNumber = _.get(element, 'parent.businessObject.$attrs["ecos:number"]');
+
       let padding = is(element, TYPE_BPMN_TASK) ? -15 : -11;
 
       if (is(element, PARTICIPANT_TYPE)) {
         padding = -25;
+      }
+
+      if (parentNumber) {
+        number = `${parentNumber}-${number}`;
       }
 
       this._drawNumber(parentNode, element, section ? `${section}-${number}` : number, padding);
