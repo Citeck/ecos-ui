@@ -19,7 +19,7 @@ class NumberRenderer extends BaseRenderer {
 
   canRender(element) {
     // only render tasks and events (ignore labels)
-    return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:Participant']) && !element.labelTarget;
+    return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:Participant', 'bpmn:CallActivity', 'bpmn:SubProcess']) && !element.labelTarget;
   }
 
   async drawShape(parentNode, element) {
