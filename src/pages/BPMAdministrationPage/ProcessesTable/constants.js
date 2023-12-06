@@ -24,16 +24,16 @@ export const PROCESSED_TABLE_COLUMNS = [
   },
   {
     text: getMLValue({
-      ru: 'Количество инцидентов',
-      en: 'Incident count'
+      ru: 'Инциденты',
+      en: 'Incidents'
     }),
     attribute: 'incidentCount',
     dataField: 'incidentCount'
   },
   {
     text: getMLValue({
-      ru: 'Количество запущенных экземпляров',
-      en: 'Running process count'
+      ru: 'Запущенные экземпляры',
+      en: 'Running process'
     }),
     attribute: 'instancesCount',
     dataField: 'instancesCount'
