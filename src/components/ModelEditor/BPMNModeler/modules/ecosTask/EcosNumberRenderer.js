@@ -29,14 +29,18 @@ class NumberRenderer extends BaseRenderer {
 
     if (number) {
       const section = await Records.get(_.get(element, 'recordRef')).load("sectionPath[]{code}|join('-')");
-      const parentNumber = _.get(element, 'parent.businessObject.$attrs["ecos:number"]');
 
-      let padding = is(element, TYPE_BPMN_TASK) ? -15 : -11;
+      let padding = is(element, TYPE_BPMN_TASK) ? -15 : -10;
 
       if (is(element, PARTICIPANT_TYPE)) {
         padding = -25;
       }
 
+      if (is(element, 'bpmn:CallActivity' || is(element, 'bpmn:SubProcess'))) {
+        padding = -20;
+      }
+
+      const parentNumber = _.get(element, 'parent.businessObject.$attrs["ecos:number"]');
       if (parentNumber) {
         number = `${parentNumber}-${number}`;
       }
@@ -49,11 +53,14 @@ class NumberRenderer extends BaseRenderer {
 
   _drawNumber(parentNode, element, number, padding = 0) {
     const textUtil = new TextUtil({
-      style: LABEL_STYLE
+      style: {
+        ...LABEL_STYLE,
+        fontSize: is(element, 'bpmn:Event') ? '9px' : LABEL_STYLE.fontSize
+      }
     });
 
     const text = textUtil.createText(number, {
-      align: 'left-top',
+      align: is(element, 'bpmn:Event') ? 'center-top' : 'left-top',
       box: element,
       padding: padding
     });
