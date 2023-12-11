@@ -14,7 +14,7 @@ export default class DataGridComponent extends FormIODataGridComponent {
   }
 
   get defaultValue() {
-    const componentsKeys = Object.keys(flattenComponents(this.componentComponents));
+    const componentsKeys = Object.keys(flattenComponents(this.components));
 
     if (isEmpty(componentsKeys)) {
       return super.defaultValue;
