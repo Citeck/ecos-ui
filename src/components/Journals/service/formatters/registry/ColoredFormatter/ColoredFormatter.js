@@ -11,9 +11,11 @@ import './ColoredFormatter.scss';
 export default class ColoredFormatter extends BaseFormatter {
   static TYPE = 'colored';
 
+  static DEFAULT_TEXT_COLOR = '#000000';
+
   format(props) {
     const { cell, row, config = {}, valueIndex: index } = props;
-    const color = config.color || '#000000';
+    const color = config.color || ColoredFormatter.DEFAULT_TEXT_COLOR;
     const script = config.fn;
 
     let backgroundColor = config.defaultColor || '#FFFFFF';
