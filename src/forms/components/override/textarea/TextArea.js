@@ -116,10 +116,11 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     settings = isEmpty(settings) ? {} : settings;
     settings.base64Upload = true;
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       window.require(['/js/lib/ckeditor5-build-classic/v12.2.0-formio.2/ckeditor.js'], ckeditor => {
         if (!get(element, 'parentNode')) {
-          return NativePromise.reject();
+          reject();
+          return;
         }
 
         return ckeditor.create(element, settings).then(editor => {
@@ -135,7 +136,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           return editor;
         });
       });
-    }).catch(err => console.warn(err));
+    });
   }
 
   addQuill(element, settings, onChange) {
@@ -268,14 +269,18 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
     if (this.isCkeEditor) {
       const settings = this.component.wysiwyg || {};
       settings.rows = this.component.rows;
-      this.addCKE(this.input, settings, newValue => this.updateEditorValue(newValue)).then(editor => {
-        this.editor = editor;
-        if (this.options.readOnly || this.component.disabled) {
-          this.editor.isReadOnly = true;
-        }
-        this.editorReadyResolve(this.editor);
-        return editor;
-      });
+      this.addCKE(this.input, settings, newValue => this.updateEditorValue(newValue))
+        .then(editor => {
+          this.editor = editor;
+          if (this.options.readOnly || this.component.disabled) {
+            this.editor.isReadOnly = true;
+          }
+          this.editorReadyResolve(this.editor);
+          return editor;
+        })
+        .catch(() => {
+          this.refreshWysiwyg();
+        });
       return this.input;
     }
 
