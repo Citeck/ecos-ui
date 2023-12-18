@@ -1,6 +1,7 @@
 import React from 'react';
 import isString from 'lodash/isString';
 import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 
 import BaseFormatter from '../../BaseFormatter';
 import CellType from '../../CellType';
@@ -44,17 +45,19 @@ export default class ColoredFormatter extends BaseFormatter {
      */
     let scriptResult;
 
-    if (isString(script)) {
-      const entries = Object.entries(args);
-      const fnArgNames = entries.map(e => e[0]);
-      const fnArgValues = entries.map(e => e[1]);
+    if (!isEmpty(script)) {
+      if (isString(script)) {
+        const entries = Object.entries(args);
+        const fnArgNames = entries.map(e => e[0]);
+        const fnArgValues = entries.map(e => e[1]);
 
-      // eslint-disable-next-line
-      scriptResult = new Function(...fnArgNames, script)(...fnArgValues);
-    } else if (isFunction(script)) {
-      scriptResult = script(args);
-    } else {
-      throw new Error('Unknown fn type: ' + typeof script);
+        // eslint-disable-next-line
+        scriptResult = new Function(...fnArgNames, script)(...fnArgValues);
+      } else if (isFunction(script)) {
+        scriptResult = script(args);
+      } else {
+        throw new Error('Unknown fn type: ' + typeof script);
+      }
     }
 
     if (scriptResult) {
