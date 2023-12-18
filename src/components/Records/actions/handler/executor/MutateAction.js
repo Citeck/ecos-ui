@@ -75,6 +75,17 @@ export default class MutateAction extends ActionsExecutor {
       }
     }
 
+    const config = get(action, 'config', {});
+    const implSourceId = get(config, 'implSourceId');
+
+    if (implSourceId) {
+      const implMutRecord = Records.get(implSourceId + '@');
+      implMutRecord.att('records', [record.id]);
+      implMutRecord.att('attributes', get(config, 'record.attributes', {}));
+      implMutRecord.att('actionConfig', config);
+      return await implMutRecord.save('?json');
+    }
+
     return _record
       .save()
       .then(() => {
