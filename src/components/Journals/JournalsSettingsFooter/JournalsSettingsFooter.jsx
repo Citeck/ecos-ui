@@ -48,7 +48,11 @@ class JournalsSettingsFooter extends Component {
   saveSetting = e => {
     const { onSave } = this.props;
     e.currentTarget.blur();
-    isFunction(onSave) && onSave();
+
+    if (isFunction(onSave)) {
+      onSave();
+      this.applySetting();
+    }
   };
 
   applySetting = () => {
