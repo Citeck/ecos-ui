@@ -1,5 +1,100 @@
+diff --git a/lib/draw/BpmnRenderUtil.js b/lib/draw/BpmnRenderUtil.js
+index ea6c03769bcdbc9b5d4a31fb5eae2bcb84c1f866..18f8500ef0f674b7d7b6b4f42c73a84e1729b52a 100644
+--- a/lib/draw/BpmnRenderUtil.js
++++ b/lib/draw/BpmnRenderUtil.js
+@@ -29,6 +29,27 @@ export var black = 'hsl(225, 10%, 15%)';
+ 
+ // element utils //////////////////////
+ 
++export function getCookie(name) {
++  // eslint-disable-next-line
++  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
++  return matches ? decodeURIComponent(matches[1]) : undefined;
++}
++  
++export function getCurrentLocale() {
++  const cookiesLocale = getCookie('alf_share_locale');
++  if (cookiesLocale) {
++    return cookiesLocale.substr(0, 2).toLowerCase();
++  }
++
++  if (!window.navigator) {
++    return 'en';
++  }
++
++  const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
++
++  return language.substr(0, 2).toLowerCase();
++}
++
+ /**
+  * Checks if eventDefinition of the given element matches with semantic type.
+  *
+diff --git a/lib/draw/BpmnRenderer.js b/lib/draw/BpmnRenderer.js
+index 64409f30531e19b04093e3b3d647ff0c94876d9a..310cafdaf63a6e6cbb49c68e967a7db8e1ee2043 100644
+--- a/lib/draw/BpmnRenderer.js
++++ b/lib/draw/BpmnRenderer.js
+@@ -6,6 +6,8 @@ import {
+   forEach
+ } from 'min-dash';
+ 
++import get from 'lodash/get';
++
+ import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
+ 
+ import {
+@@ -35,7 +37,8 @@ import {
+   getRectPath,
+   getFillColor,
+   getStrokeColor,
+-  getLabelColor
++  getLabelColor,
++  getCurrentLocale
+ } from './BpmnRenderUtil';
+ 
+ import {
+@@ -514,7 +517,19 @@ export default function BpmnRenderer(
+       }
+     }, options);
+ 
+-    var text = textRenderer.createText(label || '', options);
++    let labelToRender = label;
++    
++    const elementMLName = get(options, 'box.businessObject.$attrs.ecos:name_ml')
++
++    if (elementMLName) {
++      try {
++        labelToRender = JSON.parse(elementMLName)[getCurrentLocale()]
++      } catch (e) {
++        labelToRender = elementMLName
++      }
++    }
++ 
++    var text = textRenderer.createText(labelToRender || '', options);
+ 
+     svgClasses(text).add('djs-label');
+ 
+@@ -1273,13 +1288,11 @@ export default function BpmnRenderer(
+         }
+       });
+ 
+-      if ((getDi(element).isMarkerVisible)) {
+-        drawPath(parentGfx, pathData, {
+-          strokeWidth: 1,
+-          fill: getStrokeColor(element, defaultStrokeColor),
+-          stroke: getStrokeColor(element, defaultStrokeColor)
+-        });
+-      }
++      drawPath(parentGfx, pathData, {
++        strokeWidth: 1,
++        fill: getStrokeColor(element, defaultStrokeColor),
++        stroke: getStrokeColor(element, defaultStrokeColor)
++      });
+ 
+       return diamond;
+     },
 diff --git a/lib/features/keyboard/BpmnKeyboardBindings.js b/lib/features/keyboard/BpmnKeyboardBindings.js
-index 60236de..d38cee7 100644
+index 60236de7aa54bc0df1b1e7d2a70ceb320be8ec62..d38cee741626c6479cc1fd3cefa5ec7a092f2a72 100644
 --- a/lib/features/keyboard/BpmnKeyboardBindings.js
 +++ b/lib/features/keyboard/BpmnKeyboardBindings.js
 @@ -55,7 +55,7 @@ BpmnKeyboardBindings.prototype.registerBindings = function(keyboard, editorActio
@@ -75,7 +170,7 @@ index 60236de..d38cee7 100644
  
        return true;
 diff --git a/lib/features/label-editing/cmd/UpdateLabelHandler.js b/lib/features/label-editing/cmd/UpdateLabelHandler.js
-index ed921f4..f67f135 100644
+index ed921f497fd189a85585cce290a1063990867c55..f67f1357ee0b4dc9e70e47d3bbea420775524000 100644
 --- a/lib/features/label-editing/cmd/UpdateLabelHandler.js
 +++ b/lib/features/label-editing/cmd/UpdateLabelHandler.js
 @@ -105,15 +105,6 @@ export default function UpdateLabelHandler(modeling, textRenderer, bpmnFactory)
@@ -94,103 +189,23 @@ index ed921f4..f67f135 100644
      var text = getLabel(element);
  
      // resize element based on label _or_ pre-defined bounds
-diff --git a/lib/draw/BpmnRenderUtil.js b/lib/draw/BpmnRenderUtil.js
-index ea6c03769bcdbc9b5d4a31fb5eae2bcb84c1f866..ff3f7d1613ca985d6e84285de3623cf48bd0958d 100644
---- a/lib/draw/BpmnRenderUtil.js
-+++ b/lib/draw/BpmnRenderUtil.js
-@@ -29,6 +29,27 @@ export var black = 'hsl(225, 10%, 15%)';
+diff --git a/lib/features/modeling/BpmnUpdater.js b/lib/features/modeling/BpmnUpdater.js
+index 80143d4bb2a28f963038c78ffbc07f5c7e5974a9..452b3ab0ae7e06f45c4e891cc49f0bebba9e5d79 100644
+--- a/lib/features/modeling/BpmnUpdater.js
++++ b/lib/features/modeling/BpmnUpdater.js
+@@ -307,7 +307,9 @@ export default function BpmnUpdater(
+       return;
+     }
  
- // element utils //////////////////////
- 
-+export function getCookie(name) {
-+  // eslint-disable-next-line
-+  let matches = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
-+  return matches ? decodeURIComponent(matches[1]) : undefined;
-+}
+-    if (label && !diLabel) {
++    const type = di.$type;
 +
-+export function getCurrentLocale() {
-+  const cookiesLocale = getCookie('alf_share_locale');
-+  if (cookiesLocale) {
-+    return cookiesLocale.substr(0, 2).toLowerCase();
-+  }
-+
-+  if (!window.navigator) {
-+    return 'en';
-+  }
-+
-+  const language = navigator.languages ? navigator.languages[0] : navigator.language || navigator.systemLanguage || navigator.userLanguage;
-+
-+  return language.substr(0, 2).toLowerCase();
-+}
-+
- /**
-  * Checks if eventDefinition of the given element matches with semantic type.
-  *
-diff --git a/lib/draw/BpmnRenderer.js b/lib/draw/BpmnRenderer.js
-index 64409f30531e19b04093e3b3d647ff0c94876d9a..e90cbeb20bcc4f7500fa08eae4cc0acc4b788fa3 100644
---- a/lib/draw/BpmnRenderer.js
-+++ b/lib/draw/BpmnRenderer.js
-@@ -6,6 +6,8 @@ import {
-   forEach
- } from 'min-dash';
- 
-+import get from 'lodash/get';
-+
- import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
- 
- import {
-@@ -35,7 +37,8 @@ import {
-   getRectPath,
-   getFillColor,
-   getStrokeColor,
--  getLabelColor
-+  getLabelColor,
-+  getCurrentLocale
- } from './BpmnRenderUtil';
- 
- import {
-@@ -513,8 +516,19 @@ export default function BpmnRenderer(
-         width: 100
-       }
-     }, options);
-+    let labelToRender = label;
-+    
-+    const elementMLName = get(options, 'box.businessObject.$attrs.ecos:name_ml')
-+
-+    if (elementMLName) {
-+      try {
-+        labelToRender = JSON.parse(elementMLName)[getCurrentLocale()]
-+      } catch (e) {
-+        labelToRender = elementMLName
-+      }
-+    }
- 
--    var text = textRenderer.createText(label || '', options);
-+    var text = textRenderer.createText(labelToRender || '', options);
- 
-     svgClasses(text).add('djs-label');
- 
-@@ -1273,13 +1287,11 @@ export default function BpmnRenderer(
-         }
-       });
- 
--      if ((getDi(element).isMarkerVisible)) {
--        drawPath(parentGfx, pathData, {
--          strokeWidth: 1,
--          fill: getStrokeColor(element, defaultStrokeColor),
--          stroke: getStrokeColor(element, defaultStrokeColor)
--        });
--      }
-+      drawPath(parentGfx, pathData, {
-+        strokeWidth: 1,
-+        fill: getStrokeColor(element, defaultStrokeColor),
-+        stroke: getStrokeColor(element, defaultStrokeColor)
-+      });
- 
-       return diamond;
-     },
++    if (label && !diLabel && type !== 'bpmndi:BPMNPlane') {
+       di.set('label', bpmnFactory.create('bpmndi:BPMNLabel'));
+     } else if (!label && diLabel) {
+       di.set('label', undefined);
 diff --git a/lib/features/replace/BpmnReplace.js b/lib/features/replace/BpmnReplace.js
-index 779f483180ffda63d477fbfb721d8caa1356d61c..bf6fcab5717794fda82e390ea1e6dcfadd42c37b 100644
+index 779f483180ffda63d477fbfb721d8caa1356d61c..b4655d17631c88d0e3ae18f1fdacedd207b5b456 100644
 --- a/lib/features/replace/BpmnReplace.js
 +++ b/lib/features/replace/BpmnReplace.js
 @@ -8,6 +8,8 @@ import {
@@ -202,13 +217,11 @@ index 779f483180ffda63d477fbfb721d8caa1356d61c..bf6fcab5717794fda82e390ea1e6dcfa
  import {
    is,
    getBusinessObject
-@@ -155,6 +157,10 @@ export default function BpmnReplace(
+@@ -155,6 +157,8 @@ export default function BpmnReplace(
  
      var newBusinessObject = bpmnFactory.create(type);
  
-+    
 +    set(newBusinessObject, 'taskType', targetElement.taskType);
-+    
 +
      var newElement = {
        type: type,
