@@ -53,7 +53,8 @@ const MigrationInfo = ({ processId }) => {
             processInstanceQuery: {
               processDefinitionId: source,
               activityIdIn: activities
-            }
+            },
+            skipCustomListeners: true
           };
         }
 
@@ -73,7 +74,7 @@ const MigrationInfo = ({ processId }) => {
       migrationPlan
     });
 
-    migrationPlan
+    migrationRecord
       .save()
       .then(() => {
         notifySuccess();
