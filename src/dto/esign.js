@@ -26,6 +26,7 @@ export default class EsignConverter {
     target.name = `${get(subjectCN, 'text', '')} ${t('от')} ${target.dateFrom}`;
     target.friendlySubjectInfo = source.friendlySubjectInfo();
     target.friendlyIssuerInfo = source.friendlyIssuerInfo();
+    target.subjectInn = source.friendlySubjectInfo().find(item => item.code === 'INN').text;
 
     return target;
   }

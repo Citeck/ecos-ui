@@ -81,6 +81,19 @@ class Esign {
       .catch(this.setError);
   }
 
+  async getSubjectInn(thumbprint) {
+    return Esign.init([''])
+      .then(() => Esign.getCertificates(thumbprint))
+      .then(certs => {
+        const cert = certs.find(cert => !!cert.subjectInn);
+        if (cert) {
+          return cert.subjectInn;
+        }
+        throw new Error('No INN found');
+      })
+      .catch(this.setError);
+  }
+
   #onClose = container => {
     ReactDOM.unmountComponentAtNode(container);
     document.body.removeChild(container);
