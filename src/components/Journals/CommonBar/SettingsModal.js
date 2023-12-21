@@ -122,7 +122,7 @@ class SettingsModal extends Component {
     if (isFunction(onSave)) {
       const setting = this.getSetting();
 
-      onSave(setting.id, setting);
+      onSave(setting.id, setting, this.handleApply);
     }
   };
 

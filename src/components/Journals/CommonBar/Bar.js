@@ -52,7 +52,7 @@ class Bar extends Component {
     isFunction(createJournalSetting) && createJournalSetting(id, settings, this.handleToggleSettings);
   };
 
-  handleSaveSettings = (id, settings) => {
+  handleSaveSettings = (id, settings, callback) => {
     const { saveJournalSetting } = this.props;
 
     isFunction(saveJournalSetting) &&
