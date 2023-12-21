@@ -117,8 +117,8 @@ class PageTabList {
 
     const title = {
       ...data.title,
-      [lng]: data.title?.[lng] || t(TITLE.LOADING),
-    }
+      [lng]: get(data, `title[${lng}]`, t(TITLE.LOADING))
+    };
     const isLoading = title[lng] === t(TITLE.LOADING);
 
     const tab = new PageTab({ title, isLoading, ...data });
@@ -300,7 +300,7 @@ class PageTabList {
 
         if (!found) {
           result.push(item);
-        } else if (!found.title[lng]){
+        } else if (!found.title[lng]) {
           found.isLoading = true;
         }
 
