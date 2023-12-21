@@ -56,9 +56,12 @@ class Bar extends Component {
     const { saveJournalSetting } = this.props;
 
     isFunction(saveJournalSetting) &&
-      saveJournalSetting(id, settings, () => {
+      saveJournalSetting(id, settings, isError => {
         this.handleToggleSettings();
-        this.handleRefresh();
+
+        if (!isError) {
+          this.handleRefresh();
+        }
       });
   };
 

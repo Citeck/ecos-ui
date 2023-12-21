@@ -878,6 +878,10 @@ function* sagaSaveJournalSetting({ api, logger, stateId, w }, action) {
     yield getJournalSettings(api, journalConfig.id, w, stateId);
     isFunction(callback) && callback();
   } catch (e) {
+    const { callback } = action.payload;
+    isFunction(callback) && callback(true);
+
+    NotificationManager.error(t('journals.formatter.action.execution-error'));
     logger.error('[journals sagaSaveJournalSetting saga error', e);
   }
 }
@@ -989,6 +993,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
       )
     );
   } catch (e) {
+    NotificationManager.error(t('journals.formatter.action.execution-error'));
     logger.error('[journals sagaApplyJournalSetting saga error', e);
   }
 }
