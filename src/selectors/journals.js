@@ -190,6 +190,7 @@ export const selectJournalPageProps = createSelector(
     selectAllPageRecords: ownState.selectAllPageRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     isLoading: ownState.loading,
+    forceUpdate: ownState.forceUpdate,
     wasChangedSettings,
     isFilterOn,
     urlParams,
