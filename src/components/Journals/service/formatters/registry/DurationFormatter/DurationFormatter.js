@@ -1,4 +1,5 @@
 import moment from 'moment';
+import isBoolean from 'lodash/isBoolean';
 
 import BaseFormatter from '../../BaseFormatter';
 
@@ -16,7 +17,7 @@ export default class DurationFormatter extends BaseFormatter {
       return '';
     }
 
-    const showSeconds = config.showSeconds !== false;
+    const showSeconds = isBoolean(config.showSeconds) ? config.showSeconds : config.showSeconds !== 'false';
     const isNegative = cell < 0;
     const numberModulo = Math.abs(cell);
     const duration = moment.duration(numberModulo);

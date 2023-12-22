@@ -16,6 +16,15 @@ describe('DurationFormatter', () => {
     expect(result).toBe('1d 2h 15m');
   });
 
+  it('should format duration correctly without seconds as string', () => {
+    const props = {
+      cell: 94545000, // 1d 2h 15m 45s
+      config: { showSeconds: 'false' }
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('1d 2h 15m');
+  });
+
   it('should format duration correctly with seconds', () => {
     const props = {
       cell: 94545000, // 1d 2h 15m 45s,
