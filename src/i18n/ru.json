@@ -667,6 +667,8 @@
   "ecos.forms.journals.formatter.link.name": "Ссылка",
   "ecos.forms.journals.formatter.script.name": "Скрипт",
   "ecos.forms.journals.formatter.workflowPriority.name": "Приоритет рабочего процесса",
+  "ecos.forms.journals.formatter.duration.name": "Продолжительность",
+  "ecos.forms.journals.formatter.component.name": "Компонент",
 
   "events-history-widget.info.no-columns": "Нет настроек отображения",
   "events-history-widget.info.no-events": "Нет событий",

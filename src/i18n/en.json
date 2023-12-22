@@ -707,6 +707,8 @@
   "ecos.forms.journals.formatter.link.name": "Link",
   "ecos.forms.journals.formatter.script.name": "Script",
   "ecos.forms.journals.formatter.workflowPriority.name": "Workflow Priority",
+  "ecos.forms.journals.formatter.duration.name": "Duration",
+  "ecos.forms.journals.formatter.component.name": "Component",
 
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
