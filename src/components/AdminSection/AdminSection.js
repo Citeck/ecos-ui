@@ -61,7 +61,7 @@ class AdminSection extends React.PureComponent {
   };
 
   isHidden = type => {
-    const { isActivePage, activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
+    const { activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
     const { type: typeFromUrl } = urlParams;
 
     if (!isAccessible) {
@@ -72,7 +72,7 @@ class AdminSection extends React.PureComponent {
       return true;
     }
 
-    return !isActivePage || (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
+    return (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
   };
 
   isFluid = () => ![SectionTypes.DEV_TOOLS].includes(get(this.props, 'activeSection.type'));

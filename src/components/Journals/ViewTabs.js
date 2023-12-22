@@ -31,7 +31,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode })))
+    toggleViewMode: viewMode => dispatch(toggleViewMode(w({ viewMode, stateId: props.stateId })))
   };
 };
 
