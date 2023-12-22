@@ -67,11 +67,17 @@ const MigrationInfo = ({ processId }) => {
     setIsLoading(true);
 
     const migrationRecord = Records.get('eproc/bpmn-process-migration@');
+    const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');
 
     migrationRecord.att('action', 'MIGRATE');
     migrationRecord.att('async', true);
     migrationRecord.att('migrationExecution', {
-      migrationPlan
+      migrationPlan,
+      processInstanceQuery: {
+        processDefinitionId: source,
+        activityIdIn: activities
+      },
+      skipCustomListeners: true
     });
 
     migrationRecord
