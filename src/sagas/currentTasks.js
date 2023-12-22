@@ -8,6 +8,7 @@ import { t } from '../helpers/util';
 import { EVENTS } from '../components/widgets/BaseWidget';
 import { AssignActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 
 function* runInit({ api, logger }, { payload }) {
   try {
@@ -27,10 +28,13 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     } else {
       const currentTasksList = TasksConverter.getCurrentTaskListForWeb(result.records);
       for (let currentTask of currentTasksList) {
+        const isAlfrescoEnabled = yield ConfigService.getValue(ALFRESCO_ENABLED);
+        const canReadDef = isAlfrescoEnabled || currentTask.canReadDef;
+
         currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
           taskId: currentTask.id,
           reassignAvailable: currentTask.hasPermissionReassign,
-          canReadDef: currentTask.canReadDef
+          canReadDef
         });
       }
       yield put(
