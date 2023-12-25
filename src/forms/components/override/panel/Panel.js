@@ -75,6 +75,7 @@ export default class PanelComponent extends FormIOPanelComponent {
             this.panelTitle.appendChild(this.collapseIcon);
           }
 
+          this.panelTitle.appendChild(this.text(' '));
           this.panelTitle.appendChild(this.text(labelString));
         }
       }
