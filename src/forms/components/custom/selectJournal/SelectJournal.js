@@ -7,7 +7,7 @@ import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_JOURNAL_ID_REGEX } from './constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -68,7 +68,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
   get journalId() {
     let journalId = this.component.journalId || '';
 
-    const matches = journalId.match(TEMPLATE_JOURNAL_ID_REGEX);
+    const matches = journalId.match(TEMPLATE_REGEX);
 
     if (!matches) {
       return journalId;
