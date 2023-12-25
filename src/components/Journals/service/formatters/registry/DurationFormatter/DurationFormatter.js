@@ -22,7 +22,7 @@ export default class DurationFormatter extends BaseFormatter {
     const numberModulo = Math.abs(cell);
     const duration = moment.duration(numberModulo);
 
-    const days = duration.days();
+    const days = Math.floor(duration.asDays());
     const hours = duration.hours();
     const minutes = duration.minutes();
     const seconds = duration.seconds();

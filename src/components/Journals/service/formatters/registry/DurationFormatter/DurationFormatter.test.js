@@ -140,4 +140,28 @@ describe('DurationFormatter', () => {
     const result = durationFormatterInstance.format(props);
     expect(result).toBe('- 1d 2h 15m 45s');
   });
+
+  it('should format duration of month', () => {
+    const props = {
+      cell: 2678400000 // 31d
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('31d');
+  });
+
+  it('should format duration greater then month', () => {
+    const props = {
+      cell: 3214443000 // 37d 4h 54m 3s
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('37d 4h 54m 3s');
+  });
+
+  it('should format duration greater then year', () => {
+    const props = {
+      cell: 36424470000 // 421d 13h 54m 30s
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('421d 13h 54m 30s');
+  });
 });
