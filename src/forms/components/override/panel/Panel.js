@@ -3,6 +3,8 @@ import get from 'lodash/get';
 import throttle from 'lodash/throttle';
 
 import { t } from '../../../../helpers/export/util';
+import { TEMPLATE_REGEX } from '../../custom/selectJournal/constants';
+import { getMLValue } from '../../../../helpers/util';
 
 export default class PanelComponent extends FormIOPanelComponent {
   #clearOnHideInProcess = false;
@@ -52,6 +54,29 @@ export default class PanelComponent extends FormIOPanelComponent {
         this.panelTitle.classList.add('field-required');
       } else {
         this.panelTitle.classList.remove('field-required');
+      }
+
+      const value = getMLValue(this.component.title);
+      const matches = value.match(TEMPLATE_REGEX);
+
+      if (matches) {
+        let labelString = '';
+
+        matches.forEach(matchString => {
+          const stringWithoutBraskets = matchString.substring(2, matchString.length - 1);
+          labelString = this.data[stringWithoutBraskets] || '';
+        });
+
+        if (labelString) {
+          this.panelTitle.innerHTML = '';
+
+          if (this.component.collapsible) {
+            this.collapseIcon = this.getCollapseIcon();
+            this.panelTitle.appendChild(this.collapseIcon);
+          }
+
+          this.panelTitle.appendChild(this.text(labelString));
+        }
       }
     }
 

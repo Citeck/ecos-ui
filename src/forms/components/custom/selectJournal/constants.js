@@ -26,4 +26,4 @@ export const DataTypes = {
   QUERY: 'query'
 };
 
-export const TEMPLATE_JOURNAL_ID_REGEX = /\$\{.*?\}/g;
+export const TEMPLATE_REGEX = /\$\{.*?\}/g;
