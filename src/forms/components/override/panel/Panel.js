@@ -56,18 +56,11 @@ export default class PanelComponent extends FormIOPanelComponent {
         this.panelTitle.classList.remove('field-required');
       }
 
-      const value = getMLValue(this.component.title);
-      const matches = value.match(TEMPLATE_REGEX);
+      const templateString = getMLValue(this.component.title);
+      const matches = templateString.match(TEMPLATE_REGEX);
 
       if (matches) {
-        let labelString = '';
-
-        matches.forEach(matchString => {
-          const stringWithoutBraskets = matchString.substring(2, matchString.length - 1);
-          labelString = this.data[stringWithoutBraskets] || '';
-        });
-
-        if (!hidePanels && labelString) {
+        if (!hidePanels) {
           this.panelTitle.innerHTML = '';
 
           if (this.component.collapsible) {
@@ -76,7 +69,7 @@ export default class PanelComponent extends FormIOPanelComponent {
           }
 
           this.panelTitle.appendChild(this.text(' '));
-          this.panelTitle.appendChild(this.text(labelString));
+          this.panelTitle.appendChild(this.text(this._renderTemplatedString(templateString, this.data)));
         }
       }
     }
@@ -107,6 +100,22 @@ export default class PanelComponent extends FormIOPanelComponent {
     if (this.component.scrollableContent) {
       window.removeEventListener('resize', this._calculatePanelContentHeightThrottled);
     }
+  }
+
+  _renderTemplatedString(str, replacements) {
+    function interpolate(template, variables, fallback) {
+      return template.replace(TEMPLATE_REGEX, match => {
+        const path = match.slice(2, -1).trim();
+
+        return getObjPath(path, variables, fallback);
+      });
+    }
+
+    function getObjPath(path, obj, fallback = '') {
+      return path.split('.').reduce((res, key) => res[key] || fallback, obj);
+    }
+
+    return interpolate(str, replacements);
   }
 
   _calculatePanelContentHeight = () => {
