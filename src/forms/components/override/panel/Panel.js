@@ -67,7 +67,7 @@ export default class PanelComponent extends FormIOPanelComponent {
           labelString = this.data[stringWithoutBraskets] || '';
         });
 
-        if (labelString) {
+        if (!hidePanels && labelString) {
           this.panelTitle.innerHTML = '';
 
           if (this.component.collapsible) {
