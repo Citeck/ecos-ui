@@ -76,11 +76,11 @@ export default class DataGridComponent extends FormIODataGridComponent {
   };
 
   createHeader() {
-    const hideHeader = get(this, 'options.hideHeader', false);
+    const hideHeader = get(this, 'component.options.hideHeader', false);
     const hasEnd = this.hasExtraColumn() && this.hasTopSubmit();
 
     if (hideHeader) {
-      return true;
+      return null;
     }
 
     let needsHeader = false;
