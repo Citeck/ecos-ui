@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import forEach from 'lodash/forEach';
 import forIn from 'lodash/forIn';
+import get from 'lodash/get';
 
 import { overrideTriggerChange } from '../misc';
 export default class DataGridComponent extends FormIODataGridComponent {
@@ -92,9 +93,15 @@ export default class DataGridComponent extends FormIODataGridComponent {
   };
 
   createHeader() {
+    const hideHeader = get(this, 'options.hideHeader', false);
     const hasEnd = this.hasExtraColumn() && this.hasTopSubmit();
 
+    if (hideHeader) {
+      return true;
+    }
+
     let needsHeader = false;
+
     const thead = this.ce(
       'thead',
       null,
