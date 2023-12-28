@@ -830,6 +830,7 @@ export default class SelectJournal extends Component {
             autoHeight
             byContentHeight
             onRowDoubleClick={this.onRowDoubleClick}
+            pageId={journalId}
             {...extraProps}
           />
         </div>

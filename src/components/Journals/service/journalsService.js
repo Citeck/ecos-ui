@@ -9,8 +9,35 @@ import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders, fillTemplateAttsAndMapComputedScope } from './util';
 import { DEFAULT_TYPE } from './constants';
+import { pagesStore } from '../../../helpers/indexedDB';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
+
+const getSavedValue = async config => {
+  const { id } = config;
+
+  if (!id) {
+    return;
+  }
+
+  try {
+    const dbValue = await pagesStore.get(id);
+
+    if (dbValue && dbValue.columns) {
+      config.columns.forEach(column => {
+        const savedColumn = dbValue.columns[column.attribute];
+
+        if (savedColumn && savedColumn.width) {
+          column.width = savedColumn.width;
+        }
+      });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  return config;
+};
 
 /**
  * Service to work with journals.
@@ -32,7 +59,8 @@ class JournalsService {
   async getJournalConfig(journalId = '', force) {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
-    return this._convertJournalConfig(await journalsApi.getJournalConfig(journalRecordId, force));
+    let journal = await journalsApi.getJournalConfig(journalRecordId, force);
+    return this._convertJournalConfig(journal);
   }
 
   async _convertJournalConfig(config) {
@@ -41,7 +69,8 @@ class JournalsService {
     }
 
     const journalConfig = _.cloneDeep(config);
-    const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+    let legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+    legacyConfig = await getSavedValue(legacyConfig);
 
     if (!legacyConfig.columns || !legacyConfig.columns.length) {
       return legacyConfig;

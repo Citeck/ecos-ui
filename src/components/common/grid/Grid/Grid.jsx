@@ -23,6 +23,9 @@ import isBoolean from 'lodash/isBoolean';
 import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
 
+import { Tooltip } from 'reactstrap';
+import { NotificationManager } from 'react-notifications';
+
 import { getId, isInViewport, t } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
@@ -35,8 +38,13 @@ import ErrorTable from '../ErrorTable';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
 import pageTabList from '../../../../services/pageTabs/PageTabList';
+import Button from '../../btns/Btn';
+import { pagesStore } from '../../../../helpers/indexedDB';
+import ClickOutside from '../../../ClickOutside';
+import Icon from '../../icons/Icon';
 
 import './Grid.scss';
+import '../../Tooltip/style.scss';
 
 const CUSTOM_NESTED_DELIMITER = '|';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
@@ -76,7 +84,8 @@ class Grid extends Component {
       tableHeight: 0,
       isScrolling: false,
       maxHeight: props.maxHeight,
-      selected: props.selected || []
+      selected: props.selected || [],
+      updatedColumn: null
     };
   }
 
@@ -301,8 +310,10 @@ class Grid extends Component {
 
     if (Array.isArray(extra.columns)) {
       options.columns = extra.columns.map(column => {
-        if (column.width) {
-          set(column, 'headerStyle.width', column.width);
+        const width = column.width;
+
+        if (width) {
+          set(column, 'headerStyle.width', width);
           get(column, 'style.width') && delete column.style.width;
         }
 
@@ -726,6 +737,8 @@ class Grid extends Component {
 
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
+    this._resizingTh.dataset.name = options.name;
+    this._resizingTh.dataset.id = options.id;
     this._tableDom = isElement(options.th) ? options.th.closest('table') : null;
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
@@ -771,6 +784,14 @@ class Grid extends Component {
       }
 
       this.#columnsSizes = columnsSizes;
+
+      this.setState({
+        updatedColumn: {
+          width: this._resizingTh.style.width,
+          name: this._resizingTh.dataset.name,
+          id: this._resizingTh.dataset.id
+        }
+      });
     }
 
     this._resizingTh = null;
@@ -788,6 +809,48 @@ class Grid extends Component {
     isFunction(tools) && tools(selected);
 
     return null;
+  };
+
+  saveColumnWidth = async () => {
+    const { journalId } = this.props;
+    const { updatedColumn } = this.state;
+    const { name, width } = updatedColumn;
+
+    if (!journalId) {
+      this.closeColumnWidth();
+      return;
+    }
+
+    try {
+      let dbValue = (await pagesStore.get(journalId)) || {
+        pageId: journalId,
+        columns: {}
+      };
+
+      let currentColumn = dbValue.columns[name] || {};
+
+      dbValue.columns = {
+        ...dbValue.columns,
+        [name]: {
+          ...currentColumn,
+          width
+        }
+      };
+
+      await pagesStore.put(dbValue);
+      NotificationManager.success(t('grid.column.save.message.success'), t('success'), 3000);
+    } catch (e) {
+      NotificationManager.error(t('grid.column.save.message.error'), t('error'), 3000);
+      console.error(e);
+    }
+
+    this.closeColumnWidth();
+  };
+
+  closeColumnWidth = () => {
+    this.setState({
+      updatedColumn: null
+    });
   };
 
   onMouseLeave = e => {
@@ -1062,6 +1125,7 @@ class Grid extends Component {
 
   render() {
     const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
+    const { updatedColumn } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1089,6 +1153,31 @@ class Grid extends Component {
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
+        {updatedColumn && (
+          <Tooltip
+            target={updatedColumn.id}
+            placement="top"
+            boundariesElement="window"
+            isOpen
+            className={classNames('ecos-base-tooltip')}
+            popperClassName={classNames('ecos-base-tooltip-popper', 'ecos-grid-tooltip', 'ecos-grid-tooltip__wrapper')}
+            arrowClassName={classNames('ecos-base-tooltip-arrow')}
+            innerClassName={classNames('ecos-base-tooltip-inner', 'ecos-grid-tooltip__inner')}
+          >
+            <ClickOutside handleClickOutside={this.closeColumnWidth}>
+              <div className={classNames('ecos-grid-tooltip__content')}>
+                <Icon className="icon-small-close ecos-grid-tooltip__close" onClick={this.closeColumnWidth} />
+
+                {t('grid.column.is-save')}
+
+                <Button onClick={this.saveColumnWidth} className={classNames('ecos-grid-tooltip__button')}>
+                  {t('grid.column.save')}
+                </Button>
+              </div>
+            </ClickOutside>
+          </Tooltip>
+        )}
+
         {this.fixedHeader ? (
           <>
             <div className={ECOS_GRID_HEAD_SHADOW} />
@@ -1109,6 +1198,7 @@ Grid.propTypes = {
   keyField: PropTypes.string,
   dataField: PropTypes.string,
   recordRef: PropTypes.string,
+  journalId: PropTypes.string,
 
   filterable: PropTypes.bool,
   editable: PropTypes.bool,
