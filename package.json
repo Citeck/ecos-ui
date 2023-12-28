@@ -162,6 +162,7 @@
     "enzyme": "3.11.0",
     "enzyme-adapter-react-16": "1.15.3",
     "enzyme-to-json": "3.6.2",
+    "fake-indexeddb": "5.0.1",
     "fetch-mock": "7.3.3",
     "fork-ts-checker-webpack-plugin-alt": "^0.4.14",
     "husky": "1.1.3",

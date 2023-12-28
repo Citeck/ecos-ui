@@ -768,6 +768,8 @@ class Grid extends Component {
   };
 
   clearResizingColumn = e => {
+    const { journalId } = this.props;
+
     if (this._resizingTh && this._tableDom) {
       const cells = head(this._tableDom.rows).cells;
       const columnsSizes = {};
@@ -785,13 +787,15 @@ class Grid extends Component {
 
       this.#columnsSizes = columnsSizes;
 
-      this.setState({
-        updatedColumn: {
-          width: this._resizingTh.style.width,
-          name: this._resizingTh.dataset.name,
-          id: this._resizingTh.dataset.id
-        }
-      });
+      if (journalId) {
+        this.setState({
+          updatedColumn: {
+            width: this._resizingTh.style.width,
+            name: this._resizingTh.dataset.name,
+            id: this._resizingTh.dataset.id
+          }
+        });
+      }
     }
 
     this._resizingTh = null;

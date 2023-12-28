@@ -70,7 +70,8 @@ class JournalsService {
 
     const journalConfig = _.cloneDeep(config);
     let legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
-    legacyConfig = await getSavedValue(legacyConfig);
+    // FIXME: tests are failed because getSavedValue returns undefined, but it returns our modified object
+    legacyConfig = (await getSavedValue(legacyConfig)) || legacyConfig;
 
     if (!legacyConfig.columns || !legacyConfig.columns.length) {
       return legacyConfig;

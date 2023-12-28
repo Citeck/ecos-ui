@@ -33,6 +33,10 @@ const pagesStore = {
   name: 'pages',
   put: function(entity) {
     return new Promise(async (resolve, reject) => {
+      if (!indexedDB) {
+        reject('there is no indexedDB');
+      }
+
       if (!citeckDB) {
         await openCiteckDB();
       }
@@ -58,6 +62,10 @@ const pagesStore = {
   },
   get: function(key) {
     return new Promise(async (resolve, reject) => {
+      if (!indexedDB) {
+        reject('there is no indexedDB');
+      }
+
       if (!citeckDB) {
         await openCiteckDB();
       }
