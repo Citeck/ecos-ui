@@ -10,6 +10,7 @@ import computedService from './computed/computedService';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders, fillTemplateAttsAndMapComputedScope } from './util';
 import { DEFAULT_TYPE } from './constants';
 import { pagesStore } from '../../../helpers/indexedDB';
+import { getCurrentUserName } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
 
@@ -22,10 +23,11 @@ const getSavedValue = async config => {
 
   try {
     const dbValue = await pagesStore.get(id);
+    const userName = getCurrentUserName();
 
-    if (dbValue && dbValue.columns) {
+    if (userName && dbValue?.[userName]?.columns) {
       config.columns.forEach(column => {
-        const savedColumn = dbValue.columns[column.attribute];
+        const savedColumn = dbValue[userName].columns[column.attribute];
 
         if (savedColumn && savedColumn.width) {
           column.width = savedColumn.width;
