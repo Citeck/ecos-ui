@@ -85,7 +85,7 @@ export default class WidgetService {
     const { name, version, onClose, ...props } = params;
     const modal = new Modal();
 
-    modal.open(<BusinessProcessViewer {...props} />, {
+    modal.open(<BusinessProcessViewer {...props} modal={modal} hideModal={onClose} />, {
       title: [name, version].filter(val => !!val).join(' / '),
       class: `ecos-modal-business-process ${isFlowableProcess(props.recordId) ? '' : 'ecos-modal_width-full'}`,
       onHideModal: onClose

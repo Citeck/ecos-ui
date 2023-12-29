@@ -166,7 +166,7 @@ class KanbanView extends React.Component {
           />
         </div>
         {!isEnabled && !isLoading && <UnavailableView />}
-        <Kanban stateId={stateId} maxHeight={maxHeight} />
+        <Kanban stateId={stateId} maxHeight={maxHeight} boardConfig={boardConfig} />
       </div>
     );
   }

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { filterJournal, getJournal, resetDashlet } from '../../../actions/processStatistics';
+import { filterJournal, getJournal } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
 import { DEFAULT_PAGINATION } from '../../Journals/constants';
 import { InfoText, Pagination, Tooltip } from '../../common';
@@ -29,8 +29,7 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getJournalData: payload => dispatch(getJournal(payload)),
-  filterJournal: payload => dispatch(filterJournal(payload)),
-  resetDashlet: payload => dispatch(resetDashlet(payload))
+  filterJournal: payload => dispatch(filterJournal(payload))
 });
 
 class Journal extends React.Component {
@@ -65,11 +64,6 @@ class Journal extends React.Component {
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getJournal();
     }
-  }
-
-  componentWillUnmount() {
-    const { resetDashlet, stateId } = this.props;
-    resetDashlet({ stateId });
   }
 
   getJournal = () => {

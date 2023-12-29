@@ -18,6 +18,13 @@
   &__content {
     overflow: auto;
     max-height: calc(100vh - 275px);
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome */
+    }
+
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   &__add-category {
@@ -48,8 +55,23 @@
     }
 
     &__counter {
+      display: flex;
+      gap: 5px;
+
       color: $text-color-gray;
       font-weight: $font-weight-semi-bold;
     }
+  }
+
+  &__scroll {
+    position: relative;
+  }
+
+  &__loader {
+    width: 10%;
+    position: absolute;
+    bottom: 10px;
+    height: auto;
+    left: 45%;
   }
 }

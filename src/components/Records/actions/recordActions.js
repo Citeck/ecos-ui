@@ -168,22 +168,24 @@ class RecordActions {
     const formId = get(action, 'confirm.formRef');
     const modalClass = get(action, 'confirm.modalClass');
     const needConfirm = !!formId || !!title || !!text;
+    const formOptions = get(action, 'confirm.formOptions');
+    const formData = get(action, 'formData');
 
-    return needConfirm ? { formId, title, text, modalClass } : null;
+    return needConfirm ? { formId, title, text, modalClass, formData, formOptions } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId, modalClass, options = {} } = data;
+    const { title, text, formId, modalClass, formData, options = {}, formOptions: optionsFromProps = {} } = data;
 
     if (formId) {
       EcosFormUtils.getFormById(formId, { definition: 'definition?json', i18n: 'i18n?json' })
-        .then(formData => {
-          const { definition, ...formOptions } = formData;
-
+        .then(formDef => {
+          const { definition, ...formOptions } = formDef;
           DialogManager.showFormDialog({
             title,
-            formOptions: { ...formOptions, ...options },
+            formOptions: { ...formOptions, ...options, ...optionsFromProps },
             formDefinition: { display: 'form', ...definition },
+            formData,
             onSubmit: submission => callback(submission.data),
             onCancel: _ => callback(false)
           });

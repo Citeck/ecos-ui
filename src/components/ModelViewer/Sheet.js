@@ -4,6 +4,7 @@ import ModelViewer from './ModelViewer';
 
 export const Sheet = ({
   diagram,
+  sectionPath,
   onMounted,
   onInit,
   defHeight,
@@ -11,6 +12,8 @@ export const Sheet = ({
   init,
   markedElement,
   zoom,
+  zoomCenter,
+  setMarkedElement,
   className = ModelViewer.querySelector,
   ...props
 }) => {
@@ -30,16 +33,27 @@ export const Sheet = ({
         setInitialized(true);
         init({
           diagram,
+          sectionPath,
           container: containerRef.current,
           onInit,
           onMounted,
           modelEvents,
           markedElement,
-          zoom
+          zoom,
+          zoomCenter
         });
       }
     },
-    [initialized, containerRef]
+    [initialized, containerRef, sectionPath]
+  );
+
+  useEffect(
+    () => {
+      if (markedElement) {
+        setMarkedElement(markedElement);
+      }
+    },
+    [markedElement]
   );
 
   return <div ref={containerRef} style={{ height: `${defHeight}px` }} className={className} {...events} />;

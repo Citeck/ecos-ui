@@ -1,4 +1,4 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
@@ -20,7 +20,6 @@ function* runInit({ api, logger }, { payload }) {
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
   try {
     const { record: document, stateId } = payload;
-    const isAdmin = yield select(state => state.user.isAdmin);
     const result = yield call(api.tasks.getCurrentTasksForUser, { document });
 
     if (isEmpty(result)) {
@@ -31,7 +30,7 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
         currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
           taskId: currentTask.id,
           reassignAvailable: currentTask.hasPermissionReassign,
-          isAdmin
+          canReadDef: currentTask.canReadDef
         });
       }
       yield put(

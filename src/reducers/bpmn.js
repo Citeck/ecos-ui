@@ -9,9 +9,11 @@ import {
   setCategoryData,
   setIsEditable,
   setIsReady,
-  setModels,
   setCreateVariants,
+  setTotalCount,
   setSearchText,
+  setIsModelsLoading,
+  setModelsInfoByCategoryId,
   setViewType
 } from '../actions/bpmn';
 import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/commonDesigner';
@@ -19,7 +21,9 @@ import { SORT_FILTER_LAST_MODIFIED, ViewTypes } from '../constants/commonDesigne
 const initialState = {
   isReady: false,
   categories: [],
+  totalCount: null,
   models: [],
+  modelsMap: new Map(),
   viewType: ViewTypes.CARDS,
   sortFilter: SORT_FILTER_LAST_MODIFIED,
   searchText: ''
@@ -59,10 +63,32 @@ export default handleActions(
         categories: action.payload
       };
     },
-    [setModels]: (state, action) => {
+    [setTotalCount]: (state, action) => {
       return {
         ...state,
-        models: action.payload
+        totalCount: action.payload
+      };
+    },
+    [setModelsInfoByCategoryId]: (state, action) => {
+      const { categoryId, page, models, hasMore, force, isNextModelsLoading } = action.payload;
+      const modelsMap = state.modelsMap;
+      const modelsInfo = modelsMap.get(categoryId) || {};
+
+      if (!isNextModelsLoading) {
+        modelsInfo.isNextModelsLoading = isNextModelsLoading;
+        modelsInfo.hasMore = hasMore;
+        modelsInfo.models = force ? models : (modelsInfo.models || []).concat(models);
+        modelsInfo.page = page;
+        modelsInfo.isLoading = false;
+      } else {
+        modelsInfo.isNextModelsLoading = true;
+      }
+
+      modelsMap.set(categoryId, { ...modelsInfo });
+
+      return {
+        ...state,
+        modelsMap: new Map(modelsMap)
       };
     },
     [setCreateVariants]: (state, action) => {
@@ -127,6 +153,18 @@ export default handleActions(
         categories: newCategoryList
       };
     },
+    [setIsModelsLoading]: (state, action) => {
+      const { categoryId, isLoading } = action.payload;
+      const modelsMap = state.modelsMap;
+      const modelsInfo = modelsMap.get(categoryId) || {};
+
+      modelsMap.set(categoryId, { ...modelsInfo, isLoading });
+
+      return {
+        ...state,
+        modelsMap: new Map(modelsMap)
+      };
+    },
     [setCategoryData]: (state, action) => {
       const categoryId = action.payload.id;
       const index = state.categories.findIndex(item => item.id === categoryId);
@@ -141,6 +179,10 @@ export default handleActions(
 
       if (action.payload.label) {
         currentCategory.label = action.payload.label;
+      }
+
+      if (action.payload.code) {
+        currentCategory.code = action.payload.code;
       }
 
       if (action.payload.newId) {

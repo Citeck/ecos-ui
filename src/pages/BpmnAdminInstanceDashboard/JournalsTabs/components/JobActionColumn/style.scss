@@ -1,0 +1,16 @@
+@import '../../../../../styles/constants.scss';
+
+.job-action {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+
+  .fa-play {
+    color: $color-green-10;
+  }
+
+  .fa-pause {
+    color: $color-blue-dark;
+  }
+}

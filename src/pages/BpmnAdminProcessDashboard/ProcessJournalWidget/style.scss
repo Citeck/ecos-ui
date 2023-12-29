@@ -1,0 +1,34 @@
+@import '../../../styles/constants.scss';
+
+.journal-widget {
+  &__body {
+    padding: 16px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__retry-column {
+    @extend %column-wrapper-16;
+
+    .ecos-info-text {
+      padding: 0;
+    }
+  }
+}
+
+.bpmn-process {
+  &__clickable-text {
+    cursor: pointer;
+
+    color: $color-blue-light;
+  }
+
+  &__note-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 8px;
+  }
+}

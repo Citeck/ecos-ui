@@ -16,7 +16,6 @@ import recordActions from '../components/Records/actions';
 import { ActionTypes } from '../components/Records/actions/constants';
 import journalsService from '../components/Journals/service';
 import DocumentsConverter from '../dto/documents';
-import { selectIsMobile } from '../selectors/view';
 import {
   selectActionsByTypes,
   selectActionsDynamicType,
@@ -30,6 +29,7 @@ import {
   selectTypeById
 } from '../selectors/documents';
 import {
+  downloadAllDocuments,
   execRecordsAction,
   execRecordsActionFinally,
   getAvailableTypes,
@@ -48,6 +48,7 @@ import {
   setConfig,
   setDocuments,
   setDocumentsByTypes,
+  setDownloadLoading,
   setDynamicTypes,
   setLoadingStatus,
   setTypeSettings,
@@ -58,6 +59,7 @@ import {
   uploadFilesFinally
 } from '../actions/documents';
 import { getStore } from '../store';
+import ServerGroupActionV2 from '../components/Records/actions/handler/executor/ServerGroupActionV2';
 
 function* fillTypeInfo(api, types = []) {
   const typeKeys = types.map(record => record.type);
@@ -189,6 +191,41 @@ function* sagaGetDynamicTypes({ api, logger }, { payload }) {
     yield put(setDynamicTypes({ key: payload.key, dynamicTypes: filledTypes }));
   } catch (e) {
     logger.error('[documents sagaGetDynamicTypes saga error', e);
+  }
+}
+
+function* sagaDownloadAllDocuments({ api, logger }, { payload }) {
+  try {
+    yield put(setDownloadLoading({ ...payload, loading: true }));
+    const allDocuments = payload.allDocuments;
+    if (isNodeRef(payload.record)) {
+      yield call(api.documents.downloadAllDocumentsWithAlfresco, allDocuments);
+    } else {
+      const groupActionHandler = new ServerGroupActionV2();
+      const records = allDocuments.map(r => ({ id: r }));
+      const result = yield Promise.all([
+        groupActionHandler.execForRecords(records, {
+          config: {
+            targetApp: 'transformations',
+            valuesParams: {
+              type: 'records-list',
+              config: {
+                records
+              }
+            },
+            executionParams: {
+              type: 'export-zip'
+            }
+          }
+        })
+      ]);
+
+      window.location.assign(get(result, '[0].data.url'));
+    }
+    yield put(setDownloadLoading({ ...payload, loading: false }));
+  } catch (e) {
+    yield put(setDownloadLoading({ ...payload, loading: false }));
+    logger.error('[documents sagaDownloadAllDocuments saga error', e);
   }
 }
 
@@ -611,9 +648,7 @@ function* sagaGetTypeSettings({ api, logger }, { payload }) {
 }
 
 function* sagaGetDocumentsByTypes({ api, logger }, { payload }) {
-  const isMobile = yield select(selectIsMobile);
-
-  if ((!isNil(payload.loadTypesForAll) && !payload.loadTypesForAll) || !isMobile) {
+  if (!isNil(payload.loadTypesForAll) && !payload.loadTypesForAll) {
     yield put(
       setLoadingStatus({
         key: payload.key,
@@ -689,6 +724,7 @@ function* saga(ea) {
   yield takeEvery(updateVersion().type, sagaUpdateVersion, ea);
   yield takeEvery(execRecordsAction().type, sagaExecRecordsAction, ea);
   yield takeEvery(getTypeSettings().type, sagaGetTypeSettings, ea);
+  yield takeEvery(downloadAllDocuments().type, sagaDownloadAllDocuments, ea);
 }
 
 export default saga;

@@ -383,6 +383,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
       sortBy: cloneDeep(journalSetting.sortBy)
     };
     const grouping = {
+      needCount: get(journalSetting, 'grouping.needCount', false),
       columns: cloneDeep(journalSetting.groupBy.length ? journalSetting.grouping.columns : []),
       groupBy: cloneDeep(journalSetting.groupBy)
     };

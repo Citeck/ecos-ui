@@ -2,56 +2,30 @@ import { createSelector } from 'reselect';
 import endsWith from 'lodash/endsWith';
 
 import { isCategoryHasChildren } from '../helpers/designer';
-import { compareLastModified, compareOld, compareAZ, compareZA } from '../helpers/bpmn';
-import { SORT_FILTER_LAST_MODIFIED, SORT_FILTER_OLD, SORT_FILTER_AZ, SORT_FILTER_ZA } from '../constants/commonDesigner';
 
-export const selectSortFilter = state => state.bpmn.sortFilter;
 export const selectSearchText = state => state.bpmn.searchText;
 export const selectAllModels = state => state.bpmn.models;
 export const selectAllCategories = state => state.bpmn.categories;
+export const selectModelsMap = state => state.bpmn.modelsMap;
 
 const selectCategoryId = (_, props) => props.categoryId;
 
-export const selectModelsBySearchText = createSelector(
-  [selectAllModels, selectSearchText],
-  (allModels, searchText) => {
-    let models = [...allModels];
+export const selectModelsBySearchText = createSelector([selectAllModels, selectSearchText], (allModels, searchText) => {
+  let models = [...allModels];
 
-    if (searchText !== '') {
-      models = models.filter(item => {
-        return item.label.toLowerCase().includes(searchText.toLowerCase().trim());
-      });
-    }
-
-    return models;
+  if (searchText !== '') {
+    models = models.filter(item => {
+      return item.label.toLowerCase().includes(searchText.toLowerCase().trim());
+    });
   }
-);
+
+  return models;
+});
 
 export const selectCategoriesByParentId = createSelector(
-  [selectAllCategories, selectCategoryId, selectSortFilter, selectSearchText, selectModelsBySearchText],
-  (allCategories, parentId, currentSortFilter, searchText, searchedModels) => {
+  [selectAllCategories, selectCategoryId, selectSearchText, selectModelsBySearchText],
+  (allCategories, parentId, searchText, searchedModels) => {
     let categories = [...allCategories];
-    let compareFunction;
-
-    switch (currentSortFilter) {
-      case SORT_FILTER_AZ:
-        compareFunction = compareAZ;
-        break;
-      case SORT_FILTER_ZA:
-        compareFunction = compareZA;
-        break;
-      case SORT_FILTER_OLD:
-        compareFunction = compareOld;
-        break;
-      case SORT_FILTER_LAST_MODIFIED:
-      default:
-        compareFunction = (a, b) => compareLastModified(a, b, true);
-        break;
-    }
-
-    if (compareFunction) {
-      categories.sort(compareFunction);
-    }
 
     return categories.filter(item => {
       if (!parentId) {
@@ -71,44 +45,22 @@ export const selectCategoriesByParentId = createSelector(
   }
 );
 
-export const selectModelsByCategoryId = createSelector(
-  [selectModelsBySearchText, selectCategoryId, selectSortFilter],
-  (allModels, categoryId, currentSortFilter) => {
-    let models = [...allModels];
+export const selectModelsInfoByCategoryId = createSelector(
+  [selectModelsMap, selectCategoryId, selectSearchText],
+  (modelsMap, categoryId, searchText) => {
+    const modelsInfo = modelsMap.get(categoryId) || {};
+    const modelsInfoCopy = { ...modelsInfo };
+    const models = [...(modelsInfoCopy.models || [])];
 
-    let compareFunction = null;
-    switch (currentSortFilter) {
-      case SORT_FILTER_AZ:
-        compareFunction = compareAZ;
-        break;
-      case SORT_FILTER_ZA:
-        compareFunction = compareZA;
-        break;
-      case SORT_FILTER_OLD:
-        compareFunction = compareOld;
-        break;
-      case SORT_FILTER_LAST_MODIFIED:
-      default:
-        compareFunction = compareLastModified;
-        break;
-    }
+    modelsInfoCopy.models = [...models.filter(model => model.label.toLowerCase().includes(searchText.toLowerCase().trim()))];
 
-    if (compareFunction) {
-      models.sort(compareFunction);
-    }
-
-    return models.filter(item => {
-      return item.categoryId === categoryId;
-    });
+    return { ...modelsInfoCopy } || {};
   }
 );
 
-export const selectIsParentHasNotModels = createSelector(
-  [selectModelsBySearchText, selectCategoryId],
-  (allModels, categoryId) => {
-    return allModels.findIndex(item => item.categoryId === categoryId) === -1;
-  }
-);
+export const selectIsParentHasNotModels = createSelector([selectModelsBySearchText, selectCategoryId], (allModels, categoryId) => {
+  return allModels.findIndex(item => item.categoryId === categoryId) === -1;
+});
 
 export const selectCaseSensitiveCategories = state => {
   return state.bpmn.categories.map(item => {
@@ -116,3 +68,11 @@ export const selectCaseSensitiveCategories = state => {
     return { value: item.id, label: label };
   });
 };
+
+export const selectCanCreateDef = createSelector([selectAllCategories], allCategories => {
+  if (!allCategories) {
+    return;
+  }
+
+  return Boolean(allCategories.filter(category => category.canCreateDef).length);
+});

@@ -34,7 +34,9 @@ const Header = React.forwardRef(
       widgetEditable,
       appEdition,
       isAdmin,
-      customActions
+      customActions,
+
+      disableCollapse
     },
     ref
   ) => {
@@ -70,7 +72,7 @@ const Header = React.forwardRef(
     return (
       <div className="dashlet__header" ref={ref}>
         <span onClick={onToggleCollapse} className={classNames('dashlet__caption', { [titleClassName]: !!titleClassName })}>
-          {toggleIcon}
+          {!disableCollapse && toggleIcon}
           {title}
         </span>
 

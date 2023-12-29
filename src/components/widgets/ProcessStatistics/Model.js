@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
-import throttle from 'lodash/throttle';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 
@@ -26,6 +25,7 @@ const mapStateToProps = (state, context) => {
   return {
     isLoading: psState.isLoadingModel,
     model: psState.model,
+    sectionPath: psState.sectionPath,
     heatmapData: psState.heatmapData,
     isMobile: state.view.isMobile
   };
@@ -132,6 +132,10 @@ class Model extends React.Component {
       return [];
     }
 
+    if (!heatmapData) {
+      return [];
+    }
+
     return heatmapData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter(item => item.value);
   };
 
@@ -163,13 +167,13 @@ class Model extends React.Component {
     this.designer && this.designer.heatmap && this.designer.heatmap.toggleDisplay(true);
   };
 
-  handleMouseDown = throttle(() => {
+  handleMouseDown = () => {
     this.state.isShowHeatmap && this.toggleTempHeatmap(true);
-  }, 100);
+  };
 
-  handleMouseUp = debounce(() => {
+  handleMouseUp = () => {
     this.state.isTempHeatmapOff && this.toggleTempHeatmap(false);
-  }, 100);
+  };
 
   handleWheel = () => {
     let handle = null;
@@ -281,13 +285,6 @@ class Model extends React.Component {
   handleChangeCountFlag = data => {
     this.setState(data, this.reRenderHeatmap);
   };
-
-  handleChangeSection = opened => {
-    if (opened) {
-      this.handleClickZoom(ScaleOptions.FIT);
-    }
-  };
-
   handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
 
   renderSwitches = () => {
@@ -344,21 +341,40 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
-    const { isModelMounted, isModelMounting, isShowHeatmap, isShowCounters, legendData, opacity } = this.state;
+    const { model, sectionPath, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
+    const {
+      isModelMounted,
+      isModelMounting,
+      isShowHeatmap,
+      isTempHeatmapOff,
+      isShowCounters,
+      isActiveCount,
+      isCompletedCount,
+      legendData,
+      opacity
+    } = this.state;
 
     const Sheet = this.designer && this.designer.renderSheet;
+
+    const zoomCenter = {
+      x: 0,
+      y: 0
+    };
+
+    const showHeatmap = isTempHeatmapOff || isShowHeatmap;
 
     return (
       <div
         className={classNames('ecos-process-statistics-model', {
           'ecos-process-statistics-model_x': width <= 500,
           'ecos-process-statistics-model_mobile': isMobile,
+          'ecos-process-statistics-model_hidden-active-count': !isActiveCount,
+          'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
           'ecos-process-statistics-model_hidden-badges': !isShowCounters,
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
         })}
       >
-        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} onChange={this.handleChangeSection} opened>
+        <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened>
           {!isLoading && !model && <InfoText text={t(Labels.NO_MODEL)} />}
           {model && !isModelMounted && !isModelMounting && <InfoText noIndents text={t(Labels.ERR_MODEL)} />}
           {isModelMounted && (
@@ -373,6 +389,7 @@ class Model extends React.Component {
               {Sheet && (
                 <Sheet
                   diagram={model}
+                  sectionPath={sectionPath}
                   onInit={this.handleInitSheet}
                   onMounted={this.handleReadySheet}
                   defHeight={DefSets.HEIGHT}
@@ -380,14 +397,15 @@ class Model extends React.Component {
                   onMouseUp={this.handleMouseUp}
                   onWheel={this.handleWheel}
                   zoom={ScaleOptions.FIT}
+                  zoomCenter={zoomCenter}
                 />
               )}
               {!isLoading && displayHeatmapToolbar && (
                 <div className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer')}>
-                  {isShowHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
+                  {showHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
-                  {isShowHeatmap && <Legend {...legendData} />}
+                  {showHeatmap && <Legend {...legendData} />}
                 </div>
               )}
             </ResizableBox>

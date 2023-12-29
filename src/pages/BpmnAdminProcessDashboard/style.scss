@@ -1,0 +1,17 @@
+@import '../../styles/constants.scss';
+
+.bpmn-admin-process-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 24px;
+
+  &__title {
+    font-weight: $font-weight-bold;
+  }
+
+  & .icon {
+    font-size: 14px !important;
+  }
+}

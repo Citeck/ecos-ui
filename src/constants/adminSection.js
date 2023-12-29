@@ -10,7 +10,8 @@ export const SectionTypes = {
   DMN: 'DMN',
   BPM: 'BPM',
   DEV_TOOLS: 'DEV_TOOLS',
-  JOURNAL: 'JOURNAL'
+  JOURNAL: 'JOURNAL',
+  BPMN_ADMIN: 'BPMN_ADMIN'
 };
 
 export const SectionNewTab = [SectionTypes.DEV_TOOLS];

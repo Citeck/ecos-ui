@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
 import { NotificationManager } from 'react-notifications';
 
-import { createModel, savePagePosition, updateModels } from '../../../actions/bpmn';
+import { createModel, getFullModels, getNextModels, initModels, savePagePosition, updateModels } from '../../../actions/bpmn';
 import { EDITOR_PAGE_CONTEXT, LOCAL_STORAGE_KEY_REFERER_PAGE_PATHNAME } from '../../../constants/bpmn';
-import { selectModelsByCategoryId } from '../../../selectors/bpmn';
+import { selectModelsInfoByCategoryId } from '../../../selectors/bpmn';
 import PageService from '../../../services/PageService';
 import recordActions from '../../../components/Records/actions/recordActions';
 
@@ -19,11 +19,14 @@ const OPEN_BPMN_EDITOR_ACTION_REF = 'uiserv/action@open-bpmn-editor';
 const mapStateToProps = (state, props) => ({
   viewType: state.bpmn.viewType,
   searchText: state.bpmn.searchText,
-  models: selectModelsByCategoryId(state, props),
+  modelsInfo: selectModelsInfoByCategoryId(state, props),
   createModelCardLabel: t('designer.create-model-card.label')
 });
 
 const mapDispatchToProps = dispatch => ({
+  initModels: categoryId => dispatch(initModels({ categoryId })),
+  getNextModels: categoryId => dispatch(getNextModels({ categoryId })),
+  getFullModels: categoryId => dispatch(getFullModels({ categoryId })),
   onViewLinkClick: e => {
     e.preventDefault();
 
@@ -67,7 +70,7 @@ const mapDispatchToProps = dispatch => ({
     e.preventDefault();
     EcosFormUtils.editRecord({
       recordRef: modelId,
-      onSubmit: () => dispatch(updateModels())
+      onSubmit: resultModel => dispatch(updateModels({ modelId, resultModelId: resultModel.id, action: 'edit' }))
     });
   },
   onDeleteModelClick: (e, modelId) => {
@@ -78,7 +81,7 @@ const mapDispatchToProps = dispatch => ({
       })
       .then(res => {
         if (res) {
-          dispatch(updateModels());
+          dispatch(updateModels({ modelId, action: 'delete' }));
         }
       });
   },

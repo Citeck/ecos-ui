@@ -18,7 +18,7 @@ import { Sheet } from '../Sheet';
 export default class BPMNViewer extends ModelViewer {
   static querySelector = 'ecos-bpmn-model-container';
 
-  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom }) => {
+  init = async ({ diagram, container, onInit, onMounted, modelEvents, markedElement, zoom, zoomCenter }) => {
     isFunction(onInit) && onInit(true);
 
     this.modeler = new Modeler({
@@ -35,14 +35,19 @@ export default class BPMNViewer extends ModelViewer {
     }
 
     await this.setDiagram(diagram, { onMounted });
-    this.setEvents({}, modelEvents);
+    this.setEvents(modelEvents);
     this.switchToReadonly();
 
-    zoom && this.canvas.zoom(zoom);
+    this.zoomCenter = zoomCenter;
+    zoom && this.canvas.zoom(zoom, zoomCenter);
     markedElement && this.setMarkedElement(markedElement);
+
+    this.scaleByWidth();
   };
 
-  renderSheet = props => <Sheet {...props} className={BPMNViewer.querySelector} init={this.init} />;
+  renderSheet = props => (
+    <Sheet {...props} className={BPMNViewer.querySelector} init={this.init} setMarkedElement={this.setMarkedElement} />
+  );
 
   switchToReadonly = () => {
     this.modeler && this.modeler.off('element.dblclick');

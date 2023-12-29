@@ -9,6 +9,9 @@ const DashboardPage = lazy(() => import('./Dashboard'));
 const JournalsPage = lazy(() => import('./JournalsPage'));
 const CMMNEditorPage = lazy(() => import('./ModelEditor/CMMNEditor'));
 const BPMNEditorPage = lazy(() => import('./ModelEditor/BPMNEditor'));
+const BPMNAdminProcessPage = lazy(() => import('./BpmnAdminProcessDashboard'));
+const BPMNAdminIntancePage = lazy(() => import('./BpmnAdminInstanceDashboard'));
+const BPMNMigration = lazy(() => import('./BPMNVersionsMigration'));
 const DMNEditor = lazy(() => import('./ModelEditor/DMNEditor'));
 const MyTimesheetPage = lazy(() => import('./Timesheet/MyTimesheetPage'));
 const SubordinatesTimesheetPage = lazy(() => import('./Timesheet/SubordinatesTimesheetPage'));
@@ -38,6 +41,15 @@ export default ({ pageKey, withoutFooter, ...props }) => {
       break;
     case Pages.BPMN_EDITOR:
       Page = BPMNEditorPage;
+      break;
+    case Pages.BPMN_ADMIN_PROCESS:
+      Page = BPMNAdminProcessPage;
+      break;
+    case Pages.BPMN_ADMIN_INSTANCE:
+      Page = BPMNAdminIntancePage;
+      break;
+    case Pages.BPMN_MIGRATION:
+      Page = BPMNMigration;
       break;
     case Pages.DMN_EDITOR:
       Page = DMNEditor;

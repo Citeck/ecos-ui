@@ -16,7 +16,8 @@ export const TableTypes = {
 
 export const DisplayModes = {
   DEFAULT: 'default',
-  TABLE: 'table'
+  TABLE: 'table',
+  CUSTOM: 'custom'
 };
 
 export const DataTypes = {
@@ -25,4 +26,4 @@ export const DataTypes = {
   QUERY: 'query'
 };
 
-export const TEMPLATE_JOURNAL_ID_REGEX = /\$\{.*?\}/g;
+export const TEMPLATE_REGEX = /\$\{.*?\}/g;

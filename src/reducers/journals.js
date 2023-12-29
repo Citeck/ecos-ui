@@ -86,6 +86,7 @@ export const defaultState = {
       sortBy: []
     },
     grouping: {
+      needCount: false,
       columns: [],
       groupBy: []
     }
@@ -96,6 +97,7 @@ export const defaultState = {
     sortBy: []
   },
   grouping: {
+    needCount: false,
     columns: [],
     groupBy: []
   },

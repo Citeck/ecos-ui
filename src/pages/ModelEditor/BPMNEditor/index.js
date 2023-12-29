@@ -12,6 +12,7 @@ const mapStateToProps = (store, props) => {
     isMobile: store.view.isMobile,
     title: ownStore.title,
     savedModel: ownStore.model,
+    sectionPath: ownStore.sectionPath,
     hasDeployRights: ownStore.hasDeployRights,
     formProps: ownStore.formProps,
     isLoading: ownStore.isLoading,
@@ -25,7 +26,8 @@ const mapDispatchToProps = (dispatch, props) => {
 
   return {
     initData: () => dispatch(initData({ stateId, record })),
-    saveModel: (xml, img, definitionAction) => dispatch(saveModel({ stateId, record, xml, img, definitionAction })),
+    saveModel: (xml, img, definitionAction, processDefId) =>
+      dispatch(saveModel({ stateId, record, xml, img, definitionAction, processDefId })),
     setModel: model => dispatch(setModel({ stateId, model })),
     getFormProps: (formId, element) => dispatch(getFormProps({ stateId, formId, element })),
     clearFormProps: () => dispatch(setFormProps({ stateId, formProps: {} }))

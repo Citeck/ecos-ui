@@ -28,7 +28,7 @@ export default class BusinessProcessViewer extends React.Component {
   };
 
   render() {
-    const { recordId, processId } = this.props;
+    const { recordId, processId, modal } = this.props;
     const { disabledCancelBP } = this.state;
 
     return (
@@ -36,9 +36,7 @@ export default class BusinessProcessViewer extends React.Component {
         {isFlowableProcess(recordId) && (
           <FlowableProcess recordId={recordId} disabledCancelBP={disabledCancelBP} handleCancelBP={this.handleCancelBP} />
         )}
-        {!isFlowableProcess(recordId) && (
-          <CamundaProcess processId={processId} disabledCancelBP={disabledCancelBP} handleCancelBP={this.handleCancelBP} />
-        )}
+        {!isFlowableProcess(recordId) && <CamundaProcess recordId={recordId} processId={processId} modal={modal} />}
       </>
     );
   }

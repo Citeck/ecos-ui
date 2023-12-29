@@ -138,6 +138,7 @@ export const selectSettingsColumns = createSelector(selectState, ownProps =>
 
 export const selectSettingsGrouping = createSelector(selectState, ownProps =>
   cloneDeep({
+    needCount: get(ownProps, 'grouping.needCount'),
     columns: get(ownProps, 'grouping.columns'),
     groupBy: get(ownProps, 'grouping.groupBy')
   })

@@ -3,6 +3,7 @@ import { BarcodeApi } from './barcode';
 import { BirthdaysApi } from './birthdays';
 import { ReportApi } from './report';
 import { BpmnApi } from './bpmn';
+import { BpmnAdminApi } from './bpmnAdmin';
 import { CommentsApi } from './comments';
 import { DashboardApi } from './dashboard';
 import { DmnApi } from './dmn';
@@ -17,6 +18,7 @@ import { MyTimesheetApi } from './timesheet/mine';
 import { OrgStructApi } from './orgStruct';
 import { PageApi } from './page';
 import { PageTabsApi } from './pageTabs';
+import { ProcessAdminApi } from './processAdmin';
 import { PropertiesApi } from './properties';
 import { RecordActionsApi } from './recordActions';
 import { TasksApi } from './tasks';
@@ -33,6 +35,7 @@ import { ChartsApi } from './charts';
 import { CustomIconApi } from './customIcon';
 import { AdminSectionApi } from './adminSection';
 import { DevToolsApi } from './devTools';
+import { InstanceAdminApi } from './instanceAdmin';
 import ProcessApi from './process';
 import { KanbanApi } from './kanban';
 
@@ -44,6 +47,7 @@ export function configureAPI() {
   api.app = new AppApi();
   api.adminSection = new AdminSectionApi();
   api.bpmn = new BpmnApi();
+  api.bpmnAdmin = new BpmnAdminApi();
   api.menu = new MenuApi();
   api.orgStruct = new OrgStructApi();
   api.user = new UserApi();
@@ -71,11 +75,13 @@ export function configureAPI() {
   api.properties = new PropertiesApi();
   api.documents = new DocumentsApi();
   api.page = new PageApi();
+  api.processAdmin = new ProcessAdminApi();
   api.userConfig = new UserConfigApi();
   api.docConstructor = new DocConstructorApi();
   api.customIcon = new CustomIconApi();
   api.process = new ProcessApi();
   api.devTools = new DevToolsApi();
+  api.instanceAdmin = new InstanceAdminApi();
   api.kanban = new KanbanApi();
   api.charts = new ChartsApi();
 

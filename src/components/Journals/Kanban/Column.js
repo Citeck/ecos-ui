@@ -97,7 +97,7 @@ class Column extends React.PureComponent {
       return null;
     }
 
-    const { formProps, readOnly, actions = {} } = this.props;
+    const { formProps, readOnly, actions = {}, boardConfig = {} } = this.props;
 
     return (
       <Card
@@ -107,6 +107,7 @@ class Column extends React.PureComponent {
         formProps={formProps}
         readOnly={readOnly}
         actions={actions[record.cardId]}
+        boardConfig={boardConfig}
         onClickAction={this.handleAction}
       />
     );

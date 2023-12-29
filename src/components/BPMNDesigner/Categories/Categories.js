@@ -23,15 +23,17 @@ const Categories = ({ items, isParentHasNotModels, level = 0 }) => {
 
     return (
       <Category
+        {...item}
         key={keyId}
         itemId={item.id}
         label={item.label}
+        sectionCode={item.sectionCode}
         level={level}
         isEditable={item.isEditable}
         canWrite={item.canWrite}
         isOpen={item.isOpen}
       >
-        <Models categoryId={item.id} />
+        <Models categoryId={item.id} isCategoryOpen={item.isOpen} canEditDef={item.canEditDef} />
         <ConnectedCategories categoryId={item.id} level={level + 1} />
       </Category>
     );

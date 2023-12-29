@@ -30,7 +30,8 @@ import Filters from './Filters';
 import Search from './Search';
 import CreateVariants from './CreateVariants';
 import FiltersProvider from './Filters/FiltersProvider';
-import { TEMPLATE_JOURNAL_ID_REGEX } from '../../../../forms/components/custom/selectJournal/constants';
+import { TEMPLATE_REGEX } from '../../../../forms/components/custom/selectJournal/constants';
+import { PREDICATE_EQ } from '../../../Records/predicates/predicates';
 import { PERMISSION_WRITE_ATTR } from '../../../Records/constants';
 
 import './SelectJournal.scss';
@@ -89,13 +90,28 @@ export default class SelectJournal extends Component {
   }
 
   _getPresetFilterPredicates(journalConfig) {
-    const { presetFilterPredicates } = this.props;
+    const { presetFilterPredicates, customValues } = this.props;
     const { value } = this.state;
     const filters = presetFilterPredicates || [];
 
     if (this.isQuery) {
       const queryFilters = get(value, 'query.val') || [];
       filters.push(...queryFilters);
+    }
+
+    if (customValues && Array.isArray(customValues) && customValues.length) {
+      const predicate = {
+        t: PREDICATE_EQ,
+        att: 'id',
+        val: customValues.map(value => {
+          const fullId = String(value);
+
+          const [, id] = fullId.split('@');
+          return id;
+        })
+      };
+
+      filters.push(predicate);
     }
 
     return mergeFilters(journalConfig.defaultFilters, filters);
@@ -419,7 +435,7 @@ export default class SelectJournal extends Component {
   };
 
   fetchTableAttributes = rows => {
-    const { viewMode } = this.props;
+    const { viewMode, forceReload } = this.props;
     const { isJournalConfigFetched, isGridDataReady } = this.state;
 
     if (viewMode !== DisplayModes.TABLE) {
@@ -459,7 +475,7 @@ export default class SelectJournal extends Component {
       return Promise.all(
         rows.map(r => {
           return Records.get(r.id)
-            .load(atts)
+            .load(atts, forceReload)
             .then(result => {
               const fetchedAtts = {};
               let currentAttIndex = 0;
@@ -725,7 +741,7 @@ export default class SelectJournal extends Component {
   };
 
   renderSelectModal() {
-    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, journalId } = this.props;
+    const { multiple, hideCreateButton, searchField, isFullScreenWidthModal, title, journalId, customValues, viewMode } = this.props;
     const { isGridDataReady, isSelectModalOpen, isCollapsePanelOpen, gridData, journalConfig, pagination, isCreateModalOpen } = this.state;
     const extraProps = {};
 
@@ -751,6 +767,8 @@ export default class SelectJournal extends Component {
       extraProps.onRowDoubleClick = undefined;
     }
 
+    const hideSelectPanel = viewMode === DisplayModes.CUSTOM && customValues;
+
     return (
       <EcosModal
         title={title || selectModalTitle}
@@ -761,35 +779,37 @@ export default class SelectJournal extends Component {
           'ecos-modal_width-full': isFullScreenWidthModal
         })}
       >
-        <div className="select-journal-collapse-panel">
-          <div className="select-journal-collapse-panel__controls">
-            <div className="select-journal-collapse-panel__controls-left">
-              {!hideCreateButton && (
-                <CreateVariants
-                  items={get(journalConfig, 'meta.createVariants')}
-                  toggleCreateModal={this.toggleCreateModal}
-                  isCreateModalOpen={isCreateModalOpen}
-                  onCreateFormSubmit={this.onCreateFormSubmit}
-                />
-              )}
-              <IcoBtn
-                invert
-                icon={getIconUpDown(isCollapsePanelOpen)}
-                className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
-                onClick={this.toggleCollapsePanel}
-              >
-                {t(Labels.FILTER_BUTTON)}
-              </IcoBtn>
+        {!hideSelectPanel && (
+          <div className="select-journal-collapse-panel">
+            <div className="select-journal-collapse-panel__controls">
+              <div className="select-journal-collapse-panel__controls-left">
+                {!hideCreateButton && (
+                  <CreateVariants
+                    items={get(journalConfig, 'meta.createVariants')}
+                    toggleCreateModal={this.toggleCreateModal}
+                    isCreateModalOpen={isCreateModalOpen}
+                    onCreateFormSubmit={this.onCreateFormSubmit}
+                  />
+                )}
+                <IcoBtn
+                  invert
+                  icon={getIconUpDown(isCollapsePanelOpen)}
+                  className="ecos-btn_drop-down ecos-btn_r_8 ecos-btn_x-step_10 select-journal-collapse-panel__controls-left-btn-filter"
+                  onClick={this.toggleCollapsePanel}
+                >
+                  {t(Labels.FILTER_BUTTON)}
+                </IcoBtn>
+              </div>
+              <div className="select-journal-collapse-panel__controls-right">
+                {!this.isQuery && <Search searchField={searchField} onApply={this.onApplyFilters} />}
+              </div>
             </div>
-            <div className="select-journal-collapse-panel__controls-right">
-              {!this.isQuery && <Search searchField={searchField} onApply={this.onApplyFilters} />}
-            </div>
-          </div>
 
-          <Collapse isOpen={isCollapsePanelOpen}>
-            {journalConfig.columns && <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} />}
-          </Collapse>
-        </div>
+            <Collapse isOpen={isCollapsePanelOpen}>
+              {journalConfig.columns && <Filters columns={journalConfig.columns} onApply={this.onApplyFilters} />}
+            </Collapse>
+          </div>
+        )}
 
         {this.isQuery && (
           <div className="select-journal__info-msg">
@@ -894,7 +914,7 @@ export default class SelectJournal extends Component {
     const DefaultView = viewOnly ? (
       <ViewMode {...inputViewProps} />
     ) : (
-      <InputView {...inputViewProps} disabled={disabled || journalId.match(TEMPLATE_JOURNAL_ID_REGEX)} />
+      <InputView {...inputViewProps} disabled={disabled || journalId.match(TEMPLATE_REGEX)} />
     );
 
     return (
@@ -951,6 +971,7 @@ SelectJournal.propTypes = {
   renderView: PropTypes.func,
   searchField: PropTypes.string,
   viewMode: PropTypes.string,
+  customValues: PropTypes.array,
   isSelectModalOpen: PropTypes.bool,
   isSelectedValueAsText: PropTypes.bool,
   sortBy: PropTypes.shape({

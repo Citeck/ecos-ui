@@ -73,6 +73,23 @@ export class DocumentsApi {
     return record.save();
   };
 
+  downloadAllDocumentsWithAlfresco = documentsRefs => {
+    return fetch('/alfresco/s/citeck/zip/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;odata=verbose'
+      },
+      body: JSON.stringify({
+        documentsRef: documentsRefs
+      })
+    })
+      .then(res => res.blob())
+      .then(blob => {
+        var file = window.URL.createObjectURL(blob);
+        window.location.assign(file);
+      });
+  };
+
   getDocumentsByTypes = (recordRef = '', data = [], attributes = {}) => {
     const baseAttrs = {
       recordRef: '?id',

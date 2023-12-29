@@ -17,6 +17,10 @@ export default class ProcessApi {
     return Records.get(record).load(PERMISSION_DEPLOY_PROCESS, true);
   };
 
+  getSectionPath = record => {
+    return Records.get(record).load("sectionPath[]{code}|join('-')", true);
+  };
+
   saveDefinition = (record, xml, img, definitionAction) => {
     const rec = Records.get(record);
 

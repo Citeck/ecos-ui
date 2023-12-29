@@ -15,6 +15,7 @@ import {
   setAvailableTypes,
   setConfig,
   setDocuments,
+  setDownloadLoading,
   setDocumentsByTypes,
   setDynamicTypes,
   setError,
@@ -177,6 +178,12 @@ export default handleActions(
       [payload]: {
         ...state[payload],
         isLoadingSettings: false
+      }
+    }),
+    [setDownloadLoading]: (state, { payload }) => ({
+      [payload.key]: {
+        ...state[payload.key],
+        isLoadingDownload: payload.loading
       }
     }),
 

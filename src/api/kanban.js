@@ -16,6 +16,7 @@ export class KanbanApi {
         columns: 'columns[]{id,name}![]',
         journalRef: 'journalRef?id',
         name: 'name',
+        disableTitle: 'disableTitle?bool!false',
         typeRef: 'typeRef?id',
         readOnly: 'readOnly?bool!true'
       },

@@ -32,7 +32,8 @@ export const TableFormContextProvider = props => {
     computed,
     onSelectRows,
     selectedRows,
-    settingElements
+    settingElements,
+    forceReload
   } = controlProps;
 
   const [formMode, setFormMode] = useState(FORM_MODE_CREATE);
@@ -95,21 +96,26 @@ export const TableFormContextProvider = props => {
           initValue.map(async rec => {
             const record = Records.get(rec);
             const form = await EcosFormUtils.getForm(rec);
-            const definition = await form.load('definition?json');
-            const allComponents = getAllComponents(definition.components);
+
+            let allComponents = [];
+
+            if (isFunction(form.load)) {
+              const definition = await form.load('definition?json');
+              allComponents = getAllComponents(definition.components);
+            }
 
             const fetchedAtts = {};
             let result = {};
             let currentAttIndex = 0;
 
             if (record.isBaseRecord()) {
-              result = await record.load(atts);
+              result = await record.load(atts, forceReload);
             } else {
               result = await record.toJsonAsync(true).then(result => get(result, 'attributes') || {});
               const nonExistAttrs = attsAsIs.filter(item => !Object.keys(result).includes(item));
 
               if (!isEmpty(nonExistAttrs)) {
-                const more = await record.load(nonExistAttrs);
+                const more = await record.load(nonExistAttrs, forceReload);
                 result = { ...result, ...more };
               }
             }
@@ -130,6 +136,7 @@ export const TableFormContextProvider = props => {
                 }
 
                 const component = allComponents.find(component => component.key === attData.name && component.type === 'ecosSelect');
+
                 if (component) {
                   const option = get(component, 'data.values', []).find(item => item.value === result[attSchema]);
 

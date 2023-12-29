@@ -88,6 +88,13 @@ export default [
             ru: 'Табличный',
             en: 'Table'
           }
+        },
+        {
+          value: DisplayModes.CUSTOM,
+          label: {
+            ru: 'Пользовательские значения',
+            en: 'Custom values'
+          }
         }
       ]
     },
@@ -95,6 +102,24 @@ export default [
     searchEnabled: false,
     defaultValue: DisplayModes.DEFAULT,
     input: true
+  },
+  {
+    type: 'textarea',
+    weight: 23,
+    conditional: {
+      json: {
+        and: [{ '==': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
+    input: true,
+    key: 'source.customValues',
+    label: {
+      ru: 'Пользовательские значения',
+      en: 'Custom values'
+    },
+    editor: 'ace',
+    rows: 10,
+    placeholder: 'values = [];'
   },
   {
     type: 'well',
@@ -294,6 +319,11 @@ export default [
   },
   {
     weight: 24,
+    conditional: {
+      json: {
+        and: [{ '!=': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
     type: 'panel',
     title: {
       ru: 'Пользовательские данные запроса',
@@ -323,6 +353,11 @@ export default [
   },
   {
     weight: 25,
+    conditional: {
+      json: {
+        and: [{ '!=': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
     type: 'panel',
     title: {
       ru: 'Пользовательский предикат',
@@ -352,6 +387,11 @@ export default [
   },
   {
     weight: 25,
+    conditional: {
+      json: {
+        and: [{ '!=': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
     type: 'panel',
     title: {
       ru: 'Отображаемое имя значения',
@@ -380,6 +420,11 @@ export default [
     ]
   },
   {
+    conditional: {
+      json: {
+        and: [{ '!=': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
     type: 'textfield',
     input: true,
     key: 'searchField',
@@ -393,6 +438,11 @@ export default [
   },
   {
     weight: 27,
+    conditional: {
+      json: {
+        and: [{ '!=': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
     type: 'panel',
     title: {
       ru: 'Предикаты предустановленного фильтра',
@@ -422,6 +472,11 @@ export default [
   },
   {
     weight: 29,
+    conditional: {
+      json: {
+        and: [{ '!=': [{ var: 'data.source.viewMode' }, DisplayModes.CUSTOM] }]
+      }
+    },
     type: 'panel',
     title: {
       ru: 'Сортировка',

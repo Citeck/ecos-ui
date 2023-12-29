@@ -37,7 +37,7 @@ describe('Export component tests', () => {
 
     expect(spy).toHaveBeenCalled();
 
-    const dropdownSource = new Export().dropdownSourceWithAlfresco;
+    const dropdownSource = new Export().dropdownSourceVariants(true, false);
 
     return Promise.resolve(component).then(() => {
       component.update();
@@ -56,7 +56,7 @@ describe('Export component tests', () => {
       .find('ul')
       .props();
 
-    const dropdownSource = new Export().dropdownSourceWithoutAlfresco;
+    const dropdownSource = new Export().dropdownSourceVariants(false, false);
 
     component.children.forEach((node, id) => {
       expect(node.props.item.id).toEqual(dropdownSource[id]['id']);

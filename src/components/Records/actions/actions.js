@@ -13,6 +13,7 @@ import OpenSubmitAction from './handler/executor/workflow/OpenSubmitAction';
 import EditAction from './handler/executor/EditAction';
 import EditMenuAction from './handler/executor/EditMenuAction';
 import EditPasswordAction from './handler/executor/EditPasswordAction';
+import EditPermissionsAction from './handler/executor/EditPermissionsAction';
 import ViewAction from './handler/executor/ViewAction';
 import ViewCardTemplateAction from './handler/executor/ViewCardTemplateAction';
 import ViewMenuAction from './handler/executor/ViewMenuAction';
@@ -34,6 +35,7 @@ import SaveAsCaseTemplateAction from './handler/executor/SaveAsCaseTemplateActio
 import DownloadCardTemplateAction from './handler/executor/DownloadCardTemplateAction';
 import DownloadZipAction from './handler/executor/DownloadZipAction';
 import ServerGroupAction from './handler/executor/ServerGroupAction';
+import ServerGroupActionV2 from './handler/executor/ServerGroupActionV2';
 import MutateAction from './handler/executor/MutateAction';
 import EditTypePermissionsAction from './handler/executor/EditTypePermissionsAction';
 import DebugFormAction from './handler/executor/DebugFormAction';
@@ -43,6 +45,8 @@ import EditJournalPresetAction from './handler/executor/EditJournalPresetAction'
 import DownloadByTemplateAction from './handler/executor/DownloadByTemplateAction';
 import RecordCopyAction from './handler/executor/RecordCopyAction';
 import TransformAction from './handler/executor/TransformAction';
+import CustomUiAction from './handler/executor/CustomUiAction';
+import MigrateTokenAction from './handler/executor/MigrateTokenAction';
 import { IS_TEST_ENV } from '../../../helpers/util';
 
 export { default } from './recordActions';
@@ -53,6 +57,7 @@ const registerAllActions = () => {
   actionsRegistry.register(new DeleteAction());
   actionsRegistry.register(new EditAction());
   actionsRegistry.register(new EditMenuAction());
+  actionsRegistry.register(new EditPermissionsAction());
   actionsRegistry.register(new AssocAction());
   actionsRegistry.register(new BackgroundOpenAction());
   actionsRegistry.register(new CreateAction());
@@ -69,6 +74,7 @@ const registerAllActions = () => {
   actionsRegistry.register(new ViewMenuAction());
   actionsRegistry.register(new DownloadZipAction());
   actionsRegistry.register(new ServerGroupAction());
+  actionsRegistry.register(new ServerGroupActionV2());
   actionsRegistry.register(new MutateAction());
   actionsRegistry.register(new EditTypePermissionsAction());
   actionsRegistry.register(new EditPasswordAction());
@@ -79,6 +85,8 @@ const registerAllActions = () => {
   actionsRegistry.register(new DownloadByTemplateAction());
   actionsRegistry.register(new RecordCopyAction());
   actionsRegistry.register(new TransformAction());
+  actionsRegistry.register(new CustomUiAction());
+  actionsRegistry.register(new MigrateTokenAction());
 
   // Executors - Case
 

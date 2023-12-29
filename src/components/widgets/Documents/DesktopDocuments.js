@@ -7,6 +7,7 @@ import { Scrollbars } from 'react-custom-scrollbars';
 import uniqueId from 'lodash/uniqueId';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
 import last from 'lodash/last';
@@ -17,9 +18,11 @@ import { Grid, InlineTools } from '../../common/grid';
 import DropZone from './parts/DropZone';
 import DocumentsConverter from '../../../dto/documents';
 import {
+  downloadAllDocuments,
   execRecordsAction,
   getAvailableTypes,
   getDocumentsByType,
+  getDocumentsByTypes,
   getTypeSettings,
   initStore,
   saveSettings,
@@ -117,6 +120,8 @@ class DesktopDocuments extends BaseDocuments {
   componentDidUpdate(prevProps, prevState) {
     super.componentDidUpdate(prevProps, prevState);
 
+    const { getAllDocuments } = this.props;
+
     if (prevProps.isUploadingFile && !this.props.isUploadingFile && (prevState.isOpenUploadModal || prevState.isDragFiles)) {
       this.uploadingComplete();
     }
@@ -128,6 +133,18 @@ class DesktopDocuments extends BaseDocuments {
 
     if (prevState.selectedType !== this.state.selectedType) {
       this.refreshGrid();
+    }
+
+    if ((prevState.selectedType && !this.state.selectedType) || prevProps.dynamicTypes !== this.props.dynamicTypes) {
+      isFunction(getAllDocuments) && getAllDocuments();
+    }
+
+    if (
+      (prevState.selectedType && !this.state.selectedType) ||
+      prevProps.dynamicTypes !== this.props.dynamicTypes ||
+      prevProps.documentsByTypes !== this.props.documentsByTypes
+    ) {
+      this.recalcDownloadIds();
     }
   }
 
@@ -268,6 +285,26 @@ class DesktopDocuments extends BaseDocuments {
     }
 
     return cloneDeep(type);
+  };
+
+  recalcDownloadIds = () => {
+    const { documentsByTypes } = this.props;
+    const { selectedType } = this.state;
+
+    if (selectedType) {
+      this.setState({ downloadIds: this.tableData.map(item => item.recordRef) });
+      return;
+    }
+
+    if (documentsByTypes) {
+      const documents = Object.values(documentsByTypes).reduce((result, current) => result.concat(current), []);
+
+      this.setState({ downloadIds: documents.map(document => document.recordRef) });
+      return;
+    }
+
+    this.setState({ downloadIds: null });
+    return;
   };
 
   setTableRef = ref => {
@@ -644,8 +681,8 @@ class DesktopDocuments extends BaseDocuments {
   };
 
   renderTablePanel() {
-    const { dynamicTypes } = this.props;
-    const { selectedType, statusFilter, typesStatuses, contentHeight, tableFilter } = this.state;
+    const { dynamicTypes, isLoadingDownload, downloadAllDocuments } = this.props;
+    const { selectedType, statusFilter, downloadIds, typesStatuses, contentHeight, tableFilter } = this.state;
 
     if (!selectedType && !dynamicTypes.length) {
       return null;
@@ -669,6 +706,9 @@ class DesktopDocuments extends BaseDocuments {
             onChangeFilter={this.handleChangeTypeFilter}
             forwardedRef={this._tablePanel}
             scrollbarHeightMax={this.tableHeight}
+            allDocuments={downloadIds}
+            isLoadingDownload={isLoadingDownload}
+            downloadAllDocuments={downloadAllDocuments}
           />
         </Scrollbars>
       );
@@ -687,6 +727,9 @@ class DesktopDocuments extends BaseDocuments {
         onChangeFilter={this.handleChangeTypeFilter}
         forwardedRef={this._tablePanel}
         scrollbarHeightMax={this.tableHeight}
+        allDocuments={downloadIds}
+        isLoadingDownload={isLoadingDownload}
+        downloadAllDocuments={downloadAllDocuments}
       />
     );
   }
@@ -882,7 +925,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
   return {
     initStore: () => dispatch(initStore({ ...baseParams, config: ownProps.config })),
+    downloadAllDocuments: allDocuments => dispatch(downloadAllDocuments({ ...baseParams, allDocuments })),
     getDocuments: (type = '') => dispatch(getDocumentsByType({ ...baseParams, type })),
+    getAllDocuments: () => dispatch(getDocumentsByTypes({ ...baseParams })),
     onSaveSettings: (types, config, selectedType) => dispatch(saveSettings({ ...baseParams, types, config, selectedType })),
     onUploadFiles: data => dispatch(uploadFiles({ ...baseParams, ...data })),
     setError: (type, message = '') => dispatch(setError({ ...baseParams, type, message })),

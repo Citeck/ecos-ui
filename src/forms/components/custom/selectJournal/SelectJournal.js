@@ -7,7 +7,7 @@ import Records from '../../../../components/Records';
 import EcosFormUtils from '../../../../components/EcosForm/EcosFormUtils';
 import GqlDataSource from '../../../../components/common/grid/dataSource/GqlDataSource';
 import BaseReactComponent from '../base/BaseReactComponent';
-import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_JOURNAL_ID_REGEX } from './constants';
+import { DataTypes, DisplayModes, SortOrderOptions, TableTypes, TEMPLATE_REGEX } from './constants';
 
 export default class SelectJournalComponent extends BaseReactComponent {
   static schema(...extend) {
@@ -35,7 +35,8 @@ export default class SelectJournalComponent extends BaseReactComponent {
             columns: []
           },
           type: TableTypes.JOURNAL,
-          viewMode: DisplayModes.DEFAULT
+          viewMode: DisplayModes.DEFAULT,
+          customValues: []
         },
         displayColumns: [],
         computed: {
@@ -67,7 +68,7 @@ export default class SelectJournalComponent extends BaseReactComponent {
   get journalId() {
     let journalId = this.component.journalId || '';
 
-    const matches = journalId.match(TEMPLATE_JOURNAL_ID_REGEX);
+    const matches = journalId.match(TEMPLATE_REGEX);
 
     if (!matches) {
       return journalId;
@@ -333,10 +334,12 @@ export default class SelectJournalComponent extends BaseReactComponent {
       disabled: comp.disabled,
       viewOnly: this.viewOnly,
       viewMode: comp.source.viewMode,
+      customValues: SelectJournalComponent.getCustomValues(comp),
       displayColumns: comp.displayColumns,
       isSelectedValueAsText: comp.isSelectedValueAsText,
       isFullScreenWidthModal: comp.isFullScreenWidthModal,
       isInlineEditingMode: this._isInlineEditingMode,
+      forceReload: comp.forceReload,
       searchField: comp.searchField,
       sortBy: {
         attribute: comp.sortAttribute,
@@ -568,6 +571,14 @@ export default class SelectJournalComponent extends BaseReactComponent {
     }
 
     return result || value;
+  };
+
+  static getCustomValues = component => {
+    if (component.source.customValues) {
+      return formioEvaluate(component.source.customValues, {}, 'values', true);
+    }
+
+    return [];
   };
 
   static optimizeSchema(comp) {

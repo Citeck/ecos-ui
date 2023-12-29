@@ -11,6 +11,7 @@ const initialState = {
   totalCount: 0,
   journalConfig: null,
   model: null,
+  sectionPath: '',
   heatmapData: null
 };
 
