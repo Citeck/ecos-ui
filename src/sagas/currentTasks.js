@@ -18,6 +18,10 @@ function* runInit({ api, logger }, { payload }) {
   }
 }
 
+function* getConfigValue(value) {
+  return yield ConfigService.getValue(value);
+}
+
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
   try {
     const { record: document, stateId } = payload;
@@ -28,7 +32,7 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     } else {
       const currentTasksList = TasksConverter.getCurrentTaskListForWeb(result.records);
       for (let currentTask of currentTasksList) {
-        const isAlfrescoEnabled = yield ConfigService.getValue(ALFRESCO_ENABLED);
+        const isAlfrescoEnabled = yield* getConfigValue(ALFRESCO_ENABLED);
         const canReadDef = isAlfrescoEnabled || currentTask.canReadDef;
 
         currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
