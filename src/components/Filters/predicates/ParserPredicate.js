@@ -84,7 +84,11 @@ export default class ParserPredicate {
       const val = get(row, [key, 'value']) || get(row, [key]);
       const column = filteredColumns.find(c => c.attribute === key) || {};
       const type = column.type;
-      const predicate = EQUAL_PREDICATES_MAP[type];
+      let predicate = EQUAL_PREDICATES_MAP[type];
+
+      if (val === null && column.type) {
+        predicate = PREDICATE_EMPTY;
+      }
 
       if (predicate) {
         values.push(new Predicate({ att: key, t: predicate, val }));
@@ -173,7 +177,7 @@ export default class ParserPredicate {
         return true;
       }
 
-      return !!v.val || v.val === 0 || v.val === false || v.val === null;
+      return !!v.val || v.val === 0 || v.val === false;
     });
   }
 

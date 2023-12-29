@@ -69,10 +69,6 @@ export function convertAttributeValues(predicate, columns) {
       const type = _.get(col, 'type');
 
       current.val = convertValueByType(type, current.val);
-
-      if (current.val === '') {
-        current.t = 'empty';
-      }
     }
   }
 
