@@ -264,7 +264,9 @@ class DesignerCategory extends React.Component {
       );
     }
 
-    if (searchText) {
+    const shownActions = actions.filter(action => !action.hidden);
+
+    if (searchText || !shownActions.length) {
       actionButtons = null;
     }
 
