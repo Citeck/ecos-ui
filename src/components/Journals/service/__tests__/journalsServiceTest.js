@@ -1,5 +1,6 @@
 import journalsService from '../journalsService';
 import journalsServiceApi from '../__mocks__/journalsServiceApi';
+import 'fake-indexeddb/auto';
 
 jest.mock('../journalsServiceApi');
 

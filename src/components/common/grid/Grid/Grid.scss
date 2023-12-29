@@ -314,3 +314,36 @@ $header-height: 52px;
   font-weight: unset;
   font-size: $font-size-small;
 }
+
+.ecos-grid-tooltip__wrapper {
+  &.ecos-grid-tooltip {
+    .ecos-grid-tooltip__inner {
+      max-width: unset;
+      background-color: $color-white;
+      color: $text-color-dark;
+      padding: 12px 25px 7px 25px;
+    }
+
+    .ecos-grid-tooltip__button {
+      display: flex;
+      align-items: center;
+      height: 30px;
+      font-size: $font-size-extra-small;
+      font-weight: $font-weight-bold;
+    }
+
+    .ecos-grid-tooltip__content {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 3px 0;
+    }
+
+    .ecos-grid-tooltip__close {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      font-size: $font-size-small;
+    }
+  }
+}

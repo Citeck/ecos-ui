@@ -133,8 +133,9 @@ export default class HeaderFormatter extends Component {
       );
   }, 0);
 
+  //
   onDividerMouseDown = e => {
-    const { colIndex, onDividerMouseDown } = this.props;
+    const { colIndex, onDividerMouseDown, column } = this.props;
     const current = this.thRef.current;
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
@@ -144,7 +145,9 @@ export default class HeaderFormatter extends Component {
       onDividerMouseDown({
         e: e,
         th: current.parentElement,
-        colIndex
+        colIndex,
+        name: column.name,
+        id: this.divineId
       });
   };
 
@@ -381,6 +384,7 @@ export default class HeaderFormatter extends Component {
     this.tooltipFilterId = `filter-${id}`;
     this.tooltipLabelId = `label-${id}`;
     this.tooltipTextId = `text-${id}`;
+    this.divineId = `divine-${id}`;
 
     return (
       <div
@@ -406,8 +410,10 @@ export default class HeaderFormatter extends Component {
           </EcosTooltip>
           {this.renderActions()}
         </div>
+
         {this.renderFilter()}
-        <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} />
+
+        <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} id={this.divineId} />
       </div>
     );
   }
