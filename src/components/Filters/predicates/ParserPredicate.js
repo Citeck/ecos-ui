@@ -173,7 +173,7 @@ export default class ParserPredicate {
         return true;
       }
 
-      return !!v.val || v.val === 0 || v.val === false;
+      return !!v.val || v.val === 0 || v.val === false || v.val === null;
     });
   }
 
