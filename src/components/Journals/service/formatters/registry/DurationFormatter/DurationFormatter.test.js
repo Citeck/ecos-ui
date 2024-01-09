@@ -164,4 +164,30 @@ describe('DurationFormatter', () => {
     const result = durationFormatterInstance.format(props);
     expect(result).toBe('421d 13h 54m 30s');
   });
+
+  it('should format duration max as hours enabled', () => {
+    const props = {
+      cell: 495000000, // 137h 30m or 5d 17h 30m
+      config: { maxAsHours: true }
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('137h 30m');
+  });
+
+  it('should format duration max as hours disabled', () => {
+    const props = {
+      cell: 495000000, // 137h 30m or 5d 17h 30m
+      config: { maxAsHours: false }
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('5d 17h 30m');
+  });
+
+  it('should format duration max as hours disabled by default', () => {
+    const props = {
+      cell: 495000000 // 137h 30m or 5d 17h 30m
+    };
+    const result = durationFormatterInstance.format(props);
+    expect(result).toBe('5d 17h 30m');
+  });
 });

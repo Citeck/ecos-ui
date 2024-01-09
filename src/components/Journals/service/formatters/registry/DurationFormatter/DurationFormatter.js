@@ -17,19 +17,24 @@ export default class DurationFormatter extends BaseFormatter {
       return '';
     }
 
+    // showSeconds is true by default
     const showSeconds = isBoolean(config.showSeconds) ? config.showSeconds : config.showSeconds !== 'false';
+
+    // maxAsHours is false by default
+    const maxAsHours = isBoolean(config.maxAsHours) ? config.maxAsHours : config.maxAsHours === 'true';
+
     const isNegative = cell < 0;
     const numberModulo = Math.abs(cell);
     const duration = moment.duration(numberModulo);
 
     const days = Math.floor(duration.asDays());
-    const hours = duration.hours();
+    const hours = maxAsHours ? Math.floor(duration.asHours()) : duration.hours();
     const minutes = duration.minutes();
     const seconds = duration.seconds();
 
     const formattedParts = [];
 
-    if (days > 0) {
+    if (!maxAsHours && days > 0) {
       formattedParts.push(`${days}d`);
     }
     if (hours > 0) {
