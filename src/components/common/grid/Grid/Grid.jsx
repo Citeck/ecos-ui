@@ -26,7 +26,7 @@ import isElement from 'lodash/isElement';
 import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
 
-import { getId, isInViewport, t } from '../../../../helpers/util';
+import { getId, isInViewport, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
@@ -87,6 +87,8 @@ class Grid extends Component {
       selected: props.selected || [],
       updatedColumn: null
     };
+
+    this.userName = getCurrentUserName();
   }
 
   get hasCheckboxes() {
@@ -787,7 +789,7 @@ class Grid extends Component {
 
       this.#columnsSizes = columnsSizes;
 
-      if (journalId) {
+      if (journalId && this.userName) {
         this.setState({
           updatedColumn: {
             width: this._resizingTh.style.width,
@@ -816,7 +818,7 @@ class Grid extends Component {
   };
 
   saveColumnWidth = async () => {
-    const { journalId } = this.props;
+    const { journalId, onColumnSave } = this.props;
     const { updatedColumn } = this.state;
     const { name, width } = updatedColumn;
 
@@ -828,20 +830,26 @@ class Grid extends Component {
     try {
       let dbValue = (await pagesStore.get(journalId)) || {
         pageId: journalId,
-        columns: {}
+        [this.userName]: {
+          columns: {}
+        }
       };
 
-      let currentColumn = dbValue.columns[name] || {};
+      let currentColumn = dbValue[this.userName]?.columns[name] || {};
 
-      dbValue.columns = {
-        ...dbValue.columns,
-        [name]: {
-          ...currentColumn,
-          width
+      dbValue[this.userName] = {
+        ...dbValue[this.userName],
+        columns: {
+          ...dbValue.columns,
+          [name]: {
+            ...currentColumn,
+            width
+          }
         }
       };
 
       await pagesStore.put(dbValue);
+      onColumnSave(updatedColumn);
       NotificationManager.success(t('grid.column.save.message.success'), t('success'), 3000);
     } catch (e) {
       NotificationManager.error(t('grid.column.save.message.error'), t('error'), 3000);
@@ -1250,6 +1258,7 @@ Grid.propTypes = {
   onChangeTrOptions: PropTypes.func,
   onScrolling: PropTypes.func,
   onOpenSettings: PropTypes.func,
+  onColumnSave: PropTypes.func,
   inlineTools: PropTypes.func,
 
   deselectAllRecords: PropTypes.func
