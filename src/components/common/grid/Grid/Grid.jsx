@@ -818,7 +818,7 @@ class Grid extends Component {
   };
 
   saveColumnWidth = async () => {
-    const { journalId } = this.props;
+    const { journalId, onColumnSave } = this.props;
     const { updatedColumn } = this.state;
     const { name, width } = updatedColumn;
 
@@ -849,6 +849,7 @@ class Grid extends Component {
       };
 
       await pagesStore.put(dbValue);
+      onColumnSave(updatedColumn);
       NotificationManager.success(t('grid.column.save.message.success'), t('success'), 3000);
     } catch (e) {
       NotificationManager.error(t('grid.column.save.message.error'), t('error'), 3000);
@@ -1257,6 +1258,7 @@ Grid.propTypes = {
   onChangeTrOptions: PropTypes.func,
   onScrolling: PropTypes.func,
   onOpenSettings: PropTypes.func,
+  onColumnSave: PropTypes.func,
   inlineTools: PropTypes.func,
 
   deselectAllRecords: PropTypes.func

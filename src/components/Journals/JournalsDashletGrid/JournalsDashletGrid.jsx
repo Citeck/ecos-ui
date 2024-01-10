@@ -24,7 +24,8 @@ import {
   setPredicate,
   setSelectAllPageRecords,
   setSelectAllRecordsVisible,
-  setSelectedRecords
+  setSelectedRecords,
+  saveColumn
 } from '../../../actions/journals';
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
@@ -56,7 +57,8 @@ const mapDispatchToProps = (dispatch, props) => {
     goToJournalsPage: row => dispatch(goToJournalsPage(w(row))),
     setPredicate: options => dispatch(setPredicate(w(options))),
     setJournalSetting: settings => dispatch(setJournalSetting(w(settings))),
-    setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy })))
+    setColumnsSetup: (columns, sortBy) => dispatch(setColumnsSetup(w({ columns, sortBy }))),
+    saveColumn: data => dispatch(saveColumn(w(data)))
   };
 };
 //todo rethink this solution without empty grid and especially cloneElement for grid
@@ -216,6 +218,11 @@ class JournalsDashletGrid extends Component {
     this.setState({ isDialogShow: false });
   };
 
+  handleColumnSave = updatedColumn => {
+    const { saveColumn } = this.props;
+    saveColumn(updatedColumn);
+  };
+
   render() {
     const {
       selectedRecords,
@@ -301,6 +308,7 @@ class JournalsDashletGrid extends Component {
               isResetSettings={isResetGridSettings}
               deselectAllRecords={deselectAllRecords}
               journalId={journalId}
+              onColumnSave={this.handleColumnSave}
             />
           </HeightCalculation>
         </div>
