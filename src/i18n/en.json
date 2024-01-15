@@ -914,6 +914,7 @@
   "grid.column.save": "Save",
   "grid.column.save.message.success": "Column width is saved",
   "grid.column.save.message.error": "Column width is not saved",
+  "grid.footer.total-amount": "The total amount: ",
 
   "grouping.how": "How to group",
   "grouping.show": "View the principle of grouping",

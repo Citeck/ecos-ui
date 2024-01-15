@@ -445,6 +445,35 @@ class Grid extends Component {
     options.data = replaceDefaultNestedDelimiterForData(options.data);
     options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
 
+    let countFields = {};
+
+    if (options.columns && options.columns.length) {
+      options.columns.forEach(column => {
+        if (column.multiple) {
+          countFields[column.name] = 0;
+        }
+      });
+
+      if (props.data && props.data.length && !isEmpty(countFields)) {
+        const countFieldsArray = Object.keys(countFields);
+
+        props.data.forEach(rowData => {
+          countFieldsArray.forEach(countFieldName => {
+            countFields[countFieldName] += +rowData[countFieldName];
+          });
+        });
+
+        options.columns.forEach(column => {
+          if (countFields[column.name]) {
+            column.footer = `${t('grid.footer.total-amount')}${countFields[column.name]}`;
+            column.footerClasses = 'ecos-grid__table_footer__cell';
+          } else {
+            column.footer = '';
+          }
+        });
+      }
+    }
+
     return options;
   }
 
@@ -1114,7 +1143,10 @@ class Grid extends Component {
       'columns',
       'rowEvents'
     ]);
+
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
+
+    console.log('bootProps', bootProps);
 
     return (
       <>
@@ -1127,6 +1159,7 @@ class Grid extends Component {
                 'ecos-grid__header_columns-not-resizable': !resizableColumns
               })}
               rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+              footerClasses="ecos-grid__table_footer"
             />
           </ErrorTable>
         </div>
