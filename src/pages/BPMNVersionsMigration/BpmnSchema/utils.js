@@ -13,7 +13,7 @@ export const getProcessValue = option => {
 export const getVersionLabel = option => {
   const version = option.version ? option.version : `${option.innerVersion} - ${t('bpmn-admin.inner-version')} `;
 
-  return `${version} (${get(option, 'statistics.incidentCount', 0)}/${get(option, 'statistics.incidentCount', 0)})`;
+  return `${version} (${get(option, 'statistics.incidentCount', 0)}/${get(option, 'statistics.instancesCount', 0)})`;
 };
 
 export const getVersionValue = option => {

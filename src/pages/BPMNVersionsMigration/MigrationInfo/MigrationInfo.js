@@ -45,20 +45,7 @@ const MigrationInfo = ({ processId }) => {
       const record = head(result.records);
 
       if (record) {
-        let plan = record.migrationPlan;
-
-        if (activities && activities.length) {
-          plan = {
-            ...plan,
-            processInstanceQuery: {
-              processDefinitionId: source,
-              activityIdIn: activities
-            },
-            skipCustomListeners: true
-          };
-        }
-
-        setMigrationPlan(plan);
+        setMigrationPlan(record.migrationPlan);
       }
     });
   };
