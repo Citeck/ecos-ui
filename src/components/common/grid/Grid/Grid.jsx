@@ -840,7 +840,7 @@ class Grid extends Component {
       dbValue[this.userName] = {
         ...dbValue[this.userName],
         columns: {
-          ...dbValue.columns,
+          ...dbValue[this.userName].columns,
           [name]: {
             ...currentColumn,
             width
