@@ -872,6 +872,7 @@
   "grid.column.save": "Сохранить",
   "grid.column.save.message.success": "Ширина колонки сохранена",
   "grid.column.save.message.error": "Ширина колонки не сохранена",
+  "grid.footer.total-amount": "Общая сумма: ",
 
   "grouping.how": "Как группировать",
   "grouping.show": "Посмотреть принцип действия группировки",
