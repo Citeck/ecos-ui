@@ -53,8 +53,6 @@ const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
 
-const MAX_START_TH_WIDTH = 500;
-
 const cssNum = v => `${v}px`;
 
 class Grid extends Component {
@@ -119,7 +117,6 @@ class Grid extends Component {
       this._shadowHeadNode = head(current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW));
       this._shadowLeftNode = head(current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW));
       this._firstHeaderCellNode = current.querySelector('thead > tr > th:first-child .ecos-grid__checkbox-divider');
-      this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 1);
     }
 
     this.checkScrollPosition();
@@ -169,7 +166,6 @@ class Grid extends Component {
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
-    clearTimeout(this._timeoutDefaultWidth);
   }
 
   setGridRef = ref => {
@@ -198,24 +194,6 @@ class Grid extends Component {
         const width = cell && !!get(this.#columnsSizes, [i, 'width']);
         width && (cell.style.width = cssNum(width));
       });
-  };
-
-  setDefaultWidth = () => {
-    if (!this._startResizingThOffset && this._ref.current) {
-      const table = this._ref.current.querySelector('.react-bootstrap-table > table');
-      const thCells = table && head(table.rows).cells;
-
-      if (!isEmpty(thCells)) {
-        const checkbox = table.querySelector('.ecos-grid__checkbox');
-        const cellLen = thCells.length - (checkbox ? 1 : 0);
-        const proratedSizeCell = (table.parentElement.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
-        const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
-        const max = Math.max(clearedSizeCell, MAX_START_TH_WIDTH);
-        if (cellLen > 1 && table.clientWidth > table.parentElement.clientWidth) {
-          Array.from(thCells).forEach(cell => cell.clientWidth > max && (cell.style.width = cssNum(max)));
-        }
-      }
-    }
   };
 
   checkScrollPosition() {
