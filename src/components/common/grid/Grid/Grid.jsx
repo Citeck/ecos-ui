@@ -449,7 +449,7 @@ class Grid extends Component {
 
     if (options.columns && options.columns.length) {
       options.columns.forEach(column => {
-        if (column.hasCountField) {
+        if (column.hasTotalSumField) {
           countFields[column.name] = 0;
         }
       });
