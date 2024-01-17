@@ -162,7 +162,7 @@ class RecordActions {
    * @returns {Object}
    * @private
    */
-  static _getConfirmData = async (action, _params) => {
+  static _getConfirmData = async (action, params) => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
@@ -170,10 +170,13 @@ class RecordActions {
     const condition = get(action, 'confirm.condition.fn', false);
 
     if (isFunction(condition)) {
+      const record = get(params, 'actionRecord');
+      // eslint-disable-next-line no-unused-vars
+      const records = get(params, 'actionRecords', record ? [record] : []);
       // eslint-disable-next-line no-eval
       const result = await eval(`(function() { ${condition} })();`);
 
-      if (isBoolean(result) && result) {
+      if (!result) {
         return false;
       }
     }
