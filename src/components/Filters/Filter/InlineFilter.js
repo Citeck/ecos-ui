@@ -127,17 +127,26 @@ class InlineFilter extends Filter {
 
   render() {
     const { className, children } = this.props;
+    const {
+      filter: {
+        meta: { column }
+      }
+    } = this.props;
 
     return (
       <div className={classNames('ecos-inline-filter', className)}>
         {children}
 
         <div className="ecos-inline-filter__body">
-          {this.renderSelector()}
-          {this.renderValue()}
+          {!column.disableSelect && (
+            <>
+              {this.renderSelector()}
+              {this.renderValue()}
+            </>
+          )}
           <div className="ecos-inline-filter__actions">
             {this.renderDeleteAction()}
-            {this.renderConfirmAction()}
+            {!column.disableSelect && this.renderConfirmAction()}
           </div>
         </div>
       </div>

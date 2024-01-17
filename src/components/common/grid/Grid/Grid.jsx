@@ -23,7 +23,10 @@ import isBoolean from 'lodash/isBoolean';
 import isObject from 'lodash/isObject';
 import isElement from 'lodash/isElement';
 
-import { getId, isInViewport, t } from '../../../../helpers/util';
+import { Tooltip } from 'reactstrap';
+import { NotificationManager } from 'react-notifications';
+
+import { getId, isInViewport, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
@@ -35,8 +38,13 @@ import ErrorTable from '../ErrorTable';
 import SelectorHeader from './SelectorHeader';
 import Selector from './Selector';
 import pageTabList from '../../../../services/pageTabs/PageTabList';
+import Button from '../../btns/Btn';
+import { pagesStore } from '../../../../helpers/indexedDB';
+import ClickOutside from '../../../ClickOutside';
+import Icon from '../../icons/Icon';
 
 import './Grid.scss';
+import '../../Tooltip/style.scss';
 
 const CUSTOM_NESTED_DELIMITER = '|';
 const ECOS_GRID_HOVERED_CLASS = 'ecos-grid_hovered';
@@ -44,8 +52,6 @@ const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
-
-const MAX_START_TH_WIDTH = 500;
 
 const cssNum = v => `${v}px`;
 
@@ -76,8 +82,11 @@ class Grid extends Component {
       tableHeight: 0,
       isScrolling: false,
       maxHeight: props.maxHeight,
-      selected: props.selected || []
+      selected: props.selected || [],
+      updatedColumn: null
     };
+
+    this.userName = getCurrentUserName();
   }
 
   get hasCheckboxes() {
@@ -108,7 +117,6 @@ class Grid extends Component {
       this._shadowHeadNode = head(current.getElementsByClassName(ECOS_GRID_HEAD_SHADOW));
       this._shadowLeftNode = head(current.getElementsByClassName(ECOS_GRID_LEFT_SHADOW));
       this._firstHeaderCellNode = current.querySelector('thead > tr > th:first-child .ecos-grid__checkbox-divider');
-      this._timeoutDefaultWidth = setTimeout(this.setDefaultWidth, 1);
     }
 
     this.checkScrollPosition();
@@ -158,7 +166,6 @@ class Grid extends Component {
     this.removeColumnResizeEvents();
     this.removeKeydownEvents();
     this.removeDragEvents();
-    clearTimeout(this._timeoutDefaultWidth);
   }
 
   setGridRef = ref => {
@@ -187,24 +194,6 @@ class Grid extends Component {
         const width = cell && !!get(this.#columnsSizes, [i, 'width']);
         width && (cell.style.width = cssNum(width));
       });
-  };
-
-  setDefaultWidth = () => {
-    if (!this._startResizingThOffset && this._ref.current) {
-      const table = this._ref.current.querySelector('.react-bootstrap-table > table');
-      const thCells = table && head(table.rows).cells;
-
-      if (!isEmpty(thCells)) {
-        const checkbox = table.querySelector('.ecos-grid__checkbox');
-        const cellLen = thCells.length - (checkbox ? 1 : 0);
-        const proratedSizeCell = (table.parentElement.clientWidth - (checkbox ? checkbox.clientWidth : 0)) / cellLen;
-        const clearedSizeCell = Math.floor(proratedSizeCell / 10) * 10;
-        const max = Math.max(clearedSizeCell, MAX_START_TH_WIDTH);
-        if (cellLen > 1 && table.clientWidth > table.parentElement.clientWidth) {
-          Array.from(thCells).forEach(cell => cell.clientWidth > max && (cell.style.width = cssNum(max)));
-        }
-      }
-    }
   };
 
   checkScrollPosition() {
@@ -301,8 +290,10 @@ class Grid extends Component {
 
     if (Array.isArray(extra.columns)) {
       options.columns = extra.columns.map(column => {
-        if (column.width) {
-          set(column, 'headerStyle.width', column.width);
+        const width = column.width;
+
+        if (width) {
+          set(column, 'headerStyle.width', width);
           get(column, 'style.width') && delete column.style.width;
         }
 
@@ -432,6 +423,35 @@ class Grid extends Component {
     options.data = replaceDefaultNestedDelimiterForData(options.data);
     options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
 
+    let countFields = {};
+
+    if (options.columns && options.columns.length) {
+      options.columns.forEach(column => {
+        if (column.hasTotalSumField) {
+          countFields[column.name] = 0;
+        }
+      });
+
+      if (props.data && props.data.length && !isEmpty(countFields)) {
+        const countFieldsArray = Object.keys(countFields);
+
+        props.data.forEach(rowData => {
+          countFieldsArray.forEach(countFieldName => {
+            countFields[countFieldName] += +rowData[countFieldName];
+          });
+        });
+
+        options.columns.forEach(column => {
+          if (countFields[column.name]) {
+            column.footer = `${t('grid.footer.total-amount')}${countFields[column.name]}`;
+            column.footerClasses = 'ecos-grid__table_footer__cell';
+          } else {
+            column.footer = '';
+          }
+        });
+      }
+    }
+
     return options;
   }
 
@@ -556,6 +576,7 @@ class Grid extends Component {
   setHeaderFormatter = (column, filterable, sortable) => {
     const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
+    const disableSelect = column.disableSelect;
     const isSortable = sortable && isFunction(onSort);
 
     column.headerFormatter = (column, colIndex) => {
@@ -576,6 +597,7 @@ class Grid extends Component {
           filterValue={filterValue}
           onFilter={this.onFilter}
           sortable={isSortable}
+          disableSelect={disableSelect}
           onSort={this.onSort}
           ascending={ascending}
           column={column}
@@ -724,6 +746,8 @@ class Grid extends Component {
 
   getStartDividerPosition = options => {
     this._resizingTh = options.th;
+    this._resizingTh.dataset.name = options.name;
+    this._resizingTh.dataset.id = options.id;
     this._tableDom = isElement(options.th) ? options.th.closest('table') : null;
     this._startResizingThOffset = this._resizingTh.offsetWidth - options.e.pageX;
   };
@@ -753,6 +777,8 @@ class Grid extends Component {
   };
 
   clearResizingColumn = e => {
+    const { journalId } = this.props;
+
     if (this._resizingTh && this._tableDom) {
       const cells = head(this._tableDom.rows).cells;
       const columnsSizes = {};
@@ -769,6 +795,16 @@ class Grid extends Component {
       }
 
       this.#columnsSizes = columnsSizes;
+
+      if (journalId && this.userName) {
+        this.setState({
+          updatedColumn: {
+            width: this._resizingTh.style.width,
+            name: this._resizingTh.dataset.name,
+            id: this._resizingTh.dataset.id
+          }
+        });
+      }
     }
 
     this._resizingTh = null;
@@ -786,6 +822,54 @@ class Grid extends Component {
     isFunction(tools) && tools(selected);
 
     return null;
+  };
+
+  saveColumnWidth = async () => {
+    const { journalId, onColumnSave } = this.props;
+    const { updatedColumn } = this.state;
+    const { name, width } = updatedColumn;
+
+    if (!journalId) {
+      this.closeColumnWidth();
+      return;
+    }
+
+    try {
+      let dbValue = (await pagesStore.get(journalId)) || {
+        pageId: journalId,
+        [this.userName]: {
+          columns: {}
+        }
+      };
+
+      let currentColumn = dbValue[this.userName]?.columns[name] || {};
+
+      dbValue[this.userName] = {
+        ...dbValue[this.userName],
+        columns: {
+          ...dbValue[this.userName].columns,
+          [name]: {
+            ...currentColumn,
+            width
+          }
+        }
+      };
+
+      await pagesStore.put(dbValue);
+      onColumnSave(updatedColumn);
+      NotificationManager.success(t('grid.column.save.message.success'), t('success'), 3000);
+    } catch (e) {
+      NotificationManager.error(t('grid.column.save.message.error'), t('error'), 3000);
+      console.error(e);
+    }
+
+    this.closeColumnWidth();
+  };
+
+  closeColumnWidth = () => {
+    this.setState({
+      updatedColumn: null
+    });
   };
 
   onMouseLeave = e => {
@@ -1037,7 +1121,10 @@ class Grid extends Component {
       'columns',
       'rowEvents'
     ]);
+
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
+
+    console.log('bootProps', bootProps);
 
     return (
       <>
@@ -1050,6 +1137,7 @@ class Grid extends Component {
                 'ecos-grid__header_columns-not-resizable': !resizableColumns
               })}
               rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+              footerClasses="ecos-grid__table_footer"
             />
           </ErrorTable>
         </div>
@@ -1060,6 +1148,7 @@ class Grid extends Component {
 
   render() {
     const { className, noTopBorder, columns, noHeader, scrollable, selected, multiSelectable, noHorizontalScroll } = this.props;
+    const { updatedColumn } = this.state;
 
     if (isEmpty(columns)) {
       return null;
@@ -1087,6 +1176,31 @@ class Grid extends Component {
 
         {scrollable ? this.renderScrollableGrid() : this.renderGrid()}
 
+        {updatedColumn && (
+          <Tooltip
+            target={updatedColumn.id}
+            placement="top"
+            boundariesElement="window"
+            isOpen
+            className={classNames('ecos-base-tooltip')}
+            popperClassName={classNames('ecos-base-tooltip-popper', 'ecos-grid-tooltip', 'ecos-grid-tooltip__wrapper')}
+            arrowClassName={classNames('ecos-base-tooltip-arrow')}
+            innerClassName={classNames('ecos-base-tooltip-inner', 'ecos-grid-tooltip__inner')}
+          >
+            <ClickOutside handleClickOutside={this.closeColumnWidth}>
+              <div className={classNames('ecos-grid-tooltip__content')}>
+                <Icon className="icon-small-close ecos-grid-tooltip__close" onClick={this.closeColumnWidth} />
+
+                {t('grid.column.is-save')}
+
+                <Button onClick={this.saveColumnWidth} className={classNames('ecos-grid-tooltip__button')}>
+                  {t('grid.column.save')}
+                </Button>
+              </div>
+            </ClickOutside>
+          </Tooltip>
+        )}
+
         {this.fixedHeader ? (
           <>
             <div className={ECOS_GRID_HEAD_SHADOW} />
@@ -1107,6 +1221,7 @@ Grid.propTypes = {
   keyField: PropTypes.string,
   dataField: PropTypes.string,
   recordRef: PropTypes.string,
+  journalId: PropTypes.string,
 
   filterable: PropTypes.bool,
   editable: PropTypes.bool,
@@ -1154,6 +1269,7 @@ Grid.propTypes = {
   onChangeTrOptions: PropTypes.func,
   onScrolling: PropTypes.func,
   onOpenSettings: PropTypes.func,
+  onColumnSave: PropTypes.func,
   inlineTools: PropTypes.func,
 
   deselectAllRecords: PropTypes.func

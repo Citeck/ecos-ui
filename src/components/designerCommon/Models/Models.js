@@ -88,7 +88,8 @@ class Models extends React.Component {
       onDeleteModelClick,
       onEditMetaClick,
       showModelCreationForm,
-      createModelCardLabel
+      createModelCardLabel,
+      canEditDef
     } = this.props;
 
     const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
@@ -109,10 +110,12 @@ class Models extends React.Component {
                 onDeleteModelClick={e => onDeleteModelClick(e, model.id)}
                 onEditMetaClick={e => onEditMetaClick(e, model.id)}
                 label={model.label}
+                sectionCode={model.sectionCode}
                 author={model.creator}
                 datetime={moment(model.created).calendar()}
                 image={model.previewUrl}
                 definition={model.definition}
+                canEditDef={canEditDef}
               />
             ))}
             {viewType === ViewTypes.CARDS && !isLoading && !models.length && !searchText && (

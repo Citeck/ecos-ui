@@ -5,6 +5,7 @@ import { Col, Container, Row } from 'reactstrap';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
 
+import BpmAdministration from '../../pages/BPMAdministrationPage/BpmAdministration';
 import { t } from '../../helpers/util';
 import { SectionTypes } from '../../constants/adminSection';
 import pageTabList from '../../services/pageTabs/PageTabList';
@@ -60,7 +61,7 @@ class AdminSection extends React.PureComponent {
   };
 
   isHidden = type => {
-    const { isActivePage, activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
+    const { activeSection, isAccessibleSectionType, urlParams, isAccessible } = this.props;
     const { type: typeFromUrl } = urlParams;
 
     if (!isAccessible) {
@@ -71,7 +72,7 @@ class AdminSection extends React.PureComponent {
       return true;
     }
 
-    return !isActivePage || (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
+    return (activeSection.type || SectionTypes.DEV_TOOLS) !== type;
   };
 
   isFluid = () => ![SectionTypes.DEV_TOOLS].includes(get(this.props, 'activeSection.type'));
@@ -140,6 +141,7 @@ class AdminSection extends React.PureComponent {
             )}
             <Row className="m-0 p-0">
               <Col className="m-0 p-0" md={12}>
+                <BpmAdministration hidden={this.isHidden(SectionTypes.BPMN_ADMIN)} />
                 <DMNDesigner hidden={this.isHidden(SectionTypes.DMN)} />
                 <BPMNDesigner hidden={this.isHidden(SectionTypes.BPM)} />
                 <JournalViewer

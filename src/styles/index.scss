@@ -40,6 +40,16 @@ ul {
   padding: 0;
 }
 
+ul.ul-initial {
+  list-style: initial;
+  padding: 0 16px 8px;
+}
+
+.text-bold {
+  font-size: $font-size-standard;
+  font-weight: $font-weight-semi-bold;
+}
+
 // for check scrollbar width in your browser
 .scrollbar-measure {
   width: 100px;

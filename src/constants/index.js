@@ -17,6 +17,9 @@ export const URL = {
   ADMIN_PAGE: '/v2/admin',
   /** @deprecated */
   BPMN_DESIGNER: '/v2/bpmn-designer',
+  BPMN_ADMIN_PROCESS: '/v2/bpmn-process',
+  BPMN_ADMIN_INSTANCE: '/v2/bpmn-instance',
+  BPMN_MIGRATION: '/v2/bpmn-migration',
   BPMN_EDITOR: '/v2/bpmn-editor',
   CMMN_EDITOR: '/v2/cmmn-editor',
   DMN_EDITOR: '/v2/dmn-editor',
@@ -88,6 +91,7 @@ export const SourcesId = {
   BPMN_DEF: 'eproc/bpmn-def',
   BPMN_PROC: 'eproc/bpmn-proc',
   BPMN_STAT: 'eproc/bpmn-process-elements',
+  BPMN_PROC_LATEST: 'eproc/bpmn-proc-latest',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',
@@ -174,6 +178,9 @@ export const TMP_ICON_EMPTY = 'icon-empty';
 export const Pages = {
   DASHBOARD: 'dashboard',
   BPMN: 'bpmn',
+  BPMN_ADMIN_PROCESS: 'bpmn-process',
+  BPMN_ADMIN_INSTANCE: 'bpmn-instance',
+  BPMN_MIGRATION: 'bpmn-migration',
   JOURNAL: 'journal',
   TIMESHEET_MY: 'timesheet-my',
   TIMESHEET_SUBORDINATES: 'timesheet-subordinates',
@@ -225,7 +232,7 @@ export const SystemJournals = {
   KANBAN: 'ecos-boards',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
-  PROCESS: 'bpmn-process-def',
+  PROCESS: 'bpmn-process-latest',
   PROCESS_ELMS: 'bpmn-process-elements'
 };
 

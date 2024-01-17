@@ -66,6 +66,9 @@
     right: 0;
     bottom: 0;
     cursor: col-resize;
+    padding: 0 7px;
+    box-sizing: content-box;
+    background-clip: content-box;
   }
 }
 
@@ -85,6 +88,10 @@
     &:hover {
       color: $color-blue-dark;
     }
+  }
+
+  &_hidden {
+    display: none;
   }
 }
 

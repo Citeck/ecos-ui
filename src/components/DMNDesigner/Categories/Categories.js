@@ -18,15 +18,17 @@ const Categories = ({ categories, isParentHasNotModels, level = 0 }) => {
     <div className={cn({ isParentHasNotModels: level !== 0 && isParentHasNotModels })}>
       {categories.map(category => (
         <Category
+          {...category}
           key={category.id}
           categoryId={category.id}
           label={category.label}
+          sectionCode={category.sectionCode}
           level={level}
           isEditable={category.isEditable}
           canWrite={category.canWrite}
           isOpen={category.isOpen}
         >
-          <Models categoryId={category.id} />
+          <Models categoryId={category.id} canEditDef={category.canEditDef} />
           <ConnectedCategories categoryId={category.id} level={level + 1} />
         </Category>
       ))}

@@ -9,6 +9,7 @@ export { default as Panel } from './panels/Panel/Panel';
 export { default as RawHtmlWrapper } from './RawHtmlWrapper';
 export { default as Search } from './Search/Search';
 export { default as Separator } from './Separator/Separator';
+export { SaveAndCancelButtons } from './SaveAndCancelButtons';
 export { default as Tabs } from './Tabs';
 export { EditTabs } from './Tabs';
 export { default as ScrollArrow } from './ScrollArrow/ScrollArrow';

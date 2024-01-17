@@ -78,7 +78,8 @@ class EsignApi {
       {
         success: 'success?bool',
         digestResult: 'digestResult?str',
-        errorString: 'errorString?str'
+        errorString: 'errorString?str',
+        data: 'data?str'
       }
     );
   };
@@ -99,7 +100,16 @@ class EsignApi {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify(body)
-      }).then(response => response.json());
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error();
+          }
+          return;
+        })
+        .catch(error => {
+          console.error(error);
+        });
     }
 
     const rec = Records.get(EDI_REQUEST.PUT_DIGITAL_SIGNATURE);

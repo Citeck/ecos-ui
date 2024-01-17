@@ -1,5 +1,10 @@
 import Records from '../components/Records';
 import { PERMISSION_WRITE_ATTR } from '../components/Records/constants';
+import {
+  PERMISSION_DMN_SECTION_CREATE_DEF,
+  PERMISSION_DMN_SECTION_EDIT_DEF,
+  PERMISSION_DMN_SECTION_CREATE_SUBSECTION
+} from '../constants/dmn';
 
 export class DmnApi {
   fetchCategories = () => {
@@ -10,27 +15,33 @@ export class DmnApi {
         query: {}
       },
       {
-        label: 'name',
+        code: 'sectionCode?str',
+        label: 'name?json',
         parentId: 'parentRef?id',
         modified: '_created?num',
-        canWrite: PERMISSION_WRITE_ATTR
+        canWrite: PERMISSION_WRITE_ATTR,
+        canCreateDef: PERMISSION_DMN_SECTION_CREATE_DEF,
+        canEditDef: PERMISSION_DMN_SECTION_EDIT_DEF,
+        canCreateSubSection: PERMISSION_DMN_SECTION_CREATE_SUBSECTION
       }
     ).then(resp => {
       return resp.records;
     });
   };
 
-  createCategory = (title, parent = null) => {
+  createCategory = (code = '', title, parent = null) => {
     const rec = Records.get('eproc/dmn-section@');
     rec.att('parentRef', parent);
     rec.att('name', title);
+    rec.att('sectionCode', code);
     return rec.save();
   };
 
-  updateCategory = (id, { title }) => {
+  updateCategory = (id, { code = '', title }) => {
     if (title) {
       const rec = Records.get(id);
       rec.att('name', title);
+      rec.att('sectionCode', code);
       return rec.save();
     }
   };

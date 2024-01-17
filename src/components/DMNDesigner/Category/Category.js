@@ -13,10 +13,12 @@ import {
 } from '../../../actions/dmn';
 import { showModal } from '../../../actions/modal';
 import { savePagePosition } from '../../../actions/dmn';
+import get from 'lodash/get';
 
 const mapStateToProps = state => ({
   viewType: state.dmn.viewType,
-  searchText: state.dmn.searchText
+  searchText: state.dmn.searchText,
+  isUserAdmin: get(state, 'user.isAdmin', false)
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
@@ -43,7 +45,7 @@ const mapDispatchToProps = (dispatch, props) => ({
   },
   createCategory: () => dispatch(createCategory({ parentId: props.categoryId })),
   createModel: () => dispatch(createModel({ categoryId: props.categoryId })),
-  saveEditableCategory: text => dispatch(saveCategoryRequest({ id: props.categoryId, label: text })),
+  saveEditableCategory: (code, mlText) => dispatch(saveCategoryRequest({ id: props.categoryId, code, label: mlText })),
   cancelEditCategory: () => dispatch(cancelEditCategory(props.categoryId))
 });
 

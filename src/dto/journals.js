@@ -11,6 +11,7 @@ import AttributesService from '../services/AttributesService';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { PREDICATE_AND, PREDICATE_CONTAINS, PREDICATE_OR } from '../components/Records/predicates/predicates';
 import { getId } from '../helpers/util';
+import { GROUPING_COUNT_ALL } from '../constants/journal';
 
 const isPredicateValid = predicate => {
   return !!(predicate && predicate.t);
@@ -288,7 +289,14 @@ export default class JournalsConverter {
 
     const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
 
-    return columns.filter(item => configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item)));
+    return columns.filter(item => {
+      // TODO: add constants like DynamicColumns
+      if (item.column === GROUPING_COUNT_ALL) {
+        return true;
+      }
+
+      return configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item));
+    });
   }
 
   /**

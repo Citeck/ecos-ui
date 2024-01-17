@@ -174,7 +174,7 @@ class Esign {
 
       const documentResponse = await api.getDocumentData(document);
       const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
-      const base64 = get(documentResponse, hasAlfresco ? 'data.0.base64' : 'records[0].digestResult', '');
+      const base64 = get(documentResponse, hasAlfresco ? 'data.0.base64' : 'records[0].data', '');
 
       if (!base64) {
         return Promise.reject({

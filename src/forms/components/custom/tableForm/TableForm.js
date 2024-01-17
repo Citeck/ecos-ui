@@ -562,6 +562,7 @@ export default class TableFormComponent extends BaseReactComponent {
         customStringForConcatWithStaticTitle,
         onChange: this.onReactValueChanged,
         isSelectableRows: component.isSelectableRows,
+        forceReload: component.forceReload,
         onSelectRows: this._setSelectedRows,
         viewOnly: this.viewOnly,
         parentForm: this.root,

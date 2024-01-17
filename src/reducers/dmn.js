@@ -77,9 +77,10 @@ export default handleActions(
         newCategory.parentId = action.payload.parentId;
       }
 
+      const oldCategories = state.categories || [];
       return {
         ...state,
-        categories: [...state.categories, newCategory]
+        categories: [...oldCategories, newCategory]
       };
     },
     [cancelEditCategory]: (state, action) => {
@@ -134,6 +135,10 @@ export default handleActions(
 
       if (action.payload.label) {
         currentCategory.label = action.payload.label;
+      }
+
+      if (action.payload.code) {
+        currentCategory.code = action.payload.code;
       }
 
       if (action.payload.newId) {

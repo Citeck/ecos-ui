@@ -106,13 +106,14 @@ const GroupActions = React.memo(
     const getItemClassName = useCallback(
       action => {
         const disabled = !isFilterOn && selectAllRecordsVisible;
+        const isForQuery = action._typeAct === TYPE_ACT.QUERY;
 
         return classNames('ecos-group-actions__dropdown-item', {
-          'ecos-group-actions__dropdown-item_disabled': disabled,
-          'ecos-group-actions__dropdown-item_query': action._typeAct === TYPE_ACT.QUERY
+          'ecos-group-actions__dropdown-item_disabled': (selectedLen === 0 && !action.features.execForQuery) || disabled,
+          'ecos-group-actions__dropdown-item_query': isForQuery
         });
       },
-      [selectAllRecordsVisible, isFilterOn]
+      [selectAllRecordsVisible, isFilterOn, selectedLen]
     );
 
     const iconOpener = useCallback(flag => classNames('ecos-btn__i_right', { 'icon-small-up': flag, 'icon-small-down': !flag }), []);

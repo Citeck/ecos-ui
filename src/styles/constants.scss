@@ -26,6 +26,7 @@ $color-gray-13: #fbfbfb;
 $color-gray-14: #c8c7c8;
 $color-gray-15: #f5f5f5;
 $color-gray-25: #f3f3f3;
+$color-gray-26: #979797;
 $color-gray-dark: #141414;
 $color-red-1: #ff5721;
 $color-red-2: #ec4f1d;
@@ -63,6 +64,7 @@ $font-weight-bold: 700;
 $font-weight-semi-bold: 600;
 $font-weight-normal: 400;
 
+$font-size-xxxl: 36px;
 $font-size-xxl: 24px;
 $font-size-extra-large: 20px;
 $font-size-large: 18px;
@@ -140,7 +142,6 @@ $z-index: (
   visibility: visible;
   z-index: $scroll-z-index;
 }
-
 %h-scroll {
   position: absolute;
   height: $scroll-size;
@@ -151,21 +152,20 @@ $z-index: (
   visibility: visible;
   z-index: $scroll-z-index;
 }
-
 %ellipsis {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
-
 %hidden-scrollbar {
-  -ms-overflow-style: none; // Internet Explorer 10+
-  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none;
+  // Internet Explorer 10+
+  scrollbar-width: none;
+  // Firefox
   &::-webkit-scrollbar {
     display: none; // Safari and Chrome
   }
 }
-
 %grey-cycle {
   background-color: rgba(44, 44, 44, 0.25);
   border-radius: 20px;
@@ -177,7 +177,24 @@ $z-index: (
   vertical-align: middle;
   padding-top: 3px;
 }
-
+%column-wrapper-16 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+%column-wrapper-8 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+%row-wrapper-16 {
+  display: flex;
+  gap: 16px;
+}
+%row-wrapper-8 {
+  display: flex;
+  gap: 8px;
+}
 :export {
   colors: {
     primary: $primary;

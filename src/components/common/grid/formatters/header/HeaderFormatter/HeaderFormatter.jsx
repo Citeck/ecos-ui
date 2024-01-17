@@ -133,8 +133,9 @@ export default class HeaderFormatter extends Component {
       );
   }, 0);
 
+  //
   onDividerMouseDown = e => {
-    const { colIndex, onDividerMouseDown } = this.props;
+    const { colIndex, onDividerMouseDown, column } = this.props;
     const current = this.thRef.current;
 
     // Cause: https://citeck.atlassian.net/browse/ECOSUI-803
@@ -144,7 +145,9 @@ export default class HeaderFormatter extends Component {
       onDividerMouseDown({
         e: e,
         th: current.parentElement,
-        colIndex
+        colIndex,
+        name: column.name,
+        id: this.divineId
       });
   };
 
@@ -343,11 +346,13 @@ export default class HeaderFormatter extends Component {
   };
 
   renderActions = () => {
-    const { filterable, ascending, sortable } = this.props;
+    const { disableSelect, filterable, ascending, sortable } = this.props;
 
     if (!filterable && !sortable) {
       return null;
     }
+
+    const renderFilter = !disableSelect || (disableSelect && this.activeFilter);
 
     return (
       <div className="ecos-th__actions">
@@ -362,7 +367,8 @@ export default class HeaderFormatter extends Component {
           <Icon
             id={this.tooltipFilterId}
             className={classNames('ecos-th__filter-icon ecos-th__action-icon icon-small-filter', {
-              'ecos-th__action-icon_active': this.activeFilter
+              'ecos-th__action-icon_active': this.activeFilter,
+              'ecos-th__action-icon_hidden': !renderFilter
             })}
             onClick={this.onToggle}
           />
@@ -378,6 +384,7 @@ export default class HeaderFormatter extends Component {
     this.tooltipFilterId = `filter-${id}`;
     this.tooltipLabelId = `label-${id}`;
     this.tooltipTextId = `text-${id}`;
+    this.divineId = `divine-${id}`;
 
     return (
       <div
@@ -403,8 +410,10 @@ export default class HeaderFormatter extends Component {
           </EcosTooltip>
           {this.renderActions()}
         </div>
+
         {this.renderFilter()}
-        <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} />
+
+        <div className="ecos-th__divider" onMouseDown={this.onDividerMouseDown} id={this.divineId} />
       </div>
     );
   }

@@ -43,17 +43,16 @@
   text-transform: uppercase;
 }
 
-.labelTextEditable {
-  background-color: rgba(0, 102, 255, 0.3);
-  text-transform: none;
-  outline: none;
+.labelEditable {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  gap: 10px;
+}
 
-  &:before {
-    content: '.';
-    width: 0;
-    display: inline-block;
-    color: rgba(0, 102, 255, 0.3);
-  }
+.labelEditableName {
+  width: 100%;
 }
 
 .labelForCollapsed {

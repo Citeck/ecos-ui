@@ -1,0 +1,61 @@
+@import '../../../styles/constants.scss';
+
+.bpmn-admin-info {
+  @extend %column-wrapper-16;
+
+  padding: 16px;
+
+  &__main {
+    display: flex;
+    justify-content: space-between;
+
+    &-item {
+      @extend %column-wrapper-8;
+
+      width: 300px;
+
+      & .ecos-btn__content {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  &__dropdown-link {
+    color: initial;
+
+    &:hover {
+      color: initial;
+    }
+  }
+
+  &__actions {
+    width: 300px;
+  }
+
+  &__secondary {
+    @extend %row-wrapper-8;
+
+    display: flex;
+    justify-content: space-between;
+
+    color: $color-gray-5;
+
+    font-size: medium;
+  }
+
+  &__pause-icon {
+    cursor: pointer;
+    color: $color-blue-light;
+  }
+
+  &__buttons {
+    @extend %column-wrapper-8;
+
+    width: 250px;
+
+    &-wrapper {
+      display: flex;
+    }
+  }
+}

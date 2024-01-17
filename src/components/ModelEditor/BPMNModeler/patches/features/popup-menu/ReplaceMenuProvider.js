@@ -3,15 +3,8 @@ import { getBusinessObject, is } from 'bpmn-js/lib/util/ModelUtil';
 import { filter } from 'min-dash';
 import { isDifferentType } from 'bpmn-js/lib/features/popup-menu/util/TypeUtil';
 import get from 'lodash/get';
-import set from 'lodash/set';
 
-import {
-  ECOS_TASK_BASE_ELEMENT,
-  ECOS_TASK_TYPE_SET_STATUS,
-  GATEWAY_TYPES,
-  REPLACE_TO_SET_STATUS,
-  TASK_TYPES
-} from '../../../../../../constants/bpmn';
+import { ECOS_TASK_BASE_ELEMENT, GATEWAY_TYPES, TASK_TYPES } from '../../../../../../constants/bpmn';
 import {
   BOUNDARY_EVENT,
   END_EVENT,
@@ -64,6 +57,10 @@ const disabledForBoundaryEvents = [
 
 const disabledReplaceMenuForGateway = [
   'replace-with-complex-gateway' // Complex Gateway
+];
+
+const disableReplaceMenuForFlows = [
+  'replace-with-conditional-flow' // Conditional Flow
 ];
 
 const disabledHeaderEntries = [
@@ -258,7 +255,11 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 
   // sequence flows
   if (is(businessObject, 'bpmn:SequenceFlow')) {
-    return this._createSequenceFlowEntries(element, SEQUENCE_FLOW);
+    entries = filter(SEQUENCE_FLOW, function(entry) {
+      return !disableReplaceMenuForFlows.includes(entry.actionName);
+    });
+
+    return this._createSequenceFlowEntries(element, entries);
   }
 
   // flow nodes
@@ -285,24 +286,8 @@ ReplaceMenuProvider.prototype.getPopupMenuEntries = function(element) {
 ReplaceMenuProvider.prototype._createEntries = function(element, replaceOptions) {
   if (TASK_TYPES.includes(element.type)) {
     replaceOptions = replaceOptions.filter(option => !disabledReplaceMenuForTasks.includes(option.actionName));
-    const originEntities = originCreateEntries.call(this, element, replaceOptions);
 
-    Object.keys(originEntities).forEach(originKey => {
-      const originAction = originEntities[originKey].action;
-
-      originEntities[originKey] = {
-        ...originEntities[originKey],
-        action: (...props) => {
-          const resultElement = originAction.call(this, ...props);
-
-          set(resultElement, 'businessObject.taskType', originKey === REPLACE_TO_SET_STATUS ? ECOS_TASK_TYPE_SET_STATUS : undefined);
-
-          return resultElement;
-        }
-      };
-    });
-
-    return originEntities;
+    return originCreateEntries.call(this, element, replaceOptions);
   }
 
   if (GATEWAY_TYPES.includes(element.type)) {

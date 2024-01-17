@@ -1,0 +1,539 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`  should render MetaInfo component 1`] = `
+<div
+  class="dashlet"
+>
+  <div
+    class="ecos-well ecos-panel dashlet"
+  >
+    <div
+      class="ecos-panel__head dashlet__header-wrapper"
+    >
+      <div
+        class="dashlet__header"
+      >
+        <span
+          class="dashlet__caption"
+        >
+          instance-admin.info-widget.title
+        </span>
+        <span
+          class="ecos-badge ecos-badge_info ecos-badge_large"
+        />
+        <div
+          class="dashlet__header-actions"
+        />
+      </div>
+    </div>
+    <div
+      class="ecos-panel__body dashlet__body"
+    >
+      <div
+        class="dashlet__body-content"
+      >
+        <div
+          class="bpmn-admin-info"
+        >
+          <div
+            class="bpmn-admin-info__main"
+          >
+            <div
+              class="bpmn-admin-info__main-item"
+            >
+              <div
+                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+              >
+                instance-admin.info-widget.document
+              </div>
+              <button
+                class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                disabled=""
+              >
+                <div
+                  class="ecos-btn__content"
+                >
+                  instance-admin.info-widget.not-defined
+                  <i
+                    class="icon-small-right"
+                  />
+                </div>
+              </button>
+            </div>
+            <div
+              class="bpmn-admin-info__main-item"
+            >
+              <div
+                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+              >
+                instance-admin.info-widget.actions-title
+              </div>
+              <div
+                class="dropdown"
+              >
+                <div
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class=""
+                >
+                  <button
+                    class="ecos-btn bpmn-admin-info__actions ecos-btn_blue"
+                  >
+                    <div
+                      class="ecos-btn__content"
+                    >
+                      instance-admin.info-widget.choose-action
+                      <i
+                        class="icon-small-down"
+                      />
+                    </div>
+                  </button>
+                </div>
+                <div
+                  aria-hidden="true"
+                  class="dropdown-menu dropdown-menu-right"
+                  container="body"
+                  role="menu"
+                  tabindex="-1"
+                />
+              </div>
+            </div>
+            <div
+              class="bpmn-admin-info__main-item"
+            >
+              <div
+                class="ecos-panel-title ecos-panel-title_color-gray ecos-panel-title_narrow"
+              >
+                instance-admin.info-widget.definition-ref
+              </div>
+              <button
+                class="ecos-btn ecos-btn_disabled ecos-btn_blue"
+                disabled=""
+              >
+                <div
+                  class="ecos-btn__content"
+                >
+                  instance-admin.info-widget.not-defined
+                  <i
+                    class="icon-small-right"
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bpmn-admin-info__secondary"
+          >
+            <span>
+              instance-admin.info-widget.version: instance-admin.info-widget.not-defined
+            </span>
+            <span>
+              instance-admin.info-widget.start-time: instance-admin.info-widget.not-defined
+            </span>
+          </div>
+        </div>
+      </div>
+      <div
+        class="dashlet__body-indent dashlet__body-indent_bottom"
+      />
+    </div>
+  </div>
+  <div />
+</div>
+`;
+
+exports[`  should render corrent columns for called processes 1`] = `
+Array [
+  Object {
+    "attribute": "calledProcessDisp",
+    "dataField": "calledProcessDisp",
+    "newFormatter": Object {
+      "config": Object {
+        "getUrl": [Function],
+      },
+      "type": "link",
+    },
+    "text": "Called instance",
+  },
+  Object {
+    "attribute": "bpmnDefEngineDisp",
+    "dataField": "bpmnDefEngineDisp",
+    "newFormatter": Object {
+      "config": Object {
+        "getUrl": [Function],
+      },
+      "type": "link",
+    },
+    "text": "Process definition",
+  },
+  Object {
+    "attribute": "callActivityId",
+    "dataField": "callActivityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Element",
+  },
+  Object {
+    "attribute": "id",
+    "dataField": "id",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "State",
+  },
+]
+`;
+
+exports[`  should render corrent columns for external tasks 1`] = `
+Array [
+  Object {
+    "attribute": "id",
+    "dataField": "dispId",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "predicates": Array [
+      Object {
+        "label": "predicate.eq",
+        "needValue": true,
+        "value": "eq",
+      },
+    ],
+    "searchable": true,
+    "searchableByText": true,
+    "sortable": true,
+    "text": "ID",
+  },
+  Object {
+    "attribute": "activityId",
+    "dataField": "activityId",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "predicates": Array [
+      Object {
+        "label": "predicate.eq",
+        "needValue": true,
+        "value": "eq",
+      },
+    ],
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Element",
+  },
+  Object {
+    "attribute": "retries",
+    "dataField": "retries",
+    "text": "Retries",
+  },
+  Object {
+    "attribute": "workerId",
+    "dataField": "workerId",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "predicates": Array [
+      Object {
+        "label": "predicate.eq",
+        "needValue": true,
+        "value": "eq",
+      },
+    ],
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Handler's ID",
+  },
+  Object {
+    "attribute": "lockExpirationTime",
+    "dataField": "lockExpirationTime",
+    "newFormatter": Object {
+      "config": Object {
+        "format": "LLL",
+      },
+      "type": "date",
+    },
+    "text": "Expiration time",
+  },
+  Object {
+    "attribute": "topicName",
+    "dataField": "topic",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "predicates": Array [
+      Object {
+        "label": "predicate.eq",
+        "needValue": true,
+        "value": "eq",
+      },
+    ],
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Topic",
+  },
+  Object {
+    "attribute": "priority",
+    "dataField": "priority",
+    "sortable": true,
+    "text": "Priority",
+  },
+]
+`;
+
+exports[`  should render corrent columns for incidents 1`] = `
+Array [
+  Object {
+    "attribute": "message",
+    "dataField": "message",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Message",
+  },
+  Object {
+    "attribute": "processInstance",
+    "dataField": "processInstance",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "newFormatter": Object {
+      "config": Object {
+        "getUrl": [Function],
+      },
+      "type": "link",
+    },
+    "text": "Process instance",
+  },
+  Object {
+    "attribute": "created",
+    "dataField": "created",
+    "newFormatter": Object {
+      "config": Object {
+        "format": "LLL",
+      },
+      "type": "date",
+    },
+    "text": "Created",
+  },
+  Object {
+    "attribute": "activityId",
+    "dataField": "activityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Element",
+  },
+  Object {
+    "attribute": "activityId",
+    "dataField": "activityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Failed element",
+  },
+  Object {
+    "attribute": "incidentType",
+    "dataField": "incidentType",
+    "text": "Type",
+  },
+  Object {
+    "attribute": "note",
+    "dataField": "note",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Note",
+  },
+  Object {
+    "attribute": "id",
+    "dataField": "id",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Actions",
+  },
+]
+`;
+
+exports[`  should render corrent columns for job definitions 1`] = `
+Array [
+  Object {
+    "attribute": "id",
+    "dataField": "dispId",
+    "sortable": true,
+    "text": "ID",
+  },
+  Object {
+    "attribute": "created",
+    "dataField": "created",
+    "newFormatter": Object {
+      "config": Object {
+        "format": "LLL",
+      },
+      "type": "date",
+    },
+    "text": "Created",
+  },
+  Object {
+    "attribute": "dueDate",
+    "dataField": "dueDate",
+    "newFormatter": Object {
+      "config": Object {
+        "format": "LLL",
+      },
+      "type": "date",
+    },
+    "sortable": true,
+    "text": "Due date",
+  },
+  Object {
+    "attribute": "retries",
+    "dataField": "retries",
+    "sortable": true,
+    "text": "Retries",
+  },
+  Object {
+    "attribute": "activityId",
+    "dataField": "activityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Element",
+  },
+  Object {
+    "attribute": "failedActivityId",
+    "dataField": "failedActivityId",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Failed element",
+  },
+  Object {
+    "attribute": "configuration",
+    "dataField": "configuration",
+    "text": "Configuration",
+  },
+  Object {
+    "attribute": "id",
+    "dataField": "id",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Actions",
+  },
+]
+`;
+
+exports[`  should render corrent columns for variables 1`] = `
+Array [
+  Object {
+    "attribute": "name",
+    "dataField": "name",
+    "newEditor": Object {
+      "config": Object {},
+      "type": "text",
+    },
+    "searchable": true,
+    "searchableByText": true,
+    "sortable": true,
+    "text": "Name",
+  },
+  Object {
+    "attribute": "type",
+    "dataField": "type",
+    "text": "Type",
+  },
+  Object {
+    "attribute": "value",
+    "dataField": "value",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Value",
+  },
+  Object {
+    "attribute": "scope",
+    "dataField": "scope",
+    "disableSelect": true,
+    "newEditor": Object {
+      "config": Object {
+        "journalId": "bpmn-process-def",
+        "multiple": false,
+      },
+      "type": "journal",
+    },
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "searchable": true,
+    "searchableByText": true,
+    "text": "Scope",
+  },
+  Object {
+    "attribute": "id",
+    "classes": "common-table-column__small",
+    "dataField": "id",
+    "newFormatter": Object {
+      "config": Object {
+        "Component": [Function],
+      },
+      "type": "component",
+    },
+    "text": "Actions",
+  },
+]
+`;

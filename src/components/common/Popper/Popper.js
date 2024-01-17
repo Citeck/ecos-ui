@@ -151,11 +151,11 @@ export default class Popper extends Component {
       return null;
     }
 
-    const { className } = this.props;
+    const { className, onClick } = this.props;
 
     return (
       <ReactResizeDetector handleWidth onResize={this.handleResize}>
-        <div className={classNames('ecos-popper', className)}>
+        <div className={classNames('ecos-popper', className)} onClick={onClick}>
           {this.renderText()}
           {this.renderIcon()}
         </div>

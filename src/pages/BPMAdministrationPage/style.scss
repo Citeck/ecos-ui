@@ -1,0 +1,7 @@
+@import '../../styles/constants.scss';
+
+.bpmn-admin-page {
+  @extend %column-wrapper-16;
+
+  padding: 24px;
+}

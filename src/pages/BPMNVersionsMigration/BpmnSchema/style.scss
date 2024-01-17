@@ -1,0 +1,69 @@
+@import '../../../styles/constants.scss';
+
+.bpmn-schema-block-class {
+  &__activities {
+    @extend %row-wrapper-16;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    background: $color-white;
+    padding: 16px;
+
+    &-item {
+      @extend %row-wrapper-8;
+
+      box-shadow: $box-shadow-tooltip;
+      border-radius: $border-radius-extra-large;
+
+      align-items: center;
+      padding: 4px;
+
+      & .ecos-btn {
+        padding: 0;
+      }
+    }
+  }
+
+  &__process-select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    & > * {
+      width: 100%;
+    }
+
+    & .ecos-btn {
+      color: $color-gray-5;
+      font-size: $font-size-large;
+      padding: 0;
+    }
+
+    &-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 500px;
+    }
+  }
+
+  &__process-select-wrapper {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 600px;
+  }
+
+  &__select {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 300px;
+  }
+
+  &__version-selects {
+    display: flex;
+    padding: 16px;
+    gap: 8px;
+  }
+}

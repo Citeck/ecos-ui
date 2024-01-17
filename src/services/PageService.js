@@ -18,6 +18,9 @@ export const PageTypes = {
   DASHBOARD: 'dashboard',
   JOURNALS: 'journals',
   ADMIN_PAGE: 'admin',
+  BPMN_ADMIN_PROCESS: 'bpmn-process',
+  BPMN_ADMIN_INSTANCE: 'bpmn-instance',
+  BPMN_MIGRATION: 'bpmn-migration',
   BPMN_EDITOR: 'bpmn-editor',
   CMMN_EDITOR: 'cmmn-editor',
   DMN_EDITOR: 'dmn-editor',
@@ -76,6 +79,18 @@ export default class PageService {
       return PageTypes.DMN_EDITOR;
     }
 
+    if (type.indexOf(PageTypes.BPMN_MIGRATION) === 0) {
+      return PageTypes.BPMN_MIGRATION;
+    }
+
+    if (type.indexOf(PageTypes.BPM_ADMIN) === 0) {
+      return PageTypes.BPM_ADMIN;
+    }
+
+    if (type.indexOf(PageTypes.BPMN_ADMIN_INSTANCE) === 0) {
+      return PageTypes.BPMN_ADMIN_INSTANCE;
+    }
+
     if ([PageTypes.BPMN_DESIGNER, PageTypes.DEV_TOOLS].includes(type)) {
       return PageTypes.ADMIN_PAGE;
     }
@@ -93,6 +108,8 @@ export default class PageService {
       case PageTypes.CMMN_EDITOR:
       case PageTypes.BPMN_EDITOR:
       case PageTypes.DMN_EDITOR:
+      case PageTypes.BPMN_ADMIN_PROCESS:
+      case PageTypes.BPMN_ADMIN_INSTANCE:
         return urlProps.query.recordRef || '';
       case PageTypes.JOURNALS:
         return urlProps.query.journalId || '';
@@ -187,6 +204,9 @@ export default class PageService {
     [PageTypes.DEV_TOOLS]: {
       getTitle: () => staticTitle(TITLE[URL.DEV_TOOLS])
     },
+    [PageTypes.BPMN_MIGRATION]: {
+      getTitle: () => staticTitle(TITLE[URL.BPMN_MIGRATION])
+    },
     [PageTypes.ADMIN_PAGE]: {
       getTitle: ({ type, journalId }) => {
         if (journalId && type === SectionTypes.JOURNAL) {
@@ -201,8 +221,20 @@ export default class PageService {
           return staticTitle(TITLE.DMN);
         }
 
+        if (type === SectionTypes.BPMN_ADMIN) {
+          return staticTitle(TITLE.BPM_ADMIN);
+        }
+
         return staticTitle(TITLE.ADMIN_PAGE);
       }
+    },
+    [PageTypes.BPMN_ADMIN_PROCESS]: {
+      getTitle: ({ recordRef }) =>
+        pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_ADMIN_PROCESS])} "${convertTitle(title)}"`)
+    },
+    [PageTypes.BPMN_ADMIN_INSTANCE]: {
+      getTitle: ({ recordRef }) =>
+        pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.BPMN_ADMIN_INSTANCE])} "${convertTitle(title)}"`)
     },
     [PageTypes.DMN_EDITOR]: {
       getTitle: ({ recordRef }) => pageApi.getRecordTitle(recordRef).then(title => `${t(TITLE[URL.DMN_EDITOR])} "${convertTitle(title)}"`)

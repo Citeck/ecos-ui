@@ -23,6 +23,7 @@ import {
   setJournalSetting,
   setJournalSettings,
   setLoading,
+  setForceUpdate,
   setOriginGridSettings,
   setPredicate,
   setPreviewFileName,
@@ -35,7 +36,8 @@ import {
   toggleViewMode,
   setUrl,
   openSelectedJournal,
-  setSearchText
+  setSearchText,
+  saveColumn
 } from '../actions/journals';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
@@ -86,6 +88,7 @@ export const defaultState = {
       sortBy: []
     },
     grouping: {
+      needCount: false,
       columns: [],
       groupBy: []
     }
@@ -96,6 +99,7 @@ export const defaultState = {
     sortBy: []
   },
   grouping: {
+    needCount: false,
     columns: [],
     groupBy: []
   },
@@ -347,6 +351,12 @@ export default handleActions(
 
       return handleState(state, stateId, { loading: action.payload });
     },
+    [setForceUpdate]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { forceUpdate: action.payload });
+    },
     [setRecordRef]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -421,6 +431,24 @@ export default handleActions(
           }
         }
       });
+    },
+    [saveColumn]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      const journalSetting = get(state, [stateId, 'journalSetting']);
+      const cloneJournalSetting = cloneDeep(journalSetting);
+
+      const updatedColumn = cloneJournalSetting.columns.find(x => x.name === action.payload.name);
+      updatedColumn.width = action.payload.width;
+
+      const grid = get(state, [stateId, 'grid']);
+      const cloneGrid = cloneDeep(grid);
+
+      const updatedColumnGrid = cloneGrid.columns.find(x => x.name === action.payload.name);
+      updatedColumnGrid.width = action.payload.width;
+
+      return updateState(state, stateId, { grid: cloneGrid, journalSetting: cloneJournalSetting }, defaultState);
     }
   },
   initialState

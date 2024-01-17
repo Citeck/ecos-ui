@@ -11,7 +11,8 @@ import './JournalsSettingsFooter.scss';
 
 class JournalsSettingsFooter extends Component {
   state = {
-    disabledApply: false
+    disabledApply: false,
+    disabledSave: false
   };
 
   componentDidMount() {
@@ -46,9 +47,18 @@ class JournalsSettingsFooter extends Component {
   };
 
   saveSetting = e => {
+    if (this.state.disabledSave) {
+      return;
+    }
+
     const { onSave } = this.props;
     e.currentTarget.blur();
-    isFunction(onSave) && onSave();
+
+    this.setState({ disabledSave: true, disabledApply: true }, () => {
+      if (isFunction(onSave)) {
+        onSave();
+      }
+    });
   };
 
   applySetting = () => {
@@ -70,7 +80,7 @@ class JournalsSettingsFooter extends Component {
 
   render() {
     const { canSave, noCreateBtn } = this.props;
-    const { disabledApply } = this.state;
+    const { disabledApply, disabledSave } = this.state;
 
     return (
       <div className="ecos-journal__settings-footer">
@@ -79,7 +89,11 @@ class JournalsSettingsFooter extends Component {
             {t(Labels.Settings.CREATE_PRESET)}
           </Btn>
         )}
-        {!noCreateBtn && canSave && <Btn onClick={this.saveSetting}>{t(Labels.Settings.APPLY_PRESET)}</Btn>}
+        {!noCreateBtn && canSave && (
+          <Btn onClick={this.saveSetting} disabled={disabledSave} loading={disabledSave}>
+            {t(Labels.Settings.APPLY_PRESET)}
+          </Btn>
+        )}
         <div className="ecos-journal__settings-footer-space" />
         <Btn className="ecos-journal__settings-footer-action_reset" onClick={this.resetSettings}>
           {t(Labels.Settings.RESET)}

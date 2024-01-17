@@ -17,7 +17,8 @@ const ModelList = ({
   onEditLinkClick,
   onEditMetaClick,
   onDeleteModelClick,
-  canWrite
+  canWrite,
+  canEditDef
 }) => {
   const dragNDropIconClasses = cn('icon-custom-drag-big', styles.dndActionIcon, styles.hiddenIcon);
 
@@ -44,6 +45,7 @@ const ModelList = ({
               onDeleteClick={onDeleteModelClick}
               onEditClick={onEditLinkClick}
               onSettingsClick={onEditMetaClick}
+              canEditDef={canEditDef}
               viewType={ViewTypes.LIST}
             />
           )}

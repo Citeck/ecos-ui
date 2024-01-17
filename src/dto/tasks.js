@@ -42,6 +42,7 @@ export default class TasksConverter {
     target.actors = TasksService.getActorsDisplayNameStr(actors[0]);
     target.deadline = source.dueDate;
     target.hasPermissionReassign = !!source.hasPermissionReassign;
+    target.canReadDef = source.canReadDef;
 
     if (source.actors.length > 1) {
       actors.shift();

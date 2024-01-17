@@ -1,6 +1,7 @@
 import { all } from 'redux-saga/effects';
 import app from './app';
 import bpmn from './bpmn';
+import bpmnAdmin from './bpmnAdmin';
 import bpmnEditor from './bpmnEditor';
 import docLib from './docLib';
 import header from './header';
@@ -12,6 +13,7 @@ import dashboard from './dashboard';
 import dashboardSettings from './dashboardSettings';
 import dmn from './dmn';
 import dmnEditor from './dmnEditor';
+import processAdmin from './processAdmin';
 import charts from './charts';
 import menu from './menu';
 import slideMenu from './slideMenu';
@@ -37,6 +39,7 @@ import documents from './documents';
 import userProfile from './userProfile';
 import docConstructor from './docConstructor';
 import iconSelect from './iconSelect';
+import instanceAdmin from './instanceAdmin';
 import adminSection from './adminSection';
 import cmmnEditor from './cmmnEditor';
 import customEvent from './customEvent';
@@ -48,6 +51,7 @@ export default function* rootSaga(extraArguments) {
   yield all([
     app(extraArguments),
     bpmn(extraArguments),
+    bpmnAdmin(extraArguments),
     bpmnEditor(extraArguments),
     docLib(extraArguments),
     header(extraArguments),
@@ -80,10 +84,12 @@ export default function* rootSaga(extraArguments) {
     report(extraArguments),
     barcode(extraArguments),
     properties(extraArguments),
+    processAdmin(extraArguments),
     documents(extraArguments),
     userProfile(extraArguments),
     docConstructor(extraArguments),
     iconSelect(extraArguments),
+    instanceAdmin(extraArguments),
     adminSection(extraArguments),
     cmmnEditor(extraArguments),
     customEvent(extraArguments),

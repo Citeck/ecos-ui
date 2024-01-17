@@ -1,4 +1,4 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, takeEvery } from 'redux-saga/effects';
 import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
@@ -8,6 +8,7 @@ import { t } from '../helpers/util';
 import { EVENTS } from '../components/widgets/BaseWidget';
 import { AssignActions } from '../constants/tasks';
 import TasksConverter from '../dto/tasks';
+import ConfigService, { ALFRESCO_ENABLED } from '../services/config/ConfigService';
 
 function* runInit({ api, logger }, { payload }) {
   try {
@@ -17,10 +18,13 @@ function* runInit({ api, logger }, { payload }) {
   }
 }
 
+function* getConfigValue(value) {
+  return yield ConfigService.getValue(value);
+}
+
 function* sagaGetCurrentTasks({ api, logger }, { payload }) {
   try {
     const { record: document, stateId } = payload;
-    const isAdmin = yield select(state => state.user.isAdmin);
     const result = yield call(api.tasks.getCurrentTasksForUser, { document });
 
     if (isEmpty(result)) {
@@ -28,10 +32,13 @@ function* sagaGetCurrentTasks({ api, logger }, { payload }) {
     } else {
       const currentTasksList = TasksConverter.getCurrentTaskListForWeb(result.records);
       for (let currentTask of currentTasksList) {
+        const isAlfrescoEnabled = yield* getConfigValue(ALFRESCO_ENABLED);
+        const canReadDef = isAlfrescoEnabled || currentTask.canReadDef;
+
         currentTask.actions = yield call(api.tasks.getCurrentTaskActionsForUser, {
           taskId: currentTask.id,
           reassignAvailable: currentTask.hasPermissionReassign,
-          isAdmin
+          canReadDef
         });
       }
       yield put(

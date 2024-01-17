@@ -9,7 +9,16 @@ import { PointsLoader } from '../../common';
 
 import '../style.scss';
 
-const ControlPanel = ({ createModel, totalCount, getTotalCount, isReady, createVariants, SearchComponent, ViewSwitcherComponent }) => {
+const ControlPanel = ({
+  createModel,
+  totalCount,
+  getTotalCount,
+  isReady,
+  createVariants,
+  SearchComponent,
+  ViewSwitcherComponent,
+  canCreateDef
+}) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -30,16 +39,18 @@ const ControlPanel = ({ createModel, totalCount, getTotalCount, isReady, createV
     <div className="mb-3 ecos-designer-control-panel">
       <Row noGutters>
         <Col lg={6} md={12}>
-          <Dropdown
-            hasEmpty
-            isStatic
-            source={createVariants}
-            valueField="id"
-            titleField="name"
-            onChange={handlerCreateVariant}
-            controlIcon="icon-small-plus"
-            controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
-          />
+          {canCreateDef && (
+            <Dropdown
+              hasEmpty
+              isStatic
+              source={createVariants}
+              valueField="id"
+              titleField="name"
+              onChange={handlerCreateVariant}
+              controlIcon="icon-small-plus"
+              controlClassName="ecos-btn_settings-down ecos-btn_white ecos-btn_hover_blue2"
+            />
+          )}
           <SearchComponent />
         </Col>
         <Col lg={6} md={12}>
