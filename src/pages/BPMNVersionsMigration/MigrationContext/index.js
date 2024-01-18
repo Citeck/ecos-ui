@@ -6,13 +6,14 @@ export const MigrationContext = React.createContext();
 
 export const MigrationContextProvider = props => {
   const urlParams = getSearchParams();
-  const { recordRef } = urlParams;
+  const { recordRef, version } = urlParams;
   const [, dispProcessId] = (recordRef || '').split('@');
 
   const [processId, setProcessId] = useState(dispProcessId);
 
   const [migrationPlan, setMigrationPlan] = useState(null);
-  const [sourceProcessDefinitionId, setSourceProcessDefinitionId] = useState();
+  const [sourceProcessDefinitionId, setSourceProcessDefinitionId] = useState(null);
+  const [sourceVersion, setSourceVerion] = useState(null);
   const [targetProcessDefinitionId, setTargetProcessDefinitionId] = useState(null);
   const [selectedProcess, setSelectedProcess] = useState(null);
   const [activities, setActivities] = useState([]);
@@ -22,14 +23,19 @@ export const MigrationContextProvider = props => {
       if (selectedProcess && selectedProcess.id) {
         setProcessId(selectedProcess.id);
       }
+
+      if (selectedProcess && version) {
+        setSourceVerion(version);
+      }
     },
-    [selectedProcess]
+    [selectedProcess, sourceProcessDefinitionId, targetProcessDefinitionId]
   );
 
   return (
     <MigrationContext.Provider
       value={{
         processId,
+        sourceVersion,
 
         activities,
         setActivities,

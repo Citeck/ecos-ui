@@ -97,6 +97,11 @@ const MigrationInfo = ({ processId }) => {
           enableSnippets
           enableBasicAutocompletion
           enableLiveAutocompletion
+          onChange={text => {
+            try {
+              setMigrationPlan(JSON.parse(text));
+            } catch (e) {}
+          }}
           setOptions={{
             useWorker: false,
             enableBasicAutocompletion: true,

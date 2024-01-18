@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from 'react';
 import { connect } from 'react-redux';
-
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
@@ -32,6 +31,7 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     setTargetProcessDefinitionId,
     sourceProcessDefinitionId,
     targetProcessDefinitionId,
+    sourceVersion,
     setMigrationPlan
   } = useContext(MigrationContext);
 
@@ -62,10 +62,15 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
 
       if (selectedProcess && isString(selectedProcess.key)) {
         isFunction(getMetaInfo) && getMetaInfo(processId);
-        isFunction(getAllVersions) && getAllVersions(processId, selectedProcess.key);
+        isFunction(getAllVersions) && !versionsInfo.data && getAllVersions(processId, selectedProcess.key);
+      }
+
+      if (sourceVersion && !sourceProcessDefinitionId && get(versionsInfo.data, 'length', 0) > 0) {
+        const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion));
+        setSourceProcessDefinitionId(selectedVersion || null);
       }
     },
-    [processId]
+    [processId, versionsInfo.data]
   );
 
   useEffect(
