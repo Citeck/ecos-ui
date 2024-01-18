@@ -111,8 +111,8 @@ const pagesStore = {
         const oldPageId = idbRequestGetOld.result.pageId;
         idbRequestGetOld.result.pageId = to;
 
-        const idbRequestPutNew = pages.put(idbRequestGetOld.result);
-        const idbRequestDelete = pages.delete(oldPageId);
+        pages.put(idbRequestGetOld.result);
+        pages.delete(oldPageId);
       };
 
       transaction.oncomplete = e => {
