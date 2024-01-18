@@ -307,6 +307,7 @@ class Grid extends Component {
 
         if (column.customFormatter === undefined) {
           column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
+          column.footerFormatter = this.initFooterFormatter();
         } else {
           column.formatter = column.customFormatter;
         }
@@ -443,7 +444,7 @@ class Grid extends Component {
 
         options.columns.forEach(column => {
           if (countFields[column.name]) {
-            column.footer = `${t('grid.footer.total-amount')}${countFields[column.name]}`;
+            column.footer = countFields[column.name];
             column.footerClasses = 'ecos-grid__table_footer__cell';
           } else {
             column.footer = '';
@@ -569,6 +570,29 @@ class Grid extends Component {
             {content}
           </div>
         </ErrorCell>
+      );
+    };
+  };
+
+  initFooterFormatter = () => {
+    return column => {
+      const { newFormatter = {}, footer } = column;
+
+      let content = footer;
+
+      if (!content) {
+        return '';
+      }
+
+      if (!isEmpty(newFormatter) && newFormatter.type) {
+        content = FormatterService.format({ cell: footer, column }, newFormatter);
+      }
+
+      return (
+        <div className="ecos-grid__table_footer__value">
+          {t('grid.footer.total-amount')}
+          {content}
+        </div>
       );
     };
   };
@@ -1123,8 +1147,6 @@ class Grid extends Component {
     ]);
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
-
-    console.log('bootProps', bootProps);
 
     return (
       <>

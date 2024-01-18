@@ -10,6 +10,7 @@ import { Field, Input, SelectJournal } from '../common/form';
 import { SourcesId, SystemJournals } from '../../constants';
 import { RecordActionsApi } from '../../api/recordActions';
 import { goToJournalsPage } from '../../helpers/urls';
+import { pagesStore } from '../../helpers/indexedDB';
 import { EcosFormBuilderUtils } from '../EcosForm';
 import EcosFormBuilderModal from '../EcosForm/builder/EcosFormBuilderModal';
 import { PREDICATE_EQ } from '../Records/predicates/predicates';
@@ -160,7 +161,7 @@ class PreSettingsModal extends React.Component {
   };
 
   handleSave = () => {
-    const { newRecordRef } = this.state;
+    const { newRecordRef, rollbackAttributes } = this.state;
     const newRef = this.type === PRE_SETTINGS_TYPES.FORM ? `${SourcesId.FORM}@${newRecordRef}` : `${SourcesId.JOURNAL}@${newRecordRef}`;
 
     this.toggleLoading(true);
@@ -180,6 +181,9 @@ class PreSettingsModal extends React.Component {
           return;
         }
 
+        return pagesStore.migrate(rollbackAttributes.id, newRecordRef);
+      })
+      .then(() => {
         this.handleChangeJournal();
       });
   };
