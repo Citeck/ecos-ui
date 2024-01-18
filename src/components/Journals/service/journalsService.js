@@ -179,6 +179,7 @@ class JournalsService {
     result.editable = column.editable !== false;
     result.searchConfig = column.searchConfig || {};
     result.headerFilterEditor = column.headerFilterEditor || {};
+    result.hasTotalSumField = column.hasTotalSumField === true;
 
     return result;
   }
