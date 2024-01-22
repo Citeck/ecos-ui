@@ -141,4 +141,16 @@ export class JournalsApi extends RecordService {
       return { data, total, columns, isTree: true };
     });
   };
+
+  getTotalSum = (journalType, countFields) => {
+    if (!journalType) {
+      return;
+    }
+
+    const attributes = countFields.map(field => `sum(${field})`);
+
+    const sourceId = journalType.replace('type@', '');
+
+    return Records.queryOne({ sourceId, query: {}, language: 'predicate', groupBy: ['*'] }, attributes);
+  };
 }

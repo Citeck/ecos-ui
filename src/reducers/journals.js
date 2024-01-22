@@ -33,6 +33,8 @@ import {
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
+  setIsFooterLoading,
+  setFooterValue,
   toggleViewMode,
   setUrl,
   openSelectedJournal,
@@ -449,6 +451,22 @@ export default handleActions(
       updatedColumnGrid.width = action.payload.width;
 
       return updateState(state, stateId, { grid: cloneGrid, journalSetting: cloneJournalSetting }, defaultState);
+    },
+    [setIsFooterLoading]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        isFooterLoading: Boolean(handledAction.payload)
+      });
+    },
+    [setFooterValue]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        footerValue: Boolean(handledAction.payload)
+      });
     }
   },
   initialState

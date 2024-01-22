@@ -25,6 +25,7 @@ import {
   getDashletConfig,
   getDashletEditorData,
   getJournalsData,
+  // getFooterValues,
   goToJournalsPage,
   initJournal,
   initJournalSettingData,
@@ -65,7 +66,10 @@ import {
   setSelectedRecords,
   setUrl,
   setForceUpdate,
+  setIsFooterLoading,
+  setFooterValue,
   toggleViewMode
+  // getFooterValues
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -106,6 +110,66 @@ const getDefaultSortBy = config => {
     ascending: item.order !== 'desc'
   }));
 };
+
+function* getColumnsSum(columns, journalId) {
+  console.log('journalId', journalId);
+  if (!columns || !columns.length || !journalId) {
+    return;
+  }
+
+  const countFields = [];
+
+  columns.forEach(column => {
+    if (column.hasTotalSumField) {
+      countFields.push(column.attribute);
+    }
+  });
+
+  if (countFields.length) {
+    getFooterValues(countFields, journalId);
+  }
+}
+
+// const getColumnsSum = async (columns, journalId) => {
+//   console.log("journalId", journalId);
+//   if (!columns || !columns.length || !journalId) {
+//     return;
+//   }
+
+//   const countFields = [];
+
+//   columns.forEach(column => {
+//     if (column.hasTotalSumField) {
+//       countFields.push(column.attribute);
+//     }
+//   });
+
+//   if (countFields.length) {
+//     getFooterValues(countFields, journalId);
+//   }
+// }
+
+// const getFooterValues = async (countFields, journalId) => {
+//   console.log("sagaGetFooterValues", countFields, journalId);
+//   // const { journalId } = payload;
+//   // const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+//   // const y = yield call(api.journals.getTotalSum, journalType);
+//   // console.log("yyyy", y);
+// }
+
+function* getFooterValues(api, journalId, w, countFields) {
+  yield put(setIsFooterLoading(w(true)));
+
+  console.log('sagaGetFooterValues', countFields, journalId);
+
+  // const { journalId } = payload;
+  const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+  const sumFields = yield call(api.journals.getTotalSum, journalType, countFields);
+  console.log('sumFields', sumFields);
+
+  yield put(setFooterValue(w(sumFields)));
+  yield put(setIsFooterLoading(w(false)));
+}
 
 function getDefaultJournalSetting(journalConfig) {
   const { groupBy } = get(journalConfig, 'meta', {});
@@ -622,6 +686,7 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+    getColumnsSum(journalData?.journalConfig?.columns, journalData?.journalConfig?.id);
     yield put(setForceUpdate(w(true)));
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -692,6 +757,26 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       },
       (...data) => ({ ...w(...data), logger })
     );
+
+    // getColumnsSum(journalConfig?.columns, journalId);
+
+    const columns = journalConfig?.columns;
+
+    if (!columns || !columns.length || !journalId) {
+      return;
+    }
+
+    const countFields = [];
+
+    columns.forEach(column => {
+      if (column.hasTotalSumField) {
+        countFields.push(column.attribute);
+      }
+    });
+
+    if (countFields.length) {
+      yield getFooterValues(api, journalId, w, countFields);
+    }
 
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -1210,6 +1295,14 @@ export function* sagaToggleViewMode({ logger, w }, { payload }) {
   }
 }
 
+// function* sagaSetGrid({ logger, w }, { payload }) {
+//   try {
+//     console.log("payload", payload);
+//   } catch (e) {
+//     logger.error('[journals sagaToggleViewMode saga error', e);
+//   }
+// }
+
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1220,6 +1313,7 @@ function* saga(ea) {
 
   yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
+  // yield takeEvery(setGrid().type, wrapSaga, { ...ea, saga: sagaSetGrid });
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
@@ -1248,6 +1342,8 @@ function* saga(ea) {
   yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
 
   yield takeEvery(toggleViewMode().type, wrapSaga, { ...ea, saga: sagaToggleViewMode });
+
+  // yield takeEvery(getFooterValues().type, wrapSaga, { ...ea, saga: sagaGetFooterValues });
 }
 
 export default saga;

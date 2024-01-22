@@ -424,37 +424,55 @@ class Grid extends Component {
     options.data = replaceDefaultNestedDelimiterForData(options.data);
     options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
 
-    let countFields = {};
+    let countFields = [];
 
-    if (options.columns && options.columns.length) {
+    console.log('options.columns', options.columns);
+
+    if (props.footerValue && options.columns && options.columns.length) {
       options.columns.forEach(column => {
-        if (column.hasTotalSumField) {
-          countFields[column.name] = 0;
+        console.log('column.name', column.name);
+        if (`sum(${column.name}`) {
         }
       });
-
-      if (props.data && props.data.length && !isEmpty(countFields)) {
-        const countFieldsArray = Object.keys(countFields);
-
-        props.data.forEach(rowData => {
-          countFieldsArray.forEach(countFieldName => {
-            countFields[countFieldName] += +rowData[countFieldName];
-          });
-        });
-
-        options.columns.forEach(column => {
-          if (countFields[column.name]) {
-            column.footer = countFields[column.name];
-            column.footerClasses = 'ecos-grid__table_footer__cell';
-          } else {
-            column.footer = '';
-          }
-        });
-      }
     }
+
+    // if (options.columns && options.columns.length) {
+    //   options.columns.forEach(column => {
+    //     if (column.hasTotalSumField) {
+    //       countFields.push(column.attribute);
+    //     }
+    //   });
+
+    //   if (countFields.length) {
+    //     this.createFooter(countFields);
+    //   }
+
+    // if (props.data && props.data.length && !isEmpty(countFields)) {
+    //   const countFieldsArray = Object.keys(countFields);
+
+    //   props.data.forEach(rowData => {
+    //     countFieldsArray.forEach(countFieldName => {
+    //       countFields[countFieldName] += +rowData[countFieldName];
+    //     });
+    //   });
+
+    //   options.columns.forEach(column => {
+    //     if (countFields[column.name]) {
+    //       column.footer = countFields[column.name];
+    //       column.footerClasses = 'ecos-grid__table_footer__cell';
+    //     } else {
+    //       column.footer = '';
+    //     }
+    //   });
+    // }
+    // }
 
     return options;
   }
+
+  createFooter = async countFields => {
+    const { journalId } = this.props;
+  };
 
   checkColumnEditable = (...data) => {
     const { editingRules } = this.props;
