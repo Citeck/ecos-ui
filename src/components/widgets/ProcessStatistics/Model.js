@@ -5,9 +5,8 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 
-import { getModel } from '../../../actions/processStatistics';
+import { getModel, setNewData } from '../../../actions/processStatistics';
 
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
@@ -26,12 +25,14 @@ const mapStateToProps = (state, context) => {
     isLoading: psState.isLoadingModel,
     model: psState.model,
     heatmapData: psState.heatmapData,
+    isNewData: psState.isNewData,
     isMobile: state.view.isMobile
   };
 };
 
 const mapDispatchToProps = dispatch => ({
-  getModelData: payload => dispatch(getModel(payload))
+  getModelData: payload => dispatch(getModel(payload)),
+  setNewData: payload => dispatch(setNewData(payload))
 });
 
 class Model extends React.Component {
@@ -86,24 +87,20 @@ class Model extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener('mouseup', this.handleMouseUp);
-    this.handleMouseDown.cancel();
-    this.handleMouseUp.cancel();
+    // FIXME: There are no such methods, they cause errors without the conditional
+    this.handleMouseDown.cancel && this.handleMouseDown.cancel();
+    this.handleMouseUp.cancel && this.handleMouseUp.cancel();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { showCountersDefault, showHeatmapDefault } = this.props;
+    const { showCountersDefault, showHeatmapDefault, isNewData } = this.props;
 
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getModel();
     }
 
-    if (!!prevProps.heatmapData && !isEqual(prevProps.heatmapData, this.props.heatmapData)) {
-      this.reRenderHeatmap();
-      this.renderBadges();
-    }
-
-    if (prevProps.isLoading && !this.props.isLoading) {
-      this.reRenderHeatmap();
+    if (!prevProps.isNewData && isNewData) {
+      this.rePaintHeatmap();
     }
 
     if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
@@ -124,8 +121,10 @@ class Model extends React.Component {
   };
 
   getPreparedHeatData = () => {
-    const { heatmapData } = this.props;
+    const { heatmapData, stateId, setNewData } = this.props;
     const { isActiveCount, isCompletedCount } = this.state;
+
+    setNewData({ stateId, isNewData: false });
 
     if (!isActiveCount && !isCompletedCount) {
       return [];
@@ -211,6 +210,7 @@ class Model extends React.Component {
 
     if (isShowHeatmap && !isEmpty(heatmapData)) {
       const data = this.getPreparedHeatData();
+      this.#heatmapData = new Set([...data]);
 
       this.designer.drawHeatmap({
         data,
@@ -235,14 +235,20 @@ class Model extends React.Component {
       return;
     }
 
-    const isEmptyData = isEmpty(this.#heatmapData);
+    this.#heatmapData = new Set([...this.getPreparedHeatData()]);
 
-    if (isEmptyData) {
-      this.#heatmapData = new Set([...this.getPreparedHeatData()]);
+    this.designer.heatmap.updateData(this.#heatmapData, true);
+    this.designer.heatmap.toggleDisplay(false);
+  };
+
+  rePaintHeatmap = () => {
+    if (!this.state.isShowHeatmap || !this.designer || !this.designer.heatmap) {
+      return;
     }
 
-    this.designer.heatmap.updateData(this.#heatmapData, !isEmptyData);
-    this.designer.heatmap.toggleDisplay(false);
+    this.designer.heatmap.destroy();
+    this.renderHeatmap();
+    this.renderBadges();
   };
 
   handleToggleHeatmap = () => {
