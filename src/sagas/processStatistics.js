@@ -1,6 +1,6 @@
-import { call, put, select, takeEvery } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
-import { filterHeatdata, filterJournal, getJournal, getModel, setJournal, setModel } from '../actions/processStatistics';
+import { filterHeatdata, filterJournal, getJournal, getModel, setJournal, setModel, setNewData } from '../actions/processStatistics';
 import JournalsService from '../components/Journals/service/journalsService';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
@@ -55,6 +55,7 @@ function* sagaGetModel({ api, logger }, { payload }) {
     const heatmapData = yield call(api.process.getHeatmapData, record);
 
     yield put(setModel({ stateId, model, heatmapData }));
+    yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {
     yield put(setModel({ stateId, model: null, heatmapData: [] }));
     logger.error('[processStatistics/sagaGetModel] error', e);
@@ -67,14 +68,16 @@ function* sagaFilterHeatdata({ api, logger }, { payload }) {
   try {
     const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
     yield put(setModel({ stateId, heatmapData }));
+    yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {
     yield put(setModel({ stateId, heatmapData: [] }));
+    yield put(setNewData({ stateId, isNewData: true }));
     logger.error('[processStatistics/sagaFilterHeatdata] error', e);
   }
 }
 
 function* eventsHistorySaga(ea) {
-  yield takeEvery(getModel().type, sagaGetModel, ea);
+  yield takeLatest(getModel().type, sagaGetModel, ea);
   yield takeEvery(getJournal().type, sagaGetJournal, ea);
   yield takeEvery(filterJournal().type, sagaFilterJournal, ea);
   yield takeEvery(filterHeatdata().type, sagaFilterHeatdata, ea);

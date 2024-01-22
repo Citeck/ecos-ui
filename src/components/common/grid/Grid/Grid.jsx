@@ -1124,8 +1124,6 @@ class Grid extends Component {
 
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
 
-    console.log('bootProps', bootProps);
-
     return (
       <>
         <div ref={this.setGridRef}>
