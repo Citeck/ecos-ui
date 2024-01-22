@@ -87,6 +87,7 @@ class JournalColumnsResolver {
     const groupable = getBoolOrElse(column.groupable, () => GROUPABLE_TYPES.indexOf(type) === -1);
     const hidden = getBoolOrElse(column.hidden, false);
     const visible = getBoolOrElse(column.visible, () => getBoolOrElse(column.default, true));
+    const hasTotalSumField = getBoolOrElse(column.hasTotalSumField, false);
     const defaultValue = getBoolOrElse(column['default'], true);
 
     const params = column.params || {};
@@ -104,6 +105,7 @@ class JournalColumnsResolver {
       multiple,
       groupable,
       searchable,
+      hasTotalSumField,
       attribute,
       attSchema,
       text: label,

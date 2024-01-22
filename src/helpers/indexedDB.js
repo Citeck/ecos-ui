@@ -86,6 +86,44 @@ const pagesStore = {
         reject(`${this.name} transaction is failed: ${e}`);
       };
     });
+  },
+  migrate: function(from, to) {
+    return new Promise(async (resolve, reject) => {
+      if (!indexedDB) {
+        resolve();
+      }
+
+      if (!citeckDB) {
+        await openCiteckDB();
+      }
+
+      const transaction = citeckDB.transaction([this.name], 'readwrite');
+      const pages = transaction.objectStore(this.name);
+
+      const idbRequestGetOld = pages.get(from);
+
+      idbRequestGetOld.onsuccess = e => {
+        if (!idbRequestGetOld.result) {
+          resolve();
+          return;
+        }
+
+        const oldPageId = idbRequestGetOld.result.pageId;
+        idbRequestGetOld.result.pageId = to;
+
+        pages.put(idbRequestGetOld.result);
+        pages.delete(oldPageId);
+      };
+
+      transaction.oncomplete = e => {
+        resolve();
+      };
+
+      transaction.onerror = e => {
+        console.log(`${this.name} transaction is aborted`);
+        reject(`${this.name} transaction is failed: ${e}`);
+      };
+    });
   }
 };
 
