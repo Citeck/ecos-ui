@@ -171,6 +171,7 @@ class RecordActions {
     const condition = get(action, 'confirm.condition.fn', false);
 
     if (isFunction(condition)) {
+      // record and records vars for condition function context
       const record = get(params, 'actionRecord');
       // eslint-disable-next-line no-unused-vars
       const records = get(params, 'actionRecords', record ? [record] : []);
