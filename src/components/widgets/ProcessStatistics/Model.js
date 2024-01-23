@@ -288,7 +288,7 @@ class Model extends React.Component {
   };
 
   handleChangeCountFlag = data => {
-    this.setState(data, this.reRenderHeatmap);
+    this.setState(data, this.rePaintHeatmap);
   };
   handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
 
