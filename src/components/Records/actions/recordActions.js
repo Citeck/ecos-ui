@@ -159,14 +159,30 @@ class RecordActions {
 
   /**
    * @param {RecordAction} action
+   * @param params
    * @returns {Object}
    * @private
    */
-  static _getConfirmData = action => {
+  static _getConfirmData = async (action, params) => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
     const modalClass = get(action, 'confirm.modalClass');
+    const condition = get(action, 'confirm.condition.fn', false);
+
+    if (isFunction(condition)) {
+      // record and records vars for condition function context
+      const record = get(params, 'actionRecord');
+      // eslint-disable-next-line no-unused-vars
+      const records = get(params, 'actionRecords', record ? [record] : []);
+      // eslint-disable-next-line no-eval
+      const result = await eval(`(function() { ${condition} })();`);
+
+      if (!result) {
+        return false;
+      }
+    }
+
     const needConfirm = !!formId || !!title || !!text;
     const formOptions = get(action, 'confirm.formOptions');
     const formData = get(action, 'formData');
@@ -218,7 +234,7 @@ class RecordActions {
    */
   static async _checkConfirmAction(action, params) {
     /** @see ConfirmAction */
-    const confirmData = RecordActions._getConfirmData(action);
+    const confirmData = await RecordActions._getConfirmData(action, params);
 
     if (!confirmData) {
       return true;
