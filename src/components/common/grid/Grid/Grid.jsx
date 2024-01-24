@@ -26,6 +26,7 @@ import isElement from 'lodash/isElement';
 import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
 
+import Loader from '../../../common/Loader';
 import { getId, isInViewport, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
@@ -424,33 +425,17 @@ class Grid extends Component {
     options.data = replaceDefaultNestedDelimiterForData(options.data);
     options.columns = replaceDefaultNestedDelimiterForColumns(options.columns);
 
-    let countFields = {};
-
-    if (options.columns && options.columns.length) {
+    if (props.footerValue && options.columns && options.columns.length) {
       options.columns.forEach(column => {
-        if (column.hasTotalSumField) {
-          countFields[column.name] = 0;
+        const columnSum = props.footerValue[column.attribute];
+
+        if (columnSum) {
+          column.footer = columnSum;
+          column.footerClasses = 'ecos-grid__table_footer__cell';
+        } else {
+          column.footer = '';
         }
       });
-
-      if (props.data && props.data.length && !isEmpty(countFields)) {
-        const countFieldsArray = Object.keys(countFields);
-
-        props.data.forEach(rowData => {
-          countFieldsArray.forEach(countFieldName => {
-            countFields[countFieldName] += +rowData[countFieldName];
-          });
-        });
-
-        options.columns.forEach(column => {
-          if (countFields[column.name]) {
-            column.footer = countFields[column.name];
-            column.footerClasses = 'ecos-grid__table_footer__cell';
-          } else {
-            column.footer = '';
-          }
-        });
-      }
     }
 
     return options;
@@ -584,14 +569,17 @@ class Grid extends Component {
         return '';
       }
 
-      if (!isEmpty(newFormatter) && newFormatter.type) {
+      if (content === 'loading') {
+        content = <Loader type="points" height={10} width={18} />;
+      } else if (!isEmpty(newFormatter) && newFormatter.type) {
         content = FormatterService.format({ cell: footer, column }, newFormatter);
       }
 
       return (
         <div className="ecos-grid__table_footer__value">
-          {t('grid.footer.total-amount')}
-          {content}
+          <div className="ecos-grid__table_footer__item">{t('grid.footer.total-amount')}</div>
+
+          <div className="ecos-grid__table_footer__item">{content}</div>
         </div>
       );
     };

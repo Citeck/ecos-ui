@@ -35,7 +35,9 @@ $header-height: 52px;
       .ecos-grid__table_footer__value {
         background-color: $color-gray-4;
         display: flex;
+        flex-wrap: wrap;
         white-space: break-spaces;
+        padding: 3px 5px;
         width: calc(100% - 10px);
         height: 100%;
         border-radius: 0 0 7px 9px;
@@ -46,8 +48,12 @@ $header-height: 52px;
         font-weight: 600;
       }
 
+      .ecos-grid__table_footer__item {
+        box-sizing: border-box;
+      }
+
       .ecos-grid__table_footer__cell {
-        height: 22px;
+        height: fit-content;
         padding: 0;
         display: flex;
         position: relative;

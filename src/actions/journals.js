@@ -73,3 +73,5 @@ export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
 export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');
 
 export const saveColumn = createAction(prefix + 'SAVE_COLUMN');
+
+export const setFooterValue = createAction(prefix + 'SET_FOOTER_VALUE');

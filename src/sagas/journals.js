@@ -65,6 +65,7 @@ import {
   setSelectedRecords,
   setUrl,
   setForceUpdate,
+  setFooterValue,
   toggleViewMode
 } from '../actions/journals';
 import {
@@ -82,6 +83,7 @@ import JournalsService, { EditorService, PresetsServiceApi } from '../components
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
+import { convertAttributeValues } from '../components/Records/predicates/util';
 import { ActionTypes } from '../components/Records/actions/constants';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
@@ -106,6 +108,58 @@ const getDefaultSortBy = config => {
     ascending: item.order !== 'desc'
   }));
 };
+
+function* getColumnsSum(api, w, columns, journalId, predicates) {
+  try {
+    if (!columns || !columns.length || !journalId) {
+      return;
+    }
+
+    const countFields = [];
+
+    columns.forEach(column => {
+      if (column.hasTotalSumField) {
+        countFields.push(column.attribute);
+      }
+    });
+
+    if (countFields.length) {
+      const sumFieldsLoading = {};
+
+      countFields.forEach(countField => {
+        sumFieldsLoading[countField] = 'loading';
+      });
+
+      yield put(setFooterValue(w(sumFieldsLoading)));
+
+      let query;
+
+      if (predicates) {
+        const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(predicates));
+        query = convertAttributeValues(cleanPredicates, columns);
+        query = JournalsConverter.optimizePredicate({ t: 'and', val: cleanPredicates });
+      }
+
+      const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+      const result = yield call(api.journals.getTotalSum, journalType, countFields, query);
+      const sumFields = {};
+
+      if (result) {
+        Object.keys(result).forEach(key => {
+          const attributeName = key.replace('sum(', '').replace(')', '');
+
+          sumFields[attributeName] = result[key];
+        });
+      }
+
+      yield put(setFooterValue(w(sumFields)));
+    }
+  } catch (e) {
+    yield put(setFooterValue(w({})));
+    NotificationManager.error(t('journal.footer-sum.error'));
+    console.error('[journals getColumnsSum saga error', e);
+  }
+}
 
 function getDefaultJournalSetting(journalConfig) {
   const { groupBy } = get(journalConfig, 'meta', {});
@@ -622,6 +676,10 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+
+    const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
+
+    yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
     yield put(setForceUpdate(w(true)));
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -693,6 +751,10 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       (...data) => ({ ...w(...data), logger })
     );
 
+    const { predicate } = yield select(selectJournalData, stateId);
+    const predicates = [predicate, journalConfig.predicate];
+
+    yield getColumnsSum(api, w, journalConfig?.columns, journalId, predicates);
     yield put(setLoading(w(false)));
   } catch (e) {
     yield put(setLoading(w(false)));

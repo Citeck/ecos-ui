@@ -33,6 +33,7 @@ import {
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
+  setFooterValue,
   toggleViewMode,
   setUrl,
   openSelectedJournal,
@@ -449,6 +450,14 @@ export default handleActions(
       updatedColumnGrid.width = action.payload.width;
 
       return updateState(state, stateId, { grid: cloneGrid, journalSetting: cloneJournalSetting }, defaultState);
+    },
+    [setFooterValue]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        footerValue: handledAction.payload
+      });
     }
   },
   initialState
