@@ -41,7 +41,6 @@ export class JournalsApi extends RecordService {
   };
 
   getRecord = ({ id, attributes, noCache = false }) => {
-    console.log('getRecord');
     return Records.get(id)
       .load(attributes, noCache)
       .catch(() => null);

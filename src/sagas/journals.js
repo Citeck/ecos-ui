@@ -83,6 +83,7 @@ import JournalsService, { EditorService, PresetsServiceApi } from '../components
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
 import { ParserPredicate } from '../components/Filters/predicates';
 import Records from '../components/Records';
+import { convertAttributeValues } from '../components/Records/predicates/util';
 import { ActionTypes } from '../components/Records/actions/constants';
 import ActionsRegistry from '../components/Records/actions/actionsRegistry';
 import { decodeLink, getFilterParam, getSearchParams, getUrlWithoutOrigin, removeUrlSearchParams } from '../helpers/urls';
@@ -108,43 +109,53 @@ const getDefaultSortBy = config => {
   }));
 };
 
-function* getColumnsSum(api, w, columns, journalId, query) {
-  if (!columns || !columns.length || !journalId) {
-    return;
-  }
-
-  const countFields = [];
-
-  console.log('columns', columns);
-
-  columns.forEach(column => {
-    if (column.hasTotalSumField) {
-      countFields.push(column.attribute);
+function* getColumnsSum(api, w, columns, journalId, predicates) {
+  try {
+    if (!columns || !columns.length || !journalId) {
+      return;
     }
-  });
 
-  if (countFields.length) {
-    const sumFieldsLoading = {};
+    const countFields = [];
 
-    countFields.forEach(countField => {
-      sumFieldsLoading[countField] = 'loading';
+    columns.forEach(column => {
+      if (column.hasTotalSumField) {
+        countFields.push(column.attribute);
+      }
     });
 
-    yield put(setFooterValue(w(sumFieldsLoading)));
+    if (countFields.length) {
+      const sumFieldsLoading = {};
 
-    const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
-    const result = yield call(api.journals.getTotalSum, journalType, countFields, query);
-    const sumFields = {};
-
-    if (result) {
-      Object.keys(result).forEach(key => {
-        const attributeName = key.replace('sum(', '').replace(')', '');
-
-        sumFields[attributeName] = result[key];
+      countFields.forEach(countField => {
+        sumFieldsLoading[countField] = 'loading';
       });
-    }
 
-    yield put(setFooterValue(w(sumFields)));
+      yield put(setFooterValue(w(sumFieldsLoading)));
+
+      let query;
+
+      if (predicates) {
+        const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(predicates));
+        query = convertAttributeValues(cleanPredicates, columns);
+        query = JournalsConverter.optimizePredicate({ t: 'and', val: query });
+      }
+
+      const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+      const result = yield call(api.journals.getTotalSum, journalType, countFields, query);
+      const sumFields = {};
+
+      if (result) {
+        Object.keys(result).forEach(key => {
+          const attributeName = key.replace('sum(', '').replace(')', '');
+
+          sumFields[attributeName] = result[key];
+        });
+      }
+
+      yield put(setFooterValue(w(sumFields)));
+    }
+  } catch (e) {
+    console.error('[journals getColumnsSum saga error', e);
   }
 }
 
@@ -483,7 +494,6 @@ function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 export function* getGridData(api, params, stateId) {
-  debugger;
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
@@ -491,8 +501,6 @@ export function* getGridData(api, params, stateId) {
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
-
-  console.log('predicateRecords', _predicates);
 
   if (predicateRecords) {
     _predicates.push({
@@ -666,8 +674,10 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
-    console.log('journalData', journalData);
-    yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, journalData?.grid.query?.query);
+
+    const predicates = [journalData?.predicate, journalData?.journalConfig.predicate];
+
+    yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, predicates);
     yield put(setForceUpdate(w(true)));
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -739,9 +749,10 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       (...data) => ({ ...w(...data), logger })
     );
 
-    console.log('journalConfig', journalConfig);
+    const { predicate } = yield select(selectJournalData, stateId);
+    const predicates = [predicate, journalConfig.predicate];
 
-    yield getColumnsSum(api, w, journalConfig?.columns, journalId, journalConfig.predicate);
+    yield getColumnsSum(api, w, journalConfig?.columns, journalId, predicates);
     yield put(setLoading(w(false)));
   } catch (e) {
     yield put(setLoading(w(false)));
@@ -1014,7 +1025,6 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     const sortBy = sortByFromSetting.filter(predicate => groupBy.includes(predicate.attribute));
     settings.sortBy = sortBy;
     yield put(setJournalSetting(w(settings)));
-    console.log('sagaApplyJournalSetting');
     if (settings.kanban) {
       yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
     }
