@@ -1118,6 +1118,8 @@
   "journal.presets.action.delete.msg": "Remove template \"{{name}}\"?",
   "journal.presets.error.get-one": "Settings template not received",
 
+  "journal.footer-sum.error": "Error in getting the column amount",
+
   "journals.formatter.action.execution-error": "Action can't be executed",
 
   "journals.header-formatter.message.complex-filter.part-1": "A complex filter has been applied.\nGo to the ",

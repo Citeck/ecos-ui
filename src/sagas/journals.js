@@ -137,7 +137,7 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
       if (predicates) {
         const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(predicates));
         query = convertAttributeValues(cleanPredicates, columns);
-        query = JournalsConverter.optimizePredicate({ t: 'and', val: query });
+        query = JournalsConverter.optimizePredicate({ t: 'and', val: cleanPredicates });
       }
 
       const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
@@ -155,6 +155,8 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
       yield put(setFooterValue(w(sumFields)));
     }
   } catch (e) {
+    yield put(setFooterValue(w({})));
+    NotificationManager.error(t('journal.footer-sum.error'));
     console.error('[journals getColumnsSum saga error', e);
   }
 }
