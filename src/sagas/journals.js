@@ -25,7 +25,6 @@ import {
   getDashletConfig,
   getDashletEditorData,
   getJournalsData,
-  // getFooterValues,
   goToJournalsPage,
   initJournal,
   initJournalSettingData,
@@ -66,10 +65,8 @@ import {
   setSelectedRecords,
   setUrl,
   setForceUpdate,
-  setIsFooterLoading,
   setFooterValue,
   toggleViewMode
-  // getFooterValues
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -111,13 +108,14 @@ const getDefaultSortBy = config => {
   }));
 };
 
-function* getColumnsSum(columns, journalId) {
-  console.log('journalId', journalId);
+function* getColumnsSum(api, w, columns, journalId, query) {
   if (!columns || !columns.length || !journalId) {
     return;
   }
 
   const countFields = [];
+
+  console.log('columns', columns);
 
   columns.forEach(column => {
     if (column.hasTotalSumField) {
@@ -126,49 +124,28 @@ function* getColumnsSum(columns, journalId) {
   });
 
   if (countFields.length) {
-    getFooterValues(countFields, journalId);
+    const sumFieldsLoading = {};
+
+    countFields.forEach(countField => {
+      sumFieldsLoading[countField] = 'loading';
+    });
+
+    yield put(setFooterValue(w(sumFieldsLoading)));
+
+    const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
+    const result = yield call(api.journals.getTotalSum, journalType, countFields, query);
+    const sumFields = {};
+
+    if (result) {
+      Object.keys(result).forEach(key => {
+        const attributeName = key.replace('sum(', '').replace(')', '');
+
+        sumFields[attributeName] = result[key];
+      });
+    }
+
+    yield put(setFooterValue(w(sumFields)));
   }
-}
-
-// const getColumnsSum = async (columns, journalId) => {
-//   console.log("journalId", journalId);
-//   if (!columns || !columns.length || !journalId) {
-//     return;
-//   }
-
-//   const countFields = [];
-
-//   columns.forEach(column => {
-//     if (column.hasTotalSumField) {
-//       countFields.push(column.attribute);
-//     }
-//   });
-
-//   if (countFields.length) {
-//     getFooterValues(countFields, journalId);
-//   }
-// }
-
-// const getFooterValues = async (countFields, journalId) => {
-//   console.log("sagaGetFooterValues", countFields, journalId);
-//   // const { journalId } = payload;
-//   // const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
-//   // const y = yield call(api.journals.getTotalSum, journalType);
-//   // console.log("yyyy", y);
-// }
-
-function* getFooterValues(api, journalId, w, countFields) {
-  yield put(setIsFooterLoading(w(true)));
-
-  console.log('sagaGetFooterValues', countFields, journalId);
-
-  // const { journalId } = payload;
-  const journalType = yield Records.get(`uiserv/rjournal@${journalId}`).load('typeRef?str');
-  const sumFields = yield call(api.journals.getTotalSum, journalType, countFields);
-  console.log('sumFields', sumFields);
-
-  yield put(setFooterValue(w(sumFields)));
-  yield put(setIsFooterLoading(w(false)));
 }
 
 function getDefaultJournalSetting(journalConfig) {
@@ -506,6 +483,7 @@ function* sagaResetJournalSettingData({ api, logger, stateId, w }, action) {
 }
 
 export function* getGridData(api, params, stateId) {
+  debugger;
   const { recordRef, journalConfig, journalSetting } = yield select(selectJournalData, stateId);
   const config = yield select(state => selectNewVersionDashletConfig(state, stateId));
   const onlyLinked = get(config, 'onlyLinked');
@@ -513,6 +491,8 @@ export function* getGridData(api, params, stateId) {
 
   const { pagination: _pagination, predicates: _predicates, searchPredicate, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
+
+  console.log('predicateRecords', _predicates);
 
   if (predicateRecords) {
     _predicates.push({
@@ -686,7 +666,8 @@ function* sagaReloadGrid({ api, logger, stateId, w }, { payload = {} }) {
     yield put(setSelectAllPageRecords(w(_selectAllPageRecords)));
     yield put(setSelectedRecords(w(_selectedRecords)));
     yield put(setGrid(w({ ...params, ...gridData, editingRules })));
-    getColumnsSum(journalData?.journalConfig?.columns, journalData?.journalConfig?.id);
+    console.log('journalData', journalData);
+    yield getColumnsSum(api, w, journalData?.journalConfig?.columns, journalData?.journalConfig?.id, journalData?.grid.query?.query);
     yield put(setForceUpdate(w(true)));
     yield put(setLoading(w(false)));
   } catch (e) {
@@ -758,26 +739,9 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
       (...data) => ({ ...w(...data), logger })
     );
 
-    // getColumnsSum(journalConfig?.columns, journalId);
+    console.log('journalConfig', journalConfig);
 
-    const columns = journalConfig?.columns;
-
-    if (!columns || !columns.length || !journalId) {
-      return;
-    }
-
-    const countFields = [];
-
-    columns.forEach(column => {
-      if (column.hasTotalSumField) {
-        countFields.push(column.attribute);
-      }
-    });
-
-    if (countFields.length) {
-      yield getFooterValues(api, journalId, w, countFields);
-    }
-
+    yield getColumnsSum(api, w, journalConfig?.columns, journalId, journalConfig.predicate);
     yield put(setLoading(w(false)));
   } catch (e) {
     yield put(setLoading(w(false)));
@@ -1050,6 +1014,7 @@ function* sagaApplyJournalSetting({ api, logger, stateId, w }, action) {
     const sortBy = sortByFromSetting.filter(predicate => groupBy.includes(predicate.attribute));
     settings.sortBy = sortBy;
     yield put(setJournalSetting(w(settings)));
+    console.log('sagaApplyJournalSetting');
     if (settings.kanban) {
       yield put(setKanbanSettings({ stateId, kanbanSettings: settings.kanban }));
     }
@@ -1295,14 +1260,6 @@ export function* sagaToggleViewMode({ logger, w }, { payload }) {
   }
 }
 
-// function* sagaSetGrid({ logger, w }, { payload }) {
-//   try {
-//     console.log("payload", payload);
-//   } catch (e) {
-//     logger.error('[journals sagaToggleViewMode saga error', e);
-//   }
-// }
-
 function* saga(ea) {
   yield takeEvery(getDashletConfig().type, wrapSaga, { ...ea, saga: sagaGetDashletConfig });
   yield takeEvery(setDashletConfigByParams().type, wrapSaga, { ...ea, saga: sagaSetDashletConfigFromParams });
@@ -1313,7 +1270,6 @@ function* saga(ea) {
 
   yield takeEvery(reloadGrid().type, wrapSaga, { ...ea, saga: sagaReloadGrid });
   yield takeEvery(reloadTreeGrid().type, wrapSaga, { ...ea, saga: sagaReloadTreeGrid });
-  // yield takeEvery(setGrid().type, wrapSaga, { ...ea, saga: sagaSetGrid });
 
   yield takeEvery(execRecordsAction().type, wrapSaga, { ...ea, saga: sagaExecRecordsAction });
   yield takeEvery(saveRecords().type, wrapSaga, { ...ea, saga: sagaSaveRecords });
@@ -1342,8 +1298,6 @@ function* saga(ea) {
   yield takeEvery(checkConfig().type, wrapSaga, { ...ea, saga: sagaCheckConfig });
 
   yield takeEvery(toggleViewMode().type, wrapSaga, { ...ea, saga: sagaToggleViewMode });
-
-  // yield takeEvery(getFooterValues().type, wrapSaga, { ...ea, saga: sagaGetFooterValues });
 }
 
 export default saga;

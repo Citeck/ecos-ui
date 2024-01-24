@@ -41,6 +41,7 @@ export class JournalsApi extends RecordService {
   };
 
   getRecord = ({ id, attributes, noCache = false }) => {
+    console.log('getRecord');
     return Records.get(id)
       .load(attributes, noCache)
       .catch(() => null);
@@ -142,15 +143,14 @@ export class JournalsApi extends RecordService {
     });
   };
 
-  getTotalSum = (journalType, countFields) => {
-    if (!journalType) {
+  getTotalSum = (journalType, countFields, query = {}) => {
+    if (!journalType || !countFields) {
       return;
     }
 
     const attributes = countFields.map(field => `sum(${field})`);
-
     const sourceId = journalType.replace('type@', '');
 
-    return Records.queryOne({ sourceId, query: {}, language: 'predicate', groupBy: ['*'] }, attributes);
+    return Records.queryOne({ sourceId, query, language: 'predicate', groupBy: ['*'] }, attributes);
   };
 }

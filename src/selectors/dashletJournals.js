@@ -26,23 +26,21 @@ export const selectJournalDashletProps = createSelector(
   })
 );
 
-export const selectJournalDashletGridProps = createSelector(
-  [selectJournalData, selectViewColumns],
-  (ownState, viewColumns) => ({
-    loading: ownState.loading,
-    grid: ownState.grid,
-    predicate: ownState.predicate,
-    journalConfig: ownState.journalConfig,
-    selectedRecords: ownState.selectedRecords,
-    excludedRecords: ownState.excludedRecords,
-    selectAllRecords: ownState.selectAllRecords,
-    selectAllPageRecords: ownState.selectAllPageRecords,
-    selectAllRecordsVisible: ownState.selectAllRecordsVisible,
-    query: get(ownState, 'grid.query.query'),
-    isGrouped: !isEmpty(get(ownState, 'grid.grouping.columns')),
-    viewColumns
-  })
-);
+export const selectJournalDashletGridProps = createSelector([selectJournalData, selectViewColumns], (ownState, viewColumns) => ({
+  loading: ownState.loading,
+  grid: ownState.grid,
+  predicate: ownState.predicate,
+  journalConfig: ownState.journalConfig,
+  selectedRecords: ownState.selectedRecords,
+  excludedRecords: ownState.excludedRecords,
+  selectAllRecords: ownState.selectAllRecords,
+  selectAllPageRecords: ownState.selectAllPageRecords,
+  selectAllRecordsVisible: ownState.selectAllRecordsVisible,
+  footerValue: ownState.footerValue,
+  query: get(ownState, 'grid.query.query'),
+  isGrouped: !isEmpty(get(ownState, 'grid.grouping.columns')),
+  viewColumns
+}));
 
 export const selectJournalDashletEditorProps = createSelector(
   [selectJournalData, selectDashletConfig, selectNewVersionDashletConfig, selectDashletConfigJournalId],
