@@ -11,54 +11,48 @@ class AggregationListItem extends Component {
   constructor(props) {
     super(props);
 
+    const defaultAggregationType = {
+      attribute: `_${props.column.attribute}`,
+      text: props.column.label,
+      column: props.column.attribute,
+      sortable: false,
+      type: 'NUMBER',
+      newFormatter: props.column.newFormatter,
+      newEditor: props.column.newEditor
+    };
+
     this.aggregationTypes = [
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `sum(${props.column.attribute})`,
         label: {
           ru: `Сумма (${props.column.label})`,
           en: `Sum (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       },
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `avg(${props.column.attribute})?num|fmt(0.00)`,
         label: {
           ru: `Среднее (${props.column.label})`,
           en: `Average (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       },
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `min(${props.column.attribute})`,
         label: {
           ru: `Минимум (${props.column.label})`,
           en: `Min (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       },
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `max(${props.column.attribute})`,
         label: {
           ru: `Максимум (${props.column.label})`,
           en: `Max (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       }
     ];
 
