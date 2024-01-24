@@ -285,7 +285,17 @@ class JournalsDataLoader {
     }
 
     if (groupBy.length) {
-      sortBy = sortBy.filter(predicate => groupBy.includes(predicate.attribute));
+      sortBy = sortBy.filter(predicate => {
+        let result = false;
+
+        groupBy.forEach(group => {
+          if (group.includes(predicate.attribute)) {
+            result = true;
+          }
+        });
+
+        return result;
+      });
     }
 
     return sortBy;
