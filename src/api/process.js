@@ -1,6 +1,7 @@
 import Records from '../components/Records';
 import { SourcesId } from '../constants';
 import { PERMISSION_DEPLOY_PROCESS } from '../constants/bpmn';
+import { PERMISSION_DMN_DEPLOY_PROCESS } from '../constants/dmn';
 
 export const PROCESS_DEF_API_ACTIONS = {
   DRAFT: 'DRAFT',
@@ -13,7 +14,11 @@ export default class ProcessApi {
     return Records.get(record).load('definition?str', true);
   };
 
-  getHasDeployRights = record => {
+  getHasDeployRights = (record, isDMN = false) => {
+    if (isDMN) {
+      return Records.get(record).load(PERMISSION_DMN_DEPLOY_PROCESS, true);
+    }
+
     return Records.get(record).load(PERMISSION_DEPLOY_PROCESS, true);
   };
 

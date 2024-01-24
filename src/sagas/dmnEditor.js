@@ -147,7 +147,7 @@ export function* fetchFormProps({ api, logger }, { payload: { stateId, formId, e
 
 export function* fetchHasDeployRights({ api, logger }, { payload: { stateId, record } }) {
   try {
-    const hasDeployRights = yield call(api.process.getHasDeployRights, record);
+    const hasDeployRights = yield call(api.process.getHasDeployRights, record, true);
 
     yield put(setHasDeployRights({ stateId, hasDeployRights }));
   } catch (e) {
