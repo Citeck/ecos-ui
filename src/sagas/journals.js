@@ -10,6 +10,7 @@ import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
+import concat from 'lodash/concat';
 
 import { NotificationManager } from 'react-notifications';
 
@@ -97,6 +98,7 @@ import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
 import { setKanbanSettings, reloadBoardData } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
+import { convertAttributeValues } from '../components/Records/predicates/util';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -1127,7 +1129,18 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         row = yield call(api.journals.getRecord, { id: row.id, attributes: attributes }) || row;
       }
 
+      let originFilter = [];
+      const cleanPredicates = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate([journalData.predicate]));
+
+      originFilter = convertAttributeValues(cleanPredicates, columns);
+      originFilter = JournalsConverter.optimizePredicate({ t: 'and', val: originFilter });
       filter = getFilterParam({ row, columns, groupBy });
+
+      if (originFilter && Array.isArray(originFilter.val)) {
+        filter = concat(filter, originFilter.val);
+      } else {
+        filter = concat(filter, originFilter);
+      }
     }
 
     if (filter) {
