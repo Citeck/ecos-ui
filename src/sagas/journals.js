@@ -1135,10 +1135,12 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       originFilter = JournalsConverter.optimizePredicate({ t: 'and', val: originFilter });
       filter = getFilterParam({ row, columns, groupBy });
 
-      if (originFilter && Array.isArray(originFilter.val)) {
-        filter = concat(filter, originFilter.val);
-      } else {
-        filter = concat(filter, originFilter);
+      if (!isEmpty(originFilter)) {
+        if (Array.isArray(originFilter.val)) {
+          filter = concat(filter, originFilter.val);
+        } else {
+          filter = concat(filter, originFilter);
+        }
       }
     }
 
