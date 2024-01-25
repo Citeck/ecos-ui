@@ -98,7 +98,6 @@ import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
 import { setKanbanSettings, reloadBoardData } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
-import { convertAttributeValues } from '../components/Records/predicates/util';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
