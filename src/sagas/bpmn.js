@@ -211,7 +211,7 @@ function* doCreateModel({ api, logger }, action) {
       });
     });
     if (saved) {
-      const newModel = yield call(api.bpmn.fetchModelAttributes, newModelId);
+      const newModel = yield call(api.bpmn.fetchModelAttributes, newModelId, true);
       const { categoryId } = newModel;
 
       const modelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId }));
@@ -332,19 +332,33 @@ function* doSavePagePosition({ api, logger }, action) {
 
 function* doUpdateModels({ api, logger }, { payload }) {
   try {
-    const { modelId, resultModelId, action } = payload;
+    const { modelId, resultModelId, prevCategoryId, action } = payload;
 
-    const editedModel = yield call(api.bpmn.fetchModelAttributes, resultModelId);
+    const editedModel = yield call(api.bpmn.fetchModelAttributes, resultModelId || modelId);
     const categoryId = editedModel.categoryId;
 
     const modelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId }));
-    const models = modelsInfo.models || [];
+
+    let prevModelsInfo = {};
+
+    if (prevCategoryId) {
+      prevModelsInfo = yield select(state => selectModelsInfoByCategoryId(state, { categoryId: prevCategoryId }));
+    }
 
     if (action === 'edit') {
-      const editedIndex = models.findIndex(model => model.id === modelId);
-      const copyModels = [...models];
+      let copyPrevModels = [];
 
-      if (resultModelId === modelId) {
+      if (prevModelsInfo.models && prevCategoryId !== categoryId) {
+        copyPrevModels = [...prevModelsInfo.models];
+        const editedIndex = copyPrevModels.findIndex(model => model.id === modelId);
+
+        copyPrevModels.splice(editedIndex, 1);
+      }
+
+      const copyModels = [...modelsInfo.models];
+      const editedIndex = copyModels.findIndex(model => model.id === modelId);
+
+      if (prevCategoryId === categoryId) {
         copyModels.splice(editedIndex, 1, editedModel);
       } else {
         copyModels.unshift(editedModel);
@@ -355,22 +369,29 @@ function* doUpdateModels({ api, logger }, { payload }) {
           categoryId,
           ...modelsInfo,
           models: copyModels,
+          prevCategoryId: prevCategoryId !== categoryId ? prevCategoryId : null,
+          prevModels: copyPrevModels,
           force: true
         })
       );
     }
 
     if (action === 'delete') {
-      const deletedIndex = models.findIndex(model => model.id === modelId);
+      let copyPrevModels = [];
 
-      const copyModels = [...models];
-      copyModels.splice(deletedIndex, 1);
+      if (prevModelsInfo.models) {
+        copyPrevModels = [...prevModelsInfo.models];
+
+        // the deleted model from back doesn't know about its category, so we get "previous" category
+        const deletedIndex = copyPrevModels.findIndex(model => model.id === modelId);
+        copyPrevModels.splice(deletedIndex, 1);
+      }
 
       yield put(
         setModelsInfoByCategoryId({
-          categoryId,
-          ...modelsInfo,
-          models: copyModels,
+          categoryId: prevCategoryId,
+          ...prevModelsInfo,
+          models: copyPrevModels,
           force: true
         })
       );
