@@ -21,6 +21,10 @@ $header-height: 52px;
 
   .ecos-grid__table {
     .ecos-grid__table_footer {
+      &-hide {
+        display: none;
+      }
+
       th:first-child {
         position: sticky;
         z-index: 3;
