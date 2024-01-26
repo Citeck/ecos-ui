@@ -107,8 +107,8 @@ class Models extends React.Component {
                 viewLink={`/v2/dashboard?recordRef=${model.id}`}
                 onViewLinkClick={onViewLinkClick}
                 onEditLinkClick={e => onEditLinkClick(e, model.id)}
-                onDeleteModelClick={e => onDeleteModelClick(e, model.id)}
-                onEditMetaClick={e => onEditMetaClick(e, model.id)}
+                onDeleteModelClick={e => onDeleteModelClick(e, model.id, model)}
+                onEditMetaClick={e => onEditMetaClick(e, model.id, model)}
                 label={model.label}
                 sectionCode={model.sectionCode}
                 author={model.creator}

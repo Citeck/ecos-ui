@@ -56,7 +56,7 @@ export class BpmnApi extends RecordService {
     return Records.get('emodel/type@bpmn-process-def').load('createVariants[]?json');
   };
 
-  fetchModelAttributes = modelId => {
+  fetchModelAttributes = (modelId, force) => {
     return Records.get(modelId)
       .load({
         id: '?id',
@@ -73,7 +73,7 @@ export class BpmnApi extends RecordService {
         hasThumbnail: '_has.thumbnail?bool!false',
         definition: 'definition?str',
         canWrite: PERMISSION_WRITE_ATTR
-      })
+      }, force)
       .then(result => result)
       .catch(e => console.error(e));
   };

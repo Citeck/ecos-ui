@@ -70,9 +70,10 @@ export default handleActions(
       };
     },
     [setModelsInfoByCategoryId]: (state, action) => {
-      const { categoryId, page, models, hasMore, force, isNextModelsLoading } = action.payload;
+      const { categoryId, page, models, hasMore, force, isNextModelsLoading, prevCategoryId, prevModels } = action.payload;
       const modelsMap = state.modelsMap;
       const modelsInfo = modelsMap.get(categoryId) || {};
+      const prevModelsInfo = modelsMap.get(prevCategoryId);
 
       if (!isNextModelsLoading) {
         modelsInfo.isNextModelsLoading = isNextModelsLoading;
@@ -85,6 +86,11 @@ export default handleActions(
       }
 
       modelsMap.set(categoryId, { ...modelsInfo });
+
+      if (prevModelsInfo) {
+        prevModelsInfo.models = prevModels;
+        modelsMap.set(prevCategoryId, { ...prevModelsInfo });
+      }
 
       return {
         ...state,
