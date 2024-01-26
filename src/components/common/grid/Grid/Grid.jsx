@@ -571,7 +571,7 @@ class Grid extends Component {
 
       if (content === 'loading') {
         content = <Loader type="points" height={10} width={18} />;
-      } else if (!isEmpty(newFormatter) && newFormatter.type) {
+      } else if (!isEmpty(newFormatter) && (newFormatter.type === 'number' || newFormatter.type === 'duration')) {
         content = FormatterService.format({ cell: footer, column }, newFormatter);
       }
 
@@ -1147,7 +1147,9 @@ class Grid extends Component {
                 'ecos-grid__header_columns-not-resizable': !resizableColumns
               })}
               rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-              footerClasses="ecos-grid__table_footer"
+              footerClasses={classNames('ecos-grid__table_footer', {
+                'ecos-grid__table_footer-hide': !this.props.footerValue
+              })}
             />
           </ErrorTable>
         </div>
