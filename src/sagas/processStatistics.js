@@ -1,7 +1,9 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import get from 'lodash/get';
 
-import { filterHeatdata, filterJournal, getJournal, getModel, setJournal, setModel, setNewData } from '../actions/processStatistics';
+import { filterHeatdata, filterJournal, getJournal, getModel, setJournal, setModel, setNewData, changeFilter, setFilters, changePagination, setPagination } from '../actions/processStatistics';
 import JournalsService from '../components/Journals/service/journalsService';
+import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 
@@ -28,7 +30,15 @@ function* sagaGetJournal({ api, logger }, { payload }) {
 }
 
 function* sagaFilterJournal({ api, logger }, { payload }) {
-  const { record, stateId, pagination, predicates } = payload;
+  const { record, stateId } = payload;
+
+  const { filters, pagination }  = yield select(state => state.processStatistics[stateId]);
+
+  const predicates = filters.map(({ att, t, val, needValue }) => ({
+    att,
+    t,
+    ...(needValue ? { val } : {})
+  }));
 
   try {
     yield put(filterHeatdata({ record, stateId, predicates }));
@@ -76,11 +86,67 @@ function* sagaFilterHeatdata({ api, logger }, { payload }) {
   }
 }
 
+function* sagaChangeFilter({ api, logger }, { payload }) {
+  const { stateId, data = [], record} = payload;
+
+  try {
+    const filters = yield select(state => state.processStatistics[stateId].filters);
+
+    const newFilter = get(data, '0') || {};
+
+    let foundIndex;
+
+    if (newFilter.att) {
+      foundIndex = filters.findIndex(item => item.att === newFilter.att);
+    } else {
+      foundIndex = filters.findIndex(item => item.t === newFilter.t);
+    }
+
+    const newFilters = [...filters];
+
+    if (foundIndex === -1) {
+      newFilters.push(newFilter);
+    } else {
+      newFilters[foundIndex] = newFilter;
+    }
+
+    yield put(setFilters({ stateId, filters: newFilters.filter(item => !!item.t) }));
+    yield put(setPagination({ stateId, pagination: DEFAULT_PAGINATION }));
+    yield put(filterJournal({ stateId, record }));
+  } catch (e) {
+    yield put(setFilters({ stateId, filters: [] }));
+    logger.error('[processStatistics/sagaChangeFilter] error', e);
+  }
+}
+
+function* sagaChangePagination({ api, logger }, { payload }) {
+  const { stateId, page, maxItems, record } = payload;
+
+  try {
+    const pagination = yield select(state => state.processStatistics[stateId].pagination);
+
+    const newPagination = {
+      ...pagination,
+      page,
+      maxItems,
+      skipCount: (page - 1) * maxItems
+    }
+
+    yield put(setPagination({ stateId, pagination: newPagination }));
+    yield put(filterJournal({ stateId, record }));
+  } catch (e) {
+    yield put(setPagination({ stateId, pagination: DEFAULT_PAGINATION }));
+    logger.error('[processStatistics/sagaChangePagination] error', e);
+  }
+}
+
 function* eventsHistorySaga(ea) {
   yield takeLatest(getModel().type, sagaGetModel, ea);
   yield takeEvery(getJournal().type, sagaGetJournal, ea);
-  yield takeEvery(filterJournal().type, sagaFilterJournal, ea);
+  yield takeLatest(filterJournal().type, sagaFilterJournal, ea);
   yield takeEvery(filterHeatdata().type, sagaFilterHeatdata, ea);
+  yield takeEvery(changeFilter().type, sagaChangeFilter, ea);
+  yield takeEvery(changePagination().type, sagaChangePagination, ea);
 }
 
 export default eventsHistorySaga;

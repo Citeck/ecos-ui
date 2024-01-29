@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { filterJournal, getJournal } from '../../../actions/processStatistics';
+import { filterJournal, getJournal, changeFilter, changePagination, setFilters, setPagination } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
-import { DEFAULT_PAGINATION } from '../../Journals/constants';
+import { DEFAULT_PAGINATION } from '../../../components/Journals/constants';
 import { InfoText, Pagination, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Grid } from '../../common/grid';
@@ -23,13 +23,19 @@ const mapStateToProps = (state, context) => {
     totalCount: psState.totalCount,
     isLoading: psState.isLoadingJournal,
     columns: get(psState, 'journalConfig.columns', []),
+    filters: psState.filters,
+    pagination: psState.pagination,
     isMobile: state.view.isMobile
   };
 };
 
 const mapDispatchToProps = dispatch => ({
   getJournalData: payload => dispatch(getJournal(payload)),
-  filterJournal: payload => dispatch(filterJournal(payload))
+  filterJournal: payload => dispatch(filterJournal(payload)),
+  changeFilter: payload => dispatch(changeFilter(payload)),
+  changePagination: payload => dispatch(changePagination(payload)),
+  setFilters: payload => dispatch(setFilters(payload)),
+  setPagination: payload => dispatch(setPagination(payload)),
 });
 
 class Journal extends React.Component {
@@ -51,8 +57,6 @@ class Journal extends React.Component {
     super(props);
     this.state = {
       contentHeight: 0,
-      filters: [],
-      pagination: DEFAULT_PAGINATION
     };
   }
 
@@ -72,54 +76,34 @@ class Journal extends React.Component {
   };
 
   filterJournal = () => {
-    const { filters, pagination } = this.state;
-    const predicates = filters.map(({ att, t, val, needValue }) => ({
-      att,
-      t,
-      ...(needValue ? { val } : {})
-    }));
-
     const { filterJournal, record, stateId } = this.props;
 
-    filterJournal({ stateId, record, predicates, pagination });
+    filterJournal({ stateId, record });
   };
 
   handleChangeFilter = (data = [], type) => {
-    const { filters = [] } = this.state;
-    const newFilter = get(data, '0') || {};
-    const foundIndex = filters.findIndex(item => item.att === newFilter.att);
-    const newFilters = [...filters];
+    const { changeFilter, stateId, record } = this.props;
 
-    if (foundIndex === -1) {
-      newFilters.push(newFilter);
-    } else {
-      newFilters[foundIndex] = newFilter;
-    }
-
-    this.setState({ filters: newFilters.filter(item => !!item.t), pagination: DEFAULT_PAGINATION }, this.filterJournal);
+    changeFilter({ stateId, data, record });
   };
 
   handleChangePage = ({ page, maxItems }) => {
-    this.setState(
-      ({ pagination }) => ({
-        pagination: {
-          ...pagination,
-          page,
-          maxItems,
-          skipCount: (page - 1) * maxItems
-        }
-      }),
-      this.filterJournal
-    );
+    const { changePagination, stateId } = this.props;
+
+    changePagination({ stateId, page, maxItems });
   };
 
   handleResetFilter = () => {
-    this.setState({ filters: [], pagination: DEFAULT_PAGINATION }, this.filterJournal);
+    const { setFilters, setPagination, stateId } = this.props;
+
+    setFilters({ stateId, filters: []});
+    setPagination({ stateId, pagination: DEFAULT_PAGINATION });
+    this.filterJournal();
   };
 
   render() {
-    const { isLoading, columns, isMobile, maxHeight, data, showJournalDefault, totalCount, stateId } = this.props;
-    const { filters = [], pagination = {} } = this.state;
+    const { isLoading, columns, isMobile, maxHeight, data, showJournalDefault, totalCount, stateId, filters, pagination } = this.props;
+
     const target = prefix => `${prefix}-${stateId}`.replaceAll(/[\W]/gi, '');
 
     return (
