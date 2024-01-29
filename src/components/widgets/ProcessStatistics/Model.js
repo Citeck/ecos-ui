@@ -6,7 +6,7 @@ import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
 
-import { getModel, setNewData } from '../../../actions/processStatistics';
+import { getModel, setNewData, changeFilter } from '../../../actions/processStatistics';
 
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
@@ -32,7 +32,8 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getModelData: payload => dispatch(getModel(payload)),
-  setNewData: payload => dispatch(setNewData(payload))
+  setNewData: payload => dispatch(setNewData(payload)),
+  changeFilter: payload => dispatch(changeFilter(payload)),
 });
 
 class Model extends React.Component {
@@ -288,8 +289,36 @@ class Model extends React.Component {
   };
 
   handleChangeCountFlag = data => {
-    this.setState(data, this.rePaintHeatmap);
+    const { changeFilter, stateId, record } = this.props;
+    let { isCompletedCount, isActiveCount } = data;
+
+    if (isCompletedCount === undefined) {
+      isCompletedCount = this.state.isCompletedCount;
+    }
+
+    if (isActiveCount === undefined) {
+      isActiveCount = this.state.isActiveCount;
+    }
+
+    const predicate = {
+      t: "or",
+      needValue: true,
+      val: [
+        {
+          "att": "completed",
+          t: isActiveCount ? "empty" : "not-empty",
+        },
+        {
+          "att": "completed",
+          t: isCompletedCount ? "not-empty" : "empty",
+        },
+      ],
+    }
+
+    changeFilter({ stateId, record, data: [predicate] });
+    this.setState(data);
   };
+
   handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
 
   renderSwitches = () => {

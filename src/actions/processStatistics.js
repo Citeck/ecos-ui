@@ -13,3 +13,9 @@ export const setJournal = createAction(prefix + 'SET_JOURNAL');
 export const setNewData = createAction(prefix + 'SET_NEW_DATA');
 
 export const resetDashlet = createAction(prefix + 'RESET_DASHLET');
+
+export const changeFilter = createAction(prefix + 'CHANGE_FILTER');
+export const setFilters = createAction(prefix + 'SET_FILTERS');
+
+export const changePagination = createAction(prefix + 'CHANGE_PAGE');
+export const setPagination = createAction(prefix + 'SET_PAGE');
