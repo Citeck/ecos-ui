@@ -66,7 +66,7 @@ class Model extends React.Component {
 
     this.state = {
       isShowHeatmap: !!props.showHeatmapDefault,
-      isShowCounters: !!props.showCountersDefault,
+      isShowBadges: !!props.showCountersDefault,
       isModelMounting: false,
       isModelMounted: false,
       isHeatmapMounted: false,
@@ -111,7 +111,7 @@ class Model extends React.Component {
     }
 
     if (prevProps.showCountersDefault !== showCountersDefault) {
-      this.setState({ isShowCounters: showCountersDefault });
+      this.setState({ isShowBadges: showCountersDefault });
     }
   }
 
@@ -319,10 +319,10 @@ class Model extends React.Component {
     this.setState(data);
   };
 
-  handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
+  handleToggleShowCounters = () => this.setState(state => ({ isShowBadges: !state.isShowBadges }));
 
   renderSwitches = () => {
-    const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
+    const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
     const { heatmapData, isExtendedMode, showCountersDefault, showHeatmapDefault } = this.props;
 
     if (!isExtendedMode) {
@@ -333,7 +333,7 @@ class Model extends React.Component {
       <div className="ecos-process-statistics-model__checkbox-group">
         {showCountersDefault && (
           <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
-            <ControlledCheckbox checked={isShowCounters} />
+            <ControlledCheckbox checked={isShowBadges} />
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
           </div>
         )}
@@ -348,11 +348,7 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
-
-    if (!isShowCounters) {
-      return null;
-    }
+    const { isActiveCount, isCompletedCount } = this.state;
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
@@ -381,7 +377,7 @@ class Model extends React.Component {
       isModelMounting,
       isShowHeatmap,
       isTempHeatmapOff,
-      isShowCounters,
+      isShowBadges,
       isActiveCount,
       isCompletedCount,
       legendData,
@@ -404,7 +400,7 @@ class Model extends React.Component {
           'ecos-process-statistics-model_mobile': isMobile,
           'ecos-process-statistics-model_hidden-active-count': !isActiveCount,
           'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
-          'ecos-process-statistics-model_hidden-badges': !isShowCounters,
+          'ecos-process-statistics-model_hidden-badges': !isShowBadges,
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
         })}
       >
