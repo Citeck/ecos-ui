@@ -25,6 +25,10 @@
 
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+
+    &.ecos-designer__content-full {
+      max-height: 100%;
+    }
   }
 
   &__add-category {

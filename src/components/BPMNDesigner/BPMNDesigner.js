@@ -13,7 +13,8 @@ import '../designerCommon/style.scss';
 
 const mapStateToProps = state => ({
   isReady: state.bpmn.isReady,
-  createVariants: state.bpmn.createVariants
+  createVariants: state.bpmn.createVariants,
+  isAdmin: state.user.isAdmin,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -22,7 +23,7 @@ const mapDispatchToProps = dispatch => ({
   createCategory: () => dispatch(createCategory({ parentId: '' }))
 });
 
-const BPMNDesigner = ({ createCategory, hidden, isReady, initSection, updateModels }) => {
+const BPMNDesigner = ({ createCategory, hidden, isReady, initSection, updateModels, isAdmin }) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(
@@ -42,12 +43,17 @@ const BPMNDesigner = ({ createCategory, hidden, isReady, initSection, updateMode
       {isReady && (
         <>
           <ControlPanel />
-          <div className="ecos-designer__content">
+          <div className={classNames("ecos-designer__content", {
+              "ecos-designer__content-full": !isAdmin,
+            })}
+          >
             <Categories categoryId={null} />
           </div>
-          <div className="ecos-designer__add-category" onClick={createCategory}>
-            {t(Labels.ADD_CATEGORY)}
-          </div>
+          {isAdmin &&
+            <div className="ecos-designer__add-category" onClick={createCategory}>
+              {t(Labels.ADD_CATEGORY)}
+            </div>
+          }
         </>
       )}
       {!isReady && (
