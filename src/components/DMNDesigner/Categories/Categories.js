@@ -28,7 +28,7 @@ const Categories = ({ categories, isParentHasNotModels, level = 0 }) => {
           canWrite={category.canWrite}
           isOpen={category.isOpen}
         >
-          <Models categoryId={category.id} canEditDef={category.canEditDef} />
+          <Models categoryId={category.id} canEditDef={category.canEditDef} canCreateDef={category.canCreateDef} />
           <ConnectedCategories categoryId={category.id} level={level + 1} />
         </Category>
       ))}

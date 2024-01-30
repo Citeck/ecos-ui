@@ -89,7 +89,8 @@ class Models extends React.Component {
       onEditMetaClick,
       showModelCreationForm,
       createModelCardLabel,
-      canEditDef
+      canEditDef,
+      canCreateDef,
     } = this.props;
 
     const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
@@ -118,7 +119,7 @@ class Models extends React.Component {
                 canEditDef={canEditDef}
               />
             ))}
-            {viewType === ViewTypes.CARDS && !isLoading && !models.length && !searchText && (
+            {viewType === ViewTypes.CARDS && !isLoading && !models.length && !searchText && canCreateDef && (
               <CreateModelCard showModelCreationForm={showModelCreationForm} label={createModelCardLabel} categoryId={categoryId} />
             )}
           </Row>
