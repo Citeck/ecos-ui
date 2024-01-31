@@ -12,7 +12,8 @@ import ControlPanel from './ControlPanel/ControlPanel';
 import '../designerCommon/style.scss';
 
 const mapStateToProps = state => ({
-  isReady: state.dmn.isReady
+  isReady: state.dmn.isReady,
+  isAdmin: state.user.isAdmin,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -21,7 +22,7 @@ const mapDispatchToProps = dispatch => ({
   createCategory: () => dispatch(createCategory({ parentId: '' }))
 });
 
-const DMNDesigner = ({ hidden, isReady, initSection, createCategory }) => {
+const DMNDesigner = ({ hidden, isReady, initSection, createCategory, isAdmin }) => {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -38,12 +39,17 @@ const DMNDesigner = ({ hidden, isReady, initSection, createCategory }) => {
       {isReady && (
         <>
           <ControlPanel />
-          <div className="ecos-designer__content">
+          <div className={classNames("ecos-designer__content", {
+              "ecos-designer__content-full": !isAdmin,
+            })}
+          >
             <Categories />
           </div>
-          <div className="ecos-designer__add-category" onClick={createCategory}>
-            {t(Labels.ADD_CATEGORY)}
-          </div>
+          {isAdmin &&
+            <div className="ecos-designer__add-category" onClick={createCategory}>
+              {t(Labels.ADD_CATEGORY)}
+            </div>
+          }
         </>
       )}
       {!isReady && (

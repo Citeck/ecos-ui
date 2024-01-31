@@ -18,7 +18,8 @@ const Models = ({
   onEditMetaClick,
   showModelCreationForm,
   createModelCardLabel,
-  canEditDef
+  canEditDef,
+  canCreateDef,
 }) => {
   const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
 
@@ -42,7 +43,7 @@ const Models = ({
           canEditDef={canEditDef}
         />
       ))}
-      {viewType === ViewTypes.CARDS && !models.length && !searchText && (
+      {viewType === ViewTypes.CARDS && !models.length && !searchText && canCreateDef && (
         <CreateModelCard showModelCreationForm={showModelCreationForm} label={createModelCardLabel} categoryId={categoryId} />
       )}
     </Row>
