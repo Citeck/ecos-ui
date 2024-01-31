@@ -12,7 +12,13 @@ import ListItem from './ListItem';
 
 class List extends React.Component {
   onSelect = setting => {
-    this.props.openSelectedPreset(setting.id);
+    const { journalSetting = [] } = this.props;
+
+    if (journalSetting.id !== setting.id) {
+      this.props.openSelectedPreset();
+    } else {
+      this.props.getJournalsData();
+    }
   };
 
   onDelete = item => {

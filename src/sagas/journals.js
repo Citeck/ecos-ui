@@ -1147,24 +1147,38 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     }
 
     if (filter) {
-      yield call(api.journals.setLsJournalSettingId, id, '');
+      yield call(api.journals.setLsJournalSettingId, get(journalData, 'journalSetting.id', id), '');
     }
 
-    const journalSetting = yield getJournalSetting(api, { journalConfig, stateId }, w);
-    const params = getGridParams({ journalConfig, journalSetting });
+    const params = getGridParams({
+      journalConfig,
+      journalSetting: {
+        ...journalData.journalSetting,
+        groupBy: [],
+        grouping: {}
+      }
+    });
     const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
     set(params, 'predicates', [predicateValue]);
     const gridData = yield getGridData(api, { ...params }, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
-
     yield put(setPredicate(w(predicateValue)));
-    yield put(setJournalSetting(w({ predicate: predicateValue })));
+    yield put(setJournalSetting(w({ ...journalData.journalSetting, predicate: predicateValue })));
     yield put(setSelectedRecords(w([])));
     yield put(setSelectAllRecordsVisible(w(false)));
     yield put(setGridInlineToolSettings(w(DEFAULT_INLINE_TOOL_SETTINGS)));
     yield put(setPreviewUrl(w('')));
     yield put(setPreviewFileName(w('')));
-    yield put(setGrid(w({ ...params, ...gridData, editingRules })));
+    yield put(
+      setGrid(
+        w({
+          ...params,
+          ...gridData,
+          columns: get(journalData, 'journalSetting.columns', gridData.columns),
+          editingRules
+        })
+      )
+    );
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error]', e);
   }
