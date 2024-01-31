@@ -101,8 +101,8 @@
     "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
     "export-win": "set NODE_ENV=production&& webpack --config webpack.config.export.js",
     "test": "react-scripts test",
-    "test:ci": "react-scripts test --maxWorkers=2",
-    "eject": "react-scripts eject", 
+    "test:ci": "react-scripts test --maxWorkers=2 --max_old_space_size=4096",
+    "eject": "react-scripts eject",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "start:prod": "yarn build && cross-env NODE_ENV=production SHARE_PROXY_URL=http://localhost:8080 node server",
     "bpmnlint-config": "npx bpmnlint-pack-config -c .bpmnlintrc -o src/components/ModelEditor/BPMNModeler/modules/linter/bpmnlint-config.js -t es"
