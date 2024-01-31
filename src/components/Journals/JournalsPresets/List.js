@@ -15,7 +15,7 @@ class List extends React.Component {
     const { journalSetting = [] } = this.props;
 
     if (journalSetting.id !== setting.id) {
-      this.props.openSelectedPreset();
+      this.props.openSelectedPreset(setting.id);
     } else {
       this.props.getJournalsData();
     }
