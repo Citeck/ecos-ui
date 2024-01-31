@@ -15,7 +15,7 @@ class AggregationListItem extends Component {
       attribute: `_${props.column.attribute}`,
       text: props.column.label,
       column: props.column.attribute,
-      sortable: false,
+      sortable: props.column.sortable,
       type: 'NUMBER',
       newFormatter: props.column.newFormatter,
       newEditor: props.column.newEditor
@@ -32,7 +32,7 @@ class AggregationListItem extends Component {
       },
       {
         ...defaultAggregationType,
-        schema: `avg(${props.column.attribute})?num|fmt(0.00)`,
+        schema: `avg(${props.column.attribute})`,
         label: {
           ru: `Среднее (${props.column.label})`,
           en: `Average (${props.column.label})`
@@ -57,7 +57,7 @@ class AggregationListItem extends Component {
     ];
 
     this.state = {
-      cheched: props.checked,
+      checked: props.checked,
       selected: props.selected
     };
   }
