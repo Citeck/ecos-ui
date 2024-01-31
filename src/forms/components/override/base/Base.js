@@ -729,7 +729,7 @@ Base.prototype.isDisabledSaveButton = function() {
 
 Base.prototype.checkConditions = function(data) {
   // Cause: https://citeck.atlassian.net/browse/ECOSCOM-2967
-  if (!this.parentVisible) {
+  if (!this.parentVisible || !data) {
     return false;
   }
 
