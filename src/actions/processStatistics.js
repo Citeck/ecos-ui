@@ -19,3 +19,4 @@ export const setFilters = createAction(prefix + 'SET_FILTERS');
 
 export const changePagination = createAction(prefix + 'CHANGE_PAGE');
 export const setPagination = createAction(prefix + 'SET_PAGE');
+export const resetFilter = createAction(prefix + 'RESET_FILTER');
