@@ -202,8 +202,7 @@ export default class Components {
           showModelDefault: true,
           showHeatmapDefault: true,
           showJournalDefault: false,
-          showCountersDefault: false,
-          displayHeatmapToolbar: true
+          showCountersDefault: false
         }
       }
     },
