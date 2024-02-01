@@ -206,7 +206,7 @@ class Model extends React.Component {
   };
 
   renderHeatmap = () => {
-    const { heatmapData } = this.props;
+    const { heatmapData, setNewData, stateId } = this.props;
     const { isShowHeatmap } = this.state;
 
     if (isShowHeatmap && !isEmpty(heatmapData)) {
@@ -228,6 +228,8 @@ class Model extends React.Component {
         },
         hasTooltip: false
       });
+    } else {
+      setNewData({ stateId, isNewData: false });
     }
   };
 

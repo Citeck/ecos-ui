@@ -1,7 +1,7 @@
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import get from 'lodash/get';
 
-import { filterHeatdata, filterJournal, getJournal, getModel, setJournal, setModel, setNewData, changeFilter, setFilters, changePagination, setPagination } from '../actions/processStatistics';
+import { filterHeatdata, filterJournal, getJournal, getModel, setJournal, setModel, setNewData, changeFilter, setFilters, changePagination, setPagination, resetFilter } from '../actions/processStatistics';
 import JournalsService from '../components/Journals/service/journalsService';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
@@ -140,6 +140,18 @@ function* sagaChangePagination({ api, logger }, { payload }) {
   }
 }
 
+function* sagaResetFilter ({ api, logger }, { payload }) {
+  const { stateId, record } = payload;
+
+  const filters = yield select(state => state.processStatistics[stateId].filters);
+
+  // remove all filters except the completed and active checkboxes
+  const clearFilters = filters.filter(predicate => predicate.t === "or");
+
+  yield put(setFilters({ stateId, filters: clearFilters}));
+  yield put(setPagination({ stateId, pagination: DEFAULT_PAGINATION }));
+  yield put(filterJournal({ stateId, record }));
+}
 function* eventsHistorySaga(ea) {
   yield takeLatest(getModel().type, sagaGetModel, ea);
   yield takeEvery(getJournal().type, sagaGetJournal, ea);
@@ -147,6 +159,7 @@ function* eventsHistorySaga(ea) {
   yield takeEvery(filterHeatdata().type, sagaFilterHeatdata, ea);
   yield takeEvery(changeFilter().type, sagaChangeFilter, ea);
   yield takeEvery(changePagination().type, sagaChangePagination, ea);
+  yield takeEvery(resetFilter().type, sagaResetFilter, ea);
 }
 
 export default eventsHistorySaga;

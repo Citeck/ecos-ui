@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isEmpty from 'lodash/isEmpty';
 
-import { filterJournal, getJournal, changeFilter, changePagination, setFilters, setPagination } from '../../../actions/processStatistics';
+import { getJournal, changeFilter, changePagination, setFilters, resetFilter } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
 import { DEFAULT_PAGINATION } from '../../../components/Journals/constants';
 import { InfoText, Pagination, Tooltip } from '../../common';
@@ -31,11 +31,10 @@ const mapStateToProps = (state, context) => {
 
 const mapDispatchToProps = dispatch => ({
   getJournalData: payload => dispatch(getJournal(payload)),
-  filterJournal: payload => dispatch(filterJournal(payload)),
   changeFilter: payload => dispatch(changeFilter(payload)),
   changePagination: payload => dispatch(changePagination(payload)),
   setFilters: payload => dispatch(setFilters(payload)),
-  setPagination: payload => dispatch(setPagination(payload)),
+  resetFilter: payload => dispatch(resetFilter(payload)),
 });
 
 class Journal extends React.Component {
@@ -75,12 +74,6 @@ class Journal extends React.Component {
     getJournalData({ stateId, record, selectedJournal, pagination: DEFAULT_PAGINATION });
   };
 
-  filterJournal = () => {
-    const { filterJournal, record, stateId } = this.props;
-
-    filterJournal({ stateId, record });
-  };
-
   handleChangeFilter = (data = [], type) => {
     const { changeFilter, stateId, record } = this.props;
 
@@ -88,17 +81,15 @@ class Journal extends React.Component {
   };
 
   handleChangePage = ({ page, maxItems }) => {
-    const { changePagination, stateId } = this.props;
+    const { changePagination, stateId, record } = this.props;
 
-    changePagination({ stateId, page, maxItems });
+    changePagination({ stateId, page, maxItems, record });
   };
 
   handleResetFilter = () => {
-    const { setFilters, setPagination, stateId } = this.props;
+    const { resetFilter, stateId, record } = this.props;
 
-    setFilters({ stateId, filters: []});
-    setPagination({ stateId, pagination: DEFAULT_PAGINATION });
-    this.filterJournal();
+    resetFilter({ stateId, record });
   };
 
   render() {
