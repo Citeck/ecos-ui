@@ -195,6 +195,10 @@ export default handleActions(
         currentCategory.id = action.payload.newId;
       }
 
+      if (action.payload.canCreateDef) {
+        currentCategory.canCreateDef = action.payload.canCreateDef;
+      }
+
       const newCategoryList = [...state.categories];
       newCategoryList.splice(index, 1, currentCategory);
 
