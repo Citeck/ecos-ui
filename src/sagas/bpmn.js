@@ -238,9 +238,14 @@ function* doSaveCategoryRequest({ api, logger }, action) {
 
     let newId = null;
 
+    let { canCreateDef } = currentCategory;
+
     if (currentCategory.isTemporary) {
       const categoryData = yield call(api.bpmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
+
+      const parentCategory = categories.find(item => item.id === currentCategory.parentId);
+      canCreateDef = canCreateDef || parentCategory.canCreateDef;
     } else {
       yield call(api.bpmn.updateCategory, action.payload.id, {
         title: action.payload.label,
@@ -253,6 +258,7 @@ function* doSaveCategoryRequest({ api, logger }, action) {
         id: action.payload.id,
         label: action.payload.label,
         code: action.payload.code,
+        canCreateDef,
         newId
       })
     );
