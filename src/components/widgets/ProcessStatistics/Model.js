@@ -74,7 +74,7 @@ class Model extends React.Component {
       isCompletedCount: true,
       legendData: {},
       isTempHeatmapOff: false,
-      opacity: DefSets.OPACITY
+      opacity: DefSets.OPACITY,
     };
   }
 
@@ -206,8 +206,8 @@ class Model extends React.Component {
   };
 
   renderHeatmap = () => {
-    const { heatmapData } = this.props;
-    const { isShowHeatmap } = this.state;
+    const { heatmapData, setNewData, stateId } = this.props;
+    const { isShowHeatmap, opacity } = this.state;
 
     if (isShowHeatmap && !isEmpty(heatmapData)) {
       const data = this.getPreparedHeatData();
@@ -219,7 +219,7 @@ class Model extends React.Component {
         onMounted: () => {
           this.setState({ isHeatmapMounted: true });
           debounce(() => {
-            this.handleChangeOpacity(DefSets.OPACITY);
+            this.handleChangeOpacity(opacity);
             if (this.isFirstBoot) {
               this.handleClickZoom(ScaleOptions.FIT);
               this.isFirstBoot = false;
@@ -228,6 +228,8 @@ class Model extends React.Component {
         },
         hasTooltip: false
       });
+    } else {
+      setNewData({ stateId, isNewData: false });
     }
   };
 
@@ -371,7 +373,7 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
+    const { model, isLoading, width, isMobile } = this.props;
     const {
       isModelMounted,
       isModelMounting,
@@ -429,7 +431,7 @@ class Model extends React.Component {
                   zoomCenter={zoomCenter}
                 />
               )}
-              {!isLoading && displayHeatmapToolbar && (
+              {!isLoading && (
                 <div className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer')}>
                   {showHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}

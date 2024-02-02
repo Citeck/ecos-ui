@@ -34,7 +34,6 @@ export default class Settings extends React.Component {
       showModelDefault: get(props, 'config.showModelDefault'),
       showJournalDefault: get(props, 'config.showJournalDefault'),
       showCountersDefault: get(props, 'config.showCountersDefault'),
-      displayHeatmapToolbar: get(props, 'config.displayHeatmapToolbar'),
       formMode: get(props, 'config.formMode', EXTENDED_MODE),
       isLoading: false
     };
@@ -59,7 +58,7 @@ export default class Settings extends React.Component {
   };
 
   render() {
-    const { selectedJournal, isLoading, showHeatmapDefault, showCountersDefault, showModelDefault, formMode } = this.state;
+    const { selectedJournal, isLoading, formMode } = this.state;
 
     const { HeatmapWrapper } = plugins;
 
@@ -67,8 +66,6 @@ export default class Settings extends React.Component {
       { value: EXTENDED_MODE, label: t(Labels.FORM_MODE_EXTENDED) },
       { value: SIMPLIFIED_MODE, label: t(Labels.FORM_MODE_SIMPLIFIED) }
     ];
-
-    const showReadOut = showHeatmapDefault || showCountersDefault;
 
     return (
       <div className="ecos-process-statistics-settings">
@@ -100,14 +97,6 @@ export default class Settings extends React.Component {
               {t(Labels.SETTINGS_DEFAULT_FLAGS)}
             </Caption>
             {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
-            {showReadOut && (
-              <>
-                <Caption small className="ecos-process-statistics-settings__title">
-                  {t(Labels.SETTINGS_READ_OUT)}
-                </Caption>
-                {showModelDefault && this.renderFlags(['displayHeatmapToolbar'])}
-              </>
-            )}
           </>
         )}
         <div className="ecos-process-statistics-settings__buttons">
