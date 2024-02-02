@@ -209,7 +209,7 @@ class Model extends React.Component {
     const { heatmapData, setNewData, stateId } = this.props;
     const { isShowHeatmap, opacity } = this.state;
 
-    if (isShowHeatmap && !isEmpty(heatmapData)) {
+    if (!isEmpty(heatmapData)) {
       const data = this.getPreparedHeatData();
       this.#heatmapData = new Set([...data]);
 
@@ -231,6 +231,10 @@ class Model extends React.Component {
     } else {
       setNewData({ stateId, isNewData: false });
     }
+
+    if (!isShowHeatmap) {
+      this.switchHeatMapOff()
+    }
   };
 
   reRenderHeatmap = () => {
@@ -245,7 +249,7 @@ class Model extends React.Component {
   };
 
   rePaintHeatmap = () => {
-    if (!this.state.isShowHeatmap || !this.designer || !this.designer.heatmap) {
+    if (!this.designer || !this.designer.heatmap) {
       return;
     }
 
