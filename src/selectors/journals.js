@@ -151,6 +151,11 @@ export const selectGridPaginationMaxItems = createSelector(selectState, ownProps
 export const selectIsFilterOn = createSelector([selectSettingsFilters, selectSettingsData], (settingsFiltersData, settingsData) => {
   const settingsPredicateFilters = ParserPredicate.getFlatFilters(get(settingsFiltersData, 'predicate', ''));
   const originPredicateFilters = ParserPredicate.getFlatFilters(get(settingsData, 'originGridSettings.predicate', ''));
+  const isPreset = get(settingsData, 'journalSetting.id', false);
+
+  if (isPreset) {
+    return false;
+  }
 
   return settingsPredicateFilters.length !== originPredicateFilters.length;
 });
