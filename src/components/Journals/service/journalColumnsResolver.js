@@ -88,6 +88,7 @@ class JournalColumnsResolver {
     const hidden = getBoolOrElse(column.hidden, false);
     const visible = getBoolOrElse(column.visible, () => getBoolOrElse(column.default, true));
     const hasTotalSumField = getBoolOrElse(column.hasTotalSumField, false);
+    const width = column.width;
     const defaultValue = getBoolOrElse(column['default'], true);
 
     const params = column.params || {};
@@ -108,6 +109,7 @@ class JournalColumnsResolver {
       hasTotalSumField,
       attribute,
       attSchema,
+      width,
       text: label,
       dataField: name,
       default: defaultValue
