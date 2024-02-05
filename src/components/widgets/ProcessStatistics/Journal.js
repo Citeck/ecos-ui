@@ -97,6 +97,10 @@ class Journal extends React.Component {
 
     const target = prefix => `${prefix}-${stateId}`.replaceAll(/[\W]/gi, '');
 
+    if (!filters) {
+      return null;
+    }
+
     return (
       <div className="ecos-process-statistics-journal">
         <Section title={t(Labels.JOURNAL_TITLE)} isLoading={isLoading} opened={!!showJournalDefault}>
