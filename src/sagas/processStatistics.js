@@ -15,12 +15,26 @@ const getSettings = ({ pagination, predicates, record }) => {
   });
 };
 
+const getPredicates = (filters) => {
+  if (!filters) return [];
+
+  return filters.map(({ att, t, val, needValue }) => ({
+    att,
+    t,
+    ...(needValue ? { val } : {})
+  }));
+}
+
 function* sagaGetJournal({ api, logger }, { payload }) {
   const { record, stateId, pagination, selectedJournal } = payload;
 
+  const { filters }  = yield select(state => state.processStatistics[stateId]);
+
+  const predicates = getPredicates(filters);
+
   try {
     const journalConfig = yield call([JournalsService, JournalsService.getJournalConfig], selectedJournal, true);
-    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ pagination, record }));
+    const res = yield call([JournalsService, JournalsService.getJournalData], journalConfig, getSettings({ pagination, record, predicates }));
 
     yield put(setJournal({ stateId, data: res.records, journalConfig, totalCount: res.totalCount }));
   } catch (e) {
@@ -34,11 +48,7 @@ function* sagaFilterJournal({ api, logger }, { payload }) {
 
   const { filters, pagination }  = yield select(state => state.processStatistics[stateId]);
 
-  const predicates = filters.map(({ att, t, val, needValue }) => ({
-    att,
-    t,
-    ...(needValue ? { val } : {})
-  }));
+  const predicates = getPredicates(filters);
 
   try {
     yield put(filterHeatdata({ record, stateId, predicates }));
@@ -61,8 +71,11 @@ function* sagaGetModel({ api, logger }, { payload }) {
   const { record, stateId } = payload;
 
   try {
+    const { filters }  = yield select(state => state.processStatistics[stateId]);
+    const predicates = getPredicates(filters);
+
     const model = yield call(api.process.getModel, record);
-    const heatmapData = yield call(api.process.getHeatmapData, record);
+    const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
 
     yield put(setModel({ stateId, model, heatmapData }));
     yield put(setNewData({ stateId, isNewData: true }));
