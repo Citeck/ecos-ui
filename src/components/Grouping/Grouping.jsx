@@ -65,9 +65,9 @@ export default class Grouping extends Component {
 
     const data = {
       attribute: `_${GROUPING_COUNT_ALL}`,
-      schema: `count(*)?num`,
+      schema: 'count(*)',
       label: { ru: 'Общее Количество', en: 'Total count' },
-      sortable: false,
+      sortable: true,
       column: GROUPING_COUNT_ALL
     };
 

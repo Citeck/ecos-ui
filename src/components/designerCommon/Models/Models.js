@@ -89,7 +89,8 @@ class Models extends React.Component {
       onEditMetaClick,
       showModelCreationForm,
       createModelCardLabel,
-      canEditDef
+      canEditDef,
+      canCreateDef
     } = this.props;
 
     const ModelComponent = viewType === ViewTypes.LIST ? ModelList : ModelCard;
@@ -107,8 +108,8 @@ class Models extends React.Component {
                 viewLink={`/v2/dashboard?recordRef=${model.id}`}
                 onViewLinkClick={onViewLinkClick}
                 onEditLinkClick={e => onEditLinkClick(e, model.id)}
-                onDeleteModelClick={e => onDeleteModelClick(e, model.id)}
-                onEditMetaClick={e => onEditMetaClick(e, model.id)}
+                onDeleteModelClick={e => onDeleteModelClick(e, model.id, model)}
+                onEditMetaClick={e => onEditMetaClick(e, model.id, model)}
                 label={model.label}
                 sectionCode={model.sectionCode}
                 author={model.creator}
@@ -118,7 +119,7 @@ class Models extends React.Component {
                 canEditDef={canEditDef}
               />
             ))}
-            {viewType === ViewTypes.CARDS && !isLoading && !models.length && !searchText && (
+            {viewType === ViewTypes.CARDS && !isLoading && !models.length && !searchText && canCreateDef && (
               <CreateModelCard showModelCreationForm={showModelCreationForm} label={createModelCardLabel} categoryId={categoryId} />
             )}
           </Row>

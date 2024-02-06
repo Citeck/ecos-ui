@@ -87,6 +87,8 @@ class JournalColumnsResolver {
     const groupable = getBoolOrElse(column.groupable, () => GROUPABLE_TYPES.indexOf(type) === -1);
     const hidden = getBoolOrElse(column.hidden, false);
     const visible = getBoolOrElse(column.visible, () => getBoolOrElse(column.default, true));
+    const hasTotalSumField = getBoolOrElse(column.hasTotalSumField, false);
+    const width = column.width;
     const defaultValue = getBoolOrElse(column['default'], true);
 
     const params = column.params || {};
@@ -104,8 +106,10 @@ class JournalColumnsResolver {
       multiple,
       groupable,
       searchable,
+      hasTotalSumField,
       attribute,
       attSchema,
+      width,
       text: label,
       dataField: name,
       default: defaultValue
@@ -124,6 +128,10 @@ class JournalColumnsResolver {
       if (updColumn.type === 'boolean') {
         updColumn.newFormatter = {
           type: 'bool'
+        };
+      } else if (['float', 'double', 'int'].includes(updColumn.type)) {
+        updColumn.newFormatter = {
+          type: 'number'
         };
       } else {
         updColumn.newFormatter = {

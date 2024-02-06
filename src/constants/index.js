@@ -91,6 +91,7 @@ export const SourcesId = {
   BPMN_DEF: 'eproc/bpmn-def',
   BPMN_PROC: 'eproc/bpmn-proc',
   BPMN_STAT: 'eproc/bpmn-process-elements',
+  BPMN_PROC_LATEST: 'eproc/bpmn-proc-latest',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
   GROUP: 'emodel/authority-group',
@@ -231,7 +232,7 @@ export const SystemJournals = {
   KANBAN: 'ecos-boards',
   MENUS: 'ecos-menus',
   FORMS: 'ecos-forms',
-  PROCESS: 'bpmn-process-def',
+  PROCESS: 'bpmn-process-latest',
   PROCESS_ELMS: 'bpmn-process-elements'
 };
 

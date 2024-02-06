@@ -56,24 +56,27 @@ export class BpmnApi extends RecordService {
     return Records.get('emodel/type@bpmn-process-def').load('createVariants[]?json');
   };
 
-  fetchModelAttributes = modelId => {
+  fetchModelAttributes = (modelId, force) => {
     return Records.get(modelId)
-      .load({
-        id: '?id',
-        ref: '?id',
-        index: 'index',
-        label: '?disp!""',
-        description: 'description',
-        created: '_created?num',
-        creator: '_creator',
-        categoryId: 'sectionRef?id!"eproc/bpmn-section@DEFAULT"',
-        modifier: '_modifier',
-        modified: '_modified?num',
-        previewUrl: 'preview.url',
-        hasThumbnail: '_has.thumbnail?bool!false',
-        definition: 'definition?str',
-        canWrite: PERMISSION_WRITE_ATTR
-      })
+      .load(
+        {
+          id: '?id',
+          ref: '?id',
+          index: 'index',
+          label: '?disp!""',
+          description: 'description',
+          created: '_created?num',
+          creator: '_creator',
+          categoryId: 'sectionRef?id!"eproc/bpmn-section@DEFAULT"',
+          modifier: '_modifier',
+          modified: '_modified?num',
+          previewUrl: 'preview.url',
+          hasThumbnail: '_has.thumbnail?bool!false',
+          definition: 'definition?str',
+          canWrite: PERMISSION_WRITE_ATTR
+        },
+        force
+      )
       .then(result => result)
       .catch(e => console.error(e));
   };

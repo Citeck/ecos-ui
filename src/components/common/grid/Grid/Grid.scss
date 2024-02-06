@@ -8,7 +8,7 @@ $header-height: 52px;
   display: block;
   position: absolute;
   width: 100%;
-  background: #e8edef;
+  background: $color-gray-4;
   height: 2px;
   z-index: 20;
 }
@@ -18,6 +18,81 @@ $header-height: 52px;
 
   position: relative;
   overflow: hidden;
+
+  .ecos-grid__table {
+    .ecos-grid__table_footer {
+      &-hide {
+        display: none;
+      }
+
+      th:first-child {
+        position: sticky;
+        z-index: 3;
+        background: $color-white;
+        left: 0;
+      }
+
+      th {
+        height: 30px;
+      }
+
+      .ecos-grid__table_footer__value {
+        background-color: $color-gray-4;
+        display: flex;
+        flex-wrap: wrap;
+        white-space: break-spaces;
+        padding: 3px 5px;
+        width: calc(100% - 10px);
+        height: 100%;
+        border-radius: 0 0 7px 9px;
+        justify-content: center;
+        align-items: center;
+        color: $color-gray-26;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .ecos-grid__table_footer__item {
+        box-sizing: border-box;
+      }
+
+      .ecos-grid__table_footer__cell {
+        height: fit-content;
+        padding: 0;
+        display: flex;
+        position: relative;
+        justify-content: center;
+
+        &:before,
+        &:after {
+          top: -5px;
+          content: '';
+          position: absolute;
+          border-bottom: 6px $color-gray-4 solid;
+          width: 20px;
+          height: 20px;
+        }
+
+        &:before {
+          left: -9px;
+          transform: rotate(-90deg);
+          border-bottom-right-radius: 12px;
+          border-right: 6px $color-gray-4 solid;
+        }
+
+        &:after {
+          right: -9px;
+          transform: rotate(90deg);
+          border-bottom-left-radius: 12px;
+          border-left: 6px $color-gray-4 solid;
+        }
+      }
+    }
+
+    &::after {
+      display: none;
+    }
+  }
 
   &_hovered {
     background: $color-blue-light3;
@@ -98,6 +173,7 @@ $header-height: 52px;
   }
 
   &__row {
+    border-bottom: 2px $color-gray-4 solid;
   }
 
   &__header {
@@ -313,4 +389,37 @@ $header-height: 52px;
   display: inline-block;
   font-weight: unset;
   font-size: $font-size-small;
+}
+
+.ecos-grid-tooltip__wrapper {
+  &.ecos-grid-tooltip {
+    .ecos-grid-tooltip__inner {
+      max-width: unset;
+      background-color: $color-white;
+      color: $text-color-dark;
+      padding: 12px 25px 7px 25px;
+    }
+
+    .ecos-grid-tooltip__button {
+      display: flex;
+      align-items: center;
+      height: 30px;
+      font-size: $font-size-extra-small;
+      font-weight: $font-weight-bold;
+    }
+
+    .ecos-grid-tooltip__content {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 3px 0;
+    }
+
+    .ecos-grid-tooltip__close {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      font-size: $font-size-small;
+    }
+  }
 }

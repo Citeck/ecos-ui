@@ -707,6 +707,8 @@
   "ecos.forms.journals.formatter.link.name": "Link",
   "ecos.forms.journals.formatter.script.name": "Script",
   "ecos.forms.journals.formatter.workflowPriority.name": "Workflow Priority",
+  "ecos.forms.journals.formatter.duration.name": "Duration",
+  "ecos.forms.journals.formatter.component.name": "Component",
 
   "events-history-widget.info.no-columns": "No display settings",
   "events-history-widget.info.no-events": "No events",
@@ -908,6 +910,12 @@
   "grid.tools.select-all-page": "Select all page",
   "grid.tools.remove-selection": "Remove selection",
 
+  "grid.column.is-save": "Keep the width?",
+  "grid.column.save": "Save",
+  "grid.column.save.message.success": "Column width is saved",
+  "grid.column.save.message.error": "Column width is not saved",
+  "grid.footer.total-amount": "The total amount: ",
+
   "grouping.how": "How to group",
   "grouping.show": "View the principle of grouping",
   "grouping.what": "What to group",
@@ -1100,11 +1108,17 @@
   "journal.presets.modal.field.authority": "Available for",
   "journal.presets.modal.btn.cancel": "Cancel",
   "journal.presets.modal.btn.save": "Save",
+  "journal.presets.modal.save-error.title": "Save error",
+  "journal.presets.modal.save-error": "An error occurred while saving the template",
+  "journal.presets.modal.apply-error.title": "Apply template error",
+  "journal.presets.modal.apply-error": "An error occurred while applying the template",
   "journal.presets.default": "Default",
   "journal.presets.action.rename": "Rename template",
   "journal.presets.action.delete": "Delete template",
   "journal.presets.action.delete.msg": "Remove template \"{{name}}\"?",
   "journal.presets.error.get-one": "Settings template not received",
+
+  "journal.footer-sum.error": "Error in getting the column amount",
 
   "journals.formatter.action.execution-error": "Action can't be executed",
 
@@ -2491,12 +2505,10 @@
   "process-statistics-widget.settings.btn.save": "Save",
   "process-statistics-widget.settings.field.journal": "Journal",
   "process-statistics-widget.settings.default-turn-on": "Default Turn-on",
-  "process-statistics-widget.settings.read-out": "Read-out",
   "process-statistics-widget.settings.field.showHeatmapDefault": "Heatmap",
   "process-statistics-widget.settings.field.showModelDefault": "Process",
   "process-statistics-widget.settings.field.showJournalDefault": "Journal",
   "process-statistics-widget.settings.field.showCountersDefault": "Counters",
-  "process-statistics-widget.settings.field.displayHeatmapToolbar": "Settings Toolbar",
   "process-statistics-widget.panel.heatmap": "Heatmap",
   "process-statistics-widget.panel.counters": "Counters",
   "process-statistics-widget.panel.opacity": "Opacity",

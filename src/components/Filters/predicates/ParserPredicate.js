@@ -84,7 +84,11 @@ export default class ParserPredicate {
       const val = get(row, [key, 'value']) || get(row, [key]);
       const column = filteredColumns.find(c => c.attribute === key) || {};
       const type = column.type;
-      const predicate = EQUAL_PREDICATES_MAP[type];
+      let predicate = EQUAL_PREDICATES_MAP[type];
+
+      if (val === null && column.type) {
+        predicate = PREDICATE_EMPTY;
+      }
 
       if (predicate) {
         values.push(new Predicate({ att: key, t: predicate, val }));
@@ -503,7 +507,7 @@ export default class ParserPredicate {
     const foreach = arr => {
       arr.forEach(item => {
         if (!isArray(item.val) && item.att === newPredicate.att) {
-          item.val = newPredicate.val;
+          item.val = newPredicate.val || '';
 
           if (newPredicate.t) {
             item.t = newPredicate.t;

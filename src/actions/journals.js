@@ -3,6 +3,7 @@ import { createAction } from 'redux-actions';
 const prefix = 'journals/';
 
 export const setLoading = createAction(prefix + 'SET_LOADING');
+export const setForceUpdate = createAction(prefix + 'SET_FORCE_UPDATE');
 export const getDashletConfig = createAction(prefix + 'GET_DASHLET_CONFIG');
 export const setDashletConfig = createAction(prefix + 'SET_DASHLET_CONFIG');
 export const setDashletConfigByParams = createAction(prefix + 'SET_DASHLET_CONFIG_BY_PARAMS');
@@ -40,6 +41,7 @@ export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTIN
 export const editJournalSetting = createAction(prefix + 'EDIT_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
+export const setJournalExpandableProp = createAction(prefix + 'SET_JOURNAL_EXPANDABLE_PROP');
 export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
 export const resetFiltering = createAction(prefix + 'RESET_JOURNAL_FILTERING');
 export const execJournalAction = createAction(prefix + 'EXEC_JOURNAL_ACTION');
@@ -70,3 +72,7 @@ export const resetState = createAction(prefix + 'RESET_STATE');
 export const setRecordRef = createAction(prefix + 'SET_RECORD_REF');
 
 export const setSearchText = createAction(prefix + 'SET_SEARCH_TEXT');
+
+export const saveColumn = createAction(prefix + 'SAVE_COLUMN');
+
+export const setFooterValue = createAction(prefix + 'SET_FOOTER_VALUE');

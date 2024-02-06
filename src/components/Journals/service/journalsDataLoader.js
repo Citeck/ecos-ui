@@ -266,7 +266,6 @@ class JournalsDataLoader {
    */
   _getSortBy = (journalConfig, settings) => {
     let sortBy = [];
-    const groupBy = settings.groupBy || [];
 
     if (Array.isArray(settings.sortBy)) {
       sortBy = settings.sortBy;
@@ -282,10 +281,6 @@ class JournalsDataLoader {
 
     if (!sortBy.length) {
       sortBy = [{ attribute: Attributes.CREATED, ascending: false }];
-    }
-
-    if (groupBy.length) {
-      sortBy = sortBy.filter(predicate => groupBy.includes(predicate.attribute));
     }
 
     return sortBy;

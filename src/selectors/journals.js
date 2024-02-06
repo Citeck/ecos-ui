@@ -132,6 +132,7 @@ export const selectSettingsColumns = createSelector(selectState, ownProps =>
       id: getId(),
       ...item
     })),
+    isExpandedFromGrouped: get(ownProps, 'columnsSetup.isExpandedFromGrouped', false),
     sortBy: get(ownProps, 'columnsSetup.sortBy')
   })
 );
@@ -151,6 +152,11 @@ export const selectGridPaginationMaxItems = createSelector(selectState, ownProps
 export const selectIsFilterOn = createSelector([selectSettingsFilters, selectSettingsData], (settingsFiltersData, settingsData) => {
   const settingsPredicateFilters = ParserPredicate.getFlatFilters(get(settingsFiltersData, 'predicate', ''));
   const originPredicateFilters = ParserPredicate.getFlatFilters(get(settingsData, 'originGridSettings.predicate', ''));
+  const isPreset = get(settingsData, 'journalSetting.id', false);
+
+  if (isPreset) {
+    return false;
+  }
 
   return settingsPredicateFilters.length !== originPredicateFilters.length;
 });
@@ -190,6 +196,7 @@ export const selectJournalPageProps = createSelector(
     selectAllPageRecords: ownState.selectAllPageRecords,
     selectAllRecordsVisible: ownState.selectAllRecordsVisible,
     isLoading: ownState.loading,
+    forceUpdate: ownState.forceUpdate,
     wasChangedSettings,
     isFilterOn,
     urlParams,

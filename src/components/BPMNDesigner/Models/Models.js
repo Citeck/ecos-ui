@@ -66,14 +66,15 @@ const mapDispatchToProps = dispatch => ({
       });
     }
   },
-  onEditMetaClick: (e, modelId) => {
+  onEditMetaClick: (e, modelId, model) => {
     e.preventDefault();
     EcosFormUtils.editRecord({
       recordRef: modelId,
-      onSubmit: resultModel => dispatch(updateModels({ modelId, resultModelId: resultModel.id, action: 'edit' }))
+      onSubmit: resultModel =>
+        dispatch(updateModels({ modelId, resultModelId: resultModel.id, prevCategoryId: model.categoryId, action: 'edit' }))
     });
   },
-  onDeleteModelClick: (e, modelId) => {
+  onDeleteModelClick: (e, modelId, model) => {
     e.preventDefault();
     recordActions
       .execForRecord(modelId, {
@@ -81,7 +82,7 @@ const mapDispatchToProps = dispatch => ({
       })
       .then(res => {
         if (res) {
-          dispatch(updateModels({ modelId, action: 'delete' }));
+          dispatch(updateModels({ modelId, prevCategoryId: model.categoryId, action: 'delete' }));
         }
       });
   },

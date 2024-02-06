@@ -102,7 +102,11 @@ class SettingsModal extends Component {
     this.setState({ kanbanColumns });
   };
 
-  handleApply = () => {
+  handleApply = isError => {
+    if (isError) {
+      this.props.onClose();
+      return;
+    }
     const { filtersData, onApply } = this.props;
     const { predicate } = this.state;
 
@@ -122,7 +126,7 @@ class SettingsModal extends Component {
     if (isFunction(onSave)) {
       const setting = this.getSetting();
 
-      onSave(setting.id, setting);
+      onSave(setting.id, setting, this.handleApply);
     }
   };
 

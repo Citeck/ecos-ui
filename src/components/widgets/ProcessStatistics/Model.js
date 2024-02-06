@@ -5,9 +5,8 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
-import isEqual from 'lodash/isEqual';
 
-import { getModel } from '../../../actions/processStatistics';
+import { getModel, setNewData, changeFilter } from '../../../actions/processStatistics';
 
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
@@ -27,12 +26,15 @@ const mapStateToProps = (state, context) => {
     model: psState.model,
     sectionPath: psState.sectionPath,
     heatmapData: psState.heatmapData,
+    isNewData: psState.isNewData,
     isMobile: state.view.isMobile
   };
 };
 
 const mapDispatchToProps = dispatch => ({
-  getModelData: payload => dispatch(getModel(payload))
+  getModelData: payload => dispatch(getModel(payload)),
+  setNewData: payload => dispatch(setNewData(payload)),
+  changeFilter: payload => dispatch(changeFilter(payload))
 });
 
 class Model extends React.Component {
@@ -65,7 +67,7 @@ class Model extends React.Component {
 
     this.state = {
       isShowHeatmap: !!props.showHeatmapDefault,
-      isShowCounters: !!props.showCountersDefault,
+      isShowBadges: !!props.showCountersDefault,
       isModelMounting: false,
       isModelMounted: false,
       isHeatmapMounted: false,
@@ -87,24 +89,20 @@ class Model extends React.Component {
 
   componentWillUnmount() {
     document.removeEventListener('mouseup', this.handleMouseUp);
-    this.handleMouseDown.cancel();
-    this.handleMouseUp.cancel();
+    // FIXME: There are no such methods, they cause errors without the conditional
+    this.handleMouseDown.cancel && this.handleMouseDown.cancel();
+    this.handleMouseUp.cancel && this.handleMouseUp.cancel();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { showCountersDefault, showHeatmapDefault } = this.props;
+    const { showCountersDefault, showHeatmapDefault, isNewData } = this.props;
 
     if (!prevProps.runUpdate && this.props.runUpdate) {
       this.getModel();
     }
 
-    if (!!prevProps.heatmapData && !isEqual(prevProps.heatmapData, this.props.heatmapData)) {
-      this.reRenderHeatmap();
-      this.renderBadges();
-    }
-
-    if (prevProps.isLoading && !this.props.isLoading) {
-      this.reRenderHeatmap();
+    if (!prevProps.isNewData && isNewData) {
+      this.rePaintHeatmap();
     }
 
     if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
@@ -114,7 +112,7 @@ class Model extends React.Component {
     }
 
     if (prevProps.showCountersDefault !== showCountersDefault) {
-      this.setState({ isShowCounters: showCountersDefault });
+      this.setState({ isShowBadges: showCountersDefault });
     }
   }
 
@@ -125,8 +123,10 @@ class Model extends React.Component {
   };
 
   getPreparedHeatData = () => {
-    const { heatmapData } = this.props;
+    const { heatmapData, stateId, setNewData } = this.props;
     const { isActiveCount, isCompletedCount } = this.state;
+
+    setNewData({ stateId, isNewData: false });
 
     if (!isActiveCount && !isCompletedCount) {
       return [];
@@ -207,11 +207,12 @@ class Model extends React.Component {
   };
 
   renderHeatmap = () => {
-    const { heatmapData } = this.props;
-    const { isShowHeatmap } = this.state;
+    const { heatmapData, setNewData, stateId } = this.props;
+    const { isShowHeatmap, opacity } = this.state;
 
-    if (isShowHeatmap && !isEmpty(heatmapData)) {
+    if (!isEmpty(heatmapData)) {
       const data = this.getPreparedHeatData();
+      this.#heatmapData = new Set([...data]);
 
       this.designer.drawHeatmap({
         data,
@@ -219,7 +220,7 @@ class Model extends React.Component {
         onMounted: () => {
           this.setState({ isHeatmapMounted: true });
           debounce(() => {
-            this.handleChangeOpacity(DefSets.OPACITY);
+            this.handleChangeOpacity(opacity);
             if (this.isFirstBoot) {
               this.handleClickZoom(ScaleOptions.FIT);
               this.isFirstBoot = false;
@@ -228,6 +229,12 @@ class Model extends React.Component {
         },
         hasTooltip: false
       });
+    } else {
+      setNewData({ stateId, isNewData: false });
+    }
+
+    if (!isShowHeatmap) {
+      this.switchHeatMapOff();
     }
   };
 
@@ -236,14 +243,20 @@ class Model extends React.Component {
       return;
     }
 
-    const isEmptyData = isEmpty(this.#heatmapData);
+    this.#heatmapData = new Set([...this.getPreparedHeatData()]);
 
-    if (isEmptyData) {
-      this.#heatmapData = new Set([...this.getPreparedHeatData()]);
+    this.designer.heatmap.updateData(this.#heatmapData, true);
+    this.designer.heatmap.toggleDisplay(false);
+  };
+
+  rePaintHeatmap = () => {
+    if (!this.designer || !this.designer.heatmap) {
+      return;
     }
 
-    this.designer.heatmap.updateData(this.#heatmapData, !isEmptyData);
-    this.designer.heatmap.toggleDisplay(false);
+    this.designer.heatmap.destroy();
+    this.renderHeatmap();
+    this.renderBadges();
   };
 
   handleToggleHeatmap = () => {
@@ -283,12 +296,40 @@ class Model extends React.Component {
   };
 
   handleChangeCountFlag = data => {
-    this.setState(data, this.reRenderHeatmap);
+    const { changeFilter, stateId, record } = this.props;
+    let { isCompletedCount, isActiveCount } = data;
+
+    if (isCompletedCount === undefined) {
+      isCompletedCount = this.state.isCompletedCount;
+    }
+
+    if (isActiveCount === undefined) {
+      isActiveCount = this.state.isActiveCount;
+    }
+
+    const predicate = {
+      t: 'or',
+      needValue: true,
+      val: [
+        {
+          att: 'completed',
+          t: isActiveCount ? 'empty' : 'not-empty'
+        },
+        {
+          att: 'completed',
+          t: isCompletedCount ? 'not-empty' : 'empty'
+        }
+      ]
+    };
+
+    changeFilter({ stateId, record, data: [predicate] });
+    this.setState(data);
   };
-  handleToggleShowCounters = () => this.setState(state => ({ isShowCounters: !state.isShowCounters }));
+
+  handleToggleShowCounters = () => this.setState(state => ({ isShowBadges: !state.isShowBadges }));
 
   renderSwitches = () => {
-    const { isShowHeatmap, isShowCounters, isTempHeatmapOff } = this.state;
+    const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
     const { heatmapData, isExtendedMode, showCountersDefault, showHeatmapDefault } = this.props;
 
     if (!isExtendedMode) {
@@ -299,7 +340,7 @@ class Model extends React.Component {
       <div className="ecos-process-statistics-model__checkbox-group">
         {showCountersDefault && (
           <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
-            <ControlledCheckbox checked={isShowCounters} />
+            <ControlledCheckbox checked={isShowBadges} />
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
           </div>
         )}
@@ -314,11 +355,7 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
-
-    if (!isShowCounters) {
-      return null;
-    }
+    const { isActiveCount, isCompletedCount } = this.state;
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
@@ -341,13 +378,13 @@ class Model extends React.Component {
   };
 
   render() {
-    const { model, sectionPath, isLoading, width, isMobile, displayHeatmapToolbar } = this.props;
+    const { model, sectionPath, isLoading, width, isMobile } = this.props;
     const {
       isModelMounted,
       isModelMounting,
       isShowHeatmap,
       isTempHeatmapOff,
-      isShowCounters,
+      isShowBadges,
       isActiveCount,
       isCompletedCount,
       legendData,
@@ -370,7 +407,7 @@ class Model extends React.Component {
           'ecos-process-statistics-model_mobile': isMobile,
           'ecos-process-statistics-model_hidden-active-count': !isActiveCount,
           'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
-          'ecos-process-statistics-model_hidden-badges': !isShowCounters,
+          'ecos-process-statistics-model_hidden-badges': !isShowBadges,
           'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
         })}
       >
@@ -400,7 +437,7 @@ class Model extends React.Component {
                   zoomCenter={zoomCenter}
                 />
               )}
-              {!isLoading && displayHeatmapToolbar && (
+              {!isLoading && (
                 <div className={classNames('ecos-process-statistics-model__panel ecos-process-statistics-model__panel_footer')}>
                   {showHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}

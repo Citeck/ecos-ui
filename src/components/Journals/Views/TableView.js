@@ -53,7 +53,7 @@ function mapDispatchToProps(dispatch, props) {
     reloadJournalConfig: (journalId, force, callback) => dispatch(reloadJournalConfig(w({ journalId, w, force, callback }))),
     reloadGrid: () => dispatch(reloadGrid(w({}))),
     runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
-    saveJournalSetting: (id, settings) => dispatch(saveJournalSetting(w({ id, settings }))),
+    saveJournalSetting: (id, settings, callback) => dispatch(saveJournalSetting(w({ id, settings, callback }))),
     setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
     setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
     deselectAllRecords: stateId => dispatch(deselectAllRecords({ stateId })),

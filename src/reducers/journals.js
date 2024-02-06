@@ -22,7 +22,9 @@ import {
   setJournalExistStatus,
   setJournalSetting,
   setJournalSettings,
+  setJournalExpandableProp,
   setLoading,
+  setForceUpdate,
   setOriginGridSettings,
   setPredicate,
   setPreviewFileName,
@@ -32,10 +34,12 @@ import {
   setSelectAllRecordsVisible,
   setSelectedJournals,
   setSelectedRecords,
+  setFooterValue,
   toggleViewMode,
   setUrl,
   openSelectedJournal,
-  setSearchText
+  setSearchText,
+  saveColumn
 } from '../actions/journals';
 import { t } from '../helpers/export/util';
 import { getCurrentStateById, handleAction, handleState, updateState } from '../helpers/redux';
@@ -56,6 +60,7 @@ export const defaultState = {
   grid: {
     data: [],
     columns: [],
+    isExpandedFromGrouped: false,
     total: 0,
     createVariants: [],
     predicate: {},
@@ -83,6 +88,7 @@ export const defaultState = {
     predicate: null,
     columnsSetup: {
       columns: [],
+      isExpandedFromGrouped: false,
       sortBy: []
     },
     grouping: {
@@ -94,6 +100,7 @@ export const defaultState = {
 
   columnsSetup: {
     columns: [],
+    isExpandedFromGrouped: false,
     sortBy: []
   },
   grouping: {
@@ -106,6 +113,7 @@ export const defaultState = {
     sortBy: [],
     groupBy: [],
     columns: [],
+    isExpandedFromGrouped: false,
     predicate: null,
     permissions: {
       Write: true
@@ -188,7 +196,12 @@ export default handleActions(
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, { originGridSettings: action.payload });
+      return handleState(state, stateId, {
+        originGridSettings: {
+          ...action.payload,
+          isExpandedFromGrouped: false
+        }
+      });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -220,6 +233,17 @@ export default handleActions(
       const journalSettings = [{ id: '', displayName: t('journal.presets.default') }];
       Array.isArray(action.payload) && journalSettings.push(...action.payload);
       return handleState(state, stateId, { journalSettings });
+    },
+    [setJournalExpandableProp]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        grid: {
+          ...(state[stateId] || {}).grid,
+          isExpandedFromGrouped: !!action.payload
+        }
+      });
     },
     [setJournalSetting]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -349,6 +373,12 @@ export default handleActions(
 
       return handleState(state, stateId, { loading: action.payload });
     },
+    [setForceUpdate]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, { forceUpdate: action.payload });
+    },
     [setRecordRef]: (state, action) => {
       const stateId = action.payload.stateId;
       action = handleAction(action);
@@ -422,6 +452,32 @@ export default handleActions(
             page: 1
           }
         }
+      });
+    },
+    [saveColumn]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      const journalSetting = get(state, [stateId, 'journalSetting']);
+      const cloneJournalSetting = cloneDeep(journalSetting);
+
+      const updatedColumn = cloneJournalSetting.columns.find(x => x.name === action.payload.name);
+      updatedColumn.width = action.payload.width;
+
+      const grid = get(state, [stateId, 'grid']);
+      const cloneGrid = cloneDeep(grid);
+
+      const updatedColumnGrid = cloneGrid.columns.find(x => x.name === action.payload.name);
+      updatedColumnGrid.width = action.payload.width;
+
+      return updateState(state, stateId, { grid: cloneGrid, journalSetting: cloneJournalSetting }, defaultState);
+    },
+    [setFooterValue]: (state, action) => {
+      const stateId = action.payload.stateId;
+      const handledAction = handleAction(action);
+
+      return handleState(state, stateId, {
+        footerValue: handledAction.payload
       });
     }
   },

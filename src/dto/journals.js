@@ -289,14 +289,31 @@ export default class JournalsConverter {
 
     const configColumnsIds = (configColumns || []).map(item => JournalsConverter.getColumnId(item));
 
-    return columns.filter(item => {
-      // TODO: add constants like DynamicColumns
-      if (item.column === GROUPING_COUNT_ALL) {
-        return true;
-      }
+    return columns
+      .filter(item => {
+        // TODO: add constants like DynamicColumns
+        if (item.column === GROUPING_COUNT_ALL) {
+          return true;
+        }
 
-      return configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item));
-    });
+        return configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item));
+      })
+      .map(item => {
+        const id = JournalsConverter.getColumnId(item);
+        const attribute = item.column || item.attribute;
+        const originColumn = configColumns.find(column => column.attribute === attribute && id.includes(attribute));
+
+        if (!originColumn) {
+          return item;
+        }
+        // TODO: remove all props from modal settings
+        return {
+          ...item,
+          newFormatter: originColumn.newFormatter,
+          newEditor: originColumn.newEditor,
+          sortable: originColumn.sortable
+        };
+      });
   }
 
   /**

@@ -9,8 +9,46 @@ import journalDataLoader from './journalsDataLoader';
 import computedService from './computed/computedService';
 import { COLUMN_TYPE_NEW_TO_LEGACY_MAPPING, replacePlaceholders, fillTemplateAttsAndMapComputedScope } from './util';
 import { DEFAULT_TYPE } from './constants';
+import { pagesStore } from '../../../helpers/indexedDB';
+import { getCurrentUserName } from '../../../helpers/util';
 
 const COLUMN_COMPUTED_PREFIX = 'column_';
+
+const getSavedValue = async config => {
+  const { id } = config;
+
+  if (!id) {
+    return;
+  }
+
+  try {
+    const dbValue = await pagesStore.get(id);
+    const userName = getCurrentUserName();
+
+    if (userName && dbValue?.[userName]?.columns) {
+      config.columns.forEach(column => {
+        const savedColumn = dbValue[userName].columns[column.attribute];
+
+        if (savedColumn && savedColumn.width) {
+          column.width = savedColumn.width;
+        }
+      });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  return config;
+};
+
+const getColumnsWidth = columns =>
+  columns.map(column => {
+    if (column.width && typeof column.width === 'number') {
+      column.width = `${column.width}px`;
+    }
+
+    return column;
+  });
 
 /**
  * Service to work with journals.
@@ -32,7 +70,8 @@ class JournalsService {
   async getJournalConfig(journalId = '', force) {
     const sourceDelimIdx = journalId.indexOf('@');
     const journalRecordId = sourceDelimIdx === -1 ? journalId : journalId.substring(sourceDelimIdx + 1);
-    return this._convertJournalConfig(await journalsApi.getJournalConfig(journalRecordId, force));
+    let journal = await journalsApi.getJournalConfig(journalRecordId, force);
+    return this._convertJournalConfig(journal);
   }
 
   async _convertJournalConfig(config) {
@@ -41,11 +80,16 @@ class JournalsService {
     }
 
     const journalConfig = _.cloneDeep(config);
-    const legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
+    let legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
 
     if (!legacyConfig.columns || !legacyConfig.columns.length) {
       return legacyConfig;
     }
+
+    legacyConfig.columns = getColumnsWidth(legacyConfig.columns);
+
+    // FIXME: tests are failed because getSavedValue returns undefined, but it returns our modified object
+    legacyConfig = (await getSavedValue(legacyConfig)) || legacyConfig;
 
     legacyConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(legacyConfig);
     legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
@@ -147,6 +191,8 @@ class JournalsService {
     result.editable = column.editable !== false;
     result.searchConfig = column.searchConfig || {};
     result.headerFilterEditor = column.headerFilterEditor || {};
+    result.hasTotalSumField = column.hasTotalSumField === true;
+    result.width = column.width;
 
     return result;
   }

@@ -45,19 +45,7 @@ const MigrationInfo = ({ processId }) => {
       const record = head(result.records);
 
       if (record) {
-        let plan = record.migrationPlan;
-
-        if (activities && activities.length) {
-          plan = {
-            ...plan,
-            processInstanceQuery: {
-              processDefinitionId: source,
-              activityIdIn: activities
-            }
-          };
-        }
-
-        setMigrationPlan(plan);
+        setMigrationPlan(record.migrationPlan);
       }
     });
   };
@@ -66,11 +54,17 @@ const MigrationInfo = ({ processId }) => {
     setIsLoading(true);
 
     const migrationRecord = Records.get('eproc/bpmn-process-migration@');
+    const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');
 
     migrationRecord.att('action', 'MIGRATE');
     migrationRecord.att('async', true);
     migrationRecord.att('migrationExecution', {
-      migrationPlan
+      migrationPlan,
+      processInstanceQuery: {
+        processDefinitionId: source,
+        activityIdIn: activities
+      },
+      skipCustomListeners: true
     });
 
     migrationRecord
@@ -103,6 +97,11 @@ const MigrationInfo = ({ processId }) => {
           enableSnippets
           enableBasicAutocompletion
           enableLiveAutocompletion
+          onChange={text => {
+            try {
+              setMigrationPlan(JSON.parse(text));
+            } catch (e) {}
+          }}
           setOptions={{
             useWorker: false,
             enableBasicAutocompletion: true,

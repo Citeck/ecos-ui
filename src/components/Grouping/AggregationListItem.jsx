@@ -11,59 +11,55 @@ class AggregationListItem extends Component {
   constructor(props) {
     super(props);
 
+    const defaultAggregationType = {
+      attribute: `_${props.column.attribute}`,
+      text: props.column.label,
+      column: props.column.attribute,
+      sortable: props.column.sortable,
+      type: 'NUMBER',
+      newFormatter: {
+        type: 'number'
+      },
+      newEditor: props.column.newEditor
+    };
+
     this.aggregationTypes = [
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `sum(${props.column.attribute})`,
         label: {
           ru: `Сумма (${props.column.label})`,
           en: `Sum (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       },
       {
-        attribute: `_${props.column.attribute}`,
-        schema: `avg(${props.column.attribute})?num|fmt(0.00)`,
+        ...defaultAggregationType,
+        schema: `avg(${props.column.attribute})`,
         label: {
           ru: `Среднее (${props.column.label})`,
           en: `Average (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       },
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `min(${props.column.attribute})`,
         label: {
           ru: `Минимум (${props.column.label})`,
           en: `Min (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       },
       {
-        attribute: `_${props.column.attribute}`,
+        ...defaultAggregationType,
         schema: `max(${props.column.attribute})`,
         label: {
           ru: `Максимум (${props.column.label})`,
           en: `Max (${props.column.label})`
-        },
-        text: props.column.label,
-        column: props.column.attribute,
-        sortable: false,
-        type: 'NUMBER'
+        }
       }
     ];
 
     this.state = {
-      cheched: props.checked,
+      checked: props.checked,
       selected: props.selected
     };
   }
