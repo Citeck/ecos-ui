@@ -41,6 +41,16 @@ const getSavedValue = async config => {
   return config;
 };
 
+const getColumnsWidth = (columns) => (
+  columns.map((column) => {
+    if (column.width && typeof column.width === "number") {
+      column.width = `${column.width}px`;
+    }
+
+    return column;
+   })
+);
+
 /**
  * Service to work with journals.
  */
@@ -72,12 +82,15 @@ class JournalsService {
 
     const journalConfig = _.cloneDeep(config);
     let legacyConfig = this.__mapNewJournalConfigToLegacy(journalConfig);
-    // FIXME: tests are failed because getSavedValue returns undefined, but it returns our modified object
-    legacyConfig = (await getSavedValue(legacyConfig)) || legacyConfig;
 
     if (!legacyConfig.columns || !legacyConfig.columns.length) {
       return legacyConfig;
     }
+
+    legacyConfig.columns = getColumnsWidth(legacyConfig.columns);
+
+    // FIXME: tests are failed because getSavedValue returns undefined, but it returns our modified object
+    legacyConfig = (await getSavedValue(legacyConfig)) || legacyConfig;
 
     legacyConfig.configData = this._getAttsToLoadWithComputedAndUpdateConfigs(legacyConfig);
     legacyConfig.configData.configComputed = await computedService.resolve(legacyConfig.configData.configComputed);
@@ -180,6 +193,7 @@ class JournalsService {
     result.searchConfig = column.searchConfig || {};
     result.headerFilterEditor = column.headerFilterEditor || {};
     result.hasTotalSumField = column.hasTotalSumField === true;
+    result.width = column.width;
 
     return result;
   }

@@ -790,7 +790,7 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
       return;
     }
 
-    const { journalSetting } = yield select(selectJournalData, stateId);
+    const { journalSetting, journalConfig, predicate } = yield select(selectJournalData, stateId);
 
     if (journalSetting.id === selectedId) {
       return;
@@ -808,6 +808,10 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     const settings = yield select(selectJournalSettings, stateId);
     const preset = settings.find(preset => preset.id === selectedId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
+
+    const predicates = [journalConfig.predicate, preset.settings.predicate];
+
+    yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
 
     yield put(setKanbanSettings({ stateId, kanbanSettings }));
   } catch (e) {
@@ -1199,6 +1203,10 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         })
       )
     );
+
+    const predicates = [journalData.predicate, journalData.journalConfig.predicate, ...params.predicates];
+
+    yield getColumnsSum(api, w, journalConfig.columns, journalData.journalConfig?.id, predicates);
   } catch (e) {
     logger.error('[journals sagaGoToJournalsPage saga error]', e);
   }
