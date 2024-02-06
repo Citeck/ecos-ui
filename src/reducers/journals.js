@@ -22,6 +22,7 @@ import {
   setJournalExistStatus,
   setJournalSetting,
   setJournalSettings,
+  setJournalExpandableProp,
   setLoading,
   setForceUpdate,
   setOriginGridSettings,
@@ -195,7 +196,12 @@ export default handleActions(
       const stateId = action.payload.stateId;
       action = handleAction(action);
 
-      return handleState(state, stateId, { originGridSettings: action.payload });
+      return handleState(state, stateId, {
+        originGridSettings: {
+          ...action.payload,
+          isExpandedFromGrouped: false
+        }
+      });
     },
     [setPreviewUrl]: (state, action) => {
       const stateId = action.payload.stateId;
@@ -227,6 +233,17 @@ export default handleActions(
       const journalSettings = [{ id: '', displayName: t('journal.presets.default') }];
       Array.isArray(action.payload) && journalSettings.push(...action.payload);
       return handleState(state, stateId, { journalSettings });
+    },
+    [setJournalExpandableProp]: (state, action) => {
+      const stateId = action.payload.stateId;
+      action = handleAction(action);
+
+      return handleState(state, stateId, {
+        grid: {
+          ...(state[stateId] || {}).grid,
+          isExpandedFromGrouped: !!action.payload
+        }
+      });
     },
     [setJournalSetting]: (state, action) => {
       const stateId = action.payload.stateId;

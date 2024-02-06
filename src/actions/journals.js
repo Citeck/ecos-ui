@@ -41,6 +41,7 @@ export const deleteJournalSetting = createAction(prefix + 'DELETE_JOURNAL_SETTIN
 export const editJournalSetting = createAction(prefix + 'EDIT_JOURNAL_SETTING');
 export const setJournalSetting = createAction(prefix + 'SET_JOURNAL_SETTING');
 export const setJournalSettings = createAction(prefix + 'SET_JOURNAL_SETTINGS');
+export const setJournalExpandableProp = createAction(prefix + 'SET_JOURNAL_EXPANDABLE_PROP');
 export const applyJournalSetting = createAction(prefix + 'APPLY_JOURNAL_SETTING');
 export const resetFiltering = createAction(prefix + 'RESET_JOURNAL_FILTERING');
 export const execJournalAction = createAction(prefix + 'EXEC_JOURNAL_ACTION');

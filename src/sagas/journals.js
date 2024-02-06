@@ -67,7 +67,8 @@ import {
   setUrl,
   setForceUpdate,
   setFooterValue,
-  toggleViewMode
+  toggleViewMode,
+  setJournalExpandableProp
 } from '../actions/journals';
 import {
   selectGridPaginationMaxItems,
@@ -308,6 +309,7 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
     const url = yield select(selectUrl, stateId);
     const { journalId, journalSettingId = '', userConfigId } = url;
 
+    yield put(setJournalExpandableProp(w(false)));
     yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
     yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force })));
   } catch (e) {
@@ -460,6 +462,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
       journalConfig.columns
     );
 
+    yield put(setJournalExpandableProp(w(false)));
     yield put(setPredicate(w(filteredPredicate)));
     yield put(setColumnsSetup(w(columnsSetup)));
     yield put(setGrouping(w(grouping)));
@@ -734,6 +737,7 @@ function* sagaSaveDashlet({ api, logger, stateId, w }, action) {
 
 function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
   try {
+    yield put(setJournalExpandableProp(w(false)));
     yield put(setLoading(w(true)));
 
     const { journalId, userConfigId, customJournal, customJournalMode, force } = payload;
