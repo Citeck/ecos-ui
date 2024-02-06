@@ -571,7 +571,7 @@ class Grid extends Component {
 
       if (content === 'loading') {
         content = <Loader type="points" height={10} width={18} />;
-      } else if (!isEmpty(newFormatter) && (newFormatter.type === 'number' || newFormatter.type === 'duration')) {
+      } else if (!isEmpty(newFormatter) && ['duration', 'number'].includes(newFormatter.type)) {
         content = FormatterService.format({ cell: footer, column }, newFormatter);
       }
 

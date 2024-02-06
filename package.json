@@ -101,7 +101,7 @@
     "export:dev": "cross-env NODE_ENV=development webpack --config webpack.config.export.js",
     "export-win": "set NODE_ENV=production&& webpack --config webpack.config.export.js",
     "test": "react-scripts test",
-    "test:ci": "react-scripts --max_old_space_size=4096 test --watchAll=false --maxWorkers=2",
+    "test:ci": "react-scripts test --watchAll=false --maxWorkers=2 --max_old_space_size=4096",
     "eject": "react-scripts eject",
     "format": "prettier --single-quote --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}' 'server/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "start:prod": "yarn build && cross-env NODE_ENV=production SHARE_PROXY_URL=http://localhost:8080 node server",

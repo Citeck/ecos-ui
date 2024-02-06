@@ -132,6 +132,7 @@ export const selectSettingsColumns = createSelector(selectState, ownProps =>
       id: getId(),
       ...item
     })),
+    isExpandedFromGrouped: get(ownProps, 'columnsSetup.isExpandedFromGrouped', false),
     sortBy: get(ownProps, 'columnsSetup.sortBy')
   })
 );

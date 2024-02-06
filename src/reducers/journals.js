@@ -59,6 +59,7 @@ export const defaultState = {
   grid: {
     data: [],
     columns: [],
+    isExpandedFromGrouped: false,
     total: 0,
     createVariants: [],
     predicate: {},
@@ -86,6 +87,7 @@ export const defaultState = {
     predicate: null,
     columnsSetup: {
       columns: [],
+      isExpandedFromGrouped: false,
       sortBy: []
     },
     grouping: {
@@ -97,6 +99,7 @@ export const defaultState = {
 
   columnsSetup: {
     columns: [],
+    isExpandedFromGrouped: false,
     sortBy: []
   },
   grouping: {
@@ -109,6 +112,7 @@ export const defaultState = {
     sortBy: [],
     groupBy: [],
     columns: [],
+    isExpandedFromGrouped: false,
     predicate: null,
     permissions: {
       Write: true

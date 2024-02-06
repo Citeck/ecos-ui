@@ -127,6 +127,10 @@ class JournalColumnsResolver {
         updColumn.newFormatter = {
           type: 'bool'
         };
+      } else if (['float', 'double', 'int'].includes(updColumn.type)) {
+        updColumn.newFormatter = {
+          type: 'number'
+        };
       } else {
         updColumn.newFormatter = {
           type: 'default'

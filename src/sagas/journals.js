@@ -191,6 +191,7 @@ export function getGridParams({ journalConfig = {}, journalSetting = {}, paginat
     sortBy: sortBy.map(sort => ({ ...sort })),
     columns: columns.map(col => ({ ...col })),
     groupBy: Array.from(groupBy),
+    isExpandedFromGrouped: false,
     predicates,
     pagination: { ...pagination },
     grouping: journalSetting.grouping
@@ -343,9 +344,13 @@ export function* getJournalConfig({ api, w, force, callback }, action) {
 }
 
 function* getColumns({ stateId }) {
-  const { journalConfig = {}, journalSetting = {}, grouping = {} } = yield select(selectJournalData, stateId);
+  const { grid = {}, journalConfig = {}, journalSetting = {}, grouping = {} } = yield select(selectJournalData, stateId);
   const groupingColumns = get(grouping, 'columns');
   const columns = yield JournalsService.resolveColumns(isEmpty(groupingColumns) ? journalSetting.columns : groupingColumns);
+
+  if (grid.isExpandedFromGrouped) {
+    return grid.columns;
+  }
 
   if (columns.length) {
     return columns.map(setting => {
@@ -439,6 +444,7 @@ function* sagaInitJournalSettingData({ api, logger, stateId, w }, action) {
   try {
     const { journalSetting = {}, predicate } = action.payload;
     const columnsSetup = {
+      isExpandedFromGrouped: false,
       columns: JournalsConverter.injectId(journalSetting.columns),
       sortBy: cloneDeep(journalSetting.sortBy)
     };
@@ -504,7 +510,7 @@ export function* getGridData(api, params, stateId) {
   const onlyLinked = get(config, 'onlyLinked');
   const attrsToLoad = get(config, 'attrsToLoad');
 
-  const { pagination: _pagination, predicates: _predicates, searchPredicate, grouping, ...forRequest } = params;
+  const { pagination: _pagination, predicates: _predicates, searchPredicate, fromGroupBy = false, grouping, ...forRequest } = params;
   const predicateRecords = yield call(api.journals.fetchLinkedRefs, recordRef, attrsToLoad);
 
   if (predicateRecords) {
@@ -531,12 +537,22 @@ export function* getGridData(api, params, stateId) {
     settings.columns = grouping.columns;
   }
 
+  if (fromGroupBy) {
+    settings.grouping = {};
+    settings.groupBy = [];
+  }
+
   const resultData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, settings);
   const journalData = JournalsConverter.getJournalDataWeb(resultData);
   const recordRefs = journalData.data.map(d => d.id);
   const resultActions = yield call([JournalsService, JournalsService.getRecordActions], journalConfig, recordRefs);
   const actions = JournalsConverter.getJournalActions(resultActions);
-  const columns = yield getColumns({ stateId });
+
+  let columns = yield getColumns({ stateId });
+
+  if (fromGroupBy) {
+    columns = params.columns;
+  }
 
   return { ...journalData, columns, actions };
 }
@@ -1150,6 +1166,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
       yield call(api.journals.setLsJournalSettingId, get(journalData, 'journalSetting.id', id), '');
     }
 
+    const gridColumns = JournalsConverter.filterColumnsByConfig(get(journalData, 'journalSetting.columns', columns), journalConfig.columns);
+
     const params = getGridParams({
       journalConfig,
       journalSetting: {
@@ -1160,7 +1178,8 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
     });
     const predicateValue = ParserPredicate.setPredicateValue(get(params, 'predicates[0]') || [], filter);
     set(params, 'predicates', [predicateValue]);
-    const gridData = yield getGridData(api, { ...params }, stateId);
+    set(params, 'columns', gridColumns);
+    const gridData = yield getGridData(api, { ...params, fromGroupBy: true }, stateId);
     const editingRules = yield getGridEditingRules(api, gridData);
     yield put(setPredicate(w(predicateValue)));
     yield put(setJournalSetting(w({ ...journalData.journalSetting, predicate: predicateValue })));
@@ -1174,8 +1193,9 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
         w({
           ...params,
           ...gridData,
-          columns: get(journalData, 'journalSetting.columns', gridData.columns),
-          editingRules
+          columns: gridColumns,
+          editingRules,
+          isExpandedFromGrouped: true
         })
       )
     );
