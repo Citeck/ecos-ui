@@ -790,7 +790,7 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
       return;
     }
 
-    const { journalSetting, journalConfig, predicate } = yield select(selectJournalData, stateId);
+    const { journalSetting, journalConfig } = yield select(selectJournalData, stateId);
 
     if (journalSetting.id === selectedId) {
       return;
