@@ -172,8 +172,15 @@ class Esign {
         });
       }
 
-      const documentResponse = await api.getDocumentData(document);
-      const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+      var hasAlfresco = null;
+      if (document.indexOf('alfresco/') === 0 || document.indexOf('workspace://') === 0) {
+        hasAlfresco = true;
+      }
+      if (hasAlfresco === null) {
+        hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+      }
+
+      const documentResponse = await api.getDocumentData(document, hasAlfresco);
       const base64 = get(documentResponse, hasAlfresco ? 'data.0.base64' : 'records[0].data', '');
 
       if (!base64) {
@@ -212,7 +219,8 @@ class Esign {
 
       const user = await get(window, 'Citeck.constants.USERNAME', '');
       const signResponse = await api.sendSignedDocument(
-        EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user })
+        EsignConverter.getSignQueryParams({ ...Esign.#queryParams, document, signedMessage, user }),
+        hasAlfresco
       );
 
       return hasAlfresco ? get(signResponse, 'data', false) : signResponse.success;
