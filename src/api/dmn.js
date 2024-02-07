@@ -34,7 +34,7 @@ export class DmnApi {
     rec.att('parentRef', parent);
     rec.att('name', title);
     rec.att('sectionCode', code);
-    return rec.save();
+    return rec.save({id: "id", canCreateDef: PERMISSION_DMN_SECTION_CREATE_DEF});
   };
 
   updateCategory = (id, { code = '', title }) => {

@@ -145,6 +145,10 @@ export default handleActions(
         currentCategory.id = action.payload.newId;
       }
 
+      if (action.payload.canCreateDef) {
+        currentCategory.canCreateDef = action.payload.canCreateDef;
+      }
+
       const newCategoryList = [...state.categories];
       newCategoryList.splice(index, 1, currentCategory);
 
@@ -158,7 +162,9 @@ export default handleActions(
       const index = state.categories.findIndex(item => item.id === categoryId);
 
       if (index === -1) {
-        return state.categories;
+        return {
+          ...state,
+        };
       }
 
       const currentCategory = {
