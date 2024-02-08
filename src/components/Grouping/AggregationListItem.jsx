@@ -17,7 +17,7 @@ class AggregationListItem extends Component {
       column: props.column.attribute,
       sortable: props.column.sortable,
       type: 'NUMBER',
-      newFormatter: {
+      newFormatter: props.column.newFormatter || {
         type: 'number'
       },
       newEditor: props.column.newEditor
