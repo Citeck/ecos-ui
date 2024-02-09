@@ -16,10 +16,10 @@ import {
   resetFilter
 } from '../actions/processStatistics';
 import JournalsService from '../components/Journals/service/journalsService';
-import { DEFAULT_PAGINATION } from '../components/Journals/constants';
 import JournalsConverter from '../dto/journals';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
-import { ParserPredicate } from '../components/Filters/predicates';
+import { DEFAULT_PAGINATION } from '../components/Journals/constants';
+import { Predicate } from '../components/Filters/predicates';
 
 const getSettings = ({ pagination, predicates, record }) => {
   return JournalsConverter.getSettingsForDataLoaderServer({
@@ -32,13 +32,11 @@ const getSettings = ({ pagination, predicates, record }) => {
 const getPredicates = filters => {
   if (!filters) return [];
 
-  const predicates = filters.map(({ att, t, val, needValue }) => ({
-    att,
-    t,
-    ...(needValue ? { val } : {})
-  }));
-
-  return ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate(predicates));
+  return JournalsConverter.cleanUpPredicate(
+    filters.map(({ att, t, val }) => {
+      return new Predicate({ att, t, val });
+    })
+  );
 };
 
 function* sagaGetJournal({ api, logger }, { payload }) {

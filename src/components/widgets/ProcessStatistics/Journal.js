@@ -7,6 +7,7 @@ import isEmpty from 'lodash/isEmpty';
 import { getJournal, changeFilter, changePagination, setFilters, resetFilter } from '../../../actions/processStatistics';
 import { t } from '../../../helpers/util';
 import { DEFAULT_PAGINATION } from '../../../components/Journals/constants';
+import { ParserPredicate } from '../../Filters/predicates';
 import { InfoText, Pagination, Tooltip } from '../../common';
 import { IcoBtn } from '../../common/btns';
 import { Grid } from '../../common/grid';
@@ -74,10 +75,25 @@ class Journal extends React.Component {
     getJournalData({ stateId, record, selectedJournal, pagination: DEFAULT_PAGINATION });
   };
 
-  handleChangeFilter = (data = [], type) => {
+  handleChangeFilter = (data = [], _type) => {
     const { changeFilter, stateId, record } = this.props;
 
-    changeFilter({ stateId, data, record });
+    const filters = data.map(item => {
+      const { t, att, val, fixedValue, needValue } = item;
+      const predicate = { att, t, val, fixedValue, needValue };
+
+      if (needValue) {
+        predicate.val = val;
+      }
+
+      if (fixedValue) {
+        predicate.val = fixedValue;
+      }
+
+      return ParserPredicate.replacePredicateType(predicate);
+    });
+
+    changeFilter({ stateId, data: filters, record });
   };
 
   handleChangePage = ({ page, maxItems }) => {
