@@ -64,13 +64,13 @@ class EsignApi {
     const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
 
     if (hasAlfresco) {
-      return fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
+      return await fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
         method: 'GET',
         credentials: 'include'
       }).then(response => response.json());
     }
 
-    return Records.query(
+    return await Records.query(
       {
         sourceId: EDI_REQUEST.GET_DIGEST,
         query: { documentRef: record }
@@ -96,7 +96,7 @@ class EsignApi {
     const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
 
     if (hasAlfresco) {
-      return fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
+      return await fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify(body)
@@ -105,7 +105,7 @@ class EsignApi {
           if (!response.ok) {
             throw new Error();
           }
-          return;
+          return response.json();
         })
         .catch(error => {
           console.error(error);
@@ -116,7 +116,7 @@ class EsignApi {
 
     rec.att('_self', body);
 
-    return rec.save('?json');
+    return await rec.save('?json');
   };
 }
 
