@@ -158,9 +158,6 @@ class Properties extends React.Component {
             readOnly: formMode !== FORM_MODE_EDIT,
             viewAsHtml: true,
             fullWidthColumns: isSmallMode,
-            viewAsHtmlConfig: {
-              hidePanels: isSmallMode
-            },
             formMode,
             saveDraft: isDraft,
             onInlineEditSave
