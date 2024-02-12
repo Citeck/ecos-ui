@@ -60,8 +60,10 @@ class EsignApi {
     }
   }
 
-  getDocumentData = async record => {
-    const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+  getDocumentData = async (record, hasAlfresco = null) => {
+    if (hasAlfresco === null) {
+      hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+    }
 
     if (hasAlfresco) {
       return await fetch(`${PROXY_URI}acm/digestAndAttr?nodeRef=${record}`, {
@@ -92,8 +94,10 @@ class EsignApi {
     return await this.cadespluginApi.verifyBase64(signedMessage, signedDocument);
   };
 
-  sendSignedDocument = async (body = {}) => {
-    const hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+  sendSignedDocument = async (body = {}, hasAlfresco = null) => {
+    if (hasAlfresco === null) {
+      hasAlfresco = await ConfigService.getValue(ALFRESCO_ENABLED);
+    }
 
     if (hasAlfresco) {
       return await fetch(`${PROXY_URI}acm/digitalSignaturePut`, {
