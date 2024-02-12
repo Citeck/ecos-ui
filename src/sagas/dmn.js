@@ -98,9 +98,15 @@ function* doSaveCategoryRequest({ api, logger }, action) {
 
     let newId = null;
 
+    let { canCreateDef, canCreateSubSection } = currentCategory;
+
     if (currentCategory.isTemporary) {
       const categoryData = yield call(api.dmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
+
+      const parentCategory = categories.find(item => item.id === currentCategory.parentId);
+      canCreateDef = categoryData.canCreateDef || parentCategory.canCreateDef;
+      canCreateSubSection = categoryData.canCreateSubSection || parentCategory.canCreateSubSection;
     } else {
       yield call(api.dmn.updateCategory, action.payload.id, {
         title: action.payload.label,
@@ -113,6 +119,8 @@ function* doSaveCategoryRequest({ api, logger }, action) {
         id: action.payload.id,
         label: action.payload.label,
         code: action.payload.code,
+        canCreateDef,
+        canCreateSubSection,
         newId
       })
     );

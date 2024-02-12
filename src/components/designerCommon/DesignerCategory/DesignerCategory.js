@@ -10,6 +10,7 @@ import { Input, MLText } from '../../common/form';
 import actionsService from '../../Records/actions/recordActions';
 
 import styles from './Category.module.scss';
+
 import './Category.scss';
 
 const EDIT_PERMISSIONS_ACTION_REF = 'uiserv/action@edit-permissions';
@@ -162,16 +163,18 @@ class DesignerCategory extends React.Component {
     const saveIconClasses = cn('icon-small-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-small-close', styles.categoryActionIcon);
 
-    const mainContainerClasses = cn(`category`, `category_level${level}`, {
-      [styles.categoryLevel1]: level === 1,
-      [styles.categoryLevel2]: level === 2,
+    const mainContainerClasses = cn(`category`, level >= 1 ? `category_level_${level % 2 === 0 ? 'odd' : 'even'}` : 'category_level_root', {
+      [styles.categoryLevelRoot]: level < 2,
+      [styles.categoryLevelOdd]: level >= 1 && level % 2 === 0,
+      [styles.categoryLevelEven]: level >= 1 && level % 2 !== 0,
       categoryLevelOpen: isOpen,
       categoryListViewType: viewType === ViewTypes.LIST && level !== 0
     });
 
     const whiteContainerClasses = cn(styles.category, {
-      [styles.categoryLevel1]: level === 1,
-      [styles.categoryLevel2]: level === 2
+      [styles.categoryLevelRoot]: level < 2,
+      [styles.categoryLevelOdd]: level >= 1 && level % 2 === 0,
+      [styles.categoryLevelEven]: level >= 1 && level % 2 !== 0
     });
 
     const labelClasses = cn(styles.label, {
@@ -197,13 +200,11 @@ class DesignerCategory extends React.Component {
           onClick: this.doDeleteCategoryAction
         });
       }
-      if (level < 2) {
-        actions.unshift({
-          label: t('designer.category-action.add-subcategory'),
-          onClick: this.doAddSubcategoryAction,
-          hidden: !canCreateSubSection
-        });
-      }
+      actions.push({
+        label: t('designer.category-action.add-subcategory'),
+        onClick: this.doAddSubcategoryAction,
+        hidden: !canCreateSubSection
+      });
     }
     if (isUserAdmin) {
       actions.push({
