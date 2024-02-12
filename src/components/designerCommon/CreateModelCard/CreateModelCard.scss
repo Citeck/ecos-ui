@@ -24,7 +24,12 @@
   }
 }
 
-.category_level1 {
+.category_level_root {
+  background: $color-white;
+  border-color: $color-white;
+}
+
+.category_level_odd {
   .process-model-card {
     border-color: $color-brown-2;
   }
@@ -41,7 +46,7 @@
   }
 }
 
-.category_level2 {
+.category_level_even {
   .process-model-card {
     border-color: $color-brown-1;
   }

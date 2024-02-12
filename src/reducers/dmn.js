@@ -145,6 +145,14 @@ export default handleActions(
         currentCategory.id = action.payload.newId;
       }
 
+      if (action.payload.canCreateDef) {
+        currentCategory.canCreateDef = action.payload.canCreateDef;
+      }
+
+      if (action.payload.canCreateSubSection) {
+        currentCategory.canCreateSubSection = action.payload.canCreateSubSection;
+      }
+
       const newCategoryList = [...state.categories];
       newCategoryList.splice(index, 1, currentCategory);
 
