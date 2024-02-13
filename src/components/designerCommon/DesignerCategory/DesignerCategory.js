@@ -163,8 +163,8 @@ class DesignerCategory extends React.Component {
     const saveIconClasses = cn('icon-small-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-small-close', styles.categoryActionIcon);
 
-    const mainContainerClasses = cn(`category`, level >= 0 ? `category_level_${level % 2 === 0 ? 'odd' : 'even'}` : 'category_level_root', {
-      [styles.categoryLevelRoot]: level < 2,
+    const mainContainerClasses = cn(`category`, level >= 1 ? `category_level_${level % 2 === 0 ? 'odd' : 'even'}` : 'category_level_root', {
+      [styles.categoryLevelRoot]: level < 1,
       [styles.categoryLevelOdd]: level >= 1 && level % 2 === 0,
       [styles.categoryLevelEven]: level >= 1 && level % 2 !== 0,
       categoryLevelOpen: isOpen,
@@ -172,7 +172,7 @@ class DesignerCategory extends React.Component {
     });
 
     const whiteContainerClasses = cn(styles.category, {
-      [styles.categoryLevelRoot]: level < 2,
+      [styles.categoryLevelRoot]: level < 1,
       [styles.categoryLevelOdd]: level >= 1 && level % 2 === 0,
       [styles.categoryLevelEven]: level >= 1 && level % 2 !== 0
     });
