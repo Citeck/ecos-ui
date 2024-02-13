@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
+import get from 'lodash/get';
 
 import { getId } from '../../../../helpers/util';
 import ListItem from '../../../ColumnsSetup/ListItem';
@@ -20,7 +21,7 @@ const ListItemWrapper = React.memo(({ cssItemClasses, provided, children }) => {
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
-      style={{ ...provided.draggableProps.style }}
+      style={provided.draggableProps.style}
     >
       {children}
     </span>
@@ -30,17 +31,16 @@ const ListItemWrapper = React.memo(({ cssItemClasses, provided, children }) => {
 export default class DndList extends Component {
   constructor(props) {
     super(props);
+
     this._id = getId();
-    this.state = {
-      data: this.props.data || []
-    };
+    this.state = { data: props.data || [] };
     this.portal = this.createDraggableContainer();
   }
 
   componentDidUpdate(prevProps) {
-    const { data } = this.props;
+    const { data = [] } = this.props;
 
-    if (!isEqual(data, prevProps.data)) {
+    if (data.length !== get(prevProps, 'data.length', 0) && !isEqual(data, prevProps.data)) {
       this.setState({ data });
     }
   }

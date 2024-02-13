@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
+import cloneDeep from 'lodash/cloneDeep';
 
 import Columns from '../common/templates/Columns/Columns';
+import { ParserPredicate } from '../Filters/predicates';
 import ListItem from './ListItem';
 import { ControlledCheckbox, Select } from '../common/form';
 import { DndAggragationList, Dnd2List } from '../common/List';
@@ -13,7 +16,7 @@ import AggregationListItem from '../ColumnsSetup/AggregationListItem';
 
 import './Grouping.scss';
 
-export default class Grouping extends Component {
+class Grouping extends Component {
   onGrouping = state => {
     const { valueField, aggregation, needCount } = this.props;
     const columns = state.second;
@@ -111,8 +114,19 @@ export default class Grouping extends Component {
   };
 
   render() {
-    const { list, className, grouping, showAggregation, needCount, allowedColumns, aggregation } = this.props;
-    console.log(allowedColumns, aggregation);
+    const {
+      list,
+      className,
+      grouping,
+      showAggregation,
+      needCount,
+      allowedColumns,
+      aggregation,
+      defaultPredicates,
+      metaRecord
+    } = this.props;
+
+    const data = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
 
     return (
       <div className={classNames('grouping', className)}>
@@ -153,18 +167,20 @@ export default class Grouping extends Component {
 
             <div className={'grouping__content grouping__content_aggregation'}>
               <DndAggragationList
+                metaRecord={metaRecord}
                 noScroll
                 titleField="label"
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
-                data={allowedColumns.filter(c => c.default && NUMBERS.includes(c.type))}
+                data={data}
                 aggregation={aggregation}
                 columns={allowedColumns}
+                defaultPredicates={defaultPredicates}
               />
               <Select
                 className="ecos-filters-group__select select_narrow ecos-select_blue"
                 placeholder="Add column"
-                options={allowedColumns.filter(c => c.default && NUMBERS.includes(c.type))}
+                options={data}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
                 onChange={console.log}
@@ -176,3 +192,13 @@ export default class Grouping extends Component {
     );
   }
 }
+
+function mapStateToProps(_state, props) {
+  const { allowedColumns = [] } = props;
+
+  const predicates = ParserPredicate.getDefaultPredicates(allowedColumns);
+
+  return { defaultPredicates: cloneDeep(predicates) };
+}
+
+export default connect(mapStateToProps)(Grouping);
