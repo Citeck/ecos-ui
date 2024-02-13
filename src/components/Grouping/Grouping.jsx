@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import isBoolean from 'lodash/isBoolean';
 
 import Columns from '../common/templates/Columns/Columns';
 import ListItem from './ListItem';
-import AggregationListItem from './AggregationListItem';
-import { ControlledCheckbox } from '../common/form';
-import { Dnd2List, List } from '../common/List';
+import { ControlledCheckbox, Select } from '../common/form';
+import { DndAggragationList, Dnd2List } from '../common/List';
 import { NUMBERS } from '../../components/Records/predicates/predicates';
 import { t, trigger } from '../../helpers/util';
 import { GROUPING_COUNT_ALL } from '../../constants/journal';
+import AggregationListItem from '../ColumnsSetup/AggregationListItem';
 
 import './Grouping.scss';
 
@@ -112,7 +111,8 @@ export default class Grouping extends Component {
   };
 
   render() {
-    const { list, className, grouping, showAggregation, needCount } = this.props;
+    const { list, className, grouping, showAggregation, needCount, allowedColumns, aggregation } = this.props;
+    console.log(allowedColumns, aggregation);
 
     return (
       <div className={classNames('grouping', className)}>
@@ -152,9 +152,23 @@ export default class Grouping extends Component {
             </div>
 
             <div className={'grouping__content grouping__content_aggregation'}>
-              <Scrollbars style={{ height: '100%' }}>
-                <List className={'ecos-list-group_overflow_visible'} list={this.getAggregationList()} />
-              </Scrollbars>
+              <DndAggragationList
+                noScroll
+                titleField="label"
+                classNameItem="columns-setup__item fitnesse-columns-setup__item"
+                draggableClassName={'ecos-dnd-list__item_draggable'}
+                data={allowedColumns.filter(c => c.default && NUMBERS.includes(c.type))}
+                aggregation={aggregation}
+                columns={allowedColumns}
+              />
+              <Select
+                className="ecos-filters-group__select select_narrow ecos-select_blue"
+                placeholder="Add column"
+                options={allowedColumns.filter(c => c.default && NUMBERS.includes(c.type))}
+                getOptionLabel={option => option.label}
+                getOptionValue={option => option.value}
+                onChange={console.log}
+              />
             </div>
           </>
         ) : null}

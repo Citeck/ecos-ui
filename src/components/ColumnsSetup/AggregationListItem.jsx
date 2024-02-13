@@ -6,6 +6,8 @@ import Checkbox from '../common/form/Checkbox/Checkbox';
 import Select from '../common/form/Select/Select';
 import { Label } from '../common/form';
 import { getMLValue, t } from '../../helpers/util';
+import { EcosModal } from '../common';
+import { Filters } from '../Filters';
 
 class AggregationListItem extends Component {
   constructor(props) {
@@ -60,6 +62,7 @@ class AggregationListItem extends Component {
 
     this.state = {
       checked: props.checked,
+      isOpen: false,
       selected: props.selected
     };
   }
@@ -88,27 +91,48 @@ class AggregationListItem extends Component {
     const { column, titleField } = this.props;
 
     return (
-      <Columns
-        classNamesColumn={'columns_height_full columns-setup__column_align'}
-        cols={[
-          <div className={'two-columns__left columns-setup__column_align '}>
-            <Checkbox checked={Boolean(this.state.selected)} onChange={this.onCheckColumn} />
-            <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
-          </div>,
+      <>
+        <Columns
+          classNamesColumn={'columns_height_full columns-setup__column_align'}
+          cols={[
+            <div className={'two-columns__left columns-setup__column_align '}>
+              <i className="icon-custom-drag-big columns-setup__icon-drag" />
+              <Checkbox checked={Boolean(this.state.selected)} onChange={this.onCheckColumn} />
+              <span
+                className="icon icon-settings"
+                onClick={() => {
+                  this.setState({ isOpen: true });
+                }}
+              />
+              <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
+            </div>,
 
-          <Select
-            disable={!this.state.checked}
-            isClearable={true}
-            options={this.aggregationTypes}
-            getOptionLabel={option => getMLValue(option.label)}
-            getOptionValue={option => option.schema}
-            onChange={this.onChangeAggregationType}
-            className={'select_narrow select_width_full'}
-            placeholder={t('journals.default')}
-            value={this.state.selected}
-          />
-        ]}
-      />
+            <div style={{ display: 'flex', width: '100%', flexDirection: 'row', alignItems: 'center' }}>
+              <Select
+                disable={!this.state.checked}
+                isClearable={true}
+                options={this.aggregationTypes}
+                getOptionLabel={option => getMLValue(option.label)}
+                getOptionValue={option => option.schema}
+                onChange={this.onChangeAggregationType}
+                className={'select_narrow select_width_full'}
+                placeholder={t('journals.default')}
+                value={this.state.selected}
+              />
+              <span className="icon icon-delete" onClick={() => {}} />
+            </div>
+          ]}
+        />
+        <EcosModal
+          isOpen={this.state.isOpen}
+          isTopDivider
+          isBigHeader
+          className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
+          title={`Filter: ${column.label}`}
+        >
+          <Filters columns={this.props.columns} />
+        </EcosModal>
+      </>
     );
   }
 }
