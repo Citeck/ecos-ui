@@ -3,6 +3,7 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import endsWith from 'lodash/endsWith';
 import isFunction from 'lodash/isFunction';
+import get from 'lodash/get';
 
 import {
   updateModels,
@@ -105,8 +106,9 @@ function* doSaveCategoryRequest({ api, logger }, action) {
       newId = categoryData.id;
 
       const parentCategory = categories.find(item => item.id === currentCategory.parentId);
-      canCreateDef = categoryData.canCreateDef || parentCategory.canCreateDef;
-      canCreateSubSection = categoryData.canCreateSubSection || parentCategory.canCreateSubSection;
+
+      canCreateDef = categoryData.canCreateDef || get(parentCategory, 'canCreateDef');
+      canCreateSubSection = categoryData.canCreateSubSection || get(parentCategory, 'canCreateSubSection');
     } else {
       yield call(api.dmn.updateCategory, action.payload.id, {
         title: action.payload.label,

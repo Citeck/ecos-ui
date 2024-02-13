@@ -163,7 +163,7 @@ class DesignerCategory extends React.Component {
     const saveIconClasses = cn('icon-small-check', styles.categoryActionIcon);
     const cancelIconClasses = cn('icon-small-close', styles.categoryActionIcon);
 
-    const mainContainerClasses = cn(`category`, level >= 1 ? `category_level_${level % 2 === 0 ? 'odd' : 'even'}` : 'category_level_root', {
+    const mainContainerClasses = cn(`category`, level >= 0 ? `category_level_${level % 2 === 0 ? 'odd' : 'even'}` : 'category_level_root', {
       [styles.categoryLevelRoot]: level < 2,
       [styles.categoryLevelOdd]: level >= 1 && level % 2 === 0,
       [styles.categoryLevelEven]: level >= 1 && level % 2 !== 0,
