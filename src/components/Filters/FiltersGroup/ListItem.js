@@ -7,7 +7,7 @@ const ListItem = ({ cssItemClasses, provided, item, children }) => {
       ref={provided.innerRef}
       {...provided.draggableProps}
       {...provided.dragHandleProps}
-      style={{ ...provided.draggableProps.style }}
+      style={provided.draggableProps.style}
     >
       {item || children}
     </li>

@@ -4,10 +4,13 @@ import isFunction from 'lodash/isFunction';
 import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox/Checkbox';
 import Select from '../common/form/Select/Select';
-import { Label } from '../common/form';
-import { getMLValue, t } from '../../helpers/util';
+import { Label, MLText, Well } from '../common/form';
 import { EcosModal } from '../common';
+import { getMLValue, t } from '../../helpers/util';
 import { Filters } from '../Filters';
+import { selectFilterGroup } from '../../selectors/journals';
+import { Btn } from '../common/btns';
+import { Labels } from '../common/form/SelectJournal/constants';
 
 class AggregationListItem extends Component {
   constructor(props) {
@@ -87,8 +90,43 @@ class AggregationListItem extends Component {
     });
   };
 
+  renderModalBody = () => {
+    const { columns, defaultPredicates, metaRecord } = this.props;
+
+    return (
+      <>
+        <Label className="ecos-field-col__title ecos-field-col__title_full_width">
+          {'Column name'}
+          <MLText />
+        </Label>
+        <Filters
+          metaRecord={metaRecord}
+          predicate={defaultPredicates}
+          columns={columns}
+          needUpdate={false}
+          className="ecos-ds-widget-settings__filter"
+          groups={selectFilterGroup(defaultPredicates, columns)}
+        />
+      </>
+    );
+  };
+
+  renderModalButtons = () => {
+    return (
+      <div className="select-journal-select-modal__buttons">
+        <div className="select-journal-select-modal__buttons-space" />
+        <Btn className="select-journal-select-modal__buttons-cancel" onClick={() => this.setState({ isOpen: false })}>
+          {t(Labels.CANCEL_BUTTON)}
+        </Btn>
+        <Btn className="ecos-btn_blue select-journal-select-modal__buttons-ok" onClick={() => {}}>
+          {t(Labels.SAVE_BUTTON)}
+        </Btn>
+      </div>
+    );
+  };
+
   render() {
-    const { column, titleField } = this.props;
+    const { column, titleField, metaRecord } = this.props;
 
     return (
       <>
@@ -124,13 +162,18 @@ class AggregationListItem extends Component {
           ]}
         />
         <EcosModal
+          metaRecord={metaRecord}
           isOpen={this.state.isOpen}
           isTopDivider
           isBigHeader
           className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
           title={`Filter: ${column.label}`}
+          hideModal={() => this.setState({ isOpen: false })}
         >
-          <Filters columns={this.props.columns} />
+          <Well className="ecos-journal__settings">
+            {this.renderModalBody()}
+            {this.renderModalButtons()}
+          </Well>
         </EcosModal>
       </>
     );
