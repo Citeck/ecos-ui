@@ -1,0 +1,32 @@
+@import '../../../../styles/constants';
+
+.ecos-dnd-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ecos-dnd-aggregation-list__item {
+  border-top: 1px solid $color-gray-4;
+  border-bottom: 1px solid $color-gray-4;
+  margin-bottom: -1px;
+  list-style-type: none;
+
+  span.icon {
+    color: #d0d0d0;
+    cursor: pointer;
+  }
+
+  i.icon-custom-drag-big {
+    margin-right: 5px;
+  }
+
+  span.icon-settings,
+  span.icon-delete {
+    margin-left: 15px;
+  }
+}
+
+.ecos-dnd-list__item_draggable {
+  background: $color-white !important;
+  z-index: 20000 !important;
+}
