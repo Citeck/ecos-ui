@@ -3,6 +3,7 @@ import { call, put, select, takeLatest } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
 import endsWith from 'lodash/endsWith';
 import isFunction from 'lodash/isFunction';
+import get from 'lodash/get';
 
 import { BPMN_MODELS_PAGE_MAX_ITEMS, EDITOR_PAGE_CONTEXT } from '../constants/bpmn';
 import { t } from '../helpers/util';
@@ -238,13 +239,15 @@ function* doSaveCategoryRequest({ api, logger }, action) {
 
     let newId = null;
 
-    let { canCreateDef } = currentCategory;
+    let { canCreateDef, canCreateSubSection } = currentCategory;
 
     if (currentCategory.isTemporary) {
       const categoryData = yield call(api.bpmn.createCategory, action.payload.code, action.payload.label, currentCategory.parentId);
       newId = categoryData.id;
 
-      canCreateDef = canCreateDef || categoryData.canCreateDef;
+      const parentCategory = categories.find(item => item.id === currentCategory.parentId);
+      canCreateDef = categoryData.canCreateDef || get(parentCategory, 'canCreateDef');
+      canCreateSubSection = categoryData.canCreateSubSection || get(parentCategory, 'canCreateSubSection');
     } else {
       yield call(api.bpmn.updateCategory, action.payload.id, {
         title: action.payload.label,
@@ -258,6 +261,7 @@ function* doSaveCategoryRequest({ api, logger }, action) {
         label: action.payload.label,
         code: action.payload.code,
         canCreateDef,
+        canCreateSubSection,
         newId
       })
     );
