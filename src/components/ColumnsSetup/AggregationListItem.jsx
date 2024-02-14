@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import isFunction from 'lodash/isFunction';
+import isEmpty from 'lodash/isEmpty';
 
 import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox/Checkbox';
@@ -63,12 +64,16 @@ class AggregationListItem extends Component {
       }
     ];
 
+    const customPredicate = isEmpty(props.column.customPredicate)
+      ? ParserPredicate.parse(props.defaultPredicates, props.columns)
+      : props.column.customPredicate;
+
     this.state = {
       checked: props.checked,
       isOpen: false,
       selected: props.selected,
-      customLabelName: {},
-      customPredicates: {}
+      customLabel: props.column.label || {},
+      customPredicate
     };
   }
 
@@ -93,37 +98,61 @@ class AggregationListItem extends Component {
   };
 
   renderModalBody = () => {
-    const { columns, defaultPredicates, metaRecord } = this.props;
+    const { columns, defaultPredicates, metaRecord, column } = this.props;
+    const { customPredicate } = this.state;
 
     return (
       <>
         <Label className="ecos-field-col__title ecos-field-col__title_full_width">
           {'Column name'}
-          <MLText value={this.state.customLabelName} onChange={value => this.setState({ customLabelName: value })} />
+          <MLText value={this.state.customLabel} onChange={value => this.setState({ customLabel: value })} />
         </Label>
-        <Filters
-          metaRecord={metaRecord}
-          predicate={defaultPredicates}
-          columns={columns}
-          needUpdate={false}
-          className="ecos-ds-widget-settings__filter"
-          groups={ParserPredicate.parse(defaultPredicates, columns)}
-          onChange={predicates => {
-            this.setState({ customPredicates: predicates });
-          }}
-        />
+        {column.hasCustomField && (
+          <Filters
+            metaRecord={metaRecord}
+            predicate={defaultPredicates}
+            columns={columns}
+            needUpdate={false}
+            className="ecos-ds-widget-settings__filter"
+            groups={customPredicate}
+            onChange={predicates => {
+              this.setState({ customPredicate: ParserPredicate.parse(predicates, columns) });
+            }}
+          />
+        )}
       </>
     );
   };
 
   renderModalButtons = () => {
+    const { aggregations, column } = this.props;
+
     return (
       <div className="select-journal-select-modal__buttons">
         <div className="select-journal-select-modal__buttons-space" />
         <Btn className="select-journal-select-modal__buttons-cancel" onClick={() => this.setState({ isOpen: false })}>
           {t(Labels.CANCEL_BUTTON)}
         </Btn>
-        <Btn className="ecos-btn_blue select-journal-select-modal__buttons-ok" onClick={() => {}}>
+        <Btn
+          className="ecos-btn_blue select-journal-select-modal__buttons-ok"
+          onClick={() => {
+            this.setState({ isOpen: false }, () => {
+              const aggregation = aggregations.find(i => column.column === i.column);
+
+              isFunction(this.props.onChangeAggregation) &&
+                aggregation &&
+                this.props.onChangeAggregation({
+                  aggregation: {
+                    ...aggregation,
+                    label: this.state.customLabel || aggregation.label,
+                    customLabel: getMLValue(this.state.customLabel),
+                    customPredicate: this.state.customPredicate
+                  },
+                  column: this.props.column
+                });
+            });
+          }}
+        >
           {t(Labels.SAVE_BUTTON)}
         </Btn>
       </div>
@@ -140,14 +169,20 @@ class AggregationListItem extends Component {
           cols={[
             <div className={'two-columns__left columns-setup__column_align '}>
               <i className="icon-custom-drag-big columns-setup__icon-drag" />
-              <Checkbox checked={Boolean(this.state.selected)} onChange={this.onCheckColumn} />
+              <Checkbox
+                disabled={column.hasCustomField}
+                checked={Boolean(this.state.selected) || column.hasCustomField}
+                onChange={this.onCheckColumn}
+              />
               <span
                 className="icon icon-settings"
                 onClick={() => {
                   this.setState({ isOpen: true });
                 }}
               />
-              <Label className={'label_clear label_middle-grey columns-setup__next'}>{column[titleField]}</Label>
+              <Label className={'label_clear label_middle-grey columns-setup__next'}>
+                {getMLValue(this.state.customLabel) || column[titleField]}
+              </Label>
             </div>,
 
             <div style={{ display: 'flex', width: '100%', flexDirection: 'row', alignItems: 'center' }}>
@@ -162,7 +197,16 @@ class AggregationListItem extends Component {
                 placeholder={t('journals.default')}
                 value={this.state.selected}
               />
-              <span className="icon icon-delete" onClick={() => {}} />
+              {column.hasCustomField && (
+                <span
+                  className="icon icon-delete"
+                  onClick={() => {
+                    this.setState({ checked: false, selected: null }, () => {
+                      isFunction(this.props.onChangeAggregation) && this.props.onDeleteAggregation(this.props.column.column);
+                    });
+                  }}
+                />
+              )}
             </div>
           ]}
         />

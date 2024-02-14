@@ -95,10 +95,11 @@ export default class DndAggregationList extends Component {
       sortBy,
       titleField,
       onChangeVisible,
-      aggregation,
+      aggregations,
       onChangeSortBy,
       defaultPredicates,
       onChangeAggregation,
+      onDeleteAggregation,
       columns
     } = this.props;
     const { data } = this.state;
@@ -112,7 +113,8 @@ export default class DndAggregationList extends Component {
             {provided => (
               <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => {
-                  const selected = aggregation.filter(a => a.attribute.substr(1) === item.attribute)[0] || null;
+                  const selected =
+                    aggregations.find(a => a.attribute.substr(1) === item.attribute || a.attribute === item.attribute) || null;
 
                   return (
                     <Draggable key={item.id} draggableId={item.id} index={index}>
@@ -132,10 +134,11 @@ export default class DndAggregationList extends Component {
                                 onChangeSortBy={onChangeSortBy}
                                 columns={columns}
                                 defaultPredicates={defaultPredicates}
-                                aggregation={aggregation}
+                                aggregations={aggregations}
                                 selected={selected}
                                 checked={!!selected}
                                 onChangeAggregation={onChangeAggregation}
+                                onDeleteAggregation={onDeleteAggregation}
                               />
                             </ListItemWrapper>,
                             this.portal
@@ -154,10 +157,11 @@ export default class DndAggregationList extends Component {
                               onChangeSortBy={onChangeSortBy}
                               columns={columns}
                               defaultPredicates={defaultPredicates}
-                              aggregation={aggregation}
+                              aggregations={aggregations}
                               selected={selected}
                               checked={!!selected}
                               onChangeAggregation={onChangeAggregation}
+                              onDeleteAggregation={onDeleteAggregation}
                             />
                           </ListItemWrapper>
                         );
