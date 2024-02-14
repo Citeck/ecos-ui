@@ -17,6 +17,11 @@
     font-family: $font-family;
     font-weight: $font-weight-semi-bold;
     font-size: $font-size-standard;
+
+    &--is-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
   }
 
   .select__single-value {

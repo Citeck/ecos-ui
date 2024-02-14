@@ -152,7 +152,7 @@ class AggregationListItem extends Component {
 
             <div style={{ display: 'flex', width: '100%', flexDirection: 'row', alignItems: 'center' }}>
               <Select
-                disable={!this.state.checked}
+                isDisabled={column.hasCustomField}
                 isClearable={true}
                 options={this.aggregationTypes}
                 getOptionLabel={option => getMLValue(option.label)}
