@@ -208,11 +208,12 @@ class Grouping extends Component {
                   const aggregation = {
                     id: uniqueId(),
                     visible: true,
-                    label: { ru: '', en: '' },
+                    label: 'New column',
                     column: attribute,
                     attribute: attribute,
                     text: 'New column',
                     sortable: false,
+                    hasCustomField: true,
                     newEditor: { type: 'text', config: {} },
                     type: 'TEXT'
                   };
