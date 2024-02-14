@@ -8,9 +8,9 @@ import { Label, MLText, Well } from '../common/form';
 import { EcosModal } from '../common';
 import { getMLValue, t } from '../../helpers/util';
 import { Filters } from '../Filters';
-import { selectFilterGroup } from '../../selectors/journals';
 import { Btn } from '../common/btns';
 import { Labels } from '../common/form/SelectJournal/constants';
+import { ParserPredicate } from '../Filters/predicates';
 
 class AggregationListItem extends Component {
   constructor(props) {
@@ -66,7 +66,9 @@ class AggregationListItem extends Component {
     this.state = {
       checked: props.checked,
       isOpen: false,
-      selected: props.selected
+      selected: props.selected,
+      customLabelName: {},
+      customPredicates: {}
     };
   }
 
@@ -97,7 +99,7 @@ class AggregationListItem extends Component {
       <>
         <Label className="ecos-field-col__title ecos-field-col__title_full_width">
           {'Column name'}
-          <MLText />
+          <MLText value={this.state.customLabelName} onChange={value => this.setState({ customLabelName: value })} />
         </Label>
         <Filters
           metaRecord={metaRecord}
@@ -105,7 +107,10 @@ class AggregationListItem extends Component {
           columns={columns}
           needUpdate={false}
           className="ecos-ds-widget-settings__filter"
-          groups={selectFilterGroup(defaultPredicates, columns)}
+          groups={ParserPredicate.parse(defaultPredicates, columns)}
+          onChange={predicates => {
+            this.setState({ customPredicates: predicates });
+          }}
         />
       </>
     );
