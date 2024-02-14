@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import uniqueId from 'lodash/uniqueId';
+import isFunction from 'lodash/isFunction';
 
 import Columns from '../common/templates/Columns/Columns';
 import { ParserPredicate } from '../Filters/predicates';
@@ -11,9 +13,8 @@ import ListItem from './ListItem';
 import { ControlledCheckbox, Select } from '../common/form';
 import { DndAggragationList, Dnd2List } from '../common/List';
 import { NUMBERS } from '../../components/Records/predicates/predicates';
-import { t, trigger } from '../../helpers/util';
+import { t } from '../../helpers/util';
 import { GROUPING_COUNT_ALL } from '../../constants/journal';
-import AggregationListItem from '../ColumnsSetup/AggregationListItem';
 
 import './Grouping.scss';
 
@@ -22,37 +23,28 @@ class Grouping extends Component {
     super(props);
 
     this.state = {
-      columns: []
+      columns: !isEmpty(props.aggregation) ? props.aggregation.filter(i => i.column.startsWith('_custom_')) : []
     };
   }
 
-  componentDidMount() {
-    const { allowedColumns } = this.props;
-
-    if (this.state.columns.length === 0) {
-      const columns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
-
-      this.setState({ columns });
-    }
-  }
-
   onGrouping = state => {
-    const { valueField, aggregation, needCount } = this.props;
+    const { valueField, aggregation, needCount, onGrouping } = this.props;
     const columns = state.second;
     const groupBy = columns.map(col => col[valueField]).join('&');
 
-    trigger.call(this, 'onGrouping', {
-      columns: [...columns, ...aggregation],
-      groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : [],
-      needCount
-    });
+    isFunction(onGrouping) &&
+      onGrouping({
+        columns: [...columns, ...aggregation],
+        groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : [],
+        needCount
+      });
   };
 
   onChangeAggregation = ({ aggregation, column = {}, needCount }) => {
-    let { groupBy, grouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
+    let { groupBy, grouping, onGrouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
 
     if (aggregation) {
-      const match = aggregations.filter(a => a.column === column.attribute)[0];
+      const match = aggregations.find(a => a.column === column.attribute);
 
       if (!match) {
         aggregations.push(aggregation);
@@ -73,10 +65,24 @@ class Grouping extends Component {
       return 0;
     });
 
-    trigger.call(this, 'onGrouping', {
-      columns,
-      groupBy,
-      needCount: isBoolean(needCount) ? needCount : prevNeedCount
+    isFunction(onGrouping) &&
+      onGrouping({
+        columns,
+        groupBy,
+        needCount: isBoolean(needCount) ? needCount : prevNeedCount
+      });
+  };
+
+  onDeleteAggregation = column => {
+    let { grouping, onGrouping, needCount: prevNeedCount, groupBy } = this.props;
+
+    this.setState({ columns: this.state.columns.filter(i => i.column !== column) }, () => {
+      isFunction(onGrouping) &&
+        onGrouping({
+          columns: [...grouping, ...this.state.columns],
+          groupBy,
+          needCount: prevNeedCount
+        });
     });
   };
 
@@ -111,27 +117,6 @@ class Grouping extends Component {
     return <ListItem item={item} titleField={titleField} />;
   };
 
-  getAggregationList = () => {
-    let { allowedColumns, titleField, aggregation } = this.props;
-
-    const aggregationColumns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
-
-    return aggregationColumns.map(column => {
-      const selected = aggregation.filter(a => a.attribute.substr(1) === column.attribute)[0] || null;
-
-      return (
-        <AggregationListItem
-          column={column}
-          titleField={titleField}
-          aggregation={aggregation}
-          selected={selected}
-          checked={!!selected}
-          onChangeAggregation={this.onChangeAggregation}
-        />
-      );
-    });
-  };
-
   render() {
     const {
       list,
@@ -145,8 +130,8 @@ class Grouping extends Component {
       metaRecord
     } = this.props;
 
-    // const columns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
-    console.log(aggregation);
+    const defaultAggregation = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
+
     return (
       <div className={classNames('grouping', className)}>
         <div className={'grouping__toolbar'}>
@@ -191,11 +176,12 @@ class Grouping extends Component {
                 titleField="label"
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
-                data={this.state.columns}
-                aggregation={aggregation}
+                data={[...defaultAggregation, ...this.state.columns]}
+                aggregations={aggregation}
                 columns={allowedColumns}
                 defaultPredicates={defaultPredicates}
                 onChangeAggregation={this.onChangeAggregation}
+                onDeleteAggregation={this.onDeleteAggregation}
               />
               <Select
                 className="ecos-filters-group__select select_narrow ecos-select_blue"
@@ -205,8 +191,9 @@ class Grouping extends Component {
                 getOptionValue={option => option.value}
                 onChange={() => {
                   const attribute = uniqueId('_custom_');
+
                   const aggregation = {
-                    id: uniqueId(),
+                    id: attribute,
                     visible: true,
                     label: 'New column',
                     column: attribute,
