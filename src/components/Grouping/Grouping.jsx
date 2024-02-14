@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
 import cloneDeep from 'lodash/cloneDeep';
+import uniqueId from 'lodash/uniqueId';
 
 import Columns from '../common/templates/Columns/Columns';
 import { ParserPredicate } from '../Filters/predicates';
@@ -17,6 +18,24 @@ import AggregationListItem from '../ColumnsSetup/AggregationListItem';
 import './Grouping.scss';
 
 class Grouping extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      columns: []
+    };
+  }
+
+  componentDidMount() {
+    const { allowedColumns } = this.props;
+
+    if (this.state.columns.length === 0) {
+      const columns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
+
+      this.setState({ columns });
+    }
+  }
+
   onGrouping = state => {
     const { valueField, aggregation, needCount } = this.props;
     const columns = state.second;
@@ -126,8 +145,8 @@ class Grouping extends Component {
       metaRecord
     } = this.props;
 
-    const data = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
-
+    // const columns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
+    console.log(aggregation);
     return (
       <div className={classNames('grouping', className)}>
         <div className={'grouping__toolbar'}>
@@ -172,18 +191,36 @@ class Grouping extends Component {
                 titleField="label"
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
-                data={data}
+                data={this.state.columns}
                 aggregation={aggregation}
                 columns={allowedColumns}
                 defaultPredicates={defaultPredicates}
+                onChangeAggregation={this.onChangeAggregation}
               />
               <Select
                 className="ecos-filters-group__select select_narrow ecos-select_blue"
                 placeholder="Add column"
-                options={data}
+                options={[{ label: 'New column', value: 'new' }]}
                 getOptionLabel={option => option.label}
                 getOptionValue={option => option.value}
-                onChange={console.log}
+                onChange={() => {
+                  const attribute = uniqueId('_custom_');
+                  const aggregation = {
+                    id: uniqueId(),
+                    visible: true,
+                    label: { ru: '', en: '' },
+                    column: attribute,
+                    attribute: attribute,
+                    text: 'New column',
+                    sortable: false,
+                    newEditor: { type: 'text', config: {} },
+                    type: 'TEXT'
+                  };
+
+                  this.setState({ columns: [...this.state.columns, aggregation] }, () => {
+                    this.onChangeAggregation({ aggregation, column: attribute });
+                  });
+                }}
               />
             </div>
           </>

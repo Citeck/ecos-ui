@@ -95,8 +95,10 @@ export default class DndAggregationList extends Component {
       sortBy,
       titleField,
       onChangeVisible,
+      aggregation,
       onChangeSortBy,
       defaultPredicates,
+      onChangeAggregation,
       columns
     } = this.props;
     const { data } = this.state;
@@ -109,11 +111,36 @@ export default class DndAggregationList extends Component {
           <Droppable droppableId={this._id}>
             {provided => (
               <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
-                {data.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                    {(provided, snapshot) => {
-                      return snapshot.isDragging ? (
-                        ReactDOM.createPortal(
+                {data.map((item, index) => {
+                  const selected = aggregation.filter(a => a.attribute.substr(1) === item.attribute)[0] || null;
+
+                  return (
+                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                      {(provided, snapshot) => {
+                        return snapshot.isDragging ? (
+                          ReactDOM.createPortal(
+                            <ListItemWrapper
+                              cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
+                              provided={provided}
+                            >
+                              <AggregationListItem
+                                metaRecord={metaRecord}
+                                column={item}
+                                sortBy={sortBy}
+                                titleField={titleField}
+                                onChangeVisible={onChangeVisible}
+                                onChangeSortBy={onChangeSortBy}
+                                columns={columns}
+                                defaultPredicates={defaultPredicates}
+                                aggregation={aggregation}
+                                selected={selected}
+                                checked={!!selected}
+                                onChangeAggregation={onChangeAggregation}
+                              />
+                            </ListItemWrapper>,
+                            this.portal
+                          )
+                        ) : (
                           <ListItemWrapper
                             cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
                             provided={provided}
@@ -127,30 +154,17 @@ export default class DndAggregationList extends Component {
                               onChangeSortBy={onChangeSortBy}
                               columns={columns}
                               defaultPredicates={defaultPredicates}
+                              aggregation={aggregation}
+                              selected={selected}
+                              checked={!!selected}
+                              onChangeAggregation={onChangeAggregation}
                             />
-                          </ListItemWrapper>,
-                          this.portal
-                        )
-                      ) : (
-                        <ListItemWrapper
-                          cssItemClasses={snapshot.isDragging ? `${cssItemClasses} ${draggableClassName}` : cssItemClasses}
-                          provided={provided}
-                        >
-                          <AggregationListItem
-                            metaRecord={metaRecord}
-                            column={item}
-                            sortBy={sortBy}
-                            titleField={titleField}
-                            onChangeVisible={onChangeVisible}
-                            onChangeSortBy={onChangeSortBy}
-                            columns={columns}
-                            defaultPredicates={defaultPredicates}
-                          />
-                        </ListItemWrapper>
-                      );
-                    }}
-                  </Draggable>
-                ))}
+                          </ListItemWrapper>
+                        );
+                      }}
+                    </Draggable>
+                  );
+                })}
                 {provided.placeholder}
               </div>
             )}
