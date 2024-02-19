@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
+import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
 import { getId } from '../../../../helpers/util';
@@ -33,7 +34,7 @@ export default class DndAggregationList extends Component {
     super(props);
 
     this._id = getId();
-    this.state = { data: props.data || [] };
+    this.state = { data: props.data || [], isDropDisabled: false };
     this.portal = this.createDraggableContainer();
   }
 
@@ -61,15 +62,30 @@ export default class DndAggregationList extends Component {
     document.body.removeChild(this.portal);
   };
 
-  onDragEnd = result => {
-    if (!result.destination) {
+  onDragUpdate = ({ destination, _source }) => {
+    if (!destination) {
       return;
     }
 
-    const { onOrder } = this.props;
-    const data = this.order(this.state.data, result.source.index, result.destination.index);
+    const { aggregations, data } = this.props;
+    const listLength = data.length - aggregations.length;
 
-    this.setState({ data });
+    if (get(destination, 'index')) {
+      this.setState({ isDropDisabled: destination.index + 1 <= listLength });
+    }
+  };
+
+  onDragEnd = ({ destination, source }) => {
+    if (!destination) {
+      return;
+    }
+
+    const { onOrder, onChangeOrderAggregation } = this.props;
+    const data = this.order(this.state.data, source.index, destination.index);
+
+    this.setState({ data, isDropDisabled: false }, () => {
+      isFunction(onChangeOrderAggregation) && onChangeOrderAggregation(data);
+    });
 
     if (typeof onOrder === 'function') {
       onOrder(data);
@@ -108,8 +124,8 @@ export default class DndAggregationList extends Component {
 
     return (
       <Scroll noScroll={noScroll}>
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          <Droppable droppableId={this._id}>
+        <DragDropContext onDragUpdate={this.onDragUpdate} onDragEnd={this.onDragEnd}>
+          <Droppable droppableId={this._id} isDropDisabled={this.state.isDropDisabled}>
             {provided => (
               <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => {
@@ -117,7 +133,7 @@ export default class DndAggregationList extends Component {
                     aggregations.find(a => a.attribute.substr(1) === item.attribute || a.attribute === item.attribute) || null;
 
                   return (
-                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                    <Draggable key={item.id} type="MOVIE" draggableId={item.id} index={index} isDragDisabled={!item.hasCustomField}>
                       {(provided, snapshot) => {
                         return snapshot.isDragging ? (
                           ReactDOM.createPortal(

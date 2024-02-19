@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
-import uniqueId from 'lodash/uniqueId';
 import isFunction from 'lodash/isFunction';
 
 import Columns from '../common/templates/Columns/Columns';
@@ -13,7 +12,7 @@ import ListItem from './ListItem';
 import { ControlledCheckbox, Select } from '../common/form';
 import { DndAggragationList, Dnd2List } from '../common/List';
 import { NUMBERS } from '../../components/Records/predicates/predicates';
-import { t } from '../../helpers/util';
+import { getId, t } from '../../helpers/util';
 import { GROUPING_COUNT_ALL } from '../../constants/journal';
 
 import './Grouping.scss';
@@ -73,6 +72,19 @@ class Grouping extends Component {
       });
   };
 
+  onChangeOrderAggregation = columns => {
+    let { groupBy, grouping, onGrouping, needCount: prevNeedCount } = this.props;
+
+    const aggregations = [...grouping, ...columns.filter(({ id }) => id.startsWith('_custom_'))];
+
+    isFunction(onGrouping) &&
+      onGrouping({
+        columns: aggregations,
+        groupBy,
+        needCount: prevNeedCount
+      });
+  };
+
   onDeleteAggregation = column => {
     let { grouping, onGrouping, needCount: prevNeedCount, groupBy } = this.props;
 
@@ -125,7 +137,7 @@ class Grouping extends Component {
       showAggregation,
       needCount,
       allowedColumns,
-      aggregation,
+      aggregation: aggregations,
       defaultPredicates,
       metaRecord
     } = this.props;
@@ -177,36 +189,45 @@ class Grouping extends Component {
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
                 data={[...defaultAggregation, ...this.state.columns]}
-                aggregations={aggregation}
+                aggregations={aggregations}
                 columns={allowedColumns}
                 defaultPredicates={defaultPredicates}
                 onChangeAggregation={this.onChangeAggregation}
                 onDeleteAggregation={this.onDeleteAggregation}
+                onChangeOrderAggregation={this.onChangeOrderAggregation}
               />
               <Select
                 className="ecos-filters-group__select select_narrow ecos-select_blue"
-                placeholder="Add column"
-                options={[{ label: 'New column', value: 'new' }]}
+                placeholder={t('grouping.add_column')}
+                options={defaultAggregation}
                 getOptionLabel={option => option.label}
-                getOptionValue={option => option.value}
-                onChange={() => {
-                  const attribute = uniqueId('_custom_');
+                getOptionValue={option => option.attribute}
+                value={null}
+                onChange={value => {
+                  const column = getId(`_custom_${value.attribute}_`);
 
                   const aggregation = {
-                    id: attribute,
-                    visible: true,
-                    label: 'New column',
-                    column: attribute,
-                    attribute: attribute,
-                    text: 'New column',
+                    ...value,
+                    id: column,
+                    column,
+                    attribute: column,
+                    schema: `_custom_${value.schema}`,
+                    attSchema: `${column}?num`,
                     sortable: false,
+                    searchable: false,
                     hasCustomField: true,
-                    newEditor: { type: 'text', config: {} },
-                    type: 'TEXT'
+                    label: {
+                      en: 'New column',
+                      ru: 'Новая колонка'
+                    },
+                    originAttribute: value.attribute,
+                    originColumn: value,
+                    visible: true,
+                    name: column
                   };
 
                   this.setState({ columns: [...this.state.columns, aggregation] }, () => {
-                    this.onChangeAggregation({ aggregation, column: attribute });
+                    this.onChangeAggregation({ aggregation, column });
                   });
                 }}
               />

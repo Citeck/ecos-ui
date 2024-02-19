@@ -153,10 +153,10 @@ export function trigger(name, data) {
   }
 }
 
-export const getId = () =>
-  Math.random()
+export const getId = (prefix = '') =>
+  `${prefix}${Math.random()
     .toString(36)
-    .substr(2, 9);
+    .substr(2, 9)}`;
 
 export function applyTheme(themeName, callback) {
   lodashSet(window, 'Citeck.config.theme', themeName);

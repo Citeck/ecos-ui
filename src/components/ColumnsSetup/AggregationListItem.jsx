@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import isFunction from 'lodash/isFunction';
-import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox/Checkbox';
@@ -17,72 +17,101 @@ class AggregationListItem extends Component {
   constructor(props) {
     super(props);
 
-    const defaultAggregationType = {
-      attribute: `_${props.column.attribute}`,
-      text: props.column.label,
-      column: props.column.attribute,
-      sortable: props.column.sortable,
-      type: 'NUMBER',
-      newFormatter: props.column.newFormatter || {
-        type: 'number'
-      },
-      newEditor: props.column.newEditor
-    };
-
-    this.aggregationTypes = [
-      {
-        ...defaultAggregationType,
-        schema: `sum(${props.column.attribute})`,
-        label: {
-          ru: `Сумма (${props.column.label})`,
-          en: `Sum (${props.column.label})`
-        }
-      },
-      {
-        ...defaultAggregationType,
-        schema: `avg(${props.column.attribute})`,
-        label: {
-          ru: `Среднее (${props.column.label})`,
-          en: `Average (${props.column.label})`
-        }
-      },
-      {
-        ...defaultAggregationType,
-        schema: `min(${props.column.attribute})`,
-        label: {
-          ru: `Минимум (${props.column.label})`,
-          en: `Min (${props.column.label})`
-        }
-      },
-      {
-        ...defaultAggregationType,
-        schema: `max(${props.column.attribute})`,
-        label: {
-          ru: `Максимум (${props.column.label})`,
-          en: `Max (${props.column.label})`
-        }
-      }
-    ];
-
-    const customPredicate = isEmpty(props.column.customPredicate)
-      ? ParserPredicate.parse(props.defaultPredicates, props.columns)
-      : props.column.customPredicate;
+    const { checked, selected, column, defaultPredicates } = props;
+    const customPredicate = column.hasCustomField ? get(column, 'customPredicate', null) : null;
+    const groups = ParserPredicate.parse(get(column, 'customPredicate', defaultPredicates), props.columns);
 
     this.state = {
-      checked: props.checked,
       isOpen: false,
-      selected: props.selected,
-      customLabel: props.column.label || {},
+      checked,
+      selected,
+      customLabel: column.label || {},
+      groups,
       customPredicate
     };
   }
 
+  get aggregationTypes() {
+    const { column } = this.props;
+
+    const label = get(column, 'label', '');
+
+    const defaultAggregationType = {
+      attribute: column.hasCustomField ? column.attribute : `_${column.attribute}`,
+      text: column.label,
+      column: column.attribute,
+      sortable: column.sortable,
+      type: 'NUMBER',
+      newFormatter: column.newFormatter || {
+        type: 'number'
+      },
+      newEditor: column.newEditor
+    };
+
+    return [
+      {
+        ...defaultAggregationType,
+        schema: `sum(${column.attribute})`,
+        originSchema: column.originAttribute ? `sum(${column.originAttribute})` : null,
+        schemaName: { ru: 'Сумма', en: 'Sum' },
+        label: {
+          ru: `Сумма (${label['ru'] || label})`,
+          en: `Sum (${label['en'] || label})`
+        }
+      },
+      {
+        ...defaultAggregationType,
+        schema: `avg(${column.attribute})`,
+        originSchema: column.originAttribute ? `avg(${column.originAttribute})` : null,
+        schemaName: { ru: 'Среднее', en: 'Average' },
+        label: {
+          ru: `Среднее (${label['ru'] || label})`,
+          en: `Average (${label['en'] || label})`
+        }
+      },
+      {
+        ...defaultAggregationType,
+        schema: `min(${column.attribute})`,
+        originSchema: column.originAttribute ? `min(${column.originAttribute})` : null,
+        schemaName: { ru: 'Минимум', en: 'Min' },
+        label: {
+          ru: `Минимум (${label['ru'] || label})`,
+          en: `Min (${label['en'] || label})`
+        }
+      },
+      {
+        ...defaultAggregationType,
+        schema: `max(${column.attribute})`,
+        originSchema: column.originAttribute ? `sum(${column.originAttribute})` : null,
+        schemaName: { ru: 'Максимум', en: 'Max' },
+        label: {
+          ru: `Максимум (${label['ru'] || label})`,
+          en: `Max (${label['en'] || label})`
+        }
+      }
+    ];
+  }
+
   onChangeAggregationType = type => {
-    this.setState({ selected: type }, () => {
+    const { column } = this.props;
+
+    let aggregation = { ...column, ...type };
+
+    if (column.hasCustomField) {
+      aggregation = {
+        ...aggregation,
+        schema: column.attribute,
+        label: this.state.customLabel,
+        text: getMLValue(this.state.customLabel),
+        value: column.attribute
+      };
+    }
+
+    this.setState({ selected: aggregation }, () => {
       isFunction(this.props.onChangeAggregation) &&
         this.props.onChangeAggregation({
-          aggregation: type,
-          column: this.props.column
+          aggregation: aggregation,
+          column: this.state.selected
         });
     });
   };
@@ -99,7 +128,7 @@ class AggregationListItem extends Component {
 
   renderModalBody = () => {
     const { columns, defaultPredicates, metaRecord, column } = this.props;
-    const { customPredicate } = this.state;
+    const { groups } = this.state;
 
     return (
       <>
@@ -111,12 +140,14 @@ class AggregationListItem extends Component {
           <Filters
             metaRecord={metaRecord}
             predicate={defaultPredicates}
-            columns={columns}
-            needUpdate={false}
+            columns={columns.filter(i => i.attribute !== column.originAttribute)}
             className="ecos-ds-widget-settings__filter"
-            groups={customPredicate}
-            onChange={predicates => {
-              this.setState({ customPredicate: ParserPredicate.parse(predicates, columns) });
+            groups={groups}
+            onChange={customPredicate => {
+              this.setState({
+                customPredicate,
+                groups: ParserPredicate.parse(customPredicate, columns)
+              });
             }}
           />
         )}
@@ -145,7 +176,7 @@ class AggregationListItem extends Component {
                   aggregation: {
                     ...aggregation,
                     label: this.state.customLabel || aggregation.label,
-                    customLabel: getMLValue(this.state.customLabel),
+                    customLabel: this.state.customLabel,
                     customPredicate: this.state.customPredicate
                   },
                   column: this.props.column
@@ -168,30 +199,39 @@ class AggregationListItem extends Component {
           classNamesColumn={'columns_height_full columns-setup__column_align'}
           cols={[
             <div className={'two-columns__left columns-setup__column_align '}>
-              <i className="icon-custom-drag-big columns-setup__icon-drag" />
+              {column.hasCustomField ? (
+                <i className="icon-custom-drag-big columns-setup__icon-drag" />
+              ) : (
+                <i className="icon-custom-drag-big columns-setup__icon-drag columns-setup__icon-drag__disabled" />
+              )}
               <Checkbox
                 disabled={column.hasCustomField}
                 checked={Boolean(this.state.selected) || column.hasCustomField}
                 onChange={this.onCheckColumn}
               />
-              <span
-                className="icon icon-settings"
-                onClick={() => {
-                  this.setState({ isOpen: true });
-                }}
-              />
+              {column.hasCustomField && (
+                <span
+                  className="icon icon-settings"
+                  onClick={() => {
+                    this.setState({ isOpen: true });
+                  }}
+                />
+              )}
               <Label className={'label_clear label_middle-grey columns-setup__next'}>
                 {getMLValue(this.state.customLabel) || column[titleField]}
               </Label>
+              {column.hasCustomField && (
+                <Label className={'label_clear label_light-grey columns-placeholder__next'}>
+                  {`(${getMLValue(column.originColumn.label)})`}
+                </Label>
+              )}
             </div>,
 
             <div style={{ display: 'flex', width: '100%', flexDirection: 'row', alignItems: 'center' }}>
               <Select
-                isDisabled={column.hasCustomField}
-                isClearable={true}
                 options={this.aggregationTypes}
-                getOptionLabel={option => getMLValue(option.label)}
-                getOptionValue={option => option.schema}
+                getOptionLabel={option => (option.schemaName ? getMLValue(option.schemaName) : getMLValue(option.label))}
+                getOptionValue={option => (column.hasCustomField ? option.originSchema : option.schema)}
                 onChange={this.onChangeAggregationType}
                 className={'select_narrow select_width_full'}
                 placeholder={t('journals.default')}
@@ -210,20 +250,22 @@ class AggregationListItem extends Component {
             </div>
           ]}
         />
-        <EcosModal
-          metaRecord={metaRecord}
-          isOpen={this.state.isOpen}
-          isTopDivider
-          isBigHeader
-          className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
-          title={`Filter: ${column.label}`}
-          hideModal={() => this.setState({ isOpen: false })}
-        >
-          <Well className="ecos-journal__settings">
-            {this.renderModalBody()}
-            {this.renderModalButtons()}
-          </Well>
-        </EcosModal>
+        {column.hasCustomField && (
+          <EcosModal
+            metaRecord={metaRecord}
+            isOpen={this.state.isOpen}
+            isTopDivider
+            isBigHeader
+            className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"
+            title={`${t('grouping.modal_title')} ${getMLValue(get(column, 'originColumn.label'))}`}
+            hideModal={() => this.setState({ isOpen: false })}
+          >
+            <Well className="ecos-journal__settings">
+              {this.renderModalBody()}
+              {this.renderModalButtons()}
+            </Well>
+          </EcosModal>
+        )}
       </>
     );
   }
