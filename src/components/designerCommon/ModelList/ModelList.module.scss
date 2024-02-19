@@ -19,8 +19,8 @@
   &:before {
     content: '';
     display: block;
-    border-bottom: 4px solid white;
-    border-left: 4px solid white;
+    border-bottom: 4px solid $color-gray-6;
+    border-left: 4px solid $color-gray-6;
     border-bottom-left-radius: 8px;
     position: absolute;
     left: -18px;

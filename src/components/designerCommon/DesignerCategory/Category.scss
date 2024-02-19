@@ -1,11 +1,11 @@
-//@import '../../../constants';
+@import '../../../styles/constants';
 
 .categoryListViewType {
   &:before {
     content: '';
     display: block;
-    border-bottom: 4px solid white;
-    border-left: 4px solid white;
+    border-bottom: 4px solid $color-white;
+    border-left: 4px solid $color-white;
     border-bottom-left-radius: 8px;
     position: absolute;
     left: -18px;
@@ -17,7 +17,7 @@
   &:after {
     content: '';
     display: block;
-    border-left: 4px solid white;
+    border-left: 4px solid $color-white;
     position: absolute;
     left: -18px;
     top: 30px;
@@ -44,7 +44,10 @@
   & > .categoryListViewType:first-child {
     &:before {
       height: 27px;
-      top: -5px;
+      top: -10px;
+      border-bottom: 4px solid $color-white;
+      border-left: 4px solid $color-white;
+      border-bottom-left-radius: 8px;
     }
   }
 }

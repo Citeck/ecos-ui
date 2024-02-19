@@ -106,7 +106,7 @@
 }
 
 .contentNested {
-  padding: 0 8px 0 45px;
+  padding: 0 0 0 45px;
 }
 
 .dropdown {
@@ -141,7 +141,7 @@
 
 .categoryLevelRoot {
   background: $color-white;
-  border-width: 1px;
+  border-width: 0;
   border-color: $color-white;
   border-radius: $border-radius-standard;
 }
