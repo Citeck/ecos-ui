@@ -10,7 +10,7 @@ import { t } from '../../../helpers/util';
 import './JournalsGrouping.scss';
 
 const JournalsGrouping = props => {
-  const { grouping, allowedColumns = [], onChange } = props;
+  const { grouping, allowedColumns = [], onChange, metaRecord } = props;
   const columns = allowedColumns.filter(c => c.default && c.groupable);
 
   let groupingList = [];
@@ -34,6 +34,7 @@ const JournalsGrouping = props => {
       open={false}
     >
       <Grouping
+        metaRecord={metaRecord}
         className={'journals-grouping'}
         groupBy={get(grouping, 'groupBy')}
         list={columns}

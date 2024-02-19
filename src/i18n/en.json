@@ -920,6 +920,8 @@
   "grouping.show": "View the principle of grouping",
   "grouping.what": "What to group",
   "grouping.show_count": "Display number of records",
+  "grouping.add_column": "Add column",
+  "grouping.modal_title": "Filter for column:",
 
   "header.menu.create.btn.label": "Create",
   "header.menu.msg.empty-list": "No available items",

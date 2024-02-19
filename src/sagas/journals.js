@@ -557,6 +557,26 @@ export function* getGridData(api, params, stateId) {
     columns = params.columns;
   }
 
+  for (const column of columns) {
+    if (isString(column.attribute) && column.attribute.startsWith('_custom_')) {
+      const predicate = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate([column.customPredicate]));
+      const customData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+        ...settings,
+        predicate: getFirst(predicate) || {},
+        attributes: [column.originSchema]
+      });
+
+      const mappingAttribute = get(journalData, 'attributes[0]');
+      get(journalData, 'data', []).map((record, _index) => {
+        const additionalRecord = get(customData, 'records', []).find(({ rawAttributes }) =>
+          isEqual(record.rawAttributes[mappingAttribute], rawAttributes[mappingAttribute])
+        );
+        set(record, column.column, additionalRecord ? additionalRecord['0'] : '0');
+        return record;
+      });
+    }
+  }
+
   return { ...journalData, columns, actions };
 }
 

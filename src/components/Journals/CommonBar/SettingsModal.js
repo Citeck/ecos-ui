@@ -170,7 +170,12 @@ class SettingsModal extends Component {
                 />
                 {this.props.columnsData && <JournalsColumnsSetup columns={columns} sortBy={sortBy} onChange={this.handleChangeColumns} />}
                 {this.props.groupingData && (
-                  <JournalsGrouping grouping={grouping} allowedColumns={columns} onChange={this.handleChangeGrouping} />
+                  <JournalsGrouping
+                    metaRecord={filtersData.metaRecord}
+                    grouping={grouping}
+                    allowedColumns={columns}
+                    onChange={this.handleChangeGrouping}
+                  />
                 )}
                 {viewMode === JOURNAL_VIEW_MODE.KANBAN && (
                   <KanbanColumnsSettings columns={kanbanColumns} onChange={this.handleChangeKanbanColumns} />

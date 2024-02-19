@@ -4,6 +4,7 @@ import get from 'lodash/get';
 import find from 'lodash/find';
 import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import isString from 'lodash/isString';
 import set from 'lodash/set';
 
 import Predicate from '../components/Filters/predicates/Predicate';
@@ -291,12 +292,18 @@ export default class JournalsConverter {
 
     return columns
       .filter(item => {
+        const column = item.column;
+
         // TODO: add constants like DynamicColumns
-        if (item.column === GROUPING_COUNT_ALL) {
+        if (column === GROUPING_COUNT_ALL) {
           return true;
         }
 
-        return configColumnsIds.includes(item.column || JournalsConverter.getColumnId(item));
+        if (isString(column) && column.startsWith('_custom_')) {
+          return true;
+        }
+
+        return configColumnsIds.includes(column || JournalsConverter.getColumnId(item));
       })
       .map(item => {
         const id = JournalsConverter.getColumnId(item);
