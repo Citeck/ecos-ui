@@ -6,13 +6,14 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
-import { beArray, extractLabel, getModule, t } from '../../../helpers/util';
-import { replaceAttributeValues } from '../utils/recordUtils';
-import { getFitnesseClassName } from '../../../helpers/tools';
-import Records from '../Records';
+import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
-import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, ResultTypes } from './util/actionUtils';
+import { replaceAttributeValues } from '../utils/recordUtils';
+import { getFitnesseClassName } from '../../../helpers/tools';
+import { DetailActionResult, getActionResultTitle, getRef, notifyFailure, notifySuccess } from './util/actionUtils';
+import { ResultTypes } from './util/constants';
+import Records from '../Records';
 import actionsApi from './recordActionsApi';
 import actionsRegistry from './actionsRegistry';
 import ActionsExecutor from './handler/ActionsExecutor';
@@ -26,7 +27,7 @@ const Labels = {
   RECORDS_NOT_ALLOWED_TITLE: 'records-actions.dialog.all-records-not-allowed.title',
   RECORDS_NOT_ALLOWED_TEXT: 'records-actions.dialog.all-records-not-allowed.text',
   CONFIRM_NOT_ALLOWED: 'records-actions.confirm-not-allowed',
-  PRE_ACTION_MODULE_FAILURE: 'records-actions.pre-action-fail'
+  MESSAGE_BACKGROUND_MODE: 'records-actions.background-mode.message'
 };
 
 export const DEFAULT_MODEL = {
@@ -158,31 +159,49 @@ class RecordActions {
 
   /**
    * @param {RecordAction} action
+   * @param params
    * @returns {Object}
    * @private
    */
-  static _getConfirmData = action => {
+  static _getConfirmData = async (action, params) => {
     const title = extractLabel(get(action, 'confirm.title'));
     const text = extractLabel(get(action, 'confirm.message'));
     const formId = get(action, 'confirm.formRef');
     const modalClass = get(action, 'confirm.modalClass');
-    const needConfirm = !!formId || !!title || !!text;
+    const condition = get(action, 'confirm.condition.fn', false);
 
-    return needConfirm ? { formId, title, text, modalClass } : null;
+    if (isFunction(condition)) {
+      // record and records vars for condition function context
+      const record = get(params, 'actionRecord');
+      // eslint-disable-next-line no-unused-vars
+      const records = get(params, 'actionRecords', record ? [record] : []);
+      // eslint-disable-next-line no-eval
+      const result = await eval(`(function() { ${condition} })();`);
+
+      if (!result) {
+        return false;
+      }
+    }
+
+    const needConfirm = !!formId || !!title || !!text;
+    const formOptions = get(action, 'confirm.formOptions');
+    const formData = get(action, 'formData');
+
+    return needConfirm ? { formId, title, text, modalClass, formData, formOptions } : null;
   };
 
   static _confirmExecAction = (data, callback) => {
-    const { title, text, formId, modalClass, options = {} } = data;
+    const { title, text, formId, modalClass, formData, options = {}, formOptions: optionsFromProps = {} } = data;
 
     if (formId) {
       EcosFormUtils.getFormById(formId, { definition: 'definition?json', i18n: 'i18n?json' })
-        .then(formData => {
-          const { definition, ...formOptions } = formData;
-
+        .then(formDef => {
+          const { definition, ...formOptions } = formDef;
           DialogManager.showFormDialog({
             title,
-            formOptions: { ...formOptions, ...options },
+            formOptions: { ...formOptions, ...options, ...optionsFromProps },
             formDefinition: { display: 'form', ...definition },
+            formData,
             onSubmit: submission => callback(submission.data),
             onCancel: _ => callback(false)
           });
@@ -215,13 +234,14 @@ class RecordActions {
    */
   static async _checkConfirmAction(action, params) {
     /** @see ConfirmAction */
-    const confirmData = RecordActions._getConfirmData(action);
+    const confirmData = await RecordActions._getConfirmData(action, params);
 
     if (!confirmData) {
       return true;
     }
 
     get(params, 'actionRecord') && set(confirmData, 'options.actionRecord', params.actionRecord);
+    get(params, 'actionRecords') && set(confirmData, 'options.actionRecords', params.actionRecords);
 
     return await new Promise(resolve => {
       RecordActions._confirmExecAction(confirmData, result => resolve(result));
@@ -229,7 +249,9 @@ class RecordActions {
   }
 
   /**
-   * @param {Array<String>|Array<Record>|undefined} records
+   * Run external js module and prepare config / records ...
+   *
+   * @param {Array<String|Record>|undefined} records
    * @param {RecordAction} action
    * @param context
    * @param {String} nameFunction
@@ -247,6 +269,7 @@ class RecordActions {
       .then(module => module[nameFunction])
       .catch(e => {
         console.error('Error while pre process module loading', e);
+        result.hasError = true;
       });
 
     if (isFunction(preActionHandler)) {
@@ -264,15 +287,17 @@ class RecordActions {
           result.configMerged = true;
         }
       } catch (e) {
-        console.error('Error while pre process module loading', e, preActionHandler);
-        result.hasError = true;
+        if (!(e instanceof TypeError)) {
+          console.error('Error while pre process module loading', e, preActionHandler);
+          result.hasError = true;
+        }
       }
     } else {
       console.error(nameFunction, 'This is not function. Check preActionModule', preActionHandler);
     }
 
     if (result.hasError) {
-      notifyFailure(Labels.PRE_ACTION_MODULE_FAILURE);
+      notifyFailure();
     }
 
     return result;
@@ -457,7 +482,8 @@ class RecordActions {
       return false;
     }
 
-    const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
+    /** @type {RecordActionCtxData} */
+    const actionContext = get(action, [ACTION_CONTEXT_KEY, 'context']) || {};
     const execContext = {
       ...actionContext,
       ...context
@@ -499,29 +525,44 @@ class RecordActions {
     return actResult;
   }
 
+  _chunkedRecords = [];
+  _statusesByRecords = [];
+  _messagesByRecords = [];
+  _lastExecutionalActionId = '';
+
   /**
    * @param {Array<String>|Array<Record>} records
    * @param {RecActionWithCtx} action
    * @param {Object} context
+   * @param {{ungearedPopups: ?Boolean}} params
    */
   async execForRecords(records, action = {}, context = {}) {
     const { execForRecordsBatchSize, execForRecordsParallelBatchesCount } = action;
+    const isQueryRecords = get(context, 'fromFeature') === 'execForQuery';
+
+    if (this._isEqualRecordsCollection(action)) {
+      this._clearRecordsCollection();
+    }
+
+    this._lastExecutionalActionId = action.id;
+
+    const ungearedPopups = isQueryRecords;
     const byBatch = execForRecordsBatchSize && execForRecordsBatchSize > 0;
-    let popupExecution;
+
+    let withTimeoutError = false;
+    let popupExecution = false;
+
     const getActionAllowedInfoForRecords = this._getActionAllowedInfoForRecords.bind(this);
-    const statusesByRecords = records.reduce(
-      (result, current) => ({
-        ...result,
-        [current]: ''
-      }),
-      {}
-    );
+
     const resultOptions = {
       title: getActionResultTitle(action),
       withConfirm: false,
       withoutLoader: byBatch,
-      statusesByRecords
+      statusesByRecords: isQueryRecords ? this._statusesByRecords : [],
+      messagesByRecords: isQueryRecords ? this._messagesByRecords : []
     };
+
+    const chunkedRecords = this._chunkedRecords;
 
     const execution = await (async function() {
       if (!records || !records.length) {
@@ -529,6 +570,7 @@ class RecordActions {
       }
 
       const handler = RecordActions._getActionsExecutor(action);
+
       if (handler == null) {
         return false;
       }
@@ -538,7 +580,7 @@ class RecordActions {
       }
 
       const recordInstances = Records.get(records);
-      const confirmed = await RecordActions._checkConfirmAction(action);
+      const confirmed = await RecordActions._checkConfirmAction(action, { actionRecords: records });
 
       if (!confirmed) {
         return false;
@@ -548,7 +590,9 @@ class RecordActions {
         RecordActions._fillDataByMap({ action, data: confirmed, sourcePath: 'confirm.', targetPath: 'config.' });
       }
 
-      popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+      if (!ungearedPopups) {
+        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+      }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
       const { allowedRecords = [], notAllowedRecords = [] } = allowedInfo;
@@ -578,17 +622,29 @@ class RecordActions {
           return false;
         }
 
-        popupExecution = await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), resultOptions);
+        if (!ungearedPopups) {
+          const popupRecords = allowedRecords.map(r => getRef(r));
+
+          if (!isEmpty(popupRecords)) {
+            popupExecution = await DetailActionResult.showPreviewRecords(popupRecords, resultOptions);
+          }
+        }
       }
 
       const actionContext = action[ACTION_CONTEXT_KEY] ? action[ACTION_CONTEXT_KEY].context || {} : {};
       const execContext = { ...actionContext, ...context };
+
       let preResult;
       let actResult;
 
       // Cause: https://citeck.atlassian.net/browse/ECOSUI-1562
       if (byBatch) {
         const chunks = chunk(allowedRecords, execForRecordsBatchSize);
+
+        if (isQueryRecords) {
+          allowedRecords.forEach(r => chunkedRecords.push(getRef(r)));
+        }
+
         const executeChunks = async chunks => {
           let results = {};
 
@@ -599,8 +655,8 @@ class RecordActions {
               action.config = preResult.config;
             }
 
-            if (!isEmpty(preResult.preProcessedRecords)) {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
+            if (!isEmpty(preResult.preProcessedRecords) && !isEmpty(chunkedRecords)) {
+              await DetailActionResult.showPreviewRecords(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: get(preResult, 'results', []).map(item => getRef(item))
@@ -612,14 +668,17 @@ class RecordActions {
               : chunks[i];
 
             if (!isEmpty(preResult.preProcessedRecords) && isEmpty(filteredRecords)) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: preResult.preProcessedRecords,
                 statuses: preResult.results.reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: 'ERROR'
+                    [getRef(current)]: {
+                      type: 'ERROR',
+                      message: current.message || ''
+                    }
                   }),
                   {}
                 )
@@ -639,16 +698,23 @@ class RecordActions {
             const result = await handler.execForRecords(filteredRecords, action, execContext);
             const error = get(result, 'error');
 
+            if (get(result, 'code') === 504) {
+              withTimeoutError = true;
+            }
+
             // Cause: https://citeck.atlassian.net/browse/ECOSUI-1578
             if (error) {
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
+              await DetailActionResult.setStatus(chunkedRecords, {
                 ...resultOptions,
                 withoutLoader: true,
                 forRecords: filteredRecords.map(item => getRef(item)),
                 statuses: filteredRecords.reduce(
                   (result, current) => ({
                     ...result,
-                    [getRef(current)]: 'ERROR'
+                    [getRef(current)]: {
+                      type: 'ERROR',
+                      message: error || current.message
+                    }
                   }),
                   {}
                 )
@@ -686,18 +752,23 @@ class RecordActions {
                 }
               };
 
-              await DetailActionResult.setStatus(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item)),
-                statuses: get(result, 'data.results', []).reduce(
-                  (result, current) => ({
-                    ...result,
-                    [getRef(current)]: current.status
-                  }),
-                  {}
-                )
-              });
+              if (!isEmpty(chunkedRecords)) {
+                await DetailActionResult.setStatus(chunkedRecords, {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item)),
+                  statuses: get(result, 'data.results', []).reduce(
+                    (result, current) => ({
+                      ...result,
+                      [getRef(current)]: {
+                        type: current.status,
+                        message: current.message || ''
+                      }
+                    }),
+                    {}
+                  )
+                });
+              }
             }
 
             results = {
@@ -734,13 +805,19 @@ class RecordActions {
         const filteredRecords = preResult.preProcessedRecords
           ? allowedRecords.filter(rec => !preResult.preProcessedRecords.includes(rec.id))
           : allowedRecords;
-        const result = handler.execForRecords(filteredRecords, action, execContext);
+        const result = handler.execForRecords(filteredRecords, action, execContext).catch(error => {
+          RecordActions._showTimeoutMessageDialog(error);
+        });
 
         actResult = await RecordActions._wrapResultIfRequired(result);
       }
 
       if (!isBoolean(actResult) && preResult.preProcessedRecords) {
-        actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        if (get(actResult, 'error')) {
+          RecordActions._showTimeoutMessageDialog(actResult);
+        } else {
+          actResult.data.results = [...(actResult.data.results || []), ...(preResult.results || [])];
+        }
       }
 
       RecordActions._updateRecords(allowedRecords, true);
@@ -748,9 +825,29 @@ class RecordActions {
       return actResult;
     })();
 
-    isBoolean(execution) ? popupExecution && popupExecution.hide() : await DetailActionResult.showResult(execution, resultOptions);
+    isBoolean(execution)
+      ? popupExecution && popupExecution.hide()
+      : !ungearedPopups && (await DetailActionResult.showResult(execution, resultOptions));
+
+    if (withTimeoutError) {
+      RecordActions._showTimeoutMessageDialog();
+    }
 
     return execution;
+  }
+
+  _clearRecordsCollection() {
+    this._chunkedRecords = [];
+    this._statusesByRecords = [];
+    this._messagesByRecords = [];
+  }
+
+  static _showTimeoutMessageDialog(data) {
+    let message = get(data, 'timeoutErrorMessage');
+
+    message = message ? getMLValue(message) : Labels.MESSAGE_BACKGROUND_MODE;
+
+    DialogManager.showInfoDialog({ text: t(message) });
   }
 
   async _getActionAllowedInfoForRecords(records, action, context) {
@@ -865,7 +962,20 @@ class RecordActions {
    * @param {Object} context
    */
   async execForQueryAsForRecords(query, action, context) {
+    let processedCount = 0;
+    let showProcess = true;
+
+    const handleInfo = () => {
+      notifySuccess('group-action.message.background-mode');
+      showProcess = false;
+    };
+
+    const info = (title, text, isEnd) => DialogManager.showInfoDialog({ title, text, onClose: () => !isEnd && handleInfo() });
+
+    info('group-action.message.started', 'group-action.label.fetch-data');
+
     if (query.language !== 'predicate') {
+      info('error', 'record-action.msg.error.text');
       return false;
     }
 
@@ -875,10 +985,29 @@ class RecordActions {
     const iterator = new RecordsIterator(preparedQuery);
 
     const callback = async data => {
+      processedCount += data.records.length;
+
       await this.execForRecords(data.records, preparedAction, preparedContext);
+
+      showProcess &&
+        info(
+          t('group-action.message.in-progress', { name: action.name }),
+          t('group-action.message.processed', { total: data.totalCount, count: processedCount })
+        );
     };
 
-    await iterator.iterate(callback);
+    window.onbeforeunload = function(e) {
+      return "Please click 'Stay on this Page' if you did this unintentionally";
+    };
+
+    try {
+      await iterator.iterate(callback);
+    } finally {
+      this._clearRecordsCollection();
+      this.$window.onbeforeunload = () => undefined;
+    }
+
+    info('success', t('group-action.message.done-name', { action: action.name }), true);
 
     return true;
   }
@@ -913,6 +1042,14 @@ class RecordActions {
       result[key] = (records[key] & recordMask) !== 0;
     }
     return result;
+  }
+
+  _isEqualRecordsCollection(action) {
+    if (this._lastExecutionalActionId !== action.id) {
+      return true;
+    }
+
+    return false;
   }
 
   /**

@@ -6,7 +6,7 @@ import { PROXY_URI } from '../../../../../constants/alfresco';
 import { replacePlaceholders } from '../../../../Journals/service/util';
 import Records from '../../../Records';
 import ActionsExecutor from '../ActionsExecutor';
-import { ResultTypes } from '../../util/actionUtils';
+import { ResultTypes } from '../../util/constants';
 
 const ACTION_ID = `${SourcesId.ACTION}@alf-download-report-group-action-`;
 

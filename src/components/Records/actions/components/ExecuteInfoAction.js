@@ -6,7 +6,7 @@ import { t } from '../../../../helpers/export/util';
 import { PROXY_URI } from '../../../../constants/alfresco';
 import { Loader } from '../../../common';
 import { Grid } from '../../../common/grid';
-import { ResultTypes } from '../util/actionUtils';
+import { ResultTypes } from '../util/constants';
 
 const Labels = {
   RECORD: 'group-action.label.record',
