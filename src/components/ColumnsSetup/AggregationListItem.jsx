@@ -86,7 +86,7 @@ class AggregationListItem extends Component {
         ...defaultAggregationType,
         schema: `max(${column.attribute})`,
         name: column.hasCustomField ? column.attribute : `_${column.attribute}`,
-        originSchema: column.originAttribute ? `sum(${column.originAttribute})` : null,
+        originSchema: column.originAttribute ? `max(${column.originAttribute})` : null,
         schemaName: { ru: 'Максимум', en: 'Max' },
         label: {
           ru: `Максимум (${label['ru'] || label})`,
