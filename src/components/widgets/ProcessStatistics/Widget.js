@@ -166,10 +166,10 @@ export default class Widget extends BaseWidget {
       >
         {isShowSetting && <Settings config={config} onCancel={this.handleToggleSettings} onSave={this.handleSaveConfig} />}
         <div className={classNames({ 'd-none': isShowSetting }, classNameContent)}>
-          {config.showModelDefault && (
+          {config.showModelDefault && !isShowSetting && (
             <Model
               {...modelConfig}
-              showModelDefault={!isShowSetting}
+              showModelDefault={!this.isCollapsed}
               record={record}
               stateId={this.stateId}
               width={width}
