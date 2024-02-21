@@ -52,7 +52,7 @@ class AggregationListItem extends Component {
       {
         ...defaultAggregationType,
         schema: `sum(${column.attribute})`,
-        name: `_${column.attribute}`,
+        name: column.hasCustomField ? column.attribute : `_${column.attribute}`,
         originSchema: column.originAttribute ? `sum(${column.originAttribute})` : null,
         schemaName: { ru: 'Сумма', en: 'Sum' },
         label: {
@@ -63,7 +63,7 @@ class AggregationListItem extends Component {
       {
         ...defaultAggregationType,
         schema: `avg(${column.attribute})`,
-        name: `_${column.attribute}`,
+        name: column.hasCustomField ? column.attribute : `_${column.attribute}`,
         originSchema: column.originAttribute ? `avg(${column.originAttribute})` : null,
         schemaName: { ru: 'Среднее', en: 'Average' },
         label: {
@@ -74,7 +74,7 @@ class AggregationListItem extends Component {
       {
         ...defaultAggregationType,
         schema: `min(${column.attribute})`,
-        name: `_${column.attribute}`,
+        name: column.hasCustomField ? column.attribute : `_${column.attribute}`,
         originSchema: column.originAttribute ? `min(${column.originAttribute})` : null,
         schemaName: { ru: 'Минимум', en: 'Min' },
         label: {
@@ -85,7 +85,7 @@ class AggregationListItem extends Component {
       {
         ...defaultAggregationType,
         schema: `max(${column.attribute})`,
-        name: `_${column.attribute}`,
+        name: column.hasCustomField ? column.attribute : `_${column.attribute}`,
         originSchema: column.originAttribute ? `sum(${column.originAttribute})` : null,
         schemaName: { ru: 'Максимум', en: 'Max' },
         label: {
