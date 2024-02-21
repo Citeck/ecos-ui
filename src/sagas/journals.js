@@ -566,7 +566,7 @@ export function* getGridData(api, params, stateId) {
         attributes: [column.originSchema]
       });
 
-      const mappingAttribute = get(journalData, 'attributes[0]');
+      const mappingAttribute = get(grouping, 'columns[0].attSchema');
       get(journalData, 'data', []).map((record, _index) => {
         const additionalRecord = get(customData, 'records', []).find(({ rawAttributes }) =>
           isEqual(record.rawAttributes[mappingAttribute], rawAttributes[mappingAttribute])
