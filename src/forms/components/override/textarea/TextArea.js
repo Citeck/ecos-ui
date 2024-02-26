@@ -123,6 +123,23 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           return;
         }
 
+        const CkeParentElem = element.parentElement;
+
+        // Allows you to expand the form when changing the page size
+        const handleResizeCke = () => (CkeParentElem.style.maxWidth = '100%');
+        window.addEventListener('resize', handleResizeCke);
+
+        // Allows you to limit the width of the form for the appearance of an internal scroll
+        const resizeObserver = new ResizeObserver(entries => {
+          for (const entry of entries) {
+            const width = entry.contentRect.width;
+            if (width) {
+              CkeParentElem.style.maxWidth = `${width}px`;
+            }
+          }
+        });
+        resizeObserver.observe(CkeParentElem);
+
         return ckeditor.create(element, settings).then(editor => {
           editor.model.document.on('change', () => {
             if (!this._ckEditorInitialized) {
@@ -132,6 +149,21 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
             onChange(editor.data.get());
           });
+
+          // Allows you to move the button tooltips to the left to prevent unnecessary indentation
+          const ckTooltips = document.querySelectorAll('.ck-tooltip');
+          [...ckTooltips].map(ckTooltip => (ckTooltip.style.left = '-150%'));
+
+          // Allows you to add an internal scroll when expanding
+          const ckEditorContainer = editor.ui.view.editable.element.parentElement;
+          Object.assign(ckEditorContainer.style, {
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            maxWidth: '100%'
+          });
+
+          this.removeEventListener(window, 'resize', handleResizeCke);
+
           resolve(editor);
           return editor;
         });
@@ -159,6 +191,23 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
         let quill = new Quill(element, _settings);
 
+        const quillParentEl = element.parentElement;
+
+        // Allows you to expand the form when changing the page size
+        const handleResizeQuill = () => (quillParentEl.style.maxWidth = '100%');
+        window.addEventListener('resize', handleResizeQuill);
+
+        // Allows you to limit the width of the form for the appearance of an internal scroll
+        const resizeObserver = new ResizeObserver(entries => {
+          for (const entry of entries) {
+            const width = entry.contentRect.width;
+            if (width) {
+              quillParentEl.style.maxWidth = `${width}px`;
+            }
+          }
+        });
+        resizeObserver.observe(quillParentEl);
+
         /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
         const txtArea = document.createElement('textarea');
         txtArea.setAttribute('class', 'quill-source-code');
@@ -182,6 +231,14 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         const onClickElm = () => quill && quill.focus();
         this.addEventListener(element, 'click', onClickElm);
 
+        // Disables automatic text wrapping
+        const qlEditors = document.querySelectorAll('.ql-editor');
+        [...qlEditors].map(qlEditor => (qlEditor.style.whiteSpace = 'nowrap'));
+
+        // Allows the container to expand based on the text height value
+        const qlContainers = document.querySelectorAll('.ql-container');
+        [...qlContainers].map(qlContainer => (qlContainer.style.minHeight = '100%'));
+
         // Allows users to skip toolbar items when tabbing though form
         const buttons = document.querySelectorAll('.ql-formats > button');
         [...buttons].map(btn => btn.setAttribute('tabindex', '-1'));
@@ -196,6 +253,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         quill.destroy = () => {
           this.removeEventListener(qlSource, 'click', onClickSource);
           this.removeEventListener(element, 'click', onClickElm);
+          this.removeEventListener(window, 'resize', handleResizeQuill);
           quill && quill.off('text-change', onTextChange);
           quill = null;
         };
