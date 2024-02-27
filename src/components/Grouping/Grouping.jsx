@@ -5,6 +5,7 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 
 import Columns from '../common/templates/Columns/Columns';
 import { ParserPredicate } from '../Filters/predicates';
@@ -24,6 +25,14 @@ class Grouping extends Component {
     this.state = {
       columns: !isEmpty(props.aggregation) ? props.aggregation.filter(i => i.column.startsWith('_custom_')) : []
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { aggregation } = this.props;
+
+    if (!isEqual(aggregation, prevProps.aggregation)) {
+      this.setState({ columns: aggregation.filter(i => i.column.startsWith('_custom_')) });
+    }
   }
 
   onGrouping = state => {
@@ -86,12 +95,12 @@ class Grouping extends Component {
   };
 
   onDeleteAggregation = column => {
-    let { grouping, onGrouping, needCount: prevNeedCount, groupBy } = this.props;
+    const { grouping, onGrouping, needCount: prevNeedCount, aggregation: aggregations, groupBy } = this.props;
 
     this.setState({ columns: this.state.columns.filter(i => i.column !== column) }, () => {
       isFunction(onGrouping) &&
         onGrouping({
-          columns: [...grouping, ...this.state.columns],
+          columns: [...grouping, ...aggregations.filter(i => i.column !== column)],
           groupBy,
           needCount: prevNeedCount
         });
