@@ -177,10 +177,11 @@ class PreSettingsModal extends React.Component {
         }
 
         if (this.isFormType) {
-          this.handleChangeForm();
-          return;
+          return this.handleChangeForm();
         }
 
+      })
+      .then(() => {
         return pagesStore.migrate(rollbackAttributes.id, newRecordRef);
       })
       .then(() => {
@@ -218,7 +219,7 @@ class PreSettingsModal extends React.Component {
     isFunction(onHide) && onHide();
   };
 
-  handleChangeForm = () => {
+  handleChangeForm = () => new Promise((resolve, reject) => {
     const { newRecordRef, newType } = this.state;
     const { definition } = this.config;
 
@@ -238,6 +239,11 @@ class PreSettingsModal extends React.Component {
       this.callback = newRef => {
         if (this.instanceRecordToSave) {
           this.instanceRecordToSave.save().then(() => {
+
+            if (this.isFormType) {
+              this.recordRef = `uiserv/form@${newRecordRef}`;
+            }
+
             if (!this.typeToSave) {
               isFunction(cb) && cb(newRef, newDefinition);
             }
@@ -246,6 +252,8 @@ class PreSettingsModal extends React.Component {
               this.typeToSave.save().then(() => {
                 isFunction(cb) && cb(newRef, newDefinition);
               });
+              
+            isFunction(resolve) && resolve();
 
             this.rollback();
           });
@@ -257,7 +265,7 @@ class PreSettingsModal extends React.Component {
 
     this.handleCancel();
     EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
-  };
+  });
 
   handleChangeJournal = () => {
     const { newRecordRef, newType } = this.state;
@@ -293,7 +301,9 @@ class PreSettingsModal extends React.Component {
 
                   this.typeToSave &&
                     this.typeToSave.save().then(() => {
-                      goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
+                      if (!this.isFormType) {
+                        goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
+                      }
                     });
 
                   this.rollback();
