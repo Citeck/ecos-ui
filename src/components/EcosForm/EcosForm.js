@@ -499,9 +499,9 @@ class EcosForm extends React.Component {
       };
 
       const preSettingsCallback = () => {
-        isFunction(onFormCancel) && onFormCancel();
         isFunction(onSavePreSettings) && onSavePreSettings();
         this.toggleLoader(false);
+        isFunction(onFormCancel) && onFormCancel();
       };
 
       this._preSettings.open(this.props.formId, config, preSettingsCallback, this.toggleLoader);
