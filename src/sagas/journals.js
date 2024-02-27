@@ -77,7 +77,6 @@ import {
   selectJournalSetting,
   selectJournalSettings,
   selectNewVersionDashletConfig,
-  selectSettingsData,
   selectUrl,
   selectWasChangedSettings
 } from '../selectors/journals';
@@ -1323,16 +1322,12 @@ function* sagaExecJournalAction({ api, logger, w }, { payload }) {
 
 function* sagaResetFiltering({ logger, w, stateId }) {
   try {
-    const {
-      originGridSettings: { predicate }
-    } = yield select(selectSettingsData, stateId);
-    const maxItems = yield select(selectGridPaginationMaxItems, stateId);
-    const pagination = { ...DEFAULT_PAGINATION, maxItems };
-    const predicates = beArray(predicate);
+    const url = yield select(selectUrl, stateId);
+    const { journalId, journalSettingId = '', userConfigId } = url;
 
-    yield put(setPredicate(w(predicate)));
-    yield put(setJournalSetting(w({ predicate })));
-    yield put(reloadGrid(w({ predicates, pagination })));
+    yield put(setJournalExpandableProp(w(false)));
+    yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: true })));
   } catch (e) {
     logger.error('[journals sagaResetFiltering saga error', e);
   }

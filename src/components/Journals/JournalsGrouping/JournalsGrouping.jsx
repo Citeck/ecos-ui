@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import get from 'lodash/get';
 import forEach from 'lodash/forEach';
 import isEmpty from 'lodash/isEmpty';
@@ -9,20 +9,27 @@ import { t } from '../../../helpers/util';
 
 import './JournalsGrouping.scss';
 
-const JournalsGrouping = props => {
-  const { grouping, allowedColumns = [], onChange, metaRecord } = props;
-  const columns = allowedColumns.filter(c => c.default && c.groupable);
+const JournalsGrouping = ({ grouping, allowedColumns = [], onChange, metaRecord }) => {
+  const allowedList = useMemo(() => allowedColumns.filter(c => c.default && c.groupable), [allowedColumns]);
+  const [groupingColumns, setGrouping] = useState({ aggregations: [], groupingList: [] });
 
-  let groupingList = [];
-  let aggregation = [];
+  useEffect(
+    () => {
+      const aggregationList = [],
+        list = [];
 
-  forEach(get(grouping, 'columns'), groupingColumn => {
-    const match = columns.filter(column => column.attribute === groupingColumn.attribute)[0];
+      forEach(get(grouping, 'columns'), groupingColumn => {
+        const match = allowedList.filter(column => column.attribute === groupingColumn.attribute)[0];
 
-    match ? groupingList.push(groupingColumn) : aggregation.push(groupingColumn);
-  });
+        match ? list.push(groupingColumn) : aggregationList.push(groupingColumn);
+      });
 
-  if (isEmpty(columns)) {
+      setGrouping({ aggregations: aggregationList, groupingList: list });
+    },
+    [grouping, metaRecord]
+  );
+
+  if (isEmpty(allowedList)) {
     return null;
   }
 
@@ -37,11 +44,11 @@ const JournalsGrouping = props => {
         metaRecord={metaRecord}
         className={'journals-grouping'}
         groupBy={get(grouping, 'groupBy')}
-        list={columns}
+        list={allowedList}
         allowedColumns={allowedColumns}
-        grouping={groupingList}
+        grouping={groupingColumns.groupingList}
         needCount={get(grouping, 'needCount')}
-        aggregation={aggregation}
+        aggregation={groupingColumns.aggregations}
         valueField={'attribute'}
         titleField={'text'}
         showAggregation={get(grouping, 'groupBy.length')}

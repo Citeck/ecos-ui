@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 
 import Columns from '../common/templates/Columns/Columns';
 import Checkbox from '../common/form/Checkbox/Checkbox';
@@ -29,6 +30,14 @@ class AggregationListItem extends Component {
       groups,
       customPredicate
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { selected } = this.props;
+
+    if (!isEqual(selected, prevProps.selected)) {
+      this.setState({ selected });
+    }
   }
 
   get aggregationTypes() {
@@ -148,10 +157,19 @@ class AggregationListItem extends Component {
             className="ecos-ds-widget-settings__filter"
             groups={groups}
             onChange={customPredicate => {
-              this.setState({
-                customPredicate,
-                groups: ParserPredicate.parse(customPredicate, columns)
-              });
+              this.setState(
+                {
+                  selected: { ...this.state.selected, customPredicate },
+                  customPredicate,
+                  groups: ParserPredicate.parse(customPredicate, columns)
+                },
+                () => {
+                  this.props.onChangeAggregation({
+                    aggregation: this.state.selected,
+                    column: this.props.column
+                  });
+                }
+              );
             }}
           />
         )}
@@ -195,7 +213,7 @@ class AggregationListItem extends Component {
   };
 
   render() {
-    const { column, titleField, metaRecord } = this.props;
+    const { column, titleField, metaRecord, onDeleteAggregation } = this.props;
 
     return (
       <>
@@ -226,7 +244,7 @@ class AggregationListItem extends Component {
               </Label>
               {column.hasCustomField && (
                 <Label className={'label_clear label_light-grey columns-placeholder__next'}>
-                  {`(${getMLValue(column.originColumn.label)})`}
+                  {`(${getMLValue(get(column, 'originColumn.label'))})`}
                 </Label>
               )}
             </div>,
@@ -245,8 +263,8 @@ class AggregationListItem extends Component {
                 <span
                   className="icon icon-delete"
                   onClick={() => {
-                    this.setState({ checked: false, selected: null }, () => {
-                      isFunction(this.props.onChangeAggregation) && this.props.onDeleteAggregation(this.props.column.column);
+                    this.setState({ checked: false, selected: null, customPredicate: null }, () => {
+                      isFunction(onDeleteAggregation) && onDeleteAggregation(column.column);
                     });
                   }}
                 />
