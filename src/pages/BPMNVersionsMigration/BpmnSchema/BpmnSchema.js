@@ -12,6 +12,7 @@ import { getAllVersions, getMetaInfo } from '../../../actions/processAdmin';
 import { Select } from '../../../components/common/form';
 import { getProcesses } from '../../../actions/bpmnAdmin';
 import PanelTitle from '../../../components/common/PanelTitle';
+import Scaler from '../../../components/common/Scaler';
 import { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
 import PageService from '../../../services/PageService';
 import { createDocumentUrl } from '../../../helpers/urls';
@@ -135,6 +136,10 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     });
   };
 
+  const handleClickZoom = value => {
+    designer.setZoom(value);
+  };
+
   const handleClickElement = (_event, elementInfo) => {
     setActivities(prev => Array.from(new Set([...prev, get(elementInfo, 'element.id')])));
   };
@@ -179,16 +184,22 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
       {noSchema && <InfoText text={t(Labels.NO_SCHEMA)} />}
 
       {Sheet && !noSchema && !noProcess && (
-        <Sheet
-          diagram={metaInfo.bpmnDefinition}
-          defHeight={800}
-          zoom={ScaleOptions.FIT}
-          zoomCenter={zoomCenter}
-          onMounted={handleReadySheet}
-          modelEvents={{
-            'element.click': handleClickElement
-          }}
-        />
+        <>
+          <div className="bpmn-process__scaler">
+            <Scaler onClick={handleClickZoom} />
+          </div>
+
+          <Sheet
+            diagram={metaInfo.bpmnDefinition}
+            defHeight={800}
+            zoom={ScaleOptions.FIT}
+            zoomCenter={zoomCenter}
+            onMounted={handleReadySheet}
+            modelEvents={{
+              'element.click': handleClickElement
+            }}
+          />
+        </>
       )}
       <div className={`${SCHEMA_BLOCK_CLASS}__version-selects`}>
         <div className={`${SCHEMA_BLOCK_CLASS}__select`}>
