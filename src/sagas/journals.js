@@ -1,3 +1,4 @@
+import { NotificationManager } from 'react-notifications';
 import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import * as queryString from 'query-string';
 import get from 'lodash/get';
@@ -11,8 +12,6 @@ import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 import concat from 'lodash/concat';
-
-import { NotificationManager } from 'react-notifications';
 
 import {
   applyJournalSetting,
@@ -564,6 +563,11 @@ export function* getGridData(api, params, stateId) {
         predicate: getFirst(predicate) || {},
         attributes: [column.originSchema]
       });
+
+      const originColumn = journalConfig.columns.find(i => column.originAttribute === i.attribute);
+
+      set(column, 'newFormatter', originColumn.newFormatter);
+      set(column, 'newEditor', originColumn.newEditor);
 
       const mappingAttribute = get(grouping, 'columns[0].attSchema');
       get(journalData, 'data', []).map((record, _index) => {

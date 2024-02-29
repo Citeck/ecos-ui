@@ -231,6 +231,7 @@ class Grouping extends Component {
                     },
                     originAttribute: value.attribute,
                     originColumn: value,
+                    hasTotalSumField: false,
                     visible: true,
                     name: column
                   };
