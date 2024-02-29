@@ -184,7 +184,22 @@ class AggregationListItem extends Component {
       <Btn className="select-journal-select-modal__buttons-cancel" onClick={() => this.setState({ isOpen: false })}>
         {t(Labels.CANCEL_BUTTON)}
       </Btn>
-      <Btn className="ecos-btn_blue select-journal-select-modal__buttons-ok" onClick={() => this.setState({ isOpen: false })}>
+      <Btn
+        className="ecos-btn_blue select-journal-select-modal__buttons-ok"
+        onClick={() =>
+          this.setState({ isOpen: false }, () => {
+            isFunction(this.props.onChangeAggregation) &&
+              this.props.onChangeAggregation({
+                aggregation: {
+                  ...this.state.selected,
+                  label: this.state.customLabel || this.state.selected.label,
+                  customLabel: this.state.customLabel
+                },
+                column: this.props.column
+              });
+          })
+        }
+      >
         {t(Labels.SAVE_BUTTON)}
       </Btn>
     </div>

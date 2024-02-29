@@ -84,11 +84,9 @@ class Grouping extends Component {
   onChangeOrderAggregation = columns => {
     let { groupBy, grouping, onGrouping, needCount: prevNeedCount } = this.props;
 
-    const aggregations = [...grouping, ...columns.filter(({ id }) => id.startsWith('_custom_'))];
-
     isFunction(onGrouping) &&
       onGrouping({
-        columns: aggregations,
+        columns: [...grouping, ...columns],
         groupBy,
         needCount: prevNeedCount
       });
@@ -197,7 +195,6 @@ class Grouping extends Component {
                 titleField="label"
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
-                data={[...defaultAggregation, ...this.state.columns]}
                 aggregations={aggregations}
                 columns={allowedColumns}
                 defaultPredicates={defaultPredicates}
