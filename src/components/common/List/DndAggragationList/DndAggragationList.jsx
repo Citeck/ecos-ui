@@ -15,6 +15,7 @@ import './DndAggragationList.scss';
 const Scroll = React.memo(({ noScroll, children }) =>
   noScroll ? children : <Scrollbars style={{ height: '100%' }}>{children}</Scrollbars>
 );
+
 const ListItemWrapper = React.memo(({ cssItemClasses, provided, children }) => {
   return (
     <span
@@ -34,15 +35,15 @@ export default class DndAggregationList extends Component {
     super(props);
 
     this._id = getId();
-    this.state = { data: props.data || [], isDropDisabled: false };
+    this.state = { data: props.aggregations || [], isDropDisabled: false };
     this.portal = this.createDraggableContainer();
   }
 
   componentDidUpdate(prevProps) {
-    const { data = [] } = this.props;
+    const { aggregations } = this.props;
 
-    if (data.length !== get(prevProps, 'data.length', 0) && !isEqual(data, prevProps.data)) {
-      this.setState({ data });
+    if (aggregations.length !== get(prevProps, 'aggregations.length', 0) && !isEqual(aggregations, prevProps.aggregations)) {
+      this.setState({ data: aggregations });
     }
   }
 
@@ -62,25 +63,28 @@ export default class DndAggregationList extends Component {
     document.body.removeChild(this.portal);
   };
 
-  onDragUpdate = ({ destination, _source }) => {
+  onDragUpdate = ({ destination }) => {
+    const { aggregations } = this.props;
+
     if (!destination) {
       return;
     }
 
-    const { aggregations, data } = this.props;
-    const listLength = data.length - aggregations.length;
+    const customColumns = aggregations.filter(({ id }) => id.startsWith('_custom_'));
+    const listLength = aggregations.length - customColumns.length;
 
     if (get(destination, 'index')) {
-      this.setState({ isDropDisabled: destination.index + 1 <= listLength });
+      this.setState({ isDropDisabled: destination.index < listLength });
     }
   };
 
   onDragEnd = ({ destination, source }) => {
+    const { onOrder, onChangeOrderAggregation } = this.props;
+
     if (!destination) {
       return;
     }
 
-    const { onOrder, onChangeOrderAggregation } = this.props;
     const data = this.order(this.state.data, source.index, destination.index);
 
     this.setState({ data, isDropDisabled: false }, () => {
@@ -124,13 +128,21 @@ export default class DndAggregationList extends Component {
 
     return (
       <Scroll noScroll={noScroll}>
-        <DragDropContext onDragUpdate={this.onDragUpdate} onDragEnd={this.onDragEnd}>
+        <DragDropContext
+          onDragStart={() => this.setState({ isDropDisabled: false })}
+          onDragUpdate={this.onDragUpdate}
+          onDragEnd={this.onDragEnd}
+        >
           <Droppable droppableId={this._id} isDropDisabled={this.state.isDropDisabled}>
             {provided => (
               <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => {
                   const selected =
                     aggregations.find(a => a.attribute.substr(1) === item.attribute || a.attribute === item.attribute) || null;
+
+                  if (!item.id) {
+                    return null;
+                  }
 
                   return (
                     <Draggable key={item.id} type="MOVIE" draggableId={item.id} index={index} isDragDisabled={!item.hasCustomField}>

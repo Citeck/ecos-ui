@@ -506,6 +506,10 @@ export default class ParserPredicate {
 
     const foreach = arr => {
       arr.forEach(item => {
+        if (isString(item)) {
+          return;
+        }
+
         if (!isArray(item.val) && item.att === newPredicate.att) {
           item.val = newPredicate.val || '';
 

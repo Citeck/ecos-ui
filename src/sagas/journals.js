@@ -574,7 +574,7 @@ export function* getGridData(api, params, stateId) {
         const additionalRecord = get(customData, 'records', []).find(({ rawAttributes }) =>
           isEqual(record.rawAttributes[mappingAttribute], rawAttributes[mappingAttribute])
         );
-        set(record, column.column, additionalRecord ? additionalRecord['0'] : '0');
+        record[column.column] = additionalRecord ? additionalRecord['0'] : '0';
         return record;
       });
     }
