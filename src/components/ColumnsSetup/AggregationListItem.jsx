@@ -107,8 +107,9 @@ class AggregationListItem extends Component {
 
   onChangeAggregationType = type => {
     const { column } = this.props;
+    const { selected } = this.state;
 
-    let aggregation = { ...column, ...type };
+    let aggregation = { ...column, ...selected, ...type };
 
     if (column.hasCustomField) {
       aggregation = {
@@ -177,40 +178,17 @@ class AggregationListItem extends Component {
     );
   };
 
-  renderModalButtons = () => {
-    const { aggregations, column } = this.props;
-
-    return (
-      <div className="select-journal-select-modal__buttons">
-        <div className="select-journal-select-modal__buttons-space" />
-        <Btn className="select-journal-select-modal__buttons-cancel" onClick={() => this.setState({ isOpen: false })}>
-          {t(Labels.CANCEL_BUTTON)}
-        </Btn>
-        <Btn
-          className="ecos-btn_blue select-journal-select-modal__buttons-ok"
-          onClick={() => {
-            this.setState({ isOpen: false }, () => {
-              const aggregation = aggregations.find(i => column.column === i.column);
-
-              isFunction(this.props.onChangeAggregation) &&
-                aggregation &&
-                this.props.onChangeAggregation({
-                  aggregation: {
-                    ...aggregation,
-                    label: this.state.customLabel || aggregation.label,
-                    customLabel: this.state.customLabel,
-                    customPredicate: this.state.customPredicate
-                  },
-                  column: this.props.column
-                });
-            });
-          }}
-        >
-          {t(Labels.SAVE_BUTTON)}
-        </Btn>
-      </div>
-    );
-  };
+  renderModalButtons = () => (
+    <div className="select-journal-select-modal__buttons">
+      <div className="select-journal-select-modal__buttons-space" />
+      <Btn className="select-journal-select-modal__buttons-cancel" onClick={() => this.setState({ isOpen: false })}>
+        {t(Labels.CANCEL_BUTTON)}
+      </Btn>
+      <Btn className="ecos-btn_blue select-journal-select-modal__buttons-ok" onClick={() => this.setState({ isOpen: false })}>
+        {t(Labels.SAVE_BUTTON)}
+      </Btn>
+    </div>
+  );
 
   render() {
     const { column, titleField, metaRecord, onDeleteAggregation } = this.props;
@@ -257,7 +235,9 @@ class AggregationListItem extends Component {
                 onChange={this.onChangeAggregationType}
                 className={'select_narrow select_width_full'}
                 placeholder={t('journals.default')}
-                value={this.state.selected}
+                value={
+                  column.hasCustomField ? (get(this.state, 'selected.originSchema') ? this.state.selected : null) : this.state.selected
+                }
               />
               {column.hasCustomField && (
                 <span
