@@ -1087,6 +1087,8 @@
   "journals.columns-setup.header": "Journal's columns setup",
   "journals.kanban-columns-setup.header": "Kanban's columns setup",
   "journals.create-record-btn": "Create",
+  "journals.column.name": "Column name",
+  "journals.column.empty-aggregation": "Without aggregation",
   "journals.default": "By default",
   "journals.filter-list.header": "Journals",
   "journals.grouping.header": "Grouping",

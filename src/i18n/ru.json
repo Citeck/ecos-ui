@@ -1045,6 +1045,8 @@
   "journals.columns-setup.header": "Настройка колонок журнала",
   "journals.kanban-columns-setup.header": "Настройка колонок канбан-доски",
   "journals.create-record-btn": "Создать",
+  "journals.column.name": "Название колонки",
+  "journals.column.empty-aggregation": "Без агрегации",
   "journals.default": "По умолчанию",
   "journals.filter-list.header": "Журналы",
   "journals.grouping.header": "Группировка",

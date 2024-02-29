@@ -147,7 +147,7 @@ class AggregationListItem extends Component {
     return (
       <>
         <Label className="ecos-field-col__title ecos-field-col__title_full_width">
-          {'Column name'}
+          {t('journals.column.name')}
           <MLText value={this.state.customLabel} onChange={value => this.setState({ customLabel: value })} />
         </Label>
         {column.hasCustomField && (
@@ -234,7 +234,7 @@ class AggregationListItem extends Component {
                 getOptionValue={option => (column.hasCustomField ? option.originSchema : option.schema)}
                 onChange={this.onChangeAggregationType}
                 className={'select_narrow select_width_full'}
-                placeholder={t('journals.default')}
+                placeholder={t('journals.column.empty-aggregation')}
                 value={
                   column.hasCustomField ? (get(this.state, 'selected.originSchema') ? this.state.selected : null) : this.state.selected
                 }
