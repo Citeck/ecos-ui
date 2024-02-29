@@ -7,6 +7,18 @@ import {
 } from '../constants/dmn';
 
 export class DmnApi {
+  static DMN_SECTION_ATTRS = {
+    id: '?id',
+    code: 'sectionCode?str',
+    label: 'name?json',
+    parentId: 'parentRef?id',
+    modified: '_created?num',
+    canWrite: PERMISSION_WRITE_ATTR,
+    canCreateDef: PERMISSION_DMN_SECTION_CREATE_DEF,
+    canEditDef: PERMISSION_DMN_SECTION_EDIT_DEF,
+    canCreateSubSection: PERMISSION_DMN_SECTION_CREATE_SUBSECTION
+  };
+
   fetchCategories = () => {
     return Records.query(
       {
@@ -14,16 +26,7 @@ export class DmnApi {
         language: 'predicate',
         query: {}
       },
-      {
-        code: 'sectionCode?str',
-        label: 'name?json',
-        parentId: 'parentRef?id',
-        modified: '_created?num',
-        canWrite: PERMISSION_WRITE_ATTR,
-        canCreateDef: PERMISSION_DMN_SECTION_CREATE_DEF,
-        canEditDef: PERMISSION_DMN_SECTION_EDIT_DEF,
-        canCreateSubSection: PERMISSION_DMN_SECTION_CREATE_SUBSECTION
-      }
+      DmnApi.DMN_SECTION_ATTRS
     ).then(resp => {
       return resp.records;
     });
@@ -34,7 +37,7 @@ export class DmnApi {
     rec.att('parentRef', parent);
     rec.att('name', title);
     rec.att('sectionCode', code);
-    return rec.save({id: "id", canCreateDef: PERMISSION_DMN_SECTION_CREATE_DEF});
+    return rec.save(DmnApi.DMN_SECTION_ATTRS);
   };
 
   updateCategory = (id, { code = '', title }) => {
@@ -42,7 +45,7 @@ export class DmnApi {
       const rec = Records.get(id);
       rec.att('name', title);
       rec.att('sectionCode', code);
-      return rec.save();
+      return rec.save(DmnApi.DMN_SECTION_ATTRS);
     }
   };
 

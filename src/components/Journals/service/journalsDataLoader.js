@@ -318,12 +318,16 @@ class JournalsDataLoader {
     }
 
     for (let column of columns) {
-      !!column.name && (attributesMap[column.name] = column.attSchema);
-      !!column.attribute && (attributesMap[column.attribute] = column.attSchema);
+      if (!column.attribute.startsWith('_custom_')) {
+        !!column.name && (attributesMap[column.name] = column.attSchema);
+        !!column.attribute && (attributesMap[column.attribute] = column.attSchema);
+      }
     }
 
     for (let item of settingsColumns) {
-      !!item.column && (attributesMap[item.attribute] = item.schema);
+      if (!item.attribute.startsWith('_custom_')) {
+        !!item.column && (attributesMap[item.attribute] = item.schema);
+      }
     }
 
     for (let att in settingsAttributes) {

@@ -77,7 +77,6 @@ import {
   selectJournalSetting,
   selectJournalSettings,
   selectNewVersionDashletConfig,
-  selectSettingsData,
   selectUrl,
   selectWasChangedSettings
 } from '../selectors/journals';
@@ -555,6 +554,26 @@ export function* getGridData(api, params, stateId) {
 
   if (fromGroupBy) {
     columns = params.columns;
+  }
+
+  for (const column of columns) {
+    if (isString(column.attribute) && column.attribute.startsWith('_custom_')) {
+      const predicate = ParserPredicate.replacePredicatesType(JournalsConverter.cleanUpPredicate([column.customPredicate]));
+      const customData = yield call([JournalsService, JournalsService.getJournalData], journalConfig, {
+        ...settings,
+        predicate: getFirst(predicate) || {},
+        attributes: [column.originSchema]
+      });
+
+      const mappingAttribute = get(grouping, 'columns[0].attSchema');
+      get(journalData, 'data', []).map((record, _index) => {
+        const additionalRecord = get(customData, 'records', []).find(({ rawAttributes }) =>
+          isEqual(record.rawAttributes[mappingAttribute], rawAttributes[mappingAttribute])
+        );
+        set(record, column.column, additionalRecord ? additionalRecord['0'] : '0');
+        return record;
+      });
+    }
   }
 
   return { ...journalData, columns, actions };
@@ -1303,16 +1322,12 @@ function* sagaExecJournalAction({ api, logger, w }, { payload }) {
 
 function* sagaResetFiltering({ logger, w, stateId }) {
   try {
-    const {
-      originGridSettings: { predicate }
-    } = yield select(selectSettingsData, stateId);
-    const maxItems = yield select(selectGridPaginationMaxItems, stateId);
-    const pagination = { ...DEFAULT_PAGINATION, maxItems };
-    const predicates = beArray(predicate);
+    const url = yield select(selectUrl, stateId);
+    const { journalId, journalSettingId = '', userConfigId } = url;
 
-    yield put(setPredicate(w(predicate)));
-    yield put(setJournalSetting(w({ predicate })));
-    yield put(reloadGrid(w({ predicates, pagination })));
+    yield put(setJournalExpandableProp(w(false)));
+    yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: true })));
   } catch (e) {
     logger.error('[journals sagaResetFiltering saga error', e);
   }

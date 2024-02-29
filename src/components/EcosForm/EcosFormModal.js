@@ -237,7 +237,7 @@ export default class EcosFormModal extends React.Component {
   }
 
   render() {
-    const { title, isBigHeader, contentAfter } = this.props;
+    const { title, isBigHeader, contentAfter, container } = this.props;
     const { recordData, isModalOpen, isLoading } = this.state;
 
     if (!isModalOpen || !recordData) {
@@ -285,6 +285,7 @@ export default class EcosFormModal extends React.Component {
           isOpen={isModalOpen}
           hideModal={this.handleCancel}
           customButtons={[this.renderConstructorButton()]}
+          container={container}
           isLoading={isLoading}
         >
           {this.renderContentBefore()}

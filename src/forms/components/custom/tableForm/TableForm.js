@@ -330,7 +330,7 @@ export default class TableFormComponent extends BaseReactComponent {
               );
             }
 
-            journalId = foundJournalId || journalId;
+            journalId = journalId || foundJournalId;
           }
 
           if (!journalId) {

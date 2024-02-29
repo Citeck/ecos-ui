@@ -2,7 +2,8 @@
 
 .category {
   background: $color-white;
-  border-radius: $border-radius-extra-large;
+  border-color: $color-white;
+  border-radius: $border-radius-large;
 }
 
 .label {
@@ -105,7 +106,7 @@
 }
 
 .contentNested {
-  padding: 0 8px 0 45px;
+  padding: 0 0 0 45px;
 }
 
 .dropdown {
@@ -138,10 +139,17 @@
   }
 }
 
-.categoryLevel2,
-.categoryLevel1 {
+.categoryLevelRoot {
+  background: $color-white;
+  border-width: 0;
+  border-color: $color-white;
+  border-radius: $border-radius-standard;
+}
+
+.categoryLevelOdd,
+.categoryLevelEven {
   background-color: $color-yellow-1;
-  border: 2px solid $color-brown-1;
+  border: 1px solid $color-brown-3;
   border-radius: $border-radius-standard;
 
   .label {
@@ -150,9 +158,13 @@
     padding-right: 0;
 
     &:before {
-      top: 16px;
+      top: 15px;
       left: 15px;
     }
+  }
+
+  .labelCode {
+    color: rgba(68, 68, 68, 0.65);
   }
 
   .labelText {
@@ -188,18 +200,17 @@
   }
 }
 
-.categoryLevel2 {
+.categoryLevelEven {
   background-color: $color-brown-2;
-  border: 2px solid $color-brown-1;
-  border-radius: 0;
+  border: 1px solid $color-brown-3;
 
   .categoryActionIcon {
     color: $color-brown-1;
   }
 }
 
-.categoryLevel2,
-.categoryLevel1 {
+.categoryLevelEven,
+.categoryLevelOdd {
   position: relative;
 
   .contentNested {

@@ -69,6 +69,11 @@
 
   &__scroll {
     position: relative;
+
+    &-list {
+      left: -18px;
+      width: calc(100% + 18px);
+    }
   }
 
   &__loader {

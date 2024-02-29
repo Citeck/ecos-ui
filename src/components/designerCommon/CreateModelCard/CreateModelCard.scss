@@ -24,15 +24,24 @@
   }
 }
 
-.category_level1 {
+.category_level_root {
+  background: transparent;
+  border-color: transparent;
+
+  .isParentHasNotModels {
+    margin-top: 5px;
+  }
+}
+
+.category_level_odd {
   .process-model-card {
     border-color: $color-brown-2;
   }
   .process-model-card__button {
-    background-color: $color-brown-2;
+    background-color: $color-brown-3;
 
     &:hover {
-      background-color: $color-brown-1;
+      background-color: $color-brown-2;
     }
 
     &:active {
@@ -41,15 +50,15 @@
   }
 }
 
-.category_level2 {
+.category_level_even {
   .process-model-card {
     border-color: $color-brown-1;
   }
   .process-model-card__button {
-    background-color: $color-brown-1;
+    background-color: $color-brown-3;
 
     &:hover {
-      background-color: $color-brown-3;
+      background-color: $color-brown-2;
     }
 
     &:active {

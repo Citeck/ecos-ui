@@ -33,10 +33,19 @@
     margin: 0 !important;
     width: 7px !important;
   }
+
+  &__disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
 }
 
 .columns-setup__next {
   margin-left: 16px !important;
+}
+
+.columns-placeholder__next {
+  margin-left: 6px !important;
 }
 
 .columns-setup__desc {

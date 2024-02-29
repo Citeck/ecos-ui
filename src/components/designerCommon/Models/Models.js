@@ -97,8 +97,13 @@ class Models extends React.Component {
     const { isLoading, isNextModelsLoading } = modelsInfo || {};
 
     return (
-      <div className="ecos-designer__scroll">
-        <Scrollbars autoHeight autoHeightMin={100} autoHeightMax={470} onScrollFrame={this.handleScrollFrame}>
+      <div className={`ecos-designer__scroll ecos-designer__scroll-${viewType}`}>
+        <Scrollbars
+          autoHeight
+          autoHeightMin={viewType === ViewTypes.LIST ? 10 : 100}
+          autoHeightMax={470}
+          onScrollFrame={this.handleScrollFrame}
+        >
           {isLoading && <Loader />}
           <Row noGutters>
             {models.map(model => (

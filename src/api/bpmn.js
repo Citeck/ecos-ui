@@ -9,6 +9,18 @@ import {
 } from '../constants/bpmn';
 
 export class BpmnApi extends RecordService {
+  static BPMNN_SECTION_ATTRS = {
+    id: '?id',
+    sectionCode: 'sectionCode?str',
+    label: 'name?json',
+    parentId: 'parentRef?id',
+    modified: '_created?num',
+    canWrite: PERMISSION_WRITE_ATTR,
+    canCreateDef: PERMISSION_BPMN_SECTION_CREATE_DEF,
+    canEditDef: PERMISSION_BPMN_SECTION_EDIT_DEF,
+    canCreateSubSection: PERMISSION_BPMN_SECTION_CREATE_SUBSECTION
+  };
+
   fetchCategories = () => {
     return Records.query(
       {
@@ -16,16 +28,7 @@ export class BpmnApi extends RecordService {
         language: 'predicate',
         query: {}
       },
-      {
-        sectionCode: 'sectionCode?str',
-        label: 'name?json',
-        parentId: 'parentRef?id',
-        modified: '_created?num',
-        canWrite: PERMISSION_WRITE_ATTR,
-        canCreateDef: PERMISSION_BPMN_SECTION_CREATE_DEF,
-        canEditDef: PERMISSION_BPMN_SECTION_EDIT_DEF,
-        canCreateSubSection: PERMISSION_BPMN_SECTION_CREATE_SUBSECTION
-      }
+      BpmnApi.BPMNN_SECTION_ATTRS
     ).then(resp => {
       return resp.records;
     });
@@ -36,7 +39,7 @@ export class BpmnApi extends RecordService {
     rec.att('parentRef', parent);
     rec.att('name', title);
     rec.att('sectionCode', code);
-    return rec.save({id: "id", canCreateDef: PERMISSION_BPMN_SECTION_CREATE_DEF});
+    return rec.save(BpmnApi.BPMNN_SECTION_ATTRS);
   };
 
   updateCategory = (id, { code = '', title }) => {
@@ -44,7 +47,7 @@ export class BpmnApi extends RecordService {
       const rec = Records.get(id);
       rec.att('name', title);
       rec.att('sectionCode', code);
-      return rec.save();
+      return rec.save(BpmnApi.BPMNN_SECTION_ATTRS);
     }
   };
 

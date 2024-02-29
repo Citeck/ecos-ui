@@ -1,37 +1,58 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { Scrollbars } from 'react-custom-scrollbars';
 import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
+import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 
 import Columns from '../common/templates/Columns/Columns';
+import { ParserPredicate } from '../Filters/predicates';
 import ListItem from './ListItem';
-import AggregationListItem from './AggregationListItem';
-import { ControlledCheckbox } from '../common/form';
-import { Dnd2List, List } from '../common/List';
+import { ControlledCheckbox, Select } from '../common/form';
+import { DndAggragationList, Dnd2List } from '../common/List';
 import { NUMBERS } from '../../components/Records/predicates/predicates';
-import { t, trigger } from '../../helpers/util';
+import { getId, t } from '../../helpers/util';
 import { GROUPING_COUNT_ALL } from '../../constants/journal';
 
 import './Grouping.scss';
 
-export default class Grouping extends Component {
+class Grouping extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      columns: !isEmpty(props.aggregation) ? props.aggregation.filter(i => i.column.startsWith('_custom_')) : []
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { aggregation } = this.props;
+
+    if (!isEqual(aggregation, prevProps.aggregation)) {
+      this.setState({ columns: aggregation.filter(i => i.column.startsWith('_custom_')) });
+    }
+  }
+
   onGrouping = state => {
-    const { valueField, aggregation, needCount } = this.props;
+    const { valueField, aggregation, needCount, onGrouping } = this.props;
     const columns = state.second;
     const groupBy = columns.map(col => col[valueField]).join('&');
 
-    trigger.call(this, 'onGrouping', {
-      columns: [...columns, ...aggregation],
-      groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : [],
-      needCount
-    });
+    isFunction(onGrouping) &&
+      onGrouping({
+        columns: [...columns, ...aggregation],
+        groupBy: groupBy ? [columns.map(col => col[valueField]).join('&')] : [],
+        needCount
+      });
   };
 
   onChangeAggregation = ({ aggregation, column = {}, needCount }) => {
-    let { groupBy, grouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
+    let { groupBy, grouping, onGrouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
 
     if (aggregation) {
-      const match = aggregations.filter(a => a.column === column.attribute)[0];
+      const match = aggregations.find(a => a.column === column.attribute);
 
       if (!match) {
         aggregations.push(aggregation);
@@ -52,10 +73,37 @@ export default class Grouping extends Component {
       return 0;
     });
 
-    trigger.call(this, 'onGrouping', {
-      columns,
-      groupBy,
-      needCount: isBoolean(needCount) ? needCount : prevNeedCount
+    isFunction(onGrouping) &&
+      onGrouping({
+        columns,
+        groupBy,
+        needCount: isBoolean(needCount) ? needCount : prevNeedCount
+      });
+  };
+
+  onChangeOrderAggregation = columns => {
+    let { groupBy, grouping, onGrouping, needCount: prevNeedCount } = this.props;
+
+    const aggregations = [...grouping, ...columns.filter(({ id }) => id.startsWith('_custom_'))];
+
+    isFunction(onGrouping) &&
+      onGrouping({
+        columns: aggregations,
+        groupBy,
+        needCount: prevNeedCount
+      });
+  };
+
+  onDeleteAggregation = column => {
+    const { grouping, onGrouping, needCount: prevNeedCount, aggregation: aggregations, groupBy } = this.props;
+
+    this.setState({ columns: this.state.columns.filter(i => i.column !== column) }, () => {
+      isFunction(onGrouping) &&
+        onGrouping({
+          columns: [...grouping, ...aggregations.filter(i => i.column !== column)],
+          groupBy,
+          needCount: prevNeedCount
+        });
     });
   };
 
@@ -90,29 +138,20 @@ export default class Grouping extends Component {
     return <ListItem item={item} titleField={titleField} />;
   };
 
-  getAggregationList = () => {
-    let { allowedColumns, titleField, aggregation } = this.props;
-
-    const aggregationColumns = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
-
-    return aggregationColumns.map(column => {
-      const selected = aggregation.filter(a => a.attribute.substr(1) === column.attribute)[0] || null;
-
-      return (
-        <AggregationListItem
-          column={column}
-          titleField={titleField}
-          aggregation={aggregation}
-          selected={selected}
-          checked={!!selected}
-          onChangeAggregation={this.onChangeAggregation}
-        />
-      );
-    });
-  };
-
   render() {
-    const { list, className, grouping, showAggregation, needCount } = this.props;
+    const {
+      list,
+      className,
+      grouping,
+      showAggregation,
+      needCount,
+      allowedColumns,
+      aggregation: aggregations,
+      defaultPredicates,
+      metaRecord
+    } = this.props;
+
+    const defaultAggregation = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
 
     return (
       <div className={classNames('grouping', className)}>
@@ -152,9 +191,55 @@ export default class Grouping extends Component {
             </div>
 
             <div className={'grouping__content grouping__content_aggregation'}>
-              <Scrollbars style={{ height: '100%' }}>
-                <List className={'ecos-list-group_overflow_visible'} list={this.getAggregationList()} />
-              </Scrollbars>
+              <DndAggragationList
+                metaRecord={metaRecord}
+                noScroll
+                titleField="label"
+                classNameItem="columns-setup__item fitnesse-columns-setup__item"
+                draggableClassName={'ecos-dnd-list__item_draggable'}
+                data={[...defaultAggregation, ...this.state.columns]}
+                aggregations={aggregations}
+                columns={allowedColumns}
+                defaultPredicates={defaultPredicates}
+                onChangeAggregation={this.onChangeAggregation}
+                onDeleteAggregation={this.onDeleteAggregation}
+                onChangeOrderAggregation={this.onChangeOrderAggregation}
+              />
+              <Select
+                className="ecos-filters-group__select select_narrow ecos-select_blue"
+                placeholder={t('grouping.add_column')}
+                options={defaultAggregation}
+                getOptionLabel={option => option.label}
+                getOptionValue={option => option.attribute}
+                value={null}
+                onChange={value => {
+                  const column = getId(`_custom_${value.attribute}_`);
+
+                  const aggregation = {
+                    ...value,
+                    id: column,
+                    column,
+                    attribute: column,
+                    schema: `_custom_${value.schema}`,
+                    attSchema: `${column}?num`,
+                    sortable: false,
+                    searchable: false,
+                    hasCustomField: true,
+                    label: {
+                      en: 'New column',
+                      ru: 'Новая колонка'
+                    },
+                    originAttribute: value.attribute,
+                    originColumn: value,
+                    visible: true,
+                    name: column
+                  };
+
+                  this.setState({ columns: [...this.state.columns, aggregation] }, () => {
+                    this.onChangeAggregation({ aggregation, column });
+                  });
+                }}
+              />
             </div>
           </>
         ) : null}
@@ -162,3 +247,13 @@ export default class Grouping extends Component {
     );
   }
 }
+
+function mapStateToProps(_state, props) {
+  const { allowedColumns = [] } = props;
+
+  const predicates = ParserPredicate.getDefaultPredicates(allowedColumns);
+
+  return { defaultPredicates: cloneDeep(predicates) };
+}
+
+export default connect(mapStateToProps)(Grouping);
