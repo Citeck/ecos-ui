@@ -133,7 +133,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         const resizeObserver = new ResizeObserver(entries => {
           for (const entry of entries) {
             const width = entry.contentRect.width;
-            if (width) {
+            if (width && CkeParentElem.offsetWidth === CkeParentElem.scrollWidth) {
               CkeParentElem.style.maxWidth = `${width}px`;
             }
           }
@@ -201,7 +201,7 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         const resizeObserver = new ResizeObserver(entries => {
           for (const entry of entries) {
             const width = entry.contentRect.width;
-            if (width) {
+            if (width && quillParentEl.offsetWidth === quillParentEl.scrollWidth) {
               quillParentEl.style.maxWidth = `${width}px`;
             }
           }
