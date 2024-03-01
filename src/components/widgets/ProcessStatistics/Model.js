@@ -13,7 +13,7 @@ import { ControlledCheckbox, Range } from '../../common/form';
 import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
 import BPMNViewer from '../../ModelViewer/BPMNViewer';
-import { DefSets, getPreparedHeatItem, Labels } from './util';
+import { DefSets, getPreparedHeatItem, getPreparedKPIItem, Labels } from './util';
 import { KPI_MODE } from './constants';
 import Section from './Section';
 
@@ -144,7 +144,7 @@ class Model extends React.Component {
     const { isActiveCount, isCompletedCount } = this.state;
 
     if (formMode === KPI_MODE) {
-      return KPIData.map(item => getPreparedHeatItem(item, { isActiveCount, isCompletedCount })).filter(item => item.value);
+      return KPIData.map(item => getPreparedKPIItem(item)).filter(item => item.value);
     }
 
     setNewData({ stateId, isNewData: false });

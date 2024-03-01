@@ -3,38 +3,14 @@ import { isAny } from 'bpmn-js/lib/features/modeling/util/ModelingUtil';
 import { append as svgAppend, attr as svgAttr, create as svgCreate, classes as svgClasses } from 'tiny-svg';
 
 import NumberRenderer from './EcosNumberRenderer';
+import { getSearchParams } from '../../../../../helpers/urls';
+import Records from '../../../../Records';
+import { SourcesId } from '../../../../../constants';
+import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
 
 const HIGH_PRIORITY = 1700;
 
 class KPIRenderer extends NumberRenderer {
-  KPI_DATA_MOCK = [
-    {
-      id: 'Activity_0gj8byg',
-      time: '1ч 30мин',
-      completedCount: '50'
-    },
-    {
-      id: 'Activity_14kiu06',
-      time: '4ч',
-      completedCount: '-18,75'
-    },
-    {
-      id: 'Activity_1s1qza0',
-      time: '1ч',
-      completedCount: '20'
-    },
-    {
-      id: 'Activity_0lqviz0',
-      time: '1д',
-      completedCount: '-21,25'
-    },
-    {
-      id: 'Activity_1rjuk4l',
-      time: '2д',
-      completedCount: '144,2708333'
-    }
-  ];
-
   constructor(eventBus, bpmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
 
@@ -42,29 +18,71 @@ class KPIRenderer extends NumberRenderer {
   }
 
   canRender(element) {
-    return isAny(element, ['bpmn:Task']) && !element.labelTarget;
+    return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity']) && !element.labelTarget;
   }
 
-  drawShape(parentNode, element) {
+  async drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
-    const activity = _.get(element, 'id');
+    const activityId = _.get(element, 'id');
+    const { recordRef } = getSearchParams();
 
-    const KPI = this.KPI_DATA_MOCK.find(i => i.id === activity);
+    Records.query(
+      {
+        sourceId: SourcesId.BPMN_KPI,
+        language: 'predicate',
+        query: {
+          t: 'and',
+          val: [
+            {
+              t: 'eq',
+              att: '_type',
+              val: 'emodel/type@bpmn-kpi-value'
+            },
+            {
+              att: 'procDefRef',
+              t: 'contains',
+              val: [recordRef]
+            }
+          ]
+        },
+        groupBy: ['kpiSettingsRef.kpiAsNumber&targetBpmnActivityId&kpiSettingsRef']
+      },
+      {
+        kpiRef: 'kpiSettingsRef{disp:?disp,value:?assoc}',
+        kpi: 'kpiSettingsRef.kpiAsNumber?num|fmt(0.00)',
+        displayKpiOnBpmnActivityId: 'kpiSettingsRef.displayKpiOnBpmnActivityId',
+        kpiValue: 'avg(value)?num|fmt(0.00)',
+        kpiDeviation: '(avg(value) / kpiSettingsRef.kpiAsNumber * 100 - 100)?num|fmt(0.00)'
+      }
+    ).then(({ records = [] }) => {
+      const durationFormatterInstance = new DurationFormatter();
 
-    if (KPI) {
-      const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
-      const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
+      const KPI = records.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
-      svgAttr(timerRect, {
-        transform: 'translate(-10, 85)'
-      });
-      svgAttr(percentRect, {
-        transform: 'translate(70, 85)'
-      });
+      if (KPI) {
+        console.log(KPI);
+        const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
+        const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
 
-      this._drawKPITimer(parentNode, KPI.time);
-      this._drawKPIPercentage(parentNode, `${parseInt(KPI.completedCount)}%`);
-    }
+        svgAttr(timerRect, {
+          transform: 'translate(-10, 85)'
+        });
+        svgAttr(percentRect, {
+          transform: 'translate(70, 85)'
+        });
+
+        this._drawKPITimer(
+          parentNode,
+          durationFormatterInstance.format({
+            cell: KPI.kpi,
+            config: { showSeconds: false }
+          })
+        );
+
+        const percent = parseInt(KPI.kpiDeviation);
+        this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`);
+      }
+    });
 
     return shape;
   }

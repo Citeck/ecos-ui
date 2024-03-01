@@ -39,3 +39,11 @@ export const getPreparedHeatItem = (item, flags) => {
     value: getCount(flags.isActiveCount, item.activeCount) + getCount(flags.isCompletedCount, item.completedCount)
   };
 };
+
+export const getPreparedKPIItem = item => {
+  console.log(item);
+  return {
+    id: item.displayKpiOnBpmnActivityId,
+    value: item.kpiValue
+  };
+};
