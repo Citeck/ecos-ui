@@ -80,4 +80,36 @@ export default class ProcessApi {
       return mergedRecords;
     });
   };
+
+  getKPIData = async recordRef => {
+    return Records.query(
+      {
+        sourceId: SourcesId.BPMN_KPI,
+        language: 'predicate',
+        query: {
+          t: 'and',
+          val: [
+            {
+              t: 'eq',
+              att: '_type',
+              val: 'emodel/type@bpmn-kpi-value'
+            },
+            {
+              att: 'procDefRef',
+              t: 'contains',
+              val: [recordRef]
+            }
+          ]
+        },
+        groupBy: ['kpiSettingsRef.kpiAsNumber&targetBpmnActivityId&kpiSettingsRef']
+      },
+      {
+        kpiRef: 'kpiSettingsRef{disp:?disp,value:?assoc}',
+        kpi: 'kpiSettingsRef.kpiAsNumber?num|fmt(0.00)',
+        displayKpiOnBpmnActivityId: 'kpiSettingsRef.displayKpiOnBpmnActivityId',
+        kpiValue: 'avg(value)?num|fmt(0.00)',
+        kpiDeviation: '(avg(value) / kpiSettingsRef.kpiAsNumber * 100 - 100)?num|fmt(0.00)'
+      }
+    ).then(resp => resp.records);
+  };
 }
