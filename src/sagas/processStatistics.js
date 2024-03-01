@@ -101,7 +101,7 @@ function* sagaGetModel({ api, logger }, { payload }) {
     yield put(setModel({ stateId, model, heatmapData, KPIData }));
     yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {
-    yield put(setModel({ stateId, model: null, heatmapData: [] }));
+    yield put(setModel({ stateId, model: null, heatmapData: [], KPIData: [] }));
     logger.error('[processStatistics/sagaGetModel] error', e);
   }
 }
@@ -111,7 +111,8 @@ function* sagaFilterHeatdata({ api, logger }, { payload }) {
 
   try {
     const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
-    yield put(setModel({ stateId, heatmapData }));
+    const KPIData = yield call(api.process.getKPIData, record);
+    yield put(setModel({ stateId, heatmapData, KPIData }));
     yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {
     yield put(setModel({ stateId, heatmapData: [] }));

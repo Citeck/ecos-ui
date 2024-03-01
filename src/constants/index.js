@@ -91,6 +91,7 @@ export const SourcesId = {
   BPMN_DEF: 'eproc/bpmn-def',
   BPMN_PROC: 'eproc/bpmn-proc',
   BPMN_STAT: 'eproc/bpmn-process-elements',
+  BPMN_KPI: 'emodel/bpmn-kpi-value',
   BPMN_PROC_LATEST: 'eproc/bpmn-proc-latest',
   ACTION: 'uiserv/action',
   PRESETS: 'uiserv/journal-settings',
