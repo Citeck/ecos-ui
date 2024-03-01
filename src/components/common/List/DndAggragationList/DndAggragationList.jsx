@@ -35,15 +35,15 @@ export default class DndAggregationList extends Component {
     super(props);
 
     this._id = getId();
-    this.state = { data: props.aggregations || [], isDropDisabled: false };
+    this.state = { data: props.data || [], isDropDisabled: false };
     this.portal = this.createDraggableContainer();
   }
 
   componentDidUpdate(prevProps) {
-    const { aggregations } = this.props;
+    const { data } = this.props;
 
-    if (aggregations.length !== get(prevProps, 'aggregations.length', 0) && !isEqual(aggregations, prevProps.aggregations)) {
-      this.setState({ data: aggregations });
+    if (data.length !== get(prevProps, 'data.length', 0) && !isEqual(data, prevProps.data)) {
+      this.setState({ data });
     }
   }
 
@@ -70,7 +70,7 @@ export default class DndAggregationList extends Component {
       return;
     }
 
-    const customColumns = aggregations.filter(({ id }) => id.startsWith('_custom_'));
+    const customColumns = aggregations.filter(({ id }) => id && id.startsWith('_custom_'));
     const listLength = aggregations.length - customColumns.length;
 
     if (get(destination, 'index')) {
@@ -129,7 +129,7 @@ export default class DndAggregationList extends Component {
     return (
       <Scroll noScroll={noScroll}>
         <DragDropContext
-          onDragStart={() => this.setState({ isDropDisabled: false })}
+          onDragStart={() => this.setState({ isDropDisabled: data.length <= 2 })}
           onDragUpdate={this.onDragUpdate}
           onDragEnd={this.onDragEnd}
         >
