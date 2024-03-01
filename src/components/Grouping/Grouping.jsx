@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import isEqual from 'lodash/isEqual';
@@ -22,16 +21,16 @@ class Grouping extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      columns: !isEmpty(props.aggregation) ? props.aggregation.filter(i => i.column.startsWith('_custom_')) : []
-    };
+    const columns = props.aggregation.filter(i => i.column.startsWith('_custom_'));
+
+    this.state = { columns };
   }
 
   componentDidUpdate(prevProps) {
     const { aggregation } = this.props;
 
     if (!isEqual(aggregation, prevProps.aggregation)) {
-      this.setState({ columns: aggregation.filter(i => i.column.startsWith('_custom_')) });
+      this.setState({ columns: aggregation.filter(i => i.column && i.column.startsWith('_custom_')) });
     }
   }
 
@@ -65,20 +64,28 @@ class Grouping extends Component {
 
     const columns = [...grouping, ...aggregations].sort((a, b) => {
       if (a.column === GROUPING_COUNT_ALL) {
-        return 1;
+        return 2;
       } else if (b.column === GROUPING_COUNT_ALL) {
+        return -2;
+      }
+
+      if (a.column && a.column.startsWith('_custom_')) {
+        return 1;
+      } else if (b.column && b.column.startsWith('_custom_')) {
         return -1;
       }
 
       return 0;
     });
 
-    isFunction(onGrouping) &&
-      onGrouping({
-        columns,
-        groupBy,
-        needCount: isBoolean(needCount) ? needCount : prevNeedCount
-      });
+    this.setState({ columns: columns.filter(i => i.column && i.column.startsWith('_custom_')) }, () => {
+      isFunction(onGrouping) &&
+        onGrouping({
+          columns,
+          groupBy,
+          needCount: isBoolean(needCount) ? needCount : prevNeedCount
+        });
+    });
   };
 
   onChangeOrderAggregation = columns => {
@@ -196,6 +203,7 @@ class Grouping extends Component {
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
                 aggregations={aggregations}
+                data={[...defaultAggregation, ...this.state.columns]}
                 columns={allowedColumns}
                 defaultPredicates={defaultPredicates}
                 onChangeAggregation={this.onChangeAggregation}

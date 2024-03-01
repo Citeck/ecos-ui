@@ -10,8 +10,9 @@ import { t } from '../../../helpers/util';
 import './JournalsGrouping.scss';
 
 const JournalsGrouping = ({ grouping, allowedColumns = [], onChange, metaRecord }) => {
-  const allowedList = useMemo(() => allowedColumns.filter(c => c.default && c.groupable), [allowedColumns]);
   const [groupingColumns, setGrouping] = useState({ aggregations: [], groupingList: [] });
+
+  const allowedList = useMemo(() => allowedColumns.filter(c => c.default && c.groupable), [grouping, metaRecord, allowedColumns]);
 
   useEffect(
     () => {
