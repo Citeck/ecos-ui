@@ -62,41 +62,40 @@ class Grouping extends Component {
       aggregations = aggregations.filter(a => a.column !== column.attribute);
     }
 
-    const columns = [...grouping, ...aggregations].sort((a, b) => {
-      if (a.column === GROUPING_COUNT_ALL) {
-        return 2;
-      } else if (b.column === GROUPING_COUNT_ALL) {
-        return -2;
-      }
+    const columns = [...grouping, ...aggregations].sort(this._sortOrderAggregation);
 
-      if (a.column && a.column.startsWith('_custom_')) {
-        return 1;
-      } else if (b.column && b.column.startsWith('_custom_')) {
-        return -1;
-      }
-
-      return 0;
-    });
-
-    this.setState({ columns: columns.filter(i => i.column && i.column.startsWith('_custom_')) }, () => {
-      isFunction(onGrouping) &&
-        onGrouping({
-          columns,
-          groupBy,
-          needCount: isBoolean(needCount) ? needCount : prevNeedCount
-        });
+    this.setState({ columns: columns.filter(({ column }) => column && column.startsWith('_custom_')) }, () => {
+      isFunction(onGrouping) && onGrouping({ columns, groupBy, needCount: isBoolean(needCount) ? needCount : prevNeedCount });
     });
   };
 
-  onChangeOrderAggregation = columns => {
-    let { groupBy, grouping, onGrouping, needCount: prevNeedCount } = this.props;
+  _sortOrderAggregation = (a, b) => {
+    if (a.column === GROUPING_COUNT_ALL) {
+      return 2;
+    } else if (b.column === GROUPING_COUNT_ALL) {
+      return -2;
+    }
 
-    isFunction(onGrouping) &&
-      onGrouping({
-        columns: [...grouping, ...columns],
-        groupBy,
-        needCount: prevNeedCount
-      });
+    if (a.column && a.column.startsWith('_custom_')) {
+      return 1;
+    } else if (b.column && b.column.startsWith('_custom_')) {
+      return -1;
+    }
+
+    return 0;
+  };
+
+  onChangeOrderAggregation = orderedColumns => {
+    let { groupBy, aggregation, grouping, onGrouping, needCount: prevNeedCount } = this.props;
+
+    const stateColumns = orderedColumns.filter(({ column }) => column && column.startsWith('_custom_'));
+    const orderedIdx = orderedColumns.map(column => column.id);
+    const orderedAggregarions = [...aggregation].sort((a, b) => orderedIdx.indexOf(a.id) - orderedIdx.indexOf(b.id));
+    const columns = [...grouping, ...orderedAggregarions].sort(this._sortOrderAggregation);
+
+    this.setState({ columns: stateColumns }, () => {
+      isFunction(onGrouping) && onGrouping({ columns, groupBy, needCount: prevNeedCount });
+    });
   };
 
   onDeleteAggregation = column => {
