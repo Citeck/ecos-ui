@@ -55,15 +55,15 @@ class Grouping extends Component {
     let { groupBy, grouping, onGrouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
 
     if (aggregation) {
-      const match = aggregations.find(a => a.column === column.attribute);
+      const match = aggregations.find(a => a.column === column.attribute || `_${a.column}` === column.attribute);
 
       if (!match) {
         aggregations.push(aggregation);
       } else {
-        aggregations = aggregations.map(a => (a.column === column.attribute ? aggregation : a));
+        aggregations = aggregations.map(a => (a.column === column.attribute || `_${a.column}` === column.attribute ? aggregation : a));
       }
     } else {
-      aggregations = aggregations.filter(a => a.column !== column.attribute);
+      aggregations = aggregations.filter(a => a.column !== column.attribute || `_${a.column}` !== column.attribute);
     }
 
     const columns = [...grouping, ...aggregations].sort(this._sortOrderAggregation);
