@@ -170,6 +170,12 @@ function getDefaultJournalSetting(journalConfig) {
   return {
     sortBy: getDefaultSortBy(journalConfig).map(sort => ({ ...sort })),
     groupBy: groupBy ? Array.from(groupBy) : [],
+    grouping: {
+      needCount: false,
+      columns: [],
+      groupBy: []
+    },
+    needCount: false,
     columns: columns.map(col => ({ ...col })),
     predicate: ParserPredicate.getDefaultPredicates(columns, undefined, journalConfig.defaultFilters)
   };
