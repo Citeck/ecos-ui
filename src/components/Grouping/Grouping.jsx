@@ -23,14 +23,18 @@ class Grouping extends Component {
 
     const columns = props.aggregation.filter(i => i.column.startsWith('_custom_'));
 
-    this.state = { columns };
+    this.state = { columns, needCount: props.needCount };
   }
 
   componentDidUpdate(prevProps) {
-    const { aggregation } = this.props;
+    const { aggregation, needCount } = this.props;
 
     if (!isEqual(aggregation, prevProps.aggregation)) {
       this.setState({ columns: aggregation.filter(i => i.column && i.column.startsWith('_custom_')) });
+    }
+
+    if (!isEqual(needCount, prevProps.needCount)) {
+      this.setState({ needCount: needCount });
     }
   }
 
@@ -112,7 +116,7 @@ class Grouping extends Component {
   };
 
   onChangeAllCount = () => {
-    const { needCount } = this.props;
+    const { needCount } = this.state;
     const targetValue = !needCount;
 
     const data = {
@@ -123,10 +127,12 @@ class Grouping extends Component {
       column: GROUPING_COUNT_ALL
     };
 
-    this.onChangeAggregation({
-      aggregation: targetValue ? data : null,
-      column: { attribute: GROUPING_COUNT_ALL },
-      needCount: targetValue
+    this.setState({ needCount: targetValue }, () => {
+      this.onChangeAggregation({
+        aggregation: targetValue ? data : null,
+        column: { attribute: GROUPING_COUNT_ALL },
+        needCount: targetValue
+      });
     });
   };
 
@@ -148,13 +154,13 @@ class Grouping extends Component {
       className,
       grouping,
       showAggregation,
-      needCount,
       allowedColumns,
       aggregation: aggregations,
       defaultPredicates,
       metaRecord
     } = this.props;
 
+    const { needCount } = this.state;
     const defaultAggregation = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
 
     return (

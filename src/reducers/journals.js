@@ -113,6 +113,12 @@ export const defaultState = {
     sortBy: [],
     groupBy: [],
     columns: [],
+    needCount: false,
+    grouping: {
+      needCount: false,
+      columns: [],
+      groupBy: []
+    },
     isExpandedFromGrouped: false,
     predicate: null,
     permissions: {
