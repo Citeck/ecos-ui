@@ -31,6 +31,15 @@ export const MigrationContextProvider = props => {
     [selectedProcess, sourceProcessDefinitionId, targetProcessDefinitionId]
   );
 
+  useEffect(
+    () => {
+      if (dispProcessId) {
+        setProcessId(dispProcessId);
+      }
+    },
+    [dispProcessId]
+  );
+
   return (
     <MigrationContext.Provider
       value={{
