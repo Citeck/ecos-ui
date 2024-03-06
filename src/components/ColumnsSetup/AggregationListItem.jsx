@@ -26,18 +26,25 @@ class AggregationListItem extends Component {
       isOpen: false,
       checked,
       selected,
-      customLabel: column.label || {},
+      customLabel: get(selected, 'label', column.label || {}),
       groups,
-      customPredicate
+      customPredicate: get(selected, 'customPredicate', customPredicate || null)
     };
   }
-
   componentDidUpdate(prevProps) {
     const { selected } = this.props;
 
     if (!isEqual(selected, prevProps.selected)) {
       this.setState({ selected });
     }
+  }
+
+  shouldComponentUpdate(nextProps, _nextState) {
+    if (nextProps.isDragging) {
+      return false;
+    }
+
+    return true;
   }
 
   get aggregationTypes() {

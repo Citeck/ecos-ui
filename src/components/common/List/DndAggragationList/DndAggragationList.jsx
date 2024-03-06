@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
@@ -42,7 +41,7 @@ export default class DndAggregationList extends Component {
   componentDidUpdate(prevProps) {
     const { data } = this.props;
 
-    if (data.length !== get(prevProps, 'data.length', 0) && !isEqual(data, prevProps.data)) {
+    if (data.length !== get(prevProps, 'data.length', 0)) {
       this.setState({ data });
     }
   }
@@ -171,6 +170,7 @@ export default class DndAggregationList extends Component {
                                 checked={!!selected}
                                 onChangeAggregation={onChangeAggregation}
                                 onDeleteAggregation={onDeleteAggregation}
+                                isDragging={snapshot.isDragging}
                               />
                             </ListItemWrapper>,
                             this.portal
@@ -194,6 +194,7 @@ export default class DndAggregationList extends Component {
                               checked={!!selected}
                               onChangeAggregation={onChangeAggregation}
                               onDeleteAggregation={onDeleteAggregation}
+                              isDragging={snapshot.isDragging}
                             />
                           </ListItemWrapper>
                         );
