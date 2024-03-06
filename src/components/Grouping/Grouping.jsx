@@ -63,7 +63,7 @@ class Grouping extends Component {
         aggregations = aggregations.map(a => (a.column === column.attribute || `_${a.column}` === column.attribute ? aggregation : a));
       }
     } else {
-      aggregations = aggregations.filter(a => a.column !== column.attribute || `_${a.column}` !== column.attribute);
+      aggregations = aggregations.filter(a => a.column !== column.attribute);
     }
 
     const columns = [...grouping, ...aggregations].sort(this._sortOrderAggregation);
