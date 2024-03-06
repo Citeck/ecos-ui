@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 
 import { getId } from '../../../../helpers/util';
@@ -41,7 +42,7 @@ export default class DndAggregationList extends Component {
   componentDidUpdate(prevProps) {
     const { data } = this.props;
 
-    if (data.length !== get(prevProps, 'data.length', 0)) {
+    if (data.length !== get(prevProps, 'data.length', 0) && !isEqual(data, prevProps.data)) {
       this.setState({ data });
     }
   }
