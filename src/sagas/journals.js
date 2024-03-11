@@ -575,12 +575,27 @@ export function* getGridData(api, params, stateId) {
       set(column, 'newFormatter', originColumn.newFormatter);
       set(column, 'newEditor', originColumn.newEditor);
 
-      const mappingAttribute = get(grouping, 'columns[0].attSchema');
+      const _groupBy = grouping.groupBy[0].split('&');
+
       get(journalData, 'data', []).map((record, _index) => {
-        const additionalRecord = get(customData, 'records', []).find(({ rawAttributes }) =>
-          isEqual(record.rawAttributes[mappingAttribute], rawAttributes[mappingAttribute])
-        );
+        const originRecord = {};
+
+        _groupBy.forEach(att => {
+          originRecord[att] = record[att];
+        });
+
+        const additionalRecord = get(customData, 'records', []).find(customRecord => {
+          const originCustomRecord = {};
+
+          _groupBy.forEach(att => {
+            originCustomRecord[att] = customRecord[att];
+          });
+
+          return isEqual(originRecord, originCustomRecord);
+        });
+
         record[column.column] = additionalRecord ? additionalRecord['0'] : '0';
+
         return record;
       });
     }
