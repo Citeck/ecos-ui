@@ -116,7 +116,7 @@ class EsignApi {
         });
     }
 
-    const rec = Records.get(EDI_REQUEST.PUT_DIGITAL_SIGNATURE);
+    const rec = Records.get(EDI_REQUEST.PUT_DIGITAL_SIGNATURE + '?alias=' + body.nodeRef.split('@')[1]);
 
     rec.att('_self', body);
 
