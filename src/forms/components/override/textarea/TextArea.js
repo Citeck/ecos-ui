@@ -123,23 +123,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           return;
         }
 
-        const CkeParentElem = element.parentElement;
-
-        // Allows you to expand the form when changing the page size
-        const handleResizeCke = () => (CkeParentElem.style.maxWidth = '100%');
-        window.addEventListener('resize', handleResizeCke);
-
-        // Allows you to limit the width of the form for the appearance of an internal scroll
-        const resizeObserver = new ResizeObserver(entries => {
-          for (const entry of entries) {
-            const width = entry.contentRect.width;
-            if (width && CkeParentElem.offsetWidth === CkeParentElem.scrollWidth) {
-              CkeParentElem.style.maxWidth = `${width}px`;
-            }
-          }
-        });
-        resizeObserver.observe(CkeParentElem);
-
         return ckeditor.create(element, settings).then(editor => {
           editor.model.document.on('change', () => {
             if (!this._ckEditorInitialized) {
@@ -161,8 +144,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
             whiteSpace: 'nowrap',
             maxWidth: '100%'
           });
-
-          this.removeEventListener(window, 'resize', handleResizeCke);
 
           resolve(editor);
           return editor;
@@ -191,22 +172,8 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
         let quill = new Quill(element, _settings);
 
-        const quillParentEl = element.parentElement;
-
-        // Allows you to expand the form when changing the page size
-        const handleResizeQuill = () => (quillParentEl.style.maxWidth = '100%');
-        window.addEventListener('resize', handleResizeQuill);
-
-        // Allows you to limit the width of the form for the appearance of an internal scroll
-        const resizeObserver = new ResizeObserver(entries => {
-          for (const entry of entries) {
-            const width = entry.contentRect.width;
-            if (width && quillParentEl.offsetWidth === quillParentEl.scrollWidth) {
-              quillParentEl.style.maxWidth = `${width}px`;
-            }
-          }
-        });
-        resizeObserver.observe(quillParentEl);
+        const parentEditable = quill.container;
+        const parentFormGroup = quill.container.parentElement.parentElement;
 
         /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
         const txtArea = document.createElement('textarea');
@@ -231,9 +198,25 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         const onClickElm = () => quill && quill.focus();
         this.addEventListener(element, 'click', onClickElm);
 
-        // Disables automatic text wrapping
+        // Disabling automatic text wrapping and full-height alignment with other elements
         const qlEditors = document.querySelectorAll('.ql-editor');
-        [...qlEditors].map(qlEditor => (qlEditor.style.whiteSpace = 'nowrap'));
+        [...qlEditors].map(qlEditor =>
+          setTimeout(() => {
+            const heightParentFormGroup = parentFormGroup.offsetHeight;
+            const heightParentEditable = parentEditable.offsetHeight;
+
+            if (heightParentFormGroup && heightParentEditable) {
+              const minHeight = heightParentFormGroup - (heightParentFormGroup - heightParentEditable) + heightParentEditable;
+
+              if (minHeight && minHeight > 0) {
+                Object.assign(qlEditor.style, {
+                  whiteSpace: 'nowrap',
+                  minHeight: `${minHeight * 1.065}px`
+                });
+              }
+            }
+          }, 100)
+        );
 
         // Allows the container to expand based on the text height value
         const qlContainers = document.querySelectorAll('.ql-container');
@@ -253,7 +236,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         quill.destroy = () => {
           this.removeEventListener(qlSource, 'click', onClickSource);
           this.removeEventListener(element, 'click', onClickElm);
-          this.removeEventListener(window, 'resize', handleResizeQuill);
           quill && quill.off('text-change', onTextChange);
           quill = null;
         };
