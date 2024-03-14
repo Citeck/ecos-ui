@@ -226,3 +226,29 @@ index 779f483180ffda63d477fbfb721d8caa1356d61c..b4655d17631c88d0e3ae18f1fdacedd2
      var newElement = {
        type: type,
        businessObject: newBusinessObject,
+diff --git a/dist/bpmn-modeler.development.js b/dist/bpmn-modeler.development.js
+index d7279db17cb8acfe0a7d1dd4ed185cab7af21b08..413a052512eb5767375799492acdf79ff7eb0323 100644
+--- a/dist/bpmn-modeler.development.js
++++ b/dist/bpmn-modeler.development.js
+@@ -50156,7 +50156,7 @@
+     var diagrams = bpmnjs.getDefinitions().diagrams;
+ 
+     var removedDiagram = find(diagrams, function(diagram) {
+-      return diagram.plane.bpmnElement.id === rootElement.id;
++      diagram.plane && diagram.plane.bpmnElement && diagram.plane.bpmnElement.id === rootElement.id;
+     });
+ 
+     diagrams.splice(diagrams.indexOf(removedDiagram), 1);
+diff --git a/lib/features/modeling/behavior/SubProcessPlaneBehavior.js b/lib/features/modeling/behavior/SubProcessPlaneBehavior.js
+index 8bc033370872cf5d4cc51838b4842153bcc5f306..0bb4042d8e272189602abecb3a52d3209cf05d48 100644
+--- a/lib/features/modeling/behavior/SubProcessPlaneBehavior.js
++++ b/lib/features/modeling/behavior/SubProcessPlaneBehavior.js
+@@ -568,7 +568,7 @@ SubProcessPlaneBehavior.prototype._removeDiagram = function(rootElement) {
+   var diagrams = bpmnjs.getDefinitions().diagrams;
+ 
+   var removedDiagram = find(diagrams, function(diagram) {
+-    return diagram.plane.bpmnElement.id === rootElement.id;
++    return diagram.plane && diagram.plane.bpmnElement && diagram.plane.bpmnElement.id === rootElement.id;
+   });
+ 
+   diagrams.splice(diagrams.indexOf(removedDiagram), 1);
