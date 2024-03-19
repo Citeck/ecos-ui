@@ -9,6 +9,7 @@ export const Labels = {
   FORM_MODE_SELECT_LABEL: 'process-statistics-widget.form-condition.label',
   FORM_MODE_EXTENDED: 'process-statistics-widget.form-condition.extended',
   FORM_MODE_SIMPLIFIED: 'process-statistics-widget.form-condition.simplified',
+  FORM_MODE_KPI: 'process-statistics-widget.form-condition.kpi',
   NO_COLS: 'process-statistics-widget.info.no-columns',
   NO_MODEL: 'process-statistics-widget.info.no-model',
   ERR_MODEL: 'process-statistics-widget.info.mount-problem',
@@ -36,5 +37,12 @@ export const getPreparedHeatItem = (item, flags) => {
   return {
     id: item.id,
     value: getCount(flags.isActiveCount, item.activeCount) + getCount(flags.isCompletedCount, item.completedCount)
+  };
+};
+
+export const getPreparedKPIItem = item => {
+  return {
+    id: item.displayKpiOnBpmnActivityId,
+    value: item.kpiValue
   };
 };

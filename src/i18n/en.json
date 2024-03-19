@@ -2501,6 +2501,7 @@
   "process-statistics-widget.form-condition.label": "Form view mode",
   "process-statistics-widget.form-condition.extended": "Extended mode",
   "process-statistics-widget.form-condition.simplified": "Simplified mode",
+  "process-statistics-widget.form-condition.kpi": "KPI mode",
   "process-statistics-widget.info.no-columns": "No display settings",
   "process-statistics-widget.info.no-model": "No model",
   "process-statistics-widget.info.mount-problem": "There is a mounting problem",

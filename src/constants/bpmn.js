@@ -85,6 +85,7 @@ export const BPMN_PREFIX_UNDERLINE = 'bpmn_';
 export const PREFIX_FORM_ELM = '@bpmn-type-';
 export const TYPE_BPMN_PROCESS = 'bpmn:Process';
 export const TYPE_BPMN_TASK = 'bpmn:Task';
+export const TYPE_BPMN_EVENT = 'bpmn:Event';
 export const TYPE_BPMN_SEQUENCE_FLOW = 'bpmn:SequenceFlow';
 export const TYPE_BPMN_ANNOTATION = 'bpmn:TextAnnotation';
 export const TYPE_BPMN_END_EVENT = 'bpmn:EndEvent';

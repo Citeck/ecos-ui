@@ -2439,6 +2439,7 @@
   "process-statistics-widget.form-condition.label": "Режим отображения формы",
   "process-statistics-widget.form-condition.extended": "Расширенный режим",
   "process-statistics-widget.form-condition.simplified": "Упрощённый режим",
+  "process-statistics-widget.form-condition.kpi": "Режим KPI",
   "process-statistics-widget.info.no-columns": "Нет настроек отображения",
   "process-statistics-widget.info.no-model": "Нет модели",
   "process-statistics-widget.info.mount-problem": "There is a mounting problem",
