@@ -20,10 +20,14 @@ class KPIRenderer extends NumberRenderer {
   }
 
   canRender(element) {
-    return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity']) && !element.labelTarget;
+    if (document && document.getElementsByClassName('ecos-process-statistics-model-kpi')[0]) {
+      return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity']) && !element.labelTarget;
+    }
+
+    return false;
   }
 
-  async drawShape(parentNode, element) {
+  drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const activityId = _.get(element, 'id');
     const { recordRef } = getSearchParams();
