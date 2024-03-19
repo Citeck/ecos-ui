@@ -24,7 +24,7 @@ const ExecuteInfoAction = React.memo((props = {}) => {
       return <p>{data}</p>;
     }
 
-    return <Grid keyField={keyField} data={data} columns={columns} fixedHeader autoHeight maxHeight="calc(100vh - 200px)" />;
+    return <Grid keyField={keyField} data={data} columns={columns} fixedHeader autoHeight maxHeight="calc(100vh - 400px)" />;
   };
   let keyField;
   let data;
