@@ -41,7 +41,6 @@ export const getPreparedHeatItem = (item, flags) => {
 };
 
 export const getPreparedKPIItem = item => {
-  console.log(item);
   return {
     id: item.displayKpiOnBpmnActivityId,
     value: item.kpiValue

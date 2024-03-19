@@ -1,12 +1,14 @@
 import _ from 'lodash';
 import { isAny } from 'bpmn-js/lib/features/modeling/util/ModelingUtil';
 import { append as svgAppend, attr as svgAttr, create as svgCreate, classes as svgClasses } from 'tiny-svg';
+import { is } from 'bpmn-js/lib/util/ModelUtil';
 
 import NumberRenderer from './EcosNumberRenderer';
 import { getSearchParams } from '../../../../../helpers/urls';
 import Records from '../../../../Records';
 import { SourcesId } from '../../../../../constants';
 import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
+import { TYPE_BPMN_TASK } from '../../../../../constants/bpmn';
 
 const HIGH_PRIORITY = 1700;
 
@@ -60,7 +62,8 @@ class KPIRenderer extends NumberRenderer {
       const KPI = records.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
       if (KPI) {
-        console.log(KPI);
+        const percentTransform = is(element, TYPE_BPMN_TASK) ? [70, 85] : [0, -50];
+
         const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
         const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
 
@@ -68,7 +71,7 @@ class KPIRenderer extends NumberRenderer {
           transform: 'translate(-10, 85)'
         });
         svgAttr(percentRect, {
-          transform: 'translate(70, 85)'
+          transform: `translate(${percentTransform[0]}, ${percentTransform[1]})`
         });
 
         this._drawKPITimer(
@@ -80,7 +83,10 @@ class KPIRenderer extends NumberRenderer {
         );
 
         const percent = parseInt(KPI.kpiDeviation);
-        this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`);
+        this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`, [
+          percentTransform[0] + 2,
+          percentTransform[1] + 15
+        ]);
       }
     });
 
@@ -100,12 +106,12 @@ class KPIRenderer extends NumberRenderer {
     svgAppend(parentNode, text);
   }
 
-  _drawKPIPercentage(parentNode, value) {
+  _drawKPIPercentage(parentNode, value, transform) {
     const text = svgCreate('text');
 
     svgAttr(text, {
       fill: '#000',
-      transform: 'translate(75, 100)'
+      transform: `translate(${transform[0]}, ${transform[1]})`
     });
 
     svgClasses(text).add('djs-label');
