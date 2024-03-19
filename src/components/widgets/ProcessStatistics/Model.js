@@ -408,7 +408,8 @@ class Model extends React.Component {
           'ecos-process-statistics-model_hidden-active-count': !isActiveCount,
           'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
           'ecos-process-statistics-model_hidden-badges': !isShowBadges,
-          'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
+          'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap,
+          'ecos-process-statistics-model-kpi': this.props.formMode === KPI_MODE
         })}
       >
         <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened>
@@ -442,7 +443,7 @@ class Model extends React.Component {
                   {showHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
-                  {showHeatmap && <Legend {...legendData} />}
+                  {showHeatmap && <Legend {...legendData} isTimestamp={this.props.formMode === KPI_MODE} />}
                 </div>
               )}
             </ResizableBox>
