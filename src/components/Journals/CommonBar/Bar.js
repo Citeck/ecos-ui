@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import uniqueId from 'lodash/uniqueId';
 import isFunction from 'lodash/isFunction';
@@ -8,7 +9,6 @@ import { JournalUrlParams as JUP } from '../../../constants';
 import FormManager from '../../EcosForm/FormManager';
 import JournalsSettingsBar from '../JournalsSettingsBar';
 import SettingsModal from './SettingsModal';
-import PropTypes from 'prop-types';
 
 class Bar extends Component {
   targetId = uniqueId('ecos-journal-settings-bar-');
@@ -86,7 +86,7 @@ class Bar extends Component {
     FormManager.createRecordByVariant(createVariant, {
       onSubmit: record => goToCardDetailsPage(record.id),
       onReady: () => this.setState({ isCreateLoading: false }),
-      onAfterHideModal: () => this.setState({ isCreateLoading: false }),
+      onAfterHideModal: () => this.setState({ isCreateLoading: false })
     });
   };
 

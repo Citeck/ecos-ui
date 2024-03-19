@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Scrollbars } from 'react-custom-scrollbars';
 import classNames from 'classnames';
-import isEqual from 'lodash/isEqual';
 import isFunction from 'lodash/isFunction';
+import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 
 import { getId } from '../../../../helpers/util';
@@ -35,15 +35,15 @@ export default class DndAggregationList extends Component {
     super(props);
 
     this._id = getId();
-    this.state = { data: props.aggregations || [], isDropDisabled: false };
+    this.state = { data: props.data || [], isDropDisabled: false };
     this.portal = this.createDraggableContainer();
   }
 
   componentDidUpdate(prevProps) {
-    const { aggregations } = this.props;
+    const { data } = this.props;
 
-    if (aggregations.length !== get(prevProps, 'aggregations.length', 0) && !isEqual(aggregations, prevProps.aggregations)) {
-      this.setState({ data: aggregations });
+    if (data.length !== get(prevProps, 'data.length', 0) && !isEqual(data, prevProps.data)) {
+      this.setState({ data });
     }
   }
 
@@ -64,17 +64,19 @@ export default class DndAggregationList extends Component {
   };
 
   onDragUpdate = ({ destination }) => {
-    const { aggregations } = this.props;
+    const { data } = this.props;
 
     if (!destination) {
       return;
     }
 
-    const customColumns = aggregations.filter(({ id }) => id.startsWith('_custom_'));
-    const listLength = aggregations.length - customColumns.length;
+    const customColumns = data.filter(({ id }) => id && id.startsWith('_custom_'));
+    const listLength = data.length - customColumns.length;
 
     if (get(destination, 'index')) {
-      this.setState({ isDropDisabled: destination.index < listLength });
+      this.setState({
+        isDropDisabled: customColumns.length < 2 || destination.index < listLength
+      });
     }
   };
 
@@ -123,13 +125,16 @@ export default class DndAggregationList extends Component {
       columns
     } = this.props;
     const { data } = this.state;
+
     const cssClasses = classNames('ecos-dnd-list', className);
     const cssItemClasses = classNames('ecos-dnd-aggregation-list__item', classNameItem);
+
+    const customColumns = data.filter(({ id }) => id && id.startsWith('_custom_'));
 
     return (
       <Scroll noScroll={noScroll}>
         <DragDropContext
-          onDragStart={() => this.setState({ isDropDisabled: false })}
+          onDragStart={() => this.setState({ isDropDisabled: customColumns.length < 2 })}
           onDragUpdate={this.onDragUpdate}
           onDragEnd={this.onDragEnd}
         >
@@ -137,8 +142,7 @@ export default class DndAggregationList extends Component {
             {provided => (
               <div className={cssClasses} {...provided.droppableProps} ref={provided.innerRef}>
                 {data.map((item, index) => {
-                  const selected =
-                    aggregations.find(a => a.attribute.substr(1) === item.attribute || a.attribute === item.attribute) || null;
+                  let selected = aggregations.find(a => a.attribute.substr(1) === item.attribute || a.attribute === item.attribute) || null;
 
                   if (!item.id) {
                     return null;
@@ -167,6 +171,7 @@ export default class DndAggregationList extends Component {
                                 checked={!!selected}
                                 onChangeAggregation={onChangeAggregation}
                                 onDeleteAggregation={onDeleteAggregation}
+                                isDragging={snapshot.isDragging}
                               />
                             </ListItemWrapper>,
                             this.portal
@@ -190,6 +195,7 @@ export default class DndAggregationList extends Component {
                               checked={!!selected}
                               onChangeAggregation={onChangeAggregation}
                               onDeleteAggregation={onDeleteAggregation}
+                              isDragging={snapshot.isDragging}
                             />
                           </ListItemWrapper>
                         );

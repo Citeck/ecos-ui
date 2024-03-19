@@ -10,8 +10,13 @@ import { t } from '../../../helpers/util';
 import './JournalsGrouping.scss';
 
 const JournalsGrouping = ({ grouping, allowedColumns = [], onChange, metaRecord }) => {
-  const allowedList = useMemo(() => allowedColumns.filter(c => c.default && c.groupable), [allowedColumns]);
-  const [groupingColumns, setGrouping] = useState({ aggregations: [], groupingList: [] });
+  const [groupingColumns, setGrouping] = useState({
+    aggregations: [],
+    groupingList: [],
+    needCount: get(grouping, 'needCount')
+  });
+
+  const allowedList = useMemo(() => allowedColumns.filter(c => c.default && c.groupable), [grouping, metaRecord, allowedColumns]);
 
   useEffect(
     () => {
@@ -24,7 +29,11 @@ const JournalsGrouping = ({ grouping, allowedColumns = [], onChange, metaRecord 
         match ? list.push(groupingColumn) : aggregationList.push(groupingColumn);
       });
 
-      setGrouping({ aggregations: aggregationList, groupingList: list });
+      setGrouping({
+        aggregations: aggregationList,
+        groupingList: list,
+        needCount: get(grouping, 'needCount')
+      });
     },
     [grouping, metaRecord]
   );
@@ -47,7 +56,7 @@ const JournalsGrouping = ({ grouping, allowedColumns = [], onChange, metaRecord 
         list={allowedList}
         allowedColumns={allowedColumns}
         grouping={groupingColumns.groupingList}
-        needCount={get(grouping, 'needCount')}
+        needCount={groupingColumns.needCount}
         aggregation={groupingColumns.aggregations}
         valueField={'attribute'}
         titleField={'text'}

@@ -148,8 +148,6 @@ class JournalsDashletGrid extends Component {
   };
 
   onSort = e => {
-    const { setColumnsSetup, grid } = this.props;
-    const { columns } = grid || {};
     const sortBy = [
       {
         attribute: e.column.attribute,
@@ -157,7 +155,6 @@ class JournalsDashletGrid extends Component {
       }
     ];
 
-    setColumnsSetup(columns, sortBy);
     this.reloadGrid({ sortBy });
   };
 

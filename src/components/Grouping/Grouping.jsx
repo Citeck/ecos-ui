@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import isBoolean from 'lodash/isBoolean';
-import isEmpty from 'lodash/isEmpty';
 import cloneDeep from 'lodash/cloneDeep';
 import isFunction from 'lodash/isFunction';
 import isEqual from 'lodash/isEqual';
@@ -22,16 +21,20 @@ class Grouping extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      columns: !isEmpty(props.aggregation) ? props.aggregation.filter(i => i.column.startsWith('_custom_')) : []
-    };
+    const columns = props.aggregation.filter(i => i.column.startsWith('_custom_'));
+
+    this.state = { columns, needCount: props.needCount };
   }
 
   componentDidUpdate(prevProps) {
-    const { aggregation } = this.props;
+    const { aggregation, needCount } = this.props;
 
     if (!isEqual(aggregation, prevProps.aggregation)) {
-      this.setState({ columns: aggregation.filter(i => i.column.startsWith('_custom_')) });
+      this.setState({ columns: aggregation.filter(i => i.column && i.column.startsWith('_custom_')) });
+    }
+
+    if (!isEqual(needCount, prevProps.needCount)) {
+      this.setState({ needCount: needCount });
     }
   }
 
@@ -52,44 +55,51 @@ class Grouping extends Component {
     let { groupBy, grouping, onGrouping, aggregation: aggregations, needCount: prevNeedCount } = this.props;
 
     if (aggregation) {
-      const match = aggregations.find(a => a.column === column.attribute);
+      const match = aggregations.find(a => a.column === column.attribute || `_${a.column}` === column.attribute);
 
       if (!match) {
         aggregations.push(aggregation);
       } else {
-        aggregations = aggregations.map(a => (a.column === column.attribute ? aggregation : a));
+        aggregations = aggregations.map(a => (a.column === column.attribute || `_${a.column}` === column.attribute ? aggregation : a));
       }
     } else {
       aggregations = aggregations.filter(a => a.column !== column.attribute);
     }
 
-    const columns = [...grouping, ...aggregations].sort((a, b) => {
-      if (a.column === GROUPING_COUNT_ALL) {
-        return 1;
-      } else if (b.column === GROUPING_COUNT_ALL) {
-        return -1;
-      }
+    const columns = [...grouping, ...aggregations].sort(this._sortOrderAggregation);
 
-      return 0;
+    this.setState({ columns: columns.filter(({ column }) => column && column.startsWith('_custom_')) }, () => {
+      isFunction(onGrouping) && onGrouping({ columns, groupBy, needCount: isBoolean(needCount) ? needCount : prevNeedCount });
     });
-
-    isFunction(onGrouping) &&
-      onGrouping({
-        columns,
-        groupBy,
-        needCount: isBoolean(needCount) ? needCount : prevNeedCount
-      });
   };
 
-  onChangeOrderAggregation = columns => {
-    let { groupBy, grouping, onGrouping, needCount: prevNeedCount } = this.props;
+  _sortOrderAggregation = (a, b) => {
+    if (a.column === GROUPING_COUNT_ALL) {
+      return 2;
+    } else if (b.column === GROUPING_COUNT_ALL) {
+      return -2;
+    }
 
-    isFunction(onGrouping) &&
-      onGrouping({
-        columns: [...grouping, ...columns],
-        groupBy,
-        needCount: prevNeedCount
-      });
+    if (a.column && a.column.startsWith('_custom_')) {
+      return 1;
+    } else if (b.column && b.column.startsWith('_custom_')) {
+      return -1;
+    }
+
+    return 0;
+  };
+
+  onChangeOrderAggregation = orderedColumns => {
+    let { groupBy, aggregation, grouping, onGrouping, needCount: prevNeedCount } = this.props;
+
+    const stateColumns = orderedColumns.filter(({ column }) => column && column.startsWith('_custom_'));
+    const orderedIdx = orderedColumns.map(column => column.id);
+    const orderedAggregarions = [...aggregation].sort((a, b) => orderedIdx.indexOf(a.id) - orderedIdx.indexOf(b.id));
+    const columns = [...grouping, ...orderedAggregarions].sort(this._sortOrderAggregation);
+
+    this.setState({ columns: stateColumns }, () => {
+      isFunction(onGrouping) && onGrouping({ columns, groupBy, needCount: prevNeedCount });
+    });
   };
 
   onDeleteAggregation = column => {
@@ -106,7 +116,7 @@ class Grouping extends Component {
   };
 
   onChangeAllCount = () => {
-    const { needCount } = this.props;
+    const { needCount } = this.state;
     const targetValue = !needCount;
 
     const data = {
@@ -117,10 +127,12 @@ class Grouping extends Component {
       column: GROUPING_COUNT_ALL
     };
 
-    this.onChangeAggregation({
-      aggregation: targetValue ? data : null,
-      column: { attribute: GROUPING_COUNT_ALL },
-      needCount: targetValue
+    this.setState({ needCount: targetValue }, () => {
+      this.onChangeAggregation({
+        aggregation: targetValue ? data : null,
+        column: { attribute: GROUPING_COUNT_ALL },
+        needCount: targetValue
+      });
     });
   };
 
@@ -142,13 +154,13 @@ class Grouping extends Component {
       className,
       grouping,
       showAggregation,
-      needCount,
       allowedColumns,
       aggregation: aggregations,
       defaultPredicates,
       metaRecord
     } = this.props;
 
+    const { needCount } = this.state;
     const defaultAggregation = allowedColumns.filter(c => c.default && NUMBERS.includes(c.type));
 
     return (
@@ -196,6 +208,7 @@ class Grouping extends Component {
                 classNameItem="columns-setup__item fitnesse-columns-setup__item"
                 draggableClassName={'ecos-dnd-list__item_draggable'}
                 aggregations={aggregations}
+                data={[...defaultAggregation, ...this.state.columns]}
                 columns={allowedColumns}
                 defaultPredicates={defaultPredicates}
                 onChangeAggregation={this.onChangeAggregation}
