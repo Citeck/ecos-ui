@@ -6,9 +6,9 @@ import { is } from 'bpmn-js/lib/util/ModelUtil';
 import NumberRenderer from './EcosNumberRenderer';
 import { getSearchParams } from '../../../../../helpers/urls';
 import Records from '../../../../Records';
-import { SourcesId } from '../../../../../constants';
+import { SourcesId, URL } from '../../../../../constants';
 import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
-import { TYPE_BPMN_TASK } from '../../../../../constants/bpmn';
+import { TYPE_BPMN_EVENT } from '../../../../../constants/bpmn';
 
 const HIGH_PRIORITY = 1700;
 
@@ -19,9 +19,21 @@ class KPIRenderer extends NumberRenderer {
     this.bpmnRenderer = bpmnRenderer;
   }
 
+  _isEditor() {
+    if (window && window.location.pathname === URL.BPMN_EDITOR) {
+      return true;
+    }
+
+    return false;
+  }
+
+  _isKPIModeDashlet() {
+    return !_.isEmpty(document.getElementsByClassName('ecos-process-statistics-model-kpi'));
+  }
+
   canRender(element) {
-    if (document && document.getElementsByClassName('ecos-process-statistics-model-kpi')[0]) {
-      return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity']) && !element.labelTarget;
+    if (!this._isEditor() && this._isKPIModeDashlet()) {
+      return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity', 'bpmn:SubProcess']) && !element.labelTarget;
     }
 
     return false;
@@ -66,13 +78,14 @@ class KPIRenderer extends NumberRenderer {
       const KPI = records.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
       if (KPI) {
-        const percentTransform = is(element, TYPE_BPMN_TASK) ? [70, 85] : [0, -50];
+        const timerTransform = !is(element, TYPE_BPMN_EVENT) ? [-10, 85] : [-10, 60];
+        const percentTransform = !is(element, TYPE_BPMN_EVENT) ? [70, 85] : [0, -45];
 
         const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
         const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
 
         svgAttr(timerRect, {
-          transform: 'translate(-10, 85)'
+          transform: `translate(${timerTransform[0]}, ${timerTransform[1]})`
         });
         svgAttr(percentRect, {
           transform: `translate(${percentTransform[0]}, ${percentTransform[1]})`
@@ -83,10 +96,11 @@ class KPIRenderer extends NumberRenderer {
           durationFormatterInstance.format({
             cell: KPI.kpi,
             config: { showSeconds: false }
-          })
+          }),
+          [timerTransform[0] + 2, timerTransform[1] + 15]
         );
 
-        const percent = parseInt(KPI.kpiDeviation);
+        const percent = Math.ceil(KPI.kpiDeviation);
         this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`, [
           percentTransform[0] + 2,
           percentTransform[1] + 15
@@ -97,12 +111,12 @@ class KPIRenderer extends NumberRenderer {
     return shape;
   }
 
-  _drawKPITimer(parentNode, value) {
+  _drawKPITimer(parentNode, value, transform) {
     const text = svgCreate('text');
 
     svgAttr(text, {
       fill: '#000',
-      transform: 'translate(-5, 100)'
+      transform: `translate(${transform[0]}, ${transform[1]})`
     });
 
     svgClasses(text).add('djs-label');
