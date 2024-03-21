@@ -1,11 +1,11 @@
 import React, { useContext, useRef } from 'react';
 import classNames from 'classnames';
 
-import Input from '../../../../Input/Input';
-import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
-import { t } from '../../../../../../../helpers/util';
-import Icon from '../../../../../icons/Icon/Icon';
-import { Btn } from '../../../../../btns';
+import Input from '../../../form/Input';
+import { OrgstructContext } from '../../OrgstructContext';
+import { t } from '../../../../../helpers/util';
+import Icon from '../../../icons/Icon';
+import { Btn } from '../../../btns';
 
 import './Search.scss';
 
@@ -14,7 +14,7 @@ const Labels = {
 };
 
 const Search = () => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useContext(OrgstructContext);
   const { searchText, updateSearchText, onUpdateTree, resetSearchText } = context;
   const inputRef = useRef(null);
 

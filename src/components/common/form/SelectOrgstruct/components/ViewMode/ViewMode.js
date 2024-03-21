@@ -6,6 +6,7 @@ import { t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import Tags from '../../../../Tags';
 import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
 
 import './ViewMode.scss';
@@ -41,6 +42,14 @@ const ViewMode = () => {
       />
     );
   };
+
+  if (viewModeType === ViewModes.TAGS) {
+    return (
+      <Tags
+        tags={selectedRows.map((row) => ({ name: row.label, id: row.id}))}
+      />
+    )
+  }
 
   return (
     <>

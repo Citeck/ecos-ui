@@ -14,7 +14,8 @@ import {
   DataTypes,
   GroupTypes,
   ROOT_GROUP_NAME,
-  TabTypes
+  TabTypes,
+  ViewModes,
 } from '../../../../components/common/form/SelectOrgstruct/constants';
 import BaseComponent from '../base/BaseComponent';
 import UnreadableLabel from '../../UnreadableLabel';
@@ -47,7 +48,8 @@ export default class SelectOrgstructComponent extends BaseComponent {
         defaultTab: TabTypes.LEVELS,
         dataType: DataTypes.NODE_REF,
         userSearchExtraFields: '',
-        isIncludedAdminGroup: false
+        isIncludedAdminGroup: false,
+        viewModeType: ViewModes.DEFAULT,
       },
       ...extend
     );
@@ -170,6 +172,7 @@ export default class SelectOrgstructComponent extends BaseComponent {
           isIncludedAdminGroup={comp.isIncludedAdminGroup}
           onChange={this.onValueChange}
           onError={console.error}
+          viewModeType={comp.viewModeType}
         />,
         this.reactContainer
       );

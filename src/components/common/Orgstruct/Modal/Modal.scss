@@ -1,4 +1,4 @@
-@import '../../../../../../styles/constants';
+@import '../../../../styles/constants';
 
 .select-orgstruct-select-modal__buttons {
   margin-top: 15px;
@@ -14,4 +14,12 @@
   padding: 15px;
   background: $color-gray-4;
   border-radius: $border-radius-large;
+}
+
+.authority-groups {
+  margin-top: 20px;
+}
+
+.group-tags {
+  margin: 10px 0;
 }

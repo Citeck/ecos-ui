@@ -1,15 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Collapse } from 'reactstrap';
 
 import ListItem, { itemPropType } from '../ListItem';
-import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { useOrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
 import Records from '../../../../../components/Records';
 
 import './List.scss';
 
 const List = ({ items, nestingLevel = 0, tabId, toggleToFirstTab }) => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useOrgstructContext();
 
   const [selectedId, setSelectedId] = useState('');
 

@@ -4,6 +4,37 @@
   width: 100%;
 }
 
+.orgstructure-page__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.orgstructure-page__list-item-icons-group {
+  margin: 0 2px;
+  cursor: pointer;
+
+  &:hover {
+    svg {
+      fill: $color-blue-dark;
+    }
+  }
+}
+
+.icon-user__clicked {
+  svg {
+    fill: $color-blue-dark;
+  }
+}
+
+.small-icon {
+  svg {
+    height: 16px;
+    width: 16px;
+  }
+}
+
 .orgstructure-page {
   &__list {
     &-item {
@@ -15,10 +46,16 @@
 
       &-icons {
         position: absolute;
-        right: 12px;
+        right: 0;
         font-size: 16px;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0), #ffffff 15%);
         z-index: 10;
+        display: flex;
+        background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
+
+        &::before {
+          content: ' ';
+          width: 15px;
+        }
 
         i[class^='icon-'] {
           cursor: pointer;
@@ -72,8 +109,16 @@
       }
 
       &-label-with-extra {
+        cursor: pointer;
+
         &_fullwidth {
           width: 100%;
+        }
+
+        &:hover {
+          .orgstructure-page__list-item-label {
+            color: $color-blue-light;
+          }
         }
       }
 

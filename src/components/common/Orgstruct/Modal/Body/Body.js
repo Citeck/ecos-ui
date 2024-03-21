@@ -1,16 +1,16 @@
 import React, { useContext } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
 
-import { t } from '../../../../../../../helpers/util';
-import InfoText from '../../../../../InfoText/InfoText';
-import Loader from '../../../../../Loader/Loader';
-import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
+import { t } from '../../../../../helpers/util';
+import InfoText from '../../../InfoText';
+import Loader from '../../../Loader';
+import { OrgstructContext } from '../../OrgstructContext';
 import List from './List';
 
 import './Body.scss';
 
 const Body = () => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useContext(OrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
   const children = tabItems[currentTab].filter(i => !i.parentId);
