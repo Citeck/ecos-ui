@@ -202,13 +202,10 @@ export default class ModelViewer {
       nv && this.canvas.zoom(nv);
       const resizedViewbox = this.canvas.viewbox();
 
-      const dx = (resizedViewbox.x - defaultViewbox.x);
-      const dy = (resizedViewbox.y - defaultViewbox.y);
+      const dx = resizedViewbox.x - defaultViewbox.x;
+      const dy = resizedViewbox.y - defaultViewbox.y;
 
-      this.canvas.scroll({
-        dx: dx,
-        dy: dy
-      });
+      this.canvas.scroll({ dx, dy });
     } else {
       nv && this.canvas.zoom(nv, this.zoomCenter);
     }
@@ -219,16 +216,25 @@ export default class ModelViewer {
 
   /**
    * Draw Heatmap
+   *
    * @param data {Array}
    * @param hasTooltip {Boolean}
    * @param onChange {Function}
    * @param onMounted {Function}
+   * @param formMode {String}
    */
-  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip }) => {
+  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip, formMode }) => {
     const { HeatmapWrapper } = plugins;
 
     if (HeatmapWrapper) {
-      this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
+      this.heatmap = new HeatmapWrapper({
+        instModel: this.modeler,
+        data,
+        hasTooltip,
+        onChange,
+        onMounted,
+        formMode
+      });
     }
   };
 
@@ -245,7 +251,6 @@ export default class ModelViewer {
     if (!Badges) {
       return;
     }
-    
 
     const elementRegistry = this.modeler.get('elementRegistry');
     const canvas = this.modeler.get('canvas');

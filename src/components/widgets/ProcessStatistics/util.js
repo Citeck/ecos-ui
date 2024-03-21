@@ -41,8 +41,18 @@ export const getPreparedHeatItem = (item, flags) => {
 };
 
 export const getPreparedKPIItem = item => {
+  const kpiPercent = parseFloat(item.kpiDeviation);
+
+  if (kpiPercent > 100) {
+    item.kpiDeviation = 100;
+  }
+
+  if (kpiPercent < -100) {
+    item.kpiDeviation = -100;
+  }
+
   return {
     id: item.displayKpiOnBpmnActivityId,
-    value: item.kpiValue
+    value: kpiPercent
   };
 };

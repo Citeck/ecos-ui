@@ -98,6 +98,11 @@ export default class ProcessApi {
               att: 'procDefRef',
               t: 'contains',
               val: [recordRef]
+            },
+            {
+              att: 'kpiSettingsRef.kpiType',
+              t: 'eq',
+              val: 'DURATION'
             }
           ]
         },
@@ -107,6 +112,7 @@ export default class ProcessApi {
         kpiRef: 'kpiSettingsRef{disp:?disp,value:?assoc}',
         kpi: 'kpiSettingsRef.kpiAsNumber?num|fmt(0.00)',
         displayKpiOnBpmnActivityId: 'kpiSettingsRef.displayKpiOnBpmnActivityId',
+        kpiType: 'kpiSettingsRef.kpiType',
         kpiValue: 'avg(value)?num|fmt(0.00)',
         kpiDeviation: '(avg(value) / kpiSettingsRef.kpiAsNumber * 100 - 100)?num|fmt(0.00)'
       }

@@ -230,7 +230,7 @@ class Model extends React.Component {
   };
 
   renderHeatmap = () => {
-    const { heatmapData, setNewData, stateId } = this.props;
+    const { heatmapData, setNewData, stateId, formMode } = this.props;
     const { isShowHeatmap, opacity } = this.state;
 
     if (!isEmpty(heatmapData)) {
@@ -242,6 +242,7 @@ class Model extends React.Component {
         onChange: this.handleChangeHeatmap,
         onMounted: () => {
           this.setState({ isHeatmapMounted: true });
+
           debounce(() => {
             this.handleChangeOpacity(opacity);
             if (this.isFirstBoot) {
@@ -250,6 +251,7 @@ class Model extends React.Component {
             }
           }, 100)();
         },
+        formMode,
         hasTooltip: false
       });
     } else {
@@ -262,13 +264,15 @@ class Model extends React.Component {
   };
 
   reRenderHeatmap = () => {
+    const { formMode } = this.props;
+
     if (!this.state.isShowHeatmap || !this.designer || !this.designer.heatmap) {
       return;
     }
 
     this.#heatmapData = new Set([...this.getPreparedHeatData()]);
 
-    this.designer.heatmap.updateData(this.#heatmapData, true);
+    this.designer.heatmap.updateData(this.#heatmapData, true, formMode);
     this.designer.heatmap.toggleDisplay(false);
   };
 
@@ -305,13 +309,15 @@ class Model extends React.Component {
   };
 
   handleChangeHeatmap = legendData => {
-    this.setState({ legendData });
-    this.renderBadges();
+    this.setState({ legendData }, () => {
+      this.renderBadges();
+    });
   };
 
   handleChangeOpacity = value => {
-    this.setState({ opacity: Number(value) });
-    this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+    this.setState({ opacity: Number(value) }, () => {
+      this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+    });
   };
 
   handleClickZoom = value => {
@@ -471,7 +477,7 @@ class Model extends React.Component {
                   {showHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
-                  {showHeatmap && <Legend {...legendData} isTimestamp={this.props.formMode === KPI_MODE} />}
+                  {showHeatmap && <Legend {...legendData} formMode={this.props.formMode} />}
                 </div>
               )}
             </ResizableBox>

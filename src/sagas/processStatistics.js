@@ -96,6 +96,8 @@ function* sagaGetModel({ api, logger }, { payload }) {
     const heatmapData = yield call(api.process.getHeatmapData, record, predicates);
     const KPIData = yield call(api.process.getKPIData, record);
 
+    window.Citeck.KPIData = KPIData;
+
     yield put(setModel({ stateId, model, heatmapData, KPIData }));
     yield put(setNewData({ stateId, isNewData: true }));
   } catch (e) {

@@ -2,11 +2,10 @@ import _ from 'lodash';
 import { isAny } from 'bpmn-js/lib/features/modeling/util/ModelingUtil';
 import { append as svgAppend, attr as svgAttr, create as svgCreate, classes as svgClasses } from 'tiny-svg';
 import { is } from 'bpmn-js/lib/util/ModelUtil';
+import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 
 import NumberRenderer from './EcosNumberRenderer';
-import { getSearchParams } from '../../../../../helpers/urls';
-import Records from '../../../../Records';
-import { SourcesId, URL } from '../../../../../constants';
+import { URL } from '../../../../../constants';
 import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
 import { TYPE_BPMN_EVENT } from '../../../../../constants/bpmn';
 
@@ -33,80 +32,52 @@ class KPIRenderer extends NumberRenderer {
 
   canRender(element) {
     if (!this._isEditor() && this._isKPIModeDashlet()) {
-      return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity', 'bpmn:SubProcess']) && !element.labelTarget;
+      if (isAny(element, ['bpmn:SubProcess']) && !element.labelTarget && !isExpanded(element)) {
+        return true;
+      }
+
+      return isAny(element, ['bpmn:Task', 'bpmn:Event', 'bpmn:CallActivity']) && !element.labelTarget;
     }
 
     return false;
   }
 
-  drawShape(parentNode, element) {
+  async drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const activityId = _.get(element, 'id');
-    const { recordRef } = getSearchParams();
 
-    Records.query(
-      {
-        sourceId: SourcesId.BPMN_KPI,
-        language: 'predicate',
-        query: {
-          t: 'and',
-          val: [
-            {
-              t: 'eq',
-              att: '_type',
-              val: 'emodel/type@bpmn-kpi-value'
-            },
-            {
-              att: 'procDefRef',
-              t: 'contains',
-              val: [recordRef]
-            }
-          ]
-        },
-        groupBy: ['kpiSettingsRef.kpiAsNumber&targetBpmnActivityId&kpiSettingsRef']
-      },
-      {
-        kpiRef: 'kpiSettingsRef{disp:?disp,value:?assoc}',
-        kpi: 'kpiSettingsRef.kpiAsNumber?num|fmt(0.00)',
-        displayKpiOnBpmnActivityId: 'kpiSettingsRef.displayKpiOnBpmnActivityId',
-        kpiValue: 'avg(value)?num|fmt(0.00)',
-        kpiDeviation: '(avg(value) / kpiSettingsRef.kpiAsNumber * 100 - 100)?num|fmt(0.00)'
-      }
-    ).then(({ records = [] }) => {
-      const durationFormatterInstance = new DurationFormatter();
+    const durationFormatterInstance = new DurationFormatter();
+    const KPI = window.Citeck.KPIData.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
-      const KPI = records.find(i => i.displayKpiOnBpmnActivityId === activityId);
+    if (KPI) {
+      const timerTransform = !is(element, TYPE_BPMN_EVENT) ? [-10, 85] : [-10, 60];
+      const percentTransform = !is(element, TYPE_BPMN_EVENT) ? [70, 85] : [0, -45];
 
-      if (KPI) {
-        const timerTransform = !is(element, TYPE_BPMN_EVENT) ? [-10, 85] : [-10, 60];
-        const percentTransform = !is(element, TYPE_BPMN_EVENT) ? [70, 85] : [0, -45];
+      const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
+      const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
 
-        const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');
-        const percentRect = this.drawRect(parentNode, 45, 20, 8, '#000');
+      svgAttr(timerRect, {
+        transform: `translate(${timerTransform[0]}, ${timerTransform[1]})`
+      });
+      svgAttr(percentRect, {
+        transform: `translate(${percentTransform[0]}, ${percentTransform[1]})`
+      });
 
-        svgAttr(timerRect, {
-          transform: `translate(${timerTransform[0]}, ${timerTransform[1]})`
-        });
-        svgAttr(percentRect, {
-          transform: `translate(${percentTransform[0]}, ${percentTransform[1]})`
-        });
+      this._drawKPITimer(
+        parentNode,
+        durationFormatterInstance.format({
+          cell: KPI.kpi,
+          config: { showSeconds: false }
+        }),
+        [timerTransform[0] + 2, timerTransform[1] + 15]
+      );
 
-        this._drawKPITimer(
-          parentNode,
-          durationFormatterInstance.format({
-            cell: KPI.kpi,
-            config: { showSeconds: false }
-          }),
-          [timerTransform[0] + 2, timerTransform[1] + 15]
-        );
-
-        const percent = Math.ceil(KPI.kpiDeviation);
-        this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`, [
-          percentTransform[0] + 2,
-          percentTransform[1] + 15
-        ]);
-      }
-    });
+      const percent = Math.round(KPI.kpiDeviation);
+      this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`, [
+        percentTransform[0] + 2,
+        percentTransform[1] + 15
+      ]);
+    }
 
     return shape;
   }
