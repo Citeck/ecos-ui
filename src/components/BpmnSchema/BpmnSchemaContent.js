@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { InfoText, Loader, ResizableBox } from '../common';
@@ -9,11 +9,10 @@ import { t } from '../../helpers/util';
 
 import './style.scss';
 
-let designer;
-
 const BpmnSchemaContent = ({ metaInfo, activityElement, labels }) => {
+  const [designer, setDesigner] = useState(undefined);
   useEffect(() => {
-    designer = new BPMNViewer();
+    setDesigner(new BPMNViewer());
   }, []);
 
   const Sheet = designer && designer.renderSheet;
@@ -70,32 +69,32 @@ const BpmnSchemaContent = ({ metaInfo, activityElement, labels }) => {
 
   return (
     <>
-        {showLoader && <Loader />}
-        {Sheet && !showLoader && !noData && (
-          <>
-            <div className="bpmn-process__scaler">
-              <Scaler onClick={handleClickZoom} />
-            </div>
+      {showLoader && <Loader />}
+      {Sheet && !showLoader && !noData && (
+        <>
+          <div className="bpmn-process__scaler">
+            <Scaler onClick={handleClickZoom} />
+          </div>
 
-            <ResizableBox getHeight={setHeight} resizable>
-              <Sheet
-                diagram={metaInfo.bpmnDefinition}
-                onMounted={handleReadySheet}
-                defHeight={600}
-                zoom={ScaleOptions.FIT}
-                zoomCenter={zoomCenter}
-                markedElement={activityElement}
-              />
-            </ResizableBox>
-          </>
-        )}
-        {noData && <InfoText text={t(labels.NO_SCHEMA)} />}
+          <ResizableBox getHeight={setHeight} resizable>
+            <Sheet
+              diagram={metaInfo.bpmnDefinition}
+              onMounted={handleReadySheet}
+              defHeight={600}
+              zoom={ScaleOptions.FIT}
+              zoomCenter={zoomCenter}
+              markedElement={activityElement}
+            />
+          </ResizableBox>
+        </>
+      )}
+      {noData && <InfoText text={t(labels.NO_SCHEMA)} />}
     </>
   );
 };
 
 const mapStateToProps = (store, props) => ({
-  metaInfo: props.selectMetaInfo(store, props),
+  metaInfo: props.selectMetaInfo(store, props)
 });
 
 export default connect(mapStateToProps)(BpmnSchemaContent);

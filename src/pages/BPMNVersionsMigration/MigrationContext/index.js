@@ -33,7 +33,7 @@ export const MigrationContextProvider = props => {
 
   useEffect(
     () => {
-      if (dispProcessId) {
+      if (dispProcessId && dispProcessId.includes('eproc/bpmn-def-engine@')) {
         setProcessId(dispProcessId);
       }
     },

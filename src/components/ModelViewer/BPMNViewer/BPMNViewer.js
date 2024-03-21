@@ -34,7 +34,7 @@ export default class BPMNViewer extends ModelViewer {
       this.modeler.attachTo(container);
     }
 
-    await this.setDiagram(diagram, { onMounted });
+    this.setDiagram(diagram, { onMounted });
     this.setEvents(modelEvents);
     this.switchToReadonly();
 
