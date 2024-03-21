@@ -48,10 +48,6 @@ export function showDetailActionResult(info, options = {}) {
 
   let buttons = [
     {
-      label: Labels.BTN_CANCEL,
-      onClick: () => callback && callback(false)
-    },
-    {
       label: Labels.BTN_OK,
       onClick: () => callback && callback(true),
       className: 'ecos-btn_blue',

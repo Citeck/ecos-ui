@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import cloneDeep from 'lodash/cloneDeep';
+import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 
 import api from '../api/esign';
@@ -67,18 +68,52 @@ class Esign {
     document.body.appendChild(container);
   }
 
+  selectCertificate(currentCertificate, callback) {
+    if (!currentCertificate) {
+      const container = document.createElement('div');
+      const handleSelectCert = selectedCertificate => {
+        callback(selectedCertificate);
+        this.#onClose(container);
+      };
+
+      ReactDOM.render(
+        <EsignComponent
+          handleSelectCert={handleSelectCert}
+          recordRefs={['']}
+          onClose={() => {
+            this.#onClose(container);
+          }}
+        />,
+        container
+      );
+
+      document.body.appendChild(container);
+    } else {
+      callback(currentCertificate);
+    }
+  }
+
   /* document will be signed by the first found certificate */
-  async silentSign(refs, componentProps = {}, queryParams = false) {
+  async silentSign(refs, componentProps = {}, queryParams = false, certificate = null) {
     if (!refs) {
       return new Error(`The "recordRefs" argument is required`);
     }
 
+    const { onBeforeSigning, onSigned, onClose } = componentProps;
+
     const recordRefs = Esign.dataPreparation(refs, queryParams);
 
-    return Esign.init(recordRefs)
-      .then(() => Esign.getCertificates(componentProps.thumbprints))
-      .then(certs => Esign.signDocument(recordRefs, certs[0]))
-      .catch(this.setError);
+    return Esign.signDocument(recordRefs, certificate).then(documentSigned => {
+      isFunction(onBeforeSigning) && onBeforeSigning(recordRefs, certificate);
+
+      if (documentSigned && isFunction(onSigned)) {
+        onSigned();
+      }
+
+      if (isFunction(onClose)) {
+        onClose();
+      }
+    });
   }
 
   #onClose = container => {
