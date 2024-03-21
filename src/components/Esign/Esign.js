@@ -105,17 +105,21 @@ class EsignComponent extends Component {
   };
 
   handleSignDocument = async selectedCertificate => {
-    const { onBeforeSigning, recordRefs } = this.props;
+    const { onBeforeSigning, recordRefs, handleSelectCert } = this.props;
 
-    this.setState({ isLoading: true });
+    if (isFunction(handleSelectCert)) {
+      handleSelectCert(selectedCertificate);
+    } else {
+      this.setState({ isLoading: true });
 
-    if (isFunction(onBeforeSigning)) {
-      await onBeforeSigning(recordRefs, selectedCertificate);
+      if (isFunction(onBeforeSigning)) {
+        await onBeforeSigning(recordRefs, selectedCertificate);
+      }
+
+      Esign.signDocument(recordRefs, selectedCertificate)
+        .then(this.documentSigned)
+        .catch(this.setError);
     }
-
-    Esign.signDocument(recordRefs, selectedCertificate)
-      .then(this.documentSigned)
-      .catch(this.setError);
   };
 
   documentSigned = documentSigned => {

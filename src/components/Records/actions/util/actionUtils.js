@@ -44,7 +44,16 @@ export function getRef(record) {
  */
 export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
-  let buttons = [{ label: Labels.BTN_OK, onClick: () => callback && callback(true), className: 'ecos-btn_blue' }];
+  const disabled = info.data.results.some(res => res.status === t(Labels.IN_PROGRESS) || res.status === '');
+
+  let buttons = [
+    {
+      label: Labels.BTN_OK,
+      onClick: () => callback && callback(true),
+      className: 'ecos-btn_blue',
+      disabled: disabled
+    }
+  ];
 
   if (withConfirm) {
     buttons = [

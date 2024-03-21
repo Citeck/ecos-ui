@@ -124,10 +124,18 @@ $header-height: 52px;
     }
 
     &:hover td {
-      border: 2px solid $color-brown-2;
       border-right: none;
       border-left: none;
       z-index: 10;
+    }
+
+    &:not(:last-child):hover td {
+      border-top: 2px solid $color-brown-2;
+      border-bottom: 2px solid $color-brown-2;
+    }
+
+    &:last-child:hover td {
+      border-top: 2px solid $color-brown-2;
     }
   }
 

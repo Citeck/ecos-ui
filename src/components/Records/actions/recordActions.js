@@ -591,7 +591,10 @@ class RecordActions {
       }
 
       if (!ungearedPopups) {
-        popupExecution = await DetailActionResult.showPreviewRecords(recordInstances.map(r => getRef(r)), resultOptions);
+        popupExecution = await DetailActionResult.showPreviewRecords(
+          recordInstances.map(r => getRef(r)),
+          resultOptions
+        );
       }
 
       const allowedInfo = await getActionAllowedInfoForRecords(recordInstances, action, context);
@@ -738,11 +741,14 @@ class RecordActions {
                 }
               };
             } else {
-              await DetailActionResult.showPreviewRecords(allowedRecords.map(r => getRef(r)), {
-                ...resultOptions,
-                withoutLoader: true,
-                forRecords: get(result, 'data.results', []).map(item => getRef(item))
-              });
+              await DetailActionResult.showPreviewRecords(
+                allowedRecords.map(r => getRef(r)),
+                {
+                  ...resultOptions,
+                  withoutLoader: true,
+                  forRecords: get(result, 'data.results', []).map(item => getRef(item))
+                }
+              );
 
               actResult = {
                 ...(actResult || {}),
@@ -972,7 +978,7 @@ class RecordActions {
 
     const info = (title, text, isEnd) => DialogManager.showInfoDialog({ title, text, onClose: () => !isEnd && handleInfo() });
 
-    info('group-action.message.started', 'group-action.label.fetch-data');
+    info('group-action.message.started', 'group-action.label.fetch-data', true);
 
     if (query.language !== 'predicate') {
       info('error', 'record-action.msg.error.text');
