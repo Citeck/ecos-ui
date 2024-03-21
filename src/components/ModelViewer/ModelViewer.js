@@ -203,16 +203,25 @@ export default class ModelViewer {
 
   /**
    * Draw Heatmap
+   *
    * @param data {Array}
    * @param hasTooltip {Boolean}
    * @param onChange {Function}
    * @param onMounted {Function}
+   * @param formMode {String}
    */
-  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip }) => {
+  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip, formMode }) => {
     const { HeatmapWrapper } = plugins;
 
     if (HeatmapWrapper) {
-      this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
+      this.heatmap = new HeatmapWrapper({
+        instModel: this.modeler,
+        data,
+        hasTooltip,
+        onChange,
+        onMounted,
+        formMode
+      });
     }
   };
 
