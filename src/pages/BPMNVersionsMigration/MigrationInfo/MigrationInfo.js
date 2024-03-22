@@ -45,7 +45,13 @@ const MigrationInfo = ({ processId }) => {
       const record = head(result.records);
 
       if (record) {
-        setMigrationPlan(record.migrationPlan);
+        setMigrationPlan({
+          ...record.migrationPlan,
+          processInstanceQuery: {
+            processDefinitionId: source,
+            activityIdIn: activities
+          }
+        });
       }
     });
   };
