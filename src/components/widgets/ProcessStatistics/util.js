@@ -14,6 +14,7 @@ export const Labels = {
   ERR_MODEL: 'process-statistics-widget.info.mount-problem',
   SETTINGS_TITLE: 'process-statistics-widget.settings.title',
   SETTINGS_DEFAULT_FLAGS: 'process-statistics-widget.settings.default-turn-on',
+  SETTINGS_BADGES_VALUES_MODE: 'process-statistics-widget.settings.badges.label',
   SETTINGS_BTN_CANCEL: 'process-statistics-widget.settings.btn.cancel',
   SETTINGS_BTN_SAVE: 'process-statistics-widget.settings.btn.save',
   JOURNAL_FIELD: 'process-statistics-widget.settings.field.journal',

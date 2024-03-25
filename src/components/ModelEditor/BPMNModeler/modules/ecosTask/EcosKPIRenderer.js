@@ -7,7 +7,9 @@ import { isExpanded } from 'bpmn-js/lib/util/DiUtil';
 import NumberRenderer from './EcosNumberRenderer';
 import { URL } from '../../../../../constants';
 import DurationFormatter from '../../../../Journals/service/formatters/registry/DurationFormatter/DurationFormatter';
-import { TYPE_BPMN_EVENT } from '../../../../../constants/bpmn';
+import { PERMISSION_VIEW_REPORTS, TYPE_BPMN_EVENT } from '../../../../../constants/bpmn';
+import { getSearchParams } from '../../../../../helpers/urls';
+import Records from '../../../../Records';
 
 const HIGH_PRIORITY = 1700;
 
@@ -45,12 +47,14 @@ class KPIRenderer extends NumberRenderer {
   async drawShape(parentNode, element) {
     const shape = this.bpmnRenderer.drawShape(parentNode, element);
     const activityId = _.get(element, 'id');
+    const { recordRef } = getSearchParams();
 
-    const durationFormatterInstance = new DurationFormatter();
+    const isAccessible = await Records.get(recordRef).load(PERMISSION_VIEW_REPORTS);
     const KPI = window.Citeck.KPIData.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
-    if (KPI) {
-      const timerTransform = !is(element, TYPE_BPMN_EVENT) ? [-10, 85] : [-10, 60];
+    if (KPI && isAccessible) {
+      const durationFormatterInstance = new DurationFormatter();
+      const timerTransform = !is(element, TYPE_BPMN_EVENT) ? [-10, 85] : [-10, 65];
       const percentTransform = !is(element, TYPE_BPMN_EVENT) ? [70, 85] : [0, -45];
 
       const timerRect = this.drawRect(parentNode, 75, 20, 8, '#000');

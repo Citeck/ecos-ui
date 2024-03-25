@@ -19,7 +19,7 @@ import Settings from './Settings';
 import { Loader } from '../../common';
 import { PERMISSION_VIEW_REPORTS } from '../../../constants/bpmn';
 import Records from '../../Records/Records';
-import { EXTENDED_MODE } from './constants';
+import { BADGES_VALUE_MODE, EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
 
 export default class Widget extends BaseWidget {
   static propTypes = {
@@ -147,6 +147,8 @@ export default class Widget extends BaseWidget {
 
     config.selectedJournal = `${SourcesId.JOURNAL}@${SystemJournals.PROCESS_ELMS}`;
 
+    const formMode = get(config, 'formMode', SIMPLIFIED_MODE);
+
     return (
       <Dashlet
         title={title || (isExtendedMode && isAccessible) ? t(Labels.WG_EXTENDED_TITLE) : t(Labels.WG_SIMPLIFIED_TITLE)}
@@ -174,10 +176,12 @@ export default class Widget extends BaseWidget {
               stateId={this.stateId}
               width={width}
               runUpdate={runUpdate}
-              isExtendedMode={isExtendedMode}
+              isSimpledMode={formMode === SIMPLIFIED_MODE}
+              formMode={formMode}
+              badgesValuesMode={get(config, 'badgesValuesMode', BADGES_VALUE_MODE)}
             />
           )}
-          {config.selectedJournal && config.showJournalDefault && isExtendedMode && isAccessible && (
+          {config.selectedJournal && config.showJournalDefault && formMode === EXTENDED_MODE && isAccessible && (
             <Journal
               {...config}
               forwardedRef={this.contentRef}
