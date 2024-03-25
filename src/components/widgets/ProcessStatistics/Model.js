@@ -14,7 +14,7 @@ import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
 import BPMNViewer from '../../ModelViewer/BPMNViewer';
 import { DefSets, getPreparedHeatItem, getPreparedKPIItem, Labels } from './util';
-import { KPI_MODE } from './constants';
+import { BADGES_VALUE_MODE, EXTENDED_MODE, KPI_MODE } from './constants';
 import Section from './Section';
 
 import './style.scss';
@@ -50,6 +50,7 @@ class Model extends React.Component {
     showModelDefault: PropTypes.bool,
     runUpdate: PropTypes.bool,
     isLoading: PropTypes.bool,
+    badgesValuesMode: PropTypes.string,
     heatmapData: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
@@ -61,7 +62,8 @@ class Model extends React.Component {
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    badgesValuesMode: BADGES_VALUE_MODE
   };
 
   constructor(props) {
@@ -210,7 +212,7 @@ class Model extends React.Component {
 
   renderBadges = () => {
     const { isActiveCount, isCompletedCount } = this.state;
-    const { formMode } = this.props;
+    const { formMode, badgesValuesMode } = this.props;
 
     if (formMode === KPI_MODE) {
       return;
@@ -226,7 +228,18 @@ class Model extends React.Component {
       keys.push('completedCount');
     }
 
-    this.designer.drawBadges({ data: this.props.heatmapData, keys });
+    if (badgesValuesMode === 'percent' && !isEmpty(this.#heatmapData)) {
+      const sum = [...this.#heatmapData].reduce((acc, i) => acc + i.value, 0);
+
+      this.designer.drawBadges({
+        data: this.props.heatmapData,
+        keys,
+        type: badgesValuesMode,
+        sum
+      });
+    } else {
+      this.designer.drawBadges({ data: this.props.heatmapData, keys });
+    }
   };
 
   renderHeatmap = () => {
@@ -384,10 +397,10 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
     const { formMode } = this.props;
+    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
 
-    if (!isShowCounters || formMode === KPI_MODE) {
+    if (!isShowCounters && formMode !== EXTENDED_MODE) {
       return null;
     }
 
