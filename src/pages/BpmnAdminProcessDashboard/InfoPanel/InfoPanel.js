@@ -80,7 +80,7 @@ class InfoPanel extends BaseWidget {
                   onClick={() => this.handleLinkClick(metaInfo.definitionRefId)}
                   disabled={!metaInfo.definitionRef}
                 >
-                  {metaInfo.definitionRef || t(Labels.NOT_DEFINED)}
+                  <p>{metaInfo.definitionRef || t(Labels.NOT_DEFINED)}</p>
                   <i className="icon-small-right" />
                 </Btn>
               </div>
