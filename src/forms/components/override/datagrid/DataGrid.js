@@ -159,7 +159,13 @@ export default class DataGridComponent extends FormIODataGridComponent {
       if (shouldBuildRows) {
         break;
       }
+
       const valueRow = value[i];
+
+      if (!valueRow) {
+        continue;
+      }
+
       for (let j = 0; j < keys.length; j++) {
         const key = keys[j];
         const newFieldValue = valueRow[key];
