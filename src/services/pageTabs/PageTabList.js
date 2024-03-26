@@ -8,12 +8,14 @@ import { EventEmitter2 } from 'eventemitter2';
 
 import * as storage from '../../helpers/ls';
 import { equalsQueryUrls, IgnoredUrlParams } from '../../helpers/urls';
-import { t } from '../../helpers/util';
+import { t, getCurrentLocale } from '../../helpers/util';
 import { TITLE } from '../../constants/pageTabs';
 import PageTab from './PageTab';
 import PageService from '../PageService';
 
 const exist = index => !!~index;
+
+const lng = getCurrentLocale();
 
 /**
  * @define Application Tabs Service (Singleton)
@@ -112,7 +114,14 @@ class PageTabList {
    */
   setTab(data, params = {}) {
     const { last, reopen } = params;
-    const tab = new PageTab({ title: t(TITLE.LOADING), isLoading: true, ...data });
+
+    const title = {
+      ...data.title,
+      [lng]: data.title?.[lng] || t(TITLE.LOADING),
+    }
+    const isLoading = title[lng] === t(TITLE.LOADING);
+
+    const tab = new PageTab({ title, isLoading, ...data });
     const currentTabIndex = this.existTabIndex(tab);
     const isExist = exist(currentTabIndex);
 
@@ -291,7 +300,7 @@ class PageTabList {
 
         if (!found) {
           result.push(item);
-        } else {
+        } else if (!found.title[lng]){
           found.isLoading = true;
         }
 
