@@ -83,7 +83,9 @@ exports[`  should render InfoPanel component 1`] = `
                 <div
                   class="ecos-btn__content"
                 >
-                  bpmn-admin.incident.not-defined
+                  <p>
+                    bpmn-admin.incident.not-defined
+                  </p>
                   <i
                     class="icon-small-right"
                   />
