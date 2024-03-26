@@ -8,7 +8,7 @@ import { Caption, Checkbox, Field, Select, SelectJournal } from '../../common/fo
 import { Btn } from '../../common/btns';
 import { Labels } from './util';
 import plugins from '../../../plugins';
-import { EXTENDED_MODE, SIMPLIFIED_MODE, BADGES_VALUE_MODE } from './constants';
+import { EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
 
 import './style.scss';
 
@@ -35,7 +35,7 @@ export default class Settings extends React.Component {
       showJournalDefault: get(props, 'config.showJournalDefault'),
       showCountersDefault: get(props, 'config.showCountersDefault'),
       formMode: get(props, 'config.formMode', EXTENDED_MODE),
-      badgesValuesMode: get(props, 'config.badgesValuesMode', BADGES_VALUE_MODE),
+      withPercentCount: get(props, 'config.withPercentCount', false),
       isLoading: false
     };
   }
@@ -59,18 +59,13 @@ export default class Settings extends React.Component {
   };
 
   render() {
-    const { selectedJournal, isLoading, formMode, badgesValuesMode } = this.state;
+    const { selectedJournal, isLoading, formMode } = this.state;
 
     const { HeatmapWrapper } = plugins;
 
     const propertiesOptions = [
       { value: EXTENDED_MODE, label: t(Labels.FORM_MODE_EXTENDED) },
       { value: SIMPLIFIED_MODE, label: t(Labels.FORM_MODE_SIMPLIFIED) }
-    ];
-
-    const valuesOptions = [
-      { value: 'value', label: t('process-statistics-widget.settings.badges.type.value') },
-      { value: 'percent', label: t('process-statistics-widget.settings.badges.type.percent') }
     ];
 
     return (
@@ -102,16 +97,7 @@ export default class Settings extends React.Component {
             <Caption small className="ecos-process-statistics-settings__title">
               {t(Labels.SETTINGS_DEFAULT_FLAGS)}
             </Caption>
-            {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault'])}
-            <Field label={t(Labels.SETTINGS_BADGES_VALUES_MODE)} labelPosition="top">
-              <Select
-                value={valuesOptions.find(i => i.value === badgesValuesMode)}
-                options={valuesOptions}
-                onChange={({ value }) => {
-                  this.setState({ badgesValuesMode: value });
-                }}
-              />
-            </Field>
+            {this.renderFlags(['showJournalDefault', 'showModelDefault', 'showHeatmapDefault', 'showCountersDefault', 'withPercentCount'])}
           </>
         )}
         <div className="ecos-process-statistics-settings__buttons">

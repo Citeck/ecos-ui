@@ -11,7 +11,6 @@ import plugins from '../../../src/plugins';
 import ecosTask from '../ModelEditor/BPMNModeler/moddle/ecosTask.json';
 import { onlyRenderer } from '../ModelEditor/BPMNModeler/modules';
 import { Sheet } from './Sheet';
-import { BADGES_VALUE_MODE } from '../widgets/ProcessStatistics/constants';
 
 export default class ModelViewer {
   static querySelector = 'ecos-model-container';
@@ -233,7 +232,7 @@ export default class ModelViewer {
     this.heatmap.repaint();
   };
 
-  drawBadges = ({ data = [], keys = [], sum = 0, type = BADGES_VALUE_MODE }) => {
+  drawBadges = ({ data = [], keys = [], withPercentCount = false }) => {
     const { Badges } = plugins;
 
     if (!Badges) {
@@ -260,7 +259,7 @@ export default class ModelViewer {
     this.#badges = new Badges();
     this.#badges.create(this.modeler.get('overlays'));
 
-    this.#badges.draw({ data: _data, keys, type, sum });
+    this.#badges.draw({ data: _data, keys, withPercentCount });
   };
 
   destroy = () => {

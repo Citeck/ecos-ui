@@ -8,7 +8,6 @@ import isNil from 'lodash/isNil';
 
 import { getStateId } from '../../../helpers/redux';
 import { getCurrentUserName, t } from '../../../helpers/util';
-import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
 import DAction from '../../../services/DashletActionService';
 import Dashlet from '../../Dashlet';
 import BaseWidget from '../BaseWidget';
@@ -19,7 +18,8 @@ import Settings from './Settings';
 import { Loader } from '../../common';
 import { PERMISSION_VIEW_REPORTS } from '../../../constants/bpmn';
 import Records from '../../Records/Records';
-import { BADGES_VALUE_MODE, EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
+import { EXTENDED_MODE, SIMPLIFIED_MODE } from './constants';
+import { MAX_DEFAULT_HEIGHT_DASHLET, SourcesId, SystemJournals } from '../../../constants';
 
 export default class Widget extends BaseWidget {
   static propTypes = {
@@ -178,7 +178,7 @@ export default class Widget extends BaseWidget {
               runUpdate={runUpdate}
               isSimpledMode={formMode === SIMPLIFIED_MODE}
               formMode={formMode}
-              badgesValuesMode={get(config, 'badgesValuesMode', BADGES_VALUE_MODE)}
+              withPercentCount={get(config, 'withPercentCount', false)}
             />
           )}
           {config.selectedJournal && config.showJournalDefault && formMode === EXTENDED_MODE && isAccessible && (

@@ -14,7 +14,7 @@ import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
 import BPMNViewer from '../../ModelViewer/BPMNViewer';
 import { DefSets, getPreparedHeatItem, Labels } from './util';
-import { BADGES_VALUE_MODE, EXTENDED_MODE, KPI_MODE } from './constants';
+import { EXTENDED_MODE, KPI_MODE } from './constants';
 import Section from './Section';
 
 import './style.scss';
@@ -49,7 +49,7 @@ class Model extends React.Component {
     showModelDefault: PropTypes.bool,
     runUpdate: PropTypes.bool,
     isLoading: PropTypes.bool,
-    badgesValuesMode: PropTypes.string,
+    withPercentCount: PropTypes.bool,
     heatmapData: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
@@ -62,7 +62,7 @@ class Model extends React.Component {
 
   static defaultProps = {
     className: '',
-    badgesValuesMode: BADGES_VALUE_MODE
+    withPercentCount: false
   };
 
   constructor(props) {
@@ -196,7 +196,7 @@ class Model extends React.Component {
 
   renderBadges = () => {
     const { isActiveCount, isCompletedCount } = this.state;
-    const { formMode, badgesValuesMode } = this.props;
+    const { formMode, withPercentCount } = this.props;
 
     if (formMode === KPI_MODE) {
       return;
@@ -212,18 +212,11 @@ class Model extends React.Component {
       keys.push('completedCount');
     }
 
-    if (badgesValuesMode === 'percent' && !isEmpty(this.#heatmapData)) {
-      const sum = [...this.#heatmapData].reduce((acc, i) => acc + i.value, 0);
-
-      this.designer.drawBadges({
-        data: this.props.heatmapData,
-        keys,
-        type: badgesValuesMode,
-        sum
-      });
-    } else {
-      this.designer.drawBadges({ data: this.props.heatmapData, keys });
-    }
+    this.designer.drawBadges({
+      keys,
+      data: this.props.heatmapData,
+      withPercentCount
+    });
   };
 
   renderHeatmap = () => {
