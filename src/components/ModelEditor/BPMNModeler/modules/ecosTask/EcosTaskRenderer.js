@@ -4,7 +4,7 @@ import TextUtil from 'diagram-js/lib/util/Text';
 import { isNil } from 'min-dash';
 import _ from 'lodash';
 
-import NumberRenderer from './EcosNumberRenderer';
+import KPIRenderer from './EcosKPIRenderer';
 import Records from '../../../../../components/Records/Records';
 import {
   ECOS_TASK_TYPE_SET_STATUS,
@@ -18,7 +18,7 @@ import { t } from '../../../../../helpers/util';
 
 const HIGH_PRIORITY = 1500;
 
-class CustomRenderer extends NumberRenderer {
+class CustomRenderer extends KPIRenderer {
   constructor(eventBus, bpmnRenderer) {
     super(eventBus, HIGH_PRIORITY);
 
