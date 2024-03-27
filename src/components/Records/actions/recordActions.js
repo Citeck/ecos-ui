@@ -6,6 +6,7 @@ import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 
+import { isArray, isObject, isString } from 'lodash';
 import { beArray, extractLabel, getMLValue, getModule, t } from '../../../helpers/util';
 import { DialogManager } from '../../common/dialogs';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -969,6 +970,8 @@ class RecordActions {
    */
   async execForQueryAsForRecords(query, action, context) {
     let processedCount = 0;
+    let numberIteration = 0;
+    let dataTotalCount = 0;
     let showProcess = true;
 
     const handleInfo = () => {
@@ -988,22 +991,63 @@ class RecordActions {
     const { page, ...preparedQuery } = query;
     const { confirm, ...preparedAction } = action;
     const preparedContext = { ...context, fromFeature: 'execForQuery' };
-    const iterator = new RecordsIterator(preparedQuery);
+
+    const sortByQuery = preparedQuery.sortBy || [];
+    const created = sortByQuery.find(param => param.attribute === '_created');
+    if (created) {
+      created.ascending = true;
+    }
+
+    const sortByQueryCreated = created
+      ? [...sortByQuery]
+      : [
+          ...sortByQuery,
+          {
+            attribute: '_created',
+            ascending: true
+          }
+        ];
+
+    const queryBody = {
+      ...preparedQuery,
+      sortBy: sortByQueryCreated
+    };
+
+    const iterator = new RecordsIterator(queryBody, {
+      amountPerIteration: preparedAction.execForRecordsBatchSize
+    });
+
+    const convertData = data => {
+      const result = [];
+
+      if (isArray(data)) {
+        data.forEach(item => (isObject(item) ? item.id && result.push(item.id) : isString(item) && result.push(item)));
+      }
+
+      return result;
+    };
 
     const callback = async data => {
       processedCount += data.records.length;
 
-      await this.execForRecords(data.records, preparedAction, preparedContext);
+      if (numberIteration === 0) {
+        dataTotalCount = data.totalCount;
+      }
+
+      await this.execForRecords(convertData(data.records), preparedAction, preparedContext);
 
       showProcess &&
         info(
           t('group-action.message.in-progress', { name: action.name }),
-          t('group-action.message.processed', { total: data.totalCount, count: processedCount })
+          t('group-action.message.processed', { total: dataTotalCount, count: processedCount }),
+          dataTotalCount === processedCount
         );
+
+      numberIteration++;
     };
 
     window.onbeforeunload = function(e) {
-      return "Please click 'Stay on this Page' if you did this unintentionally";
+      return t('group-action.message.warning');
     };
 
     try {

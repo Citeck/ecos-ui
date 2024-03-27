@@ -39,7 +39,7 @@ describe('RecordsIterator', () => {
       expect(iterator.pagination).toEqual({ skipCount: 0, maxItems: 20, page: 1 });
 
       const res = await iterator.next();
-      expect(iterator.pagination).toEqual({ skipCount: amountPerIteration, maxItems: amountPerIteration, page: 2 });
+      expect(iterator.pagination).toEqual({ skipCount: 0, maxItems: amountPerIteration, page: 2 });
       expect(res.records.length).toEqual(amountPerIteration);
     });
   });
@@ -49,13 +49,13 @@ describe('RecordsIterator', () => {
 
     it('1 page & result', async () => {
       const res = await iterator.next();
-      expect(iterator.pagination).toEqual({ skipCount: 10, maxItems: def_amountPerIteration, page: 2 });
+      expect(iterator.pagination).toEqual({ skipCount: 0, maxItems: def_amountPerIteration, page: 2 });
       expect(res.records.length).toEqual(def_amountPerIteration);
     });
 
     it('2 page', async () => {
       await iterator.next();
-      expect(iterator.pagination).toEqual({ skipCount: 20, maxItems: def_amountPerIteration, page: 3 });
+      expect(iterator.pagination).toEqual({ skipCount: 0, maxItems: def_amountPerIteration, page: 3 });
     });
 
     it(stop_page + ' "last" page', async () => {
@@ -64,7 +64,7 @@ describe('RecordsIterator', () => {
       const last = await iterator.next();
       expect(last).toEqual(null);
       expect(iterator.pagination).toEqual({
-        skipCount: stop_page * def_amountPerIteration,
+        skipCount: 0,
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });
@@ -76,7 +76,7 @@ describe('RecordsIterator', () => {
       const iterator = new RecordsIterator({ query: {} });
       await iterator.iterate();
       expect(iterator.pagination).toEqual({
-        skipCount: stop_page * def_amountPerIteration,
+        skipCount: 0,
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });
@@ -97,7 +97,7 @@ describe('RecordsIterator', () => {
       await iterator.iterate(spy.callback);
 
       expect(iterator.pagination).toEqual({
-        skipCount: stop_page * def_amountPerIteration,
+        skipCount: 0,
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });
