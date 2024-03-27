@@ -1,0 +1,63 @@
+@import '../../../styles/constants';
+
+.ecos-tags {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-height: 71px;
+  padding-left: 8px;
+  border-radius: 5px;
+  color: $color-black;
+  border: 1px $color-gray-6 solid;
+  overflow: scroll;
+
+  &:hover { 
+    border-color: $color-blue-light;
+  }
+}
+
+.ecos-tags-body {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ecos-input {
+  width: 100%;
+  min-width: 50%;
+  border: none;
+  border-radius: 5px;
+  padding: 14px;
+  padding-left: 14px;
+}
+
+.ecos-tag {
+  display: flex;
+  align-items: center;
+  margin: 7px 0;
+  margin-right: 10px;
+  padding: 0 15px;
+  font-size: 12px;
+  font-weight: 600;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background-color: $color-blue-dark;
+  white-space: nowrap;
+  color: $color-white;
+}
+
+.ecos-tag-remove {
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.ecos-add {
+  margin-top: 7px;
+  cursor: pointer;
+
+  &:hover {
+    svg {
+      fill: $color-gray;
+    }
+  }
+}

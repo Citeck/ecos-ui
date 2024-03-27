@@ -1,4 +1,7 @@
 import React from 'react';
+import classNames from 'classnames';
+
+import { Btn } from "../../../../../components/common/btns";
 
 import './ModalContent.scss';
 
@@ -8,15 +11,22 @@ const ModalContent = ({ config = {} }) => {
   return (
     <div>
       <div className="orgstructure-page-modal__text">{text || ''}</div>
-      <div className="orgstructure-page-modal__container">
-        {buttons
-          ? buttons.map(item => (
-              <button onClick={item.handleClick} className={`orgstructure-page-modal__button orgstructure-page-modal__${item.className}`}>
+      {buttons &&
+        <div className="orgstructure-page-modal__container">
+          {buttons.map((item, index) => (
+              <Btn onClick={item.handleClick} className={classNames({
+                    "ecos-btn_light-blue": index === 1,
+                  },
+                  "orgstructure-page-modal__button",
+                  `orgstructure-page-modal__${item.className}`)
+                }
+              >
                 {item.text}
-              </button>
+              </Btn>
             ))
-          : null}
-      </div>
+          }
+        </div>
+      }
     </div>
   );
 };
