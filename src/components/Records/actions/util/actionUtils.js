@@ -30,7 +30,7 @@ const Labels = {
   CONFIRM_REPLACE: 'journals.action.change-value.message',
   BTN_CANCEL: 'btn.cancel.label',
   BTN_CONFIRM: 'btn.confirm.label',
-  BTN_OK: 'button.ok'
+  BTN_CLOSE_MODAL: 'button.close-modal'
 };
 
 export function getRef(record) {
@@ -44,14 +44,11 @@ export function getRef(record) {
  */
 export function showDetailActionResult(info, options = {}) {
   const { callback, title, withConfirm, ...opt } = options;
-  const disabled = info.data.results.some(res => res.status === t(Labels.IN_PROGRESS) || res.status === '');
 
   let buttons = [
     {
-      label: Labels.BTN_OK,
-      onClick: () => callback && callback(true),
-      className: 'ecos-btn_blue',
-      disabled: disabled
+      label: Labels.BTN_CLOSE_MODAL,
+      onClick: () => callback && callback(true)
     }
   ];
 

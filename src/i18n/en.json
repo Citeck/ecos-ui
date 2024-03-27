@@ -609,6 +609,7 @@
   "group-action.label.fetch-data": "Fetching data",
   "group-action.message.started": "Started",
   "group-action.message.in-progress": "In progress",
+  "group-action.message.warning": "Please click 'Stay on this Page' if you did this unintentionally",
   "group-action.label.result": "The result of performing a group operation",
   "group-action.message.processed": "Processed {{count}} out of {{total}}",
   "group-action.message.done-name": "Action \"{{action}}\" completed",

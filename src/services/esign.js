@@ -68,12 +68,14 @@ class Esign {
     document.body.appendChild(container);
   }
 
-  selectCertificate(currentCertificate, callback) {
-    if (!currentCertificate) {
+  selectCertificate() {
+    return new Promise((resolve, _reject) => {
       const container = document.createElement('div');
+
       const handleSelectCert = selectedCertificate => {
-        callback(selectedCertificate);
         this.#onClose(container);
+
+        return resolve(selectedCertificate);
       };
 
       ReactDOM.render(
@@ -88,9 +90,7 @@ class Esign {
       );
 
       document.body.appendChild(container);
-    } else {
-      callback(currentCertificate);
-    }
+    });
   }
 
   /* document will be signed by the first found certificate */
@@ -103,9 +103,11 @@ class Esign {
 
     const recordRefs = Esign.dataPreparation(refs, queryParams);
 
-    return Esign.signDocument(recordRefs, certificate).then(documentSigned => {
-      isFunction(onBeforeSigning) && onBeforeSigning(recordRefs, certificate);
+    if (isFunction(onBeforeSigning)) {
+      await onBeforeSigning(recordRefs, certificate);
+    }
 
+    return Esign.signDocument(recordRefs, certificate).then(documentSigned => {
       if (documentSigned && isFunction(onSigned)) {
         onSigned();
       }
@@ -229,7 +231,7 @@ class Esign {
 
       return Promise.reject({
         messageTitle: t(Labels.ERROR),
-        messageDescription: t(Labels.SIGN_FAILED_MESSAGE),
+        messageDescription: e.message || t(Labels.SIGN_FAILED_MESSAGE),
         errorType: t(ErrorTypes.DEFAULT)
       });
     }
