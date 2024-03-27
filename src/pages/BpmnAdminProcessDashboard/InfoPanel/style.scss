@@ -10,6 +10,20 @@
     justify-content: space-between;
   }
 
+  & .ecos-btn_blue {
+    position: relative;
+    padding: 3px 12px;
+    overflow: hidden;
+
+    p {
+      margin: 0;
+      max-width: 80%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+  }
+
   & .ecos-btn__content {
     display: flex;
     justify-content: space-between;

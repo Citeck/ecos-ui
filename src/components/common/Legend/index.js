@@ -3,49 +3,64 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 
+import { EXTENDED_MODE } from '../../widgets/ProcessStatistics/constants';
+
 import './style.scss';
 
-const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '' }) => {
+const Legend = ({ width = 200, min = 0, max = 0, gradient, className = '', formMode = 'heatmap' }) => {
   const [_min, setMin] = useState(0);
   const [_max, setMax] = useState(0);
   const [gradientCfg, setGradientCfg] = useState();
   const [gradientImg, setGradientImg] = useState();
 
-  useEffect(() => {
-    setMin(getLegendNum(min, false));
-    setMax(getLegendNum(max, true));
-  }, [min, max]);
-
-  useEffect(() => {
-    if (!isEqual(gradient, gradientCfg)) {
-      setGradientCfg(gradient);
-
-      const legendCanvas = document.createElement('canvas');
-      legendCanvas.width = width;
-      legendCanvas.height = 10;
-      const ctx = legendCanvas.getContext('2d');
-      const gradientEl = ctx.createLinearGradient(0, 0, width, 1);
-
-      for (const key in gradient) {
-        if (gradient.hasOwnProperty(key)) {
-          gradientEl.addColorStop(Number(key), gradient[key]);
-        }
+  useEffect(
+    () => {
+      switch (formMode) {
+        case EXTENDED_MODE:
+          setMin(getLegendNum(min, false));
+          setMax(getLegendNum(max, true));
+          break;
+        default:
+          setMin(min);
+          setMax(max);
       }
+    },
+    [min, max]
+  );
 
-      ctx.fillStyle = gradientEl;
-      ctx.fillRect(0, 0, width, 10);
-      setGradientImg(legendCanvas.toDataURL());
-    }
-  }, [gradient, gradientCfg]);
+  useEffect(
+    () => {
+      if (!isEqual(gradient, gradientCfg)) {
+        setGradientCfg(gradient);
+
+        const legendCanvas = document.createElement('canvas');
+        legendCanvas.width = width;
+        legendCanvas.height = 10;
+        const ctx = legendCanvas.getContext('2d');
+        const gradientEl = ctx.createLinearGradient(0, 0, width, 1);
+
+        for (const key in gradient) {
+          if (gradient.hasOwnProperty(key)) {
+            gradientEl.addColorStop(Number(key), gradient[key]);
+          }
+        }
+
+        ctx.fillStyle = gradientEl;
+        ctx.fillRect(0, 0, width, 10);
+        setGradientImg(legendCanvas.toDataURL());
+      }
+    },
+    [gradient, gradientCfg]
+  );
 
   return (
     <div className={classNames('ecos-legend', className)}>
       <span id="min" className="ecos-legend-min">
-        {_min}
+        {Math.round(_min)}
       </span>
       <div className="ecos-legend-gradient">{gradientImg && <img src={gradientImg} alt="legend" />}</div>
       <span id="max" className="ecos-legend-max">
-        {_max}
+        {Math.round(_max)}
       </span>
     </div>
   );
@@ -56,6 +71,7 @@ Legend.propTypes = {
   min: PropTypes.number,
   max: PropTypes.number,
   gradient: PropTypes.object,
+  formMode: PropTypes.string,
   className: PropTypes.string
 };
 

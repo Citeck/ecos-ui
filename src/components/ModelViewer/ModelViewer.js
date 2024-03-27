@@ -17,8 +17,8 @@ export default class ModelViewer {
   container;
   modeler;
   heatmap;
-  #defaultScale;
   #badges;
+  #defaultViewBox;
 
   static getElementName = async (diagram, elementId) => {
     const modeler = new NavigatedViewer({
@@ -96,8 +96,8 @@ export default class ModelViewer {
         height: currentViewbox.height
       });
 
-      this.markedElement = element;
       canvas.zoom(1);
+      this.markedElement = element;
     }
   };
 
@@ -151,7 +151,7 @@ export default class ModelViewer {
       if (this.modeler && diagram) {
         const result = await this.modeler.importXML(diagram);
         callbackData = { mounted: !result.error, result };
-        this.#defaultScale = this.canvas.viewbox().scale;
+        this.#defaultViewBox = this.canvas.viewbox();
       } else {
         callbackData = { mounted: false, error: 'No diagram' };
       }
@@ -180,22 +180,35 @@ export default class ModelViewer {
 
   setZoom = value => {
     let nv;
+    let defaultViewbox;
+
     switch (value) {
       case ScaleOptions.DEFAULT:
-        nv = this.#defaultScale;
+        nv = this.#defaultViewBox.scale;
+        defaultViewbox = this.#defaultViewBox;
         break;
       case ScaleOptions.FIT:
         nv = ScaleOptions.FIT;
         break;
       default: {
         let oldScale = this.canvas.viewbox().scale;
-        oldScale = isNumber(oldScale) ? oldScale : this.#defaultScale;
+        oldScale = isNumber(oldScale) ? oldScale : this.#defaultViewBox.scale;
         const newScale = oldScale + value;
         nv = newScale > ScaleOptions.STEP ? newScale : ScaleOptions.STEP;
       }
     }
 
-    nv && this.canvas.zoom(nv, this.zoomCenter);
+    if (defaultViewbox) {
+      nv && this.canvas.zoom(nv);
+      const resizedViewbox = this.canvas.viewbox();
+
+      const dx = resizedViewbox.x - defaultViewbox.x;
+      const dy = resizedViewbox.y - defaultViewbox.y;
+
+      this.canvas.scroll({ dx, dy });
+    } else {
+      nv && this.canvas.zoom(nv, this.zoomCenter);
+    }
     this.redrawHeatmap();
   };
 
@@ -203,16 +216,25 @@ export default class ModelViewer {
 
   /**
    * Draw Heatmap
+   *
    * @param data {Array}
    * @param hasTooltip {Boolean}
    * @param onChange {Function}
    * @param onMounted {Function}
+   * @param formMode {String}
    */
-  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip }) => {
+  drawHeatmap = ({ data = [], onChange, onMounted, hasTooltip, formMode }) => {
     const { HeatmapWrapper } = plugins;
 
     if (HeatmapWrapper) {
-      this.heatmap = new HeatmapWrapper({ instModel: this.modeler, data, hasTooltip, onChange, onMounted });
+      this.heatmap = new HeatmapWrapper({
+        instModel: this.modeler,
+        data,
+        hasTooltip,
+        onChange,
+        onMounted,
+        formMode
+      });
     }
   };
 
@@ -223,7 +245,7 @@ export default class ModelViewer {
     this.heatmap.repaint();
   };
 
-  drawBadges = ({ data = [], keys = [] }) => {
+  drawBadges = ({ data = [], keys = [], withPercentCount = false }) => {
     const { Badges } = plugins;
 
     if (!Badges) {
@@ -232,6 +254,7 @@ export default class ModelViewer {
 
     const elementRegistry = this.modeler.get('elementRegistry');
     const canvas = this.modeler.get('canvas');
+
     const root = canvas.getRootElement();
 
     const _data =
@@ -250,7 +273,7 @@ export default class ModelViewer {
     this.#badges = new Badges();
     this.#badges.create(this.modeler.get('overlays'));
 
-    this.#badges.draw({ data: _data, keys });
+    this.#badges.draw({ data: _data, keys, withPercentCount });
   };
 
   destroy = () => {

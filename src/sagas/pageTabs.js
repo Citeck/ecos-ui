@@ -23,10 +23,12 @@ import {
 } from '../actions/pageTabs';
 import { selectInitStatus } from '../selectors/pageTabs';
 import { selectIsAuthenticated } from '../selectors/user';
-import { getCurrentUserName } from '../helpers/util';
+import { getCurrentUserName, getCurrentLocale } from '../helpers/util';
 import PageTabList from '../services/pageTabs/PageTabList';
 import PageService from '../services/PageService';
 import { TITLE } from '../constants/pageTabs';
+
+const lng = getCurrentLocale();
 
 function* sagaInitTabs({ api, logger }) {
   try {
@@ -50,8 +52,10 @@ function* sagaInitTabs({ api, logger }) {
     yield put(initTabsComplete());
 
     yield PageTabList.tabs.map(function*(tab) {
-      const updates = yield* getTitle(tab);
-      PageTabList.changeOne({ tab, updates });
+      if (tab.isActive || tab.isLoading) {
+        const updates = yield* getTitle(tab);
+        PageTabList.changeOne({ tab, updates });
+      }
     });
 
     yield put(setTabs(PageTabList.storeList));
@@ -234,13 +238,17 @@ function* getTitle(tab) {
     const title = yield PageService.getPage(tab).getTitle({ recordRef, dashboardId, journalId, type }, tab.link);
 
     return {
-      title,
+      title: {
+        [lng]: title,
+      },
       isLoading: false
     };
   } catch (e) {
     console.error('[pageTabs] getTitle]', e);
     return {
-      title: TITLE.NO_NAME,
+      title: {
+        [lng]: TITLE.NO_NAME
+      },
       isLoading: false
     };
   }

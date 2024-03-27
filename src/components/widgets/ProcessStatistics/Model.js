@@ -5,15 +5,16 @@ import { connect } from 'react-redux';
 import get from 'lodash/get';
 import debounce from 'lodash/debounce';
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 
 import { getModel, setNewData, changeFilter } from '../../../actions/processStatistics';
-
 import { InfoText, Legend, ResizableBox, Scaler } from '../../common';
 import { ControlledCheckbox, Range } from '../../common/form';
 import { ScaleOptions } from '../../common/Scaler/util';
 import { t } from '../../../helpers/export/util';
 import BPMNViewer from '../../ModelViewer/BPMNViewer';
-import { DefSets, getPreparedHeatItem, Labels } from './util';
+import { DefSets, getPreparedHeatItem, getPreparedKPIItem, Labels } from './util';
+import { EXTENDED_MODE, KPI_MODE } from './constants';
 import Section from './Section';
 
 import './style.scss';
@@ -27,6 +28,7 @@ const mapStateToProps = (state, context) => {
     sectionPath: psState.sectionPath,
     heatmapData: psState.heatmapData,
     isNewData: psState.isNewData,
+    KPIData: psState.KPIData,
     isMobile: state.view.isMobile
   };
 };
@@ -48,6 +50,7 @@ class Model extends React.Component {
     showModelDefault: PropTypes.bool,
     runUpdate: PropTypes.bool,
     isLoading: PropTypes.bool,
+    withPercentCount: PropTypes.bool,
     heatmapData: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
@@ -59,7 +62,8 @@ class Model extends React.Component {
   };
 
   static defaultProps = {
-    className: ''
+    className: '',
+    withPercentCount: false
   };
 
   constructor(props) {
@@ -105,6 +109,21 @@ class Model extends React.Component {
       this.rePaintHeatmap();
     }
 
+    if (!isEqual(prevProps.formMode, this.props.formMode)) {
+      this.#heatmapData = new Set();
+      this.setState(
+        {
+          isShowCounters: this.props.formMode === KPI_MODE ? false : prevState.isShowCounters,
+          isHeatmapMounted: false
+        },
+        () => {
+          this.designer.heatmap.destroy();
+          showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
+          this.renderBadges();
+        }
+      );
+    }
+
     if (prevProps.showHeatmapDefault !== showHeatmapDefault) {
       this.setState({ isShowHeatmap: showHeatmapDefault }, () => {
         showHeatmapDefault ? this.renderHeatmap() : this.switchHeatMapOff();
@@ -123,16 +142,16 @@ class Model extends React.Component {
   };
 
   getPreparedHeatData = () => {
-    const { heatmapData, stateId, setNewData } = this.props;
+    const { heatmapData, KPIData, formMode, stateId, setNewData } = this.props;
     const { isActiveCount, isCompletedCount } = this.state;
+
+    if (formMode === KPI_MODE) {
+      return KPIData.map(item => getPreparedKPIItem(item)).filter(item => item.value);
+    }
 
     setNewData({ stateId, isNewData: false });
 
     if (!isActiveCount && !isCompletedCount) {
-      return [];
-    }
-
-    if (!heatmapData) {
       return [];
     }
 
@@ -192,7 +211,13 @@ class Model extends React.Component {
   };
 
   renderBadges = () => {
+    const { formMode, withPercentCount } = this.props;
     const { isActiveCount, isCompletedCount } = this.state;
+
+    if (formMode === KPI_MODE) {
+      return;
+    }
+
     const keys = [];
 
     if (isActiveCount) {
@@ -203,11 +228,15 @@ class Model extends React.Component {
       keys.push('completedCount');
     }
 
-    this.designer.drawBadges({ data: this.props.heatmapData, keys });
+    this.designer.drawBadges({
+      keys,
+      data: this.props.heatmapData,
+      withPercentCount
+    });
   };
 
   renderHeatmap = () => {
-    const { heatmapData, setNewData, stateId } = this.props;
+    const { heatmapData, setNewData, stateId, formMode } = this.props;
     const { isShowHeatmap, opacity } = this.state;
 
     if (!isEmpty(heatmapData)) {
@@ -219,6 +248,7 @@ class Model extends React.Component {
         onChange: this.handleChangeHeatmap,
         onMounted: () => {
           this.setState({ isHeatmapMounted: true });
+
           debounce(() => {
             this.handleChangeOpacity(opacity);
             if (this.isFirstBoot) {
@@ -227,6 +257,7 @@ class Model extends React.Component {
             }
           }, 100)();
         },
+        formMode,
         hasTooltip: false
       });
     } else {
@@ -239,13 +270,15 @@ class Model extends React.Component {
   };
 
   reRenderHeatmap = () => {
+    const { formMode } = this.props;
+
     if (!this.state.isShowHeatmap || !this.designer || !this.designer.heatmap) {
       return;
     }
 
     this.#heatmapData = new Set([...this.getPreparedHeatData()]);
 
-    this.designer.heatmap.updateData(this.#heatmapData, true);
+    this.designer.heatmap.updateData(this.#heatmapData, true, formMode);
     this.designer.heatmap.toggleDisplay(false);
   };
 
@@ -282,13 +315,15 @@ class Model extends React.Component {
   };
 
   handleChangeHeatmap = legendData => {
-    this.setState({ legendData });
-    this.renderBadges();
+    this.setState({ legendData }, () => {
+      this.renderBadges();
+    });
   };
 
   handleChangeOpacity = value => {
-    this.setState({ opacity: Number(value) });
-    this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+    this.setState({ opacity: Number(value) }, () => {
+      this.designer && this.designer.heatmap && this.designer.heatmap.setOpacity(value);
+    });
   };
 
   handleClickZoom = value => {
@@ -330,15 +365,15 @@ class Model extends React.Component {
 
   renderSwitches = () => {
     const { isShowHeatmap, isShowBadges, isTempHeatmapOff } = this.state;
-    const { heatmapData, isExtendedMode, showCountersDefault, showHeatmapDefault } = this.props;
+    const { heatmapData, isSimpedMode, showCountersDefault, showHeatmapDefault, formMode } = this.props;
 
-    if (!isExtendedMode) {
+    if (isSimpedMode) {
       return null;
     }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
-        {showCountersDefault && (
+        {showCountersDefault && formMode !== KPI_MODE && (
           <div className="ecos-process-statistics-model__checkbox" onClick={this.handleToggleShowCounters}>
             <ControlledCheckbox checked={isShowBadges} />
             <span className="ecos-process-statistics-model__checkbox-label">{t(Labels.PANEL_COUNTERS)}</span>
@@ -355,7 +390,12 @@ class Model extends React.Component {
   };
 
   renderCountFlags = () => {
-    const { isActiveCount, isCompletedCount } = this.state;
+    const { formMode } = this.props;
+    const { isActiveCount, isCompletedCount, isShowCounters } = this.state;
+
+    if (!isShowCounters && formMode !== EXTENDED_MODE) {
+      return null;
+    }
 
     return (
       <div className="ecos-process-statistics-model__checkbox-group">
@@ -408,7 +448,8 @@ class Model extends React.Component {
           'ecos-process-statistics-model_hidden-active-count': !isActiveCount,
           'ecos-process-statistics-model_hidden-completed-count': !isCompletedCount,
           'ecos-process-statistics-model_hidden-badges': !isShowBadges,
-          'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap
+          'ecos-process-statistics-model_hidden-heatmap': !isShowHeatmap,
+          'ecos-process-statistics-model-kpi': this.props.formMode === KPI_MODE
         })}
       >
         <Section title={t(Labels.MODEL_TITLE)} isLoading={isLoading || isModelMounting} opened>
@@ -442,7 +483,7 @@ class Model extends React.Component {
                   {showHeatmap && <Range value={opacity} onChange={this.handleChangeOpacity} label={t(Labels.PANEL_OPACITY)} />}
                   {this.renderCountFlags()}
                   <div className="ecos-process-statistics__delimiter" />
-                  {showHeatmap && <Legend {...legendData} />}
+                  {showHeatmap && <Legend {...legendData} formMode={this.props.formMode} />}
                 </div>
               )}
             </ResizableBox>

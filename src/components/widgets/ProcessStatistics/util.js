@@ -9,11 +9,13 @@ export const Labels = {
   FORM_MODE_SELECT_LABEL: 'process-statistics-widget.form-condition.label',
   FORM_MODE_EXTENDED: 'process-statistics-widget.form-condition.extended',
   FORM_MODE_SIMPLIFIED: 'process-statistics-widget.form-condition.simplified',
+  FORM_MODE_KPI: 'process-statistics-widget.form-condition.kpi',
   NO_COLS: 'process-statistics-widget.info.no-columns',
   NO_MODEL: 'process-statistics-widget.info.no-model',
   ERR_MODEL: 'process-statistics-widget.info.mount-problem',
   SETTINGS_TITLE: 'process-statistics-widget.settings.title',
   SETTINGS_DEFAULT_FLAGS: 'process-statistics-widget.settings.default-turn-on',
+  SETTINGS_BADGES_VALUES_MODE: 'process-statistics-widget.settings.badges.label',
   SETTINGS_BTN_CANCEL: 'process-statistics-widget.settings.btn.cancel',
   SETTINGS_BTN_SAVE: 'process-statistics-widget.settings.btn.save',
   JOURNAL_FIELD: 'process-statistics-widget.settings.field.journal',
@@ -36,5 +38,22 @@ export const getPreparedHeatItem = (item, flags) => {
   return {
     id: item.id,
     value: getCount(flags.isActiveCount, item.activeCount) + getCount(flags.isCompletedCount, item.completedCount)
+  };
+};
+
+export const getPreparedKPIItem = item => {
+  const kpiPercent = parseFloat(item.kpiDeviation);
+
+  if (kpiPercent > 100) {
+    item.kpiDeviation = 100;
+  }
+
+  if (kpiPercent < -100) {
+    item.kpiDeviation = -100;
+  }
+
+  return {
+    id: item.displayKpiOnBpmnActivityId,
+    value: kpiPercent
   };
 };

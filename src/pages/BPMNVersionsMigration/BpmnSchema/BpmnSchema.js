@@ -12,10 +12,11 @@ import { getAllVersions, getMetaInfo } from '../../../actions/processAdmin';
 import { Select } from '../../../components/common/form';
 import { getProcesses } from '../../../actions/bpmnAdmin';
 import PanelTitle from '../../../components/common/PanelTitle';
+import Scaler from '../../../components/common/Scaler';
 import { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
 import PageService from '../../../services/PageService';
 import { createDocumentUrl } from '../../../helpers/urls';
-import { InfoText } from '../../../components/common';
+import { InfoText, Loader } from '../../../components/common';
 import { MigrationContext } from '../MigrationContext';
 import { SCHEMA_BLOCK_CLASS } from '../constants';
 import { getProcessLabel, getProcessValue, getVersionLabel, getVersionValue } from './utils';
@@ -41,6 +42,10 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     y: 0
   };
 
+  const getKeyProcess = id => {
+    return id.split(':')[0];
+  };
+
   useEffect(() => {
     isFunction(getProcesses) && getProcesses(true);
   }, []);
@@ -48,7 +53,7 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
   useEffect(
     () => {
       if (processId && processes.length > 0) {
-        setSelectedProcess(processes.find(process => process.id === `eproc/bpmn-def-engine@${processId}`));
+        setSelectedProcess(processes.find(process => getKeyProcess(process.id) === `eproc/bpmn-def-engine@${getKeyProcess(processId)}`));
       }
     },
     [processes]
@@ -68,9 +73,21 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
       if (sourceVersion && !sourceProcessDefinitionId && get(versionsInfo.data, 'length', 0) > 0) {
         const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion));
         setSourceProcessDefinitionId(selectedVersion || null);
+        if (selectedVersion && metaInfo && metaInfo.version !== sourceVersion) {
+          setSelectedProcess(versionsInfo.data.find(version => version === selectedVersion));
+        }
       }
     },
     [processId, versionsInfo.data]
+  );
+
+  useEffect(
+    () => {
+      if (sourceProcessDefinitionId) {
+        setSelectedProcess(sourceProcessDefinitionId);
+      }
+    },
+    [sourceProcessDefinitionId]
   );
 
   useEffect(
@@ -135,10 +152,15 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     });
   };
 
+  const handleClickZoom = value => {
+    designer.setZoom(value);
+  };
+
   const handleClickElement = (_event, elementInfo) => {
     setActivities(prev => Array.from(new Set([...prev, get(elementInfo, 'element.id')])));
   };
 
+  const showLoader = processId && (!metaInfo || !metaInfo.bpmnDefinition);
   const noSchema = processId && !metaInfo.bpmnDefinition;
   const noProcess = !processId;
 
@@ -147,6 +169,10 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
       openNewTab: true
     });
   };
+
+  if (showLoader) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -179,16 +205,22 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
       {noSchema && <InfoText text={t(Labels.NO_SCHEMA)} />}
 
       {Sheet && !noSchema && !noProcess && (
-        <Sheet
-          diagram={metaInfo.bpmnDefinition}
-          defHeight={800}
-          zoom={ScaleOptions.FIT}
-          zoomCenter={zoomCenter}
-          onMounted={handleReadySheet}
-          modelEvents={{
-            'element.click': handleClickElement
-          }}
-        />
+        <>
+          <div className="bpmn-process__scaler">
+            <Scaler onClick={handleClickZoom} />
+          </div>
+
+          <Sheet
+            diagram={metaInfo.bpmnDefinition}
+            defHeight={800}
+            zoom={ScaleOptions.FIT}
+            zoomCenter={zoomCenter}
+            onMounted={handleReadySheet}
+            modelEvents={{
+              'element.click': handleClickElement
+            }}
+          />
+        </>
       )}
       <div className={`${SCHEMA_BLOCK_CLASS}__version-selects`}>
         <div className={`${SCHEMA_BLOCK_CLASS}__select`}>

@@ -1,18 +1,21 @@
-import React, { useContext } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { selectInstanceMetaInfo } from '../../../selectors/instanceAdmin';
-import { InfoText, Loader, ResizableBox } from '../../../components/common';
-import BPMNViewer from '../../../components/ModelViewer/BPMNViewer';
-import { ScaleOptions } from '../../../components/common/Scaler/util';
-import { t } from '../../../helpers/util';
-import { InstanceContext } from '../InstanceContext';
-import Labels from './Labels';
+import { InfoText, Loader, ResizableBox } from '../common';
+import BPMNViewer from '../ModelViewer/BPMNViewer';
+import { ScaleOptions } from '../common/Scaler/util';
+import Scaler from '../common/Scaler';
+import { t } from '../../helpers/util';
 
-const BpmnSchemaContent = ({ metaInfo }) => {
-  const context = useContext(InstanceContext);
+import './style.scss';
 
-  const designer = new BPMNViewer();
+let designer;
+
+const BpmnSchemaContent = ({ metaInfo, activityElement, labels }) => {
+  useEffect(() => {
+    designer = new BPMNViewer();
+  }, []);
+
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {
     x: 0,
@@ -49,6 +52,10 @@ const BpmnSchemaContent = ({ metaInfo }) => {
     });
   };
 
+  const handleClickZoom = value => {
+    designer.setZoom(value);
+  };
+
   const handleReadySheet = ({ mounted, result }) => {
     if (mounted) {
       renderBadges();
@@ -57,32 +64,38 @@ const BpmnSchemaContent = ({ metaInfo }) => {
     }
   };
 
+  if (!designer) {
+    return null;
+  }
+
   return (
     <>
-      <ResizableBox getHeight={setHeight} resizable>
         {showLoader && <Loader />}
-        {!showLoader && !noData && (
+        {Sheet && !showLoader && !noData && (
           <>
-            {Sheet && (
+            <div className="bpmn-process__scaler">
+              <Scaler onClick={handleClickZoom} />
+            </div>
+
+            <ResizableBox getHeight={setHeight} resizable>
               <Sheet
                 diagram={metaInfo.bpmnDefinition}
                 onMounted={handleReadySheet}
                 defHeight={600}
                 zoom={ScaleOptions.FIT}
                 zoomCenter={zoomCenter}
-                markedElement={context.activityElement}
+                markedElement={activityElement}
               />
-            )}
+            </ResizableBox>
           </>
         )}
-        {noData && <InfoText text={t(Labels.NO_SCHEMA)} />}
-      </ResizableBox>
+        {noData && <InfoText text={t(labels.NO_SCHEMA)} />}
     </>
   );
 };
 
 const mapStateToProps = (store, props) => ({
-  metaInfo: selectInstanceMetaInfo(store, props)
+  metaInfo: props.selectMetaInfo(store, props),
 });
 
 export default connect(mapStateToProps)(BpmnSchemaContent);

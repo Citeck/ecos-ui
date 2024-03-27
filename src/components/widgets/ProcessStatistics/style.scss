@@ -55,8 +55,14 @@
       }
     }
 
-    &_hidden-badges .model-badges__wrap {
-      display: none;
+    &_hidden-badges .model-badges__item-wrap {
+      .model-badges__item_activeCount,
+      .model-badges__item_completedCount {
+        display: none;
+      }
+      .model-badges__item_percent {
+        display: block;
+      }
     }
 
     &_hidden-active-count .model-badges__item_activeCount {

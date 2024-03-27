@@ -141,8 +141,8 @@ class Tab extends React.Component {
       }
 
       this.setState({ editing: false, text: label });
-      this.hideEditModal();
     }
+    this.hideEditModal();
   };
 
   onDelete = e => {
