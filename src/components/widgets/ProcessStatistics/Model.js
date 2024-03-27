@@ -195,8 +195,8 @@ class Model extends React.Component {
   };
 
   renderBadges = () => {
-    const { isActiveCount, isCompletedCount } = this.state;
     const { formMode, withPercentCount } = this.props;
+    const { isActiveCount, isCompletedCount } = this.state;
 
     if (formMode === KPI_MODE) {
       return;
