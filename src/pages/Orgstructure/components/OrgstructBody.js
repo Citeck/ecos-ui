@@ -26,7 +26,6 @@ const OrgstructBody = ({ reloadList, tabId, toggleToFirstTab }) => {
     onUpdateTree,
     currentTab,
     tabItems,
-    onToggleCollapse,
   } = context;
 
   useEffect(() => {
