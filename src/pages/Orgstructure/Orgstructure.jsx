@@ -16,8 +16,8 @@ import {
   GroupTypes,
   ROOT_GROUP_NAME,
   TabTypes
-} from '../../components/common/form/SelectOrgstruct/constants';
-import { SelectOrgstructProvider } from '../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+} from '../../components/common/Orgstruct/constants';
+import { OrgstructProvider } from '../../components/common/Orgstruct/OrgstructContext';
 
 import { setOrgstructureConfig, setSelectedPerson } from '../../actions/orgstructure';
 import { decodeLink, getSearchParams, getSortedUrlParams, pushHistoryLink, replaceHistoryLink } from '../../helpers/urls';
@@ -382,9 +382,9 @@ class Orgstructure extends React.Component {
     return (
       <div className="orgstructure-page__grid-container">
         <div className="orgstructure-page__grid-main">
-          <SelectOrgstructProvider orgStructApi={api} controlProps={controlProps}>
+          <OrgstructProvider orgStructApi={api} controlProps={controlProps}>
             <Structure tabId={this.props.tabId} toggleToFirstTab={this.toggleToFirstTab} />
-          </SelectOrgstructProvider>
+          </OrgstructProvider>
         </div>
 
         {this.renderDashboard()}

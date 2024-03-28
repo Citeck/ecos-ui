@@ -2,7 +2,7 @@ import React, { useContext, useRef } from 'react';
 import classNames from 'classnames';
 
 import { Input } from '../../../components/common/form';
-import { SelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { OrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
 import { t } from '../../../helpers/util';
 
 import './style.scss';
@@ -12,7 +12,7 @@ const Labels = {
 };
 
 const OrgstructureSearch = () => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useContext(OrgstructContext);
   const { searchText, updateSearchText, onUpdateTree, resetSearchText } = context;
   const inputRef = useRef(null);
 

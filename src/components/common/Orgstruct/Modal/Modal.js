@@ -1,16 +1,16 @@
 import React, { useContext } from 'react';
 
-import { t } from '../../../../../../helpers/util';
-import { Btn } from '../../../../btns';
-import EcosModal from '../../../../EcosModal';
-import { SelectOrgstructContext } from '../../SelectOrgstructContext';
+import { t } from '../../../../helpers/util';
+import { Btn } from '../../btns';
+import EcosModal from '../../EcosModal';
+import { OrgstructContext } from '../OrgstructContext';
 import Search from './Search';
 import Tabs from './Tabs';
 import Body from './Body';
 
-import './SelectModal.scss';
-import Pagination from '../../../../Pagination/Pagination';
-import { PAGINATION_SIZES, TabTypes } from '../../constants';
+import './Modal.scss';
+import Pagination from '../../Pagination';
+import { PAGINATION_SIZES, TabTypes } from '../constants';
 
 const Labels = {
   TITLE: 'select-orgstruct.select-modal.title',
@@ -18,23 +18,30 @@ const Labels = {
   BUTTON_OK: 'select-orgstruct.select-modal.ok-button'
 };
 
-const SelectModal = () => {
-  const context = useContext(SelectOrgstructContext);
+const Modal = () => {
+  const context = useContext(OrgstructContext);
   const {
     isSelectModalOpen,
     toggleSelectModal,
     onCancelSelect,
     onSelect,
     modalTitle,
-    hideTabSwitcher,
     currentTab,
     pagination,
-    onChangePage
+    hideTabSwitcher,
+    onChangePage,
+    parent,
   } = context;
+
+  let title = modalTitle || t(Labels.TITLE);
+
+  if (parent) {
+    title += ` (${parent.label})`;
+  }
 
   return (
     <EcosModal
-      title={modalTitle || t(Labels.TITLE)}
+      title={title}
       isOpen={isSelectModalOpen}
       hideModal={toggleSelectModal}
       className="select-orgstruct-select-modal ecos-modal_width-sm"
@@ -69,6 +76,6 @@ const SelectModal = () => {
   );
 };
 
-SelectModal.propTypes = {};
+Modal.propTypes = {};
 
-export default SelectModal;
+export default Modal;

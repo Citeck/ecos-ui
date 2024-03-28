@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useSelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { useOrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
 import FormManager from '../../../components/EcosForm/FormManager';
 import { isMobileDevice, t } from '../../../helpers/util';
 import { Icon, Tooltip } from '../../../components/common';
@@ -15,7 +15,7 @@ const Labels = {
 };
 
 const Structure = ({ tabId, toggleToFirstTab }) => {
-  const { onUpdateTree } = useSelectOrgstructContext();
+  const { onUpdateTree } = useOrgstructContext();
 
   const tooltipId = 'add-group-button';
 

@@ -3,14 +3,14 @@ import { Scrollbars } from 'react-custom-scrollbars';
 
 import { t } from '../../../../helpers/util';
 import { InfoText, Loader } from '../../../../components/common';
-import { SelectOrgstructContext } from '../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { OrgstructContext } from '../../../../components/common/Orgstruct/OrgstructContext';
 
 import List from './List';
 
 import './Body.scss';
 
 const Body = ({ reloadList, tabId, toggleToFirstTab }) => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useContext(OrgstructContext);
   const { currentTab, tabItems, isSearching } = context;
 
   const children = tabItems[currentTab].filter(i => !i.parentId);

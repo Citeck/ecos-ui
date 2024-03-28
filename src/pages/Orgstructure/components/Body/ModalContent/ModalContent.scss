@@ -6,6 +6,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
+    gap: 20px;
   }
 
   &__text {
@@ -19,11 +20,11 @@
   }
 
   &__button {
-    width: 12vw;
     height: 6vh;
     border-radius: 8px;
     box-sizing: border-box;
     border: 0px;
+    width: 50%;
   }
 
   &__gray {
