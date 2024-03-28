@@ -50,7 +50,8 @@ class KPIRenderer extends NumberRenderer {
     const { recordRef } = getSearchParams();
 
     const isAccessible = await Records.get(recordRef).load(PERMISSION_VIEW_REPORTS);
-    const KPI = window.Citeck.KPIData.find(i => i.displayKpiOnBpmnActivityId === activityId);
+    const { KPIData = [] } = window.Citeck;
+    const KPI = KPIData.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
     if (KPI && isAccessible) {
       const durationFormatterInstance = new DurationFormatter();
