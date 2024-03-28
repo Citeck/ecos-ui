@@ -219,7 +219,9 @@ class RecordsComponent {
         let recordAtts = respRecords[idx];
         let loadedAtts = [];
         for (let idx = 0; idx < attsToLoad.length; idx++) {
-          loadedAtts.push(recordAtts.attributes[idx]);
+          if (recordAtts.attributes) {
+            loadedAtts.push(recordAtts.attributes[idx]);
+          }
         }
 
         if (recordAtts.id) {

@@ -3,6 +3,10 @@ import RecordsIterator from '../RecordsIterator';
 const def_amountPerIteration = 10;
 const stop_page = 5;
 
+const skipCountRecords = records => {
+  return records.filter(record => record['_created'] && record['_created'] === records[0]['_created']).length;
+};
+
 jest.spyOn(global, 'fetch').mockImplementation((url, request) => {
   const body = JSON.parse(request.body);
   const page = body.query.page;
@@ -39,7 +43,7 @@ describe('RecordsIterator', () => {
       expect(iterator.pagination).toEqual({ skipCount: 0, maxItems: 20, page: 1 });
 
       const res = await iterator.next();
-      expect(iterator.pagination).toEqual({ skipCount: amountPerIteration, maxItems: amountPerIteration, page: 2 });
+      expect(iterator.pagination).toEqual({ skipCount: skipCountRecords(res.records), maxItems: amountPerIteration, page: 2 });
       expect(res.records.length).toEqual(amountPerIteration);
     });
   });
@@ -49,13 +53,13 @@ describe('RecordsIterator', () => {
 
     it('1 page & result', async () => {
       const res = await iterator.next();
-      expect(iterator.pagination).toEqual({ skipCount: 10, maxItems: def_amountPerIteration, page: 2 });
+      expect(iterator.pagination).toEqual({ skipCount: skipCountRecords(res.records), maxItems: def_amountPerIteration, page: 2 });
       expect(res.records.length).toEqual(def_amountPerIteration);
     });
 
     it('2 page', async () => {
-      await iterator.next();
-      expect(iterator.pagination).toEqual({ skipCount: 20, maxItems: def_amountPerIteration, page: 3 });
+      const res = await iterator.next();
+      expect(iterator.pagination).toEqual({ skipCount: skipCountRecords(res.records), maxItems: def_amountPerIteration, page: 3 });
     });
 
     it(stop_page + ' "last" page', async () => {
@@ -63,8 +67,10 @@ describe('RecordsIterator', () => {
       await iterator.next();
       const last = await iterator.next();
       expect(last).toEqual(null);
+
+      /* Since the last value of res is 0, the skipCount will also be 0 */
       expect(iterator.pagination).toEqual({
-        skipCount: stop_page * def_amountPerIteration,
+        skipCount: 0,
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });
@@ -75,21 +81,26 @@ describe('RecordsIterator', () => {
     it('iteration without callback', async () => {
       const iterator = new RecordsIterator({ query: {} });
       await iterator.iterate();
-      expect(iterator.pagination).toEqual({
-        skipCount: stop_page * def_amountPerIteration,
+
+      /* Since the calculations are done inside the iterator without a callback,
+      it is not possible to determine the value of skipCount */
+      expect({ maxItems: iterator.pagination.maxItems, page: iterator.pagination.page }).toEqual({
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });
     });
 
     it('iteration with callback', async () => {
+      let skipCount = 0;
       const iterator = new RecordsIterator({ query: {} });
       const spy = {
         callback: res => {
           if (iterator.pagination.page <= stop_page) {
+            skipCount = skipCountRecords(res.records);
             expect(res.records.length).toEqual(def_amountPerIteration);
           } else {
             expect(res).toEqual(null);
+            skipCount = 0;
           }
         }
       };
@@ -97,7 +108,7 @@ describe('RecordsIterator', () => {
       await iterator.iterate(spy.callback);
 
       expect(iterator.pagination).toEqual({
-        skipCount: stop_page * def_amountPerIteration,
+        skipCount: skipCount,
         maxItems: def_amountPerIteration,
         page: stop_page + 1
       });

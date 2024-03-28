@@ -70,18 +70,55 @@ class Esign {
     document.body.appendChild(container);
   }
 
+  /* selects the certificate before the signing request in silentSign */
+  selectCertificate() {
+    return new Promise((resolve, _reject) => {
+      const container = document.createElement('div');
+
+      const handleSelectCert = selectedCertificate => {
+        this.#onClose(container);
+
+        return resolve(selectedCertificate);
+      };
+
+      ReactDOM.render(
+        <EsignComponent
+          handleSelectCert={handleSelectCert}
+          recordRefs={['']}
+          onClose={() => {
+            this.#onClose(container);
+          }}
+        />,
+        container
+      );
+
+      document.body.appendChild(container);
+    });
+  }
+
   /* document will be signed by the first found certificate */
-  async silentSign(refs, componentProps = {}, queryParams = false) {
+  async silentSign(refs, componentProps = {}, queryParams = false, certificate = null) {
     if (!refs) {
       return new Error(`The "recordRefs" argument is required`);
     }
 
+    const { onBeforeSigning, onSigned, onClose } = componentProps;
+
     const recordRefs = Esign.dataPreparation(refs, queryParams);
 
-    return Esign.init(recordRefs)
-      .then(() => Esign.getCertificates(componentProps.thumbprints))
-      .then(certs => Esign.signDocument(recordRefs, certs[0]))
-      .catch(this.setError);
+    if (isFunction(onBeforeSigning)) {
+      await onBeforeSigning(recordRefs, certificate);
+    }
+
+    return Esign.signDocument(recordRefs, certificate).then(documentSigned => {
+      if (documentSigned && isFunction(onSigned)) {
+        onSigned();
+      }
+
+      if (isFunction(onClose)) {
+        onClose();
+      }
+    });
   }
 
   #onClose = container => {
