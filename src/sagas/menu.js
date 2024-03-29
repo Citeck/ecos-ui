@@ -30,7 +30,7 @@ function* doGetMenuConfigRequest({ api }) {
     // left menu
     let leftMenuItems = yield call(fetchExtraItemInfo, get(left, 'items') || [], {
       label: '.disp',
-      journalId: 'id',
+      journalId: '?localId!id',
       journalRef: 'journalRef?id',
       createVariants: 'inhCreateVariants[]?json![]'
     });
