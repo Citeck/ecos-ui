@@ -14,6 +14,7 @@ const SelectOrgstructRoot = () => {
     setSelectedRows,
     isSelectModalOpen,
     toggleSelectModal,
+    onChangeValue,
     ...orgstructProps
   } = context;
   const { isCompact, viewOnly, className, isLoading } = controlProps;
@@ -29,6 +30,7 @@ const SelectOrgstructRoot = () => {
       <InputView />
       {!viewOnly && isSelectModalOpen && <Orgstruct
           onSubmit={(newSelectedRows) => {
+            onChangeValue(newSelectedRows);
             setSelectedRows(newSelectedRows);
             toggleSelectModal(false);
           }}
