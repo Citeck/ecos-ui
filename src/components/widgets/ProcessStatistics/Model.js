@@ -162,8 +162,9 @@ class Model extends React.Component {
   };
 
   toggleTempHeatmap = isTempHeatmapOff => {
-    this.setState({ isTempHeatmapOff });
-    this.handleToggleHeatmap();
+    this.setState({ isTempHeatmapOff }, () => {
+      this.handleToggleHeatmap();
+    });
   };
 
   switchHeatMapOff = () => {
@@ -198,7 +199,7 @@ class Model extends React.Component {
     const { formMode, withPercentCount } = this.props;
     const { isActiveCount, isCompletedCount } = this.state;
 
-    if (formMode === KPI_MODE) {
+    if (formMode !== EXTENDED_MODE) {
       return;
     }
 
@@ -267,6 +268,12 @@ class Model extends React.Component {
   };
 
   rePaintHeatmap = () => {
+    const { isSimpedMode } = this.props;
+
+    if (isSimpedMode) {
+      return;
+    }
+
     if (!this.designer || !this.designer.heatmap) {
       return;
     }
