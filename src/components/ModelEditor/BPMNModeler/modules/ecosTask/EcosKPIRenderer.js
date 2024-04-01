@@ -53,7 +53,7 @@ class KPIRenderer extends NumberRenderer {
     const { KPIData = [] } = window.Citeck;
     const KPI = KPIData.find(i => i.displayKpiOnBpmnActivityId === activityId);
 
-    if (KPI && isAccessible) {
+    if (KPI && isAccessible && this._isKPIModeDashlet() && !this._isEditor()) {
       const durationFormatterInstance = new DurationFormatter();
       const timerTransform = !is(element, TYPE_BPMN_EVENT) ? [-10, 85] : [-10, 65];
       const percentTransform = !is(element, TYPE_BPMN_EVENT) ? [70, 85] : [0, -45];

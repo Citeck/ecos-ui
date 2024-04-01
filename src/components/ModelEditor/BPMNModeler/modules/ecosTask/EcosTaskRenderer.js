@@ -42,8 +42,8 @@ class CustomRenderer extends KPIRenderer {
     });
   }
 
-  drawShape(parentNode, element) {
-    let shape = super.drawShape(parentNode, element); // draw numbers
+  async drawShape(parentNode, element) {
+    let shape = await super.drawShape(parentNode, element); // draw numbers
 
     if (this.canRender(element)) {
       shape = this.bpmnRenderer.drawShape(parentNode, element);
