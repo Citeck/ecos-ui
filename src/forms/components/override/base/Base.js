@@ -214,7 +214,7 @@ const emptyCalculateValue = Symbol('empty calculate value');
 
 const modifiedOriginalCalculateValue = function(data, flags) {
   // clear calculate value from comments and empty lines
-  let calculateValue = this.component.calculateValue.replace(/\/\/.*(\n|$)/g, "").replace(/^(\n)+/g, "");
+  let calculateValue = this.component?.calculateValue?.replace(/\/\/.*(\n|$)/g, "").replace(/^(\n)+/g, "");
 
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
