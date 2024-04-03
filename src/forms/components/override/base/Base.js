@@ -214,7 +214,11 @@ const emptyCalculateValue = Symbol('empty calculate value');
 
 const modifiedOriginalCalculateValue = function(data, flags) {
   // clear calculate value from comments and empty lines
-  let calculateValue = this.component?.calculateValue?.replace(/\/\/.*(\n|$)/g, "").replace(/^(\n)+/g, "");
+  let calculateValue = this.component.calculateValue;
+  
+  if (calculateValue && typeof calculateValue === "string") {
+    calculateValue = calculateValue.replace(/\/\/.*(\n|$)/g, "").replace(/^(\n)+/g, "");
+  }
 
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
@@ -234,20 +238,19 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   }
 
   // First pass, the calculatedValue is undefined.
-  if (isUndefined(calculateValue)) {
+  if (isUndefined(this.calculatedValue)) {
     firstPass = true;
     this.calculatedValue = emptyCalculateValue;
-    calculateValue = emptyCalculateValue;
   }
 
   // Check to ensure that the calculated value is different than the previously calculated value.
-  if (allowOverride && calculateValue !== emptyCalculateValue && !this.customIsEqual(dataValue, this.calculatedValue)) {
+  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !this.customIsEqual(dataValue, this.calculatedValue)) {
     return false;
   }
 
   // Calculate the new value.
   let calculatedValue = this.evaluate(
-    calculateValue,
+    this.component.calculateValue,
     {
       value: this.defaultValue,
       data
