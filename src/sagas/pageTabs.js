@@ -174,8 +174,13 @@ function* sagaChangeTabData({ api, logger }, { payload }) {
       return;
     }
 
-    const updates = assign(payload.data, payload.updates);
+    let updates = assign(payload.data, payload.updates);
     const tab = payload.tab || find(PageTabList.tabs, payload.filter);
+
+    if (updates.isActive) {
+      const title = yield getTitle(tab);
+      updates = {...updates, ...title};
+    }
 
     PageTabList.changeOne({ tab, updates });
 
