@@ -2561,6 +2561,8 @@
   "migration-info.no-process": "Процесс не выбран",
   "migration-info.no-schema": "Схема отсутствует",
   "migration-info.widget.title": "План миграции",
+  "migration-info.widget.elements": "BPMN элементы",
+  "migration-info.widget.elements-remind": "Для успешной миграции необходимо выбрать актуальные BPMN элементы",
   "migration-info.widget.select-version": "Целевая версия",
   "migration-info.widget.initial-version": "Начальная версия",
   "migration-info.widget.target-version": "Конечная версия",

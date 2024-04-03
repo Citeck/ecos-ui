@@ -108,6 +108,8 @@
   "migration-info.no-process": "No process",
   "migration-info.no-schema": "No schema",
   "migration-info.widget.title": "Migration plan",
+  "migration-info.widget.elements": "BPMN elements",
+  "migration-info.widget.elements-remind": "For a successful migration, it is necessary to select the relevant BPMN elements",
   "migration-info.widget.select-version": "Target version",
   "migration-info.widget.initial-version": "Initial version",
   "migration-info.widget.target-version": "Target version",

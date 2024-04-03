@@ -54,6 +54,12 @@
     width: 600px;
   }
 
+  &__activities-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   &__select {
     display: flex;
     flex-direction: column;
@@ -61,7 +67,8 @@
     width: 300px;
   }
 
-  &__version-selects {
+  &__version-selects,
+  &__activities-container {
     display: flex;
     padding: 16px;
     gap: 8px;

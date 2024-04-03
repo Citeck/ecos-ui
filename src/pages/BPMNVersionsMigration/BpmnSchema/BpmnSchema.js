@@ -1,11 +1,12 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import isString from 'lodash/isString';
 
+import { URL } from '../../../constants';
 import { ScaleOptions } from '../../../components/common/Scaler/util';
-import { t } from '../../../helpers/util';
+import { getKeyProcessBPMN, t } from '../../../helpers/util';
 import { IcoBtn } from '../../../components/common/btns';
 import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
 import { getAllVersions, getMetaInfo } from '../../../actions/processAdmin';
@@ -15,14 +16,22 @@ import PanelTitle from '../../../components/common/PanelTitle';
 import Scaler from '../../../components/common/Scaler';
 import { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
 import PageService from '../../../services/PageService';
-import { createDocumentUrl } from '../../../helpers/urls';
+import ModelViewer from '../../../components/ModelViewer';
+import { createDocumentUrl, getLastPathSegmentBeforeQuery } from '../../../helpers/urls';
 import { InfoText, Loader } from '../../../components/common';
 import { MigrationContext } from '../MigrationContext';
 import { SCHEMA_BLOCK_CLASS } from '../constants';
 import { getProcessLabel, getProcessValue, getVersionLabel, getVersionValue } from './utils';
 import Labels from './Labels';
 
-const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, getMetaInfo, getProcesses, getAllVersions }) => {
+/*  During the initial rendering, the Scaler component does not
+    have time to get styles for the environment without this import  */
+import '../../../components/BpmnSchema/style.scss';
+
+const BpmnSchema = ({ processId, metaInfo, versionsInfo, processes, getMetaInfo, getProcesses, getAllVersions }) => {
+  const typeSchema = getLastPathSegmentBeforeQuery();
+  const [designer, setDesigner] = useState(new ModelViewer());
+
   const {
     activities,
     setActivities,
@@ -33,8 +42,19 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     sourceProcessDefinitionId,
     targetProcessDefinitionId,
     sourceVersion,
+    handleChangeProcess,
     setMigrationPlan
   } = useContext(MigrationContext);
+
+  /* Designer update, if we go through the tabs and come back */
+  useEffect(
+    () => {
+      if (typeSchema === URL.BPMN_MIGRATION) {
+        setDesigner(new ModelViewer());
+      }
+    },
+    [typeSchema]
+  );
 
   const Sheet = designer && designer.renderSheet;
   const zoomCenter = {
@@ -42,8 +62,12 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     y: 0
   };
 
-  const getKeyProcess = id => {
-    return id.split(':')[0];
+  const handleSelectProcess = () => {
+    const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion));
+    setSourceProcessDefinitionId(selectedVersion || null);
+    if (selectedVersion && metaInfo && metaInfo.version !== sourceVersion) {
+      setSelectedProcess(versionsInfo.data.find(version => version === selectedVersion));
+    }
   };
 
   useEffect(() => {
@@ -52,17 +76,12 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
 
   useEffect(
     () => {
-      if (processId && processes.length > 0) {
-        setSelectedProcess(processes.find(process => getKeyProcess(process.id) === `eproc/bpmn-def-engine@${getKeyProcess(processId)}`));
-      }
-    },
-    [processes]
-  );
-
-  useEffect(
-    () => {
       if (!processId) {
         return;
+      }
+
+      if (!selectedProcess && processes.length > 0) {
+        setSelectedProcess(processes.find(process => process.key === getKeyProcessBPMN(processId)));
       }
 
       if (selectedProcess && isString(selectedProcess.key)) {
@@ -71,23 +90,21 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
       }
 
       if (sourceVersion && !sourceProcessDefinitionId && get(versionsInfo.data, 'length', 0) > 0) {
-        const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion));
-        setSourceProcessDefinitionId(selectedVersion || null);
-        if (selectedVersion && metaInfo && metaInfo.version !== sourceVersion) {
-          setSelectedProcess(versionsInfo.data.find(version => version === selectedVersion));
-        }
+        handleSelectProcess();
       }
     },
-    [processId, versionsInfo.data]
+    [processId, versionsInfo.data, processes]
   );
 
   useEffect(
     () => {
-      if (sourceProcessDefinitionId) {
-        setSelectedProcess(sourceProcessDefinitionId);
+      if (selectedProcess && sourceVersion && get(versionsInfo.data, 'length', 0) > 0) {
+        if (sourceProcessDefinitionId && selectedProcess.version !== sourceVersion) {
+          handleSelectProcess();
+        }
       }
     },
-    [sourceProcessDefinitionId]
+    [sourceVersion]
   );
 
   useEffect(
@@ -160,7 +177,7 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
     setActivities(prev => Array.from(new Set([...prev, get(elementInfo, 'element.id')])));
   };
 
-  const showLoader = processId && (!metaInfo || !metaInfo.bpmnDefinition);
+  const showLoader = processId && (!metaInfo || metaInfo.loading || (metaInfo && metaInfo.version && !sourceProcessDefinitionId));
   const noSchema = processId && !metaInfo.bpmnDefinition;
   const noProcess = !processId;
 
@@ -183,7 +200,7 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
         <Select
           options={processes}
           value={selectedProcess}
-          onChange={setSelectedProcess}
+          onChange={handleChangeProcess}
           getOptionLabel={getProcessLabel}
           getOptionValue={getProcessValue}
           className={`${SCHEMA_BLOCK_CLASS}__process-select`}
@@ -230,7 +247,7 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
           <Select
             options={versionsInfo.data}
             value={sourceProcessDefinitionId}
-            onChange={setSourceProcessDefinitionId}
+            onChange={handleChangeProcess}
             getOptionLabel={getVersionLabel}
             getOptionValue={getVersionValue}
             menuPlacement="auto"
@@ -251,17 +268,29 @@ const BpmnSchema = ({ designer, processId, metaInfo, versionsInfo, processes, ge
           />
         </div>
       </div>
-      <div className={`${SCHEMA_BLOCK_CLASS}__activities`}>
-        {activities.map(activityId => (
-          <div className={`${SCHEMA_BLOCK_CLASS}__activities-item`}>
-            <span>{activityId}</span>
-            <IcoBtn
-              className="ecos-btn_transparent"
-              icon="icon-small-close"
-              onClick={() => setActivities(prev => [...prev.filter(item => item !== activityId)])}
-            />
+      <div className={`${SCHEMA_BLOCK_CLASS}__activities-container`}>
+        <div className={`${SCHEMA_BLOCK_CLASS}__activities-wrapper`}>
+          <PanelTitle narrow color={COLOR_GRAY}>
+            {t(Labels.BPMN_ELEMENTS)}
+          </PanelTitle>
+          {!activities.length && (
+            <div className="alert alert-primary" role="alert">
+              {t(Labels.BPMN_ELEMENTS_REMIND)}
+            </div>
+          )}
+          <div className={`${SCHEMA_BLOCK_CLASS}__activities`}>
+            {activities.map(activityId => (
+              <div className={`${SCHEMA_BLOCK_CLASS}__activities-item`}>
+                <span>{activityId}</span>
+                <IcoBtn
+                  className="ecos-btn_transparent"
+                  icon="icon-small-close"
+                  onClick={() => setActivities(prev => [...prev.filter(item => item !== activityId)])}
+                />
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </>
   );
