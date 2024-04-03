@@ -213,10 +213,13 @@ Object.defineProperty(Base.prototype, 'name', {
 const emptyCalculateValue = Symbol('empty calculate value');
 
 const modifiedOriginalCalculateValue = function(data, flags) {
+  // clear calculate value from comments and empty lines
+  let calculateValue = this.component.calculateValue.replace(/\/\/.*(\n|$)/g, "").replace(/^(\n)+/g, "");
+
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
   if (
-    !this.component.calculateValue ||
+    !calculateValue ||
     (this.type !== 'hidden' && (!this.visible || this.component.hidden) && this.component.clearOnHide)
   ) {
     return false;
@@ -231,19 +234,20 @@ const modifiedOriginalCalculateValue = function(data, flags) {
   }
 
   // First pass, the calculatedValue is undefined.
-  if (isUndefined(this.calculatedValue)) {
+  if (isUndefined(calculateValue)) {
     firstPass = true;
     this.calculatedValue = emptyCalculateValue;
+    calculateValue = emptyCalculateValue;
   }
 
   // Check to ensure that the calculated value is different than the previously calculated value.
-  if (allowOverride && this.calculatedValue !== emptyCalculateValue && !this.customIsEqual(dataValue, this.calculatedValue)) {
+  if (allowOverride && calculateValue !== emptyCalculateValue && !this.customIsEqual(dataValue, this.calculatedValue)) {
     return false;
   }
 
   // Calculate the new value.
   let calculatedValue = this.evaluate(
-    this.component.calculateValue,
+    calculateValue,
     {
       value: this.defaultValue,
       data
