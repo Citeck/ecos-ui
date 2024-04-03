@@ -3,14 +3,17 @@ import PropTypes from 'prop-types';
 import isFunction from 'lodash/isFunction';
 import uniqueId from 'lodash/uniqueId';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import { usePrevious } from '../../../../hooks';
 
 import {
   handleResponse,
   prepareSelected,
+  getAuthRef,
+  getRecordRef,
 } from './helpers';
 
-import { TabTypes } from './constants';
+import { TabTypes, DataTypes } from './constants';
 
 export const SelectOrgstructContext = React.createContext();
 
@@ -155,6 +158,36 @@ export const SelectOrgstructProvider = props => {
           if (typeof onCancelSelect === 'function') {
             onCancelSelect();
           }
+        },
+
+        onChangeValue: selectedList => {
+          const { onChange } = controlProps;
+          let value;
+      
+          function getVal(arr = []) {
+            if (isEmpty(arr)) {
+              return null;
+            }
+      
+            return multiple ? arr : arr[0] || '';
+          }
+      
+          switch (true) {
+            case getFullData: {
+              value = getVal(selectedList);
+              break;
+            }
+            case dataType === DataTypes.AUTHORITY: {
+              value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
+              break;
+            }
+            default: {
+              value = getVal(selectedList.map(item => (item.id ? getRecordRef(item.id) : '')));
+              break;
+            }
+          }
+      
+          isFunction(onChange) && onChange(value, selectedList);
         },
 
         deleteSelectedItem: targetId => {
