@@ -213,10 +213,17 @@ Object.defineProperty(Base.prototype, 'name', {
 const emptyCalculateValue = Symbol('empty calculate value');
 
 const modifiedOriginalCalculateValue = function(data, flags) {
+  // clear calculate value from comments and empty lines
+  let calculateValue = this.component.calculateValue;
+  
+  if (calculateValue && typeof calculateValue === "string") {
+    calculateValue = calculateValue.replace(/\/\/.*(\n|$)/g, "").replace(/^(\n)+/g, "");
+  }
+
   // If no calculated value or
   // hidden and set to clearOnHide (Don't calculate a value for a hidden field set to clear when hidden)
   if (
-    !this.component.calculateValue ||
+    !calculateValue ||
     (this.type !== 'hidden' && (!this.visible || this.component.hidden) && this.component.clearOnHide)
   ) {
     return false;
