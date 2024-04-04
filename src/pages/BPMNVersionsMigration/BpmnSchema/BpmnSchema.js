@@ -63,10 +63,12 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, processes, getMetaInfo,
   };
 
   const handleSelectProcess = () => {
-    const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion));
-    setSourceProcessDefinitionId(selectedVersion || null);
-    if (selectedVersion && metaInfo && metaInfo.version !== sourceVersion) {
-      setSelectedProcess(versionsInfo.data.find(version => version === selectedVersion));
+    if (versionsInfo && versionsInfo.data) {
+      const selectedVersion = versionsInfo.data.find(item => item.version === Number(sourceVersion));
+      setSourceProcessDefinitionId(selectedVersion || null);
+      if (selectedVersion && metaInfo && metaInfo.version !== sourceVersion) {
+        setSelectedProcess(versionsInfo.data.find(version => version === selectedVersion));
+      }
     }
   };
 
