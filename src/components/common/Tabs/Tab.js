@@ -139,9 +139,9 @@ class Tab extends React.Component {
       if (isNew) {
         this.props.onEdit && this.props.onEdit(label);
       }
-
-      this.setState({ editing: false, text: label });
     }
+
+    this.setState({ editing: false, text: label });
     this.hideEditModal();
   };
 

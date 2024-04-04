@@ -8,7 +8,7 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 
 import DashboardService from '../../../services/dashboard';
-import { t } from '../../../helpers/util';
+import { getMLValue, t } from '../../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../../components/common';
 import { IcoBtn } from '../../../components/common/btns';
 import { RemoveDialog } from '../../../components/common/dialogs';
@@ -199,7 +199,7 @@ class SetTabs extends React.Component {
         <RemoveDialog
           isOpen={!isEmpty(removedTab)}
           title={t(Labels.REMOVE_TITLE)}
-          text={t(Labels.REMOVE_TEXT, { name: get(removedTab, 'label', '') })}
+          text={t(Labels.REMOVE_TEXT, { name: removedTab && getMLValue(removedTab.label) })}
           onDelete={this.onDeleteTab}
           onCancel={this.closeDialog}
           onClose={this.closeDialog}

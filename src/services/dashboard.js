@@ -9,14 +9,19 @@ import cloneDeep from 'lodash/cloneDeep';
 import { SourcesId } from '../constants';
 import { CONFIG_VERSION } from '../constants/dashboard';
 import { LayoutTypes } from '../constants/layout';
-import { t } from '../helpers/util';
 import { Loader } from '../components/common';
 import DialogManager from '../components/common/dialogs/Manager/DialogManager';
 import { ParserPredicate } from '../components/Filters/predicates';
 import { getStore } from '../store';
 import PageTabList from './pageTabs/PageTabList';
+import ru from '../i18n/ru.json';
+import en from '../i18n/en.json';
 
 const separatorId = '@';
+
+const Labels = {
+  DEFAULT_TAB_NAME: 'page-tabs.tab-name-default'
+};
 
 export default class DashboardService {
   static SaveWays = {
@@ -33,7 +38,13 @@ export default class DashboardService {
     return `layout_${uuid()}`;
   }
 
-  static defaultDashboardTab = idLayout => ({ label: t('page-tabs.tab-name-default'), idLayout });
+  static defaultDashboardTab = idLayout => ({
+    label: {
+      ru: ru[Labels.DEFAULT_TAB_NAME],
+      en: en[Labels.DEFAULT_TAB_NAME]
+    },
+    idLayout
+  });
 
   static defaultDashboardConfig = idLayout => ({
     layout: {
