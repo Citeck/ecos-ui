@@ -140,8 +140,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
           // Allows you to add an internal scroll when expanding
           const ckEditorContainer = editor.ui.view.editable.element.parentElement;
           Object.assign(ckEditorContainer.style, {
-            overflowX: 'auto',
-            whiteSpace: 'nowrap',
             maxWidth: '100%'
           });
 
@@ -172,9 +170,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
         let quill = new Quill(element, _settings);
 
-        const parentEditable = quill.container;
-        const parentFormGroup = quill.container.parentElement.parentElement;
-
         /** This block of code adds the [source] capabilities.  See https://codepen.io/anon/pen/ZyEjrQ **/
         const txtArea = document.createElement('textarea');
         txtArea.setAttribute('class', 'quill-source-code');
@@ -197,26 +192,6 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         // Make sure to select cursor when they click on the element.
         const onClickElm = () => quill && quill.focus();
         this.addEventListener(element, 'click', onClickElm);
-
-        // Disabling automatic text wrapping and full-height alignment with other elements
-        const qlEditors = document.querySelectorAll('.ql-editor');
-        [...qlEditors].map(qlEditor =>
-          setTimeout(() => {
-            const heightParentFormGroup = parentFormGroup.offsetHeight;
-            const heightParentEditable = parentEditable.offsetHeight;
-
-            if (heightParentFormGroup && heightParentEditable) {
-              const minHeight = heightParentFormGroup - (heightParentFormGroup - heightParentEditable) + heightParentEditable;
-
-              if (minHeight && minHeight > 0) {
-                Object.assign(qlEditor.style, {
-                  whiteSpace: 'nowrap',
-                  minHeight: `${minHeight * 1.065}px`
-                });
-              }
-            }
-          }, 100)
-        );
 
         // Allows the container to expand based on the text height value
         const qlContainers = document.querySelectorAll('.ql-container');
