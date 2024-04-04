@@ -562,6 +562,11 @@ export function arrayCompare(arr1 = [], arr2 = [], byField = '') {
   return isEqual(arr1.map(item => item[byField]), arr2.map(item => item[byField]));
 }
 
+/** The function returns the key of the selected business process **/
+export function getKeyProcessBPMN(id) {
+  return id.split('@')[1]?.split(':')[0] || id.split(':')[0];
+}
+
 export function getSearchParams(searchString = window.location.search) {
   return queryString.parse(searchString);
 }

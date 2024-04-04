@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import AceEditor from 'react-ace';
 
 import get from 'lodash/get';
@@ -21,7 +21,15 @@ const MigrationInfo = ({ processId }) => {
   );
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [migrationPlanStringify, setMigrationPlanStringify] = useState(JSON.stringify(migrationPlan, null, 2));
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(
+    () => {
+      setMigrationPlanStringify(JSON.stringify(migrationPlan, null, 2));
+    },
+    [migrationPlan]
+  );
 
   const handleGenerate = () => {
     const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');
@@ -45,7 +53,14 @@ const MigrationInfo = ({ processId }) => {
       const record = head(result.records);
 
       if (record) {
-        setMigrationPlan(record.migrationPlan);
+        setMigrationPlan({
+          migrationPlan: record.migrationPlan,
+          processInstanceQuery: {
+            processDefinitionId: migrationPlan?.processInstanceQuery.processDefinitionId || source,
+            activityIdIn: migrationPlan?.processInstanceQuery.activityIdIn || activities
+          },
+          skipCustomListeners: migrationPlan?.skipCustomListeners ?? true
+        });
       }
     });
   };
@@ -54,18 +69,10 @@ const MigrationInfo = ({ processId }) => {
     setIsLoading(true);
 
     const migrationRecord = Records.get('eproc/bpmn-process-migration@');
-    const [, source] = get(sourceProcessDefinitionId, 'id', '').split('@');
 
     migrationRecord.att('action', 'MIGRATE');
     migrationRecord.att('async', true);
-    migrationRecord.att('migrationExecution', {
-      migrationPlan,
-      processInstanceQuery: {
-        processDefinitionId: source,
-        activityIdIn: activities
-      },
-      skipCustomListeners: true
-    });
+    migrationRecord.att('migrationExecution', migrationPlan);
 
     migrationRecord
       .save()
@@ -93,13 +100,14 @@ const MigrationInfo = ({ processId }) => {
       {migrationPlan && (
         <AceEditor
           mode="json"
-          value={JSON.stringify(migrationPlan, null, 2)}
+          value={migrationPlanStringify}
           enableSnippets
           enableBasicAutocompletion
           enableLiveAutocompletion
           onChange={text => {
             try {
               setMigrationPlan(JSON.parse(text));
+              setMigrationPlanStringify(text);
             } catch (e) {}
           }}
           setOptions={{
