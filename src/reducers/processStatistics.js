@@ -25,6 +25,7 @@ const initialState = {
   model: null,
   sectionPath: '',
   heatmapData: null,
+  KPIData: [],
   isNewData: false,
   filters: [],
   pagination: DEFAULT_PAGINATION
@@ -37,7 +38,7 @@ export default handleActions(
     [getJournal]: startLoading(initialState, 'isLoadingJournal'),
     [filterJournal]: startLoading(initialState, 'isLoadingJournal'),
     [setModel]: (state, { payload }) =>
-      updateState(state, payload.stateId, { ...pick(payload, 'model', 'heatmapData'), isLoadingModel: false }),
+      updateState(state, payload.stateId, { ...pick(payload, 'model', 'heatmapData', 'KPIData'), isLoadingModel: false }),
     [setJournal]: (state, { payload }) =>
       updateState(state, payload.stateId, { ...pick(payload, 'data', 'journalConfig', 'totalCount'), isLoadingJournal: false }),
     [setNewData]: (state, { payload }) => updateState(state, payload.stateId, { stateId: payload.stateId, isNewData: payload.isNewData }),
