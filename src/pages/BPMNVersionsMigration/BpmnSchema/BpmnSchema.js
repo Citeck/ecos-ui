@@ -11,7 +11,6 @@ import { IcoBtn } from '../../../components/common/btns';
 import { selectProcessMetaInfo, selectProcessVersions } from '../../../selectors/processAdmin';
 import { getAllVersions, getMetaInfo } from '../../../actions/processAdmin';
 import { Select } from '../../../components/common/form';
-import { getProcesses } from '../../../actions/bpmnAdmin';
 import PanelTitle from '../../../components/common/PanelTitle';
 import Scaler from '../../../components/common/Scaler';
 import { COLOR_GRAY } from '../../../components/common/PanelTitle/PanelTitle';
@@ -22,13 +21,15 @@ import { InfoText, Loader } from '../../../components/common';
 import { MigrationContext } from '../MigrationContext';
 import { SCHEMA_BLOCK_CLASS } from '../constants';
 import { getProcessLabel, getProcessValue, getVersionLabel, getVersionValue } from './utils';
-import Labels from './Labels';
+import { configureAPI } from '../../../api';
 
+import Labels from './Labels';
 /*  During the initial rendering, the Scaler component does not
     have time to get styles for the environment without this import  */
 import '../../../components/BpmnSchema/style.scss';
 
-const BpmnSchema = ({ processId, metaInfo, versionsInfo, processes, getMetaInfo, getProcesses, getAllVersions }) => {
+const BpmnSchema = ({ processId, metaInfo, versionsInfo, getMetaInfo, getAllVersions }) => {
+  const { api } = configureAPI();
   const typeSchema = getLastPathSegmentBeforeQuery();
   const [designer, setDesigner] = useState(new ModelViewer());
 
@@ -43,7 +44,9 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, processes, getMetaInfo,
     targetProcessDefinitionId,
     sourceVersion,
     handleChangeProcess,
-    setMigrationPlan
+    setMigrationPlan,
+    setProcesses,
+    processes
   } = useContext(MigrationContext);
 
   /* Designer update, if we go through the tabs and come back */
@@ -73,7 +76,15 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, processes, getMetaInfo,
   };
 
   useEffect(() => {
-    isFunction(getProcesses) && getProcesses(true);
+    api.bpmnAdmin
+      .getProcesses({
+        page: {
+          skipCount: 0,
+          page: 1,
+          maxItems: 1000
+        }
+      })
+      .then(res => res && res.records && setProcesses(res.records));
   }, []);
 
   useEffect(
@@ -300,14 +311,11 @@ const BpmnSchema = ({ processId, metaInfo, versionsInfo, processes, getMetaInfo,
 
 const mapStateToProps = (store, props) => ({
   metaInfo: selectProcessMetaInfo(store, props),
-  versionsInfo: selectProcessVersions(store, props),
-
-  processes: store.bpmnAdmin.processes
+  versionsInfo: selectProcessVersions(store, props)
 });
 
 const mapDispatchToProps = dispatch => ({
   getMetaInfo: processId => dispatch(getMetaInfo({ processId })),
-  getProcesses: allRecords => dispatch(getProcesses({ allRecords })),
   getAllVersions: (processId, processKey) => dispatch(getAllVersions({ processId, processKey }))
 });
 

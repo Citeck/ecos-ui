@@ -16,6 +16,7 @@ export const MigrationContextProvider = props => {
   const [processId, setProcessId] = useState(dispProcessId);
 
   const [migrationPlan, setMigrationPlan] = useState(null);
+  const [processes, setProcesses] = useState([]);
   const [sourceProcessDefinitionId, setSourceProcessDefinitionId] = useState(null);
   const [sourceVersion, setSourceVersion] = useState(null);
   const [targetProcessDefinitionId, setTargetProcessDefinitionId] = useState(null);
@@ -93,6 +94,9 @@ export const MigrationContextProvider = props => {
 
         activities,
         setActivities,
+
+        processes,
+        setProcesses,
 
         migrationPlan,
         setMigrationPlan,
