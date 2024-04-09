@@ -148,7 +148,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     if (isPerson) {
       extraConfig.recordRef = null;
 
-      title = t(Labels.TITLE_PERSON_ADD);
+      title = t(Labels.TITLE_PERSON_CREATE);
     } else {
       title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
     }
