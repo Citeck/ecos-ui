@@ -43,7 +43,7 @@ export class OrgStructApi extends CommonApi {
       groupType: 'groupType!""',
       email: 'email',
       nodeRef: '?id',
-      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
+      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`,
     };
   }
 
@@ -307,10 +307,14 @@ export class OrgStructApi extends CommonApi {
   addAuthorityGroups = (selectedEntity, authorityGroups) => {
     const promises = selectedEntity.map((entity) => {
       const rec = Records.get(entity.id);
+      const recData = rec.load("?json");
 
-      rec.att("authorityGroups?assoc", authorityGroups.map(group => group.id));
+      return recData.then(data => {
+        const prevAuthorityGroups = data.authorityGroups || [];
+        rec.att("authorityGroups", [...prevAuthorityGroups, ...authorityGroups.map(group => group.id)]);
 
-      return rec.save();
+        return rec.save();
+      });
     });
 
     return Promise.all(promises);

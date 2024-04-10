@@ -111,6 +111,36 @@ export const SelectOrgstructProvider = props => {
     [isSelectedFetched]
   );
 
+  const onChangeValue = selectedList => {
+    const { onChange } = controlProps;
+    let value;
+
+    function getVal(arr = []) {
+      if (isEmpty(arr)) {
+        return null;
+      }
+
+      return multiple ? arr : arr[0] || '';
+    }
+
+    switch (true) {
+      case getFullData: {
+        value = getVal(selectedList);
+        break;
+      }
+      case dataType === DataTypes.AUTHORITY: {
+        value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
+        break;
+      }
+      default: {
+        value = getVal(selectedList.map(item => (item.id ? getRecordRef(item.id) : '')));
+        break;
+      }
+    }
+
+    isFunction(onChange) && onChange(value, selectedList);
+  };
+
   return (
     <SelectOrgstructContext.Provider
       value={{
@@ -160,35 +190,7 @@ export const SelectOrgstructProvider = props => {
           }
         },
 
-        onChangeValue: selectedList => {
-          const { onChange } = controlProps;
-          let value;
-      
-          function getVal(arr = []) {
-            if (isEmpty(arr)) {
-              return null;
-            }
-      
-            return multiple ? arr : arr[0] || '';
-          }
-      
-          switch (true) {
-            case getFullData: {
-              value = getVal(selectedList);
-              break;
-            }
-            case dataType === DataTypes.AUTHORITY: {
-              value = getVal(selectedList.map(item => (item.id ? getAuthRef(item.id) : '')));
-              break;
-            }
-            default: {
-              value = getVal(selectedList.map(item => (item.id ? getRecordRef(item.id) : '')));
-              break;
-            }
-          }
-      
-          isFunction(onChange) && onChange(value, selectedList);
-        },
+        onChangeValue,
 
         deleteSelectedItem: targetId => {
           const selectedFiltered = tabItems[TabTypes.SELECTED].filter(item => item.id !== targetId);
@@ -218,7 +220,10 @@ export const SelectOrgstructProvider = props => {
             })
           });
 
-          setSelectedRows(selectedRows.filter(item => item.id !== targetId));
+          const newSelectedRows = selectedRows.filter(item => item.id !== targetId);
+
+          onChangeValue(newSelectedRows);
+          setSelectedRows(newSelectedRows);
         },
       }}
     >
