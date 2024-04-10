@@ -845,6 +845,8 @@
   "group-action.message.processed": "Oбработано {{count}} из {{total}}",
   "group-action.message.done-name": "Действие \"{{action}}\" выполнено",
   "group-action.message.background-mode": "Обработка продолжается в фоновом режиме",
+  "group-action.message.processing-the-request": "Обрабатываем запрос",
+  "group-action.message.records-is-unknown": "Итоговое количество записей неизвестно, обработано: {{processedCount}}",
 
   "batch-edit.header.edit-attribute": "Изменение атрибута",
   "batch-edit.header.results": "Результат редактирования атрибута",

@@ -887,6 +887,8 @@
   "group-action.message.processed": "Processed {{count}} out of {{total}}",
   "group-action.message.done-name": "Action \"{{action}}\" completed",
   "group-action.message.background-mode": "Processing continues in the background",
+  "group-action.message.processing-the-request": "Processing the request",
+  "group-action.message.records-is-unknown": "The total number of records is unknown, processed: {{processedCount}}",
 
   "batch-edit.header.edit-attribute": "Edit attribute",
   "batch-edit.header.results": "Result edit attribute",
