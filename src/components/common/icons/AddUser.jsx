@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({ width = 27, height = 27, viewBox = "0 0 26 26", fill = "#B7B7B7" }) => (
+export default ({ width = 26, height = 26, viewBox = "0 0 26 26", fill = "#B7B7B7" }) => (
   <svg width={width} height={height} viewBox={viewBox} fill={fill} xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_268_7940)">
       <path d="M16.7936 9.28456C16.7936 11.4893 15.163 13.1525 13.0015 13.1525C10.84 13.1525 9.20943 11.4893 9.20943 9.28456C9.20943 7.07983 10.84 5.41661 13.0015 5.41661C15.163 5.41661 16.7936 7.07983 16.7936 9.28456Z" />
