@@ -24,7 +24,7 @@ const Labels = {
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-  const { selectedRows, setSelectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
+  const { selectedRows, setSelectedRows, onChangeValue, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
   const {
     isCompact,
     disabled,
@@ -132,7 +132,9 @@ const InputView = () => {
 
           const newSelectedRows = selectedRows.filter((row) => remainingItems[row.id]);
 
+          onChangeValue(newSelectedRows);
           setSelectedRows(newSelectedRows);
+
         }}
         onAddTag={toggleSelectModal}
       />
