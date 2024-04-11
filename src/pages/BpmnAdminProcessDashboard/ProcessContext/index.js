@@ -14,7 +14,7 @@ export const ProcessContext = React.createContext();
 export const ProcessContextProvider = props => {
   const urlParams = getSearchParams();
   const typeSchema = getLastPathSegmentBeforeQuery();
-  const { recordRef, version } = urlParams;
+  const { recordRef } = urlParams;
 
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [processId, setProcessId] = useState(recordRef);
