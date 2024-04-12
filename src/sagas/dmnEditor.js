@@ -15,8 +15,6 @@ import {
   saveModel
 } from '../actions/dmnEditor';
 import { t } from '../helpers/export/util';
-import { deleteTab } from '../actions/pageTabs';
-import PageTabList from '../services/pageTabs/PageTabList';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import isUndefined from 'lodash/isUndefined';
 import get from 'lodash/get';
@@ -62,11 +60,7 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       }
       NotificationManager.success(message, title);
 
-      if (definitionAction === PROCESS_DEF_API_ACTIONS.DEPLOY) {
-        yield put(deleteTab(PageTabList.activeTab));
-      } else {
-        yield put(setLoading({ stateId, isLoading: false }));
-      }
+      yield put(setLoading({ stateId, isLoading: false }));
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
