@@ -137,6 +137,7 @@ const InputView = () => {
 
         }}
         onAddTag={toggleSelectModal}
+        exception={["emodel/authority-group@_orgstruct_home_"]}
       />
     )
   }

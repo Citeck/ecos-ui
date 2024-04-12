@@ -2555,8 +2555,8 @@
 
   "orgstructure-page-no-picked-person-text": "Show user profile",
   "orgstructure-page-title": "Orgstructure",
-  "orgstructure-page-add-group": "Add group",
-  "orgstructure-edit-modal-title-person": "Add a person to a group",
+  "orgstructure-page-add-group": "Create a group",
+  "orgstructure-edit-modal-title-person": "Add an user to a group",
   "orgstructure-add-modal-title-person": "Create user",
   "orgstructure-add-modal-title-group": "Add to subgroup",
   "orgstructure-delete-modal-title-person": "Remove user from group",
