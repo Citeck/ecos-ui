@@ -2,7 +2,7 @@ import React from 'react';
 import './Tags.scss';
 import Icon from '../icons/Icon';
 
-const Tags = ({ tags = [], onTagsChange, onAddTag, className }) => {
+const Tags = ({ tags = [], onTagsChange, onAddTag, className, exception = [] }) => {
   const handleRemoveTag = (tagToRemove) => {
     const filtered = tags.filter(tag => tag.name !== tagToRemove.name);
     onTagsChange && onTagsChange(filtered);
@@ -15,7 +15,7 @@ const Tags = ({ tags = [], onTagsChange, onAddTag, className }) => {
           <div key={index} className='ecos-tag'>
             <span>{tag.name}</span>
 
-            {onTagsChange &&
+            {onTagsChange && !exception.includes(tag.id) &&
               <Icon
                 className="icon_small icon-small-close ecos-tag-remove"
                 onClick={() => handleRemoveTag(tag)}
