@@ -95,7 +95,7 @@ import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
-import { setKanbanSettings, reloadBoardData } from '../actions/kanban';
+import { setKanbanSettings, reloadBoardData, selectTemplateId } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
@@ -851,16 +851,16 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
 
     yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
     yield put(selectPreset(w(selectedId)));
+    yield put(selectTemplateId(w(selectedId)));
 
     const { originKanbanSettings } = yield select(selectKanban, stateId);
     const settings = yield select(selectJournalSettings, stateId);
     const preset = settings.find(preset => preset.id === selectedId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
 
-    const predicates = [journalConfig.predicate, preset.settings.predicate];
+    const predicates = [journalConfig.predicate, get(preset, 'settings.predicate', {})];
 
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
-
     yield put(setKanbanSettings({ stateId, kanbanSettings }));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);

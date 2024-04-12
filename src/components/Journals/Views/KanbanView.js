@@ -38,7 +38,7 @@ function mapDispatchToProps(dispatch, props) {
     resetFiltering: () => dispatch(resetFilter({ stateId })),
     createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting({ stateId, journalId, settings, callback })),
     saveJournalSetting: (id, settings, callback) => dispatch(saveJournalSetting({ id, stateId, settings, callback })),
-    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
+    getBoardData: (boardId, templateId) => dispatch(getBoardData({ boardId, templateId, stateId })),
     reloadBoardData: () => dispatch(reloadBoardData({ stateId })),
     selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId }))
   };
@@ -63,7 +63,7 @@ class KanbanView extends React.Component {
       urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
     ) {
       this.setState({ isClose: false }, () => {
-        this.props.getBoardData(this.getSelectedBoardFromUrl());
+        this.props.getBoardData(this.getSelectedBoardFromUrl(), urlParams.journalSettingId || '');
       });
     }
 

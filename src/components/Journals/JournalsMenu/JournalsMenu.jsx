@@ -88,7 +88,7 @@ class JournalsMenu extends React.Component {
         return <FoldersTree stateId={stateId} closeMenu={this.onClose} />;
       case JOURNAL_VIEW_MODE.TABLE:
       default:
-        return <JournalsPresetList stateId={stateId} searchText={this.state.searchText} />;
+        return <JournalsPresetList stateId={stateId} viewMode={viewMode} searchText={this.state.searchText} />;
     }
   };
 
