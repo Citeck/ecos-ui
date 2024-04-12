@@ -23,6 +23,10 @@ const Structure = ({ tabId, toggleToFirstTab }) => {
     FormManager.openFormModal({
       record: 'emodel/authority-group@',
       formId: 'authority-group-form',
+      title: t("orgstructure-page-add-group"),
+      attributes: {
+        authorityGroups: ["emodel/authority-group@_orgstruct_home_"],
+      },
       onSubmit: () => {
         onUpdateTree();
       }
