@@ -180,25 +180,28 @@ export const OrgstructProvider = props => {
           .then(handleResponse)
           .then(items => items.map(item => setSelectedItem(item, tabItems[TabTypes.SELECTED], { parentId: targetItem.id })))
           .then(newItems => {
+            const currentTabValue = tabItems[currentTab];
+            const currentItem = {
+              ...targetItem,
+              hasChildren: newItems.length > 0, // If no children, make not collapsible
+              isLoaded: true,
+              isOpen: !targetItem.isOpen
+            };
+            currentTabValue[itemIdx] = currentItem;
+
+            newItems.forEach(newItem => {
+              const index = currentTabValue.findIndex((x) => x.id === newItem.id);
+
+              if (index === -1) {
+                currentTabValue.push(newItem);
+              } else {
+                currentTabValue[index] = {...currentTabValue[index], ...newItem};
+              }
+            });
+
             setTabItems({
               ...tabItems,
-              [currentTab]: tabItems[currentTab]
-                .slice(0, itemIdx)
-                .concat([
-                  {
-                    ...targetItem,
-                    hasChildren: newItems.length > 0, // If no children, make not collapsible
-                    isLoaded: true,
-                    isOpen: !targetItem.isOpen
-                  }
-                ])
-                .concat(tabItems[currentTab].slice(itemIdx + 1))
-                .concat(
-                  newItems.filter(newItem => {
-                    // exclude duplicates
-                    return tabItems[currentTab].findIndex(i => i.id === newItem.id && i.parentId === newItem.parentId) === -1;
-                  })
-                )
+              [currentTab]: currentTabValue,
             });
           })
           .then(() => {
