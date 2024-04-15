@@ -163,7 +163,7 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
   }
 }
 
-function getDefaultJournalSetting(journalConfig) {
+export function getDefaultJournalSetting(journalConfig) {
   const { groupBy } = get(journalConfig, 'meta', {});
   const columns = get(journalConfig, 'columns', []);
 
