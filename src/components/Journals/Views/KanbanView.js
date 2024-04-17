@@ -8,7 +8,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
 import { getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
-import { selectViewMode } from '../../../selectors/journals';
+import { selectViewMode, selectJournalPageProps } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
 import { createJournalSetting, saveJournalSetting } from '../../../actions/journals';
 import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
@@ -23,10 +23,12 @@ import '../style.scss';
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
   const ownProps = selectKanbanPageProps(state, props.stateId);
+  const journalProps = selectJournalPageProps(state, props.stateId);
 
   return {
     urlParams: getSearchParams(),
     viewMode,
+    predicate: journalProps.predicate,
     ...ownProps
   };
 }

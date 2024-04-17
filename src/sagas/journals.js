@@ -848,14 +848,14 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     query[JournalUrlParams.JOURNAL_SETTING_ID] = selectedId || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
+    const settings = yield select(selectJournalSettings, stateId);
+    const preset = settings.find(preset => preset.id === selectedId);
     const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
-
     yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
     yield put(selectPreset(w(selectedId)));
     yield put(selectTemplateId(w(selectedId)));
+    yield put(setPredicate(w(get(preset, 'settings.predicate', {}))));
 
-    const settings = yield select(selectJournalSettings, stateId);
-    const preset = settings.find(preset => preset.id === selectedId);
     const predicates = [journalConfig.predicate, get(preset, 'settings.predicate', {})];
 
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
