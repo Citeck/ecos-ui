@@ -254,6 +254,18 @@ export const decodeLink = str => {
 };
 
 /**
+ * Get the last path to the segment before the query
+ * @returns {string}
+ */
+export const getLastPathSegmentBeforeQuery = path => {
+  let pathname = path || getUrlWithoutOrigin();
+  if (pathname.includes('?')) {
+    pathname = pathname.split('?')[0];
+  }
+  return pathname;
+};
+
+/**
  * Comparing two URL's with additional settings
  *
  * @param params {object}

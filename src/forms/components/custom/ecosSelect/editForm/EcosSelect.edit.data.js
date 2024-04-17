@@ -123,6 +123,21 @@ for (let field of SelectEditData) {
           ...component,
           type: 'mlText'
         };
+      } else if (component.key === 'value') {
+        return {
+          ...component,
+          calculateValue: {
+            _camelCase: [
+              {
+                getMLValue: [
+                  {
+                    var: 'row.label'
+                  }
+                ]
+              }
+            ]
+          }
+        };
       }
 
       return component;

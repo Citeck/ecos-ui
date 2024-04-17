@@ -166,7 +166,9 @@ export default handleActions(
       const index = state.categories.findIndex(item => item.id === categoryId);
 
       if (index === -1) {
-        return state.categories;
+        return {
+          ...state
+        };
       }
 
       const currentCategory = {

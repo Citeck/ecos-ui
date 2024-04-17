@@ -2,13 +2,13 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import get from 'lodash/get';
-import { SelectOrgstructContext } from '../../../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TabTypes } from '../../../../constants';
+import { OrgstructContext } from '../../../OrgstructContext';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, TabTypes } from '../../../constants';
 
 import './ListItem.scss';
 
 const ListItem = ({ item, nestingLevel, nestedList }) => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useContext(OrgstructContext);
   const { controlProps = {}, renderListItem, currentTab } = context;
   const { allowedAuthorityTypes, allowedGroupTypes, allowedGroupSubTypes } = controlProps;
 
@@ -17,12 +17,22 @@ const ListItem = ({ item, nestingLevel, nestedList }) => {
   const itemGroupSubType = get(item, 'attributes.groupSubType', '');
 
   const isAllUsers = currentTab === TabTypes.USERS;
-  const isAllowedSelect =
-    allowedAuthorityTypes.includes(itemAuthorityType) &&
-    (itemAuthorityType === AUTHORITY_TYPE_USER ||
-      (itemAuthorityType === AUTHORITY_TYPE_GROUP &&
-        allowedGroupTypes.includes(itemGroupType) &&
-        (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.includes(itemGroupSubType))));
+
+  let isAllowedSelect;
+
+  if (allowedAuthorityTypes.includes(itemAuthorityType)) {
+    if (
+      itemAuthorityType === AUTHORITY_TYPE_GROUP &&
+      allowedGroupTypes.includes(itemGroupType) &&
+      (allowedGroupSubTypes.length === 0 || allowedGroupSubTypes.includes(itemGroupSubType))
+    ) {
+      isAllowedSelect = true;
+    }
+
+    if (itemAuthorityType === AUTHORITY_TYPE_USER) {
+      isAllowedSelect = true;
+    }
+  }
 
   const onClickLabel = () => {
     if (item.hasChildren) {

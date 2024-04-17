@@ -8,10 +8,12 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 
 import DashboardService from '../../../services/dashboard';
-import { getCurrentLocale, t } from '../../../helpers/util';
+import { getMLValue, t } from '../../../helpers/util';
 import { EditTabs, ScrollArrow } from '../../../components/common';
 import { IcoBtn } from '../../../components/common/btns';
 import { RemoveDialog } from '../../../components/common/dialogs';
+import ru from '../../../i18n/ru.json';
+import en from '../../../i18n/en.json';
 
 import '../style.scss';
 
@@ -19,7 +21,8 @@ const Labels = {
   TITLE: 'dashboard-settings.board-tabs.title',
   DESC: 'dashboard-settings.board-tabs.edit-number-contents',
   REMOVE_TITLE: 'dashboard-settings.remove-tab-dialog.title',
-  REMOVE_TEXT: 'dashboard-settings.remove-tab-dialog.text'
+  REMOVE_TEXT: 'dashboard-settings.remove-tab-dialog.text',
+  DEFAULT_TAB_NAME: 'page-tabs.tab-name-default'
 };
 
 class SetTabs extends React.Component {
@@ -80,7 +83,8 @@ class SetTabs extends React.Component {
     const newTab = DashboardService.defaultDashboardTab(idLayout);
 
     newTab.label = {
-      [getCurrentLocale()]: t('page-tabs.tab-name-default')
+      ru: ru[Labels.DEFAULT_TAB_NAME],
+      en: en[Labels.DEFAULT_TAB_NAME]
     };
     newTab.isNew = true;
 
@@ -195,7 +199,7 @@ class SetTabs extends React.Component {
         <RemoveDialog
           isOpen={!isEmpty(removedTab)}
           title={t(Labels.REMOVE_TITLE)}
-          text={t(Labels.REMOVE_TEXT, { name: get(removedTab, 'label', '') })}
+          text={t(Labels.REMOVE_TEXT, { name: removedTab && getMLValue(removedTab.label) })}
           onDelete={this.onDeleteTab}
           onCancel={this.closeDialog}
           onClose={this.closeDialog}

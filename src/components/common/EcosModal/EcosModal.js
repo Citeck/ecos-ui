@@ -152,7 +152,7 @@ export default class EcosModal extends Component {
   }
 
   render() {
-    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size } = this.props;
+    const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container } = this.props;
     const { isOpen, level, draggableState, zIndexCalc } = this.state;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
     const modalClassName = classNames('ecos-modal', className, {
@@ -194,6 +194,7 @@ export default class EcosModal extends Component {
         getDialogRef={el => (this._dialog = el)}
         draggableProps={draggableProps}
         data-level={level}
+        container={container}
         containerClassName="ecos-modal-container ecosZIndexAnchor"
       >
         {this.renderModalHeader()}

@@ -56,7 +56,8 @@ export class OrgStructApi extends CommonApi {
       firstName: 'firstName',
       lastName: 'lastName',
       nodeRef: '?id',
-      authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`
+      authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
+      photo: 'avatar.url'
     };
   }
 
@@ -301,6 +302,22 @@ export class OrgStructApi extends CommonApi {
     return Records.get(recordRef)
       .load(this.groupAttributes)
       .then(this._prepareGroups);
+  };
+
+  addAuthorityGroups = (selectedEntity, authorityGroups) => {
+    const promises = selectedEntity.map(entity => {
+      const rec = Records.get(entity.id);
+      const recData = rec.load('?json');
+
+      return recData.then(data => {
+        const prevAuthorityGroups = data.authorityGroups || [];
+        rec.att('authorityGroups', [...prevAuthorityGroups, ...authorityGroups.map(group => group.id)]);
+
+        return rec.save();
+      });
+    });
+
+    return Promise.all(promises);
   };
 
   static async fetchGlobalSearchFields() {

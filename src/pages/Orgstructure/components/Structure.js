@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useSelectOrgstructContext } from '../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { useOrgstructContext } from '../../../components/common/Orgstruct/OrgstructContext';
 import FormManager from '../../../components/EcosForm/FormManager';
 import { isMobileDevice, t } from '../../../helpers/util';
 import { Icon, Tooltip } from '../../../components/common';
@@ -15,7 +15,7 @@ const Labels = {
 };
 
 const Structure = ({ tabId, toggleToFirstTab }) => {
-  const { onUpdateTree } = useSelectOrgstructContext();
+  const { onUpdateTree } = useOrgstructContext();
 
   const tooltipId = 'add-group-button';
 
@@ -23,6 +23,10 @@ const Structure = ({ tabId, toggleToFirstTab }) => {
     FormManager.openFormModal({
       record: 'emodel/authority-group@',
       formId: 'authority-group-form',
+      title: t('orgstructure-page-add-group'),
+      attributes: {
+        authorityGroups: ['emodel/authority-group@_orgstruct_home_']
+      },
       onSubmit: () => {
         onUpdateTree();
       }

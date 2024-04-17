@@ -6,6 +6,7 @@ import { Tooltip } from 'reactstrap';
 
 import SidebarService from '../../services/sidebar';
 import { toggleExpanded } from '../../actions/slideMenu';
+import { getMLValue } from '../../helpers/util';
 import Item from './Item';
 
 class List extends React.Component {
@@ -52,7 +53,7 @@ class List extends React.Component {
   renderItem = (item, i) => {
     const { level, expandableItems, isOpen, inDropdown, selectedId, isMobile } = this.props;
     const listItemDomId = `_${item.id}-${level}-${i}`;
-    const listItemKey = `${item.id}-${item.label}-${level}`;
+    const listItemKey = `${item.id}-${getMLValue(item.label)}-${level}`;
     const hasSubItems = !!(item.items && item.items.length);
     const styleProps = SidebarService.getPropsStyleLevel({ level, item });
     const isClosedSeparator = !isOpen && styleProps.isClosedSeparator;

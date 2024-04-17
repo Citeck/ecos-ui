@@ -1,8 +1,8 @@
 import React, { useContext, useMemo } from 'react';
-import { default as EcosTabs } from '../../../../../Tabs';
-import { SelectOrgstructContext } from '../../../SelectOrgstructContext';
-import { t } from '../../../../../../../helpers/util';
-import { TabTypes } from '../../../constants';
+import { default as EcosTabs } from '../../../Tabs';
+import { OrgstructContext } from '../../OrgstructContext';
+import { t } from '../../../../../helpers/util';
+import { TabTypes } from '../../constants';
 
 function getTabItems(isAllUsersGroupsExists) {
   const tabs = [
@@ -27,7 +27,7 @@ function getTabItems(isAllUsersGroupsExists) {
 }
 
 const Tabs = () => {
-  const context = useContext(SelectOrgstructContext);
+  const context = useContext(OrgstructContext);
   const { currentTab, setCurrentTab, isAllUsersGroupsExists } = context;
 
   const tabs = useMemo(() => getTabItems(isAllUsersGroupsExists), [isAllUsersGroupsExists]);

@@ -177,10 +177,10 @@ class PreSettingsModal extends React.Component {
         }
 
         if (this.isFormType) {
-          this.handleChangeForm();
-          return;
+          return this.handleChangeForm();
         }
-
+      })
+      .then(() => {
         return pagesStore.migrate(rollbackAttributes.id, newRecordRef);
       })
       .then(() => {
@@ -218,46 +218,53 @@ class PreSettingsModal extends React.Component {
     isFunction(onHide) && onHide();
   };
 
-  handleChangeForm = () => {
-    const { newRecordRef, newType } = this.state;
-    const { definition } = this.config;
+  handleChangeForm = () =>
+    new Promise((resolve, reject) => {
+      const { newRecordRef, newType } = this.state;
+      const { definition } = this.config;
 
-    const builderDefinition = {
-      ...definition,
-      formId: newRecordRef
-    };
-
-    const onSubmit = newDefinition => {
-      this.toggleEcosModalLoading(true);
-      const attributes = {
-        'definition?json': newDefinition,
-        'typeRef?id': newType
+      const builderDefinition = {
+        ...definition,
+        formId: newRecordRef
       };
 
-      const cb = this.callback;
-      this.callback = newRef => {
-        if (this.instanceRecordToSave) {
-          this.instanceRecordToSave.save().then(() => {
-            if (!this.typeToSave) {
-              isFunction(cb) && cb(newRef, newDefinition);
-            }
+      const onSubmit = newDefinition => {
+        this.toggleEcosModalLoading(true);
+        const attributes = {
+          'definition?json': newDefinition,
+          'typeRef?id': newType
+        };
 
-            this.typeToSave &&
-              this.typeToSave.save().then(() => {
+        const cb = this.callback;
+        this.callback = newRef => {
+          if (this.instanceRecordToSave) {
+            this.instanceRecordToSave.save().then(() => {
+              if (this.isFormType) {
+                this.recordRef = `uiserv/form@${newRecordRef}`;
+              }
+
+              if (!this.typeToSave) {
                 isFunction(cb) && cb(newRef, newDefinition);
-              });
+              }
 
-            this.rollback();
-          });
-        }
+              this.typeToSave &&
+                this.typeToSave.save().then(() => {
+                  isFunction(cb) && cb(newRef, newDefinition);
+                });
+
+              isFunction(resolve) && resolve();
+
+              this.rollback();
+            });
+          }
+        };
+
+        this.changeAttributes(attributes);
       };
 
-      this.changeAttributes(attributes);
-    };
-
-    this.handleCancel();
-    EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
-  };
+      this.handleCancel();
+      EcosFormBuilderUtils.__showEditorComponent('formBuilder', EcosFormBuilderModal, builderDefinition, onSubmit);
+    });
 
   handleChangeJournal = () => {
     const { newRecordRef, newType } = this.state;
@@ -293,7 +300,9 @@ class PreSettingsModal extends React.Component {
 
                   this.typeToSave &&
                     this.typeToSave.save().then(() => {
-                      goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
+                      if (!this.isFormType) {
+                        goToJournalsPage({ journalId: newRecordRef, replaceJournal: true });
+                      }
                     });
 
                   this.rollback();

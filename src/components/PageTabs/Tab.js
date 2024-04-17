@@ -5,11 +5,12 @@ import * as queryString from 'query-string';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 
-import { t } from '../../helpers/util';
+import { t, getCurrentLocale } from '../../helpers/util';
 import { PointsLoader, Tooltip } from '../common';
 import { SortableElement } from '../Drag-n-Drop';
 import Records from '../Records';
 
+const lng = getCurrentLocale();
 class Tab extends Component {
   static propTypes = {
     tab: PropTypes.object,
@@ -114,7 +115,7 @@ class Tab extends Component {
       <SortableElement key={tab.id} index={position} onSortEnd={onSortEnd}>
         <Tooltip
           target={tab.id}
-          text={t(tab.title)}
+          text={t(tab.title?.[lng])}
           uncontrolled
           placement="bottom"
           hideArrow
@@ -135,7 +136,7 @@ class Tab extends Component {
           >
             <span className="page-tab__tabs-item-title">
               {this.renderLoader()}
-              {t(tab.title)}
+              {t(tab.title?.[lng])}
             </span>
 
             {this.renderCloseButton()}

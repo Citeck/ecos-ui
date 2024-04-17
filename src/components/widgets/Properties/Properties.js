@@ -159,7 +159,7 @@ class Properties extends React.Component {
             viewAsHtml: true,
             fullWidthColumns: isSmallMode,
             viewAsHtmlConfig: {
-              hidePanels: isSmallMode
+              hidePanels: isMobile
             },
             formMode,
             saveDraft: isDraft,

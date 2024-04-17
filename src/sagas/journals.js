@@ -95,8 +95,7 @@ import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
-import { setKanbanSettings, reloadBoardData } from '../actions/kanban';
-import { selectKanban } from '../selectors/kanban';
+import { setKanbanSettings, reloadBoardData, selectTemplateId } from '../actions/kanban';
 
 const getDefaultSortBy = config => {
   const params = config.params || {};
@@ -163,7 +162,7 @@ function* getColumnsSum(api, w, columns, journalId, predicates) {
   }
 }
 
-function getDefaultJournalSetting(journalConfig) {
+export function getDefaultJournalSetting(journalConfig) {
   const { groupBy } = get(journalConfig, 'meta', {});
   const columns = get(journalConfig, 'columns', []);
 
@@ -612,11 +611,13 @@ function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId
   }
 
   const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+  const settings = yield select(selectJournalSettings, stateId);
+  const preset = settings.find(preset => preset.id === journalSettingId);
   const url = yield select(selectUrl, stateId);
   const journalData = yield select(selectJournalData, stateId);
 
   const pagination = get(sharedSettings, 'pagination') || get(journalData, 'grid.pagination') || DEFAULT_PAGINATION;
-  const params = getGridParams({ journalConfig, journalSetting, pagination });
+  const params = getGridParams({ journalConfig, journalSetting: get(preset, 'settings', journalSetting), pagination });
   const search = url.search || journalSetting.search;
 
   let gridData = yield getGridData(api, { ...params }, stateId);
@@ -847,21 +848,17 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     query[JournalUrlParams.JOURNAL_SETTING_ID] = selectedId || undefined;
     query[JournalUrlParams.USER_CONFIG_ID] = undefined;
 
-    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
-
-    yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
-    yield put(selectPreset(w(selectedId)));
-
-    const { originKanbanSettings } = yield select(selectKanban, stateId);
     const settings = yield select(selectJournalSettings, stateId);
     const preset = settings.find(preset => preset.id === selectedId);
-    const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
+    const url = queryString.stringifyUrl({ url: getUrlWithoutOrigin(), query });
+    yield call([PageService, PageService.changeUrlLink], url, { updateUrl: true });
+    yield put(selectPreset(w(selectedId)));
+    yield put(selectTemplateId(w(selectedId)));
+    yield put(setPredicate(w(get(preset, 'settings.predicate', {}))));
 
-    const predicates = [journalConfig.predicate, preset.settings.predicate];
+    const predicates = [journalConfig.predicate, get(preset, 'settings.predicate', {})];
 
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
-
-    yield put(setKanbanSettings({ stateId, kanbanSettings }));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
@@ -1363,9 +1360,7 @@ export function* sagaToggleViewMode({ logger, w }, { payload }) {
     const { stateId } = payload;
     const journalData = yield select(selectJournalData, stateId);
 
-    const { isFirstLoading } = yield select(selectKanban, stateId);
-
-    if (journalData.forceUpdate && !isFirstLoading && isKanban(journalData.viewMode)) {
+    if (isKanban(journalData.viewMode)) {
       yield put(reloadBoardData({ stateId }));
       yield put(setForceUpdate(w(false)));
     }

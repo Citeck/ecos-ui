@@ -4,14 +4,21 @@ import { IcoBtn } from '../../components/common/btns';
 import { t } from '../../helpers/util';
 import { INSTANCE_ADMIN_BLOCK_CLASS } from './constants';
 import { InstanceContext } from './InstanceContext';
+import { selectInstanceMetaInfo } from '../../selectors/instanceAdmin';
+import labels from './Labels';
 
 import './style.scss';
-const BpmnSchema = React.lazy(() => import('./BpmnSchema'));
+
+const BpmnSchema = React.lazy(() => import('../../components/BpmnSchema'));
 const JournalsTabs = React.lazy(() => import('./JournalsTabs'));
 const MetaInfo = React.lazy(() => import('./MetaInfo'));
 
 const BpmnAdminInstanceDashboard = () => {
-  const { dispInstanceId, isSuspended, instanceId } = useContext(InstanceContext);
+  const { dispInstanceId, isSuspended, instanceId, activityElement } = useContext(InstanceContext);
+
+  const selectMetaInfo = (store, props) => {
+    return selectInstanceMetaInfo(store, { ...props, instanceId });
+  };
 
   return (
     <div className={INSTANCE_ADMIN_BLOCK_CLASS}>
@@ -24,7 +31,7 @@ const BpmnAdminInstanceDashboard = () => {
         )}
       </div>
       <MetaInfo instanceId={instanceId} />
-      <BpmnSchema instanceId={instanceId} />
+      <BpmnSchema labels={labels} selectMetaInfo={selectMetaInfo} activityElement={activityElement} />
       <JournalsTabs instanceId={instanceId} />
     </div>
   );

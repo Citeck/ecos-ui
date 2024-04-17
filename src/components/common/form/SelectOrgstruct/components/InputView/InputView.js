@@ -5,10 +5,11 @@ import get from 'lodash/get';
 import { t } from '../../../../../../helpers/util';
 import { createDocumentUrl, createProfileUrl, isNewVersionPage } from '../../../../../../helpers/urls';
 import { Tooltip } from '../../../../../common';
+import Tags from '../../../../../common/Tags';
 import { Btn } from '../../../../../common/btns';
 import { AssocLink } from '../../../AssocLink';
 import { SelectOrgstructContext } from '../../SelectOrgstructContext';
-import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER } from '../../constants';
+import { AUTHORITY_TYPE_GROUP, AUTHORITY_TYPE_USER, ViewModes } from '../../constants';
 import ViewMode from '../ViewMode';
 
 import './InputView.scss';
@@ -23,7 +24,7 @@ const Labels = {
 
 const InputView = () => {
   const context = useContext(SelectOrgstructContext);
-  const { selectedRows, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
+  const { selectedRows, setSelectedRows, onChangeValue, error, toggleSelectModal, deleteSelectedItem, controlProps, targetId } = context;
   const {
     isCompact,
     disabled,
@@ -33,7 +34,8 @@ const InputView = () => {
     renderView,
     hideInputView,
     isSelectedValueAsText,
-    isInlineEditingMode
+    isInlineEditingMode,
+    viewModeType
   } = controlProps;
 
   if (hideInputView) {
@@ -116,6 +118,28 @@ const InputView = () => {
       )}
     </>
   );
+
+  if (viewModeType === ViewModes.TAGS) {
+    return (
+      <Tags
+        tags={selectedRows.map(row => ({ name: row.label, id: row.id }))}
+        onTagsChange={remainingSelectedRows => {
+          const remainingItems = {};
+
+          remainingSelectedRows.forEach(row => {
+            remainingItems[row.id] = true;
+          });
+
+          const newSelectedRows = selectedRows.filter(row => remainingItems[row.id]);
+
+          onChangeValue(newSelectedRows);
+          setSelectedRows(newSelectedRows);
+        }}
+        onAddTag={toggleSelectModal}
+        exception={['emodel/authority-group@_orgstruct_home_']}
+      />
+    );
+  }
 
   return (
     <div className={classNames('select-orgstruct__input-view', { 'select-orgstruct__input-view_compact': isCompact })}>

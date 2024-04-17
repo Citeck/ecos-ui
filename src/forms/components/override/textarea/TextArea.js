@@ -132,6 +132,17 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
             onChange(editor.data.get());
           });
+
+          // Allows you to move the button tooltips to the left to prevent unnecessary indentation
+          const ckTooltips = document.querySelectorAll('.ck-tooltip');
+          [...ckTooltips].map(ckTooltip => (ckTooltip.style.left = '-150%'));
+
+          // Allows you to add an internal scroll when expanding
+          const ckEditorContainer = editor.ui.view.editable.element.parentElement;
+          Object.assign(ckEditorContainer.style, {
+            maxWidth: '100%'
+          });
+
           resolve(editor);
           return editor;
         });
@@ -181,6 +192,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
         // Make sure to select cursor when they click on the element.
         const onClickElm = () => quill && quill.focus();
         this.addEventListener(element, 'click', onClickElm);
+
+        // Allows the container to expand based on the text height value
+        const qlContainers = document.querySelectorAll('.ql-container');
+        [...qlContainers].map(qlContainer => (qlContainer.style.minHeight = '100%'));
 
         // Allows users to skip toolbar items when tabbing though form
         const buttons = document.querySelectorAll('.ql-formats > button');

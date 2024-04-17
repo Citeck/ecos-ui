@@ -42,9 +42,9 @@ export default class PageTab {
   }
 
   get storage() {
-    const { id, link } = this;
+    const { id, link, title } = this;
 
-    return { id, link };
+    return { id, link, title };
   }
 
   get store() {

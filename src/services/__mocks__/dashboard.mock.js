@@ -1,13 +1,17 @@
-import { t } from '../../helpers/export/util';
 import { LayoutTypes } from '../../constants/layout';
 import { SourcesId } from '../../constants';
+import ru from '../../i18n/ru.json';
+import en from '../../i18n/en.json';
 
 export const getDefaultDashboardConfig = idLayout => ({
   layout: {
     id: idLayout,
     tab: {
       idLayout,
-      label: t('page-tabs.tab-name-default')
+      label: {
+        ru: ru['page-tabs.tab-name-default'],
+        en: en['page-tabs.tab-name-default']
+      }
     },
     type: LayoutTypes.TWO_COLUMNS_BS,
     columns: [

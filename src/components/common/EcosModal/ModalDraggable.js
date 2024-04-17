@@ -96,7 +96,7 @@ class Modal extends React.Component {
     };
 
     if (props.isOpen) {
-      this.init();
+      this.init(props.container);
     }
   }
 
@@ -233,7 +233,7 @@ class Modal extends React.Component {
     }
   }
 
-  init() {
+  init(container) {
     try {
       this._triggeringElement = document.activeElement;
     } catch (err) {
@@ -242,7 +242,7 @@ class Modal extends React.Component {
 
     const { zIndex, cssModule, containerClassName = '' } = this.props;
 
-    this._element = document.createElement('div');
+    this._element = container || document.createElement('div');
     this._element.setAttribute('tabindex', '-1');
     this._element.style.position = 'absolute';
     this._element.style.zIndex = zIndex;
@@ -251,7 +251,9 @@ class Modal extends React.Component {
 
     conditionallyUpdateScrollbar();
 
-    document.body.appendChild(this._element);
+    if (!container) {
+      document.body.appendChild(this._element);
+    }
 
     if (Modal.openCount === 0) {
       document.body.className = classNames(document.body.className, mapToCssModules('modal-open', cssModule));

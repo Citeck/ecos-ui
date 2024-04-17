@@ -8,7 +8,7 @@ import noop from 'lodash/noop';
 import isFunction from 'lodash/isFunction';
 import { NotificationManager } from 'react-notifications';
 
-import { SelectOrgstructContext } from '../../../../../components/common/form/SelectOrgstruct/SelectOrgstructContext';
+import { OrgstructContext } from '../../../../../components/common/Orgstruct/OrgstructContext';
 import { EcosModal } from '../../../../../components/common';
 import FormManager from '../../../../../components/EcosForm/FormManager';
 import ModalContent from '../ModalContent';
@@ -18,6 +18,7 @@ import { updateCurrentUrl } from '../../../../../helpers/urls';
 import { getDashboardConfig } from '../../../../../actions/dashboard';
 import GroupIcon from './GroupIcon';
 import { SourcesId } from '../../../../../constants';
+import defaultAvatar from './Vector.png';
 
 import './ListItem.scss';
 
@@ -27,6 +28,7 @@ const Labels = {
   TITLE_GROUP_DELETE: 'orgstructure-delete-modal-title-group',
   TITLE_GROUP_EDIT: 'orgstructure-edit-modal-title-group',
   TITLE_PERSON_ADD: 'orgstructure-edit-modal-title-person',
+  TITLE_PERSON_CREATE: 'orgstructure-add-modal-title-person',
   TITLE_SUBGROUP_CREATE: 'orgstructure-add-modal-title-group',
   CONFIRM_PERSON_DELETE: 'orgstructure-delete-modal-body-person',
   CONFIRM_GROUP_DELETE: 'orgstructure-delete-modal-body-group',
@@ -58,7 +60,11 @@ const FORM_CONFIG = {
   }
 };
 
-const renderListItem = (item, nestingLevel) => {
+const Avatar = ({ item }) => {
+  return <img src={item?.attributes?.photo || defaultAvatar} alt="avatar" className="orgstructure-page__avatar" />;
+};
+
+const renderListItem = (item, nestingLevel, isPerson) => {
   if (!item.extraLabel) {
     return <span className="orgstructure-page__list-item-label">{item.label}</span>;
   }
@@ -69,6 +75,7 @@ const renderListItem = (item, nestingLevel) => {
         'orgstructure-page__list-item-label-with-extra_fullwidth': nestingLevel === 0
       })}
     >
+      {isPerson && <Avatar item={item} />}
       <span className="orgstructure-page__list-item-label">{item.label}</span>
       <span className="select-orgstruct__list-item-label-extra">({item.extraLabel})</span>
     </div>
@@ -76,7 +83,7 @@ const renderListItem = (item, nestingLevel) => {
 };
 
 const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, selectedPerson, tabId, toggleToFirstTab }) => {
-  const { onToggleCollapse, getItemsByParent } = useContext(SelectOrgstructContext);
+  const { onToggleCollapse, getItemsByParent, setGroupModal, setPersonModal } = useContext(OrgstructContext);
 
   const [hovered, setHovered] = useState(false);
   const [scrollLeft, setScrollLeftPosition] = useState(0);
@@ -141,7 +148,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
     if (isPerson) {
       extraConfig.recordRef = null;
 
-      title = t(Labels.TITLE_PERSON_ADD);
+      title = t(Labels.TITLE_PERSON_CREATE);
     } else {
       title = isEditMode ? t(Labels.TITLE_GROUP_EDIT) : t(Labels.TITLE_SUBGROUP_CREATE);
     }
@@ -265,7 +272,7 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
           <div className="orgstructure-page__list-item-container">
             <div>
               {renderCollapseHandler()}
-              {renderListItem(item, nestingLevel)}
+              {renderListItem(item, nestingLevel, isPerson)}
             </div>
 
             <div
@@ -274,19 +281,42 @@ const ListItem = ({ item, nestingLevel, nestedList, dispatch, deleteItem, select
               })}
               style={{ right: 12 - scrollLeft }}
             >
-              {isPerson && item.parentId ? (
-                <span title={t(Labels.TITLE_PERSON_DELETE)} className="icon-user-away" onClick={openPersonModal} />
-              ) : null}
-              {isPerson ? (
-                <span
+              {isPerson && item.parentId && (
+                <GroupIcon title={t(Labels.TITLE_PERSON_DELETE)} icon="remove-person" onClick={openPersonModal} />
+              )}
+              {isPerson && (
+                <GroupIcon
                   title={t(Labels.TITLE_PERSON_SELECT)}
-                  className={classNames(['icon-user-normal', { 'icon-user-normal__clicked': selected }])}
+                  icon="select-person"
+                  className={classNames([{ 'icon-user__clicked': selected }])}
                   onClick={selectPerson}
                 />
-              ) : null}
-              {isGroup ? <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} className="icon-edit" onClick={e => createGroup(e, true)} /> : null}
-              {isGroup ? <GroupIcon title={t(Labels.TITLE_SUBGROUP_CREATE)} className="icon-users green" onClick={createGroup} /> : null}
-              {isGroup ? <GroupIcon title={t(Labels.TITLE_PERSON_ADD)} className="icon-user-online" onClick={createPerson} /> : null}
+              )}
+
+              {isGroup && <GroupIcon title={t(Labels.TITLE_GROUP_EDIT)} icon="edit" onClick={e => createGroup(e, true)} />}
+              {isGroup && (
+                <GroupIcon
+                  title={t(Labels.TITLE_SUBGROUP_CREATE)}
+                  icon="add-group"
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onToggleCollapse(item, () => setGroupModal(item));
+                  }}
+                />
+              )}
+              {isGroup && (
+                <GroupIcon
+                  title={t(Labels.TITLE_PERSON_ADD)}
+                  icon="add-user"
+                  onClick={event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onToggleCollapse(item, () => setPersonModal(item));
+                  }}
+                />
+              )}
+              {isGroup && <GroupIcon title={t(Labels.TITLE_PERSON_CREATE)} icon="create-user" onClick={createPerson} />}
 
               <EcosModal
                 className="ecos-modal_width-lg ecos-form-modal orgstructure-page-modal"

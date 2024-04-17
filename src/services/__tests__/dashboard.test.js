@@ -2,7 +2,6 @@ import get from 'lodash/get';
 
 import DashboardService from '../dashboard';
 import pageTabList from '../pageTabs/PageTabList';
-import { t } from '../../helpers/util';
 import { LayoutTypes } from '../../constants/layout';
 import {
   CONFIGS,
@@ -13,6 +12,8 @@ import {
   WIDGETS_BY_ID
 } from '../__mocks__/dashboard.mock';
 import { CONFIG_VERSION } from '../../constants/dashboard';
+import ru from '../../i18n/ru.json';
+import en from '../../i18n/en.json';
 
 describe('Dashboard Service', () => {
   describe('Getter key', () => {
@@ -39,7 +40,10 @@ describe('Dashboard Service', () => {
 
       expect(tab).toEqual({
         idLayout,
-        label: t('page-tabs.tab-name-default')
+        label: {
+          ru: ru['page-tabs.tab-name-default'],
+          en: en['page-tabs.tab-name-default']
+        }
       });
     });
   });

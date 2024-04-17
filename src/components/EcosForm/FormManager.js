@@ -6,6 +6,7 @@ import Modal from '../common/EcosModal/CiteckEcosModal';
 import EcosFormUtils from './EcosFormUtils';
 import EcosFormModal from './EcosFormModal';
 import EcosForm from './EcosForm';
+import { getId } from '../../helpers/util';
 
 class FormManager {
   static createRecordByVariant = (variant, options = {}) => {
@@ -60,25 +61,23 @@ class FormManager {
       props.formId = formId;
     }
 
-    this.openFormModal(props);
+    return this.openFormModal(props);
   };
 
   static openFormModal(props) {
     const container = document.createElement('div');
-    const handleUnmount = () => {
-      ReactDOM.unmountComponentAtNode(container);
-      document.body.removeChild(container);
-    };
+    container.id = getId();
 
     const form = React.createElement(EcosFormModal, {
       ...props,
+      container,
       isModalOpen: true,
       onHideModal: () => {
-        handleUnmount();
+        this.destroyForm(container);
         isFunction(props.onHideModal) && props.onHideModal();
       },
       onCancelModal: () => {
-        handleUnmount();
+        this.destroyForm(container);
         isFunction(props.onModalCancel) && props.onModalCancel();
       }
     });
@@ -87,6 +86,14 @@ class FormManager {
     ReactDOM.render(form, container);
 
     return container;
+  }
+
+  static destroyForm(container) {
+    ReactDOM.unmountComponentAtNode(container);
+
+    if (document.getElementById(container.id)) {
+      document.body.removeChild(container);
+    }
   }
 
   static openFormControlledModal(params) {

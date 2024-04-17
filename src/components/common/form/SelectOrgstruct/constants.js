@@ -20,7 +20,8 @@ export const GroupTypes = {
 
 export const ViewModes = {
   DEFAULT: 'default',
-  LINE_SEPARATED: 'line-separated'
+  LINE_SEPARATED: 'line-separated',
+  TAGS: 'tags'
 };
 
 export const DataTypes = {
@@ -36,3 +37,9 @@ export const PAGINATION_SIZES = [
   { value: 40, label: 40 },
   { value: 50, label: 50 }
 ];
+
+export const Modes = {
+  DEFAULT: 0,
+  SELECT_GROUPS: 1,
+  SELECT_USERS: 2
+};
