@@ -138,7 +138,7 @@ class Kanban extends React.Component {
 
     return (
       <Column
-        key={`col_${selectedBoard}-${data.id}`}
+        key={`${index}_col_${selectedBoard}-${data.id}`}
         data={data}
         stateId={stateId}
         columnStatus={data.id}

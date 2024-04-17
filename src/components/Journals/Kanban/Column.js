@@ -79,8 +79,9 @@ class Column extends React.PureComponent {
 
     return statuses
       .filter(status => status.isAvailable)
-      .map(status => (
+      .map((status, index) => (
         <span
+          key={`${index}-${status.id}`}
           className={classNames('ecos-kanban__card-info', {
             'ecos-kanban__card-info_alert': status.isAlert,
             'ecos-kanban__card-info_loading': loading,

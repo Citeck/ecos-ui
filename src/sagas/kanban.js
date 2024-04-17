@@ -201,7 +201,8 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
     const settings = yield select(selectJournalSettings, stateId);
     const preset = settings.find(preset => preset.id === journalSetting.id);
-    const defaultPredicate = get(getDefaultJournalSetting(journalConfig), 'predicate.val', {});
+    const defaultSettings = getDefaultJournalSetting(journalConfig);
+    const defaultPredicate = get(defaultSettings, 'predicate.val', {});
     const predicates = ParserPredicate.replacePredicatesType(
       JournalsConverter.cleanUpPredicate(get(preset, 'settings.predicate.val', preset && !preset.id ? defaultPredicate : params.predicates))
     );
