@@ -16,11 +16,9 @@ import {
   setModel,
   setTitle
 } from '../actions/bpmnEditor';
-import { deleteTab } from '../actions/pageTabs';
 import { t } from '../helpers/export/util';
 import EcosFormUtils from '../components/EcosForm/EcosFormUtils';
 import * as BpmnUtils from '../components/ModelEditor/BPMNModeler/utils';
-import PageTabList from '../services/pageTabs/PageTabList';
 import { isJsonObjectString } from '../helpers/util';
 import { JSON_VALUE_COMPONENTS } from '../constants/cmmn';
 import { PROCESS_DEF_API_ACTIONS } from '../api/process';
@@ -73,12 +71,7 @@ export function* runSaveModel({ api, logger }, { payload: { stateId, record, xml
       };
 
       yield put(updateModels(updatePayload));
-
-      if (definitionAction === PROCESS_DEF_API_ACTIONS.DEPLOY) {
-        yield put(deleteTab(PageTabList.activeTab));
-      } else {
-        yield put(setLoading({ stateId, isLoading: false }));
-      }
+      yield put(setLoading({ stateId, isLoading: false }));
     }
   } catch (e) {
     yield put(setLoading({ stateId, isLoading: false }));
