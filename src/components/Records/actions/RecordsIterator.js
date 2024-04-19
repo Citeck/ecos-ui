@@ -13,7 +13,10 @@ class RecordsIterator {
   #page = 1;
   #amountPerIteration;
   #query = null;
+  #queryInitial = null;
+  #lastDate = null;
   #isEnd = false;
+  #skipCount = 0;
 
   /**
    * @param {Object} query
@@ -25,13 +28,14 @@ class RecordsIterator {
     }
 
     this.#query = cloneDeep(query);
+    this.#queryInitial = query;
     const { amountPerIteration = 10 } = config || {};
-    this.#amountPerIteration = amountPerIteration;
+    this.#amountPerIteration = Number(amountPerIteration);
   }
 
   get pagination() {
     return {
-      skipCount: (this.#page - 1) * this.#amountPerIteration,
+      skipCount: this.#skipCount,
       maxItems: this.#amountPerIteration,
       page: this.#page
     };
@@ -39,10 +43,37 @@ class RecordsIterator {
 
   async next() {
     this.#query.page = this.pagination;
-    const res = await Records.query(this.#query).catch(e => {
+    const res = await Records.query(this.#query, ['_created']).catch(e => {
       console.error(e);
       return [];
     });
+
+    if (res.records && res.records.length) {
+      if (this.#lastDate === res.records[res.records.length - 1]['_created']) {
+        this.#skipCount += this.#amountPerIteration;
+      } else {
+        const lastDateRecords = res.records[res.records.length - 1]['_created'];
+        if (lastDateRecords) {
+          this.#lastDate = lastDateRecords;
+        }
+        this.#skipCount = 0;
+        res.records.forEach(record => record['_created'] && record['_created'] === this.#lastDate && this.#skipCount++);
+      }
+    }
+
+    if (this.#lastDate) {
+      this.#query.query = {
+        t: 'and',
+        val: [
+          ...this.#queryInitial.query.val,
+          {
+            att: '_created',
+            t: 'ge',
+            val: this.#lastDate
+          }
+        ]
+      };
+    }
 
     this.#page++;
 
@@ -65,7 +96,9 @@ class RecordsIterator {
         await callback(res);
       }
 
-      this.#isEnd = !res;
+      if (!res || (res.records && res.records.length < this.#amountPerIteration)) {
+        this.#isEnd = true;
+      }
     }
   }
 }
