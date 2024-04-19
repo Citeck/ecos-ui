@@ -4,6 +4,14 @@ import PropTypes from 'prop-types';
 import './styles.scss';
 
 export default class EcosProgressBar extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      value: props.value,
+    };
+  }
+
   static propTypes = {
     max: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
@@ -14,8 +22,21 @@ export default class EcosProgressBar extends Component {
     height: PropTypes.number
   };
 
+  updateValue(value) {
+    this.setState({
+      value,
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.value !== prevProps.value) {
+      this.updateValue(this.props.value);
+    }
+  }
+
   render() {
-    const { max, value, filledColor, emptyColor, fixedCount = 0, showPercentage, height } = this.props;
+    const { max, filledColor, emptyColor, fixedCount = 0, showPercentage, height } = this.props;
+    const { value } = this.state;
     const percentCondition = Number(value) <= Number(max) && Number(max) > 0;
     const percentage = percentCondition ? (Number(value) / Number(max)) * 100 : 0;
     return (
