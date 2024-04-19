@@ -68,6 +68,7 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
     });
 
     const progressBar = React.createRef();
+    let dialog;
     let isFirst = true;
 
     const waitComplete = async iteration => {
@@ -79,7 +80,7 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
         if (isFirst) {
           isFirst = false;
 
-          DialogManager.showCustomDialog({
+          dialog = DialogManager.showCustomDialog({
             title: t("group-action.message.processing-the-request"),
             modalClass: "ecos-modal_width-xs",
             body: totalCount === -1 ? (
@@ -131,6 +132,9 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
     waitComplete(0);
 
     return promise.finally(() => {
+      if (dialog) {
+        dialog.setVisible(false);
+      }
       Records.forget(actionId);
     });
   }
