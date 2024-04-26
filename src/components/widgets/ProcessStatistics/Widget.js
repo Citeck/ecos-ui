@@ -147,7 +147,7 @@ export default class Widget extends BaseWidget {
 
     config.selectedJournal = `${SourcesId.JOURNAL}@${SystemJournals.PROCESS_ELMS}`;
 
-    const formMode = get(config, 'formMode', SIMPLIFIED_MODE);
+    const formMode = get(config, 'formMode', EXTENDED_MODE);
 
     return (
       <Dashlet
