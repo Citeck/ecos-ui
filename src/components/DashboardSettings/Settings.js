@@ -144,7 +144,7 @@ class Settings extends Component {
   }
 
   componentWillUnmount() {
-    // this.props.resetConfigState();
+    this.props.resetConfigState();
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
