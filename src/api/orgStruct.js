@@ -367,13 +367,7 @@ export class OrgStructApi extends CommonApi {
   static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS) => {
     const valRaw = search.trim();
     const val = valRaw.split(' ').filter(item => !!item);
-    const queryVal = [
-      {
-        t: 'contains',
-        a: 'authorityGroupsFull',
-        v: getGroupRef(ROOT_GROUP_NAME)
-      }
-    ];
+    const queryVal = [];
 
     if (isEmpty(val)) {
       return queryVal;
