@@ -78,7 +78,7 @@ class KPIRenderer extends NumberRenderer {
       );
 
       const percent = Math.round(KPI.kpiDeviation);
-      this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent}%` : `${percent}%`, [
+      this._drawKPIPercentage(parentNode, percent > 0 ? `+${percent >= 1000 ? '1K' : percent}%` : `${percent}%`, [
         percentTransform[0] + 2,
         percentTransform[1] + 15
       ]);
