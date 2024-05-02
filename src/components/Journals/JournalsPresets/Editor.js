@@ -13,27 +13,30 @@ import './style.scss';
 const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
   const [name, setName] = useState({});
   const [authorityRef, setAuthorityRef] = useState('');
+  const [authoritiesRef, setAuthoritiesRef] = useState(['']);
   const [isSaving, setSaving] = useState(false);
 
   useEffect(
     () => {
       setName(data.name);
       setAuthorityRef(params.authorityRef);
+      setAuthoritiesRef(params.authoritiesRef);
     },
-    [id, data.name, params.authorityRef]
+    [id, data.name, params.authorityRef, params.authoritiesRef]
   );
 
   const handleChangeName = useCallback(name => setName(name), []);
   const handleChangeAuthority = useCallback(authorityRef => setAuthorityRef(authorityRef), []);
+  const handleChangeAuthorities = useCallback(authoritiesRef => setAuthoritiesRef(authoritiesRef), []);
   const handleSave = useCallback(
     () => {
       setSaving(true);
-      onSave({ name, authorityRef });
+      onSave({ name, authorityRef, authoritiesRef });
     },
-    [name, authorityRef]
+    [name, authorityRef, authoritiesRef]
   );
 
-  const isInvalid = !(isFilledLabelWeak(name) && authorityRef);
+  const isInvalid = !(isFilledLabelWeak(name) && (authorityRef || authoritiesRef.length > 0));
 
   return (
     <div className="journal-journal-preset-editor">
@@ -45,15 +48,18 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
       </div>
 
       <div className="journal-preset-editor__field">
-        <div className="journal-preset-editor__label journal-preset-editor__label_required">{t(Labels.Preset.FIELD_AUTH)}</div>
+        <div className="journal-preset-editor__label journal-preset-editor__label_required">
+          {t(Labels.Preset.FIELD_AUTH) || t(Labels.Preset.FIELD_ALL_AUTH)}
+        </div>
         <div className="journal-preset-editor__control">
           <SelectOrgstruct
-            defaultValue={authorityRef}
+            defaultValue={authoritiesRef}
             disabled={!isAdmin}
             isSelectedValueAsText
             isIncludedAdminGroup={isAdmin}
             allowedGroupTypes={Object.values(GroupTypes)}
-            onChange={handleChangeAuthority}
+            onChange={handleChangeAuthorities}
+            multiple={true}
           />
         </div>
       </div>
@@ -71,7 +77,8 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
 Editor.propTypes = {
   data: PropTypes.shape({
     name: PropTypes.object,
-    authority: PropTypes.string
+    authority: PropTypes.string,
+    authorities: PropTypes.arrayOf(PropTypes.string)
   }),
 
   onClose: PropTypes.func,

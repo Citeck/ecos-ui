@@ -123,6 +123,7 @@ export default class WidgetService {
       <JournalsPresetEditor
         isAdmin={params.isAdmin}
         authorityRef={params.authorityRef}
+        authoritiesRef={params.authoritiesRef}
         data={params.data || {}}
         onClose={params.onClose}
         onSave={params.onSave}
