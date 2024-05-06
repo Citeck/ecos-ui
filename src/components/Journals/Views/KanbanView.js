@@ -7,15 +7,31 @@ import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
 import get from 'lodash/get';
 
-import { getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
+import { applyFilter, getBoardData, reloadBoardData, resetFilter, selectBoardId } from '../../../actions/kanban';
 import { selectViewMode } from '../../../selectors/journals';
 import { selectKanbanPageProps } from '../../../selectors/kanban';
-import { createJournalSetting, saveJournalSetting } from '../../../actions/journals';
+import {
+  applyJournalSetting,
+  createJournalSetting,
+  deselectAllRecords,
+  execRecordsAction,
+  getJournalsData,
+  reloadGrid,
+  reloadJournalConfig,
+  runSearch,
+  saveJournalSetting,
+  selectPreset,
+  setGrid,
+  setSelectAllPageRecords,
+  setSelectedRecords,
+  setUrl
+} from '../../../actions/journals';
 import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { t } from '../../../helpers/export/util';
 import { getSearchParams } from '../../../helpers/urls';
 import { Dropdown } from '../../common/form';
 import { isKanban, Labels } from '../constants';
+import { wrapArgs } from '../../../helpers/redux';
 import Kanban, { Bar } from '../Kanban';
 
 import '../style.scss';
@@ -23,8 +39,10 @@ import '../style.scss';
 function mapStateToProps(state, props) {
   const viewMode = selectViewMode(state, props.stateId);
   const ownProps = selectKanbanPageProps(state, props.stateId);
+  const newState = get(state, ['journals', props.stateId]) || {};
 
   return {
+    predicate: newState.journalSetting?.predicate || {},
     urlParams: getSearchParams(),
     viewMode,
     ...ownProps
@@ -32,15 +50,28 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch, props) {
-  const stateId = props.stateId;
+  const w = wrapArgs(props.stateId);
 
   return {
-    resetFiltering: () => dispatch(resetFilter({ stateId })),
-    createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting({ stateId, journalId, settings, callback })),
-    saveJournalSetting: (id, settings, callback) => dispatch(saveJournalSetting({ id, stateId, settings, callback })),
-    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId })),
-    reloadBoardData: () => dispatch(reloadBoardData({ stateId })),
-    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId }))
+    resetFiltering: () => dispatch(resetFilter({ stateId: props.stateId })),
+    applyFiltering: settings => dispatch(applyFilter({ stateId: props.stateId, settings })),
+    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId: props.stateId })),
+    reloadBoardData: () => dispatch(reloadBoardData({ stateId: props.stateId })),
+    selectBoardId: boardId => dispatch(selectBoardId({ boardId, stateId: props.stateId })),
+    selectPreset: id => dispatch(selectPreset(w(id))),
+    applySettings: settings => dispatch(applyJournalSetting(w(settings))),
+    clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
+    createJournalSetting: (journalId, settings, callback) => dispatch(createJournalSetting(w({ journalId, settings, callback }))),
+    execRecordsAction: (records, action, context) => dispatch(execRecordsAction(w({ records, action, context }))),
+    getJournalsData: options => dispatch(getJournalsData(w(options))),
+    reloadJournalConfig: (journalId, force, callback) => dispatch(reloadJournalConfig(w({ journalId, w, force, callback }))),
+    reloadGrid: () => dispatch(reloadGrid(w({}))),
+    runSearch: text => dispatch(runSearch({ text, stateId: props.stateId })),
+    saveJournalSetting: (id, settings, callback) => dispatch(saveJournalSetting(w({ id, settings, callback }))),
+    setSelectedRecords: records => dispatch(setSelectedRecords(w(records))),
+    setSelectAllPageRecords: need => dispatch(setSelectAllPageRecords(w(need))),
+    deselectAllRecords: stateId => dispatch(deselectAllRecords({ stateId })),
+    setUrl: urlParams => dispatch(setUrl(w(urlParams)))
   };
 }
 
@@ -50,10 +81,18 @@ class KanbanView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, urlParams = {}, boardList } = this.props;
+    const { isActivePage, viewMode, stateId, urlParams = {}, boardList, journalId, predicate, withForceUpdate: force } = this.props;
 
     if (!isActivePage || !isKanban(viewMode)) {
       return;
+    }
+
+    if (prevProps.journalId !== journalId || (stateId && prevProps.stateId !== stateId) || this.state.isClose) {
+      this.setState({ isClose: false }, () => this.props.getJournalsData({ force }));
+    }
+
+    if (!isEqual(prevProps['predicate'], predicate) && stateId) {
+      this.props.applyFiltering({ predicate });
     }
 
     if (
