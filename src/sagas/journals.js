@@ -76,8 +76,7 @@ import {
   selectJournalSetting,
   selectJournalSettings,
   selectNewVersionDashletConfig,
-  selectUrl,
-  selectWasChangedSettings
+  selectUrl
 } from '../selectors/journals';
 import JournalsService, { EditorService, PresetsServiceApi } from '../components/Journals/service';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
@@ -384,12 +383,9 @@ export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
   try {
     const { journalSetting: _journalSetting = {} } = yield select(selectJournalData, stateId);
-    const wasChangedSettings = yield select(selectWasChangedSettings, stateId);
     let journalSetting = null;
 
-    if (wasChangedSettings) {
-      journalSetting = {};
-    } else if (sharedSettings) {
+    if (sharedSettings) {
       journalSetting = sharedSettings;
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;

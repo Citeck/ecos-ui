@@ -21,22 +21,31 @@ import {
   setUrl
 } from '../../../actions/journals';
 import { selectCommonJournalPageProps, selectJournalPageProps } from '../../../selectors/journals';
-import { JournalUrlParams as JUP, SourcesId } from '../../../constants';
+import { JournalUrlParams as JUP, KanbanUrlParams as KUP, SourcesId } from '../../../constants';
 import { wrapArgs } from '../../../helpers/redux';
+import { getSearchParams } from '../../../helpers/urls';
+import { selectKanbanPageProps } from '../../../selectors/kanban';
+import { getBoardData } from '../../../actions/kanban';
 import { getTextByLocale } from '../../../helpers/util';
 import { isPreview, isTableOrPreview } from '../constants';
 import Bar from '../CommonBar';
 import JournalsContent from '../JournalsContent';
 import JournalsDashletPagination from '../JournalsDashletPagination';
+import isEqualWith from 'lodash/isEqualWith';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 function mapStateToProps(state, props) {
   const commonProps = selectCommonJournalPageProps(state, props.stateId);
+  const ownProps = selectKanbanPageProps(state, props.stateId);
   const journalProps = selectJournalPageProps(state, props.stateId);
 
   return {
+    isMobile: get(state, 'view.isMobile'),
+    urlParams: getSearchParams(),
+    ...ownProps,
     ...commonProps,
-    ...journalProps,
-    isMobile: get(state, 'view.isMobile')
+    ...journalProps
   };
 }
 
@@ -44,6 +53,7 @@ function mapDispatchToProps(dispatch, props) {
   const w = wrapArgs(props.stateId);
 
   return {
+    getBoardData: boardId => dispatch(getBoardData({ boardId, stateId: props.stateId })),
     applySettings: settings => dispatch(applyJournalSetting(w(settings))),
     resetFiltering: () => dispatch(resetFiltering(w())),
     clearSearch: () => dispatch(setGrid({ search: '', stateId: props.stateId })),
@@ -73,8 +83,8 @@ class TableView extends React.Component {
       viewMode,
       stateId,
       journalId,
+      boardList,
       urlParams = {},
-      wasChangedSettings,
       withForceUpdate: force,
       deselectAllRecords
     } = this.props;
@@ -91,17 +101,31 @@ class TableView extends React.Component {
       this.setState({ isClose: false }, () => this.props.getJournalsData({ force }));
     }
 
-    if (!isTableOrPreview(prevProps.viewMode) && !!wasChangedSettings) {
-      this.props.getJournalsData();
-    }
-
     if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
       this.props.reloadGrid();
+    }
+
+    if (
+      !isEqualWith(boardList, prevProps.boardList, isEqual) ||
+      (!isEmpty(boardList) && this.state.isClose) ||
+      urlParams[KUP.BOARD_ID] !== get(prevProps, ['urlParams', KUP.BOARD_ID]) ||
+      urlParams[KUP.TEMPLATE_ID] !== get(prevProps, ['urlParams', KUP.TEMPLATE_ID])
+    ) {
+      const boardId = this.getSelectedBoardFromUrl();
+      if (boardId) {
+        this.props.getBoardData(boardId);
+      }
     }
   }
 
   componentWillUnmount() {
     this.setState({ isClose: true });
+  }
+
+  getSelectedBoardFromUrl() {
+    const { urlParams = {}, boardList } = this.props;
+
+    return urlParams.boardId || get(boardList, '[0].id');
   }
 
   RightBarChild = ({ hasPageSize, noData }) => {
