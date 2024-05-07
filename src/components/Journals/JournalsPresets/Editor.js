@@ -26,7 +26,6 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
   );
 
   const handleChangeName = useCallback(name => setName(name), []);
-  const handleChangeAuthority = useCallback(authorityRef => setAuthorityRef(authorityRef), []);
   const handleChangeAuthorities = useCallback(authoritiesRef => setAuthoritiesRef(authoritiesRef), []);
   const handleSave = useCallback(
     () => {
@@ -54,7 +53,6 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
         <div className="journal-preset-editor__control">
           <SelectOrgstruct
             defaultValue={authoritiesRef}
-            disabled={!isAdmin}
             isSelectedValueAsText
             isIncludedAdminGroup={isAdmin}
             allowedGroupTypes={Object.values(GroupTypes)}
