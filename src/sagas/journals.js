@@ -853,7 +853,20 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     const preset = settings.find(preset => preset.id === selectedId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
 
-    const predicates = [journalConfig.predicate, preset.settings.predicate];
+    let predicates;
+    switch (true) {
+      case !!journalConfig?.predicate && !!preset?.settings?.predicate:
+        predicates = [journalConfig.predicate, preset.settings.predicate];
+        break;
+      case !!journalConfig?.predicate:
+        predicates = [journalConfig.predicate];
+        break;
+      case !!preset?.settings?.predicate:
+        predicates = [preset.settings.predicate];
+        break;
+      default:
+        predicates = [];
+    }
 
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
 
@@ -1199,7 +1212,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
       originFilter = convertAttributeValues(cleanPredicates, columns);
       originFilter = JournalsConverter.optimizePredicate({ t: 'and', val: originFilter });
-      filter = getFilterParam({ row, columns, groupBy });
+      filter = getFilterParam({ row, columns, groupBy, predicate: journalData.predicate });
 
       if (!isEmpty(originFilter)) {
         if (Array.isArray(originFilter.val)) {
