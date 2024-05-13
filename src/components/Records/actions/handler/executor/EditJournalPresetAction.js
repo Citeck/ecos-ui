@@ -24,13 +24,21 @@ export default class EditJournalPresetAction extends ActionsExecutor {
       if (!data.authority) {
         data.authority = getCurrentUserName();
       }
-
       const authorityRef = await AuthorityService.getAuthorityRef(data.authority);
+
+      let authoritiesRef;
+      if (!data.authorities) {
+        data.authorities = [data.authority];
+        authoritiesRef = [authorityRef];
+      } else {
+        authoritiesRef = await AuthorityService.getAuthorityRef(data.authorities);
+      }
 
       const onClose = () => modal.destroy();
       const onSave = async newData => {
         const authority = await AuthorityService.getAuthorityName(newData.authorityRef);
-        const preset = await PresetsServiceApi.savePreset({ id: rec.id, ...data, ...newData, authority });
+        const authorities = await AuthorityService.getAuthorityName(newData.authoritiesRef);
+        const preset = await PresetsServiceApi.savePreset({ id: rec.id, ...data, ...newData, authority, authorities });
 
         if (preset && preset.id) {
           notifySuccess('record-action.edit-journal-preset.msg.saved-success');
@@ -44,7 +52,15 @@ export default class EditJournalPresetAction extends ActionsExecutor {
 
       let isCurrentUserAdmin = await Records.get(SourcesId.PERSON + '@' + getCurrentUserName()).load('isAdmin?bool!false');
 
-      const modal = WidgetService.openEditorJournalPreset({ onSave, onClose, title, isAdmin: isCurrentUserAdmin, authorityRef, data });
+      const modal = WidgetService.openEditorJournalPreset({
+        onSave,
+        onClose,
+        title,
+        isAdmin: isCurrentUserAdmin,
+        authorityRef,
+        authoritiesRef,
+        data
+      });
     });
   }
 
