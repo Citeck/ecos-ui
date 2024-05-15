@@ -218,7 +218,7 @@ export class OrgStructApi extends CommonApi {
     const users = Records.query(
       {
         sourceId: SourcesId.PERSON,
-        query: { t: 'and', v: queryVal },
+        query: !isEmpty(queryVal) ? { t: 'and', v: queryVal } : {},
         language: 'predicate'
       },
       { ...OrgStructApi.userAttributes, ...globalSearchConfig }
@@ -434,7 +434,7 @@ export class OrgStructApi extends CommonApi {
     return Records.query(
       {
         sourceId: SourcesId.PERSON,
-        query: { t: 'and', v: queryVal },
+        query: !isEmpty(queryVal) ? { t: 'and', v: queryVal } : {},
         page: {
           maxItems: params.maxItems,
           skipCount: params.page * params.maxItems
