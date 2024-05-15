@@ -193,5 +193,9 @@
     "font-awesome@4.7.0": "patch:font-awesome@npm%3A4.7.0#./.yarn/patches/font-awesome-npm-4.7.0-7a553c5fbb.patch",
     "formiojs@3.30.1": "patch:formiojs@npm%3A3.30.1#./.yarn/patches/formiojs-npm-3.30.1-210b022db1.patch",
     "react-scripts@3.4.4": "patch:react-scripts@npm%3A3.4.4#./.yarn/patches/react-scripts-npm-3.4.4-c1da7c6209.patch"
+  },
+  "volta": {
+    "node": "14.21.3",
+    "yarn": "3.6.2"
   }
 }
