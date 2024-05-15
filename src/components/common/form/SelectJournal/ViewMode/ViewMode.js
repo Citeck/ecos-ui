@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import isEmpty from 'lodash/isEmpty';
 
 import { t } from '../../../../../helpers/util';
-import { createDocumentUrl } from '../../../../../helpers/urls';
+import { createDocumentUrl, getSelectedValueLink } from '../../../../../helpers/urls';
 import { DisplayModes } from '../../../../../forms/components/custom/selectJournal/constants';
 import { AssocLink } from '../../AssocLink';
 import { Labels } from '../constants';
@@ -30,16 +30,20 @@ class ViewMode extends Component {
     if (!isEmpty(selectedRows)) {
       return (
         <ul className="select-journal-view-mode__list">
-          {selectedRows.map(item => (
-            <li key={item.id}>
-              <AssocLink
-                label={item.disp}
-                asText={isSelectedValueAsText}
-                link={createDocumentUrl(item.id)}
-                className="select-journal-view-mode__list-value"
-              />
-            </li>
-          ))}
+          {selectedRows.map(item => {
+            const props = {};
+
+            if (!isSelectedValueAsText) {
+              props.link = createDocumentUrl(getSelectedValueLink(item));
+              props.paramsLink = { openNewBrowserTab: false };
+            }
+
+            return (
+              <li key={item.id}>
+                <AssocLink label={item.disp} asText={isSelectedValueAsText} className="select-journal-view-mode__list-value" {...props} />
+              </li>
+            );
+          })}
         </ul>
       );
     }
