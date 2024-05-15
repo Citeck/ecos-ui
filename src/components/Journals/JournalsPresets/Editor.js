@@ -35,7 +35,7 @@ const Editor = ({ onClose, onSave, data, id, isAdmin, ...params }) => {
     [name, authorityRef, authoritiesRef]
   );
 
-  const isInvalid = !(isFilledLabelWeak(name) && (authorityRef || authoritiesRef.length > 0));
+  const isInvalid = !(isFilledLabelWeak(name) && (Array.isArray(authoritiesRef) && authoritiesRef.length > 0));
 
   return (
     <div className="journal-journal-preset-editor">
