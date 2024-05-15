@@ -117,5 +117,27 @@ describe('ScriptFormatter', () => {
 
       expect(result).toBe(1);
     });
+
+    it('should return value from vars object as string', () => {
+      const result1 = scriptFormatterInstance.format({
+        config: {
+          fn: 'return vars.testObject;',
+          vars: { testObject: { key: 'value' } }
+        }
+      });
+
+      expect(typeof result1).toBe('string');
+      expect(result1).toBe(JSON.stringify({ key: 'value' }));
+
+      const result2 = scriptFormatterInstance.format({
+        config: {
+          fn: 'return vars.testObject.key;',
+          vars: { testObject: { key: 'value' } }
+        }
+      });
+
+      expect(typeof result2).toBe('string');
+      expect(result2).toBe('value');
+    });
   });
 });
