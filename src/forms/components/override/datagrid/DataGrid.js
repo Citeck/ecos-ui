@@ -7,6 +7,7 @@ import forIn from 'lodash/forIn';
 import get from 'lodash/get';
 import isObject from 'lodash/isObject';
 import forEach from 'lodash/forEach';
+import cloneDeep from 'lodash/cloneDeep';
 
 import { overrideTriggerChange } from '../misc';
 export default class DataGridComponent extends FormIODataGridComponent {
@@ -179,15 +180,18 @@ export default class DataGridComponent extends FormIODataGridComponent {
       }
     }
     this.dataValue = value;
+    let rowsValue = value;
     if (shouldBuildRows) {
+      // buildRows() may change dataValue
+      rowsValue = cloneDeep(rowsValue);
       this.buildRows();
     }
     this.rows.forEach((row, index) => {
-      if (value.length <= index) {
+      if (rowsValue.length <= index) {
         return;
       }
       forIn(row, component => {
-        return this.setNestedValue(component, value[index], flags);
+        return this.setNestedValue(component, rowsValue[index], flags);
       });
     });
 

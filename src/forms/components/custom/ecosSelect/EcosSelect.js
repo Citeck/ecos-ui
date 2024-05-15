@@ -1131,8 +1131,10 @@ export default class SelectComponent extends BaseComponent {
         });
       } else {
         _.each(this.selectOptions, selectOption => {
-          selectOption.element.selected = false;
-          selectOption.element.removeAttribute('selected');
+          if (selectOption.element) {
+            selectOption.element.selected = false;
+            selectOption.element.removeAttribute('selected');
+          }
         });
       }
     }
