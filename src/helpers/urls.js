@@ -68,6 +68,16 @@ export const createDocumentUrl = recordRef => {
   return `${URL.DASHBOARD}?recordRef=${recordRef}`;
 };
 
+export const getSelectedValueLink = item => {
+  switch (true) {
+    // Cause: https://citeck.atlassian.net/browse/ECOSUI-2312
+    case PageService.isTypeRecord(item.id):
+      return item.id.replace(SourcesId.TYPE, 'emodel/types-repo');
+    default:
+      return item.id;
+  }
+};
+
 export const createTaskUrl = (taskId, recordRef) => {
   const taskPrefix = `${SourcesId.WORKFLOW}@`;
 
