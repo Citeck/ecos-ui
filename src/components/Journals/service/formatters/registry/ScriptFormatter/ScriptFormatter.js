@@ -76,7 +76,7 @@ export default class ScriptFormatter extends BaseFormatter {
         return result;
       default:
         if (_.isPlainObject(result)) {
-          const { format } = props;
+          const { format = () => JSON.stringify(result) } = props;
 
           if (!_.isFunction(format)) {
             throw new Error(`"format" should be in props. Please don't use ScriptFormatter directly, use FormatterService instead`);
