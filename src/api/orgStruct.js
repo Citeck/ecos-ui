@@ -43,7 +43,7 @@ export class OrgStructApi extends CommonApi {
       groupType: 'groupType!""',
       email: 'email',
       nodeRef: '?id',
-      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`,
+      authorityType: `authorityType!"${AUTHORITY_TYPE_GROUP}"`
     };
   }
 
@@ -57,7 +57,7 @@ export class OrgStructApi extends CommonApi {
       lastName: 'lastName',
       nodeRef: '?id',
       authorityType: `authorityType!"${AUTHORITY_TYPE_USER}"`,
-      photo: "avatar.url",
+      photo: 'avatar.url'
     };
   }
 
@@ -305,13 +305,13 @@ export class OrgStructApi extends CommonApi {
   };
 
   addAuthorityGroups = (selectedEntity, authorityGroups) => {
-    const promises = selectedEntity.map((entity) => {
+    const promises = selectedEntity.map(entity => {
       const rec = Records.get(entity.id);
-      const recData = rec.load("?json");
+      const recData = rec.load('?json');
 
       return recData.then(data => {
         const prevAuthorityGroups = data.authorityGroups || [];
-        rec.att("authorityGroups", [...prevAuthorityGroups, ...authorityGroups.map(group => group.id)]);
+        rec.att('authorityGroups', [...prevAuthorityGroups, ...authorityGroups.map(group => group.id)]);
 
         return rec.save();
       });
@@ -367,13 +367,7 @@ export class OrgStructApi extends CommonApi {
   static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS) => {
     const valRaw = search.trim();
     const val = valRaw.split(' ').filter(item => !!item);
-    const queryVal = [
-      {
-        t: 'contains',
-        a: 'authorityGroupsFull',
-        v: getGroupRef(ROOT_GROUP_NAME)
-      }
-    ];
+    const queryVal = [];
 
     if (isEmpty(val)) {
       return queryVal;

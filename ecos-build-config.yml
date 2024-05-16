@@ -5,7 +5,7 @@ properties:
   builds:
     - enterprise: true
       plugins:
-        - heatmap:1.9.0
+        - heatmap:1.10.0-snapshot
         - charts-widget:1.0.0
         - stages-widget:1.4.0
         - kanban-widget:1.6.0

@@ -25,6 +25,7 @@ class PresetsServiceApi {
       },
       {
         authority: 'authority',
+        authorities: 'authorities[]',
         journalId: 'journalId',
         displayName: '?disp',
         settings: 'settings?json',
@@ -36,6 +37,7 @@ class PresetsServiceApi {
   async getPreset({ id }) {
     return Records.get(ID.getFull(id)).load({
       authority: 'authority',
+      authorities: 'authorities[]',
       journalId: 'journalId',
       name: 'name?json',
       displayName: '?disp',
@@ -44,11 +46,12 @@ class PresetsServiceApi {
     });
   }
 
-  async savePreset({ id, name, authority, journalId, settings }) {
+  async savePreset({ id, name, authority, authorities, journalId, settings }) {
     const record = Records.get(ID.getFull(id));
 
     record.att('name', name);
     record.att('authority', authority);
+    record.att('authorities', authorities);
     record.att('journalId', journalId);
     record.att('settings?json', settings);
 

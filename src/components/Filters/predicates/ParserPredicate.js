@@ -67,13 +67,17 @@ export default class ParserPredicate {
     return columns.filter(item => ![COLUMN_DATA_TYPE_DATE, COLUMN_DATA_TYPE_DATETIME].includes(item.type));
   }
 
-  static getRowPredicates({ row, columns, groupBy }) {
+  static getRowPredicates({ row, columns, groupBy, predicate }) {
     const values = [];
     let filteredColumns = [];
+    let filterColumns = [];
+
+    const filters = ParserPredicate.getFilters(predicate, columns);
 
     if (groupBy.length) {
       const _groupBy = groupBy[0].split('&');
       filteredColumns = columns.filter(c => _groupBy.find(g => g === c.attribute));
+      filterColumns = filters.filter(f => _groupBy.find(g => g === f.predicate?.att));
     }
 
     for (const key in row) {
@@ -83,8 +87,10 @@ export default class ParserPredicate {
 
       const val = get(row, [key, 'value']) || get(row, [key]);
       const column = filteredColumns.find(c => c.attribute === key) || {};
+      const filterColumn = filterColumns.find(f => f.predicate?.att === key) || {};
       const type = column.type;
-      let predicate = EQUAL_PREDICATES_MAP[type];
+
+      let predicate = isEmpty(filterColumn) ? EQUAL_PREDICATES_MAP[type] : filterColumn.predicate.t;
 
       if (val === null && column.type) {
         predicate = PREDICATE_EMPTY;

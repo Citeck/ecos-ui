@@ -76,8 +76,7 @@ import {
   selectJournalSetting,
   selectJournalSettings,
   selectNewVersionDashletConfig,
-  selectUrl,
-  selectWasChangedSettings
+  selectUrl
 } from '../selectors/journals';
 import JournalsService, { EditorService, PresetsServiceApi } from '../components/Journals/service';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
@@ -384,12 +383,9 @@ export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
 function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
   try {
     const { journalSetting: _journalSetting = {} } = yield select(selectJournalData, stateId);
-    const wasChangedSettings = yield select(selectWasChangedSettings, stateId);
     let journalSetting = null;
 
-    if (wasChangedSettings) {
-      journalSetting = {};
-    } else if (sharedSettings) {
+    if (sharedSettings) {
       journalSetting = sharedSettings;
     } else {
       journalSettingId = journalSettingId || journalConfig.journalSettingId;
@@ -857,7 +853,20 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     const preset = settings.find(preset => preset.id === selectedId);
     const kanbanSettings = get(preset, 'settings.kanban', { columns: originKanbanSettings.statuses });
 
-    const predicates = [journalConfig.predicate, preset.settings.predicate];
+    let predicates;
+    switch (true) {
+      case !!journalConfig?.predicate && !!preset?.settings?.predicate:
+        predicates = [journalConfig.predicate, preset.settings.predicate];
+        break;
+      case !!journalConfig?.predicate:
+        predicates = [journalConfig.predicate];
+        break;
+      case !!preset?.settings?.predicate:
+        predicates = [preset.settings.predicate];
+        break;
+      default:
+        predicates = [];
+    }
 
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
 
@@ -1203,7 +1212,7 @@ function* sagaGoToJournalsPage({ api, logger, stateId, w }, action) {
 
       originFilter = convertAttributeValues(cleanPredicates, columns);
       originFilter = JournalsConverter.optimizePredicate({ t: 'and', val: originFilter });
-      filter = getFilterParam({ row, columns, groupBy });
+      filter = getFilterParam({ row, columns, groupBy, predicate: journalData.predicate });
 
       if (!isEmpty(originFilter)) {
         if (Array.isArray(originFilter.val)) {

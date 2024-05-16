@@ -188,7 +188,7 @@ function* sagaResetFilter({ api, logger }, { payload }) {
   yield put(filterJournal({ stateId, record }));
 }
 function* eventsHistorySaga(ea) {
-  yield takeLatest(getModel().type, sagaGetModel, ea);
+  yield takeEvery(getModel().type, sagaGetModel, ea);
   yield takeEvery(getJournal().type, sagaGetJournal, ea);
   yield takeLatest(filterJournal().type, sagaFilterJournal, ea);
   yield takeEvery(filterHeatdata().type, sagaFilterHeatdata, ea);
