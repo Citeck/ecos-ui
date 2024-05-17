@@ -13,7 +13,8 @@ export default class CollapsibleList extends Component {
   static propTypes = {
     className: PropTypes.string,
     classNameList: PropTypes.string,
-    needScrollbar: PropTypes.bool
+    needScrollbar: PropTypes.bool,
+    isLoading: PropTypes.bool
   };
 
   static defaultProps = {
@@ -34,11 +35,12 @@ export default class CollapsibleList extends Component {
   }
 
   render() {
-    const { className, close, children, list, emptyText, onTogglePanel } = this.props;
+    const { className, close, children, list, emptyText, onTogglePanel, isLoading } = this.props;
 
     return (
       <div className={classNames('collapsible-list', className)}>
         <PanelBar
+          isLoading={isLoading}
           open={!close && Boolean(list && list.length)}
           header={children}
           css={{

@@ -94,7 +94,7 @@ import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
-import { setKanbanSettings, reloadBoardData } from '../actions/kanban';
+import { setKanbanSettings, reloadBoardData, applyPreset } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
@@ -380,7 +380,7 @@ export function* getJournalSettingFully(api, { journalConfig, stateId }, w) {
   return yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
 }
 
-function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w) {
+function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w) {
   try {
     const { journalSetting: _journalSetting = {} } = yield select(selectJournalData, stateId);
     let journalSetting = null;
@@ -422,6 +422,12 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
     }
 
     journalSetting = { ..._journalSetting, ...journalSetting, id: journalSettingId };
+
+    /* It is necessary to synchronize the filter when switching from kanban to log initialization */
+    if (initPredicate && _journalSetting.predicate && !isEqual(_journalSetting.predicate, journalSetting.predicate)) {
+      journalSetting.predicate = _journalSetting.predicate;
+    }
+
     journalSetting.columns = yield JournalsService.resolveColumns(journalSetting.columns);
     journalSetting.columns = JournalsConverter.filterColumnsByConfig(journalSetting.columns, journalConfig.columns);
 
@@ -600,14 +606,15 @@ export function* getGridData(api, params, stateId) {
   return { ...journalData, columns, actions };
 }
 
-function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId }, w) {
+function* loadGrid(api, { journalSettingId, journalConfig, userConfigId, stateId, savePredicate }, w) {
+  const initPredicate = savePredicate || false;
   const sharedSettings = yield getJournalSharedSettings(api, userConfigId) || {};
 
   if (!isEmpty(sharedSettings) && !isEmpty(sharedSettings.columns)) {
     sharedSettings.columns = yield JournalsService.resolveColumns(sharedSettings.columns);
   }
 
-  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId }, w);
+  const journalSetting = yield getJournalSetting(api, { journalSettingId, journalConfig, sharedSettings, stateId, initPredicate }, w);
   const url = yield select(selectUrl, stateId);
   const journalData = yield select(selectJournalData, stateId);
 
@@ -782,7 +789,7 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
 
     const { journalId, userConfigId, customJournal, customJournalMode, force } = payload;
     const id = !customJournalMode || !customJournal ? journalId : customJournal;
-    let { journalSettingId } = payload;
+    let { journalSettingId, savePredicate = true } = payload;
     let { journalConfig } = yield select(selectJournalData, stateId);
 
     const isEmptyConfig = isEqual(journalConfig, emptyJournalConfig);
@@ -809,7 +816,8 @@ function* sagaInitJournal({ api, logger, stateId, w }, { payload }) {
         journalSettingId,
         journalConfig,
         userConfigId,
-        stateId
+        stateId,
+        savePredicate
       },
       (...data) => ({ ...w(...data), logger })
     );
@@ -867,10 +875,11 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
       default:
         predicates = [];
     }
+    const settingsKanban = { predicate: predicates, kanban: kanbanSettings };
 
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
 
-    yield put(setKanbanSettings({ stateId, kanbanSettings }));
+    yield put(applyPreset({ stateId, settings: settingsKanban }));
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
@@ -1361,7 +1370,7 @@ function* sagaResetFiltering({ logger, w, stateId }) {
 
     yield put(setJournalExpandableProp(w(false)));
     yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
-    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: true })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: true, savePredicate: false })));
   } catch (e) {
     logger.error('[journals sagaResetFiltering saga error', e);
   }
