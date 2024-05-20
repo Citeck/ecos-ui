@@ -378,7 +378,7 @@ export default class HeaderFormatter extends Component {
   };
 
   render() {
-    const { column = {}, sortable } = this.props;
+    const { column = {}, sortable, colWidth } = this.props;
     const id = `${replace(column.dataField, /[\W]*/g, '')}-${this._id}`;
 
     this.tooltipFilterId = `filter-${id}`;
@@ -393,7 +393,7 @@ export default class HeaderFormatter extends Component {
           'ecos-th_filtered': this.activeFilter,
           'ecos-th_sortable': sortable
         })}
-        style={{ minWidth: this.minWidth }}
+        style={{ minWidth: this.minWidth, ...(colWidth && { width: colWidth }) }}
       >
         <div className="ecos-th__content" onClick={this.onSort} id={this.tooltipLabelId}>
           <EcosTooltip
@@ -431,6 +431,7 @@ HeaderFormatter.propTypes = {
 
   column: PropTypes.object,
   colIndex: PropTypes.number,
+  colWidth: PropTypes.number,
   onDividerMouseDown: PropTypes.func,
 
   isComplexFilter: PropTypes.bool,
