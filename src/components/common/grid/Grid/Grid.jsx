@@ -293,7 +293,7 @@ class Grid extends Component {
       options.columns = extra.columns.map(column => {
         const width = column.width;
 
-        if (width) {
+        if (width && extra.columns.length > 1) {
           set(column, 'headerStyle.width', width);
           get(column, 'style.width') && delete column.style.width;
         }
@@ -304,7 +304,7 @@ class Grid extends Component {
 
         const filterable = props.filterable;
 
-        column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false);
+        column = this.setHeaderFormatter(column, filterable, props.sortable ? column.sortable : false, width);
 
         if (column.customFormatter === undefined) {
           column.formatter = this.initFormatter({ editable: props.editable, className: column.className, column });
@@ -585,7 +585,7 @@ class Grid extends Component {
     };
   };
 
-  setHeaderFormatter = (column, filterable, sortable) => {
+  setHeaderFormatter = (column, filterable, sortable, width) => {
     const { filters, sortBy, onSort, onFilter, onOpenSettings, originPredicates, recordRef, deselectAllRecords } = this.props;
     const isFilterable = filterable && column.searchable && column.searchableByText && isFunction(onFilter);
     const disableSelect = column.disableSelect;
@@ -618,6 +618,7 @@ class Grid extends Component {
           onOpenSettings={onOpenSettings}
           deselectAllRecords={deselectAllRecords}
           clearSelectedState={this.clearSelectedState}
+          colWidth={width}
         />
       );
     };
