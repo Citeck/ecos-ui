@@ -5,7 +5,7 @@ export const selectAllComments = (state, nodeRef) => {
   return get(state, ['comments', nodeRef, 'comments']) || [];
 };
 
-export const selectStateByNodeRef = (state, nodeRef) => {
+export const selectStateByRecordRef = (state, nodeRef) => {
   const ownState = state.comments[nodeRef] || { ...initialState };
 
   return {

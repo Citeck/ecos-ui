@@ -14,7 +14,11 @@ function convertMentionElement(domNode) {
   return null;
 }
 
-const mentionStyle = 'background-color:#fff6d9;padding:0 5px;border-radius:12px';
+const mentionStyle = `
+  background-color: #fff6d9;
+  padding: 0 5px;
+  border-radius: 12px;
+`;
 
 export class MentionNode extends TextNode {
   __mention;

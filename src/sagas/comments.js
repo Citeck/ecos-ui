@@ -1,5 +1,6 @@
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { NotificationManager } from 'react-notifications';
+import { get } from 'lodash';
 
 import {
   createCommentRequest,
@@ -26,7 +27,6 @@ import { uploadFile, uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
 import DocumentsConverter from '../dto/documents';
-import { get } from 'lodash';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
@@ -53,27 +53,27 @@ function* sagaGetComments({ api, logger }, action) {
 function* sagaCreateComment({ api, logger }, action) {
   try {
     const {
-      payload: { nodeRef, comment: text }
+      payload: { recordRef, comment: text, isInternal = false }
     } = action;
 
-    yield put(sendingStart(nodeRef));
+    yield put(sendingStart(recordRef));
 
-    const record = yield api.comments.create({ text, record: nodeRef });
+    const record = yield api.comments.create({ text, record: recordRef, isInternal });
     const comment = yield api.comments.getCommentById(record.id);
-    const comments = yield select(state => selectAllComments(state, nodeRef));
+    const comments = yield select(state => selectAllComments(state, recordRef));
 
     comment.id = record.id;
     comments.unshift(getCommentForWeb(comment));
 
-    yield put(createCommentSuccess({ comments, nodeRef }));
-    yield put(sendingEnd(nodeRef));
+    yield put(createCommentSuccess({ comments, recordRef }));
+    yield put(sendingEnd(recordRef));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     yield put(
       setError({
         message: originMessage || t('comments-widget.error'),
-        nodeRef: action.payload.nodeRef
+        recordRef: action.payload.recordRef
       })
     );
     logger.error('[comments sagaCreateComment saga error', e);

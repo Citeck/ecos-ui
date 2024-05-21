@@ -356,7 +356,7 @@
 
     &-footer {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-content: center;
 
       &-btn {
@@ -368,6 +368,28 @@
 
         &-wrapper {
           display: flex;
+        }
+      }
+
+      &-chbx {
+        position: relative;
+
+        &-wrapper {
+          display: flex;
+          align-self: end;
+
+          label {
+            display: flex;
+            align-items: center;
+          }
+
+          &__text {
+            margin-left: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 0;
+            color: #767676;
+          }
         }
       }
 

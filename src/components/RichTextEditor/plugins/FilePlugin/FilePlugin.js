@@ -11,7 +11,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister, $wrapNodeInElement } from '@lexical/utils';
 
-import { selectStateByNodeRef } from '../../../../selectors/comments';
+import { selectStateByRecordRef } from '../../../../selectors/comments';
 import { getRecordRef } from '../../../../helpers/urls';
 import DropZone from '../../../widgets/Documents/parts/DropZone';
 import { EcosModal } from '../../../common';
@@ -117,7 +117,7 @@ const FilePlugin = ({ isUploadingFile, uploadFilesInComment }) => {
 };
 
 const mapStateToProps = state => ({
-  ...selectStateByNodeRef(state, getRecordRef())
+  ...selectStateByRecordRef(state, getRecordRef())
 });
 
 const mapDispatchToProps = dispatch => {
