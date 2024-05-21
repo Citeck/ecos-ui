@@ -7,6 +7,7 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 
 import { FileNode } from './FileNode';
+import { MentionNode } from './MentionNode';
 
 export const nodes = [
   HeadingNode,
@@ -18,6 +19,7 @@ export const nodes = [
   TableCellNode,
   TableRowNode,
   FileNode,
+  MentionNode,
   CodeHighlightNode,
   AutoLinkNode,
   LinkNode,

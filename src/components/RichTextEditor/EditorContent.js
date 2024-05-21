@@ -20,7 +20,8 @@ import {
   LinkEditorPlugin,
   MarkdownShortcutPlugin,
   TablePlugin as CustomTablePlugin,
-  ToolbarPlugin
+  ToolbarPlugin,
+  MentionsPlugin
 } from './plugins';
 import { Placeholder } from './components';
 
@@ -93,6 +94,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
         <HistoryPlugin />
         <MarkdownShortcutPlugin />
         <CodeHightLightPlugin />
+        <MentionsPlugin />
         {floatingAnchorElem && !readonly && (
           <>
             <LinkEditorPlugin anchorElem={floatingAnchorElem} />

@@ -7,7 +7,7 @@ import { getComments } from '../../../actions/comments';
 import { MIN_WIDTH_DASHLET_LARGE } from '../../../constants/index';
 import { BASE_HEIGHT } from '../../../constants/comments';
 import DAction from '../../../services/DashletActionService';
-import { selectStateByNodeRef } from '../../../selectors/comments';
+import { selectStateByRecordRef } from '../../../selectors/comments';
 import { num2str, t } from '../../../helpers/util';
 import { Btn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
@@ -146,7 +146,7 @@ class Comments extends BaseWidget {
               userName={userName}
               saveIsLoading={saveIsLoading}
               actionFailed={actionFailed}
-              nodeRef={record}
+              recordRef={record}
               onClose={this.handleCloseEditor}
             />
           ) : (
@@ -182,7 +182,7 @@ class Comments extends BaseWidget {
             userName={userName}
             saveIsLoading={saveIsLoading}
             actionFailed={actionFailed}
-            nodeRef={record}
+            recordRef={record}
             onClose={this.handleCloseEditor}
           />
         ))}
@@ -235,7 +235,7 @@ class Comments extends BaseWidget {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByNodeRef(state, ownProps.record),
+  ...selectStateByRecordRef(state, ownProps.record),
   isMobile: state.view.isMobile,
   userName: state.user.userName
 });

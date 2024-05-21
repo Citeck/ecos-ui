@@ -70,7 +70,7 @@ export class CommentsApi {
       .then(response => response);
   };
 
-  create = ({ text, record } = {}) => {
+  create = ({ text, record, isInternal } = {}) => {
     if (isNodeRef(record)) {
       const comment = Records.get('comment@');
 
@@ -79,17 +79,21 @@ export class CommentsApi {
 
       return comment.save();
     } else {
-      const comment = Records.get('emodel/comment@');
+      const comment = Records.getRecordToEdit('emodel/comment@');
 
       comment.att('text', text);
       comment.att('record', record);
+
+      if (isInternal) {
+        comment.att('tags', [{ type: 'INTERNAL', name: {} }]);
+      }
 
       return comment.save();
     }
   };
 
   update = ({ id, text } = {}) => {
-    const comment = Records.get(id);
+    const comment = Records.getRecordToEdit(id);
 
     comment.att('text', text);
 

@@ -5,3 +5,4 @@ export * from './MarkdownShortcutPlugin';
 export * from './MaxLenghtPlugin';
 export * from './TablePlugin';
 export * from './ToolbarPlugin';
+export * from './MentionsPlugin';

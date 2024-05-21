@@ -1,22 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import moment from 'moment';
 import isEmpty from 'lodash/isEmpty';
+import isFunction from 'lodash/isFunction';
 import get from 'lodash/get';
 import isNil from 'lodash/isNil';
-import { $generateHtmlFromNodes } from '@lexical/html';
+
 import { Avatar, Loader, Popper } from '../../common/index';
 import { t } from '../../../helpers/export/util';
 import { num2str } from '../../../helpers/util';
 import { Btn } from '../../common/btns';
-import { Badge } from '../../common/form';
+import { Badge, Checkbox, Label } from '../../common/form';
 import RichTextEditor from '../../RichTextEditor';
 import { CommentInterface } from './propsInterfaces';
-import { selectStateByNodeRef } from '../../../selectors/comments';
-
+import { selectStateByRecordRef } from '../../../selectors/comments';
 import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '../../../actions/comments';
-import { isFunction } from 'lodash';
+import Records from '../../Records';
 
 export class Comment extends Component {
   static propTypes = {
@@ -27,14 +28,24 @@ export class Comment extends Component {
 
   state = {
     isOpenConfirmDialog: false,
+    isInternalSupported: false,
     isLoading: false,
-    isEdit: false
+    isEdit: false,
+    isInternal: false
   };
 
   get canSendComment() {
     const { saveIsLoading } = this.props;
 
     return !saveIsLoading;
+  }
+
+  componentDidMount() {
+    Records.get(this.props.recordRef)
+      .load('_aspects._has.has-internal-comments?bool!')
+      .then(hasInternal => {
+        this.setState({ isInternalSupported: hasInternal });
+      });
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -103,8 +114,8 @@ export class Comment extends Component {
   };
 
   handleConfirmDeletion = () => {
-    const { comment, deleteComment, nodeRef } = this.props;
-    isFunction(deleteComment) && deleteComment(nodeRef, comment.id);
+    const { comment, deleteComment, recordRef } = this.props;
+    isFunction(deleteComment) && deleteComment(recordRef, comment.id);
 
     this.toggleLoading();
   };
@@ -221,8 +232,8 @@ export class Comment extends Component {
       return;
     }
 
-    const { updateComment, createComment, comment, nodeRef, dataStorageFormat } = this.props;
-    const { htmlComment, rawComment } = this.state;
+    const { updateComment, createComment, comment, recordRef, dataStorageFormat } = this.props;
+    const { htmlComment, rawComment, isInternal } = this.state;
     let text = '';
     switch (dataStorageFormat) {
       case 'raw':
@@ -243,7 +254,17 @@ export class Comment extends Component {
     };
 
     this.toggleLoading();
-    comment === null ? createComment(nodeRef, text, callback) : updateComment(nodeRef, { id: comment.id, text }, callback);
+
+    comment === null
+      ? createComment(recordRef, text, isInternal, callback)
+      : updateComment(
+          recordRef,
+          {
+            id: comment.id,
+            text
+          },
+          callback
+        );
   };
 
   renderEditor() {
@@ -255,6 +276,19 @@ export class Comment extends Component {
         {isLoading && <Loader blur />}
         <RichTextEditor htmlString={comment ? comment.text : null} onChange={this.handleEditorStateChange} />
         <div className="ecos-comments__editor-footer">
+          {this.state.isInternalSupported && (
+            <div className="ecos-comments__editor-footer-chbx-wrapper">
+              <Label title={t('comments-widget.editor.internal_comment')}>
+                <Checkbox
+                  checked={false}
+                  title={t('comments-widget.editor.internal_comment')}
+                  onChange={({ checked }) => this.setState({ isInternal: checked })}
+                />
+
+                <span className="ecos-comments__editor-footer-chbx-wrapper__text">{t('comments-widget.editor.internal_comment')}</span>
+              </Label>
+            </div>
+          )}
           <div className="ecos-comments__editor-footer-btn-wrapper">
             <Btn
               className="ecos-btn_grey5 ecos-btn_hover_color-grey ecos-comments__editor-footer-btn"
@@ -340,17 +374,17 @@ export class Comment extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByNodeRef(state, ownProps.record),
+  ...selectStateByRecordRef(state, ownProps.record),
   isMobile: state.view.isMobile,
   userName: state.user.userName
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   getComments: () => dispatch(getComments(ownProps.record)),
-  createComment: (nodeRef, comment, callback) => dispatch(createCommentRequest({ comment, nodeRef, callback })),
-  updateComment: (nodeRef, comment, callback) => dispatch(updateCommentRequest({ comment, nodeRef, callback })),
-  deleteComment: (nodeRef, id, callback) => dispatch(deleteCommentRequest({ id, nodeRef, callback })),
-  setErrorMessage: message => dispatch(setError({ message, nodeRef: ownProps.record }))
+  createComment: (recordRef, comment, isInternal, callback) => dispatch(createCommentRequest({ comment, recordRef, isInternal, callback })),
+  updateComment: (recordRef, comment, callback) => dispatch(updateCommentRequest({ comment, recordRef, callback })),
+  deleteComment: (recordRef, id, callback) => dispatch(deleteCommentRequest({ id, recordRef, callback })),
+  setErrorMessage: message => dispatch(setError({ message, recordRef: ownProps.record }))
 });
 
 export default connect(
