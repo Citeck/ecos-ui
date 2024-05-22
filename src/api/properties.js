@@ -3,7 +3,12 @@ import { SourcesId } from '../constants';
 
 export class PropertiesApi {
   static isDraftStatus = async record => {
-    return Records.get(record).load('invariants:isDraft?bool', true);
+    const recordInstance = Records.get(record);
+    if (recordInstance.id.indexOf('alfresco/') !== -1) {
+      return recordInstance.load('invariants:isDraft?bool', true);
+    } else {
+      return recordInstance.load('_isDraft?bool', true);
+    }
   };
 
   static resetPropertipesDashlet = async record => {
