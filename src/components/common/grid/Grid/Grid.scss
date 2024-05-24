@@ -173,6 +173,7 @@ $header-height: 52px;
   }
 
   &__row {
+    position: relative;
     border-bottom: 2px $color-gray-4 solid;
   }
 
@@ -182,6 +183,12 @@ $header-height: 52px;
         cursor: unset;
       }
     }
+  }
+
+  &__inline-tools-container {
+    position: absolute;
+    left: 0;
+    top: -1px;
   }
 }
 

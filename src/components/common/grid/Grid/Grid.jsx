@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -53,6 +54,7 @@ const ECOS_GRID_GRAG_CLASS = 'ecos-grid_drag';
 const ECOS_GRID_ROW_CLASS = 'ecos-grid__row';
 const ECOS_GRID_HEAD_SHADOW = 'ecos-grid__head-shadow';
 const ECOS_GRID_LEFT_SHADOW = 'ecos-grid__left-shadow';
+const ECOS_GRID_INLINE_TOOLS_CONTAINER = 'ecos-grid__inline-tools-container';
 
 const cssNum = v => `${v}px`;
 
@@ -333,30 +335,74 @@ class Grid extends Component {
           return;
         }
 
+        const { scrollLeft = 0 } = this._scrollValues;
+
         const tr = e.currentTarget;
+        let settingInlineTools = {};
 
         if (props.changeTrOptionsByRowClick) {
           this.setHover(tr, ECOS_GRID_HOVERED_CLASS, false, this._tr);
         } else {
-          this.getTrOptions(tr);
+          settingInlineTools = this.getTrOptions(tr);
         }
 
         const { onMouseEnter } = props;
         isFunction(onMouseEnter) && onMouseEnter(e);
+
+        const elGrid = tr.closest('.ecos-grid');
+        const hasInlineToolsElement = !!tr.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
+
+        if (hasInlineToolsElement) {
+          return;
+        }
+
+        const inlineToolsElement = document.createElement('div');
+        inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
+
+        console.log(elGrid, elGrid.clientWidth);
+        if (elGrid) {
+          inlineToolsElement.style.width = `${elGrid.clientWidth}px`;
+        }
+
+        if (scrollLeft !== 0) {
+          inlineToolsElement.style.left = `${scrollLeft}px`;
+        }
+
+        if (!isEmpty(settingInlineTools)) {
+          const inlineTools = this.inlineTools(settingInlineTools);
+
+          if (inlineTools) {
+            ReactDOM.render(inlineTools, inlineToolsElement);
+            tr.appendChild(inlineToolsElement);
+          }
+        }
       },
       onMouseLeave: e => {
-        if (this.state.isScrolling) {
+        const relatedTarget = e.relatedTarget;
+        const currentTarget = e.currentTarget;
+
+        const insideInlineToolsContainer =
+          relatedTarget && this.isInsideInlineToolsContainer(relatedTarget, ECOS_GRID_INLINE_TOOLS_CONTAINER);
+        if (insideInlineToolsContainer) {
           return;
         }
 
         if (props.changeTrOptionsByRowClick) {
-          this.setHover(e.currentTarget, ECOS_GRID_HOVERED_CLASS, true);
+          this.setHover(currentTarget, ECOS_GRID_HOVERED_CLASS, true);
         }
 
         this._tr = null;
 
         const { onRowMouseLeave } = this.props;
-        isFunction(onRowMouseLeave) && onRowMouseLeave(e);
+        if (isFunction(onRowMouseLeave)) {
+          onRowMouseLeave(e);
+        }
+
+        const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
+        if (inlineToolsElement) {
+          ReactDOM.unmountComponentAtNode(inlineToolsElement);
+          currentTarget.removeChild(inlineToolsElement);
+        }
       },
       onClick: e => {
         props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
@@ -441,6 +487,16 @@ class Grid extends Component {
     return options;
   }
 
+  isInsideInlineToolsContainer = (element, containerClass) => {
+    while (element) {
+      if (element.classList && element.classList.contains(containerClass)) {
+        return true;
+      }
+      element = element.parentElement;
+    }
+    return false;
+  };
+
   checkColumnEditable = (...data) => {
     const { editingRules } = this.props;
     const [column, , row] = data;
@@ -495,15 +551,15 @@ class Grid extends Component {
   getTrOptions = tr => {
     const { selectorContainer, data, onChangeTrOptions } = this.props;
     const { isScrolling } = this.state;
-    const row = data[tr.rowIndex - 1];
+
+    const rowIndex = tr.rowIndex - 1;
+
+    const row = data[rowIndex];
     const elGrid = tr.closest('.ecos-grid');
     const elContainer = tr.closest(selectorContainer);
-    const { scrollLeft = 0 } = this._scrollValues;
 
     const style = {
-      height: tr.offsetHeight + 2,
-      top: tr.offsetTop - 1,
-      right: -scrollLeft
+      height: tr.offsetHeight + 2
     };
 
     if (elContainer && !isInViewport(elGrid)) {
@@ -511,13 +567,17 @@ class Grid extends Component {
       const rectGrid = elGrid.getBoundingClientRect();
 
       style.width = elContainer.clientWidth - rectGrid.left + elSidebar.clientWidth;
+    } else {
+      style.width = elGrid.clientWidth;
     }
 
     this._tr = tr;
 
     if (!isScrolling) {
-      isFunction(onChangeTrOptions) && onChangeTrOptions({ row, position: tr.rowIndex - 1, ...style });
+      isFunction(onChangeTrOptions) && onChangeTrOptions(row);
     }
+
+    return { row, position: tr.rowIndex - 1, ...style };
   };
 
   setEditable = () => {
@@ -823,10 +883,10 @@ class Grid extends Component {
     this._resizingTh = null;
   };
 
-  inlineTools = () => {
+  inlineTools = settings => {
     const { inlineTools } = this.props;
 
-    return isFunction(inlineTools) ? inlineTools() : null;
+    return isFunction(inlineTools) ? inlineTools(settings) : null;
   };
 
   tools = selected => {
@@ -1154,7 +1214,6 @@ class Grid extends Component {
             />
           </ErrorTable>
         </div>
-        {this.inlineTools()}
       </>
     );
   }
