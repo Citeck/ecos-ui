@@ -18,7 +18,7 @@ const defaultAttr = {
   config: 'config?json',
   authority: 'authority',
   user: 'authority',
-  type: 'typeRef.inhDashboardType?str',
+  type: 'typeRef.inhDashboardType?str!appliedToRef._type.inhDashboardType?str',
   key: 'typeRef?id',
   id: 'id',
   appliedToRef: 'appliedToRef?str'
