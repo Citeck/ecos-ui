@@ -28,15 +28,26 @@ import {
   saveColumn
 } from '../../../actions/journals';
 import { selectJournalDashletGridProps } from '../../../selectors/dashletJournals';
-import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION } from '../constants';
+import { DEFAULT_PAGINATION } from '../constants';
 import { selectOriginGridPredicates } from '../../../selectors/journals';
 
 const mapStateToProps = (state, props) => {
   const ownState = selectJournalDashletGridProps(state, props.stateId);
 
+  const reduxKey = get(props, 'reduxKey', 'journals');
+  const stateId = get(props, 'stateId', '');
+  const newState = state[reduxKey][stateId] || {};
+
   return {
     isMobile: !!get(state, 'view.isMobile'),
     originPredicates: selectOriginGridPredicates(state, props.stateId),
+
+    settingsInlineTools: {
+      className: props.className,
+      selectedRecords: newState.selectedRecords || [],
+      selectAllPageRecords: newState.selectAllPageRecords
+    },
+
     ...ownState
   };
 };
@@ -97,8 +108,6 @@ class JournalsDashletGrid extends Component {
       this.scrollPosition.scrollTop = undefined;
     }
   }
-
-  handleSetInlineTools = this.props.setGridInlineToolSettings;
 
   setSelectedRecords = ({ selected, all: allPage, allPossible, excluded }) => {
     const {
@@ -162,10 +171,8 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = row || {};
   }
 
-  //todo: rethink. this solution is costly
-  showGridInlineToolSettings = options => {
-    this.setSelectedRow(options.row);
-    this.handleSetInlineTools({ actions: this.getCurrentRowInlineActions(), ...options });
+  showGridInlineToolSettings = row => {
+    this.setSelectedRow(row);
   };
 
   getCurrentRowInlineActions() {
@@ -193,12 +200,19 @@ class JournalsDashletGrid extends Component {
 
   hideGridInlineToolSettings = () => {
     this.setSelectedRow();
-    this.handleSetInlineTools(DEFAULT_INLINE_TOOL_SETTINGS);
   };
 
-  inlineTools = () => {
-    const { stateId } = this.props;
-    return <InlineTools stateId={stateId} />;
+  inlineTools = inlineToolSettings => {
+    const { settingsInlineTools } = this.props;
+
+    inlineToolSettings.actions = this.getCurrentRowInlineActions();
+
+    const settings = {
+      ...settingsInlineTools,
+      inlineToolSettings
+    };
+
+    return <InlineTools {...settings} />;
   };
 
   onRowClick = row => {

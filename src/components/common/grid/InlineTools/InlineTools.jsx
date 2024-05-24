@@ -1,20 +1,54 @@
-import { connect } from 'react-redux';
-import get from 'lodash/get';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import { renderAction } from './helpers';
+import './InlineTools.scss';
 
-import InlineTools from './InlineToolsComponent';
-
-const mapStateToProps = (state, props) => {
-  const reduxKey = get(props, 'reduxKey', 'journals');
-  const stateId = get(props, 'stateId', '');
-  const toolsKey = get(props, 'toolsKey', 'inlineToolSettings');
-  const newState = state[reduxKey][stateId] || {};
-
-  return {
-    className: props.className,
-    inlineToolSettings: newState[toolsKey],
-    selectedRecords: newState.selectedRecords || [],
-    selectAllPageRecords: newState.selectAllPageRecords
+class InlineTools extends Component {
+  static propTypes = {
+    reduxKey: PropTypes.string,
+    stateId: PropTypes.string,
+    toolsKey: PropTypes.string,
+    className: PropTypes.string,
+    inlineToolSettings: PropTypes.object,
+    actionsProps: PropTypes.object,
+    withTooltip: PropTypes.bool
   };
-};
 
-export default connect(mapStateToProps)(InlineTools);
+  static defaultProps = {
+    reduxKey: 'journals',
+    stateId: '',
+    toolsKey: 'inlineToolSettings',
+    className: '',
+    inlineToolSettings: {},
+    actionsProps: {},
+    withTooltip: false
+  };
+
+  render() {
+    const {
+      className,
+      inlineToolSettings: { actions = [], row = {}, ...style },
+      selectedRecords,
+      selectAllPageRecords,
+      actionsProps,
+      withTooltip
+    } = this.props;
+
+    if (!style.height || !style.width) {
+      return null;
+    }
+
+    const selected = selectedRecords.includes(row.id) || selectAllPageRecords;
+
+    return (
+      <div style={style} className={classNames('ecos-inline-tools', className, { 'ecos-inline-tools_selected': selected })}>
+        <div className="ecos-inline-tools-actions" {...actionsProps}>
+          {actions.map((action, idx) => renderAction(action, idx, withTooltip))}
+        </div>
+      </div>
+    );
+  }
+}
+
+export default InlineTools;
