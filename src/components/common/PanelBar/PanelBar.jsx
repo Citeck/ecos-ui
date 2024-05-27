@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Collapse } from 'react-collapse';
 import isFunction from 'lodash/isFunction';
 
+import { Loader } from '../index';
 import './PanelBar.scss';
 
 export default class PanelBar extends Component {
@@ -34,7 +35,7 @@ export default class PanelBar extends Component {
   };
 
   render() {
-    const { css = {}, className, header, children, collapseTheme } = this.props;
+    const { css = {}, className, header, children, collapseTheme, isLoading } = this.props;
     const { panelVisible } = this.state;
 
     return (
@@ -56,7 +57,7 @@ export default class PanelBar extends Component {
             'panel-bar__collapse_closed': !panelVisible
           })}
         >
-          <div className={classNames('panel-bar__content', css.contentClassName)}>{children}</div>
+          <div className={classNames('panel-bar__content', css.contentClassName)}>{isLoading ? <Loader type="points" /> : children}</div>
         </Collapse>
       </div>
     );
@@ -65,6 +66,7 @@ export default class PanelBar extends Component {
 
 PanelBar.propTypes = {
   open: PropTypes.bool,
+  isLoading: PropTypes.bool,
   css: PropTypes.shape({
     headerClassName: PropTypes.string,
     headerLabelClassName: PropTypes.string,

@@ -39,9 +39,10 @@ import {
   setDefaultBoardAndTemplate,
   setTotalCount,
   setOriginKanbanSettings,
-  setKanbanSettings
+  setKanbanSettings,
+  applyPreset
 } from '../actions/kanban';
-import { execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
+import { applyJournalSetting, execRecordsActionComplete, setJournalSetting, setPredicate } from '../actions/journals';
 import { selectJournalData, selectSettingsData } from '../selectors/journals';
 import { selectKanban, selectKanbanPageProps, selectPagination } from '../selectors/kanban';
 import { emptyJournalConfig } from '../reducers/journals';
@@ -405,7 +406,7 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
       settings: { predicate, kanban },
       stateId
     } = payload;
-    const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
+    const { journalConfig, journalSetting: _journalSetting, originGridSettings } = yield select(selectJournalData, stateId);
     const { formProps, boardConfig } = yield select(selectKanban, stateId);
     const pagination = DEFAULT_PAGINATION;
     const w = wrapArgs(stateId);
@@ -418,9 +419,45 @@ export function* sagaApplyFilter({ api, logger }, { payload }) {
     yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
     yield put(setPagination({ stateId, pagination }));
     yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+
+    const settings = {
+      columns: get(originGridSettings, 'columnsSetup.columns'),
+      sortBy: get(originGridSettings, 'columnsSetup.sortBy'),
+      grouping: get(originGridSettings, 'grouping'),
+      predicate
+    };
+
+    yield put(applyJournalSetting(w({ settings })));
     yield put(setLoading({ stateId, isLoading: false }));
   } catch (e) {
     logger.error('[kanban/sagaApplyFilter saga] error', e);
+  }
+}
+
+export function* sagaApplyPreset({ api, logger }, { payload }) {
+  try {
+    const {
+      settings: { predicate, kanban },
+      stateId
+    } = payload;
+    const { journalConfig, journalSetting: _journalSetting } = yield select(selectJournalData, stateId);
+    const { formProps, boardConfig } = yield select(selectKanban, stateId);
+    const pagination = DEFAULT_PAGINATION;
+    const w = wrapArgs(stateId);
+
+    const journalSetting = cloneDeep(_journalSetting);
+    journalSetting.predicate = predicate;
+    journalSetting.kanban = kanban;
+
+    yield put(setPredicate(w(predicate)));
+    yield put(setJournalSetting(w({ predicate, kanban })));
+    yield put(setKanbanSettings({ stateId, kanbanSettings: kanban || {} }));
+    yield put(setPagination({ stateId, pagination }));
+    yield sagaGetData({ api, logger }, { payload: { stateId, boardConfig, journalSetting, journalConfig, formProps, pagination } });
+
+    yield put(setLoading({ stateId, isLoading: false }));
+  } catch (e) {
+    logger.error('[kanban/sagaApplyPreset saga] error', e);
   }
 }
 
@@ -512,6 +549,7 @@ export function* docStatusSaga(ea) {
   yield takeEvery(runAction().type, sagaRunAction, ea);
   yield takeEvery(moveCard().type, sagaMoveCard, ea);
   yield takeEvery(applyFilter().type, sagaApplyFilter, ea);
+  yield takeEvery(applyPreset().type, sagaApplyPreset, ea);
   yield takeEvery(resetFilter().type, sagaResetFilter, ea);
   yield takeEvery(runSearchCard().type, sagaRunSearchCard, ea);
   yield takeEvery(reloadBoardData().type, sagaReloadBoardData, ea);

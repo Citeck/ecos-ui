@@ -19,6 +19,7 @@ export const setResolvedActions = createAction(prefix + 'SET_RESOLVED_ACTIONS');
 export const runAction = createAction(prefix + 'RUN_ACTION');
 export const moveCard = createAction(prefix + 'MOVE_CARD');
 export const applyFilter = createAction(prefix + 'APPLY_FILTER');
+export const applyPreset = createAction(prefix + 'APPLY_PRESET');
 export const resetFilter = createAction(prefix + 'RESET_FILTER');
 export const runSearchCard = createAction(prefix + 'RUN_SEARCH_CARD');
 export const reloadBoardData = createAction(prefix + 'RELOAD_BOARD_DATA');

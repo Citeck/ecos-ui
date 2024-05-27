@@ -5,6 +5,7 @@ import get from 'lodash/get';
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, editJournalSetting, getJournalsData, openSelectedPreset } from '../../../actions/journals';
+import { resetFilter } from '../../../actions/kanban';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
 import { Labels } from '../constants';
@@ -18,6 +19,7 @@ class List extends React.Component {
       this.props.openSelectedPreset(setting.id);
     } else {
       this.props.getJournalsData();
+      this.props.resetFiltering();
     }
   };
 
@@ -51,6 +53,7 @@ class List extends React.Component {
     return (
       <Well className="ecos-journal-menu__presets">
         <CollapsibleList
+          isLoading={this.props.loading}
           needScrollbar={false}
           className="ecos-journal-menu__collapsible-list"
           classNameList="ecos-list-group_mode_journal"
@@ -70,7 +73,8 @@ const mapStateToProps = (state, props) => {
 
   return {
     journalSettings: newState.journalSettings,
-    journalSetting: newState.journalSetting
+    journalSetting: newState.journalSetting,
+    loading: newState.loading
   };
 };
 
@@ -78,6 +82,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
+    resetFiltering: () => dispatch(resetFilter({ stateId: props.stateId })),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
     editJournalSetting: id => dispatch(editJournalSetting(w(id))),

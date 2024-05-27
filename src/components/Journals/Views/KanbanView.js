@@ -81,7 +81,7 @@ class KanbanView extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    const { isActivePage, viewMode, stateId, urlParams = {}, boardList, journalId, predicate, withForceUpdate: force } = this.props;
+    const { isActivePage, viewMode, stateId, urlParams = {}, boardList, journalId, withForceUpdate: force } = this.props;
 
     if (!isActivePage || !isKanban(viewMode)) {
       return;
@@ -91,8 +91,8 @@ class KanbanView extends React.Component {
       this.setState({ isClose: false }, () => this.props.getJournalsData({ force }));
     }
 
-    if (!isEqual(prevProps['predicate'], predicate) && stateId) {
-      this.props.applyFiltering({ predicate });
+    if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
+      this.props.reloadBoardData();
     }
 
     if (
@@ -104,10 +104,6 @@ class KanbanView extends React.Component {
       this.setState({ isClose: false }, () => {
         this.props.getBoardData(this.getSelectedBoardFromUrl());
       });
-    }
-
-    if (urlParams[JUP.SEARCH] !== get(prevProps, ['urlParams', JUP.SEARCH])) {
-      this.props.reloadBoardData();
     }
   }
 
