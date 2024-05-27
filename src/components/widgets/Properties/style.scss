@@ -59,7 +59,8 @@
     }
 
     .formio-component-columns_theme_ecos {
-      div[class*='formio-component-submit'] {
+      div[class*='formio-component-cancel' i],
+      div[class*='formio-component-submit' i] {
         display: none;
       }
 
