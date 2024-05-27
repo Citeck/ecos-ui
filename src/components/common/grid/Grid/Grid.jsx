@@ -359,7 +359,6 @@ class Grid extends Component {
         const inlineToolsElement = document.createElement('div');
         inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
 
-        console.log(elGrid, elGrid.clientWidth);
         if (elGrid) {
           inlineToolsElement.style.width = `${elGrid.clientWidth}px`;
         }
