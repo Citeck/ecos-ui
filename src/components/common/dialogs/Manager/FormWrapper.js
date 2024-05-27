@@ -138,9 +138,38 @@ class FormWrapper extends React.Component {
     );
   };
 
+  checkForChanges(params) {
+    const { data = {}, formData = {} } = params;
+    const changed = {};
+    for (let key in data) {
+      if (data.hasOwnProperty(key) && formData.hasOwnProperty(key)) {
+        if (data[key] !== formData[key]) {
+          changed[key] = {
+            oldValue: formData[key],
+            newValue: data[key]
+          };
+        }
+      }
+    }
+    return Object.keys(changed).length > 0
+      ? {
+          instance: changed,
+          component: { type: 'button' }
+        }
+      : null;
+  }
+
   setEvents(form, extra = {}) {
     form.on('submit', submission => {
       let res = extra.onSubmit(submission);
+
+      /* Since the "form" parameter contains an already changeable form,
+      the original form object is needed to confirm the changes - currentForm */
+      if (this.props.formData && this.props.currentForm && !isEmpty(this.props.currentForm)) {
+        submission.changed = this.checkForChanges({ data: submission.data, formData: this.props.formData });
+        this.props.currentForm.emit('change', submission);
+      }
+
       if (res && res.catch) {
         res.catch(e => {
           form.showErrors(e, true);
@@ -174,6 +203,7 @@ FormWrapper.propTypes = {
   formOptions: PropTypes.object,
   formI18n: PropTypes.object,
   formData: PropTypes.object,
+  currentForm: PropTypes.object,
   onClick: PropTypes.func,
   onSubmit: PropTypes.func,
   onFormCancel: PropTypes.func,
