@@ -29,7 +29,8 @@ class CurrentTaskList extends React.Component {
   };
 
   state = {
-    previousHeight: 0
+    previousHeight: 0,
+    inlineToolSettings: {}
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -59,11 +60,11 @@ class CurrentTaskList extends React.Component {
       ...options
     } = data;
 
-    this.props.setInlineTools({ actions: this.getActions({ id }), ...options });
+    this.state.inlineToolSettings = { actions: this.getActions({ id }), ...options };
   };
 
   handleBlurRow = debounce(() => {
-    this.props.setInlineTools({});
+    this.state.inlineToolSettings = {};
   }, 100);
 
   renderEnum() {
@@ -82,15 +83,15 @@ class CurrentTaskList extends React.Component {
   }
 
   renderInlineTools = () => {
-    const { stateId } = this.props;
+    const { inlineToolSettings } = this.state;
+    const { settingsInlineTools } = this.props;
 
     return (
       <InlineTools
         className="ecos-current-task__table-inline-tools"
-        stateId={stateId}
-        reduxKey="currentTasks"
-        toolsKey="inlineTools"
+        inlineToolSettings={inlineToolSettings}
         withTooltip
+        {...settingsInlineTools}
       />
     );
   };
@@ -166,11 +167,19 @@ class CurrentTaskList extends React.Component {
 }
 
 const mapStateToProps = (state, context) => {
-  const currentTasksState = selectStateCurrentTasksById(state, context.stateId) || {};
+  const stateId = context.stateId;
+  const reduxKey = get(context, 'reduxKey', 'currentTasks');
+  const newState = state[reduxKey][stateId] || {};
+  const currentTasksState = selectStateCurrentTasksById(state, stateId) || {};
+
   return {
     isLoading: currentTasksState.isLoading,
     isMobile: state.view.isMobile,
-    currentTasks: currentTasksState.list || []
+    currentTasks: currentTasksState.list || [],
+    settingsInlineTools: {
+      selectedRecords: newState.selectedRecords || [],
+      selectAllPageRecords: newState.selectAllPageRecords
+    }
   };
 };
 
