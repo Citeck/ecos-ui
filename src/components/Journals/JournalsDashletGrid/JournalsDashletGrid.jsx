@@ -171,8 +171,8 @@ class JournalsDashletGrid extends Component {
     this.selectedRow = row || {};
   }
 
-  showGridInlineToolSettings = row => {
-    this.setSelectedRow(row);
+  showGridInlineToolSettings = options => {
+    this.setSelectedRow(options.row);
   };
 
   getCurrentRowInlineActions() {

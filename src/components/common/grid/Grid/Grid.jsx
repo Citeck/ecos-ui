@@ -573,7 +573,7 @@ class Grid extends Component {
     this._tr = tr;
 
     if (!isScrolling) {
-      isFunction(onChangeTrOptions) && onChangeTrOptions(row);
+      isFunction(onChangeTrOptions) && onChangeTrOptions({ row, position: tr.rowIndex - 1, ...style });
     }
 
     return { row, position: tr.rowIndex - 1, ...style };
@@ -886,6 +886,12 @@ class Grid extends Component {
     const { inlineTools } = this.props;
 
     return isFunction(inlineTools) ? inlineTools(settings) : null;
+  };
+
+  inlineActions = settings => {
+    const { inlineActions } = this.props;
+
+    return isFunction(inlineActions) ? inlineActions(settings) : null;
   };
 
   tools = selected => {
@@ -1212,6 +1218,7 @@ class Grid extends Component {
               })}
             />
           </ErrorTable>
+          {this.inlineActions}
         </div>
       </>
     );
