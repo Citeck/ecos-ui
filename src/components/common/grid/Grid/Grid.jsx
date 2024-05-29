@@ -350,6 +350,8 @@ class Grid extends Component {
         isFunction(onMouseEnter) && onMouseEnter(e);
 
         const elGrid = tr.closest('.ecos-grid');
+        const elTable = tr.closest('.react-bootstrap-table');
+
         const hasInlineToolsElement = !!tr.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
 
         if (hasInlineToolsElement) {
@@ -359,8 +361,11 @@ class Grid extends Component {
         const inlineToolsElement = document.createElement('div');
         inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
 
+        const setWidthInlineToolsEl = width => (inlineToolsElement.style.width = `${width}px`);
+
         if (elGrid) {
-          inlineToolsElement.style.width = `${elGrid.clientWidth}px`;
+          const rectWidth = elTable ? elTable.getBoundingClientRect().width : elGrid.clientWidth;
+          setWidthInlineToolsEl(Math.min(elGrid.clientWidth, rectWidth));
         }
 
         if (scrollLeft !== 0) {
@@ -573,7 +578,7 @@ class Grid extends Component {
     this._tr = tr;
 
     if (!isScrolling) {
-      isFunction(onChangeTrOptions) && onChangeTrOptions(row);
+      isFunction(onChangeTrOptions) && onChangeTrOptions({ row, position: tr.rowIndex - 1, ...style });
     }
 
     return { row, position: tr.rowIndex - 1, ...style };
@@ -886,6 +891,12 @@ class Grid extends Component {
     const { inlineTools } = this.props;
 
     return isFunction(inlineTools) ? inlineTools(settings) : null;
+  };
+
+  inlineActions = settings => {
+    const { inlineActions } = this.props;
+
+    return isFunction(inlineActions) ? inlineActions(settings) : null;
   };
 
   tools = selected => {
@@ -1212,6 +1223,7 @@ class Grid extends Component {
               })}
             />
           </ErrorTable>
+          {this.inlineActions}
         </div>
       </>
     );

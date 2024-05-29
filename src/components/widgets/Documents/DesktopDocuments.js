@@ -105,7 +105,8 @@ class DesktopDocuments extends BaseDocuments {
       })),
       isLoadingUploadingModal: true,
       isHoverLastRow: false,
-      needRefreshGrid: false
+      needRefreshGrid: false,
+      inlineToolSettings: {}
     };
 
     this._tablePanel = React.createRef();
@@ -514,7 +515,7 @@ class DesktopDocuments extends BaseDocuments {
   handleCheckDropPermissions = type => get(type, 'canDropUpload', false);
 
   setToolsOptions = (options = {}) => {
-    this.props.setInlineTools(options);
+    this.state.inlineToolSettings = options;
   };
 
   countFormatter = (...params) => {
@@ -735,11 +736,8 @@ class DesktopDocuments extends BaseDocuments {
   }
 
   renderInlineTools = () => {
-    const { stateId } = this.props;
-
-    if (!stateId) {
-      return null;
-    }
+    const { inlineToolSettings } = this.state;
+    const { settingsInlineTools } = this.props;
 
     const actionsProps = {
       onMouseEnter: this.handleMouseEnterInlineTools
@@ -748,11 +746,10 @@ class DesktopDocuments extends BaseDocuments {
     return (
       <InlineTools
         className="ecos-docs__table-inline-tools"
-        stateId={stateId}
-        reduxKey="documents"
-        toolsKey="tools"
-        withTooltip
         actionsProps={actionsProps}
+        withTooltip
+        inlineToolSettings={inlineToolSettings}
+        {...settingsInlineTools}
       />
     );
   };
@@ -912,11 +909,21 @@ class DesktopDocuments extends BaseDocuments {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  ...selectStateByKey(state, getStateId(ownProps)),
-  isMobile: get(state, 'view.isMobile'),
-  isAdmin: get(state, 'user.isAdmin')
-});
+const mapStateToProps = (state, ownProps) => {
+  const stateId = getStateId(ownProps);
+  const reduxKey = get(ownProps, 'reduxKey', 'documents');
+  const newState = state[reduxKey][stateId] || {};
+
+  return {
+    ...selectStateByKey(state, stateId),
+    isMobile: get(state, 'view.isMobile'),
+    isAdmin: get(state, 'user.isAdmin'),
+    settingsInlineTools: {
+      selectedRecords: newState.selectedRecords || [],
+      selectAllPageRecords: newState.selectAllPageRecords
+    }
+  };
+};
 const mapDispatchToProps = (dispatch, ownProps) => {
   const baseParams = {
     record: ownProps.record,

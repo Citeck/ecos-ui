@@ -35,7 +35,7 @@ class InlineTools extends Component {
       withTooltip
     } = this.props;
 
-    if (!style.height || !style.width) {
+    if (!style.height) {
       return null;
     }
 
