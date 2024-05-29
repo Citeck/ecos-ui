@@ -344,7 +344,9 @@ function* sagaExecRecordsAction({ api, logger }, { payload }) {
     logger.error('[documents sagaExecRecordsAction saga error', e);
   } finally {
     const loadTypesForAll = yield select(state => state.view.isMobile);
-    yield put(execRecordsActionFinally({ ...payload, loadTypesForAll }));
+    if (loadTypesForAll) {
+      yield put(execRecordsActionFinally({ ...payload, loadTypesForAll }));
+    }
   }
 }
 
