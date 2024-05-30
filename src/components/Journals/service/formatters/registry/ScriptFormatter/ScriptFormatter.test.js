@@ -139,5 +139,18 @@ describe('ScriptFormatter', () => {
       expect(typeof result2).toBe('string');
       expect(result2).toBe('value');
     });
+
+    it('should return value from vars object with stringify object as null', () => {
+      const result = scriptFormatterInstance.format({
+        config: {
+          fn: 'return _.get(vars, "testObject.test");',
+          vars: {
+            testObject: '{"id":"82fd2ed5-ad3f-4759-8944-734d6099d527","test":"test","typeRef":"emodel/type@admin"}'
+          }
+        }
+      });
+
+      expect(result).toBe(null);
+    });
   });
 });
