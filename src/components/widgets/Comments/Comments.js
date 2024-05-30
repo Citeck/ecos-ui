@@ -67,6 +67,8 @@ class Comments extends BaseWidget {
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
 
+    this._observableFieldsToUpdate = ['_modified', '_status'];
+
     this.state = {
       ...this.state,
       isEdit: false,
