@@ -105,8 +105,7 @@ class DesktopDocuments extends BaseDocuments {
       })),
       isLoadingUploadingModal: true,
       isHoverLastRow: false,
-      needRefreshGrid: false,
-      inlineToolSettings: {}
+      needRefreshGrid: false
     };
 
     this._tablePanel = React.createRef();
@@ -441,11 +440,10 @@ class DesktopDocuments extends BaseDocuments {
   };
 
   handleMouseLeaveTable = () => {
-    this.setToolsOptions();
     this.setState({ isHoverLastRow: false });
   };
 
-  handleHoverRow = data => {
+  handleToolSettings = data => {
     const options = cloneDeep(data);
     let actions = cloneDeep(this.props.actions);
     const id = options.row[documentFields.id];
@@ -464,11 +462,13 @@ class DesktopDocuments extends BaseDocuments {
         };
       });
 
-      this.setToolsOptions({
+      return {
         ...data,
         actions: actions[id]
-      });
+      };
     }
+
+    return {};
   };
 
   handleScrollingTable = event => {
@@ -487,7 +487,6 @@ class DesktopDocuments extends BaseDocuments {
 
   handleRowMouseLeave = debounce(() => {
     this.setState({ isHoverLastRow: false });
-    this.setToolsOptions();
   }, 100);
 
   handleTypeRowMouseEnter = (event, rowSelector = 'ecos-docs__table-row') => {
@@ -513,10 +512,6 @@ class DesktopDocuments extends BaseDocuments {
   handleTypeRowMouseLeave = () => this.setState({ isHoverLastRow: false });
 
   handleCheckDropPermissions = type => get(type, 'canDropUpload', false);
-
-  setToolsOptions = (options = {}) => {
-    this.state.inlineToolSettings = options;
-  };
 
   countFormatter = (...params) => {
     const { uploadError, countFilesError, id } = this.props;
@@ -735,9 +730,10 @@ class DesktopDocuments extends BaseDocuments {
     );
   }
 
-  renderInlineTools = () => {
-    const { inlineToolSettings } = this.state;
+  renderInlineTools = settings => {
     const { settingsInlineTools } = this.props;
+
+    const inlineToolSettings = this.handleToolSettings(settings);
 
     const actionsProps = {
       onMouseEnter: this.handleMouseEnterInlineTools
@@ -792,7 +788,6 @@ class DesktopDocuments extends BaseDocuments {
           })}
           data={this.tableData}
           columns={this.documentTableColumns}
-          onChangeTrOptions={this.handleHoverRow}
           onScrolling={this.handleScrollingTable}
           inlineTools={this.renderInlineTools}
           scrollPosition={this.scrollPosition}

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import uniqueId from 'lodash/uniqueId';
 import isEmpty from 'lodash/isEmpty';
-import debounce from 'lodash/debounce';
 import get from 'lodash/get';
 
 import { selectStateCurrentTasksById } from '../../../selectors/tasks';
@@ -29,8 +28,7 @@ class CurrentTaskList extends React.Component {
   };
 
   state = {
-    previousHeight: 0,
-    inlineToolSettings: {}
+    previousHeight: 0
   };
 
   static getDerivedStateFromProps(props, state) {
@@ -54,18 +52,14 @@ class CurrentTaskList extends React.Component {
     return isEmpty(actions) ? [] : actions.map(act => ({ ...act, onClick: () => executeAction(upAct(act), { taskId, instanceRecord }) }));
   }
 
-  handleHoverRow = data => {
+  handleToolSettings = data => {
     const {
       row: { id },
       ...options
     } = data;
 
-    this.state.inlineToolSettings = { actions: this.getActions({ id }), ...options };
+    return { actions: this.getActions({ id }), ...options };
   };
-
-  handleBlurRow = debounce(() => {
-    this.state.inlineToolSettings = {};
-  }, 100);
 
   renderEnum() {
     const { currentTasks, isMobile, forwardedRef, settings } = this.props;
@@ -82,9 +76,10 @@ class CurrentTaskList extends React.Component {
     );
   }
 
-  renderInlineTools = () => {
-    const { inlineToolSettings } = this.state;
+  renderInlineTools = settings => {
     const { settingsInlineTools } = this.props;
+
+    const inlineToolSettings = this.handleToolSettings(settings);
 
     return (
       <InlineTools
@@ -132,8 +127,6 @@ class CurrentTaskList extends React.Component {
         scrollable={false}
         className="ecos-current-task-list_view-table"
         noTopBorder
-        onMouseLeave={this.handleBlurRow}
-        onChangeTrOptions={this.handleHoverRow}
         inlineTools={this.renderInlineTools}
       />
     );
