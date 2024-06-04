@@ -1,13 +1,14 @@
-import React from "react";
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import ActionsExecutor from '../ActionsExecutor';
 import logger from '../../../../../services/logger';
 import Records from '../../../Records';
 import LicenseService from '../../../../../services/license/LicenseService';
 import { NotificationManager } from 'react-notifications';
-import { DialogManager } from '../../../../common/dialogs';
-import EcosProgressBar from '../../../../common/EcosProgressBar';
 
 import { t } from '../../../../../helpers/export/util';
+import { notifyStart, removeNotify } from '../../util/actionUtils';
+import { ResultTypes } from '../../util/constants';
 
 const STATUS_WAITING = 'WAITING';
 const STATUS_RUNNING = 'RUNNING';
@@ -19,6 +20,10 @@ const ATT_TOTAL_COUNT = 'totalCount?num';
 const ATT_PROCESSED_COUNT = 'processedCount?num';
 
 const WAITING_DELAY_TIME = [200, 500, 1000, 2000, 3000, 4000, 5000];
+
+const Labels = {
+  SENDING_TO_EMAIL: 'record-action.name.export-report.msg.sending-to-email'
+};
 
 export default class ServerGroupActionV2 extends ActionsExecutor {
   static ACTION_ID = 'server-group-action-v2';
@@ -50,16 +55,23 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
       return false;
     }
 
-    const { targetApp, executionParams = {}, valuesParams = {} } = action.config || {};
+    const { targetApp, executionParams = {}, valuesParams = {}, outputParams = {} } = action.config || {};
 
     const actionValuesParams = { ...valuesParams, ...values };
     const actionExecutionParams = { ...executionParams };
+    const actionOutputParams = { ...outputParams };
 
     const groupActionRec = Records.get(targetApp + '/group-action@');
     groupActionRec.att('values', actionValuesParams);
     groupActionRec.att('execution', actionExecutionParams);
+
+    if (!isEmpty(actionOutputParams) && actionOutputParams.type) {
+      groupActionRec.att('output', actionOutputParams);
+    }
+
     const actionId = await groupActionRec.save();
 
+    let notify;
     let promiseResolve;
     let promiseReject;
     const promise = new Promise((resolve, reject) => {
@@ -67,43 +79,20 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
       promiseReject = reject;
     });
 
-    const progressBar = React.createRef();
     let dialog;
-    let isFirst = true;
+
+    if (get(actionOutputParams, 'type', '').toLowerCase() === 'email') {
+      return {
+        type: ResultTypes.INFO,
+        data: t(Labels.SENDING_TO_EMAIL)
+      };
+    } else {
+      notify = notifyStart('');
+    }
 
     const waitComplete = async iteration => {
       try {
         const actionAtts = await Records.get(actionId).load([ATT_STATUS, ATT_RESULT, ATT_TOTAL_COUNT, ATT_PROCESSED_COUNT], true);
-        const totalCount = actionAtts[ATT_TOTAL_COUNT];
-        const processedCount = actionAtts[ATT_PROCESSED_COUNT];
-
-        if (isFirst) {
-          isFirst = false;
-
-          dialog = DialogManager.showCustomDialog({
-            title: t("group-action.message.processing-the-request"),
-            modalClass: "ecos-modal_width-xs",
-            body: totalCount === -1 ? (
-                <div ref={progressBar}>
-                  {t('group-action.message.records-is-unknown', { processedCount: 0 })}
-                </div>
-              ) : <EcosProgressBar
-                ref={progressBar}
-                max={totalCount}
-                value={processedCount}
-                filledColor="#7396cd"
-                emptyColor="#f3f7f9"
-                height={10}
-                showPercentage
-              />,
-          });
-        } else if (progressBar.current) {
-          if (progressBar.current.updateValue) {
-            progressBar.current.updateValue(processedCount);
-          } else {
-            progressBar.current.innerText = t('group-action.message.records-is-unknown', { processedCount })
-          }
-        }
 
         const status = actionAtts[ATT_STATUS] || '';
         if (status === STATUS_WAITING || status === STATUS_RUNNING) {
@@ -134,6 +123,9 @@ export default class ServerGroupActionV2 extends ActionsExecutor {
     return promise.finally(() => {
       if (dialog) {
         dialog.setVisible(false);
+      }
+      if (notify) {
+        removeNotify(notify);
       }
       Records.forget(actionId);
     });
