@@ -175,7 +175,7 @@ class JournalsDashletGrid extends Component {
     this.setSelectedRow(options.row);
   };
 
-  getCurrentRowInlineActions() {
+  getCurrentRowInlineActions(row) {
     const { execRecordsAction, grid } = this.props;
     const {
       groupBy = [],
@@ -186,7 +186,7 @@ class JournalsDashletGrid extends Component {
       return [
         {
           title: t('grid.inline-tools.details'),
-          onClick: () => this.props.goToJournalsPage(this.selectedRow),
+          onClick: () => this.props.goToJournalsPage(row || this.selectedRow),
           icon: 'icon-small-arrow-right'
         }
       ];
@@ -205,7 +205,7 @@ class JournalsDashletGrid extends Component {
   inlineTools = inlineToolSettings => {
     const { settingsInlineTools } = this.props;
 
-    inlineToolSettings.actions = this.getCurrentRowInlineActions();
+    inlineToolSettings.actions = this.getCurrentRowInlineActions(inlineToolSettings.row);
 
     const settings = {
       ...settingsInlineTools,
