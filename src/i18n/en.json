@@ -218,6 +218,7 @@
   "comments-widget.editor.cancel": "Cancel",
   "comments-widget.editor.placeholder.part-1": "Write a comment no more than",
   "comments-widget.editor.placeholder.part-2": "characters...",
+  "comments-widget.editor.limit.error": "<strong>Attention!</strong> Your message is too long.",
   "comments-widget.editor.internal_comment": "Internal comment",
   "comments-widget.editor.save": "Send",
   "comments-widget.editor.link": "Link",

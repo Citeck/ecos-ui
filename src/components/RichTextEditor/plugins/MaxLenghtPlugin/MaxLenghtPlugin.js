@@ -4,7 +4,7 @@ import { $restoreEditorState } from '@lexical/utils';
 import { $getSelection, $isRangeSelection, RootNode } from 'lexical';
 import { useEffect } from 'react';
 
-const MaxLengthPlugin = ({ maxLength }) => {
+const MaxLengthPlugin = ({ maxLength, onError }) => {
   const [editor] = useLexicalComposerContext();
 
   useEffect(
@@ -13,9 +13,11 @@ const MaxLengthPlugin = ({ maxLength }) => {
 
       return editor.registerNodeTransform(RootNode, rootNode => {
         const selection = $getSelection();
+
         if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
           return;
         }
+
         const prevEditorState = editor.getEditorState();
         const prevTextContentSize = prevEditorState.read(() => rootNode.getTextContentSize());
         const textContentSize = rootNode.getTextContentSize();
@@ -31,6 +33,7 @@ const MaxLengthPlugin = ({ maxLength }) => {
               $restoreEditorState(editor, prevEditorState);
             } else {
               trimTextContentFromAnchor(editor, anchor, delCount);
+              onError(maxLength);
             }
           }
         }

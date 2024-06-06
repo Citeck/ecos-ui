@@ -12,6 +12,7 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { $generateNodesFromDOM } from '@lexical/html';
 import { $insertNodes, $getRoot } from 'lexical';
 import isNil from 'lodash/isNil';
+import debounce from 'lodash/debounce';
 import classNames from 'classnames';
 
 import {
@@ -21,6 +22,7 @@ import {
   MarkdownShortcutPlugin,
   TablePlugin as CustomTablePlugin,
   ToolbarPlugin,
+  MaxLengthPlugin,
   MentionsPlugin
 } from './plugins';
 import { Placeholder } from './components';
@@ -30,6 +32,7 @@ import './style.scss';
 export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
   const [editor] = useLexicalComposerContext();
   const [floatingAnchorElem, setFloatingAnchorElem] = useState(null);
+  const [isMaxLength, setIsMaxLength] = useState(false);
 
   const onRef = _floatingAnchorElem => {
     if (_floatingAnchorElem !== null) {
@@ -100,8 +103,19 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
             <LinkEditorPlugin anchorElem={floatingAnchorElem} />
           </>
         )}
-        <OnChangePlugin onChange={onChange} />
+        <OnChangePlugin
+          onChange={(state, editor, tags) => {
+            setIsMaxLength(false);
+            onChange(state, editor, tags);
+          }}
+        />
+        <MaxLengthPlugin maxLength="5000" onError={debounce(() => setIsMaxLength(true), 1000)} />
       </div>
+      {isMaxLength && (
+        <div className="alert alert-danger">
+          <strong>Внимание!</strong> Ваше сообщение слишком длинное.
+        </div>
+      )}
     </>
   );
 };
