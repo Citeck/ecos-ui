@@ -53,7 +53,10 @@ export default handleActions(
       const { stateId = '', settings = {} } = payload;
 
       const isFiltered =
-        (state[stateId].templateList?.length > 0 && settings.journalSetting?.id === '') || state[stateId].templateList?.length === 0;
+        !state[stateId] ||
+        (state[stateId] && !state[stateId].templateList) ||
+        state[stateId]?.templateList?.length === 0 ||
+        (state[stateId]?.templateList?.length > 0 && settings.journalSetting?.id === '');
 
       return updateState(state, stateId, { dataCards: [], isLoading: true, isFiltered }, initialState);
     },
