@@ -25,6 +25,7 @@ import {
   MaxLengthPlugin
 } from './plugins';
 import { Placeholder } from './components';
+import { t } from '../../helpers/util';
 
 import './style.scss';
 
@@ -109,11 +110,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
         />
         <MaxLengthPlugin maxLength="5000" onError={debounce(() => setIsMaxLength(true), 1000)} />
       </div>
-      {isMaxLength && (
-        <div className="alert alert-danger">
-          <strong>Внимание!</strong> Ваше сообщение слишком длинное.
-        </div>
-      )}
+      {isMaxLength && <div className="alert alert-danger" dangerouslySetInnerHTML={{ __html: t('comments-widget.editor.limit.error') }} />}
     </>
   );
 };
