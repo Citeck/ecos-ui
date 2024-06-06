@@ -5,10 +5,11 @@ import get from 'lodash/get';
 import { t } from '../../../helpers/export/util';
 import { wrapArgs } from '../../../helpers/redux';
 import { deleteJournalSetting, editJournalSetting, getJournalsData, openSelectedPreset } from '../../../actions/journals';
+import { selectViewMode } from '../../../selectors/journals';
 import { resetFilter } from '../../../actions/kanban';
 import { CollapsibleList } from '../../common';
 import { Well } from '../../common/form';
-import { Labels } from '../constants';
+import { isKanban, Labels } from '../constants';
 import ListItem from './ListItem';
 
 class List extends React.Component {
@@ -19,7 +20,9 @@ class List extends React.Component {
       this.props.openSelectedPreset(setting.id);
     } else {
       this.props.getJournalsData();
-      this.props.resetFiltering();
+      if (isKanban(this.props.viewMode)) {
+        this.props.kanbanResetFilter();
+      }
     }
   };
 
@@ -70,11 +73,13 @@ class List extends React.Component {
 
 const mapStateToProps = (state, props) => {
   const newState = get(state, ['journals', props.stateId]) || {};
+  const viewMode = selectViewMode(state, props.stateId);
 
   return {
     journalSettings: newState.journalSettings,
     journalSetting: newState.journalSetting,
-    loading: newState.loading
+    loading: newState.loading,
+    viewMode
   };
 };
 
@@ -82,7 +87,7 @@ const mapDispatchToProps = (dispatch, props) => {
   const w = wrapArgs(props.stateId);
 
   return {
-    resetFiltering: () => dispatch(resetFilter({ stateId: props.stateId })),
+    kanbanResetFilter: () => dispatch(resetFilter({ stateId: props.stateId })),
     getJournalsData: options => dispatch(getJournalsData(w(options))),
     deleteJournalSetting: id => dispatch(deleteJournalSetting(w(id))),
     editJournalSetting: id => dispatch(editJournalSetting(w(id))),

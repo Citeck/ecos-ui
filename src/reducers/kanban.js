@@ -50,7 +50,12 @@ export default handleActions(
       return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);
     },
     [applyFilter]: (state, { payload }) => {
-      return updateState(state, payload.stateId, { dataCards: [], isLoading: true, isFiltered: true }, initialState);
+      const { stateId = '', settings = {} } = payload;
+
+      const isFiltered =
+        (state[stateId].templateList?.length > 0 && settings.journalSetting?.id === '') || state[stateId].templateList?.length === 0;
+
+      return updateState(state, stateId, { dataCards: [], isLoading: true, isFiltered }, initialState);
     },
     [applyPreset]: (state, { payload }) => {
       return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);
