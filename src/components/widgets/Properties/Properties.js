@@ -7,6 +7,7 @@ import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 import debounce from 'lodash/debounce';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import { t } from '../../../helpers/util';
 import EcosForm from '../../EcosForm/EcosForm';
@@ -35,7 +36,7 @@ class Properties extends React.Component {
   static defaultProps = {
     record: '',
     className: '',
-    isSmallMode: false
+    isSmallMode: true
   };
 
   _ecosForm = React.createRef();
@@ -43,14 +44,14 @@ class Properties extends React.Component {
 
   state = {
     loaded: false,
-    isLoading: false,
+    isLoading: true,
     isReadySubmit: true,
     initData: {},
     contentHeight: 0
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    if (prevProps.formId !== this.props.formId) {
+    if (prevProps.formId !== this.props.formId || !isEqual(prevProps.formMode, this.props.formMode)) {
       this.setState({ loaded: false });
     }
   }
@@ -73,10 +74,7 @@ class Properties extends React.Component {
     const formData = get(this._ecosForm, 'current._form.data');
     const initData = cloneDeep(formData);
 
-    this.setState({
-      initData,
-      loaded: true
-    });
+    this.setState({ initData, isLoading: false, loaded: true });
   }, 350);
 
   onToggleLoader = (isLoading = !this.state.isLoading) => {

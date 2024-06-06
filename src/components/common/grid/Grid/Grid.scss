@@ -166,12 +166,6 @@ $header-height: 52px;
     }
   }
 
-  &_drag {
-  }
-
-  &_no-drag {
-  }
-
   &__row {
     position: relative;
     border-bottom: 2px $color-gray-4 solid;
@@ -187,8 +181,10 @@ $header-height: 52px;
 
   &__inline-tools-container {
     position: absolute;
+    display: block;
+    margin: 2px 0;
     left: 0;
-    top: -1px;
+    height: 40px;
   }
 }
 

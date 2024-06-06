@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import get from 'lodash/get';
 import isFunction from 'lodash/isFunction';
 
-import { isSmallMode, objectCompare, t } from '../../../helpers/util';
+import { isMobileDevice, isSmallMode, objectCompare, t } from '../../../helpers/util';
 import { isTaskDashboard } from '../../../helpers/urls';
 import DAction from '../../../services/DashletActionService';
 import EcosFormUtils from '../../EcosForm/EcosFormUtils';
@@ -62,7 +62,7 @@ class PropertiesDashlet extends BaseWidget {
 
     this.state = {
       ...this.state,
-      isSmallMode: false,
+      isSmallMode: isMobileDevice(),
       isEditProps: false,
       formIsChanged: false,
       isSmall: false,
@@ -80,7 +80,13 @@ class PropertiesDashlet extends BaseWidget {
 
   componentDidMount() {
     super.componentDidMount();
-    this.checkPermissions();
+
+    const { current } = this._propertiesRef;
+    const widgetWidth = get(current, 'wrappedInstance.props.forwardedRef.current.clientWidth');
+
+    this.setState({ isSmallMode: isSmallMode(widgetWidth) }, () => {
+      this.checkPermissions();
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {

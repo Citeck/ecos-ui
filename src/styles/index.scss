@@ -59,6 +59,13 @@ ul.ul-initial {
   top: -9999px;
 }
 
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 // for set z-index and correctly displaying child elements
 #alf-hd {
   position: relative;
