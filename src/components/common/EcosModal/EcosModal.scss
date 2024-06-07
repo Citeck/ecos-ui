@@ -142,6 +142,10 @@
   }
 }
 
+.ecos-modal_mobile {
+  overflow: auto;
+}
+
 .ecos-modal_shadow {
   .modal-content {
     box-shadow: $box-shadow-default;
