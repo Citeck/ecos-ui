@@ -12,3 +12,6 @@ export const ActionTypes = {
  * & https://citeck.atlassian.net/browse/ECOSUI-101
  * */
 export const CountableItems = ['active-tasks', 'subordinate-tasks'];
+
+/** Cause: https://jira.citeck.ru/browse/ECOSUI-3016 */
+export const HiddenItemsMobile = ['modeling', 'admin-tools'];

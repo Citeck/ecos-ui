@@ -6,6 +6,7 @@ import { Tooltip } from 'reactstrap';
 
 import SidebarService from '../../services/sidebar';
 import { toggleExpanded } from '../../actions/slideMenu';
+import { HiddenItemsMobile } from '../../constants/sidebar';
 import Item from './Item';
 
 class List extends React.Component {
@@ -61,6 +62,10 @@ class List extends React.Component {
     const isChildSelected =
       !isItemExpanded && level >= SidebarService.DROPDOWN_LEVEL && SidebarService.isSelectedChild(expandableItems, item.id);
     const isSubListExpanded = isClosedSeparator || ((isOpen || inDropdown) && isItemExpanded);
+
+    if (isMobile && level === 0 && HiddenItemsMobile.includes(item.id)) {
+      return null;
+    }
 
     return (
       <React.Fragment key={listItemKey}>
