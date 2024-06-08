@@ -155,10 +155,11 @@ export default class EcosModal extends Component {
     const { hideModal, children, className, classNameBody, reactstrapProps, isLoading, onResize, size, container } = this.props;
     const { isOpen, level, draggableState, zIndexCalc } = this.state;
     const modalLevel = level > MAX_LEVEL ? MAX_LEVEL : level;
-    const modalClassName = classNames('ecos-modal', className, {
+    const classMobile = isMobileDevice() ? 'ecos-modal_mobile' : '';
+
+    const modalClassName = classNames('ecos-modal', className, classMobile, {
       'ecos-modal_draggable': draggableState !== null,
       [`ecos-modal_level-${modalLevel}`]: !!modalLevel,
-      'ecos-modal_mobile': isMobileDevice(),
       'ecos-modal_small-screen': window.innerWidth < 720
     });
 
@@ -198,7 +199,7 @@ export default class EcosModal extends Component {
         containerClassName="ecos-modal-container ecosZIndexAnchor"
       >
         {this.renderModalHeader()}
-        <ModalBody className={classNameBody}>{children}</ModalBody>
+        <ModalBody className={classNames(classNameBody, classMobile)}>{children}</ModalBody>
         <ReactResizeDetector handleWidth handleHeight onResize={onResize} />
       </Modal>
     );
