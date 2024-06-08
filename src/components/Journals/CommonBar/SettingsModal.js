@@ -70,6 +70,7 @@ class SettingsModal extends Component {
   }
 
   getSetting = () => {
+    const { journalSetting } = this.props;
     const { predicate, columns, sortBy, grouping, kanbanColumns } = this.state;
 
     return {
@@ -78,6 +79,7 @@ class SettingsModal extends Component {
       columns,
       predicate,
       grouping,
+      journalSetting,
       kanban: {
         columns: kanbanColumns
       }
