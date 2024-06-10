@@ -14,6 +14,7 @@ import { $insertNodes, $getRoot } from 'lexical';
 import isNil from 'lodash/isNil';
 import classNames from 'classnames';
 
+import { LENGTH_LIMIT } from '../widgets/Comments/Comment';
 import {
   CodeHightLightPlugin,
   FilePlugin,
@@ -24,12 +25,15 @@ import {
   MentionsPlugin
 } from './plugins';
 import { Placeholder } from './components';
+import { t } from '../../helpers/util';
 
 import './style.scss';
 
 export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
   const [editor] = useLexicalComposerContext();
   const [floatingAnchorElem, setFloatingAnchorElem] = useState(null);
+  const [isMaxLength, setIsMaxLength] = useState(false);
+  const [textLength, setTextLength] = useState(0);
 
   const onRef = _floatingAnchorElem => {
     if (_floatingAnchorElem !== null) {
@@ -100,8 +104,28 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
             <LinkEditorPlugin anchorElem={floatingAnchorElem} />
           </>
         )}
-        <OnChangePlugin onChange={onChange} />
+        <OnChangePlugin
+          onChange={(state, editor, tags) => {
+            const { textContent = '' } = editor.getRootElement();
+
+            setTextLength(textContent.length);
+            setIsMaxLength(textContent.length > LENGTH_LIMIT);
+
+            onChange(state, editor, tags);
+          }}
+        />
       </div>
+      {isMaxLength && (
+        <div
+          className="alert alert-danger"
+          dangerouslySetInnerHTML={{
+            __html: t('comments-widget.editor.limit.error', {
+              textLength: textLength,
+              limit: LENGTH_LIMIT
+            })
+          }}
+        />
+      )}
     </>
   );
 };

@@ -155,6 +155,7 @@
   "comments-widget.editor.cancel": "Отмена",
   "comments-widget.editor.placeholder.part-1": "Напишите комментарий не более",
   "comments-widget.editor.placeholder.part-2": "символов...",
+  "comments-widget.editor.limit.error": "<strong>Внимание!</strong> Ваше сообщение слишком длинное. {{textLength}}/{{limit}}",
   "comments-widget.editor.internal_comment": "Внутренний комментарий",
   "comments-widget.editor.save": "Отправить",
   "comments-widget.editor.link": "Ссылка",
