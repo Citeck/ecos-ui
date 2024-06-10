@@ -17,6 +17,14 @@
   }
 }
 
+@media screen and (max-width: 600px) {
+  .ecos-rt-editor-toolbar {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
 button.ecos-btn.ecos-rt-editor-toolbar__button {
   width: 32px;
   padding: 5px;
