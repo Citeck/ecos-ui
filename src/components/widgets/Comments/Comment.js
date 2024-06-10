@@ -19,6 +19,8 @@ import { selectStateByRecordRef } from '../../../selectors/comments';
 import { createCommentRequest, setError, deleteCommentRequest, getComments, updateCommentRequest } from '../../../actions/comments';
 import Records from '../../Records';
 
+export const LENGTH_LIMIT = 5000;
+
 export class Comment extends Component {
   static propTypes = {
     comment: PropTypes.shape(CommentInterface),
@@ -31,13 +33,15 @@ export class Comment extends Component {
     isInternalSupported: false,
     isLoading: false,
     isEdit: false,
+    isMaxLength: false,
     isInternal: false
   };
 
   get canSendComment() {
     const { saveIsLoading } = this.props;
+    const { isMaxLength } = this.state;
 
-    return !saveIsLoading;
+    return !isMaxLength && !saveIsLoading;
   }
 
   componentDidMount() {
@@ -214,6 +218,10 @@ export class Comment extends Component {
   }
 
   handleEditorStateChange = (editorState, editor) => {
+    const { textContent = '' } = editor.getRootElement();
+
+    this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT });
+
     editor.update(() => {
       const htmlComment = $generateHtmlFromNodes(editor, null);
       if (!isNil(htmlComment)) {
