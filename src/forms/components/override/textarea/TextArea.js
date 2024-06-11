@@ -107,9 +107,10 @@ export default class TextAreaComponent extends FormIOTextAreaComponent {
 
     if (this.component.wysiwyg) {
       value = this.interpolate(value);
+      element.innerHTML = value;
+    } else {
+      element.textContent = value;
     }
-
-    element.textContent = value;
   }
 
   addCKE(element, settings, onChange) {
