@@ -3,7 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import { NotificationManager } from 'react-notifications';
 
 import { backPageFromTransitionsHistory } from '../actions/app';
-import { backExecuteAction, getActions, runExecuteAction, setActions } from '../actions/recordActions';
+import { backExecuteAction, getActions, runExecuteAction, setActions, setLoading } from '../actions/recordActions';
 import { ActionTypes } from '../components/Records/actions/constants';
 import { t } from '../helpers/util';
 
@@ -34,6 +34,10 @@ function* sagaExecuteAction({ api, logger }, { payload }) {
 
   try {
     const res = yield call(api.recordActions.executeAction, { records: record, action });
+
+    if (res === true) {
+      yield put(setLoading({ stateId }));
+    }
 
     yield put(backExecuteAction({ stateId }));
 

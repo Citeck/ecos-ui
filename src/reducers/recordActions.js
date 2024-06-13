@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions';
-import { backExecuteAction, getActions, resetActions, runExecuteAction, setActions } from '../actions/recordActions';
+import { backExecuteAction, getActions, resetActions, setLoading, setActions } from '../actions/recordActions';
 import { deleteStateById, getCurrentStateById, startLoading } from '../helpers/redux';
 
 const initialState = {
@@ -10,7 +10,13 @@ const initialState = {
 export default handleActions(
   {
     [getActions]: startLoading(initialState),
-    [runExecuteAction]: startLoading(initialState),
+    [setLoading]: (state, { payload: { stateId, isLoading = true } }) => ({
+      ...state,
+      [stateId]: {
+        ...getCurrentStateById(state, stateId, initialState),
+        isLoading
+      }
+    }),
     [setActions]: (state, { payload: { stateId, list } }) => ({
       ...state,
       [stateId]: {
