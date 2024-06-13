@@ -65,11 +65,9 @@ export default class SelectComponent extends BaseComponent {
     };
   }
 
-  _hasItemsBeenAlreadyLoadedOnce = false;
-
   checkConditions(data) {
     let result = super.checkConditions(data);
-    if (result && !this._hasItemsBeenAlreadyLoadedOnce) {
+    if (result) {
       this.triggerUpdate();
     }
 
@@ -654,8 +652,6 @@ export default class SelectComponent extends BaseComponent {
       this.itemsLoadedResolve();
       return;
     }
-
-    this._hasItemsBeenAlreadyLoadedOnce = true;
 
     switch (this.component.dataSrc) {
       case 'values':
