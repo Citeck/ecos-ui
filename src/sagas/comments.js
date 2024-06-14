@@ -53,27 +53,27 @@ function* sagaGetComments({ api, logger }, action) {
 function* sagaCreateComment({ api, logger }, action) {
   try {
     const {
-      payload: { recordRef, comment: text, isInternal = false }
+      payload: { recordRef: nodeRef, comment: text, isInternal = false }
     } = action;
 
-    yield put(sendingStart(recordRef));
+    yield put(sendingStart(nodeRef));
 
-    const record = yield api.comments.create({ text, record: recordRef, isInternal });
+    const record = yield api.comments.create({ text, record: nodeRef, isInternal });
     const comment = yield api.comments.getCommentById(record.id);
-    const comments = yield select(state => selectAllComments(state, recordRef));
+    const comments = yield select(state => selectAllComments(state, nodeRef));
 
     comment.id = record.id;
     comments.unshift(getCommentForWeb(comment));
 
-    yield put(createCommentSuccess({ comments, recordRef }));
-    yield put(sendingEnd(recordRef));
+    yield put(createCommentSuccess({ comments, nodeRef }));
+    yield put(sendingEnd(nodeRef));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     yield put(
       setError({
         message: originMessage || t('comments-widget.error'),
-        recordRef: action.payload.recordRef
+        recordRef: action.payload.nodeRef
       })
     );
     logger.error('[comments sagaCreateComment saga error', e);
@@ -179,33 +179,35 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
 }
 
 function* sagaDeleteComment({ api, logger }, { payload }) {
-  try {
-    yield put(sendingStart(payload.nodeRef));
-    yield api.comments.delete(payload.id);
+  const { recordRef: nodeRef, id: commentId, callback } = payload;
 
-    const comments = yield select(state => selectAllComments(state, payload.nodeRef));
-    const index = comments.findIndex(comment => comment.id === payload.id);
+  try {
+    yield put(sendingStart(nodeRef));
+    yield api.comments.delete(commentId);
+
+    const comments = yield select(state => selectAllComments(state, nodeRef));
+    const index = comments.findIndex(comment => comment.id === commentId);
 
     if (index !== -1) {
       comments.splice(index, 1);
     }
 
-    yield put(deleteCommentSuccess({ comments, nodeRef: payload.nodeRef }));
+    yield put(deleteCommentSuccess({ comments, nodeRef }));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
     NotificationManager.error(originMessage || t('comments-widget.error'), t('error'));
-    yield put(setActionFailedStatus({ nodeRef: payload.nodeRef, status: true }));
+    yield put(setActionFailedStatus({ nodeRef, status: true }));
 
     logger.error('[comments sagaDeleteComment saga error', e);
   } finally {
-    yield put(sendingEnd(payload.nodeRef));
+    yield put(sendingEnd(nodeRef));
 
-    if (payload.callback && typeof payload.callback === 'function') {
-      payload.callback();
+    if (callback && typeof callback === 'function') {
+      callback();
     }
 
-    yield put(setActionFailedStatus({ nodeRef: payload.nodeRef, status: false }));
+    yield put(setActionFailedStatus({ nodeRef, status: false }));
   }
 }
 
