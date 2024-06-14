@@ -87,7 +87,7 @@ function* sagaCreateComment({ api, logger }, action) {
 function* sagaUpdateComment({ api, logger }, action) {
   try {
     const {
-      payload: { comment, nodeRef }
+      payload: { comment, recordRef: nodeRef }
     } = action;
     yield put(sendingStart(nodeRef));
     yield api.comments.update(action.payload.comment);
