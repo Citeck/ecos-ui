@@ -111,7 +111,7 @@ export const EditorContent = ({ onChange, htmlString, readonly = false }) => {
             setTextLength(textContent.length);
             setIsMaxLength(textContent.length > LENGTH_LIMIT);
 
-            onChange(state, editor, tags);
+            onChange(state, editor, tags, textContent.length === 0);
           }}
         />
       </div>

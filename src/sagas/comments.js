@@ -138,27 +138,39 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
       return yield fileUploadFunc({ api, file, callback: payload.callback });
     });
 
+    const results = yield Promise.allSettled(files);
+
+    const rejected = results.find(result => result.status === 'rejected');
+    if (rejected) {
+      throw new Error('One or more file uploads failed');
+    }
+
     let recordRef = get(createVariants, 'recordRef');
     if (!recordRef) {
       recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
     }
 
-    fileRecords = yield files.map(function*(file) {
-      const record = yield call(
-        api.documents.uploadFilesWithNodes,
-        DocumentsConverter.getUploadAttributes({
-          record: payload.record,
-          type: payload.type,
-          content: file,
-          createVariants
-        }),
-        recordRef
-      );
+    fileRecords = yield files.map(function*(file, index) {
+      const fileResult = results[index];
+      if (fileResult.status === 'fulfilled') {
+        const record = yield call(
+          api.documents.uploadFilesWithNodes,
+          DocumentsConverter.getUploadAttributes({
+            record: payload.record,
+            type: payload.type,
+            content: fileResult.value,
+            createVariants
+          }),
+          recordRef
+        );
 
-      return {
-        ...file,
-        fileRecordId: record.id
-      };
+        return {
+          ...fileResult.value,
+          fileRecordId: record.id
+        };
+      } else {
+        throw fileResult.reason;
+      }
     });
     NotificationManager.success(
       t(payload.files.length > 1 ? 'documents-widget.notification.add-many.success' : 'documents-widget.notification.add-one.success')
