@@ -90,7 +90,7 @@ export class MentionNode extends TextNode {
 
         return {
           conversion: convertMentionElement,
-          priority: 1
+          priority: 5
         };
       }
     };
