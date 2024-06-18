@@ -314,7 +314,7 @@ function* sagaGetJournalsData({ api, logger, stateId, w }, { payload }) {
 
     yield put(setJournalExpandableProp(w(false)));
     yield put(setGrid(w({ pagination: DEFAULT_PAGINATION })));
-    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force })));
+    yield put(initJournal(w({ journalId, journalSettingId, userConfigId, force: payload.force, savePredicate: payload.savePredicate })));
   } catch (e) {
     logger.error('[journals sagaGetJournalsData saga error', e);
   }
