@@ -13,7 +13,6 @@ export async function replaceAttributeValues(data, record) {
 
   const mutableData = cloneDeep(data);
   const regExp = /\$\{([^}]+)\}/g;
-  const nonSpecialsRegex = /([^${}]+)/g;
   const keys = Object.keys(mutableData);
   const results = new Map();
 
@@ -38,7 +37,7 @@ export async function replaceAttributeValues(data, record) {
         return;
       }
 
-      fields = fields.map(el => el.match(nonSpecialsRegex)[0]);
+      fields = fields.map(el => el.substring(2, el.length - 1).trim());
 
       await Promise.all(
         fields.map(async strKey => {
@@ -50,6 +49,8 @@ export async function replaceAttributeValues(data, record) {
 
           if (strKey === 'recordRef') {
             recordData = await Records.get(record).id;
+          } else if (strKey === '$now') {
+            recordData = new Date().toISOString();
           } else {
             recordData = await Records.get(record).load(strKey);
           }
