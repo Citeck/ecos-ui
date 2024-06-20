@@ -113,11 +113,18 @@ class JournalsDataLoader {
       const columnRefs = await this.getSearchRecordRefsFromColumn(result, predicate, sourceId);
       innerResult[columnKey] = columnRefs;
     }
+
+    let searchAttribute;
+    const searchConfig = JournalsConverter.getSearchConfig(query, columns);
+    if (searchConfig && !isEmpty(searchConfig.searchAttribute)) {
+      searchAttribute = searchConfig.searchAttribute;
+    }
+
     const innerPredicates = Object.keys(innerResult)
       .filter(key => !isEmpty(innerResult[key]))
       .map(key => ({
         t: PREDICATE_OR,
-        val: innerResult[key].map(val => ({ t: PREDICATE_EQ, att: key, val }))
+        val: innerResult[key].map(val => ({ t: PREDICATE_EQ, att: searchAttribute || key, val }))
       }));
 
     query = JournalsConverter.searchConfigProcessed(query, columns);
