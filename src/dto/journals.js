@@ -24,6 +24,29 @@ export default class JournalsConverter {
   }
 
   /**
+   * @param {Predicate|Array<Predicate>} predicate
+   * @param {Array<Column>} columns
+   * @returns {Object|*}
+   */
+  static getSearchConfig(predicate, columns) {
+    const attribute = get(predicate, 'att', get(predicate, 'a'));
+    let searchConfig = get(find(columns, column => JournalsConverter.getColumnId(column) === attribute), 'searchConfig');
+
+    let val = get(predicate, 'val', get(predicate, 'v'));
+
+    if (!searchConfig && Array.isArray(val)) {
+      for (const item of val) {
+        searchConfig = JournalsConverter.getSearchConfig(item, columns);
+        if (searchConfig && !isEmpty(searchConfig.searchAttribute)) {
+          break;
+        }
+      }
+    }
+
+    return searchConfig;
+  }
+
+  /**
    * @param {Column} column
    * @returns {?string}
    */
