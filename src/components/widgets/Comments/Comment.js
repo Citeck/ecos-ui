@@ -289,7 +289,8 @@ export class Comment extends Component {
             <div className="ecos-comments__editor-footer-chbx-wrapper">
               <Label title={t('comments-widget.editor.internal_comment')}>
                 <Checkbox
-                  checked={false}
+                  disabled={!!comment}
+                  checked={comment ? comment.isInternal : false}
                   title={t('comments-widget.editor.internal_comment')}
                   onChange={({ checked }) => this.setState({ isInternal: checked })}
                 />

@@ -1,6 +1,7 @@
 import variables from '../styles/constants.scss';
 
 export const BASE_HEIGHT = 21;
+export const typeInternal = 'INTERNAL';
 
 export const AllowedTagTypes = ['task', 'action'];
 

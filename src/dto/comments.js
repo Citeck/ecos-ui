@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import { getBool, getColorByString } from '../helpers/util';
 import { t } from '../helpers/export/util';
 import UserService from '../services/UserService';
-import { AllowedTagTypes, TagColorByType } from '../constants/comments';
+import { AllowedTagTypes, TagColorByType, typeInternal } from '../constants/comments';
 
 export const getTag = data => {
   const type = get(data, 'type');
@@ -52,6 +52,8 @@ export function getCommentForWeb(source) {
   target.userName = author.userName || '';
   target.avatar = UserService.getAvatarUrl(author.avatarUrl, { height: 150 });
   target.tags = Array.isArray(source.tags) ? source.tags.filter(item => !isEmpty(item)).map(getTag) : [];
+
+  target.isInternal = Array.isArray(source.tags) ? source.tags.some(tag => !isEmpty(tag) && tag.type === typeInternal) : false;
 
   target.canEdit = !!permissions.canEdit;
   target.canDelete = !!permissions.canDelete;
