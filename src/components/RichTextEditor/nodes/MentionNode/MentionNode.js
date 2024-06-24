@@ -28,7 +28,7 @@ export class MentionNode extends TextNode {
   }
 
   static clone(node) {
-    return new MentionNode(node.__mention, node.__text, node.__key);
+    return new MentionNode(node.__mention, node.__authorityId, node.__key);
   }
 
   static importJSON(serializedNode) {
@@ -90,7 +90,7 @@ export class MentionNode extends TextNode {
 
         return {
           conversion: convertMentionElement,
-          priority: 1
+          priority: 5
         };
       }
     };

@@ -8,6 +8,7 @@ import { LexicalTypeaheadMenuPlugin, MenuOption, useBasicTypeaheadTriggerMatch }
 import { $createMentionNode } from '../../nodes/MentionNode';
 import { OrgStructApi } from '../../../../api/orgStruct';
 import { Avatar } from '../../../common';
+import { SourcesId } from '../../../../constants';
 
 const PUNCTUATION = '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
 const NAME = '\\b[A-Z][^\\s' + PUNCTUATION + ']';
@@ -175,7 +176,9 @@ export default function MentionsPlugin() {
   );
 
   const onSelectOption = useCallback(
-    ({ id, name }, nodeToReplace, closeMenu) => {
+    ({ id: _id, name }, nodeToReplace, closeMenu) => {
+      const id = _id && _id.includes(SourcesId.PERSON) ? _id.split('@')[1] : _id;
+
       editor.update(() => {
         const mentionNode = $createMentionNode(name, id);
 

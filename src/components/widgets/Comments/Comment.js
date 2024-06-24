@@ -34,7 +34,8 @@ export class Comment extends Component {
     isLoading: false,
     isEdit: false,
     isMaxLength: false,
-    isInternal: false
+    isInternal: false,
+    noChanges: true
   };
 
   get canSendComment() {
@@ -217,10 +218,10 @@ export class Comment extends Component {
     });
   }
 
-  handleEditorStateChange = (editorState, editor) => {
+  handleEditorStateChange = (editorState, editor, _, noChanges) => {
     const { textContent = '' } = editor.getRootElement();
 
-    this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT });
+    this.setState({ isMaxLength: textContent.length > LENGTH_LIMIT, noChanges });
 
     editor.update(() => {
       const htmlComment = $generateHtmlFromNodes(editor, null);
@@ -277,7 +278,7 @@ export class Comment extends Component {
 
   renderEditor() {
     const { saveIsLoading, comment } = this.props;
-    const { isLoading } = this.state;
+    const { isLoading, noChanges } = this.state;
 
     return (
       <div className="ecos-comments__editor">
@@ -288,7 +289,8 @@ export class Comment extends Component {
             <div className="ecos-comments__editor-footer-chbx-wrapper">
               <Label title={t('comments-widget.editor.internal_comment')}>
                 <Checkbox
-                  checked={false}
+                  disabled={!!comment}
+                  checked={comment ? comment.isInternal : false}
                   title={t('comments-widget.editor.internal_comment')}
                   onChange={({ checked }) => this.setState({ isInternal: checked })}
                 />
@@ -308,7 +310,7 @@ export class Comment extends Component {
             <Btn
               className="ecos-btn_blue ecos-btn_hover_light-blue ecos-comments__editor-footer-btn"
               onClick={this.handleSaveComment}
-              disabled={!this.canSendComment}
+              disabled={!this.canSendComment || noChanges}
               loading={saveIsLoading}
             >
               {t('comments-widget.editor.save')}
