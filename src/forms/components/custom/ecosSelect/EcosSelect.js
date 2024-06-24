@@ -67,10 +67,56 @@ export default class SelectComponent extends BaseComponent {
 
   _hasItemsBeenAlreadyLoadedOnce = false;
 
+  // Check if there is data of such nesting
+  checkEnclosureData(data, path = '', splitter = '.') {
+    let flag = false;
+
+    if (!!path) {
+      const roads = path.split(splitter);
+      let currentData = data;
+
+      roads.forEach(road => {
+        if (Array.isArray(currentData)) {
+          if (currentData.length === 0) {
+            return false;
+          }
+          currentData = currentData[0];
+        }
+
+        if (currentData[road] === undefined) {
+          flag = false;
+          return;
+        }
+
+        currentData = currentData[road];
+      });
+
+      if (currentData !== undefined) {
+        flag = true;
+      }
+    }
+
+    return flag;
+  }
+
   checkConditions(data) {
     let result = super.checkConditions(data);
-    if (result && (!this._hasItemsBeenAlreadyLoadedOnce || _.get(data, 'exportConfig.typesToSync'))) {
-      this.triggerUpdate();
+    const refreshOn = this.component.refreshOn;
+
+    switch (true) {
+      case result && !this._hasItemsBeenAlreadyLoadedOnce: {
+        this.triggerUpdate();
+        break;
+      }
+      case result && _.isArray(refreshOn) && refreshOn.length > 0 && !_.isUndefined(this.component.forceReload): {
+        const find = refreshOn.filter(item => this.checkEnclosureData(data, item));
+
+        if (find && find.length) {
+          this.triggerUpdate();
+        }
+
+        break;
+      }
     }
 
     return result;
