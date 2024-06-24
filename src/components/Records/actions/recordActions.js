@@ -186,11 +186,28 @@ class RecordActions {
       }
     }
 
-    const needConfirm = !!formId || !!title || !!text;
-    const formOptions = get(action, 'confirm.formOptions');
-    const formData = get(action, 'formData');
+    if (!formId && !title && !text) {
+      return false;
+    }
 
-    return needConfirm ? { formId, title, text, modalClass, formData, formOptions } : null;
+    const formOptions = get(action, 'confirm.formOptions');
+    let formData = get(action, 'formData');
+    let formAttributes = get(action, 'confirm.formAttributes') || {};
+
+    const actionRecord = params['actionRecord'];
+    if (!isEmpty(formAttributes) && actionRecord) {
+      formAttributes = await replaceAttributeValues(formAttributes, actionRecord);
+    }
+    if (isEmpty(formData)) {
+      formData = formAttributes;
+    } else {
+      formData = {
+        ...formAttributes,
+        ...formData
+      };
+    }
+
+    return { formId, title, text, modalClass, formData, formOptions };
   };
 
   static _confirmExecAction = (data, callback) => {
