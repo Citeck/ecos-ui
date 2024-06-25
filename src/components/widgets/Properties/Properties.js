@@ -92,7 +92,7 @@ class Properties extends React.Component {
   };
 
   onFormChanged = (submission, form) => {
-    const { onFormIsChanged, componentsCount, changeComponentsCount } = this.props;
+    const { onFormIsChanged, componentsCount, changeComponentsCount, isDraft } = this.props;
 
     const changedType = get(submission, 'changed.component.type');
     const allComponents = form.getAllComponents();
@@ -107,9 +107,13 @@ class Properties extends React.Component {
       const length = allComponents.length;
 
       const isChanged = editedComponent.length || changedType === 'button' || (componentsCount >= 0 && componentsCount !== length);
-      const valid = form.checkValidity(submission.data, !!isChanged);
 
-      onFormIsChanged(isChanged, valid);
+      if (!isDraft) {
+        const valid = form.checkValidity(submission.data, !!isChanged);
+        onFormIsChanged(isChanged, valid);
+      } else {
+        onFormIsChanged(isChanged);
+      }
 
       if (componentsCount !== length) {
         changeComponentsCount(length);
