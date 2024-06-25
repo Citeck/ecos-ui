@@ -27,7 +27,7 @@ class AssociationGrid extends Component {
   state = {
     key: uuid(),
     scrollLeft: 0,
-    inlineToolsOffsets: { height: 0, top: 0, rowId: null },
+    inlineToolsOffsets: { rowId: null },
     scrollPosition: {}
   };
 
@@ -66,8 +66,6 @@ class AssociationGrid extends Component {
       this.setState(state => ({
         inlineToolsOffsets: {
           ...state.inlineToolsOffsets,
-          height: offsets.height,
-          top: offsets.top,
           rowId: offsets.row.id || null
         }
       }));
@@ -75,7 +73,7 @@ class AssociationGrid extends Component {
   };
 
   handleResetInlineTools = () => {
-    this.handleSetInlineToolsOffsets({ height: 0, top: 0, row: {} });
+    this.handleSetInlineToolsOffsets({ row: {} });
   };
 
   handleScrollStart = () => this.setState({ scrollPosition: {} });

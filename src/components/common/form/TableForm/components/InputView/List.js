@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import classNames from 'classnames';
 import isEqualWith from 'lodash/isEqualWith';
 import isEqual from 'lodash/isEqual';
 
+import { TableFormContext } from '../../TableFormContext';
 import { t } from '../../../../../../helpers/export/util';
 import Grid from '../../../../grid/Grid';
 import InlineActions from './InlineActions';
 
 const List = React.memo(
   props => {
+    const context = useContext(TableFormContext);
+
     const {
       wrapperRef,
       viewOnly,
@@ -23,6 +26,7 @@ const List = React.memo(
       noHeader,
       noHorizontalScroll
     } = props;
+
     const placeholderText = placeholder ? placeholder : t('ecos-table-form.placeholder');
     const rowsIds = gridRows.map(i => i.id);
 
@@ -38,7 +42,7 @@ const List = React.memo(
             onSelect={onSelectGridItem}
             selected={selectedRows}
             nonSelectable={nonSelectableRows.filter(item => rowsIds.includes(item))}
-            inlineActions={() => <InlineActions />}
+            inlineActions={() => <InlineActions context={context} />}
             onChangeTrOptions={setInlineToolsOffsets}
             className="ecos-table-form__grid"
             scrollable={false}

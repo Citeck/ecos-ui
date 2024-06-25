@@ -6,6 +6,7 @@ $border: $border-width-standard solid $color-brown-2;
   position: absolute;
   right: 0;
   pointer-events: none;
+  height: 100%;
 
   &-actions {
     pointer-events: auto;

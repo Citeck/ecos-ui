@@ -35,10 +35,6 @@ class InlineTools extends Component {
       withTooltip
     } = this.props;
 
-    if (!style.height) {
-      return null;
-    }
-
     const selected = selectedRecords.includes(row.id) || selectAllPageRecords;
 
     return (

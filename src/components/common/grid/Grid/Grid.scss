@@ -180,11 +180,10 @@ $header-height: 52px;
   }
 
   &__inline-tools-container {
-    position: absolute;
+    position: sticky;
+    right: 0;
     display: block;
-    margin: 2px 0;
-    left: 0;
-    height: 40px;
+    padding: 2px 0;
   }
 }
 
