@@ -19,7 +19,7 @@ class List extends React.Component {
     if (journalSetting.id !== setting.id) {
       this.props.openSelectedPreset(setting.id);
     } else {
-      this.props.getJournalsData();
+      this.props.getJournalsData({ savePredicate: false });
       if (isKanban(this.props.viewMode)) {
         this.props.kanbanResetFilter();
       }
