@@ -61,13 +61,13 @@ class Comments extends BaseWidget {
     setErrorMessage: () => {}
   };
 
+  #updateWatcherStatus;
+
   constructor(props) {
     super(props);
 
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
-
-    this._observableFieldsToUpdate = ['_modified', '_status'];
 
     this.state = {
       ...this.state,
@@ -82,6 +82,8 @@ class Comments extends BaseWidget {
       linkUrl: '',
       linkText: ''
     };
+
+    this.#updateWatcherStatus = this.instanceRecord.watch(['_modified', '_status'], this.handleReloadData);
   }
 
   componentDidMount() {
@@ -90,6 +92,12 @@ class Comments extends BaseWidget {
     const { getComments } = this.props;
 
     getComments();
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount();
+
+    this.instanceRecord.unwatch(this.#updateWatcherStatus);
   }
 
   get countComments() {
