@@ -404,8 +404,12 @@ export default class FileComponent extends FormIOFileComponent {
     }
 
     if (onFileClickAction === FILE_CLICK_ACTION_DOWNLOAD) {
-      linkAttributes.href = file.url || getDownloadContentUrl(recordRef);
-      linkAttributes.download = true;
+      if (file.url && file.url.indexOf('/share/page/card-details') !== -1) {
+        linkAttributes.href = getDownloadContentUrl(recordRef);
+      } else {
+        linkAttributes.href = file.url || getDownloadContentUrl(recordRef);
+        linkAttributes.download = true;
+      }
     } else if (onFileClickAction === FILE_CLICK_ACTION_OPEN_DASHBOARD && !this.viewOnly) {
       linkAttributes.onClick = e => {
         const confirmation = window.confirm(t('eform.file.on-click-confirmation'));
@@ -420,6 +424,7 @@ export default class FileComponent extends FormIOFileComponent {
     fileItemElement = this.ce('a', linkAttributes);
     this.calculateFileLinkText({ fileItemElement, originalFileName, recordRef, file });
 
+    console.log('fileItemElement:', fileItemElement);
     return fileItemElement;
   }
 
