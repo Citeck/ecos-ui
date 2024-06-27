@@ -2,7 +2,8 @@
 
 .ecos-rt-editor-toolbar {
   display: flex;
-  height: 36px;
+  flex-wrap: wrap;
+  height: auto;
   margin-bottom: 10px;
 
   .divider {
@@ -19,8 +20,6 @@
 
 @media screen and (max-width: 600px) {
   .ecos-rt-editor-toolbar {
-    height: auto;
-    flex-wrap: wrap;
     gap: 10px;
   }
 }
