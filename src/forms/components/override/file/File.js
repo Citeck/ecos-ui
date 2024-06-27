@@ -424,6 +424,7 @@ export default class FileComponent extends FormIOFileComponent {
     fileItemElement = this.ce('a', linkAttributes);
     this.calculateFileLinkText({ fileItemElement, originalFileName, recordRef, file });
 
+    console.log('fileItemElement:', fileItemElement);
     return fileItemElement;
   }
 
