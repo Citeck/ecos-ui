@@ -11,7 +11,7 @@ import { selectStateByNodeRef } from '../../../selectors/comments';
 import { num2str, t } from '../../../helpers/util';
 import { Btn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
-import BaseWidget from '../BaseWidget';
+import BaseWidget, { EVENTS } from '../BaseWidget';
 import { CommentInterface, IdInterface } from './propsInterfaces';
 import Comment from './Comment';
 
@@ -83,7 +83,7 @@ class Comments extends BaseWidget {
       linkText: ''
     };
 
-    this.#updateWatcherStatus = this.instanceRecord.watch(['_modified', '_status'], this.handleReloadData);
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.handleReloadData);
   }
 
   componentDidMount() {
@@ -92,12 +92,6 @@ class Comments extends BaseWidget {
     const { getComments } = this.props;
 
     getComments();
-  }
-
-  componentWillUnmount() {
-    super.componentWillUnmount();
-
-    this.instanceRecord.unwatch(this.#updateWatcherStatus);
   }
 
   get countComments() {
