@@ -267,7 +267,7 @@ export default class ModelViewer {
           return false;
         }
 
-        return element && !element.hidden && (isExpanded(element) || is(element, 'bpmn:CallActivity'));
+        return element && !element.hidden && (isExpanded(element) || is(element, 'bpmn:CallActivity') || is(element, 'bpmn:SubProcess'));
       });
 
     this.#badges = new Badges();

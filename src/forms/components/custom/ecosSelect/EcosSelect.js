@@ -117,6 +117,8 @@ export default class SelectComponent extends BaseComponent {
 
         break;
       }
+      default:
+        return result;
     }
 
     return result;

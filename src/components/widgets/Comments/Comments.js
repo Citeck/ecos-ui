@@ -11,7 +11,7 @@ import { selectStateByRecordRef } from '../../../selectors/comments';
 import { num2str, t } from '../../../helpers/util';
 import { Btn } from '../../common/btns/index';
 import Dashlet from '../../Dashlet';
-import BaseWidget from '../BaseWidget';
+import BaseWidget, { EVENTS } from '../BaseWidget';
 import { CommentInterface, IdInterface } from './propsInterfaces';
 import Comment from './Comment';
 
@@ -67,8 +67,6 @@ class Comments extends BaseWidget {
     this.contentRef = React.createRef();
     this._scroll = React.createRef();
 
-    this._observableFieldsToUpdate = ['_modified', '_status'];
-
     this.state = {
       ...this.state,
       isEdit: false,
@@ -82,6 +80,8 @@ class Comments extends BaseWidget {
       linkUrl: '',
       linkText: ''
     };
+
+    this.instanceRecord.events.on(EVENTS.UPDATE_TASKS_WIDGETS, this.handleReloadData);
   }
 
   componentDidMount() {
