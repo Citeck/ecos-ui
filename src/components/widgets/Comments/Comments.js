@@ -61,8 +61,6 @@ class Comments extends BaseWidget {
     setErrorMessage: () => {}
   };
 
-  #updateWatcherStatus;
-
   constructor(props) {
     super(props);
 
