@@ -180,10 +180,10 @@ $header-height: 52px;
   }
 
   &__inline-tools-container {
+    position: -webkit-sticky;
     position: sticky;
     right: 0;
-    display: block;
-    padding: 2px 0;
+    height: 38px;
   }
 }
 
@@ -205,19 +205,19 @@ $header-height: 52px;
   td {
     height: 40px;
     padding: 0;
-    vertical-align: middle;
   }
 
   .ecos-grid__row {
     & td {
+      width: 100%;
       border-top: 2px solid $color-gray-4;
+      vertical-align: middle;
     }
 
     &:hover td {
       border: 2px solid $color-brown-2;
       border-right: none;
       border-left: none;
-      z-index: 10;
     }
   }
 

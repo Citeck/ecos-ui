@@ -349,9 +349,8 @@ class Grid extends Component {
           return;
         }
 
-        const inlineToolsElement = document.createElement('div');
+        const inlineToolsElement = document.createElement('td');
         inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
-        inlineToolsElement.style.height = `${tr.offsetHeight - 2}px`;
 
         if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
           const inlineTools = this.inlineTools(settingInlineTools);
