@@ -6,6 +6,10 @@ $border: $border-width-standard solid $color-brown-2;
   pointer-events: none;
   height: 100%;
 
+  position: absolute;
+  top: 0;
+  right: 0;
+
   &-actions {
     pointer-events: auto;
     display: flex;
