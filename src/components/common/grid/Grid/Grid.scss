@@ -183,7 +183,6 @@ $header-height: 52px;
     position: -webkit-sticky;
     position: sticky;
     right: 0;
-    height: 38px;
   }
 }
 
@@ -209,7 +208,6 @@ $header-height: 52px;
 
   .ecos-grid__row {
     & td {
-      width: 100%;
       border-top: 2px solid $color-gray-4;
       vertical-align: middle;
     }
