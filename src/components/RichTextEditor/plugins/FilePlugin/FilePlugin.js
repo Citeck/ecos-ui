@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
-  $insertNodes,
+  $getRoot,
   $isRootOrShadowRoot,
   $createParagraphNode,
   COMMAND_PRIORITY_EDITOR,
@@ -72,7 +72,11 @@ const FilePlugin = ({ isUploadingFile, uploadFilesInComment }) => {
               })
             );
 
-            $insertNodes(nodes);
+            // the $insertNode function does not show the actual selection for this case due to the call to $getPreviousSelection()
+            // https://github.com/facebook/lexical/blob/main/packages/lexical/src/LexicalSelection.ts#L2711
+            const selection = $getRoot().selectEnd();
+            selection.insertNodes(nodes);
+
             if ($isRootOrShadowRoot(nodes[0].getParentOrThrow())) {
               $wrapNodeInElement(nodes[0], $createParagraphNode).selectEnd();
             }

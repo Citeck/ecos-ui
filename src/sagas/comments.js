@@ -97,7 +97,6 @@ function* sagaUpdateComment({ api, logger }, action) {
     comments[commentIndex].text = comment.text;
 
     yield put(updateCommentSuccess({ comments, nodeRef }));
-    yield put(sendingEnd(nodeRef));
 
     //  get all data about updated comment from server
     const updatedComment = yield api.comments.getCommentById(comment.id);
@@ -105,6 +104,8 @@ function* sagaUpdateComment({ api, logger }, action) {
     comments = yield select(state => selectAllComments(state, nodeRef));
     comments[commentIndex] = { ...comments[commentIndex], ...getCommentForWeb(updatedComment) };
     yield put(updateCommentSuccess({ comments, nodeRef }));
+
+    yield put(sendingEnd(nodeRef));
   } catch (e) {
     const originMessage = getPureMessage(e.message);
 
