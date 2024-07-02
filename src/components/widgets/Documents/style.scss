@@ -480,6 +480,10 @@
 
     &_documents {
       .table.ecos-grid__table {
+        .ecos-grid__inline-tools-container {
+          padding: 0;
+        }
+
         .ecos-grid__row {
           &:last-child {
             border: 2px solid transparent;
@@ -487,12 +491,6 @@
 
           td {
             border-width: 2px;
-          }
-
-          &:hover {
-            td {
-              border-color: transparent;
-            }
           }
         }
       }

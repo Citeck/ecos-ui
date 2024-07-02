@@ -3,20 +3,15 @@
 $border: $border-width-standard solid $color-brown-2;
 
 .ecos-inline-tools {
-  position: absolute;
-  right: 0;
   pointer-events: none;
+  height: 100%;
 
   &-actions {
     pointer-events: auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    height: calc(100% - 6px);
-    top: 0;
-    right: 0;
-    overflow: hidden;
+    height: 100%;
     background: linear-gradient(to right, rgba($color-white, 0), $color-white 15%);
 
     &:not(:empty)::before {

@@ -10,25 +10,20 @@ class InlineToolsDisconnected extends Component {
   };
 
   render() {
-    const { top, height, left, right, tools, selectedRecords, rowId, className, forwardedRef } = this.props;
+    const { tools, selectedRecords, rowId, className, forwardedRef } = this.props;
 
     const selected = selectedRecords.includes(rowId);
 
-    if (height) {
-      return (
-        <div
-          ref={forwardedRef}
-          style={{ top, height, left, right }}
-          className={classNames('ecos-inline-tools', className, {
-            'ecos-inline-tools_selected': selected
-          })}
-        >
-          <div className="ecos-inline-tools-actions">{tools || []}</div>
-        </div>
-      );
-    }
-
-    return null;
+    return (
+      <div
+        ref={forwardedRef}
+        className={classNames('ecos-inline-tools', className, {
+          'ecos-inline-tools_selected': selected
+        })}
+      >
+        <div className="ecos-inline-tools-actions">{tools || []}</div>
+      </div>
+    );
   }
 }
 

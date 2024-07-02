@@ -27,7 +27,7 @@ class InputView extends Component {
   state = {
     aditionalButtons: [],
     createVariants: [],
-    inlineToolsOffsets: { height: 0, top: 0, row: {} },
+    inlineToolsOffsets: { row: {} },
     targetId: uniqueId('SelectJournal')
   };
 
@@ -68,7 +68,7 @@ class InputView extends Component {
   };
 
   resetInlineToolsOffsets = () => {
-    this.setState({ inlineToolsOffsets: { height: 0, top: 0, row: {} } });
+    this.setState({ inlineToolsOffsets: { row: {} } });
   };
 
   onScrollingTable = event => {
@@ -152,14 +152,6 @@ class InputView extends Component {
 
     let isDifferentData = false;
 
-    if (offsets.height !== inlineToolsOffsets.height) {
-      isDifferentData = true;
-    }
-
-    if (offsets.top !== inlineToolsOffsets.top) {
-      isDifferentData = true;
-    }
-
     if (offsets.row.id !== inlineToolsOffsets.rowId) {
       isDifferentData = true;
     }
@@ -171,8 +163,6 @@ class InputView extends Component {
     if (this.isNewOffsets(offsets)) {
       this.setState({
         inlineToolsOffsets: {
-          height: offsets.height,
-          top: offsets.top,
           rowId: offsets.row.id || null
         }
       });

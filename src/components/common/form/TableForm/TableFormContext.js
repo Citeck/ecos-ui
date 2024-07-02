@@ -45,8 +45,6 @@ export const TableFormContextProvider = props => {
   const [gridRows, setGridRows] = useState([]);
   const [rowPosition, setRowPosition] = useState(0);
   const [inlineToolsOffsets, setInlineToolsOffsets] = useState({
-    height: 0,
-    top: 0,
     rowId: null
   });
 
@@ -388,18 +386,9 @@ export const TableFormContextProvider = props => {
         },
 
         setInlineToolsOffsets: offsets => {
-          if (
-            offsets &&
-            inlineToolsOffsets &&
-            (offsets.height !== inlineToolsOffsets.height ||
-              offsets.top !== inlineToolsOffsets.top ||
-              offsets.row.id !== inlineToolsOffsets.rowId)
-          ) {
+          if (offsets && inlineToolsOffsets && offsets.row.id !== inlineToolsOffsets.rowId) {
             setInlineToolsOffsets({
-              height: offsets.height,
-              top: offsets.top,
-              rowId: offsets.row.id || null,
-              position: offsets.position || 0
+              rowId: offsets.row.id || null
             });
           }
         },

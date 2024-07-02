@@ -28,7 +28,7 @@ import { Tooltip } from 'reactstrap';
 import { NotificationManager } from 'react-notifications';
 
 import Loader from '../../../common/Loader';
-import { getId, isInViewport, t, getCurrentUserName } from '../../../../helpers/util';
+import { getId, t, getCurrentUserName } from '../../../../helpers/util';
 import FormatterService from '../../../Journals/service/formatters/FormatterService';
 import DateTimeFormatter from '../../../Journals/service/formatters/registry/DateTimeFormatter';
 import DateFormatter from '../../../Journals/service/formatters/registry/DateFormatter';
@@ -331,12 +331,6 @@ class Grid extends Component {
 
     options.rowEvents = {
       onMouseEnter: e => {
-        if (this.state.isScrolling) {
-          return;
-        }
-
-        const { scrollLeft = 0 } = this._scrollValues;
-
         const tr = e.currentTarget;
         let settingInlineTools = {};
 
@@ -349,34 +343,27 @@ class Grid extends Component {
         const { onMouseEnter } = props;
         isFunction(onMouseEnter) && onMouseEnter(e);
 
-        const elGrid = tr.closest('.ecos-grid');
-        const elTable = tr.closest('.react-bootstrap-table');
-
         const hasInlineToolsElement = !!tr.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
 
         if (hasInlineToolsElement) {
           return;
         }
 
-        const inlineToolsElement = document.createElement('div');
+        const inlineToolsElement = document.createElement('td');
         inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
 
-        const setWidthInlineToolsEl = width => (inlineToolsElement.style.width = `${width}px`);
-
-        if (elGrid) {
-          const rectWidth = elTable ? elTable.getBoundingClientRect().width : elGrid.clientWidth;
-          setWidthInlineToolsEl(Math.min(elGrid.clientWidth, rectWidth));
-        }
-
-        if (scrollLeft !== 0) {
-          inlineToolsElement.style.left = `${scrollLeft}px`;
-        }
-
-        if (!isEmpty(settingInlineTools)) {
+        if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
           const inlineTools = this.inlineTools(settingInlineTools);
 
           if (inlineTools) {
             ReactDOM.render(inlineTools, inlineToolsElement);
+            tr.appendChild(inlineToolsElement);
+          }
+        } else if (isFunction(this.props.inlineActions)) {
+          const inlineActions = this.props.inlineActions();
+
+          if (inlineActions) {
+            ReactDOM.render(inlineActions, inlineToolsElement);
             tr.appendChild(inlineToolsElement);
           }
         }
@@ -553,35 +540,17 @@ class Grid extends Component {
   };
 
   getTrOptions = tr => {
-    const { selectorContainer, data, onChangeTrOptions } = this.props;
-    const { isScrolling } = this.state;
+    const { data, onChangeTrOptions } = this.props;
 
     const rowIndex = tr.rowIndex - 1;
 
     const row = data[rowIndex];
-    const elGrid = tr.closest('.ecos-grid');
-    const elContainer = tr.closest(selectorContainer);
-
-    const style = {
-      height: tr.offsetHeight + 2
-    };
-
-    if (elContainer && !isInViewport(elGrid)) {
-      const elSidebar = document.querySelector('.ecos-sidebar');
-      const rectGrid = elGrid.getBoundingClientRect();
-
-      style.width = elContainer.clientWidth - rectGrid.left + elSidebar.clientWidth;
-    } else {
-      style.width = elGrid.clientWidth;
-    }
 
     this._tr = tr;
 
-    if (!isScrolling) {
-      isFunction(onChangeTrOptions) && onChangeTrOptions({ row, position: tr.rowIndex - 1, ...style });
-    }
+    isFunction(onChangeTrOptions) && onChangeTrOptions({ row, position: tr.rowIndex - 1 });
 
-    return { row, position: tr.rowIndex - 1, ...style };
+    return { row, position: tr.rowIndex - 1 };
   };
 
   setEditable = () => {
@@ -893,12 +862,6 @@ class Grid extends Component {
     return isFunction(inlineTools) ? inlineTools(settings) : null;
   };
 
-  inlineActions = settings => {
-    const { inlineActions } = this.props;
-
-    return isFunction(inlineActions) ? inlineActions(settings) : null;
-  };
-
   tools = selected => {
     const { tools } = this.props;
 
@@ -1182,6 +1145,8 @@ class Grid extends Component {
     );
   }
 
+  renderTemp() {}
+
   renderGrid() {
     const props = omit(this.props, [
       'minHeight',
@@ -1208,24 +1173,21 @@ class Grid extends Component {
     const bootProps = this.getBootstrapTableProps(props, cloneDeep(extraProps));
 
     return (
-      <>
-        <div ref={this.setGridRef}>
-          <ErrorTable>
-            <BootstrapTable
-              {...bootProps}
-              classes="ecos-grid__table"
-              headerClasses={classNames('ecos-grid__header', {
-                'ecos-grid__header_columns-not-resizable': !resizableColumns
-              })}
-              rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
-              footerClasses={classNames('ecos-grid__table_footer', {
-                'ecos-grid__table_footer-hide': !this.props.footerValue
-              })}
-            />
-          </ErrorTable>
-          {this.inlineActions}
-        </div>
-      </>
+      <div ref={this.setGridRef}>
+        <ErrorTable>
+          <BootstrapTable
+            {...bootProps}
+            classes="ecos-grid__table"
+            headerClasses={classNames('ecos-grid__header', {
+              'ecos-grid__header_columns-not-resizable': !resizableColumns
+            })}
+            rowClasses={classNames(ECOS_GRID_ROW_CLASS, rowClassName)}
+            footerClasses={classNames('ecos-grid__table_footer', {
+              'ecos-grid__table_footer-hide': !this.props.footerValue
+            })}
+          />
+        </ErrorTable>
+      </div>
     );
   }
 
