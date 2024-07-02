@@ -26,7 +26,6 @@ import { isNodeRef, t } from '../helpers/util';
 import { uploadFile, uploadFileV2 } from './documents';
 import { setUploadError } from '../actions/documents';
 import Records from '../components/Records/Records';
-import DocumentsConverter from '../dto/documents';
 
 const getPureMessage = message => (message || '').replace(/\d/g, '');
 
@@ -130,11 +129,13 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
     const createVariants = yield call(api.documents.getCreateVariants, payload.type);
 
     let fileUploadFunc;
+
     if (isNodeRef(payload.record)) {
       fileUploadFunc = uploadFile;
     } else {
       fileUploadFunc = uploadFileV2;
     }
+
     const files = yield payload.files.map(function*(file) {
       return yield fileUploadFunc({ api, file, callback: payload.callback });
     });
@@ -151,24 +152,11 @@ function* sagaUploadFilesInComment({ api, logger }, { payload }) {
       recordRef = (yield Records.get(payload.type).load('sourceId')) + '@';
     }
 
-    fileRecords = yield files.map(function*(file, index) {
+    fileRecords = yield files.map(function(file, index) {
       const fileResult = results[index];
-      if (fileResult.status === 'fulfilled') {
-        const record = yield call(
-          api.documents.uploadFilesWithNodes,
-          DocumentsConverter.getUploadAttributes({
-            record: payload.record,
-            type: payload.type,
-            content: fileResult.value,
-            createVariants
-          }),
-          recordRef
-        );
 
-        return {
-          ...fileResult.value,
-          fileRecordId: record.id
-        };
+      if (fileResult.status === 'fulfilled') {
+        return { ...fileResult.value, fileRecordId: get(file, 'data.entityRef') };
       } else {
         throw fileResult.reason;
       }
