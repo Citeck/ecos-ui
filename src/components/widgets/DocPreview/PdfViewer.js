@@ -27,7 +27,8 @@ class PdfViewer extends PureComponent {
 
     this.instanceId = uniqueId('ecos-doc-preview-page-');
     this.state = {
-      needUpdate: false
+      needUpdate: false,
+      renderedPages: []
     };
   }
 
@@ -39,18 +40,43 @@ class PdfViewer extends PureComponent {
     return arrayPages.fill(0);
   }
 
+  componentDidMount() {
+    this.renderPagesWithDelay();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.pdf !== this.props.pdf) {
+      this.setState({ renderedPages: [] }, this.renderPagesWithDelay);
+    }
+  }
+
   onUpdate() {
     this.setState({ needUpdate: true }, () => this.setState({ needUpdate: false }));
+  }
+
+  async renderPagesWithDelay() {
+    const pages = this.pages;
+    for (let i = 0; i < pages.length; i++) {
+      this.setState(prevState => ({
+        renderedPages: [...prevState.renderedPages, pages[i]]
+      }));
+      await this.delay(200);
+    }
+  }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   render() {
     const { needUpdate } = this.state;
     const { forwardedRef, ...props } = this.props;
+    const { renderedPages } = this.state;
 
     return (
       !needUpdate && (
         <div ref={forwardedRef}>
-          {this.pages.map((_, index) => (
+          {renderedPages.map((_, index) => (
             <PdfPage key={`${this.instanceId}-${index + 1}`} {...props} pageNumber={index + 1} />
           ))}
         </div>

@@ -37,7 +37,9 @@ class PdfPage extends Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    this.renderPage();
+    if (this.shouldRenderPage(prevProps)) {
+      this.renderPage();
+    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -49,6 +51,13 @@ class PdfPage extends Component {
     } = this.props;
 
     return newScale !== oldScale;
+  }
+
+  shouldRenderPage(prevProps) {
+    const { pdf, pageNumber } = this.props;
+    const { pdf: prevPdf, pageNumber: prevPageNumber } = prevProps;
+
+    return pdf !== prevPdf || pageNumber !== prevPageNumber;
   }
 
   renderPage() {
@@ -107,7 +116,7 @@ class PdfPage extends Component {
     };
 
     page.render(renderContext);
-    page.getTextContent().then(function(textContent) {
+    page.getTextContent().then(textContent => {
       let textLayer = new TextLayerBuilder({
         textLayerDiv: elTextLayer,
         pageIndex: page.pageIndex,
