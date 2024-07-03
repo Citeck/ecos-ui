@@ -292,10 +292,6 @@
         transform: scale(1);
         position: relative;
 
-        &:last-child {
-          border: 2px solid transparent;
-        }
-
         &:hover {
           border-right: 2px solid $color-brown-2;
 
@@ -372,6 +368,8 @@
     &.ecos-grid_freeze thead > tr.ecos-grid__header {
       th {
         top: 1px;
+        border-top: 2px solid $color-gray-4;
+        border-bottom: 2px solid $color-gray-4;
       }
     }
 
@@ -484,10 +482,6 @@
         }
 
         .ecos-grid__row {
-          &:last-child {
-            border: 2px solid transparent;
-          }
-
           td {
             border-width: 2px;
           }
