@@ -212,7 +212,8 @@ $header-height: 52px;
       vertical-align: middle;
     }
 
-    &:hover td {
+    &:hover td,
+    &.has-inline-tools td {
       border: 2px solid $color-brown-2;
       border-right: none;
       border-left: none;

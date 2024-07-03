@@ -349,24 +349,7 @@ class Grid extends Component {
           return;
         }
 
-        const inlineToolsElement = document.createElement('td');
-        inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
-
-        if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
-          const inlineTools = this.inlineTools(settingInlineTools);
-
-          if (inlineTools) {
-            ReactDOM.render(inlineTools, inlineToolsElement);
-            tr.appendChild(inlineToolsElement);
-          }
-        } else if (isFunction(this.props.inlineActions)) {
-          const inlineActions = this.props.inlineActions();
-
-          if (inlineActions) {
-            ReactDOM.render(inlineActions, inlineToolsElement);
-            tr.appendChild(inlineToolsElement);
-          }
-        }
+        this.appendInlineToolsElement(tr, settingInlineTools);
       },
       onMouseLeave: e => {
         const relatedTarget = e.relatedTarget;
@@ -389,15 +372,21 @@ class Grid extends Component {
           onRowMouseLeave(e);
         }
 
-        const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
-        if (inlineToolsElement) {
-          ReactDOM.unmountComponentAtNode(inlineToolsElement);
-          currentTarget.removeChild(inlineToolsElement);
+        if (!props.changeTrOptionsByRowClick) {
+          this.removeInlineToolsElement(currentTarget);
         }
       },
       onClick: e => {
-        props.changeTrOptionsByRowClick && this.getTrOptions(e.currentTarget);
-        this.onRowClick(e.currentTarget);
+        const currentTarget = e.currentTarget;
+
+        if (props.changeTrOptionsByRowClick) {
+          const settingInlineTools = this.getTrOptions(currentTarget);
+
+          this.removeInlineToolsElement();
+          this.appendInlineToolsElement(currentTarget, settingInlineTools);
+        }
+
+        this.onRowClick(currentTarget);
       },
       onDoubleClick: this.onDoubleClick,
       onDragOver: this.onDragOver,
@@ -477,6 +466,51 @@ class Grid extends Component {
 
     return options;
   }
+
+  removeInlineToolsElement = currentTarget => {
+    if (currentTarget) {
+      const inlineToolsElement = currentTarget.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
+      if (inlineToolsElement) {
+        ReactDOM.unmountComponentAtNode(inlineToolsElement);
+        currentTarget.removeChild(inlineToolsElement);
+        currentTarget.classList.remove('has-inline-tools');
+      }
+    } else {
+      const inlineToolsElement = document.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`);
+      if (inlineToolsElement) {
+        ReactDOM.unmountComponentAtNode(inlineToolsElement);
+        const parentElement = inlineToolsElement.parentNode;
+        inlineToolsElement.remove();
+
+        if (parentElement && !parentElement.querySelector(`.${ECOS_GRID_INLINE_TOOLS_CONTAINER}`)) {
+          parentElement.classList.remove('has-inline-tools');
+        }
+      }
+    }
+  };
+
+  appendInlineToolsElement = (currentTarget, settingInlineTools) => {
+    const inlineToolsElement = document.createElement('td');
+    inlineToolsElement.className = ECOS_GRID_INLINE_TOOLS_CONTAINER;
+
+    if (!isEmpty(settingInlineTools) && isFunction(this.props.inlineTools)) {
+      const inlineTools = this.inlineTools(settingInlineTools);
+
+      if (inlineTools) {
+        ReactDOM.render(inlineTools, inlineToolsElement);
+        currentTarget.appendChild(inlineToolsElement);
+        currentTarget.classList.add('has-inline-tools');
+      }
+    } else if (isFunction(this.props.inlineActions)) {
+      const inlineActions = this.props.inlineActions();
+
+      if (inlineActions) {
+        ReactDOM.render(inlineActions, inlineToolsElement);
+        currentTarget.appendChild(inlineToolsElement);
+        currentTarget.classList.add('has-inline-tools');
+      }
+    }
+  };
 
   isInsideInlineToolsContainer = (element, containerClass) => {
     while (element) {
