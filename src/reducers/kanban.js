@@ -18,7 +18,8 @@ import {
   setResolvedActions,
   setOriginKanbanSettings,
   setTotalCount,
-  applyPreset
+  applyPreset,
+  clearFiltered
 } from '../actions/kanban';
 import { updateState } from '../helpers/redux';
 import { DEFAULT_PAGINATION } from '../components/Journals/constants';
@@ -59,6 +60,9 @@ export default handleActions(
         (state[stateId]?.templateList?.length > 0 && settings.journalSetting?.id === '');
 
       return updateState(state, stateId, { dataCards: [], isLoading: true, isFiltered }, initialState);
+    },
+    [clearFiltered]: (state, { payload }) => {
+      return updateState(state, payload.stateId, { isFiltered: false }, initialState);
     },
     [applyPreset]: (state, { payload }) => {
       return updateState(state, payload.stateId, { dataCards: [], isFirstLoading: true, isLoading: true }, initialState);

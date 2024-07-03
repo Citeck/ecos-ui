@@ -76,7 +76,8 @@ import {
   selectJournalSetting,
   selectJournalSettings,
   selectNewVersionDashletConfig,
-  selectUrl
+  selectUrl,
+  selectViewMode
 } from '../selectors/journals';
 import JournalsService, { EditorService, PresetsServiceApi } from '../components/Journals/service';
 import { DEFAULT_INLINE_TOOL_SETTINGS, DEFAULT_PAGINATION, JOURNAL_DASHLET_CONFIG_VERSION } from '../components/Journals/constants';
@@ -94,7 +95,7 @@ import JournalsConverter from '../dto/journals';
 import { emptyJournalConfig } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
-import { setKanbanSettings, reloadBoardData, applyPreset } from '../actions/kanban';
+import { setKanbanSettings, reloadBoardData, applyPreset, clearFiltered } from '../actions/kanban';
 import { selectKanban } from '../selectors/kanban';
 
 const getDefaultSortBy = config => {
@@ -837,6 +838,7 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
   try {
     const selectedId = action.payload;
     const query = getSearchParams();
+    const viewMode = yield select(selectViewMode, stateId);
 
     if (query[JournalUrlParams.JOURNAL_SETTING_ID] === undefined && selectedId === undefined) {
       return;
@@ -880,6 +882,10 @@ function* sagaOpenSelectedPreset({ api, logger, stateId, w }, action) {
     yield getColumnsSum(api, w, journalConfig.columns, journalConfig?.id, predicates);
 
     yield put(applyPreset({ stateId, settings: settingsKanban }));
+
+    if (isKanban(viewMode) && !!selectedId) {
+      yield put(clearFiltered(w()));
+    }
   } catch (e) {
     logger.error('[journals sagaOpenSelectedJournal saga error', e);
   }
