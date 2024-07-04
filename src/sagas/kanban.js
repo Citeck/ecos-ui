@@ -216,6 +216,15 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
       const colPredicate = KanbanConverter.preparePredicate(column);
 
+      const statusModifiedPredicate =
+        column.hideOldItems === 'true' && !!column.hideItemsOlderThan
+          ? {
+              t: 'ge',
+              att: '_statusModified',
+              val: column.hideItemsOlderThan
+            }
+          : undefined;
+
       const idsPredicate = Boolean(recordRefs)
         ? {
             t: PREDICATE_EQ,
@@ -226,7 +235,7 @@ export function* sagaGetData({ api, logger }, { payload }) {
 
       const settings = JournalsConverter.getSettingsForDataLoaderServer({
         ...params,
-        predicates: [...predicates, colPredicate, idsPredicate],
+        predicates: [...predicates, colPredicate, idsPredicate, statusModifiedPredicate],
         searchPredicate
       });
 
