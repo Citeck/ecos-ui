@@ -17,6 +17,7 @@ import JournalsGrouping from '../JournalsGrouping/JournalsGrouping';
 import JournalsSettingsFooter from '../JournalsSettingsFooter/JournalsSettingsFooter';
 import KanbanColumnsSettings from '../KanbanColumnsSettings/KanbanColumnsSettings';
 import { JOURNAL_VIEW_MODE } from '../constants';
+import { initialStateGrouping } from '../../../reducers/journals';
 
 class SettingsModal extends Component {
   static propTypes = {
@@ -75,10 +76,10 @@ class SettingsModal extends Component {
 
     return {
       sortBy,
-      groupBy: get(grouping, 'groupBy'),
+      groupBy: get(grouping, 'groupBy', []),
       columns,
       predicate,
-      grouping,
+      grouping: grouping && !isEmpty(grouping) ? grouping : initialStateGrouping,
       journalSetting,
       kanban: {
         columns: kanbanColumns

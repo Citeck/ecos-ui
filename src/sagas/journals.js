@@ -92,7 +92,7 @@ import { beArray, isNodeRef, hasInString, t } from '../helpers/util';
 import PageService from '../services/PageService';
 import { PREDICATE_EQ } from '../components/Records/predicates/predicates';
 import JournalsConverter from '../dto/journals';
-import { emptyJournalConfig } from '../reducers/journals';
+import { emptyJournalConfig, initialStateGrouping } from '../reducers/journals';
 import { JournalUrlParams, SourcesId } from '../constants';
 import { isKanban } from '../components/Journals/constants';
 import { setKanbanSettings, reloadBoardData, applyPreset, clearFiltered } from '../actions/kanban';
@@ -402,7 +402,29 @@ function* getJournalSetting(api, { journalSettingId, journalConfig, sharedSettin
           NotificationManager.error(t('journal.presets.error.get-one'));
           journalSetting = getDefaultJournalSetting(journalConfig);
         } else {
-          journalSetting = { ...preset.settings };
+          if (!get(preset.settings, 'grouping') && !isEmpty(get(preset.settings, 'journalSetting'))) {
+            if (!get(preset.settings, 'journalSetting.grouping')) {
+              journalSetting = {
+                ...preset.settings,
+                grouping: initialStateGrouping,
+                groupBy: [],
+
+                journalSetting: {
+                  ...preset.settings.journalSetting,
+                  grouping: initialStateGrouping,
+                  groupBy: []
+                }
+              };
+            } else {
+              journalSetting = {
+                ...preset.settings,
+                grouping: initialStateGrouping,
+                groupBy: []
+              };
+            }
+          } else {
+            journalSetting = { ...preset.settings };
+          }
         }
 
         if (!journalSetting) {
