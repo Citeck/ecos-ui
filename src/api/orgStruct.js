@@ -30,6 +30,7 @@ import ConfigService, {
 } from '../services/config/ConfigService';
 import { SourcesId, DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS } from '../constants';
 import { CommonApi } from './common';
+import { permute } from '../helpers/util';
 
 export class OrgStructApi extends CommonApi {
   get groupAttributes() {
@@ -145,7 +146,17 @@ export class OrgStructApi extends CommonApi {
     const searchFields = await OrgStructApi.getSearchFields(searchText);
 
     let queryVal = searchText
-      ? OrgStructApi.getSearchQuery(searchText, searchFields)
+      ? OrgStructApi.getSearchQuery(searchText, searchFields, SourcesId.GROUP)
+      : [
+          {
+            t: 'contains',
+            a: 'authorityGroups',
+            v: getGroupRef(groupName)
+          }
+        ];
+
+    let queryValPerson = searchText
+      ? OrgStructApi.getSearchQuery(searchText, searchFields, SourcesId.PERSON)
       : [
           {
             t: 'contains',
@@ -157,6 +168,7 @@ export class OrgStructApi extends CommonApi {
     const notDisabledPredicate = await OrgStructApi.getNotDisabledPredicate();
     if (notDisabledPredicate) {
       queryVal.push(notDisabledPredicate);
+      queryValPerson.push(notDisabledPredicate);
     }
 
     const extraQueryVal = [];
@@ -180,6 +192,7 @@ export class OrgStructApi extends CommonApi {
     (excludedUsers || []).forEach(item => {
       if (item) {
         queryVal.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
+        queryValPerson.push({ t: 'not-eq', att: 'id', val: item.replace('GROUP_', '') });
       }
     });
 
@@ -218,7 +231,7 @@ export class OrgStructApi extends CommonApi {
     const users = Records.query(
       {
         sourceId: SourcesId.PERSON,
-        query: { t: 'and', v: queryVal },
+        query: { t: 'and', v: queryValPerson },
         language: 'predicate'
       },
       { ...OrgStructApi.userAttributes, ...globalSearchConfig }
@@ -364,43 +377,100 @@ export class OrgStructApi extends CommonApi {
     return await ConfigService.getValue(ORGSTRUCT_SEARCH_USER_MIDLLE_NAME);
   }
 
-  static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS) => {
+  static getSearchQuery = (search = '', searchFields = DEFAULT_ORGSTRUCTURE_SEARCH_FIELDS, sourcesId = '') => {
     const valRaw = search.trim();
     const val = valRaw.split(' ').filter(item => !!item);
+
+    const isEModelPerson = sourcesId === SourcesId.PERSON;
+
+    if (isEModelPerson) {
+      switch (val.length) {
+        case 2:
+          searchFields = ['firstName', 'lastName'];
+          break;
+        case 3:
+          searchFields = ['firstName', 'lastName', 'middleName'];
+          break;
+        default:
+          break;
+      }
+    }
+
     const queryVal = [];
 
     if (isEmpty(val)) {
       return queryVal;
     }
 
-    if (val.length < 2) {
-      queryVal.push({
-        t: 'or',
-        v: searchFields.map(a => ({
+    const generateQuery = (fields, values) => ({
+      t: 'or',
+      v: values.map(item => ({
+        t: 'and',
+        v: fields.map((field, index) => ({
           t: 'contains',
-          a,
-          v: val[0]
+          a: field,
+          v: item[index]
         }))
-      });
-    } else {
-      queryVal.push({
+      }))
+    });
+
+    const singleFieldQuery = (fields, value) => ({
+      t: 'or',
+      v: fields.map(a => ({
+        t: 'contains',
+        a,
+        v: value
+      }))
+    });
+
+    const multiFieldQuery = (fields, value) => ({
+      t: 'or',
+      v: fields.map(a => ({
         t: 'or',
-        v: searchFields.map(a => ({
-          t: 'or',
-          v: [
-            {
-              t: 'contains',
-              a,
-              v: val.join(' ')
-            },
-            {
-              t: 'contains',
-              a,
-              v: val.reverse().join(' ')
-            }
-          ]
-        }))
-      });
+        v: [
+          {
+            t: 'contains',
+            a,
+            v: value
+          },
+          {
+            t: 'contains',
+            a,
+            v: value
+              .split(' ')
+              .reverse()
+              .join(' ')
+          }
+        ]
+      }))
+    });
+
+    if (isEModelPerson) {
+      switch (val.length) {
+        case 0:
+          return [];
+        case 1:
+          queryVal.push(singleFieldQuery(searchFields, val[0]));
+          break;
+        case 2:
+        case 3:
+          queryVal.push(generateQuery(searchFields, permute(val)));
+          break;
+        default:
+          queryVal.push(multiFieldQuery(searchFields, val.join(' ')));
+          break;
+      }
+    } else {
+      switch (val.length) {
+        case 0:
+          return [];
+        case 1:
+          queryVal.push(singleFieldQuery(searchFields, val[0]));
+          break;
+        default:
+          queryVal.push(multiFieldQuery(searchFields, val.join(' ')));
+          break;
+      }
     }
 
     return queryVal;
@@ -423,7 +493,7 @@ export class OrgStructApi extends CommonApi {
 
     const searchFields = await OrgStructApi.getSearchFields(searchText, extraFields);
 
-    queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields));
+    queryVal = queryVal.concat(OrgStructApi.getSearchQuery(searchText, searchFields, SourcesId.PERSON));
 
     return Records.query(
       {

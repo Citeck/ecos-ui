@@ -1324,6 +1324,18 @@ export function getMonthPeriodByDate(date) {
   };
 }
 
+/**
+ * Returns different permutations of the list
+ *
+ * @param arr<string | number>
+ *
+ * @returns []
+ */
+export function permute(arr = []) {
+  if (arr.length <= 1) return [arr];
+  return arr.reduce((acc, item, i) => acc.concat(permute([...arr.slice(0, i), ...arr.slice(i + 1)]).map(val => [item, ...val])), []);
+}
+
 lodashSet(window, 'Citeck.helpers.getMonthPeriodByDate', getMonthPeriodByDate);
 lodashSet(window, 'Citeck.helpers.getCurrentLocale', getCurrentLocale);
 lodashSet(window, 'Citeck.helpers.getMLValue', getMLValue);
